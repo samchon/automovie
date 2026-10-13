@@ -3,9 +3,6 @@ import {renderCrossDissolveFrames} from "./renderCrossDissolveFrames.js";
 
 /**
  * Cross-dissolve two beauty poses of one scene, optionally wrapping each draw.
- *
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Samples this public surface at the caller's exact render time.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Implements that sampling on the package-independent frame schedule.
  */
 export const renderCrossDissolve = (
   renderer: THREE.WebGLRenderer,

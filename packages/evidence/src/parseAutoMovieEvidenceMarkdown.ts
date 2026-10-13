@@ -12,8 +12,6 @@ interface IAutoMovieEvidenceMarkdownHeading {
 /**
  * Extract visible ATX headings while ignoring comments and fenced examples.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Prevents commented or example headings from becoming contract and owner identities.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Inventories only visible Markdown headings while preserving their original line addresses.
  * @author Samchon
  */
 export const parseAutoMovieEvidenceMarkdownHeadings = (

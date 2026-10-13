@@ -14,8 +14,6 @@ import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChange
  * @evidence contracts/common.md#clear-and-simple-design Routes only session lifetime and messages; the Node service owns evaluation and source authority.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves original domain, operation, correlation and source-change refusal identity; no browser evaluator or preview downgrade replaces the checked Node request.
  * @evidence contracts/common.md#meaningful-documentation States lossless transport and actual session cancellation.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The pinned shared codec retains typed arrays, backing bytes and scalar distinctions through the existing product protocol.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Routes only session lifetime and messages; the Node service owns evaluation and source authority.
  */
 export function serveHumanViewerNumerical(props: IServeHumanViewerNumericalProps): boolean {
   const prefix = "/numerical/";

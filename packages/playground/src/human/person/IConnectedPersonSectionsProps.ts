@@ -7,9 +7,6 @@ import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
  * panel's own inputs, the one transaction every section edits through, and
  * whether the displayed person is a draft.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Hands the body sections the body view and the person transaction.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Hands the face sections the head view and the same transaction.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Gives every section the one intent order and refusal path of the panel.
  * @author Samchon
  */
 export interface IConnectedPersonSectionsProps<

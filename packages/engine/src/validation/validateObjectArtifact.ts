@@ -3,12 +3,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
 
-/**
- * Validate an artifact object and append a typed violation on mismatch.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateObjectArtifact` rejects a non-record geometry member at the caller-supplied artifact path.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateObjectArtifact` records the observed non-object value and the required JSON-object constraint before nested checks continue.
- */
+/** Validate an artifact object and append a typed violation on mismatch. */
 export const validateObjectArtifact = (
   value: unknown,
   path: string,

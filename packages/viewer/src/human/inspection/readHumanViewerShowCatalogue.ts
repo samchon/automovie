@@ -14,8 +14,6 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One settled read replaces any polling or delay.
  * @evidence contracts/common.md#meaningful-documentation States when the settled catalogue is read and what a missing document then means.
  * @evidence contracts/common.md#clear-and-simple-design One selected-document read chooses immediate published generation or the existing settled-document endpoint; full-catalogue settlement stays separate.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Returns the original selected document's descriptor/verdict with its source revision for the loaded page's admission decision.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates a newer catalogue receipt from the checked runtime required to evaluate it.
  */
 export async function readHumanViewerShowCatalogue(
   doc: string,

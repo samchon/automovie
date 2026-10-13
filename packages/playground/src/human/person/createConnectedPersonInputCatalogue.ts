@@ -31,10 +31,6 @@ import { createConnectedPersonSkinAppearanceInputs } from "./createConnectedPers
  * `CONNECTED_PERSON_UNDESCRIBED_INPUTS` names those. The lash count carries
  * no descriptor of its own, so its bounds are null.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lists face shape channels, registered head traits, lash parameters and explicit facial terminal sites from their owners' descriptors.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Derives the listed controls from the head view and the owners' parameter tables instead of a hand-kept list.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the head traits whose one endpoint owner is a body channel.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Gives every listed input the document path the person transaction edits.
  * @author Samchon
  */
 export function createConnectedPersonInputCatalogue(

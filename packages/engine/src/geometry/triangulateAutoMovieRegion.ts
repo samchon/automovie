@@ -28,11 +28,6 @@ import { triangulateRegion } from "./triangulateRegion";
  * triangles are counter-clockwise, so the region faces +Z.
  * `sourceIndices` retains every canonical point's index in the original outer
  * then hole population. Winding changes ordering, never point identity.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Refuses malformed planar topology before producing triangles.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Implements the shared numeric and topology validation contract for free-form regions.
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Preserves each authored boundary identity through winding normalization.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns the original-input permutation beside unchanged canonical coordinates and triangles.
  */
 export const triangulateAutoMovieRegion = (props: {
   outer: readonly IAutoMovieProfilePoint[];

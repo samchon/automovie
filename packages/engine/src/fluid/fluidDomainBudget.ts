@@ -13,8 +13,6 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
  * water feature before the first solve, and the same numbers ride into the
  * builder's report so a reviewer sees what the water cost.
  *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-per-frame-shot-budget Exposes the fluid work contributed across the declared shot horizon.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#budget-frame-shot-sequence-composition Computes the domain cost before any fluid step executes.
  * @author Samchon
  */
 export const fluidDomainBudget = (

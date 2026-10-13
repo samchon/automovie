@@ -1,39 +1,14 @@
-/**
- * A material response owned by a deterministic collision/measurement proxy.
- *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Exposes `IAutoMovieImpactBody` as the portable data boundary for the effects impact consequence requirement.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `IAutoMovieImpactBody` for the collision proxy and world contact output system contract.
- */
+/** A material response owned by a deterministic collision/measurement proxy. */
 export interface IAutoMovieImpactBody {
-  /**
-   * Body mass in kilograms.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Exposes `mass` as the portable data boundary for the effects impact consequence requirement.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `mass` for the collision proxy and world contact output system contract.
-   */
+  /** Body mass in kilograms. */
   mass: number;
 
-  /**
-   * Normal rebound ratio from zero through one.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Exposes `restitution` as the portable data boundary for the effects impact consequence requirement.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `restitution` for the collision proxy and world contact output system contract.
-   */
+  /** Normal rebound ratio from zero through one. */
   restitution: number;
 
-  /**
-   * Relative surface hardness, strictly above zero.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Exposes `hardness` as the portable data boundary for the effects impact consequence requirement.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `hardness` for the collision proxy and world contact output system contract.
-   */
+  /** Relative surface hardness, strictly above zero. */
   hardness: number;
 
-  /**
-   * Relative penetration resistance, strictly above zero.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Exposes `penetrability` as the portable data boundary for the effects impact consequence requirement.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Types `penetrability` for the collision proxy and world contact output system contract.
-   */
+  /** Relative penetration resistance, strictly above zero. */
   penetrability: number;
 }

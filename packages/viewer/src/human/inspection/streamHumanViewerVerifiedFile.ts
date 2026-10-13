@@ -19,11 +19,6 @@ import type { ServerResponse } from "node:http";
  * @evidence contracts/common.md#clear-and-simple-design One owner serves every digest-named basis route.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Hashes and sends the same original file bytes, refusing a digest mismatch instead of relabeling changed data or serving an expected asset fixture.
  * @evidence contracts/common.md#meaningful-documentation States the single read, the 409 and 500 answers and the memory held.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The bytes sent are the bytes hashed, so a stale or replaced basis is refused, never served under the old digest.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis One owner serves every digest-named basis route.
- *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-mutable-reference-snapshot Verifies the bytes read from the selected mutable local basis path against its requested SHA-256 prefix and sends those same hashed bytes instead of trusting the locator.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-mutable-locator-snapshot Verifies the bytes read from the selected mutable local basis path against its requested SHA-256 prefix and sends those same hashed bytes instead of trusting the locator.
  */
 export function streamHumanViewerVerifiedFile(
   response: ServerResponse,

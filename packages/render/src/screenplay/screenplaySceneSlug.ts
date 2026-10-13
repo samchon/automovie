@@ -7,8 +7,6 @@ import type { IAutoMovieScenePayload } from "@automovie/interface";
  * The screenplay document and the caption join both name a scene by this one
  * slug, so a caption's scene label always matches the document's heading.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Renders each scene heading of the authoritative screenplay prose from its authored setting.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Serializes the scene payload's interior/exterior, location and time of day without inventing prose.
  * @author Samchon
  */
 export const screenplaySceneSlug = (

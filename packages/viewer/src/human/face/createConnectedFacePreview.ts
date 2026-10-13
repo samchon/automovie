@@ -11,9 +11,6 @@ import type { IConnectedFacePreviewProps } from "./IConnectedFacePreviewProps.js
  * export captures its own committed document and never interrupts an edit.
  * A superseded prepared frame rejects only after its resource retirement
  * settles, retaining both the supersession and any cleanup failure.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Prevents cancelled numerical or texture results from becoming the displayed face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates preview transactions from explicit asynchronous file export.
  */
 export function createConnectedFacePreview(props: IConnectedFacePreviewProps) {
   const worker = createHumanResidentWorker(props.worker);

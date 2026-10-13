@@ -13,11 +13,6 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * The first admitted build establishes the initial transaction; later failures
  * retain that document, frame and undo history. File reads reserve intent before
  * waiting, and explicit candidate export never becomes a whole-body save.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Provides numerical request IO and the existing generic history transaction around actual candidate previews.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Commits only current admitted request/frame pairs and preserves the last valid pair after refusal.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Names the static output as inspection candidates independently of the canonical numerical document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Uses explicit committed-document export and leaves GLB encoding to the worker.
  */
 export function mountBodyAnatomicalRequestPanel<
   Model extends IBodyAnatomicalRequestModel,

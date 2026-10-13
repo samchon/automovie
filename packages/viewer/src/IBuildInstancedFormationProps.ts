@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * Model and scene-object maps stay caller-owned; construction binds compact
  * membership and motion inputs before creating persistent tier batches.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-group-motion-model-selection Carries the compiled group and authored motion cues used to select the actual formation performance.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Keeps group cues, sparse member exceptions and promoted hero projections explicit at construction.
  * @author Samchon
  */
 export interface IBuildInstancedFormationProps {

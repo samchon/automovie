@@ -98,11 +98,6 @@ let resolvedCoordinationRoot: string | null = null;
  * Exported so a refusal, a guide, and a test all spell it the same way; the
  * message an operator reads is the only instruction they get, and a variable
  * misspelled in one of three places is a variable that does nothing.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Names the operator-supplied coordination root every process fencing one project must agree on.
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-concurrent-runs-locking Makes duplicate acquisition, stale ownership, fencing, bounded waiting, and immutable reuse share one physical root-lock namespace.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Fixes the environment variable that selects the coordination root the lock identity is computed under.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-concurrent-ownership-contract Carries the single coordination namespace used by duplicate-job, stale-claim, fencing, deadlock, immutable-result, and publication ownership checks.
  */
 export const AUTOMOVIE_COORDINATION_ROOT_VARIABLE =
   "AUTOMOVIE_COORDINATION_ROOT";

@@ -18,8 +18,6 @@ import { createAutoMovieResourceRetirement } from "../../createAutoMovieResource
  * @evidence contracts/common.md#clear-and-simple-design Budget, size and disposal are explicit inputs; one cache-local set retains actual unfinished retirement completions while key computation stays with provenance.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The eviction policy treats every document identically and cannot turn failed release into freed budget or a silently successful settlement.
  * @evidence contracts/common.md#meaningful-documentation Describes synchronous recency selection, awaited release, retained failure bytes and the array-accounting limit beside the oversize policy.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Keeps each withdrawn owner's actual completion and original failure observable instead of declaring removed cache membership successfully released.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Separates synchronous resident selection from awaited retirement and retains failed array accounting without disposing a borrowed renderer or claiming physical GPU memory.
  */
 export function createHumanViewerCache<Value>(
   budget: number,

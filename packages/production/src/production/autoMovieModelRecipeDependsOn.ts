@@ -14,9 +14,6 @@ import type { IAutoMovieModelRecipe } from "@automovie/interface";
  * population unchanged. Only LOD references matter here; this neither builds
  * geometry nor validates a recipe, and the design validator owns malformed
  * references. A changed result changes the mutation's stale review population.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-lod-change-dependency Preserves reflexive, direct and transitive LOD dependencies without inventing edges at missing recipes or modifying the acquired inventory.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-lod-change-dependency Traverses directed recipe references with branch-local cycle detection while preserving alternate paths and exact identity reachability.
  */
 export const autoMovieModelRecipeDependsOn = (
   recipes: ReadonlyMap<string, Pick<IAutoMovieModelRecipe, "lod">>,

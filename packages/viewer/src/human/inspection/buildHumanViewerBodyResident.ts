@@ -25,8 +25,6 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * @evidence contracts/common.md#meaningful-documentation States the shared path and what is kept.
  * @evidence contracts/common.md#clear-and-simple-design The body viewport serves both body and person documents; one resident owns publication, measured arrays, export access and release.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Build/construct/publication and worker release use the maintained viewport APIs; the adapter neither constructs alternate Human geometry nor accepts a refused model.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Awaits original Body or Person viewport retirement and independently attempts stage, worker connection and controls after construction refusal or final eviction.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves the original primary and cleanup causes while reusing the product stage and avoiding a second traversal that disposes its cached textures.
  */
 export async function buildHumanViewerBodyResident<
   Document extends

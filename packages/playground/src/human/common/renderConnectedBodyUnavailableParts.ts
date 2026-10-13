@@ -15,8 +15,6 @@ import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
  * reason code its region owner gave, such as `missing-bone-landmark` for a
  * humerus the source registers no landmarks for.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows each anatomical part the body cannot generate, with its reason, instead of hiding it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists the unavailable parts from the generated-anatomy report as disabled rows grouped by reason.
  * @author Samchon
  */
 export function renderConnectedBodyUnavailableParts(

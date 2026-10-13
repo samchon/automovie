@@ -16,8 +16,6 @@ import { retryHumanViewerFetch } from "./retryHumanViewerFetch.js";
  * @evidence contracts/common.md#clear-and-simple-design One CLI capture step delegates transport retry, retains the response image and reports its supplied source and renderer headers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Writes the server's actual returned image without synthesizing a frame, hiding staleness or allowing an ordinary repository path outside selected runtime storage.
  * @evidence contracts/common.md#meaningful-documentation States the output location rule, the record and the stale exit code.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Preserves the actual returned inspection image and reports its source, stale flag and renderer, with a stale image remaining a reference rather than a current observation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The CLI writes original response bytes only within its admitted output boundary and keeps the server's revision headers; a filename does not establish appearance acceptance.
  */
 export async function captureHumanViewerShot(
   context: IHumanShotContext,

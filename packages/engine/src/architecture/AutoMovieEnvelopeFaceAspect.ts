@@ -7,8 +7,5 @@
  * above or below and owes a roof or underside observation. The threshold is
  * geometric rather than a label, so a record that calls a steep mansard slope a
  * `roof` and a record that calls it a `wall` derive the same population.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Classifies each exposed separation into the observation role it owes.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types the closed envelope-face aspect the derivation partitions by.
  */
 export type AutoMovieEnvelopeFaceAspect = "facade" | "roof" | "underside";

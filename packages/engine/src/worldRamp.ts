@@ -1,11 +1,6 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 
-/**
- * Build one rectangular ramp surface from a centerline and explicit rise.
- *
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Derives the ramp's footprint and planar slope from its authored centerline, width, base elevation, and rise.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Produces one explicit plane-height rule after rejecting degenerate or non-finite surface inputs.
- */
+/** Build one rectangular ramp surface from a centerline and explicit rise. */
 export const worldRamp = (input: {
   id: string;
   from: { x: number; z: number };

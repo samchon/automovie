@@ -3,12 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
- * Apply a sampled formation state to one designed world-space point.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Applies spacing in the unit frame, then facing and translation, so repeated motion samples produce the same member position.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Provides the shared point transform used by oracle, builder, and renderer formation paths.
- */
+/** Apply a sampled formation state to one designed world-space point. */
 export const transformFormationPoint = (
   point: IAutoMovieVector3,
   anchor: IAutoMovieVector3,

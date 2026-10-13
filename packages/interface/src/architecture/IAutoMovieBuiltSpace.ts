@@ -10,34 +10,18 @@ import { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
  * waiting to be edited apart, and the containment query would have to pick a
  * winner nobody authored. Stating neither is the third legitimate case, a
  * purely semantic container that locates nothing.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `IAutoMovieBuiltSpace` as the portable data boundary for the interior surface region composition requirement.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `IAutoMovieBuiltSpace` for the interior space surface assembly region system contract.
  */
 export interface IAutoMovieBuiltSpace {
-  /**
-   * Stable logical-space identity.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `id` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `id` for the interior space surface assembly region system contract.
-   */
+  /** Stable logical-space identity. */
   id: string;
 
   /**
    * Open semantic label such as `building`, `storey`, `room`, `attic`, `void`,
    * `roof-deck`, `facade-access`, or `bridge-deck`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `kind` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `kind` for the interior space surface assembly region system contract.
    */
   kind: string;
 
-  /**
-   * Parent logical-space id, or null for a root partition.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `parent` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `parent` for the interior space surface assembly region system contract.
-   */
+  /** Parent logical-space id, or null for a root partition. */
   parent: string | null;
 
   /**
@@ -50,9 +34,6 @@ export interface IAutoMovieBuiltSpace {
    * pierced by a void: see {@link shell} for the first and
    * {@link IAutoMovieBuiltSpace.fidelity} for what a faceted approximation owes
    * the reader.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `cells` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `cells` for the interior space surface assembly region system contract.
    */
   cells: IAutoMovieConvexSpaceCell[];
 
@@ -71,9 +52,6 @@ export interface IAutoMovieBuiltSpace {
    * mutually exclusive with {@link cells}, and it is flats: a dome authored here
    * is the facets it is written as, which is what
    * {@link IAutoMovieBuiltSpace.fidelity} exists to say out loud.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `shell` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `shell` for the interior space surface assembly region system contract.
    */
   shell?: IAutoMovieSpaceShell;
 
@@ -97,9 +75,6 @@ export interface IAutoMovieBuiltSpace {
    * tell whether a curve was meant. Declaring it on a space that states no
    * volume at all is refused, because there is nothing for it to be an
    * approximation of.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition Exposes `fidelity` as the portable data boundary for the interior surface region composition requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `fidelity` for the interior space surface assembly region system contract.
    */
   fidelity?: "exact" | "faceted";
 }

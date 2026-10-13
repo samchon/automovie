@@ -22,9 +22,6 @@ import { compareAutoMovieRenderIds } from "./render";
  * and reshaped when its placement and reusable structure changed together.
  * Prototype consequences and per-slot prototype changes remain aggregate
  * counts instead of member-sized change arrays.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Produces added, removed, moved, reshaped, and unchanged structural results over compiled revisions.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Compares stable subject ids and their separate placement and shape states.
  */
 export const diffAutoMovieSubjects = (
   beforeArtifact: IAutoMovieSubjectArtifact,

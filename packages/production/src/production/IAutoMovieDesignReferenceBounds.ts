@@ -6,10 +6,6 @@
  * does not sweep entity extents. Reporting `unsupported` keeps the declared
  * frame unverified rather than replacing it with a guessed measurement.
  *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-image-video Carries the source-space extent reported by the parsed image container rather than a filename-derived size.
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-spatial-data Separates a measured drawing extent from an explicit unsupported fact without assigning a scene coordinate frame.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-image-video-inspection Types the parsed raster extent that the design-reference inspector returns.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-design-drawing-inspection Preserves the drawing inspector's measured-or-unsupported source-space extent boundary.
  * @author Samchon
  */
 export type IAutoMovieDesignReferenceBounds =

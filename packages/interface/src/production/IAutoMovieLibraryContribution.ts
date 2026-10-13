@@ -23,8 +23,6 @@ import { IAutoMovieModel } from "../model/IAutoMovieModel";
  * owner adopted no world at the DTO boundary. The builder nevertheless
  * refuses an empty map-owner completion, because absence is not delivery.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Fixes the exact result a library source revision is allowed to produce.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types the derived library state one executed source revision is allowed to produce.
  * @author Samchon
  */
 export interface IAutoMovieLibraryContribution {

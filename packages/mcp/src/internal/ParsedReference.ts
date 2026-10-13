@@ -29,8 +29,6 @@ interface Heading extends IAutoMovieReferenceHeading {
 /**
  * The single source snapshot shared by navigation and content projection.
  *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-source Keeps revision, syntax and original characters together for one read.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-source Retains the original source plus only positional syntax needed for lossless projection.
  * @author Samchon
  */
 export interface ParsedReference {

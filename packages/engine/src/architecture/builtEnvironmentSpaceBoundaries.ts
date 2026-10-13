@@ -33,8 +33,6 @@ import {
  * boundary with an empty `elements` is a separation the design declares and
  * nothing builds, and reducing these to ids would hide both facts.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceBoundaries` returns every boundary enclosing or separating a logical space, so the authored enclosure of a room stays reviewable rather than being reachable only as an anonymous adjacency.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceBoundaries` collects the boundaries a logical space is named on within one building-interior boundary, preserving each boundary's kind and realizing elements.
  * @author Samchon
  */
 export const builtEnvironmentSpaceBoundaries = (

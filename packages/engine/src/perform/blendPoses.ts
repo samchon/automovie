@@ -34,8 +34,6 @@ interface IAxisAccumulator {
  * Weights are supplied by the caller; deriving them from action priority or an
  * IK solver is a later pass.
  *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Applies the declared layer weights independently per authored joint axis.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Performs the specified weighted layer composition without inventing authority.
  * @author Samchon
  */
 export const blendPoses = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {

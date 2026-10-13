@@ -17,8 +17,6 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * @evidence contracts/common.md#clear-and-simple-design One synchronous allocation transaction serves geometry, material and model producers without changing their public values or signatures.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retires producer-owned resources through their public operations without altering SDK methods or acquiring borrowed textures.
  * @evidence contracts/common.md#meaningful-documentation States registration timing, successful ownership transfer, nested failure, independent cleanup and the native-retirement limit.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Preserves ownership of partial allocations until successful transfer or observable cleanup.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves construction failure alongside every independent partial-resource cleanup failure.
  */
 export function constructAutoMovieOwnedResources<Value>(
   construct: (own: <Resource extends { dispose(): void }>(resource: Resource) => Resource) => Value,

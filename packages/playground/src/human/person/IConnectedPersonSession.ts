@@ -5,8 +5,6 @@ import type { IConnectedPersonSessionState } from "./IConnectedPersonSessionStat
  * The transitions of the person editor's session state. The panel decides
  * which intent is current; only the current intent calls these.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names the editor's state transitions so a refusal keeps what is displayed and a success replaces it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates beginning, settling and refusing an intent from drawing the screen.
  * @author Samchon
  */
 export interface IConnectedPersonSession<Model> {

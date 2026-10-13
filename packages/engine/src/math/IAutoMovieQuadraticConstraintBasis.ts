@@ -4,8 +4,6 @@
  * unresolved numerical dependence refuses instead of dropping a condition.
  * Original complete-row admission remains the refinement caller's authority.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves original affine endpoint authority while supplying independent numerical coordinates.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains original row maps and refuses unresolved dependency; this basis does not certify geometry.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticConstraintBasis {

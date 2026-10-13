@@ -80,8 +80,6 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * chart retained on a tie. A refusal remains a refusal when neither chart is
  * permitted; selection never repairs a quaternion by clamping its coordinates.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Recovers the rig-basis semantic controls encoded by a solved quaternion.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Converts a solved quaternion back into the semantic controls consumed by the ROM graph.
  * @author Samchon
  */
 export const decomposeJointRotation = (

@@ -8,8 +8,6 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * witnesses. Its collapsed-segment, finite-arithmetic and binary64 precision
  * contract applies here too. Inputs are unchanged.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Measures contact-feature separation using the same closest witnesses as contact-normal consumers.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Consumes one bounded closest-pair calculation rather than maintaining a second separation formula.
  * @author Samchon
  */
 export const segmentSegmentDistance = (

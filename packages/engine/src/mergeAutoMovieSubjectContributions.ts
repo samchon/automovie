@@ -38,9 +38,6 @@ const CONTRIBUTION_KEYS = [
  * claiming the same id is a defect for the builder's own uniqueness checks to
  * report, and silently collapsing it here would hide the collision from the
  * gate that owns it.
- *
- * @evidence requirements/product/capability-and-content.md#product-project-owned-content Preserves every project-owned subject artifact in authored order without deduplicating identities or choosing replacement content.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Combines only explicitly present contribution arrays and leaves collision decisions visible to the builder that owns validation.
  */
 export const mergeAutoMovieSubjectContributions = (
   contributions: readonly IAutoMovieSubjectContribution[],

@@ -5,8 +5,6 @@
  * changing these returned vectors cannot alter later readings. A boundary
  * feature on an open sheet has no qualified interior-side classification.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Carries metric attachment readings and source triangle identity for subsequent general geometry operations.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports the nearest original triangle feature and open-rim qualification without changing source topology.
  * @author Samchon
  */
 export interface IAutoMovieSignedMeshQueryHit {

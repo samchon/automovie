@@ -25,9 +25,6 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * or a residual that fails on already selected rows throws with native status,
  * residual and round count. This owner admits displacement before any
  * geometry consumer can apply it; no relaxed bound or objective is substituted.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Jointly minimizes area-weighted geometric travel while retaining complete contact constraints and conservative per-vertex upper bounds.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Checks all original affine conditions after each restricted solve and preserves native failure and residual information before geometry can be accepted.
  */
 export function solveAutoMovieBoundedDisplacement(input: {
   mass: readonly number[];

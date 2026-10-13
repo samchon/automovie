@@ -13,8 +13,6 @@ import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
  * and search text select them, what the body view can evaluate, and the
  * panel's transaction hooks.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the group and search that select which detailed channels and joints the editor shows.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the body view's evaluable reach and the transaction hooks the detailed controls edit through.
  * @author Samchon
  */
 export interface IConnectedBodyControlsProps {

@@ -11,8 +11,6 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * supporting face (>= 3 finite, non-collinear plan points), while point-like
  * kinds (`handle` / `socket` / `hook`) must leave `extent` null. The closed
  * kind union makes an unknown kind structurally impossible.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Admits the finite interaction frame before checking point-like or planar support extent semantics.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Admits the finite interaction frame before checking point-like or planar support extent semantics.
  */
 export const validateAffordance = (
   affordance: IAutoMovieAffordance,

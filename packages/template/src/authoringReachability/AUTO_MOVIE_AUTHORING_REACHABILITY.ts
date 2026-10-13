@@ -142,12 +142,7 @@ const commonRows = (
     ),
   );
 
-/**
- * Canonical production-kind capability matrix shipped to every author.
- *
- * @evidence requirements/product/authorability.md#product-discoverable-control Makes every supported capability reachable through a named author route rather than package archaeology.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Publishes owner, input, consumer, and truthful inapplicability as one typed answer.
- */
+/** Canonical production-kind capability matrix shipped to every author. */
 export const AUTO_MOVIE_AUTHORING_REACHABILITY: readonly IAutoMovieAuthoringReachabilityRow[] =
   Object.freeze(
     KINDS.flatMap((kind) => [

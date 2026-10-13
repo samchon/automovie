@@ -1,12 +1,7 @@
 import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
 import { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
 
-/**
- * One compact query over the current compiled production.
- *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `AutoMovieGeometryQuery` as the portable data boundary for the agent contract guidance requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `AutoMovieGeometryQuery` for the spec authoring knowledge request output system contract.
- */
+/** One compact query over the current compiled production. */
 export type AutoMovieGeometryQuery =
   | {
       /** Distance query. */

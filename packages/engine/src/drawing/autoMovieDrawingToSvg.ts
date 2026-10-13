@@ -28,8 +28,6 @@ import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "./constants/AUTOMOVIE_DRAWING_SVG_
  * axis from printing a sign; every element is emitted in the order the drawing
  * already canonicalized, so one design yields one file.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Serializes the derived sheet at its authored drafting scale while retaining source identities, line roles, annotations, regions, and unresolved gaps in the SVG itself.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Validates pen values, converts model metres to page millimetres, emits canonical semantic SVG groups, and formats coordinates for byte-deterministic output.
  * @author Samchon
  */
 export const autoMovieDrawingToSvg = (props: {

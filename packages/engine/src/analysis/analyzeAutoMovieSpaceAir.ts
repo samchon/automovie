@@ -26,8 +26,6 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * still" is that this host does not know, and a number invented here would be
  * indistinguishable from one that was computed.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `analyzeAutoMovieSpaceAir` computes bounded zone ventilation and carbon-dioxide capacity while explicitly refusing stagnation and velocity-field claims.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The solver validates the declared zone state, evaluates its three closed forms, records unsupported flow outcomes, and seals one air-domain run.
  * @author Samchon
  */
 export const analyzeAutoMovieSpaceAir = (props: {

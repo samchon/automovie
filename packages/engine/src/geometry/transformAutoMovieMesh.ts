@@ -42,10 +42,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * Author an atlas-bearing member at the size it will be seen at and place it
  * with translation and rotation, or drop `coordinateSource` on it rather than
  * claiming metres a scale has already falsified.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Applies a declared placement to a reusable mesh operand.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Transforms positions and normals while preserving valid winding.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Carries a member's coordinate set through a placement unchanged, which is what keeps the set measured in the frame the member was built in and what reverses its handedness under a mirroring scale.
  */
 export const transformAutoMovieMesh = (
   mesh: IAutoMovieMesh,

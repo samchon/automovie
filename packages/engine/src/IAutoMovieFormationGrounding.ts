@@ -9,9 +9,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * defect this exists to remove. The compiled formation snapshots exactly these
  * surfaces, so the builder, the gate, the viewer and an offline measurement
  * script all place from one record and cannot answer differently.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-layout-validation Retains the authoritative ground snapshot used to check every slot's placement and bounds.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Gives builder, renderer, and validation one shared terrain input for formation layout.
  */
 export interface IAutoMovieFormationGrounding {
   /**
@@ -22,9 +19,6 @@ export interface IAutoMovieFormationGrounding {
    * means no terrain was declared under the unit, and every member then stands
    * at the anchor's own height, which is what a formation did before ground was
    * sampled at all.
-   *
-   * @evidence requirements/formations/budgets-and-validation.md#formation-layout-validation Supplies the exact surfaces against which slot ground placement is evaluated.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Distinguishes a declared terrain snapshot from the intentional no-terrain placement case.
    */
   readonly ground?: readonly IAutoMovieWorldSurface[];
 }

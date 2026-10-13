@@ -163,8 +163,6 @@ const firstAtOrBelow = (
  * other body and its `element-origin-point` basis travels with the finding, which
  * is how a caller reads "floating" as a claim about a point.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Finds floating and disconnected placed bodies over a whole building without one named query per pair.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Derives every clearance from the same placement bounds the named-pair query measures and reports each body's basis beside it.
  * @author Samchon
  */
 export const builtEnvironmentSupportSweep = (props: {

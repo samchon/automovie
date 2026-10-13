@@ -17,11 +17,6 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * or fictitious work is priced. Scalar and light-shape admission belong to
  * their existing validators. An omitted policy retains enabled legacy PCF;
  * callers with a renderer target supply that target's effective fallback.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Preserves source identity while refusing an unsupported casting-light and filter combination.
- * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Separates one light-owned resource from per-face depth and per-filter submission work.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Resolves the supported light/filter profile before its numerical or renderer consumer allocates work.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies camera-independent shadow-face and filtering multiplicities to frame preflight.
  */
 export function resolveAutoMovieShadowProfile(props: {
   lights: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];

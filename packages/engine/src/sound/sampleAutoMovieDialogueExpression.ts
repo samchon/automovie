@@ -7,9 +7,6 @@ import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTime
  * Sample authored emotion and derived mouth state without either replacing the
  * other. Frames outside the line and explicit receipt gaps are `neutral` at
  * zero intensity; sampling never depends on a previous cursor.
- *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-seek-equivalence Makes arbitrary seek equal sequential sampling.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Composes the mouth layer at the requested emission frame.
  */
 export const sampleAutoMovieDialogueExpression = (props: {
   /** Compiled actor mouth timeline. */

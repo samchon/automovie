@@ -73,7 +73,6 @@ export const productionBuildInputFingerprint = (
  * sides of the commit lock.
  *
  * @author Samchon
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-choice-determinism-invariant Turns every authoring choice into a new input identity so alternatives stay comparable without forcing one result.
  */
 export const currentAutoMovieProductionBuildInputFingerprint = (
   project: AutoMovieProductionProject,

@@ -1,26 +1,11 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
-/**
- * Versioned, comparable identity of the host capture runtime.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieCaptureRuntimeIdentity` as the portable data boundary for the rendering identity mask channels requirement.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieCaptureRuntimeIdentity` for the spec render pass products system contract.
- */
+/** Versioned, comparable identity of the host capture runtime. */
 export interface IAutoMovieCaptureRuntimeIdentity {
-  /**
-   * Capture identity schema and semantics.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `protocolVersion` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `protocolVersion` for the spec render pass products system contract.
-   */
+  /** Capture identity schema and semantics. */
   protocolVersion: "automovie.capture-runtime.v2";
 
-  /**
-   * Exact Playwright package that selected and launched the browser.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `playwright` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `playwright` for the spec render pass products system contract.
-   */
+  /** Exact Playwright package that selected and launched the browser. */
   playwright: {
     /** Package name. */
     package: "playwright";
@@ -32,9 +17,6 @@ export interface IAutoMovieCaptureRuntimeIdentity {
   /**
    * Content identity of every installed package and browser support byte that
    * can participate in the captured frame.
-   *
-   * @evidence requirements/acceptance/evidence-and-freshness.md#acceptance-current-historical-evidence Makes an installed renderer change a new evidence generation rather than letting historical pixels remain current.
-   * @evidence specifications/review-and-acceptance/evidence-freshness-and-completeness.md#acceptance-system-current-historical-evidence Types the installed runtime closure consumed by capture freshness comparisons.
    */
   runtimeClosure: {
     /** Capture-closure schema and semantics. */
@@ -88,12 +70,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
         };
   };
 
-  /**
-   * Exact browser executable provenance.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `browser` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `browser` for the spec render pass products system contract.
-   */
+  /** Exact browser executable provenance. */
   browser: {
     /** Browser product family. */
     product: "chromium" | "chrome" | "msedge";
@@ -111,12 +88,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     executableDigest: AutoMovieContentDigest | null;
   };
 
-  /**
-   * Host operating-system boundary.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `platform` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `platform` for the spec render pass products system contract.
-   */
+  /** Host operating-system boundary. */
   platform: {
     /** Node platform name. */
     os: string;
@@ -125,12 +97,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     arch: string;
   };
 
-  /**
-   * Browser launch and raster mode.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `mode` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `mode` for the spec render pass products system contract.
-   */
+  /** Browser launch and raster mode. */
   mode: {
     /** Explicit headless implementation. */
     headless: "chromium";
@@ -139,12 +106,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     deviceScaleFactor: number;
   };
 
-  /**
-   * Requested and actual WebGL identity.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `graphics` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `graphics` for the spec render pass products system contract.
-   */
+  /** Requested and actual WebGL identity. */
   graphics: {
     /** Requested ANGLE/backend selection. */
     requestedBackend: string;

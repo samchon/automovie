@@ -8,8 +8,6 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest syntax is the existing publication protocol, not a subject identifier or an expected asset hash.
  * @evidence contracts/common.md#meaningful-documentation States the caller's prefix-classification precondition, suffix grammar and named refusal for a malformed digest list.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Checks the existing basis-token digest count and twelve-character lowercase hexadecimal grammar before the selected publication is requested.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Keeps suffix admission separate from prefix classification and numerical basis admission; it defines no production frame fingerprint.
  * @author Samchon
  */
 export function humanViewerBasisDigests(

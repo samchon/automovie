@@ -17,11 +17,6 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * caller. Two consumers ask where a unit is: the oracle reports it and the
  * builder refuses a unit standing off the ground its shot staged, and a
  * private copy in one of them is how the two come to disagree.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-motion-validation Recomputes conservative world bounds from every transformed corner for the current cue state.
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds Keeps the declared local box separate from the measured world-axis box derived after the cue transform and facing rotation.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Supplies the same motion-aware bounds to framing reports and ground validation.
- * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-inputs Derives the current world-space bound from the declared formation box, anchor, cue state, and facing without overwriting the input bound.
  */
 export const transformFormationBounds = (
   bounds: IAutoMovieFormationBounds,

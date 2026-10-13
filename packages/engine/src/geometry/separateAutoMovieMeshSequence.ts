@@ -24,9 +24,6 @@ type Triangle = {
  * requested order, not an inferred spatial sort. The same ray-parallel limit as
  * measureAutoMovieMeshClearance applies; this does not pack arbitrary volumes
  * around corners or preserve an external path after separation.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Composes resident separation measurements into rigid placement of ordered meshes while retaining their authored shape.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves triangle connectivity and attributes while applying a common-axis translation satisfying every measured pair constraint.
  */
 export function separateAutoMovieMeshSequence(
   meshes: readonly IAutoMovieMesh[],

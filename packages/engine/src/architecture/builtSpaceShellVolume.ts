@@ -10,8 +10,6 @@ import { IAutoMovieSpaceShell } from "@automovie/interface";
  * flats as written; what the flats stand for is
  * {@link builtEnvironmentSpaceFidelity}'s answer, not this one's.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtSpaceShellVolume` produces volume, in cubic metres, enclosed by a closed outward-wound shell. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtSpaceShellVolume` performs volume calculation when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
  * @author Samchon
  */
 export const builtSpaceShellVolume = (shell: IAutoMovieSpaceShell): number => {

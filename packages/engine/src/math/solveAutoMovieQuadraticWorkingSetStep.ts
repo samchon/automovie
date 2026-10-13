@@ -21,8 +21,6 @@ import type { IAutoMovieQuadraticWorkingSetStep } from "./IAutoMovieQuadraticWor
  * Inputs are borrowed after the refinement owner's complete QP validation;
  * owned dense coordinates have finite-memory limits, not full-row scalability.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Uses the original diagonal and linear objective without a lasting ridge or relaxed interval.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns original working multipliers and numerical refusal separately from full original-row adoption.
  * @author Samchon
  */
 export function solveAutoMovieQuadraticWorkingSetStep(

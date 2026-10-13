@@ -38,9 +38,6 @@ const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });
  * rounded multiply the engine's own `Quaternion.fromAxisAngle` performs, so
  * those conversions already agree and converting them "the builder's way" is
  * what would break them.
- *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Converts engine-owned metre placement into the local offset consumed by chunk matrices and culling.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Converts engine-owned metre placement into the local offset consumed by chunk matrices and culling.
  */
 export const formationSpacingOffset = (
   point: { x: number; y: number; z: number },

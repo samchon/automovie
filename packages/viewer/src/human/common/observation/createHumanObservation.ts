@@ -58,10 +58,6 @@ const FALLBACK_DISTANCE = 0.65;
  * @param host.height Height of the drawing surface in CSS pixels, which sets the outline's width.
  * @param host.invalidateShadows Notify the viewport when its cached caster display changes.
  * @param host.invalidateDisplay Notify the owning completion producer after explicit camera, pass or visibility changes.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Provides current-source camera, geometry and material observations independently of asset edits.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps auxiliary instruments out of subject bounds and restores display changes before source publication.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Retires owned observation materials independently while preserving borrowed source state and cleanup failures.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Separates synchronous state withdrawal from awaited owned retirement and never closes a borrowed renderer.
  */
 export function createHumanObservation(host: {
   scene: THREE.Scene;

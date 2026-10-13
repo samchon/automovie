@@ -11,9 +11,6 @@ import { flattenInstancedModel } from "./flattenInstancedModel.js";
  * Construct the tier resources and bind their declared repertoire once.
  * A rejected model or cue releases tiers already constructed before refusing;
  * chunk instances are created only after this boundary succeeds.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Constructs shadow projections only for tiers with a real baked cycle.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Binds each shadow projection to the same mutable cells as its tier's beauty materials.
  */
 export const createFormationRepresentations = (
   input: IBuildInstancedFormationProps,

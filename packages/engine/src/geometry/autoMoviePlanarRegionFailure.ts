@@ -12,8 +12,6 @@ const REGION_EPSILON = 1e-12;
  * must agree on whether their shared input has an interior. A caller that can
  * report a gap may retain the message; a constructor can throw it verbatim.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Detects non-finite, degenerate, self-crossing, and invalid nested planar regions before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Implements one shared numeric and topology validation boundary for planar consumers.
  * @author Samchon
  */
 export const autoMoviePlanarRegionFailure = (props: {

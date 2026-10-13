@@ -12,14 +12,6 @@ import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCom
  * an unassociated target for transparent straight RGBA delivery.
  *
  * The numerical contribution is the documented opaque highp Float32 byte bound. It does not certify an unobserved device precision profile or reinterpret low-alpha canvas presentation as straight delivery.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Resolves each source through its direct display path exactly once.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Consumes the caller's sampled alpha without resampling either source.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Combines captured display bytes without tone mapping the composite.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Preserves the supplied outgoing and incoming samples.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-hardware-variation Defines the supported highp Float32 opaque display-byte interpolation bound of one byte against Float64 nearest-integer composition, preserving endpoint and identical-source identity.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Defines the supported highp Float32 opaque display-byte interpolation bound of one byte against Float64 nearest-integer composition, preserving endpoint and identical-source identity.
  */
 export const renderCrossDissolveFrames = (renderer: THREE.WebGLRenderer, renderOutgoing: () => void, renderIncoming: () => void, alpha: number): void => {
   if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1)

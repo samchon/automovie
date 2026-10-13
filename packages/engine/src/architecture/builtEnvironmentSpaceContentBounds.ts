@@ -67,13 +67,6 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * because nothing distinguishes it from one real element standing at the
  * origin.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceContentBounds` reports the world box the placed contents of a logical space and its descendants fill. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceContentBounds` resolves the element hierarchy, ownership, and geometry of one logical-space subtree into its world extent inside one building-interior boundary.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group `builtEnvironmentSpaceContentBounds` includes every compact population owned by the queried space subtree instead of losing it behind instance compression.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality `builtEnvironmentSpaceContentBounds` measures a compressed population from its stable placement law rather than treating omitted expansion as empty content.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality `builtEnvironmentSpaceContentBounds` folds the compact population record itself, so a spatial query remains proportional to populations rather than procedural members.
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds `builtEnvironmentSpaceContentBounds` keeps the authored prototype-local extent separate from the world-space content box it derives.
- * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-inputs `builtEnvironmentSpaceContentBounds` derives the current world extent from the population's declared local bound and placement law without persisting a second placement box.
  * @author Samchon
  */
 export const builtEnvironmentSpaceContentBounds = (

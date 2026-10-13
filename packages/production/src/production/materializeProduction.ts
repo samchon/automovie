@@ -112,7 +112,6 @@ export const materializeProductionModels = (
  *
  * Anonymous identities remain derived from formation id and slot index and
  * never become a large scene-node array.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-structural-output-invariant Materializes each compiled shot's models, hero nodes and formations into a reviewable runtime form whose proxies stay marked as proxies.
  */
 export const materializeCompiledShot = (props: {
   contract: IAutoMovieShotContract;
@@ -314,8 +313,6 @@ export interface IAutoMovieMaterializedLibraryResult {
  * The result is a pure function of the executed owners, so a second compile of
  * unchanged source produces the same bytes down to the trailing newline.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Publishes each artifact with the owner, source export, and compile identity a receipt is bound to.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Records the compile identity the published library artifacts were derived at.
  * @author Samchon
  */
 export const materializeAutoMovieLibraryFiles = (props: {
@@ -408,8 +405,6 @@ export const materializeAutoMovieLibraryFiles = (props: {
  * compiled yet, and the compile gate is what refuses the state itself; a reader
  * that threw here would report a compile problem as an observation problem.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Supplies the compiled topology the required viewpoint population is derived from.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Hands the derivation the exact compiled buildings one owner published.
  * @author Samchon
  */
 export const autoMovieMaterializedLibraryEnvironments = (props: {

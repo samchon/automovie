@@ -25,8 +25,6 @@ import {
  * and no head loss enter it; `serviceAnalysisSupport` names the solver that
  * would as `unsupported`.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceSystemLoad` reports the demand a supply or collection system is declared to carry without pretending to solve hydraulic or electrical performance.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceSystemLoad` sums matching-system `in` demands for flow from the root and `out` demands for flow toward it.
  * @author Samchon
  */
 export const serviceSystemLoad = (props: {

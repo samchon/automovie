@@ -17,8 +17,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/common.md#clear-and-simple-design One memoized completion separates synchronous publication from owned asynchronous retirement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Calls supplied release operations without retries, native-counter changes or foreign method replacement.
  * @evidence contracts/common.md#meaningful-documentation Describes start order, memoization, primary causes and the difference between public completion and native release proof.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Shares one owned completion while attempting every independent resource owner.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Reports the primary cause and every owned cleanup failure after all attempts settle.
  */
 export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],

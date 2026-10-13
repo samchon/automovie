@@ -44,10 +44,6 @@ const SALT_PLACE_SCALE = 0x73636c00;
  * which is exactly what GPU instancing consumes. Nothing is reduced to a yaw
  * angle or one uniform number on the way out.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Resolves a declared planting population into bounded member placements.
- * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster `arrangePlantingCluster` emits stable per-member transforms from the declared cluster count, bounds, seed, scale, tilt, and spacing refusal rule.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Produces the deterministic arrangement consumed by interior planting placement.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input The cluster arrangement materializes individually addressable vegetation placements while preserving the caller's bounded form and spacing inputs.
  * @author Samchon
  */
 export const arrangePlantingCluster = (

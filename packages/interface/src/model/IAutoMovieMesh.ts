@@ -18,16 +18,11 @@ import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
  *
  * Reference: glTF 2.0 mesh primitive attributes.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMovieMesh` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMovieMesh` for the asset spec geometry inputs system contract.
  * @author Samchon
  */
 export interface IAutoMovieMesh {
   /**
    * Flat vertex positions `[x,y,z,...]` in meters. Length is `3 * vertexCount`.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `positions` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `positions` for the asset spec geometry inputs system contract.
    */
   positions: number[];
 
@@ -44,27 +39,18 @@ export interface IAutoMovieMesh {
    * frame. A producer owns incidence and must rebind newly created vertices.
    * The table survives composition; indices into it have no physical meaning.
    * This correspondence supplies topology, not geometry-validity exemptions.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Distinguishes actual source-point aliases from coordinate contact while retaining position-derived vertices.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Carries source domain/ID lineage and nullable current-position correspondence per render vertex.
    */
   physicalVertices?: IAutoMovieMeshPhysicalVertices;
 
   /**
    * Flat vertex normals `[x,y,z,...]`, aligned to `positions`. `null` if
    * absent.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `normals` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `normals` for the asset spec geometry inputs system contract.
    */
   normals: number[] | null;
 
   /**
    * Flat texture coordinates `[u,v,...]`, aligned to `positions`. `null` if
    * absent.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `uvs` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `uvs` for the asset spec geometry inputs system contract.
    */
   uvs: number[] | null;
 
@@ -72,9 +58,6 @@ export interface IAutoMovieMesh {
    * Optional linear RGB multipliers `[r,g,b,...]`, one triple per vertex.
    * Components are finite in [0,1]. Omission means white, without a buffer.
    * These multiply material and texture base colour, never opacity or light.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Carries authored surface colour alongside the vertices of a freeform mesh.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Defines optional aligned linear RGB multipliers with explicit bounds and an identity default.
    */
   colors?: number[];
 
@@ -85,26 +68,15 @@ export interface IAutoMovieMesh {
    * and stretch the skin. It scales `normalTexture` alone, not the detail
    * map or an overlay's. glTF has no ratified attribute for it, so an
    * exported asset omits it. Omission means one, without a buffer.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Carries a per-vertex relief strength alongside the vertices of a freeform mesh.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Defines optional aligned nonnegative relief factors with an identity default.
    */
   reliefWeights?: number[];
 
   /**
    * Triangle indices into the vertex arrays (every 3 form one triangle). `null`
    * for a non-indexed mesh (vertices taken in order).
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `indices` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `indices` for the asset spec geometry inputs system contract.
    */
   indices: number[] | null;
 
-  /**
-   * Skeletal binding for deformation, or `null` for rigid/static geometry.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `skin` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `skin` for the asset spec geometry inputs system contract.
-   */
+  /** Skeletal binding for deformation, or `null` for rigid/static geometry. */
   skin: IAutoMovieMeshSkin | null;
 }

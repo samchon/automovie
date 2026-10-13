@@ -9,65 +9,27 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compact generated formation runtime; it never stores every anonymous slot.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `IAutoMovieCompiledFormation` as the portable data boundary for the formation slot identity requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `IAutoMovieCompiledFormation` for the performance formation layout slot assignment system contract.
  */
 export interface IAutoMovieCompiledFormation {
-  /**
-   * Generated formation format.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `version` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `version` for the performance formation layout slot assignment system contract.
-   */
+  /** Generated formation format. */
   version: 1;
 
-  /**
-   * Stable formation design id.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `id` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `id` for the performance formation layout slot assignment system contract.
-   */
+  /** Stable formation design id. */
   id: string;
 
-  /**
-   * Exact designed slot count.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `count` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `count` for the performance formation layout slot assignment system contract.
-   */
+  /** Exact designed slot count. */
   count: number;
 
-  /**
-   * Count remaining in instance batches after hero exclusion.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `anonymousCount` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `anonymousCount` for the performance formation layout slot assignment system contract.
-   */
+  /** Count remaining in instance batches after hero exclusion. */
   anonymousCount: number;
 
-  /**
-   * Base design recipe.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `modelRecipe` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `modelRecipe` for the performance formation layout slot assignment system contract.
-   */
+  /** Base design recipe. */
   modelRecipe: string;
 
-  /**
-   * Exact compact layout algorithm and parameters.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `layout` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `layout` for the performance formation layout slot assignment system contract.
-   */
+  /** Exact compact layout algorithm and parameters. */
   layout: IAutoMovieFormationDesign["layout"];
 
-  /**
-   * World-space origin.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `anchor` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `anchor` for the performance formation layout slot assignment system contract.
-   */
+  /** World-space origin. */
   anchor: IAutoMovieVector3;
 
   /**
@@ -81,74 +43,31 @@ export interface IAutoMovieCompiledFormation {
    * declared order is preserved because the first surface containing a point is
    * the one a member stands on. Empty when the world declared no terrain under
    * the unit, which places every member at the anchor's height.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `ground` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `ground` for the performance formation layout slot assignment system contract.
    */
   ground: IAutoMovieWorldDesign["surfaces"];
 
-  /**
-   * World-space base heading in degrees.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `facingDeg` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `facingDeg` for the performance formation layout slot assignment system contract.
-   */
+  /** World-space base heading in degrees. */
   facingDeg: number;
 
-  /**
-   * Full safe-integer design seed.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `seed` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `seed` for the performance formation layout slot assignment system contract.
-   */
+  /** Full safe-integer design seed. */
   seed: number;
 
-  /**
-   * Exact bounds of all slots.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `bounds` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `bounds` for the performance formation layout slot assignment system contract.
-   */
+  /** Exact bounds of all slots. */
   bounds: IAutoMovieFormationBounds;
 
-  /**
-   * Exact arithmetic centroid of all slots.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `centroid` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `centroid` for the performance formation layout slot assignment system contract.
-   */
+  /** Exact arithmetic centroid of all slots. */
   centroid: IAutoMovieVector3;
 
-  /**
-   * Compiler-derived representative member radius used by LOD projection.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `projectionRadius` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `projectionRadius` for the performance formation layout slot assignment system contract.
-   */
+  /** Compiler-derived representative member radius used by LOD projection. */
   projectionRadius: number;
 
-  /**
-   * Bounded independently regenerable slot ranges.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `chunks` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `chunks` for the performance formation layout slot assignment system contract.
-   */
+  /** Bounded independently regenerable slot ranges. */
   chunks: IAutoMovieFormationChunk[];
 
-  /**
-   * Explicit hero promotions, ordered by slot.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `heroes` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `heroes` for the performance formation layout slot assignment system contract.
-   */
+  /** Explicit hero promotions, ordered by slot. */
   heroes: IAutoMovieCompiledFormationHero[];
 
-  /**
-   * Ordered automatic LOD representations.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `lod` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `lod` for the performance formation layout slot assignment system contract.
-   */
+  /** Ordered automatic LOD representations. */
   lod: IAutoMovieCompiledFormationLod[];
 
   /**
@@ -159,20 +78,12 @@ export interface IAutoMovieCompiledFormation {
    * so a compiled cycle length would be a second answer to a question the cue
    * already answers, and a seeded one would be unrelated to what the unit
    * does.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `phase` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `phase` for the performance formation layout slot assignment system contract.
    */
   phase: {
     /** Domain-separated safe-integer seed. */
     seed: number;
   };
 
-  /**
-   * Digest of every field above except this digest.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `digest` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `digest` for the performance formation layout slot assignment system contract.
-   */
+  /** Digest of every field above except this digest. */
   digest: AutoMovieContentDigest;
 }

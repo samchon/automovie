@@ -19,26 +19,13 @@ const GROUPED_DOCUMENT_LAYERS: ReadonlySet<AutoMovieAuthoredDocumentLayer> =
  * The set spans all production shapes. Film narrative, direct brief, model,
  * motion, and built-environment work are different authored branches, but the
  * reader-facing transformation is the same for each one.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Makes every authored document family eligible for an explicit human-readable view.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Represents the authored document family selected for one deterministic deliverable item.
  */
 export type AutoMovieAuthoredDocumentLayer = EvidenceAuthoredDocumentLayer;
 
-/**
- * Physical authored pass selected for a reader edition.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Distinguishes the construction source from an expression-only final screenplay deliverable.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Keeps the bound pass explicit in the reader-edition request.
- */
+/** Physical authored pass selected for a reader edition. */
 export type AutoMovieProductionDocumentPass = "construction" | "final";
 
-/**
- * Input to one authored-layer reader edition.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Declares the deliverable's source, title, format-owning output directory, and selected authored family.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Supplies the explicit identity and source revision surface from which the Markdown view is derived.
- */
+/** Input to one authored-layer reader edition. */
 export interface IAutoMovieProductionBindRequest {
   /** Generated-project root the binder reads. */
   root: string;
@@ -49,12 +36,7 @@ export interface IAutoMovieProductionBindRequest {
   /** Authored Markdown layer to bind. */
   layer: AutoMovieAuthoredDocumentLayer;
 
-  /**
-   * Construction tree or the expression-only final screenplay tree.
-   *
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Selects the authored source of the reader-facing deliverable.
-   * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Prevents a final edition from silently binding construction bytes.
-   */
+  /** Construction tree or the expression-only final screenplay tree. */
   pass?: AutoMovieProductionDocumentPass;
 
   /**
@@ -91,10 +73,6 @@ const LAYERS: ReadonlySet<string> = new Set(AUTHORED_DOCUMENT_LAYERS);
  *
  * Markdown is the complete deliverable here. PDF, Fountain, Final Draft, font
  * shaping, and typography belong to converters that already own those formats.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Emits the selected authored inventory as its declared human-readable Markdown view without changing its source.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Derives one deterministic document view with an explicit source family, format, and output identity.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-deliverable-inventory Produces the complete source-authoritative deliverable inventory, including a deterministic final handoff view.
  */
 export class AutoMovieProductionBinder {
   /** Absolute generated-project root this binder reads. */
@@ -106,28 +84,13 @@ export class AutoMovieProductionBinder {
   /** Authored layer this binder reads. */
   public readonly layer: AutoMovieAuthoredDocumentLayer;
 
-  /**
-   * Physical authored pass this binder reads.
-   *
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Exposes the selected reader-edition source pass.
-   * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Retains the normalized construction or final choice.
-   */
+  /** Physical authored pass this binder reads. */
   public readonly pass: AutoMovieProductionDocumentPass;
 
-  /**
-   * Absolute physical authored tree selected by {@link pass}.
-   *
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Exposes the exact source behind the selected reader-facing view.
-   * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Prevents construction and final screenplay trees from sharing an implicit source identity.
-   */
+  /** Absolute physical authored tree selected by {@link pass}. */
   public readonly source: string;
 
-  /**
-   * Stable filename used when the derived edition is published.
-   *
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Gives the derived human-readable view a deterministic output identity.
-   * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Keeps final and construction editions distinguishable at publication.
-   */
+  /** Stable filename used when the derived edition is published. */
   public readonly filename: string;
 
   /** Absolute directory the derived Markdown file is written beneath. */
@@ -223,9 +186,6 @@ export class AutoMovieProductionBinder {
  * Final adds a directory between docs and its layer. Checking only the layer's
  * immediate parent would admit a linked docs root. The injected observation
  * keeps the same boundary applicable to grouped and flat reader editions.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-breakdown-deliverables Keeps a reader edition bound to its physical authored source tree.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Checks every authored ancestor introduced by the selected source pass before reading its inventory.
  */
 export async function validateAutoMovieProductionDocumentAncestors(
   root: string,

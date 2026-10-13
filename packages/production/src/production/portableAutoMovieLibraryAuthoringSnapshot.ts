@@ -21,8 +21,6 @@ import type { IAutoMovieLibraryAuthoringSnapshot } from "./libraryAuthoringSnaps
  * recompile after a move; dropping one that turns out to matter would let a
  * changed input keep an old result current.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps every selected owner, binding, configuration and normalized source digest a library result traces back to, and nothing that names the checkout.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Removes the builder root and the absolute declaration location so no machine path enters the library derivation input.
  * @author Samchon
  */
 export const portableAutoMovieLibraryAuthoringSnapshot = (

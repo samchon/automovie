@@ -29,8 +29,6 @@ const validArc = (arc: string): arc is "direct" | "high" =>
  * when the intercept is out of range at that speed (or the speed is
  * non-positive).
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Resolves an analytic intercept against a declared moving target path.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Keeps moving-target interception inside the bounded analytic tier.
  * @author Samchon
  */
 export const solveMovingLaunch = (

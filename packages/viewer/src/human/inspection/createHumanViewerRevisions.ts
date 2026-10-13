@@ -29,8 +29,6 @@ import { readHumanViewerNodeInputs } from "./readHumanViewerNodeInputs.js";
  * @evidence contracts/common.md#clear-and-simple-design Shared source/existence memos serve the four graph digests and their reached-file lookup without another numerical cache.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Real source and declared external inputs determine revision movement, including missing resolution candidates, without named-subject hashes or a substituted frame's identity.
  * @evidence contracts/common.md#meaningful-documentation Separates face, body, person composition and browser dependencies and defines membership refresh and extra compiler inputs.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Binds inspection source admission to actual import dependencies, published basis bytes and the same checked Node input membership/bytes used by numerical startup.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Only the browser/admission digest includes the checked-project witness; face, body and person computation keys keep their existing import-graph rules.
  */
 export function createHumanViewerRevisions(
   props: ICreateHumanViewerRevisionsProps,

@@ -16,36 +16,6 @@ import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInterior
  * Propagation and room responses are optional event receipts. Their absence
  * preserves the pre-existing mix byte for byte; an unavailable response is not
  * treated as dry success.
- *
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Consumes declared arrival, broadband gain, and spectral loss when supplied.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Maps a supported propagation receipt into PCM.
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-mix-consumption Applies the analysis-backed response selected for each event.
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-claim-boundary Treats the shared broadband response as a bounded proxy and refuses unavailable outcomes.
- * @evidence requirements/sound/interior-acoustics.md#sound-bounded-room-response Applies the bounded room-response tier before adding the event to master PCM.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#bounded-acoustic-response-and-provider-adoption Consumes the selected bounded response without inventing acoustic facts.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#acoustic-mix-consumption-and-claim-boundary Keeps missing or unsupported response distinct from success.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-extended-group-source-aggregation Computes source centroid, spread, member count, and density gain before mixing.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-extended-group-sources Computes effective source mass, centroid, spread, and density gain from resolved members.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-listener-identity Resolves the shot camera as the exact event listener.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-spatial-output-mapping Computes listener-local pan and maps event gain into stereo PCM.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-propagation-refusal Invokes the declared propagation profile and propagates its refusal.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-occlusion-and-propagation-failure Preserves propagation refusal rather than substituting an estimated path.
- * @evidence requirements/sound/validation-and-delivery.md#sound-numeric-verification Computes exact runtime, sample-frame, channel, peak, clipping, silence, and synchronization facts from final PCM.
- * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Computes exact numeric verification facts from final mixed PCM.
- * @evidence requirements/sound/scope-and-identity.md#sound-fixed-audio-clock Converts every film-frame boundary directly through the plan FPS and declared sample rate without a mutable sample cursor.
- * @evidence requirements/sound/mix-hierarchy-and-loudness.md#sound-loudness-peak Measures integrated loudness, sample peak, and clipping state from the exact post-limiter master samples.
- * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-time-transform Reads each cue's source trim at unit rate from exact rational frame boundaries, so the sample index is derived from the frame clock rather than identified with it.
- * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-audiovisual-duration-join Derives the final PCM length once from total picture frames, FPS, and sample rate.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Maps every cue's start, source trim, end, and fade boundary onto the sample clock through the one nearest-tick rule.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-refusal Refuses a cue whose trim leaves its declared source duration or whose span is empty before any sample is mixed.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Maps film-frame positions directly onto the separate fixed audio sample clock.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Converts each cue's presentation and source film-time boundaries to integer sample indices exactly once.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-failure-contract Fails a cue with an empty span or a trim outside its declared source instead of mixing a plausible result.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-processing-chain-and-stable-summation Executes event, cue, dialogue, and master-limiter stages in one deterministic plan order.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-mix-automation-sample-clock Evaluates cue gain and fades from the current sample index rather than prior playback state.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-loudness-peak-and-mix-failure Computes loudness and peak facts only after the declared master limiting stage.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Places each cue's source trim on its film presentation span without altering the source clock.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#audio-visual-duration-and-timebase-join Produces one audio sample range from the finished picture range and shared timebase.
  */
 export const renderProductionSound = (props: {
   /** Sound plan being rendered. */

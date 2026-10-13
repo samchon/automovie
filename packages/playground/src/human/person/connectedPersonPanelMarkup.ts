@@ -10,10 +10,6 @@
  * panel enables the fieldset when its controls are mounted and decides each
  * button from its session state.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lays out the body section with its history, file and export actions for the whole person.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lays out the face section beside the body section on the same screen.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Provides the body section's group select and control containers.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Provides the face section's control containers.
  * @author Samchon
  */
 export function connectedPersonPanelMarkup(): string {

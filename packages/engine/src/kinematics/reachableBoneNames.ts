@@ -17,8 +17,6 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
  * declared-set membership check alone would read a bone the FK result never
  * contains. This is the query that names the reachable set explicitly.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-refusal Returns the bones connected to a declared root before consumers read FK output.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-retarget-preservation-failure Returns the exact connected topology used to diagnose an unusable rig chain.
  * @author Samchon
  */
 export const reachableBoneNames = (

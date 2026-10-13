@@ -10,9 +10,6 @@ import type * as THREE from "three";
  * name. Both readings are kept because a host is free to leave those groups
  * anonymous, and the mask must resolve the scene the viewer builds rather than
  * the scene a test found convenient to assemble.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Resolves palette entries to the staged and named drawable roots that own each mask colour.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Refuses a scene whose positional node population cannot represent the declared mask.
  */
 export const maskRoots = (props: {
   /** Built scene whose initial children follow the design node order. */

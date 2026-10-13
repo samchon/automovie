@@ -59,8 +59,6 @@ const MAGNUS_B = 243.12;
  * runs come back `not-run` naming the missing input rather than assuming a
  * temperature nobody declared.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `analyzeAutoMovieEnvelope` computes steady fabric and bridge loads plus surface condensation risk, and names transient, vapour, and solar claims it does not solve.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The solver validates the resolved envelope network, evaluates resistance and Magnus equations, and seals separate thermal and moisture results over identical settings.
  * @author Samchon
  */
 export const analyzeAutoMovieEnvelope = (props: {

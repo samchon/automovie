@@ -9,9 +9,6 @@ import * as THREE from "three";
  * while the renderer keeps the complete output raster. Omission and the whole
  * `0,0,1,1` window clear any prior view offset and reproduce the uncropped
  * projection exactly.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Applies the production's selected delivery window to the camera that draws the delivered pixels.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Uses the same normalized top-left crop boundaries as deterministic image-space projection and acceptance.
  */
 export const applyAutoMovieDeliveryCrop = (
   camera: THREE.PerspectiveCamera,
@@ -47,9 +44,6 @@ export const applyAutoMovieDeliveryCrop = (
  * on the delivered window instead of silently reverting to the source gate.
  * A disabled or whole view is returned as omission, matching the public crop
  * contract's geometric no-op.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes the active delivery window to every viewer projection consumer.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Reconstructs the canonical normalized crop from the renderer's installed projection state.
  */
 export const readAutoMovieDeliveryCrop = (
   camera: THREE.PerspectiveCamera,

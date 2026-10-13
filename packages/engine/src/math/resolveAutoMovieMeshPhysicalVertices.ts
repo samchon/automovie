@@ -17,11 +17,6 @@ import { weldMeshVertices } from "./weldMeshVertices";
  * the declaration. Unused and repeated valid source rows are harmless.
  * Returned arrays are owned. Geometry, indices, areas and intersections remain
  * their independent owners' obligations, not a promise of this equivalence.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Resolves source-point incidence independently of contact while retaining current-coordinate legacy incidence.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Admits the source table and per-render correspondence without allocating by opaque ID magnitude.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Refuses malformed correspondence and aliases whose current coordinate-grid cells disagree.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Uses the same coordinate quantization for legacy welding and explicit alias agreement.
  */
 export function resolveAutoMovieMeshPhysicalVertices(
   mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">,

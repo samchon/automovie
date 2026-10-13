@@ -7,9 +7,6 @@ import { IAutoMovieProductionFrameRate } from "@automovie/interface";
  * boundary comparison the sampler performs. Two frames of headroom keep that
  * correction inside the safe-integer range, and an infinite or NaN product
  * fails the comparison and is reported as unrepresentable.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Bounds the float estimate that the exact rational boundary search then corrects.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Reports a boundary no safe-integer frame can hold instead of rounding it into range.
  */
 export const estimateProductionFilmFrame = (
   seconds: number,

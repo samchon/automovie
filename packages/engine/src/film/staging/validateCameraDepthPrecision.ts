@@ -1,11 +1,7 @@
 import { ViolationCollector } from "../../validation/ViolationCollector";
 import { isRecord } from "../../validation/isRecord";
 
-/** Validate the authored fixed-point depth precision boundary. *
- *
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-spatial-validation Refuses depth-code counts outside safe-integer precision and non-positive metre step limits before camera lowering.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result Refuses depth-code counts outside safe-integer precision and non-positive metre step limits before camera lowering.
- */
+/** Validate the authored fixed-point depth precision boundary. * */
 export const validateCameraDepthPrecision = (
   value: unknown,
   path: string,

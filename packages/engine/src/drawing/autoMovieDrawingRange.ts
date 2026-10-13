@@ -12,8 +12,6 @@
  * has already established that it has something to measure; the identities are
  * what makes that precondition visible rather than a thrown `undefined`.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Finds drawing and model extents without an argument-spread limit that would fail on ordinary large meshes.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Folds an arbitrary numeric iterable into stable minimum and maximum identities in one pass.
  * @author Samchon
  */
 export const autoMovieDrawingRange = (

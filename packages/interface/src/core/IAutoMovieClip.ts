@@ -17,48 +17,21 @@ import { IAutoMovieTrack } from "./IAutoMovieTrack";
  * under the humanoid profile's retarget discipline (rotation-only except the
  * root), so one shot legitimately holds both representations at once.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `IAutoMovieClip` as the portable data boundary for the motion clip refusal requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieClip` for the performance motion clip keytime interpolation system contract.
  * @author Samchon
  */
 export interface IAutoMovieClip {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `id` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `id` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Stable id. */
   id: string;
 
-  /**
-   * Human / LLM readable name. Null if unnamed.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `name` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `name` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Human / LLM readable name. Null if unnamed. */
   name: string | null;
 
-  /**
-   * Total length in seconds. Every track time should be `<= duration`.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `duration` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `duration` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Total length in seconds. Every track time should be `<= duration`. */
   duration: number;
 
-  /**
-   * Whether the clip loops seamlessly.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `loop` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `loop` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Whether the clip loops seamlessly. */
   loop: boolean;
 
-  /**
-   * The tracks; each targets one channel.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `tracks` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `tracks` for the performance motion clip keytime interpolation system contract.
-   */
+  /** The tracks; each targets one channel. */
   tracks: IAutoMovieTrack[];
 }

@@ -45,8 +45,6 @@ const DEFAULT_SAMPLE_RATE = 24;
  * (inter-sample interpolation is linear/slerp after the bake). Expression
  * channels (morph `weights` tracks) are deferred.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Samples clinical angles and lowers them into rotation and root-transform tracks without changing the motion clock.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Bakes the source sampler on a fixed grid so the general clip reproduces its key-time state.
  * @author Samchon
  */
 export const motionToClip = (props: {

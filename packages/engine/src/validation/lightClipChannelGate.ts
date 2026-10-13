@@ -21,9 +21,6 @@ import { pushViolation } from "./pushViolation";
  * does not (the stored-slice path, which reads one file with no scene beside
  * it). Without it the pointer grammar and value type are still gated; only the
  * "does this light exist, and does its kind carry this" pair defers.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `lightClipChannelGate` locates an unknown staged-light target, unsupported property, or mismatched value type at the light track's channel.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `lightClipChannelGate` derives admission from the same light-property table used by the applier and retains the rejected address.
  */
 export const lightClipChannelGate =
   (

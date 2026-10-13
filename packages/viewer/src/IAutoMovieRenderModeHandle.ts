@@ -13,19 +13,10 @@ import type {AutoMovieGuidePass} from "@automovie/interface";
  * never disposed; they belong to the scene. Restoring twice is safe: the second
  * call is a no-op, so nothing double-disposes.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps this surface explicit about beauty versus structural output.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that distinction as a reversible render-product pass.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Restores every temporary pass mutation before another pass or frame can observe it.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements reversible pass-local scene and renderer state.
  * @author Samchon
  */
 export interface IAutoMovieRenderModeHandle {
-  /**
-   * The pass this override draws.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps this surface explicit about beauty versus structural output.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that distinction as a reversible render-product pass.
-   */
+  /** The pass this override draws. */
   mode: AutoMovieGuidePass;
 
   /**
@@ -36,9 +27,6 @@ export interface IAutoMovieRenderModeHandle {
    * out. These are the same three counts {@link IAutoMovieSemanticMaskHandle}
    * carries, surfaced here so the caller that asked for the pass can read them
    * without reaching past the handle it was given.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps this surface explicit about beauty versus structural output.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that distinction as a reversible render-product pass.
    */
   semantic: {
     /** Meshes painted a semantic colour. */
@@ -49,11 +37,6 @@ export interface IAutoMovieRenderModeHandle {
     unresolved: string[];
   } | null;
 
-  /**
-   * Undo the override completely. Idempotent.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps this surface explicit about beauty versus structural output.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that distinction as a reversible render-product pass.
-   */
+  /** Undo the override completely. Idempotent. */
   restore: () => void;
 }

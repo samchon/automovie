@@ -8,8 +8,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Owns result interpretation separately from actual subprocess creation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Consumes host results without replacing spawn or native process methods.
  * @evidence contracts/common.md#meaningful-documentation Defines failure precedence and the successful JSON transport requirement.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Preserves failures from the actual process-ownership host transport.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Admits JSON only after successful native-host execution.
  */
 export function decodeWindowsProcessResult(result: {
   error?: Error;

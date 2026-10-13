@@ -47,8 +47,6 @@ const IRRIGATION_MEDIA = new Set(["potable", "reclaimed", "rainwater", "pond"]);
  * against, and inventing one would be the design deciding a fact the author did
  * not state.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Validates the planting's declared room, support, irrigation, and host bindings.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Enforces the placement boundary between an installation and its generated planting.
  * @author Samchon
  */
 export const validatePlantingInstallations = (props: {

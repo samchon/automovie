@@ -50,8 +50,6 @@ interface IAxisSprings {
  * Expression output is sampled on the same frame clock and applied to morph
  * targets or imported-runtime expression sinks when the target provides them.
  *
- * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Samples this public playback surface on the exact motion boundary.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Implements that boundary on the shared motion clock.
  * @author Samchon
  */
 export class AutoMoviePlayer {
@@ -86,22 +84,12 @@ export class AutoMoviePlayer {
     >,
   ) {}
 
-  /**
-   * Swap the clip being played (e.g. transition to a new motion).
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Samples this public playback surface on the exact motion boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Implements that boundary on the shared motion clock.
-   */
+  /** Swap the clip being played (e.g. transition to a new motion). */
   public setMotion(motion: IAutoMovieMotion): void {
     this.motion = motion;
   }
 
-  /**
-   * Sample the clip at `seconds` and apply the pose to the model.
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Samples this public playback surface on the exact motion boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Implements that boundary on the shared motion clock.
-   */
+  /** Sample the clip at `seconds` and apply the pose to the model. */
   public update(seconds: number): void {
     const deltaSeconds =
       this.lastUpdateSeconds === null

@@ -36,12 +36,7 @@ const outlineCentroid = (
   return { x: x / (3 * doubleArea), y: y / (3 * doubleArea) };
 };
 
-/**
- * Every exposed separation of every building unit, placed in world space.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Derives the exposed envelope population a facade and roof review is counted over.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Implements the envelope-face derivation shared by the census and the observation population.
- */
+/** Every exposed separation of every building unit, placed in world space. */
 export const builtEnvironmentEnvelopeFaces = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvelopeFace[] => {

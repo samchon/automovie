@@ -17,8 +17,6 @@ import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGener
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the standard-body group; admission stays with the caller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps each caller-supplied shape and pose state with both actual generation digests instead of substituting another body or bypassing domain admission.
  * @evidence contracts/common.md#meaningful-documentation States the basis, the unchanged states and the key inputs.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each standard body state to the exact view bytes it is built on.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view One reader owns the standard-body group; admission stays with the caller.
  */
 export function readHumanViewerStandardBodies(
   props: IReadHumanViewerStandardBodiesProps,

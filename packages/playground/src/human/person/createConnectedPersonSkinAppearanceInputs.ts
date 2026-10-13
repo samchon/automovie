@@ -11,8 +11,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * an absent record and changes no albedo until an authored strength is given.
  * No patch centre, radius or personal vertex selection is editable here.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Offers named shared skin-area reflectance and strength as numerical inputs.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Derives selectable areas from registered continuous skin hosts and consumes the face owner's identity and numerical domains.
  * @author Samchon
  */
 export function createConnectedPersonSkinAppearanceInputs(

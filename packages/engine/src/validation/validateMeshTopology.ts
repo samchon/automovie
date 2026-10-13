@@ -32,8 +32,6 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * by construction and pass; the beneficiary is imported or authored mesh geometry validated
  * through `validateModel`.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateMeshTopology` reports non-manifold edges and inconsistent shared-edge winding at the standalone mesh root.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateMeshTopology` preserves each welded edge identity and observed incidence count or orientation beside the topology constraint.
  * @author Samchon
  */
 export const validateMeshTopology = (

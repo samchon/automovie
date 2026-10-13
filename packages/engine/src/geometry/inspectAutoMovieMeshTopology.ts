@@ -29,9 +29,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * verdict on the same surface, adding winding consistency and an `expectClosed`
  * declaration, and it is what `validateModel` runs over every mesh a model
  * carries. A builder that wants a pass or a fail asks that one.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Measures face, edge, manifold, and volume facts of a mesh.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports the topology produced by geometry operations without assuming validity.
  */
 export const inspectAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,

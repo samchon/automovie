@@ -16,9 +16,6 @@ const MAGNUS_B = 243.12;
  * `gamma = ln(RH) + a*T/(b+T)`, `Td = b*gamma/(a - gamma)`. Exported because it
  * is the one place this project turns humidity into a temperature, and a second
  * copy would be a second answer.
- *
- * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `autoMovieDewPoint` turns declared air temperature and relative humidity into the comparison temperature used for condensation evidence.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The function evaluates the single Magnus-form moisture boundary shared by envelope risk calculations.
  */
 export const autoMovieDewPoint = (
   temperature: number,

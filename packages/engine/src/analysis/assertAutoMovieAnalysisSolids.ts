@@ -9,9 +9,6 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * an authored shading solid has no honest result to return for a solid with no
  * faces, so it stops rather than producing one. Sharing the rule is what keeps
  * a neighbour's mass and the building's own canopy held to one standard.
- *
- * @evidence requirements/map/weather-and-seasons.md#map-calendar-time-celestial-state `assertAutoMovieAnalysisSolids` stops an analysis adapter from accepting an unidentifiable, duplicate, or non-bounding blocker.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-calendar-time-celestial-input The assertion applies stable-id checks and the common half-space validator before a solid reaches ray evaluation.
  */
 export const assertAutoMovieAnalysisSolids = (
   solids: readonly IAutoMovieAnalysisSolid[],

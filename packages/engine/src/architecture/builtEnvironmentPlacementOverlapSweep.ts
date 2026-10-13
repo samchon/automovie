@@ -135,8 +135,6 @@ const sharedVolume = (left: IWorldBox, right: IWorldBox): number =>
  * inside the larger and deepest first, because a quoin toothed a centimetre into
  * its wall and a column standing wholly inside one are not one finding.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Answers the neighbour-overlap question across a whole building rather than one named pair at a time.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Reports each intersecting pair's shared volume, its share of the smaller body, both bases, and the comparisons performed.
  * @author Samchon
  */
 export const builtEnvironmentPlacementOverlapSweep = (props: {

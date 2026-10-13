@@ -67,9 +67,6 @@ const blank = (value: string | null): boolean =>
  * Every finding names the row it was observed on, so the command that prints
  * the matrix can refuse the whole answer rather than publish a route an author
  * would have to complete by guessing.
- *
- * @evidence requirements/product/authorability.md#product-discoverable-control Refuses to claim a capability whose owner, input, consumer, or route the author could not find, and refuses an absent capability presented as a blank path.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Diagnoses blank supported fields, duplicated kind and capability addresses, and inapplicable rows that also claim a route.
  */
 export const inspectAutoMovieAuthoringReachability = (
   rows: readonly IAutoMovieAuthoringReachabilityRow[],

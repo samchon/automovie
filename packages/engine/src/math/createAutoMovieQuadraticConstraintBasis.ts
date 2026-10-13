@@ -12,8 +12,6 @@ import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
  * Binary64 rank readings and affine reconstruction remain separate from the
  * refinement caller's unchanged full original-row KKT and geometry admission.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves every original condition while making exact structural equivalences and numerical basis refusal explicit.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains working ordinals, equation divisors and free-dual transport instead of declaring a numerical rank reduction to be a geometry guarantee.
  * @author Samchon
  */
 export function createAutoMovieQuadraticConstraintBasis(

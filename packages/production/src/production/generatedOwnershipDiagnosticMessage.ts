@@ -17,8 +17,6 @@ import type { AutoMovieContentDigest } from "@automovie/interface";
  * things. An absent file has no digest, and rendering that absence rather than
  * inventing one keeps the two cases one message.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Traces a compile diagnostic to what produced it by carrying the digest observed on disk beside the one the named input set derives.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Reports the mismatch against the exact derivation input set that unit fixes, so the finding names design, source, evidence, adopted content and protocol rather than source and design alone.
  * @author Samchon
  */
 export const generatedOwnershipDiagnosticMessage = (props: {

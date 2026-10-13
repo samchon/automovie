@@ -49,8 +49,6 @@ const shift = (
  * since `validateJointRom`/`clampJointRom` gate the cone on `swingDeg !=
  * null`.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Re-expresses clinical range limits in the joint's actual rest-relative frame.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Expresses effective ROM in the same rig basis used by articulation.
  * @author Samchon
  */
 export const restRelativeConstraint = (

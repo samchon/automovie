@@ -19,9 +19,6 @@ type State = {
  * For cache-issued clones, the allocation owner acknowledges only a successful
  * same-capacity retirement completion. Source detachment and unrelated original
  * or issued-wrapper uncertainty remain outside that recovery receipt.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Keeps cached environment allocation authority tied to its actual owned creation and retirement inputs.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Rejects shared or changed immutable input ownership before stale native conversions can certify a smaller bound.
  */
 export class AutoMovieEnvironmentTextureOwnership {
   private static readonly states = new WeakMap<THREE.Texture, State>();

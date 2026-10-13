@@ -1,11 +1,6 @@
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 
-/**
- * Draw a fixed-window log-magnitude spectrogram from exact mixed PCM.
- *
- * @evidence requirements/sound/validation-and-delivery.md#sound-numeric-verification Visualizes fixed-window spectral measurements from final PCM.
- * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Produces deterministic spectrogram evidence for review.
- */
+/** Draw a fixed-window log-magnitude spectrogram from exact mixed PCM. */
 export const productionSoundSpectrogram = (
   pcm: Float32Array,
   width = 512,

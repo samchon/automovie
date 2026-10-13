@@ -16,8 +16,6 @@
  * The placement is an anatomical fact of each joint, declared with its axes;
  * omission keeps `"proximal"`, the order every existing pose was authored in.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Declares how a joint's named controls compose, so each control keeps its anatomical meaning in combination.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Fixes the composition order the semantic controls enter the rig's rotation graph in.
  * @author Samchon
  */
 export type AutoMovieJointTwistPlacement = "proximal" | "distal";

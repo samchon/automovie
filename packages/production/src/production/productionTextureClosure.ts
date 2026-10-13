@@ -17,9 +17,6 @@ import type {
  * library's standalone model contributions leaves those material uses unpaid.
  * Keep every occurrence: equal ids across environments must not hide different
  * material records behind a last-writer-wins map.
- *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-honest-refusal Refuses sampled images without a registered source, authorized consumer use, and readable byte facts.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-fail-closed-decision-gate Returns the exact unmet image use before either production shape can publish its output.
  */
 export const productionTextureClosureDiagnostics = (props: {
   production: string;

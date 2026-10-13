@@ -21,11 +21,6 @@ const FINGERPRINT_TOKEN = /(?:^|\s)#[0-9a-f]{7}(?=\s|$)/gu;
  * Graph resolution remains `@wrtnlabs/evidence`'s authority. This preflight owns
  * only syntax facts that can otherwise produce a false carrier, a conflicting
  * acknowledgement, or a review with no declaration to review.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves one unambiguous acknowledgement and review pair per target and host.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Refuses malformed targets, duplicate rows, contradictions, and orphan reviews with stable addresses.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Adds only deterministic carrier grammar checks before native graph evaluation.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Reports every syntax defect before returning a partial graph.
  */
 export function assertAutoMovieEvidenceSyntax(
   documents: readonly IAutoMovieEvidenceSyntaxDocument[],

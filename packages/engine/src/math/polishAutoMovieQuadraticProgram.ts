@@ -65,9 +65,6 @@ type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  * @param readGradient Original stationarity measurement, owned by that caller.
  * @param readComplementarity Original signed/null/equality predicate, owned by that caller.
  * @param fixedPrimalEligible Original native feasibility and complementarity already pass.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves the original constrained objective and every interval while preparing a primal/dual correction near the retained native result.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Uses exact intersection endpoint authority, restores aggregate multipliers to original rows and admits no candidate independently of the complete original-row owner.
  */
 export function polishAutoMovieQuadraticProgram(
   input: Problem,

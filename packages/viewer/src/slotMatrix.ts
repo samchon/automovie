@@ -7,9 +7,6 @@ import { formationSpacingOffset } from "./formationSpacingOffset.js";
  * Positions and the anchor are metres; authored headings are degrees. The
  * engine owns spacing arithmetic, while Three projects the resulting local
  * position and slot heading into an instance buffer without moving the root.
- *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Projects one compiled slot into its group-local instance matrix using the shared engine placement law.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Projects one compiled slot into its group-local instance matrix using the shared engine placement law.
  */
 export const slotMatrix = (
   slot: IAutoMovieFormationSlot,

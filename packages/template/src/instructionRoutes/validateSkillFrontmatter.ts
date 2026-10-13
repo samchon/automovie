@@ -1,11 +1,6 @@
 import { isMap, parseDocument } from "yaml";
 
-/**
- * Admit skill metadata before traversing its original Markdown body.
- *
- * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Admits the actual skill metadata before topic traversal and returns its original Markdown body without filesystem access.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Admits the actual skill metadata before topic traversal and returns its original Markdown body without filesystem access.
- */
+/** Admit skill metadata before traversing its original Markdown body. */
 export const validateSkillFrontmatter = (
   file: string,
   markdown: string,

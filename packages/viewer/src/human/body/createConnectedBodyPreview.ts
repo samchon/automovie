@@ -14,14 +14,10 @@ import { createHumanResidentWorker } from "../common/createHumanResidentWorker.j
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps.js";
 
-/** Keep one worker alive across edits and separate exported bytes from frames.
+/**
+ * Keep one worker alive across edits and separate exported bytes from frames.
  * A superseded prepared frame rejects after its resource retirement settles,
  * retaining both the supersession and any cleanup failure.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Withdraws stale edits and prepares only the latest numerical body for publication.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Requests GLB independently for the committed body document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the admitted worker resident while correlating preview and export transactions.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Leaves file encoding to the explicit worker export request.
  */
 export function createConnectedBodyPreview<
   Document extends

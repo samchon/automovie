@@ -1,7 +1,5 @@
 # `@automovie/interface`
 
-Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieInterfaceEvidenceExclusions.ts` retains actor and asset boundaries. `lint.config.ts` selects these declarations from the complete source population. They record capabilities the portable data package does not implement, while public data declarations retain their own positive contract citations. Exclusion carriers are not re-exported by the package barrel.
-
 `IAutoMovieMesh.colors` optionally carries one linear RGB multiplier per vertex, with finite components in `[0,1]`. Omission preserves the material's base colour without allocating a colour buffer. RGB multiplies material and texture colour; it does not change alpha.
 
 `IAutoMovieMesh.physicalVertices` optionally carries `{ sources: { domain: string; id: number }[]; vertices: (number | null)[] }`. A render vertex references a source row or uses `null` for current-position welding. Equal source pairs mean one actual point duplicated for attributes; independent contact points have different pairs even at equal coordinates. Domains name physical instances, not normal islands or biological sources. IDs are nonnegative safe integers; aliases must agree on the engine's topology grid. Ordinary production TypeScript generators can emit this correspondence with their reviewed source incidence. Merge preserves original pairs and keeps legacy entries dynamic. The field does not certify triangle area, orientation or intersections.

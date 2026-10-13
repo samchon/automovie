@@ -137,12 +137,7 @@ export const openAutoMovieProduction = (props: {
   };
 };
 
-/**
- * Compile through the package API.
- * @evidence requirements/agent-authoring/partial-work.md#agent-partial-verification-scope Returns the result of the requested compile scope only, so a source-scope success is never read as a full-film verification.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-target-input Takes the requested compile scope as an explicit input and applies atomicity to that target rather than to the whole production.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-diagnostic-failure-channel Returns diagnostics through the typed result channel even when no artifact could be published, never through the artifact path.
- */
+/** Compile through the package API. */
 export const buildAutoMovieProduction = (props: {
   /** Host-owned path at or below the project root. */
   projectRoot?: string;
@@ -167,10 +162,7 @@ export const buildAutoMovieProduction = (props: {
 }): IAutoMovieBuildProjectOutput =>
   openAutoMovieProduction(props).builder.build({ scope: props.scope });
 
-/**
- * Project status projection for CLI and lint consumers.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Projects each render and caption result with the exact target and inputs it covers and leaves unanswered scope unknown.
- */
+/** Project status projection for CLI and lint consumers. */
 export const inspectAutoMovieProduction = (
   services: IAutoMovieProductionServices,
 ): IAutoMovieProductionInspection => {

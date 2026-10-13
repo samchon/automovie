@@ -27,15 +27,6 @@ import { stageScene } from "./stageScene";
  * validation and continuity sampling. Author mistakes return diagnostics.
  * Unexpected builder exceptions are also translated at this public boundary,
  * keeping raw throws internal to programmer invariants.
- *
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-delivery-acceptance compileDefinedShot realizes a registered source builder and returns its measured delivery status at the direct authoring boundary.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-temporal-validation Requires blocking and performance duration to match the registered range and each finite event sample to lie inside its declared window.
- * @evidence requirements/staging/events-and-timing.md#staging-event-refusal Returns structured build diagnostics for missing, duplicate, undeclared, non-finite, or out-of-window event samples.
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-shot-source-binding Checks the built scene, beat, and duration against the registered shot and records the same shot id as the realized source export.
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-shot-contract-refusal Stops at registration, build, stage, blocking, performance, or realization failure with addressed diagnostics and never publishes a partial shot source.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result Applies the registered duration and event windows before performance and reports the owning phase for any failed temporal gate.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Admits exactly one declared finite sample inside each event window and refuses missing, duplicate, undeclared, or out-of-window occurrences.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-contract-realization-acceptance-status Binds the built artifact to its registered scene, beat, duration, and source identity and returns structured contract failure instead of partial delivery.
  */
 export const compileDefinedShot = <Context>(props: {
   /** Registered source export. */

@@ -10,9 +10,6 @@ import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence
  * diagnostic remains visible together; an absent value cannot certify admission.
  * Other incomplete analyses remain reported by their owning contract.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `autoMovieRenderBudgetRefusal` carries the conservative measurement basis and deterministic budget decision.
- * @evidence requirements/rendering/budgets.md#rendering-budget-refusal Names every over-limit shot and its recorded recoveries instead of silently degrading the requested render.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `autoMovieRenderBudgetRefusal` exposes that responsibility through the package-independent system contract.
  * @author Samchon
  */
 export const autoMovieRenderBudgetRefusal = (

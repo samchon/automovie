@@ -15,8 +15,6 @@ import { probeHumanViewer } from "./probeHumanViewer.js";
  * @evidence contracts/common.md#clear-and-simple-design One attachment loop delegates health classification to the probe and child lifetime to its existing process handle.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preparation has no overall deadline; only the actual owned exit or reported source failure ends startup, never an unanswered probe or substituted image.
  * @evidence contracts/common.md#meaningful-documentation States the attachment and the failure causes.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Readiness comes from the server's own health; the owner stays attached to its child.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One attachment loop delegates health classification to the probe and child lifetime to its existing process handle.
  */
 export async function awaitHumanViewerReady(
   context: IHumanShotContext,

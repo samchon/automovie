@@ -41,8 +41,6 @@ const OVERLAY_PATCH_PREFIX = "automovie-overlays-";
  * and preserves the original cause alongside an independent cleanup failure.
  * The source's shader records are restored even if base-state copying fails.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Shows a material's authored base colour without lighting for the albedo observation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Refuses unsupported material families and unknown shader modifications instead of guessing their colour.
  * @author Samchon
  */
 export function createHumanObservationAlbedoMaterial(

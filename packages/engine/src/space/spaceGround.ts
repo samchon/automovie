@@ -12,8 +12,6 @@ import { prepareSpace } from "./prepareSpace";
  * surfaces degrades to the legacy behavior instead of a solver-ish
  * nearest-surface search, which stays deferred).
  *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `spaceGround` adapts a prepared space into the `(x, z) → y` ground callback consumed by path following, foot planting, and ground-contact validation. This ensures marks and supports resolve against their declared host geometry.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `spaceGround` exposes the space's walkable-height query as the host-relative ground function used by motion seams.
  * @author Samchon
  */
 export const spaceGround = (

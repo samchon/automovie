@@ -1,9 +1,6 @@
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 
-/** Twice the shoelace sum, halved: positive counter-clockwise, in m².
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Measures the orientation and area of a metric construction ring.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Supplies the signed shoelace area used to preserve ring correspondence and winding.
- */
+/** Twice the shoelace sum, halved: positive counter-clockwise, in m². */
 export const signedArea = (
   points: readonly IAutoMovieProfilePoint[],
 ): number => {

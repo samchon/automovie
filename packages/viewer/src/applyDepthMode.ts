@@ -42,9 +42,6 @@ const makeNormalizedDepthMaterial = (range: number): THREE.ShaderMaterial =>
 /**
  * Depth pass: every mesh renders its normalized metric depth over a black
  * (infinitely far) background.
- 
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Projects camera-space metric depth and restores its owned material and background state.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Projects camera-space metric depth and restores its owned material and background state.
  */
 export const applyDepthMode = (
   scene: THREE.Scene,

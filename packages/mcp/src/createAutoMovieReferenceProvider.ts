@@ -28,17 +28,6 @@ import type {
  *
  * Each request reads current bytes. Layer continuation hashes the complete ordered
  * file revisions observed by that request, without claiming atomicity across files.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-selection Resolves actual authored files and explicit heading subtrees through one provider.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-source Derives indices and content from current bytes and rejects stale digests.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-bounds Enforces source, population, pagination and serialized-response budgets with classified refusals.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Gives every request only the bound reader capability and never invokes graph or production execution.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Supplies the same result envelope to MCP and the local JSON command.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-selection Resolves section identity and hierarchy from the same parsed file snapshot.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-source Uses byte digests and exact source intervals for every projection.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds Binds continuation to ordered revisions and refuses responses that cannot fit one complete result.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Admits only authored Markdown paths and performs no writes or runtime calls.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Dispatches the four operation discriminants without maintaining client state.
  */
 export function createAutoMovieReferenceProvider(
   reader: IAutoMovieReferenceReader,

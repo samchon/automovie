@@ -22,10 +22,6 @@ import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
  * parent frames. A range refusal uses the same transaction refusal path.
  * Ranges describe admission of this source rig and establish no clinical bone
  * frame or measured personal motion capacity.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds named joint inputs to the latest body draft and returns unsupported pending shapes to the panel's transaction refusal.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's TT rest and the same coupling additions the builder consumes, while keeping bone selection outside the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves draft publication and last-valid recovery with the injected panel refusal and change owners.
  */
 export function mountBodyJointControls(props: IBodyJointControlsProps): void {
   const { dom, container, basis } = props;

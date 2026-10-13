@@ -8,8 +8,6 @@ import type { IConnectedBodyFemoralHeads } from "@automovie/human/body/runtime/I
  * centre is the hip rig joint, so a fit reading is not read as a hip joint,
  * femur or acetabulum.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor States the femoral head target reading beside the preview.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows measured or unavailable femoral heads with their qualification.
  * @author Samchon
  */
 export function bodyFemoralReading(

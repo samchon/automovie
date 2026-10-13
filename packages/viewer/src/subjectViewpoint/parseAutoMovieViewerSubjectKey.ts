@@ -10,9 +10,6 @@ import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
  * it, and answering the wrong one looks like agreement while the two sides are
  * looking at different things.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `parseAutoMovieViewerSubjectKey` resolves a portable subject name back to its kind, identity, and revision without inferring an unstated kind.
- * @evidence requirements/review/subject-inspection.md#review-observable-judgeable-parity `parseAutoMovieViewerSubjectKey` refuses any public subject target that cannot be opened as its own observation unit.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-target-parity `parseAutoMovieViewerSubjectKey` refuses a target it cannot resolve to a subject unit instead of substituting a neighbouring one.
  * @author Samchon
  */
 export const parseAutoMovieViewerSubjectKey = (

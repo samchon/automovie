@@ -14,12 +14,7 @@ const staticActorWorldFrame = (
   facingDeg: context.facingDeg,
 });
 
-/**
- * Resolve a motion root on top of the actor's staged world transform.
- *
- * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-authority-mode Composes clip-local root motion with the authored staged transform without double authority.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Produces the world root at one sampled instant.
- */
+/** Resolve a motion root on top of the actor's staged world transform. */
 export const resolveActorWorldFrame = (
   context: IAutoMovieActorContext,
   motion: IAutoMovieMotion | undefined,

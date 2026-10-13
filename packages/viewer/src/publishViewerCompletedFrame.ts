@@ -15,11 +15,6 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * @evidence contracts/common.md#clear-and-simple-design One canvas-scoped synchronous event carries the existing scene/camera and optional state controller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no renderer monkeypatch, automatic filesystem writer or named-consumer branch.
  * @evidence contracts/common.md#meaningful-documentation Defines opt-in and timing independently of admission or review acceptance.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Supplies original completed display facts to the application capture owner.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Keeps observation with the actual native producer.
- *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-evidence-producer-authority Publishes completion supplied by the original draw owner; the capture caller reads the actually loaded page revision rather than promoting a requested state or old file to current evidence.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Publishes completion supplied by the original draw owner; the capture caller reads the actually loaded page revision rather than promoting a requested state or old file to current evidence.
  */
 export function publishViewerCompletedFrame(canvas: {
   getAttribute?: (name: string) => string | null;

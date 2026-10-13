@@ -7,8 +7,6 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 /**
  * Wrap an imported runtime object as an {@link IAutoMovieModelObject}.
  *
- * @evidence requirements/external-inputs/adoption-modes-and-composition.md#external-adoption-direct-placement Adapts this already-loaded object by direct placement without decoding it.
- * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-direct-placement-boundary Implements the direct-placement boundary while preserving caller ownership.
  * @author Samchon
  */
 export const createImportedModelObject = (

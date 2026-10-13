@@ -139,8 +139,6 @@ const NEIGHBOURS: ReadonlyArray<
  * rather than quietly turning into NaN frames a renderer would draw as
  * nothing.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Reconstructs the complete soft-body state at a declared absolute step.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Implements the bounded fixed-step transition of the soft solver.
  * @author Samchon
  */
 export const simulateSoftBody = (

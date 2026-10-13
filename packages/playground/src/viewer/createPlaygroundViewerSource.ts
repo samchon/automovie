@@ -26,8 +26,6 @@ import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPubli
  * @evidence contracts/common.md#clear-and-simple-design One application binding reuses the disk witness and maintained-file reader while keeping source membership and ordinary runtime-output roots explicit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved publication refuses new candidates without expiring a lock by age or borrowing another host's source authority.
  * @evidence contracts/common.md#meaningful-documentation Names the checkout roots, missing/emitted membership, watcher ownership and limits of SDK/transformed-response coverage.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Identifies the declared source, emitted modules and application inputs that carry this Playground's authored choices for repeatable replay.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Contributes the application disk-input component of deterministic identity, including dependency version manifests, without certifying every installed SDK byte or transformed browser response.
  */
 export function createPlaygroundViewerSource(root: string) {
   const playground = path.join(root, "packages/playground");

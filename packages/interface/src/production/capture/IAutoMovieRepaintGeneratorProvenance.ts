@@ -2,8 +2,6 @@
  * Descriptive metadata and cost basis for the generator behind repaint.
  *
  * The cost basis and production consumer accompany the selected runtime.
- *
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Types the cost basis and production consumer accompanying the selected generator.
  */
 export interface IAutoMovieRepaintGeneratorProvenance {
   /** Optional descriptive source location. */

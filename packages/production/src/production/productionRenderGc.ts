@@ -8,12 +8,7 @@ type AutoMovieContentDigest =
 type IAutoMovieProductionRenderJobPlan =
   import("@automovie/render").IAutoMovieProductionRenderJobPlan;
 
-/**
- * One renderer-owned disk entry considered by mark-and-sweep.
- *
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-target-preview Carries the exact target, generation, bytes, and finding an operator previews.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-plan-preview Supplies the immutable inventory fact behind one cleanup decision.
- */
+/** One renderer-owned disk entry considered by mark-and-sweep. */
 export interface IAutoMovieProductionRenderGcCandidate {
   /**
    * Canonical logical ownership path reported by the renderer host.
@@ -56,12 +51,7 @@ export interface IAutoMovieProductionRenderGcCandidate {
   observation: IAutoMovieProductionRenderCleanupObservation | null;
 }
 
-/**
- * Mutually exclusive artifact states preserved through cleanup decisions.
- *
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-recovery-refusal Keeps unresolved render evidence distinguishable from absence and verified stale output.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-chunk-recovery Names the state carried from inspection through resume and finalization.
- */
+/** Mutually exclusive artifact states preserved through cleanup decisions. */
 export type AutoMovieProductionRenderArtifactState =
   | "absent"
   | "current"
@@ -72,12 +62,7 @@ export type AutoMovieProductionRenderArtifactState =
   | "unavailable"
   | "observation-conflict";
 
-/**
- * Physical authority proved by the host for one captured generation.
- *
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-concurrency-safety Prevents an ambiguous or successor generation from inheriting mutation authority.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-concurrency-safety Limits apply to an exact captured remove or quarantine boundary.
- */
+/** Physical authority proved by the host for one captured generation. */
 export type AutoMovieProductionRenderCleanupAuthority =
   | "none"
   | "exact-remove"
@@ -95,12 +80,7 @@ export type AutoMovieProductionRenderArtifactStage =
   | "ownership"
   | "reference";
 
-/**
- * One sanitized finding produced without collapsing uncertainty to stale.
- *
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-recovery-refusal Preserves the reason and safe next action for each unresolved chunk.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-chunk-recovery Carries inspection failure without copying raw artifact bytes into diagnostics.
- */
+/** One sanitized finding produced without collapsing uncertainty to stale. */
 export interface IAutoMovieProductionRenderCleanupObservation {
   /** Mutually exclusive result of the observation. */
   state: AutoMovieProductionRenderArtifactState;
@@ -112,12 +92,7 @@ export interface IAutoMovieProductionRenderCleanupObservation {
   reason: string;
 }
 
-/**
- * One reasoned member of an immutable cleanup disposition set.
- *
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-target-preview Makes every preview entry explain its exact classification.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-plan-preview Binds a disposition to the captured candidate and sanitized reason.
- */
+/** One reasoned member of an immutable cleanup disposition set. */
 export interface IAutoMovieProductionRenderCleanupDecision {
   /** Exact inventory candidate being adjudicated. */
   candidate: IAutoMovieProductionRenderGcCandidate;
@@ -140,11 +115,6 @@ export interface IAutoMovieProductionRenderCleanupDecision {
  * pointing at them, so a host that quarantines a target can store the receipt
  * beside the evidence and a later inventory can read why the move happened
  * without the plan that ordered it.
- *
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-concurrency-safety Names the exact dry-run basis a mutation must still match, so apply cannot act on a plan the inventory has since outgrown.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-quarantine-boundary Carries the original identity, captured generation, reason, and adjudication authority a quarantine must keep with its preserved evidence.
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-deletion-record Restates each decision with target identity, authority, stage and reason so a removed artifact is never mistaken for one that was never produced.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-deletion-outcome-tombstone Carries the exact target generation, disposition, authority and reason of a decision without any payload that could reconstruct the artifact.
  */
 export interface IAutoMovieProductionRenderCleanupReceipt {
   /** Receipt schema. */
@@ -176,12 +146,7 @@ type IUnreceiptedRenderCleanupDecision = Omit<
   "receipt"
 >;
 
-/**
- * Decide whether one typed artifact finding may feed or replace a chunk.
- *
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-recovery-refusal Allows reuse only for current evidence and materialization only for proven absence.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-chunk-recovery Makes every unresolved existing generation a render refusal.
- */
+/** Decide whether one typed artifact finding may feed or replace a chunk. */
 export const productionRenderMaterializationDecision = (
   state: AutoMovieProductionRenderArtifactState,
 ): "render" | "reuse" | "refuse" => {
@@ -195,10 +160,6 @@ export const productionRenderMaterializationDecision = (
 /**
  * Dry-run result; hosts may mutate only the exact `remove` and `quarantine`
  * entries and must preserve every manual-adjudication target.
- *
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-target-preview Exposes all four required disposition sets before apply.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-plan-preview Keeps automatic and operator-owned recovery disjoint.
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-failure-visibility Reports blocked and manual-adjudication candidates beside removable ones so a reclaim shortfall is visible rather than absorbed by sacrificing current artifacts.
  */
 export interface IAutoMovieProductionRenderGcPlan {
   /**
@@ -240,13 +201,6 @@ export interface IAutoMovieProductionRenderGcPlan {
  * Locks, attempts, and arbitrary paths never enter this planner. The CLI keeps
  * those operational records outside the candidate inventory so GC cannot race
  * an active worker.
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-cleanup-target-preview Returns explicit retain, remove, quarantine, and manual-adjudication sets with one exact reason per target.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-recovery-refusal Keeps integrity, ownership, availability, and observation conflicts distinct from verified stale output.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-cleanup-plan-preview Allows automatic mutation only when the host proved authority over the captured generation.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-chunk-recovery Preserves unresolved render output instead of converting a read failure into absence.
- * @evidence requirements/operations-and-recovery/retention-and-cleanup.md#operations-reference-aware-retention Retains every artifact a current plan or publication references before any candidate is considered for removal.
- * @evidence specifications/execution-and-recovery/retention-cleanup-and-quarantine.md#execution-reference-aware-retention Computes the retained closure from current plans and publications before any candidate may be removed, and never reads an unreadable reference as permission.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-partial-artifact-retention Decides retain, remove, quarantine or manual adjudication per partial artifact with its authority and reason, preserving past evidence.
  */
 export const planProductionRenderGc = (props: {
   /** Current plans from every retained tier. */

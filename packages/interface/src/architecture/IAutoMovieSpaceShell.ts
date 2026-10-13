@@ -16,26 +16,15 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * from outside the solid, both of which `validateBuiltEnvironment` checks,
  * because a boundary with a gap in it has no inside and a boundary turned
  * inside out has the wrong one.
- *
- * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `IAutoMovieSpaceShell` as the portable data boundary for the interior wall boundary validation requirement.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `IAutoMovieSpaceShell` for the interior space wall partition boundary system contract.
  */
 export interface IAutoMovieSpaceShell {
-  /**
-   * World-space vertices the triangles index; at least four.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `vertices` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `vertices` for the interior space wall partition boundary system contract.
-   */
+  /** World-space vertices the triangles index; at least four. */
   vertices: IAutoMovieVector3[];
 
   /**
    * Triangles as flat vertex-index triples, so `triangles[3i]`,
    * `triangles[3i+1]` and `triangles[3i+2]` are one face. At least four faces,
    * because nothing fewer closes a solid.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `triangles` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `triangles` for the interior space wall partition boundary system contract.
    */
   triangles: number[];
 }

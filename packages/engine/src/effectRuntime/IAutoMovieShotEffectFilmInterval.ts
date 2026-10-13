@@ -5,8 +5,6 @@
  * one effect owner at every realized film frame. They are not substituted for
  * film-owned runtime effects.
  *
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Keeps shot and film ownership explicit before runtime materialization.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Refuses overlapping owners instead of selecting a last writer.
  * @author Samchon
  */
 export interface IAutoMovieShotEffectFilmInterval {

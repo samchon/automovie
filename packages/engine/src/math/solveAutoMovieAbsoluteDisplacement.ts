@@ -27,8 +27,6 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * An all-fixed feasible system returns exact zeros without invoking the kernel.
  *
  * @publicUnconsumed packages/human/src/components/oralVault.ts: The accepted joint oral L1 experiment must first replay through the shared numerical owner before its anatomical construction and identity/performance separation are integrated.
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Minimizes signed geometric travel while preserving exact fixed attachments and every affine interval.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Uses an equivalent sparse epigraph and independently checks restored original-coordinate feasibility and numerical objective gap.
  */
 export function solveAutoMovieAbsoluteDisplacement(input: {
   weights: readonly number[];

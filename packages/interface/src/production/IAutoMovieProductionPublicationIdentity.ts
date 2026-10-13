@@ -3,55 +3,24 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import type { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 
-/**
- * Recomputable identity of one exact render-plan generation and runtime.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Preserves the complete runtime closure that produced a publication.
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Preserves the exact plan provenance beside delivered bytes.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Makes publication identity structured and independently recomputable.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the candidate identity checked at publication boundaries.
- */
+/** Recomputable identity of one exact render-plan generation and runtime. */
 export interface IAutoMovieProductionPublicationIdentity {
-  /**
-   * Closed identity protocol.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Versions the identity whose changes invalidate prior outputs.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Closes the recomputation protocol.
-   */
+  /** Closed identity protocol. */
   protocolVersion: "automovie.production-publication.v4";
 
-  /**
-   * Persisted render-plan schema.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Invalidates publications across plan-schema changes.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Identifies the plan projection being recomputed.
-   */
+  /** Persisted render-plan schema. */
   planVersion: 4;
 
-  /**
-   * Production namespace whose plan produced the publication.
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Joins delivery provenance to its production.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Prevents cross-production adoption.
-   */
+  /** Production namespace whose plan produced the publication. */
   productionId: string;
 
-  /**
-   * Exact builder input used by the plan.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Invalidates delivery after builder-input change.
-   * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the input precondition.
-   */
+  /** Exact builder input used by the plan. */
   compileFingerprint: AutoMovieContentDigest;
 
-  /**
-   * Exact builder-owned edit used by the plan.
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Records the editorial generation.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Binds the package to one edit.
-   */
+  /** Exact builder-owned edit used by the plan. */
   editFingerprint: AutoMovieContentDigest;
 
-  /**
-   * Complete installed capture, dialogue, and encoder closure.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Preserves runtime identity.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Makes runtime provenance inspectable.
-   */
+  /** Complete installed capture, dialogue, and encoder closure. */
   runtimeIdentity: {
     /** Render-runtime identity protocol. */
     protocolVersion: "automovie.production-render-runtime.v3";
@@ -93,11 +62,7 @@ export interface IAutoMovieProductionPublicationIdentity {
     };
   };
 
-  /**
-   * Proxy or final policy, compared only with the same tier.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Makes tier-policy change invalidate that tier.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-publication-retention Keeps proxy and final histories independent.
-   */
+  /** Proxy or final policy, compared only with the same tier. */
   tier: {
     /** Independent proxy or final publication family. */
     kind: "proxy" | "final";
@@ -109,39 +74,19 @@ export interface IAutoMovieProductionPublicationIdentity {
     frameStep: number;
   };
 
-  /**
-   * Compiler-owned full-rate format.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Includes source format in invalidation.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Records the source picture contract.
-   */
+  /** Compiler-owned full-rate format. */
   sourceFrameFormat: IAutoMovieProductionDesign["frameFormat"];
 
-  /**
-   * Exact tier output format.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Includes output format in invalidation.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Records the delivered picture contract.
-   */
+  /** Exact tier output format. */
   frameFormat: IAutoMovieProductionDesign["frameFormat"];
 
-  /**
-   * Tier output frame count.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Includes extent in invalidation.
-   * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Records the complete planned extent.
-   */
+  /** Tier output frame count. */
   totalFrames: number;
 
-  /**
-   * Maximum planned chunk span.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Includes chunking policy in identity.
-   * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Records the candidate plan partition.
-   */
+  /** Maximum planned chunk span. */
   chunkFrames: number;
 
-  /**
-   * Canonical chunk identity projection in plan order.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Requires the complete chunk population.
-   * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Allows reuse only from verified chunks.
-   */
+  /** Canonical chunk identity projection in plan order. */
   chunks: Array<{
     /** Stable operational slot. */
     slot: string;
@@ -168,11 +113,7 @@ export interface IAutoMovieProductionPublicationIdentity {
     frames: AutoMovieContentDigest;
   }>;
 
-  /**
-   * Canonical identities of every non-video publication track.
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Includes every track dependency in invalidation.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Completes package provenance beyond picture chunks.
-   */
+  /** Canonical identities of every non-video publication track. */
   tracks: {
     /** Canonical caption-track digest. */
     captions: AutoMovieContentDigest;
@@ -187,10 +128,6 @@ export interface IAutoMovieProductionPublicationIdentity {
     effects: AutoMovieContentDigest;
   };
 
-  /**
-   * Digest of the canonical identity fields above.
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Makes provenance compactly comparable.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Requires independent recomputation from structured fields.
-   */
+  /** Digest of the canonical identity fields above. */
   fingerprint: AutoMovieContentDigest;
 }

@@ -42,13 +42,6 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
  *
  * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
  *
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Materializes this surface from the resolved scene state only.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps semantic support out of beauty while retaining it for structural products.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the boundary from resolved staging state to the viewer scene.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the scene's support patch as structural-only render geometry.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-refusal Refuses unsupported shadow profiles and unresolved node models before returning the scene, preserving node/model identity instead of dropping or replacing that subject.
- *
  * @author Samchon
  */
 export const buildScene = (

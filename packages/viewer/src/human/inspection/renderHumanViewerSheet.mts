@@ -13,8 +13,6 @@ import type { planHumanViewerSheet } from "./planHumanViewerSheet.js";
  * @evidence contracts/common.md#clear-and-simple-design Sheet composition has explicit capture, revision and browser inputs instead of server-global ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Composes the actual captured cells and authored axis labels without fixture or subject recognition.
  * @evidence contracts/common.md#meaningful-documentation Defines GPU admission ownership, matrix ordering and the no-file-write boundary.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Serial cell capture and a final revision comparison prevent a sheet from mixing source generations.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Sheet composition has explicit capture, revision and browser inputs instead of server-global ownership.
  */
 export async function renderHumanViewerSheet(props: {
   page: Page;

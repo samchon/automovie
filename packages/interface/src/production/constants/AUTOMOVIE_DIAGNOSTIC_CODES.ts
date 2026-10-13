@@ -4,9 +4,6 @@
  * This tuple is the canonical registry key set. A user-facing behavioral
  * catalog must exhaustively map it, and producers may not invent an unlisted
  * string. Update the tuple only together with that catalog.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-code-catalog-reference Requires one enumerable code catalog shared by actual delivery.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-code-catalog-reference Makes the shipped tuple the exhaustive key set for behavioral references.
  */
 export const AUTOMOVIE_DIAGNOSTIC_CODES = [
   "acceptance-story-sync-failed",

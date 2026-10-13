@@ -23,8 +23,6 @@ import { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
  * somebody has looked at a zone is a fact about a review, not about the
  * building. It belongs to the review record and joins to this by zone id.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `IAutoMovieDrawingSchedulePlace` as the location, membership and relation the schedule requirement asks a room row to provide.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingSchedulePlace` for the interior space drawing schedule quantity system contract.
  * @author Samchon
  */
 export type IAutoMovieDrawingSchedulePlace =

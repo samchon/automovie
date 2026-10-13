@@ -12,8 +12,6 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * an initialization refusal independently reports disposal and its original
  * cause rather than leaving an unreturned allocation with no owner.
  *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Lowers compiled geometry into a viewer-owned runtime buffer object.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the runtime ownership side of isolated scene lowering.
  * @author Samchon
  */
 export const buildGeometry = (

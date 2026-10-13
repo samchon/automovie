@@ -18,8 +18,6 @@ import {
  * coding agent authors {@link IAutoMovieActionCall}s, this seam fattens each
  * into a clip, and {@link compilePerformance} composes them into the shot.
  *
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-capability-plan Exposes the capability-specific seam that turns one authored action into actor motion.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Implements the action-to-performance binding while leaving clip content to the adopted capability.
  * @author Samchon
  */
 export type IAutoMovieActionSynthesizer = (

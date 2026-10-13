@@ -13,9 +13,6 @@ import {
  * therefore yields a straight polygon containing the true outline, tight at
  * every extreme, and every containment or separation answer taken from it errs
  * only towards refusing.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `outlineHull` produces the straight polygon that exactly bounds a possibly arced outline. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `outlineHull` replaces arced edges with sampled points and returns their bounding straight polygon for finite topology checks.
  */
 export const outlineHull = (
   profile: IAutoMovieOpeningProfile,

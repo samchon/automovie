@@ -51,9 +51,6 @@ type Node<T> = Leaf<T> | Branch<T>;
  * An empty input yields a leaf with positive/negative infinity extrema as
  * empty-union sentinels; it is not a finite spatial box and the signed query
  * refuses empty surfaces before calling this stage.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Builds a reusable spatial partition of resident geometry bounds without catalogue-specific geometry or coordinate changes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reorders owned resident references while retaining identities and coordinates and reconstructing enclosing bounds for geometry queries.
  */
 export function buildAutoMovieMeshQueryHierarchy<T extends Box>(
   triangles: T[],

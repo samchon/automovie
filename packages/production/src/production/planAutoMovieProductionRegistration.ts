@@ -28,11 +28,6 @@ import { compareCodeUnits } from "./contentIdentity";
  * A read-only open neither registers nor issues. It refuses a production the
  * registry does not name and a registered production this checkout holds no
  * incarnation of, and names the build that initializes both.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps the production namespace a result preserves in the tracked registration every checkout reads, never in state one checkout issued.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Publishes only the portable registration a new checkout takes as its namespace input and keeps each checkout's incarnation out of it.
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-late-writer-fencing Issues a new generation whenever an id is registered again, so a handle from the deleted namespace cannot write into its successor.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-fencing-late-writer Discards an ended namespace's generation before registration and never adopts it, so the expected target generation a stale handle holds no longer matches.
  */
 export const planAutoMovieProductionRegistration = (props: {
   /** Resident registry after validation, or `null` when this checkout has none. */

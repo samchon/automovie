@@ -16,8 +16,6 @@ import type {
  * names the `deliverable` and `pass` that own it. A range that reassembles and
  * a range that is independently lockable, resumable and verifiable against a
  * receipt are different contracts that happen to share two field names.
- *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-multipart-channels Plans beauty and each structural pass as separate chunk products with their own identity, receipt and encoded file, so one pass's failure never hides inside another pass's output.
  */
 export interface IAutoMovieProductionRenderChunk {
   /**

@@ -5,8 +5,6 @@
  * The caller supplies the domain's fallback. ErrorEvent details and ordinary
  * errors keep their available message.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supplies a worker failure reason even when a module-load event has no message, allowing the transport to reject pending edits while retaining the committed face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Normalizes the native failure at the request transport boundary before it retires the failed connection.
  * @author Samchon
  */
 export function humanWorkerErrorMessage(

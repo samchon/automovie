@@ -2,8 +2,6 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
 /**
  * Exact deterministic or selected-repaint member of one sequence observation.
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-temporal-artifacts Seals every ordered occurrence observed together.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Preserves lane-specific member identity.
  */
 export type IAutoMovieRepaintObservationMember =
   | {

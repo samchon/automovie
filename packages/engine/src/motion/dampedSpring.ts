@@ -19,8 +19,6 @@ const assertFinite = (label: string, value: number): void => {
  * {@link stepSpring} (VRM SpringBone, for the Node/Channel core), this works in
  * the humanoid pose path's angle space.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Integrates the declared response parameters into explicit value and velocity state.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Executes one deterministic fixed step of the live secondary-motion choice.
  * @author Samchon
  */
 export const dampedSpring = (

@@ -14,9 +14,6 @@ import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
  * choose an acceptance tolerance in its own units and check the original
  * geometry after subsequent transformations. This function does not turn a
  * solver status or objective decrease into a geometric validity certificate.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Minimizes coupled geometric travel while retaining every declared affine interval and returning failure rather than a relaxed substitute.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Converts validated rows to owned column-compressed buffers and measures constraint and stationarity residuals against the original coefficients.
  */
 export function solveAutoMovieQuadraticProgram(input: {
   diagonal: readonly number[];

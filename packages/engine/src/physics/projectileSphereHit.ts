@@ -12,8 +12,6 @@ import { segmentSphere } from "./segmentSphere";
  * test exact per segment (the projectile is smooth, so a modest `steps`
  * resolves the contact time closely).
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Returns the first bounded contact along an analytic projectile path.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Produces the contact time and point consumed by aftermath logic.
  * @author Samchon
  */
 export const projectileSphereHit = (

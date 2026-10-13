@@ -44,9 +44,6 @@ const NEIGHBOURS: ReadonlyArray<
  * domain anchors and colliders remain valid and are combined with the moving
  * boundary, so omitting this API preserves the original curtain path byte for
  * byte.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Samples the actor boundary on the cloth fixed clock.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Implements the explicitly selected moving-boundary path.
  */
 export const simulateSoftBodyWithBoundaries = (
   domain: IAutoMovieSoftBodyDomain,

@@ -12,25 +12,13 @@ import { IAutoMovieGaitStyle } from "./IAutoMovieGaitStyle";
  * per-frame motion ({@link IAutoMovieMotion}). A profile carries a set of
  * these.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `IAutoMovieGait` as the portable data boundary for the motion gait table requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `IAutoMovieGait` for the performance kinematics procedural gait rule system contract.
  * @author Samchon
  */
 export interface IAutoMovieGait {
-  /**
-   * Stable name (`"walk"`, `"trot"`, `"gallop"`, `"stalk"`).
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `name` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `name` for the performance kinematics procedural gait rule system contract.
-   */
+  /** Stable name (`"walk"`, `"trot"`, `"gallop"`, `"stalk"`). */
   name: string;
 
-  /**
-   * Stride period (one full cycle) in seconds.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `period` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `period` for the performance kinematics procedural gait rule system contract.
-   */
+  /** Stride period (one full cycle) in seconds. */
   period: number;
 
   /**
@@ -39,26 +27,15 @@ export interface IAutoMovieGait {
    * follows `center + amplitude * sin(2 * PI * (t / period + phase))`. Omit it
    * for a gait that should leave root placement entirely to `travelMotion` /
    * staging.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `rootBob` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `rootBob` for the performance kinematics procedural gait rule system contract.
    */
   rootBob?: IAutoMovieGaitRootBob;
 
   /**
    * Optional style scalars that bias the generated gait without changing its
    * footfall sequence. Omit a field to keep the profile's neutral style.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `style` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `style` for the performance kinematics procedural gait rule system contract.
    */
   style?: IAutoMovieGaitStyle;
 
-  /**
-   * Each limb's contribution to the cycle.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `limbs` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `limbs` for the performance kinematics procedural gait rule system contract.
-   */
+  /** Each limb's contribution to the cycle. */
   limbs: IAutoMovieGaitLimb[];
 }

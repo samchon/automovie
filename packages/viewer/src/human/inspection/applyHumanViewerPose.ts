@@ -14,8 +14,6 @@ import { resolveHumanViewerPose } from "./resolveHumanViewerPose.js";
  * @evidence contracts/common.md#clear-and-simple-design This query adapter mutates only pose/look and delegates pose-value interpretation to the shared resolver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the caller's actual pose file rather than a fitted camera fallback and hides local filesystem details when its read fails.
  * @evidence contracts/common.md#meaningful-documentation States the permitted file stem, subject key, in-place mutation and conflict with an explicit look.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor A restricted file stem and explicit subject select one pose; an existing look refuses competing camera authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view This query adapter mutates only pose/look and delegates pose-value interpretation to the shared resolver.
  */
 export function applyHumanViewerPose(
   fields: URLSearchParams,

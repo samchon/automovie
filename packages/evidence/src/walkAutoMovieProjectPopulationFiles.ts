@@ -23,8 +23,6 @@ interface IAutoMovieEvidencePhysicalFile {
  * bytes. The identity manifest is admitted by its own decision at a fixed path
  * and does not use a directory-entry count.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Refuses a second enumerated pathname for the same bytes instead of counting it as an independent contract or source.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Implements the population half of the two separate physical judgments, including the single-link requirement only that half carries.
  * @author Samchon
  */
 export const isAutoMovieEvidencePhysicalFile = (
@@ -38,8 +36,6 @@ export const isAutoMovieEvidencePhysicalFile = (
  * Walk one project-local evidence population without following filesystem
  * indirection or accepting an entry the graph cannot inventory.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Refuses linked, special, and project-external entries before a physical population can disappear from or enter the graph inventory.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Enumerates project-local population roots with lstat semantics while leaving the separately resolved shared-contract package outside this boundary.
  * @author Samchon
  */
 export const walkAutoMovieProjectPopulationFiles = (

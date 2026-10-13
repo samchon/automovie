@@ -29,8 +29,6 @@ import type { resolveAutoMovieSourceOwnerBinding } from "./sourceOwnerBinding";
  * derived artifact, because the correction belongs to that artifact's generator
  * rather than to anything the source returned.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Registers each contribution under the exact source path, export and design address whose owner edge was admitted, and attributes each refusal to that export or to the artifact it selected.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Admits the graph-selected path, export and Markdown target as one owner edge before invoking build or reading a derived contribution, and refuses an export whose runtime claim names another owner.
  * @author Samchon
  */
 export const collectLibrarySourceRegistrations = (props: {

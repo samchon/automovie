@@ -6,9 +6,6 @@ const compareCodeUnits = (left: string, right: string): number =>
 
 /**
  * Plan every delivery index in scripts, construction screenplays, and final screenplays from numbered units.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Keeps both delivery indexes linked to their authoritative unit files.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Applies one canonical renderer across every delivery group.
  */
 export const planAutoMovieProjectDeliveryTocs = (props: {
   check?: boolean;
@@ -112,9 +109,6 @@ export const planAutoMovieProjectDeliveryTocs = (props: {
 /**
  * Select only stale delivery indexes after proving the observation used for
  * generation has not changed before publication.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Refuses to overwrite a delivery index edited after its canonical rendering was planned.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Produces one complete current index candidate for parent-bound publication.
  */
 export const planAutoMovieDeliveryTocPublication = (props: {
   current: Readonly<Record<string, string>>;

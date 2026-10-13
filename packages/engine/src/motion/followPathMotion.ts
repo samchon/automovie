@@ -70,9 +70,6 @@ interface ISegment {
  * Pathfinding and obstacle avoidance are out of scope: the path is authored
  * (blocking / #605's navigable space provide it).
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-terrain-adaptation Samples the authored route and ground source while preserving gait phase through corners.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Bakes a compact gait deterministically into terrain-adjusted path motion and frame records.
- * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-ground-clearance Samples the declared ground height at each path position into the emitted root translation.
  * @author Samchon
  */
 export const followPathMotion = (props: {

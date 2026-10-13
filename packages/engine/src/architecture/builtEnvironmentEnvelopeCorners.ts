@@ -18,9 +18,6 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * corner. The side the corner turns toward is read from the meeting point
  * itself: a corner is exterior when each facade's own body lies behind the
  * other's outward plane, and reentrant when it lies in front of it.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Derives the exterior and reentrant corner population an envelope review owes.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Implements the corner derivation and its exterior or reentrant classification.
  */
 export const builtEnvironmentEnvelopeCorners = (
   environment: IAutoMovieBuiltEnvironment,

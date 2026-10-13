@@ -14,9 +14,6 @@
  * a legacy layout migration may carry an entry into the production namespace. A
  * second copy would let those two answers disagree, which is how a migration
  * came to move the one document the namespace resolver had already ruled out.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Separates the output a production namespace owns from the tracked document no namespace produced, so only a result is placed under the namespace that made it.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Keeps the tracked render document among the project's tracked inputs instead of the namespaced derived state, so a new checkout reads it from version control.
  */
 export const isAutoMovieProductionArtifactEntry = (props: {
   /** Output root the entry sits directly inside. */

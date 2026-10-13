@@ -29,24 +29,12 @@ import { IAutoMoviePropRelationTarget } from "./IAutoMoviePropRelationTarget";
  * a socket or a hook, so they are checked as citations and left unmeasured
  * rather than judged against a frame that never said where the contact is.
  *
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-depth-of-field-boundary Exposes `IAutoMoviePropRelation` as the portable data boundary for the camera depth of field boundary requirement.
- * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `IAutoMoviePropRelation` for the clv focus intent appearance boundary system contract.
  * @author Samchon
  */
 export interface IAutoMoviePropRelation {
-  /**
-   * Which contact semantics this relation asserts.
-   *
-   * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-depth-of-field-boundary Exposes `kind` as the portable data boundary for the camera depth of field boundary requirement.
-   * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `kind` for the clv focus intent appearance boundary system contract.
-   */
+  /** Which contact semantics this relation asserts. */
   kind: AutoMoviePropRelationKind;
 
-  /**
-   * The stable spatial, element, or affordance id the relation cites.
-   *
-   * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-depth-of-field-boundary Exposes `target` as the portable data boundary for the camera depth of field boundary requirement.
-   * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Types `target` for the clv focus intent appearance boundary system contract.
-   */
+  /** The stable spatial, element, or affordance id the relation cites. */
   target: IAutoMoviePropRelationTarget;
 }

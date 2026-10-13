@@ -21,9 +21,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * Vertices are welded on the rounded output grid before edges are keyed, so two
  * triangles that meet at a shared corner are recognised as meeting there even
  * when the arithmetic that produced the corner differed by a last bit.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Extracts the visible boundary of projected source geometry without drafting its internal triangulation.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Welds rounded vertices and retains only singly owned edges or edges shared by oppositely facing facets.
  */
 export const autoMovieDrawingSilhouetteEdges = (
   frame: IAutoMovieDrawingFrame,

@@ -9,8 +9,6 @@ import { softBodyStepAt } from "./softBodyStepAt";
 /**
  * Sample a soft-body domain at a shot second, snapping down to its fixed step.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Returns the repeatable state at the requested shot time.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Applies the bounded transition sequence through the snapped step.
  * @author Samchon
  */
 export const sampleSoftBody = (

@@ -9,8 +9,6 @@ import type { IHumanViewerSettleable } from "./IHumanViewerSettleable.js";
  * @evidence contracts/common.md#clear-and-simple-design One fixed-point loop coordinates supplied owners; each owner retains its own pending work and settlement predicate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Re-reads after real owner settlement without a retry-by-time cap, invented verdict or weaker admission for a slow input.
  * @evidence contracts/common.md#meaningful-documentation States why one pass is not enough.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Ends on the owners' own idleness, never on a delay.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One fixed-point loop coordinates supplied owners; each owner retains its own pending work and settlement predicate.
  */
 export async function settleHumanViewerInputs<T>(
   read: () => T,

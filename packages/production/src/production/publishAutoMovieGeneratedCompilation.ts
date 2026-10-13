@@ -20,9 +20,6 @@ import { AUTOMOVIE_PRODUCTION_BUILD_VERSION } from "./productionBuildProtocol";
  * publication errors propagate unchanged, and a failed revision observation
  * preserves both original causes through the race-result policy. This stage
  * creates no lock, revision owner, retry, fallback artifact or partial success.
- *
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Settles the complete generated candidate through one guarded transaction and returns no materialized files after an input race.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Delegates the exact candidate and acquired revision to the existing atomic authority and preserves refusal as a failure result.
  */
 export const publishAutoMovieGeneratedCompilation = (props: {
   /** Shared namespace and transaction owner of this compilation. */

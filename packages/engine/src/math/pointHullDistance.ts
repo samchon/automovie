@@ -7,9 +7,6 @@ import { pointInHull } from "./pointInHull";
  * Distance from `point` to a convex hull on the XZ plane: `0` when inside,
  * otherwise the distance to the nearest boundary. Degenerate hulls fall back to
  * the distance to their single vertex (size 1) or segment (size 2).
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Measures the load point's residual to the support boundary, including degenerate support sets.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Measures the load point's residual to the support boundary, including degenerate support sets.
  */
 export const pointHullDistance = (
   point: IAutoMovieVector3,

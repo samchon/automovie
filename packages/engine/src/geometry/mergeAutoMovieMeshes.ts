@@ -43,10 +43,6 @@ import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMe
  * legacy correspondence and continue welding by current position, including
  * across other legacy members and after deformation. Neither a new namespace
  * nor fixed legacy IDs replace that meaning. The result owns its metadata.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Combines authored mesh operands without an argument-list size ceiling.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reindexes each input topology into one deterministic mesh.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Decides what a composition does to the coordinate sets its members carry.
  */
 export const mergeAutoMovieMeshes = (
   meshes: readonly IAutoMovieMesh[],

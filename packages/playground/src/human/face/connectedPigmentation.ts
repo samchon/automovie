@@ -11,9 +11,6 @@ import type {
  * and radii display millimetres and store metres; gains remain linear RGB.
  * Neutral defaults add no colour until the author changes gain and strength.
  * No field, surface name or placement is tied to a study subject.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Makes regional reflectance independently editable through numerical controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Routes surface field creation, editing and removal through the shared document history.
  */
 export function mountConnectedFacePigmentation(
   app: HTMLElement,

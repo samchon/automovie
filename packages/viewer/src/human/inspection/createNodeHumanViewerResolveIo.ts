@@ -14,8 +14,6 @@ import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevis
  * @evidence contracts/common.md#principled-implementation Native physical-path checks precede regular-file selection and UTF-8 reads; foreign symlinks refuse the receipt while missing or unreadable local source remains absent.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the requested file without expected-source substitution, private compiler-cache lookup or mutation of filesystem methods.
  * @evidence contracts/common.md#meaningful-documentation States the caller-owned checkout, foreign-boundary refusal, regular-file requirement and optional unreadable result.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Filesystem existence and UTF-8 source reads supply the revision owner's actual on-disk inputs; unreadable source remains absent.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One disk adapter serves the server's first digests and the worker's later ones.
  */
 export function createNodeHumanViewerResolveIo(root: string): ICreateHumanViewerRevisionsProps["io"] {
   const actualRoot = fs.realpathSync.native(root);

@@ -26,8 +26,6 @@
  *   spray never exceeds it and distance thinning cuts it further.
  * - `textureBytes` and `geometryBytes` are estimated device bytes.
  *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Exposes `AutoMovieRenderMetric` as the portable data boundary for the rendering geometry memory budget requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `AutoMovieRenderMetric` for the spec render budget preflight system contract.
  * @author Samchon
  */
 export type AutoMovieRenderMetric =

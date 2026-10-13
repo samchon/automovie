@@ -54,8 +54,6 @@ const readLocal = (
  * constraint (the VRM SpringBone order), so a collision can stretch the bone by
  * up to the push distance for that step rather than tunnel through a body.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Advances only the solver-owned live spring state under fixed authored parameters.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Implements deterministic live secondary motion against sampled moving boundaries.
  * @author Samchon
  */
 export const stepSpring = (

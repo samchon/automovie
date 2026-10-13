@@ -23,8 +23,6 @@ import { serveHumanViewerRescan } from "./serveHumanViewerRescan.js";
  * @evidence contracts/common.md#clear-and-simple-design One ordered dispatcher composes catalogue, reference, basis, rescan and cache endpoints without duplicating their I/O rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Delegates original requests and published document identities without substituting a cached image for numerical data or patching route implementations.
  * @evidence contracts/common.md#meaningful-documentation States handled-request meaning, GPU separation and the reason for overlapping-path route order.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Specific generation-view routes precede general basis routes and short-circuit at the actual resource owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view One ordered dispatcher composes catalogue, reference, basis, rescan and cache endpoints without duplicating their I/O rules.
  */
 export function serveHumanViewerData(
   props: IServeHumanViewerDataProps,

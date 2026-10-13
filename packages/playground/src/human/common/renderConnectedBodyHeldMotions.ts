@@ -17,8 +17,6 @@ import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
  * not listed. Only joints matching the search are listed; nothing is
  * appended when none match.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names every joint axis the source rig holds instead of leaving the missing motion to be discovered.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists each held joint axis as a disabled row derived from the basis's joint constraints.
  * @author Samchon
  */
 export function renderConnectedBodyHeldMotions(

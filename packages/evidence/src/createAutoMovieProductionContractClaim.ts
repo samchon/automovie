@@ -18,28 +18,13 @@ type MarkdownSymbol = Extract<
   { type: "markdown" }
 >["symbol"];
 
-/**
- * Authored Markdown layer that may answer a production-local contract.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes local claim ownership an explicit layer identity.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed local-claim layer vocabulary.
- */
+/** Authored Markdown layer that may answer a production-local contract. */
 export type AutoMovieProductionContractLayer = AutoMovieAuthoredDocumentLayer;
 
-/**
- * Authored pass whose units answer a production-local contract.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes a local rule's construction or final ownership explicit.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed local contract pass vocabulary.
- */
+/** Authored pass whose units answer a production-local contract. */
 export type AutoMovieProductionContractPass = "construction" | "naturalness";
 
-/**
- * Additive graph claim retaining its project-specific binding identity.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Preserves the layer, scope, and positive-or-negative disposition beside the native graph claim.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the typed local binding projection consumed by the manifest reader.
- */
+/** Additive graph claim retaining its project-specific binding identity. */
 export type AutoMovieProductionContractClaim = MarkdownClaim & {
   /** AutoMovie identity validated and removed before native graph evaluation. */
   autoMovieBinding: {
@@ -69,9 +54,6 @@ export type AutoMovieProductionContractClaim = MarkdownClaim & {
  * those rules. The host stage is explicit so the local claim follows the same
  * `draft -> evidence -> review` lifecycle as the shared graph rather than
  * becoming an independently enabled side graph.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Takes the owning host population's visible stage and describes one production-owned additive claim without inventing hidden configuration.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Reuses the generated project's closed evidence-stage vocabulary and additive-claim input shape for local wiring.
  */
 export interface IAutoMovieProductionContractClaimProps {
   /** Diagnostic identity stating what the selected hosts must establish. */
@@ -137,8 +119,6 @@ export interface IAutoMovieProductionContractClaimProps {
  * The eligible authored H2 population is derived from layer and scope. Relevant
  * authored units or an aggregate account collectively fulfill the obligation.
  *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Declares the local account, target, layer, stage, and scope together.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Selects eligible authored hosts from layer and scope and reserves one aggregate address for the flat contract document.
  * @author Samchon
  */
 export interface IAutoMovieProductionObligationClaimProps extends Omit<
@@ -158,11 +138,6 @@ export interface IAutoMovieProductionObligationClaimProps extends Omit<
  * discharge an answer, and completed-stage answers retain their actual citations without
  * companion rows or fingerprints. Draft and disabled hosts carry no evidence tags, so their local
  * contract claim remains declared but disabled alongside the shared graph.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves the required no-exclusion per-host checklist meaning of a principle.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Appends this local principle as a per-host checklist while leaving the reusable graph's selected claims intact.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits the checklist, exclusion, and review flags that define principle wiring.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Returns one checklist-shaped extension whose H2, H3, and H4 hosts remain independently accountable.
  */
 export function createAutoMovieProductionPrincipleClaim(
   props: IAutoMovieProductionContractClaimProps,
@@ -177,11 +152,6 @@ export function createAutoMovieProductionPrincipleClaim(
  * The owning layer's H2s and a reserved aggregate account collectively cover
  * the contract's H2 targets. Each cited target keeps its structural coverage duty.
  * The binding retains the full eligible population and aggregate host address.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves the required no-exclusion population coverage meaning of an obligation.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Appends this local obligation as population-level H2 coverage without mutating the reusable claims.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Reuses ordinary coverage over relevant authored and aggregate H2 owners.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Registers the exact local account through the generated claims array without replacing shared claims.
  */
 export function createAutoMovieProductionObligationClaim(
   props: IAutoMovieProductionObligationClaimProps,
@@ -313,9 +283,6 @@ function createClaim(
  *
  * Constructors and binding admission share this boundary so an edited native
  * claim cannot retain final metadata while selecting construction hosts.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Keeps an AutoMovie-bound local principle accountable to its declared authored population.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Checks the docs root and normalized positive host selectors against construction or final screenplay ownership.
  */
 export function validateAutoMovieProductionContractHosts(props: {
   root: string | undefined;

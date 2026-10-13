@@ -11,9 +11,6 @@ type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
  * Whether a channel carries a rotation (a quaternion), which the sample pass
  * must interpolate with slerp rather than component-wise lerp, the glTF rule
  * for LINEAR rotation tracks.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Preserves quaternion semantics when evaluating a rotation channel.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Classifies graph channels so rotation values retain their declared evaluation rule.
  */
 export const channelIsRotation = (channel: IAutoMovieChannel): boolean => {
   switch (channel.kind) {

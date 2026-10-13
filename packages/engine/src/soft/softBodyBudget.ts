@@ -13,8 +13,6 @@ import { softBodyTravelNumber } from "./softBodyTravelNumber";
  * panel before the first solve, and the same numbers ride into the builder's
  * report so a reviewer sees what the fabric cost.
  *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-per-frame-shot-budget Prices soft-body work across the declared shot horizon.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#budget-frame-shot-sequence-composition Supplies the particle, constraint, and iteration cost for composition.
  * @author Samchon
  */
 export const softBodyBudget = (

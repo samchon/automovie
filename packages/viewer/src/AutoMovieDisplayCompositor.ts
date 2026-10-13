@@ -21,9 +21,6 @@ import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState
  * use a straight target for that product. Native sRGB destinations receive the
  * canonical inverse transfer before their automatic encoding, preserving the
  * display-byte domain rather than applying another view transform.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Captures each already transformed display source once before byte-domain composition.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Keeps source display resolution separate from the raw display-byte operator.
  */
 export class AutoMovieDisplayCompositor {
   private readonly sources: THREE.FramebufferTexture[];
@@ -78,9 +75,6 @@ export class AutoMovieDisplayCompositor {
    * Resize owned copies only; drawing-buffer pixels remain the source unit.
    * All copies receive the new extent and upload generation even when an
    * independent disposal listener fails, so same-size retries stay coherent.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Invalidates only the compositor's owned display storage when the renderer buffer changes.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps resized GPU products local to this compositor.
    */
   public resize(width: number, height: number): void {
     this.admitSize(width, height);
@@ -101,11 +95,6 @@ export class AutoMovieDisplayCompositor {
    * are attempted, and an aggregate retains the original failure first.
    * The previous canvas picture is retained before any source draw and restored
    * after a failed composition, so partial sources never replace a valid display.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Weights directly resolved display bytes while preserving each callback's own view transform.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Bypasses an additional display transform on the raw byte quad.
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Restores target, clear, auto-clear and tone state on every exit.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Attempts every restoration and retains primary and restoration failures.
    */
   public render(renderer: THREE.WebGLRenderer, outgoing: () => void, incoming: (() => void) | null, alpha: number): void {
     const target = renderer.getRenderTarget();
@@ -192,12 +181,7 @@ export class AutoMovieDisplayCompositor {
     renderer.copyFramebufferToTexture(texture);
   }
 
-  /**
-   * Release only compositor-owned textures, geometry and material.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Releases every display copy and quad resource owned by the compositor.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Leaves the caller's renderer and scene lifecycles untouched.
-   */
+  /** Release only compositor-owned textures, geometry and material. */
   public dispose(): void {
     const failures: unknown[] = [];
     for (const resource of [...this.sources, this.backing, this.geometry, this.material]) {
@@ -216,9 +200,6 @@ export class AutoMovieDisplayCompositor {
    * The current owned RGBA8/no-mipmap display-copy extent. Both source sampler
    * uniforms and the saved display can upload, even for a one-layer fade, so
    * their conservative resident closure contains three copies.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Reports the texture storage this live compositor can retain without inferring encoded image bytes.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies current GPU storage facts for host render-budget assessment.
    */
   public describeTextureResidency(): {width:number;height:number;copies:3} {
     return {width:this.width,height:this.height,copies:3};

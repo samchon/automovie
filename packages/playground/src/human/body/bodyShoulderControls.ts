@@ -24,9 +24,6 @@ const AXES = ["plane", "elevation", "axialRotation"] as const;
  * past the plane's reach is visible before it is written. The slider keeps
  * the whole total-elevation range: clamping it per plane would silently
  * rewrite an authored elevation whenever the plane moved.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the author edit each humerus by a named thorax-relative plane, total elevation and axial rotation while retaining newer draft edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Displays the current shape's shoulder rest, admitted ranges, the painted plane's joint-sinus reach, the plane period and the two pole ambiguities beside the controls.
  */
 export function renderBodyShoulderControls(
   props: IBodyShoulderControlsProps,

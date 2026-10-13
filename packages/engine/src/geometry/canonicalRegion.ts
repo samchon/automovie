@@ -16,9 +16,6 @@ import { signedArea } from "./signedArea";
  * laid out but only triangulates the two it caps with. Cutting them for all of
  * them would be work thrown away, which is also a claim in the code that the
  * middle sections are triangulated when nothing reads those triangles.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Normalizes validated outer and hole rings without inventing vertices or changing the caller.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns copied canonical rings and signed area for extrusion and loft correspondence.
  */
 export const canonicalRegion = (
   outer: readonly IAutoMovieProfilePoint[],

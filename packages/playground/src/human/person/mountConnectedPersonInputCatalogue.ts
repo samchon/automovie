@@ -24,9 +24,6 @@ import { writeConnectedPersonInput } from "./writeConnectedPersonInput";
  * current owner catalogue on refresh, so loading another document changes
  * the resident hair populations without retaining their previous seeds.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Edits listed numerical inputs through the person transaction with the last valid person kept on a refusal.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Shows each face input with its owner's unit and envelope and no clinical claim of its own.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Draws every row from one descriptor list and names the inputs that list cannot describe.
  * @author Samchon
  */
 export function mountConnectedPersonInputCatalogue(

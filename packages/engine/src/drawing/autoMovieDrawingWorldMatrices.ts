@@ -9,9 +9,6 @@ import { Matrix4 } from "../math/Matrix4";
  * hierarchy into staged scene nodes, so a line on the drawing and the set piece
  * it depicts stand in the same place. The suite pins that agreement directly
  * rather than trusting the two to stay in step.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Places drawing geometry through the same parent-child transforms as its staged element so the sheet cannot drift from the model.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Recursively composes each element's local transform with its ancestors and caches one world matrix per resolved identity.
  */
 export const autoMovieDrawingWorldMatrices = (
   environment: IAutoMovieBuiltEnvironment,

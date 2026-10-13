@@ -13,8 +13,6 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js
  * @evidence contracts/common.md#clear-and-simple-design Settling belongs to the host; this route publishes and answers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes actual settled sidecar and admission outcomes, retaining undecided entries instead of coercing them to success or silently dropping refusals.
  * @evidence contracts/common.md#meaningful-documentation States when it answers and what the answer holds.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Answers with decided inputs, keeping pending and refused apart.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Settling belongs to the host; this route publishes and answers.
  */
 export function serveHumanViewerRescan(
   props: IServeHumanViewerDataProps,

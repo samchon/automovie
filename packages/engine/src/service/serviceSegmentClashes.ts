@@ -17,8 +17,6 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  * whether or not the two belong to the same discipline, because a duct and a
  * cable tray cannot share a cubic metre any more than two ducts can.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceSegmentClashes` names every pair of routed runs whose occupied volumes interfere outside a shared fitting.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceSegmentClashes` compares radius-expanded span boxes, exempts segments sharing an endpoint node, and preserves pair declaration order.
  * @author Samchon
  */
 export const serviceSegmentClashes = (

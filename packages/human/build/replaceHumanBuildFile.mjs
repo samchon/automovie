@@ -5,10 +5,6 @@
  * original and disposal errors when they occur together.
  *
  * @param {import('./IHumanBuildFileReplacement').IHumanBuildFileReplacement} host
- *
- * @evidence contracts/common.md#principled-implementation An exclusive reservation establishes sibling cleanup ownership before copying or renaming staged bytes.
- * @evidence contracts/common.md#clear-and-simple-design One replacement lifetime orders reservation, handle release, copy, publication and disposal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reservation failure cannot remove another owner's path, and disposal never hides the original replacement failure.
  */
 export function replaceHumanBuildFile(host) {
   let owned = false;

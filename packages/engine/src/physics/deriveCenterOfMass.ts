@@ -21,8 +21,6 @@ import { primitiveVolume } from "./primitiveVolume";
  * weigh (a mesh-only or all-degenerate model), which is the caller's signal
  * that `centerOfMass` must be declared explicitly.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-weight-cues Computes the model center-of-mass proxy from authored physical geometry.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Produces the support-relevant center used to express weight and load transfer.
  * @author Samchon
  */
 export const deriveCenterOfMass = (

@@ -23,12 +23,6 @@ import { seededValue } from "./math/seededValue";
  *
  * Height comes from {@link formationGroundRelief}: the ground under the member,
  * not the ground under the group. A crowd on a rise stands on the rise.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-local-frame Derives the slot in unit-local coordinates before applying formation facing, anchor, and world terrain relief.
- * @evidence requirements/formations/reform-and-group-motion.md#formation-reform-local-blend Interpolates source and target slot points in formation-local axes before applying heading and terrain.
- * @evidence requirements/formations/reform-and-group-motion.md#formation-reform-slot-assignment Resolves both layouts with the same stable slot number throughout the reform.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Implements compact line, column, wedge, arc, and scatter slot placement without expanded member nodes.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Produces the bounded local reform state for the assigned member before world-frame composition.
  */
 export const formationSlotPosition = (
   formation: IAutoMovieFormationPlacement,

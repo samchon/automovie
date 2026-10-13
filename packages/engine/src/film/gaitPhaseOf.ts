@@ -13,9 +13,6 @@ const wrapTime = (seconds: number, duration: number): number =>
 /**
  * Seconds into a looping clip's cycle at `localTime`, or `null` when the clip
  * does not loop (a one-shot clip has no cycle to resume).
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases gaitPhaseOf preserves planted contact phases: Seconds into a looping clip's cycle at `localTime`, or `null` when the clip does not loop (a one-shot clip has no cycle to resume).
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support gaitPhaseOf realizes contact-phase support: Seconds into a looping clip's cycle at `localTime`, or `null` when the clip does not loop (a one-shot clip has no cycle to resume).
  */
 export const gaitPhaseOf = (
   clip: IAutoMovieMotion,

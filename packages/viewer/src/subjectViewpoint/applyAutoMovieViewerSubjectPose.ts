@@ -4,8 +4,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
 /**
  * Write one pose onto a camera.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `applyAutoMovieViewerSubjectPose` drives the camera from the inspection's own pose rather than from an authored camera track.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `applyAutoMovieViewerSubjectPose` applies one resolved viewpoint plan entry to the projection carrier it will be rendered through.
  * @author Samchon
  */
 export const applyAutoMovieViewerSubjectPose = (

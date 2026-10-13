@@ -13,8 +13,6 @@
  *
  * Inputs are in degrees; the result is in degrees, always within `[0, 360)`.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-range-of-motion Measures coupled planar swing beyond independent axis checks.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Evaluates the ball-joint cone used by constrained solve validation.
  * @author Samchon
  */
 export const swingConeAngle = (flexion: number, abduction: number): number =>

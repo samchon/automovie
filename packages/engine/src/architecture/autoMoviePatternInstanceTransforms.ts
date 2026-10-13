@@ -35,13 +35,6 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * A host that folds at a corner or curves is one developed face standing on
  * several flat panels, so a zone may name its own {@link IAutoMoviePatternFacet}
  * and every zone that does not stays on {@link frame}.
- *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `autoMoviePatternInstanceTransforms` turns whole occurrences into exact instance slots and names the ones that cannot be. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `autoMoviePatternInstanceTransforms` performs pattern instance transforms derivation when the engine resolves the declared physical-module pattern deterministically.
- * @evidence requirements/interior/grain-seams-and-continuity.md#interior-grain-corner-continuity `autoMoviePatternInstanceTransforms` maps developed face coordinates back through each folded or curved facet frame so grain-bearing pieces retain their corner relation on the host.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-joint-edge-grain-continuity The instance transforms preserve the declared developed-to-host relation that carries grain and seam continuity across facets.
- * @evidence requirements/building-exterior/patterns-and-instances.md#building-exterior-instance-exceptions `autoMoviePatternInstanceTransforms` keeps cut occurrences as separately identified exceptions while preserving exact prototype transforms for whole repeated pieces.
- * @evidence specifications/building-envelope/external-assets-patterns-and-instances.md#building-envelope-instance-local-stability-invariant The lowering preserves stable occurrence identity and local transforms while refusing to disguise cut exceptions as ordinary instances.
  */
 export const autoMoviePatternInstanceTransforms = (props: {
   result: IAutoMovieSurfacePatternResult;

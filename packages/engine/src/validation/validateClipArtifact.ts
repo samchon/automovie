@@ -42,9 +42,6 @@ import { validateUniqueBy } from "./validateUniqueBy";
  * node-only. Which channel a track may ADDRESS is the shot FIELD's own rule,
  * because a field admits exactly what its applier writes, and that is what
  * `channelGate` carries.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateClipArtifact` locates invalid clip identity, duration, loop flag, track ids, channel addresses, key times, and value strides at their stored members.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateClipArtifact` preserves the caller's clip root and each relative track fault while applying the field-specific channel gate.
  */
 export const validateClipArtifact = (
   clip: unknown,

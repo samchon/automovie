@@ -6,8 +6,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * One inspection observation: the subject, the pose it was seen from, and the
  * image that came back.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence `IAutoMovieViewerSubjectView` records the observed subject identity, the chosen viewpoint, and the artifact that observation produced.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation `IAutoMovieViewerSubjectView` types one entry of the subject observation record.
  * @author Samchon
  */
 export interface IAutoMovieViewerSubjectView {

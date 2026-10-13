@@ -10,8 +10,6 @@ import type {
  * clamps a coordinate or changes this domain; a null constraint preserves the
  * principal inverse because no permitted chart is preferred by a range.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Retains the bone identity and effective semantic-control domain while recovering clinical coordinates from a quaternion.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Gives inverse conversion the same joint domain its downstream ROM graph evaluates.
  * @author Samchon
  */
 export interface IAutoMovieJointRotationDomain {

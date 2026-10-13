@@ -39,11 +39,6 @@ const EPSILON = 1e-6;
  * reports a residual it could not reach under the target's ROM as a `warning`,
  * the returned `validation` still succeeds.
  *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-proportion Derives target root travel from the characterized rig ratio.
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-refusal Rejects a source clip whose clock, pose, expression, or source-rig ROM is already invalid before target conversion.
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-motion-retargeting Validates explicit source and target semantic mappings, rig bases, root scale, ROM, and contact compatibility before returning target motion.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Gates target clip production on source-rig validation before scaling, contact re-solving, and target validation.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-retarget-compatibility Returns the mapped basis and structural verdict that characterize the accepted source-to-target rig conversion.
  * @author Samchon
  */
 export const retargetHumanoidMotion = (

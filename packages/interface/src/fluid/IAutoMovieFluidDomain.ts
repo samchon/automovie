@@ -32,66 +32,30 @@ import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
  * cannot be in equilibrium with — an uneven free surface, a declared source or
  * drain, an open rim — so an initial velocity field is not a thing an author
  * has to invent, and two authors cannot state the same current twice.
- *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `IAutoMovieFluidDomain` as the portable data boundary for the interior fluid initial boundary record requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieFluidDomain` for the interior space water feature fluid domain system contract.
  */
 export interface IAutoMovieFluidDomain {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `version` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `version` for the interior space water feature fluid domain system contract.
-   */
+  /** Schema version. */
   version: 1;
 
-  /**
-   * Stable identity of this fluid domain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `id` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `id` for the interior space water feature fluid domain system contract.
-   */
+  /** Stable identity of this fluid domain. */
   id: string;
 
-  /**
-   * All authored lengths are measured in metres.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `units` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `units` for the interior space water feature fluid domain system contract.
-   */
+  /** All authored lengths are measured in metres. */
   units: "meter";
 
-  /**
-   * Fixed computational lattice.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `grid` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `grid` for the interior space water feature fluid domain system contract.
-   */
+  /** Fixed computational lattice. */
   grid: IAutoMovieFluidGrid;
 
-  /**
-   * Fixed-step integration settings and declared budgets.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `solver` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `solver` for the interior space water feature fluid domain system contract.
-   */
+  /** Fixed-step integration settings and declared budgets. */
   solver: IAutoMovieFluidSolver;
 
-  /**
-   * Which side of the lattice reflects and which lets water leave.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `boundaries` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `boundaries` for the interior space water feature fluid domain system contract.
-   */
+  /** Which side of the lattice reflects and which lets water leave. */
   boundaries: IAutoMovieFluidBoundaries;
 
   /**
    * Bed elevation of every cell in metres **above `grid.origin.y`**, row-major.
    * Length must be exactly `grid.columns * grid.rows`. The world elevation of
    * dry ground in a cell is therefore `grid.origin.y + bed[k]`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `bed` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `bed` for the interior space water feature fluid domain system contract.
    */
   bed: number[];
 
@@ -99,9 +63,6 @@ export interface IAutoMovieFluidDomain {
    * Initial water depth of every cell in metres, row-major, each `>= 0`. The
    * world elevation of the free surface is `grid.origin.y + bed[k] +
    * depth[k]`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `depth` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `depth` for the interior space water feature fluid domain system contract.
    */
   depth: number[];
 
@@ -109,35 +70,19 @@ export interface IAutoMovieFluidDomain {
    * Cells occupied by solid matter (a pier, an island, a channel wall). A solid
    * cell holds no water and every face touching it reflects. Length must be
    * exactly `grid.columns * grid.rows`, row-major.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `solid` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `solid` for the interior space water feature fluid domain system contract.
    */
   solid: boolean[];
 
-  /**
-   * Declared inflows. Water they add is counted, never invented silently.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `sources` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `sources` for the interior space water feature fluid domain system contract.
-   */
+  /** Declared inflows. Water they add is counted, never invented silently. */
   sources: IAutoMovieFluidSource[];
 
-  /**
-   * Declared outflows such as a fountain return or a basin overflow.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `drains` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `drains` for the interior space water feature fluid domain system contract.
-   */
+  /** Declared outflows such as a fountain return or a basin overflow. */
   drains: IAutoMovieFluidDrain[];
 
   /**
    * Decorative bounded spray emitters. Spray is **not** part of the conserved
    * water: it is a bounded particle garnish sampled from the same clock, and
    * its mass never enters or leaves the depth field.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `sprays` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `sprays` for the interior space water feature fluid domain system contract.
    */
   sprays: IAutoMovieFluidSpray[];
 }

@@ -2,12 +2,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
 
-/**
- * Validate uniqueness for an explicit list of ids and source paths.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateUniqueBy` reports each repeated artifact identity at the explicit source path paired with that occurrence.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateUniqueBy` checks declared string identities without substituting traversal order for the caller's member address.
- */
+/** Validate uniqueness for an explicit list of ids and source paths. */
 export const validateUniqueBy = (
   entries: { id: unknown; path: string }[],
   label: string,

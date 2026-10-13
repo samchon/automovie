@@ -13,9 +13,6 @@ import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
  * JSON it carries. A field of the wrong TYPE yields no fault here, because the
  * caller reading that JSON reports it separately and one mistake earns one
  * violation.
- *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `clipTrackShapeFaults` enumerates every malformed track condition that must prevent clip playback.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `clipTrackShapeFaults` preserves sampler discovery order so the artifact gate refuses the same unreadable keyframe state.
  */
 export const clipTrackShapeFaults = (
   /**

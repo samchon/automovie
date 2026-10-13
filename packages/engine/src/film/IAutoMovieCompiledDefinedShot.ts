@@ -7,12 +7,7 @@ import {
 import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 
-/**
- * Result of the direct shot authoring entry point.
- *
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-delivery-acceptance IAutoMovieCompiledDefinedShot makes delivery acceptance measurable: Result of the direct shot authoring entry point.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-contract-realization-acceptance-status IAutoMovieCompiledDefinedShot realizes inspectable delivery acceptance: Result of the direct shot authoring entry point.
- */
+/** Result of the direct shot authoring entry point. */
 export type IAutoMovieCompiledDefinedShot =
   | {
       /** The registered builder passed every engine gate. */

@@ -9,8 +9,6 @@ import type { IConnectedPersonAdmissionView } from "./IConnectedPersonAdmissionV
  * object is passed through as received. Nothing displayed, or a displayed
  * person whose report is unknown, has no view.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names which document and basis revisions the displayed admission report belongs to.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Derives the report view from the displayed person without altering the report.
  * @author Samchon
  */
 export function describeConnectedPersonAdmission(

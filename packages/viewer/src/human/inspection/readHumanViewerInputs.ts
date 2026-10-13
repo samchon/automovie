@@ -71,8 +71,6 @@ import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGe
  * @evidence contracts/common.md#clear-and-simple-design A per-file memo owns parsed candidates while injected I/O, sidecar facts and admission retain their independent authorities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Original documents and exact paired or packet bases enter normal admission, with no fabricated missing companion, subject-specific exemption or downgraded constructor.
  * @evidence contracts/common.md#meaningful-documentation Defines supported packet arrangements, incompatible combinations, key dependencies and the difference between pending facts and refused documents.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Actual document, sidecar, basis and numerical-source identities determine keys; pending sidecar reads and owner admission remain distinct from rejected inputs.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document A per-file memo owns parsed candidates while injected I/O, sidecar facts and admission retain their independent authorities.
  */
 export function readHumanViewerInputs(
   props: IReadHumanViewerInputsProps,

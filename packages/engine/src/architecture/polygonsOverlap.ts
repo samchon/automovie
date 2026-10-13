@@ -8,9 +8,6 @@ import { pointInPolygon } from "./pointInPolygon";
  *
  * Contact counts because two voids meeting exactly along a jamb are one void
  * written twice, and the wall between them has nothing left to be.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `polygonsOverlap` produces whether two polygons share any point at all, contact included. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `polygonsOverlap` detects shared interior or boundary contact between two finite polygons.
  */
 export const polygonsOverlap = (
   left: readonly IAutoMoviePlanarPoint[],

@@ -27,9 +27,6 @@ import { normalizeSlash } from "./productionBuildDiagnostics";
  *
  * The gate's output is returned unchanged, including a failure and its
  * diagnostics, and an exception from the gate propagates with its own cause.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Binds one gate answer to the exact documents it read and the project modules it executed.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Records the snapshot a derived gate answer referenced, including inputs no fingerprint field carries.
  */
 export const evaluateAutoMovieProductionSource = (props: {
   /** Project handle the gate reads. */

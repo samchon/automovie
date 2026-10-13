@@ -24,8 +24,6 @@ import { createHumanViewerRevisions } from "./createHumanViewerRevisions.js";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the published digests and the worker; the digest rules stay in createHumanViewerRevisions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the worker's actual ordered graph result or its failure without inventing a moved domain or reusing an unknown current revision.
  * @evidence contracts/common.md#meaningful-documentation States where each computation runs, the ordering and the failure handling.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Computes inspection revision changes away from the request thread while retaining checked-input additions and original worker failures.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Ordered replies update the host's source authority through the same revision owner; a failure rejects waiting batches rather than fabricating readiness.
  */
 export function createHumanViewerRevisionsWorker(
   props: ICreateHumanViewerRevisionsWorkerProps,

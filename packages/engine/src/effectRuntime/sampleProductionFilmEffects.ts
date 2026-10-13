@@ -8,15 +8,7 @@ import { IAutoMovieProductionFilmEffectSample } from "./IAutoMovieProductionFilm
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEffectRuntime";
 
-/**
- * Sample film-owned effects at one builder-owned full-rate timeline frame.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-arbitrary-seek Samples without retaining a cursor or depending on call order.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Uses the timeline frame even when a proxy output frame has a different index.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-step-boundary Samples every effect at one declared film frame boundary so anchors, emitters and environment read the same time.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#arbitrary-seek-reconstruction-contract Reconstructs the same state for repeated and reordered seeks.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Performs one exact rational frame-to-seconds conversion at the sampler boundary.
- */
+/** Sample film-owned effects at one builder-owned full-rate timeline frame. */
 export const sampleProductionFilmEffects = (props: {
   identity: IAutoMovieFilmEffectCurrentIdentity;
   effects: readonly IAutoMovieCompiledFilmEffect[];

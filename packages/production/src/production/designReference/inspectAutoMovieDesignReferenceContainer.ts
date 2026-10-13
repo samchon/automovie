@@ -42,9 +42,6 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
  * parser throws {@link AutoMovieDesignReferenceContainerError} naming the
  * family and stage, and malformed text throws the strict UTF-8 refusal before
  * any grammar runs.
- *
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-content-facts Selects a family from the signature, then requires that family's parser to close the whole container before any fact leaves, so a contradictory or polyglot input is refused rather than decoded by convenience.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-active-content Reads SVG, PDF and raster containers as data under a narrow admitted profile and executes nothing embedded in them.
  */
 export const inspectAutoMovieDesignReferenceContainer = (props: {
   /** Logical source path retained in every candidate grammar refusal. */

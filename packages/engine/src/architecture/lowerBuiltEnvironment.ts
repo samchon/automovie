@@ -34,15 +34,6 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * own repeated parts: the set the production world stages and the set a space
  * query measures are the same record, so no second copy of a placement law can
  * drift away from the first.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `lowerBuiltEnvironment` lowers one building record to ordinary subject contributions. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `lowerBuiltEnvironment` performs built environment lowering when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
- * @evidence requirements/building-exterior/coordinates-and-shared-boundaries.md#building-coordinate-transform-chain `lowerBuiltEnvironment` composes every building root and child element's declared local translation, rotation, and scale in parent-to-child order into deterministic world transforms.
- * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output The lowering implements the building-root and child-transform composition subset without claiming CRS, control-point residual, or source-frame receipts.
- * @evidence requirements/building-exterior/facades-and-walls.md#building-facade-placement-basis `lowerBuiltEnvironment` preserves each facade element's authored parent-local transform and resolves it through the building coordinate root rather than applying a view-dependent offset.
- * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-facade-placement-input The lowering contributes deterministic local-to-world facade placement while face-region selection, corners, and panel rules remain authored facts.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group `lowerBuiltEnvironment` contributes each space-owned compact population as the same instance-set record instead of expanding it or duplicating its placement law.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality `lowerBuiltEnvironment` preserves a compressed population's stable set identity, count, seed, and selectable-member regeneration contract in the production world.
  */
 export const lowerBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,

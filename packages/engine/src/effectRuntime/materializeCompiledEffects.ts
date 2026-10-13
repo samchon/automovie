@@ -19,10 +19,6 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * that refusal. Cues are ordered by code unit and each stream carries the
  * SHA-256 of its canonical JSON, computed without a Node built-in and equal to
  * the Node builder digest of the same stream.
- *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Derives every stream seed from its stable owner, cue, recipe and zone identity rather than from run order.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-sound-story-lifecycle-identity Folds the owning shot or production and film, the cue and its bound event into each stream's identity.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Fixes the instance seed from which every spawn draw of the stream is derived.
  */
 export const materializeCompiledEffects = (
   props: {

@@ -7,8 +7,6 @@ import { createConnectedDisabledRow } from "../common/createConnectedDisabledRow
  * channel, as disabled rows naming that body channel, under a collapsed group.
  * Nothing is appended when the generation has no alias.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Shows face channels the generation defines through a body channel as named, uneditable rows.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Appends each aliased face channel as a disabled row naming its body channel.
  * @author Samchon
  */
 export function renderConnectedPersonAliasedChannels(

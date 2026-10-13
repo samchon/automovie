@@ -10,8 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The host exposes only discovery and termination operations actually consumed by the ownership controller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Defines a production-owned effect port rather than replacing foreign process or filesystem methods.
  * @evidence contracts/common.md#meaningful-documentation States stop authority, native handle ordering and the POSIX signal limitation at the host boundary.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The host isolates actual OS effects from process identity admission without granting authority over other sessions.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Defines discovery and platform termination effects consumed by the session-owned controller.
  * @author Samchon
  */
 export interface IProcessOwnershipHost {

@@ -76,8 +76,6 @@ const assertImpactBody = (
  * transfers); a hard, bouncy pair **bounces**; otherwise it **deflects**.
  * Bodies already separating yield a pure `deflect` with no impulse.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Computes a bounded impulse and qualitative aftermath from one contact.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Produces the deterministic response consumed after world contact.
  * @author Samchon
  */
 export const resolveImpact = (

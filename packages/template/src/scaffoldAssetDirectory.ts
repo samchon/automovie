@@ -11,8 +11,6 @@ import * as path from "node:path";
  * ordinary case over an ordinary input rather than a branch reachable only by
  * moving the shipped directory out from under a running test. A guard whose
  * failure sentence has never been produced is a guard nobody has read.
- *
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Exposes the capability-oriented scaffold as the input to deterministic scaffold rendering.
  */
 export const scaffoldAssetDirectory = (
   moduleDirectory: string = __dirname,

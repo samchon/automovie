@@ -8,8 +8,6 @@
  * answered at once with the reason, which the measurement rows display in
  * place of a value; the caller's document and the worker are left untouched.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor States that a draft has no measurement reading instead of showing a stale or failed value.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the measurement worker on admitted documents only.
  * @author Samchon
  */
 export function readConnectedPersonAdmitted<

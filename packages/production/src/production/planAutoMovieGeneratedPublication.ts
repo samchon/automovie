@@ -15,9 +15,6 @@ import type { IAutoMovieGeneratedManifest } from "@automovie/interface";
  * returned empty plan must not advance a revision. Read and resolution errors
  * propagate unchanged, so an unsafe or unreadable resident file cannot become
  * a missing-file repair.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-change-impact-visibility Selects only retired or changed generated members and a changed ownership record, leaving byte-identical output out of the publication plan.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-change-impact-invariant Preserves identical generated members and stages only the closure changed by the current derivation without advancing state itself.
  */
 export const planAutoMovieGeneratedPublication = (props: {
   /** Previously admitted ownership record, or no resident manifest. */

@@ -14,9 +14,6 @@ import { Vector3 } from "../math/Vector3";
  * sloping soffit resolves exactly here rather than being flattened to a
  * heading. `depth` walks along the face's own outward normal, which is how the
  * near and far faces of a separation of stated thickness are reached.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Places boundary-local drawing coordinates on the actual sloped or rotated face instead of flattening them into an assumed world plane.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Rotates a planar point through the face frame, advances it by the requested local depth, and translates it to the face origin.
  */
 export const autoMovieBoundaryFacePoint = (
   face: IAutoMovieBoundaryFace,

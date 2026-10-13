@@ -15,8 +15,6 @@ import { IAutoMovieCameraClearanceFinding } from "./IAutoMovieCameraClearanceFin
  * revision counter: publishing the take moves that counter, the next
  * derivation records the moved value, and regeneration never converges.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-spatial-geometry-revision Prevents clearance measured from an obsolete scene revision from becoming current evidence.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Carries the deterministic sample plan and addressed contact set used to admit or refuse the take.
  * @author Samchon
  */
 export interface IAutoMovieCameraClearanceReport {

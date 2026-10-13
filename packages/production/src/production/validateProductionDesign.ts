@@ -70,7 +70,6 @@ export interface IAutoMovieProductionDesignGraph {
  * Maximum exact production raster accepted by design and frame review.
  *
  * @author Samchon
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-raster-admission-bound Fixes the exact pixel-product limit the raster admission compares against, admitting equality and refusing excess.
  */
 export const AUTOMOVIE_MAX_FRAME_PIXELS = 16_777_216;
 /**
@@ -146,7 +145,6 @@ export const AUTOMOVIE_GENERAL_INSTANCE_BUFFER_BUDGET_BYTES = 32 * 1024 * 1024;
  * Validate graph-level production invariants after structural validation.
  *
  * @author Samchon
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Bounds formation members, instances, effect particles and raster before anything is materialized, refusing the design that would exceed them.
  */
 export const validateAutoMovieProductionGraph = (
   graph: IAutoMovieProductionDesignGraph,

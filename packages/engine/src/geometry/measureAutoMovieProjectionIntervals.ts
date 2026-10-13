@@ -14,8 +14,6 @@ import type { IAutoMovieProjectionIntervals } from "./IAutoMovieProjectionInterv
  * required. The norm proposal is checked through a lower square enclosure.
  * Support separation and bounded attachment contact share this formula owner.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Shares qualified support projections between complete-feature clearance and attachment-contact geometry without a point-sample substitute.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Encloses the supplied representation and approximate direction while preserving caller coordinates and refusing unsupported arithmetic.
  * @author Samchon
  */
 export function measureAutoMovieProjectionIntervals(

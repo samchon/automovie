@@ -3,8 +3,6 @@
  * reason it cannot be edited here. The body and person panels list unavailable and
  * body-owned channels with it instead of hiding them.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows an uneditable channel with its named reason instead of hiding it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Draws the disabled label, number and reason row the editors use for unavailable channels.
  * @author Samchon
  */
 export function createConnectedDisabledRow(

@@ -34,11 +34,6 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * an explicit prototype no choice names, and a non-finite derived value or an
  * empty palette. A set the kernel compiled never throws, because compilation
  * regenerates every slot through here before it writes the record.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Regenerates the same member identity, transform, and variation for an instance slot however the set is enumerated or which consumer asks.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Serves as the one instance-member regenerator that the compiled runtime and every one-member oracle share.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability Derives node identity, prototype choice, and seeded scale, palette, rotation, visibility, and traits from the set's own seed and slot key, so a change elsewhere in the scene cannot reshuffle them.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-deterministic-instance-generation Determines a rule-generated instance's identity and variation from its stable slot key, set seed, and explicit exception block.
  */
 export const instanceSlot = (
   instanceSet: IAutoMovieInstanceSetPlacement,

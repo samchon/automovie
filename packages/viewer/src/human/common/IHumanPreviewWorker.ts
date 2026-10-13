@@ -4,8 +4,6 @@ import type { HumanPreviewReply } from "./HumanPreviewReply.js";
  * Disposable preview worker supplied by the browser adapter. The builder owns
  * request generation and terminates the connection on completion or cancellation.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supplies interruption and completion of work before candidate publication.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Names transport effects independently of numerical decoding.
  * @author Samchon
  */
 export interface IHumanPreviewWorker {

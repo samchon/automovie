@@ -3,8 +3,6 @@ import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 /**
  * One simple parameter as an input: label, unit, display scale and step.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Describes one identity or tape parameter the user enters directly.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the unit and display scale in which the parameter enters the expansion.
  * @author Samchon
  */
 export interface IBodySimpleField {

@@ -12,8 +12,6 @@ import type { IConnectedPersonSolveMessage } from "./IConnectedPersonSolveMessag
  * One request the person editor posts to its measurement worker,
  * discriminated by `kind`.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Carries one read or solve request of the person's measurement worker.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Discriminates the measurement worker's requests by kind.
  * @author Samchon
  */
 export type IConnectedPersonMeasureMessage =

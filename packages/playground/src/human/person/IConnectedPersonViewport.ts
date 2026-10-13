@@ -10,8 +10,6 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
  * pending work, and frame the camera. `createConnectedBodyViewport` over a
  * person worker supplies it.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Builds, publishes and exports person documents and frames the camera outside the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates building from publishing so a failed build keeps the previous model.
  * @author Samchon
  */
 export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
@@ -41,19 +39,11 @@ export interface IConnectedPersonViewport<Model extends IConnectedPersonModel> {
   /** Release a model that will not be drawn. */
   dispose(model: Model): void;
 
-  /**
-   * Await retirement requests after the synchronous document/model commit.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the current person's committed pair across a resource-cleanup failure.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Completes cleanup outside the synchronous person publication callback.
-   */
+  /** Await retirement requests after the synchronous document/model commit. */
   settleRetirements(): Promise<void>;
 
   /**
    * Retire viewport resources while leaving its borrowed renderer and connection to their owners.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ends the person's owned display resources at its actual viewport lifetime boundary.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reports owned GPU retirement without taking the host connection's lifetime.
    */
   close(): Promise<void>;
 

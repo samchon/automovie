@@ -16,11 +16,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * different base revisions are refused rather than compared, because the
  * differences would then mix the two schemes with everything the revision
  * changed underneath them.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineageCompare` compares two alternatives on the revision they share. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineageCompare` compares two alternatives only after confirming they share a base revision.
- * @evidence requirements/interior/existing-conditions-phases-and-alternatives.md#interior-design-alternatives `designLineageCompare` refuses variants from different base revisions and reports their stable per-subject, per-aspect differences without replacing either candidate.
- * @evidence specifications/interior-space/construction-phases-and-alternatives.md#interior-space-phase-alternative-graph The comparison implements the common-base explicit-change-set subset of the interior alternative graph.
  */
 export const designLineageCompare = (
   lineage: IAutoMovieDesignLineage,

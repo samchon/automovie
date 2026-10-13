@@ -5,9 +5,6 @@
  * The host supplies bytes per texel from its decoded upload representation.
  * Unknown formats, invalid dimensions and unsafe integer totals have no bound.
  * Driver allocation overhead is outside this texel-storage quantity.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Counts declared upload texels and exact mip extents without pricing encoded file bytes as GPU storage.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves unknown or unsafe storage as an absent bound for preflight refusal.
  */
 export function measureAutoMovieTextureStorage(props: {
   width: number;

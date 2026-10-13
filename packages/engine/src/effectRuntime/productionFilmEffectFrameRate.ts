@@ -9,10 +9,6 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
  * The writer reports a malformed rate as invalid input and the reader reports
  * it as an invalid persisted runtime, while both reduce through the one engine
  * rate identity rather than a second rational rule.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Reduces the effect clock to the exact rational rate its frame boundaries are computed on.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Normalizes the rate to a reduced rational identity and refuses a zero, negative or non-integer rate before any boundary is evaluated.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#clock-seek-failure-and-recovery Refuses a non-rational clock with a named code instead of remapping it.
  */
 export const productionFilmEffectFrameRate = (
   frameRate: number | IAutoMovieProductionFrameRate,

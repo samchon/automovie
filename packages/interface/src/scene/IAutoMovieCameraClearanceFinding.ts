@@ -1,8 +1,6 @@
 /**
  * One conservative contact found over one ordered camera sample interval.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-dynamic-spatial-sampling Exposes the exact interval, envelope owner, and scene obstacle that failed the swept comparison.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Types the addressed finding returned instead of accepting a penetrating camera path.
  * @author Samchon
  */
 export interface IAutoMovieCameraClearanceFinding {

@@ -11,8 +11,6 @@ import { humanViewerDefaultDocument } from "./humanViewerDefaultDocument.js";
  * @evidence contracts/common.md#clear-and-simple-design One example factory supplies the reference used by face and person catalogue entries.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the existing neutral parameter maps without a fitted likeness, dedicated vertex data or a library-owned preset.
  * @evidence contracts/common.md#meaningful-documentation States example ownership and the difference between named parameters and supplied basis authority.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Authors the neutral application example on the supplied reusable face basis.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Keeps the named empty shape/expression maps as document parameters rather than anatomy stored in library code.
  */
 export function createHumanViewerReferenceFaceDocument(
   face: IHumanViewerBasisIdentity,

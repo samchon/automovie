@@ -74,9 +74,7 @@ export const buildFilmEdit = (props: {
     validate: (input) => typia.validateEquals<IAutoMovieFilmEdit>(input),
   });
 
-/** Resolve a film edit against built shots and their contract realizations.
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-refusal Rejects malformed cue identities, text and intervals during edit assembly.
- */
+/** Resolve a film edit against built shots and their contract realizations. */
 export const assembleFilm = (
   props: IFilmAssemblyProps,
 ): ISourceBuildResult<ICompiledFilmDraft> => {

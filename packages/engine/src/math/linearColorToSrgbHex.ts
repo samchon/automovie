@@ -14,8 +14,6 @@ import type { IAutoMovieColor } from "@automovie/interface";
  * non-finite component is refused instead: it names no color at any exposure,
  * and rounding it would write `NaN` into a string that reads like a swatch.
  *
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-working-color-space Derives the display-encoded label from the scene-linear value instead of letting the two be typed independently.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-effective-ownership Implements the display-encoding stage of the ordered color pipeline as the recorded inverse of the input decode.
  * @author Samchon
  */
 export const linearColorToSrgbHex = (

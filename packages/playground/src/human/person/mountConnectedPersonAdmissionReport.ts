@@ -13,8 +13,6 @@ import type { IConnectedPersonAdmissionView } from "./IConnectedPersonAdmissionV
  * this owner evaluates nothing and keeps no report of its own beyond the one
  * it is showing.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays and saves the unchanged admission report of the person the editor shows.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the admission report a separate file from the numerical person document.
  * @author Samchon
  */
 export function mountConnectedPersonAdmissionReport(

@@ -9,8 +9,6 @@ import { IAutoMovieLibraryContribution } from "./IAutoMovieLibraryContribution";
  * mapping files to documents. A module may export several of these, and a
  * module may export none when it is a helper the owners import.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Binds one executed source export to the exact completed owner its output realizes.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types the source-side registration the derived library state is produced from.
  * @author Samchon
  */
 export interface IAutoMovieLibrarySourceOwner {

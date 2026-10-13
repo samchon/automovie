@@ -16,9 +16,6 @@ import { materializeCompiledFormation } from "./materializeCompiledFormation";
  * order the designs were read in. Each formation is compiled against the same
  * recipes, radii and terrain, which is what makes a unit compiled here the unit
  * a shot compiled from the same inputs would hold.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Produces the same compiled formation records and order from the same designs regardless of the order they were enumerated in.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Orders formation compilation by stable identity so traversal order cannot change the runtime a production holds.
  */
 export const materializeCompiledFormationInventory = (props: {
   /** Formation designs keyed by id. */

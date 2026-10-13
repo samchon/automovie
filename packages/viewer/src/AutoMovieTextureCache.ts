@@ -43,9 +43,6 @@ import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCach
  * alive after public disposal and therefore makes completion indeterminate.
  * An issued binding wrapper cannot return through the loader as a decoder
  * original, including an alias inside this same cache.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
  */
 export class AutoMovieTextureCache {
   private readonly pending = new Map<string, Promise<THREE.Texture>>();
@@ -88,9 +85,6 @@ export class AutoMovieTextureCache {
    * {@link buildMaterial} stay a pure function of a material. A binding whose
    * asset fails to decode rejects here, naming every asset that failed, rather
    * than surfacing later as a silently untextured surface.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
    */
   public async prime(
     bindings: Iterable<AutoMovieTextureBinding | null | undefined>,
@@ -121,9 +115,6 @@ export class AutoMovieTextureCache {
    * "this project ships no such map", and answering it for an asset the
    * material DOES declare would render a floor with no tile and call that
    * success.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
    */
   public readonly resolve: (binding: AutoMovieTextureBinding) => THREE.Texture;
 
@@ -142,9 +133,6 @@ export class AutoMovieTextureCache {
    * Before any clone is issued the host may prepare its decoded original. After
    * issue, this observation checks every owned wrapper's actual tuple/version;
    * clone-created shared Source.version increments do not invalidate it.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Exposes decoded source facts from the same objects whose clones the material resolver returns.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Connects loaded texture facts to the public render budget assessment without author-supplied memory numbers.
    */
   public describeSources() {
     this.assertLive();
@@ -167,11 +155,6 @@ export class AutoMovieTextureCache {
    * disposal looks up the current Source and cannot certify the old footprint.
    * Retain that context's unknown residency until its physical release; neither
    * an empty cache nor a new cache in the same context proves it was retired.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Attempts every owned texture retirement and preserves one shared failed or successful completion.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Prevents one disposal listener failure or in-flight decode from skipping another owned lifetime.
    */
   public dispose(): Promise<void> {
     if (this.disposal !== undefined) return this.disposal;

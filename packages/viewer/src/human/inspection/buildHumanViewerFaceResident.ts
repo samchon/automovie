@@ -19,8 +19,6 @@ import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentByt
  * @evidence contracts/common.md#meaningful-documentation States what is kept and why.
  * @evidence contracts/common.md#clear-and-simple-design The resident keeps the published group and the viewport's connection, with one cleanup path for failed build and later eviction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical work and GPU publication use the maintained face viewport; no subject-specific fallback model or external method replacement is introduced.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Awaits the original viewport's publication retirement and independently attempts owned stage, numerical connection and controls after failed construction or final eviction.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves the primary construction cause beside ordered cleanup failures and leaves cached texture disposal with the stage's resource owner.
  */
 export async function buildHumanViewerFaceResident(
   props: IBuildHumanViewerFaceResidentProps,

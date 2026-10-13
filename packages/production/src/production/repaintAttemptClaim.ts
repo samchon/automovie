@@ -2,9 +2,6 @@ import { AutoMovieContentDigest } from "@automovie/interface";
 
 /**
  * Immutable request-prefix claim held before an external repaint side effect.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Identifies the one request prefix allowed to dispatch next.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Carries the atomic admission identity across the project store.
  */
 export interface IAutoMovieRepaintAttemptClaim {
   /** Claim schema version. */
@@ -29,35 +26,20 @@ export interface IAutoMovieRepaintAttemptClaim {
   claimedAt: string;
 }
 
-/**
- * Atomic admission result returned by the project-owned claim store.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Distinguishes an acquired retry from a duplicate, moved prefix, or unknown predecessor.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Prevents non-acquired states from reaching provider dispatch.
- */
+/** Atomic admission result returned by the project-owned claim store. */
 export type AutoMovieRepaintClaimAdmission =
   | { status: "acquired" }
   | { status: "already-active"; ownerAttemptId: string }
   | { status: "prefix-changed" }
   | { status: "unknown-outcome"; ownerAttemptId: string };
 
-/**
- * Terminal claim state written after the adapter boundary settles.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Preserves whether external work settled or remains unknown.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Gates retry recovery on an explicit settlement fact.
- */
+/** Terminal claim state written after the adapter boundary settles. */
 export type AutoMovieRepaintClaimSettlement =
   | "fulfilled"
   | "rejected"
   | "unknown-outcome";
 
-/**
- * Refuse a malformed claim before it reaches a project-owned transaction.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Keeps every admission entry point on the same exact request-prefix identity.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Prevents a direct project caller from bypassing claim validation.
- */
+/** Refuse a malformed claim before it reaches a project-owned transaction. */
 export const assertAutoMovieRepaintAttemptClaim = (
   claim: IAutoMovieRepaintAttemptClaim,
 ): void => {

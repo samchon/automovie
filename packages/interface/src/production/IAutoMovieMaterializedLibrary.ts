@@ -10,8 +10,6 @@ import { IAutoMovieMaterializedLibraryOwner } from "./IAutoMovieMaterializedLibr
  * answers which design owner a published building or model belongs to without
  * re-executing source.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Lets every published library artifact be traced to its owner, source, and compile identity.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types the derived index that carries target identity, source snapshot, and output paths.
  * @author Samchon
  */
 export interface IAutoMovieMaterializedLibrary {

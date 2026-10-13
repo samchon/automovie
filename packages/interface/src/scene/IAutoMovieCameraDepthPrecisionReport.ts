@@ -6,8 +6,6 @@
  * Measurement fields remain null until the clip, required range, capability,
  * and threshold are all valid and the required range is inside the clip range.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Reports the exact camera, time, required depth interval, buffer capability, metre-valued threshold, and measured boundary used for acceptance.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the addressed output of the specified required-range depth precision evaluation.
  * @author Samchon
  */
 export interface IAutoMovieCameraDepthPrecisionReport {

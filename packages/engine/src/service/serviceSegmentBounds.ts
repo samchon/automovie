@@ -10,8 +10,6 @@ import {
  * a caller can index, cull or draw a bounding volume from without walking every
  * leg. Interference is decided on the spans, never on this.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceSegmentBounds` provides the single world box containing an entire service run for drawing, indexing, and broad-phase lookup.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceSegmentBounds` envelopes all route coordinates plus the declared radius and rejects a route with no point to bound.
  * @author Samchon
  */
 export const serviceSegmentBounds = (

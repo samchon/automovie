@@ -9,8 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Owns discovery-result interpretation independently of executing ps or signalling a PID.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the actual reported creation string rather than guessed age or executable names.
  * @evidence contracts/common.md#meaningful-documentation States absence, failure precedence and retained date precision.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Keeps absent or failed process discovery from becoming termination authority.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Interprets the native POSIX creation-date transport separately from its signal effect.
  */
 export function decodePosixProcessIdentity(result: {
   error?: Error;

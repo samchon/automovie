@@ -61,8 +61,6 @@ const partsOfElement =
  * an extent-free point that clears almost everything, and the basis is how the
  * caller tells that from a measured miss.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Lets authoring source check one placement against a named neighbour before relying on rendered pixels.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Implements the named-neighbour positive-volume overlap result and preserves unresolved operands and measurement bases.
  * @author Samchon
  */
 export const builtEnvironmentPlacementOverlap = (props: {

@@ -93,8 +93,6 @@ const placedPartBoxes = (
  * caller that finds no entry should fall back to the box the record reports for
  * it rather than treat it as a body with no volume.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Supplies the per-part world extents a whole-building support pass needs without re-walking the element tree once per body.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Resolves every drawn element's placed geometry into its parts' world boxes from a single placement pass.
  * @author Samchon
  */
 export const builtEnvironmentPartBoxes = (

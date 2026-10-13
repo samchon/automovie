@@ -4,12 +4,7 @@ import { IAutoMovieSampledFormationMotion } from "./IAutoMovieSampledFormationMo
 import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";
 
-/**
- * Sample one formation's compact source-authored cue sequence.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Resolves the same translation, facing, spacing, and retained reform state for any direct seek to the same time.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Orders overlapping cue candidates stably and reconstructs state without a playback cursor.
- */
+/** Sample one formation's compact source-authored cue sequence. */
 export const sampleFormationMotion = (
   motions: readonly IAutoMovieFormationMotion[],
   formation: string,

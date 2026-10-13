@@ -35,8 +35,6 @@ const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
  * clinical axes/rest frames decompose the deltas stay the CALLER's. This is the
  * geometry, not the rig policy.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Lowers a measured two-link chain onto a target while retaining its reachable-shell boundary.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Converts the analytic distance result into deterministic bone-local articulations.
  * @author Samchon
  */
 export const twoBoneChainArticulation = (props: {

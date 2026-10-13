@@ -12,25 +12,14 @@ import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput.js";
  * @evidence contracts/common.md#clear-and-simple-design Accepted documents and rejected-or-pending inputs are published together without forcing one file's outcome onto the others.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A still-running sidecar or domain admission remains pending rather than disappearing from the inventory.
  *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority One bad file is listed beside the accepted documents instead of hiding them.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant A still-running sidecar or domain admission remains pending rather than disappearing from the inventory.
- *
  * @author Samchon
  */
 export interface IHumanViewerInputs {
-  /**
-   * Accepted documents as catalogue entries.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Publishes owner-accepted descriptors without letting a separate file's failure hide them.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Publishes owner-accepted descriptors without letting a separate file's failure hide them.
-   */
+  /** Accepted documents as catalogue entries. */
   documents: IHumanViewerCatalogue["documents"];
 
   /**
    * Input files refused or not yet decided, with their reasons and pending state.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Keeps refused or still-pending inputs and their actual causes visible beside admitted documents.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Keeps refused or still-pending inputs and their actual causes visible beside admitted documents.
    */
   rejected: IHumanViewerRejectedInput[];
 }

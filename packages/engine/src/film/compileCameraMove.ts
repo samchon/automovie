@@ -69,11 +69,6 @@ const FOLLOW_HZ = 4;
  *   fail to hold, so an unknown aspect pulls back far enough rather than
  *   cropping a mass it could not measure. A subject with no `radius` is
  *   unaffected either way.
- * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Fits authored subjects through the declared lens and emits camera keyframes at each framing span on the shot clock.
- * @evidence requirements/camera/position-and-movement.md#camera-speed-easing Samples push-in, orbit, and truck moves at fixed bounded segment counts and applies the same `easeInOut` curve to their authored progress.
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-target-sampling Samples a moving framed subject through `subject.at(t)` at each emitted truck or follow key time instead of reusing its opening position.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling compileCameraMove resolves the authored camera move at explicit shot-local times, making the camera path directly sampleable.
- * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Resolves the framed subject at the same shot-local instant used to emit each camera transform; it does not claim a target-loss transition policy.
  */
 export const compileCameraMove = (props: {
   clipId: string;

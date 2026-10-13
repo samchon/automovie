@@ -4,9 +4,6 @@ import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHuma
 /**
  * Bind asynchronous preparation and evaluation to the initiating request ID.
  * A refusal is local to its request; other queued replies keep their identity.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Returns numerical failures without publishing partial results.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps initialization and evaluation in a correlated worker error boundary.
  */
 export function createHumanResidentHandler<Input, Output>(
   props: IHumanResidentHandlerProps<Input, Output>,

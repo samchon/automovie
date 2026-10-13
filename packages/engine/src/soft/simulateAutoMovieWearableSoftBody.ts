@@ -21,15 +21,6 @@ import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries
  * substitutes an origin for a missing target. Calling this API is the explicit
  * `live deterministic` choice. The existing {@link simulateSoftBody} path is
  * still the byte-compatible static choice.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Drives soft state from same-clock primary motion.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Implements the explicit live deterministic boundary path.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Consumes the author-selected live deterministic solver tier.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-claim-boundary Reports only bounded proxy state and cost.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-static-compatibility Leaves the established static solver as a separate explicit path.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Projects contacts after each fixed-step primary boundary is resolved.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Resolves explicit node and actor-bone attachment targets.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-determinism-compatibility Consumes complete immutable boundary snapshots for deterministic seek.
  */
 export const simulateAutoMovieWearableSoftBody = (props: {
   /** Authored domain carrying static or moving anchors and colliders. */

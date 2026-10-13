@@ -23,8 +23,6 @@ import { swingConeAngle } from "./swingConeAngle";
  * `validateModel` rejects a constraint whose box and cone do not intersect,
  * which is exactly the condition that no such anchor exists.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-range-of-motion Finds the farthest cone-legal interpolation from an allowed anchor toward a candidate.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Produces the deterministic cone correction used to keep a constrained pose reachable.
  * @author Samchon
  */
 export const swingConeBlend = (

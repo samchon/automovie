@@ -14,8 +14,6 @@ import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * than throw — a lowering answering for a whole shot — can ask which step a
  * second wants before asking whether the declared budget reaches it.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Maps shot time to the soft solver's absolute fixed-step state.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Selects the exact transition boundary without advancing hidden state.
  * @author Samchon
  */
 export const softBodyStepAt = (

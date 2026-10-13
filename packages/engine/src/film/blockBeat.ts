@@ -44,14 +44,6 @@ const CAMERA_MOVES = new Set<IAutoMovieBlockingCamera["move"]>([
  * actor must be a staged scene node, exactly once) and the validated state is
  * surfaced on the success so downstream stages resume from it rather than
  * resetting the world at the cut.
- *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-blocking-relations Validates beat identity, staged subjects, camera targets, causal timing, and prior boundary state before performance compilation.
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-authored-blocking Returns the submitted actor, camera, coverage, and ordered-anchor plan unchanged only after its explicit relations pass the blocking gates.
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-upstream-source-trace Resolves `blocking.beat` against `script.beats` and every actor, camera, coverage target, and carried actor against identities in the staged scene.
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-subject-dependencies Resolves the beat's actor intents, hero and coverage camera targets, and carried actor states against the concrete subjects already placed in the scene.
- * @evidence requirements/story/scenes-and-observable-action.md#story-unfilmable-scene-refusal Refuses a beat whose actor, camera, coverage, or carried-state dependency is absent or duplicated instead of substituting a placeholder subject.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership Gates authored beat relations against the script and resolved placement tables before admitting the blocking to performance.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-scene-dependency-refusal Reports unresolved concrete actor and camera dependencies before the beat can become a filmable performance plan.
  */
 export const blockBeat = (
   script: IAutoMovieScript,

@@ -10,9 +10,6 @@ import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage.js";
  * Document admission precedes allocation. Every worker is terminated on
  * completion or interruption, and a decoded obsolete result is disposed before
  * rejection. The caller alone publishes successfully returned previews.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Prevents superseded worker or decoder results from becoming the displayed face after a newer request or file load.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares a request generation across worker completion and asynchronous decoding, releasing obsolete renderer resources.
  */
 export function createHumanPreviewBuilder<
   Model,

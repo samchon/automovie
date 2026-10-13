@@ -14,8 +14,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects the server's publication or candidate resource without subject-specific paths or a reconstructed basis fallback.
  * @evidence contracts/common.md#meaningful-documentation Defines both token forms, digest refusal authority and the person packet's existing representation alternatives.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Addresses the explicitly named published basis digest or URL-encoded candidate token used by the numerical preview.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The existing token protocol chooses the resource route without fitting anatomy, replacing a missing basis or claiming canonical production identity.
  * @author Samchon
  */
 export function humanViewerBasisUrl(domain: string, token: string): string {

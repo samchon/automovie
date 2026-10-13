@@ -14,8 +14,6 @@ import type * as THREE from "three";
  * process-wide allocations for some of them and no post-culling frame count
  * for the rest; a scene traversal would be an estimate, not an observation.
  *
- * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Counts actual frame-wide submissions, including multipass transitions.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies only renderer-confirmed values to the render-owned budget comparison.
  * @author Samchon
  */
 export const observeAutoMovieRendererFrame = <Output>(

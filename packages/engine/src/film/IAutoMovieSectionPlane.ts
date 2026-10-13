@@ -22,26 +22,15 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * level, a room's content bounds, a wall's face — and a point on that feature
  * plus the direction to throw away is what it can name. An offset would make it
  * solve for a scalar it never measured.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Declares the inspection-owned cut as a coplanar point and a normal naming the removed side, outside any authored camera field.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the optional clipping plane that clipping evaluation accepts as an input beside the near, far, and side planes.
  */
 export interface IAutoMovieSectionPlane {
-  /**
-   * A point the plane passes through, world space, metres.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries the coplanar point the declared cut is measured from.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies `p0` of the specified signed distance `n·(p − p0)`.
-   */
+  /** A point the plane passes through, world space, metres. */
   point: IAutoMovieVector3;
 
   /**
    * Direction of the half-space that is REMOVED. Need not be unit length: it is
    * normalized on use, and a zero or non-finite vector names no half-space at
    * all, so it is refused rather than read as "keep everything".
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries which side of the declared plane the section removes.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies `n` of the specified signed distance `n·(p − p0)`.
    */
   normal: IAutoMovieVector3;
 }

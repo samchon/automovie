@@ -7,57 +7,25 @@ import * as THREE from "three";
 /**
  * A viewer-owned planting cluster drawn as two instanced batches.
  *
- * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
  * @author Samchon
  */
 export interface IAutoMoviePlantingObject {
-  /**
-   * Add this group to the current scene.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Add this group to the current scene. */
   object: THREE.Group;
 
-  /**
-   * Every branch of every member, as one instanced draw.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Every branch of every member, as one instanced draw. */
   branches: THREE.InstancedMesh;
 
-  /**
-   * Every leaf of every member, as one instanced draw, or `null` when bare.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Every leaf of every member, as one instanced draw, or `null` when bare. */
   leaves: THREE.InstancedMesh | null;
 
-  /**
-   * Branch instances drawn: `members × branches`.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Branch instances drawn: `members × branches`. */
   branchCount: number;
 
-  /**
-   * Leaf instances drawn: `members × leaves`.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Leaf instances drawn: `members × leaves`. */
   leafCount: number;
 
-  /**
-   * Release geometries, and the materials this object created.
-   *
-   * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
-   * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
-   */
+  /** Release geometries, and the materials this object created. */
   dispose: () => void;
 }
 
@@ -87,8 +55,6 @@ export interface IAutoMoviePlantingObject {
  * both radii for anything that needs them. A leaf is a unit plane scaled by its
  * per-axis size, which is exactly the prototype the derivation emitted.
  *
- * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-individual-cluster Displays this surface from declared vegetation individuals and clusters.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input Materializes those vegetation forms without inferring ecology.
  * @author Samchon
  */
 export const buildPlantingObject = (props: {

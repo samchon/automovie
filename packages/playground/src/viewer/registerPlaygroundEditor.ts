@@ -14,11 +14,6 @@ import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerA
  * @evidence contracts/common.md#clear-and-simple-design One binding reuses application parsing/transactions without creating another document evaluator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no simulated input event, inferred parameter or expected-model substitution.
  * @evidence contracts/common.md#meaningful-documentation Defines equality, empty editors and view reflection boundaries.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Retains the existing body/person/anatomical input owner across source replacement.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Uses the original typed loader and verifies the resulting displayed document.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state For the face editor, transfers its successful snapshot through the original validated loader and compares document values independently of camera state; the person caller may instead supply a labelled construction draft.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Uses the original editor loader and verifies the resulting displayed document; history, generation checks and successful snapshot publication remain with the face or person transaction owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reflects the original viewport's restored display toggles without numerical edits.
  */
 export function registerPlaygroundEditor(props: {
   /** Completion of this editor's initial transaction; rejection refuses the candidate. */

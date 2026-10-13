@@ -56,8 +56,6 @@ import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingT
  * different questions and reading the first as the second is what aimed three
  * of four review cameras at a wall.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Groups the selected design occurrences into stable marks whose identity, counts, location, state, samples, and gaps reconcile with the model.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Validates the environment, derives declared, profile or fill dimensions, canonicalizes rows and omission totals, declares unsupported performance, and hashes the schedule.
  * @author Samchon
  */
 export const deriveAutoMovieDrawingSchedule = (props: {

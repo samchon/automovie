@@ -12,9 +12,6 @@ import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderMod
  * retirement to the actual cache owner. Completion reports every public
  * operation's result, not a physical allocation census; failures never become
  * a successful release claim.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Attempts independent resources owned by a discarded decoded preview while preserving every disposal failure.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Deduplicates actual owned geometry, standard/custom shadow materials and direct-slot textures before disposal, without claiming native release from callback completion.
  */
 export function disposeHumanPreview(group: THREE.Group): void {
   restoreAutoMovieRenderModeState(

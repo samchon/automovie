@@ -38,8 +38,6 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
  * and their norm lies in [1,sqrt(3)]. Binary64's smallest normal, 2^-1022, marks
  * a representation regime, not an admitted direction range or tolerance.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Resolves visibility along rays from existing resident triangles so a dependent surface fact can follow its host geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Queries a mesh without changing topology or attributes and retains the caller's metric coordinate frame.
  * @author Samchon
  */
 export function createAutoMovieMeshRayCaster(

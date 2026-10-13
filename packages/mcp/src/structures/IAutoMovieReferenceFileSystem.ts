@@ -4,8 +4,6 @@ import type { IAutoMovieReferenceIdentity } from "./IAutoMovieReferenceIdentity"
  * The reader's own read-only host port. Native operations supply physical facts;
  * reference policy neither replaces their methods nor reproduces a filesystem.
  *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Limits the host to metadata, enumeration and bounded read-only handles.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Separates observed native identities from admission and publication decisions.
  * @author Samchon
  */
 export interface IAutoMovieReferenceFileSystem {

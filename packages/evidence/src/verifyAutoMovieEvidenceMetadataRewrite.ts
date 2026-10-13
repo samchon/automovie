@@ -6,24 +6,14 @@ import {
   projectAutoMovieAuthoredMarkdown,
 } from "./parseAutoMovieEvidenceSyntax";
 
-/**
- * Exact evidence metadata region an operation is allowed to rewrite.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the caller-owned metadata region explicit.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed rewrite-ownership vocabulary.
- */
+/** Exact evidence metadata region an operation is allowed to rewrite. */
 export type AutoMovieEvidenceMetadataOwnership =
   | "acknowledgements"
   | "comments"
   | "fingerprints"
   | "reviews";
 
-/**
- * Inputs to one metadata-only rewrite comparison.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes both revisions and the owned metadata region explicit.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the complete metadata rewrite comparison input.
- */
+/** Inputs to one metadata-only rewrite comparison. */
 export interface IVerifyAutoMovieEvidenceMetadataRewriteProps {
   /** Stable project-relative Markdown path. */
   path: string;
@@ -35,12 +25,7 @@ export interface IVerifyAutoMovieEvidenceMetadataRewriteProps {
   ownership: AutoMovieEvidenceMetadataOwnership;
 }
 
-/**
- * Reproducible result of one successful metadata-only rewrite check.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Exposes the protected projection identity and compared declaration count.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the successful comparison receipt.
- */
+/** Reproducible result of one successful metadata-only rewrite check. */
 export interface IAutoMovieEvidenceMetadataRewriteReport {
   /** Compared project-relative path. */
   path: string;
@@ -63,12 +48,7 @@ const ACKNOWLEDGEMENT_DECLARATION =
 const REVIEW_DECLARATION =
   /^@evidence(?:Exclude)?Review\s+\S+\s+#[0-9a-f]{7}\s+\S(?:[\s\S]*\S)?$/u;
 
-/**
- * Proves that one evidence metadata rewrite preserves authored work.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Refuses metadata repair that changes authored prose, headings, comments, declaration addresses, or an unowned metadata region.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Compares canonical protected projections and exact native-carrier rows before reporting success.
- */
+/** Proves that one evidence metadata rewrite preserves authored work. */
 export function verifyAutoMovieEvidenceMetadataRewrite(
   props: IVerifyAutoMovieEvidenceMetadataRewriteProps,
 ): IAutoMovieEvidenceMetadataRewriteReport {

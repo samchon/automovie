@@ -13,8 +13,6 @@ import { WindowsProcessOwnershipPrograms } from "./WindowsProcessOwnershipProgra
  * @evidence contracts/common.md#clear-and-simple-design One production composition owns the native effect port supplied to the public facade.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses maintained effects without changing OS methods or exposing test-only options.
  * @evidence contracts/common.md#meaningful-documentation States controller-versus-host responsibilities and canonical production composition.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Supplies the actual session host effects without expanding ownership authority.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Composes native discovery and termination behind the public ProcessOwnership service.
  */
 export function createNodeProcessOwnershipHost(): IProcessOwnershipHost {
   return {

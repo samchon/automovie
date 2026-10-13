@@ -8,9 +8,6 @@ import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
  * replaces that profile. Unknown attachments and unsafe sums remain null.
  * Driver allocation overhead and default-window framebuffer storage are outside
  * this target quantity. The requested sample count safely covers driver clamping.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Counts every resolved and multisampled target attachment in texel storage units.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps unsupported target representation and arithmetic overflow unbounded for admission refusal.
  */
 export function measureAutoMovieRenderTextureTarget(target: IAutoMovieRenderTextureTarget): number | null {
   if (!Number.isSafeInteger(target.samples) || target.samples < 0 || target.formats.length === 0 ||

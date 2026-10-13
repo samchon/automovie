@@ -25,8 +25,6 @@ const assertUniqueProfileGaitNames = (
  * set drives many bodies. Returns the clips keyed by gait name (empty when the
  * profile declares no gaits).
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Applies every named profile gait to the selected skeleton without embedding creature-specific code.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Expands a reusable compact gait set into skeleton-bound motion clips.
  * @author Samchon
  */
 export const bindProfileGaits = (

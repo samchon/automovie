@@ -16,9 +16,6 @@ import type { IAutoMovieProductionSourceGateTrace } from "./IAutoMovieProduction
  * the evaluation, every other runtime field is carried as it was, and reading
  * one of those records nothing. Without a trace the runtime is returned as it
  * was.
- *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-dependency-based-current-status Marks exactly the gate answers whose current status depends on the revision they read.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-dependency-based-freshness Adds the revision to the freshness key of an answer only when that answer read it.
  */
 export const recordAutoMovieProductionClearanceRevision = (props: {
   /** Trace of the running gate, or `undefined` when nothing records. */

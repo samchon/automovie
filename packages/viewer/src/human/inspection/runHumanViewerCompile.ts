@@ -20,8 +20,6 @@ import type { IRunHumanViewerCompileProps } from "./IRunHumanViewerCompileProps.
  * @evidence contracts/common.md#clear-and-simple-design One function owns running the compile; watching and publication stay with the caller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Runs the maintained compiler entry and consumes its complete output or failure without patching SDK emit, expiring work by age or publishing a partial generation.
  * @evidence contracts/common.md#meaningful-documentation States the process boundary, the logging and the failure effect.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Isolates the synchronous compiler in a child process and returns only a complete result or the named failure.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One function owns running the compile; watching and publication stay with the caller.
  */
 export async function runHumanViewerCompile(
   props: IRunHumanViewerCompileProps,

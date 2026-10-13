@@ -1,12 +1,7 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMovieExplicitInstanceTransform } from "./IAutoMovieExplicitInstanceTransform";
 
-/**
- * Compact deterministic placement algorithm for a general instance set.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieInstanceSetLayout` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieInstanceSetLayout` for the narrative intent story design ownership system contract.
- */
+/** Compact deterministic placement algorithm for a general instance set. */
 export type IAutoMovieInstanceSetLayout =
   | {
       /** Rectangular grid. */

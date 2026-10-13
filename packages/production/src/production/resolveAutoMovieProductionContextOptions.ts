@@ -11,9 +11,6 @@ import type { IAutoMovieProductionContextOptions } from "./IAutoMovieProductionC
  * reassignment change the context; nested instruments and callbacks retain
  * their intended identities. Root and namespace admission remain with the
  * context constructor rather than being repeated here.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Preserves the exact host dependencies and evidence-reader identities across the named and positional context entries.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Captures one equivalent composition input while preserving the existing constructor's project selection semantics.
  */
 export const resolveAutoMovieProductionContextOptions = (props: {
   input:

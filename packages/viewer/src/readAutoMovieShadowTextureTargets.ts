@@ -19,9 +19,6 @@ import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource
  * family. Compatibility admission remains the Engine's single policy owner.
  * Caller scope and light keys identify distinct retained light-owned slots;
  * include each scope once when assembling a context's renderTargets closure.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Connects actual light attachment objects and first-allocation bounds to the context's complete texture closure.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies required map/blur facts before drawing while preserving hidden retained targets and changed factory phases.
  */
 export const readAutoMovieShadowTextureTargets = (
   scope: string,

@@ -9,49 +9,22 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * nothing else — in particular it is not the space's floor area, which comes
  * from the support surfaces and is reported by the quantity report.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingRegion` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingRegion` for the interior space drawing schedule quantity system contract.
  * @author Samchon
  */
 export interface IAutoMovieDrawingRegion {
-  /**
-   * Logical space this cross-section belongs to.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `space` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `space` for the interior space drawing schedule quantity system contract.
-   */
+  /** Logical space this cross-section belongs to. */
   space: string;
 
-  /**
-   * Cell within that space.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `cell` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `cell` for the interior space drawing schedule quantity system contract.
-   */
+  /** Cell within that space. */
   cell: string;
 
-  /**
-   * Space kind, which is the region's drafting layer.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `kind` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Space kind, which is the region's drafting layer. */
   kind: string;
 
-  /**
-   * Convex page polygon in counter-clockwise order; at least three points.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `polygon` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `polygon` for the interior space drawing schedule quantity system contract.
-   */
+  /** Convex page polygon in counter-clockwise order; at least three points. */
   polygon: IAutoMovieDrawingPoint[];
 
-  /**
-   * Exact area of {@link polygon} in square metres.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `area` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `area` for the interior space drawing schedule quantity system contract.
-   */
+  /** Exact area of {@link polygon} in square metres. */
   area: number;
 
   /**
@@ -62,9 +35,6 @@ export interface IAutoMovieDrawingRegion {
    * material assembly is a separate record from the built environment, a
    * drawing is derived from the environment alone, and the drawing declares
    * that reach as a gap rather than inventing a layer order it cannot see.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `finish` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `finish` for the interior space drawing schedule quantity system contract.
    */
   finish: string | null;
 }

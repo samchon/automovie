@@ -59,8 +59,6 @@ interface IPenetration {
  * synthesis of the suggested react action into `performShot` is deferred (#600
  * follow-up); this returns the response as data.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `detectBodyCollision` reports malformed actor proxies at their input paths and each interpenetration at an indexed contact-distance path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `detectBodyCollision` binds participant ids, sample times, penetration observations, and warning scope to the same deterministic collision pass.
  * @author Samchon
  */
 export const detectBodyCollision = (props: {

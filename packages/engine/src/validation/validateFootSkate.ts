@@ -37,8 +37,6 @@ const DEFAULT_MAX_HORIZONTAL_SPEED = 0.02;
  * (IK), restage, or acknowledge a deliberate slide with `physicsIntent`. Only
  * malformed annotations (bad bone, window, or rate) are errors.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateFootSkate` reports malformed windows at their fields and excess foot speed at the exact window sample path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateFootSkate` retains contact index, sample index, observed horizontal speed, allowed speed, and overshoot in each finding.
  * @author Samchon
  */
 export const validateFootSkate = (props: {

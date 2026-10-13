@@ -1,9 +1,4 @@
-/**
- * An actor or formation required by a shot.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieShotParticipant` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieShotParticipant` for the narrative intent story design ownership system contract.
- */
+/** An actor or formation required by a shot. */
 export type IAutoMovieShotParticipant =
   | {
       /** Named actor participant. */

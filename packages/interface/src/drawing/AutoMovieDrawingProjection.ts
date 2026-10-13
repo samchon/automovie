@@ -19,8 +19,6 @@
  * - `elevation` has no cut at all. Nothing is removed and nothing is `cut`; the
  *   origin only fixes where the page origin sits on the picture plane.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `AutoMovieDrawingProjection` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `AutoMovieDrawingProjection` for the interior space drawing schedule quantity system contract.
  * @author Samchon
  */
 export type AutoMovieDrawingProjection =

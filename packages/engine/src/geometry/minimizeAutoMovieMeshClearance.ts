@@ -27,9 +27,6 @@ import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
  * precision, not an added geometric clearance. Incomplete or infeasible solves
  * refuse rather than silently substituting the conservative or relaxed result.
  * Consumers must recheck after shared-skin propagation and Float32 export.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Resolves all resident contact witnesses together while minimizing unnecessary shared-surface motion within conservative upper bounds.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves projected triangle connectivity, original vertex identities and all affine depth conditions during a bounded area-weighted solve.
  */
 export function minimizeAutoMovieMeshClearance(
   front: IAutoMovieMesh,

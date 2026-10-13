@@ -11,8 +11,6 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design One PNG writer owns directory creation, temporary publication and final rename for its caller-selected target.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stores the actual supplied capture bytes without image synthesis, subject-specific rewrites or deleting another viewer's thumbnail directory.
  * @evidence contracts/common.md#meaningful-documentation States the atomicity it serves and the folder ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review A per-process temporary file and rename never expose partial bytes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review One PNG writer owns directory creation, temporary publication and final rename for its caller-selected target.
  */
 export async function writeHumanViewerThumbnail(
   file: string,

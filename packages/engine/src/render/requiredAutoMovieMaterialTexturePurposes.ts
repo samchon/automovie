@@ -8,9 +8,6 @@ import type { AutoMovieBuiltinTexturePurpose } from "./AutoMovieBuiltinTexturePu
  * only without a base/detail normal map. Rectangular lighting requires its two
  * tables only when a physically based surface is reachable in the same scope.
  * This lists roles and computes neither pixels nor byte estimates.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes every supported implicit material and area-light lookup consumer without inventing source storage facts.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies required lookup roles for actual fact matching and explicit missing-resource refusal.
  */
 export function requiredAutoMovieMaterialTexturePurposes(props: {
   materials: readonly IAutoMovieMaterial[];

@@ -26,15 +26,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * A null phase asks for the completed work: everything the plan ever removes is
  * gone and everything else stands. That is also the only sensible answer for a
  * lineage that records alternatives without recording a construction sequence.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineagePhaseSnapshot` reports every declared subject's role and presence once a phase completes. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineagePhaseSnapshot` records each declared subject's role and presence after a selected construction phase.
- * @evidence requirements/interior/existing-conditions-phases-and-alternatives.md#interior-construction-renovation-phases `designLineagePhaseSnapshot` resolves each declared subject to pending, present, or removed after the selected prerequisite-ordered construction phase.
- * @evidence specifications/interior-space/construction-phases-and-alternatives.md#interior-space-phase-alternative-graph The snapshot implements phase-ordered lifecycle presence for tracked interior identities without claiming interior-specific support, access, or collision state.
- * @evidence requirements/building-exterior/existing-phases-and-alternatives.md#building-exterior-construction-phases `designLineagePhaseSnapshot` evaluates install and remove lifecycle events over the declared prerequisite graph rather than assuming a fixed linear phase order.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-phase-input-output The function consumes the lineage phase graph and lifecycle roles and returns a deterministic identity-by-identity presence snapshot.
- * @evidence requirements/map/temporal-change.md#map-existing-change-demolition `designLineagePhaseSnapshot` resolves every tracked world identity to pending, present, or removed after the selected prerequisite-ordered phase.
- * @evidence specifications/world-and-site/temporal-state-and-staleness.md#world-site-existing-change-demolition The snapshot materializes existing, installed, and demolished presence from explicit lifecycle events rather than source-array position.
  */
 export const designLineagePhaseSnapshot = (
   lineage: IAutoMovieDesignLineage,

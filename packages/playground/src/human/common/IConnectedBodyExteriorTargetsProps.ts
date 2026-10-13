@@ -8,8 +8,6 @@ import type {
  * body view within its reach, the search, the parent's drafts and intent
  * tickets, and the panel's transaction, status and refusal owners.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries what the body editor's anatomical measurement rows need to state and commit a target.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Names the container, search and transaction owners the rows draw into and commit through.
  * @author Samchon
  */
 export interface IConnectedBodyExteriorTargetsProps {

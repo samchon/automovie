@@ -11,8 +11,6 @@ import { createViewerCameraState } from "../../createViewerCameraState.js";
  * @evidence contracts/common.md#clear-and-simple-design One transfer adapter reuses the original observation and material/caster setters.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Restores supported product state without changing geometry, SDK methods or a named preset.
  * @evidence contracts/common.md#meaningful-documentation Separates viewport transfer from numerical document validation.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Retains the actual committed view across a separately admitted source candidate.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps camera and display state outside document identity.
  */
 export function createHumanViewportTransfer(props: {
   camera: THREE.PerspectiveCamera;

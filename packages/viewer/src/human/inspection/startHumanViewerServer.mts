@@ -21,8 +21,6 @@ import { ProcessOwnership } from "../../process/ProcessOwnership.js";
  * @evidence contracts/common.md#clear-and-simple-design Listening, subscription and shutdown form one lifetime separate from mutable GPU/catalogue state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes status only for the listening process's actual creation, preserves model inputs and captures, and ends ownership on actual shutdown rather than an age limit.
  * @evidence contracts/common.md#meaningful-documentation States launcher versus direct ownership and hardware readiness.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The same ownership record and renderer predicate govern startup and session-owned shutdown.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Listening, subscription and shutdown form one lifetime separate from mutable GPU/catalogue state.
  */
 export async function startHumanViewerServer(
   props: IStartHumanViewerServerProps,

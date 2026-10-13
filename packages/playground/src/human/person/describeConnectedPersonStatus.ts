@@ -13,9 +13,6 @@ import type { IConnectedPersonStatus } from "./IConnectedPersonStatus";
  * stated first and followed by what stayed on screen, so a refused edit never
  * reads as a change. A draft is never described as committed.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reports the committed person, a refused draft with all of its failures, or the refusal that changed nothing.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Derives the status from state so a superseded or refused request cannot leave an earlier line behind.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state States that the displayed person is unchanged after a refusal.
  * @author Samchon
  */
 export function describeConnectedPersonStatus<

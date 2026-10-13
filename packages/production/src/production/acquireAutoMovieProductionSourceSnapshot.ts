@@ -32,11 +32,6 @@ import { readAutoMovieLibraryDerivedInputs } from "./readAutoMovieLibraryDerived
  * snapshot that mixes two states; so is an input identity that cannot be
  * derived completely. A read the project handle refuses, such as a replaced
  * root or namespace, is thrown with its own cause.
- *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-dependency-based-current-status Reads the revision, input identity, resident guard, screenplay index, documents and owned-output digests one gate answer depends on.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-dependency-based-freshness Produces the current freshness key a stored observation is compared against, and no key when the revision moves during the read.
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Reads the exact source revision and input bytes a retained gate answer traces back to.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Supplies the current snapshot a derived gate answer must equal to stay current.
  */
 export const acquireAutoMovieProductionSourceSnapshot = (props: {
   /** Project handle every read goes through. */

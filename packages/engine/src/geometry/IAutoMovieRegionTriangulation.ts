@@ -9,16 +9,11 @@ import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
  * The triangulator returns newly owned arrays and copies every input point.
  *
  * @author Samchon
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Resolves an outer boundary and holes into reusable geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns canonical points, rings, and triangles from the region operation.
  */
 export interface IAutoMovieRegionTriangulation {
   /**
    * Every ring's points in one list, canonically wound: the outer ring
    * counter-clockwise first, then each hole clockwise in declared order.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Canonicalizes the winding of every region boundary.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Carries the point buffer on which ring topology is defined.
    */
   points: IAutoMovieProfilePoint[];
   /**
@@ -29,30 +24,14 @@ export interface IAutoMovieRegionTriangulation {
    * vertex is added or merged by winding normalization. It permits attachment
    * IDs, exact coordinates in another unit and other attributes to follow the
    * same permutation without reconstructing identity from floating-point XY.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Retains original boundary identities through canonical ring winding.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Maps each canonical point back to one authored outer or hole vertex without welding or adding geometry.
    */
   sourceIndices: number[];
-  /**
-   * Where each ring sits in {@link points}; `rings[0]` is the outer ring.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Distinguishes the outer boundary from each authored hole.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves the ring structure of the canonical region.
-   */
+  /** Where each ring sits in {@link points}; `rings[0]` is the outer ring. */
   rings: IAutoMovieRegionRing[];
   /**
    * Corner indices into {@link points}, three per counter-clockwise triangle.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Exposes the resolved face connectivity of the planar region.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Carries the topology emitted by the triangulation operation.
    */
   triangles: number[];
-  /**
-   * Enclosed area in square metres: the outer ring less every hole.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Measures the actual metric area of the free-form region.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Reports a physical result derived from metric geometry inputs.
-   */
+  /** Enclosed area in square metres: the outer ring less every hole. */
   area: number;
 }

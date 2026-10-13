@@ -8,9 +8,6 @@
  * are null and the screen says "not supplied". Nothing here is inferred, and
  * admission stays with the owner's validator and builder.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Describes an editable numerical input by its document path and its owner's stated unit and reach.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Describes a face input by its owner's descriptor without restating its anatomical basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Carries the path through which the one person transaction reads, writes and removes the value.
  * @author Samchon
  */
 export interface IConnectedPersonInputDescriptor {

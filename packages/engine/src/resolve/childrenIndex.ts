@@ -1,11 +1,6 @@
 import { IAutoMovieNode } from "@automovie/interface";
 
-/**
- * Build the parent → children adjacency the recompose walk needs.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Preserves hierarchy dependency edges so a driver update propagates through descendants.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Builds the concrete subtree graph used by world-driver recomposition.
- */
+/** Build the parent → children adjacency the recompose walk needs. */
 export const childrenIndex = (
   nodes: IAutoMovieNode[],
 ): Map<string, string[]> => {

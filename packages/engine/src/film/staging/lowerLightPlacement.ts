@@ -19,9 +19,6 @@ const DEFAULT_CONE_ANGLE = 45;
  * is rotation-indifferent and takes identity) and translates to `position`.
  * Omitted color is neutral white with `a: null`, the light-slot convention
  * {@link IAutoMovieColor} documents.
- *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-distribution Lowers an already-admitted staged source into its kind-specific world transform, authored linear color and shadow sampling state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-distribution-color Lowers an already-admitted staged source into its kind-specific world transform, authored linear color and shadow sampling state.
  */
 export const lowerLightPlacement = (light: IAutoMovieStageLight): IAutoMovieLight => {
   const type = lightTypeOf(light)!;

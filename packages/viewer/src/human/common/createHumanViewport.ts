@@ -24,11 +24,6 @@ type BuiltFace = {
  * Geometry, lighting, camera and frame state remain ordinary in-memory objects;
  * the host alone allocates the GPU, controls, decoder, worker and resize observer.
  * A manual finish draws the same current display state as the animation loop.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Presents orbitable anatomical previews and clay without changing the numerical document.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Publishes a completed preview while releasing the previously displayed geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Owns lighting, display-only clay and camera state independently of browser allocation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Delegates worker generation isolation to the preview builder and disposes discarded decoded assets.
  */
 export function createHumanViewport<
   Document = IAutoMovieHumanFaceDocument,

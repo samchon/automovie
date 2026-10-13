@@ -16,8 +16,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * Unsupported legacy directions have no invented closed-choice default.
  * Absent operations can be entered as a complete group without guessed values.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes named scalp lengths and styling choices without source coordinates, planes or guide controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Consumes owner metadata and current trait readings, preserving every unedited legacy population field through sparse overlays.
  * @author Samchon
  */
 export function createConnectedPersonHairInputs(

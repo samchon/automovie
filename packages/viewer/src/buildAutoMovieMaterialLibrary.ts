@@ -21,10 +21,6 @@ import { materialTextureBindings } from "./materialTextureBindings.js";
  * construction; that cache owns binding-private texture clones and decoded
  * sources, while the returned library owns only the `THREE.Material` objects.
  *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves named simulated-surface bindings through the same PBR construction and texture path as model parts.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Refuses ambiguous or absent material identity and creates one deterministic runtime material per admitted id.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Assigns derived material and texture resources to explicit shot-lifetime owners.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps material lowering and disposal isolated to one runtime.
  * @author Samchon
  */
 export const buildAutoMovieMaterialLibrary = async (

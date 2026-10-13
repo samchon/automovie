@@ -124,8 +124,6 @@ const PAIRED: {
  * range-checks each trait at its document `path`, `morphFace` applies each
  * trait's `parameter` target.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-deformable-surface Converts the anatomy-shaped face input into the named controls that deform the base surface.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-skin-morph-facts Emits deterministic morph names and weights while retaining each authored source path.
  * @author Samchon
  */
 export const flattenFace = (face: IAutoMovieFace): IAutoMovieFaceTrait[] => {

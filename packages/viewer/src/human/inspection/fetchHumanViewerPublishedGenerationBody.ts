@@ -18,8 +18,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Extracts the supplied view's body without rebuilding its torso, estimating a head or substituting a different publication.
  * @evidence contracts/common.md#meaningful-documentation States the single body digest, returned body-basis projection and origin convention for the two callers.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Requests the published body view by its digest and projects its existing body basis; the numerical owner retains basis admission.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis One asset read followed by the body projection serves both relative-browser and absolute-Node origins.
  * @author Samchon
  */
 export async function fetchHumanViewerPublishedGenerationBody(

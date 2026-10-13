@@ -12,12 +12,7 @@ import { residentMp4Box } from "./residentMp4Box";
 import { sameSampleDescription } from "./sameSampleDescription";
 import { sampleDescription } from "./sampleDescription";
 
-/**
- * Losslessly conform explicit deterministic and repaint occurrence lanes.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Selects pixels only from the declared lane and refuses fallback at a lane crossing.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Preserves the shared H.264 presentation contract while joining occurrence-addressed sources.
- */
+/** Losslessly conform explicit deterministic and repaint occurrence lanes. */
 export const conformProductionVisualDeliveryVideoMp4 = (props: {
   timeline: IAutoMovieFilmTimeline;
   sources: ReadonlyArray<{

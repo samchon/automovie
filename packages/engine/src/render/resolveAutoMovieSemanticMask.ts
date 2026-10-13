@@ -15,9 +15,6 @@ import { IAutoMovieSemanticMaskResolution } from "./IAutoMovieSemanticMaskResolu
  * every one of those is a stable id the design can be edited by.
  *
  * An unknown or malformed colour returns `null` rather than a guess.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Resolves one pixel colour to its stable drawable identity and complete ownership chain.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Interprets the structural pass through its paired sidecar and refuses unknown palette values.
  */
 export const resolveAutoMovieSemanticMask = (
   mask: IAutoMovieSemanticMask,

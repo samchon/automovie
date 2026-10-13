@@ -13,9 +13,6 @@ import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
  *
  * The page supplies the native worker factory. A numerical
  * error reply belongs to one request and leaves the worker available.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ensures a failed simple-tier edit reports a reason while the panel retains the last committed body.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Settles pending body worker requests after transport failure and permits a later edit to recover.
  */
 export function createBodySimpleWorkerTransport(
   factory: () => Pick<

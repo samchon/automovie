@@ -78,8 +78,6 @@ const shareOf = (need: number, range: IAutoMovieAngleRange | null): number => {
  *   axis.
  * @param props.twistDeg Transverse aim (turn) about the chain's long axis.
  * @returns The joints of the aim pose, parent first.
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-gaze-attention Distributes an authored target through the reachable cervical chain within its declared bounds.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-gaze-expression-attention Solves the bounded cervical chain while retaining an explicit residual for impossible aims.
  * @author Samchon
  */
 export const gazeChainJoints = (props: {

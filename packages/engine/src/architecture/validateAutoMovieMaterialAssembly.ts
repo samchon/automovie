@@ -33,9 +33,6 @@ const THICKNESS_EPSILON = 1e-9;
  *
  * A single-layer stack presents both faces with the same layer, so its finish
  * answers for whichever of them is exposed rather than being demanded twice.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-assembly-conflicts `validateAutoMovieMaterialAssembly` judges one layered build-up: its layers, its finishes, and its total. This ensures contradictory layer stacks fail before they can produce plausible geometry.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `validateAutoMovieMaterialAssembly` performs auto movie material assembly validation when the engine resolves ordered construction layers into their host face regions.
  */
 export const validateAutoMovieMaterialAssembly = (props: {
   assembly: IAutoMovieMaterialAssembly;

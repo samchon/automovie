@@ -15,9 +15,6 @@ import { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
  * `observed` renamed to `solved`: a thermal solver computes, it does not
  * observe, and the two negative arms deliberately keep their exact spelling so
  * one project has one vocabulary for "we did not look".
- *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisOutcome` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisOutcome` for the validation failed not run states system contract.
  */
 export type IAutoMovieAnalysisOutcome =
   | {

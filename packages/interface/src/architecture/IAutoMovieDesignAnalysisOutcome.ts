@@ -5,9 +5,6 @@
  * cannot perform is `unsupported`, and one that was simply never executed is
  * `not-run`; both carry a reason and no candidates, so an absent reading is
  * never mistaken for a clean sheet.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-unsupported-incomplete Exposes `IAutoMovieDesignAnalysisOutcome` as the portable data boundary for the production design reference unsupported incomplete requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-authority-replacement Types `IAutoMovieDesignAnalysisOutcome` for the narrative intent reference authority replacement system contract.
  */
 export type IAutoMovieDesignAnalysisOutcome =
   | {

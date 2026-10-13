@@ -6,8 +6,6 @@
  * edges and candidate triangles; it never exempts the whole triangle pair.
  * Coplanar overlap has no transverse point and retains its separate report.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Allows a caller to classify intended point contacts without dropping other crossings of the same geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Keeps original triangle ordinals and the strict crossing predicate while controlling witness population.
  * @author Samchon
  */
 export interface IAutoMovieMeshCrossingOptions {

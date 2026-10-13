@@ -26,8 +26,6 @@ const gaitPhaseEase = (
  * its anatomical side of zero. Optional stance/swing easing curves shape each
  * half separately while preserving the same endpoints.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Evaluates one declared limb row by phase, duty, amplitude, and neutral angle.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Turns compact gait data into a repeatable articulated sample.
  * @author Samchon
  */
 export const gaitLimbFlexion = (

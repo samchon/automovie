@@ -39,11 +39,6 @@ const sameFile = (
  * Node's pathname APIs expose observations, not a kernel-level namespace lock;
  * hostile actors with unrestricted concurrent namespace control remain an OS
  * observation boundary rather than something pure unit tests can certify.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Binds one physical production root and refuses aliases, links and substitutions before returning source bytes.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-bounds Distinguishes an absent layer from file, permission, identity and resource failures.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Compares ancestor realpaths, lstat identities and bounded read-handle metadata around each read.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds Enforces the file, inventory and directory-depth limits without creating source or cache files.
  */
 export async function createAutoMovieReferenceReader(
   root: string,

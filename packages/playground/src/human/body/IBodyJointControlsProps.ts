@@ -12,8 +12,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * `refuse` returns an unsupported pending shape to the panel's transaction
  * owner. Bone selection stays outside the document.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds named joint inputs to the latest body draft and hands refusals back to the panel.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves draft publication and last-valid recovery with the injected change and refusal owners.
  * @author Samchon
  */
 export interface IBodyJointControlsProps {

@@ -8,8 +8,6 @@ import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
  * it into the report, the authoring agent pastes it back into the harness, and
  * neither is reasoning about a private reconstruction of the model.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `autoMovieViewerSubjectKey` renders one subject identity and revision as the stable name by which it is pointed at and opened alone.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record `autoMovieViewerSubjectKey` serializes the subject record's identity fields into one portable target string.
  * @author Samchon
  */
 export const autoMovieViewerSubjectKey = (

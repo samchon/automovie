@@ -39,10 +39,6 @@ import {
  * cannot equal this one, and it reopens as stale until the library is compiled
  * again.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Binds a library result to its namespace, graph-selected authoring closure and input bytes.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-dependency-based-current-status Changes whenever the namespace, a source, an owner, the configuration, an asset or a derived input changes, and never for a checkout location.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Admits the namespace, selected configuration, normalized source and adopted bytes, and no machine path.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-dependency-based-freshness Supplies the source and dependency closure key a stored library publication is compared against.
  * @author Samchon
  */
 export const libraryBuildInputFingerprint = (props: {

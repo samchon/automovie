@@ -16,9 +16,6 @@ import { decodeConnectedAssetText } from "./decodeConnectedAssetText.js";
  *
  * The payload type is the caller's. Nothing here inspects the decoded value,
  * so naming a type is a claim the caller's downstream admission must keep.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Loads the application's selected reusable basis independently of any portrait or compact edit document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Delivers the explicitly selected immutable geometry payload to the numerical basis admission boundary.
  */
 export async function readConnectedFaceAsset<
   Payload = IAutoMovieHumanFaceBasis,

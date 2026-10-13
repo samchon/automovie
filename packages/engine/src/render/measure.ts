@@ -19,8 +19,6 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * source of truth for how many triangles a sphere has, and the day the
  * tessellator's ring count changes, the budget would still be checking the old
  * number.
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Measures model geometry and resident attribute bytes once per shared model.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies exact model costs and reconciles shared LOD attribution in the inventory cache.
  */
 export const measure = (
   model: IAutoMovieModel,

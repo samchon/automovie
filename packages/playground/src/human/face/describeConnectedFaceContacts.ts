@@ -6,9 +6,6 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
  * grew, each as `<part> x <other> <triangles>/<otherTriangles>`, followed by
  * the neutral's pair count. Counts do not measure penetration depth or
  * anatomical validity, and the text says so.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reports crossing changes relative to the neutral without claiming depth or validity.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reports how the edited face's crossings differ from the source neutral.
  */
 export function describeConnectedFaceContacts(
   before: readonly IAutoMovieModelCrossing[],

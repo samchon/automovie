@@ -5,8 +5,6 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * head channels set, every head measurement remeasured on it, and the
  * departure from the standard head the solve chose.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Returns the solved person and what its head actually measures.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reports the remeasured values and the departure separately from the targets.
  * @author Samchon
  */
 export interface IConnectedPersonHeadSolution {

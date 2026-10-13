@@ -20,9 +20,6 @@ type RuntimeSource = NonNullable<IAutoMovieRenderTextureResidency["runtimeTextur
  * the previous phase separately until that phase's native release is observed.
  * These are reachable-storage bounds, never a claim of current GLuint count.
  * No shader, texture state or GPU lifetime is changed by the observation.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Connects actual shared lookup Texture objects and native area-light selection to the existing runtime residency lane.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves retained lookup facts while exposing current scope's required consumer roles for refusal.
  */
 export function readAutoMovieMaterialTextureSources(props: {
   scope: string;

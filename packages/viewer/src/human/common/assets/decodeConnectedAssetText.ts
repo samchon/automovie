@@ -11,9 +11,6 @@ import { ConnectedAssetEncoding } from "./ConnectedAssetEncoding.js";
  * inflated the stored gzip already, and the caller cannot tell from the URL,
  * so the magic decides. Refuses empty input, a gzip that does not inflate and
  * text that is not UTF-8, each with its reason.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reproduces the selected basis from its stored or transport-inflated bytes without a server-specific encoding policy.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Delivers the basis payload's exact text to admission whether or not the transport inflated the gzip.
  */
 export async function decodeConnectedAssetText(
   bytes: ArrayBuffer,

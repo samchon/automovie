@@ -8,8 +8,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The Error subtype supplies only its message and name; it owns no timer, queue or browser state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Constructor assignment changes only this error's name and never terminates work, restarts a viewer or alters a foreign Error instance.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes retained refusal identity from the current no-deadline stage observer and actual lifetime recovery.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Preserves an explicit named refusal for classification without establishing a clock-based capture or renderer policy.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The Error subtype supplies only its message and name; it owns no timer, queue or browser state.
  * @author Samchon
  */
 export class HumanViewerStalledError extends Error {

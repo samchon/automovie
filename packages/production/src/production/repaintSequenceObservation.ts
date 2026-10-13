@@ -16,12 +16,7 @@ export type {
   IAutoMovieRepaintSequenceObservation,
 } from "@automovie/interface";
 
-/**
- * Stable aggregate-observation refusal classes.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Distinguishes malformed, stale-set, stale-basis, and incomplete observations.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Lets finalization refuse the exact failed aggregate invariant.
- */
+/** Stable aggregate-observation refusal classes. */
 export type AutoMovieRepaintObservationDiagnostic =
   | "observation-schema-invalid"
   | "observation-member-set-stale"
@@ -29,12 +24,7 @@ export type AutoMovieRepaintObservationDiagnostic =
   | "observation-artifact-stale"
   | "observation-incomplete";
 
-/**
- * Digest the ordered active visual set observed during sequence playback.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-temporal-artifacts Seals the exact ordered current selection population that a reviewer played.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Prevents a per-shot review from standing in for aggregate sequence observation.
- */
+/** Digest the ordered active visual set observed during sequence playback. */
 export const digestAutoMovieRepaintObservationMembers = (
   members: readonly IAutoMovieRepaintObservationMember[],
 ): AutoMovieContentDigest => {
@@ -44,9 +34,6 @@ export const digestAutoMovieRepaintObservationMembers = (
 
 /**
  * Verify one persisted sequence observation against the current timeline set.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Refuses publication when any selection, timeline, baseline, playback artifact, or verdict is not the one currently reviewed.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Preserves failed and incomplete observations while granting publication only to one current completed five-pass observation.
  */
 export const autoMovieRepaintSequenceObservationDiagnostics = (props: {
   observation: IAutoMovieRepaintSequenceObservation;

@@ -5,13 +5,7 @@
  */
 import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 
-/** Transfer exactly the buffers owned by this reply, never basis memory.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Delivers preview geometry without copying the compiled basis.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Delivers requested GLB bytes without encoding during preview.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Transfers each preview's numerical buffers to its transaction.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Transfers only the explicit export's binary file.
- */
+/** Transfer exactly the buffers owned by this reply, never basis memory. */
 export function connectedBodyTransfers(
   result: ConnectedBodyResult,
 ): ArrayBuffer[] {

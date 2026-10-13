@@ -99,9 +99,6 @@ const requiredAffordance = (
  * and the affordances its own spec declares. That is the point of admitting the
  * reference at all: an imported chair that lost its seat face and its keep-out
  * volume would be a picture, and a picture cannot be sat on.
- *
- * @evidence requirements/interior/furniture-fixtures-and-equipment.md#interior-object-placement-refusal validatePropPlacements refuses ambiguous joins, cyclic support, missing anchors, invalid bearing, and clearance intrusion with addressed corrections.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-furniture-fixture-equipment-placement validatePropPlacements reports unsupported, colliding, blocked, or otherwise unusable placements with addressed correction data.
  */
 export const validatePropPlacements = (props: {
   props: readonly IAutoMoviePropSpec[];

@@ -12,8 +12,6 @@ import { clampJointToSkeleton } from "./clampJointToSkeleton";
  * (e.g. raw LLM output) through `clampPose` and it can no longer exceed each
  * joint's gamut, the same bounds {@link validateJointRom} reports `// ❌` for.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Enforces every declared pose joint against the skeleton's effective ranges.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Applies the rig's ROM graph across a complete pose without altering root authority.
  * @author Samchon
  */
 export const clampPose = (

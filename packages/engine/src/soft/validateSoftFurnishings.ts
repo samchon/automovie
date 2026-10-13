@@ -44,8 +44,6 @@ const FURNISHING_MODES = new Set(["rest", "simulated"]);
  * against, and inventing one would be the design deciding a fact the author did
  * not state.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Validates the furnishing's domain, support, uniqueness, and held geometry against its room.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Enforces the binding boundary between a soft panel and interior placement.
  * @author Samchon
  */
 export const validateSoftFurnishings = (props: {

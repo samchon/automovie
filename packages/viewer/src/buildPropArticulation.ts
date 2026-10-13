@@ -69,8 +69,6 @@ interface IJointRest {
  * channels a clip carries move here, exactly as {@link applyObjectMotions}
  * states for every other object it drives.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Limits this articulation surface to authored object-motion channels.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Materializes those channels at the attachment and interaction boundary.
  * @author Samchon
  */
 export const buildPropArticulation = (

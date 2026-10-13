@@ -30,10 +30,6 @@ import { easingProgress } from "./easingProgress";
  * one unit, so no two starts can tie except in malformed input, where the
  * input's own order is kept.
  *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Reconstructs the complete elapsed cadence from cue intervals, eased travel, holds, and turns for the requested absolute time.
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Separates eased unit translation from pivot turn so each member can compose its own travel and cadence response.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Produces seek-order-independent cadence segments without accumulating state between frames.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Reports cue-time travel and turn contributions on the same shot-local interval used by member response.
  * @author Samchon
  */
 export const formationCadenceSegments = (

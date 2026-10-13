@@ -6,9 +6,6 @@ import type { IFormationTierRepresentation } from "./IFormationTierRepresentatio
  * Release owned tier geometry, material objects and every declared gait table.
  * Host-owned promoted heroes and model input declarations are never disposed.
  * Shared material identities are released once across the supplied tiers.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Releases only the formation's constructed tier resources.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Retires the owned beauty, shadow and cycle resources together.
  */
 export const disposeFormationRepresentations = (
   representations: Iterable<IFormationTierRepresentation>,

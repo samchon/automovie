@@ -5,8 +5,6 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
  * and exports body documents, owns camera and display state, and may solve
  * the arms-down preset.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Builds, publishes and exports body documents and owns camera and display state outside the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates building from publishing so a failed build keeps the previous model.
  * @author Samchon
  */
 export interface IConnectedBodyViewport<Model> {
@@ -28,17 +26,11 @@ export interface IConnectedBodyViewport<Model> {
 
   /**
    * Await requested resource retirement without rolling back an already published model.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the committed body available while resource cleanup completes.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates cleanup completion from the synchronous display publication.
    */
   settleRetirements: () => Promise<void>;
 
   /**
    * Retire the viewport's resources without terminating its borrowed renderer or numerical connection.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ends owned body display resources without ending borrowed host services.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reports the owned retirement result to the viewport's caller.
    */
   close: () => Promise<void>;
 

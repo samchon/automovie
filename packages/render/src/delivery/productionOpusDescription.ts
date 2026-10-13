@@ -5,9 +5,6 @@ import type { IAutoMovieProductionOpusDescription } from "@automovie/interface";
  *
  * Family zero has no serialized tail. Nonzero families preserve their ordered
  * mapping, and family 255 intentionally carries no inferred channel order.
- *
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves channel order and mapping instead of treating channel count as the complete layout.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Reads exact sample-description facts from the final container.
  */
 export const productionOpusDescription = (props: {
   boxes: readonly unknown[] | undefined;

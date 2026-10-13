@@ -13,10 +13,6 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
  * integer frame offset, and a fade scales the one layer by the same offset.
  * Nothing reads a previous frame, so a browser seek, a chunk and a full render
  * resolve the same layers for the same frame.
- *
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-subrange-stability Resolves a frame from its global film time so a chunk or retry yields the same frame as a full render.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-boundary-convention Selects the segment whose start-inclusive, end-exclusive range contains the frame with integer comparisons.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Gives direct seek, subrange and chunk execution one state per global frame number and refuses a frame outside the schedule.
  */
 export const sampleProductionRenderFrame = (
   timeline: IAutoMovieFilmTimeline,

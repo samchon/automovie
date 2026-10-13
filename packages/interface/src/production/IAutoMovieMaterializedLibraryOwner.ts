@@ -3,8 +3,6 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 /**
  * What one design owner's executed source published on this compile.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Records which source export and revision each library artifact came from.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types the per-owner derived state one executed source export produced.
  * @author Samchon
  */
 export interface IAutoMovieMaterializedLibraryOwner {

@@ -1,9 +1,4 @@
-/**
- * A compact formation layout; individual members are derived slots.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-layout-selection-parameters Exposes `IAutoMovieFormationLayout` as the portable data boundary for the formation layout selection parameters requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `IAutoMovieFormationLayout` for the performance formation layout slot assignment system contract.
- */
+/** A compact formation layout; individual members are derived slots. */
 export type IAutoMovieFormationLayout =
   | {
       /** Rectangular line. */

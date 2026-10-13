@@ -6,9 +6,6 @@ import { sampleClipSequence } from "../resolve/sampleClipSequence";
  * Resolve a node's baked world transform from every object-motion authority at
  * one shot-local instant. Translation and rotation are selected independently,
  * so disjoint producer clips compose while later duplicate channels hand off.
- *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects bakedTransformFromClipsAt preserves declared attachment handoff: Resolve a node's baked world transform from every object-motion authority at one shot-local instant. Translation and rotation are selected independently, so disjoint producer clips compose while later duplicate channels hand off.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff bakedTransformFromClipsAt realizes declared attachment and object handoff: Resolve a node's baked world transform from every object-motion authority at one shot-local instant. Translation and rotation are selected independently, so disjoint producer clips compose while later duplicate channels hand off.
  */
 export const bakedTransformFromClipsAt = (
   clips: readonly IAutoMovieClip[],

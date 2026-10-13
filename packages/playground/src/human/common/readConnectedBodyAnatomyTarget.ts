@@ -6,8 +6,6 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
  * the path is not a target and reads as undefined; admission refuses it
  * before a document carrying it is committed.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reads the anatomical target the committed body document states, so the row shows it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows a row's stated value from the document, not from a second copy.
  * @author Samchon
  */
 export function readConnectedBodyAnatomyTarget(

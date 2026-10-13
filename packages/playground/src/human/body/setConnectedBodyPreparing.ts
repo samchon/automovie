@@ -8,8 +8,6 @@
  * and empties itself when nothing is left. A page without the line ignores
  * the call.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor States which editor parts are still loading instead of leaving them silently empty.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows a named preparing state for the head and simple tier.
  * @author Samchon
  */
 export function setConnectedBodyPreparing(

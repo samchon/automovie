@@ -17,9 +17,6 @@ import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
  * Both digests are recomputed with the engine's canonical JSON and pure
  * SHA-256, which produce the same bytes and digest as the Node builder path,
  * so a browser and the builder accept or refuse the same persisted runtime.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-cache-identity Recomputes the runtime and inner stream digests before a persisted stream is trusted.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#checkpoint-cache-identity-and-validity Rejects a persisted stream whose digest, clock or shape differs from what its identity promises.
  */
 export const validateProductionFilmEffectRuntime = (
   runtime: IAutoMovieCompiledFilmEffect,

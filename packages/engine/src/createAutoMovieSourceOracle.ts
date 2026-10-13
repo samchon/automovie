@@ -23,9 +23,6 @@ import { worldGroundHeight } from "./worldGroundHeight";
  *
  * An id with no compiled record refuses with a range error naming it, including
  * an id that only an inherited object property would otherwise answer.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Answers a shot source's one-member formation and instance questions with the identity and transform the compiled runtime regenerates for that slot.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Keeps the source-facing member oracle and the full compiled runtime on one regeneration path, so they return the same transform and state.
  */
 export const createAutoMovieSourceOracle = (props: {
   /** World whose surfaces answer ground height. */

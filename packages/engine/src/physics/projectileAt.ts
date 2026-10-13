@@ -20,8 +20,6 @@ const assertFiniteVector = (name: string, vector: IAutoMovieVector3): void => {
  * velocity also gives the flight direction, so a renderer can orient the arrow
  * along its arc (e.g. via `aimRotation`).
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Evaluates the declared analytic path without integration drift.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Samples the supported trajectory tier at an absolute time.
  * @author Samchon
  */
 export const projectileAt = (

@@ -37,10 +37,6 @@ import { triangulateRegion } from "./triangulateRegion";
  *
  * The result is a closed 2-manifold whose volume is the region's area times the
  * depth, spanning `-depth / 2` to `+depth / 2` like the convex extrusion.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Extrudes a canonical region while retaining every declared hole.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Produces a closed manifold from the region's boundary topology.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Emits the developed half of the shared surface coordinate convention.
  */
 export const extrudeAutoMovieRegion = (props: {
   outer: readonly IAutoMovieProfilePoint[];

@@ -5,11 +5,7 @@ import { fail } from "./referenceError";
 const layers: ReadonlySet<string> = new Set(AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS);
 const reserved = /^(?:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/iu;
 
-/**
- * Admit an exact authored Markdown identity before any source read.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Excludes private populations, aliases and non-Markdown files at the provider boundary.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Requires the shared authored-layer path and portable canonical components.
- */
+/** Admit an exact authored Markdown identity before any source read. */
 export function admitReferencePath(file: string): void {
   const parts = file.split("/");
   if (
@@ -27,8 +23,6 @@ export function admitReferencePath(file: string): void {
 
 /**
  * Decide portable filename admission without consulting or normalizing the source.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Refuses platform aliases before a pathname can select different bytes.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Excludes traversal, drives, ADS, reserved names and hidden components.
  */
 export function validComponent(part: string): boolean {
   return (
@@ -44,8 +38,6 @@ export function validComponent(part: string): boolean {
 
 /**
  * Split one exact section address without guessing an anchor or normalizing a path.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-selection Keeps selection bound to the explicit file and anchor supplied by navigation.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-selection Refuses malformed addresses before exact anchor lookup.
  */
 export function splitReferenceLocation(location: string): {
   /** Admitted canonical authored Markdown path before the single anchor separator. */

@@ -3,8 +3,6 @@
  * Polishing introduces no additional native call or scaled correction frame.
  * Failed native buffers are diagnostic data and never admitted geometry.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Retains the actual initial native status and diagnostics independently of later original-row candidate admission.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Records caller-coordinate objectives and unsuccessful native buffers without inventing an unused correction frame or side map.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementNativeCall {

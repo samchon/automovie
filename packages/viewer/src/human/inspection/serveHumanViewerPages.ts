@@ -12,9 +12,6 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design One fixed route map serves entry pages before Vite, leaving module transformation and source watching to their existing owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses ordinary filesystem response streaming rather than patching a foreign reload function or restarting a completed viewport after a file edit.
  * @evidence contracts/common.md#meaningful-documentation Explains HMR-client separation, continued module transformation and the application's checked source-replacement authority.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Preserves the displayed model and camera during application source edits.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Separates fixed page delivery from development-server page reloads.
  */
 export function serveHumanViewerPages(directory: string) {
   const pages = new Map([

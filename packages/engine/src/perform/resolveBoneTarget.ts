@@ -11,12 +11,7 @@ import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
-/**
- * Resolve a bone target into world coordinates from a sampled actor motion.
- *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-target-space Resolves a moving bone target into the explicit world space consumed by IK.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Transforms a sampled rig-bone position into world target space.
- */
+/** Resolve a bone target into world coordinates from a sampled actor motion. */
 export const resolveBoneTarget = (
   target: IAutoMovieActionTarget,
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,

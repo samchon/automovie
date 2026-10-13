@@ -12,8 +12,6 @@ import { requireProcessId } from "./requireProcessId.ts";
  * @evidence contracts/common.md#clear-and-simple-design One immutable traversal owns ancestry admission independently of native handle acquisition or termination.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses ambiguous records and reused roots instead of using unchecked recursive process termination.
  * @evidence contracts/common.md#meaningful-documentation States exact stamp arithmetic, immutable inputs, output order and refusal before effects.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Admits only creation-ordered descendants of the recorded current root allocation.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Supplies a parent-first termination plan from exact process creation observations.
  */
 export function selectProcessOwnershipTree(
   snapshot: ReadonlyArray<{ pid: number; parentPid: number; createdAt: string }>,

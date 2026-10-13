@@ -5,37 +5,15 @@ import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
  * the ground from `start` to `end` and its world position was held at
  * `position` (its `y` snapped to the ground plane).
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Records one contiguous planted phase and its authoritative support point.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Makes the detected support interval and target inspectable.
  * @author Samchon
  */
 export interface IAutoMovieFootPlant {
-  /**
-   * The planted foot bone.
-   *
-   * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Associates the planted phase with its contacting effector.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Identifies which support limb owns the interval.
-   */
+  /** The planted foot bone. */
   foot: AutoMovieHumanoidBone;
-  /**
-   * Inclusive stance-run start, seconds.
-   *
-   * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Marks the sample at which the foot enters its planted phase.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Uses this instant as the inclusive lower boundary of support sampling.
-   */
+  /** Inclusive stance-run start, seconds. */
   start: number;
-  /**
-   * Inclusive stance-run end, seconds.
-   *
-   * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Marks the last sample owned by the planted phase before release.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Includes this final instant in the planted phase before release.
-   */
+  /** Inclusive stance-run end, seconds. */
   end: number;
-  /**
-   * Pinned world foot position held across the run (`y` = ground height).
-   *
-   * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Carries the authoritative world target and its ground height.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Defines the support point held throughout the planted interval.
-   */
+  /** Pinned world foot position held across the run (`y` = ground height). */
   position: IAutoMovieVector3;
 }

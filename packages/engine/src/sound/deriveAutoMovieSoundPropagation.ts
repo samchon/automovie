@@ -10,18 +10,6 @@ import type {
  * choice then either carries the arrival across the cut or marks it trimmed; an
  * arrival outside the finished film is always refused. The `none` spectral
  * choice remains `null`, never a successful absorption estimate.
- *
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Computes delay, distance gain, and declared spectral loss together.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Produces the shared deterministic event result.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-propagation-refusal Rejects incomplete or invalid physical inputs without a generic fallback.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-occlusion-and-propagation-failure Keeps unsupported facts out of a successful path.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-arrival-time Computes one rounded audible-arrival frame.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-refusal Refuses invalid event timing and arrivals outside the finished film.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Rounds propagation delay exactly once onto the film frame boundary.
- * @evidence requirements/sound/event-cues-and-timing.md#sound-event-derived-timing Derives presentation arrival from declared emission time and distance.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-failure-contract Refuses invalid propagation inputs rather than emitting a plausible cue result.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Preserves the event emission clock while deriving presentation arrival.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Computes one deterministic film-frame arrival.
  */
 export const deriveAutoMovieSoundPropagation = (props: {
   /** Effective source/listener distance in metres. */

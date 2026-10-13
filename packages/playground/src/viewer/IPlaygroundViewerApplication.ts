@@ -10,8 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One capability describes existing application state without copying its evaluator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Separates empty editors from completed subject frames and performs no widget replay.
  * @evidence contracts/common.md#meaningful-documentation Defines input transfer and actual view reflection responsibilities.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Carries the original application's serializable authored choices and validated restoration capability across a source candidate.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Defines capture and restoration of the application-owned declaration component; completion, viewport transfer and source-byte identity retain their own owners.
  * @author Samchon
  */
 export interface IPlaygroundViewerApplication {

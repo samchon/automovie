@@ -24,9 +24,6 @@ import { Quaternion } from "./Quaternion";
  * first-maximum ordering select one deterministically. A collapsed covariance
  * selects identity and the centroid translation. This fit is geometric, and
  * establishes neither a physiological joint trajectory nor nonpenetration.
- *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-deformable-surface Constrains a corresponding deformation target to preserve the reference component's geometry.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-skin-morph-facts Finds the proper unit-scale least-squares transform for a declared rigid deformation component.
  */
 export function fitRigidMeshTransform(props: {
   reference: readonly number[];

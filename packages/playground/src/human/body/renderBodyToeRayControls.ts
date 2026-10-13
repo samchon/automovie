@@ -14,8 +14,6 @@ import type { IBodyToeRayControlsProps } from "./IBodyToeRayControlsProps";
  * An emptied input removes that phalanx's row, so the document only keeps
  * phalanges the author moved. A basis without rays shows a named gap instead.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets an author pose each toe ray phalanx in clinical degrees.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Bounds each phalanx input by the admitted convention range and states it.
  * @author Samchon
  */
 export function renderBodyToeRayControls(

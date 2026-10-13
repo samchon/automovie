@@ -11,11 +11,7 @@ import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebV
 import { webVttCaptionLanguage } from "./webVttCaptionLanguage";
 import { webVttTime } from "./webVttTime";
 
-/**
- * Canonical WebVTT derived only from compiled caption placements.
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-presentation-form Delivers captions as a selectable WebVTT sidecar derived from compiled placements rather than burning text into the picture.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-schedule-audio-cues Derives caption cue times from the same rational film clock and origin the frame schedule uses, so chunking never moves a cue boundary.
- */
+/** Canonical WebVTT derived only from compiled caption placements. */
 export const canonicalProductionWebVtt = (
   timeline: IAutoMovieFilmTimeline,
 ): string => {

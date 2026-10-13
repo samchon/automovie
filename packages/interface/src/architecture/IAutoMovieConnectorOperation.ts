@@ -18,32 +18,14 @@ import { IAutoMovieConnectorState } from "./IAutoMovieConnectorState";
  * Nothing here judges traversal. Whether a person can board, how long they
  * wait, and how a building empties are separate work; this is the measurable
  * configuration such work would read.
- *
- * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-interior-consistency Exposes `IAutoMovieConnectorOperation` as the portable data boundary for the building opening interior consistency requirement.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `IAutoMovieConnectorOperation` for the interior space host opening operation system contract.
  */
 export interface IAutoMovieConnectorOperation {
-  /**
-   * Travelling cars, carriages, or step bands; at least one.
-   *
-   * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-interior-consistency Exposes `carriages` as the portable data boundary for the building opening interior consistency requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `carriages` for the interior space host opening operation system contract.
-   */
+  /** Travelling cars, carriages, or step bands; at least one. */
   carriages: IAutoMovieConnectorCarriage[];
 
-  /**
-   * Named states; at least one, and each gives every carriage a value.
-   *
-   * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-interior-consistency Exposes `states` as the portable data boundary for the building opening interior consistency requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `states` for the interior space host opening operation system contract.
-   */
+  /** Named states; at least one, and each gives every carriage a value. */
   states: IAutoMovieConnectorState[];
 
-  /**
-   * The state the design currently stands in; names one of {@link states}.
-   *
-   * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-interior-consistency Exposes `state` as the portable data boundary for the building opening interior consistency requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `state` for the interior space host opening operation system contract.
-   */
+  /** The state the design currently stands in; names one of {@link states}. */
   state: string;
 }

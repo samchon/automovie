@@ -18,11 +18,6 @@ import { seededValue } from "../math/seededValue";
  * through here, so a diff counts a prototype change exactly where a
  * regenerated member changes prototype. The choice returned is the table's own
  * entry, so a caller holding a compiled table reads that entry's tiers.
- *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Chooses which shared prototype, the base recipe's default counted once, one slot occurrence refers to.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Resolves an occurrence against the prototype table by explicit name or by weight and returns the table's own entry.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability Draws the prototype from the set's own seed and slot key alone, so a change elsewhere in the scene cannot reshuffle it.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-deterministic-instance-generation Determines a rule-generated occurrence's prototype from its stable slot key, set seed, and explicit exception.
  */
 export const selectInstancePrototype = <
   Choice extends Pick<

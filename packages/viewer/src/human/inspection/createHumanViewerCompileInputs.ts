@@ -13,8 +13,6 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the last compile's inputs and answers for each event.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual compile inputs and source membership decide withdrawal; unrelated viewer output or test saves never trigger a compensating compile reset.
  * @evidence contracts/common.md#meaningful-documentation States what counts, the membership rule and the state before the first compile.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state A compile is withdrawn only by a change to what it read or may read.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One owner holds the last compile's inputs and answers for each event.
  */
 export function createHumanViewerCompileInputs(
   human: string,

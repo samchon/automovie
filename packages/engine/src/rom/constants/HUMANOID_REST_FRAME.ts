@@ -9,8 +9,6 @@ import { IAutoMovieRestFrame } from "../IAutoMovieRestFrame";
  * is future work). Bones omitted need no shift (legs/spine rest at clinical
  * neutral).
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rest-bind-deformation Declares the non-identity rest conversion for canonical humanoid shoulder bones.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Preserves the T-pose basis needed to interpret shoulder articulation consistently.
  * @author Samchon
  */
 export const HUMANOID_REST_FRAME: Partial<

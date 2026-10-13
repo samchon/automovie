@@ -5,8 +5,6 @@ import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
  * Checks resident attribute cardinality, numeric ranges, joint bindings and shared topology before model use.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Admits aligned resident buffers and joint references before the self-guarded shared topology pass.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Admits aligned resident buffers and joint references before the self-guarded shared topology pass.
  */
 export const validateMesh = (
   mesh: IAutoMovieMesh,

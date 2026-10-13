@@ -11,7 +11,6 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * Validate shot-local effect cues against builder-owned streams and events.
  *
  * @author Samchon
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-story-binding Requires every effect cue to name a registered world zone and recipe within its shot's time, so an effect is bound to an authored event rather than to a floating preset.
  */
 export const validateAutoMovieEffects = (
   contract: IAutoMovieShotContract,

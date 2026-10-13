@@ -13,8 +13,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * runs so the solver cannot grade itself by a kinder rule than the one that
  * will judge it.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-range-of-motion Measures how far a candidate exceeds the rig's declared joint ranges.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Applies the same ROM verdict used to rank constrained IK candidates.
  * @author Samchon
  */
 export const jointRomOvershoot = (

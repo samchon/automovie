@@ -50,16 +50,6 @@ const SUBFORMAT_TAIL = Uint8Array.from([
  * fold and before any resampling, so a NaN or infinity in one channel refuses
  * the whole asset at its frame and channel instead of averaging into a
  * plausible number.
- *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Admits only the declared container, encoding, channel, rate, and bit-depth subset and refuses everything else by the field that failed.
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-audio Reads the speaker layout from the declared mask or the legacy default rather than assuming an unknown two-channel source is stereo.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Checks every decoded sample for finiteness before it can reach the downmix or the resampler.
- * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Returns the exact downmix matrix and resample stages beside the source facts they were derived from.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Refuses unsupported or malformed input with the asset identity instead of substituting silence.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Produces the derived mono buffer together with the transform that made it.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Reports representation, rate, layout, and frame count as source facts and downmix and resample as separate processing.
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-downmix Records the exact downmix matrix and resample stages it applied to a source instead of an unstated average, and never duplicates a missing channel.
- * @evidence requirements/sound/sources-and-external-assets.md#sound-source-provider-adapter-boundary Decodes adopted local bytes into provider-neutral source facts so playback and verification never need the provider again.
  */
 export const decodeProductionAudioAsset = (props: {
   path: string;

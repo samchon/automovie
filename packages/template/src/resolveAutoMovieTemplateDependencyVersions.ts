@@ -7,9 +7,6 @@ import { resolveAutoMovieCatalogVersion } from "./resolveAutoMovieCatalogVersion
  * Workspace packages keep their authored ranges. Compiler and evidence tools
  * belong to the samchon catalog, while TypeScript retains its own catalog.
  * Runtime graphs that need one exact version remove only a leading range marker.
- *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the workspace package and toolchain versions into a portable scaffold.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Derives all dependency placeholders from supplied package versions and workspace catalog text without host reads.
  */
 export const resolveAutoMovieTemplateDependencyVersions = (
   props: IAutoMovieTemplateDependencyVersionsProps,

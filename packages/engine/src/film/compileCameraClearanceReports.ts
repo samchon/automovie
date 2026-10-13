@@ -313,10 +313,6 @@ const nodeTransformAt = (
 /**
  * Compile clearance reports for every envelope-bearing delivered take and add
  * author-addressed failures to the performance collector.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clearance Measures the hero and coverage camera bodies against every resolved modeled scene node.
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-dynamic-spatial-sampling Resolves camera, actor, and object state on one shared fixed clock before conservative interval comparison.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Converts missing geometry, stale state, and body or rig contact into author-addressed performance refusal.
  */
 export function compileCameraClearanceReports(props: {
   scene: IAutoMovieScene;

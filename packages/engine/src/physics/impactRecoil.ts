@@ -48,8 +48,6 @@ const readPushAxis = (
  * The caller maps an {@link IAutoMovieImpact}'s impulse to the `push`
  * magnitude.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Applies the contact reaction without exceeding declared joint range.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Produces the ROM-bounded pose consequence of world contact.
  * @author Samchon
  */
 export const impactRecoil = (

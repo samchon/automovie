@@ -5,8 +5,6 @@ import type { createConnectedBodyViewport } from "@automovie/viewer/human/body/c
 /**
  * Where the body editor's head is shown and reported.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names where the companion head is shown and where its failure is reported.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps the companion head's visibility and status as display state outside the document.
  * @author Samchon
  */
 export interface IConnectedBodyHeadSeatProps {

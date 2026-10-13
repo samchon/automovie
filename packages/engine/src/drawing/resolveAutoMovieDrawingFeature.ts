@@ -25,8 +25,6 @@ import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingT
  * The two outcomes are the only two: a feature this function cannot find is
  * never approximated to the nearest surviving one.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Re-resolves a pinned drawing feature against current geometry so its annotation follows valid edits and exposes invalid ones.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Verifies the authored feature identity and cardinality, transforms the exact match to world space, and returns stale rather than approximating a replacement.
  * @author Samchon
  */
 export const resolveAutoMovieDrawingFeature = (

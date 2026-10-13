@@ -10,9 +10,6 @@ import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
  * later seek can retain them in this context. It is not an observed GLuint count.
  * Owner tuples preserve arbitrary formation and gait names without collisions.
  * Clearing the owning tier map at release makes subsequent observations empty.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Supplies decoded float-table dimensions and real upload policy for all retained formation takes.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Connects actual runtime table facts to the context-level residency lane without caller byte estimates.
  */
 export const describeFormationTextureSources = (
   formation: string,

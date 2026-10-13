@@ -17,8 +17,6 @@ import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
  * @evidence contracts/common.md#clear-and-simple-design One admission function owns catalogue replacement while the host owns source generation changes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Never relabels old modules as a newer generation; a document of the newer generation waits for it.
  * @evidence contracts/common.md#meaningful-documentation States what revision equality protects, the stale fallback and the retryable refusal.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps the loaded catalogue authority and distinguishes a known newer pending/refused document from an unknown identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses cross-generation document selection without importing newer admission or replacing the last loaded catalogue.
  */
 export function admitHumanViewerCatalogue(
   current: HumanViewerCatalogue,

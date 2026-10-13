@@ -23,10 +23,6 @@ import { walkAutoMovieProjectPopulationFiles } from "./walkAutoMovieProjectPopul
 /**
  * One exact H2 unit carried by a production-owned contract or design owner.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one typed unit in the generated project's production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the exact anchored unit and current digest visible to project-owned consumers.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable unit identity in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents one selected owner unit and its canonical content state.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceUnit {
@@ -41,10 +37,6 @@ export interface IAutoMovieProductionEvidenceUnit {
 /**
  * The source population that realizes one active design branch.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one typed source population in the generated project's production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the selected source branch, stage, symbols, and files visible together.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable source-binding state in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents the exact source population attached to one selected design branch.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceSourceBinding {
@@ -67,10 +59,6 @@ export interface IAutoMovieProductionEvidenceSourceBinding {
 /**
  * One graph-selected source export and the exact authored unit it realizes.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes an executable source owner through the reusable production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Carries the selected export, target, source digest, stage, and review state together.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable resolved source-owner edge in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents one exact graph-selected export-to-authored-unit binding.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceSourceOwnerBinding {
@@ -101,10 +89,6 @@ export interface IAutoMovieProductionEvidenceSourceOwnerBinding {
 /**
  * One exact production-owned design document selected by the live graph.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one typed design owner in the generated project's production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the exact owner file, H2 units, and source binding visible together.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable design-owner state in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents one selected design document and its exact unit denominator.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceDesignOwner {
@@ -123,10 +107,6 @@ export interface IAutoMovieProductionEvidenceDesignOwner {
 /**
  * One active design branch, retained even when its owner population is empty.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one typed active design branch in the generated project's production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Keeps the selected design and source stages visible even before an owner exists.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable design-branch state in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents one active design branch and its manifest-derived source relationship.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceDesignBranch {
@@ -141,10 +121,6 @@ export interface IAutoMovieProductionEvidenceDesignBranch {
 /**
  * One flat production-local contract and every H2 item it declares.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one typed local contract in the generated project's production-evidence view.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes each project-owned additive contract and H2 item visible.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries one reusable local-contract state in the visible declaration projection.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents the exact flat local target inventory appended by the project.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidenceContract {
@@ -159,10 +135,6 @@ export interface IAutoMovieProductionEvidenceContract {
 /**
  * The project-owned authoring identity derived from one evidence declaration.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes a typed project view derived from the same declaration that governs lint.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Carries the selected kind, active branches, owners, and contracts without a second routing list.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries the reusable production evidence system's inspected authoring identity.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Represents the visible declaration together with its exact physical owner projection.
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidence {
@@ -220,16 +192,6 @@ interface ISourceOwnerExport {
  * contracts that manifest governs. Source lineage and physical source paths
  * come from the manifest rather than from a second model-to-source table.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Implements a reusable inspection of the generated project's declared evidence identity.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Exposes shared bindings and production-local targets together without copying either inventory.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Reads only design branches selected by the canonical kind-and-stage declaration.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Refuses a foreign root and returns exact H1, H2, source population, and local-contract identities.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Uses code-unit path order and returns no partial result after validation failure.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Implements the synchronous project-identity reader over the reusable graph.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Reuses the canonical manifest instead of maintaining a second contract route list.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Projects active design branches from the canonical shape-and-stage machine.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Walks the exact selected real, non-linked owner and source populations and refuses ambiguous lineage.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Sorts filesystem-derived populations by portable code-unit order.
  * @author Samchon
  */
 export const readAutoMovieProductionEvidence = (props: {
@@ -814,9 +776,6 @@ const visibleMarkdownLines = (source: string): readonly string[] =>
  * A manifest's reference root is an addressing base, not its physical host
  * population. A source claim rooted at the project still owns only `src`;
  * vendored package links and tool-created artifacts do not become evidence.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Keeps physical validation on the controlled authored population while preserving its complete selected files.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Separates the citation base from the docs or src walk without weakening linked-host refusal.
  */
 export const resolveAutoMovieProductionEvidencePopulationFiles = (
   projectRoot: string,

@@ -21,9 +21,6 @@ import { Vector3 } from "../math/Vector3";
  * that number crops an actor's head off. {@link computeModelRestExtentY}
  * measures what a renderer actually draws; use it for anything the camera
  * frames, and keep this for questions genuinely about the rig.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-landmark-framing computeRestHeight derives the skeleton's rest-pose vertical landmark span used when framing a rigged subject.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-framing-landmark-relations computeRestHeight realizes landmark-based framing: A skeleton's rest-pose joint span: compose each bone's rest transform down the parent chain (rotation and translation; rigs keep unit scale) and take the world-Y extent of the joints. This is the span between the extreme **joints**, which is not the subject's height and must not be used as one. A rig ends at the joints it needs for animation, and geometry continues past them at both ends: the generated `stickman` puts its highest joint at 0.92 of the declared height and its lowest at 0.24, so this returns 0.680 of the real figure. Framing solved from that number crops an actor's head off. {@link computeModelRestExtentY} measures what a renderer actually draws; use it for anything the camera frames, and keep this for questions genuinely about the rig.
  */
 export const computeRestHeight = (skeleton: IAutoMovieSkeleton): number => {
   if (skeleton.bones.length === 0) return 0;

@@ -59,11 +59,6 @@ const SCALE_EPSILON = 1e-9;
  * one; and a part naming a material the model does not define, which model
  * validation already reports.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `validateTextureScale` detects a texture coordinate and real-scale conflict between a surface and the material bound to it instead of leaving the pairing unchecked.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual The validator implements the texture scale and coordinate-set subset of surface validation by measuring the bound mesh's own span, without claiming seam, state, or frame review.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale `validateTextureScale` holds a declared coordinate system and real scale to the surface it is applied to, so the same declaration places the same way.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations The validator checks the binding record's coordinate set and coordinate transform against the surface it joins without letting an image decide the material's scale.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention The validator is what holds a declared coordinate source to the surface it was bound to, so the convention is a checked contract rather than prose beside a type.
  * @author Samchon
  */
 export const validateTextureScale = (props: {

@@ -12,9 +12,6 @@ import type { IHumanViewerNumericalFailure } from "./IHumanViewerNumericalFailur
  * @evidence contracts/common.md#clear-and-simple-design Each wire alternative keeps its fields with the operation that produces it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Readiness and persistence notifications cannot supply fabricated numerical models through their separate message shapes.
  * @evidence contracts/common.md#meaningful-documentation The union distinguishes transport lifecycle notifications from completed product results.
- *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority A discriminated union preserves owned-session opening, checked readiness, progress, persistence, process failure and original numerical replies.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Readiness and persistence notifications cannot supply fabricated numerical models through their separate message shapes.
  */
 export type HumanViewerNumericalMessage =
   | IHumanViewerNumericalOpened

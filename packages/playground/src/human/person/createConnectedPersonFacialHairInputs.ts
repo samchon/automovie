@@ -13,8 +13,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * Both operations use the catalogue's ordinary person transaction; admission,
  * accepted history, drafts and saving remain with that transaction's owners.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lists each explicitly authored terminal site's numerical controls, including shaved profiles, without introducing a population.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Copies the profile owner's units and scalar domains into existing person transaction paths; removal addresses the complete optional site.
  * @author Samchon
  */
 export function createConnectedPersonFacialHairInputs(

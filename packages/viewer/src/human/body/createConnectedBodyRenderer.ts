@@ -24,14 +24,12 @@ import type { IConnectedBodyRendererProps } from "./IConnectedBodyRendererProps.
 import type { IConnectedBodyResident } from "./IConnectedBodyResident.js";
 import { sameConnectedBodyStructure } from "./sameConnectedBodyStructure.js";
 
-/** Own and publish the Three.js buffers used by one body editor viewport.
+/**
+ * Own and publish the Three.js buffers used by one body editor viewport.
  * Publication remains synchronous. Independent group/cache retirement starts
  * after its call stack and has an explicit settlement; failure retains unknown
  * ownership and blocks new allocation. Final close includes preparing caches,
  * while the viewport's borrowed renderer and context remain untouched.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Displays the committed posed body and its material regions without changing its document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Prepares resident geometry, reuses matching buffers and swaps visible frames only on publication.
  */
 export function createConnectedBodyRenderer(
   props: IConnectedBodyRendererProps,

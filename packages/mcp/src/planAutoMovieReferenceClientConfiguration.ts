@@ -38,9 +38,6 @@ const codexServer = z.object({ ...command, cwd: z.string() }).strict();
  * registration that agrees apart from that machine fact is preserved
  * byte-for-byte, because nothing there proves this toolchain wrote it. Other
  * JSON values and all unrelated TOML bytes remain the user's configuration.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Makes both clients discover the installed reference binary while preserving unrelated settings and refusing ownership conflicts.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Produces deterministic project-local registration candidates whose command, args and cwd bind one production.
  */
 export function planAutoMovieReferenceClientConfiguration(
   request: IAutoMovieReferenceClientConfigurationRequest,

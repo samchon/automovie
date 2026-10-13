@@ -5,12 +5,7 @@ import {
   digestAutoMovieBytes,
 } from "./contentIdentity";
 
-/**
- * One exact delivered occurrence in the current film timeline.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Makes lane membership occurrence-addressed.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Prevents repeated shot labels from collapsing during final conform.
- */
+/** One exact delivered occurrence in the current film timeline. */
 export interface IAutoMovieVisualDeliveryOccurrence {
   /** Stable occurrence identity within the current film timeline. */
   occurrence: string;
@@ -18,12 +13,7 @@ export interface IAutoMovieVisualDeliveryOccurrence {
   shot: string;
 }
 
-/**
- * Explicit source selected for one deterministic or repainted occurrence.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Assigns exactly one visual lane and source without receipt inference or fallback.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Carries lane-specific deterministic or selected-rendition provenance into conform.
- */
+/** Explicit source selected for one deterministic or repainted occurrence. */
 export type IAutoMovieVisualDeliveryLane =
   | (IAutoMovieVisualDeliveryOccurrence & {
       lane: "deterministic";
@@ -41,12 +31,7 @@ export type IAutoMovieVisualDeliveryLane =
       };
     });
 
-/**
- * Reviewed transition between adjacent unlike visual lanes.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Makes every actual lane crossing independently reviewable.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Binds transition review to adjacent occurrence identities.
- */
+/** Reviewed transition between adjacent unlike visual lanes. */
 export interface IAutoMovieVisualDeliveryTransition {
   /** Occurrence the crossing leaves. */
   fromOccurrence: string;
@@ -56,12 +41,7 @@ export interface IAutoMovieVisualDeliveryTransition {
   reviewDigest: AutoMovieContentDigest;
 }
 
-/**
- * Versioned mixed-lane policy; absent for an all-one-lane film.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Couples mixed delivery to the current aggregate observation and exact crossings.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Refuses invented transition policy on a film with no lane crossing.
- */
+/** Versioned mixed-lane policy; absent for an all-one-lane film. */
 export interface IAutoMovieMixedVisualDeliveryPolicy {
   /** Policy schema version. */
   version: 1;
@@ -71,12 +51,7 @@ export interface IAutoMovieMixedVisualDeliveryPolicy {
   transitions: IAutoMovieVisualDeliveryTransition[];
 }
 
-/**
- * Stable exact-join failures produced before any final mux side effect.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Names population, source, policy, and transition refusals before bytes are written.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Makes lane-specific publication failure explicit.
- */
+/** Stable exact-join failures produced before any final mux side effect. */
 export type AutoMovieVisualDeliveryDiagnostic =
   | "visual-lane-population-invalid"
   | "visual-lane-source-invalid"
@@ -86,9 +61,6 @@ export type AutoMovieVisualDeliveryDiagnostic =
 
 /**
  * Result of resolving every current occurrence to exactly one visual source.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Provides the ordered sources a final mux consumes only after exact validation.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Returns no segments whenever any lane invariant fails.
  */
 export interface IAutoMovieVisualDeliveryPlan {
   /** Ordered occurrence sources a final mux consumes; empty when any diagnostic exists. */
@@ -97,13 +69,7 @@ export interface IAutoMovieVisualDeliveryPlan {
   diagnostics: AutoMovieVisualDeliveryDiagnostic[];
 }
 
-/**
- * Stable deterministic-lane identity available before final publication.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Binds a deterministic occurrence to the current compile without requiring repaint evidence.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Gives review and reopen the same pre-publication deterministic source identity.
- * @evidence requirements/repaint/identity-and-provenance.md#repaint-source-review-freshness Keeps the deterministic source digest independent of repaint output so a changed rendition stales only the rendition review.
- */
+/** Stable deterministic-lane identity available before final publication. */
 export const productionDeterministicVisualSourceDigest = (props: {
   compileFingerprint: AutoMovieContentDigest;
   occurrence: string;
@@ -116,13 +82,7 @@ export const productionDeterministicVisualSourceDigest = (props: {
     }),
   );
 
-/**
- * Resolve an explicit visual lane for every delivered occurrence.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Keeps deterministic and repainted sources explicit and refuses fallback or inference from receipt presence.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Requires an exact timeline join and one reviewed record for every actual lane crossing before final publication.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-selection-and-composition Records which repaint occurrence or deterministic source each delivered segment selected and in what order, without presenting the author's selection as an automatic fact.
- */
+/** Resolve an explicit visual lane for every delivered occurrence. */
 export const planAutoMovieVisualDelivery = (props: {
   timeline: readonly IAutoMovieVisualDeliveryOccurrence[];
   lanes: readonly IAutoMovieVisualDeliveryLane[];
@@ -188,10 +148,6 @@ export const planAutoMovieVisualDelivery = (props: {
 
 /**
  * Normalize an explicit legacy all-one-lane declaration without receipt inference.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Preserves all-deterministic and all-repainted designs as explicit lane populations.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Migrates the production-wide shorthand without guessing membership from artifacts.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-deterministic-lane Keeps the deterministic beauty lane and the repaint rendition lane as separate sources with separate identities so a rendition never replaces deterministic bytes.
  */
 export const normalizeAutoMovieVisualDeliveryLanes = (props: {
   timeline: readonly IAutoMovieVisualDeliveryOccurrence[];

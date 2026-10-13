@@ -23,8 +23,6 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  * plant nobody could derive must never arrive looking like a plant somebody
  * did.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Lowers a valid recipe and cluster into prototype structure and member placement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Produces the renderer boundary while preserving not-run outcomes.
  * @author Samchon
  */
 export const lowerPlantingInstallation = (props: {

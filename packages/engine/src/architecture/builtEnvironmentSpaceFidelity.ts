@@ -34,8 +34,6 @@ import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
  * placement rather than after a measurement — and it needs an entry on the
  * sandbox's engine export list before a source module can reach it.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceFidelity` returns what a logical space's own volume claims to be, folded over its descendants. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceFidelity` performs space-fidelity fold when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
  * @author Samchon
  */
 export const builtEnvironmentSpaceFidelity = (

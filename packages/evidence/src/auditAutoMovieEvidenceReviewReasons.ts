@@ -233,11 +233,6 @@ const auditAutoMovieEvidenceReviewReasons = (
 /**
  * Refuse mechanically copied evidence-review reasons as one deterministic
  * preflight error.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Reports every copied reason deterministically instead of returning a partially accepted review surface.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves substantive evidence review by refusing two mechanically disproven reason forms before graph construction.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Fails before graph publication and names each document, host, line, target, and mechanical defect.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Applies the shared stateless review-reason refusal to authored Markdown and TypeScript hosts without restoring a review ledger.
  */
 export const assertAutoMovieEvidenceReviewReasons = (
   documents: readonly IAutoMovieEvidenceReviewDocument[],

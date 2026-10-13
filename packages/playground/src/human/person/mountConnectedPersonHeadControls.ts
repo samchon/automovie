@@ -24,9 +24,6 @@ import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadCo
  * qualification. The solve may use any value in a channel's envelope; the
  * report shows every value so its source endpoints can be inspected.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Lets the user target the head's ANSUR II measurements in millimetres and see what the solved head measures.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Reads and solves the head measurements through the measurement worker and the person's transaction.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps the committed person when the solve is refused or superseded.
  * @author Samchon
  */
 export function mountConnectedPersonHeadControls(

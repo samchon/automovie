@@ -13,8 +13,6 @@ import { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
  * {@link bindProfile}), and its drivers couple them (a handle that mirrors the
  * hinge). A prop with no moving parts leaves the whole articulation `null`.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `IAutoMoviePropArticulation` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `IAutoMoviePropArticulation` for the performance interaction attachment object handoff system contract.
  * @author Samchon
  */
 export interface IAutoMoviePropArticulation {
@@ -32,26 +30,15 @@ export interface IAutoMoviePropArticulation {
    * of this prop's own parts and refuses a part claimed by two joints, since a
    * part rides one frame. A joint that only positions other joints leaves it
    * `null`.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `nodes` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `nodes` for the performance interaction attachment object handoff system contract.
    */
   nodes: IAutoMovieNode[];
 
-  /**
-   * The declared capability: limits and drivers over the joint nodes.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `profile` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `profile` for the performance interaction attachment object handoff system contract.
-   */
+  /** The declared capability: limits and drivers over the joint nodes. */
   profile: IAutoMovieProfile;
 
   /**
    * The application of that profile onto this prop's nodes: every semantic key
    * the profile references maps to one of {@link nodes} via `boneMap`.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `binding` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `binding` for the performance interaction attachment object handoff system contract.
    */
   binding: IAutoMovieProfileBinding;
 }

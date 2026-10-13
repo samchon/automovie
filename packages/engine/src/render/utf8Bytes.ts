@@ -6,9 +6,6 @@
  * a polyfill differs is worse than a loop. Lone surrogates encode as U+FFFD,
  * which is what `TextEncoder` does, so an id carrying broken UTF-16 still
  * digests identically on both sides.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Canonicalizes JavaScript strings to the exact UTF-8 bytes consumed by render fingerprints.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Keeps the digest input encoding identical in browser and capture runtimes.
  */
 export const utf8Bytes = (text: string): number[] => {
   const bytes: number[] = [];

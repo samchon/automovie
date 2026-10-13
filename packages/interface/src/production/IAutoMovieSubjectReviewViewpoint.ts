@@ -3,8 +3,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One inspection-owned viewpoint required by a subject review.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Gives the inspection an explicit viewpoint independent from authored cameras and film time.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types one deterministic member of the inspection-owned viewpoint plan.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewViewpoint {

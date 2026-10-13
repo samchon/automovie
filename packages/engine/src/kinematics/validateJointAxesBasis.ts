@@ -21,8 +21,6 @@ type AutoMovieJointAxis = (typeof JOINT_AXES)[number];
  * finite, non-zero, and mutually orthogonal so clinical angles form a real
  * basis instead of silently skewing FK/IK.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-invalid-rig-refusal Refuses any control-axis set that cannot form a finite orthogonal articulation basis.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-output-failures Produces field-located failures for malformed rig bases.
  * @author Samchon
  */
 export const validateJointAxesBasis = (

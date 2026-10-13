@@ -78,11 +78,6 @@ interface IInstanceChunkObject {
  * the prototype, and it is flattened by the same rigid path a generated recipe
  * takes. Rigid is the whole condition: a skinned, morphed, or multi-material
  * source mesh is refused by name rather than instanced as something else.
- *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Projects the compiled instance-set tier policy into persistent batch visibility and accounting.
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-working-color-space Decodes palette swatches before their values enter the renderer's scene-linear instance attribute.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Keeps instance-set LOD and culling state separate from authored visibility and compact member identity.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-effective-ownership Keeps the palette input encoding and its scene-linear output under one explicit conversion owner.
  */
 export const buildInstancedInstanceSet = (
   input: IBuildInstancedInstanceSetProps,

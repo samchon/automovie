@@ -5,10 +5,6 @@ import type {
 
 /**
  * Derive a bounded frame-normalized VRM mouth sequence from Kokoro phonemes.
- *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-final-bytes-authority Converts timings derived from adopted dialogue bytes into the mouth sequence.
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-word-phoneme-timing Maps ordered phoneme sample ranges from the adopted source duration into bounded viseme frame intervals.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Preserves ordered phoneme state while mapping it to bounded visemes.
  */
 export const productionPhonemesToVisemes = (props: {
   chunks: readonly IAutoMovieProductionPhonemeChunk[];

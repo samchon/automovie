@@ -12,8 +12,6 @@ import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
  * (one dominant flexion axis): it is an AI hint, not a solved contact
  * response.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Maps the computed impulse magnitude into a deterministic recoil cue.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Bridges the contact output to its bounded pose reaction.
  * @author Samchon
  */
 export const impulseToRecoilPush = (

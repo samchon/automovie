@@ -23,9 +23,6 @@ import { HUMAN_HAIR_SHADOW_LUMINANCE } from "./HUMAN_HAIR_SHADOW_LUMINANCE.js";
  * scatters sideways (its reflection and internal reflections) is counted as
  * stopped, and the shadow is grey: the luminance of the per-channel
  * transmittance, since a depth shadow holds no colour.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under orbiting view and shadowed material display.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Applies device-bounded texture sampling and shadow policy without changing the saved anatomical document.
  */
 export function hairFibreShadowOpacity(
   albedo: readonly [number, number, number],

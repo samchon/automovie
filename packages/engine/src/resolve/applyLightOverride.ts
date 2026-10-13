@@ -14,9 +14,6 @@ import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
  * from the exhaustiveness check: the switch is what makes adding an
  * `IAutoMovieLight` arm a compile error here rather than a wrong light at
  * runtime.
- *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Applies sampled properties without changing the staged light kind.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Rebuilds each light through its own exhaustive authority branch.
  */
 export const applyLightOverride = (
   light: IAutoMovieLight,

@@ -5,12 +5,7 @@ import {
 
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
-/**
- * Read the reported and current digests, for a one-line staleness log.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Summarizes whether a report remains current and names each dependency drift when it does not.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Exposes the sealed report and current target identities in a deterministic recovery message.
- */
+/** Read the reported and current digests, for a one-line staleness log. */
 export const autoMovieRenderTargetSummary = (props: {
   report: IAutoMovieRenderReport;
   current: IAutoMovieRenderTarget;

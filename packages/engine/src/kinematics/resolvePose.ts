@@ -63,8 +63,6 @@ const ROOT_PARENT = "__root__";
  * {@link indexSkeletonTopology}. Omit it for one-off calls, especially if the
  * skeleton object may have been mutated since a prior resolve.
  *
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-pose-space-authority Composes each bone-local authored pose through its declared parent hierarchy into one resolved state.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Evaluates the current body pose into deterministic per-bone transforms.
  * @author Samchon
  */
 export const resolvePose = (

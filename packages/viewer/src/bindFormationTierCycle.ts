@@ -8,9 +8,6 @@ import type { IFormationTierRepresentation } from "./IFormationTierRepresentatio
  * dispatch consumes the tier-owned pair. Static tiers keep Three's defaults.
  * Original palette identities remain authoritative during temporary guide
  * overrides, so no pass creates new shadow-program identities for this mesh.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Binds beauty, structural and punctual shadow projections to one tier's actual cycle.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Preserves Three's grouped shadow dispatch while associating its actual palette and cycle owner.
  */
 export const bindFormationTierCycle = (
   mesh: THREE.InstancedMesh,

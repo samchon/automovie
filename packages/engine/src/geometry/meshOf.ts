@@ -2,11 +2,7 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
-/**
- * Produces a procedural mesh whose normals follow its actual geometry.
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Produces a procedural mesh whose normals follow its actual geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Constructs area-weighted smooth normals with shared seam groups before publishing the buffers.
- */
+/** Produces a procedural mesh whose normals follow its actual geometry. */
 export const meshOf = (
   positions: number[],
   indices: number[],

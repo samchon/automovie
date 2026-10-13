@@ -8,8 +8,6 @@ import type * as THREE from "three";
  * changes vertex attributes, opaque source IDs, nullable legacy incidence or
  * caller-owned imported records. Identity is not an anatomical certification.
  *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Keeps source correspondence inspectable on generated and imported runtime geometry without transferring its ownership.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Copies viewer-owned metadata and leaves imported caller state unchanged.
  * @author Samchon
  */
 export class AutoMovieGeometryPhysicalVertices {
@@ -18,9 +16,6 @@ export class AutoMovieGeometryPhysicalVertices {
    * Present malformed/orphan wire data refuses instead of inferring identity.
    * glTF accessors may be interleaved: getters read the declared components,
    * whereas their backing array includes unrelated attributes and padding.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Makes declared source-pair/null ownership inspectable on generated and imported geometry.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Reads actual resident components and returns owned data without changing caller geometry.
    */
   public static read(
     geometry: THREE.BufferGeometry,
@@ -103,9 +98,6 @@ export class AutoMovieGeometryPhysicalVertices {
    * admission. Absence removes the prior table; explicit all-null remains.
    * Imported wire records refuse writes rather than changing caller state.
    * Validation belongs before the caller's atomic buffer publication.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Stores owned correspondence on the runtime geometry without borrowing mutable producer arrays.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Replaces or removes only viewer-owned metadata while protecting imported wire state.
    */
   public static writeOwned(
     geometry: THREE.BufferGeometry,

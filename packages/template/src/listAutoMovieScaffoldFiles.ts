@@ -32,8 +32,6 @@ const UNSHIPPED_FILES =
  * silently, because a clean CI checkout has no such directory and the gate
  * never saw it.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Decides the shipped scaffold inventory from code rather than from whatever a host left in the directory.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Lists the authored scaffold sources in host-independent code-unit order before derivation.
  * @author Samchon
  */
 export const listAutoMovieScaffoldFiles = (root: string): string[] => {

@@ -10,8 +10,6 @@ import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
  * runtime cannot be replayed against a different edit or on a proxy-local
  * frame clock.
  *
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes an accepted film-global cue as an executable runtime rather than inert timeline metadata.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types the explicit film owner and timeline-frame clock used by preview and final capture.
  * @author Samchon
  */
 export interface IAutoMovieCompiledFilmEffect {

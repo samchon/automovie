@@ -16,8 +16,6 @@ import { IAutoMoviePlacement } from "./IAutoMoviePlacement";
  * is dropped: v1 sequences rather than layers concurrent actions). The result
  * is a plain non-looping clip sampled like any other.
  *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-event-composition Composes ordered actions and carries the preceding terminal pose through timeline gaps.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Makes the last accepted keyframe the authoritative boundary state of the composite.
  * @author Samchon
  */
 export const arrangeMotion = (

@@ -17,8 +17,6 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * omission. Whether the resulting document is complete and in range is the
  * owner's admission to decide, not this function's.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Writes or removes one listed input in a copy of the working person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves the caller's document untouched so a refused edit keeps the last valid one.
  * @author Samchon
  */
 export function writeConnectedPersonInput(

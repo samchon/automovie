@@ -9,57 +9,24 @@
  *
  * Particle arrays are flat and row-major: particle `k = row * columns + column`
  * occupies `[3k, 3k + 1, 3k + 2]`.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `IAutoMovieSoftBodyState` as the portable data boundary for the effects soft solver state requirement.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `IAutoMovieSoftBodyState` for the soft collider and solver transition system contract.
  */
 export interface IAutoMovieSoftBodyState {
-  /**
-   * Identity of the domain this state belongs to.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `domain` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `domain` for the soft collider and solver transition system contract.
-   */
+  /** Identity of the domain this state belongs to. */
   domain: string;
 
-  /**
-   * Named state whose anchor poses were applied, or `null` for the default.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `state` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `state` for the soft collider and solver transition system contract.
-   */
+  /** Named state whose anchor poses were applied, or `null` for the default. */
   state: string | null;
 
-  /**
-   * Absolute integer step index, `0` being the authored rest configuration.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `step` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `step` for the soft collider and solver transition system contract.
-   */
+  /** Absolute integer step index, `0` being the authored rest configuration. */
   step: number;
 
-  /**
-   * Absolute domain-clock second, exactly `step * solver.fixedStepSeconds`.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `time` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `time` for the soft collider and solver transition system contract.
-   */
+  /** Absolute domain-clock second, exactly `step * solver.fixedStepSeconds`. */
   time: number;
 
-  /**
-   * World particle positions `[x, y, z, ...]` in metres, row-major.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `positions` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `positions` for the soft collider and solver transition system contract.
-   */
+  /** World particle positions `[x, y, z, ...]` in metres, row-major. */
   positions: number[];
 
-  /**
-   * World particle velocities `[x, y, z, ...]` in m/s, row-major.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `velocities` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `velocities` for the soft collider and solver transition system contract.
-   */
+  /** World particle velocities `[x, y, z, ...]` in m/s, row-major. */
   velocities: number[];
 
   /**
@@ -69,9 +36,6 @@ export interface IAutoMovieSoftBodyState {
    * declared budget is what the travel condition was checked against, and this
    * is what actually happened, so a reviewer can see whether the declaration
    * held instead of taking it on trust.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `maxSpeed` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `maxSpeed` for the soft collider and solver transition system contract.
    */
   maxSpeed: number;
 
@@ -81,9 +45,6 @@ export interface IAutoMovieSoftBodyState {
    * `0` is inextensible. It is the honest measure of what the declared
    * stiffness and iteration count bought, since a position-based solver
    * approaches inextensibility rather than enforcing it.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `maxStrain` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `maxStrain` for the soft collider and solver transition system contract.
    */
   maxStrain: number;
 
@@ -94,9 +55,6 @@ export interface IAutoMovieSoftBodyState {
    * same claim as a panel resting clear of everything around it. A rest
    * configuration touching a floor still reports no contact, because no step
    * has asked it to.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `contacts` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `contacts` for the soft collider and solver transition system contract.
    */
   contacts: number;
 }

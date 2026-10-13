@@ -9,9 +9,6 @@ import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * claiming a billion columns would otherwise be walked a billion times by the
  * very validator that exists to refuse it, and by every budget report anybody
  * asked for on the way. The length mismatch is refused on its own path.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-fidelity-boundary Measures the spatial bound that makes the fixed-step tier supportable.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-failure-and-fidelity-boundary Returns no fabricated length when the authored lattice is inconsistent.
  */
 export const shortestRestLength = (
   domain: IAutoMovieSoftBodyDomain,

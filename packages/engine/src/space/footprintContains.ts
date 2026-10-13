@@ -13,9 +13,6 @@ import { footprintRingPlacement } from "./footprintRingPlacement";
  * covers nothing, matching what the hull query answered before holes existed;
  * `validateSpace` refuses such a footprint, so this is what a hand-built patch
  * reaching a renderer reads as rather than a throw.
- *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-zone-membership `footprintContains` answers "Is `(x, z)` on the surface the footprint describes?" This ensures membership is judged from a subject footprint rather than a point.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `footprintContains` performs contains footprint evaluation when the engine resolves host-relative support geometry and whole-footprint zone membership.
  */
 export const footprintContains = (
   footprint: IAutoMovieFootprint,

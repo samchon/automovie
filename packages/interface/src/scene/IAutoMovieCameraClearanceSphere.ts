@@ -9,8 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * `center` permits an asymmetric camera body or a rig extending behind the
  * optical origin without turning the portable boundary into renderer geometry.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clearance Exposes the camera-local body or rig volume whose contact with current scene geometry is refused.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Types the rotation-invariant physical envelope sampled by the camera-path clearance gate.
  * @author Samchon
  */
 export interface IAutoMovieCameraClearanceSphere {

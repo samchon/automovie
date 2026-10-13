@@ -26,8 +26,6 @@ const KEPT = 64;
  * @evidence contracts/common.md#clear-and-simple-design One owner opens, closes and labels windows and holds the gate for them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed or updating window gets an unproven label rather than a manufactured current revision, and an active hold is never expired by elapsed time.
  * @evidence contracts/common.md#meaningful-documentation States the labelling rule, the null case and the growth bound.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state A revision is published for a candidate only when its loaded code is proven to be that revision; otherwise it is reported stale, never current.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One owner opens, closes and labels windows and holds the gate for them.
  */
 export function createHumanViewerGenerationWindows(
   props: ICreateHumanViewerGenerationWindowsProps,

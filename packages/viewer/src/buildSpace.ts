@@ -2,13 +2,7 @@ import { tessellateSurface } from "@automovie/engine";
 import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
- * Name of the group `buildScene` adds for a scene's space geometry.
- *
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Materializes this space surface from the resolved scene state only.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Keeps compiled space state distinct from its viewer-owned runtime group.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the runtime ownership side of isolated scene lowering.
- */
+/** Name of the group `buildScene` adds for a scene's space geometry. */
 export const SPACE_GROUP_NAME = "__automovie_space";
 
 /**
@@ -46,10 +40,6 @@ export const SPACE_GROUP_NAME = "__automovie_space";
  * `validateSpace`, but a hand-built space may still carry one) encloses no area
  * and contributes no mesh rather than an invalid geometry.
  *
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Materializes this space surface from the resolved scene state only.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps semantic support out of beauty while retaining it for structural products.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the boundary from resolved staging space to viewer geometry.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the support patch as structural-only render geometry.
  * @author Samchon
  */
 export const buildSpaceObject = (space: IAutoMovieSpace): THREE.Group => {

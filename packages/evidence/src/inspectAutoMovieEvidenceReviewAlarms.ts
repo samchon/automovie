@@ -7,8 +7,6 @@ import {
 /**
  * One semantic-review pattern that requires literal human rereading.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Makes the location and extent of one semantic alarm reproducible.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Defines a non-gating observation that directs a fresh Self-Review.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceReviewAlarm {
@@ -31,8 +29,6 @@ export interface IAutoMovieEvidenceReviewAlarm {
 /**
  * Complete semantic-alarm observation for one immutable document set.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Reports whether both alarm discriminators were actually evaluated.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Carries the complete ordered alarm population without assigning a verdict.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceReviewAlarmReport {
@@ -67,8 +63,6 @@ const REVIEW = /^@evidence(Exclude)?Review\s+(\S+)\s+#[^\s]+\s+(.+?)\s*$/u;
  * has an exact textual discriminator. The authoring review procedure owns the
  * resulting judgment.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Makes semantic review repetition visible without turning a corpus-tuned count into a pass/fail gate.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Normalizes interchangeable slots and reports stable locations for fresh human review.
  * @author Samchon
  */
 export function inspectAutoMovieEvidenceReviewAlarms(props: {

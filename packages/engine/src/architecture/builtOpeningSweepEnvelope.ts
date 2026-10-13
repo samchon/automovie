@@ -44,15 +44,6 @@ const FULL_TURN_EPSILON = 1e-6;
  * caller wanting that union asks for each state in turn and takes the hull
  * itself; inventing it here would quietly report a chain's envelope under one
  * panel's name.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtOpeningSweepEnvelope` produces the world volume each panel of an opening sweeps across its whole travel. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtOpeningSweepEnvelope` derives the world-space volume swept by each panel across the opening's full travel.
- * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state `builtOpeningSweepEnvelope` evaluates every declared panel across the opening's named travel states and returns its complete world-space sweep volume.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation `builtOpeningSweepEnvelope` turns the host opening's declared panel operation into a measurable travel envelope.
- * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-operable-state `builtOpeningSweepEnvelope` computes each exterior opening panel's named-state travel as a world-space sweep rather than treating operability as metadata.
- * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-operable-sweep-invariant `builtOpeningSweepEnvelope` measures the validated panel travel and sweep invariant for an operable facade opening.
- * @evidence requirements/interior/clearance-anthropometrics-and-accessibility.md#interior-static-dynamic-clearance `builtOpeningSweepEnvelope` returns the world-space volume occupied across each panel's declared travel for downstream dynamic-clearance checks.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-anthropometric-accessibility-clearance The sweep implements the moving-opening envelope subset without claiming route, reach, jurisdiction, or accessibility compliance.
  */
 export const builtOpeningSweepEnvelope = (
   environment: IAutoMovieBuiltEnvironment,

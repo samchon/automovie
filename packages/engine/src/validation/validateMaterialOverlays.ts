@@ -10,9 +10,6 @@ const MAXIMUM_OVERLAYS = 4;
  * record, a missing colour image, an unknown blend, and a roughness,
  * strength or normal scale out of range. The images themselves are checked
  * with the material's other bindings.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Admits a material's surface overlays by their count, colour image, blend and ranged factors.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual Admits a material's surface overlays by their count, colour image, blend and ranged factors.
  */
 export const validateMaterialOverlays = (
   overlays: unknown,

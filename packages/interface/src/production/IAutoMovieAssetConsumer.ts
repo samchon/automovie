@@ -1,12 +1,7 @@
 import { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionConsumer";
 import { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 
-/**
- * One typed consumer that can own an asset use in a production graph.
- *
- * @evidence requirements/asset-authoring/external-assets.md#asset-semantic-enrichment Exposes `IAutoMovieAssetConsumer` as the portable data boundary for the asset semantic enrichment requirement.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `IAutoMovieAssetConsumer` for the asset spec element consumer links system contract.
- */
+/** One typed consumer that can own an asset use in a production graph. */
 export type IAutoMovieAssetConsumer =
   | {
       /** Film audio cue whose `asset` field names this path. */

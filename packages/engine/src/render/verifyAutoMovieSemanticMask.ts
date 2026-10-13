@@ -16,9 +16,6 @@ const SEMANTIC_MASK_PROTOCOL = "automovie.semantic-mask.v2";
  * This verifies current format identity and the complete canonical payload
  * digest. Semantic graph validity remains the derivation owner's concern, so a
  * consumer cannot accidentally reinterpret a v1 sidecar as current v2 evidence.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Refuses an identity sidecar whose declared identity does not seal the mapping used to interpret its pixels.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Enforces the current semantic-channel compatibility and payload-identity boundary at consumption.
  */
 export const verifyAutoMovieSemanticMask = (
   mask: IAutoMovieSemanticMask,

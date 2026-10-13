@@ -22,10 +22,6 @@ import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
  * would un-constrain the rig without a trace, the exact silent drop the engine
  * refuses everywhere else ({@link motionToClip}, sampled channel validation).
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Resolves each semantic profile reference to its concrete rig channel.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Materializes an executable bound profile for deterministic evaluation.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-driver-refusal Rejects a profile application when a required semantic node has no concrete binding.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Applies driver refusal at the semantic-to-concrete binding boundary.
  * @author Samchon
  */
 export const bindProfile = (

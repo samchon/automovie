@@ -13,8 +13,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * void inside its face by the same hull, so a schedule that measured the arc
  * more finely would print a width no hole in the building has.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Reports the opening void's rounded nominal width and height from the same outline cut into its host face.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Reduces the canonical profile outline to its planar bounds and rounds both spans onto the drawing output grid.
  * @author Samchon
  */
 export const autoMovieOpeningExtent = (

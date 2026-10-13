@@ -14,11 +14,6 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
  * or repeated occurrence answers `null` rather than choosing one occurrence.
  * The answer depends only on the compiled timeline, never on whether a render
  * has prepared any other runtime.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Resolves a shot-local second to the rational film frame that owns it.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Gives a shot review seek the same film frame the film schedule would sample for that source frame.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Selects the frame whose half-open boundary interval contains the requested second.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Keeps one exact frame-number-to-time relation between shot review and film schedule.
  */
 export const productionFilmFrameForShotTime = (props: {
   timeline: IAutoMovieFilmEffectClock;

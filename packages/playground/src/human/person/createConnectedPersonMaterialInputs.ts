@@ -12,10 +12,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * is therefore offered only at its face owner. Bounds are renderer domains,
  * and the person builder still refuses an incompatible source or zero cheek.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Offers existing body material finish inputs through the whole-person transaction.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Offers source facial material reflectance and roughness through numeric fields without image resources.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the body's derived skin colour with its face owner while editing other source materials.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reads actual source defaults and preserves complete colour records across edits and removal.
  * @author Samchon
  */
 export function createConnectedPersonMaterialInputs(

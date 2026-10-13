@@ -7,8 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One fact record accompanies the bounded bitmap encoder.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, preset, path or normal-generation verdict is invented here.
  * @evidence contracts/common.md#meaningful-documentation Separates identity, observation and review acceptance.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Carries actual display source, view and graphics facts beside its bitmap.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Preserves supplied facts without declaring complete coverage or a passed review.
  * @author Samchon
  */
 export interface IAutoMovieViewerDisplayMetadata {

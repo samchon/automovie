@@ -31,9 +31,6 @@ import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission.js
  * @evidence contracts/common.md#clear-and-simple-design One owner holds verdicts, waiting documents and requests in flight; page access, republication and retry triggers are injected.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no schema of its own, refuses with the owner's reason, and never polls.
  * @evidence contracts/common.md#meaningful-documentation States the pending states, the request and retry policy, failure handling and growth bound.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-duplicate-job-concurrency Shares one outstanding owner-admission request for the same document id and current key; a superseding key owns a distinct request whose answer cannot be replaced by the retired one.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-duplicate-job-coordination Shares one outstanding owner-admission request for the same document id and current key; a superseding key owns a distinct request whose answer cannot be replaced by the retired one.
  */
 export function createHumanViewerAdmission(
   props: ICreateHumanViewerAdmissionProps,

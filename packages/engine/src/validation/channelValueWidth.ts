@@ -33,9 +33,6 @@ const CHANNEL_VALUE_WIDTHS: Partial<
  *
  * Total over `unknown`: the gate reads channels off stored JSON, where the
  * discriminator itself may be anything.
- *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `channelValueWidth` derives the required component count used to refuse a mismatched track payload.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `channelValueWidth` returns only the per-key stride fixed by the declared node property or pointer type.
  */
 export const channelValueWidth = (channel: unknown): number | undefined => {
   if (typeof channel !== "object" || channel === null) return undefined;

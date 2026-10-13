@@ -2,12 +2,7 @@ import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
 import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGridTick";
 
-/**
- * Map one positive film interval and refuse a destination-grid collapse.
- *
- * @evidence requirements/delivery-and-accessibility/frame-rate-timebase-and-timecode.md#delivery-time-refusal Refuses a caption or media interval whose distinct frame boundaries cannot survive the selected destination grid.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-timecode-sync Preserves ordered exclusive boundaries after the one canonical conversion.
- */
+/** Map one positive film interval and refuse a destination-grid collapse. */
 export const productionFrameIntervalToGridTicks = (props: {
   startFrame: number;
   endFrame: number;

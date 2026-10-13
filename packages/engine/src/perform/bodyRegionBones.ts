@@ -85,8 +85,6 @@ const HEAD = [
  * module's own array rather than a copy. Typed mutable, a caller could have
  * pushed into the engine's partition and changed masking for every later shot.
  *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Resolves each authored body-region mask to the precise bone channels it controls.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Implements named region masks as deterministic channel sets for composition.
  * @author Samchon
  */
 export const bodyRegionBones = (

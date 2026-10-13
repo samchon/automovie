@@ -14,11 +14,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * must be a pure function of the point it is given. A sampler that reads a
  * clock, a counter or unseeded randomness bakes one machine's terrain into the
  * design, which is the one way this can produce different frames elsewhere.
- *
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Samples an authored elevation rule on a declared XZ lattice and stores the resulting terrain heights.
- * @evidence requirements/map/terrain-and-landforms.md#map-terrain-resolution-uncertainty `worldHeightfield` makes sample origin, spacing, row and column counts, and every finite height explicit so callers can retain the terrain's actual resolution.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Fixes footprint, origin, spacing, sample order, and finite elevations in the emitted heightfield record.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-terrain-resolution-gap The heightfield record exposes the finite lattice resolution rather than presenting unsampled terrain as continuous measured detail.
  */
 export const worldHeightfield = (input: {
   id: string;

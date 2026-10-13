@@ -7,8 +7,6 @@ import type { IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.
  * no film time and no shot id, because neither is an input to looking at a
  * thing.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `IAutoMovieViewerSubjectPose` states an eye the inspection owns, unbound from authored camera, shot boundary, and playback time.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `IAutoMovieViewerSubjectPose` types the resolved camera state one viewpoint plan entry produces.
  * @author Samchon
  */
 export interface IAutoMovieViewerSubjectPose {

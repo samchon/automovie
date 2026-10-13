@@ -3,8 +3,6 @@ import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
  * Admits a material slot's UV0, colour-space, transform and sampler relations without fetching resources.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Checks the slot's required colour space, UV0 selection, finite transform and declared sampler modes before drawing.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Checks the slot's required colour space, UV0 selection, finite transform and declared sampler modes before drawing.
  */
 export const validateTextureBinding = (
   binding: unknown,

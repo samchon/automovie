@@ -125,12 +125,6 @@ const WINDOWS_DEVICE =
  * still the one the attempt read. This function runs in an ordinary Node
  * script, never inside the compile sandbox.
  *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-closed-basis Records the normalized generator and exact declared input digests as the generation basis.
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-explicit-generation Publishes only matching outputs from two explicit generation invocations.
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-portable-publication Uses physical path admission and atomic publication for portable project-owned output.
- * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-basis Computes and rechecks the complete generator/input identity before publication.
- * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-generation Compares independent callback outputs and publishes only against the captured live basis.
- * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-portability Rejects unsafe paths and uses physical-directory identity checks during atomic publication.
  * @author Samchon
  */
 export const generateAutoMovieDerivedArtifact = (
@@ -255,10 +249,7 @@ export const generateAutoMovieDerivedArtifact = (
  * retain present, absent, stale, and malformed bytes so guarded compilation can
  * detect a race over the same closure.
  *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Reports missing, stale and malformed inputs without invoking a generator.
- * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Supplies only current artifact bytes and retains failure inputs in the fingerprint closure.
  * @author Samchon
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-provenance-separation Admits a derived artifact only when its record keeps external-asset separation, so deterministic bytes never borrow an acquired asset's provenance or freshness.
  */
 export const inspectAutoMovieDerivedArtifacts = (props: {
   root: string;
@@ -503,8 +494,6 @@ export const inspectAutoMovieDerivedArtifacts = (props: {
  * neither its old output nor other records are rewritten to appear current.
  * Calling this again for an absent record does not publish a new manifest.
  *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Retires an obsolete declaration without presenting stale bytes as current inputs.
- * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-manifest Preserves historical output while atomically changing the active derived inventory.
  * @author Samchon
  */
 export const retireAutoMovieDerivedArtifact = (props: {

@@ -3,10 +3,7 @@ import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 
-/** The triangles one already-validated region resolves to.
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Triangulates an already admitted region for real cap geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Uses the canonical region identities for the cap indices consumed by extrusion and loft.
- */
+/** The triangles one already-validated region resolves to. */
 export const trianglesOf = (
   region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
 ): number[] => earClip(region.points, bridgeHoles(region.points, region.rings));

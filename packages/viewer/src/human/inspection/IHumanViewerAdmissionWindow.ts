@@ -10,17 +10,11 @@ import type { IHumanViewerAdmissionBridge } from "./IHumanViewerAdmissionBridge.
  * @evidence contracts/common.md#clear-and-simple-design The frame protocol, frame admission callback and host bridge share one narrow browser-window projection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent frame callback represents unavailable admission and supplies no fallback domain verdict.
  *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Optional window members model actual frame loading separately from the standing host bridge.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant An absent frame callback represents unavailable admission and supplies no fallback domain verdict.
- *
  * @author Samchon
  */
 export interface IHumanViewerAdmissionWindow {
   /**
    * Frame's loaded wire generation, independent of its geometry source digest.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Keeps loaded frame protocol identity independent of geometry source revision.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Keeps loaded frame protocol identity independent of geometry source revision.
    */
   __humanViewerProtocol?: string;
 
@@ -31,9 +25,6 @@ export interface IHumanViewerAdmissionWindow {
    * @evidence contracts/common.md#clear-and-simple-design The optional callback exposes frame admission independently of drawable geometry.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No missing callback is replaced with an automatically accepted document.
    * @evidence contracts/common.md#meaningful-documentation Null means admitted; a string is the owner's refusal; omission means frame admission is not loaded.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority The loaded frame judges serialized document input against its selected domain and basis.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Null means admitted; a string is the owner's refusal; omission means frame admission is not loaded.
    */
   __humanViewerAdmit?: (
     domain: string,
@@ -41,11 +32,6 @@ export interface IHumanViewerAdmissionWindow {
     basis: string,
   ) => Promise<string | null>;
 
-  /**
-   * The host page's bridge, set when the host module runs.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Exposes the standing host bridge independently of whether a committed model is currently drawable.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Exposes the standing host bridge independently of whether a committed model is currently drawable.
-   */
+  /** The host page's bridge, set when the host module runs. */
   __humanViewerAdmission?: IHumanViewerAdmissionBridge;
 }

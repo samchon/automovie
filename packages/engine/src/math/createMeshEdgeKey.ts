@@ -15,9 +15,6 @@
  * and incidence counts stay with the welding and consuming owners. No geometry
  * or caller state is mutated, and a malformed population refuses before a key
  * function exists. Endpoint admission is the consuming caller's precondition.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Keeps distinct welded edges distinct throughout topology admission, including populations beyond exact numeric pair encoding.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Supplies an exact pair identity to the shared topology validator without changing its coordinate labels or violation order.
  */
 export function createMeshEdgeKey(
   vertexCount: number,

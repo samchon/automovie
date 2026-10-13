@@ -10,8 +10,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * something needs to say where it was seen from, and a plan's angles are not
  * always where it was.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `autoMovieViewerPoseFromHeading` lets an inspection state an arbitrary angle and distance of its own rather than choosing from a fixed set.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `autoMovieViewerPoseFromHeading` resolves an explicit direction and projection into the same camera state a plan entry produces.
  * @author Samchon
  */
 export const autoMovieViewerPoseFromHeading = (

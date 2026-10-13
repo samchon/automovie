@@ -12,8 +12,6 @@ import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
  * ground-IK pass, while the retarget contact pass reads it frame by frame to
  * decide which frames carry a contact worth preserving.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Applies the declared ground source and tolerance to decide contact frames.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Produces the shared stance mask used by planting and retargeting.
  * @author Samchon
  */
 export const contactMask = (props: {

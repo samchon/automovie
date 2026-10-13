@@ -16,8 +16,6 @@ import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerA
  * @evidence contracts/common.md#clear-and-simple-design One application adapter uses existing page handoff and film rendering.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No synthetic composite, guessed shot or fake camera supplies completion.
  * @evidence contracts/common.md#meaningful-documentation Defines sample validation and retained-page failure effects.
- * @evidence requirements/product/prototype-quality.md#product-prototype-motion-time Preserves the captured known shot identities, finite shot-local seconds and transition weight when restoring through the original film draw.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-structural-output-invariant Contributes the captured sample's shot-local timing and transition state to reproducible prototype output by replaying the original film owner's draw; schedule evaluation and completed-frame ownership remain with that producer.
  */
 export function registerFilmViewerApplication(props: {
   /** The original film owner's last completed frame and guide pass, captured together. */

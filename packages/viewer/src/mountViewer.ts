@@ -22,8 +22,6 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * after their original draw, before an unpreserved native buffer can clear.
  * A manual guide retains the completed clock; a seek supplies its own seconds.
  *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Owns the browser renderer and animation loop until the returned handle releases them.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps that interactive runtime state inside one explicit viewer lifecycle.
  * @author Samchon
  */
 export const mountViewer = (

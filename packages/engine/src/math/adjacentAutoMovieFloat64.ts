@@ -10,8 +10,6 @@ const bits = new DataView(new ArrayBuffer(8));
  * reverse that order. Two unsigned words carry/borrow without BigInt allocation.
  * Geometry projection intervals and numerical attachment rays share this owner.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies representable outward neighbours for conservative geometry arithmetic instead of a fixed spatial tolerance.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Refuses nonfinite enclosing arithmetic and preserves the represented binary64 coordinate boundary used by geometry checks.
  * @author Samchon
  */
 export function adjacentAutoMovieFloat64(

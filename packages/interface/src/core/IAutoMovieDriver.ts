@@ -18,8 +18,6 @@ import { IAutoMovieSpringDriver } from "./IAutoMovieSpringDriver";
  * (A pure value limit is a {@link IAutoMovieChannelLimit}, not a driver:
  * computation and restriction are kept separate.)
  *
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `IAutoMovieDriver` as the portable data boundary for the motion channel dependencies requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieDriver` for the performance motion clip keytime interpolation system contract.
  * @author Samchon
  */
 export type IAutoMovieDriver =

@@ -14,9 +14,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * Sutherland-Hodgman on each triangle, re-fanned into triangles. The new faces
  * lying in the plane are exactly the ones the cut linework already draws, and
  * the caller drops their silhouette so no segment is drafted twice.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Removes viewer-side material from a cutting view so projected outlines describe only geometry beyond the section plane.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Clips each facet against the far half-space, inserts plane crossings, and re-fans the surviving polygon deterministically.
  */
 export const clipAutoMovieDrawingTriangles = (
   frame: IAutoMovieDrawingFrame,

@@ -31,10 +31,7 @@ interface IPathFrame {
   up: IAutoMovieVector3;
 }
 
-/** Seed one frame, then transport it without introducing axis-switch twists.
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Places repeated construction sections along a three-dimensional path.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Transports orthonormal section frames using successive tangents and shortest-arc rotation.
- */
+/** Seed one frame, then transport it without introducing axis-switch twists. */
 export const pathFrames = (
   path: readonly IAutoMovieVector3[],
   label: string,

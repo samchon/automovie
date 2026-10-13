@@ -19,41 +19,20 @@ import { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
  *
  * The engine ships no build-ups. A layered wall, a tiled floor, and a coffered
  * ceiling are all the same record with the production's own layers in it.
- *
- * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `IAutoMovieMaterialAssembly` as the portable data boundary for the building exterior assembly quantity representation requirement.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `IAutoMovieMaterialAssembly` for the building envelope material assembly failures system contract.
  */
 export interface IAutoMovieMaterialAssembly {
-  /**
-   * Stable assembly id.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `id` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `id` for the building envelope material assembly failures system contract.
-   */
+  /** Stable assembly id. */
   id: string;
 
-  /**
-   * Host-local axis the layers stack along.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `axis` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `axis` for the building envelope material assembly failures system contract.
-   */
+  /** Host-local axis the layers stack along. */
   axis: "x" | "y" | "z";
 
-  /**
-   * Whether layer order advances along the axis (`positive`) or against it.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `sense` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `sense` for the building envelope material assembly failures system contract.
-   */
+  /** Whether layer order advances along the axis (`positive`) or against it. */
   sense: "positive" | "negative";
 
   /**
    * Signed metre offset from the host's reference plane to the outer face of
    * the first layer. Zero puts the stack's first face on the reference plane.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `offset` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `offset` for the building envelope material assembly failures system contract.
    */
   offset: number;
 
@@ -63,9 +42,6 @@ export interface IAutoMovieMaterialAssembly {
    * `first` is the face the first layer presents, `last` the face the final
    * layer presents. An exposed end must be finished and a concealed end must
    * not be, which is how a missing finish and a wasted one are both caught.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `faces` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `faces` for the building envelope material assembly failures system contract.
    */
   faces: {
     /** Exposure of the face the first layer presents. */
@@ -75,11 +51,6 @@ export interface IAutoMovieMaterialAssembly {
     last: "exposed" | "concealed";
   };
 
-  /**
-   * Ordered layers, the first one at the reference face. Never empty.
-   *
-   * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-assembly-quantity-representation Exposes `layers` as the portable data boundary for the building exterior assembly quantity representation requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-assembly-failures Types `layers` for the building envelope material assembly failures system contract.
-   */
+  /** Ordered layers, the first one at the reference face. Never empty. */
   layers: IAutoMovieMaterialLayer[];
 }

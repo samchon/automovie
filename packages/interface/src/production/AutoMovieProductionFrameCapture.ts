@@ -6,12 +6,7 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMoviePreviewFrameInput } from "./IAutoMoviePreviewFrameInput";
 
-/**
- * Host-owned adapter that captures a current compiled production frame.
- *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `AutoMovieProductionFrameCapture` as the portable data boundary for the agent host evidence requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `AutoMovieProductionFrameCapture` for the spec authoring host evidence output system contract.
- */
+/** Host-owned adapter that captures a current compiled production frame. */
 export type AutoMovieProductionFrameCapture = (
   input: IAutoMoviePreviewFrameInput & {
     /** Active project root. */

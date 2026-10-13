@@ -7,9 +7,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * observer walks into. They fail differently: an exterior corner exposes how
  * two elevations join, while a reentrant corner is where an elevation hides
  * itself, which is exactly the face a facade-by-facade sweep leaves unread.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Names each corner the envelope population owes a perspective observation for.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types the derived corner and the side of the envelope it stands on.
  */
 export interface IAutoMovieBuiltEnvelopeCorner {
   /** Stable identity built from the two boundary ids in code-unit order. */

@@ -9,8 +9,6 @@ import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementO
  * belongs in the answer rather than in a benchmark somebody runs separately,
  * because a caller deciding whether to run this every round needs it.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Reports every intruding pair in a building beside the population and the work the sweep did.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Separates the measured population, the performed comparisons, the found pairs, and the unresolved bodies.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapReport {

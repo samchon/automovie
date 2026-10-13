@@ -31,10 +31,6 @@ import { sampleClip } from "./sampleClip";
  * broken artifact and not a case to skip. Silently dropping it is the failure
  * #1349 named.
  *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling Samples every admitted light channel at one shot-local instant.
- * @evidence requirements/lighting/temporal-state-and-continuity.md#lighting-state-time-sampling Evaluates every shot-light clip directly at the requested shot-local second without integrating previous-frame state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Rejects a sampled channel outside the staged source authority.
- * @evidence specifications/camera-light-and-visibility/temporal-state-and-continuity.md#clv-light-cue-observation Resolves the staged light state from the explicit sample time shared by all admitted channels.
  * @author Samchon
  */
 export const resolveShotLighting = (

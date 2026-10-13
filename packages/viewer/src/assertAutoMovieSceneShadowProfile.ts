@@ -10,9 +10,6 @@ import {readAutoMovieShadowLightSource} from "./readAutoMovieShadowLightSource.j
  * scene projection; its light-array paths are not authored AST positions.
  * Area and ambient lights have no punctual shadow product. The caller resolves
  * effective renderer policy before any mutable pass state or GPU allocation.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Reuses the Engine's supported caster/filter admission for public native-scene consumers.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Projects actual punctual caster identity before rendering without duplicating the point/VSM refusal rule.
  */
 export const assertAutoMovieSceneShadowProfile=(scene:THREE.Scene,shadows:IAutoMovieSceneEnvironment["shadows"]):void=>{
   const lights:Pick<IAutoMovieLight,"id"|"type"|"castShadow">[]=[];

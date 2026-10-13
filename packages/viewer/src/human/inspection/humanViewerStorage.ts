@@ -19,8 +19,6 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design One path selection owns the environment override and default for every process.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves real ancestors and refuses a link-crossed repository boundary instead of silently choosing another runtime directory or deleting active input data.
  * @evidence contracts/common.md#meaningful-documentation States the default, relative-path base, reference separation and refusal boundary.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Resolves real ancestors before enforcing the ignored-tree boundary and shares one result across the viewer's writers and control readers.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One path selection owns the environment override and default for every process.
  * @author Samchon
  */
 export function humanViewerStorage(

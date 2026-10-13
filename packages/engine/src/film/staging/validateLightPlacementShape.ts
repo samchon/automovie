@@ -53,9 +53,6 @@ const lightExtentOf = (
  * a `coneAngle` on a point light is the same false green the campaign is
  * closing elsewhere. Colors are range-checked here too, because `stage` is the
  * only rung between the model and the scene.
- *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-refusal Checks each supported staged light kind, its permitted geometry and color, and its explicit shadow-map settings before any light is lowered.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Checks each supported staged light kind, its permitted geometry and color, and its explicit shadow-map settings before any light is lowered.
  */
 export const validateLightPlacementShape = (
   light: IAutoMovieStageLight,

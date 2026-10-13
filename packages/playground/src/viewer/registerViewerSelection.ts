@@ -14,8 +14,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidence contracts/common.md#clear-and-simple-design Reuses the same page application transfer owner for both selectable clip products.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No widget replay, inferred choice or named default substitutes for current state.
  * @evidence contracts/common.md#meaningful-documentation Defines ownership and the candidate refusal boundary.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Restores the product's captured named clip and supported guide pass through its original setters instead of choosing a default.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Checks actual choice membership and reads the selection back after restoration, preserving the product-owned choice component across source candidates.
  */
 export function registerViewerSelection(props: {
   /** Product-owned selectable names admitted during transfer. */

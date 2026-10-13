@@ -16,9 +16,6 @@ import { HUMAN_HAIR_SHADOW_OPACITY_GLSL } from "./HUMAN_HAIR_SHADOW_OPACITY_GLSL
  * (Enderton et al. 2010). The renderer assigns the hair material's texture,
  * alpha cutoff and side to it each shadow pass, so the card's own mask still
  * decides where a fibre is.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under orbiting view and shadowed material display.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Applies device-bounded texture sampling and shadow policy without changing the saved anatomical document.
  */
 export function createHairCardShadowMaterial(
   color: THREE.Color,

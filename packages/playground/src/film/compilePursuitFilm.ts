@@ -16,10 +16,6 @@ import type { ICompilePursuitFilm } from "./ICompilePursuitFilm";
  * @evidence contracts/common.md#clear-and-simple-design The compile phase owns its example registry and runtime outputs while the browser entry retains scene lowering and playback.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Example rig and set-piece content remains in Playground; no engine implementation or render result is substituted.
  * @evidence contracts/common.md#meaningful-documentation Separates authored input, example registry and compiler refusals from displayed-frame observation.
- * @evidence requirements/product/prototype-quality.md#product-prototype-motion-time Compiles authored shot motions and edit timing before the existing viewer consumes them.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Keeps authored inputs explicit and the original engine compilation order deterministic.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Produces the same example registry, shots and cut from the caller's tracked authoring values without browser state.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-choice-determinism-invariant Preserves authored choices and delegates numerical realization to the same compilation owners.
  */
 export const compilePursuitFilm: ICompilePursuitFilm = (props) => {
   const { script, staging, blockings, performances } = props;

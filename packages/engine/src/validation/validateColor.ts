@@ -4,8 +4,6 @@ import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Reports normalized colour-range and optional hexadecimal-label violations on model materials.
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Checks bounded RGB/optional alpha and the independent optional hexadecimal colour label.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual Checks bounded RGB/optional alpha and the independent optional hexadecimal colour label.
  */
 export const validateColor = (
   color: IAutoMovieColor,

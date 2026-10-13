@@ -9,8 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One appended statement collects module compile identities in that realm's owned Set, leaving original transformed code intact.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds explicit provenance metadata to owned served source without replacing foreign runtime methods or manufacturing a numerical worker's checked authority.
  * @evidence contracts/common.md#meaningful-documentation States what is recorded, where and why.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The record is made by the served code itself, so it reflects exactly what a realm loaded.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One appended statement collects module compile identities in that realm's owned Set, leaving original transformed code intact.
  */
 export function stampHumanViewerCompile(code: string, compile: string): string {
   return (

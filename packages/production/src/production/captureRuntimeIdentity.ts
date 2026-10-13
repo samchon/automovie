@@ -12,11 +12,7 @@ import {
 export const AUTOMOVIE_CAPTURE_RUNTIME_IDENTITY_PROTOCOL =
   "automovie.capture-runtime.v2" satisfies IAutoMovieCaptureRuntimeIdentity["protocolVersion"];
 
-/**
- * Validate and canonically encode one capture runtime identity.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-cross-platform-evidence Records the compared runtime identity in canonical form beside captured evidence so a reproducibility claim names what it compared.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Canonicalizes headless and interactive capture identity into one encoding in which the execution mode is a field rather than a separate contract.
- */
+/** Validate and canonically encode one capture runtime identity. */
 export const canonicalAutoMovieCaptureRuntimeIdentity = (
   identity: IAutoMovieCaptureRuntimeIdentity,
 ): string => {
@@ -174,10 +170,7 @@ export const canonicalAutoMovieCaptureRuntimeIdentity = (
 const compareCodeUnits = (left: string, right: string): number =>
   left < right ? -1 : left > right ? 1 : 0;
 
-/**
- * Parse one exact canonical identity embedded in a current render manifest.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-capture-runtime-identity Validates the versioned schema and canonical encoding of a capture runtime identity before it may vouch for pixel evidence.
- */
+/** Parse one exact canonical identity embedded in a current render manifest. */
 export const parseAutoMovieCaptureRuntimeIdentity = (
   encoded: string,
 ): IAutoMovieCaptureRuntimeIdentity => {

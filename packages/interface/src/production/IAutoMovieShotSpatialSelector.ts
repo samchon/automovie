@@ -1,11 +1,6 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * A spatial operand measured from one compiled shot.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieShotSpatialSelector` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieShotSpatialSelector` for the narrative intent story design ownership system contract.
- */
+/** A spatial operand measured from one compiled shot. */
 export type IAutoMovieShotSpatialSelector =
   | {
       /** One compiled scene node. */

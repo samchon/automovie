@@ -6,9 +6,6 @@ import { DETAIL_NORMAL_TARGET } from "./DETAIL_NORMAL_TARGET.js";
  * just before the frame turns `mapN` into the normal, expanding the chunk
  * first unless an earlier patch already did, so patches that bend the
  * tangent-space normal compose in the order they run.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Composes the declared material's tangent-space normal changes into one program.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the ordered composition of normal blends at the render boundary.
  */
 export const spliceTangentNormal = (
   fragmentShader: string,

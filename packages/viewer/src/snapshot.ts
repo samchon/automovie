@@ -3,24 +3,12 @@ import * as THREE from "three";
 /**
  * Minimal renderer shape needed to capture one deterministic viewer frame.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
  * @author Samchon
  */
 export interface IAutoMovieViewerSnapshotRenderer {
-  /**
-   * Render the scene from the camera before the canvas is read.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Render the scene from the camera before the canvas is read. */
   render: (scene: THREE.Scene, camera: THREE.Camera) => void;
-  /**
-   * Canvas-like element owned by the renderer.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Canvas-like element owned by the renderer. */
   domElement: {
     width: number;
     height: number;
@@ -31,62 +19,28 @@ export interface IAutoMovieViewerSnapshotRenderer {
 /**
  * Options for reading one rendered viewer frame as an inline image.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
  * @author Samchon
  */
 export interface IAutoMovieViewerSnapshotOptions {
-  /**
-   * Image MIME type. Defaults to `image/png`.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Image MIME type. Defaults to `image/png`. */
   mimeType?: string;
-  /**
-   * Encoder quality for formats that support it.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Encoder quality for formats that support it. */
   quality?: number;
 }
 
 /**
  * Captured viewer frame.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
  * @author Samchon
  */
 export interface IAutoMovieViewerSnapshot {
-  /**
-   * Canvas pixel width.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Canvas pixel width. */
   width: number;
-  /**
-   * Canvas pixel height.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Canvas pixel height. */
   height: number;
-  /**
-   * MIME type requested for the snapshot.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** MIME type requested for the snapshot. */
   mimeType: string;
-  /**
-   * Inline image payload returned by the renderer canvas.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
-   */
+  /** Inline image payload returned by the renderer canvas. */
   dataUrl: string;
 }
 
@@ -97,8 +51,6 @@ export interface IAutoMovieViewerSnapshot {
  * workers can inject a Playwright-backed or fake renderer without importing
  * browser globals.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-multiview-products Captures this surface with explicit product dimensions and view.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the capture as one render-product observation.
  * @author Samchon
  */
 export const captureViewerSnapshot = (

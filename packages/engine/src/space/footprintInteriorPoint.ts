@@ -14,9 +14,6 @@ import { footprintRing } from "./footprintRing";
  * that piece, and the widest piece is chosen so the anchor sits in the part of
  * the patch there is most of. A patch that was already convex is its own widest
  * piece, so the answer is unchanged wherever it was already right.
- *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-zone-membership `footprintInteriorPoint` produces a plan point guaranteed to be on the region, or `null` when it has none. This ensures membership is judged from a subject footprint rather than a point.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `footprintInteriorPoint` performs interior point footprint evaluation when the engine resolves host-relative support geometry and whole-footprint zone membership.
  */
 export const footprintInteriorPoint = (
   footprint: IAutoMovieFootprint,

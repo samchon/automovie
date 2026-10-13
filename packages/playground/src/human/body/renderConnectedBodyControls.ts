@@ -13,8 +13,6 @@ import { mountBodyJointControls } from "./mountBodyJointControls";
  * The controls bind to the panel's transaction hooks and own no document
  * state.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the joint controls or one group's measured channels, and what the body view cannot evaluate.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Renders only channels with a measurement rule, in millimetres, over the reach the body view can evaluate.
  * @author Samchon
  */
 export function renderConnectedBodyControls(

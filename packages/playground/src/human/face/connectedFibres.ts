@@ -18,10 +18,6 @@ const DEFAULT_PIGMENT: [number, number, number] = [0.03, 0.018, 0.011];
  * or roughness already authored on that material. Inputs show linear RGB,
  * the unit the rule paints in. Adding starts from a dark-brown fibre at the
  * card's own density, not any subject's colour; removing restores the card.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes brow and lash fibre colour and density as numerical controls in the editor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Routes fibre pigment creation, editing and removal through the shared document history.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Edits the per-material pigment and density the connected fibre rule paints.
  */
 export function mountConnectedFaceFibres(
   app: HTMLElement,

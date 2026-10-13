@@ -25,8 +25,6 @@ import { IAutoMovieReactAction } from "./IAutoMovieReactAction";
  * The camera is an actor too; its {@link IAutoMovieCameraAction}s are how it
  * moves.
  *
- * @evidence requirements/story/dialogue-language-and-silence.md#story-dialogue-action-interaction Exposes `IAutoMovieActionCall` as the portable data boundary for the story dialogue action interaction requirement.
- * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-utterance-timing-action Types `IAutoMovieActionCall` for the narrative intent utterance timing action system contract.
  * @author Samchon
  */
 export type IAutoMovieActionCall =

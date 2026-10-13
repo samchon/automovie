@@ -14,49 +14,22 @@ import { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContributor";
  * one artifact somebody orders material from would become the one nobody
  * reads.
  *
- * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `IAutoMovieQuantityFinding` as the portable data boundary for the building exterior schedules quantities requirement.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `IAutoMovieQuantityFinding` for the building envelope deliverable quantity invariant system contract.
  * @author Samchon
  */
 export interface IAutoMovieQuantityFinding {
-  /**
-   * Subject this finding answers for.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `subject` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `subject` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Subject this finding answers for. */
   subject: AutoMovieQuantitySubject;
 
-  /**
-   * Unit of every number in this finding.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `unit` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `unit` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Unit of every number in this finding. */
   unit: AutoMovieQuantityUnit;
 
-  /**
-   * Exact total over every owner, whether or not the bound named it.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `total` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `total` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Exact total over every owner, whether or not the bound named it. */
   total: number;
 
-  /**
-   * How many owners contributed at all.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `owners` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `owners` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** How many owners contributed at all. */
   owners: number;
 
-  /**
-   * Whether the total is the design's own arithmetic or an approximation.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `basis` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `basis` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Whether the total is the design's own arithmetic or an approximation. */
   basis: AutoMovieQuantityBasis;
 
   /**
@@ -65,9 +38,6 @@ export interface IAutoMovieQuantityFinding {
    * Never a hedge. It names the specific modelling limit that produced the
    * error, so a reader can decide whether it matters for what they are about to
    * order.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `approximation` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `approximation` for the building envelope deliverable quantity invariant system contract.
    */
   approximation: string | null;
 
@@ -77,25 +47,12 @@ export interface IAutoMovieQuantityFinding {
    * Ties break on the id so the list is a property of the design rather than of
    * the order the graph happened to be walked, which is what makes two
    * derivations of one revision produce the same names.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `contributors` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `contributors` for the building envelope deliverable quantity invariant system contract.
    */
   contributors: IAutoMovieQuantityContributor[];
 
-  /**
-   * Owners the bound left out.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `omittedOwners` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `omittedOwners` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Owners the bound left out. */
   omittedOwners: number;
 
-  /**
-   * Total carried by the owners the bound left out.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `omittedValue` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `omittedValue` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Total carried by the owners the bound left out. */
   omittedValue: number;
 }

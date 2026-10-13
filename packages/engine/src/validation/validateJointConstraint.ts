@@ -10,8 +10,6 @@ const CONSTRAINT_AXES = ["flexion", "abduction", "twist"] as const;
 
 /**
  * Checks finite ordered degree ranges and existence of a pose inside the declared angular box and swing cone.
- * @evidence requirements/actors/validation.md#actor-input-binding-validation Checks degree-range ordering and uses the nearest-neutral box point to decide whether its swing cone admits a pose.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Checks degree-range ordering and uses the nearest-neutral box point to decide whether its swing cone admits a pose.
  */
 export const validateJointConstraint = (
   constraint: IAutoMovieJointConstraint,

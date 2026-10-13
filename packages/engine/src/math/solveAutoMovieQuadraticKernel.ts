@@ -20,9 +20,6 @@ let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
  * The optional initial vector is retained for caller compatibility but ignored
  * by the cold interior-point solver; no preceding call seeds the next solve.
  * Null-bound conversion and independent residual checks belong to the adapter.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Evaluates an explicitly assembled shared-displacement problem without changing its coefficients or resident geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Copies complete numeric inputs and returns owned solve buffers plus native failure status before releasing intermediate storage.
  */
 export function solveAutoMovieQuadraticKernel(input: {
   diagonal: readonly number[];

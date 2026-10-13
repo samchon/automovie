@@ -14,8 +14,6 @@ import { getConstraint } from "./getConstraint";
  * the joints it derived (a retarget contact correction) must not clamp the
  * authored joints it left alone.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Applies the bone override before the canonical fallback when enforcing joint limits.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Projects one skeleton joint into its effective ROM.
  * @author Samchon
  */
 export const clampJointToSkeleton = (

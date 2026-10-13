@@ -10,8 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * counter-clockwise order, so callers never have to assume the input points
  * were given convex or correctly ordered.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Builds the ordered support polygon used to evaluate whether a subject remains carried by its contacts.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Builds the ordered support polygon used to evaluate whether a subject remains carried by its contacts.
  * @author Samchon
  */
 export const convexHull2D = (

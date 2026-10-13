@@ -10,9 +10,6 @@ import { detailNormalVertex } from "./detailNormalVertex.js";
  *
  * The callback only needs source and uniforms and can therefore be registered
  * on the larger native Three program without narrowing other patch contracts.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Captures the declared detail texture and strength for the material's actual shader operation.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Supplies the ordered detail-normal vertex and fragment transformation with its own uniform snapshot.
  */
 export const createDetailNormalShaderPatch = (
   texture: THREE.Texture,

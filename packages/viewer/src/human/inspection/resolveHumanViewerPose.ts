@@ -15,8 +15,6 @@ import { admitHumanCaptureCameraPose } from "@automovie/viewer/human/common/obse
  * @evidence contracts/common.md#clear-and-simple-design One serialization adapter follows the common camera-pose owner instead of duplicating its admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses admitted supplied measurements and established defaults without fitting a photograph or substituting a front view for a refused pose.
  * @evidence contracts/common.md#meaningful-documentation States yaw/pitch, metre-valued distance and target, vertical field defaults and the refusal instead of camera fallback.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Shared pose admission checks the selected subject before its measured values and documented legacy camera defaults form one look address.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review One serialization adapter follows the common camera-pose owner instead of duplicating its admission.
  */
 export function resolveHumanViewerPose(
   poses: Record<string, IHumanCaptureCameraPose | null>,

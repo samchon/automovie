@@ -20,11 +20,6 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
  * @evidence contracts/common.md#clear-and-simple-design One route owns basis resolution; verification is the shared streamer's.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Restricts domain and candidate names, requires the caller's digest and serves verified original bytes without choosing a substitute basis after refusal.
  * @evidence contracts/common.md#meaningful-documentation States the accepted forms and the 400, 404 and 409 answers.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Every basis is served only as the bytes its document's key names.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis One route owns basis resolution; verification is the shared streamer's.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-digest-refusal Refuses a basis request without a digest and refuses mismatching response bytes before the same read bytes can be sent under the requested identity.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Refuses a basis request without a digest and refuses mismatching response bytes before the same read bytes can be sent under the requested identity.
  */
 export function serveHumanViewerBasis(
   props: IServeHumanViewerDataProps,

@@ -34,9 +34,6 @@ type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  * Float64, finite numerical factors and the existing work budget do not imply
  * uniform accuracy or convergence. Original KKT admission remains independent
  * of downstream geometric, anatomical, Float32 and rendered acceptance.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves the original constrained objective and every affine interval while admitting only an independently checked original-coordinate candidate.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains original native statuses, leading variables and signed original-row duals; a failed active-set guess cannot replace the preceding candidate or certify geometry.
  */
 export function refineAutoMovieQuadraticProgram(
   input: Problem,

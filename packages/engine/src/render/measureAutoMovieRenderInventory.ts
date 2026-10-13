@@ -76,20 +76,6 @@ import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTe
  * of every drawable that preceded it rather than the owner's own complexity, so
  * the report keeps its attribution without ranking it as an editable owner.
  *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Measures geometry, decoded texture memory, lights, instances, fluids, and simulated drawables into one complete inventory.
- * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Reports the conservative one-frame peak per metric and its semantic owner without substituting an average or whole-film total.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Charges each enabled shadow map and its opaque depth passes to the stable id of the light that casts them.
- * @evidence requirements/lighting/budgets-and-representation.md#lighting-budget-cost-model Separates light population, shadow-map allocation, and the additional opaque draws induced by each shadow source.
- * @evidence requirements/production-design/budgets-and-feasibility.md#production-design-worst-case-budget Computes conservative one-frame geometry, population, simulation, memory, light, shadow, and draw costs instead of averaging them over the film.
- * @evidence requirements/production-design/budgets-and-feasibility.md#production-design-budget-measurement-status Separates exact or conservative totals from explicit unsupported and not-run gaps rather than counting an unmeasured cost as zero.
- * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-admission-estimate Produces the exact or conservative one-frame resource totals, dominant semantic owners, and explicit unmeasured gaps needed before render admission.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Produces exact counts or stated conservative upper bounds and explicit unsupported or not-run gaps for preflight.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Preserves the casting source identity in the staged branch of shadow-cost accounting.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-light-budget-selection Accounts for lights and their downstream shadow passes as distinct bounded cost dimensions.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-budget-measurement-worst-case Produces the one-frame conservative render-cost observation and explicit analysis-gap subset of worst-case budget measurement.
- * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-budget-admission-estimate Implements the render-domain estimate subset without claiming queue, concurrency, or runtime enforcement ownership.
- * @evidence requirements/map/scale-and-populations.md#map-population-bound `measureAutoMovieRenderInventory` counts the realized subject population and attributes its conservative one-frame cost to stable semantic owners before rendering.
- * @evidence specifications/world-and-site/partition-lod-streaming-and-seams.md#world-site-population-bound-determinism The inventory supplies the deterministic realized-population and dominant-owner measurement subset without claiming world streaming or partition lifecycle.
  * @author Samchon
  */
 export const measureAutoMovieRenderInventory = (props: {

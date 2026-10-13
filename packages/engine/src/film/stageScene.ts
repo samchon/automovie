@@ -49,23 +49,6 @@ import { lowerLightPlacement } from "./staging/lowerLightPlacement";
  * exterior otherwise has no way to state: it is range-checked here and lowered
  * verbatim. Omitting it composes a scene with no `fog` at all, which renders
  * exactly as every staged scene did before atmospheres existed.
- *
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay Resolves the screenplay's sets, performers, cameras, lights, and mounts or returns every deterministic contradiction.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-spatial-validation Checks finite placement geometry and exact cast, node, camera-target, and mount-parent relations before composing the scene.
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Lowers accepted rest transforms, camera aims, typed lights, ground, and environment into one explicit initial scene state.
- * @evidence requirements/staging/subjects-and-object-staging.md#staging-rest-active-placement Emits actors and set pieces at their authored rest transforms with no active motion or pose, while retaining declared mount bindings beside the scene.
- * @evidence requirements/staging/subjects-and-object-staging.md#staging-placement-refusal Refuses missing cast or target identities, duplicate scene ids, dangling mounts, and non-finite placement transforms instead of inventing replacements.
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-distribution Lowers the supported directional, point, spot, and rectangular-area subset with its kind-specific direction, position, range, cone, extent, and authored color.
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-refusal Rejects invalid intensity, missing or zero direction, forbidden position or range, invalid cone, and missing or non-positive panel extent before lowering a source.
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-color-refusal Rejects a staged light color when its linear components are non-finite or outside the unit interval.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Validates the staged source's cast flag, map size, bias, normal bias, and near/far interval, and refuses an unsupported area-light shadow map.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result stageScene produces the same resolved scene or addressed failure for the same script and staging inputs.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership Composes accepted rest placements into a resolved scene state without fabricating missing identities or transforms.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-interaction-choreography-role Separates static rest-node placement from persistent mount bindings and refuses unresolved, duplicate, or non-finite placement relations.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-distribution-color Carries only the engine's supported source kinds, orientation, falloff, cone, panel extent, and linear color into scene light state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Validates the static staged sample's intensity, direction, range, cone, and extent and rejects unsupported field combinations before scene creation.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-comparison-refusal Enforces the finite unit-range numeric domain of authored linear light components without claiming a display conversion.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Carries one fixed source's validated cast flag and explicit shadow-map sampling settings into the scene light.
  */
 export const stageScene = (
   script: IAutoMovieScript,

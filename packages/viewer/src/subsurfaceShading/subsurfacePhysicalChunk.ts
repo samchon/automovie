@@ -7,9 +7,6 @@ const { cosines: COSINES, blurs: BLURS } = SUBSURFACE_TEXTURE_SIZE;
  * An incompatible chunk is refused before producing a partial shader. The
  * caller supplies the actual SDK chunk; the pure boundary also accepts typed
  * compatibility inputs without changing the SDK's shared shader registry.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Preserves the physical material response except for its declared subsurface diffuse term.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Refuses an incompatible lighting chunk instead of silently dropping the subsurface response.
  */
 export const subsurfacePhysicalChunk = (pars: string): string => {
   if (!pars.includes(SUBSURFACE_TARGET))

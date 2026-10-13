@@ -14,9 +14,6 @@ const read = {
 
 /**
  * The four narrow input schemas reused by MCP registration and local admission.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Keeps both transport requests under one grammar without a caller-controlled production root.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Describes exactly four read-only operations and rejects unknown request properties.
  */
 export const autoMovieReferenceSchemas = {
   /** Strict shared schema for revision-bound authored-layer pagination. */
@@ -67,8 +64,6 @@ const layerProbe = z.object({
 
 /**
  * Distinguish an unknown authored population from a malformed request envelope.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-bounds Gives callers a concrete population error instead of an empty successful page.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds Classifies unknown layers independently of general schema admission.
  */
 export function autoMovieReferenceRequestError(input: unknown): {
   /** Distinguishes unknown authored layers from all other malformed request inputs. */
@@ -95,9 +90,6 @@ export function autoMovieReferenceRequestError(input: unknown): {
 
 /**
  * Admit an unknown request without reflecting submitted source or credentials in errors.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-bounds Refuses malformed operations and response limits before a reader is called.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds Applies bounded schema admission and supplies the documented default response budget.
  */
 export function parseAutoMovieReferenceRequest(input: unknown):
   | (AutoMovieReferenceRequest & {

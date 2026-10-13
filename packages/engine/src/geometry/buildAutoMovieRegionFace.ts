@@ -18,8 +18,6 @@ import { triangulateAutoMovieRegion } from "./triangulateAutoMovieRegion";
  * region winding makes every triangle face positive Z, while malformed rings
  * retain the triangulator's explicit refusal instead of being repaired here.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Preserves one named face and its orientation as a material-owning surface instead of merging opposite sides into one response.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Materializes a canonical one-sided region whose winding, surface role, and metric coordinates remain explicit.
  * @author Samchon
  */
 export const buildAutoMovieRegionFace = (props: {

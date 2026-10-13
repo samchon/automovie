@@ -11,8 +11,6 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure.js";
  * @evidence contracts/common.md#clear-and-simple-design The host supplies persistence and capture while this function owns only pass ordering and progress.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies the same cache and generation rules to every document with no fixture-specific warm path.
  * @evidence contracts/common.md#meaningful-documentation Defines queue ownership, yielding and withdrawal when either source or pass authority changes.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Each missing document is a separate admitted queue task, and a superseded pass cannot update its successor's counters.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The host supplies persistence and capture while this function owns only pass ordering and progress.
  */
 export async function warmHumanViewerDocuments(
   props: IWarmHumanViewerDocumentsProps,

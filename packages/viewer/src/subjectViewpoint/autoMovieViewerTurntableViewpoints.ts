@@ -11,8 +11,6 @@ import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
  * options always name the same viewpoints and a coverage record can say which
  * of them an inspection reached.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-coverage `autoMovieViewerTurntableViewpoints` declares the planned viewpoint population of one subject inspection so observed coverage can be counted against it.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `autoMovieViewerTurntableViewpoints` implements the deterministic viewpoint selection rule, producing the same identities and order for the same inputs.
  * @author Samchon
  */
 export const autoMovieViewerTurntableViewpoints = (

@@ -60,8 +60,6 @@ const readAngle = (
  * arm) and the per-side rest frame reconciles it. Omit it for angles already in
  * the rig's own space.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Composes the declared semantic controls in their rig-local basis.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Composes semantic joint controls into the quaternion consumed by forward kinematics.
  * @author Samchon
  */
 export const jointToQuaternion = (

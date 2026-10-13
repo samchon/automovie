@@ -9,8 +9,6 @@ import { IAutoMovieFluidState } from "@automovie/interface";
  * or a second machine reproduced the reference state rather than merely a close
  * one.
  *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-platform-determinism Records exact replay equality rather than an approximate visual match.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#numeric-platform-repeatability-class Provides a stable byte-level receipt for repeatability checks.
  * @author Samchon
  */
 export const fluidStateDigest = (state: IAutoMovieFluidState): string => {

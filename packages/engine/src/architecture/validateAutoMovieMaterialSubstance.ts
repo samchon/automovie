@@ -13,13 +13,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * negative density, an absorption above one, or a vapour resistance below still
  * air are not measurements a later study can use, and a study that silently
  * consumes them reports a number nobody can trace back to a defect.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product `validateAutoMovieMaterialSubstance` range-checks one physical substance record. This ensures visual appearance remains distinct from physical substance and product build-up.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `validateAutoMovieMaterialSubstance` validates density and thermal, acoustic, and environmental properties before a substance enters an assembly layer.
- * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-surface-properties `validateAutoMovieMaterialSubstance` separates surface identity from density, thermal, heat-capacity, acoustic, vapour, and service-life facts and rejects each fact outside its declared physical range.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-layer-input `validateAutoMovieMaterialSubstance` admits the bounded physical facts consumed by an ordered envelope layer without claiming renderer optical behavior.
- * @evidence requirements/interior/materials-and-physical-properties.md#interior-material-visual-physical `validateAutoMovieMaterialSubstance` validates the material's surface identity and physical analysis facts as distinct fields rather than using appearance as a substitute for substance data.
- * @evidence specifications/interior-space/materials-style-and-art.md#interior-space-material-facts-analysis-boundary `validateAutoMovieMaterialSubstance` enforces the supported physical-fact ranges at the analysis boundary while leaving visual judgment outside it.
  */
 export const validateAutoMovieMaterialSubstance = (props: {
   substance: IAutoMovieMaterialSubstance;

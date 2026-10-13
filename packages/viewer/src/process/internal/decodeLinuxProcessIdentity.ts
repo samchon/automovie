@@ -12,8 +12,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One native-record decoder owns Linux identity formatting without file access.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads supplied native facts without executable-name ownership or guessed wall-clock identity.
  * @evidence contracts/common.md#meaningful-documentation States the stat field derivation, command-name delimiter and exact tick representation.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Distinguishes Linux allocations across boots without losing kernel start-tick precision.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Decodes the actual Linux identity records supplied by the process host.
  */
 export function decodeLinuxProcessIdentity(boot: string, stat: string): string {
   return boot.trim() + ":" + stat.slice(stat.lastIndexOf(")") + 2).split(" ")[19];

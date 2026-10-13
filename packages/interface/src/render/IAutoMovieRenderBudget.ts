@@ -34,26 +34,16 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * declared pass set would reopen this only alongside a renderer that can
  * actually be asked for a different one.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes `IAutoMovieRenderBudget` as the portable data boundary for the rendering budget decision requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `IAutoMovieRenderBudget` for the spec render budget preflight system contract.
  * @author Samchon
  */
 export interface IAutoMovieRenderBudget {
-  /**
-   * Budget format.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes `version` as the portable data boundary for the rendering budget decision requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `version` for the spec render budget preflight system contract.
-   */
+  /** Budget format. */
   version: 1;
 
   /**
    * Non-blank quality tier this budget describes, such as `review` or
    * `delivery`. One production may declare several tiers and check an artifact
    * against the one a render job targets.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes `tier` as the portable data boundary for the rendering budget decision requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `tier` for the spec render budget preflight system contract.
    */
   tier: string;
 
@@ -63,9 +53,6 @@ export interface IAutoMovieRenderBudget {
    * Every value is a finite number at or above zero. The engine range-checks
    * them, because a negative or fractional triangle limit is an authoring
    * mistake that would otherwise read as a permanently failing budget.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes `limits` as the portable data boundary for the rendering budget decision requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `limits` for the spec render budget preflight system contract.
    */
   limits: Partial<Record<AutoMovieRenderMetric, number>>;
 }

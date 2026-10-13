@@ -245,19 +245,6 @@ const REPAINT_REFERENCE_ROLE_COUNT = 7;
  * evidence citations and Git rather than a second project ledger. Every
  * one-artifact mutation is staged before an optimistic revision check and one
  * short production-scoped commit lock.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-continuity-deliverables Owns the tracked design, revision, derived artifact, and publication records that keep one production's continuity and handoff explicit.
- * @evidence requirements/repaint/providers-models-and-credentials.md#repaint-providers-models-credentials Keeps external repaint execution behind explicit adapter identity and project-owned immutable records rather than hidden provider state.
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retries-seeds-variation Stores each request and attempt independently, charges retry order, and changes the active pointer only through an accepted lineage.
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-sequence-continuity-publication Binds accepted rendition selection to current structural, continuity, temporal, and publication evidence.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-boundary Persists explicit generator choice, request identity, result provenance, and refusal records without treating external output as deterministic source truth.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-handoff-boundary Owns the source lock, controls, attempts, selection, validation, and publication pointers of the optional repaint handoff.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-continuity-ledger Preserves production revisions and immutable identities so design change comparison remains source-derived.
- * @evidence requirements/agent-authoring/partial-work.md#agent-resumable-authoring Reopens a production from its tracked project state and source snapshots alone, without any prior session or agent memory.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-resume-compatibility Opens the same project state from its tracked records and snapshots without a prior session, and refuses a stale snapshot instead of mixing it into the current result.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-resume-compatibility Reopens a production from its tracked ledger and source snapshots so a new tool that honors the same public contract inherits source authority without prior session memory.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-atomic-current-commit Commits staged writes under one revision compare-and-set so a reader sees either the old or the new generation and never a mixture.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-conflict-rollback Refuses a commit whose base revision another session advanced, returning the current revision so the caller re-evaluates from that truth.
  */
 export class AutoMovieProductionProject {
   /**
@@ -2519,12 +2506,6 @@ export class AutoMovieProductionProject {
 
   /**
    * Select or reverse to one stored current candidate in a guarded transaction.
-   *
-   * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-one-accepted-lineage Selects one succeeded attempt through an immutable selection or reversal record and one active pointer.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-continuity-baseline-changes Binds the selection to an exact continuity baseline and refuses an unreviewed baseline change.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Publishes an active rendition pointer only after structural, continuity, and temporal checks pass in the same guarded transaction.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-temporal-artifacts Requires hold, flicker, boil, edge-crawl, and transition-boundary playback verdicts before selection.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Validates structural review, continuity baseline, playback evidence, and all temporal verdicts before one rendition becomes current.
    */
   public selectRepaintCandidate(props: {
     shot: string;

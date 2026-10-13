@@ -24,9 +24,6 @@ export {
  *
  * Non-URL identifiers remain valid inputs. A caller that requires a URL owns
  * its protocol and syntax policy separately from this credential boundary.
- *
- * @evidence requirements/external-inputs/credentials-rights-and-provenance.md#external-credential-separation Detects credentials and malformed absolute URLs before source and license locators reach provenance.
- * @evidence specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-secret-reference-boundary Implements the shared external-locator boundary without rejecting non-URL license identifiers.
  */
 export const autoMovieExternalLocatorRefusal = (
   value: string,
@@ -180,8 +177,6 @@ export const normalizeAutoMovieSourceIdentity = (props: {
 
 /**
  * Verify an explicitly versioned source identity from its recoverable bytes.
- *
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-reproduction-verification-boundary Reverifies a deterministic source identity by exact digest comparison and reports match, mismatch or unverifiable.
  */
 export const verifyAutoMovieSourceIdentity = (props: {
   /** Source-relative pathname named by strict-decoding refusals. */
@@ -240,7 +235,6 @@ export const digestAutoMovieBytes = (
  * basenames such as `CON` remain reserved even with an extension. Escape the
  * complete RFC 3986 reserved tail and the first character of a device name so
  * every accepted string has one reversible cross-platform representation.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-cross-platform-paths Encodes a logical identity into one portable path segment so reserved names, separators and case cannot differ between Windows and POSIX.
  */
 export const encodeAutoMoviePathSegment = (value: string): string => {
   let encoded = encodeURIComponent(value).replace(
@@ -370,8 +364,6 @@ export const verifyAutoMovieCanonicalJsonIdentity = (props: {
  * The bytes are the UTF-8 encoding of the engine's canonical text. That text
  * never contains a lone surrogate, so these bytes equal the engine's pure UTF-8
  * encoding of the same text and every runtime digests one byte sequence.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-locale-time-determinism Encodes identity text as UTF-8 without locale, timezone or clock participation so the same input yields the same bytes on every host.
  */
 export const canonicalAutoMovieJsonBytes = (value: unknown): Uint8Array =>
   Buffer.from(canonicalizeAutoMovieJson(value), "utf8");

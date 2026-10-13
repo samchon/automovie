@@ -17,12 +17,7 @@ const descriptions = {
     "Read an exact authored Markdown file with only HTML annotations removed. Use this when necessary context spans sections. No summary, heading rebase, source writes, graph lint or runtime actions. Exceeding the result budget is an explicit refusal.",
 };
 
-/**
- * Register exactly four read-only tools on an injected SDK server.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Publishes each provider operation with the same schema and result consumed by the local command.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Keeps MCP registration limited to reference requests and delegates protocol handling to the SDK.
- */
+/** Register exactly four read-only tools on an injected SDK server. */
 export function registerAutoMovieReferenceTools(
   server: Pick<McpServer, "registerTool">,
   reader: IAutoMovieReferenceReader,
@@ -56,9 +51,6 @@ export function registerAutoMovieReferenceTools(
 
 /**
  * Construct the installed package's reference-only server over its bound reader.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Exposes the reference capability to MCP clients without restoring production tools or guide gates.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Registers only the four schemas on the SDK server and keeps version identity explicit.
  */
 export function createAutoMovieMcpServer(
   reader: IAutoMovieReferenceReader,
@@ -77,8 +69,6 @@ export function createAutoMovieMcpServer(
 
 /**
  * Startup dependencies separated from the server's reference dispatch.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Allows one explicit root and stdio connection to be verified without starting a client process.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Supplies the bound reader, reference server and transport without introducing a request-time root switch.
  * @author Samchon
  */
 export interface IAutoMovieMcpStartupRuntime {
@@ -90,12 +80,7 @@ export interface IAutoMovieMcpStartupRuntime {
   transport(): StdioServerTransport;
 }
 
-/**
- * Start a stdio-only MCP server bound to one absolute production root.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Makes the installed binary consume the same bound reader as the local command.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Connects the reference server to stdio without a network listener or side-effecting tool.
- */
+/** Start a stdio-only MCP server bound to one absolute production root. */
 export async function startAutoMovieMcpServer(
   root: string,
   version: string,

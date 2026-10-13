@@ -40,10 +40,6 @@ import { needsConnectedFaceClosedSurface } from "./needsConnectedFaceClosedSurfa
  * port reports every failure, retains uncertain ownership and blocks later
  * allocation. Closing includes caches still preparing and never ends the
  * renderer or context borrowed from the viewport.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps pending numerical edits separate from the committed visible face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Updates resident geometry while sharing the viewer's material and texture interpretation.
  */
 export function createConnectedFaceRenderer(
   props: IConnectedFaceRendererProps,

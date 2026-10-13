@@ -10,9 +10,6 @@ import {AutoMovieDissolveCompositorState} from "./AutoMovieDissolveCompositorSta
  * display copies; source sampling state or scene assets do not change that
  * extent. A released lifetime disappears immediately, including a release
  * whose resource listener fails. Returned records are owned copies.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Reports the live display-copy closure separately from authored texture assets.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Exposes current renderer-owned display storage for host preflight accounting.
  */
 export const readAutoMovieFilmDisplayTextureResidency=(renderer:THREE.WebGLRenderer):Array<{owner:"film-fade"|"film-dissolve";width:number;height:number;copies:3}>=>{
   const rows:Array<{owner:"film-fade"|"film-dissolve";width:number;height:number;copies:3}>=[];

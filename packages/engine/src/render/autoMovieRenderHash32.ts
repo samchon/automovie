@@ -7,9 +7,6 @@ import { utf8Bytes } from "./utf8Bytes";
  * digest above because a palette slot needs a fast, well-distributed integer
  * and not a cryptographic guarantee; the mask's collision handling, not the
  * hash, is what makes the palette exact.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Derives repeatable palette candidates from semantic identities without assigning meaning by traversal order.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the stable identity-mask channel seed used with explicit collision resolution.
  */
 export const autoMovieRenderHash32 = (text: string): number => {
   let hash = 0x811c9dc5;

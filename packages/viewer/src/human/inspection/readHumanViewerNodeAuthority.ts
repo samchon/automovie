@@ -15,8 +15,6 @@ import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js
  * @evidence contracts/common.md#clear-and-simple-design One readiness receipt separates Node loading from browser transformations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Rehashes original host-witnessed files and reads the actual installed loader version rather than borrowing a browser compile stamp or accepting altered startup bytes.
  * @evidence contracts/common.md#meaningful-documentation States actual loader authority and source-change refusal.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Refuses a checked numerical realm whose witnessed startup files changed and reports its actual Node, project and installed loader authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The loaded realm compares original host byte hashes before readiness; it cannot borrow a browser-generation stamp as numerical provenance.
  */
 export function readHumanViewerNodeAuthority(
   input: IHumanViewerNodeWorkerData,

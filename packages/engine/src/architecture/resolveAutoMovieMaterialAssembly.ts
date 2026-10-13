@@ -20,11 +20,6 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  *
  * An invalid build-up is refused here rather than resolved into numbers that
  * look usable, the same way a built environment refuses to lower.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `resolveAutoMovieMaterialAssembly` places a validated build-up on the host's own signed measuring line. This ensures each host region retains its ordered construction build-up and total thickness.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `resolveAutoMovieMaterialAssembly` performs auto movie material assembly resolution when the engine resolves ordered construction layers into their host face regions.
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-layers `resolveAutoMovieMaterialAssembly` resolves the ordered physical substance, cavity, thickness, construction role, and render-material identity of every declared envelope layer.
- * @evidence specifications/narrative-and-intent/scale-palette-material-and-state.md#narrative-intent-material-layer-representation `resolveAutoMovieMaterialAssembly` keeps physical layer role and thickness separate from render material identity without claiming pattern or texture-map ownership.
  */
 export const resolveAutoMovieMaterialAssembly = (props: {
   assembly: IAutoMovieMaterialAssembly;

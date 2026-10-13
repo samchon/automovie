@@ -21,9 +21,6 @@ import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
  * to wrap from behind one that stops there cannot turn the corner, which is why
  * validation refuses it; measuring the runs rather than the flags means it also
  * cannot narrow an opening here if one ever reaches this function unvalidated.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-hidden-layers-cut-faces `autoMovieAssemblyOpeningReveal` reports what a build-up finishes an opening at. This ensures opening and section cuts expose the actual hidden build-up.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `autoMovieAssemblyOpeningReveal` resolves which material layer and depth finish each side of an assembly opening.
  */
 export const autoMovieAssemblyOpeningReveal = (props: {
   resolved: IAutoMovieResolvedAssembly;

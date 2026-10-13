@@ -1,13 +1,7 @@
 import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
 import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile";
 
-/**
- * Resolve one output role to the exact PNG profile its writer must emit.
- *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-alpha-channels Keeps channel population and alpha relation explicit for every delivered PNG role.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Implements the versioned planned picture profile compared with decoded bytes.
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-dimensions-window Declares stored dimensions, pixel aspect and orientation for each PNG role so a reader never has to guess a window.
- */
+/** Resolve one output role to the exact PNG profile its writer must emit. */
 export const resolveProductionPngProfile = (props: {
   role: AutoMovieProductionPngRole;
   width?: number;

@@ -24,8 +24,6 @@ import { plantingBudget } from "./plantingBudget";
  * clamped plant is a plant whose author was told nothing and whose frames
  * changed anyway.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Refuses a planting recipe whose structure or work exceeds the bounded tier.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Validates the procedural structure before interior planting derivation.
  * @author Samchon
  */
 export const validatePlantingDomain = (props: {

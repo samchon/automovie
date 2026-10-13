@@ -34,9 +34,6 @@ const PLACEMENT_EPSILON = 1e-9;
  * Lookups take the first record of a given id, exactly as
  * {@link propAnchorFrame} does and for the same reason: contradicting ids are
  * {@link validatePropPlacements}'s own refusal, by name.
- *
- * @evidence requirements/interior/furniture-fixtures-and-equipment.md#interior-object-anchor-support propSupportFace resolves an authored support relation to one measurable bearing face and refuses absent support geometry with null.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-furniture-fixture-equipment-placement propSupportFace realizes furnishing placement clearance: The face one `on-support` relation resolves to, or `null` when the record states none. Nothing is guessed. A citation that does not resolve, a contact of a kind that carries no face at all (`handle`, `socket`, `hook`), a `stack-top` missing its extent, a patch whose polygon encloses no area, and a top staged edge-on to the ground each answer `null`, because a face nobody can measure is not a face a prop can be proven off. The vertical top is the interesting one of those: its height over the ground plan is not a function, so there is no rule to read it by, and inventing one would refuse or excuse a prop for a number the author never wrote. Lookups take the first record of a given id, exactly as {@link propAnchorFrame} does and for the same reason: contradicting ids are {@link validatePropPlacements}'s own refusal, by name.
  */
 export const propSupportFace = (props: {
   /** The `on-support` relation's target: a patch, or another prop's contact. */

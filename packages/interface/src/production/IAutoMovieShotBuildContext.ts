@@ -9,34 +9,16 @@ import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 import { IAutoMovieSourceOracle } from "./IAutoMovieSourceOracle";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
-/**
- * Frozen input available to a coding-agent-owned shot source builder.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `IAutoMovieShotBuildContext` as the portable data boundary for the agent source result link requirement.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `IAutoMovieShotBuildContext` for the spec authoring source derivation state system contract.
- */
+/** Frozen input available to a coding-agent-owned shot source builder. */
 export interface IAutoMovieShotBuildContext {
-  /**
-   * Current shot contract.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `contract` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `contract` for the spec authoring source derivation state system contract.
-   */
+  /** Current shot contract. */
   contract: IAutoMovieShotContract;
 
-  /**
-   * Current model recipes keyed by id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `models` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `models` for the spec authoring source derivation state system contract.
-   */
+  /** Current model recipes keyed by id. */
   models: Readonly<Record<string, IAutoMovieModelRecipe>>;
 
   /**
    * Current verified deterministic artifacts keyed by canonical output path.
-   *
-   * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Publishes only artifacts whose live basis and output passed the pre-execution gate.
-   * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Carries verified text or base64 bytes through the JSON source boundary.
    */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
 
@@ -48,57 +30,24 @@ export interface IAutoMovieShotBuildContext {
    * through {@link IAutoMovieProductionShotProgram.lightMotions}. Absent when
    * the production declares no lighting, which is exactly the context a source
    * saw before the field existed.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `lighting` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `lighting` for the spec authoring source derivation state system contract.
    */
   lighting?: IAutoMovieProductionLighting;
 
-  /**
-   * Current world design.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `world` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `world` for the spec authoring source derivation state system contract.
-   */
+  /** Current world design. */
   world: IAutoMovieWorldDesign;
 
-  /**
-   * Current formations keyed by id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formations` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formations` for the spec authoring source derivation state system contract.
-   */
+  /** Current formations keyed by id. */
   formations: Readonly<Record<string, IAutoMovieFormationDesign>>;
 
-  /**
-   * Compiler-generated primitive runtime models keyed by recipe id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `runtimeModels` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `runtimeModels` for the spec authoring source derivation state system contract.
-   */
+  /** Compiler-generated primitive runtime models keyed by recipe id. */
   runtimeModels: Readonly<Record<string, IAutoMovieModel>>;
 
-  /**
-   * Compact builder-derived formation runtimes keyed by formation id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formationRuntime` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationRuntime` for the spec authoring source derivation state system contract.
-   */
+  /** Compact builder-derived formation runtimes keyed by formation id. */
   formationRuntime: Readonly<Record<string, IAutoMovieCompiledFormation>>;
 
-  /**
-   * Compact builder-derived general instance runtimes keyed by set id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `instanceSetRuntime` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `instanceSetRuntime` for the spec authoring source derivation state system contract.
-   */
+  /** Compact builder-derived general instance runtimes keyed by set id. */
   instanceSetRuntime: Readonly<Record<string, IAutoMovieCompiledInstanceSet>>;
 
-  /**
-   * Deterministic geometry helpers.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `engine` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `engine` for the spec authoring source derivation state system contract.
-   */
+  /** Deterministic geometry helpers. */
   engine: IAutoMovieSourceOracle;
 }

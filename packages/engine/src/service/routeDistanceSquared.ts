@@ -6,9 +6,6 @@ import { IAutoMovieServiceSegment } from "@automovie/interface";
  * Squared because every caller compares it against a squared radius, and taking
  * the root first would only add a rounding step to a comparison that does not
  * need one.
- *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `routeDistanceSquared` measures how closely a sleeve or other routed point lies to the service centre line without losing precision to a square root.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `routeDistanceSquared` returns the minimum clamped point-to-segment squared distance over every adjacent route-point pair.
  */
 export const routeDistanceSquared = (
   segment: IAutoMovieServiceSegment,

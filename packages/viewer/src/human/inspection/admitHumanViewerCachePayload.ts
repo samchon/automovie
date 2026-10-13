@@ -20,8 +20,6 @@ const CACHE_FIELDS = new Set([
  * @evidence contracts/common.md#clear-and-simple-design One validator owns cache payload admission; storage stays with the route.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The accepted field set is the numerical preview protocol; unexpected display or photograph members cause refusal instead of silent filtering.
  * @evidence contracts/common.md#meaningful-documentation States the accepted members and why others refuse.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Refuses any member outside the numerical projection instead of filtering it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One validator owns cache payload admission; storage stays with the route.
  */
 export function admitHumanViewerCachePayload(body: Buffer): void {
   const payload: unknown = JSON.parse(body.toString("utf8"));

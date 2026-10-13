@@ -14,8 +14,6 @@ import { verifyAutoMovieSemanticMask } from "./verifyAutoMovieSemanticMask";
  * colours off today's pixels. The bytes are the same convention the caption and
  * pose-keypoint sidecars use, so a host writes all three the same way.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Serializes the palette that makes each rendered mask colour resolvable to its semantic entity.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Produces the deterministic sidecar paired with the identity-mask frames.
  * @author Samchon
  */
 export const renderAutoMovieSemanticMaskSidecar = (

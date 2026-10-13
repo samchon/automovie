@@ -43,10 +43,6 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * successful return transfers them to the caller. Texture wrappers stay with
  * the resolver's owner. A nested producer retires its own failed allocation.
  *
- * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Keeps this model surface in the compiled transform hierarchy.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes the same hierarchy for render visibility and culling.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Keeps compiled model identity distinct from viewer-owned runtime objects.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the runtime ownership side of isolated scene lowering.
  * @author Samchon
  */
 export const buildModel = (

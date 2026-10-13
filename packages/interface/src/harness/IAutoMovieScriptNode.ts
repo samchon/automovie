@@ -18,8 +18,6 @@ import { IAutoMovieScriptSceneNode } from "./IAutoMovieScriptSceneNode";
  * chain, so a correction can target the beat, the scene, or the intent; the
  * screenplay is upstream truth, not a side document.
  *
- * @evidence requirements/story/dialogue-language-and-silence.md#story-dialogue-timing-intent Exposes `IAutoMovieScriptNode` as the portable data boundary for the story dialogue timing intent requirement.
- * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-utterance-timing-action Types `IAutoMovieScriptNode` for the narrative intent utterance timing action system contract.
  * @author Samchon
  */
 export type IAutoMovieScriptNode =

@@ -23,8 +23,6 @@ const STATUS_ORDER: Readonly<
  * tier; hand them a different budget and `budgeted` describes the declaration
  * while every finding describes something else.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `autoMovieRenderBudgetEvidence` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `autoMovieRenderBudgetEvidence` exposes that responsibility through the package-independent system contract.
  * @author Samchon
  */
 export const autoMovieRenderBudgetEvidence = (props: {

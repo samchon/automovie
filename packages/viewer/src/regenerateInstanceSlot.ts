@@ -23,16 +23,6 @@ import type {
  * set exists, and a host building a shot, such as a generated project's viewer
  * runtime, fails its build with the engine's message instead of drawing the
  * set.
- *
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Regenerates the engine-owned stable slot, prototype and variation data used by the compact display representation.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Uses the compiled compact member law without a viewer-specific copy of layout or visibility arithmetic.
- * @evidence requirements/formations/layouts-and-slots.md#formation-layout-selection-parameters Regenerates the selected grid, scatter, lattice, explicit, or route layout from its declared parameters.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Implements deterministic slot generation and assignment for that layout.
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-deterministic-population Regenerates prototype, palette, scale, traits, and visibility from stable seed and slot identity.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hero-variation-group-state Implements deterministic population and variation state.
- * @evidence requirements/formations/scope-and-identity.md#formation-group-member-identity Preserves the compiled set and stable slot identity on each regenerated member.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Implements compact member identity independently of array presentation.
- * @evidence requirements/formations/terrain-and-routes.md#formation-group-path Places along-route slots on the declared compiled path.
  */
 export const regenerateInstanceSlot = (
   instanceSet: IAutoMovieCompiledInstanceSet,

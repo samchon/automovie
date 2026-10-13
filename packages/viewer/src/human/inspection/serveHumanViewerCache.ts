@@ -24,8 +24,6 @@ const gzipAsync = promisify(gzip);
  * @evidence contracts/common.md#clear-and-simple-design One route owns cache transfer; payload admission is its own validator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Current catalogue keys and generation tokens decide cache authority; stored numerical payloads are admitted without photograph fields, subject-specific exceptions or silently accepted stale results.
  * @evidence contracts/common.md#meaningful-documentation States the 204, 400, 404, 405 and 409 answers and the write path.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Cache authority is the current catalogue key; writes are atomic and admitted.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One route owns cache transfer; payload admission is its own validator.
  */
 export function serveHumanViewerCache(
   props: IServeHumanViewerDataProps,

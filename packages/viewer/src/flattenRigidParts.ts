@@ -8,9 +8,6 @@ import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.
  * Reject skin, morph and multi-material sources before merging; normalize
  * mixed colour and relief presence on the owned clones while retaining the
  * original material objects. No source buffers or materials are mutated.
- *
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Constructs the rigid geometry accepted for one instanced prototype representation.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Shares one part-order and attribute-normalization owner between generated and adopted prototypes.
  */
 
 export const flattenRigidParts = (

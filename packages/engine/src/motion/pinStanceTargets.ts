@@ -11,8 +11,6 @@ import { contactMask } from "./contactMask";
  * stance runs, and pin each run to its start contact. Returns the plants plus
  * the per-frame solve targets the re-key stage consumes.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Groups touching samples into explicit planted intervals and releases.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Converts stance runs into stable support targets on the declared ground.
  * @author Samchon
  */
 export const pinStanceTargets = (props: {

@@ -29,10 +29,8 @@ import { publishViewerCompletedFrame } from "../../publishViewerCompletedFrame.j
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
 
-/** Assemble the body renderer, resident worker and metre-scale display scene.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow, companion face and named inspection-light controls around the committed posed body.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps camera, companion and normalized inspection-light direction in renderer state, preserving each light's distance and restoring studio defaults without changing numerical body documents.
+/**
+ * Assemble the body renderer, resident worker and metre-scale display scene.
  */
 export function createConnectedBodyViewport<
   Document extends

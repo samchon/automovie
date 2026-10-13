@@ -1,26 +1,11 @@
 import { IAutoMovieTreatmentBeat } from "./IAutoMovieTreatmentBeat";
 
-/**
- * One ordered treatment sequence and its causal beat promises.
- *
- * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `IAutoMovieTreatmentSequence` as the portable data boundary for the story treatment coverage requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `IAutoMovieTreatmentSequence` for the narrative intent sequence refinement system contract.
- */
+/** One ordered treatment sequence and its causal beat promises. */
 export interface IAutoMovieTreatmentSequence {
-  /**
-   * Stable sequence id.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `id` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `id` for the narrative intent sequence refinement system contract.
-   */
+  /** Stable sequence id. */
   id: string;
 
-  /**
-   * Human-readable sequence title.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `title` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `title` for the narrative intent sequence refinement system contract.
-   */
+  /** Human-readable sequence title. */
   title: string;
 
   /**
@@ -32,17 +17,9 @@ export interface IAutoMovieTreatmentSequence {
    * needs a per-unit address because a folder is only a population of units if
    * each unit is its own file, and the beats of a later sequence are not in the
    * first sequence's file.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `path` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `path` for the narrative intent sequence refinement system contract.
    */
   path?: string;
 
-  /**
-   * Ordered beats the screenplay must cover.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `beats` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `beats` for the narrative intent sequence refinement system contract.
-   */
+  /** Ordered beats the screenplay must cover. */
   beats: IAutoMovieTreatmentBeat[];
 }

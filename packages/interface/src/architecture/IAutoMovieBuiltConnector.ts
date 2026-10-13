@@ -17,17 +17,9 @@ import { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
  * which further spaces it stops at, and where its car stands — so that later
  * work has something exact to read instead of re-deriving it from whatever
  * happened to be modelled.
- *
- * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `IAutoMovieBuiltConnector` as the portable data boundary for the building external multi building connection requirement.
- * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `IAutoMovieBuiltConnector` for the building envelope multibuilding connector failures system contract.
  */
 export interface IAutoMovieBuiltConnector {
-  /**
-   * Stable connector identity.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `id` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `id` for the building envelope multibuilding connector failures system contract.
-   */
+  /** Stable connector identity. */
   id: string;
 
   /**
@@ -38,9 +30,6 @@ export interface IAutoMovieBuiltConnector {
    * state a stair does not have, and {@link operation} is where it states them.
    * Anything the set does not cover is `other` plus the visible elements, never
    * a mislabelled neighbour.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `kind` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `kind` for the building envelope multibuilding connector failures system contract.
    */
   kind:
     | "passage"
@@ -53,20 +42,10 @@ export interface IAutoMovieBuiltConnector {
     | "bridge"
     | "other";
 
-  /**
-   * Logical space at the start of the route.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `from` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `from` for the building envelope multibuilding connector failures system contract.
-   */
+  /** Logical space at the start of the route. */
   from: string;
 
-  /**
-   * Logical space at the end of the route.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `to` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `to` for the building envelope multibuilding connector failures system contract.
-   */
+  /** Logical space at the end of the route. */
   to: string;
 
   /**
@@ -75,9 +54,6 @@ export interface IAutoMovieBuiltConnector {
    * It also orders what the run reaches: a one-way run carries somebody only to
    * the stops ahead of where they boarded, and it may not declare a state
    * driven against its own direction.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `bidirectional` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `bidirectional` for the building envelope multibuilding connector failures system contract.
    */
   bidirectional: boolean;
 
@@ -94,18 +70,10 @@ export interface IAutoMovieBuiltConnector {
    * been. Landings are ordered by strictly increasing
    * {@link IAutoMovieConnectorLanding.at}, and neither endpoint is restated as
    * one, because a stop stated twice is two stops that can disagree.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `landings` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `landings` for the building envelope multibuilding connector failures system contract.
    */
   landings?: IAutoMovieConnectorLanding[];
 
-  /**
-   * World-space center route, including both endpoints.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `route` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `route` for the building envelope multibuilding connector failures system contract.
-   */
+  /** World-space center route, including both endpoints. */
   route: IAutoMovieVector3[];
 
   /**
@@ -117,9 +85,6 @@ export interface IAutoMovieBuiltConnector {
    * turn between them, and a position sequence cannot tell them apart. The
    * facing is a full quaternion rather than a heading because a tread is also
    * pitched and a helical ramp is also banked.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `orientations` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `orientations` for the building envelope multibuilding connector failures system contract.
    */
   orientations?: IAutoMovieQuaternion[];
 
@@ -130,18 +95,10 @@ export interface IAutoMovieBuiltConnector {
    * varying {@link sections}, never both and never neither. This mirrors how
    * {@link IAutoMovieSurface} refuses a height rule stated twice: two spellings
    * of one fact are two facts that can disagree.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `width` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `width` for the building envelope multibuilding connector failures system contract.
    */
   width?: number;
 
-  /**
-   * Constant vertical clearance in metres; see {@link width} for the rule.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `clearHeight` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `clearHeight` for the building envelope multibuilding connector failures system contract.
-   */
+  /** Constant vertical clearance in metres; see {@link width} for the rule. */
   clearHeight?: number;
 
   /**
@@ -150,9 +107,6 @@ export interface IAutoMovieBuiltConnector {
    * At least two entries ordered by strictly increasing
    * {@link IAutoMovieConnectorSection.at}, the first at `0` and the last at `1`,
    * so every point of the route has a section on both sides of it.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `sections` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `sections` for the building envelope multibuilding connector failures system contract.
    */
   sections?: IAutoMovieConnectorSection[];
 
@@ -166,18 +120,10 @@ export interface IAutoMovieBuiltConnector {
    * The route already implies it, so stating it is a claim the engine checks
    * rather than a second source of truth: a declared slope that disagrees with
    * the route is refused instead of quietly winning.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `slope` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `slope` for the building envelope multibuilding connector failures system contract.
    */
   slope?: number;
 
-  /**
-   * The repeated step of a stepped run, or nothing for a smooth one.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `steps` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `steps` for the building envelope multibuilding connector failures system contract.
-   */
+  /** The repeated step of a stepped run, or nothing for a smooth one. */
   steps?: IAutoMovieConnectorSteps;
 
   /**
@@ -188,17 +134,9 @@ export interface IAutoMovieBuiltConnector {
    * walk, or turning gate is not. Omitting the field keeps the static record a
    * stair, ramp, bridge, or ladder has always been, so an environment written
    * before this field lowers and validates byte-for-byte as it did.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `operation` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `operation` for the building envelope multibuilding connector failures system contract.
    */
   operation?: IAutoMovieConnectorOperation;
 
-  /**
-   * Visible elements realizing the connector, such as steps or a lift car.
-   *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection Exposes `elements` as the portable data boundary for the building external multi building connection requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures Types `elements` for the building envelope multibuilding connector failures system contract.
-   */
+  /** Visible elements realizing the connector, such as steps or a lift car. */
   elements: string[];
 }

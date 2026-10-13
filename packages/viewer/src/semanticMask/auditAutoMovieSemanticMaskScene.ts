@@ -25,8 +25,6 @@ import { unresolvedOf } from "./unresolvedOf.js";
  * coverage once at build time and reports it beside every frame, instead of
  * opening a pass boundary it would then have to close.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Makes this public surface part of the stable identity-mask channel.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that channel as a structural render product.
  * @author Samchon
  */
 export const auditAutoMovieSemanticMaskScene = (props: {

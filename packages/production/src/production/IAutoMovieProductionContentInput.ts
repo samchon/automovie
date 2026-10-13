@@ -7,8 +7,6 @@
  * and line endings; adopted asset and renderer bytes retain their exact byte
  * identity. A missing optional input remains distinct from an empty file.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Carries the exact bytes and declared roles from which compile input identity and later freshness checks are derived.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Represents an observed project-relative source or adopted-content input without introducing a machine location into its identity.
  * @author Samchon
  */
 export interface IAutoMovieProductionContentInput {

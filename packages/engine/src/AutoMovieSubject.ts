@@ -21,25 +21,12 @@ import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
  * answers. Reimplementing that arithmetic here would produce a second answer
  * that can disagree with the first, which is the failure mode the whole
  * one-owner rule exists to prevent.
- *
- * @evidence requirements/product/capability-and-content.md#product-project-owned-content Gives a project-authored performer, prop, place, or population one identity, portable design record, and shot contribution contract.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Separates the source class used for authoring from the plain design and contribution outputs consumed by compilation.
  */
 export abstract class AutoMovieSubject<TDesign> {
-  /**
-   * Stable identity this subject is cited by.
-   *
-   * @evidence requirements/product/capability-and-content.md#product-project-owned-content Requires every project-authored subject to expose the stable identity by which story, design, and shot records cite it.
-   * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Takes subject identity from the authoring source instead of deriving it from class names or construction order.
-   */
+  /** Stable identity this subject is cited by. */
   public abstract readonly id: string;
 
-  /**
-   * The tracked record the builder reads, derived rather than transcribed.
-   *
-   * @evidence requirements/product/capability-and-content.md#product-project-owned-content Converts the project's subject construction into the plain tracked record that preserves its authored choices.
-   * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Defines the portable design output that crosses from authoring classes into validation and compilation.
-   */
+  /** The tracked record the builder reads, derived rather than transcribed. */
   public abstract design(): TDesign;
 
   /**
@@ -48,9 +35,6 @@ export abstract class AutoMovieSubject<TDesign> {
    * The context carries the builder-owned runtime facts a source cannot infer,
    * so a subject reads its model, skeleton, or formation runtime from there
    * rather than restating them.
-   *
-   * @evidence requirements/product/capability-and-content.md#product-project-owned-content Returns only the project-owned artifacts this subject adds to a shot, using builder context for runtime facts it cannot author.
-   * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Defines the explicit contribution output through which source-authored content enters shot assembly.
    */
   public abstract render(
     context: IAutoMovieShotBuildContext,

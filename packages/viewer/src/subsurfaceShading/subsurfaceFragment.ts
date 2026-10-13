@@ -4,9 +4,6 @@ import { subsurfacePhysicalChunk } from "./subsurfacePhysicalChunk.js";
 /**
  * Expand the physical fragment with the declared subsurface diffuse response.
  * The supplied shader keeps its other lighting chunks and flat-surface branch.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Integrates the material lookup while retaining the physical shader's other response terms.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Applies the curvature-based diffuse lookup to the actual physical fragment shader.
  */
 export const subsurfaceFragment = (fragmentShader: string): string => {
   const pars = THREE.ShaderChunk.lights_physical_pars_fragment;

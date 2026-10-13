@@ -14,9 +14,6 @@ import { isLightProperty } from "./isLightProperty";
  * RFC-6901 escaping applies to the id segment (`~1` is `/`, `~0` is `~`, in
  * that order). A pointer that is not the canonical encoding of what it decodes
  * to is rejected, which also rejects an invalid escape such as `~2`.
- *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Parses one canonical authored-light property address.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Rejects a pointer that cannot select a declared light-property branch.
  */
 export const parseLightPointer = (
   pointer: unknown,

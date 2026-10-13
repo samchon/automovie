@@ -17,9 +17,6 @@ import { validateStageUnitColorComponent } from "./validateStageUnitColorCompone
  * without the transport's structural gate,
  * and a `null` fog must become a located violation rather than a `TypeError`
  * two rungs later.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope Reports malformed extinction and color at their submitted fog fields without substituting an atmosphere.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope Reports malformed extinction and color at their submitted fog fields without substituting an atmosphere.
  */
 export const validateFogPlacement = (
   fog: unknown,

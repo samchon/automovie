@@ -7,9 +7,6 @@ import * as THREE from "three";
  * at every orbit angle. Optical zoom, orbit limits and clipping planes follow
  * that same fit, including hair extending behind the cranial surface.
  * A collapsed viewport retains a finite projection until it becomes visible.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Provides anatomical front, side and oblique camera positions and fits the current face without editing it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Separates orbit distance and viewport projection from the replay document and its expression.
  */
 export function createHumanPreviewCamera(props: {
   camera: THREE.PerspectiveCamera;

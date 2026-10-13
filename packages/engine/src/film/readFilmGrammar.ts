@@ -30,9 +30,6 @@ const EPSILON = 1e-6;
  * and action-axis endpoints are normalized by id, so collection order and
  * random generation order cannot alter the result. The analyzer has no seed,
  * clock, scene mutation, or renderer dependency.
- *
- * @evidence requirements/editorial/continuity-and-film-grammar.md#editorial-spatial-grammar readFilmGrammar matches declared style exceptions to their exact diagnoses while leaving unmatched findings visible.
- * @evidence specifications/editorial-render-and-delivery/editorial-audiovisual-continuity.md#spec-editorial-continuity-grammar readFilmGrammar realizes deterministic continuity-grammar analysis: Read an ordered edit, and report which declared exceptions it exercised. Shot order is editorial meaning and remains untouched. Subject collections and action-axis endpoints are normalized by id, so collection order and random generation order cannot alter the result. The analyzer has no seed, clock, scene mutation, or renderer dependency.
  */
 export const readFilmGrammar = (
   props: IAutoMovieGrammarInput,

@@ -14,8 +14,6 @@ import { createConnectedBodyViewport } from "@automovie/viewer/human/body/create
  * document other than the body basis document, and `worker` for a page whose
  * numerical worker is not the body editor's.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Assembles the canvas, orbit, numerical body worker and textures the editor's whole-figure view runs on.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Wires the persistent body worker that compiles the basis once and evaluates each document for the viewport.
  * @author Samchon
  */
 export function createConnectedBodyPageViewport<

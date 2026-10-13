@@ -4,9 +4,6 @@ import { compactReferenceHeading } from "./compactReferenceHeading";
 
 /**
  * Project a snapshot into compact file navigation without per-comment arrays.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-selection Exposes actual heading order and original title without inventing missing units.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-selection Selects H2/H3/H4 index entries while retaining the optional H1 title.
  */
 export function indexReference(
   parsed: ParsedReference,

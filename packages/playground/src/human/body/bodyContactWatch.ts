@@ -18,9 +18,6 @@ import { createAutoMovieResourceRetirement } from "@automovie/viewer";
  * slices and evaluates a request that arrives between them first, abandoning
  * the superseded reading (`createConnectedBodyRuntime`), so the next preview
  * waits at most one slice behind it rather than the whole reading.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reports skin passing through skin after the committed body remains current through the editing pause instead of only when the author asks.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reads the committed document's contact after a pause and discards the reading when a newer intent supersedes it.
  */
 export function createBodyContactWatch<
   Model extends { crossings?: IAutoMovieModelCrossing[] | null },

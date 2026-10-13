@@ -32,8 +32,6 @@ const SRGB_HEX_SWATCH = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
  * Alpha is `1`: a six-digit swatch is opaque by definition, and a slot where
  * opacity is irrelevant states that by overwriting `a` with `null`.
  *
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-working-color-space Keeps encoded display RGB from being computed as scene-linear energy by giving the repository the decode that separates them.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-effective-ownership Implements the input-encoding stage of the ordered color pipeline, recording an authored swatch's transform into the scene-linear working space.
  * @author Samchon
  */
 export const srgbHexToLinearColor = (hex: string): IAutoMovieColor => {

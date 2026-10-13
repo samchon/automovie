@@ -5,8 +5,6 @@ import type { IHumanPreviewWorker } from "./IHumanPreviewWorker.js";
  * Document admission, worker allocation and renderer decoding supplied to the
  * disposable preview's generation owner.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supplies decoding and release of superseded numerical candidates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates numerical transport and renderer ownership through explicit effects.
  * @author Samchon
  */
 export interface IHumanPreviewBuilderProps<Model, Document> {

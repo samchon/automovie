@@ -29,9 +29,6 @@ import { retainAutoMovieProductionSourceStatus } from "./retainAutoMovieProducti
  * A host with its own loader supplies the same complete observations through
  * the named runtime port; it must include every generated entry and every
  * loaded module. The port changes neither snapshot comparison nor refusal.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-narrowest-valid-check Gives every capture, receipt and publication check of one project a gate status that executes authored source only when its inputs moved.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Serves a gate answer as current only while a freshly read snapshot equals the one it referenced.
  */
 export const createAutoMovieProductionSourceStatus = (props: {
   /** Project handle every snapshot and gate run reads. */

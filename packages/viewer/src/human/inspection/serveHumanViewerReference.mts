@@ -22,8 +22,6 @@ import { resolveHumanViewerReference } from "./resolveHumanViewerReference.js";
  * @evidence contracts/common.md#clear-and-simple-design One route adapter shares reference resolution across metadata, document badges and image streaming.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Streams original local photographs without fitting anatomical parameters, copying them into numerical persistence or synthesizing missing references.
  * @evidence contracts/common.md#meaningful-documentation Defines the three endpoints, face/body lookup conventions, no-store image response and absent-reference behavior.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-provenance Read-only existing reference resources and optional camera metadata remain display inputs and never numerical basis or cache authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance One route adapter shares reference resolution across metadata, document badges and image streaming.
  */
 export function serveHumanViewerReference(
   props: IServeHumanViewerReferenceProps,

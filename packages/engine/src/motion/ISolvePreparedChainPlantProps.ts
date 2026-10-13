@@ -12,8 +12,6 @@ import type { IPreparedChainPlant } from "./IPreparedChainPlant";
  * Coordinates retain the resolved model metre frame; optional clinical axes
  * and rest frames are the same ones final FK and ROM evaluation consume.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Preserves the measured chain and caller target used by the two-link contact solve.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Carries the exact bend choice and semantic frames whose candidate is checked by contact readback.
  * @author Samchon
  */
 export interface ISolvePreparedChainPlantProps {

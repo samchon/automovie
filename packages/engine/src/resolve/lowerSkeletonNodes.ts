@@ -25,8 +25,6 @@ const IDENTITY = {
  * `rootParent` seats the synthetic root under an existing node (a scene
  * placement group); `null` (the default) keeps it a graph root.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rest-bind-deformation Preserves every bone's declared rest transform while lowering the rig into executable nodes.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Implements the rest-basis hierarchy used by deformation resolution.
  * @author Samchon
  */
 export const lowerSkeletonNodes = (props: {

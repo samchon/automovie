@@ -18,8 +18,6 @@ import { resolveImpact } from "./resolveImpact";
  * {@link detectBodyCollision}) attaches to a contact warning; it wires together
  * resolveImpact and impactRecoil, whose consumer was previously missing.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Resolves contact into impulse, reaction cue, and optional bounded flinch.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Connects the world-contact output to the reaction consumer.
  * @author Samchon
  */
 export const suggestCollisionResponse = (props: {

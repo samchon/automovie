@@ -15,57 +15,26 @@ import type { HumanViewerAddress } from "./HumanViewerAddress.js";
  * @evidence contracts/common.md#clear-and-simple-design Part names, admission, address and source revision coexist as separate readings from one displayed construction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Visible mesh names cannot overwrite a refused owner admission or imply physical construction acceptance.
  *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Preserves the original construction admission and generated mesh names as separate readings.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Visible mesh names cannot overwrite a refused owner admission or imply physical construction acceptance.
- *
  * @author Samchon
  */
 export interface IHumanViewerConstructionPartsResponse {
-  /**
-   * Actual displayed generation read with these construction observations.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Labels the actual displayed source generation under which the construction readings were obtained.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Labels the actual displayed source generation under which the construction readings were obtained.
-   */
+  /** Actual displayed generation read with these construction observations. */
   revision: string;
 
-  /**
-   * Actual completed display selection, including document and camera.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Preserves the completed document and camera selection associated with the same construction observations.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Preserves the completed document and camera selection associated with the same construction observations.
-   */
+  /** Actual completed display selection, including document and camera. */
   address: HumanViewerAddress;
 
-  /**
-   * Actual product owner's construction checks, including every refusal.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Retains the product owner's complete physical construction verdict without deriving acceptance from visible mesh names.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Retains the product owner's complete physical construction verdict without deriving acceptance from visible mesh names.
-   */
+  /** Actual product owner's construction checks, including every refusal. */
   admission: IAutoMovieHumanConstructionAdmission;
 
-  /**
-   * Exact names exposed by the constructed viewport's observation hook.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Reports actual generated mesh names independently of whether the construction admission passed.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Reports actual generated mesh names independently of whether the construction admission passed.
-   */
+  /** Exact names exposed by the constructed viewport's observation hook. */
   parts: string[];
 
-  /**
-   * Rest/posed placement readings from the displayed construction.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Forwards optional rest/posed placement readings from this displayed construction rather than recomputing them in Viewer.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Forwards optional rest/posed placement readings from this displayed construction rather than recomputing them in Viewer.
-   */
+  /** Rest/posed placement readings from the displayed construction. */
   rigReading?: IConnectedBodyRigReading;
 
   /**
    * Optional independent UV/offset/host readings from the actual construction owner.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Forwards optional UV/offset/host mapping observations from the construction owner without viewer fitting.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Forwards optional UV/offset/host mapping observations from the construction owner without viewer fitting.
    */
   periocularMappings?: IAutoMovieHumanFacePeriocularMappingReport[];
 }

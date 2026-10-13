@@ -29,9 +29,6 @@ type TriangleTree = {
  * Inputs must already share a frame; callers own transforms and contact pairs.
  * An optional visitor receives every overlap vertex, including already-clear
  * witnesses. A later coupled displacement must preserve those inequalities too.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Measures resident triangle separation for subsequent rigid placement or shared-surface contact without subject-specific geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains front triangle ordinals while evaluating their complete projected overlap with the supporting mesh.
  */
 export function measureAutoMovieMeshClearance(
   front: IAutoMovieMesh,

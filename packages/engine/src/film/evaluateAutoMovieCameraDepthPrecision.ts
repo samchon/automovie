@@ -16,9 +16,6 @@ const finiteOrNull = (value: number): number | null =>
  * with depth, so the cell ending at or containing `requiredFar` is the unique
  * worst cell the closed required range needs. Equality with the authored
  * maximum passes.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Measures the current required camera-space range against the authored near, far, minimum bit capability, and maximum adjacent step in metres.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Produces the addressed deterministic required-range depth precision report for a standard fixed-point perspective buffer.
  */
 export const evaluateAutoMovieCameraDepthPrecision = (props: {
   /** Stable scene camera identity. */

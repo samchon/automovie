@@ -15,11 +15,6 @@ const MAX_TAIL_SECONDS = 2;
  * declared transmission gain. Same-room input adds deterministic diffuse taps
  * at a fixed 20 ms interval, capped at 32 taps and two seconds, decaying to -60
  * dB at T60. This is a staging proxy, not a measured impulse response.
- *
- * @evidence requirements/sound/interior-acoustics.md#sound-bounded-room-response Applies a finite deterministic internal response tier.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#bounded-acoustic-response-and-provider-adoption Bounds tap count and tail duration.
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-claim-boundary Refuses unavailable responses instead of treating them as dry success.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#acoustic-mix-consumption-and-claim-boundary Limits the claim to a broadband proxy.
  */
 export const applyAutoMovieInteriorAcousticResponse = (props: {
   /** Input interleaved PCM. */

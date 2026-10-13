@@ -12,8 +12,6 @@ import type { IHumanViewerPersonParts } from "./IHumanViewerPersonParts.js";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the two fields the server depends on.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the two original nonempty basis names without inventing a missing side or replacing complete Person schema admission.
  * @evidence contracts/common.md#meaningful-documentation States what is read, what refuses and who admits the rest.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Reads only the identities the catalogue compares, leaving schema admission to its owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document One reader owns the two fields the server depends on.
  */
 export function readHumanViewerPersonBases(
   document: object,

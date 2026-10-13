@@ -2,9 +2,6 @@
  * Attempt independent pass-state restorations before reporting any failure.
  * A primary setup failure stays first, and nested restoration aggregates are
  * flattened so no failed owned resource disappears behind another error.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Attempts every independent pass-state reversal on successful and failed setup paths.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves the primary and all restoration failures without skipping later owners.
  */
 export function restoreAutoMovieRenderModeState(operations:readonly (()=>void)[],primary:{error:unknown}):never;
 export function restoreAutoMovieRenderModeState(operations:readonly (()=>void)[]):void;

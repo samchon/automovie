@@ -13,8 +13,6 @@ import type { AutoMovieModelArchetypeRegistry } from "./productionArchetypes";
  * Construction captures these choices once; the callback itself reads fresh
  * evidence whenever a guarded operation requests it.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps root, production selection and the compile's evidence dependencies explicit in one context input.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Supplies the host's resident root and exact source/evidence composition without making another authored state store.
  * @author Samchon
  */
 export interface IAutoMovieProductionContextOptions {

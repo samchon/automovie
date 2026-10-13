@@ -9,9 +9,6 @@ import { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
  * the record's other spelling names the two regions a separation stands
  * between. What is left over is the envelope, which is precisely the population
  * a facade, corner, and roof review is counted over.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Names each exposed envelope face a building owes an observation for.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types the world-placed envelope face the observation population is derived from.
  */
 export interface IAutoMovieBuiltEnvelopeFace {
   /** Boundary whose face this is. */

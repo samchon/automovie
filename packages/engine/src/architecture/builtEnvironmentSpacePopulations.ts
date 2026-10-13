@@ -19,9 +19,6 @@ import {
  * judge them against, so deriving membership would answer "the room is empty" in
  * exactly the cases the room is most full.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group `builtEnvironmentSpacePopulations` answers which compact populations a space owns, which is the space membership this requirement holds apart from a member's logical groups.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality `builtEnvironmentSpacePopulations` exposes the compact source record needed to regenerate and inspect individual members without storing a member-sized answer.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality `builtEnvironmentSpacePopulations` keeps a compressed population selectable and inspectable through the space that owns it.
  * @author Samchon
  */
 export const builtEnvironmentSpacePopulations = (

@@ -10,9 +10,6 @@ import { weldMeshVertices } from "./weldMeshVertices";
  * can retain its partition. Callers must admit the initial mesh and keep its
  * connectivity fixed. Finite XYZ/cardinality are checked for both populations;
  * source mutation cannot change the captured classes.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Detects both splitting and merging of welded identities before reusing a topology verdict.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Reuses only an unchanged finite vertex equivalence partition, with one shared quantization owner.
  */
 export function createMeshWeldPartitionMatcher(positions: readonly number[]) {
   const finite = (values: readonly number[]): boolean => {

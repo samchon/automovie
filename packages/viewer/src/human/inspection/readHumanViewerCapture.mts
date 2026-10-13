@@ -22,8 +22,6 @@ import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
  * @evidence contracts/common.md#clear-and-simple-design One page evaluation owns display and capture ordering; queue serialization and revision selection remain with its caller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the existing product bridge without server-side geometry rebuilding, synthetic screenshots or a wait for a missing generation to appear.
  * @evidence contracts/common.md#meaningful-documentation States ready-bridge preconditions, source refusal and the difference between numerical build and display timing.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Checks the loaded bridge revision before showing and reads PNG, build count and timing from that same actual page operation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review One page evaluation owns display and capture ordering; queue serialization and revision selection remain with its caller.
  */
 export async function readHumanViewerCapture(
   page: Pick<Page, "evaluate">,

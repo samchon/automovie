@@ -19,42 +19,22 @@ import { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings
  * timestamps, no absolute paths, no locale-dependent ordering: two machines
  * that will draw the same frame produce byte-identical fingerprints.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderTarget` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderTarget` for the spec render artifact lifecycle system contract.
  * @author Samchon
  */
 export interface IAutoMovieRenderTarget {
-  /**
-   * Versioned fingerprint protocol.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `protocol` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `protocol` for the spec render artifact lifecycle system contract.
-   */
+  /** Versioned fingerprint protocol. */
   protocol: "automovie.render-target.v1" | "automovie.render-target.v2";
 
   /**
    * Host-decoded upload fact identity. Version two targets include this digest;
    * legacy version one targets omit it and cannot certify those host facts.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Binds the report to decoded representation facts beyond its source file bytes.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Keeps texture upload identity in the measured target rather than ambient host state.
    */
   textureDigest?: AutoMovieContentDigest;
 
-  /**
-   * Who draws the frame.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `renderer` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `renderer` for the spec render artifact lifecycle system contract.
-   */
+  /** Who draws the frame. */
   renderer: IAutoMovieRenderTargetRenderer;
 
-  /**
-   * Renderer configuration that changes what a frame costs.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `settings` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `settings` for the spec render artifact lifecycle system contract.
-   */
+  /** Renderer configuration that changes what a frame costs. */
   settings: IAutoMovieRenderTargetSettings;
 
   /**
@@ -62,17 +42,9 @@ export interface IAutoMovieRenderTarget {
    *
    * Ordering is by UTF-16 code unit, never by locale collation, so a Turkish or
    * Swedish host does not fingerprint a different frame than an English one.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `assets` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `assets` for the spec render artifact lifecycle system contract.
    */
   assets: IAutoMovieRenderTargetAsset[];
 
-  /**
-   * Digest over the protocol and every field above.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `digest` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `digest` for the spec render artifact lifecycle system contract.
-   */
+  /** Digest over the protocol and every field above. */
   digest: AutoMovieContentDigest;
 }

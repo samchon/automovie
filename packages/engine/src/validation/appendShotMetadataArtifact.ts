@@ -66,9 +66,6 @@ const CAMERA_MOVES = new Set([
  * `sceneCameras` is the scene's camera-id set when the caller has a scene to
  * cross-reference (the submitted-artifact path) and `null` when it does not
  * (the stored-slice path, which reads one file with no scene beside it).
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `appendShotMetadataArtifact` locates invalid events, camera intent, and coverage entries under their owning shot metadata fields.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `appendShotMetadataArtifact` retains event index, time, subject references, camera identity, and coverage interval observations without widening them to the whole artifact.
  */
 export const appendShotMetadataArtifact = (
   /**

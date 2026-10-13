@@ -11,9 +11,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * described by this as a wide, thin opening, which is exactly what its own
  * bounding extents say about it — and why a size taken this way is labelled as
  * the leaf's rather than the hole's everywhere it is reported.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Supplies a filling element's rounded width and height when the opening itself has no measurable profile for its schedule row.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Measures width as the larger horizontal model span and height as the vertical span of the transformed fill corners.
  */
 export const autoMovieOpeningFillExtent = (
   corners: readonly IAutoMovieVector3[],

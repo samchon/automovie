@@ -16,9 +16,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * square is what makes an unbounded cell detectable: a result that still
  * touches it was never bounded by the design, and the caller says so instead of
  * printing the square as a room.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Derives a logical cell's page polygon and explicitly reports when its authored half-spaces do not bound that section.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Projects each world half-space into the view plane, clips the finite seed polygon, and tests whether any seed boundary survived.
  */
 export const autoMovieDrawingCellSection = (
   frame: IAutoMovieDrawingFrame,

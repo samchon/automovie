@@ -10,9 +10,6 @@ import { productionRuntimeModelId } from "./productionRuntimeModelId";
  * defaults to the shipped `primitive-prop` builder and its `box` shape, because
  * that is what this helper's parameters describe; a production whose catalogue
  * spells the same static primitive differently passes its own id.
- *
- * @evidence requirements/product/capability-and-content.md#product-project-owned-content Converts the project's chosen identity, role, primitive dimensions, palette, and placement into one source-owned block record.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Validates every authored input and emits the recipe, node, and bounds needed by downstream compilation.
  */
 export const worldBlock = (input: {
   id: string;

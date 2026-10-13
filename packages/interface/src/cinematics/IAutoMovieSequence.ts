@@ -10,40 +10,18 @@ import { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  * reordering or retiming a shot is a local edit and never forces recomputing
  * downstream timestamps.
  *
- * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Exposes `IAutoMovieSequence` as the portable data boundary for the editorial transition handles requirement.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Types `IAutoMovieSequence` for the spec editorial transition overlap system contract.
  * @author Samchon
  */
 export interface IAutoMovieSequence {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Exposes `id` as the portable data boundary for the editorial transition handles requirement.
-   * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Types `id` for the spec editorial transition overlap system contract.
-   */
+  /** Stable id. */
   id: string;
 
-  /**
-   * Human / LLM readable name. Null if unnamed.
-   *
-   * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Exposes `name` as the portable data boundary for the editorial transition handles requirement.
-   * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Types `name` for the spec editorial transition overlap system contract.
-   */
+  /** Human / LLM readable name. Null if unnamed. */
   name: string | null;
 
-  /**
-   * Shots in playback order.
-   *
-   * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Exposes `shots` as the portable data boundary for the editorial transition handles requirement.
-   * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Types `shots` for the spec editorial transition overlap system contract.
-   */
+  /** Shots in playback order. */
   shots: IAutoMovieSequenceEntry[];
 
-  /**
-   * Nominal playback frame rate; a render spec may override it.
-   *
-   * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Exposes `fps` as the portable data boundary for the editorial transition handles requirement.
-   * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Types `fps` for the spec editorial transition overlap system contract.
-   */
+  /** Nominal playback frame rate; a render spec may override it. */
   fps: number;
 }

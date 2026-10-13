@@ -8,31 +8,14 @@ import {
 /**
  * One external URI whose exact resident bytes participate in model ingest.
  *
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Declares every glTF sidecar needed to interpret the selected bytes.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Emits the URI, role, and declared length of each dependency.
  * @author Samchon
  */
 export interface IAutoMovieExternalModelResource {
-  /**
-   * URI as declared by glTF.
-   *
-   * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-location-boundary Keeps the declared locator visible for builder-owned resolution.
-   * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-locator-redirect-fence Resolution remains outside the inspector's provider-neutral boundary.
-   */
+  /** URI as declared by glTF. */
   uri: string;
-  /**
-   * Resource role.
-   *
-   * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Distinguishes buffer and image dependency obligations.
-   * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Preserves the media-specific dependency role.
-   */
+  /** Resource role. */
   kind: "buffer" | "image";
-  /**
-   * Exact declared byte length for buffers; images carry no glTF length.
-   *
-   * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Retains the glTF buffer length needed for closure validation.
-   * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Carries the declared bound beside the dependency identity.
-   */
+  /** Exact declared byte length for buffers; images carry no glTF length. */
   byteLength: number | null;
 }
 
@@ -44,38 +27,16 @@ export interface IAutoMovieExternalModelResource {
  * materialization. Hosts still use their native loader to construct the final
  * render mesh from the same content-addressed asset.
  *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Exposes validated glTF or GLB facts without accepting filename claims alone.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Returns the bounded scene, resource, rig, and animation inventory.
  * @author Samchon
  */
 export interface IAutoMovieExternalModelInspection {
-  /**
-   * Fixed normalization profile applied to these facts.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-extensible-families Uses an explicit versioned family profile rather than a guessed decoder.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-extensible-media-profile Makes profile extension additive and named.
-   */
+  /** Fixed normalization profile applied to these facts. */
   profile: AutoMovieExternalModelIngestProfile;
-  /**
-   * Parsed container family.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Distinguishes JSON glTF, GLB, and VRM facts.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Reports the verified container family.
-   */
+  /** Parsed container family. */
   format: "gltf" | "glb" | "vrm";
-  /**
-   * GlTF asset version.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Rejects unsupported glTF versions at the family boundary.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Fixes the accepted glTF interpretation version.
-   */
+  /** GlTF asset version. */
   version: "2.0";
-  /**
-   * Declared scene graph inventory.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Inventories nodes, meshes, skins, and animations from resident bytes.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Exposes bounded element counts for adoption preview.
-   */
+  /** Declared scene graph inventory. */
   counts: {
     /** Declared node count. */
     nodes: number;
@@ -86,26 +47,12 @@ export interface IAutoMovieExternalModelInspection {
     /** Declared animation count. */
     animations: number;
   };
-  /**
-   * Unique extension identities in code-unit order.
-   *
-   * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-format-feature Makes declared feature identities available for support decisions.
-   * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-format-feature-support-matrix Preserves a deterministic extension inventory.
-   */
+  /** Unique extension identities in code-unit order. */
   extensions: string[];
-  /**
-   * Unique non-data external buffer/image dependencies in URI order.
-   *
-   * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Enumerates the exact external closure the builder must bind.
-   * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Emits dependencies in deterministic URI order.
-   */
+  /** Unique non-data external buffer/image dependencies in URI order. */
   resources: IAutoMovieExternalModelResource[];
   /**
    * Authoritative normalized humanoid mapping proved by the selected profile.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-rig-validation Exposes only mapped joints that resolve inside the validated rig inventory.
-   * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Reports normalized rig facts after structural checks.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-output-failures Returns humanoid bone facts only after rig mapping validation succeeds.
    */
   humanoidBones: Array<{
     /** Normalized humanoid role. */
@@ -115,127 +62,55 @@ export interface IAutoMovieExternalModelInspection {
     /** Whether validated skin weights visibly use the joint. */
     weighted: boolean;
   }>;
-  /**
-   * Normalized node-track takes under the explicit motion profile.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Exposes take, target, key-time, value, and interpolation facts.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Separates inspected motion facts from later mapping and adoption decisions.
-   */
+  /** Normalized node-track takes under the explicit motion profile. */
   motion?: IAutoMovieExternalMotionInspection;
 }
 
-/**
- * Canonical glTF 2.0 spatial interpretation used by motion inspection.
- *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Makes meter units, right-handed coordinates, and Y-up orientation explicit instead of inferred downstream.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Fixes the source basis at the first stage of the spatial transform chain.
- */
+/** Canonical glTF 2.0 spatial interpretation used by motion inspection. */
 export const AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE =
   "gltf-2.0-meter-right-handed-y-up" as const;
 
 /**
  * One source-order node whose local rest basis was read from motion bytes.
  *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Preserves the source skeleton identity and rest basis beside its motion tracks.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Exposes node identity, hierarchy, and local rest facts before any retarget decision.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionNodeInspection {
   /**
    * Stable source-order node identity used by normalized tracks and mappings.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Keeps every scene node distinct under a deterministic source-local key.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Emits an index-stable node inventory.
    */
   id: string;
-  /**
-   * Exact zero-based node index in the inspected glTF revision.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-elements-dependencies Retains the format-defined element position beside the normalized identity.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-element-dependency-identity Uses the deterministic source-order key rather than a display label.
-   */
+  /** Exact zero-based node index in the inspected glTF revision. */
   index: number;
-  /**
-   * Non-empty source display name when one was declared, otherwise null.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-elements-dependencies Keeps labels separate from the stable source-local identity.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-element-dependency-identity Prevents duplicate or mutable display names from becoming element keys.
-   */
+  /** Non-empty source display name when one was declared, otherwise null. */
   name: string | null;
-  /**
-   * Stable immediate parent node identity, or null for a source root.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-gltf-glb Preserves the selected source node hierarchy without flattening multiple roots.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Reports validated node parentage as an inspection fact.
-   */
+  /** Stable immediate parent node identity, or null for a source root. */
   parent: string | null;
-  /**
-   * Parent-local rest transform under the declared glTF interpretation.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Carries finite source-local TRS values under explicit axis and unit semantics.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Supplies the validated local-transform stage of the source-to-project chain.
-   */
+  /** Parent-local rest transform under the declared glTF interpretation. */
   transform: IAutoMovieTransform;
 }
 
 /**
  * Animation facts normalized from one exact glTF, GLB, or VRM byte revision.
  *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Normalizes selected external performance data into named node tracks.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Inventories take identity, channel targets, time, values, and interpolation.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionInspection {
-  /**
-   * Exact path whose container suffix selected the bounded decoder.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Keeps the selected motion source identity visible.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Binds inspected take facts to their source path.
-   */
+  /** Exact path whose container suffix selected the bounded decoder. */
   path: string;
-  /**
-   * Resident byte length inspected by the decoder.
-   *
-   * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-original-bytes Records the resident source byte boundary without rewriting it.
-   * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-original-byte-preservation Keeps normalized facts tied to the original byte count.
-   */
+  /** Resident byte length inspected by the decoder. */
   byteLength: number;
-  /**
-   * Fixed meter, right-handed, Y-up interpretation of every node and track.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Declares the source coordinate and unit basis before adoption.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Makes the source basis an explicit transform-chain input.
-   */
+  /** Fixed meter, right-handed, Y-up interpretation of every node and track. */
   interpretation: typeof AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE;
-  /**
-   * Source-order node identity, hierarchy, and normalized local rest facts.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Carries the source skeleton and rest basis with the inspected clip.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Provides the byte-grounded node inventory used by later mapping validation.
-   */
+  /** Source-order node identity, hierarchy, and normalized local rest facts. */
   nodes: IAutoMovieExternalMotionNodeInspection[];
-  /**
-   * Stable node identities available to an explicit source-rig mapping.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Exposes motion targets without assigning semantic bones.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Keeps retarget mapping outside inspection facts.
-   */
+  /** Stable node identities available to an explicit source-rig mapping. */
   nodeIds: string[];
-  /**
-   * Source-order takes rewritten as deterministic AutoMovie node tracks.
-   *
-   * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-motion Preserves take and track order from the selected bytes.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-motion-inspection Returns normalized samples for later explicit adoption.
-   */
+  /** Source-order takes rewritten as deterministic AutoMovie node tracks. */
   takes: IAutoMovieClip[];
 }
 
-/**
- * Supported fixed normalization profiles at the builder ingest boundary.
- *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-extensible-families Adds motion as one explicit, versioned glTF profile.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-extensible-media-profile Keeps format expansion additive and bounded.
- */
+/** Supported fixed normalization profiles at the builder ingest boundary. */
 export type AutoMovieExternalModelIngestProfile =
   | "gltf-static-v1"
   | "gltf-humanoid-v1"
@@ -255,9 +130,6 @@ const INGEST_PROFILE_REGISTRY = {
  * The object above is pinned to the profile union by `satisfies`, so a literal
  * added to or removed from the type changes this runtime vocabulary in the same
  * edit; a command surface that consults it cannot lag behind the inspector.
- *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-extensible-families Publishes the closed, versioned profile vocabulary a caller may select from rather than a guessed family.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-extensible-media-profile Gives profile extension one additive runtime inventory that stays equal to the declared union.
  */
 export const AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES: readonly AutoMovieExternalModelIngestProfile[] =
   Object.freeze(
@@ -266,12 +138,7 @@ export const AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES: readonly AutoMovieExtern
     ) as AutoMovieExternalModelIngestProfile[],
   );
 
-/**
- * Whether an untyped selection names one supported ingest profile.
- *
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-format-feature Refuses a profile name outside the supported vocabulary before any bytes are interpreted under it.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-format-feature-support-matrix Decides profile membership from the same closed inventory the inspector enforces.
- */
+/** Whether an untyped selection names one supported ingest profile. */
 export const isAutoMovieExternalModelIngestProfile = (
   value: unknown,
 ): value is AutoMovieExternalModelIngestProfile =>
@@ -284,186 +151,6 @@ export const isAutoMovieExternalModelIngestProfile = (
  * validates scene forests, referenced indices and structural profile promises,
  * and returns every sidecar URI the builder must bind to manifest-owned bytes.
  * It never guesses a profile or repairs malformed input.
- *
- * @evidence requirements/asset-authoring/README.md#자산-저작-요구사항 Provides the bounded external model and motion inspection capability.
- * @evidence requirements/external-inputs/README.md#외부-입력-요구사항 Applies shared external-input validation to resident glTF-family bytes.
- * @evidence specifications/asset-and-representation/README.md#자산과-표현-시스템-사양 Establishes the external representation facts available to later asset stages.
- * @evidence specifications/interchange-and-adoption/README.md#interchange와-adoption-시스템-계약 Implements the resident-byte inspection boundary before adoption.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-as-input Ingest preserves declared model facts but does not author, mix, select, or catalogue visual styles.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-reference-role Ingest preserves declared model facts but does not author, mix, select, or catalogue visual styles.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-mixing Ingest preserves declared model facts but does not author, mix, select, or catalogue visual styles.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-catalogue-refusal Ingest preserves declared model facts but does not author, mix, select, or catalogue visual styles.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-attempt-lineage Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-reproducibility-boundary Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-input-rights Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-fixed-output Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-procedural-generation-distinction Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generated-adoption-modes Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-refusal Ingest consumes fixed resident bytes and owns no generator, provider, attempt, rights, or generated-output adoption policy.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Ingest validates imported mesh records but does not author geometry operations, dimensions, topology roles, or solids.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-geometry-dimensions Ingest validates imported mesh records but does not author geometry operations, dimensions, topology roles, or solids.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-geometry-topology Ingest validates imported mesh records but does not author geometry operations, dimensions, topology roles, or solids.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Ingest validates imported mesh records but does not author geometry operations, dimensions, topology roles, or solids.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Ingest validates imported mesh records but does not author geometry operations, dimensions, topology roles, or solids.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Ingest preserves source nodes but does not create prototypes, instances, logical groups, override provenance, or variants.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-logical-group Ingest preserves source nodes but does not create prototypes, instances, logical groups, override provenance, or variants.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality Ingest preserves source nodes but does not create prototypes, instances, logical groups, override provenance, or variants.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-instance-override-provenance Ingest preserves source nodes but does not create prototypes, instances, logical groups, override provenance, or variants.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-variant-inheritance Ingest preserves source nodes but does not create prototypes, instances, logical groups, override provenance, or variants.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-image-independence Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-composition Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-user-authored-texture Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-state Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-texture-provenance Ingest closes image dependencies but does not author material relations, texture placement, surface states, or texture provenance.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-physical-module Ingest performs no modular pattern authoring, procedural rule evaluation, seeded variation, or local-stability update.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-procedural-rule Ingest performs no modular pattern authoring, procedural rule evaluation, seeded variation, or local-stability update.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-deterministic-variation Ingest performs no modular pattern authoring, procedural rule evaluation, seeded variation, or local-stability update.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-boundary-exception Ingest performs no modular pattern authoring, procedural rule evaluation, seeded variation, or local-stability update.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability Ingest performs no modular pattern authoring, procedural rule evaluation, seeded variation, or local-stability update.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-bounds-state-motion Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-proxy-lineage Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-selection Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-transition-stability Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-stale-refusal Ingest emits no declared or measured bounds, proxy lineage, LOD policy, transition, or derivative freshness result.
- * @evidenceExclude requirements/external-inputs/conversion-receipts-and-determinism.md#external-conversion-receipt-loss Ingest returns bounded facts and a motion handoff, while the builder owns the complete canonical conversion, loss, digest, and freshness receipt.
- * @evidenceExclude requirements/external-inputs/conversion-receipts-and-determinism.md#external-conversion-receipt-canonical-result Ingest returns bounded facts and a motion handoff, while the builder owns the complete canonical conversion, loss, digest, and freshness receipt.
- * @evidenceExclude requirements/external-inputs/conversion-receipts-and-determinism.md#external-generation-reproducibility-boundary Ingest returns bounded facts and a motion handoff, while the builder owns the complete canonical conversion, loss, digest, and freshness receipt.
- * @evidenceExclude requirements/external-inputs/conversion-receipts-and-determinism.md#external-conversion-receipt-freshness Ingest returns bounded facts and a motion handoff, while the builder owns the complete canonical conversion, loss, digest, and freshness receipt.
- * @evidence requirements/external-inputs/credentials-rights-and-provenance.md#external-credential-separation Public inspection inputs and results admit no credential, token, provider account, or secret-bearing authority.
- * @evidenceExclude requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-source-record The pure ingest APIs accept no credential authority and own no rights, acquisition, sensitive-data, provenance, or consumer ledger.
- * @evidenceExclude requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-acquisition-activity The pure ingest APIs accept no credential authority and own no rights, acquisition, sensitive-data, provenance, or consumer ledger.
- * @evidenceExclude requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-sensitive-data The pure ingest APIs accept no credential authority and own no rights, acquisition, sensitive-data, provenance, or consumer ledger.
- * @evidenceExclude requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-derivation-consumers The pure ingest APIs accept no credential authority and own no rights, acquisition, sensitive-data, provenance, or consumer ledger.
- * @evidenceExclude requirements/external-inputs/identity-coordinates-and-units.md#external-identity-content-provenance Ingest preserves format-local facts but does not own the complete source/provenance identity graph or project coordinate, clock, and value interpretation.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-elements-dependencies Stable source-order node identities and declared dependency URIs retain source-local correspondence.
- * @evidenceExclude requirements/external-inputs/identity-coordinates-and-units.md#external-identity-time-units Ingest preserves format-local facts but does not own the complete source/provenance identity graph or project coordinate, clock, and value interpretation.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-value-interpretation The selected versioned profile fixes accessor arity, channel path, interpolation, and quaternion interpretation.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-collision-ambiguity Invalid indices, duplicate mappings, and ambiguous target facts fail instead of selecting a candidate by order.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-provider-tool-version-pinning Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-explicit-refresh Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-refresh-impact-staleness Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-offline-ready-inputs Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-cache-identity-trust Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidenceExclude requirements/external-inputs/refresh-version-pinning-and-offline.md#external-cache-miss-unavailable-source Ingest performs no provider version pinning, refresh, staleness propagation, offline-state certification, cache lookup, or recovery.
- * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-channel-parity Every caller-resolved byte source enters the same profile, closure, and validation path without channel-specific trust.
- * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-provider-neutrality The API contains no provider identity, preference, catalogue, account tier, or fallback order.
- * @evidenceExclude requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-transfer-authority Ingest consumes caller-selected resident facts and owns no source dispatch, outbound authorization, acquisition attempt, or fallback.
- * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-authority-boundary Declared glTF fields remain data and cannot create instructions, credential access, or network authority.
- * @evidenceExclude requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Ingest consumes caller-selected resident facts and owns no source dispatch, outbound authorization, acquisition attempt, or fallback.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-inputs Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-dynamic-bounds-invariants Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-proxy-purpose-lineage Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-selection-policy Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-transition-invariants Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-output-costs Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-lod-failures Ingest produces no bounds derivation, proxy purpose lineage, LOD selection, transition, cost report, or stale-result failure.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-credential-boundary The resident-byte inspection surface contains no credential, provider call, or secret projection field.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-attempt-identity Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-reproducibility Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-failures Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-eligibility-source-lock Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-manual-routing Ingest receives resident model bytes and owns neither production delivery selection nor repaint adapter routing.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-execution-eligibility Model-byte inspection cannot establish source-frame review freshness, control alignment, or an external repaint executor's prerequisites.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-derivation-validation The inspector validates source-container structure only; it receives no repaint request, candidate, output digest, or rendition receipt whose derivation it could close.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Ingest owns no generation or repaint provider, credential, attempt, control, adoption, provenance, continuity, or publication workflow.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-inputs Ingest emits bounded source facts but does not own the complete asset identity graph, lifecycle ledger, consumer reachability, or replacement compatibility.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-model-resource-separation Ingest emits bounded source facts but does not own the complete asset identity graph, lifecycle ledger, consumer reachability, or replacement compatibility.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Ingest emits bounded source facts but does not own the complete asset identity graph, lifecycle ledger, consumer reachability, or replacement compatibility.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-lifecycle-states Ingest emits bounded source facts but does not own the complete asset identity graph, lifecycle ledger, consumer reachability, or replacement compatibility.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-failure-compatibility Ingest emits bounded source facts but does not own the complete asset identity graph, lifecycle ledger, consumer reachability, or replacement compatibility.
- * @evidenceExclude specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-content-provenance-identity Ingest preserves format-local facts but does not own the complete source/provenance identity graph or project coordinate, clock, and value interpretation.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-element-dependency-identity Source-order node ids and declared resource roles preserve element and dependency identity.
- * @evidenceExclude specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-time-sample-mapping Ingest preserves format-local facts but does not own the complete source/provenance identity graph or project coordinate, clock, and value interpretation.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-value-interpretation-layer Versioned profiles validate path-specific value width, interpolation, and normalization semantics.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-identity-ambiguity-refusal Structural ambiguity and mapping collisions fail without discovery-order resolution.
- * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-channel-independent-revision Resident bytes from every acquisition channel enter the same bounded inspection contract.
- * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-provider-neutral-dispatch Its resident-byte API prevents provider identity or fallback order from influencing inspection.
- * @evidenceExclude specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-outbound-transfer-authorization Ingest receives resident caller-selected facts and performs no intake dispatch, external transfer, acquisition attempt, or fallback.
- * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-source-authority-separation Source names and metadata are parsed only as schema data and gain no execution authority.
- * @evidenceExclude specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Ingest receives resident caller-selected facts and performs no intake dispatch, external transfer, acquisition attempt, or fallback.
- * @evidence specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-secret-reference-boundary The byte inspection contract has no field through which a secret can enter facts, diagnostics, or adoption output.
- * @evidenceExclude specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-source-provenance-snapshot Ingest accepts no secret or rights authority and emits no provenance, generation, sensitivity, derivation, consumer, or publication ledger.
- * @evidenceExclude specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-generated-acquisition-snapshot Ingest accepts no secret or rights authority and emits no provenance, generation, sensitivity, derivation, consumer, or publication ledger.
- * @evidenceExclude specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-sensitive-metadata-projection Ingest accepts no secret or rights authority and emits no provenance, generation, sensitivity, derivation, consumer, or publication ledger.
- * @evidenceExclude specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-derivation-consumer-reachability Ingest accepts no secret or rights authority and emits no provenance, generation, sensitivity, derivation, consumer, or publication ledger.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-external-version-snapshot Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-refresh-transaction Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-refresh-staleness-propagation Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-offline-ready-closure Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-cache-entry-identity Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidenceExclude specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-offline-miss-state Ingest performs no version snapshot, refresh transaction, stale propagation, offline certification, cache identity, or unavailable-source recovery.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Checks mesh primitives, POSITION accessors, indices, and payload ranges.
- * @evidence requirements/asset-authoring/validation.md#asset-rig-validation Checks skin joints, normalized humanoid mapping, and weighted influences.
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Validates image resource presence but does not claim visual material review.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-purpose-validation The inspector receives no story role, camera distance, or intended use.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-representation-bounds-validation Binary range validation does not validate spatial bounds, pivots, proxies, or representation transitions.
- * @evidence requirements/asset-authoring/validation.md#asset-external-generated-validation Applies the same structural boundary to external bytes regardless of their origin.
- * @evidence requirements/asset-authoring/validation.md#asset-validation-gap Unsupported or unproved structure fails instead of being presented as verified.
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-invalid-rig-refusal Humanoid profiles reject missing roots, dangling joints, malformed weights, and invalid mappings.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-output-failures Invalid skin and humanoid facts fail before a normalized inspection is returned.
- * @evidenceExclude requirements/external-inputs/media-families-and-declared-facts.md#external-media-image-video Image URIs are closure dependencies here; raster and video facts are not decoded.
- * @evidenceExclude requirements/external-inputs/media-families-and-declared-facts.md#external-media-spatial-data It does not decode map, survey, point-cloud, or georeferenced spatial datasets.
- * @evidenceExclude requirements/external-inputs/media-families-and-declared-facts.md#external-media-text-metadata JSON is parsed as glTF structure, not as an instruction-bearing text input.
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-archive-bounds Rejects declared ranges outside resident buffer bytes; archive expansion is unsupported.
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-network-dependency Requires caller-resolved bytes and performs no live fetch.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-format-feature Rejects unknown profiles, versions, paths, interpolation, and target channels.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-hard-failure Throws before returning an inspection when required structure is unsupported.
- * @evidenceExclude requirements/external-inputs/unsupported-and-degradation.md#external-user-chosen-degradation Inspection reports no user-approved degraded substitute.
- * @evidenceExclude requirements/external-inputs/unsupported-and-degradation.md#external-partial-adoption-boundary Selection of a partial element subset occurs after byte inspection.
- * @evidenceExclude requirements/external-inputs/unsupported-and-degradation.md#external-placeholder-final-boundary No placeholder artifact is emitted by this inspector.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-fidelity-semantic-boundary Reports structural and semantic mapping facts without claiming visual fidelity.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-support-regression-compatibility Uses explicit versioned profiles so support changes cannot masquerade as the same interpretation.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-content-facts Compares resident payload lengths and accessor values with declared facts.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Rejects cyclic or multiply parented node forests and invalid scene roots before validating accessor shapes, animation arity, and humanoid mappings.
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Accepts distinct scene roots and separate nodes reusing one mesh without flattening their hierarchy.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-gltf-glb-inspection Checks unique parentage, acyclic node forests, scene-root identity, and default-scene references for every ingest profile.
- * @evidenceExclude requirements/external-inputs/validation-and-quarantine.md#external-validation-active-content The supported glTF subset contains no executable script or active document payload.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-adoption-gate A thrown inspection prevents malformed bytes from reaching adoption.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-result-states Success returns facts and every failure throws a specific diagnostic.
- * @evidenceExclude requirements/external-inputs/validation-and-quarantine.md#external-validation-quarantine-handling Storage, exposure, removal, and release of quarantined bytes belong to the caller.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-purpose-inputs The function validates structural asset facts but receives no shot-purpose envelope.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Rejects non-finite motion samples, invalid indices, malformed ranges, and inconsistent weights.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual It does not render silhouette, material, UV, or lighting evidence.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-motion-transitions Checks motion key ordering, interpolation, arity, and unit quaternions before playback.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-current-evidence No cached validation artifact or current-review ledger is stored here.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-status-failures Returns complete facts only on success and field-located errors otherwise.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-compatibility-ceiling Structural success makes no finished-fidelity or runtime-compatibility promise.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-era-style-inputs No era, style, location, or design language is interpreted from bytes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Inventories mesh POSITION accessors, nodes, skins, and source units fixed by glTF.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology No modeling operation or manifold-topology derivation is performed.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Image dependencies are closed, but material semantics and UV roles are not normalized here.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-states-substitution No material state, substitution rule, weathering, or damage state is authored.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-procedural-pattern-inputs The decoder emits no procedural pattern or instance-generation inputs.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention The decoder adopts an authored coordinate set as it found it, declaring no coordinate-set kind and supplying no transform; the adoption receipt this package does own binds motion sources, not surface coordinates.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-resource-closure Resolves every declared buffer and image dependency to resident bytes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Rejects missing meshes for model profiles and malformed resource or rig facts.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-expanded-resource-budget Enforces declared byte ranges and refuses archives rather than expanding them.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-live-network-dependency-state The resolver supplies resident bytes; the inspector performs no live network access.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-format-feature-support-matrix The closed profile and target-path sets define the supported subset.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-hard-refusal-predicate Structural, resource, profile, and sample violations fail explicitly.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-external-hard-refusal Unsupported containers, structures, and source facts fail with an exact diagnostic and return no substitute artifact.
- * @evidenceExclude specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-design-drawing-inspection This glTF-family inspector accepts no drawing container and derives no drawing extent or unsupported drawing-family result.
- * @evidenceExclude specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-explicit-degradation-policy This inspector never chooses or applies a degraded substitute.
- * @evidenceExclude specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-partial-adoption-closure Partial element selection is a later adoption decision.
- * @evidenceExclude specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-placeholder-status-fence No placeholder or proxy result is returned.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-appearance-semantics-fence Structural and mapping facts are reported without appearance-quality claims.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-compatibility-migration-gate Explicit profile literals make a changed interpretation distinguishable.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-declared-observed-comparison Compares glTF declarations against exact payloads and decoded accessor values.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Separately checks container, graph, resources, accessors, rig, and motion semantics.
- * @evidenceExclude specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-active-content-isolation The supported format subset has no executable active-content surface.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-atomic-adoption-gate Returns no partial inspection after any required check fails.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-validation-result-envelope Uses explicit diagnostics but leaves the shared status envelope to the builder.
- * @evidenceExclude specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-quarantine-exposure-removal Quarantine storage and release policy is outside this pure decoder.
  */
 export const inspectAutoMovieExternalModelBytes = (props: {
   /** Exact project-relative source path. */

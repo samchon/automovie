@@ -6,10 +6,6 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
 
 /**
  * Resolve authored raster and exact clock to the current MP4 picture profile.
- *
- * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-container-metadata Keeps expected delivery facts separate from parser-observed bytes.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Defines the current neutral presentation and explicit sRGB container tuple.
- * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-supported-combinations Fixes the supported container, codec, raster and color combination of each tier as one profile instead of accepting whatever a muxer produced.
  */
 export const resolveProductionVideoProfile = (props: {
   width: number;

@@ -14,9 +14,6 @@ import {captureAutoMovieFramebufferRestore} from "./captureAutoMovieFramebufferR
  * initialized, so refuse before binding can allocate it. A positive version
  * is not upload evidence: the retained-draw, exact-context precondition remains
  * the caller's responsibility, including after CPU needsUpdate assignments.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Identifies the actual owned native cube depth attachment before its public disposal.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Restores the caller's framebuffer selection after inspecting a retained shadow product.
  */
 export const readAutoMovieCubeShadowDepth=(renderer:THREE.WebGLRenderer,target:THREE.RenderTarget):WebGLTexture|null=>{
   if(!("isWebGLRenderTarget" in target) || target.isWebGLRenderTarget!==true)

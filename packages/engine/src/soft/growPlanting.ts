@@ -70,12 +70,6 @@ const SALT_LEAF_ROLL = 0x726f6c6c;
  * Throws when the derivation would exceed the recipe's own declared branch or
  * leaf cap: a budget that can be silently overrun is not a budget.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Derives the declared planting state reproducibly from its growth recipe.
- * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-layers-form `growPlanting` expands the declared trunk, branch levels, and leaf rules into an explicit bounded structural state.
- * @evidence requirements/map/vegetation-and-ecology.md#map-vegetation-season-growth The growth stage and per-level onset deterministically control branch extension and leaf emission for the declared planting state.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Implements the bounded procedural structure of an interior planting.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-vegetation-layer-form-input The generated branch and leaf records materialize the declared vegetation form without inferring an external species catalogue.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-growth-season-disturbance The explicit growth-stage calculation implements the deterministic seasonal-growth subset while leaving weather and disturbance authoring upstream.
  * @author Samchon
  */
 export const growPlanting = (

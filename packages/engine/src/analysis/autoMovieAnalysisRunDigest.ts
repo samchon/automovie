@@ -8,9 +8,6 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * Exported because a run that arrived as JSON has to be checkable by the same
  * rule that produced it, and because a second implementation of the canonical
  * form would be a second answer to what a run says.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `autoMovieAnalysisRunDigest` gives the complete run record one repeatable integrity identity that changes with its evidence.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The function serializes the canonical run payload and applies the shared SHA-256 content digest used during sealing and validation.
  */
 export const autoMovieAnalysisRunDigest = (
   run: Omit<IAutoMovieAnalysisRun, "digest">,

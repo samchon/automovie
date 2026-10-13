@@ -25,9 +25,6 @@ import { lerp } from "./lerp";
  *
  * Cost is the number of cues that name this slot, which is why the channel is
  * sparse: a crowd of a hundred thousand pays for the three exceptions it has.
- *
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-group-state Resolves one slot's sparse presence, offset, and facing exception without expanding the formation into per-member tracks.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Retains the latest member exception and interpolates its active cue on the same shot-local clock as group motion.
  */
 export const sampleFormationSlotMotion = (
   motions: readonly IAutoMovieFormationSlotMotion[],

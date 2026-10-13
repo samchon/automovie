@@ -6,10 +6,6 @@
  *
  * @param {import('./IHumanBuildHost').IHumanBuildHost} host
  * @param {string} stage
- *
- * @evidence contracts/common.md#principled-implementation Previous output is copied to a retained backup before replacement; failed replacement restores its complete file membership.
- * @evidence contracts/common.md#clear-and-simple-design Publication owns the single backup/install/restore sequence while the host owns filesystem operations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Rollback restores actual previous bytes and reports both failures when restoration fails.
  */
 export function publishHumanBuild(host, stage) {
   const previous = host.hasPrevious();

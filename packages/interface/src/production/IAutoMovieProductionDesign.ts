@@ -18,43 +18,20 @@ import type { IAutoMovieRepaintParameters } from "./capture/IAutoMovieRepaintPar
 import type { IAutoMovieRepaintReferenceInput } from "./capture/IAutoMovieRepaintReferenceInput";
 import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepaintRequestEvidence";
 
-/**
- * Global frame and art-direction invariants for one production.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-source-ownership Defines the typed production-design root as authored project source rather than treating references or renders as design authority.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-design-authority-boundary Provides the public boundary for the production's canonical design decisions and their downstream consumers.
- */
+/** Global frame and art-direction invariants for one production. */
 export interface IAutoMovieProductionDesign {
-  /**
-   * Non-blank stable production id; film-level acceptance targets use it.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `id` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `id` for the narrative intent graphics style exceptions system contract.
-   */
+  /** Non-blank stable production id; film-level acceptance targets use it. */
   id: string;
 
-  /**
-   * Non-blank human-facing title.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `title` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `title` for the narrative intent graphics style exceptions system contract.
-   */
+  /** Non-blank human-facing title. */
   title: string;
 
-  /**
-   * Non-blank one-sentence narrative promise.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `logline` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `logline` for the narrative intent graphics style exceptions system contract.
-   */
+  /** Non-blank one-sentence narrative promise. */
   logline: string;
 
   /**
    * Finite intended finished runtime in seconds, strictly above zero and on the
    * production frame clock.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `targetRuntimeSeconds` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `targetRuntimeSeconds` for the narrative intent graphics style exceptions system contract.
    */
   targetRuntimeSeconds: number;
 
@@ -65,26 +42,13 @@ export interface IAutoMovieProductionDesign {
    * delivery keeps that output as technical truth and additionally requires a
    * required feature plus a receipt-bound rendition review for every delivered
    * shot.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `visualDelivery` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `visualDelivery` for the narrative intent graphics style exceptions system contract.
    */
   visualDelivery: "deterministic" | "repainted" | "mixed";
 
-  /**
-   * Ordered explicit occurrence lanes, required exactly for mixed delivery.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Prevents receipt presence or absence from choosing delivery membership.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Supplies the exact population consumed by final conform and reopen.
-   */
+  /** Ordered explicit occurrence lanes, required exactly for mixed delivery. */
   visualDeliveryLanes?: IAutoMovieProductionVisualDeliveryLane[];
 
-  /**
-   * Versioned crossing policy, required exactly when explicit lanes cross.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Requires reviewed transition identity for every actual lane change.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Binds the crossing set to the current aggregate observation.
-   */
+  /** Versioned crossing policy, required exactly when explicit lanes cross. */
   mixedVisualDeliveryPolicy?: IAutoMovieProductionMixedVisualDeliveryPolicy;
 
   /**
@@ -92,9 +56,6 @@ export interface IAutoMovieProductionDesign {
    *
    * Omitted means the production asserts nothing about story time; shots may
    * then carry no pin and no cross-shot criterion is admissible.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `storyClock` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `storyClock` for the narrative intent graphics style exceptions system contract.
    */
   storyClock?: IAutoMovieStoryClock;
 
@@ -113,9 +74,6 @@ export interface IAutoMovieProductionDesign {
    * ({@link IAutoMovieShotStoryTime}); a shot still states its own local light
    * on top. Optional and purely additive: a production declaring none is
    * unaffected in every respect, and so is any shot carrying no story pin.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `lighting` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `lighting` for the narrative intent graphics style exceptions system contract.
    */
   lighting?: IAutoMovieProductionLighting;
 
@@ -131,9 +89,6 @@ export interface IAutoMovieProductionDesign {
    * render job checks an artifact against the one it targets. Optional and
    * purely additive: a production declaring none behaves exactly as it did
    * before the field existed.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `renderBudgets` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `renderBudgets` for the narrative intent graphics style exceptions system contract.
    */
   renderBudgets?: IAutoMovieRenderBudget[];
 
@@ -143,12 +98,6 @@ export interface IAutoMovieProductionDesign {
    * The builder validates and applies these records but does not choose an
    * asset, take, actor, adoption mode, or retarget mapping. Omission preserves
    * the legacy source-computed motion path.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes every external-motion adoption decision explicit and optional.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Carries the selected source, member, target, and mode into compilation.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `externalMotions` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `externalMotions` for the narrative intent graphics style exceptions system contract.
    */
   externalMotions?: IAutoMovieExternalMotionAdoption[];
 
@@ -157,9 +106,6 @@ export interface IAutoMovieProductionDesign {
    *
    * Omission provides no implicit thresholds: measurements may be reported, but
    * their verdict is `not-run` and existing compiled output is unchanged.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Gives the production sole ownership of language-specific thresholds.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Distinguishes measure-only operation from profile-backed evaluation.
    */
   captionReadabilityProfiles?: IAutoMovieCaptionReadabilityProfile[];
 
@@ -174,12 +120,6 @@ export interface IAutoMovieProductionDesign {
    * The same record carries the two dialogue decisions nothing else can make
    * for the production: which generator it adopted under which reviewed rights,
    * and which compiled actor each screenplay speaker performs through.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Makes propagation an explicit production input rather than an engine default.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Carries only selected bounded models into deterministic planning.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#external-result-provider-neutrality Types the adoption as provider-neutral authored data that a credential can neither supply nor start.
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-lipsync-join Names the actor whose performance shares the film interval with the voice rather than inferring one from cast order.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Supplies the join key the viseme evaluation resolves at a target film time.
    */
   sound?: {
     /** Selected direct-path propagation model. */
@@ -265,9 +205,6 @@ export interface IAutoMovieProductionDesign {
    * Optional and purely additive: a production declaring none is rendered at
    * the host's shipped review and delivery tiers, exactly as it was before the
    * field existed.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-source-ownership Keeps the review and delivery raster a tracked design decision rather than an input a render command supplies on the production's behalf.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-design-authority-boundary Types the tier pair as part of the canonical design record its downstream render consumers read.
    */
   renderTiers?: {
     /**
@@ -313,13 +250,6 @@ export interface IAutoMovieProductionDesign {
    * record: reviewing a candidate must not stale the deterministic render that
    * produced it, so the host joins that observation by shot from its own
    * control-plane sidecar. Omission means deterministic visual delivery.
-   *
-   * @evidence requirements/repaint/providers-models-and-credentials.md#repaint-execution-boundary Keeps the chosen generator and its execution boundary an authored production decision rather than host state.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-execution-eligibility Supplies the one adoption record an executor is allowed to bind an adapter to.
-   * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Makes attempts, timeout, elapsed time, cost, retryability, and deterministic backoff authored inputs rather than hidden host behavior.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Types the bounded policy consumed before an external call and reread when a candidate is selected.
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Locks each shot prompt, seed, preservation strength, and role-specific reference to the shot it was reviewed for.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types the controls and references one request carries into execution.
    */
   repaint?: {
     /** Adopted runtime identity and reviewed rights for the generator. */
@@ -357,9 +287,6 @@ export interface IAutoMovieProductionDesign {
    *
    * Omission admits none. That is correct for a production staging no
    * moving-boundary domain, and refused for one that stages any.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Separates the domains whose anchors move with a performance from the static ones, which is exactly what admission costs.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Types the production-wide selection the solver reads before it samples an owner pose at a fixed-step boundary.
    */
   simulation?: {
     /** Unique, non-blank, trimmed domain ids in stable budget order. */
@@ -379,20 +306,10 @@ export interface IAutoMovieProductionDesign {
    * wall is a mass the building would appear to own. Optional and purely
    * additive: a production declaring none runs no analysis and is otherwise
    * unaffected.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `environmentContext` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `environmentContext` for the narrative intent graphics style exceptions system contract.
    */
   environmentContext?: IAutoMovieEnvironmentContext;
 
-  /**
-   * Deterministic frame clock and raster format.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `frameFormat` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `frameFormat` for the narrative intent graphics style exceptions system contract.
-   * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Preserves the authored frame clock as an exact reduced rational identity.
-   * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Supplies the canonical timeline numerator and denominator.
-   */
+  /** Deterministic frame clock and raster format. */
   frameFormat: {
     /**
      * Integer pixel width from 16 through 16,384. Width times height may not
@@ -425,12 +342,7 @@ export interface IAutoMovieProductionDesign {
     crop?: IAutoMovieDeliveryCrop;
   };
 
-  /**
-   * Bounded visual grammar rather than screenplay prose.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `artDirection` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `artDirection` for the narrative intent graphics style exceptions system contract.
-   */
+  /** Bounded visual grammar rather than screenplay prose. */
   artDirection: {
     /** Foundation visual style. */
     style: "primitive-3d";
@@ -445,11 +357,6 @@ export interface IAutoMovieProductionDesign {
     scaleGrammar: string;
   };
 
-  /**
-   * At least one output, with every deliverable id unique.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-exceptions Exposes `deliverables` as the portable data boundary for the production design art direction exceptions requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-graphics-style-exceptions Types `deliverables` for the narrative intent graphics style exceptions system contract.
-   */
+  /** At least one output, with every deliverable id unique. */
   deliverables: IAutoMovieProductionDeliverable[];
 }

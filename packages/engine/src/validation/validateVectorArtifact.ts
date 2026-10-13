@@ -3,12 +3,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { pushViolation } from "./pushViolation";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 
-/**
- * Validate a finite three-component vector artifact.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateVectorArtifact` rejects each non-finite coordinate at its own x, y, or z member path.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateVectorArtifact` first proves object shape, then records the offending component value for finite-vector validation.
- */
+/** Validate a finite three-component vector artifact. */
 export const validateVectorArtifact = (
   vector: unknown,
   path: string,

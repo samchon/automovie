@@ -1,12 +1,7 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
-/**
- * Moving subject-local point that drives one soft anchor.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Makes object and actor-bone ownership explicit.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Resolves the local point once at the fixed-step boundary.
- */
+/** Moving subject-local point that drives one soft anchor. */
 export type IAutoMovieSoftAnchorBinding =
   | {
       /** Bind to a production scene node. */

@@ -18,8 +18,6 @@ import type { IHumanShotContext } from "./IHumanShotContext.js";
  * @evidence contracts/common.md#clear-and-simple-design One launcher attachment owns the captured child identity, output forwarding and corresponding signal-listener cleanup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Spawns the maintained hidden launcher and stops only its creation-checked child without executable-name selection or recursive taskkill expansion.
  * @evidence contracts/common.md#meaningful-documentation States the logging and the ownership on stop.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The client that starts a server owns it as its child, and stops only that child.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One launcher attachment owns the captured child identity, output forwarding and corresponding signal-listener cleanup.
  */
 export function launchHumanViewerServer(
   context: IHumanShotContext,

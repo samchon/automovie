@@ -13,8 +13,6 @@ import { scanHumanViewerPacketIdentities } from "./scanHumanViewerPacketIdentiti
  * @evidence contracts/common.md#clear-and-simple-design The shared structural scan reads; this function only states which members a person packet needs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the scanned packet and basis identities while leaving geometry and full packet validity to the Person owner.
  * @evidence contracts/common.md#meaningful-documentation States what is required and who admits the rest.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Requires exactly the identities the catalogue compares and keeps no copy of the generation schema.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The shared structural scan reads; this function only states which members a person packet needs.
  */
 export function readHumanViewerPersonSidecar(
   text: Buffer,

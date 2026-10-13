@@ -16,11 +16,6 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  * consumes `transformed`, so the member is posed and then placed rather than
  * the other way round. Normals are rotated by the same matrix, which keeps the
  * shading and the silhouette shells honest about the moving surface.
- *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Composes unit advance and member-radius turn distance in the shader before applying the shared rigid-part motion.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Composes unit advance and member-radius turn distance in the shader before applying the shared rigid-part motion.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Shares the same cycle uniform cells and rigid-part deformation across beauty and both shadow material kinds.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Applies deformation before instancing in depth and distance shaders as in beauty.
  */
 export const applyFormationCycleMaterial = (
   material: THREE.Material,

@@ -75,10 +75,6 @@ interface IAutoMovieContactWindow {
  *   retarget. When the clamped chain then cannot hold the contact, the residual
  *   is a `warning`, residual slide is implausible, not impossible.
  *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Maps source effector contacts through root scale and re-solves them under the target rig's ROM.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Preserves proportional rigs exactly and reports unreachable target-contact residuals.
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-refusal Reports a mapped contact that target ROM cannot hold beyond the scaled tolerance.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Measures the post-solve residual against the declared contact budget.
  * @author Samchon
  */
 export const preserveRetargetContacts = (props: {

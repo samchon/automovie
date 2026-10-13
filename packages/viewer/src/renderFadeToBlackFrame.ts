@@ -9,11 +9,6 @@ import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorS
  * Highp Float32 scalar thresholds permit one opaque byte of rounding versus
  * Float64 delivery; weight one retains identity. Transparent straight delivery
  * uses an unassociated target, not low-alpha premultiplied canvas extraction.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Preserves the direct layer's display transform before weighting its resolved bytes.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Applies a beauty-only byte contribution without changing structural products.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Uses display-byte composition without a second display transform.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Restores renderer state after the source and composite.
  */
 export const renderFadeToBlackFrame = (renderer: THREE.WebGLRenderer, renderFrame: () => void, weight: number): void => {
   if (!Number.isFinite(weight) || weight < 0 || weight > 1)

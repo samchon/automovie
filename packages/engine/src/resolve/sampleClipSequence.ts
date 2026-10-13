@@ -13,8 +13,6 @@ import { sampleClip } from "./sampleClip";
  * nothing, instead of letting {@link sampleClip}'s before-first-key clamp
  * overwrite the authority that is currently in effect.
  *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Selects one explicit time-qualified owner for every channel across the clip sequence.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Implements channel authority across ordered temporal layers without future-key leakage.
  * @author Samchon
  */
 export const sampleClipSequence = (

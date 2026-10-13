@@ -35,9 +35,6 @@ import { pushViolation } from "./pushViolation";
  * it. Passing a gate of one's own opts out of this one entirely, and a shot
  * field that only meant to say "and it must be a node this shot staged" would
  * silently stop refusing pointer tracks and unknown node paths on the way.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateHonorableChannel` reports a transform track whose channel kind or node path has no playback writer at that channel field.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateHonorableChannel` retains the rejected channel discriminator and property address beside the transform-clip admission rule.
  */
 export const validateHonorableChannel: IAutoMovieClipChannelGate = (
   channel,

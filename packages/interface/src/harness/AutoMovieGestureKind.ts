@@ -14,9 +14,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * `rear`/`buck`/`paw` only resolve on a quadruped rig. Idle creature poses with
  * no directed target (a cat's stretch/sit, a tail flick) are a `hold` plus an
  * `emote`, or a `custom` gesture.
- *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `AutoMovieGestureKind` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `AutoMovieGestureKind` for the performance interaction attachment object handoff system contract.
  */
 export type AutoMovieGestureKind =
   // humanoid

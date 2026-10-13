@@ -7,9 +7,6 @@ import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage.js";
  * Cancelling a request withdraws its result without discarding the compiled
  * basis. Transport failure rejects every pending request and the next request
  * starts a fresh worker. Late replies from that failed worker have no authority.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps obsolete worker responses from changing the committed face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Correlates resident worker requests and recovers after a transport failure.
  */
 export function createHumanResidentWorker<Input, Output>(
   factory: () => HumanResidentPort<Input, Output>,

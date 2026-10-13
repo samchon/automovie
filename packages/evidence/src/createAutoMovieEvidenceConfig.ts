@@ -56,24 +56,10 @@ import {
 import { validateAutoMoviePopulationAccountHosts } from "./validateAutoMoviePopulationAccountHosts";
 import { walkAutoMovieProjectPopulationFiles } from "./walkAutoMovieProjectPopulationFiles";
 
-/**
- * A generated production's mutually exclusive evidence topology.
- *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes one of the three project-owned production shapes admitted by the shared contract.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the production shape one explicit value in the generated project's sole lint configuration.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries the production-shape portion of the reusable configuration contract.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Supplies the declared film, brief, or library state to the reusable graph factory.
- */
+/** A generated production's mutually exclusive evidence topology. */
 export type AutoMovieProductionKind = "brief" | "film" | "library";
 
-/**
- * One authoring branch's current enforcement state.
- *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes the branch lifecycle used by every generated production shape.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes every branch stage visible in the generated project's sole lint configuration.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries the lifecycle portion of the reusable configuration contract.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Supplies the closed disabled, draft, evidence, and review lifecycle states.
- */
+/** One authoring branch's current enforcement state. */
 export type AutoMovieEvidenceStage =
   | "disabled"
   | "draft"
@@ -87,27 +73,13 @@ type Stage = AutoMovieEvidenceStage;
  * Independent audience-language revision stages for a finished film script.
  *
  * @author Samchon
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes final screenplay revision visible independently from construction.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed screenplay naturalness stage map.
  */
 export interface IAutoMovieNaturalnessStages {
-  /**
-   * Final-screenplay revision under `docs/final/screenplays`.
-   *
-   * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Exposes the final screenplay stage in the sole project declaration.
-   * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Supplies the stage that gates final screenplay claims and shot authorship.
-   */
+  /** Final-screenplay revision under `docs/final/screenplays`. */
   screenplays: Stage;
 }
 
-/**
- * One generated project's complete evidence-graph declaration.
- *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Exposes the complete project-owned input to the reusable evidence contract.
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Carries the full project-owned selection without a scaffold-local configuration module or hidden host default.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Carries every input field required to construct and validate the production graph.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Implements the exact location, kind, branch-stage, and additive-claim input state.
- */
+/** One generated project's complete evidence-graph declaration. */
 export interface IAutoMovieEvidenceConfigProps {
   /** Absolute generated-project root whose physical populations are validated. */
   location: string;
@@ -1127,9 +1099,6 @@ const describeDeclarationValue = (value: unknown): string =>
 
 /**
  * Validate the explicit, closed stage map for the final audience-language pass.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Refuses omitted or misspelled final-pass selection instead of inferring it from resident files.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Admits only the screenplay naturalness key and the shared lifecycle stages.
  */
 export const validateAutoMovieNaturalnessStages = (value: unknown): void => {
   if (value === null || typeof value !== "object" || Array.isArray(value))
@@ -2322,9 +2291,6 @@ const requireCompletedFoundations = (graph: IProductionGraph): void => {
  *
  * This decision reads no files. The graph factory separately admits physical
  * populations, contracts, and reset predecessor identities before publication.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps each production shape and final revision behind its applicable completed parents.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Applies the shared stage state machine to typed declarations before any graph claims are returned.
  */
 export const validateAutoMovieProductionStages = (
   graph: IProductionGraph,
@@ -2558,9 +2524,6 @@ const finalScreenplayFiles = (graph: IProductionGraph): string[] =>
  *
  * The graph factory supplies its physical file walker and Markdown H2 reader;
  * pure callers can supply the same boundary facts without creating a project.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Derives the exact account allowlist from the same production declaration as graph lint.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Checks local and shared ownership collisions, stage residue, and H2 counts before returning graph configuration.
  */
 export const validateAutoMovieEvidenceAccounts = (
   graph: IProductionGraph,
@@ -3067,9 +3030,6 @@ const referencesPerFile = (
  * why {@link validateAutoMovieProductionStages} refuses to complete a host over
  * an active incomplete foundation. The result keeps the declared foundation
  * order.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Pays each host's design foundations from the stage at which a foundation completes.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Selects completed active foundations in declared order for the host's authored claims.
  */
 export const selectAutoMovieCompletedDesignFoundations = (
   graph: IAutoMovieEvidenceConfigProps,
@@ -3252,9 +3212,6 @@ const authoredClaims = (graph: IProductionGraph): IBranchClaim[] => {
  *
  * The graph factory uses this same pure assembly after validating stages and
  * physical hosts, so file identity and unit-level expression remain distinct.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps final naturalness checklists separate from construction obligations.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits file and same-depth construction lineage plus the three per-heading naturalness checklists for the selected stage and population.
  */
 export const createAutoMovieScreenplayNaturalnessClaims = (
   graph: IProductionGraph,
@@ -3663,16 +3620,6 @@ const referencedMarkdownBranch = (
  * Derive the selected common-contract and population routes from the same
  * validated claims used by `createAutoMovieEvidenceConfig`.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Implements a reusable, human-readable view of the selected production contract.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Exposes exact shared contract files without a separately maintained binding list.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Selects routes from the declared film, brief, or library branch combination.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Reports the concrete host and reference populations after the same physical validation as lint configuration.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Returns the factory's deterministic branch, claim, and reference ordering.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Implements the reusable routing projection of the evidence configuration system.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Projects contract paths, domains, and anchors from the canonical inventory and live graph references.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Includes every active branch and preserves pending draft relationships beside current enforcement state.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Reuses the validated flat-treatment, grouped-delivery, direct-coverage, and same-depth lineage populations.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Preserves the canonical factory order without filesystem-dependent resorting.
  * @author Samchon
  */
 export const createAutoMovieContractBindingManifest = (
@@ -3759,24 +3706,6 @@ export const createAutoMovieContractBindingManifest = (
 /**
  * Build the immutable shared graph and append production-owned claims.
  *
- * @evidence requirements/production-evidence/README.md#production-evidence-requirements Implements the reusable graph behind the project-owned production declaration.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Applies the same exact shared principles, obligations, and discovery inventory to every generated project.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-discovery Distinguishes a completed production-specific search from an omitted search on every authored layer's separate contract audit surface.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Enforces the mutually exclusive production shapes and staged parent-child progression.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Validates real target identities, hosts, owners, and lineage before returning a graph.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Appends production-owned claims without exposing a replacement seam for the shared graph.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Produces one deterministic graph or fails with the concrete contradictory state.
- * @evidence requirements/agent-authoring/production-language.md#agent-production-language-contract Validates and routes the one selected language module, admitting an unselected value only for the unrendered scaffold that has no pack and no branch.
- * @evidence requirements/production-evidence/authoring-contracts.md#agent-production-evidence-contract-discriminators Selects distinct unit, population, screenplay, and design contract targets.
- * @evidence specifications/production-evidence/README.md#production-evidence-specifications Implements the shared construction and validation boundary for generated projects.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Reads and validates the fixed shared contract inventory before constructing claims.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-discovery Wires common, settings, design-shared, design-layer, film, narrative-layer, and brief discovery targets to each active layer's flat work-specific contract population while research remains common-only.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Implements the film, brief, and library stage state machine.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Enumerates actual non-linked project populations and enforces flat treatment events, grouped script and screenplay units, direct treatment coverage, and exact same-depth screenplay lineage.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Constructs shared claims first and composes local claims after them.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Uses deterministic identities and ordering and returns no partial graph after a validation failure.
- * @evidence specifications/authoring-and-authority/production-language.md#spec-authoring-production-language-module Refuses incomplete, residual, or identity-mismatched language contracts.
- * @evidence specifications/production-evidence/authoring-contracts.md#spec-authoring-production-evidence-contract-discriminators Routes each semantic discriminator to its exact authored or population host.
  * @author Samchon
  */
 export const createAutoMovieEvidenceConfig = (

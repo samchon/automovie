@@ -14,8 +14,6 @@ import type {
  * returns the document an editor that never set one would save. The caller's
  * document is not changed.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Writes an anatomical target into the body document the editor commits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Stores the stated target at its request path and removes it when cleared, leaving no empty branch.
  * @author Samchon
  */
 export function writeConnectedBodyAnatomyTarget(

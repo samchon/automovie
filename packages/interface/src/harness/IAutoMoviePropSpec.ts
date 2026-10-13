@@ -16,17 +16,10 @@ import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
  * articulation, when present, must bind its profile onto the declared nodes
  * without a dangling reference.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `IAutoMoviePropSpec` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `IAutoMoviePropSpec` for the performance interaction attachment object handoff system contract.
  * @author Samchon
  */
 export interface IAutoMoviePropSpec {
-  /**
-   * The scene node this prop will occupy (the staging join key).
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `node` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `node` for the performance interaction attachment object handoff system contract.
-   */
+  /** The scene node this prop will occupy (the staging join key). */
   node: string;
 
   /**
@@ -35,27 +28,16 @@ export interface IAutoMoviePropSpec {
    * `"generated"` for a prop drawn from those parts and `"imported"` for one
    * drawing a registered external appearance, which {@link modelRef} names and
    * gates.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `model` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `model` for the performance interaction attachment object handoff system contract.
    */
   model: IAutoMovieModel;
 
-  /**
-   * Self-declared moving parts, or `null` for a rigid prop.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `articulation` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `articulation` for the performance interaction attachment object handoff system contract.
-   */
+  /** Self-declared moving parts, or `null` for a rigid prop. */
   articulation: IAutoMoviePropArticulation | null;
 
   /**
    * Optional semantic placement constraints checked beside the staged node.
    * Omission preserves the original prop contract: the prop is forged and
    * staged without claiming a building relation or a keep-out volume.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `placement` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `placement` for the performance interaction attachment object handoff system contract.
    */
   placement?: IAutoMoviePropPlacement;
 
@@ -108,9 +90,6 @@ export interface IAutoMoviePropSpec {
    * performer and goes through `forgeCast`. Whether those digests match bytes
    * on disk, and whether the reference resolves to a registration at all, are
    * the builder's own gates, where the registry and the files are.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `modelRef` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `modelRef` for the performance interaction attachment object handoff system contract.
    */
   modelRef?: string | null;
 }

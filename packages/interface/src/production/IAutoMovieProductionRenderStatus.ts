@@ -1,26 +1,11 @@
 import type { IAutoMovieRenderBundleManifest } from "./IAutoMovieRenderBundleManifest";
 
-/**
- * One discovered renderer-owned evidence bundle.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Exposes `IAutoMovieProductionRenderStatus` as the portable data boundary for the rendering lowering ownership requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `IAutoMovieProductionRenderStatus` for the spec render state isolation system contract.
- */
+/** One discovered renderer-owned evidence bundle. */
 export interface IAutoMovieProductionRenderStatus {
-  /**
-   * Project-relative bundle manifest.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Exposes `path` as the portable data boundary for the rendering lowering ownership requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `path` for the spec render state isolation system contract.
-   */
+  /** Project-relative bundle manifest. */
   path: string;
 
-  /**
-   * Whether the bundle matches current target-local inputs.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Exposes `current` as the portable data boundary for the rendering lowering ownership requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `current` for the spec render state isolation system contract.
-   */
+  /** Whether the bundle matches current target-local inputs. */
   current: boolean;
 
   /**
@@ -31,9 +16,6 @@ export interface IAutoMovieProductionRenderStatus {
    * consumer had to parse a shot id out of a directory name and diff it against
    * the compile manifest by hand. Handing back the manifest's own target makes
    * the same question one comparison.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Exposes `target` as the portable data boundary for the rendering lowering ownership requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `target` for the spec render state isolation system contract.
    */
   target: IAutoMovieRenderBundleManifest["target"] | null;
 
@@ -52,9 +34,6 @@ export interface IAutoMovieProductionRenderStatus {
    * resolve, reports `true` rather than accusing a bundle of being unowned on a
    * failure to look. Deletion stays the reader's decision either way; this
    * surface says what is there, and never removes it.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Exposes `owned` as the portable data boundary for the rendering lowering ownership requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Types `owned` for the spec render state isolation system contract.
    */
   owned: boolean;
 }

@@ -17,8 +17,6 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * can aggregate per-keyframe violations under a clip-level path); otherwise
  * collects locally. Returns the collector so callers can chain.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validatePose` reports unknown or duplicate bones and anatomical rotation violations at the indexed pose-bone path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validatePose` preserves bone identity, observed rotation, effective ROM expectation, and structural collection position for each finding.
  * @author Samchon
  */
 export const validatePose = (props: {

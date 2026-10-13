@@ -12,8 +12,6 @@ import { createHumanFacePeriocularDefaults } from "@automovie/human/face/anatomy
  * selections retain their sparse meaning.
  * All records are copied, and an unavailable owner default stays unavailable.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Preserves neighboring omitted-default tissues when the first tissue control is applied.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reads the face owner's exact default conversion and retains explicit sparse selections without changing the caller's document.
  * @author Samchon
  */
 export function prepareConnectedPersonCatalogueInput(

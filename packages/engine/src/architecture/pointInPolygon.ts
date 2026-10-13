@@ -8,9 +8,6 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * Exported because the service-network validator locates a port on a boundary
  * face with it: one planar containment answer for the whole architecture graph
  * is the point of keeping these predicates in one module.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `pointInPolygon` produces whether a point is inside a simple polygon, its own boundary included. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `pointInPolygon` classifies a finite point against a simple polygon while treating its boundary as inside.
  */
 export const pointInPolygon = (
   point: IAutoMoviePlanarPoint,

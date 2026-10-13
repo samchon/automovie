@@ -50,13 +50,7 @@ export const canonicalAutoMovieRepaintRuntimeIdentity = (
   return canonicalizeAutoMovieJson(identity);
 };
 
-/**
- * Validate the cost basis, consumer, and supplied descriptive metadata.
- *
- * @evidence requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-acquisition-activity Canonicalizes generator consumer facts without treating them as a replay guarantee.
- * @evidence requirements/repaint/identity-and-provenance.md#repaint-nondeterminism-record Keeps the selected generator context distinct from a promise to reproduce output bytes.
- * @evidence specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-generated-acquisition-snapshot Canonicalizes the generator context accompanying an execution receipt.
- */
+/** Validate the cost basis, consumer, and supplied descriptive metadata. */
 export const canonicalAutoMovieRepaintGeneratorProvenance = (
   provenance: IAutoMovieRepaintGeneratorProvenance,
 ): string => {
@@ -167,12 +161,7 @@ export const productionRepaintStructuralControls = (
         .map((frame) => frame.digest),
     }));
 
-/**
- * Content-addressed output path for one immutable rendition.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Binds a candidate output to the complete immutable attempt request rather than an optional subset of its policy or evidence.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Keeps candidate identity distinct when any bounded policy or upstream evidence owner changes.
- */
+/** Content-addressed output path for one immutable rendition. */
 export const productionRepaintOutputPath = (props: {
   shot: string;
   sourceRenderFingerprint: AutoMovieContentDigest;
@@ -212,9 +201,7 @@ export const productionRepaintOutputPath = (props: {
   ].join("/");
 };
 
-/** Content identity shared by every transport retry of one repaint request.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-downstream-fidelity-output Gives a repaint rendition an identity of its own, derived from but distinct from the deterministic source render.
- */
+/** Content identity shared by every transport retry of one repaint request. */
 export const productionRepaintRequestFingerprint = (props: {
   shot: string;
   compileFingerprint: AutoMovieContentDigest;

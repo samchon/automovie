@@ -11,9 +11,6 @@
  * viewer installs no loader for, so an asset declaring it does not render at
  * all, and saying so beside the material extensions is more useful than staying
  * silent because the bytes are "only" compressed.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-validation-gap `isAutoMovieMaterialExtension` recognizes material or texture extension namespaces without treating unrelated imported features as parity gaps.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-status-failures `isAutoMovieMaterialExtension` bounds unsupported classification to extensions whose own identity declares surface semantics.
  */
 export const isAutoMovieMaterialExtension = (name: string): boolean =>
   name

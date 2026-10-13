@@ -5,9 +5,6 @@ import { mixSeed } from "./mixSeed";
  *
  * Callers must include a stable domain constant when the same identities feed
  * independent decisions such as misfire, hit, scale, or palette.
- *
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Maps stable authored identities to the same bounded variation value on every replay.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Maps stable authored identities to the same bounded variation value on every replay.
  */
 export const seededValue = (...values: number[]): number => {
   let state = 0x9e3779b9;

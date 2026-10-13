@@ -6,12 +6,7 @@ import {
   projectAutoMovieAuthoredMarkdown,
 } from "./parseAutoMovieEvidenceSyntax";
 
-/**
- * Exact retained host identity captured when a first pilot passes.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes every retained host identity an explicit reset input.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the two independent host digests recorded by a pilot receipt.
- */
+/** Exact retained host identity captured when a first pilot passes. */
 export interface IAutoMovieRetainedPilotHost {
   /** Normalized project-relative path. */
   path: string;
@@ -21,12 +16,7 @@ export interface IAutoMovieRetainedPilotHost {
   evidenceTagSha256: string;
 }
 
-/**
- * Passed film-pilot state required by a complete-production reset.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the exact film predecessor visible in the reset declaration.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the versioned film transition receipt.
- */
+/** Passed film-pilot state required by a complete-production reset. */
 export interface IAutoMovieFilmPopulationTransitionReceipt {
   /** Versioned receipt syntax. */
   version: 1;
@@ -57,9 +47,6 @@ export interface IAutoMovieFilmPopulationTransitionReceipt {
  *
  * The type name preserves the version-1 receipt API; completion occurs at
  * evidence, with review retained as a compatible declaration.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Names the completed library pair authorized to reset together.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Restricts a library predecessor to a real design/source pair.
  */
 export interface IAutoMovieReviewedLibraryPair {
   /** Authored design branch. */
@@ -82,12 +69,7 @@ export interface IAutoMovieReviewedLibraryPair {
     | "systemSources";
 }
 
-/**
- * Passed library-pilot state required by a complete-production reset.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the exact library predecessor visible in the reset declaration.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the versioned library transition receipt.
- */
+/** Passed library-pilot state required by a complete-production reset. */
 export interface IAutoMovieLibraryPopulationTransitionReceipt {
   /** Versioned receipt syntax. */
   version: 1;
@@ -105,22 +87,12 @@ export interface IAutoMovieLibraryPopulationTransitionReceipt {
   retainedHosts: readonly IAutoMovieRetainedPilotHost[];
 }
 
-/**
- * Historical predecessor accepted by a complete-production reset.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Restricts reset authority to one declared film or library predecessor.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Exposes the closed transition-receipt union.
- */
+/** Historical predecessor accepted by a complete-production reset. */
 export type AutoMoviePopulationTransitionReceipt =
   | IAutoMovieFilmPopulationTransitionReceipt
   | IAutoMovieLibraryPopulationTransitionReceipt;
 
-/**
- * Current host supplied to transition validation.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the reset candidate population explicit.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Carries one current host's stable path and complete source.
- */
+/** Current host supplied to transition validation. */
 export interface IAutoMoviePopulationTransitionHost {
   /** Normalized project-relative host path. */
   path: string;
@@ -128,12 +100,7 @@ export interface IAutoMoviePopulationTransitionHost {
   source: string;
 }
 
-/**
- * Inputs required to validate one reset against its passed pilot.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the reset shape, root, receipt, stages, and hosts visible together.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the complete transition-validation input.
- */
+/** Inputs required to validate one reset against its passed pilot. */
 export interface IValidateAutoMoviePopulationTransitionProps {
   /** Current production shape. */
   kind: "film" | "library";
@@ -167,9 +134,6 @@ const LIBRARY_PAIRS = new Map<string, string>([
 
 /**
  * Creates the body and evidence identity stored for one retained pilot host.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Captures the exact retained-host predecessor used by reset validation.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Produces the stable body and tag identities required by the reset state machine.
  */
 export function createAutoMovieRetainedPilotHost(
   host: IAutoMoviePopulationTransitionHost,
@@ -191,12 +155,7 @@ export function createAutoMovieRetainedPilotHost(
   };
 }
 
-/**
- * Validates the privileged reset transition against its exact passed pilot.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Makes the only backward stage transition executable from a versioned predecessor.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Requires the complete film ladder or every recorded library pair to move from completed predecessor to current draft together.
- */
+/** Validates the privileged reset transition against its exact passed pilot. */
 export function validateAutoMoviePopulationTransition(
   props: IValidateAutoMoviePopulationTransitionProps,
 ): void {

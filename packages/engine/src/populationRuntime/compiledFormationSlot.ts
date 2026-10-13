@@ -23,11 +23,6 @@ import { formationSlotRecord } from "../formationSlotRecord";
  * node and carries the base recipe, the designed heading and the seeded motion
  * phase. A test pins the two answers equal for every slot of a compiled
  * formation.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Returns the same member identity, grounded transform and motion phase for a slot whichever consumer regenerates it from the compiled record.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Makes a one-member regeneration return exactly the transform and state the full compiled runtime holds for that slot.
- * @evidence requirements/formations/scope-and-identity.md#formation-authoring-mode-selection Resolves one reviewable member, hero or anonymous, from a compact formation without expanding its roster.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Regenerates members through the shared slot generator and the compiled terrain snapshot instead of a consumer's own layout arithmetic.
  */
 export const compiledFormationSlot = (
   formation: IAutoMovieCompiledFormation,

@@ -16,9 +16,6 @@ import type { IAutoMovieLibrarySourceExecutionPlan } from "./libraryAuthoringSna
  * Owner paths and anchors have already been validated by the evidence graph.
  * Duplicate-address admission remains the graph's responsibility; this stage
  * preserves the selected population's order and performs no source execution.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Gives a library source registration the exact acquired design address and its source-binding branch.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Projects evaluation contexts from the acquired owner population and graph-admitted settings exports.
  */
 export const createAutoMovieLibraryOwnerContexts = (props: {
   /** Namespace included in every source owner's evaluation context. */

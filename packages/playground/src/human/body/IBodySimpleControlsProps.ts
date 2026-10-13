@@ -7,8 +7,6 @@ import type { IBodySimpleBody } from "./IBodySimpleBody";
  * off-thread solvers, the panel's intent hooks, and where its whole-person
  * readings come from.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Carries the off-thread solvers and whole-person reading source the simple-tier inputs use.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Names where the simple tier is drawn and the expansion and inversion solvers its inputs drive.
  * @author Samchon
  */
 export interface IBodySimpleControlsProps {

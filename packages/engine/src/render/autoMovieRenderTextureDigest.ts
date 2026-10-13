@@ -17,9 +17,6 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * The caller supplies the current shot's required source closure; retained
  * scopes are filtered to the texture channels and environment they consume.
  * This proves identity, not validity or a complete memory bound.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Binds budget reuse to actual decoded representation, source sharing and retained context storage without random UUID drift.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-target-fingerprint-protocol Gives host upload facts and stable sharing groups a deterministic versioned field encoding.
  */
 export function autoMovieRenderTextureDigest(
   sources: readonly IAutoMovieRenderTextureSource[],

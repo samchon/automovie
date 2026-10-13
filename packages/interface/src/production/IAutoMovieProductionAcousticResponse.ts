@@ -1,11 +1,6 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
-/**
- * Bounded room-path result consumed by the production mix.
- *
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-mix-consumption Separates outdoor propagation, same-room response, and cross-room transmission.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#acoustic-mix-consumption-and-claim-boundary Preserves unavailable analysis as unsupported or not-run rather than an invented effect.
- */
+/** Bounded room-path result consumed by the production mix. */
 export type IAutoMovieProductionAcousticResponse =
   | {
       /** A bounded response is available. */

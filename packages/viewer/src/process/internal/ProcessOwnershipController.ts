@@ -15,8 +15,6 @@ import { selectProcessOwnershipTree } from "./selectProcessOwnershipTree.ts";
  * @evidence contracts/common.md#clear-and-simple-design One lifetime host supplies discovery and termination effects while one capture map owns child authority and stop admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Composition accepts its own effect port without changing OS globals or observed child methods; age and executable names cannot grant stop authority.
  * @evidence contracts/common.md#meaningful-documentation States lifetime host composition, capture-key ownership, failure propagation and explicit identity admission before effects.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Keeps one session's lifetime host and captured original-child authority distinct from discovery and native termination effects.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The public facade supplies the actual Node host once; the retained controller uses it for creation discovery, ancestry admission and explicit termination.
  */
 export class ProcessOwnershipController {
   private readonly children = new WeakMap<IProcessChildObservation, string>();
@@ -39,8 +37,6 @@ export class ProcessOwnershipController {
    * @evidence contracts/common.md#clear-and-simple-design One WeakMap owns capture authority without mutating the child object.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not synthesize absent identities or adopt a newer allocation during re-capture.
    * @evidence contracts/common.md#meaningful-documentation States one-time capture and absence/failure effects.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Retains the original spawned allocation instead of adopting a reused PID.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Stores actual host creation identity under the original child observation.
    */
   public own(child: IProcessChildObservation): void {
     if (this.children.has(child) || child.pid === undefined) return;
@@ -57,8 +53,6 @@ export class ProcessOwnershipController {
    * @evidence contracts/common.md#clear-and-simple-design Child-lifecycle admission delegates the shared platform decision to stop.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Never signals an ended child through a possibly reused integer PID or grants unstamped authority.
    * @evidence contracts/common.md#meaningful-documentation Defines ended, uncreated and unstamped live-child outcomes.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Leaves ended or unowned child observations outside termination effects.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Admits only an original live child with retained creation authority.
    */
   public stopChild(child: IProcessChildObservation): void {
     if (child.exitCode !== null || child.signalCode !== null || child.pid === undefined)
@@ -77,8 +71,6 @@ export class ProcessOwnershipController {
    * @evidence contracts/common.md#clear-and-simple-design Shared selector admission precedes the single discovery effect.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not turn discovery failure into a guessed identity.
    * @evidence contracts/common.md#meaningful-documentation States admission timing and unchanged host outcomes.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Supplies actual allocation observations only for admitted process selectors.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Owns selector admission before native creation discovery.
    */
   public read(pid: number): string | null {
     requireProcessId(pid);
@@ -94,8 +86,6 @@ export class ProcessOwnershipController {
    * @evidence contracts/common.md#clear-and-simple-design One stop decision consumes fresh observations and shares ancestry admission with the public tree API.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Has no age, name or silence input and propagates identity or host failures without unchecked recursive termination.
    * @evidence contracts/common.md#meaningful-documentation States the host-effect order and retained POSIX check/signal race.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Refuses mismatched allocation authority before a platform termination request.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Owns creation admission while the native host owns actual handle or signal effects.
    */
   public stop(pid: number, createdAt: string): void {
     requireProcessId(pid);

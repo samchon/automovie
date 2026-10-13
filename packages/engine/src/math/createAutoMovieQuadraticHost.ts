@@ -14,9 +14,6 @@
  * Create isolated runtime imports for one reactor. The memory getter must be
  * usable before invoking its exports. No host clock, randomness, environment,
  * console, filesystem or process exit can influence the numerical result.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Keeps shared constrained-displacement computation independent of ambient host state.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Supplies deterministic runtime services while leaving geometry and caller data outside the native module.
  */
 export function createAutoMovieQuadraticHost(memory: () => WebAssembly.Memory) {
   let ticks = 0n;

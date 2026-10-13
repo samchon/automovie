@@ -1,11 +1,6 @@
 import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
-/**
- * A measurable acceptance criterion.
- *
- * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-art-direction-acceptance Exposes `IAutoMovieAcceptanceCriterion` as the portable data boundary for the production design art direction acceptance requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-acceptance Types `IAutoMovieAcceptanceCriterion` for the narrative intent visual language acceptance system contract.
- */
+/** A measurable acceptance criterion. */
 export type IAutoMovieAcceptanceCriterion =
   | {
       /** Visual frame criterion. */

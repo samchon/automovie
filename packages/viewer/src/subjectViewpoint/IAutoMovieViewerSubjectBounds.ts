@@ -7,8 +7,6 @@
  * shape is deliberately the structural intersection of all three rather than a
  * fourth spelling of the same box.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `IAutoMovieViewerSubjectBounds` supplies the subject's own extent, which is what lets the inspection choose a viewpoint without an authored camera.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `IAutoMovieViewerSubjectBounds` types the extent a viewpoint plan derives its distances from.
  * @author Samchon
  */
 export interface IAutoMovieViewerSubjectBounds {

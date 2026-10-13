@@ -19,8 +19,6 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * boundAutoMovieConvexSeparation and the resident mesh query share this owner;
  * approximate feature witnesses only choose its stored direction.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies conservative complete-feature separation to resident geometry operations rather than point-sample collision assertions.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Qualifies convex support separation through outward arithmetic while preserving the supplied coordinate representation.
  * @author Samchon
  */
 export function boundAutoMovieProjectionSeparation(

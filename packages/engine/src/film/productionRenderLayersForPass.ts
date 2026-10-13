@@ -8,9 +8,6 @@ import { AutoMovieGuidePass } from "@automovie/interface";
  * they select the dominant shot layer instead (incoming wins an exact tie).
  * Every result is a fresh copy, so a caller mutating it cannot alter the frame
  * another pass reads.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Composites weighted layers only for beauty and gives every structural pass one unblended dominant layer so beauty blending never contaminates structural truth.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Keeps the beauty appearance input and a structural product's declared fact separate at a transition.
  */
 export const productionRenderLayersForPass = <Layer extends { weight: number }>(
   frame: { layers: readonly Layer[] },

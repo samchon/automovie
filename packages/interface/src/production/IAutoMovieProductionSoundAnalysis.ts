@@ -1,80 +1,30 @@
-/**
- * Parser-independent evidence calculated from the final mixed PCM.
- *
- * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `IAutoMovieProductionSoundAnalysis` as the portable data boundary for the sound budget evidence requirement.
- * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `IAutoMovieProductionSoundAnalysis` for the sound budget and audible review system contract.
- */
+/** Parser-independent evidence calculated from the final mixed PCM. */
 export interface IAutoMovieProductionSoundAnalysis {
-  /**
-   * Analysis schema.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `version` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `version` for the sound budget and audible review system contract.
-   */
+  /** Analysis schema. */
   version: 1;
 
-  /**
-   * Fixed output PCM clock.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `sampleRate` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `sampleRate` for the sound budget and audible review system contract.
-   */
+  /** Fixed output PCM clock. */
   sampleRate: 48_000;
 
-  /**
-   * Exact interleaved stereo frame count.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `sampleFrames` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `sampleFrames` for the sound budget and audible review system contract.
-   */
+  /** Exact interleaved stereo frame count. */
   sampleFrames: number;
 
-  /**
-   * Runtime derived from the PCM clock.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `runtimeSeconds` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `runtimeSeconds` for the sound budget and audible review system contract.
-   */
+  /** Runtime derived from the PCM clock. */
   runtimeSeconds: number;
 
-  /**
-   * ITU-R BS.1770 K-weighted, gated integrated loudness in LUFS.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `integratedLoudness` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `integratedLoudness` for the sound budget and audible review system contract.
-   */
+  /** ITU-R BS.1770 K-weighted, gated integrated loudness in LUFS. */
   integratedLoudness: number | null;
 
-  /**
-   * Absolute post-limiter sample peak.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `samplePeak` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `samplePeak` for the sound budget and audible review system contract.
-   */
+  /** Absolute post-limiter sample peak. */
   samplePeak: number;
 
-  /**
-   * Number of post-limiter samples outside [-1, 1].
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `clippingSamples` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `clippingSamples` for the sound budget and audible review system contract.
-   */
+  /** Number of post-limiter samples outside [-1, 1]. */
   clippingSamples: number;
 
-  /**
-   * Longest contiguous near-silent span.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `longestSilenceSeconds` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `longestSilenceSeconds` for the sound budget and audible review system contract.
-   */
+  /** Longest contiguous near-silent span. */
   longestSilenceSeconds: number;
 
-  /**
-   * Per-event energy evidence centered on the authoritative event frame.
-   *
-   * @evidence requirements/sound/validation-and-delivery.md#sound-budget-evidence Exposes `eventAlignment` as the portable data boundary for the sound budget evidence requirement.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Types `eventAlignment` for the sound budget and audible review system contract.
-   */
+  /** Per-event energy evidence centered on the authoritative event frame. */
   eventAlignment: Array<{
     /** Stable sound occurrence id. */
     id: string;

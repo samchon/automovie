@@ -20,9 +20,6 @@ import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhys
  * This mesh matcher also checks connectivity because its candidate includes it.
  * Invalid capture throws; malformed candidates return false for ordinary
  * validation rather than reusing a cached verdict. XYZ units are metres.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Invalidates topology reuse on changed connectivity, source meaning, legacy equivalence or coordinate-collapsed face participation.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Captures owned equivalence and participation data through the shared physical resolver and coordinate-degeneracy owner.
  */
 export function createMeshPhysicalPartitionMatcher(mesh: IAutoMovieMesh) {
   const capture = (input: IAutoMovieMesh) => {

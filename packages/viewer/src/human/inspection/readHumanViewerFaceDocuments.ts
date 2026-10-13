@@ -18,8 +18,6 @@ import { humanViewerPublishedBasis } from "./humanViewerPublishedBasis.js";
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the face group; other groups build on its reference.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied subject documents retain the published basis and builder digests without a fitted likeness conversion or falsely claimed schema admission.
  * @evidence contracts/common.md#meaningful-documentation States the reference, the key inputs and the admission boundary.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Keys and tokens bind each face to its exact basis and builder source.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document One reader owns the face group; other groups build on its reference.
  */
 export function readHumanViewerFaceDocuments(
   props: IReadHumanViewerFaceDocumentsProps,

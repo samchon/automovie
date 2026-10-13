@@ -12,9 +12,6 @@ import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
  * — a contradiction validation refuses by name, and one this function has no
  * business re-deciding. The route parameter is not range-checked here; the
  * id-addressed form owns that guard.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtConnectorSection` produces the usable section of one connector record, or null when it states none. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtConnectorSection` returns the usable section declared by a connector, or `null` when it has none.
  */
 export const builtConnectorSection = (
   connector: IAutoMovieBuiltConnector,

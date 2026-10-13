@@ -12,8 +12,6 @@ import { decodeWindowsProcessResult } from "./decodeWindowsProcessResult.ts";
  * @evidence contracts/common.md#clear-and-simple-design Owns the actual hidden subprocess effect without duplicating decoder or identity-admission policy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Never interpolates PIDs into shell code or replaces installed or native process methods.
  * @evidence contracts/common.md#meaningful-documentation States transports, window behavior and the real-OS observation boundary.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Runs the session's native process operation with explicit result and failure handling.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Implements the native Windows effect behind the controller's host port.
  */
 export function runWindowsProcessOperation(program: string, input: unknown): unknown {
   const script = "$ErrorActionPreference = 'Stop'\n" +

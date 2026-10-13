@@ -28,8 +28,6 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
 
 /**
  * Extend prior counts with simulated drawable costs and explicit missing inputs.
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Measures the declared geometry and resource population for conservative render admission.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps the measured cost and explicit unmeasured gaps in the one-frame preflight inventory.
  */
 export const measureRenderSimulation = (props: {
   subject: IAutoMovieRenderSubject;

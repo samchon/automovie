@@ -15,8 +15,6 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * The current pose retains its non-chain joints; a prior pose only ranks
  * equally accurate bend choices. The solver owns no replacement rig limits.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Carries the actual measured chain, requested contact point and effective rig used by the constrained fit.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Keeps target, semantic frames, topology and prior-pose continuity inputs explicit for the shared contact policy.
  * @author Samchon
  */
 export interface IFitChainToTargetProps {

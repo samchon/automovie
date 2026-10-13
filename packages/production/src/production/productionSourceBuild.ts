@@ -40,8 +40,8 @@ export interface ISourceBuildResult<T> {
   registrationScene?: string;
 }
 
-/** Load a project module through Node and validate its selected registration and build result.
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Loads project modules with ordinary Node execution and validates their results.
+/**
+ * Load a project module through Node and validate its selected registration and build result.
  */
 export const buildSourceExport = <T>(
   props: ISourceBuildProps<T>,
@@ -217,9 +217,6 @@ export interface ICompiledLibraryOwnerRegistration {
  * than silently skipped, because a module that builds a subject no completed
  * decision asked for would publish an artifact no authored owner charges an
  * observation on.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Evaluates the selected library module with ordinary Node loading from the project's own package root, so an owner is plain project code rather than a hidden editor state.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Evaluates exactly the graph-selected project-relative path whose exports are then admitted as owner edges.
  */
 export const buildLibrarySource = (props: {
   /** Project-relative source path selected by an enforced graph binding. */

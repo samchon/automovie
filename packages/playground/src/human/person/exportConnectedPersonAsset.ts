@@ -11,8 +11,6 @@ import type { IConnectedPersonAssetExportProps } from "./IConnectedPersonAssetEx
  * person's own document; unapplied document text is never encoded. Returns
  * the line to report, or null when there is nothing to say.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Exports the displayed person, and a refused draft only together with its admission report.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Discards the encoded bytes when the displayed person changed during encoding.
  * @author Samchon
  */
 export async function exportConnectedPersonAsset<Model>(

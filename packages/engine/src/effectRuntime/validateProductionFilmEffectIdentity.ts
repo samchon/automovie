@@ -8,9 +8,6 @@ import { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffectCurre
  * must be exact lowercase SHA-256 content digests. The writer checks this
  * before it stamps a runtime and the sampler before it compares one, so a
  * malformed identity is refused as input rather than read as a stale match.
- *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-cache-identity Admits only complete production, film, compile and edit identities as the key a persisted stream is matched against.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#checkpoint-cache-identity-and-validity Refuses a malformed identity key before any runtime is written or reused under it.
  */
 export const validateProductionFilmEffectIdentity = (
   identity: IAutoMovieFilmEffectCurrentIdentity,

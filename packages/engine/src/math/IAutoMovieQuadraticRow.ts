@@ -3,8 +3,6 @@
  * have the same length. A null endpoint is unbounded. Empty rows are constant
  * zero constraints, which may make the problem infeasible.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Expresses a shared linear displacement condition without attaching it to a particular asset or subject.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains original variable identities, coefficients and both interval bounds for independent residual evaluation.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticRow {

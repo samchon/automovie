@@ -9,8 +9,6 @@ import { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSour
  * file. Verified precomputed inputs arrive through the build context; the
  * builder still performs no filesystem access or implicit generation.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Carries the exact owner address a materialized library artifact is traced back through.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types the declared input a library derivation attempt receives.
  * @author Samchon
  */
 export interface IAutoMovieLibraryBuildContext {
@@ -29,9 +27,6 @@ export interface IAutoMovieLibraryBuildContext {
   /**
    * Declared precomputed artifacts whose basis and output bytes the builder
    * verified before execution, keyed by project-relative output path.
-   *
-   * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Supplies only current declared precomputed inputs to library owners.
-   * @evidence specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness Carries the verified bytes included in the library compilation fingerprint.
    */
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
 }

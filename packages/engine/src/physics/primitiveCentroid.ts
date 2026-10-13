@@ -11,8 +11,6 @@ import {
  * cone with its wide base at `+Y` and apex at `-Y`, so that centroid is at
  * `+height/4`. Every other primitive is centered on its origin.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-weight-cues Locates each primitive's contribution to the center-of-mass proxy.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Supplies the local centroid used by support and load-transfer reasoning.
  * @author Samchon
  */
 export const primitiveCentroid = (

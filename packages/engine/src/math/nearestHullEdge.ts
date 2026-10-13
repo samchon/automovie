@@ -7,9 +7,6 @@ import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
  * The hull boundary edge nearest to `point`, the tip-over axis when an object
  * topples over that edge. A single-vertex hull degenerates to a zero-length
  * edge at that vertex.
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Selects the support edge about which an unstable body would tip.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Selects the support edge about which an unstable body would tip.
  */
 export const nearestHullEdge = (
   point: IAutoMovieVector3,

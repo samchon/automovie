@@ -16,58 +16,28 @@ import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
  * move is an ordinary {@link IAutoMovieClip} of transform (and FOV) tracks: no
  * special camera-animation concept.
  *
- * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `IAutoMovieShot` as the portable data boundary for the camera path time sampling requirement.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `IAutoMovieShot` for the clv camera path direct sampling system contract.
  * @author Samchon
  */
 export interface IAutoMovieShot {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `id` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `id` for the clv camera path direct sampling system contract.
-   */
+  /** Stable id. */
   id: string;
 
-  /**
-   * Human / LLM readable name. Null if unnamed.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `name` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `name` for the clv camera path direct sampling system contract.
-   */
+  /** Human / LLM readable name. Null if unnamed. */
   name: string | null;
 
-  /**
-   * Id of the scene (placed models, lights, cameras) this shot renders.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `scene` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `scene` for the clv camera path direct sampling system contract.
-   */
+  /** Id of the scene (placed models, lights, cameras) this shot renders. */
   scene: string;
 
-  /**
-   * Id of the scene camera that is live for this shot.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `camera` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `camera` for the clv camera path direct sampling system contract.
-   */
+  /** Id of the scene camera that is live for this shot. */
   camera: string;
 
   /**
    * The camera's move for this shot: a clip of the camera node's transform (and
    * FOV) tracks. `null` for a locked-off (static) camera.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `cameraMotion` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `cameraMotion` for the clv camera path direct sampling system contract.
    */
   cameraMotion: IAutoMovieClip | null;
 
-  /**
-   * Per scene-node performances for this shot.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `performances` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `performances` for the clv camera path direct sampling system contract.
-   */
+  /** Per scene-node performances for this shot. */
   performances: IAutoMovieShotPerformance[];
 
   /**
@@ -78,9 +48,6 @@ export interface IAutoMovieShot {
    * and from `cameraMotion` (the one live camera): a projectile has no
    * skeleton, so it moves the same way the camera does: a clip of transform
    * tracks. Empty when the shot animates no such object.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `objectMotions` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `objectMotions` for the clv camera path direct sampling system contract.
    */
   objectMotions: IAutoMovieClip[];
 
@@ -89,9 +56,6 @@ export interface IAutoMovieShot {
    * out, a sunset. Each track addresses one staged light by pointer channel
    * (`/lights/<id>/intensity`); the PERFORMANCE guide states the grammar.
    * Absent means legacy; an empty array means constant light.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `lightMotions` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `lightMotions` for the clv camera path direct sampling system contract.
    */
   lightMotions?: IAutoMovieClip[];
 
@@ -100,9 +64,6 @@ export interface IAutoMovieShot {
    * emits this for contacts, hits, falls, and attach handoffs so downstream
    * tools can follow the same timing the engine used. Absent means legacy or
    * no-event data; an empty array means the shot was assembled and had none.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `events` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `events` for the clv camera path direct sampling system contract.
    */
   events?: IAutoMovieInteractionEvent[];
 
@@ -112,9 +73,6 @@ export interface IAutoMovieShot {
    * diffusion/render host reads beside `cameraMotion`, exactly as it reads
    * `events`. The deterministic camera solve never consumes it. Absent means
    * legacy; an empty array means the shot was assembled with no frame actions.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `cameraIntent` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `cameraIntent` for the clv camera path direct sampling system contract.
    */
   cameraIntent?: IAutoMovieCameraIntent[];
 
@@ -128,9 +86,6 @@ export interface IAutoMovieShot {
    * are alternates of THIS shot, never separate timeline entries. Absent means
    * legacy or single-camera data; an empty array means the shot was assembled
    * with one camera.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `coverage` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `coverage` for the clv camera path direct sampling system contract.
    */
   coverage?: IAutoMovieShotCoverage[];
 
@@ -141,17 +96,9 @@ export interface IAutoMovieShot {
    * Omitted preserves legacy shots whose cameras make no clearance claim. A
    * present list contains only clear reports: blocked or stale evaluation is a
    * performance refusal and no shot artifact is published.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-dynamic-spatial-sampling Carries the fixed-clock swept result beside the exact camera motion it evaluated.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Preserves accepted current-revision reports in the compiled take instead of dropping the gate's evidence.
    */
   cameraClearance?: IAutoMovieCameraClearanceReport[];
 
-  /**
-   * Shot length in seconds (local time origin = 0).
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `duration` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `duration` for the clv camera path direct sampling system contract.
-   */
+  /** Shot length in seconds (local time origin = 0). */
   duration: number;
 }

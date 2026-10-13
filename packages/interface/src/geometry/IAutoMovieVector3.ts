@@ -6,32 +6,15 @@
  * directions (axes, normals). Which one a given field means is documented at
  * that field; the engine range-checks positions where it matters.
  *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `IAutoMovieVector3` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `IAutoMovieVector3` within the declared spatial transform chain.
  * @author Samchon
  */
 export interface IAutoMovieVector3 {
-  /**
-   * X: toward the character's left (+) / right (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `x` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `x` within the declared spatial transform chain.
-   */
+  /** X: toward the character's left (+) / right (−). */
   x: number;
 
-  /**
-   * Y: up (+) / down (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `y` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `y` within the declared spatial transform chain.
-   */
+  /** Y: up (+) / down (−). */
   y: number;
 
-  /**
-   * Z: toward the character's front (+) / back (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `z` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `z` within the declared spatial transform chain.
-   */
+  /** Z: toward the character's front (+) / back (−). */
   z: number;
 }

@@ -36,8 +36,6 @@ import { unresolvedOf } from "./unresolvedOf.js";
  * exactly as it marches in the film, and the mask describes the frame that will
  * be delivered rather than a rest pose nobody sees.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Makes this public surface part of the stable identity-mask channel.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that channel as a structural render product.
  * @author Samchon
  */
 export const applyAutoMovieSemanticMask = (props: {

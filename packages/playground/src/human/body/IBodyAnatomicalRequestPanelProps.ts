@@ -10,8 +10,6 @@ import type { IBodyAnatomicalRequestViewport } from "./IBodyAnatomicalRequestVie
  * `viewport` builds and shows frames, and `download` saves an explicitly
  * exported candidate file.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the reference basis, viewport and download the numerical request panel needs.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps explicit candidate export separate from the request document.
  * @author Samchon
  */
 export interface IBodyAnatomicalRequestPanelProps<

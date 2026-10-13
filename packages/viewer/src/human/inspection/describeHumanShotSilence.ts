@@ -14,8 +14,6 @@ import { readHumanViewerRecord } from "./readHumanViewerRecord.js";
  * @evidence contracts/common.md#clear-and-simple-design Composes the existing record reader, process-liveness check and silence formatter without another startup policy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unanswered probe remains listener evidence and never becomes permission to terminate or replace a process.
  * @evidence contracts/common.md#meaningful-documentation States the two outcomes.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Reports absent and unanswered as different outcomes, with the recorded owner.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Composes the existing record reader, process-liveness check and silence formatter without another startup policy.
  */
 export function describeHumanShotSilence(
   context: IHumanShotContext,

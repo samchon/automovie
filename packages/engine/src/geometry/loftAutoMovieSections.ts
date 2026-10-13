@@ -86,10 +86,6 @@ import { trianglesOf } from "./trianglesOf";
  * already authored against this one. So a finish wanting even texel density
  * belongs on a straight run of constant section, and a cornice that has to turn
  * a corner carries a finish that does not report its own density.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Connects authored planar sections along a declared path.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Refuses incompatible ring topology rather than inventing correspondence.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Measures section travel against path travel in the same developed metre frame the convention states, so one declared scale reads the same on a loft as on a flat face.
  */
 export const loftAutoMovieSections = (props: {
   path: readonly IAutoMovieVector3[];

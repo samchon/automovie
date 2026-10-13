@@ -9,9 +9,6 @@ import type { IAutoMovieProductionSourceGateTrace } from "./IAutoMovieProduction
  * and propagates, because the gate run it belongs to fails with it. Without a
  * trace the reader is returned as it was, so an ordinary compile or lint pays
  * nothing for it.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Records the exact document text a gate answer was judged from.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Captures the document part of the snapshot a gate answer referenced.
  */
 export const recordAutoMovieProductionDocumentRead = (props: {
   /** Trace of the running gate, or `undefined` when nothing records. */

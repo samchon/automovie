@@ -4,9 +4,6 @@ import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTar
 /**
  * Review target forward declaration kept here to avoid requiring callers to
  * import a second module for mutation consequences.
- *
- * @evidence requirements/story/story-clock-and-state.md#story-time-state-review-scope Exposes `IAutoMovieReviewTarget` as the portable data boundary for the story time state review scope requirement.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Types `IAutoMovieReviewTarget` for the narrative intent temporal state handoff system contract.
  */
 export type IAutoMovieReviewTarget =
   | {

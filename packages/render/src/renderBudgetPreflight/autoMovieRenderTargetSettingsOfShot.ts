@@ -17,8 +17,6 @@ import { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings } from "@a
  * renders states what it WOULD use, and recording that as the drawn setting
  * would be a claim about a map that does not exist.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `autoMovieRenderTargetSettingsOfShot` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `autoMovieRenderTargetSettingsOfShot` exposes that responsibility through the package-independent system contract.
  * @author Samchon
  */
 export const autoMovieRenderTargetSettingsOfShot = (props: {

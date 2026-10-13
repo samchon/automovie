@@ -9,8 +9,6 @@ import type { IConnectedBodyResident } from "./IConnectedBodyResident.js";
  * UVs, colours and indices. Only coordinates may differ, which the renderer
  * then writes into the existing buffers.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reuses the displayed buffers when an edit moves the body without changing its topology or finish.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Decides buffer reuse from exact topology, attribute and finish identity rather than coordinate tolerance.
  * @author Samchon
  */
 export function sameConnectedBodyStructure(

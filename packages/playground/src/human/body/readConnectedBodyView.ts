@@ -9,8 +9,6 @@ import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/re
  * An explicit caller URL selects its own typed definition without replacing
  * published bytes; the normal consumer retains source and geometry admission.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Loads the published body partition view every body editor page and worker edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Supplies the basis the persistent body worker reads once and compiles before evaluating documents.
  * @author Samchon
  */
 export function readConnectedBodyView(

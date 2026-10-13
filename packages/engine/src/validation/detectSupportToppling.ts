@@ -26,8 +26,6 @@ const DEFAULT_MARGIN = 0.02;
  * rests on. Deriving them from real surface geometry is deferred to #605; full
  * fall-motion synthesis into the shot is deferred to #620.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `detectSupportToppling` reports an unstable center against the supplied support root while naming the affected node in its event.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `detectSupportToppling` derives warning, fall event, pivot edge, direction, and overshoot from one convex-hull observation.
  * @author Samchon
  */
 export const detectSupportToppling = (props: {

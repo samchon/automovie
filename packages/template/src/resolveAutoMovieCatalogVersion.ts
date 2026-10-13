@@ -11,31 +11,14 @@ import {
 /**
  * Explicit inputs for one pnpm workspace catalog lookup.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the exact workspace, catalog, and dependency identities that determine a generated project's pinned dependency input.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Defines the complete declared source boundary for catalog derivation.
  * @author Samchon
  */
 export interface IAutoMovieCatalogVersionProps {
-  /**
-   * Direct child mapping selected below the top-level `catalogs` mapping.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Names the catalog that owns the portable dependency input.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Selects one explicit catalog source rather than searching unrelated mappings.
-   */
+  /** Direct child mapping selected below the top-level `catalogs` mapping. */
   catalog: string;
-  /**
-   * Direct child selected from the requested catalog.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Names the exact dependency whose version is baked into the generated project.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Keeps the dependency key explicit at the derivation boundary.
-   */
+  /** Direct child selected from the requested catalog. */
   dependency: string;
-  /**
-   * Complete workspace YAML source.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Makes the portable workspace declaration the sole version source.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Supplies the complete syntax needed to interpret mappings, scalars, anchors, aliases, comments, and duplicates.
-   */
+  /** Complete workspace YAML source. */
   workspace: string;
 }
 
@@ -43,8 +26,6 @@ export interface IAutoMovieCatalogVersionProps {
  * The pnpm workspace catalog lookup whose mapping ownership is resolved before
  * a dependency specifier is accepted.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Resolves the generated project's pinned dependency input from the declared workspace catalog rather than a similarly named mapping.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Interprets the workspace YAML document and accepts only the requested direct string scalar as derivation input.
  * @author Samchon
  */
 export const resolveAutoMovieCatalogVersion = (

@@ -11,8 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One lifecycle operates the existing bitmap owner's copy/start/release ports without a second queue.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No server ordering exception or fabricated frame bypasses parent activation.
  * @evidence contracts/common.md#meaningful-documentation Defines copy refusal, direct commitment, staged activation and disposal effects.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Keeps candidate publication and retained display ownership inside the original saver lifecycle.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation A generation starts upload only after its owning host admits it.
  */
 export function createViewerDisplayPublication(props: {
   copy: () => boolean;

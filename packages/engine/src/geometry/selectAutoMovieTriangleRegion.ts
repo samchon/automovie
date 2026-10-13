@@ -9,8 +9,6 @@
  * free edge outside the supplied boundary. Returned values are sorted original
  * triangle ordinals, suitable for subsequent removal without renumbering.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Selects a boundary-delimited source patch as a reusable topology operation, independent of the coordinates into which its mesh is deformed.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Enforces manifold winding and a separating boundary before returning stable original triangle identities for mesh composition.
  * @author Samchon
  */
 export function selectAutoMovieTriangleRegion(props: {

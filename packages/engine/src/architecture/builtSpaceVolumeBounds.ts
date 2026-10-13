@@ -33,9 +33,6 @@ const includePoint = (
  * a shelled space is bounded by its own vertices and a celled space by the
  * corners its half-spaces cut. A space that states no volume, and a space whose
  * cells close nothing, report null rather than a box of the origin.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Measures the extent an interior observation population is laid out inside.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Derives one world extent from either stated volume spelling.
  */
 export const builtSpaceVolumeBounds = (
   space: IAutoMovieBuiltSpace,

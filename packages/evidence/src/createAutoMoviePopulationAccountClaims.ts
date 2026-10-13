@@ -6,8 +6,6 @@ import type {
 /**
  * Input for one authored layer's distributed obligation coverage.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps eligible authored and aggregate owners beside their applicable obligation families.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Defines the authored hosts and optional account hosts that collectively cover selected obligations.
  * @author Samchon
  */
 export interface IAutoMoviePopulationAccountClaimsProps {
@@ -30,10 +28,6 @@ export interface IAutoMoviePopulationAccountClaimsProps {
  * owners. Their evidence collectively covers the obligation targets. The
  * item's substantive scope determines how many contributors it needs.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps whole-population accounts inside the same generated-project graph as their authored hosts.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Derives stable optional account addresses in the declared obligation order.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Selects all relevant authored hosts and the optional aggregate account for ordinary coverage.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Emits coverage claims in caller-declared obligation order.
  * @author Samchon
  */
 export function createAutoMoviePopulationAccountClaims(
@@ -88,9 +82,6 @@ export function createAutoMoviePopulationAccountClaims(
  * Callers validate the shared or production-local path declaration. Each
  * target needs positive evidence from a relevant host in the selected layer.
  * The aggregate account is an available host for a population-wide conclusion.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Lets a layer's relevant authored or aggregate owner fulfill an obligation.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits one no-exclusion ordinary coverage reference over the selected obligation targets.
  */
 export function createAutoMoviePopulationAccountClaim(props: {
   name: string;

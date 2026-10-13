@@ -37,8 +37,6 @@ const DEFAULT_SAMPLE_RATE = 24;
  * surfaces for the orchestrator to restage or acknowledge with `physicsIntent`.
  * Only malformed capsules (bad bone, non-distinct, radius <= 0) are errors.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateSelfIntersection` reports malformed proxies at their pair arms and sampled penetration at the indexed pair-and-frame path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateSelfIntersection` preserves pair identity, sample time, centerline distance, required separation, and penetration depth for each overlap.
  * @author Samchon
  */
 export const validateSelfIntersection = (props: {

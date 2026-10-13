@@ -427,8 +427,6 @@ const seedRestArticulation = (
  * soften the reason: a gaze aimed between the subject's feet is a stoop, and
  * the lift is what makes it a look.
  *
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-capability-plan Rejects an action when the actor lacks its required synthesis capability.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Builds actor motion from the selected authored action.
  * @author Samchon
  */
 export const makeActorSynthesizer = (

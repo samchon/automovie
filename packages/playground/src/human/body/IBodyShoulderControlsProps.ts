@@ -10,8 +10,6 @@ import type {
  * `currentShoulders` read the latest draft at event time, so newer pending
  * edits are retained.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the shoulder joint, its painted goal and the latest draft that the plane, elevation and axial-rotation inputs edit.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Pairs the displayed shape-only rest and admitted ranges with the draft the controls write.
  * @author Samchon
  */
 export interface IBodyShoulderControlsProps {

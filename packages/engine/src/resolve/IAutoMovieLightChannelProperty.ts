@@ -5,8 +5,6 @@ import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 /**
  * One animatable light property: how it is addressed, and how it is applied.
  *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Binds one authored light property to its explicit channel rule.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Defines one branch-aware light-property contract.
  * @author Samchon
  */
 export interface IAutoMovieLightChannelProperty {
@@ -16,9 +14,6 @@ export interface IAutoMovieLightChannelProperty {
    * the value-type → width mapping and refuses a track that disagrees with it,
    * so restating "vec3 is three numbers" here would be a second copy of a rule
    * that already has an owner, and the two could drift.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input States the typed value shape required from this authored light channel.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Keeps the channel's value representation consistent across admitted light branches.
    */
   valueType: AutoMovieChannelValueType;
 
@@ -28,9 +23,6 @@ export interface IAutoMovieLightChannelProperty {
    * state through time what `commitScene` refuses outright (a negative
    * intensity, a 200-degree cone), and the axis would be the one place in the
    * artifact where a documented range is not enforced.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Enforces the numeric domain of an authored light property before playback.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Supplies the numeric domain used to admit sampled writes.
    */
   bounds: {
     /** Lower bound. */
@@ -60,9 +52,6 @@ export interface IAutoMovieLightChannelProperty {
    * value a check is about to doubt is how a validator stops validating. A kind
    * outside the union is a broken scene the scene gate owns, not something this
    * predicate is deciding.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Tests whether the staged light kind actually owns the authored property.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Prevents a property from crossing into a light-authority branch that does not carry it.
    */
   carries: (kind: unknown) => boolean;
 
@@ -77,9 +66,6 @@ export interface IAutoMovieLightChannelProperty {
    * to unit length, and no range over one component can say so. The gate reads
    * it off this table for the same reason it reads everything else here — a
    * rule stated beside the applier cannot drift from what the applier writes.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Validates whole-value constraints that component bounds cannot express.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Keeps branch-specific authored values valid before they are written.
    */
   valueFault?: (value: readonly unknown[]) => string | null;
 
@@ -88,9 +74,6 @@ export interface IAutoMovieLightChannelProperty {
    * and `value` is as wide as {@link valueType} resolves to — the gate
    * establishes the first, `sampleClip`'s width check the second, before a
    * value ever reaches here.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Applies the sampled authored value to its matching light property only.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Implements the property write owned by the accepted light branch.
    */
   write: (override: IAutoMovieLightOverride, value: readonly number[]) => void;
 }

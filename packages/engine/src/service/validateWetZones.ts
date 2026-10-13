@@ -47,13 +47,6 @@ const WASTE_MEDIUM = "waste-water";
  * drier region is declared, that the floor actually falls, and that it falls to
  * a drain that really discharges waste.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `validateWetZones` verifies that each wet space is fully tanked, hands over explicitly, falls toward its drains, and uses drains that discharge waste water.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `validateWetZones` resolves zone boundaries and drain nodes against the built environment and reports incomplete coverage, invalid falls, and incompatible discharge ports.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-waterproof-assembly `validateWetZones` checks that the wet-zone boundary is covered and that every service penetration declares the waterproof seal required by the assembly.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-waterproofing-finding `validateWetZones` locates uncovered boundaries, missing or invalid drains, non-falling slopes, undeclared dry thresholds, and unsealed sleeves instead of accepting incomplete waterproofing.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-dry-transition `validateWetZones` enforces the declared wet-to-dry grade ordering and boundary threshold at every resolved transition.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-slope-drainage `validateWetZones` requires a positive authored fall and a compatible resolved waste drain for each wet area.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-wet-zone-waterproofing `validateWetZones` enforces the supported boundary, threshold, fall, drain, and penetration-seal subset of the wet-zone waterproofing contract.
  * @author Samchon
  */
 export const validateWetZones = (props: {

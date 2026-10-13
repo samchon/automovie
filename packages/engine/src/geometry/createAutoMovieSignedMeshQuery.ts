@@ -123,9 +123,6 @@ const unit = (vector: readonly number[]): number[] => {
  * the running best; on a 33,600-triangle sphere walked by a curve this cut the
  * features examined per query from 221 to 83, with every field of all 60,000
  * results identical.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies metric surface attachments from resident geometry without item-specific approximations.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves source geometry while checking the closed oriented topology required by signed feature distances.
  */
 export function createAutoMovieSignedMeshQuery(
   mesh: IAutoMovieMesh,

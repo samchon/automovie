@@ -59,19 +59,6 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * A question the records cannot answer throws an error whose message names the
  * selector, time or record at fault and the correction, which a caller reports
  * as its own diagnostic.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Reports a formation's representative members where its compiled runtime places them, grounded on the same terrain snapshot, rather than re-deriving them from the design.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Keeps the one-member ground check on the transform and state the full compiled runtime holds for each measured slot.
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Reports a target's gap beyond the arm chain's length and whether a solved reach stays inside the rig's range instead of stretching or falling back.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Measures reachability in the actor's model space from bone rest lengths and the bounded reach solve, per arm.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-arbitrary-seek Samples the addressed effect stream afresh at the requested shot time, so a measurement never depends on an earlier query.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#arbitrary-seek-reconstruction-contract Reads effect activity, particle population and visibility risk from the absolute-time sample of the compiled stream.
- * @evidence requirements/camera/validation.md#camera-hand-computable-geometry Reports subject root projections, depth-range and frame membership, and frame margin from the resolved camera, FOV, aspect and crop.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-computable-geometry-results Returns the counts and margin a canonical projection case can reproduce by hand, and states that occlusion is not measured.
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Answers the elevation and the surface id and walkability under one ground-plan point from the declared world surfaces.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Selects the first declared surface containing the point and evaluates that surface's own height rule there.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Resolves an exact frame and the frame-grid second naming the same frame to one film-global frame and its owning segment.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Refuses a film time off the production frame grid or outside the canonical timeline instead of rounding it silently.
  */
 export const measureAutoMovieGeometry = (props: {
   /** One compact geometry question. */

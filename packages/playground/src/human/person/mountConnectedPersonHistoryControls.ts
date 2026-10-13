@@ -11,10 +11,6 @@ import type { IConnectedPersonSession } from "./IConnectedPersonSession";
  * cleanup refusal reports the existing displayed pair instead of undoing a
  * successful history commit. A stale command has no authority over status.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Restores the complete person's accepted history and leaves its actual displayed pair in place when resource cleanup fails.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps retirement awaits outside the synchronous history publication and respects current-intent authority.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Runs undo, redo, reset and draft discard over the same complete person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Uses the original history operations and reports only the current command's result.
  * @author Samchon
  */
 export function mountConnectedPersonHistoryControls<

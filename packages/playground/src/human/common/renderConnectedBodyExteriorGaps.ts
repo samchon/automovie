@@ -9,8 +9,6 @@ import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
  * Only paths matching the search are listed; nothing is appended when none
  * match.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows each anatomical target the body cannot answer, with the dependency it lacks, instead of hiding it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists the unbound request paths as disabled rows naming their reason.
  * @author Samchon
  */
 export function renderConnectedBodyExteriorGaps(

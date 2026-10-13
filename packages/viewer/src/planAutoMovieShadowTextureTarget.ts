@@ -12,9 +12,6 @@ import type * as THREE from "three";
  * representation facts, not a second texture byte or allocation-count formula.
  * The caller admits point/filter compatibility through the Engine profile.
  * This creates no target and does not mutate the light's requested mapSize.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Supplies native shadow factory representation and bounded extents before first allocation.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Labels unallocated required map and blur products without calling their bounds observed GPU residency.
  */
 export const planAutoMovieShadowTextureTarget = (
   scope: string,

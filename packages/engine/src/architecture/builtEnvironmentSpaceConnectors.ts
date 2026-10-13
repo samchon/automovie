@@ -17,9 +17,6 @@ import {
  * asking a building root returns the connectors declared on the root itself
  * rather than every connector inside it. That is the same rule
  * {@link builtEnvironmentAdjacentSpaces} follows.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceConnectors` returns every connector landing on a logical space, endpoints and route intact. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceConnectors` collects the connectors whose landings belong to a logical space while preserving their endpoints and routes.
  */
 export const builtEnvironmentSpaceConnectors = (
   environment: IAutoMovieBuiltEnvironment,

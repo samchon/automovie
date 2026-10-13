@@ -12,10 +12,6 @@ import type { IConnectedPersonHeadShapeControlsProps } from "./IConnectedPersonH
  * person transaction owns geometry admission, intent ordering and history, so
  * failures retain the last valid document and save/export continue to use it.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Offers anatomical group and trait selection with source-unit numerical editing on the person screen.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Displays current authored differences, omission and actual source support instead of inferred defaults.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Applies and removes traits through the existing person intent and commit owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Leaves stale replies and failed geometry to the same transactional admission path as other person edits.
  * @author Samchon
  */
 export function mountConnectedPersonHeadShapeControls(

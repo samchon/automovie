@@ -19,8 +19,6 @@ import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
  * fan from one corner of an L-shaped soffit puts triangles outside the soffit,
  * and a cut through those would draw walls nobody built.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Turns a declared boundary face and thickness into the closed solid whose sections and silhouettes appear on architectural drawings.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Builds outward-wound side faces and ear-clipped near and far caps from the face outline at its two depth planes.
  * @author Samchon
  */
 export const autoMovieBoundaryShellTriangles = (

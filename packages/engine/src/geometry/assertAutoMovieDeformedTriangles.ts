@@ -20,8 +20,6 @@
  * collapsed or opposing sampled face needs finer tessellation or a different
  * field, even when all of its endpoint Jacobians remain positive.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses deformation output whose triangle area collapses or opposes its transported face orientation.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Checks the actual emitted triangle population, naming the triangle that cannot preserve an orientation.
  * @author Samchon
  */
 export function assertAutoMovieDeformedTriangles(

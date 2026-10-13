@@ -12,8 +12,6 @@ import { Quaternion } from "./Quaternion";
  * The result is normalized; the inputs are read only and must already be an
  * orthonormal right-handed frame, which this function does not check.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Converts a constructed orthonormal joint frame into the rotation composable rig geometry consumes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Selects the numerically stable Shepperd branch so a frame near any axis converts without dividing by a small number.
  * @author Samchon
  */
 export function quaternionFromAutoMovieBasis(

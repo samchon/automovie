@@ -22,9 +22,6 @@ import {retireAutoMovieCubeShadowDepth} from "./retireAutoMovieCubeShadowDepth.j
  * disposed without binding or allocating it. Positive version is not evidence
  * of GPU residency; all other queried cubes must be actual retained draws in
  * this context, not manually assigned CPU-only maps dirtied with needsUpdate.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Keeps retained per-light depth and distribution targets consistent with the effective filter family.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Invalidates per-light cached products when the renderer filter changes, including lights absent from the current render list.
  */
 export const resetAutoMovieSceneShadowTargets=(scene:THREE.Scene,renderer:THREE.WebGLRenderer):void=>{
   const resources=new Set<THREE.RenderTarget|THREE.Texture>();

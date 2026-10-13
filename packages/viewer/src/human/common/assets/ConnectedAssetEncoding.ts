@@ -5,9 +5,6 @@
 /**
  * Shared encoding rules for complete payloads and streamed revision reads.
  * Failures preserve transport, gzip and UTF-8 causes across both consumers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Decodes the explicitly selected reusable basis bytes without inferring encoding from a server.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Both readers apply the same gzip and strict UTF-8 boundaries.
  */
 export namespace ConnectedAssetEncoding {
 

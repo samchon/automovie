@@ -8,8 +8,6 @@ import type { AutoMovieViewerSubjectKind } from "./AutoMovieViewerSubjectKind.js
  * the authoring agent can open, and both open the same thing; a reviewer that
  * reports a pixel names something only it can see.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `IAutoMovieViewerSubject` carries the stable identity and revision by which a subject is pointed at and opened alone.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record `IAutoMovieViewerSubject` structures the subject record's identity fields for the inspection surface.
  * @author Samchon
  */
 export interface IAutoMovieViewerSubject {

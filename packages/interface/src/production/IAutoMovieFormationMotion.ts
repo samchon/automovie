@@ -7,33 +7,15 @@ import { IAutoMovieFormationMotionState } from "./IAutoMovieFormationMotionState
  *
  * Capability labels do not grant this motion. The source explicitly authors
  * each cue, while arbitrary per-slot curves remain outside the public shape.
- *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `IAutoMovieFormationMotion` as the portable data boundary for the motion external source basis requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `IAutoMovieFormationMotion` for the performance motion external adoption receipt system contract.
  */
 export interface IAutoMovieFormationMotion {
-  /**
-   * Stable cue id, unique inside one shot.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `id` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `id` for the performance motion external adoption receipt system contract.
-   */
+  /** Stable cue id, unique inside one shot. */
   id: string;
 
-  /**
-   * Participating compiled formation id.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `formation` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `formation` for the performance motion external adoption receipt system contract.
-   */
+  /** Participating compiled formation id. */
   formation: string;
 
-  /**
-   * Review-facing action expressed by this exact cue.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `action` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `action` for the performance motion external adoption receipt system contract.
-   */
+  /** Review-facing action expressed by this exact cue. */
   action: AutoMovieFormationCapability;
 
   /**
@@ -49,9 +31,6 @@ export interface IAutoMovieFormationMotion {
    * Omitted, the cue's `action` label is tried as a gait name, and the figure's
    * first declared gait performs when nothing carries that name. A named gait
    * no figure of the unit declares is refused rather than silently replaced.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `gait` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `gait` for the performance motion external adoption receipt system contract.
    */
   gait?: string;
 
@@ -73,49 +52,21 @@ export interface IAutoMovieFormationMotion {
    *
    * Omitted, the unit keeps the arrangement it is already in, and the compiled
    * cue is byte-identical to one authored before this channel existed.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `layout` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `layout` for the performance motion external adoption receipt system contract.
    */
   layout?: IAutoMovieFormationDesign["layout"];
 
-  /**
-   * Inclusive shot-local cue start.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `start` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `start` for the performance motion external adoption receipt system contract.
-   */
+  /** Inclusive shot-local cue start. */
   start: number;
 
-  /**
-   * Exclusive shot-local cue end.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `end` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `end` for the performance motion external adoption receipt system contract.
-   */
+  /** Exclusive shot-local cue end. */
   end: number;
 
-  /**
-   * State at cue start.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `from` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `from` for the performance motion external adoption receipt system contract.
-   */
+  /** State at cue start. */
   from: IAutoMovieFormationMotionState;
 
-  /**
-   * State at cue end.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `to` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `to` for the performance motion external adoption receipt system contract.
-   */
+  /** State at cue end. */
   to: IAutoMovieFormationMotionState;
 
-  /**
-   * Deterministic interpolation curve.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes `easing` as the portable data boundary for the motion external source basis requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `easing` for the performance motion external adoption receipt system contract.
-   */
+  /** Deterministic interpolation curve. */
   easing: "linear" | "easeIn" | "easeOut" | "easeInOut" | "step";
 }

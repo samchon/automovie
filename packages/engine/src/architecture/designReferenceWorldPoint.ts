@@ -22,11 +22,6 @@ const AXIS_EPSILON = 1e-12;
  *
  * Throws when the frame's scale is unsettled: producing a number there is the
  * exact failure this whole graph exists to prevent.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-review `designReferenceWorldPoint` maps one source-space point onto world metres through its frame. This ensures reviewers can trace each adopted design reading back to its source and uncertainty.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-manifest-review `designReferenceWorldPoint` maps one frame-local source point through its settled scale, axes, origin, and optional transform into world metres.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units `designReferenceWorldPoint` explicitly applies the settled source-unit scale, source axes, anchor, origin, and optional placement transform when producing world metres.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain The point conversion implements the design-reference subset of an ordered source-to-world transform chain and refuses an unsettled scale.
  */
 export const designReferenceWorldPoint = (
   frame: IAutoMovieDesignSourceFrame,

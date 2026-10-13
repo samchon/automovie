@@ -7,8 +7,6 @@
  * @evidence contracts/common.md#principled-implementation Signal zero probes operating-system access without signalling the process; a refused observation remains false rather than an owned-process claim.
  * @evidence contracts/common.md#clear-and-simple-design One boolean OS probe serves diagnostics while creation identity and termination remain with ProcessOwnership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not select processes by executable name or terminate a PID merely because a liveness probe refused.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Signal zero probes operating-system access without signalling the process; a refused observation remains false rather than an owned-process claim.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One boolean OS probe serves diagnostics while creation identity and termination remain with ProcessOwnership.
  */
 export function isHumanViewerProcessAlive(pid: number): boolean {
   try {

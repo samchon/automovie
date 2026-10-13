@@ -7,8 +7,6 @@ import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
  * Omission preserves the published loader. The name also states the role the
  * one human worker entry loads (`worker=person`).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds preview and measurement workers to the editor's selected body/head definitions.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Carries source identity selection outside numerical edit requests.
  * @author Samchon
  */
 export function connectedPersonSourceWorkerName(

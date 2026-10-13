@@ -2,12 +2,7 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import { IAutoMovieScalarPredicate } from "./IAutoMovieScalarPredicate";
 import { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
 
-/**
- * One builder-evaluable state or event fact.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieShotPredicate` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieShotPredicate` for the narrative intent story design ownership system contract.
- */
+/** One builder-evaluable state or event fact. */
 export type IAutoMovieShotPredicate =
   | (IAutoMovieScalarPredicate & {
       /** Sample one articulated joint angle. */

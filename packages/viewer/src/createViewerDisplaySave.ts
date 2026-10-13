@@ -15,8 +15,6 @@ import { createViewerDisplayPublication } from "./createViewerDisplayPublication
  * @evidence contracts/common.md#clear-and-simple-design One bitmap queue serves supported producers without duplicating writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the supplied canvas using standard toBlob copying without another model render, forged camera or SDK mutation.
  * @evidence contracts/common.md#meaningful-documentation Defines completion, commitment, bounded work and failure ownership.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Preserves original source, view and runtime facts with supplied display pixels.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Transfers observed bytes and facts without granting review coverage or acceptance.
  */
 export function createViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;

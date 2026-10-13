@@ -4,9 +4,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * Is `point` inside (or on the boundary of) a counter-clockwise hull? Always
  * `false` for a degenerate hull of fewer than three vertices (a point or a
  * segment cannot enclose area).
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Tests whether the projected load point lies inside the current support polygon.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Tests whether the projected load point lies inside the current support polygon.
  */
 export const pointInHull = (
   point: IAutoMovieVector3,

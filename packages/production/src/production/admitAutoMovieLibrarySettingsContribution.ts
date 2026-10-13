@@ -10,9 +10,6 @@ import type { ICompiledLibraryOwnerRegistration } from "./productionSourceBuild"
  * than publishing its semantic artifacts, so any environment, model or world
  * context belongs to a design-source owner. This gate appends one refusal to
  * the caller's diagnostics and returns false; it never rewrites a contribution.
- *
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Refuses nonempty settings payloads before they enter a library publication closure instead of substituting another owner's artifact.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Leaves nonempty settings output as a structured source failure rather than mixing semantic artifacts into its lineage-only result.
  */
 export const admitAutoMovieLibrarySettingsContribution = (props: {
   diagnostics: IAutoMovieDiagnostic[];

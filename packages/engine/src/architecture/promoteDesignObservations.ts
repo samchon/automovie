@@ -26,11 +26,6 @@ const GEOMETRIC_PRIMITIVES = new Set(["line", "polyline", "region"]);
  * The result is therefore never a design. It is a proposal the authored
  * building source may accept, reject, or contradict; the source of truth stays
  * the TypeScript that a human and a coding agent wrote.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-review `promoteDesignObservations` promotes only settled reference candidates into metric geometry and reports why unresolved readings remain withheld. This ensures reviewers can trace each adopted design reading back to its source and uncertainty.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-manifest-review `promoteDesignObservations` converts settled frame readings to metres while preserving diagnostics for ambiguous or unscaled candidates.
- * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-disagreement-and-resolution `promoteDesignObservations` withholds candidates that retain competing interpretations or open issues and reports the exact unresolved identities instead of selecting one silently.
- * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-disagreement-resolution The promotion boundary preserves unresolved disagreement as a refusal; authorized resolution history remains outside this Engine helper.
  */
 export const promoteDesignObservations = (props: {
   reference: IAutoMovieDesignReference;

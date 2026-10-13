@@ -22,30 +22,12 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * crossing a fold is authored as two zones meeting at that fold, which is what
  * the two pieces really are: the border cut already butts them on the surface,
  * and the neighbour scan already measures across it.
- *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `IAutoMoviePatternFacet` represents one flat panel of a host that folds or curves, and the strip of the face it carries. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `IAutoMoviePatternFacet` structures one flat panel of a host that folds or curves, and the strip of the face it carries for the system that resolves the declared physical-module pattern deterministically.
  */
 export interface IAutoMoviePatternFacet {
-  /**
-   * Zone whose pieces sit on this panel.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `zone` records `IAutoMoviePatternFacet`'s zone whose pieces sit on this panel. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `zone` supplies `IAutoMoviePatternFacet`'s zone whose pieces sit on this panel when the engine resolves the declared physical-module pattern deterministically.
-   */
+  /** Zone whose pieces sit on this panel. */
   zone: string;
-  /**
-   * Face-local metre point this panel's frame origin sits at.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `anchor` records `IAutoMoviePatternFacet`'s face-local metre point this panel's frame origin sits at. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `anchor` supplies `IAutoMoviePatternFacet`'s face-local metre point this panel's frame origin sits at when the engine resolves the declared physical-module pattern deterministically.
-   */
+  /** Face-local metre point this panel's frame origin sits at. */
   anchor: IAutoMoviePatternPoint;
-  /**
-   * World placement of that point.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `frame` records `IAutoMoviePatternFacet`'s world placement of that point. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `frame` supplies `IAutoMoviePatternFacet`'s world placement of that point when the engine resolves the declared physical-module pattern deterministically.
-   */
+  /** World placement of that point. */
   frame: IAutoMoviePatternFaceFrame;
 }

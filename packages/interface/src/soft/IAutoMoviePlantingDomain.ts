@@ -25,80 +25,32 @@ import { IAutoMoviePruningEnvelope } from "./IAutoMoviePruningEnvelope";
  * uniform samples and square roots, so only operations IEEE-754 specifies
  * exactly ever touch a coordinate. A plant whose leaves land differently on
  * Windows and POSIX is not a deterministic plant.
- *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `IAutoMoviePlantingDomain` as the portable data boundary for the interior plant placement state requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingDomain` for the interior space soft furnishing planting system contract.
  */
 export interface IAutoMoviePlantingDomain {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `version` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `version` for the interior space soft furnishing planting system contract.
-   */
+  /** Schema version. */
   version: 1;
 
-  /**
-   * Stable identity of this planting recipe.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `id` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-   */
+  /** Stable identity of this planting recipe. */
   id: string;
 
-  /**
-   * All authored lengths are measured in metres.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `units` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `units` for the interior space soft furnishing planting system contract.
-   */
+  /** All authored lengths are measured in metres. */
   units: "meter";
 
-  /**
-   * Deterministic seed; any safe integer.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `seed` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `seed` for the interior space soft furnishing planting system contract.
-   */
+  /** Deterministic seed; any safe integer. */
   seed: number;
 
-  /**
-   * The recursive branching law.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `structure` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `structure` for the interior space soft furnishing planting system contract.
-   */
+  /** The recursive branching law. */
   structure: IAutoMoviePlantingStructure;
 
-  /**
-   * How far along that law this plant has actually grown.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `growth` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `growth` for the interior space soft furnishing planting system contract.
-   */
+  /** How far along that law this plant has actually grown. */
   growth: IAutoMoviePlantingGrowth;
 
-  /**
-   * The volume the plant is kept inside: a clipped hedge, a trained wall.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `pruning` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `pruning` for the interior space soft furnishing planting system contract.
-   */
+  /** The volume the plant is kept inside: a clipped hedge, a trained wall. */
   pruning: IAutoMoviePruningEnvelope;
 
-  /**
-   * The leaf rule, or `null` for a bare structure such as a winter branch.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `foliage` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `foliage` for the interior space soft furnishing planting system contract.
-   */
+  /** The leaf rule, or `null` for a bare structure such as a winter branch. */
   foliage: IAutoMoviePlantingFoliage | null;
 
-  /**
-   * Hard caps this recipe promises to stay inside.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `budget` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `budget` for the interior space soft furnishing planting system contract.
-   */
+  /** Hard caps this recipe promises to stay inside. */
   budget: IAutoMoviePlantingLimits;
 }

@@ -6,9 +6,6 @@ import type { IConnectedFaceControlMetric } from "./IConnectedFaceControlMetric"
  * Describe what one endpoint of a face channel moves: the amount (one weight,
  * or the measured degrees or millimetres per weight) and the RMS and peak
  * displacement over the moved vertices.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows endpoint displacement beside each fine control.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Tells the user what one endpoint of a face channel moves and by how much.
  */
 export function describeConnectedFaceControlScale(
   sign: string,

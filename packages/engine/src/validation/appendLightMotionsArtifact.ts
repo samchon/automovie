@@ -42,9 +42,6 @@ import { validateUniqueIds } from "./validateUniqueIds";
  * And every keyframe value is held to the property's own bounds
  * ({@link appendLightValueBounds}), because the light a track drives has a
  * documented range that the scene gate already enforces on the staged value.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `appendLightMotionsArtifact` reports duplicate light-clip ids, duplicate target properties, malformed tracks, and invalid key values at their lightMotions paths.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `appendLightMotionsArtifact` preserves clip index, track index, staged-light identity, property address, and observed key value for each optional-field finding.
  */
 export const appendLightMotionsArtifact = (
   lightMotions: unknown,

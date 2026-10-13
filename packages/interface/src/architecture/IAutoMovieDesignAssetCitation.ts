@@ -13,24 +13,11 @@ import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
  * The record is deliberately a second copy of {@link IAutoMovieDesignSubject}'s
  * digest, for the same reason a stamp repeats the revision the work is on: the
  * two disagreeing is not the flaw, it is the signal.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignAssetCitation` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignAssetCitation` for the narrative intent reference lineage system contract.
  */
 export interface IAutoMovieDesignAssetCitation {
-  /**
-   * Declared subject id whose bytes were read.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `subject` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
-   */
+  /** Declared subject id whose bytes were read. */
   subject: string;
 
-  /**
-   * SHA-256 that subject carried at the moment this artifact was produced.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `digest` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `digest` for the narrative intent reference lineage system contract.
-   */
+  /** SHA-256 that subject carried at the moment this artifact was produced. */
   digest: AutoMovieContentDigest;
 }

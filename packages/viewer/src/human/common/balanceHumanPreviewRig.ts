@@ -14,9 +14,6 @@ import { HUMAN_PREVIEW_MIDDLE_GREY } from "./HUMAN_PREVIEW_MIDDLE_GREY.js";
  * The rig white balanced and exposed on a grey card turned to `key`, the
  * direction toward the key light: each light's colour times the per-channel
  * gain, and the tone mapping exposure.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under a photographically exposed, white-balanced light rig.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Exposes and white balances the preview on a key-lit grey card without changing the saved anatomical document.
  */
 export function balanceHumanPreviewRig(
   lights: readonly HumanPreviewLight[],

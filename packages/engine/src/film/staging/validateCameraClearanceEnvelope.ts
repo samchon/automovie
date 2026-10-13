@@ -6,9 +6,6 @@ import { isRecord } from "../../validation/isRecord";
  * resolved scene. The implementation deliberately reads every nested value as
  * unknown: generated authoring code is an external boundary even when its
  * compile-time type claims the object is well formed.
- *
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-spatial-validation Checks both authored camera-clearance spheres and reports every malformed centre or radius at its submitted path.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result Checks both authored camera-clearance spheres and reports every malformed centre or radius at its submitted path.
  */
 export const validateCameraClearanceEnvelope = (
   value: unknown,

@@ -32,9 +32,6 @@ import {
  * publication. Duplicate models never replace the first indexed model. Only
  * new error diagnostics make this contribution fail; older findings and
  * warnings remain attached to the attempt without changing this gate's result.
- *
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Refuses invalid or multiply owned library contributions before their results can enter the successful publication closure.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Keeps an invalid or multiply owned contribution out of the complete success closure while retaining structured findings for its source target.
  */
 export const admitAutoMovieLibraryContribution = (props: {
   contextOwner: Map<string, string>;

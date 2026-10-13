@@ -29,8 +29,6 @@ import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
  * A resolvable hierarchy is the precondition, which `validateBuiltEnvironment`
  * enforces by rejecting an unresolved parent and a parent cycle.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentUnclaimedElements` names the building elements no logical space and no parent element reaches, so authored interior and envelope state stays reachable for review instead of being addressable only by a key nobody has.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentUnclaimedElements` derives those roots from the element hierarchy of one building rather than from a space assignment it does not have.
  * @author Samchon
  */
 export const builtEnvironmentUnclaimedElements = (

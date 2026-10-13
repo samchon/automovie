@@ -11,8 +11,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * @evidence contracts/common.md#clear-and-simple-design One formula serves every published-basis document kind.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Truncates caller-supplied file digests by the existing basis-token protocol without inserting a named asset hash or bypassing the server's digest check.
  * @evidence contracts/common.md#meaningful-documentation States the token forms and how they are checked.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Names the supplied file-digest prefixes in the existing published-basis token used by the document's numerical request.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Shares one legacy token spelling across callers while the server separately checks returned bytes and the domain owner admits the basis.
  */
 export function humanViewerPublishedBasis(
   ...digests: readonly string[]

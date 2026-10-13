@@ -17,8 +17,6 @@ import type * as THREE from "three";
  * @evidence contracts/common.md#clear-and-simple-design One collector serves cached and decoded subtree owners with explicit texture ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses public subtree and material roles without creating replacement resources or changing foreign methods.
  * @evidence contracts/common.md#meaningful-documentation States ownership, material roles, callback ordering and the direct texture-slot boundary.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Collects the actual resources declared owned by a subtree without retiring borrowed cache textures.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Separates subtree-owned geometry and materials from independently owned texture wrappers.
  */
 export function collectAutoMovieOwnedResources(
   group: THREE.Object3D,

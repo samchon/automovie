@@ -17,8 +17,6 @@ import {
  * A route with fewer than two points has no span and yields nothing to compare;
  * the validator refuses that route on its own path.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceSegmentSpanBounds` gives every straight route leg its own radius-expanded occupied volume for precise interference checks.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceSegmentSpanBounds` derives one conservative axis-aligned box per adjacent centre-line point pair and none for a spanless route.
  * @author Samchon
  */
 export const serviceSegmentSpanBounds = (

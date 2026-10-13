@@ -18,9 +18,6 @@ import path from "node:path";
  * every claim and reference, and anchors roots to the compiler project location,
  * retaining their populations, ordering,
  * and relationship policies. Copies protect the project-owned declaration.
- *
- * @evidence requirements/production-evidence/native-input.md#agent-production-evidence-native-boundary Converts lint severity representations and anchors roots to the declared project location while preserving the admitted production graph for standalone evaluation.
- * @evidence specifications/production-evidence/native-input.md#spec-authoring-production-evidence-native-boundary Produces typed standalone claims and references without altering selection, ownership, or structural policy.
  */
 export const createAutoMovieStandaloneEvidenceConfig = (
   graph: ITtscEvidenceGraphConfig,

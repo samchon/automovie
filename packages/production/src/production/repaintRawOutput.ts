@@ -7,9 +7,6 @@ import {
 
 /**
  * Why provider output remained raw rather than becoming an active candidate.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Keeps rejected and interrupted output addressable without promoting it.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Separates raw retention state from candidate admission.
  */
 export type AutoMovieRepaintRawOutputDisposition =
   | "candidate-source"
@@ -18,12 +15,7 @@ export type AutoMovieRepaintRawOutputDisposition =
   | "cancelled"
   | "budget-exhausted";
 
-/**
- * Immutable attempt-owned provider output identity.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Preserves exact available bytes beside their terminal attempt.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Binds raw bytes to one request, attempt, disposition, and retention ceiling.
- */
+/** Immutable attempt-owned provider output identity. */
 export interface IAutoMovieRepaintRawOutputReceipt {
   /** Receipt schema version. */
   version: 1;
@@ -53,9 +45,6 @@ export interface IAutoMovieRepaintRawOutputReceipt {
 
 /**
  * Raw output plus the copied bytes that an atomic project transaction writes.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Keeps receipt and bytes in one publication unit.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Prevents a digest-only record from standing in for recoverable output.
  */
 export interface IAutoMovieRepaintRawOutputPublication {
   /** Receipt describing the bytes published beside it. */
@@ -64,12 +53,7 @@ export interface IAutoMovieRepaintRawOutputPublication {
   bytes: Uint8Array;
 }
 
-/**
- * Canonical tracked receipt path for one attempt-owned raw revision.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Keeps the recoverable byte revision reachable from its terminal attempt.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Gives project persistence one unambiguous receipt owner.
- */
+/** Canonical tracked receipt path for one attempt-owned raw revision. */
 export const productionRepaintRawOutputReceiptPath = (
   requestId: string,
   attemptId: string,
@@ -82,13 +66,7 @@ export const productionRepaintRawOutputReceiptPath = (
     "receipt.json",
   ].join("/");
 
-/**
- * Form the immutable raw-output publication for one terminal attempt.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Retains available provider bytes even when validation, cancellation, or the request budget prevents candidate admission.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Separates attempt-owned raw bytes from the validated candidate revision derived from them.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-reproduction-boundary Preserves a provider's raw result and its conditions because a repaint cannot be re-verified by rerun.
- */
+/** Form the immutable raw-output publication for one terminal attempt. */
 export const planAutoMovieRepaintRawOutput = (props: {
   productionId: string;
   shot: string;
@@ -151,9 +129,6 @@ export const planAutoMovieRepaintRawOutput = (props: {
 
 /**
  * Verify bytes against the exact attempt-owned raw receipt before resumption.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Allows candidate publication to resume from the same succeeded attempt without another provider call.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Refuses a raw revision whose identity or bytes moved after the terminal attempt.
  */
 export const assertAutoMovieRepaintRawOutput = (props: {
   receipt: IAutoMovieRepaintRawOutputReceipt;

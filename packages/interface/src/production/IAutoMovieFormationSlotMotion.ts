@@ -19,25 +19,12 @@ import { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
  * A named slot stays an instanced member. Promotion to a named actor is the
  * other, dearer thing: it exists, it is capped, and this is deliberately not
  * it.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `IAutoMovieFormationSlotMotion` as the portable data boundary for the formation slot identity requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `IAutoMovieFormationSlotMotion` for the performance formation layout slot assignment system contract.
  */
 export interface IAutoMovieFormationSlotMotion {
-  /**
-   * Stable cue id, unique inside one shot.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `id` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `id` for the performance formation layout slot assignment system contract.
-   */
+  /** Stable cue id, unique inside one shot. */
   id: string;
 
-  /**
-   * Participating compiled formation id.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `formation` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `formation` for the performance formation layout slot assignment system contract.
-   */
+  /** Participating compiled formation id. */
   formation: string;
 
   /**
@@ -45,49 +32,21 @@ export interface IAutoMovieFormationSlotMotion {
    *
    * Several slots share one cue when the same thing happens to each of them at
    * the same time; a member that needs its own timing gets its own cue.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `slots` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slots` for the performance formation layout slot assignment system contract.
    */
   slots: number[];
 
-  /**
-   * Inclusive shot-local cue start.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `start` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `start` for the performance formation layout slot assignment system contract.
-   */
+  /** Inclusive shot-local cue start. */
   start: number;
 
-  /**
-   * Exclusive shot-local cue end.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `end` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `end` for the performance formation layout slot assignment system contract.
-   */
+  /** Exclusive shot-local cue end. */
   end: number;
 
-  /**
-   * Member state at cue start.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `from` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `from` for the performance formation layout slot assignment system contract.
-   */
+  /** Member state at cue start. */
   from: IAutoMovieFormationSlotState;
 
-  /**
-   * Member state at cue end.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `to` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `to` for the performance formation layout slot assignment system contract.
-   */
+  /** Member state at cue end. */
   to: IAutoMovieFormationSlotState;
 
-  /**
-   * Deterministic interpolation curve.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `easing` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `easing` for the performance formation layout slot assignment system contract.
-   */
+  /** Deterministic interpolation curve. */
   easing: IAutoMovieFormationMotion["easing"];
 }

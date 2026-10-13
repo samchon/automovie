@@ -1,11 +1,6 @@
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 
-/**
- * Draw sample extrema as deterministic waveform evidence.
- *
- * @evidence requirements/sound/validation-and-delivery.md#sound-numeric-verification Visualizes extrema measured from the exact final stereo samples.
- * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Produces deterministic waveform evidence for review.
- */
+/** Draw sample extrema as deterministic waveform evidence. */
 export const productionSoundWaveform = (
   pcm: Float32Array,
   width = 960,

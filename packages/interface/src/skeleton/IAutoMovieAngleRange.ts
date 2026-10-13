@@ -14,24 +14,12 @@
  * {@link IAutoMovieJointConstraint}. `min <= max` is required; the engine treats
  * `min > max` as a malformed constraint.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Exposes `IAutoMovieAngleRange` as the portable data boundary for the actor joint range constraints requirement.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `IAutoMovieAngleRange` for the performance rig rom control driver graph system contract.
  * @author Samchon
  */
 export interface IAutoMovieAngleRange {
-  /**
-   * Lower bound, degrees (inclusive).
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Exposes `min` as the portable data boundary for the actor joint range constraints requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `min` for the performance rig rom control driver graph system contract.
-   */
+  /** Lower bound, degrees (inclusive). */
   min: number;
 
-  /**
-   * Upper bound, degrees (inclusive).
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Exposes `max` as the portable data boundary for the actor joint range constraints requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `max` for the performance rig rom control driver graph system contract.
-   */
+  /** Upper bound, degrees (inclusive). */
   max: number;
 }

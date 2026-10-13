@@ -2,9 +2,6 @@ import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCapti
 
 /**
  * Profile-backed verdict or explicit measure-only outcome for one caption cue.
- *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Keeps missing profile separate from a passing verdict.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-measurement Evaluates only an exact requested-to-actual identity match and otherwise records `not-run`.
  */
 export type IAutoMovieCaptionReadabilityOutcome =
   | {

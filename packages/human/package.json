@@ -32,9 +32,7 @@
   },
   "scripts": {
     "build": "node build.mjs",
-    "prepack": "pnpm run build",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "prepack": "pnpm run build"
   },
   "keywords": [],
   "author": "Samchon",
@@ -91,9 +89,7 @@
     "rimraf": "catalog:utils",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
-    "@ttsc/lint": "catalog:samchon",
-    "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "@ttsc/lint": "catalog:samchon"
   },
   "dependencies": {
     "fflate": "catalog:media",

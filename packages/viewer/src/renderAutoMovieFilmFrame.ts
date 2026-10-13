@@ -16,14 +16,6 @@ import {resolveAutoMovieFilmBeautyComposition} from "./resolveAutoMovieFilmBeaut
  * Input admission happens before any callback can alter the display.
  *
  * The sampled film inputs are explicit. Interactive display-clock updates and inspection CLI timestamp filenames remain host observations rather than deterministic delivered-frame identity.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Routes only beauty through display-byte composition and leaves guides as one unblended source.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Passes the supplied exact layer samples to their renderer without introducing another clock.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Uses Engine-owned dominant-layer selection for structural products.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Composes independently resolved beauty display sources with no second view transform.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-locale-time-determinism Consumes explicit sampled layers and compiled composition weights without reading locale, wall-clock time, timezone or randomness while rendering that frame.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Consumes explicit sampled layers and compiled composition weights without reading locale, wall-clock time, timezone or randomness while rendering that frame.
  */
 export const renderAutoMovieFilmFrame=<Layer extends {weight:number}>(
   renderer:THREE.WebGLRenderer,

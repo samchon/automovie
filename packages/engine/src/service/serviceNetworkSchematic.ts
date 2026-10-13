@@ -18,9 +18,6 @@ import { serviceSystemReach } from "./serviceSystemReach";
  * {@link serviceSystemLoad}, so a drainage stack reports what it carries rather
  * than the zero a supply-shaped reading would give it.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceNetworkSchematic` produces the reviewable plan, topology, installed length, declared demand, and disconnection list for one service system.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceNetworkSchematic` resolves port owners, projects world routes onto `x`/`z`, and derives totals and root reachability from the selected system.
- * @evidence requirements/interior/services-and-environment.md#interior-service-terminals-controls `serviceNetworkSchematic` preserves the selected system's node, terminal, equipment, port, flow direction, demand, and valve-controlled reachability in one deterministic diagram.
  * @author Samchon
  */
 export const serviceNetworkSchematic = (props: {

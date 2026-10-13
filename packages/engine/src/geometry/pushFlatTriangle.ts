@@ -17,9 +17,6 @@ interface IMeshTarget {
  * of a changing section's quad genuinely face different ways. Giving each
  * triangle its own corners is what lets each carry the normal its own plane
  * has, instead of one averaged direction that neither half points in.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Builds one real triangle with independent surface attributes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Appends three owned corners, a geometric plane normal and their metric UVs in winding order.
  */
 export const pushFlatTriangle = (
   target: IMeshTarget,

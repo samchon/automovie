@@ -25,9 +25,6 @@ import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds capture state transitions; the host supplies page and generation through accessors.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses software rendering instead of returning its frame.
  * @evidence contracts/common.md#meaningful-documentation States refusals, generation selection, discard and the telemetry kept.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-headless-refusal Refuses capture without a ready source/renderer, rejects software renderer descriptions and requires the actual loaded page bridge before obtaining its observed pixels.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Refuses capture without a ready source/renderer, rejects software renderer descriptions and requires the actual loaded page bridge before obtaining its observed pixels.
  */
 export function createHumanViewerCapture(
   props: ICreateHumanViewerCaptureProps,

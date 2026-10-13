@@ -19,8 +19,6 @@ import { IAutoMoviePointerChannel } from "./IAutoMoviePointerChannel";
  * A node-TRS channel is sugar for the pointer `/nodes/{id}/{path}`; the engine
  * treats both as the same kind of addressable lvalue.
  *
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Exposes `IAutoMovieChannel` as the portable data boundary for the motion channel contract requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieChannel` for the performance motion clip keytime interpolation system contract.
  * @author Samchon
  */
 export type IAutoMovieChannel =

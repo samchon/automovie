@@ -9,8 +9,6 @@ import {
  * perform (a beat of stillness), and the filler the timeline composer uses
  * across gaps. A two-keyframe clip with the same pose at both ends.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-sparse-channel-default Makes an explicit constant state span instead of inventing motion across an empty interval.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Encodes the hold as two ordered keys with identical state.
  * @author Samchon
  */
 export const holdMotion = (

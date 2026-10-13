@@ -18,9 +18,6 @@ const identity = (entry: BigIntStats): IAutoMovieReferenceIdentity => ({
  * Compose the actual Node-compatible physical host. Reads hold a descriptor,
  * consume at most the admitted extent plus one byte and preserve short-read/EOF
  * semantics. The policy that admits those observations lives with the reader.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Supplies read-only native operations and no namespace mutation primitive.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Maps native stats and held-descriptor reads to bounded physical observations.
  */
 export function createAutoMovieReferenceFileSystem(
   native: Pick<typeof fs, "lstat" | "realpath" | "readdir" | "open"> = fs,

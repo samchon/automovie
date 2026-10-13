@@ -247,8 +247,6 @@ const padRestLeadIn = (motion: IAutoMovieMotion): IAutoMovieMotion => {
  * @param synthesize The content seam: one action → one base clip (or null).
  * @returns Per-actor performance motion keyed by actor node id, plus every
  *   piece of authored content the region mask discarded.
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-local-clock Compiles authored action calls into actor-keyed shot motion on the declared local clock.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Schedules each actor action on its shot-local performance timeline.
  * @author Samchon
  */
 export const compilePerformance = (

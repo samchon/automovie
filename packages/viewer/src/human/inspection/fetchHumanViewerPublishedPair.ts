@@ -17,8 +17,6 @@ import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the separately supplied bases rather than inventing correspondence, fitting anatomy or silently choosing the one-skin generation.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes the legacy paired basis token from the one-skin head/body-view publication.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The face and body suffixes independently select the legacy publication's digest-checked routes and shared decoding.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Reassembles only the two existing face/body fields expected by the legacy person runtime.
  * @author Samchon
  */
 export async function fetchHumanViewerPublishedPair(

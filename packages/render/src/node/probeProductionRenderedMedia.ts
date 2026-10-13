@@ -18,7 +18,6 @@ import { verifySampleStorage } from "./verifySampleStorage";
 /**
  * Parse renderer-encoded picture, caption and MP4 bytes instead of trusting
  * manifest media claims.
- * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-partial-container Reports a container that opens but lacks a required stream or fact as a refusal rather than as delivered media.
  */
 export const probeProductionRenderedMedia = (props: {
   kind: IAutoMovieProductionDeliverable["kind"];

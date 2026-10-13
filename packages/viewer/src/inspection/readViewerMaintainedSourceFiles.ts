@@ -14,8 +14,6 @@ import { execFileSync } from "node:child_process";
  * @evidence contracts/common.md#clear-and-simple-design One membership owner serves numerical witnesses and ordinary Playground source receipts.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No named-subject skip, guessed cache result or private SDK mutation supplies membership.
  * @evidence contracts/common.md#meaningful-documentation Defines maintained source, independent data/output roots and physical-path refusal.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Keeps source identity independent from live renderer/cache lifetimes.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Names actual maintained input membership without adopting an SDK runtime cache as authored source.
  */
 export function readViewerMaintainedSourceFiles(root: string, directories: readonly string[]): string[] {
   const actualRoot = fs.realpathSync.native(root);

@@ -11,8 +11,6 @@ const FIRST_DELIVERY_GROUP = /^001-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
  * film pilot narrows the two delivery-partitioned layers to one exact `001-*`
  * directory; complete production and its post-pilot reset select every group.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Selects the real unit-file population before evidence cardinality is evaluated.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Implements deterministic complete and first-pilot file populations without selecting group indexes.
  * @author Samchon
  */
 export function createAutoMoviePopulationFiles(

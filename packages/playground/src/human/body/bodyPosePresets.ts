@@ -7,9 +7,6 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 /**
  * One pose preset: a fixed joint list, or one the body worker solves on the
  * current body.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names each pose preset the editor offers and whether it is typed or solved on the body.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries a preset's replacement joint list or the solve that produces it.
  */
 export type BodyPosePreset = {
   /** Button label. */
@@ -33,9 +30,6 @@ export type BodyPosePreset = {
  * and applies the answer only while it is still the latest intent: a slider
  * moved during the solve supersedes it, and a refusal leaves the committed
  * body as it was with the reason on the status line.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Offers pose presets as document edits, including an arms-down rest solved at this body's own skin contact.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Applies each preset as one transaction under the latest-intent order, discarding a solve a newer edit superseded.
  */
 export function renderBodyPosePresets(props: {
   dom: Document;

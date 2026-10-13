@@ -10,24 +10,11 @@
  *
  * Declaring the clock is what makes shot pins and cross-shot criteria legal. A
  * production that asserts nothing about story time omits it and is unaffected.
- *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieStoryClock` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieStoryClock` for the narrative intent story design ownership system contract.
  */
 export interface IAutoMovieStoryClock {
-  /**
-   * Story-clock unit.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `units` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `units` for the narrative intent story design ownership system contract.
-   */
+  /** Story-clock unit. */
   units: "second";
 
-  /**
-   * Non-blank statement of what story time zero denotes.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `epoch` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `epoch` for the narrative intent story design ownership system contract.
-   */
+  /** Non-blank statement of what story time zero denotes. */
   epoch: string;
 }

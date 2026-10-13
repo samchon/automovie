@@ -40,8 +40,6 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  * and that budget is the author's own declaration, which is exactly the kind of
  * refusal this record exists to carry.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Lowers the furnishing through the selected bounded tier and preserves refusals.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Produces state, surface, and status as one coherent interior result.
  * @author Samchon
  */
 export const lowerSoftFurnishing = (props: {

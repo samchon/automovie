@@ -7,8 +7,6 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
 /**
  * Validate and normalize a joint-axis basis for quaternion math.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Converts an accepted control basis into stable unit axes without changing their semantic identity.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Prepares the declared basis for deterministic control evaluation.
  * @author Samchon
  */
 export const normalizeJointAxes = (

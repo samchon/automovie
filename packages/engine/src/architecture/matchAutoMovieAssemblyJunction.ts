@@ -16,16 +16,6 @@ import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
  * Roles are matched as declared: the caller decides what a role name means, and
  * a build-up that spends the same role over several layers has those layers
  * summed and spanned together rather than silently reduced to the first one.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-region-composition `matchAutoMovieAssemblyJunction` reports which construction roles survive a junction between two build-ups. This ensures adjacent regions join, overlap, or break by declared construction rules.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `matchAutoMovieAssemblyJunction` performs auto movie assembly junction matching when the engine resolves ordered construction layers into their host face regions.
- * @evidence requirements/building-exterior/materials-and-assemblies.md#building-exterior-joints-drainage `matchAutoMovieAssemblyJunction` measures aligned and broken construction-role spans at an assembly junction as its layer-joint contribution without claiming flashing or rainwater drainage.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-material-joint-opening-wrap `matchAutoMovieAssemblyJunction` reports the exact role-span alignment and break state used by the envelope joint and opening-wrap contract.
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity `matchAutoMovieAssemblyJunction` determines which adjacent envelope-layer roles remain continuous and which break across the validated junction.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant `matchAutoMovieAssemblyJunction` contributes the deterministic layer-junction continuity measurement without claiming an exterior-only open-edge policy.
- * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-intersections `matchAutoMovieAssemblyJunction` measures aligned construction-role spans and explicit breaks where two wall assemblies meet.
- * @evidence requirements/building-exterior/facades-and-walls.md#building-facade-interior-boundary `matchAutoMovieAssemblyJunction` compares the declared layer-role depths shared by room-side and exterior-side assemblies without claiming facade completeness.
- * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-facade-interior-failures The junction result contributes the shared assembly-thickness and broken-role subset of facade/interior compatibility failures.
  */
 export const matchAutoMovieAssemblyJunction = (props: {
   left: IAutoMovieResolvedAssembly;

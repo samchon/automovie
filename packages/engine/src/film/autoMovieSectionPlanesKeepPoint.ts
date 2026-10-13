@@ -14,9 +14,6 @@ import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
  *
  * An empty plane list keeps everything, which is what makes "no section" the
  * absence of a declaration rather than a separate mode.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Answers whether the declared cut leaves a world point in the observed half-space.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Applies the optional clipping planes as an intersection of kept half-spaces with the boundary included.
  */
 export const autoMovieSectionPlanesKeepPoint = (
   planes: readonly IAutoMovieSectionPlane[],

@@ -26,8 +26,6 @@ const AXIS_EPSILON = 1e-12;
  * make two differently-authored contexts produce the same artifact and hide an
  * authoring mistake that a reader needs to see.
  *
- * @evidence requirements/map/weather-and-seasons.md#map-calendar-time-celestial-state `validateAutoMovieEnvironmentContext` refuses physically contradictory sunlight, unstable instant order, malformed blockers, and context-to-building identity collisions.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-calendar-time-celestial-input The validator checks the shared instant, celestial, irradiance, ordering, ownership, and obstruction invariants before any consumer samples them.
  * @author Samchon
  */
 export const validateAutoMovieEnvironmentContext = (props: {

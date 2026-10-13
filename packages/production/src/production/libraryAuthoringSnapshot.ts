@@ -119,10 +119,6 @@ export interface IAutoMovieLibrarySourceExecutionPlan {
  * depends on is the portable projection of this snapshot, which is why the
  * same work opened elsewhere keeps its identity without weakening this guard.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-change-impact-visibility Makes every selected owner, binding, export and normalized source revision part of the guarded library input.
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Gives pre-publication currentness one complete graph-derived snapshot to reacquire.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Reconstructs the exact source population selected by the live authoring declaration.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Domain-separates one immutable library attempt from a later graph or source transition.
  * @author Samchon
  */
 export const captureAutoMovieLibraryAuthoringSnapshot = (props: {
@@ -197,8 +193,6 @@ export const sameAutoMovieLibraryAuthoringSnapshot = (
  * hash a completed production source without executing its named export, and a
  * stale, missing, ambiguous, or incomplete edge stays outside `entries`.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Makes completed library production sources part of both execution and result attribution.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries source path, named export, exact authored owner and source digest as one execution identity.
  * @author Samchon
  */
 export const createAutoMovieLibrarySourceExecutionPlan = (

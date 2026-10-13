@@ -54,10 +54,6 @@ const SEMANTIC_MASK_PROTOCOL = "automovie.semantic-mask.v2";
  * address. Silently dropping the excess would make a mask that segments a
  * different world than the one drawn.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Assigns stable collision-resolved colours to every drawable and retains its semantic ownership chain.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Derives a structural identity product from semantic drawables and ownership rather than reusing beauty colours as object identity.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-pass-refusal Rejects duplicate semantic claimants or a mask population above the bounded palette instead of emitting an ambiguous structural pass.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Builds the complete structural mask product independently of scene traversal order.
  * @author Samchon
  */
 export const deriveAutoMovieSemanticMask = (

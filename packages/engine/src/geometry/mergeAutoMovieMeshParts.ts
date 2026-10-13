@@ -21,9 +21,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * exactly the economy this function exists for, and it is the case that
  * falsifies a metric declaration. Place a reused atlas-bearing member by
  * translation and rotation, and build a second one where the size differs.
- *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group Merges geometry while retaining named group membership.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Reports the exact index span contributed by each member.
  */
 export const mergeAutoMovieMeshParts = (
   parts: readonly IAutoMovieMeshPart[],

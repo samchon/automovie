@@ -48,8 +48,6 @@ const renderKey = (
  * from sorted source identities, making the refusal independent of traversal
  * order.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Produces one deterministic portable file identity for every authored scaffold source.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Rejects a derivation that would merge two distinct source identities into one output.
  * @author Samchon
  */
 export const renderScaffoldEntries = (

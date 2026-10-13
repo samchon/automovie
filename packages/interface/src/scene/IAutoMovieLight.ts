@@ -14,8 +14,6 @@ import { IAutoMovieSpotLight } from "./IAutoMovieSpotLight";
  * through `IAutoMovieShot.lightMotions`, and a production changes them over the
  * whole story clock through {@link IAutoMovieProductionLighting}.
  *
- * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-link-resolution Exposes `IAutoMovieLight` as the portable data boundary for the lighting link resolution requirement.
- * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `IAutoMovieLight` for the clv light link resolution system contract.
  * @author Samchon
  */
 export type IAutoMovieLight =

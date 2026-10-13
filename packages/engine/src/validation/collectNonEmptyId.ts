@@ -2,8 +2,6 @@ import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Reports non-string or blank identities without rewriting caller-owned resource names.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Separates non-string and whitespace-only identities while leaving the caller's value unchanged.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Separates non-string and whitespace-only identities while leaving the caller's value unchanged.
  */
 export const collectNonEmptyId = (
   value: unknown,

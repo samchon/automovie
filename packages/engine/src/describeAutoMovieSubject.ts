@@ -32,9 +32,6 @@ import { compareAutoMovieRenderIds } from "./render";
  * Individual compact instances and placed parts are regenerated only when
  * addressed, so direct inspection remains exact without expanding the normal
  * subject inventory.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Answers what one element, part, prototype, instance, set, or space is from stable identity and revision.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Resolves both enumerated subjects and deterministic non-enumerated placement ids.
  */
 export const describeAutoMovieSubject = (
   artifact: IAutoMovieSubjectArtifact,

@@ -17,8 +17,6 @@ import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare"
  * worker for both: the other end is told through its error callback, and each
  * transport gets the end of a fresh worker the next time it asks.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Runs the person editor's preview and measurements on one worker so a large generation stays within one page.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Retires the shared worker for both transports on a failure and lets each recover on its next request.
  * @author Samchon
  */
 export function createConnectedPersonWorkerShare(

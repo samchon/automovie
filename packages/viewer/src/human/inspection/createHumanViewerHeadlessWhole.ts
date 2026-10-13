@@ -11,8 +11,6 @@ import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no fitted height ratio, subject constant or estimated head volume to manufacture a person measurement.
  * @evidence contracts/common.md#meaningful-documentation Identifies the missing-head precondition and directs whole-person measurements to the person document owner.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Explicitly refuses whole-person stature and closed volume when the numerical body adapter lacks a head.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The body-only measurement adapter supplies named refusals for the two unavailable quantities instead of estimating head contribution.
  * @author Samchon
  */
 export function createHumanViewerHeadlessWhole(

@@ -5,8 +5,6 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
  * document states at a catalogue path, or undefined when it is omitted.
  * Composite records never become an editor control through this reader.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reads the current value of a listed input from the working person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Distinguishes an authored value from an omitted one without inventing a default.
  * @author Samchon
  */
 export function readConnectedPersonInput(

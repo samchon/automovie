@@ -26,9 +26,6 @@ import { isAutoMovieProductionArtifactEntry } from "./isAutoMovieProductionArtif
  * nested inside itself. The root then holds both a legacy entry and the
  * destination that entry would be published at, and which one is authoritative
  * is the author's answer rather than this plan's.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Places each legacy result under the production namespace that produced it while leaving a tracked document no namespace produced where it already is.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Reads the resident project to decide whether the tracked registration's layout version is merely unadopted or names a layout whose records still have to move.
  */
 export const planAutoMovieProductionLayoutMigration = (props: {
   /** Reserved state root of the project being opened. */

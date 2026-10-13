@@ -10,9 +10,6 @@ import {captureAutoMovieFramebufferRestore} from "./captureAutoMovieFramebufferR
  * Check the native lifetime first: an SDK that already released it needs no
  * supplemental delete. Public resetState reconciles native bindings, then the
  * caller's separate target, face and mip are restored independently.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Closes the actual retained native cube depth lifetime after public target disposal without replacing SDK methods or private caches.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Attempts native release, public state reset and caller selection restoration independently.
  */
 export const retireAutoMovieCubeShadowDepth=(renderer:THREE.WebGLRenderer,handle:WebGLTexture):void=>{
   const restore=captureAutoMovieFramebufferRestore(renderer);

@@ -6,8 +6,6 @@
  * spatial validation as a build result. No generator executes during compile,
  * and payload decoding does not consume the authored module's execution budget.
  * A registration must choose this path or a build function, never both.
- *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-derived-artifact Selects a verified precomputed contribution without copying its payload through authored execution.
  */
 export interface IAutoMovieLibraryDerivedSourceOwner {
   /** Exact active design-document and H2 address this export realizes. */

@@ -19,9 +19,6 @@ import { publishViewerCompletedFrame } from "../../publishViewerCompletedFrame.j
  * meaningful display changes. Idle draws still publish their exact facts but
  * need no new encoded bitmap. Hosts without native orbit events retain eager
  * observation; an explicit finish always marks a fresh completed display.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Presents orbitable facial previews without changing the numerical document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Separates camera, lighting and display state from computation and export.
  */
 export function createHumanPreviewStage(props: {
   canvas: {

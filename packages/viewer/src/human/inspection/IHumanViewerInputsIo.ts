@@ -10,9 +10,6 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A caller supplies the real inputs rather than a reader-specific fixture or alternate admission path.
  * @evidence contracts/common.md#meaningful-documentation States the host/reader boundary and why the byte port is separate.
  *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies actual enumerated input bytes and optional version stamps to the same document admission and cache-key reader.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Filesystem access remains with its provider, and malformed inputs retain the ordinary owner's refusal rather than a separate fixture path.
- *
  * @author Samchon
  */
 export interface IHumanViewerInputsIo {
@@ -23,9 +20,6 @@ export interface IHumanViewerInputsIo {
    * @evidence contracts/common.md#clear-and-simple-design Enumeration is one borrowed operation rather than a filesystem owned by catalogue reading.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader receives actual input names and applies the same name rules to all documents.
    * @evidence contracts/common.md#meaningful-documentation The result lists present names; acceptance remains the reader's separate decision.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies actual input-directory names before reader validation.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The result lists present names; acceptance remains the reader's separate decision.
    */
   names(): string[];
 
@@ -36,9 +30,6 @@ export interface IHumanViewerInputsIo {
    * @evidence contracts/common.md#clear-and-simple-design The reader consumes a Buffer without owning disk access.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The real bytes reach admission and hashing without a fixture-only alternate path.
    * @evidence contracts/common.md#meaningful-documentation The argument names an enumerated file and failure propagates instead of returning invented content.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies bytes of the enumerated document or candidate-basis resource.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The argument names an enumerated file and failure propagates instead of returning invented content.
    */
   read(name: string): Buffer;
 
@@ -49,9 +40,6 @@ export interface IHumanViewerInputsIo {
    * @evidence contracts/common.md#clear-and-simple-design Change detection remains with the input provider.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Without a stamp, a cached read cannot claim unchanged bytes from filename equality alone.
    * @evidence contracts/common.md#meaningful-documentation The stamp describes modification time and size; omission disables result reuse.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure An optional version witness lets the reader reuse a file result only while its input stays unchanged.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The stamp describes modification time and size; omission disables result reuse.
    */
   stamp?(name: string): string;
 }

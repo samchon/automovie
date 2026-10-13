@@ -6,9 +6,6 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * Constraint generation uses this same owner so a currently inactive malformed
  * row cannot evade validation. The returned CSC arrays are independent copies;
  * diagonal, linear and optional initial vectors remain borrowed read-only data.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Admits the complete coupled displacement problem before numerical scheduling can restrict its active rows.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Owns finite-domain validation and sparse column construction for all constrained geometry callers.
  */
 export function assembleAutoMovieQuadraticProgram(
   input: Parameters<typeof solveAutoMovieQuadraticProgram>[0],

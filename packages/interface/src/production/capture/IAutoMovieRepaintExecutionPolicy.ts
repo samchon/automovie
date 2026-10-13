@@ -1,11 +1,6 @@
 import { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
 
-/**
- * Complete bounded execution policy for one immutable repaint request.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Makes attempts, timeout, elapsed time, cost, retryability, and deterministic backoff authored inputs rather than hidden host behavior.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Types the bounded request policy consumed before an external call.
- */
+/** Complete bounded execution policy for one immutable repaint request. */
 export interface IAutoMovieRepaintExecutionPolicy {
   /** Maximum provider calls belonging to one request. */
   maximumAttempts: number;

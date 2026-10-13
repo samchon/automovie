@@ -6,8 +6,6 @@
  * subject's framing radius with the minimum neighbourhood radius defined by
  * {@link frameAutoMovieViewerSubject}.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `IAutoMovieViewerViewpoint` records an angle and distance the inspection chose, not one an authored camera imposed.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `IAutoMovieViewerViewpoint` types one entry of the viewpoint plan with its direction, distance, and deterministic identity.
  * @author Samchon
  */
 export interface IAutoMovieViewerViewpoint {

@@ -16,8 +16,6 @@ import type { createConnectedBodyRenderer } from "./createConnectedBodyRenderer.
  * `renderer` prepares and publishes its frames. `serialize` writes a document
  * for the worker; omitted, the document is a body basis document.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the resident worker and renderer that keep body previews correlated with edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Names the worker port, frame renderer and document serialization the preview transaction uses.
  * @author Samchon
  */
 export interface IConnectedBodyPreviewProps<

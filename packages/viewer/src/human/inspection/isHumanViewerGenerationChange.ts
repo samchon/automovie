@@ -20,8 +20,6 @@ const CHANGE_MESSAGES = [
  * @evidence contracts/common.md#principled-implementation Recognizes the existing cross-process source-refusal vocabulary and execution-context loss; it classifies the error without establishing fresh source readiness.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Matches supported transport diagnostics without changing the failure, replaying a request or authorizing a timer-based viewport replacement.
  * @evidence contracts/common.md#meaningful-documentation States why the refusals are matched by text.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Recognizes the existing cross-process source-refusal vocabulary and execution-context loss; it classifies the error without establishing fresh source readiness.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One list names every generation-change refusal.
  */
 export const isHumanViewerGenerationChange = (error: unknown): boolean => {
   const text = error instanceof Error ? error.message : String(error);

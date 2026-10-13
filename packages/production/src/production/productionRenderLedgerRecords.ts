@@ -17,9 +17,6 @@ export type AutoMovieProductionRenderLedgerRecord =
  * The violations name schema paths and expected shapes only; the offending
  * values never travel into the diagnostic, so a hostile or credential-bearing
  * record cannot echo itself through a refusal.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Refuses a persisted manifest or receipt that no longer satisfies its versioned contract instead of reading it as current evidence.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Names the schema position that broke provenance integrity without copying the stored value.
  */
 export class AutoMovieProductionRenderLedgerSchemaError extends Error {
   /** Stable machine-readable diagnostic code. */
@@ -44,9 +41,6 @@ export class AutoMovieProductionRenderLedgerSchemaError extends Error {
  * Generated-project scripts and the builder share this one admission so the
  * manifest schema is owned by the production package rather than re-derived
  * by every reader.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Accepts only the exact current manifest contract so a stale or edited record cannot pass as the active publication.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-atomic-current-commit Reopens the committed manifest as the same typed record the atomic commit wrote.
  */
 export const assertProductionRenderManifestRecord = (
   value: unknown,
@@ -56,12 +50,7 @@ export const assertProductionRenderManifestRecord = (
     typia.validateEquals<IAutoMovieProductionRenderManifest>(value),
   );
 
-/**
- * Admit an already materialized value as the renderer-owned receipt.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Accepts only the plan-bound receipt contract so an edited or historical receipt cannot vouch for current bytes.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Parses the receipt independently of the manifest it will be joined to.
- */
+/** Admit an already materialized value as the renderer-owned receipt. */
 export const assertProductionRenderReceiptRecord = (
   value: unknown,
 ): IAutoMovieProductionRenderReceipt =>
@@ -73,9 +62,6 @@ export const assertProductionRenderReceiptRecord = (
 /**
  * Admit persisted render manifest bytes through strict structured JSON
  * ingress and then the manifest schema.
- *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-text-metadata Reads the persisted manifest as a strict UTF-8, duplicate-free data tree before any schema judgement.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-text-metadata-inspection Routes manifest bytes through the one structured JSON admission instead of a permissive parser.
  */
 export const parseProductionRenderManifestBytes = (
   bytes: Uint8Array,
@@ -87,9 +73,6 @@ export const parseProductionRenderManifestBytes = (
 /**
  * Admit persisted renderer receipt bytes through strict structured JSON
  * ingress and then the receipt schema.
- *
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-text-metadata Reads the persisted receipt as a strict UTF-8, duplicate-free data tree before any schema judgement.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-text-metadata-inspection Routes receipt bytes through the one structured JSON admission instead of a permissive parser.
  */
 export const parseProductionRenderReceiptBytes = (
   bytes: Uint8Array,

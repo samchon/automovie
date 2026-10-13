@@ -9,8 +9,6 @@ import { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
  * measurement script in this repository has already shipped once, so the counts
  * travel beside the findings and a caller compares them.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Reports the whole population a support sweep judged beside the floating bodies it found.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Separates measured, ground-borne, body-borne, floating, and unresolved outcomes instead of collapsing them into one list.
  * @author Samchon
  */
 export interface IAutoMovieBuiltSupportSweepReport {

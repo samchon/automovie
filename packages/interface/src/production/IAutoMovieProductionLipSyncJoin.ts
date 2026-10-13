@@ -3,9 +3,6 @@
  *
  * Mouth motion stays on emission time. It layers only the mouth target over
  * authored expression and does not move to delayed listener-arrival time.
- *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-lipsync-join Joins final-byte visemes to the speaking actor without hand-authored syllable keys.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Makes emission-time mouth layering explicit and seek-stable.
  */
 export type IAutoMovieProductionLipSyncJoin =
   | {

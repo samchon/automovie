@@ -10,17 +10,10 @@
  * consumers compute `phase(t) = (phaseAt + t) % period`. Absent means the
  * motion carries no cycle to resume: a one-shot.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `IAutoMovieGaitCycle` as the portable data boundary for the motion gait table requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `IAutoMovieGaitCycle` for the performance kinematics procedural gait rule system contract.
  * @author Samchon
  */
 export interface IAutoMovieGaitCycle {
-  /**
-   * The source gait's cycle length, seconds. Strictly positive.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `period` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `period` for the performance kinematics procedural gait rule system contract.
-   */
+  /** The source gait's cycle length, seconds. Strictly positive. */
   period: number;
 
   /**
@@ -28,9 +21,6 @@ export interface IAutoMovieGaitCycle {
    * fresh bake is `0`; composition offsets shift it (an arranged segment
    * starting at `s` carries `phaseAt = (0 - s) mod period` so the composite's
    * own clock still lands on the segment's true stride phase).
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `phaseAt` as the portable data boundary for the motion gait table requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `phaseAt` for the performance kinematics procedural gait rule system contract.
    */
   phaseAt: number;
 }

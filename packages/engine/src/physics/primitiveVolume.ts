@@ -8,8 +8,6 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
  * The physics layer weighs real shapes. A `plane` is a degenerate solid and
  * contributes no volume.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-weight-cues Derives a physical weight cue from the authored primitive dimensions.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Supplies the solid-volume fact used by center-of-mass support reasoning.
  * @author Samchon
  */
 export const primitiveVolume = (shape: AutoMoviePrimitiveShape): number => {

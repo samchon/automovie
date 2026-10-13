@@ -14,9 +14,6 @@ import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.j
  * A formation's animated instance meshes carry their cycle on themselves, and
  * the override inherits it: a guide pass that kept the rest pose while the
  * beauty pass marched would describe a film nobody is going to see.
- 
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Preserves original materials and formation cycle deformation while owning temporary pass materials.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Preserves original materials and formation cycle deformation while owning temporary pass materials.
  */
 export const overrideAutoMovieRenderModeMaterials = (
   scene: THREE.Scene,

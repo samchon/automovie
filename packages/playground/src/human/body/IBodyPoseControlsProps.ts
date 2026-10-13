@@ -14,8 +14,6 @@ import type {
  * event time; `clinical` and `coupled` are the package's own readings of the
  * draft, printed beside the sliders rather than folded into them.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the joint, its draft rows and the package's readings that the clinical sliders bind and display.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Separates the painted rows from the latest draft and from the displayed coupling and resolved readings.
  * @author Samchon
  */
 export interface IBodyPoseControlsProps {

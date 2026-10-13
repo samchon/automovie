@@ -6,16 +6,9 @@
  * flag and demanding the whole renderer would put a live WebGL context between
  * this rule and any check of it. The real renderer satisfies it as it stands.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Names the single renderer switch an inspection-owned cut turns on, without widening it into an authored camera setting.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the runtime enable under which the specified optional clipping planes take effect.
  * @author Samchon
  */
 export interface IAutoMovieSectionRenderer {
-  /**
-   * Whether per-material clipping planes are in force.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries whether the declared cut is currently applied.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Carries the runtime enable the specified plane set depends on.
-   */
+  /** Whether per-material clipping planes are in force. */
   localClippingEnabled: boolean;
 }

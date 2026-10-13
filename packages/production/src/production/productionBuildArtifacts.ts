@@ -138,8 +138,8 @@ export const materializeGeneratedFiles = (
   return files;
 };
 
-/** Serialize the film timeline and effect streams independently of rendered media.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Emits timeline and effect data separately from rendered files.
+/**
+ * Serialize the film timeline and effect streams independently of rendered media.
  */
 export const materializeFilmArtifacts = (
   draft: ICompiledFilmDraft,

@@ -12,8 +12,6 @@ import { IAutoMoviePrimitiveGeometry } from "./IAutoMoviePrimitiveGeometry";
  * Provenance belongs to {@link AutoMovieAssetOrigin} at the model level, not
  * to this representation discriminator.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMovieGeometry` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMovieGeometry` for the asset spec geometry inputs system contract.
  * @author Samchon
  */
 export type IAutoMovieGeometry =

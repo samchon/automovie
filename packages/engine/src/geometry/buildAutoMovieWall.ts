@@ -47,9 +47,6 @@ import { positive } from "./positive";
  * are the openings: it cuts arbitrary outlines this one cannot, and its
  * coordinates come from the authored region rather than from the cut lattice.
  * Reach for that one whenever the wall carries a finish.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Constructs a wall and subtracts declared rectangular openings.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Emits the wall's closed topology after bounded opening operations.
  */
 export const buildAutoMovieWall = (props: {
   width: number;

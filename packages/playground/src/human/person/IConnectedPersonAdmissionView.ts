@@ -5,8 +5,6 @@ import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/comm
  * which evaluation it belongs to. The report is the owner's object as the
  * worker returned it, including any clearance and part readings.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows the displayed person's admission outcome and readings beside the model they describe.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Binds a report to the document and basis revisions of the evaluation that produced it.
  * @author Samchon
  */
 export interface IConnectedPersonAdmissionView {

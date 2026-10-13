@@ -8,7 +8,5 @@
  * @evidence contracts/common.md#clear-and-simple-design A dedicated Error subtype lets callers classify pending admission without parsing a diagnostic string.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries the unresolved-input state without admitting the document, estimating its geometry or replacing its owner verdict.
  * @evidence contracts/common.md#meaningful-documentation Names the sidecar and admission prerequisites and explains the catalogue's pending marker.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The pending identity distinguishes an undecided owner verdict from a rejected numerical document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor A dedicated Error subtype lets callers classify pending admission without parsing a diagnostic string.
  */
 export class HumanViewerPendingInputError extends Error {}

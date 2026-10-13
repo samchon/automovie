@@ -3,12 +3,7 @@ import { normalizeSourcePath } from "./normalizeSourcePath";
 import { resolveInstructionRoute } from "./resolveInstructionRoute";
 import { InstructionMarkdown } from "./InstructionMarkdown";
 
-/**
- * Resolve one instruction link against a complete synthetic publication.
- *
- * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Refuses links whose advertised instruction target or heading cannot be discovered.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Enforces one project-root boundary over both installed routers and runtime diagnostic references.
- */
+/** Resolve one instruction link against a complete synthetic publication. */
 export const validateAutoMovieInstructionLink = (
   sources: readonly IAutoMovieInstructionMarkdownSource[],
   sourcePath: string,

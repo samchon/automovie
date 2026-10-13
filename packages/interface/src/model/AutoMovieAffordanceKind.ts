@@ -15,8 +15,6 @@
  *   sconce, a peg hole, a bottle mouth).
  * - `"hook"`: a hanging point (a lantern ring, a coat peg).
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `AutoMovieAffordanceKind` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `AutoMovieAffordanceKind` for the performance interaction attachment object handoff system contract.
  * @author Samchon
  */
 export type AutoMovieAffordanceKind =

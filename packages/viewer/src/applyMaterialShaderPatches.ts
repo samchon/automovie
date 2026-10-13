@@ -8,9 +8,6 @@
  * An operation's exception propagates immediately. Earlier edits remain on
  * the caller's object and later operations do not run; composition owns no
  * rollback or copy of a native program.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Composes every registered material operation into the same shader source and uniforms.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Preserves the registration order used by the native material compile hook.
  */
 export const applyMaterialShaderPatches = <Shader>(
   patches: readonly { apply: (shader: Shader) => void }[],

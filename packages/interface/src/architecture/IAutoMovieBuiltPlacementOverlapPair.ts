@@ -11,8 +11,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * volume travels with the pair and the fraction says how much of the smaller
  * body is inside the larger.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Finds intruding placed bodies across a whole building rather than one named neighbour at a time.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Carries the shared volume, its share of the smaller body, and both measurement bases with every reported pair.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapPair {

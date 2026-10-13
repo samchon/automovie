@@ -17,10 +17,6 @@ import { humanViewerPublishedGenerationBasis } from "@automovie/viewer/human/ins
  * @evidence contracts/common.md#principled-implementation Binds each standard person to the exact view bytes it is built on.
  * @evidence contracts/common.md#clear-and-simple-design One reader owns the standard-people group; admission stays with the caller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Catalogue examples retain the supplied reference, body states and paired basis digests; no fitted subject geometry or admitted-preview exception is introduced.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Supplies selectable reference-person examples authored in the Playground.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Creates example documents without altering viewer-only camera or display state.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Pairs each application-owned body preset with the reference face for whole-person selection.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies the body/person example catalogue on the actual published generation and retains downstream admission.
  * @evidence contracts/common.md#meaningful-documentation States the documents, the linked population and the token.
  */
 export function readHumanViewerStandardPeople(

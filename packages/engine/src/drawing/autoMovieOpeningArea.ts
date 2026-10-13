@@ -20,8 +20,6 @@ const BULGE_EPSILON = 1e-12;
  * segment, which is a closed form and not a sampling of the chords the drawing
  * happens to draft.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Measures the true void area of a straight or arced opening for the quantity report rather than substituting its bounding box.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Combines the profile's signed shoelace area with each bulge's closed-form circular-segment area, then rounds the absolute result.
  * @author Samchon
  */
 export const autoMovieOpeningArea = (

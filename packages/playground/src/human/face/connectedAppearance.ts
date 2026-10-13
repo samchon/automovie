@@ -9,9 +9,6 @@ import { mountConnectedFacePigmentation } from "./connectedPigmentation";
  * state; numeric changes enter the panel's ordinary transaction and history.
  * Inputs show linear RGB, avoiding an implicit browser sRGB conversion.
  * Unedited material properties and pigmentation fields remain caller-owned.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes numerical colour and roughness without an individual image resource.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps appearance inputs synchronized with committed state and shared undo/redo.
  */
 export function mountConnectedFaceAppearance(
   app: HTMLElement,

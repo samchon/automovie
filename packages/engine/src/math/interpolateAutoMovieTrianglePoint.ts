@@ -13,8 +13,6 @@ import { adjacentAutoMovieFloat64 as outward } from "./adjacentAutoMovieFloat64"
  * Current geometry and seating consume the same multiplication order. Points
  * and weights remain caller-owned and the returned metre vector is owned.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Gives source deformation and attachment registration one barycentric interpolation owner without moving the established source seat.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves triangle identity through bounded represented coefficient admission and unchanged weighted-coordinate arithmetic.
  * @author Samchon
  */
 export function interpolateAutoMovieTrianglePoint(

@@ -14,11 +14,6 @@ import { seededValue } from "./math/seededValue";
  * by the formation id and six-digit slot; every member carries the base recipe
  * and the designed heading; and its motion phase is seeded by the formation seed
  * and the slot under the phase domain, whichever actor or position it is handed.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Derives the anonymous node key from formation identity and the logical slot, or names a promoted hero by its actor.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Keeps logical slot identity explicit in the member record every formation spelling returns.
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Returns the same member identity and seeded motion phase for a slot whichever formation record regenerates it.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Keeps the design and compiled slot regenerators on one member record law, so they return the same identity and phase.
  */
 export const formationSlotRecord = (
   formation: {

@@ -5,11 +5,7 @@ import {collectAutoMovieRenderModeMeshes} from "./collectAutoMovieRenderModeMesh
 import {POSE_OVERLAY_NAME} from "./POSE_OVERLAY_NAME.js";
 import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
 
-/** Hide meshes and draw bone→child-bone segments over a black background. 
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Owns temporary bone-line geometry and mesh visibility during one structural pose observation.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Owns temporary bone-line geometry and mesh visibility during one structural pose observation.
- */
+/** Hide meshes and draw bone→child-bone segments over a black background. */
 export const applyPoseMode = (scene: THREE.Scene): IAutoMovieRenderModeHandle => {
   const background = scene.background;
   scene.background = new THREE.Color(0x000000);

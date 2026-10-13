@@ -7,9 +7,6 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  *
  * The conversion uses integer arithmetic exactly once. Nearest sends a
  * nonnegative half tick upward, and floor or ceiling remain explicit choices.
- *
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-mixed-timebases Maps every destination clock from the same exact film-frame boundary.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Implements an explicit integer division policy at the shared boundary.
  */
 export const productionFrameBoundaryToGridTick = (props: {
   frame: number;

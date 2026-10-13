@@ -10,11 +10,7 @@ import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRend
 import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity";
 import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
 
-/**
- * Persisted plan reopened by every `automovie render` subcommand.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-product-scope Enumerates every product's expected outputs separately so one product's success never stands in for another's.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Fixes the production revision, edit, range, products, dimensions and runtime profile of one render request as the plan every later phase consumes.
- */
+/** Persisted plan reopened by every `automovie render` subcommand. */
 export interface IAutoMovieProductionRenderJobPlan {
   /**
    * Plan schema.

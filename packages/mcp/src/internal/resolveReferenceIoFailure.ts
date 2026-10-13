@@ -4,9 +4,6 @@ import { ReferenceError, fail } from "./referenceError";
  * Classify a native read failure without exposing source paths or diagnostics.
  * Intentional reference refusals retain their original identity; primitive and
  * unknown thrown values become a sanitized IO_ERROR instead of being dereferenced.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Keeps native observations and sensitive failure details behind a classified reference boundary.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds Preserves missing, permission and identity causes without reflecting external messages.
  */
 export function resolveReferenceIoFailure(error: unknown): never {
   if (error instanceof ReferenceError) throw error;

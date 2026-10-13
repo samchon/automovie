@@ -13,8 +13,6 @@ import { settleHumanViewerInputs } from "./settleHumanViewerInputs.js";
  * @evidence contracts/common.md#clear-and-simple-design This controller owns catalogue/admission orchestration; source readers and the page retain their existing authorities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selected settlement narrows only unrelated waiting dependencies; original admission and source-generation authority still decide every drawable entry.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes selectable pending descriptors, drawable admissions and explicit full settlement.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Demand admission and keyed sidecar completion remove unrelated barriers while retaining each owner's verdict and generation identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor This controller owns catalogue/admission orchestration; source readers and the page retain their existing authorities.
  */
 export function createHumanViewerCatalogueController(
   props: ICreateHumanViewerCatalogueControllerProps,

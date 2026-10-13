@@ -15,8 +15,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * never which furnishing is the deterministic owner or how findings are
  * ordered.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Refuses multiple furnishing bindings that would draw and charge one soft domain more than once.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Enforces one production-wide furnishing owner for each world-space soft-body domain.
  * @author Samchon
  */
 export const validateAutoMovieSoftFurnishingDomainOwnership = (

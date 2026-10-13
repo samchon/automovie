@@ -32,9 +32,6 @@ import { pathFrames } from "./pathFrames";
  * substitution replaces the geometry rather than the finish: read that contract
  * before putting a directional or density-critical finish on the result, and
  * mitre a straight run instead where the finish has to hold.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Builds a solid by sweeping one authored section along a path.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Connects section copies into a closed sweep topology.
  */
 export const sweepAutoMovieProfile = (props: {
   profile: readonly IAutoMovieProfilePoint[];

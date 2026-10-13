@@ -24,12 +24,7 @@ const closestPointOnSegment = (
   return Vector3.lerp(start, end, t);
 };
 
-/**
- * Distance from `point` to segment `[start, end]`.
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Measures a contact point's shortest residual to a bounded support or collider segment.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Measures a contact point's shortest residual to a bounded support or collider segment.
- */
+/** Distance from `point` to segment `[start, end]`. */
 export const pointSegmentDistance = (
   point: IAutoMovieVector3,
   start: IAutoMovieVector3,

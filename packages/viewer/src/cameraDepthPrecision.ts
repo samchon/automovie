@@ -4,8 +4,6 @@ import * as THREE from "three";
 /**
  * Observable viewer capability result for one resolved production camera.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Reports whether the viewer applies the authored clip range on a standard depth buffer with at least the declared bit capability.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Preserves the renderer capability and source-to-Three projection parity beside the engine's standard fixed-point metric.
  * @author Samchon
  */
 export interface IAutoMovieViewerCameraDepthPrecisionReport {
@@ -57,9 +55,6 @@ const finiteOrNull = (value: number): number | null =>
  * with at least that many actual bits can only provide equal or finer adjacent
  * steps. Logarithmic and reversed projection are refused because they implement
  * a different metric rather than silently appearing as extra capability.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Applies the same authored near, far, and minimum depth bits to the actual viewer camera and the draw framebuffer selected for this pass.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Observes `DEPTH_BITS` and standard projection mode while checking source-to-runtime clip parity.
  */
 export const evaluateAutoMovieViewerCameraDepthPrecision = (props: {
   /** Viewer renderer whose currently bound draw framebuffer receives the shot. */
@@ -127,12 +122,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision = (props: {
   return { ...base, status: "satisfied", passed: true };
 };
 
-/**
- * Refuse a viewer that cannot reproduce the engine's declared depth metric.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Prevents a frame from rendering after clip, projection mode, or depth capability diverges from the evaluated camera.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Makes viewer parity an executable gate rather than an informational capability string.
- */
+/** Refuse a viewer that cannot reproduce the engine's declared depth metric. */
 export const assertAutoMovieViewerCameraDepthPrecision = (
   props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],
 ): IAutoMovieViewerCameraDepthPrecisionReport => {

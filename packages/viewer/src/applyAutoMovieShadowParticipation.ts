@@ -44,10 +44,6 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * so these flags are inert until a production turns shadows on, and only such a
  * production sees its frames change.
  *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Distinguishes the casting and receiving objects the shadow identity requirement holds apart from the source's own size, direction and bias.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Prevents a structural-only support patch from entering beauty through shadow reception.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Completes that shadow state at the object boundary, so the sampled state describes geometry that participates rather than a configured light with nothing to occlude.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Keeps structural support outside the beauty lighting product.
  * @author Samchon
  */
 export const applyAutoMovieShadowParticipation = (

@@ -27,8 +27,6 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * resident mesh query pairs this owner with canonical seat/feature admission.
  * Inputs remain read-only and the scalar record is owned.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Bounds complete attachment-face contact instead of exempting a whole fan because its root is one zero-distance witness.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Restricts possible fan contact to an outward-enclosed root cap on one original support triangle while leaving other faces unpaid.
  * @author Samchon
  */
 export function boundAutoMovieTriangleAttachmentContact(

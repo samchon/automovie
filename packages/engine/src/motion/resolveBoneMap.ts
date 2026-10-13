@@ -17,9 +17,6 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
  * omit them for the canonical clinical basis, or supply a rig's own tables when
  * the pose's clinical angles must be read through them (what the ground plant
  * and retarget contact passes do for imported/non-canonical rigs).
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Resolves each effector in the same rig basis used to judge its contact target.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Produces the world-space joint state measured by the contact pass.
  */
 export const resolveBoneMap = (
   skeleton: IAutoMovieSkeleton,

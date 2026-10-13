@@ -1,8 +1,6 @@
 /**
  * Two complete configuration candidates; publication remains the caller's operation.
  *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Preserves the caller's ability to review and publish local registration separately from reference reads.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Names only the two project-local client configuration outputs.
  * @author Samchon
  */
 export interface IAutoMovieReferenceClientConfigurationPlan {

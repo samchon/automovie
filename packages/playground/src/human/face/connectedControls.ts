@@ -18,9 +18,6 @@ import { createConnectedFaceChannelControl } from "./createConnectedFaceChannelC
  * neither saved channel IDs nor the basis's evaluation order or shared skin.
  * Jaw opening and gaze display source endpoint degrees, and forward/lateral
  * jaw excursions display millimetres. They lower to the same flat weights.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes editable and searchable fine shape and performance channels.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement without changing replay on a mode switch.
  */
 export function mountConnectedFaceControls(
   app: HTMLElement,

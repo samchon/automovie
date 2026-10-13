@@ -13,8 +13,6 @@ import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage.js";
  * @evidence contracts/common.md#clear-and-simple-design One browser/page/CDP lifetime reuses a connected browser while dedicated heap access remains separate from capture requests.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses supported Chromium launch and CDP APIs; actual reported hardware must still be verified and an existing browser is not replaced merely by elapsed time.
  * @evidence contracts/common.md#meaningful-documentation States the renderer flags and the session separation.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The GPU flags select the hardware renderer the server verifies afterwards; heap reads do not share the capture session.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One browser/page/CDP lifetime reuses a connected browser while dedicated heap access remains separate from capture requests.
  */
 export async function launchHumanViewerPage(
   reuse?: Browser,

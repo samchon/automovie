@@ -7,8 +7,6 @@ import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLay
  * separate fields because a proxy tier renumbers output frames while still
  * sampling the builder-owned timeline.
  *
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-number-time Binds each output frame number to exactly one global film frame so the mapping has no duplicate, gap or off-by-one.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Records the frame number, timeline frame and time derived by exact integer relation rather than by an accumulated clock.
  * @author Samchon
  */
 export interface IAutoMovieProductionRenderFrame {

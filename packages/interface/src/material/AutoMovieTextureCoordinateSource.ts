@@ -19,9 +19,6 @@
  * to another reads as flat paint or as one tile smeared across a floor rather
  * than as a wrong number anything can see. Declaring the source is what makes
  * that difference a stated fact instead of a guess.
- *
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Lets a texture declare the coordinate system its scale is expressed in rather than leaving it inferred from the image.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Names the coordinate set a binding record must state alongside its coordinate transform and real scale.
  */
 export type AutoMovieTextureCoordinateSource =
   | "surface-metres"

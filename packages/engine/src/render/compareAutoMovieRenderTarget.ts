@@ -15,12 +15,6 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * report pass and a larger one makes a passing report fail, and neither
  * re-measured anything. So a mismatch is `stale`, never `pass`, and every
  * differing field is named so the drift is actionable instead of mysterious.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Rejects reuse when renderer, settings, asset membership, or asset bytes differ from the reported target.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Compares every sealed render-input and dependency field before treating a prior report as reusable evidence.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-stale-cache-invalidation Marks the prior report stale and names each renderer, setting, asset membership, or digest drift instead of reusing it.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Compares every field in the sealed target closure and returns stable ordered drift.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Implements render-report invalidation from the sealed canonical target comparison without claiming ownership of a general cache store.
  */
 export const compareAutoMovieRenderTarget = (props: {
   /** The report being re-used as evidence. */

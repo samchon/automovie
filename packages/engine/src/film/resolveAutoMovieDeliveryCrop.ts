@@ -14,9 +14,6 @@ const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
  * origin. Omission resolves to the whole gate. The returned object never
  * aliases caller-owned input, so render and review consumers share values
  * without sharing mutation.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Resolves the authored delivery window in a resolution-independent coordinate system before projection and rendering consume it.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Validates the closed normalized crop region that narrows the delivery frustum without changing its near or far planes.
  */
 export const resolveAutoMovieDeliveryCrop = (
   crop: IAutoMovieDeliveryCrop | undefined,

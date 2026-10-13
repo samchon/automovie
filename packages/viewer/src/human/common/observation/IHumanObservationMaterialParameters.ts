@@ -5,8 +5,6 @@
  * keeps the observation material's default. `side` uses Three's FrontSide (0),
  * BackSide (1) and DoubleSide (2) constants.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Fixes the material each diagnostic reading draws with, so display clients cannot change what a pass shows.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps the material parameters of every observation pass on one current-source owner.
  * @author Samchon
  */
 export interface IHumanObservationMaterialParameters {

@@ -26,8 +26,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * direction — throws rather than silently producing a basis that is not a
  * basis.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Establishes the validated page basis that makes each authored view direction, scale, and reflected-ceiling orientation reproducible.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Validates view vectors and depths, derives an orthonormal right-up-normal frame, and reflects only the ceiling-plan right axis.
  * @author Samchon
  */
 export const autoMovieDrawingFrame = (

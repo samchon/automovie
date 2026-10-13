@@ -19,9 +19,6 @@ import {
  * so a caller cannot retain admission metadata while narrowing or disabling its
  * duty, including through native claim-level severity.
  * Native claims with no AutoMovie binding remain additive native claims.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Preserves native extensions while keeping AutoMovie-bound principles and accounts at their declared strength.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Reconstructs canonical principle and account policy from the owning layer, stage, population scope, and disposition.
  */
 export function validateAutoMovieLocalContractClaims(
   graph: IAutoMovieEvidenceConfigProps,
@@ -134,12 +131,7 @@ export function validateAutoMovieLocalContractClaims(
   }
 }
 
-/**
- * Projects local contract targets and their eligible authored population.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Reports the exact contract, eligible owners, population, and scope.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Projects validated local claims into positive bindings and explicit pilot-only audits with authored host populations.
- */
+/** Projects local contract targets and their eligible authored population. */
 export function projectAutoMovieLocalContractClaims(
   claims: readonly ITtscEvidenceGraphClaim[],
 ): {
@@ -193,8 +185,6 @@ export function projectAutoMovieLocalContractClaims(
 /**
  * Manifest identity of one local relationship after declaration validation.
  *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Keeps a local obligation's eligible authored population separate from its contract target.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Names coverage/checklist ownership, enforcement, and eligible authored populations.
  * @author Samchon
  */
 export interface IAutoMovieLocalContractProjection {

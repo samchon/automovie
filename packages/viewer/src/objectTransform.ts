@@ -19,9 +19,6 @@ const quaternion = (value: { x: number; y: number; z: number; w: number }) => ({
  * updates overwrite the host's scene wrapper. Translation is metres and the
  * quaternion is XYZW. Every component is copied, so later writes cannot turn
  * the next frame's input into the runtime's own previous output.
- *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Snapshots source object translation, quaternion and scale before formation updates overwrite scene wrappers.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Snapshots source object translation, quaternion and scale before formation updates overwrite scene wrappers.
  */
 export const objectTransform = (
   object: THREE.Object3D,

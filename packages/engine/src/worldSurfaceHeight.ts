@@ -14,9 +14,6 @@ import { surfaceHeightAt } from "./space/surfaceHeightAt";
  * lives. A scene's standable patch carries the same {@link IAutoMovieHeightRule}
  * and is read by that same function, so terrain a crowd is placed on and ground
  * a performer plants a foot on cannot answer differently.
- *
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Evaluates constant, planar, and sampled terrain elevations through the shared surface-height arithmetic.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Derives an XZ point's elevation from the exact surface representation carried in canonical state.
  */
 export const worldSurfaceHeight = (
   surface: IAutoMovieWorldSurface,

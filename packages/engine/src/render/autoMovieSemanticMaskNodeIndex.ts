@@ -9,9 +9,6 @@ import {
  * The viewer holds objects, not semantics; this is the join it uses. Built as
  * one map rather than searched per mesh, because a structural pass touches
  * every drawable in the scene once per frame.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Joins each renderer node name to the semantic entry whose colour it must paint.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Supplies the per-drawable lookup that projects semantic identities into the structural mask channel.
  */
 export const autoMovieSemanticMaskNodeIndex = (
   mask: IAutoMovieSemanticMask,

@@ -17,9 +17,6 @@ const DISABLED: AutoMovieEvidenceStage = "disabled";
  * placeholder here; the graph admits that value only while no language pack
  * is materialized and nothing is selected, so the template evaluates without
  * a language ever being defaulted.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the initial unselected state as visible and complete as every later tracked declaration.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Produces the complete unselected declaration from which the production author explicitly activates its kind and stages.
  */
 export const createBlankAutoMovieProductionEvidence = (
   location: string,

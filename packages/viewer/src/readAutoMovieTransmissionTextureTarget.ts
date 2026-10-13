@@ -9,9 +9,6 @@ import * as THREE from "three";
  * This is a conservative factory profile, not a driver allocation measurement.
  * The host retains one record per live native scene/camera target, including
  * earlier cameras whose cache survives material removal, until context release.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Connects supported physical-material transmission to its real viewport and graphics-capability target profile.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies a declared native factory bound instead of inventing zero derived storage for transmissive materials.
  */
 export function readAutoMovieTransmissionTextureTarget(
   owner: string,

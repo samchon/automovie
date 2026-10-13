@@ -13,8 +13,6 @@ import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenera
  * @evidence contracts/common.md#clear-and-simple-design One route adapter binds the generation owner's token and label to the HTTP response lifetime.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Response closure releases the actual hold without an age limit, forged source label or forced candidate replacement.
  * @evidence contracts/common.md#meaningful-documentation States both routes, the release rule and the answer.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The hold lives exactly as long as the client's open request, so no vanished client keeps compiles withheld.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One route adapter binds the generation owner's token and label to the HTTP response lifetime.
  */
 export function serveHumanViewerGeneration(
   props: IServeHumanViewerGenerationProps,

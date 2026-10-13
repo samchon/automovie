@@ -12,9 +12,6 @@ import type { ServerResponse } from "node:http";
  * @evidence contracts/common.md#clear-and-simple-design One client set publishes the owner's revision and releases connections on their actual response lifetime.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sends the supplied revision without patching browser reload methods, manufacturing a successful candidate or restarting the page by age.
  * @evidence contracts/common.md#meaningful-documentation States initial publication, later source notifications and the separation between connection closure and model lifetime.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps a completed display usable while changed source prepares a replacement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Carries source notifications separately from browser reload and geometry evaluation.
  */
 export function createHumanViewerSourceEvents(
   revision: () => string,

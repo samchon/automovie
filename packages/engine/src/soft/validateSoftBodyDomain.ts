@@ -28,10 +28,6 @@ import { softBodyTravelNumber } from "./softBodyTravelNumber";
  * clamped — a clamped panel is a panel whose author was told nothing and whose
  * frames changed anyway.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Refuses ambiguous static-plus-moving anchor inputs before the solver samples a boundary.
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Validates the shared actor-bound capsule without inventing unresolved world geometry.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Keeps static and evaluated moving anchor inputs structurally distinct.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Validates body-capsule identity and radius before pose-time resolution.
  * @author Samchon
  */
 export const validateSoftBodyDomain = (props: {

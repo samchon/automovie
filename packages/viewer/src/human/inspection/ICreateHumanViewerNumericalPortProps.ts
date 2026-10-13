@@ -14,9 +14,6 @@ import type { createHumanViewerSpans } from "./createHumanViewerSpans.js";
  * @evidence contracts/common.md#principled-implementation Numerical completion records report existing work phases and capture timings to their page-owned telemetry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Progress is supplied by the numerical owner rather than estimated from elapsed wall time.
  *
- * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work Numerical completion records report existing work phases and capture timings to their page-owned telemetry.
- * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot Progress is supplied by the numerical owner rather than estimated from elapsed wall time.
- *
  * @author Samchon
  */
 export interface ICreateHumanViewerNumericalPortProps {
@@ -27,20 +24,12 @@ export interface ICreateHumanViewerNumericalPortProps {
    * @evidence contracts/common.md#clear-and-simple-design The transport reports to telemetry rather than owning its state transitions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reported completion is the worker's event, not an estimated percentage.
    * @evidence contracts/common.md#meaningful-documentation Phase and optional completed-stage readings remain distinct inputs.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work Actual numerical completion advances the page's work phase with the original optional progress envelope.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot Phase and optional completed-stage readings remain distinct inputs.
    */
   work: (
     phase: HumanViewerWork["phase"],
     completed?: IHumanViewerNumericalProgress,
   ) => void;
 
-  /**
-   * Stage timings of the current capture.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work Records numerical transport stages in the current capture's existing timing owner instead of mixing wall-clock estimates.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot Records numerical transport stages in the current capture's existing timing owner instead of mixing wall-clock estimates.
-   */
+  /** Stage timings of the current capture. */
   spans: ReturnType<typeof createHumanViewerSpans>;
 }

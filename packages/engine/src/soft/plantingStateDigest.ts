@@ -9,8 +9,6 @@ import { IAutoMoviePlantingState } from "@automovie/interface";
  * re-derivation or a second machine reproduced the reference plant rather than
  * merely a similar one.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Records exact equality of a deterministically derived planting state.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Provides the repeatability receipt for the generated planting structure.
  * @author Samchon
  */
 export const plantingStateDigest = (state: IAutoMoviePlantingState): string => {

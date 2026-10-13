@@ -5,8 +5,6 @@ import { ViolationCollector } from "./ViolationCollector";
 /**
  * Push a `type` violation for an unknown primitive shape, or a `range`
  * violation for any non-finite or non-positive primitive dimension.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Selects the dimensions belonging to each primitive kind and diagnoses nonfinite or nonpositive extents.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Selects the dimensions belonging to each primitive kind and diagnoses nonfinite or nonpositive extents.
  */
 export const validateExtents = (
   shape: AutoMoviePrimitiveShape,

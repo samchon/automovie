@@ -28,9 +28,6 @@ import { contentFingerprintFields } from "./productionBuildIdentity";
  * the derivation closure is still inspected, so the failure reaches both the
  * identity and the author. A disabled read, which the design scope asks for,
  * touches nothing.
- *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Supplies the content inventory and derived bytes a library result is bound to and a later check compares.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Admits declared content, adopted asset and verified derived bytes as library derivation inputs through one read.
  */
 export const readAutoMovieLibraryDerivedInputs = (props: {
   /** Project handle the library compiles in. */

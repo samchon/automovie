@@ -14,11 +14,6 @@ import { Vector3 } from "./Vector3";
  * The consumer still checks every used transported vector and actual cell:
  * cofactor entries can overflow even when the determinant remains finite.
  * Caller arrays are unchanged and the returned object/matrix are owned.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies the shared Jacobian cofactor used to transport a deformation's normals and source face orientation.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains the original deformation cofactor arithmetic in one owner; geometry consumers still admit the actual emitted cells.
- * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses malformed, nonfinite, singular and orientation-reversing deformation Jacobians without an absolute determinant cutoff.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Names an unsupported local deformation orientation while leaving used-vector and actual-cell checks with their consumer.
  */
 export function cofactorAutoMovieJacobian(
   jacobian: readonly number[],

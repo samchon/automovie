@@ -6,9 +6,6 @@
  * order budget slots are assigned in. Anything other than an array of
  * non-blank, trimmed, unique ids is refused rather than repaired, so the Node
  * builder and a browser viewer reading the fetched runtime admit one list.
- *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-adoption-choice Reads the author's explicit live-solve selection without reordering, repairing or widening it.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Admits the user-selected live deterministic population as declared input rather than a solver-chosen one.
  */
 export const readProductionLiveWearableSoftBodies = (
   selected: unknown,

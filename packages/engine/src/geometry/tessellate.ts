@@ -10,8 +10,6 @@ import { ITessellation } from "./ITessellation";
  * vertices. The engine owns this so generated primitives render identically
  * everywhere.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Converts named primitive dimensions into concrete geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Implements the native primitive-input path of the geometry contract.
  * @author Samchon
  */
 export const tessellate = (shape: AutoMoviePrimitiveShape): ITessellation => {

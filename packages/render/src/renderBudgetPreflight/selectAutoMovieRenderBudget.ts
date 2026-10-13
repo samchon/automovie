@@ -10,9 +10,6 @@ import { IAutoMovieRenderBudget } from "@automovie/interface";
  * makes every metric `unbudgeted`, and a job that treated that as a clearance
  * would be reporting that nobody's limits were met.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `selectAutoMovieRenderBudget` carries the conservative measurement basis and deterministic budget decision.
- * @evidence requirements/rendering/budgets.md#rendering-budget-tiers Selects only the caller-requested purpose tier and preserves an undeclared tier as an explicit unbudgeted result.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `selectAutoMovieRenderBudget` exposes that responsibility through the package-independent system contract.
  * @author Samchon
  */
 export const selectAutoMovieRenderBudget = (

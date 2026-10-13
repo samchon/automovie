@@ -7,8 +7,6 @@ import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/comm
  * be edited further, saved or encoded with its report beside it, and it never
  * enters the accepted history.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps a refused construction editable and visible with its qualification instead of presenting it as a committed person.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Holds draft geometry outside the transactional history of accepted documents.
  * @author Samchon
  */
 export interface IConnectedPersonDraft<Model> {

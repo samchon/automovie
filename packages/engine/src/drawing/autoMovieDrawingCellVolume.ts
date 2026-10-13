@@ -16,9 +16,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * the sum of the cones from the cell's interior point to those faces. An
  * unbounded or degenerate cell has no such vertex set and reports `null` rather
  * than a number nobody can act on.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Measures a logical cell from the same half-spaces that define its drawing regions and returns no false number for an open cell.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Normalizes and deduplicates planes, solves their bounded vertices, verifies face closure, and sums interior-point cones or returns `null`.
  */
 export const autoMovieDrawingCellVolume = (
   planes: readonly IAutoMovieHalfSpacePlane[],

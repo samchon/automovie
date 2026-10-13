@@ -11,9 +11,6 @@ import { subsurfaceFragment } from "./subsurfaceFragment.js";
  * of the interpolated normal over the change of the view position. A flat
  * surface keeps the clamped cosine; a curved one bleeds soft and red past
  * the terminator. Specular, clearcoat and indirect light are untouched.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves a material's subsurface radius into the declared render material's diffuse response.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the subsurface diffuse response at the render boundary.
  */
 export const applySubsurfaceShading = (
   material: THREE.MeshPhysicalMaterial,

@@ -8,8 +8,6 @@ import type {
  * The caller evaluates its effective ROM and actual FK residual; this record
  * carries no claim that the target is reachable or that contact succeeded.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Carries the two actual candidate articulations from a measured contact chain.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Keeps candidate rotations and bend-axis identity together for unchanged final contact scoring.
  * @author Samchon
  */
 export interface IAutoMovieSolvedChainPlant {

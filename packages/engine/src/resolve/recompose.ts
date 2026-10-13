@@ -4,12 +4,7 @@ import { Matrix4 } from "../math/Matrix4";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
-/**
- * Recompute every descendant's world matrix from a node's updated world.
- *
- * @evidence requirements/map/scope-and-coordinates.md#map-coordinate-transform-precision Reapplies parent-to-child matrix products after a driver changes an ancestor.
- * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-transform-lineage-precision Preserves the ordered transform lineage through the complete descendant subtree.
- */
+/** Recompute every descendant's world matrix from a node's updated world. */
 export const recompose = (
   id: string,
   world: Map<string, number[]>,

@@ -22,8 +22,6 @@ const CONTAINMENT_EPSILON = 1e-9;
  * a second reading of the same field is how a room and its own camera ended up
  * with two answers about where the camera stood.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtSpaceContainsPoint` answers "Does one logical space's own stated volume contain a point?" This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtSpaceContainsPoint` tests a point only against one logical space's own declared cells or shell.
  * @author Samchon
  */
 export const builtSpaceContainsPoint = (

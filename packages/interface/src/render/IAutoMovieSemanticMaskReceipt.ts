@@ -1,12 +1,7 @@
 import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieSemanticMaskCoverage } from "./IAutoMovieSemanticMaskCoverage";
 
-/**
- * Resident semantic dependency of one mask image.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieSemanticMaskReceipt` as the portable data boundary for content-addressed semantic evidence.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieSemanticMaskReceipt` for reopening a semantic render product.
- */
+/** Resident semantic dependency of one mask image. */
 export interface IAutoMovieSemanticMaskReceipt {
   /** Receipt record schema. */
   version: 1;

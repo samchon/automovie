@@ -35,61 +35,29 @@ import { IAutoMovieCameraDepthPrecisionConstraint } from "./IAutoMovieCameraDept
  * clearance, which an open shell shows correctly. That reopens with the same
  * condition: a delivered cutaway frame, where a hollow shell would be a defect.
  *
- * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `IAutoMovieCamera` as the portable data boundary for the camera focal fov requirement.
- * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `IAutoMovieCamera` for the clv lens basis consistency system contract.
  * @author Samchon
  */
 export interface IAutoMovieCamera {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `id` as the portable data boundary for the camera focal fov requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `id` for the clv lens basis consistency system contract.
-   */
+  /** Stable id. */
   id: string;
 
   /**
    * World placement of the camera (it looks down its local −Z, glTF
    * convention).
-   *
-   * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `transform` as the portable data boundary for the camera focal fov requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `transform` for the clv lens basis consistency system contract.
    */
   transform: IAutoMovieTransform;
 
-  /**
-   * Vertical field of view in degrees, `(0, 180)`.
-   *
-   * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `fovY` as the portable data boundary for the camera focal fov requirement.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `fovY` for the clv lens basis consistency system contract.
-   */
+  /** Vertical field of view in degrees, `(0, 180)`. */
   fovY: number;
 
-  /**
-   * Near clip plane distance, meters.
-   *
-   * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `near` as the portable data boundary for the camera focal fov requirement.
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries the positive authored near boundary used by clipping and depth precision evaluation.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `near` for the clv lens basis consistency system contract.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies the report's near clipping operand in camera-space metres.
-   */
+  /** Near clip plane distance, meters. */
   near: number;
 
-  /**
-   * Far clip plane distance, meters. Must exceed `near`.
-   *
-   * @evidence requirements/camera/projection-lens-and-sensor.md#camera-focal-fov Exposes `far` as the portable data boundary for the camera focal fov requirement.
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries the ordered authored far boundary used by clipping and depth precision evaluation.
-   * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-lens-basis-consistency Types `far` for the clv lens basis consistency system contract.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies the report's far clipping operand in camera-space metres.
-   */
+  /** Far clip plane distance, meters. Must exceed `near`. */
   far: number;
 
   /**
    * Required standard depth-buffer capability and accepted quantization step.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Carries the measurable precision declaration applied to current required subject and environment bounds.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies the minimum bit capability and metre-valued accepted boundary for the deterministic report.
    */
   depthPrecision: IAutoMovieCameraDepthPrecisionConstraint;
 
@@ -98,9 +66,6 @@ export interface IAutoMovieCamera {
    *
    * Optional for legacy scenes. When present, a shot builder must evaluate
    * this camera on the current scene revision before publishing the take.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clearance Carries the declared physical body and support volumes into the resolved scene.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Supplies the envelopes consumed by deterministic swept-path refusal.
    */
   clearance?: IAutoMovieCameraClearanceEnvelope;
 }

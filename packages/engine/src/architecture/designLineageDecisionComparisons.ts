@@ -14,9 +14,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * way twice. A settled decision is compared exactly like an open one: the
  * rejected schemes are still on the record, and the reason a choice was made is
  * the comparison that produced it.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineageDecisionComparisons` compares every pair of alternatives one decision holds open. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineageDecisionComparisons` materializes every pairwise alternative comparison held open by one design decision.
  */
 export const designLineageDecisionComparisons = (
   lineage: IAutoMovieDesignLineage,

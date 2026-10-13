@@ -4,9 +4,6 @@ import type { IAutoMovieRenderTextureCost } from "@automovie/interface";
  * Sum certified allocation populations without replacing unknown by one.
  * Omitted counts retain the legacy one-allocation row meaning. Invalid counts
  * and unsafe aggregate integers remain unbounded rather than rounded totals.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Preserves unknown and unsafe texture cardinality beside byte uncertainty.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Supplies the inventory's count boundary without inventing a native allocation population.
  */
 export const sumAutoMovieRenderTextureAllocations = (
   textures: readonly IAutoMovieRenderTextureCost[],

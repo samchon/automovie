@@ -9,8 +9,6 @@ import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage.js";
  * @evidence contracts/common.md#clear-and-simple-design One observer owns the current stage without a second cancellation policy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Records actual stage and progress timestamps while leaving timeout, cancellation and renderer ownership outside this observer.
  * @evidence contracts/common.md#meaningful-documentation Separates progress telemetry from transport cancellation.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Awaiting the actual operation preserves queue ownership until completion or the capture lifetime's failure.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One observer owns the current stage without a second cancellation policy.
  */
 export function createHumanViewerStageWatch() {
   let current: IHumanViewerCaptureStage | null = null;

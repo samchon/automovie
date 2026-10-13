@@ -4,8 +4,6 @@ import type { AuthoringReachabilityRules } from "./AuthoringReachabilityRules";
 /**
  * One public capability's complete route from author decision to consumer.
  *
- * @evidence requirements/product/authorability.md#product-discoverable-control Carries the owner, input, consumer, and route fields one capability needs to be provably reachable, or its concrete inapplicable reason.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Is the typed row the production-kind route query returns.
  * @author Samchon
  */
 export interface IAutoMovieAuthoringReachabilityRow {

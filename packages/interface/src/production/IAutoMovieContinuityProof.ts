@@ -1,8 +1,5 @@
 /**
  * Exact evidence owner and selector that alone may prove a continuity claim.
- *
- * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `IAutoMovieContinuityProof` as the portable data boundary for the story screenplay index prose requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMovieContinuityProof` for the narrative intent scene prose index system contract.
  */
 export type IAutoMovieContinuityProof =
   | {

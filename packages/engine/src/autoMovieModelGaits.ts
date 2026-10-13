@@ -11,9 +11,6 @@ import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * bakes a table per declared gait, and the builder refuses a cue calling for a
  * gait that is not among them. Two spellings of "what can this figure do" is
  * how a production compiles clean and then fails to draw.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-motion-validation Exposes the recipe-ordered gait repertoire used to reject unsupported formation motion cues.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Gives validation and runtime baking the same model capability list.
  */
 export const autoMovieModelGaits = (
   model: Pick<IAutoMovieModel, "profiles">,

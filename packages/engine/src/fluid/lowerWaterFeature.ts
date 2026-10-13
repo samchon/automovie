@@ -20,8 +20,6 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * solve — two features over the same domain must never disagree about where the
  * water is.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Lowers the authored water mode to state, surface, and bounded spray.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Produces the renderer-ready result of the feature's independent fluid domain.
  * @author Samchon
  */
 export const lowerWaterFeature = (props: {

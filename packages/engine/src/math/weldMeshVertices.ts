@@ -5,9 +5,6 @@ import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
  * identities mean exactly equal topology-grid labels, never merely nearby
  * points. This preserves the existing Math.round and signed-zero convention.
  * The caller owns structural and finite-buffer admission.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Supplies one position-welding rule to topology admission and partition reuse.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Preserves diagnostic coordinate labels and deterministic welded identities.
  */
 export function weldMeshVertices(positions: readonly number[]): {
   labels: string[];

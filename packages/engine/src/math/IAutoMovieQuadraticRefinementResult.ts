@@ -7,8 +7,6 @@ import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPo
  * the unchanged native status and separate attempt diagnostics. Only
  * the caller's original residual threshold and Solved status decide admission.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Returns caller-coordinate variables and signed original-row duals without publishing numerical slack variables as geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves original rows, endpoint authority and raw native failures beside full original-coordinate KKT measurements.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementResult {

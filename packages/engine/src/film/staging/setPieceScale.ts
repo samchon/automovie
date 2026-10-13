@@ -6,9 +6,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * vector scales per axis. One forged primitive can therefore stand in for a
  * whole set, a wall, a step, and a table top are the same box at three sizes
  * (#1173).
- *
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Lowers omitted or scalar set-piece size into the same world-space axis scale consumed by placement validation and scene composition.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership Lowers omitted or scalar set-piece size into the same world-space axis scale consumed by placement validation and scene composition.
  */
 export const setPieceScale = (
   scale: number | IAutoMovieVector3 | undefined,

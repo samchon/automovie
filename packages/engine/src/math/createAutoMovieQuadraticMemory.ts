@@ -15,9 +15,6 @@ type KernelExports = {
  * positive wasm32 integers. Allocation failure refuses the operation; callback
  * failure still frees its workspace before the next call. A callback must copy
  * any result it retains and must not recursively borrow this owner's workspace.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Runs the constrained displacement kernel without a network, file, clock or random-state dependency.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Owns and releases temporary numerical buffers while leaving input geometry under caller ownership.
  */
 export function createAutoMovieQuadraticMemory(): {
   withWorkspace<T>(

@@ -7,17 +7,10 @@ import type { IHumanViewerWatchedSource } from "./IHumanViewerWatchedSource.js";
  * @evidence contracts/common.md#clear-and-simple-design The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reached-source notification and optional scheduling describe actual edits rather than timer-based viewer cancellation.
  * @evidence contracts/common.md#meaningful-documentation Defines watcher registration, input rescan, publication, updating state and cancellable batch scheduling.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Source watching refreshes authority and reports moved revisions through separate host callbacks.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
  * @author Samchon
  */
 export interface ISubscribeHumanViewerSourcesProps {
-  /**
-   * The source owner.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The source owner. Source watching refreshes authority and reports moved revisions through separate host callbacks.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The source owner. The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
-   */
+  /** The source owner. */
   source: IHumanViewerWatchedSource;
 
   /**
@@ -27,8 +20,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host retains the watcher instance while the subscription supplies paths.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adding paths cannot assign imported-source authority to unrelated files.
    * @evidence contracts/common.md#meaningful-documentation Defines the path-array registration operation.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Watcher expansion registers the actual source/input paths selected by the source owner.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains the watcher instance while the subscription supplies paths.
    */
   add: (files: string[]) => void;
 
@@ -39,8 +30,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host owns event delivery while the subscription owns admitted batch processing.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Events do not directly replace loaded browser modules or bypass source hashing.
    * @evidence contracts/common.md#meaningful-documentation Documents watcher registration and the event/path callback.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Watcher subscription delivers the event and input path to the edit-ordering owner.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns event delivery while the subscription owns admitted batch processing.
    */
   watch: (changed: (event: string, input: string) => void) => void;
 
@@ -51,8 +40,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The catalogue owner retains rescanning while the watcher only requests it.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rescanning input data does not falsely claim loaded browser code changed.
    * @evidence contracts/common.md#meaningful-documentation Names the input catalogue rescan operation.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Input notification rereads catalogue authority after an input or generation-view edit.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The catalogue owner retains rescanning while the watcher only requests it.
    */
   inputs: () => void;
 
@@ -63,8 +50,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The revision owner computes movement and the host owns source notification effects.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A file event without digest movement is not fabricated into a changed-domain result.
    * @evidence contracts/common.md#meaningful-documentation Defines changed-file and moved-domain publication inputs.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Publication reports changed files beside the domains their computed revisions moved.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The revision owner computes movement and the host owns source notification effects.
    */
   publish: (files: string[], moved: string[]) => void;
 
@@ -75,8 +60,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host retains status storage while the subscription determines its transitions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A pending update is not replaced with a timer-based viewer failure verdict.
    * @evidence contracts/common.md#meaningful-documentation Documents the boolean edit-processing status callback.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Updating state reflects whether admitted edit batches are pending or computing.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains status storage while the subscription determines its transitions.
    */
   updating: (value: boolean) => void;
 
@@ -87,8 +70,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host owns browser candidate/display publication independently of the watcher.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A numerical-only edit does not automatically claim the browser generation moved.
    * @evidence contracts/common.md#meaningful-documentation Defines the browser-source revision notification.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Browser notification follows an actually moved browser-domain revision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns browser candidate/display publication independently of the watcher.
    */
   browser: () => void;
 
@@ -99,8 +80,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host owns error reporting while the subscription preserves failure propagation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed digest or catalogue work is not silently converted into a successful publication.
    * @evidence contracts/common.md#meaningful-documentation Documents the error-value callback for source edit processing.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Edit-processing failure is forwarded with its original unknown error value.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host owns error reporting while the subscription preserves failure propagation.
    */
   error: (error: unknown) => void;
 
@@ -111,8 +90,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The host owns its reaction while the subscription decides actual reachability.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreached filesystem events cannot trigger this actual-input notification.
    * @evidence contracts/common.md#meaningful-documentation Defines the optional notification for a file read by a build or basis owner.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The optional reached notification reports an admitted source or published-basis edit immediately.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns its reaction while the subscription decides actual reachability.
    */
   reached?: () => void;
 
@@ -123,8 +100,6 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidence contracts/common.md#clear-and-simple-design The scheduling host owns timing while the subscription owns which edit batch is pending.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The scheduler coalesces source edits and supplies no viewer-age shutdown or display-restart rule.
    * @evidence contracts/common.md#meaningful-documentation Documents optional cancellable batching and the existing default delay.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Batch scheduling returns cancellation for a pending batch callback.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The scheduling host owns timing while the subscription owns which edit batch is pending.
    */
   schedule?: (run: () => void) => () => void;
 }

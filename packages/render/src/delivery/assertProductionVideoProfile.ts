@@ -5,9 +5,6 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
 
 /**
  * Refuse every final-video presentation or color fact outside the current profile.
- *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-refusal Rejects transformed, stretched, ambiguously timed, or color-unidentified video bytes.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Implements one fieldwise verdict shared by feature, guide, repaint, and reopen paths.
  */
 export const assertProductionVideoProfile = (props: {
   expected: IAutoMovieProductionVideoProfile;

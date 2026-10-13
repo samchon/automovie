@@ -13,9 +13,6 @@ import { validateAutoMovieInstructionDocumentLinks } from "./validateAutoMovieIn
  * A directory route is accepted only when at least one source is resident
  * below that directory. Topic documents retain their ordinary heading structure;
  * SKILL.md supplies the skill name, description and title.
- *
- * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Refuses an instruction entry point that cannot reach the procedure it advertises.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Keeps every shipped authoring route inside the generated project's complete instruction and contract source population.
  */
 export const validateAutoMovieSkillRouterLinks = (
   sources: readonly IAutoMovieInstructionMarkdownSource[],

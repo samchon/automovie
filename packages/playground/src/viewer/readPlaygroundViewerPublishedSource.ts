@@ -15,8 +15,6 @@ import type { IPlaygroundViewerPublicationReader } from "./IPlaygroundViewerPubl
  * @evidence contracts/common.md#clear-and-simple-design One source-read boundary composes the held receipt, publication state and existing refresh operation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A lock cannot expire by age, and the reader never certifies intermediate membership as a completed publication.
  * @evidence contracts/common.md#meaningful-documentation Defines held-receipt identity, lock refusal, refresh order and propagated effect failures without claiming an atomic filesystem snapshot.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Refuses adoption of intermediate producer inputs and refreshes their recorded membership after publication before the application replays its authored choices.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Preserves the original disk receipt and admits a refreshed source-input identity only outside the declared publication transaction.
  */
 export function readPlaygroundViewerPublishedSource<T extends {
   /**

@@ -1,9 +1,4 @@
-/**
- * Closed builder-owned measurement proxy parameters.
- *
- * @evidence requirements/evidence-and-provenance/third-party-sources-rights-and-attribution.md#third-party-generated-source Exposes `IAutoMovieGeneratedMeasurementProxy` as the portable data boundary for the third party generated source requirement.
- * @evidence specifications/evidence-and-provenance/third-party-sources-rights-and-attribution.md#evp-generated-provider-provenance Types `IAutoMovieGeneratedMeasurementProxy` for the evp generated provider provenance system contract.
- */
+/** Closed builder-owned measurement proxy parameters. */
 export type IAutoMovieGeneratedMeasurementProxy =
   | {
       /** Axis-aligned box used by distance and projected-size queries. */

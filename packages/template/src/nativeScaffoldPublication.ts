@@ -89,12 +89,6 @@ class ScaffoldCreatedSlotError extends Error {
  * The adapter never retries an absolute child pathname and never deletes a
  * partial result.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Publishes exact bytes only into the captured physical parent generation and verifies their resident identity.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Reuses the closed parent identity, child segment, and bytes through native create and readback.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Uses native exclusive creation and leaves an existing competitor unchanged.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Resolves the exact held-parent slot through success or explicit competitor refusal.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Distinguishes pre-create refusal from exact descriptor-bound partial state without cleanup.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Returns the captured parent and written extent required for explicit recovery.
  * @author Samchon
  */
 export const publishNativeScaffoldFile = (

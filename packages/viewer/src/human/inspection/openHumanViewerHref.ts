@@ -16,8 +16,6 @@ import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
  * @evidence contracts/common.md#clear-and-simple-design Four links are derived from one supplied observation address without duplicating its field encoding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The document comes from the caller; thumbnail extent and sheet views are inspection product conventions rather than named-subject special cases.
  * @evidence contracts/common.md#meaningful-documentation Describes route differences, caller document ownership and the absence of generation or provenance claims.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Carries one caller-selected document and observation address through the interactive view, capture request, clay thumbnail and ordered view sheet without generating a new document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reuses the shared address encoding while explicitly changing only thumbnail pass/extent and sheet directions; numerical evaluation and completed-output admission remain downstream.
  */
 export function openHumanViewerHref(
   doc: string,

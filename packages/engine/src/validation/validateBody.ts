@@ -6,8 +6,6 @@ import { ViolationCollector } from "./ViolationCollector";
  * Validate an {@link IAutoMovieBody}'s rough scalars: mass must be finite and
  * strictly positive, `friction` and `restitution` sit in `[0, 1]`, and an
  * explicit `centerOfMass` must be finite on every axis.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Checks positive mass, bounded contact coefficients and a finite optional centre of mass as model semantic admission.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Checks positive mass, bounded contact coefficients and a finite optional centre of mass as model semantic admission.
  */
 export const validateBody = (
   body: IAutoMovieBody,

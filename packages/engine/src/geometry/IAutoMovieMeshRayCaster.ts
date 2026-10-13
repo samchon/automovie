@@ -11,8 +11,6 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
  * Query-local exclusions use native triangle ordinals. A null answer means
  * no unexcluded target was found in this domain, never a containment pass.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Gives geometry consumers metric, identified and obstruction queries over the same immutable triangle snapshot.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves original geometry and ordinals while exposing each query's travel interval and topology selection.
  * @author Samchon
  */
 export interface IAutoMovieMeshRayCaster {

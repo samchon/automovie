@@ -37,8 +37,6 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = {
  * the clip `loop`s. Before the first / after the last keyframe the nearest
  * keyframe is returned verbatim.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Applies the interpolation law appropriate to each sampled channel type between ordered keys.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Resolves clamped or looped time into one deterministic pose and expression sample.
  * @author Samchon
  */
 export const sampleMotion = (

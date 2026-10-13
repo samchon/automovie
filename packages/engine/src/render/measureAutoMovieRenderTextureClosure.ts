@@ -32,9 +32,6 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * 32-bit depth face attachment. Raw channel/internal format does not own them.
  * DFG is a 16-by-16 RG half-float texture, with no mip chain. Driver overhead
  * and encoded/CPU source bytes are outside these uncompressed storage bounds.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes actual source sharing, independent uploads, environment clones and context-retained storage without per-scene duplication.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps resident ownership and unresolved representation bounds available to admission.
  */
 export function measureAutoMovieRenderTextureClosure(props: {
   materials: Iterable<IAutoMovieMaterial>;

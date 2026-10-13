@@ -6,8 +6,6 @@ import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
  * replaced. Blank fields restore the published pair; a partial pair is
  * refused by the shared selection reader before loading either definition.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Exposes source selection without replacing published assets or altering numerical person documents.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps source loading available when model admission refuses the selected generation.
  * @author Samchon
  */
 export function mountConnectedPersonSourceSelection(

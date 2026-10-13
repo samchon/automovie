@@ -47,12 +47,6 @@ import { finiteVector } from "./finiteVector";
  * concave outline emits triangles that cover ground the face does not. Whether
  * the result is a closed shell is the caller's declaration to make and
  * [inspectAutoMovieMeshTopology](./proceduralMeshTopology.ts)'s to check.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Builds arbitrary convex-faced polyhedra from code-authored points.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Accepts explicit metric face geometry as a native asset input.
- * @evidence requirements/interior/grain-seams-and-continuity.md#interior-grain-corner-continuity States where the grain continues across adjacent faces and stops it changing with the order a face's corners were authored in.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-joint-edge-grain-continuity Derives the shared frame and transform continuity across faces is allowed to rest on.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Emits the projected half of the shared surface coordinate convention.
  */
 export const buildAutoMoviePolyhedron = (
   faces: ReadonlyArray<readonly IAutoMovieVector3[]>,

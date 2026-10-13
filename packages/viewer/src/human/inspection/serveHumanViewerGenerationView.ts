@@ -22,11 +22,6 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
  * @evidence contracts/common.md#clear-and-simple-design One route owns both views; verification is the shared streamer's.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects only the explicitly published or named split view and checks its requested digest, without fabricating a missing companion or falling back to a different generation.
  * @evidence contracts/common.md#meaningful-documentation States the 400, 404 and 409 answers.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Serves only the view bytes the requesting document's key names.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis One route owns both views; verification is the shared streamer's.
- *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-dependency-identity-availability Reports an absent selected generation view separately from changed bytes and sends only the bytes checked against its requested digest identity.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-dependency-availability-loss Reports an absent selected generation view separately from changed bytes and sends only the bytes checked against its requested digest identity.
  */
 export function serveHumanViewerGenerationView(
   props: IServeHumanViewerDataProps,

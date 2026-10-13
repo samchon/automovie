@@ -16,9 +16,6 @@ const AXIS_EPSILON = 1e-12;
  * Shared by the context validator and by every adapter that accepts an authored
  * shading solid, so a neighbour's mass and the building's own canopy are held
  * to exactly the same standard.
- *
- * @evidence requirements/map/weather-and-seasons.md#map-calendar-time-celestial-state `validateSolidPlanes` identifies a blocker with too few faces, a zero normal, a non-finite plane, or duplicate geometry.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-calendar-time-celestial-input The shared plane check emits ordered diagnostics for every malformed half-space in one authored context solid.
  */
 export const validateSolidPlanes = (
   planes: readonly IAutoMovieHalfSpacePlane[],

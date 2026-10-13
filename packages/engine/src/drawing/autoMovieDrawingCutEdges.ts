@@ -16,9 +16,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * plane contributes nothing: a face tangent to the cut is a tangency, not a
  * section, and emitting its three edges would scribble every interior diagonal
  * of a slab whose top happened to sit at the cut height.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Emits the precise section segment where each straddling source triangle crosses the authored cut plane.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Classifies triangle corners by signed distance, interpolates the two crossings, and suppresses coplanar tangencies.
  */
 export const autoMovieDrawingCutEdges = (
   frame: IAutoMovieDrawingFrame,

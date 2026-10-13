@@ -10,9 +10,6 @@ import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderMod
  * Compose resident numerical editing with the shared facial display stage.
  * This adapter owns publication order: prepared buffers become visible together,
  * and exports are requested separately from the same numerical worker.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Provides numerical preview, independent export and display-only camera controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Composes resident geometry and the common lighting/camera stage.
  */
 export function createConnectedFaceViewport(
   props: Parameters<typeof createHumanPreviewStage>[0] & {

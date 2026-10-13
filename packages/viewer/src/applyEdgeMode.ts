@@ -50,9 +50,6 @@ const makeEdgeShellMaterial = (edgeWidth: number): THREE.ShaderMaterial =>
  * expanded `edgeWidth` meters along its normals, the mesh itself fills black,
  * and the black background swallows everything else, leaving white contour
  * lines where the shell peeks past the fill.
- 
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Builds metric inverted-hull shells and restores every temporary material and shell.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Builds metric inverted-hull shells and restores every temporary material and shell.
  */
 export const applyEdgeMode = (
   scene: THREE.Scene,

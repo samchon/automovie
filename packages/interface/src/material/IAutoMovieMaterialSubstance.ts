@@ -17,91 +17,42 @@
  * The engine ships no substances. Names, classifications, and values are the
  * production's to author, because a catalogue of real-world materials is
  * content, and content is the customer's.
- *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `IAutoMovieMaterialSubstance` as the portable data boundary for the interior surface substance product requirement.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `IAutoMovieMaterialSubstance` for the interior space surface assembly region system contract.
  */
 export interface IAutoMovieMaterialSubstance {
-  /**
-   * Stable id so a layer can cite this substance.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `id` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `id` for the interior space surface assembly region system contract.
-   */
+  /** Stable id so a layer can cite this substance. */
   id: string;
 
-  /**
-   * Human / LLM readable label, or `null` when unnamed.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `name` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `name` for the interior space surface assembly region system contract.
-   */
+  /** Human / LLM readable label, or `null` when unnamed. */
   name: string | null;
 
   /**
    * Open classification such as `stone`, `timber`, `metal`, `board`, or a
    * production-specific family. Open on purpose: an era, a fiction, or a
    * speculative building brings its own families.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `classification` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `classification` for the interior space surface assembly region system contract.
    */
   classification: string;
 
-  /**
-   * Bulk density in kg/m³, strictly above zero, or `null` when unmeasured.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `density` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `density` for the interior space surface assembly region system contract.
-   */
+  /** Bulk density in kg/m³, strictly above zero, or `null` when unmeasured. */
   density: number | null;
 
-  /**
-   * Thermal conductivity in W/(m·K), non-negative, or `null`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `thermalConductivity` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `thermalConductivity` for the interior space surface assembly region system contract.
-   */
+  /** Thermal conductivity in W/(m·K), non-negative, or `null`. */
   thermalConductivity: number | null;
 
-  /**
-   * Specific heat capacity in J/(kg·K), strictly above zero, or `null`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `specificHeat` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `specificHeat` for the interior space surface assembly region system contract.
-   */
+  /** Specific heat capacity in J/(kg·K), strictly above zero, or `null`. */
   specificHeat: number | null;
 
-  /**
-   * Fractional sound absorption in `[0, 1]`, or `null`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `soundAbsorption` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `soundAbsorption` for the interior space surface assembly region system contract.
-   */
+  /** Fractional sound absorption in `[0, 1]`, or `null`. */
   soundAbsorption: number | null;
 
   /**
    * Dimensionless water-vapour resistance factor (µ), at least `1`, or `null`.
    * `1` is still air; a vapour barrier is in the tens of thousands.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `vapourResistance` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `vapourResistance` for the interior space surface assembly region system contract.
    */
   vapourResistance: number | null;
 
-  /**
-   * Expected service life in years, strictly above zero, or `null`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `serviceLife` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `serviceLife` for the interior space surface assembly region system contract.
-   */
+  /** Expected service life in years, strictly above zero, or `null`. */
   serviceLife: number | null;
 
-  /**
-   * {@link IAutoMovieMaterial} id this substance is shown with, or `null`.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `surface` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `surface` for the interior space surface assembly region system contract.
-   */
+  /** {@link IAutoMovieMaterial} id this substance is shown with, or `null`. */
   surface: string | null;
 }

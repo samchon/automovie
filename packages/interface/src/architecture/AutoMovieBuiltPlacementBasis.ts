@@ -11,8 +11,6 @@
  * reference, so the box is that single stated world origin and an overlap or
  * gap taken from it is a claim about a point rather than about a volume.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Keeps a query's visual-support basis visible instead of presenting it as structural engineering.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Distinguishes exact authored surface rules from element geometry, conservative compact-population bounds, and an extent-free stated origin.
  * @author Samchon
  */
 export type AutoMovieBuiltPlacementBasis =

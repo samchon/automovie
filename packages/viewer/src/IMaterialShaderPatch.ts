@@ -5,8 +5,6 @@ import type * as THREE from "three";
  * program configuration to each operation, including fields an external
  * material patch may need beyond shader source and uniforms.
  *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Names one ordered material shading operation and its shader inputs.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Preserves the native program passed through the material compile hook.
  * @author Samchon
  */
 export interface IMaterialShaderPatch {

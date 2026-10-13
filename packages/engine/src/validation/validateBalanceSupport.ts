@@ -86,8 +86,6 @@ const SUPPORT_BONE_REACHABLE =
  * acknowledge with `physicsIntent`. Only malformed windows (bad/detached bone,
  * empty support, bad window/margin) are errors.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateBalanceSupport` reports malformed windows at their fields and excessive center-to-hull distance at the exact sampled window path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateBalanceSupport` retains window index, sample index, expected margin, measured distance, and overshoot for each balance finding.
  * @author Samchon
  */
 export const validateBalanceSupport = (props: {

@@ -35,8 +35,6 @@ const MIN_RAMP_AXIS = 1e-9;
  * before spaces existed. `validateSpace` refuses one, so this is what a
  * hand-built patch reaching a renderer answers rather than a throw.
  *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `surfaceHeightAt` produces height of one surface at `(x, z)`, ignoring its footprint. This ensures marks and supports resolve against their declared host geometry.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `surfaceHeightAt` performs height at surface evaluation when the engine resolves host-relative support geometry and whole-footprint zone membership.
  * @author Samchon
  */
 export const surfaceHeightAt = (

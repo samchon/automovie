@@ -29,9 +29,6 @@ const KEY_SAMPLES = 8;
  * over a head's 0.2 m; the lights' positions and the key's shadow frustum
  * grow with it so one rig serves a head and a whole body. Sets the
  * renderer's tone mapping exposure and returns the shadow-casting lights.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under a photographically exposed, white-balanced light rig.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Exposes and white balances the preview on a key-lit grey card without changing the saved anatomical document.
  */
 export function addHumanPreviewRig(props: {
   scene: THREE.Scene;

@@ -49,8 +49,6 @@ interface IResolvedSupport {
  * how the caller reads a `floating` answer as "the origin sits this high"
  * instead of "this member hangs in the air".
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Gives authoring source the promised resting, floating, sunk, off-support, suspended, and unresolved answers for a named relation.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Applies the specified two-sided bearing probes, tolerance boundary, suspension declaration, and unresolved-state contract.
  * @author Samchon
  */
 export const builtEnvironmentSupportStatus = (props: {

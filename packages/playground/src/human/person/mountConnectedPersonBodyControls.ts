@@ -35,8 +35,6 @@ import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyCo
  * anatomy report, assembled once with no request), and the source channels
  * no measurement names. The joint group ends with the motions the rig holds.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Mounts the body editor's measured and joint controls over the person's body view.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows unavailable source targets and missing endpoints as named rows instead of hiding them.
  * @author Samchon
  */
 export function mountConnectedPersonBodyControls(

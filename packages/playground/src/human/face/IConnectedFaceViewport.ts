@@ -4,8 +4,6 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
  * The numerical viewport the connected face panel drives: builds, publishes
  * and exports face documents, and owns camera and display state.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Builds, publishes and exports face documents, keeping the last valid model on a failed build.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates building from publishing so a failed build keeps the previous model.
  * @author Samchon
  */
 export interface IConnectedFaceViewport<Model> {
@@ -33,17 +31,11 @@ export interface IConnectedFaceViewport<Model> {
 
   /**
    * Await requested resource retirement without rolling back an already published model.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Separates actual resource cleanup from the committed displayed face.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Completes asynchronous retirement outside synchronous history publication.
    */
   settleRetirements: () => Promise<void>;
 
   /**
    * Retire the viewport's resources without terminating its borrowed renderer or numerical connection.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Ends the owned face display resources at the viewport's lifetime boundary.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Leaves borrowed renderer and numerical transport lifetime to their owners.
    */
   close: () => Promise<void>;
 

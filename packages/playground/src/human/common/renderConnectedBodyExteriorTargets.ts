@@ -25,8 +25,6 @@ import { writeConnectedBodyAnatomyTarget } from "./writeConnectedBodyAnatomyTarg
  * parent owns uncommitted text by path so a redraw cannot erase a value being
  * typed.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Offers each anatomical surface target as a measured control in millimetres on the body the editor commits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Labels each row by its request path, states its protocol, lists an unevaluable binding disabled and keeps the committed body on refusal.
  * @author Samchon
  */
 export function renderConnectedBodyExteriorTargets(

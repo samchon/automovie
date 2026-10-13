@@ -38,11 +38,6 @@ import { stepSpring } from "./stepSpring";
  * budget, so nothing here is host-dependent; springs without a `springs` input
  * are the one thing still surfaced in `deferredDrivers`.
  *
- * @evidence requirements/motion/validation-and-determinism.md#motion-fixed-step-baked-state Uses explicit fixed-step state for live spring evaluation.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-time-update Samples clip channels at the caller's explicit seconds before driving, constraining, and composing that frame.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Produces one frame from explicit nodes, clips, limits, drivers, and optional spring state without retaining hidden scene state between calls.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-deterministic-sampling-validation Executes the deterministic frame pipeline for one sample.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps time and mutable spring history in the resolve input/output boundary rather than in shared renderer state.
  * @author Samchon
  */
 export const resolveFrame = (

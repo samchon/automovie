@@ -3,9 +3,6 @@ import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
 /**
  * Compiler ownership mode for one graph-selected timed production.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Distinguishes selected timed shapes from an evidence-less compatibility call.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Exposes the compiler's source-owner and screenplay prerequisite decisions.
- *
  * @author Samchon
  */
 export interface IAutoMovieTimedAuthoringKind {
@@ -25,8 +22,6 @@ export interface IAutoMovieTimedAuthoringKind {
  * An explicitly unselected declaration refuses before a project is opened.
  * Only the absent-evidence compatibility API retains the legacy film default.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps direct briefs independent from the film screenplay ladder.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Dispatches screenplay and brief ownership from the selected production kind.
  * @author Samchon
  */
 export const resolveAutoMovieTimedAuthoringKind = (

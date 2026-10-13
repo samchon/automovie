@@ -73,14 +73,6 @@ const bakedFollowVelocity = (
  * are the resumable-state fields at the opening instant. The direct shot
  * builder seeds all of them, together with transform, facing, pose, and mount,
  * when a verified previous snapshot is supplied.
- *
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-boundary-continuity Samples every actor's opening placement, facing, coupling, and pose for comparison with the previous beat's closing state.
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-entry-exit-state Emits the scene's opening physical actor transforms, articulation, gait phase, velocity, contacts, and mounts from shot-local zero.
- * @evidence requirements/story/story-clock-and-state.md#story-time-state-review-scope Bounds the reviewed actor-state facts to shot-local zero before any motion plays; it does not claim sequence or film chronology validation.
- * @evidence requirements/actors/state-and-continuity.md#actor-shot-continuity Produces the opening-side actor placement, orientation, pose phase, attachment, and contact state compared across the edit boundary.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-temporal-state-handoff Produces the measured opening snapshot used to verify that the prior beat's state was resumed rather than replaced by defaults.
- * @evidence specifications/narrative-and-intent/characters-relations-and-state.md#narrative-intent-scene-entry-exit-state Resolves the physical actor entry state at shot-local zero without extending it into a full story-state ledger.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-state-continuity-ledger Supplies the measured incoming actor state against which the prior closing snapshot is checked.
  */
 export const resolveBeatOpening = (
   props: IResolveBeatProps,

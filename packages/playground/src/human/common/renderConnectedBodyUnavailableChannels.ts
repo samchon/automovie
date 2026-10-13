@@ -7,8 +7,6 @@ import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
  * naming each missing source target, under a collapsed group. Only channels
  * matching the search query are listed; nothing is appended when none match.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the body channels the generation cannot evaluate, naming each missing source target.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Appends the matching unavailable channels as disabled rows under a collapsed group.
  * @author Samchon
  */
 export function renderConnectedBodyUnavailableChannels(

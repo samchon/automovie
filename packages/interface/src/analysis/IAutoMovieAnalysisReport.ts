@@ -15,25 +15,13 @@ import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
  * could produce all land in {@link gaps} and force `incomplete`, and a report
  * must declare at least one required domain to exist at all.
  *
- * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `IAutoMovieAnalysisReport` as the portable data boundary for the acceptance required severity requirement.
- * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `IAutoMovieAnalysisReport` for the acceptance system required severity system contract.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisReport {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `version` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `version` for the acceptance system required severity system contract.
-   */
+  /** Schema version. */
   version: 1;
 
-  /**
-   * Versioned report protocol.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `protocol` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `protocol` for the acceptance system required severity system contract.
-   */
+  /** Versioned report protocol. */
   protocol: "automovie.analysis-report.v1";
 
   /**
@@ -44,49 +32,21 @@ export interface IAutoMovieAnalysisReport {
    * `meets` means exactly "every required domain answered against this
    * revision, every metric produced a value, and every declared target was
    * satisfied". It never means "nothing objected".
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `status` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `status` for the acceptance system required severity system contract.
    */
   status: "meets" | "misses" | "incomplete";
 
-  /**
-   * Design revision this report is a verdict about.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `revision` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `revision` for the acceptance system required severity system contract.
-   */
+  /** Design revision this report is a verdict about. */
   revision: string;
 
-  /**
-   * One row per domain, in the fixed domain order.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `domains` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `domains` for the acceptance system required severity system contract.
-   */
+  /** One row per domain, in the fixed domain order. */
   domains: IAutoMovieAnalysisDomainRollup[];
 
-  /**
-   * Missing answers, bounded and in run order.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `gaps` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `gaps` for the acceptance system required severity system contract.
-   */
+  /** Missing answers, bounded and in run order. */
   gaps: IAutoMovieAnalysisGap[];
 
-  /**
-   * Gaps the bound left out.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `omittedGaps` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `omittedGaps` for the acceptance system required severity system contract.
-   */
+  /** Gaps the bound left out. */
   omittedGaps: number;
 
-  /**
-   * Digest over protocol, status, revision, rollups and listed gaps.
-   *
-   * @evidence requirements/acceptance/profiles-and-aggregation.md#acceptance-required-severity Exposes `digest` as the portable data boundary for the acceptance required severity requirement.
-   * @evidence specifications/review-and-acceptance/profiles-aggregation-and-partial-results.md#acceptance-system-required-severity Types `digest` for the acceptance system required severity system contract.
-   */
+  /** Digest over protocol, status, revision, rollups and listed gaps. */
   digest: AutoMovieContentDigest;
 }

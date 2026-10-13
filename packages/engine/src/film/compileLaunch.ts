@@ -41,12 +41,6 @@ const firstActor = (action: IAutoMovieLaunchAction): string | null =>
  * `clip` to the projectile node and fold `react` into the target's action list
  * before the performance compiles.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory compileLaunch turns the authored launch intent into an analytic flight and schedules the reaction at the engine-computed contact time.
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-events-contacts Connects the launch actor, projectile contact, target hit, and optional reaction to the same computed shot-local impact instant.
- * @evidence requirements/staging/interactions-and-choreography.md#staging-choreography-phases Connects the launch action to its computed contact and hit phase, then emits the optional recoil or fall as the reaction consequence at that same instant.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Solves and bakes the authored launch while keeping the engine-computed contact time authoritative for downstream reaction.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Returns the realized impact event and target reaction on the performance clock beside the projectile motion.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-interaction-choreography-role Realizes action, impact, and reaction as ordered records with stable projectile and target identities and explicit hit consequences.
  * @author Samchon
  */
 export const compileLaunch = (props: {

@@ -6,9 +6,6 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
  * The choice is either the repository's bounded broadband room analysis or an
  * explicitly adopted external result. No solver, provider, asset, or mapping is
  * selected by the engine.
- *
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-provider-neutrality Keeps derived and externally adopted response sources equally expressible.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#bounded-acoustic-response-and-provider-adoption Carries the user's response-source choice and adopted-byte identity.
  */
 export type IAutoMovieAcousticResponseProfile =
   | {

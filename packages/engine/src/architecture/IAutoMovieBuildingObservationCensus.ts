@@ -1,12 +1,7 @@
 import { IAutoMovieBuiltEnvelopeCorner } from "./IAutoMovieBuiltEnvelopeCorner";
 import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
 
-/**
- * The complete observation topology of one building unit.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Aggregates one building unit's exposed faces, corners, entrances, spaces, and routes as one denominator.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types the building aggregate the compiled subject hierarchy and the review population share.
- */
+/** The complete observation topology of one building unit. */
 export interface IAutoMovieBuildingObservationCensus {
   /** Building unit identity within its environment. */
   building: string;

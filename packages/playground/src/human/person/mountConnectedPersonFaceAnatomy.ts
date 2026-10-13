@@ -28,8 +28,6 @@ import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAna
  * each field by name. A refusal keeps the displayed person and shows the
  * reason; only the panel's state identifies an accepted history commit.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Displays grouped anatomical readouts and supported numeric targets through the person's committed editor state.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Displays registry units and source qualifications without changing document values, and submits observations and solvable targets through the supplied person transaction.
  * @author Samchon
  */
 export function mountConnectedPersonFaceAnatomy(

@@ -58,10 +58,6 @@ export interface IAutoMovieLibraryProjectStateInspection {
  * current-state gate must distinguish an empty library from an unreadable or
  * contradictory one, and must never infer production kind from residue.
  *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-honest-refusal Refuses a library publication whose shape, owner lineage, or exact artifact closure cannot be authenticated.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-dependency-based-current-status Binds current library state to the graph-selected kind and builder fingerprint.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-fail-closed-decision-gate Opens the library discriminant only after strict index and artifact validation.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-dependency-based-freshness Verifies the library publication against its current authoring input identity.
  * @author Samchon
  */
 export const inspectAutoMovieLibraryProjectState = (props: {

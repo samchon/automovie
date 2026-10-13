@@ -3,20 +3,10 @@ import path from "node:path";
 
 import { projectAutoMovieMarkdownSyntax } from "./parseAutoMovieEvidenceSyntax";
 
-/**
- * Lifecycle state of one structured production-local contract rule.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes local rule state an explicit author input.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed lifecycle vocabulary.
- */
+/** Lifecycle state of one structured production-local contract rule. */
 export type AutoMovieContractRuleStatus = "active" | "hold" | "rejected";
 
-/**
- * Earliest operation at which one structured rule may be applied.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Exposes safe application timing instead of inferring it from prose.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed application vocabulary.
- */
+/** Earliest operation at which one structured rule may be applied. */
 export type AutoMovieContractRuleApplication =
   | "composition-safe"
   | "observation-only"
@@ -24,12 +14,7 @@ export type AutoMovieContractRuleApplication =
   | "post-draft-frequency"
   | "revision-only";
 
-/**
- * Routing metadata attached to one optional structured contract rule.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes local rule identity, state, timing, and source visible together.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the exact structured rule record.
- */
+/** Routing metadata attached to one optional structured contract rule. */
 export interface IAutoMovieContractRuleMetadata {
   /** Stable lower-kebab identity independent of file movement. */
   id: string;
@@ -43,12 +28,7 @@ export interface IAutoMovieContractRuleMetadata {
   sourceIdentity: string;
 }
 
-/**
- * One anchored H2 carrying an exact structured contract rule.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Binds structured routing to one stable local contract address.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Carries the validated heading and rule metadata together.
- */
+/** One anchored H2 carrying an exact structured contract rule. */
 export interface IAutoMovieContractRule {
   /** Stable evidence address relative to the parsed root. */
   address: string;
@@ -70,9 +50,6 @@ export interface IAutoMovieContractRule {
  * source identity are all mandatory. Callers may name files where every H2
  * must carry metadata without turning the whole inherited corpus into a
  * migration prerequisite.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-additive-extension Keeps optional structured rules additive to prose contracts and shared claims.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-additive-extension Returns only validated active, held, or rejected local rule declarations.
  */
 export function readAutoMovieContractRules(
   root: string,
@@ -107,9 +84,6 @@ export function readAutoMovieContractRules(
  * Held and rejected rules remain available in the complete reader DTO for
  * review and diagnostics, but can never enter an executable rule population.
  * A rule is not promoted earlier or later than its declared application.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps inactive or differently timed local rules outside the selected claim population.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Projects only active rules whose exact safe-application route matches the caller.
  */
 export function selectAutoMovieContractRules(
   rules: readonly IAutoMovieContractRule[],

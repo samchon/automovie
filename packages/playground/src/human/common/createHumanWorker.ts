@@ -12,8 +12,6 @@ import HumanWorker from "../../human-worker.ts?worker";
  * `name` is the worker's standard name: a query string that states the role
  * (`worker=<role>`) and whatever else that role reads from it.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Starts the resident worker whose replies the face editor's request owner correlates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps native worker allocation in one browser adapter outside the numerical request owners.
  * @author Samchon
  */
 export function createHumanWorker(name: string): Worker {

@@ -18,8 +18,6 @@ import { IAutoMovieSphereShape } from "./IAutoMovieSphereShape";
  * needs. All dimensions are in meters and expected to be strictly positive (the
  * engine rejects a zero/negative extent).
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `AutoMoviePrimitiveShape` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `AutoMoviePrimitiveShape` for the asset spec geometry inputs system contract.
  * @author Samchon
  */
 export type AutoMoviePrimitiveShape =

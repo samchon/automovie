@@ -13,8 +13,6 @@ import type { IPlaygroundViewerApplication } from "./IPlaygroundViewerApplicatio
  * @evidence contracts/common.md#clear-and-simple-design One page boundary joins application state with its retained host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no SDK replacement or elapsed-time restart to recover a page.
  * @evidence contracts/common.md#meaningful-documentation Names transfer, freeze, failure and explicit navigation responsibilities.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Transfers the registered application's actual input and supported viewport through their original owners while the completed prior page remains retained.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Keeps application input and the producer-controlled viewport distinct from disk-source freshness and bitmap publication during candidate admission.
  * @author Samchon
  */
 export interface IPlaygroundViewerPage {

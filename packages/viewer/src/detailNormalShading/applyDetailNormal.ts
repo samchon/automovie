@@ -9,9 +9,6 @@ import { createDetailNormalShaderPatch } from "./createDetailNormalShaderPatch.j
  * blending, `normalize(vec3(n1.xy + n2.xy, n1.z * n2.z))`, so a fine relief
  * tiled over a coarser one keeps both. The material must already carry a
  * tangent-space `normalMap`.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves a material's detail normal map into the declared render material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the detail normal blend at the render boundary.
  */
 export const applyDetailNormal = (
   material: THREE.MeshPhysicalMaterial,

@@ -18,17 +18,10 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
  * the sampler prefixes the track's channel key and throws the first fault, the
  * gate appends every fault at `<track path>.<field>`.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `IAutoMovieClipShapeFault` carries one concrete reason an unreadable track must be refused before playback.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `IAutoMovieClipShapeFault` separates classification, track member, constraint text, and observation for one invalid clip condition.
  * @author Samchon
  */
 export interface IAutoMovieClipShapeFault {
-  /**
-   * Violation kind the artifact gate reports this fault as.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `kind` assigns the violation category used to refuse this malformed clip condition.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `kind` keeps the refusal class independent from the invalid track member and observation.
-   */
+  /** Violation kind the artifact gate reports this fault as. */
   kind: IAutoMovieConstraintViolation["kind"];
 
   /**
@@ -36,18 +29,12 @@ export interface IAutoMovieClipShapeFault {
    * {@link clipDurationFault} / {@link clipLoopFault}), e.g. `values`,
    * `times[2]`, `interpolation`. The gate joins it onto its own path; the
    * sampler ignores it, because its message already names the field.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `field` names the malformed member whose state makes the owning clip unreadable.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `field` supplies the relative track segment at which the key-time or payload contract failed.
    */
   field: string;
 
   /**
    * The fault as a sentence, with no subject: the sampler reads it after `track
    * "<channel key>"`, the gate reads it as a violation's `expected`.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `message` states the track-shape constraint that justifies refusing this clip.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `message` remains subject-free so sampler and artifact gate apply the same refusal rule.
    */
   message: string;
 
@@ -56,9 +43,6 @@ export interface IAutoMovieClipShapeFault {
    * payload's SHAPE reports the quantity that offends (a length, a stride)
    * rather than the payload: echoing hundreds of floats back spends the
    * client's context to repeat what it just sent (#1362).
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal `value` retains the decisive observation that made this clip condition invalid.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation `value` records the failing quantity without echoing an entire dense keyframe payload.
    */
   value: unknown;
 }

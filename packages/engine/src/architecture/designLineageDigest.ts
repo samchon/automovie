@@ -15,11 +15,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * Windows and POSIX and after any reshuffle of its arrays. Every separator is
  * written here rather than taken from the platform, which is why no newline
  * convention can reach the bytes.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineageDigest` digests the whole lineage record. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineageDigest` hashes revisions, alternatives, phases, decisions, subjects, and derivation stamps into one stable lineage identity.
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-structured-canonicalization `designLineageDigest` canonicalizes every lineage collection by code-unit identity order and serializes tagged, length-prefixed fields before hashing.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-structured-canonicalization The digest fixes field representation, collection ordering, separators, and SHA-256 input independently of platform, locale, and authoring traversal order.
  */
 export const designLineageDigest = (
   lineage: IAutoMovieDesignLineage,

@@ -8,17 +8,10 @@ import * as THREE from "three";
 /**
  * A viewer-owned water surface bound to one fluid domain.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
  * @author Samchon
  */
 export interface IAutoMovieFluidSurfaceObject {
-  /**
-   * Add this mesh to the current scene.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Add this mesh to the current scene. */
   object: THREE.Mesh;
 
   /**
@@ -26,59 +19,29 @@ export interface IAutoMovieFluidSurfaceObject {
    * for any other one: the mesh is named for the domain it was built from, and
    * a segmentation pass resolves it by that name, so a surface uploaded under
    * the wrong name is painted as the water it is not.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
    */
   update: (surface: IAutoMovieFluidSurface) => void;
 
-  /**
-   * Release the geometry, and the material when this object created it.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Release the geometry, and the material when this object created it. */
   dispose: () => void;
 }
 
 /**
  * A viewer-owned bounded spray for one fluid domain.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
  * @author Samchon
  */
 export interface IAutoMovieFluidSprayObject {
-  /**
-   * Add these points to the current scene.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Add these points to the current scene. */
   object: THREE.Points;
 
-  /**
-   * Re-upload the particles of a newly sampled step.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Re-upload the particles of a newly sampled step. */
   update: (sample: IAutoMovieFluidSpraySample) => void;
 
-  /**
-   * Release the geometry, and the material when this object created it.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Release the geometry, and the material when this object created it. */
   dispose: () => void;
 
-  /**
-   * Particles currently drawn, after the engine's cap and LOD thinning.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
-   */
+  /** Particles currently drawn, after the engine's cap and LOD thinning. */
   count: () => number;
 }
 
@@ -98,8 +61,6 @@ export interface IAutoMovieFluidSprayObject {
  * bounding sphere is the engine's own extent of the drawn surface, so what a
  * camera culls and what the depth field says are the same statement.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
  * @author Samchon
  */
 export const buildFluidSurfaceObject = (props: {
@@ -188,8 +149,6 @@ export const buildFluidSurfaceObject = (props: {
  * which the structural guide passes hide by design: mist is decoration and must
  * not colour a segmentation mask or read as geometry in a depth pass.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Displays this surface from the selected compiled fluid tier.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Materializes that tier without introducing a second fluid solve.
  * @author Samchon
  */
 export const buildFluidSprayObject = (props: {

@@ -4,9 +4,6 @@ import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngPr
 
 /**
  * Refuse every difference between a role profile and parser-observed PNG facts.
- *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-refusal Rejects unknown, contradictory, or role-incompatible picture facts even when the byte digest is current.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Implements the shared fieldwise PNG profile verdict used by publication and reopen paths.
  */
 export const assertProductionPngPicture = (props: {
   profile: IAutoMovieProductionPngProfile;

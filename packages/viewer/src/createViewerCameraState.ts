@@ -11,8 +11,6 @@ import * as THREE from "three";
  * @evidence contracts/common.md#clear-and-simple-design One owner supplies camera transfer without a scene, renderer or document copy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses public Three projection behavior and names unsupported parent/manual/custom relationships without substituting poses.
  * @evidence contracts/common.md#meaningful-documentation Defines lens preservation, supported lifecycle and failure effects.
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Preserves the actual reviewer-owned supported camera across source replacement.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Retains actual pose/projection without claiming viewpoint coverage.
  */
 export function createViewerCameraState(camera: THREE.Camera) {
   const supported = (): THREE.PerspectiveCamera | THREE.OrthographicCamera => {

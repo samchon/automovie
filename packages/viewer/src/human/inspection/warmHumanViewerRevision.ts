@@ -18,8 +18,6 @@ import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail.js";
  * @evidence contracts/common.md#clear-and-simple-design One function binds the server's disk, capture and queue to the warm pass.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses ordinary capture addresses and the bulk lane without fixture-specific rendering, weaker admission or time-based cancellation of active work.
  * @evidence contracts/common.md#meaningful-documentation States priority, yielding and withdrawal.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review The thumbnail key is the document's own render query, so warming and serving share one cache.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review One function binds the server's disk, capture and queue to the warm pass.
  */
 export async function warmHumanViewerRevision(
   props: IWarmHumanViewerRevisionProps,

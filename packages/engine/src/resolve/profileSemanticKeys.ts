@@ -7,9 +7,6 @@ import { IAutoMovieChannel, IAutoMovieProfile } from "@automovie/interface";
  * fields; pointer channels excluded), deduplicated in first-reference order, so
  * a gate (forgeProp) can report **every** missing mapping in one correction
  * round instead of surfacing bindProfile's first throw at a time.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Enumerates every semantic node required by the profile graph.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Exposes the complete dependency-key set needed to validate a concrete driver graph.
  */
 export const profileSemanticKeys = (profile: IAutoMovieProfile): string[] => {
   const keys: string[] = [];

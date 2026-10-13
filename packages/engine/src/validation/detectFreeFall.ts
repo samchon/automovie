@@ -41,10 +41,6 @@ const DEFAULT_FPS = 30;
  * to #600/#601. This is the gravity expectation plus the translational fall
  * arc.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `detectFreeFall` ties an unsupported body observation to its input root, node id, and evaluated film time.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `detectFreeFall` produces one consistent warning, fall event, and trajectory scope from the same gravity-state decision.
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-location-time-subject-context `detectFreeFall` attaches the unsupported-body finding and fall event to the supplied field root, node identity, and evaluated shot-clock time.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-spatiotemporal-subject-location The gravity check preserves structural location, subject id, and temporal scope across its validation, event, and trajectory outputs.
  * @author Samchon
  */
 export const detectFreeFall = (props: {

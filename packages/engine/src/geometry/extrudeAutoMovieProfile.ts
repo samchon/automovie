@@ -18,9 +18,6 @@ import { positive } from "./positive";
  * exists: [extrudeAutoMovieRegion](./proceduralRegionExtrusion.ts) takes the same profile, keeps concave
  * outlines and holes the hull here destroys, and lays a stated metric atlas
  * over the result. Reach for that one whenever the prism carries a finish.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Builds a reusable solid by extruding an authored profile.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Emits the closed topology of the extrusion operation.
  */
 export const extrudeAutoMovieProfile = (props: {
   profile: readonly IAutoMovieProfilePoint[];

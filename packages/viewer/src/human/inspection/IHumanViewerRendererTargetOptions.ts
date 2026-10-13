@@ -11,26 +11,13 @@ import type { Browser, Page } from "playwright";
  * @evidence contracts/common.md#clear-and-simple-design Borrowed browser and page projections expose only the lifecycle events needed to correlate the owned renderer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Physical-settlement evidence comes from actual lifecycle events, never inferred solely from a lost transport connection.
  *
- * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Separates physical renderer settlement from uncertain transport loss in the callback contract.
- * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Physical-settlement evidence comes from actual lifecycle events, never inferred solely from a lost transport connection.
- *
  * @author Samchon
  */
 export interface IHumanViewerRendererTargetOptions {
-  /**
-   * Browser whose root session reports target lifecycle events.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Borrows the owning browser's actual root lifecycle event surface without modifying its methods.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Borrows the owning browser's actual root lifecycle event surface without modifying its methods.
-   */
+  /** Browser whose root session reports target lifecycle events. */
   browser: Pick<Browser, "newBrowserCDPSession" | "on" | "off" | "isConnected">;
 
-  /**
-   * The one resident page whose renderer is observed.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Correlates lifecycle observation with the exact resident page rather than an unrelated Chromium target.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Correlates lifecycle observation with the exact resident page rather than an unrelated Chromium target.
-   */
+  /** The one resident page whose renderer is observed. */
   page: Pick<Page, "context" | "on" | "off">;
 
   /**
@@ -40,9 +27,6 @@ export interface IHumanViewerRendererTargetOptions {
    * @evidence contracts/common.md#clear-and-simple-design The observer reports evidence while the capture lifetime owner decides release.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A lost CDP transport alone cannot certify that dispatched renderer work stopped.
    * @evidence contracts/common.md#meaningful-documentation The boolean distinguishes physical stop from uncertain transport loss.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Actual target lifecycle evidence reports both failure cause and physical settlement.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement The boolean distinguishes physical stop from uncertain transport loss.
    */
   failed: (cause: string, physicalSettled: boolean) => void;
 }

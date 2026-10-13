@@ -14,8 +14,6 @@ import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
  * index ramp, which is what an asset turntable and any host without a compiled
  * design draw.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Makes this public surface part of the stable identity-mask channel.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that channel as a structural render product.
  * @author Samchon
  */
 export const attachAutoMovieSemanticMask = (

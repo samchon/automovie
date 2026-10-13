@@ -8,8 +8,6 @@ import type { IHumanViewerThumbnailDisk } from "./IHumanViewerThumbnailDisk.js";
  * @evidence contracts/common.md#clear-and-simple-design One filesystem adapter supplies the store protocol; directory selection and pruning remain with its caller.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no subject-specific path, alternate cache or implicit directory enumeration beyond the folder the owner supplies.
  * @evidence contracts/common.md#meaningful-documentation States the missing-folder result and exact-path boundary; this adapter does not certify ownership of caller paths.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Maps the thumbnail owner's explicit paths to injected filesystem listing, modification time, existence and removal operations.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation One filesystem adapter supplies the store protocol; directory selection and pruning remain with its caller.
  */
 export function createNodeHumanViewerThumbnailDisk(
   fs: {

@@ -1,8 +1,6 @@
 /**
  * Existing client configuration bytes and the installed production's launch identity.
  *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Makes local registration an explicit candidate over user-owned configuration.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Binds both client commands to the installed package and one absolute root.
  * @author Samchon
  */
 export interface IAutoMovieReferenceClientConfigurationRequest {

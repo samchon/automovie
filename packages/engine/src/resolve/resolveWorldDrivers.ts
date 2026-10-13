@@ -37,8 +37,6 @@ const VECTOR_AXES = ["x", "y", "z"] as const;
  * {@link resolveFrame} when the caller provides `dt` + state, or in the host's
  * own pass otherwise; nothing is silently dropped.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Evaluates each driver that depends on composed world state.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Implements the world-space stage of the declared deterministic driver graph.
  * @author Samchon
  */
 export const resolveWorldDrivers = (

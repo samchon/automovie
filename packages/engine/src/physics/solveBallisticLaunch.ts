@@ -29,8 +29,6 @@ const validArc = (arc: string): arc is "direct" | "high" =>
  * - 2h·s²))) / (g·d)`; a purely vertical target is handled on its own (no
  *   horizontal direction to aim along).
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Solves the supported analytic arc without introducing a hidden rigid-body simulation.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Implements the inverse launch solve of the analytic trajectory tier.
  * @author Samchon
  */
 export const solveBallisticLaunch = (

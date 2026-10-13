@@ -8,8 +8,6 @@ import type { IConnectedPersonUndescribedInput } from "./IConnectedPersonUndescr
  * Inputs of `mountConnectedPersonInputCatalogue`: the person transaction, the
  * listed inputs and the families that have no owner descriptor.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the listed inputs and the transaction their controls edit through.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies the families shown as not described by their owners.
  * @author Samchon
  */
 export interface IConnectedPersonInputCatalogueControlsProps extends IConnectedPersonEyeControlsProps {

@@ -43,8 +43,6 @@ const cameraOf = (value: unknown): IHumanCaptureCamera | null => {
  * @evidence contracts/common.md#clear-and-simple-design One injected read-only resource lookup selects an optional photograph; camera shape admission remains local to that lookup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns supplied reference metadata or absence, without synthesized landmarks, hidden image writes or a numerical basis fitted to the image.
  * @evidence contracts/common.md#meaningful-documentation Defines both lookup paths, plain-name and camera constraints, optional absence and the read-only image boundary.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-provenance Matches existing manifest or plain-image entries and admits finite positive-distance camera metadata without deriving numerical anatomy from photographs.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance One injected read-only resource lookup selects an optional photograph; camera shape admission remains local to that lookup.
  */
 export function resolveHumanViewerReference(
   doc: string,

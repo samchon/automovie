@@ -10,9 +10,6 @@ import {
  * is this room in" is a real question rather than a constant. A validated
  * environment answers it for every space; an unowned space is refused here for
  * the same reason validation refuses it.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentBuildingOfSpace` names the building unit that owns a logical space. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentBuildingOfSpace` resolves a logical space id to the building unit that owns it.
  */
 export const builtEnvironmentBuildingOfSpace = (
   environment: IAutoMovieBuiltEnvironment,

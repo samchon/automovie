@@ -34,17 +34,6 @@ const satisfied = (
  * Passing `revision` additionally asks whether the run is still about the
  * current design. A run that read an older revision is reported as stale: it
  * was a real measurement of a building that no longer exists.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `validateAutoMovieAnalysisRun` reports every structural, completeness, verdict, sample, digest, and staleness defect in stable order.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The validator traverses the sealed run deterministically and distinguishes invalid evidence from a valid result for an obsolete revision.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding `validateAutoMovieAnalysisRun` diagnoses contradictions inside the sealed solver outcome after input acceptance, including invalid metrics, samples, verdicts, and digests.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding The validator locates defects in computed run evidence separately from authoring-input checks performed before sealing.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run `validateAutoMovieAnalysisRun` requires failed and not-run outcomes to retain distinct statuses with non-empty reasons and remedies.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states The sealed-run validator rejects an outcome that erases the difference between execution failure and deliberate non-execution.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-unsupported-and-not-run `validateAutoMovieAnalysisRun` verifies that unsupported and not-run evidence stays explicit and carries an actionable explanation.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-outcome-classification-lattice The validator enforces the analysis run's solved, failed, unsupported, and not-run record shapes without treating absence as success.
- * @evidence requirements/evidence-and-provenance/scope-identity-and-status.md#evidence-portable-inspection `validateAutoMovieAnalysisRun` rechecks a deserialized run from its self-contained protocol, subject, revision, solver, settings digest, outcome, and content digest.
- * @evidence specifications/evidence-and-provenance/scope-identity-and-status.md#evp-portable-inspection-view The public validator supplies a portable inspection boundary for one complete analysis-run record without depending on hidden process state.
  */
 export const validateAutoMovieAnalysisRun = (props: {
   /** Run to check. */

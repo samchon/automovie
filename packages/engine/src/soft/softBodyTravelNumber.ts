@@ -11,8 +11,6 @@ import { shortestRestLength } from "./shortestRestLength";
  * step on the author's behalf. A lattice with no constraint at all — a single
  * particle — has nothing to cross and returns `0`.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-fidelity-boundary Measures whether the declared step can honor the bounded no-tunneling tier.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-failure-and-fidelity-boundary Supplies the numeric condition used to refuse unsupported soft motion.
  * @author Samchon
  */
 export const softBodyTravelNumber = (

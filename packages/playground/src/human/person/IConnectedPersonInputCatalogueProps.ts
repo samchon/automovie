@@ -9,8 +9,6 @@ import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/huma
  * Inputs of `createConnectedPersonInputCatalogue`: the owners' descriptors
  * the catalogue copies.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Supplies the head view whose channels and registered traits the catalogue lists.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Names the channels the face does not edit so the catalogue omits them.
  * @author Samchon
  */
 export interface IConnectedPersonInputCatalogueProps {

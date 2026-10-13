@@ -6,9 +6,6 @@ import type { AutoMovieTextureBinding, IAutoMovieTextureReference } from "@autom
  * when its host reports that sampler, an equivalent explicit binding shares
  * the same key. UV channel, offset, scale and rotation do not allocate storage.
  * The source owner adds actual format, type and upload state to this key.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Separates material sampler and color decoding variants from shared decoded source pixels.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Identifies resident binding variants without charging shader-side UV transforms as new uploads.
  */
 export function autoMovieTextureBindingStateKey(
   binding: AutoMovieTextureBinding,

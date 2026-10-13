@@ -7,9 +7,6 @@ import type { IConnectedPersonSessionState } from "./IConnectedPersonSessionStat
  * draws nothing and evaluates nothing. A refusal leaves the draft as it was,
  * because a refused request produced no model to replace it with.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps one record of what the editor shows and why, from which its status is drawn.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Preserves the displayed person across a refusal and replaces it only on a settled intent.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Leaves the displayed draft and the accepted history untouched when an edit is refused.
  * @author Samchon
  */
 export function createConnectedPersonSession<

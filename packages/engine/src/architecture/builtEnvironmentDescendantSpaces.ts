@@ -27,8 +27,6 @@ const requireSpace = (
  * Sorted, because a population is compared and printed rather than only tested
  * for membership.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentDescendantSpaces` names every logical space under one space. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentDescendantSpaces` resolves the descendant space population the engine folds ownership, topology, and geometry over inside one building-interior boundary.
  * @author Samchon
  */
 export const builtEnvironmentDescendantSpaces = (

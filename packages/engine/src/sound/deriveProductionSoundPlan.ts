@@ -30,12 +30,6 @@ import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagati
  * ({@link IAutoMovieProductionSoundEvent.densityGain}), so a mass sounds like a
  * mass and a crowd's size is audible rather than assumed. A lone actor is a
  * one-member mass of zero radius and plans exactly as it always did.
- *
- * @evidence requirements/sound/event-cues-and-timing.md#sound-event-derived-timing Places each semantic sound occurrence on the finished-film clock.
- * @evidence requirements/sound/scope-and-identity.md#sound-emission-presentation Keeps the semantic emission frame while an optional propagation receipt carries a separate listener-arrival frame.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Lowers authored and event-derived sources into one ordered sound plan.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-extended-group-sources Aggregates resolved formation members into centroid, spread, and density gain.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-extended-group-source-aggregation Implements the bounded group-source reduction before mixing.
  */
 export const deriveProductionSoundPlan = (props: {
   timeline: IAutoMovieFilmTimeline;

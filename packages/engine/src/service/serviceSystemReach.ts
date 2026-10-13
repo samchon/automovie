@@ -23,8 +23,6 @@ import { portOwners } from "./portOwners";
  * A system whose root does not resolve reaches nothing rather than reaching a
  * name; the validator owns reporting the dangling root itself.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceSystemReach` reveals which declared nodes are actually connected to a system root, optionally showing the isolation caused by closed valves.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceSystemReach` traverses segment ownership according to `from-root`, `to-root`, or bidirectional flow and returns reached nodes in declaration order.
  * @author Samchon
  */
 export const serviceSystemReach = (props: {

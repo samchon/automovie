@@ -16,8 +16,6 @@ import { FACE_PARAMETER_LIMIT } from "./constants/FACE_PARAMETER_LIMIT";
  * document path (`….jaw.chin.length`), through the same {@link flattenFace}
  * mapping `morphFace` applies.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateFace` reports each non-finite or out-of-range trait weight at its exact nested proxy-face field.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateFace` retains the observed trait scalar and the shared symmetric bound without collapsing sibling parameters.
  * @author Samchon
  */
 export const validateFace = (props: {

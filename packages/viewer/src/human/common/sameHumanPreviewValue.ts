@@ -5,9 +5,6 @@
  * the question a serialized comparison used to answer without building a
  * string of the whole value. Object comparison still allocates its key lists
  * and their union set; avoiding serialization is not an allocation-free path.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Decides resident buffer reuse from the actual static model structure.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Decides whether a preview value is unchanged so an edit reuses its displayed buffers.
  */
 export function sameHumanPreviewValue(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;

@@ -10,7 +10,5 @@
  * @evidence contracts/common.md#clear-and-simple-design One error identity carries the host's measured invalidation through the existing endpoint and candidate protocol.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This source-invalidation identity belongs to the measured transport case; numerical refusals keep their ordinary error identity.
  * @evidence contracts/common.md#meaningful-documentation States changed-witness recovery and unchanged-failure behavior.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Marks a measured source-witness change as invalidation of the checked numerical realm; retrying its old identity cannot establish current authority.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Carries source invalidation through the endpoint while the caller retains an independently completed display under its original source identity.
  */
 export class HumanViewerNodeSourceChangedError extends Error {}

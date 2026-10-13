@@ -11,9 +11,6 @@ import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
  * an edge is `"boundary"` rather than whichever side the parity happened to
  * land on. A ring of fewer than three points bounds nothing, so every point is
  * outside it.
- *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-zone-membership `footprintRingPlacement` returns where `(x, z)` stands relative to one ring. This ensures membership is judged from a subject footprint rather than a point.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `footprintRingPlacement` performs ring placement footprint evaluation when the engine resolves host-relative support geometry and whole-footprint zone membership.
  */
 export const footprintRingPlacement = (
   ring: IAutoMovieFootprintRing,

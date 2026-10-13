@@ -9,9 +9,6 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * A self-crossing outline has no interior, so every later question about what
  * is inside it would answer arbitrarily. Adjacent edges are skipped because
  * they legitimately meet at the corner they share.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `polygonIsSimple` produces whether a closed polygon never crosses or touches itself away from a shared corner. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `polygonIsSimple` performs is simple polygon calculation when the engine checks finite planar topology before consuming geometry.
  */
 export const polygonIsSimple = (
   polygon: readonly IAutoMoviePlanarPoint[],

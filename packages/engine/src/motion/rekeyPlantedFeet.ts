@@ -20,9 +20,6 @@ import { sampleMotion } from "./sampleMotion";
  * stance target (the assembly stage of {@link plantStanceFeet}). Optional
  * clinical mappings must be the same ones used to resolve the stance samples
  * and later play the returned motion.
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-phases Re-solves every sample inside each declared planted interval while leaving swing samples unpinned.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Bakes the resolved support targets back into the motion keyframes.
  */
 export const rekeyPlantedFeet = (props: {
   skeleton: IAutoMovieSkeleton;

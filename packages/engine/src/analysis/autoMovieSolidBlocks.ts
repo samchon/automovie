@@ -20,9 +20,6 @@ const PLANE_EPSILON = 1e-12;
  *
  * Normals need not be normalized: the numerator and the denominator scale
  * together, so the parameter is unaffected by how long an authored normal is.
- *
- * @evidence requirements/map/weather-and-seasons.md#map-calendar-time-celestial-state `autoMovieSolidBlocks` determines whether one declared context mass interrupts a finite analysis ray.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-calendar-time-celestial-input The slab intersection narrows entry and exit parameters across every half-space and accepts only a surviving positive segment.
  */
 export const autoMovieSolidBlocks = (props: {
   /** World-space ray origin in metres. */

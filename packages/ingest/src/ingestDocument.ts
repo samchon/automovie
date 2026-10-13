@@ -15,56 +15,14 @@ type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
 
 /**
  * The automovie-core payload an imported glTF/GLB resolves to.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis External scene import reads evaluated meshes and animation; it does not interpret facial basis endpoints or compact numerical editing documents.
  *
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Preserves source nodes and animations as stable project-native identities.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications Ingest maps an already-parsed external scene and animation set; it owns none of the body basis, joint, measurement or document boundaries.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis External scene import reads evaluated meshes and skins from a file; it compiles no body basis endpoints, correctives or identity.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints An imported rig arrives with its own rest transforms and skin; ingest derives no joint from shape-following landmarks and applies no clinical rest frame.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Ingest evaluates no girth, distance or height rule.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Ingest reads glTF, not compact body edit documents.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The ingest pipeline owns no body editor inputs or display state.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The ingest pipeline owns no body editor transaction or worker boundary.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The ingest pipeline does not write a built body to glTF through the human package.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The ingest pipeline evaluates no simple-tier table or measured inversion.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The ingest pipeline evaluates no underwear region, clip or lift.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications Ingest maps an already-parsed external scene and animations; it does not author or validate the complete face construction, application and review boundary.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Ingest maps an already-parsed external scene and animations; it does not author or validate human-face version admission and photo-independent basis interpretation.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Ingest maps an already-parsed external scene and animations; it does not author or validate cranial, cervical, ocular, nasal, oral and auricular surface assembly.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation External scene adoption reads posed meshes; it does not evaluate facial landmarks, joint articulation or attachment posing.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Ingestion reads external glTF materials as authored; it neither locates an eye globe nor repaints an iris texture.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Ingestion reads external glTF materials as authored; it neither recolours nor thins a fibre card.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Ingestion reads external glTF materials as authored; it bakes no occlusion.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact External scene adoption reads resolved meshes; it does not evaluate lip closure, tongue passage or dental contact.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair External scene adoption reads completed geometry; it does not reconstruct scalp domains or styling fields from imported strips.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition External-scene interpretation preserves supplied meshes and animation tracks; it does not synthesize anatomical skin fields or locally subdivide a portrait surface.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour External asset interpretation reads already authored geometry; it does not reconstruct numerical facial pigmentation or reference tissue.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Ingest maps an already-parsed external scene and animations; it does not author or validate ordered face defaults, trait offsets, array replacement and asymmetric detail.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Ingest maps an already-parsed external scene and animations; it does not author or validate face-part cut ownership and final-surface attachment correspondence.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Ingest maps an already-parsed external scene and animations; it does not author or validate the neutral/observed/current face solve and fixed optical identity.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Ingest maps an already-parsed external scene and animations; it does not author or validate request-generation isolation and committed face history.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Ingest maps an already-parsed external scene and animations; it does not author or validate DOM face controls, camera/clay state and last-valid downloads.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Ingest maps an already-parsed external scene and animations; it does not author or validate face-specific Float32, optical-material and GLTF serialization admission.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance Ingest maps an already-parsed external scene and animations; it does not author or validate nullable portrait provenance that does not execute during face replay.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Ingest maps an already-parsed external scene and animations; it does not author or validate input/output review receipts, required portrait views and subjective acceptance.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-external-adoption-alternatives Implements the native external-scene interpretation result.
  * @author Samchon
  */
 export interface IAutoMovieIngestResult {
-  /**
-   * The scene graph as a flat list of core nodes (parent by id reference).
-   *
-   * @evidence requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Retains node identity, hierarchy, transform, and bound object references.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-external-adoption-alternatives Preserves selected scene elements during native interpretation.
-   */
+  /** The scene graph as a flat list of core nodes (parent by id reference). */
   nodes: IAutoMovieNode[];
 
-  /**
-   * One clip per glTF animation, its tracks targeting node TRS / weights.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-key-times Preserves source key times in the returned clips.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Emits the general flat-array clip form.
-   */
+  /** One clip per glTF animation, its tracks targeting node TRS / weights. */
   clips: IAutoMovieClip[];
 }
 
@@ -89,25 +47,6 @@ export interface IAutoMovieIngestResult {
  * (`node_{i}`), deterministic and collision-free even when names repeat. All
  * cross-references (a child's `parent`, a channel's target) use the same key.
  *
- * @evidence requirements/asset-authoring/README.md#자산-저작-요구사항 Converts a selected external scene into project-native structural facts.
- * @evidence requirements/external-inputs/README.md#외부-입력-요구사항 Consumes a caller-selected parsed document without acquisition authority.
- * @evidence requirements/motion/README.md#동작-요구사항 Converts embedded glTF animations into general project motion clips.
- * @evidence specifications/asset-and-representation/README.md#자산과-표현-시스템-사양 Emits project node and clip representations from external scene facts.
- * @evidence specifications/interchange-and-adoption/README.md#interchange와-adoption-시스템-계약 Implements the parsed-document to native-representation boundary.
- * @evidence specifications/performance-motion-and-staging/README.md#퍼포먼스-모션과-스테이징-시스템-명세 Supplies source-order clips to the general motion pipeline.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Stable node targets, property paths, interpolation, times, and typed value widths survive structural mapping.
- * @evidence requirements/motion/scope-and-identity.md#motion-all-objects-all-motion Generic node translation, rotation, scale, and weight tracks preserve non-humanoid object motion.
- * @evidence requirements/motion/scope-and-identity.md#motion-actor-object-scope Source nodes retain mesh, camera, skin, bone, and generic transform roles without forcing one actor model.
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-gltf-scene Maps a selected glTF scene's nodes, meshes, cameras, skins, and animations.
- * @evidence requirements/external-inputs/adoption-modes-and-composition.md#external-adoption-native-reinterpretation Rewrites each selected source node and animation into project-native forms.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-key-times Carries source key-time arrays into each emitted track.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Maps glTF LINEAR, STEP, and CUBICSPLINE modes explicitly.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Rejects absent samplers, targets, arrays, and mismatched output arity.
- * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-native-reinterpretation-boundary Source-local nodes and tracks map to stable project-native identities.
- * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-receipt-element-mapping Stable index ids preserve source node and animation correspondence.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Emits source-order key times, values, targets, and interpolation modes.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-external-adoption-alternatives Preserves the selected glTF scene as a project-native external-adoption result.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-semantic-joint-mapping Keeps skeletal and generic object nodes open to their own motion vocabularies.
  * @author Samchon
  */
 export const ingestDocument = (doc: Document): IAutoMovieIngestResult => {

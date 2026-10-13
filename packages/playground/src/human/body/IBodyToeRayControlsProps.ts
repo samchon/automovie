@@ -6,8 +6,6 @@ import type {
 /**
  * Inputs of `renderBodyToeRayControls`.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the basis, side and document toe rows the toe ray controls edit.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Carries the toe pose transaction of the joint panel.
  * @author Samchon
  */
 export interface IBodyToeRayControlsProps {

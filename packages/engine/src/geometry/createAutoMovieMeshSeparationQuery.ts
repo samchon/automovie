@@ -75,8 +75,6 @@ type Node = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<Triangle>>;
  * restore certification: the decision equals the full measurement's. Work it
  * skips is simply never spent from the budget.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies budgeted conservative whole-feature separation for composable resident geometry without a catalogue or sampled-corner substitute.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Snapshots original triangle identity and represented coordinates and qualifies complete-feature clearance without inventing a volume for open sheets.
  * @author Samchon
  */
 export function createAutoMovieMeshSeparationQuery(

@@ -38,19 +38,6 @@ const indexShots = (
  * binds a single contiguous seam, where two entries share one on-screen
  * instant. Included events keep their shot-local `time` and also expose
  * `shotTime` plus `globalTime`.
- *
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Maps in-range shot events to output time with half-open trim boundaries so a seam event is emitted exactly once.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-time-transforms Applies the supported unity-rate affine mapping `globalTime = entry.start + event.time - entry.offset`, without claiming scale, reverse, or hold support.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-story-film-order Keeps each source event's shot-local instant while assigning a distinct entry and global instant to every presentation replay.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-source-preservation Copies the source event payload unchanged and adds entry, shot-local, and global placement facts instead of rewriting the source shot.
- * @evidence requirements/story/beats-and-causality.md#story-semantic-event-identity Preserves the event's stable source id across trims and repeated presentation placements instead of replacing it with a frame or sequence index.
- * @evidence requirements/story/story-clock-and-state.md#story-presentation-chronology Keeps source `shotTime` separate from the authored sequence's affine `globalTime`; it does not infer chronology, reverse, or causal order.
- * @evidence requirements/staging/events-and-timing.md#staging-fixed-film-clock Converts each included shot-local event through the entry's trim offset and output start into one explicit global film-clock instant.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Projects trimmed events from shot-local seconds to deterministic output seconds while preserving per-play ownership.
- * @evidence specifications/editorial-render-and-delivery/editorial-version-conform-and-validation.md#spec-editorial-film-identity Preserves the source occurrence and represents each authored presentation placement as separate film-order data.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-semantic-event-occurrence Keeps one semantic event identity while separating every replayed sequence occurrence by its placement data.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-chronology-presentation Exposes the supported unity-rate source-to-presentation placement without rewriting source event time as story chronology.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Maps every admitted occurrence onto the production clock and assigns a contiguous trim-boundary occurrence to exactly one play.
  */
 export const sequenceEventTimeline = (
   sequence: IAutoMovieSequence,

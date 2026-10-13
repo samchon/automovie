@@ -24,8 +24,6 @@ import type {
  * Throws when `state` names a state the domain does not declare, exactly as
  * {@link simulateSoftBody} does.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Applies the declared anchor constraints to the selected rest configuration.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Resolves the step-zero state from static anchor inputs.
  * @author Samchon
  */
 export const softBodyRestConfiguration = (

@@ -18,9 +18,6 @@ import type * as THREE from "three";
  * The installed renderer declaration also admits a WebGL1 context. Require
  * the actual public WebGL2 attachment-query capability before reading its
  * encoding constants; no guessed numeric enum or widened type substitutes.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Checks native float-writer compatibility, RGBA byte retention and encoding before already resolved sources are drawn.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Admits complete native RGBA storage capable of retaining the byte product and cancels automatic sRGB encoding without changing the composition domain.
  */
 export const readAutoMovieDisplayDestinationEncoding=(renderer:Pick<THREE.WebGLRenderer,"getContext">):"linear"|"srgb"=>{
   const gl=renderer.getContext();

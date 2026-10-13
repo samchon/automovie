@@ -27,41 +27,19 @@ import { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
  * authored value with no tolerance, and `#000000` is reserved for background
  * and never assigned.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieSemanticMask` as the portable data boundary for the rendering identity mask channels requirement.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieSemanticMask` for the spec render pass products system contract.
  * @author Samchon
  */
 export interface IAutoMovieSemanticMask {
-  /**
-   * Mask format.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `version` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `version` for the spec render pass products system contract.
-   */
+  /** Mask format. */
   version: 2;
 
-  /**
-   * Versioned palette-derivation protocol.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `protocol` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `protocol` for the spec render pass products system contract.
-   */
+  /** Versioned palette-derivation protocol. */
   protocol: "automovie.semantic-mask.v2";
 
-  /**
-   * Reserved background colour, never assigned to an entry.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `background` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `background` for the spec render pass products system contract.
-   */
+  /** Reserved background colour, never assigned to an entry. */
   background: "#000000";
 
-  /**
-   * Entries in ascending semantic-id order.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `entries` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `entries` for the spec render pass products system contract.
-   */
+  /** Entries in ascending semantic-id order. */
   entries: IAutoMovieSemanticMaskEntry[];
 
   /**
@@ -71,18 +49,12 @@ export interface IAutoMovieSemanticMask {
    * arbitrarily large instanced set. A set listed here is still addressable as
    * a whole through its `instance-set` entry; only per-slot identity is absent,
    * and it is reported rather than quietly approximated.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `unaddressed` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `unaddressed` for the spec render pass products system contract.
    */
   unaddressed: IAutoMovieSemanticMaskGap[];
 
   /**
    * Digest over the complete canonical versioned payload except this field.
    * It therefore seals background, every entry field, and every bounded gap.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `digest` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `digest` for the spec render pass products system contract.
    */
   digest: AutoMovieContentDigest;
 }

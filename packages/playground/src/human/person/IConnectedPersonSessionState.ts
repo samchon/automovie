@@ -6,8 +6,6 @@ import type { IConnectedPersonDraft } from "./IConnectedPersonDraft";
  * report on the screen is derived from this record and that history, so no
  * text survives the state it described.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Records the pending intent, the last refusal and the displayed draft from which the editor screen is drawn.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Gives the screen one state to read after a success, a refusal or a superseded request.
  * @author Samchon
  */
 export interface IConnectedPersonSessionState<Model> {

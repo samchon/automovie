@@ -60,13 +60,6 @@ import type { ISlotException } from "./ISlotException.js";
  * that changes action changes table. Nothing about that is per member: the
  * instance buffers are the same size they were, and a frame advances the whole
  * unit by writing two floats.
- *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-group-motion-model-selection Samples group placement, sparse member exceptions and shared cadence on the same shot time before projecting them into tier batches.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Samples group placement, sparse member exceptions and shared cadence on the same shot time before projecting them into tier batches.
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-transition Carries the prior tier into each camera-driven LOD selection.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Carries the previous selected tier into the existing hysteretic camera policy without changing member identity.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Connects the admitted tier's actual cycle to both punctual shadow projections before any chunk is drawn.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Shares cycle cells across beauty and grouped depth/distance shadows and releases them with the tier.
  */
 export const buildInstancedFormation = (
   input: IBuildInstancedFormationProps,

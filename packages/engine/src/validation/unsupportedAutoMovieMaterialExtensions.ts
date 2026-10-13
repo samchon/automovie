@@ -11,9 +11,6 @@ import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
  * licensed model for carrying a sheen lobe would be the engine deciding what
  * art a production may buy. The caller (the production builder) turns this
  * into a warning diagnostic that names each one.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-validation-gap `unsupportedAutoMovieMaterialExtensions` returns every declared surface extension that cannot be restated instead of upgrading it to supported.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-status-failures `unsupportedAutoMovieMaterialExtensions` deduplicates and code-unit sorts unsupported identities so the same adoption gap is reported deterministically.
  */
 export const unsupportedAutoMovieMaterialExtensions = (
   extensions: readonly string[],

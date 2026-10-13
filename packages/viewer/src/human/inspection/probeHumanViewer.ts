@@ -16,8 +16,6 @@ import { humanViewerProtocol } from "./humanViewerProtocol.js";
  * @evidence contracts/common.md#clear-and-simple-design One health probe supplies connection classification and verifies service protocol and selected storage before returning its answer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A timed-out or malformed response remains unanswered; it never authorizes killing a listener or substituting a different viewer session.
  * @evidence contracts/common.md#meaningful-documentation States the three outcomes and the error.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The connection outcome, not elapsed time alone, separates absent from unanswered.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One health probe supplies connection classification and verifies service protocol and selected storage before returning its answer.
  */
 export async function probeHumanViewer(
   context: IHumanShotContext,

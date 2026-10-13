@@ -11,9 +11,6 @@ import {
  * stops at are the floors it joins. A one-way run reaches only stops further
  * along its own route, which is the same rule its two-ended form has always
  * followed, generalized to the stops between them.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentAdjacentSpaces` returns spaces directly joined by a boundary or traversal connector. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentAdjacentSpaces` finds the logical spaces joined to a space by a boundary or traversal connector inside one building-interior boundary.
  */
 export const builtEnvironmentAdjacentSpaces = (
   environment: IAutoMovieBuiltEnvironment,

@@ -5,29 +5,14 @@ import { parseAutoMovieEvidenceSyntax } from "./parseAutoMovieEvidenceSyntax";
  * Parsed identity and the body of one screenplay file.
  *
  * @author Samchon
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Represents the exact construction identity protected by final revision.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Supplies parsed file and unit facts independently of physical file access.
  */
 export interface IAutoMovieScreenplayDocumentIdentity {
-  /**
-   * The sole parsed H1 title, without its Markdown heading marker.
-   *
-   * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Preserves the construction file identity.
-   * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Supplies the title compared across passes.
-   */
+  /** The sole parsed H1 title, without its Markdown heading marker. */
   title: string;
-  /**
-   * Authored bytes inspected for premature evidence annotations.
-   *
-   * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Keeps draft bodies free of evidence annotations.
-   * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Supplies the body to the shared evidence syntax parser.
-   */
+  /** Authored bytes inspected for premature evidence annotations. */
   source: string;
   /**
    * Ordered, explicitly anchored units already validated by the Markdown parser.
-   *
-   * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Preserves unit identity and containment across final revision.
-   * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Supplies the depth, anchor, lineage, and title compared at each ordered position.
    */
   units: readonly {
     anchor: string;
@@ -43,9 +28,6 @@ export interface IAutoMovieScreenplayDocumentIdentity {
  * Physical enumeration and Markdown parsing belong to the graph factory.
  * These comparisons decide population identity, counterpart selection, and draft admission;
  * literal content and mechanical-clause fidelity still require author review.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Refuses final residue, incomplete populations, and changed construction identities.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Checks final file, heading, nesting, order, group identity, and evidence-stage boundaries through supplied observations.
  */
 export const validateAutoMovieFinalScreenplayPopulation = (props: {
   stage: AutoMovieEvidenceStage;

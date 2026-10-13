@@ -10,11 +10,6 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * one of them: reordering a source array must not reorder a schedule. Ready
  * phases are therefore taken in ascending id order, which makes the answer a
  * function of the plan alone.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineagePhaseOrder` orders the construction plan deterministically. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineagePhaseOrder` topologically orders construction phases with stable id ordering for simultaneously ready phases.
- * @evidence requirements/map/temporal-change.md#map-state-validity-phase-order `designLineagePhaseOrder` returns a deterministic prerequisite order for every declared phase and refuses a lineage whose phase graph cannot be resolved.
- * @evidence specifications/world-and-site/temporal-state-and-staleness.md#world-site-existing-change-demolition The stable topological order supplies the phase sequence used to distinguish existing, installed, and removed world identities.
  */
 export const designLineagePhaseOrder = (
   lineage: IAutoMovieDesignLineage,

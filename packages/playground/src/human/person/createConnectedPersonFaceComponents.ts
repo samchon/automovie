@@ -19,9 +19,6 @@ import type { ICreateConnectedPersonFaceComponentsProps } from "./ICreateConnect
  * editors show it. Whether the result covers the head view's channels exactly
  * is `createHumanFaceComponentTree`'s check, which refuses a mismatch by name.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Lets the person's face section browse the same named anatomical parts as the face editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Groups the person's face controls by part on the person editor's screen.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Rebinds the one authored component tree to the head view's basis without copying the classification.
  * @author Samchon
  */
 export function createConnectedPersonFaceComponents(

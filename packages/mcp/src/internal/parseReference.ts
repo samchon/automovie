@@ -12,11 +12,6 @@ type Heading = ParsedReference["headings"][number];
 
 /**
  * Parse syntax through trusted libraries, then select only original offsets.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-selection Finds actual top-level heading identities and hierarchy rather than example headings.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-source Recognizes annotation intervals while preserving every non-comment source character.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-selection Derives explicit anchors, unsupported depths, ambiguity and subtree boundaries.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-source Decodes UTF-8 fatally and retains original UTF-16 coordinates and annotation diagnostics.
  */
 export async function parseReference(
   file: string,

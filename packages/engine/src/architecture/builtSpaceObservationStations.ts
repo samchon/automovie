@@ -157,9 +157,6 @@ const thresholdPose = (props: {
  * Every station's point is proved inside the space's own stated volume before
  * it is returned, which is what separates an interior observation from a
  * turntable that circles the room from outside and photographs its walls.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Enumerates the closed interior station population and proves each camera stands inside its own space.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Implements the centre, corner, and threshold station derivation over a stated space volume.
  */
 export const builtSpaceObservationStations = (
   environment: IAutoMovieBuiltEnvironment,

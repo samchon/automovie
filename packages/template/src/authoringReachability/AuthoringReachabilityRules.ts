@@ -7,24 +7,15 @@ import type { AutoMovieAuthoringProductionKind } from "./AutoMovieAuthoringProdu
  * registries. Matrix construction and inspection consume these same route
  * definitions, so a field or choice cannot drift between the advertised plan
  * and its refusal boundary. No named production or authored asset is supplied.
- *
- * @evidence requirements/product/authorability.md#product-discoverable-control Keeps actual field and capability routes addressable under one closed source/consumer vocabulary.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Shares the supported instruction paths and interface-pinned choices between row production and admission.
  */
 export namespace AuthoringReachabilityRules {
   /**
    * The route field population comes from the public ProductionDesign keys, not a separate hand-maintained field vocabulary.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control The route field population comes from the public ProductionDesign keys, not a separate hand-maintained field vocabulary.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery The route field population comes from the public ProductionDesign keys, not a separate hand-maintained field vocabulary.
    */
   export type AutoMovieProductionDesignField = keyof IAutoMovieProductionDesign;
 
   /**
    * The closed capability grammar distinguishes common routes, timed source/acceptance routes and field-level design rows.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control The closed capability grammar distinguishes common routes, timed source/acceptance routes and field-level design rows.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery The closed capability grammar distinguishes common routes, timed source/acceptance routes and field-level design rows.
    */
   export type AutoMovieAuthoringCapability =
     | "settings"
@@ -38,17 +29,12 @@ export namespace AuthoringReachabilityRules {
 
   /**
    * Only the actual shipped project README, document router and 3D modeling skill are advertised instruction routes.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control Only the actual shipped project README, document router and 3D modeling skill are advertised instruction routes.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Only the actual shipped project README, document router and 3D modeling skill are advertised instruction routes.
    */
   export type AutoMovieAuthoringRoute = "README.md" | "docs/README.md" | ".agents/skills/3d-modeling/SKILL.md";
 
   /**
    * A supported route supplies its source owner, authored input and actual public consumer before a matrix row can claim applicability.
    *
-   * @evidence requirements/product/authorability.md#product-discoverable-control A supported route supplies its source owner, authored input and actual public consumer before a matrix row can claim applicability.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery A supported route supplies its source owner, authored input and actual public consumer before a matrix row can claim applicability.
    * @author Samchon
    */
   export interface IAuthoringRouteDefinition {
@@ -71,8 +57,6 @@ export namespace AuthoringReachabilityRules {
   /**
    * Each production field binds its existing runtime consumer and installed instruction route, with optional closed choices.
    *
-   * @evidence requirements/product/authorability.md#product-discoverable-control Each production field binds its existing runtime consumer and installed instruction route, with optional closed choices.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Each production field binds its existing runtime consumer and installed instruction route, with optional closed choices.
    * @author Samchon
    */
   export interface IProductionFieldRouteDefinition {
@@ -116,17 +100,11 @@ export namespace AuthoringReachabilityRules {
   /**
    * Runtime copy of the route union, so a row handed to the inspector at runtime
    * is held to the same closed document set the type admits at compile time.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control Runtime route membership matches the same closed instruction-path union used by public row typing.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Runtime route membership matches the same closed instruction-path union used by public row typing.
    */
   export const ROUTE_REGISTRY = { "README.md": true, "docs/README.md": true, ".agents/skills/3d-modeling/SKILL.md": true } satisfies Record<AutoMovieAuthoringRoute, true>;
 
   /**
    * One typed registry owns the production-kind vocabulary consumed by publication and unknown-kind admission.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control One typed registry owns the production-kind vocabulary consumed by publication and unknown-kind admission.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery One typed registry owns the production-kind vocabulary consumed by publication and unknown-kind admission.
    */
   export const KIND_REGISTRY = {
     film: true,
@@ -146,9 +124,6 @@ export namespace AuthoringReachabilityRules {
 
   /**
    * Every public production-design field has one actual consumer route, with literal choices derived from the matching interface unions.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control Every public production-design field has one actual consumer route, with literal choices derived from the matching interface unions.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Every public production-design field has one actual consumer route, with literal choices derived from the matching interface unions.
    */
   export const PRODUCTION_DESIGN_FIELD_ROUTES = {
     id: field(
@@ -241,9 +216,6 @@ export namespace AuthoringReachabilityRules {
 
   /**
    * Common capabilities name their project-owned source, exact input and existing public consumer without inventing a generated project emitter.
-   *
-   * @evidence requirements/product/authorability.md#product-discoverable-control Common capabilities name their project-owned source, exact input and existing public consumer without inventing a generated project emitter.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-tool-choice-discovery Common capabilities name their project-owned source, exact input and existing public consumer without inventing a generated project emitter.
    */
   export const BASE_ROUTE_DEFINITIONS = {
     settings: {

@@ -18,11 +18,6 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
  * must match the canonically ordered cue set one to one, and every entry must
  * carry the timeline's film, compile, edit, and frame-rate identity together
  * with its cue's zone, interval, and intensity.
- *
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Refuses a runtime that silently drops or alters an accepted film cue.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-cache-identity Binds the persisted population to the timeline identity rather than reusing a stale artifact.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Requires exactly one current runtime for every accepted cue.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#checkpoint-cache-identity-and-validity Rejects a persisted stream whose identity or population differs from its current input.
  */
 export const verifyProductionFilmEffectPopulation = (props: {
   timeline: IAutoMovieFilmTimeline;

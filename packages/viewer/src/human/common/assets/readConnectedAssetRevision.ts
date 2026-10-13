@@ -60,9 +60,6 @@ async function sniff(source: ReadableStream<Uint8Array<ArrayBuffer>>): Promise<{
  * Refuses a transport failure, an absent body, an empty asset, a gzip that
  * does not inflate, text that is not UTF-8, and a head that does not open
  * with the field within the examined bound.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Names the exact basis revision a companion document must specify without loading the whole basis.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Reads the immutable revision ID the basis opens with so a document can name the basis it is evaluated against.
  */
 export async function readConnectedAssetRevision(props: {
   read: () => Promise<{

@@ -10,8 +10,6 @@ import type { ConnectedBodyPart } from "@automovie/human/body/runtime/ConnectedB
  * later frame with the same structure reuses them. `released` marks a group
  * withdrawn from publication; it does not certify physical GPU retirement.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the displayed body's buffers alive between edits that change only coordinates.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Records the part and finish structure a resident group's buffers were built for.
  * @author Samchon
  */
 export interface IConnectedBodyResident {

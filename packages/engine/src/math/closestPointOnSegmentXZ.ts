@@ -1,11 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
- * Closest point to `point` on segment `start`–`end`, on the XZ plane (y=0).
- *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Projects a load point onto one support edge in the ground plane.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Projects a load point onto one support edge in the ground plane.
- */
+/** Closest point to `point` on segment `start`–`end`, on the XZ plane (y=0). */
 export const closestPointOnSegmentXZ = (
   point: IAutoMovieVector3,
   start: IAutoMovieVector3,

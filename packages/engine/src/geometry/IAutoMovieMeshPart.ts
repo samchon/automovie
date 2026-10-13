@@ -2,32 +2,12 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 
-/**
- * One named member of an assembly, optionally placed by its own transform.
- *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group Preserves an addressable member inside a logical mesh group.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Retains member identity while composing shared geometry.
- */
+/** One named member of an assembly, optionally placed by its own transform. */
 export interface IAutoMovieMeshPart {
-  /**
-   * Stable member identity, unique inside one assembly.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group Keeps the grouped member independently addressable.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Preserves individual identity inside the composed group.
-   */
+  /** Stable member identity, unique inside one assembly. */
   id: string;
-  /**
-   * The member's geometry in its own local frame.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group Carries the geometry owned by one logical group member.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Keeps the member's own representation distinguishable after composition.
-   */
+  /** The member's geometry in its own local frame. */
   mesh: IAutoMovieMesh;
-  /**
-   * Where the member sits in the assembly frame.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group Places one member without erasing its group identity.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Resolves member placement while preserving individuality.
-   */
+  /** Where the member sits in the assembly frame. */
   transform?: IAutoMovieMeshTransform;
 }

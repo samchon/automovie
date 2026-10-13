@@ -3,8 +3,6 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 /**
  * The deterministic answer to one authored building-support claim.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Reports resting, floating, sunk, off-support, legitimate suspension, or unresolved placement without claiming capacity or safety.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Carries the classified gap, unresolved side, and measurement basis required by the support output contract.
  * @author Samchon
  */
 export interface IAutoMovieBuiltSupportResult {

@@ -15,8 +15,6 @@ const acosDeg = (x: number): number =>
  * `upper+lower`) is clamped to the reachable shell and flagged, so the limb
  * fully folds or fully extends rather than producing NaN.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Computes the exact two-link angles inside the chain's measured reach shell.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Implements the deterministic closed-form solve for a bounded reach shell.
  * @author Samchon
  */
 export const solveTwoBoneIK = (

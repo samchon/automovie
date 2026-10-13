@@ -96,12 +96,6 @@ import { meshOf } from "./meshOf";
  * distance rather than surface distance, so a taper or a bend costs it texel
  * density on top of the angle. Where the form has to stay a true surface of
  * revolution, the finish on it stays non-directional.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Builds a surface by revolving an authored metric profile.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves the authored meridian topology through revolution.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Gives the revolved surface texture coordinates in a stated metric coordinate system so a declared scale places the same way every run.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Emits the coordinate set a material binding samples the revolved surface through.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Lays the revolved atlas under the shared surface coordinate convention rather than under a rule of its own.
  */
 export const revolveAutoMovieProfile = (props: {
   profile: readonly IAutoMovieProfilePoint[];

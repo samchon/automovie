@@ -13,8 +13,6 @@ import { constants, gunzipSync } from "node:zlib";
  * @evidence contracts/common.md#clear-and-simple-design One prefix reader supplies catalogue identity without decoding an entire numerical basis.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the supplied compressed bytes and refuses a missing opening identity without a subject-specific asset name or fitted geometry fallback.
  * @evidence contracts/common.md#meaningful-documentation Explains the leading-id precondition, partial inflation purpose and separation from whole-basis admission.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Partial gzip inflation and the existing leading-id packet convention extract only basis identity; this bounded header read does not certify the complete asset schema.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis One prefix reader supplies catalogue identity without decoding an entire numerical basis.
  */
 export function readHumanViewerBasisIdentity(bytes: Uint8Array): string {
   const id = /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(

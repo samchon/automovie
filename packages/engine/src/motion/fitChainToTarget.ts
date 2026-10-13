@@ -36,8 +36,6 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * original pose in the candidate set makes an unreachable or constrained target
  * non-destructive.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Keeps every candidate inside the skeleton's declared joint ranges while seeking the target.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Chooses the closest legal articulated solve under the rig's ROM controls.
  * @author Samchon
  */
 export const fitChainToTarget = (

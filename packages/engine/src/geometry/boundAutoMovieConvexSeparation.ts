@@ -36,8 +36,6 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
  * Triple and pair enumeration costs grow with the convex input vertex count.
  * The resident mesh separation query consumes this owner for whole features.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Bounds separation of complete resident convex features without replacing their interiors by sampled corners.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves point, segment and triangle coordinates and qualifies their separation through outward-enclosed support projections.
  * @author Samchon
  */
 export function boundAutoMovieConvexSeparation(

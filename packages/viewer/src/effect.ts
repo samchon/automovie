@@ -5,78 +5,34 @@ import * as THREE from "three";
 /**
  * Current bounded viewer evidence for one deterministic effect cue.
  *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
  * @author Samchon
  */
 export interface IAutoMovieEffectViewerStats {
-  /**
-   * Whether the cue is active at the sampled fixed step.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Whether the cue is active at the sampled fixed step. */
   active: boolean;
-  /**
-   * Live billboards after LOD and cap enforcement.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Live billboards after LOD and cap enforcement. */
   particles: number;
-  /**
-   * Configured hard live-particle cap.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Configured hard live-particle cap. */
   cap: number;
-  /**
-   * Sampled cue intensity.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Sampled cue intensity. */
   intensity: number;
 }
 
 /**
  * Built deterministic billboard emitter.
  *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
  * @author Samchon
  */
 export interface IAutoMovieEffectViewerObject {
-  /**
-   * Add this mesh to the shot scene.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Add this mesh to the shot scene. */
   object: THREE.InstancedMesh;
-  /**
-   * Current bounded effect summary.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Current bounded effect summary. */
   stats: IAutoMovieEffectViewerStats;
-  /**
-   * Sample one absolute shot time and face particles toward the camera.
-   *
-   * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
-   * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
-   */
+  /** Sample one absolute shot time and face particles toward the camera. */
   update(camera: THREE.PerspectiveCamera, time: number): void;
 }
 
-/**
- * Build one builder-owned effect stream as bounded billboard instances.
- *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Displays this surface from the deterministic compiled particle sample.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Materializes the same deterministic spawn interval for the viewer.
- */
+/** Build one builder-owned effect stream as bounded billboard instances. */
 export const buildInstancedEffect = (
   effect: IAutoMovieCompiledEffect,
 ): IAutoMovieEffectViewerObject => {

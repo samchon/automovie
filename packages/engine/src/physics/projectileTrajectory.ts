@@ -18,8 +18,6 @@ const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * Samples the closed-form solution, so there is no integration drift; the last
  * key lands exactly on `duration`.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Bakes the analytic projectile path into deterministic position and rotation tracks.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Converts the analytic tier into an authored-motion compatible clip.
  * @author Samchon
  */
 export const projectileTrajectory = (

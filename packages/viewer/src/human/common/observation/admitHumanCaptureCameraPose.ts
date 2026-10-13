@@ -6,9 +6,6 @@ import type { IHumanCaptureCameraPose } from "./IHumanCaptureCameraPose.js";
  * distance is positive, the target contains three finite metre coordinates,
  * and vertical field of view is strictly between zero and 180 degrees.
  * The returned target is copied so framing cannot mutate the source record.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Refuses missing or invalid recorded cameras rather than displaying an invented matched view.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Preserves admitted angles and perspective framing for the displayed asset.
  */
 export function admitHumanCaptureCameraPose(
   poses: Record<string, IHumanCaptureCameraPose | null> | null,

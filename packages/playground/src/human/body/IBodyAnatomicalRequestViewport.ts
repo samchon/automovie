@@ -11,8 +11,6 @@ import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel"
  * encodes the candidate-only model, never a whole-body save. The view methods
  * change only the camera and the clay display.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Supplies the build, publication, export and view operations the numerical request panel invokes.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Separates frame building, publication and disposal so a failed build retains the last admitted frame.
  * @author Samchon
  */
 export interface IBodyAnatomicalRequestViewport<

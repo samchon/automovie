@@ -18,9 +18,6 @@ import { connectedHairFields } from "./connectedHairFields";
  * A gathering block is submitted atomically because an individual anchor or
  * radius may be unreachable until its companion lengths and tail are authored.
  * Rejected input remains in the visible draft so a user can correct it.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Makes numeric hair layers, enums and a detail-preserving simple length control directly editable.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Sends fine canonical hair values through the same document transaction as facial shape and colour.
  */
 export function mountConnectedFaceHair(
   app: HTMLElement,

@@ -7,8 +7,6 @@ import type { IAutoMovieHumanBodyFootSupport } from "@automovie/human";
  * The line states the signed gap of each foot (clear above, through below)
  * and that it is a geometric reading, not a contact model.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor States each foot's ground gap beside the posed preview.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows the geometric ground support reading with its qualification.
  * @author Samchon
  */
 export function bodyGroundReading(

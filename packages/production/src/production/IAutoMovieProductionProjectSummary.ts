@@ -6,8 +6,6 @@
  * productionId selects the namespace whose revision is reported. The sorted
  * registration population lets a host make an explicit namespace choice.
  *
- * @evidence requirements/agent-authoring/partial-work.md#agent-resumable-authoring Reports the selected root, namespace and current revision a new session can inspect without prior agent memory.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-resume-compatibility Identifies the resident project generation selected for inspection while preserving the complete registered namespace population.
  * @author Samchon
  */
 export interface IAutoMovieProductionProjectSummary {

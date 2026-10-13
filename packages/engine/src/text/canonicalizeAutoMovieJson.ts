@@ -15,12 +15,6 @@ import { compareCodeUnits } from "./compareCodeUnits";
  * lone surrogate, so its UTF-8 encoding is identical whether a runtime encodes
  * it with `Buffer`, `TextEncoder` or the engine's own encoder, and one SHA-256
  * over those bytes is one identity on every runtime.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Fixes member order, finite scalars, strings and absent values so equal inputs yield one text on every runtime.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-digest-refusal Refuses non-finite numbers, bigint, invalid Unicode, cycles and accessors instead of emitting a partial identity.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-locale-time-determinism Serializes identities without locale, timezone or clock participation so the same input yields the same bytes on every host.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Implements the property ordering, finite scalar, string and absent value representation the canonical serialization fixes.
- * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-cross-platform-portability Produces canonical record text with an explicit code-unit ordering rule and finite numeric representation that no host locale, clock or path participates in.
  */
 export const canonicalizeAutoMovieJson = (value: unknown): string => {
   const active = new Set<object>();

@@ -15,9 +15,6 @@ import type { IHumanViewerModuleNode } from "./IHumanViewerModuleNode.js";
  * @evidence contracts/common.md#clear-and-simple-design One ordered operation withdraws compiler authority before served module authority.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Injects supported graph invalidation rather than deleting foreign cache entries.
  * @evidence contracts/common.md#meaningful-documentation Explains type-only dependency reach and in-flight snapshot ownership.
- *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-stale-cache-invalidation Withdraws the current compile authority and invalidates its served source transforms so subsequent loads cannot retain a withdrawn generation.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Withdraws the current compile authority and invalidates its served source transforms so subsequent loads cannot retain a withdrawn generation.
  */
 export function invalidateHumanViewerGeneration<
   Module extends IHumanViewerModuleNode,

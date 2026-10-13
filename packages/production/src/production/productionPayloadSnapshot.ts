@@ -2,12 +2,7 @@ import type { AutoMovieContentDigest } from "@automovie/interface";
 
 import { digestAutoMovieBytes } from "./contentIdentity";
 
-/**
- * Exact byte identity captured for one publication payload member.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Makes any byte change invalidate the captured member.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies a byte-exact publication precondition.
- */
+/** Exact byte identity captured for one publication payload member. */
 export interface IProductionPayloadSnapshotEntry {
   /** Canonical publication-relative path. */
   path: string;
@@ -17,24 +12,13 @@ export interface IProductionPayloadSnapshotEntry {
   bytes: number;
 }
 
-/**
- * Immutable ordered byte snapshot used by a publication transaction.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Requires every contributing byte member to remain present.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-preserve-previous-complete Refuses a partial candidate before it replaces the previous complete output.
- */
+/** Immutable ordered byte snapshot used by a publication transaction. */
 export interface IProductionPayloadSnapshot {
   /** Complete candidate entries in caller-declared order. */
   entries: IProductionPayloadSnapshotEntry[];
 }
 
-/**
- * Capture exact bytes through an injected reader before publication begins.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Binds every retained or final payload member to the bytes verified for this commit attempt.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Captures the complete candidate inventory before the guarded transition.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-package-safety Captures every delivered file's canonical path, size and digest as one closed snapshot before publication begins.
- */
+/** Capture exact bytes through an injected reader before publication begins. */
 export const captureProductionPayloadSnapshot = (props: {
   paths: readonly string[];
   read: (path: string) => Uint8Array | null;
@@ -61,9 +45,6 @@ export const captureProductionPayloadSnapshot = (props: {
 
 /**
  * Revalidate the exact snapshot without reducing absence or replacement to path existence.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Refuses deletion, same-size replacement, and in-place mutation as stale payload.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Admits only byte-identical members from the captured generation.
  */
 export const isProductionPayloadSnapshotCurrent = (props: {
   snapshot: IProductionPayloadSnapshot;

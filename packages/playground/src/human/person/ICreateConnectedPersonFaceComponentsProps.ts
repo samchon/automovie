@@ -6,8 +6,6 @@ import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
  * the face channels the person edits through another owner (the body
  * channels a face channel aliases).
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Carries the one anatomical classification the person's face section reuses.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Names the tree, its new basis and the channels it gives up.
  * @author Samchon
  */
 export interface ICreateConnectedPersonFaceComponentsProps {

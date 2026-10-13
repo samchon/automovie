@@ -20,8 +20,6 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases.js";
  * @evidence contracts/common.md#clear-and-simple-design The source owner converts subjects; the viewer only checks and keys them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects mismatched declared head/body bases and preserves original documents instead of fitting them onto another generation or bypassing later admission.
  * @evidence contracts/common.md#meaningful-documentation States the generation check, the refusal and the key.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis A subject is drawn only on the generation its document names, checked against the views actually published.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The source owner converts subjects; the viewer only checks and keys them.
  */
 export function readHumanViewerGenerationSubjects(
   props: IReadHumanViewerGenerationSubjectsProps,

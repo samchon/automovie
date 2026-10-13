@@ -11,8 +11,6 @@ import type {
  * selectionDigest bind the immutable activation record the project reopened.
  * Changing that record invalidates the join even when the candidate is intact.
  *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Preserves active selection identity for aggregate observation and final publication.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance Joins the verified candidate to its current selection record without receipt inference.
  * @author Samchon
  */
 export interface IAutoMovieVerifiedRepaintSelection {

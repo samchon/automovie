@@ -26,49 +26,22 @@ import { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
  * {@link totals}, {@link owners} and {@link gaps} alone; summing the arrays would
  * come up short by exactly the things a room is furnished with.
  *
- * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `IAutoMovieRenderInventory` as the portable data boundary for the rendering frame total budget requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `IAutoMovieRenderInventory` for the spec render budget preflight system contract.
  * @author Samchon
  */
 export interface IAutoMovieRenderInventory {
-  /**
-   * Inventory format.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `version` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `version` for the spec render budget preflight system contract.
-   */
+  /** Inventory format. */
   version: 1;
 
-  /**
-   * Per-model geometry cost, ascending by model id.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `models` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `models` for the spec render budget preflight system contract.
-   */
+  /** Per-model geometry cost, ascending by model id. */
   models: IAutoMovieRenderModelCost[];
 
-  /**
-   * Unique texture assets cited by drawn materials, ascending by asset id.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `textures` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `textures` for the spec render budget preflight system contract.
-   */
+  /** Unique texture assets cited by drawn materials, ascending by asset id. */
   textures: IAutoMovieRenderTextureCost[];
 
-  /**
-   * Per-instance-set batching cost, ascending by set id.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `instanceSets` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `instanceSets` for the spec render budget preflight system contract.
-   */
+  /** Per-instance-set batching cost, ascending by set id. */
   instanceSets: IAutoMovieRenderInstanceSetCost[];
 
-  /**
-   * Exact scalar totals; a metric with no measurement is `null`.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `totals` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `totals` for the spec render budget preflight system contract.
-   */
+  /** Exact scalar totals; a metric with no measurement is `null`. */
   totals: IAutoMovieRenderTotals;
 
   /**
@@ -77,17 +50,9 @@ export interface IAutoMovieRenderInventory {
    * The report bounds this into a short dominant-contributor list; the
    * inventory keeps the complete attribution so a consumer can sum it back to
    * the total.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `owners` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `owners` for the spec render budget preflight system contract.
    */
   owners: IAutoMovieRenderOwnerCost[];
 
-  /**
-   * Analyses that did not produce a number, and why.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-frame-total-budget Exposes `gaps` as the portable data boundary for the rendering frame total budget requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `gaps` for the spec render budget preflight system contract.
-   */
+  /** Analyses that did not produce a number, and why. */
   gaps: IAutoMovieRenderAnalysisGap[];
 }

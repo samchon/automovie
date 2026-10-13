@@ -7,8 +7,6 @@ import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolutio
  * the current person, the panel's intent tickets, the off-thread reader and
  * solver, and the panel's transaction, status and refusal owners.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Connects the head measurement controls to the person's transaction.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Names the reader and the solver the controls call.
  * @author Samchon
  */
 export interface IConnectedPersonHeadControlsProps {

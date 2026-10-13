@@ -1,12 +1,7 @@
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 
-/**
- * Adapt native worker callbacks to the typed resident request transport.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Preserves request correlation through browser message events.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps native browser allocation outside the numerical request owner.
- */
+/** Adapt native worker callbacks to the typed resident request transport. */
 export function createHumanResidentPort<Input, Output>(
   worker: Pick<Worker, "onmessage" | "onerror" | "postMessage" | "terminate">,
 ): HumanResidentPort<Input, Output> {

@@ -27,10 +27,6 @@ const DEFAULT_PIGMENT: IPortraitIrisPigment = {
  * eye changes, which is how heterochromia is authored. Inputs show linear
  * RGB, the unit the builder paints in. Adding starts from the constructed
  * portrait eye's shared palette; removing restores the basis texture.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes each eye's iris pigment as numerical controls in the editor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Routes iris pigment creation, editing and removal through the shared document history.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Edits the per-eye base and variation endpoints the connected iris rule paints.
  */
 export function mountConnectedFaceIris(
   app: HTMLElement,

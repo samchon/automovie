@@ -9,8 +9,6 @@ import { sampleClip } from "../resolve/sampleClip";
  * coupling's parent read (#1140) all share the SAME composition (#674). Scale
  * is not baked (rigid couplings never scale), so it stays identity.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects Samples the baked follow transform shared by rendering, chained couplings, and beat-end continuity for the attached node.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff bakedTransformAt realizes declared attachment and object handoff: The world transform a baked follow clip writes onto `node` at `t`. A coupled child's world root comes from here (the exact clip {@link performShot} baked through `compileAttach`), so beat-end, per-frame render, and a chained coupling's parent read (#1140) all share the SAME composition (#674). Scale is not baked (rigid couplings never scale), so it stays identity.
  * @author Samchon
  */
 export const bakedTransformAt = (

@@ -27,33 +27,6 @@ import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotio
  * `pose.root`; other translations, scale, weights, cubic-spline tracks, corrupt
  * quaternions, and inferred mappings are refused rather than approximated.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-input-refusal Refuses incomplete, ambiguous, corrupt, or unrepresentable imported motion.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Validates the selected source basis and channels before producing an adopted motion.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-hard-failure Refuses the selected external clip without fabricating fallback motion when its identity, mapping, clock, or channel payload is invalid.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-external-hard-refusal Returns the exact unsupported source boundary as an error instead of substituting a placeholder clip or inferred mapping.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Uses the canonical sampler at every authored key time.
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-mapping-selection Applies only the explicit source mapping.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Produces clinical source motion for the declared retarget mapping without silent fallback.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Refuses source clips whose facts cannot survive clinical lowering.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Preserves one representable authored interpolation law.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-key-times Samples the sorted union of authored key times.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-loop-trim Carries the source clip loop declaration without inventing a trim.
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-sparse-channel-default Refuses missing mapped rotations instead of inventing sparse defaults.
- * @evidence requirements/motion/timing-and-semantic-events.md#motion-timing-refusal Refuses non-finite or non-increasing source key times instead of inferring a replacement clock.
- * @evidence requirements/motion/validation-and-determinism.md#motion-numeric-stability Rejects non-finite track values and invalid quaternions before canonical sampling.
- * @evidence requirements/external-inputs/adoption-modes-and-composition.md#external-adoption-native-reinterpretation Lowers explicitly mapped imported node rotations into project-native clinical joint channels without claiming the source clip was already native motion.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-elements-dependencies Preserves each selected source node identity in the explicit one-to-one bone mapping used by the lowering pass.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-time-units Retains the source duration, authored key seconds, and loop declaration while rejecting a non-finite or non-increasing clip clock.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-collision-ambiguity Refuses repeated source nodes, repeated target bones, missing nodes, and conflicting root-translation owners instead of selecting one by traversal order.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Validates clip structure, explicit mapping, skeleton membership, channel shape, finite values, and clinical interpretation before returning native motion.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps authored source seconds as the lowering clock.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-deterministic-sampling-validation Validates and samples the same immutable clip deterministically.
- * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-native-reinterpretation-boundary Records the explicit source-node to clinical-bone reinterpretation in the lowering input rather than inferring native semantics.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-element-dependency-identity Uses stable imported node identities as the source side of every derived clinical channel.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-time-sample-mapping Carries the selected clip's seconds, duration, key boundaries, and loop mode into the native motion clock without a cross-timebase guess.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-identity-ambiguity-refusal Rejects ambiguous element and channel ownership before any source value is reinterpreted.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-hard-refusal-predicate Produces no fallback motion when the explicit identity, mapping, clock, or representable channel boundary fails.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Applies structural clip and skeleton checks before the semantic node-to-bone and clinical-value lowering checks.
  * @author Samchon
  */
 export const importedNodeClipToAutoMovieMotion = (

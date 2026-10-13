@@ -36,8 +36,6 @@ const OTHER = new RegExp(
  * @evidence contracts/common.md#clear-and-simple-design One traversal shares a source-text memo and delegates path resolution and re-export ownership to their dedicated adapters.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Import clauses and real source reads decide dependencies; unrelated files or named subjects are never inserted to manipulate revision hashes.
  * @evidence contracts/common.md#meaningful-documentation States supported import forms, named versus whole-module reach, unreadable/external boundaries and stable ordering.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Collects supported static, named, dynamic-string and worker/asset import dependencies used to invalidate an inspection source generation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor A sorted source traversal and named-export ownership separate relevant edits from unrelated files without implementing canonical production frame identity.
  */
 export function collectHumanViewerImports(props: {
   entries: readonly string[];

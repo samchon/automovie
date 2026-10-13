@@ -14,49 +14,21 @@ import { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
  * Nothing here re-states geometry. The basin's extent is the architecture's
  * logical space, the lattice's extent is the domain's grid, and the engine
  * checks that the binding actually resolves rather than trusting a name.
- *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `IAutoMovieWaterFeature` as the portable data boundary for the interior fluid initial boundary record requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieWaterFeature` for the interior space water feature fluid domain system contract.
  */
 export interface IAutoMovieWaterFeature {
-  /**
-   * Stable feature identity within the production.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `id` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `id` for the interior space water feature fluid domain system contract.
-   */
+  /** Stable feature identity within the production. */
   id: string;
 
-  /**
-   * Id of the `IAutoMovieBuiltEnvironment` that owns the feature.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `environment` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `environment` for the interior space water feature fluid domain system contract.
-   */
+  /** Id of the `IAutoMovieBuiltEnvironment` that owns the feature. */
   environment: string;
 
-  /**
-   * Id of the logical space inside that environment acting as the basin.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `space` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `space` for the interior space water feature fluid domain system contract.
-   */
+  /** Id of the logical space inside that environment acting as the basin. */
   space: string;
 
-  /**
-   * Id of the independent fluid domain filling the basin.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `domain` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `domain` for the interior space water feature fluid domain system contract.
-   */
+  /** Id of the independent fluid domain filling the basin. */
   domain: string;
 
-  /**
-   * Semantic label; it selects nothing in the solver.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `kind` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `kind` for the interior space water feature fluid domain system contract.
-   */
+  /** Semantic label; it selects nothing in the solver. */
   kind: AutoMovieWaterFeatureKind;
 
   /**
@@ -67,9 +39,6 @@ export interface IAutoMovieWaterFeature {
    * - `flowing`: the simulated state, and the renderer is told to scroll ripples
    *   along the solved velocity field.
    * - `simulated`: the simulated state with no additional surface animation.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `mode` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `mode` for the interior space water feature fluid domain system contract.
    */
   mode: AutoMovieWaterFeatureMode;
 
@@ -77,9 +46,6 @@ export interface IAutoMovieWaterFeature {
    * Ids of the environment's boundaries forming the rim that retains the water,
    * such as the coping of a basin or the parapet of a roof pool. May be empty
    * for a feature retained by its own bed alone.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `boundaries` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `boundaries` for the interior space water feature fluid domain system contract.
    */
   boundaries: string[];
 
@@ -89,9 +55,6 @@ export interface IAutoMovieWaterFeature {
    * `null` is how "the renderer's own water" is spelled, so the id itself must
    * name something: a blank string is a citation of a material nobody can find,
    * and it is refused rather than read as the default.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `material` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `material` for the interior space water feature fluid domain system contract.
    */
   material: string | null;
 }

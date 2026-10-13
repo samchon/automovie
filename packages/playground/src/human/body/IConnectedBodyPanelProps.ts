@@ -12,8 +12,6 @@ import type { BodyPosePreset } from "./bodyPosePresets";
  * initial document and pose presets, the viewport factory, the head seat, the
  * off-thread solvers and the download sink.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Mounts the editor with its basis, starting document, presets, viewport, head and download sink.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Supplies the viewport factory and off-thread solvers the transactional editor drives.
  * @author Samchon
  */
 export interface IConnectedBodyPanelProps<Model> {

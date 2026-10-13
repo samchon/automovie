@@ -22,10 +22,6 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * ground, and without that datum there is no rise to state. Those are the three
  * ways a unit keeps the single height it used to have, and each is a fact about
  * what was authored rather than a fallback that guesses.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-layout-validation Computes the member-to-anchor terrain residual used to validate grounded slot placement and bounds.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Gives all formation consumers the same ground result, including explicit zero when the terrain datum is absent.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-layout-ground-validation Supplies the resolved terrain offset that layout validation compares with the member's grounded slot in the same placement snapshot.
  */
 export const formationGroundRelief = (
   formation: IAutoMovieFormationGrounding & {

@@ -35,8 +35,6 @@ import {
  * and only measures once it is in range, which is the order any other caller
  * follows too.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Prices the worst-case branch, leaf, and member work before derivation.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Supplies the bounded-work account of an interior planting.
  * @author Samchon
  */
 export const plantingBudget = (props: {

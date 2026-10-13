@@ -18,8 +18,6 @@ import { WindowsProcessOwnershipPrograms } from "./WindowsProcessOwnershipProgra
  * @evidence contracts/common.md#clear-and-simple-design Owns actual platform discovery and delegates result interpretation to cohesive pure decoders.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not infer process ownership by name, age, timeout or private SDK state.
  * @evidence contracts/common.md#meaningful-documentation States the admitted-selector precondition, platform transport and absence of granted termination authority.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Supplies actual process incarnation observations to the session's ownership controller.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Implements native creation discovery behind the controller's effect host.
  */
 export function readNativeProcessIdentity(pid: number): string | null {
   if (process.platform === "win32")

@@ -26,9 +26,6 @@ import { surfaceHeightAt } from "../space/surfaceHeightAt";
  * Lookups take the first record of a given id. Two buildings sharing one id is
  * a contradiction {@link validatePropPlacements} refuses by name, so resolving
  * it a second time here would report the same defect in a worse place.
- *
- * @evidence requirements/interior/furniture-fixtures-and-equipment.md#interior-object-anchor-support propAnchorFrame resolves the explicit world frame against which an authored placement relation is evaluated.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-furniture-fixture-equipment-placement propAnchorFrame realizes furnishing placement clearance: The world frame a placement relation anchors to, or `null` when it has none. This is the relative-transform half of placement: a source that wants twelve chairs around a table asks for the table's `stack-top` frame once and offsets from it in a loop, instead of typing twelve world positions that stop being right the moment the table moves. Regions have no frame, so a `space` target answers `null`; a `boundary` answers with its first realizing element and an `opening` with its filling element, because those are the only members of those records that carry a transform. Lookups take the first record of a given id. Two buildings sharing one id is a contradiction {@link validatePropPlacements} refuses by name, so resolving it a second time here would report the same defect in a worse place.
  */
 export const propAnchorFrame = (props: {
   target: IAutoMoviePropRelationTarget;

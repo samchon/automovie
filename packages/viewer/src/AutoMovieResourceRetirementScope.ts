@@ -15,8 +15,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/common.md#clear-and-simple-design One scope owns allocation admission, withdrawal and failed-retirement retention for both preview renderers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure remains explicit instead of retrying unknown native releases, guessing allocation state or ending borrowed contexts.
  * @evidence contracts/common.md#meaningful-documentation States registration timing, settlement, sticky failure and the physical lifetime boundary.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Retains failed resource ownership and rejects later settlement with its original causes.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Observes every pending retirement without silently treating a failed cleanup as restored state.
  */
 export class AutoMovieResourceRetirementScope {
   private closed = false;

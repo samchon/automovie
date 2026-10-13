@@ -7,9 +7,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * vertex the mesh does not carry, would otherwise read `undefined` and emit
  * `NaN` positions and a `NaN` volume that no downstream check attributes back
  * to the malformed input.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Refuses malformed mesh connectivity before geometry operations read it.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Admits whole XYZ and triangle runs and validates every referenced vertex identity.
  */
 export const triangleIndicesOf = (
   mesh: IAutoMovieMesh,

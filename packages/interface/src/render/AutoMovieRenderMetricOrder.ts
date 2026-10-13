@@ -5,9 +5,6 @@
  * as a tuple type and the engine derives its single runtime constant from it.
  * Report order is fixed so two reports of the same production diff line by
  * line.
- *
- * @evidence requirements/rendering/budgets.md#rendering-runtime-budget-enforcement Exposes `AutoMovieRenderMetricOrder` as the portable data boundary for the rendering runtime budget enforcement requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `AutoMovieRenderMetricOrder` for the spec render budget preflight system contract.
  */
 export type AutoMovieRenderMetricOrder = [
   "triangles",

@@ -9,8 +9,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * Removing a value removes its empty record and restores the owner's omitted
  * appearance; no default intensity is invented for an absent layer.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Offers each existing body skin-layer intensity as a person input rather than requiring document JSON editing.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Carries the independent skin layer paths and their documented dimensionless interval through the catalogue transaction.
  * @author Samchon
  */
 export function createConnectedPersonBodyAppearanceInputs(): IConnectedPersonInputDescriptor[] {

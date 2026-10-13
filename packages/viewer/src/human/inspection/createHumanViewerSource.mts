@@ -36,8 +36,6 @@ import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js
  * @evidence contracts/common.md#clear-and-simple-design One source owner supplies the paths, memo and graph to watching and catalogue publication.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cache authority follows actual inputs and imports rather than particular subjects or measurement outcomes.
  * @evidence contracts/common.md#meaningful-documentation Describes input ownership, refresh ordering and catalogue dependency.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Shared input and checked-source authority prevents a prepared inspection candidate from becoming the current document result under changed source.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Application-owned examples and one existing checked Node scope feed catalogue, numerical startup and browser admission without replacing domain construction or changing numerical-cache meaning.
  */
 export function createHumanViewerSource(
   directory: string,

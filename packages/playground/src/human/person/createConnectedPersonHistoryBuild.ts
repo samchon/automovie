@@ -12,10 +12,6 @@ import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
  * Refused frames retire before rejection, retaining the original admission
  * cause together with any resource-retirement failure.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Rebuilds history through the current person owner and rejects an unaccepted construction without replacing its committed history.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Gives synchronous history publication an already admitted model and awaits retirement only in its asynchronous builder.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Keeps the complete person's body and face document in the same history construction.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Uses the original person admission and disposes refused prepared frames before the history operation settles.
  * @author Samchon
  */
 export function createConnectedPersonHistoryBuild<

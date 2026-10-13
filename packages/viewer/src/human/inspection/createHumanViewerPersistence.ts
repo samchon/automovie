@@ -15,9 +15,6 @@ import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks
  * @evidence contracts/common.md#clear-and-simple-design One active controller and one pending job bound retained results and serialize writes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not alter geometry, admission, precision or cache identity.
  * @evidence contracts/common.md#meaningful-documentation States scheduling, memory bounds, cancellation and independent failure.
- *
- * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-cancelled-partial-results Distinguishes cancelled and failed optional cache writes from stored projections, retaining the preview's already completed outcome independently of persistence success.
- * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-cancelled-partial-result Distinguishes cancelled and failed optional cache writes from stored projections, retaining the preview's already completed outcome independently of persistence success.
  */
 export function createHumanViewerPersistence(
   report: (value: IHumanViewerNumericalPersistenceMessage) => void,

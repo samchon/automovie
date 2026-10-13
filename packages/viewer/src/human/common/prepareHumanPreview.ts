@@ -12,9 +12,6 @@ import { createHairCardShadowMaterial } from "./createHairCardShadowMaterial.js"
  * Resident textures use the supplied device anisotropy limit, capped at 16.
  * Zero denotes an unsupported device and falls back to isotropic filtering.
  * This preview sampler policy does not change exported texture or model bytes.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under orbiting view and shadowed material display.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Applies device-bounded texture sampling and shadow policy without changing the saved anatomical document.
  */
 export function prepareHumanPreview(
   group: THREE.Group,

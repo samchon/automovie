@@ -15,11 +15,6 @@ import type {IAutoMovieRendererEnvironmentHandle} from "./IAutoMovieRendererEnvi
  * own curve, exposure and shadow policy exactly as it found them: a caller that
  * knows no delivery curve states none rather than imposing `none`, which is how
  * a pre-environment production keeps rendering what it always rendered.
- *
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-display-transform Applies the one effective tone-mapping and exposure state for a beauty pass.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-effective-ownership Implements single-owner display transformation while structural passes bypass it.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Applies the scene's declared shadow enablement and supported map type.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Implements that resolved shadow state at the render boundary.
  */
 export const applyRendererEnvironment = (
   renderer: THREE.WebGLRenderer,

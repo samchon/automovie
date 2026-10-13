@@ -13,12 +13,10 @@ import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/Connect
 import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
-/** Keep native event callbacks and termination inside the browser adapter.
+/**
+ * Keep native event callbacks and termination inside the browser adapter.
  *
  * Progress is telemetry and does not establish either completion or failure.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Settles failed and unreadable body worker requests so the last valid edit remains visible.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Correlates browser worker replies and retires an explicitly failed connection before recovery.
  */
 export function createConnectedBodyPort(
   worker: Pick<

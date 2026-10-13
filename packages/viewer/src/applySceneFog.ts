@@ -23,9 +23,6 @@ import * as THREE from "three";
  * Absent or `null` clears `scene.fog`, which is `three.js`'s own "no fog":
  * every material compiles without `USE_FOG` and the frame is byte-identical to
  * one rendered before the field existed.
- *
- * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-time-sampling Applies the resolved fog state sampled with the scene's light, material, and camera state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Materializes that sampled environment attenuation without inventing weather or atmosphere state.
  */
 export const applySceneFog = (
   scene: THREE.Scene,

@@ -1,9 +1,6 @@
 import type { AutoMovieContentDigest } from "@automovie/interface";
 
-/**
- * Package-owned encoder identity fenced into every chunk.
- * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-encoding-tool-identity Records the encoder identity beside every encoded deliverable so output from a different tool is re-verified instead of trusted by command text.
- */
+/** Package-owned encoder identity fenced into every chunk. */
 export interface IAutoMovieProductionEncoderIdentity {
   /**
    * Exact installed package name.

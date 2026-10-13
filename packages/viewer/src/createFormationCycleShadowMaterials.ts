@@ -15,9 +15,6 @@ import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
  * The uniform cells and instance attributes remain the same ones beauty reads.
  * Repeated palette references share that identity, and temporary structural
  * overrides do not create new identities in the tier's program cache.
- *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Both punctual shadow projections share beauty's cycle table, advance and turn cells.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling The supported custom depth and distance materials sample the same deformed caster and preserve per-group shadow features.
  */
 export const createFormationCycleShadowMaterials = (
   cycle: IAutoMovieFormationCycle,

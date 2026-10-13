@@ -3,8 +3,6 @@
  * The strongest original endpoints retain their multiplier authority; weaker
  * copies remain in the original admission and final residual population.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves every original affine condition through an equivalent interval intersection.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Records the original endpoint owners needed to restore signed duals and recheck all original rows.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementInterval {

@@ -9,9 +9,6 @@ import type { IAutoMovieCompiledShotSource } from "@automovie/interface";
  * metadata; it does not decide completion. Callers separately authenticate
  * the selected owner, source bytes, and current physical observations.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Admits completed evidence edges and the compatible review declaration while refusing incomplete or unenforced stages.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Uses the graph's enforced evidence-or-review completion state for runtime owner admission.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Gives execution and publication one completion condition without replacing exact source ownership and digest checks.
  * @author Samchon
  */
 export const isAutoMovieSourceOwnerBindingComplete = (
@@ -28,8 +25,6 @@ export const isAutoMovieSourceOwnerBindingComplete = (
  * leaves every sibling's own source digest in the compiled attribution. It
  * neither executes acceptance exports nor supplies a physical verdict.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Attributes acceptance exports to the same exact authored target as their executed shot without making them runtime builders.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries completed sibling source edges and their digests into derived shot acceptance attribution.
  * @author Samchon
  */
 export const selectAutoMovieShotAcceptanceSources = (props: {
@@ -65,8 +60,6 @@ export const selectAutoMovieShotAcceptanceSources = (props: {
  * It preserves every materialized field and never mutates either input. Review
  * and final admission remain the resolver's responsibility.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Carries the authenticated entry and completed sibling exports into the actual compiled shot consumed by render and acceptance services.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Composes exact source paths, export names, source digests and authored targets with the materialized shot while preserving legacy absence.
  * @author Samchon
  */
 export const attributeAutoMovieCompiledShotSource = (props: {
@@ -99,9 +92,6 @@ export const attributeAutoMovieCompiledShotSource = (props: {
  * population, and the source digest is checked against the bytes about to run.
  * Review and final callers additionally require a completed enforced edge.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Binds execution and result attribution to the exact completed source export and refuses a stale or mismatched owner edge.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Preserves the exact source and authored-target edge that compilation admits and derived output carries.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Resolves target, source path, export, and source digest as one current identity and fails closed when it is absent, ambiguous, stale, mismatched, or incomplete.
  * @author Samchon
  */
 export const resolveAutoMovieSourceOwnerBinding = (props: {

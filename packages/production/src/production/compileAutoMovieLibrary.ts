@@ -53,9 +53,6 @@ import type { readAutoMovieLibraryDerivedInputs } from "./readAutoMovieLibraryDe
  * final gates require every selected owner. All results use the same acquired
  * source/content identity, and publication reacquires it through the live reader
  * before the authority can commit. Without that reader the guard refuses.
- *
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Confirms or publishes the complete library attempt with its exact acquired revision and reacquired source/content guard.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Keeps library scope, diagnostics and publication tied to one acquired input closure without introducing film obligations.
  */
 export const compileAutoMovieLibrary = (props: {
   /** Namespace, input reader and existing guarded publication authority. */

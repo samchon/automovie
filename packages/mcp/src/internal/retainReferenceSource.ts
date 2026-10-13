@@ -7,9 +7,6 @@ type Interval = ParsedReference["annotations"][number];
  * intervals. Parser heading labels and content reads use the same lossless
  * slices; no non-comment character is regenerated or normalized. The caller
  * supplies original UTF-16 offsets from that snapshot.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-source Retains every original non-comment character in the requested source interval.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-source Returns ordered retained and omitted original intervals without rewriting source text.
  */
 export function retainReferenceSource(
   source: string,

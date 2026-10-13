@@ -1,8 +1,6 @@
 /**
  * Solve a person's head channels for head measurement targets.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Requests a head solved for measured targets.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Carries the person document and the targets in metres, by measurement name.
  * @author Samchon
  */
 export interface IConnectedPersonHeadSolveMessage {

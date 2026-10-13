@@ -13,10 +13,6 @@ import { replaceHumanBuildFile } from './replaceHumanBuildFile.mjs';
  *
  * @param {string} directory Physical owning package directory.
  * @returns {import('./IHumanBuildFileHost').IHumanBuildFileHost}
- *
- * @evidence contracts/common.md#principled-implementation Complete byte inventories and exclusive sibling files preserve staged output and the backup independently of watched directory handles.
- * @evidence contracts/common.md#clear-and-simple-design This adapter owns native containment and file operations while synchronization owns replacement order and membership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Linked paths refuse instead of extending the mutation boundary, and cleanup failures accompany rather than hide native publication failures.
  */
 export function createHumanBuildFileHost(directory) {
   const inside = (candidate) => {

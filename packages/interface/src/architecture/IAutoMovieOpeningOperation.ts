@@ -21,40 +21,17 @@ import { IAutoMovieOperationState } from "./IAutoMovieOperationState";
  * An opening that declares an operation must name the element the panels belong
  * to in {@link IAutoMovieBuiltOpening.fill}: a moving leaf that fills nothing is
  * a leaf nobody can point at.
- *
- * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state Exposes `IAutoMovieOpeningOperation` as the portable data boundary for the interior opening operable state requirement.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `IAutoMovieOpeningOperation` for the interior space host opening operation system contract.
  */
 export interface IAutoMovieOpeningOperation {
-  /**
-   * Travelling leaves, sashes, or slats; at least one.
-   *
-   * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state Exposes `panels` as the portable data boundary for the interior opening operable state requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `panels` for the interior space host opening operation system contract.
-   */
+  /** Travelling leaves, sashes, or slats; at least one. */
   panels: IAutoMovieMovablePanel[];
 
-  /**
-   * Named states; at least one, and each gives every panel a value.
-   *
-   * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state Exposes `states` as the portable data boundary for the interior opening operable state requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `states` for the interior space host opening operation system contract.
-   */
+  /** Named states; at least one, and each gives every panel a value. */
   states: IAutoMovieOperationState[];
 
-  /**
-   * The state the design currently stands in; names one of {@link states}.
-   *
-   * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state Exposes `state` as the portable data boundary for the interior opening operable state requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `state` for the interior space host opening operation system contract.
-   */
+  /** The state the design currently stands in; names one of {@link states}. */
   state: string;
 
-  /**
-   * Fixed members the opening carries, such as a frame, hinge, or handle.
-   *
-   * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-operable-state Exposes `hardware` as the portable data boundary for the interior opening operable state requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation Types `hardware` for the interior space host opening operation system contract.
-   */
+  /** Fixed members the opening carries, such as a frame, hinge, or handle. */
   hardware: IAutoMovieOpeningHardware[];
 }

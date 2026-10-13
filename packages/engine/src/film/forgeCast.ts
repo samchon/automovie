@@ -22,11 +22,6 @@ import { IAutoMovieForgedCast } from "./IAutoMovieForgedCast";
  * skeleton graph (its violations are remapped onto the entry's path). Forge
  * adds only the performer-specific rule that generated stand-ins must have a
  * skeleton at all; boneless models are props, not castable actors.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-rig-validation forgeCast admits generated performers only after their cast joins, model structure, skeleton, and motion-bearing rig contract all validate.
- * @evidence requirements/story/dramatic-characters-goals-and-relations.md#story-character-actor-binding Requires each forged performer model id to equal one authored cast-node binding, rejects strangers, duplicates, and imported-model members, and refuses a missing stand-in.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-motion-transitions forgeCast realizes rig validation for motion transitions: The FORGE consumer: accept the stand-in rigs the forge stage built for the script's `modelRef: null` cast members, and gate them on both contracts: The **casting contract**: exactly one entry per stand-in cast member (a missing rig is an actor with no body; a rig for an imported-`modelRef` member or for a stranger contradicts the script), and each entry's model `id` must equal its cast `node`. That id is the join the staged scene's `modelRef ?? node` fallback resolves against. The **rig contract**: `validateModel` covers parts/materials/extents and the skeleton graph (its violations are remapped onto the entry's path). Forge adds only the performer-specific rule that generated stand-ins must have a skeleton at all; boneless models are props, not castable actors.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Preserves one explicit story-cast-node to forged actor-representation binding and reports missing or conflicting bindings instead of choosing a substitute.
  */
 export const forgeCast = (
   script: IAutoMovieScript,

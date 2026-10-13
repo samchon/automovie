@@ -43,11 +43,6 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * dangling parents are rejected downstream by `composeScene`'s index guard.
  * This bridge does not duplicate that gate.
  *
- * @evidence requirements/map/scope-and-coordinates.md#map-host-scene-placement Lowers each staged placement into an explicit host-scene relation.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Retains the placement, model, prop, camera, and light identities that own every lowered scene node.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-refusal Rejects a missing model binding or contradictory model-and-prop registration instead of silently omitting the declared subtree.
- * @evidence specifications/world-and-site/spatial-reference-and-identity.md#world-site-host-placement-failure Rejects a placement whose declared model binding cannot resolve.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Builds the explicit rest-structure graph that runtime sampling updates without mutating the authored scene record.
  * @author Samchon
  */
 export const sceneToNodes = (props: {

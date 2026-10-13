@@ -13,8 +13,6 @@ import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIden
  * report would read as fresh. A host that answered but withheld a field is a
  * different case and keeps the `unknown` the target contract documents.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `autoMovieRenderTargetRendererOfGraphics` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `autoMovieRenderTargetRendererOfGraphics` exposes that responsibility through the package-independent system contract.
  * @author Samchon
  */
 export const autoMovieRenderTargetRendererOfGraphics = (

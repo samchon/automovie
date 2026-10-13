@@ -1,11 +1,6 @@
 import path from "node:path";
 
-/**
- * Normalize a local or remote route before checking its resident target.
- *
- * @evidence requirements/agent-authoring/capability-discovery.md#agent-topic-document-discovery Decodes one instruction destination, retains supported HTTP references and refuses local routes that escape the candidate project root.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-input-output Decodes one instruction destination, retains supported HTTP references and refuses local routes that escape the candidate project root.
- */
+/** Normalize a local or remote route before checking its resident target. */
 export const resolveInstructionRoute = (
   source: string,
   destination: string,

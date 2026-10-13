@@ -18,9 +18,6 @@ import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHiera
  * by original ordinal, matching terminating legacy walks without key aliases.
  * Equal infinite keys use the same ordinal tie and are never incremented.
  * No triangle predicate, coordinate or contact allowance is changed.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies reusable finite candidate traversal for resident geometry without absolute cell loops or geometry changes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves enclosing-box candidate populations and original-ordinal witness order while leaving geometry classification with its owner.
  */
 export function collectAutoMovieSpatialQueryCandidates<
   T extends IAutoMovieSpatialQueryEntry,

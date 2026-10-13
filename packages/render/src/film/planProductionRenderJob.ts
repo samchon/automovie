@@ -29,18 +29,7 @@ import { normalizeRenderTier } from "./normalizeRenderTier";
 import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat";
 import { validDigest } from "./validDigest";
 
-/**
- * Build content-addressed chunks from the builder-owned film edit.
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Converts each cue declared source duration onto the asset own sample clock and refuses an asset whose sample count or duration disagrees, so a planned cue source boundary is an exact sample count rather than a rounded second. The delivered priming, tail and presentation boundary is verified by the Opus profile assertion against the encoded bytes.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-chunk-partition Partitions the exact frame schedule into non-overlapping content-addressed chunks whose identity does not depend on chunk size or worker count.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-boundary-convention Reads the compiled edit's start-inclusive, end-exclusive frame ranges with exact integer arithmetic rather than rounding a duration by frame rate.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-schedule-refusal Refuses an invalid rate, an empty range or an unrepresentable frame count before any chunk is scheduled.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-timecode-sync Carries the exact rational picture rate and the stream timebases as separate plan fields and never recomputes a duration from a decimal rate.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-number-time Maps every output frame number of a tier to exactly one full-rate timeline frame and one exact time, so a proxy numbering has no duplicate, gap or off-by-one.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-subrange-stability Slices every chunk from one global frame schedule, so a chunk or a retry carries exactly the frames a full render would.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Declares the one timeline frame per output frame at which capture resolves every shot layer and film effect.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Generates the ordered frame set from the exact rational clock and slices chunks from it, so subrange and full execution share each global frame's state.
- */
+/** Build content-addressed chunks from the builder-owned film edit. */
 export const planProductionRenderJob = (props: {
   timeline: IAutoMovieFilmTimeline;
   effects: readonly IAutoMovieCompiledFilmEffect[];

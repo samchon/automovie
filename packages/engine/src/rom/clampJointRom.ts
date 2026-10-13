@@ -30,8 +30,6 @@ const clampAxis = (
  * just as a physics hinge refuses the disallowed degrees of freedom. A `null`
  * angle (axis left at rest) stays `null`.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Projects one joint into its declared effective ROM.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Enforces the validator's effective ROM graph during projection.
  * @author Samchon
  */
 export const clampJointRom = (

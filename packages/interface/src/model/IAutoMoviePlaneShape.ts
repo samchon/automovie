@@ -1,31 +1,11 @@
-/**
- * Flat rectangle in the local XZ plane.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMoviePlaneShape` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMoviePlaneShape` for the asset spec geometry inputs system contract.
- */
+/** Flat rectangle in the local XZ plane. */
 export interface IAutoMoviePlaneShape {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `type` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
-   */
+  /** Discriminator. */
   type: "plane";
 
-  /**
-   * Size along local X, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `width` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `width` for the asset spec geometry inputs system contract.
-   */
+  /** Size along local X, meters. */
   width: number;
 
-  /**
-   * Size along local Z, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `depth` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `depth` for the asset spec geometry inputs system contract.
-   */
+  /** Size along local Z, meters. */
   depth: number;
 }

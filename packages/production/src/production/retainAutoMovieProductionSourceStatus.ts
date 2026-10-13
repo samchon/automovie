@@ -38,13 +38,6 @@ import { canonicalizeAutoMovieJson } from "./contentIdentity";
  * that changed and changed back while the gate ran is the one race this cannot
  * see, which is the same limit as the builder's own before-and-after
  * publication guard.
- *
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-dependency-based-current-status Keeps a gate answer current only while every source, document and owned-output digest it depended on, and the revision when it read one, is unchanged, and runs the gate again when any of them moves.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-dependency-based-freshness Compares the stored observation with a freshly read one field by field, and never treats a prior success alone as current.
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-narrowest-valid-check Lets repeated capture, receipt and publication checks confirm unchanged inputs without executing authored source at every boundary.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Reuses a gate answer only while its referenced snapshot equals the current one and its own validation succeeded.
- * @evidence requirements/agent-authoring/partial-work.md#agent-atomic-compilation Never lets an earlier success answer for inputs that no longer pass, so a check never publishes over a structured failure.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-atomic-invariant Makes every guarded boundary compare a freshly read snapshot and re-derive the answer when it differs.
  */
 export const retainAutoMovieProductionSourceStatus = (props: {
   /**

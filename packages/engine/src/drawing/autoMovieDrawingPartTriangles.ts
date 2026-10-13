@@ -17,9 +17,6 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * Malformed arrays throw: a triangle list that is not a multiple of three is an
  * authoring defect, and drawing whatever prefix happens to divide evenly would
  * hide it behind a plausible-looking outline.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Extracts the actual triangles of one model part so its drawing linework comes from the same authored geometry as the staged object.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Tessellates primitives or reads mesh indices, rejects malformed arrays, and applies the part-local transform to every resulting facet.
  */
 export const autoMovieDrawingPartTriangles = (
   model: IAutoMovieModel,

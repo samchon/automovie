@@ -35,10 +35,6 @@ const UNIT_QUATERNION_EPSILON = 1e-6;
  * refuses such a population outright, so this throws only for a caller handing
  * over a world set directly.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group `builtInstanceSetPlacementBounds` measures where a compact population stands so the space owning it can answer for it.
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds `builtInstanceSetPlacementBounds` keeps the authored prototype-local box distinct from the world-space result derived after slot placement, rotation, and scale.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality `builtInstanceSetPlacementBounds` derives the population's extent from the stored count, seed, and layout the specification allows compression to keep.
- * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-inputs `builtInstanceSetPlacementBounds` consumes an explicit model-local bound and returns the corresponding deterministic world-space placement bound.
  * @author Samchon
  */
 export const builtInstanceSetPlacementBounds = (

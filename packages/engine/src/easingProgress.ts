@@ -7,9 +7,6 @@ import { IAutoMovieFormationMotion } from "@automovie/interface";
  * same `easing` names and must bend them identically. Two spellings of one
  * curve is how a member and the unit it stands in come to disagree about where
  * they are halfway through the same second.
- *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Evaluates every declared formation easing curve as a pure function of normalized progress.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Shares one curve implementation between unit motion and per-member channels.
  */
 export const easingProgress = (
   easing: IAutoMovieFormationMotion["easing"],

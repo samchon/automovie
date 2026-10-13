@@ -1,16 +1,8 @@
 /**
  * One authored timeline cue lowered into the deterministic procedural score.
- *
- * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `IAutoMovieProductionSoundCue` as the portable data boundary for the sound cue sample boundary requirement.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `IAutoMovieProductionSoundCue` for the sound cue sample boundary and arrival system contract.
  */
 export interface IAutoMovieProductionSoundCue {
-  /**
-   * Exact authored cue id.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `id` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `id` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Exact authored cue id. */
   id: string;
 
   /**
@@ -22,34 +14,16 @@ export interface IAutoMovieProductionSoundCue {
    * play. A caller decodes the asset and hands the samples in, exactly as it
    * already does for synthesized dialogue, so decoding stays outside the
    * deterministic mix and the mix stays a pure function of what it is given.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `asset` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `asset` for the sound cue sample boundary and arrival system contract.
    */
   asset: string;
 
-  /**
-   * Film-global inclusive start frame.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `startFrame` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `startFrame` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Film-global inclusive start frame. */
   startFrame: number;
 
-  /**
-   * Exact cue duration in film frames.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `durationFrames` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `durationFrames` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Exact cue duration in film frames. */
   durationFrames: number;
 
-  /**
-   * Source-asset frame at which this edit begins.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `sourceOffsetFrame` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `sourceOffsetFrame` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Source-asset frame at which this edit begins. */
   sourceOffsetFrame: number;
 
   /**
@@ -60,49 +34,21 @@ export interface IAutoMovieProductionSoundCue {
    * `durationFrames` frames from `sourceOffsetFrame` at unit rate, and
    * `sourceOffsetFrame + durationFrames` may not exceed this value. Planning
    * verifies it against the decoded asset's own sample count.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `sourceDurationFrames` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `sourceDurationFrames` for the sound cue sample boundary and arrival system contract.
    */
   sourceDurationFrames: number;
 
-  /**
-   * Authored linear gain.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `gain` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `gain` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Authored linear gain. */
   gain: number;
 
-  /**
-   * Exact fade-in duration in film frames.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `fadeInFrames` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `fadeInFrames` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Exact fade-in duration in film frames. */
   fadeInFrames: number;
 
-  /**
-   * Exact fade-out duration in film frames.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `fadeOutFrames` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `fadeOutFrames` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Exact fade-out duration in film frames. */
   fadeOutFrames: number;
 
-  /**
-   * Compiler-owned mix bus.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `bus` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `bus` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Compiler-owned mix bus. */
   bus: "dialogue" | "music" | "effects" | "ambience";
 
-  /**
-   * Stable unsigned 32-bit procedural seed.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-cue-sample-boundary Exposes `seed` as the portable data boundary for the sound cue sample boundary requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Types `seed` for the sound cue sample boundary and arrival system contract.
-   */
+  /** Stable unsigned 32-bit procedural seed. */
   seed: number;
 }

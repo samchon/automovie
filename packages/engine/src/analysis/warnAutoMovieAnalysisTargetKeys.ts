@@ -20,9 +20,6 @@ import {
  * `keys` is the whole set the study reports, which for a solver that emits more
  * than one run is the union across them: a moisture target is not unmatched
  * merely because the thermal run has no such metric.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `warnAutoMovieAnalysisTargetKeys` exposes declared thresholds that no reported metric actually checks.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The pass compares target keys with the union of emitted metric keys and appends stable unmatched-target warnings.
  */
 export const warnAutoMovieAnalysisTargetKeys = (props: {
   /** Targets the production declared, already checked. */

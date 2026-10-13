@@ -20,9 +20,6 @@ import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * shot yet and are supplied by the caller, which is why they are separate
  * arguments rather than silently defaulted to empty inside a report that would
  * then read as complete.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Combines staged nodes, models, instances, simulated drawables, and texture facts into the inventory's measurement boundary.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Prevents mask and budget preflight from assembling different drawable closures for the same compiled shot.
  */
 export const autoMovieRenderSubjectOfShot = (props: {
   /** Fully builder-owned shot artifact. */

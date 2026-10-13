@@ -14,8 +14,6 @@ import type { IAutoMovieMeshSeparationVerdict } from "./IAutoMovieMeshSeparation
  * ending at the first refuting triangle. Both spend the shared budget before
  * each unit of work they actually perform.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Offers composable resident geometry both a complete separation measurement and a decision-only query over one compiled snapshot.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Qualifies complete-feature clearance against original resident triangles in either operation.
  * @author Samchon
  */
 export interface IAutoMovieMeshSeparationQuery {
@@ -29,9 +27,6 @@ export interface IAutoMovieMeshSeparationQuery {
    * Decide whether one feature is separated by the requested clearance,
    * stopping at the first refuting triangle. Its `certified` equals the full
    * measurement's for the same feature and options.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Decides a composable feature's clearance without completing work that cannot change the decision.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Applies the same complete-feature qualification and names the first refuting original triangle.
    */
   separated(
     vertices: readonly IAutoMovieVector3[],

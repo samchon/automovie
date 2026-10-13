@@ -11,41 +11,18 @@ import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument.
  * @evidence contracts/common.md#clear-and-simple-design Reference-only name and basis fields extend the existing subject projection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The neutral reference uses empty channel maps rather than a hardcoded fitted likeness.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The reference document shares subject identity while declaring its actual basis and numerical shape and expression channels.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The neutral reference uses empty channel maps rather than a hardcoded fitted likeness.
- *
  * @author Samchon
  */
 export interface IHumanViewerReferenceFaceDocument extends IHumanViewerSubjectDocument {
-  /**
-   * Display name.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Preserves the application reference's display label separately from its inherited stable subject id.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Preserves the application reference's display label separately from its inherited stable subject id.
-   */
+  /** Display name. */
   name: string;
 
-  /**
-   * The face basis id it is built on.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Names the exact selected Face basis the supplied reference document is replayed on.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Names the exact selected Face basis the supplied reference document is replayed on.
-   */
+  /** The face basis id it is built on. */
   basis: string;
 
-  /**
-   * Shape channels, empty for the reference.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Retains caller-supplied numerical shape channels, empty for the neutral reference rather than a fitted specimen.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains caller-supplied numerical shape channels, empty for the neutral reference rather than a fitted specimen.
-   */
+  /** Shape channels, empty for the reference. */
   shape: Record<string, number>;
 
-  /**
-   * Expression channels, empty for the reference.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Keeps numerical expression channels separate from reference identity, empty for its neutral state.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Keeps numerical expression channels separate from reference identity, empty for its neutral state.
-   */
+  /** Expression channels, empty for the reference. */
   expression: Record<string, number>;
 }

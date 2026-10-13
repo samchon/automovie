@@ -12,8 +12,6 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reuses only the original identity's promise and removes failed ownership; it never substitutes an estimated model or automatically replays failed work.
  * @evidence contracts/common.md#meaningful-documentation States single-basis retention, explicit-request recovery and the late-rejection ownership rule.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Shares a pending numerical runtime for one basis identity and removes only the same promise when its load rejects.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Replacing a basis clears the map entry, while late failure cannot erase the new promise; the helper declares no explicit resource-disposal operation.
  * @author Samchon
  */
 export function humanViewerResidentRuntime<T>(

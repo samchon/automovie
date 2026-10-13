@@ -7,8 +7,6 @@ import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
  * The simple tier and the detailed measurement inverse, solved off the page's
  * thread.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Names the simple-tier expansion, projection and measurement inverse the editor calls.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Types each inversion as an asynchronous off-thread request that can fail without losing the last valid state.
  * @author Samchon
  */
 export interface IConnectedBodySimpleSolvers {

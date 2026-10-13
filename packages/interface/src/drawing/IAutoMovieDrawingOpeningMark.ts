@@ -15,49 +15,22 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * door's size and not the hole's. `none` is the design declining to answer, and
  * the mark then carries no geometry at all rather than a zero-sized one.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingOpeningMark` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingOpeningMark` for the interior space drawing schedule quantity system contract.
  * @author Samchon
  */
 export interface IAutoMovieDrawingOpeningMark {
-  /**
-   * Opening identity, matching the design's own opening id.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `opening` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `opening` for the interior space drawing schedule quantity system contract.
-   */
+  /** Opening identity, matching the design's own opening id. */
   opening: string;
 
-  /**
-   * Boundary the opening is cut through.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `boundary` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `boundary` for the interior space drawing schedule quantity system contract.
-   */
+  /** Boundary the opening is cut through. */
   boundary: string;
 
-  /**
-   * Opening kind, such as `door`, `window`, `arch` or `passage`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `kind` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Opening kind, such as `door`, `window`, `arch` or `passage`. */
   kind: string;
 
-  /**
-   * Filling element id, or `null` for an open cut.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `fill` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `fill` for the interior space drawing schedule quantity system contract.
-   */
+  /** Filling element id, or `null` for an open cut. */
   fill: string | null;
 
-  /**
-   * Where the geometry below came from.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `basis` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `basis` for the interior space drawing schedule quantity system contract.
-   */
+  /** Where the geometry below came from. */
   basis: AutoMovieDrawingOpeningBasis;
 
   /**
@@ -71,9 +44,6 @@ export interface IAutoMovieDrawingOpeningMark {
    * Arc edges are drafted as chords at a fixed density, which is what vector
    * linework is; the dimensions below are computed from the arcs themselves and
    * never from these chords.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `polygon` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `polygon` for the interior space drawing schedule quantity system contract.
    */
   polygon: IAutoMovieDrawingPoint[];
 
@@ -84,17 +54,9 @@ export interface IAutoMovieDrawingOpeningMark {
    * A `profile` mark measures the void; a `fill` mark measures the leaf that
    * stands in one. Reading either as the other is the mistake {@link basis}
    * exists to prevent, so neither is called the void's size here.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `width` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `width` for the interior space drawing schedule quantity system contract.
    */
   width: number | null;
 
-  /**
-   * Height in metres of the same thing, or `null` when `basis` is `none`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `height` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `height` for the interior space drawing schedule quantity system contract.
-   */
+  /** Height in metres of the same thing, or `null` when `basis` is `none`. */
   height: number | null;
 }

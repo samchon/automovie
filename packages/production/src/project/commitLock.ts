@@ -210,9 +210,6 @@ const reclaimCommitLock = (lockPath: string, token: string): void => {
 /**
  * Take the commit lock, returning the owner token to pass to
  * {@link releaseCommitLock}. Throws after ~2 s if the lock never frees.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Reclaims only an unchanged lock whose local owner is proved absent twice.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-stale-claim-recovery Keeps malformed, remote-host, occupied-or-reused, and unavailable owner observations fail-closed.
  */
 export const acquireCommitLock = (lockPath: string): string => {
   const current = held.get(lockPath);
@@ -276,9 +273,6 @@ export const acquireCommitLock = (lockPath: string): string => {
  * removed the complete lock namespace; this invalidates every matching nesting
  * level and always returns without resident-path I/O because none can still own
  * the deleted physical lock.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Removes only a lock that still carries this session's token, so no release ever takes another owner's claim away.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-fencing-late-writer Verifies the exact file identity again after quarantine so a successor written between the read and the move is restored, never deleted.
  */
 export const releaseCommitLock = (
   lockPath: string,
@@ -335,12 +329,7 @@ export const releaseCommitLock = (
   }
 };
 
-/**
- * What a lock file records about the session that took it.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Records the complete local process generation and acquisition time behind the claim.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Makes PID reuse distinguishable from exact same-process ownership.
- */
+/** What a lock file records about the session that took it. */
 export interface IAutoMovieCommitLockOwner extends IAutoMovieLocalProcessOwner {
   /**
    * Host the owner ran on.
@@ -364,9 +353,6 @@ export interface IAutoMovieCommitLockOwner extends IAutoMovieLocalProcessOwner {
  * this host's process table answers a question about a different host.
  * `unknown` is a lock this version cannot read, including one written by an
  * older build, and it is refused like every other unproven case.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Separates affirmative absence from every state that cannot authorize takeover.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-stale-claim-recovery Preserves generation-aware recovery observations without collapsing them to PID liveness.
  */
 export type AutoMovieCommitLockOwnerState =
   | "same-owner"
@@ -383,9 +369,6 @@ export type AutoMovieCommitLockOwnerState =
  * cannot read is exactly the `unknown` case, and every other state was reached
  * by reading one. Stating that in the type is what keeps a reader from writing
  * a branch that cannot run.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Makes the observed owner and its recovery-authorizing state queryable.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Returns a typed, sanitized owner observation for operator diagnostics.
  */
 export type IAutoMovieCommitLockHolder =
   | {
@@ -528,9 +511,6 @@ const inspectCommitLockSnapshot = (
  * it is standing behind. Clearing the one lock an error happens to name does
  * not clear the condition when a single dead session left three, and a caller
  * that learns them one refusal at a time pays a full timeout for each.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Exposes the full owner generation and observation behind a commit refusal.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Keeps absent storage distinct from unreadable or malformed claim state.
  */
 export const inspectCommitLock = (
   lockPath: string,

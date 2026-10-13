@@ -18,9 +18,6 @@ import { materialOverlayFragment } from "./materialOverlayFragment.js";
  * does. An overlay with a
  * normal map on a material without one gives the material a flat normal map,
  * so the tangent frame it bends exists.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves a material's surface overlays into the declared render material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the overlay composite at the render boundary.
  */
 export const applyMaterialOverlays = (
   material: THREE.MeshPhysicalMaterial,

@@ -22,8 +22,6 @@ const BULGE_EPSILON = 1e-12;
  * bounding hull instead, so the size a schedule prints is the size the wall
  * kernel cuts.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Produces the ordered opening boundary used to draft the void and measure its scheduled size from the same authored profile.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Expands each nonzero bulge through the fixed arc step while preserving straight segments and a single copy of every shared vertex.
  * @author Samchon
  */
 export const autoMovieOpeningOutlinePoints = (

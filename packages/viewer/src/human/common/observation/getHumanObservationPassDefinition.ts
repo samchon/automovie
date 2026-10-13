@@ -65,9 +65,6 @@ const DEFINITIONS: Record<
  * Resolve the shared diagnostic meaning and actual Three material parameters.
  * `flat` retains its historical lit grey faceted rendering; `albedo` explicitly
  * asks for authored base colour without illumination or tone mapping.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Distinguishes material readings from geometric observations in face review.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Keeps the material parameters and their observation limits on one current-source owner.
  */
 export function getHumanObservationPassDefinition(
   pass: HumanObservationPass,

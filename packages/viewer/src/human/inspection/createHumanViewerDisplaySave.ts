@@ -16,8 +16,6 @@ import { readHumanViewerCameraAddress } from "./readHumanViewerCameraAddress.js"
  * @evidence contracts/common.md#clear-and-simple-design One adapter reuses the shared encoder and existing reference compositor without duplicating queues or writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Observes the original native viewport without SDK changes, artificial pixels or time-based admission.
  * @evidence contracts/common.md#meaningful-documentation Defines completion, composition and commitment ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Preserves actual inspection pixels with observed source/view and separate requests.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Reuses bounded encoding and the maintained compositor without granting anatomical acceptance.
  */
 export function createHumanViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;

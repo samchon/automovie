@@ -67,8 +67,6 @@ const SPAN_EPSILON = 1e-9;
  * Returns `null` for a degenerate chain: a zero-length segment, a target
  * coincident with the chain root, or a hinge that cannot articulate the span.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Searches the declared hinge's reachable shell for an exact endpoint pose.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Returns the deterministic outcome of the legal-first bounded articulation search.
  * @author Samchon
  */
 export const hingedArmArticulation = (props: {

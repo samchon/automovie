@@ -44,8 +44,6 @@ const PARALLEL_SINE = 1e-6;
  * are missing entirely (that is {@link reachPose}'s own "no measurable arm"
  * answer, a different fact from a rig whose elbow cannot bend).
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Rejects a two-bone chain whose declared hinge cannot displace its endpoint.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Refuses a chain whose hinge axis cannot move its endpoint.
  * @author Samchon
  */
 export const armChainFault = (

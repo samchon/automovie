@@ -6,8 +6,6 @@ import type { IAutoMovieReferenceReader } from "./structures/IAutoMovieReference
 /**
  * The local command's injected read and output capabilities.
  *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Keeps JSON output separate from startup diagnostics without launching a child process.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Supplies the same provider with a bound root and result-only stdout.
  * @author Samchon
  */
 export interface IAutoMovieReferenceCommandRuntime {
@@ -19,12 +17,7 @@ export interface IAutoMovieReferenceCommandRuntime {
   stderr(value: string): void;
 }
 
-/**
- * Run one local JSON reference request and return its process exit status.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Lets a client without MCP consume the installed provider contract directly.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Accepts only an explicit root and JSON request and emits one result envelope to stdout.
- */
+/** Run one local JSON reference request and return its process exit status. */
 export async function runAutoMovieReferenceCommand(
   argv: readonly string[],
   runtime: IAutoMovieReferenceCommandRuntime = {

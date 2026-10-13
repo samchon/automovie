@@ -5,9 +5,6 @@ import type { AutoMovieEvidenceStage } from "./createAutoMovieEvidenceConfig";
  *
  * The reader returns a contract's H2 count or undefined for a missing target.
  * Authored H2s and aggregate accounts share ordinary coverage in native lint.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Admits declared account paths and refuses ambiguous ownership or absent active contract targets.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Checks shared and local account declarations through one allowlist and validates their current contract targets before native lint.
  */
 export function validateAutoMoviePopulationAccountHosts(props: {
   accounts: readonly {

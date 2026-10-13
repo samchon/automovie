@@ -5,8 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two operations let request readers wait without taking ownership of the background task.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The port contains no elapsed-time cancellation or restart rule and cannot treat a wait as successful completion.
  * @evidence contracts/common.md#meaningful-documentation States how current work is observed and when the completion promise resolves.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Busy state and completion are separate borrowed operations for off-request work; settling waits for physical completion.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Two operations let request readers wait without taking ownership of the background task.
  * @author Samchon
  */
 export interface IHumanViewerSettleable {
@@ -17,8 +15,6 @@ export interface IHumanViewerSettleable {
    * @evidence contracts/common.md#clear-and-simple-design The reader queries work state without retaining its own task lifecycle.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Silence or elapsed time cannot be substituted for the owner's busy observation.
    * @evidence contracts/common.md#meaningful-documentation Names the current running-work query.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Busy reports whether the background owner's work is still physically running.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The reader queries work state without retaining its own task lifecycle.
    */
   busy: () => boolean;
 
@@ -29,8 +25,6 @@ export interface IHumanViewerSettleable {
    * @evidence contracts/common.md#clear-and-simple-design The owner retains completion ordering while readers await its promise.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Waiting does not race a timer or cancel work merely because the promise is slow.
    * @evidence contracts/common.md#meaningful-documentation Defines the completion promise for the work currently running.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Settlement resolves after the background work represented by the owner has finished.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The owner retains completion ordering while readers await its promise.
    */
   settled: () => Promise<void>;
 }

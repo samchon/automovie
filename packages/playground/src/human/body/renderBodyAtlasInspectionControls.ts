@@ -5,9 +5,6 @@ import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
  * the body/person edit transaction. Resources and placement belong to the
  * source; this control authors no personal vertices or placement frames.
  * The builder owns exact registration refusal and last-valid model recovery.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds source-supplied named atlas inspection choices to the existing document transaction and history.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Separates reference-only inspection from clinically unavailable personal anatomy and states absent source resources.
  */
 export function renderBodyAtlasInspectionControls(
   props: IBodyJointControlsProps,

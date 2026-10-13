@@ -16,9 +16,6 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * builder-owned hero slot. Rotation applies the current formation facing
  * before the authored rotation relative to that slot, while scale remains
  * source-owned.
- *
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-hero-overrides Preserves a promoted actor's authored translation, rotation, and scale while inheriting formation placement and motion.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hero-variation-group-state Implements the named-hero exception without returning the actor to the anonymous instance batch.
  */
 export const composeFormationHeroTransform = (
   base: IAutoMovieTransform,

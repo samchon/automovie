@@ -38,9 +38,6 @@ interface ITolerances {
  * - Facing drift beyond `facingToleranceDeg` degrees.
  * - A persistent mount dropped or changed (the rider's horse vanished).
  * - The actor missing entirely from the incoming opening.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateContinuity` locates each actor position, facing, mount, or prop-state mismatch at the incoming beat's opening member.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateContinuity` preserves the previous end observation, opening observation, expected tolerance, and actor identity for one cut boundary.
  */
 export const validateContinuity = (props: {
   /** The previous beat's resolved end-state. */

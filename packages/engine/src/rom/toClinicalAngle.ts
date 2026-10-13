@@ -16,9 +16,6 @@ const assertAxisFrame = (
 /**
  * The **rest-relative** angle the rig rotates by → the **clinical** angle:
  * `clinical = sign · r + neutral`. The inverse of {@link toRigAngle}.
- *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Lifts a rig-relative rotation back into its named clinical control value.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Reconstructs the semantic angle from the declared rest-frame conversion.
  */
 export const toClinicalAngle = (
   rig: number | null,

@@ -15,9 +15,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * whole world placement passes the unit's designed heading plus the offset its
  * cue has turned it by, while a renderer whose scene graph already carries the
  * cue's rotation passes only the designed heading.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-local-frame Rotates a slot exception from the unit's local lateral-depth axes into the formation's current world heading.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Preserves unit-local offset meaning when the formation faces or turns in world space.
  */
 export const rotateFormationLocalOffset = (
   offset: IAutoMovieVector3,

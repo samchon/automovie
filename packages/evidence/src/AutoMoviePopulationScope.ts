@@ -13,9 +13,6 @@ import type { AutoMoviePopulationTransitionReceipt } from "./AutoMoviePopulation
  * predecessor. Rebuilding begins in complete-production mode after that
  * checkpoint, with recoverable pilot history and unready descendants archived
  * outside the governed population.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes complete, pilot, and post-pilot reset populations visible in the generated project's sole declaration.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the closed population-scope union and its exact pilot group identity.
  */
 export type AutoMoviePopulationScope =
   | {

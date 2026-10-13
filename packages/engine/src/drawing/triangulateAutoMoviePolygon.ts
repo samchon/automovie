@@ -12,8 +12,6 @@ import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionF
  * is always the best one — so the loop always makes progress and there is no
  * unreachable branch pretending to handle an impossible polygon.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Refuses a non-finite, degenerate, self-intersecting, or otherwise malformed planar polygon before it can create false drawing faces.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Applies the shared planar-region validity check, then deterministically ear-clips the accepted simple polygon into index triples.
  * @author Samchon
  */
 export const triangulateAutoMoviePolygon = (

@@ -11,8 +11,6 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * @evidence contracts/common.md#clear-and-simple-design One synchronous reporter is shared by individual retirement and scope settlement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports actual causes without retrying owners or inventing successful physical retirement.
  * @evidence contracts/common.md#meaningful-documentation States timing, primary identity and the message-based status consumer.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Reports cleanup failure rather than certifying resource release.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves primary and independent cleanup causes while avoiding a new asynchronous reporting boundary.
  */
 export function reportAutoMovieResourceRetirement(
   reporting: readonly (() => void)[],

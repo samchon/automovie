@@ -45,13 +45,6 @@ const EPSILON = 1e-12;
  * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
  * which is the arithmetic of the model rather than a property of the room.
  *
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `analyzeAutoMovieAcoustics` computes only reverberation, diffuse steady level, and composite transmission loss while returning explicit gaps for unsupported acoustic claims.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The solver validates the scenario, evaluates its three closed forms, records receiver samples, and seals the deterministic acoustic run.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-absorption-reverberation `analyzeAutoMovieAcoustics` combines declared surface area and absorption with room volume to compute the supported Sabine reverberation time and room constant, while reporting unavailable inputs as gaps.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-zones-scenarios `analyzeAutoMovieAcoustics` seals one logical-space subject and revision with its declared surfaces, partitions, sources, receivers, targets, and bounded omissions as a reproducible scenario.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-sound-transmission `analyzeAutoMovieAcoustics` converts each declared partition reduction index to linear transmittance, combines it by area, and returns composite decibels or an explicit unbounded gap.
- * @evidence requirements/interior/materials-and-physical-properties.md#interior-material-analysis-boundary `analyzeAutoMovieAcoustics` solves only the declared closed-form acoustic metrics and leaves unsupported or unavailable material-dependent claims as explicit gaps and statuses.
- * @evidence specifications/interior-space/materials-style-and-art.md#interior-space-material-facts-analysis-boundary The acoustic solver consumes only supported declared physical facts and does not turn missing material behavior into a successful estimate.
  * @author Samchon
  */
 export const analyzeAutoMovieAcoustics = (props: {

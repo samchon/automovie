@@ -41,9 +41,6 @@ type Result = ConnectedFaceResult | ConnectedBodyResult;
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the endpoint, shared readiness, pending requests and permanent source refusal; viewports see only the product port protocol.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Builds through the product runtimes and persists their actual results.
  * @evidence contracts/common.md#meaningful-documentation States cache order, persistence boundary and failure effect.
- *
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-authority-boundary Reads a persisted preview only for the selected document's current cache key, uses the original numerical document on unsuccessful cache GET, and leaves domain admission with the actual numerical owner.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Reads a persisted preview only for the selected document's current cache key, uses the original numerical document on unsuccessful cache GET, and leaves domain admission with the actual numerical owner.
  */
 export function createHumanViewerNumericalPort(
   props: ICreateHumanViewerNumericalPortProps,

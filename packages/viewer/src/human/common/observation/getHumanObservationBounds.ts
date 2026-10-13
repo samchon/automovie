@@ -6,9 +6,6 @@ import * as THREE from "three";
  * use Three's conservative instance box, as its precise object bounds do.
  * Coordinates are world-space metres. World matrices and derived box caches
  * are refreshed without changing authored transforms or geometry buffers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Frames the current displayed geometry rather than auxiliary descendants.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Preserves posed source correspondence in observation framing.
  */
 export function getHumanObservationBounds(
   meshes: readonly THREE.Mesh[],

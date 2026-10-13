@@ -4,8 +4,6 @@
  * Solves the parametric x(s) = t for the curve parameter `s` (Newton with a
  * bisection fallback), then returns y(s). Endpoints are fixed at (0,0)–(1,1).
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Evaluates an authored cubic curve while preserving its fixed endpoints.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Resolves cubic control points into deterministic segment progress.
  * @author Samchon
  */
 export const cubicBezierEasing = (

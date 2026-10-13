@@ -21,9 +21,6 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  * annotated production must not be silently emptied by adding a phase plan for
  * one wing, and {@link validateDesignLineageBinding} is where a typo is caught
  * instead.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineageProject` keeps only the records that stand at one phase. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineageProject` filters design records to the identities present at one construction phase.
  */
 export const designLineageProject = <T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,

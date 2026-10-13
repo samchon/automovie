@@ -22,10 +22,6 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * root band). The emergence angle is the profile's optional member and may be
  * removed alone; the others belong to the record.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Lists lid tissue and brow inputs from the face owner's published defaults and envelopes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Starts an absent tissue or brow side from its owner's default record instead of a value of the editor's own.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Carries the document path the one person transaction edits for each of these inputs.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor States the owner's ground beside each value without restating it as the editor's claim.
  * @author Samchon
  */
 export function createConnectedPersonOwnerDefaultInputs(): IConnectedPersonInputDescriptor[] {

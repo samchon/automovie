@@ -5,9 +5,6 @@ import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
  * transaction. The person panel uses the same joint controls and history.
  * Omission retains an airborne pose; selecting placement keeps joint angles
  * and places only the lowest foot, with no bilateral IK or balance promise.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Publishes the named ground-placement choice through the existing body/person transaction and last-valid recovery owners.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Shows placement as a separate choice from joint angles and preserves omission when cleared.
  */
 export function renderBodyGroundPlacementControl(
   props: IBodyJointControlsProps,

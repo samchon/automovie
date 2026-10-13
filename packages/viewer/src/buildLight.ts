@@ -23,11 +23,6 @@ import { applyLightState } from "./applyLightState.js";
  * film page) must light it from `scene.lights` rather than from a hardcoded
  * source of its own: a page that lights itself proves nothing about the film's
  * lighting, which is how the aim defect in #1356 survived every capture.
- *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-distribution Materializes each resolved light kind, direction, cone, and range.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-distribution-color Implements the runtime source distribution and color mapping.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Materializes the declared shadow source, map, bias, and clipping identity.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Implements that shadow state on the runtime light.
  */
 export const buildLight = (light: IAutoMovieLight): THREE.Light => {
   if (light.type === "point") {

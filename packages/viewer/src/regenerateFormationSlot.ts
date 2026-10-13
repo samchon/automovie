@@ -11,9 +11,6 @@ import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@auto
  * and it is how a crowd on a rise would come to be drawn flat. What stays here
  * is only what a compiled record spells differently from a design: heroes are
  * promoted slots rather than overrides.
- *
- * @evidence requirements/formations/layouts-and-slots.md#formation-layout-selection-parameters Regenerates the compiled layout's exact slot placement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Implements deterministic slot generation and assignment for that layout.
  */
 export const regenerateFormationSlot = (
   formation: IAutoMovieCompiledFormation,

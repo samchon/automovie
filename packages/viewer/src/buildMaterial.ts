@@ -15,9 +15,6 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * The producer owns its new material before resolving texture bindings. Setup
  * failure retires that material and preserves cleanup causes; resolver textures
  * and shared shader tables remain owned by their actual producers.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
  */
 export const buildMaterial = (
   material: IAutoMovieMaterial,

@@ -2,11 +2,7 @@ import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { AutoMovieRepaintObservationVerdict } from "./AutoMovieRepaintObservationVerdict";
 import { IAutoMovieRepaintObservationMember } from "./IAutoMovieRepaintObservationMember";
 
-/**
- * Versioned aggregate observation over one exact current visual member set.
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-continuity-baseline-changes Binds compile, timeline, baseline, active set, playback, and verdicts.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Supplies the complete parser-verifiable sequence receipt.
- */
+/** Versioned aggregate observation over one exact current visual member set. */
 export interface IAutoMovieRepaintSequenceObservation {
   /** Closed observation protocol version; any other value is a malformed receipt. */
   version: 1;
@@ -20,12 +16,7 @@ export interface IAutoMovieRepaintSequenceObservation {
   /** Film timeline fingerprint the ordered member set was read from. */
   timelineFingerprint: AutoMovieContentDigest;
 
-  /**
-   * Continuity baseline the observation judged drift against.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-continuity-baseline-changes Binds the observation to one explicit baseline address, version, scope, and intended-delta list.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Makes an intentional change distinguishable from drift by naming it before observation.
-   */
+  /** Continuity baseline the observation judged drift against. */
   baseline: {
     /** Stable address of the baseline artifact the members were compared against. */
     address: string;
@@ -64,18 +55,10 @@ export interface IAutoMovieRepaintSequenceObservation {
     context: string;
   };
 
-  /**
-   * Whether the aggregate observation ran to completion.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-temporal-artifacts Keeps failed, unperformed, and unsupported observation distinct from a passing one.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Gates publication on a completed observation rather than on the absence of failures.
-   */
+  /** Whether the aggregate observation ran to completion. */
   status: "completed" | "failed" | "not-run" | "unsupported";
 
-  /**
-   * Independent verdict per temporal review axis.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-temporal-artifacts Records flicker, identity drift, geometry warp, texture crawl, and transition mismatch as separate truths.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Requires every axis to pass before the member set is publishable.
-   */
+  /** Independent verdict per temporal review axis. */
   verdicts: {
     /** Frame-to-frame luminance or color flicker across the member sequence. */
     flicker: AutoMovieRepaintObservationVerdict;

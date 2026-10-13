@@ -3,35 +3,15 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMovieCameraDepthPrecisionReport } from "../scene/IAutoMovieCameraDepthPrecisionReport";
 import { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPredicateResult";
 
-/**
- * Compiler-derived realization of one shot contract.
- *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `IAutoMovieCompiledContractRealization` as the portable data boundary for the diagnostics derived result finding requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `IAutoMovieCompiledContractRealization` for the validation derived result finding system contract.
- */
+/** Compiler-derived realization of one shot contract. */
 export interface IAutoMovieCompiledContractRealization {
-  /**
-   * Realization format.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `version` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `version` for the validation derived result finding system contract.
-   */
+  /** Realization format. */
   version: 1;
 
-  /**
-   * Exact compiled shot id.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `shot` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `shot` for the validation derived result finding system contract.
-   */
+  /** Exact compiled shot id. */
   shot: string;
 
-  /**
-   * Opening-state outcomes sampled at time zero.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `opening` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `opening` for the validation derived result finding system contract.
-   */
+  /** Opening-state outcomes sampled at time zero. */
   opening: Array<{
     /** Exact state id. */
     id: string;
@@ -43,12 +23,7 @@ export interface IAutoMovieCompiledContractRealization {
     passed: boolean;
   }>;
 
-  /**
-   * Closing-state outcomes sampled at the shot duration.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `closing` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `closing` for the validation derived result finding system contract.
-   */
+  /** Closing-state outcomes sampled at the shot duration. */
   closing: Array<{
     /** Exact state id. */
     id: string;
@@ -60,12 +35,7 @@ export interface IAutoMovieCompiledContractRealization {
     passed: boolean;
   }>;
 
-  /**
-   * Semantic event outcomes sampled inside their declared windows.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `events` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `events` for the validation derived result finding system contract.
-   */
+  /** Semantic event outcomes sampled inside their declared windows. */
   events: Array<{
     /** Exact event id. */
     id: string;
@@ -80,12 +50,7 @@ export interface IAutoMovieCompiledContractRealization {
     passed: boolean;
   }>;
 
-  /**
-   * Camera required-bound projection checks at authoritative review times.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `camera` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `camera` for the validation derived result finding system contract.
-   */
+  /** Camera required-bound projection checks at authoritative review times. */
   camera: Array<{
     /** Shot-local sample time. */
     time: number;
@@ -126,12 +91,7 @@ export interface IAutoMovieCompiledContractRealization {
     passed: boolean;
   }>;
 
-  /**
-   * Compiler-materialized formation summaries.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `formations` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `formations` for the validation derived result finding system contract.
-   */
+  /** Compiler-materialized formation summaries. */
   formations: Array<{
     /** Exact formation id. */
     id: string;

@@ -18,15 +18,6 @@ import {
  * A metric with no value must say why. Passing a value and a gap together, or
  * neither, throws: those are the two shapes that let an absent measurement
  * masquerade as a result.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `autoMovieAnalysisMetric` keeps absent measurements explicit and refuses contradictory value-gap combinations.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The builder resolves a same-unit target, derives its verdict, reports unit mismatches, and requires one reason for every missing value.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-unsupported-state `autoMovieAnalysisMetric` records an unavailable solver capability as `unsupported` with a required gap reason instead of fabricating a measured value.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-unsupported-state The metric builder preserves `unsupported` as an explicit no-value outcome with its own reason and remedy.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-classification-independence `autoMovieAnalysisMetric` keeps measurement availability, threshold verdict, and warning severity in separate fields rather than collapsing them into one status.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-classification-orthogonality The metric record independently represents solver availability, target comparison, and declaration warnings for the same check.
- * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-automated-finding-boundary `autoMovieAnalysisMetric` labels a solver-produced value or explicit gap as an automated metric result, never as a human approval.
- * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-automated-finding-result The metric builder records value, unit, target verdict, or non-execution reason as machine output without manufacturing a judgment record.
  */
 export const autoMovieAnalysisMetric = (props: {
   /** Open metric key. */

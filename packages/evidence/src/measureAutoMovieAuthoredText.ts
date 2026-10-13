@@ -5,12 +5,7 @@ import {
   projectAutoMovieMarkdownSyntax,
 } from "./parseAutoMovieEvidenceSyntax";
 
-/**
- * Immutable authored-text measurement at one declared revision.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the revision, source identity, body identity, and observations visible together.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines one immutable authored-text observation.
- */
+/** Immutable authored-text measurement at one declared revision. */
 export interface IAutoMovieAuthoredTextMeasurement {
   /** Caller-owned immutable revision identity. */
   revision: string;
@@ -28,12 +23,7 @@ export interface IAutoMovieAuthoredTextMeasurement {
   sections: number;
 }
 
-/**
- * Signed deltas between an immutable baseline and one candidate revision.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Preserves both exact revisions beside every reported delta.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines baseline-bound authored-text comparison output.
- */
+/** Signed deltas between an immutable baseline and one candidate revision. */
 export interface IAutoMovieAuthoredTextDelta {
   /** Revalidated immutable baseline. */
   baseline: IAutoMovieAuthoredTextMeasurement;
@@ -49,9 +39,6 @@ export interface IAutoMovieAuthoredTextDelta {
 
 /**
  * Measures one authored Markdown revision without structural evidence metadata.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Produces reproducible byte, word, and section observations without converting them into a semantic verdict.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Rejects ambiguous mixed line endings and measures one canonical LF projection.
  */
 export function measureAutoMovieAuthoredText(props: {
   path: string;
@@ -84,12 +71,7 @@ export function measureAutoMovieAuthoredText(props: {
   };
 }
 
-/**
- * Revalidates an immutable baseline and reports candidate deltas.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Refuses a stale baseline record before publishing authored-text deltas.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Binds every delta to recomputed baseline bytes and a distinct current revision.
- */
+/** Revalidates an immutable baseline and reports candidate deltas. */
 export function compareAutoMovieAuthoredText(props: {
   baseline: IAutoMovieAuthoredTextMeasurement;
   baselineSource: string;

@@ -36,13 +36,6 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  * composition rather than this kernel's. The digest is SHA-256 over canonical
  * JSON v2 computed without a Node built-in, equal to the Node builder's digest
  * of the same canonical bytes.
- *
- * @evidence requirements/formations/scope-and-identity.md#formation-authoring-mode-selection Compiles a compact prototype-and-layout formation into a record whose resolved members stay reviewable without an explicit roster.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Preserves layout, seed, bounded chunks, hero exceptions, and the terrain snapshot instead of storing anonymous member nodes.
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-hero-overrides Keeps each promoted hero at its slot's grounded base transform inside the unit while removing it from the anonymous count.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hero-variation-group-state Excludes each promoted slot from its chunk's anonymous batch exactly once and records its inherited base transform.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Rebuilds the same compiled formation, including its seeded motion phase law, from the same design, recipes, radii, and terrain.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Digests the canonical record so identical declared inputs and seed yield the identical runtime identity.
  */
 export const materializeCompiledFormation = (props: {
   /** Formation design to compile. */

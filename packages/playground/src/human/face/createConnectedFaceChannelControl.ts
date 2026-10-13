@@ -12,9 +12,6 @@ import { describeConnectedFaceControlScale } from "./describeConnectedFaceContro
  * entered value is divided back into the same flat weight. Only owned
  * document coordinates are authored values; omission displays zero. The
  * description names the channel's own note and each endpoint's displacement.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement in the channel's display unit.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Builds the control row of one fine face channel in its physical unit.
  */
 export function createConnectedFaceChannelControl(
   props: ICreateConnectedFaceChannelControlProps,

@@ -191,14 +191,7 @@ const publicationBasis = (
   },
 });
 
-/**
- * Build the self-verifying identity of one exact persisted render plan.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Preserves the complete capture, dialogue, and encoder generation that produced a publication.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Makes every meaningful plan or runtime change produce a distinct final-publication identity.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Produces a canonical structured basis whose fingerprint can be recomputed without trusting its path.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the exact candidate generation checked before terminal commit.
- */
+/** Build the self-verifying identity of one exact persisted render plan. */
 export const productionRenderPublicationIdentity = (
   plan: IAutoMovieProductionRenderJobPlan,
 ): IAutoMovieProductionPublicationIdentity => {
@@ -209,12 +202,7 @@ export const productionRenderPublicationIdentity = (
   };
 };
 
-/**
- * Strictly parse and recompute one stored publication identity.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Refuses malformed or internally inconsistent publication provenance rather than treating it as current.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Admits reuse only after the complete stored identity validates and its digest recomputes.
- */
+/** Strictly parse and recompute one stored publication identity. */
 export const parseProductionRenderPublicationIdentity = (
   value: unknown,
 ): IAutoMovieProductionPublicationIdentity => {
@@ -241,13 +229,7 @@ export const parseProductionRenderPublicationIdentity = (
   return validation.data;
 };
 
-/**
- * Require stored provenance to equal the current same-tier render plan.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Prevents coincidentally identical output bytes from erasing the execution generation that produced them.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-publication-retention Keeps proxy and final histories independent while rejecting a stale generation within either tier.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-atomic-publication Admits stored publication provenance as current only when it equals the same-tier render plan, so a half-written or superseded publication is never read as current.
- */
+/** Require stored provenance to equal the current same-tier render plan. */
 export const assertProductionRenderPublicationCurrent = (props: {
   identity: unknown;
   plan: IAutoMovieProductionRenderJobPlan;
@@ -267,10 +249,6 @@ export const assertProductionRenderPublicationCurrent = (props: {
  * A manifest, receipt, or sidecar path is compared as bytes across platforms,
  * so one physical file must have exactly one spelling: forward slashes, no
  * root, drive, NUL, empty, `.`, or `..` segment, and already normalized.
- *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Refuses a ledger path alias that would let one physical output be claimed or missed under a second spelling.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Fixes the portable path identity that manifest and receipt entries are joined on.
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-portable-publication Refuses absolute, drive-letter, traversal, NUL and unnormalized publication paths so one derived deliverable has exactly one project-relative spelling on Windows and POSIX.
  */
 export const isPortableProductionPublicationPath = (value: string): boolean =>
   value.length !== 0 &&

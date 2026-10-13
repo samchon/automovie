@@ -18,8 +18,6 @@ import { drawHumanViewerFrame } from "./drawHumanViewerFrame.js";
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the facade, the controls and the resize observer of one resident.
  * @evidence contracts/common.md#meaningful-documentation States the settings isolation, the missing loop and both operations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The product viewport receives an explicit renderer/controls injection facade; supported settings are applied at draw time and the capture host intentionally owns the animation loop, without replacing the shared renderer's methods.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Retires every owned orbit control through one shared completion without skipping later controls after a failure or disposing the page's borrowed renderer.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps control lifetime local to the resident facade and retains actual release failures while the page preserves its shared graphics context.
  */
 export function createHumanViewerViewportHost(
   canvas: HTMLCanvasElement,

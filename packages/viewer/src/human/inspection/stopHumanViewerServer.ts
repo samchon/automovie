@@ -16,8 +16,6 @@ import { readHumanViewerRecord } from "./readHumanViewerRecord.js";
  * @evidence contracts/common.md#clear-and-simple-design Combines the current health answer and saved ownership record before delegating platform termination to the shared process boundary.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses unknown or stale ownership, never stops a process by name or age, and leaves the record after termination so a successor's publication cannot be deleted.
  * @evidence contracts/common.md#meaningful-documentation States the refusals and the absent case.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Live public-port PID equality selects the owner; the process boundary checks its recorded creation identity before stopping it.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Combines the current health answer and saved ownership record before delegating platform termination to the shared process boundary.
  */
 export function stopHumanViewerServer(
   context: IHumanShotContext,

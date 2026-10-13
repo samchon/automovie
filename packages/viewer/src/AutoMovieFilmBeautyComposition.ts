@@ -1,11 +1,6 @@
 import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer.js";
 
-/**
- * Closed beauty-composition decision for one sampled film frame.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Names fade and dissolve as beauty-only compositions so a structural pass is never handed one.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Preserves the builder-owned one- or two-layer schedule without inventing a fallback.
- */
+/** Closed beauty-composition decision for one sampled film frame. */
 export type AutoMovieFilmBeautyComposition<
   Layer extends IAutoMovieFilmBeautyLayer = IAutoMovieFilmBeautyLayer,
 > =

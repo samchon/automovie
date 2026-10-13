@@ -13,25 +13,16 @@
  *
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest-bearing basis tokens identify the actual source generation; the server never derives acceptance from a document name.
  *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Leaves schema admission with the domain owner and keeps only catalogue identity on the server.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Digest-bearing basis tokens identify the actual source generation; the server never derives acceptance from a document name.
- *
  * @author Samchon
  */
 export interface IHumanViewerCatalogueEntry {
   /**
    * Document id, `file:<name>` or `file:<name>/<id>` for hand-written inputs.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Provides stable document selection independently of its display label or current cache generation.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Provides stable document selection independently of its display label or current cache generation.
    */
   id: string;
 
   /**
    * Content digest of document, basis and builder source; the numerical cache key.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Binds numerical reuse to the original document, basis bytes and actual producer source.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Binds numerical reuse to the original document, basis bytes and actual producer source.
    */
   key: string;
 
@@ -42,25 +33,12 @@ export interface IHumanViewerCatalogueEntry {
    * `published-generation@<head12>.<body12>` (the published one-skin person
    * generation), `<name>@<digest12>` (a candidate basis or person packet),
    * or `candidate-generation:<name>@<head12>.<body12>` (candidate typed views).
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Names the exact digest-bearing basis or Person view pair requested and checked by the numerical owner.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Names the exact digest-bearing basis or Person view pair requested and checked by the numerical owner.
    */
   basis: string;
 
-  /**
-   * Numerical domain that builds the document.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Selects the existing Face, Body or Person admission/runtime without inferring it from a subject name.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Selects the existing Face, Body or Person admission/runtime without inferring it from a subject name.
-   */
+  /** Numerical domain that builds the document. */
   domain: "face" | "body" | "person";
 
-  /**
-   * The document JSON, admitted by its domain owner when built.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains external JSON as unexamined data until its actual domain owner admits it.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains external JSON as unexamined data until its actual domain owner admits it.
-   */
+  /** The document JSON, admitted by its domain owner when built. */
   document: unknown;
 }

@@ -95,8 +95,6 @@ const assertUniqueGaitAxes = (limbs: readonly IAutoMovieGaitLimb[]): void => {
  * a continuous walk and a stutter at every cut. The wrapped cycle stays a
  * seamless loop for any constant phase.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Synthesizes the profile's limb rows and root bob into one complete gait cycle.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Bakes a compact gait rule into deterministic loop keyframes and phase state.
  * @author Samchon
  */
 export const gaitMotion = (

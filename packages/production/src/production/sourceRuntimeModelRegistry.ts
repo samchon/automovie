@@ -9,8 +9,6 @@ import type { IAutoMovieModel } from "@automovie/interface";
  * only that population. A builder key may differ from the contained model id,
  * so `resolve` preserves both identities without admitting inherited names.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Preserves every accepted current source model under the exact id its reviewed result declared.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Projects current source models into runtime lookup and enumeration without prototype-derived or unavailable entries.
  * @author Samchon
  */
 export const createAutoMovieSourceRuntimeModelRegistry = (

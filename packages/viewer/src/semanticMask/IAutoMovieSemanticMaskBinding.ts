@@ -3,8 +3,6 @@ import type { IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interfa
 /**
  * A built scene and the palette its structural mask pass must paint it with.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Makes this public surface part of the stable identity-mask channel.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that channel as a structural render product.
  * @author Samchon
  */
 export interface IAutoMovieSemanticMaskBinding {

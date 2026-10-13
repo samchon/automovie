@@ -16,11 +16,6 @@ import { resolveShotLighting } from "../resolve/resolveShotLighting";
  * of a clip, and eventually a second answer to the same question — the split
  * the light-channel table exists to prevent. A source no clip touches comes
  * back by identity, inherited straight through.
- *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling resolveProductionLighting samples every production light on the common story clock before lowering the active photometric state.
- * @evidence requirements/lighting/temporal-state-and-continuity.md#lighting-state-time-sampling resolveProductionLighting samples production-light clips directly at the supplied story second rather than advancing playback state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal resolveProductionLighting resolves declared light state at an explicit shot-local time and refuses invalid source sampling.
- * @evidence specifications/camera-light-and-visibility/temporal-state-and-continuity.md#clv-light-cue-observation resolveProductionLighting supplies one explicit story-clock sample to every production-light channel.
  */
 export const resolveProductionLighting = (props: {
   /** The production's declared sources and their story-clock motion. */

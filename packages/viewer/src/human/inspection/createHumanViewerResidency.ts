@@ -22,8 +22,6 @@ import { watchHumanViewerMainFrame } from "./watchHumanViewerMainFrame.js";
  * @evidence contracts/common.md#clear-and-simple-design Browser state, heap sessions, console observers and replacement share one resource lifetime.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual renderer settlement or browser loss selects owned replacement; source errors remain source refusals and no age deadline clears a valid model.
  * @evidence contracts/common.md#meaningful-documentation States replacement readiness, capture cancellation and heap ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Preserves capture ownership and last valid display while the owned renderer/page lifetime recovers from actual failure.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Renderer settlement, page identity, heap sessions and readiness follow one browser owner; a source error does not become an age-based display restart.
  */
 export function createHumanViewerResidency(
   props: ICreateHumanViewerResidencyProps,

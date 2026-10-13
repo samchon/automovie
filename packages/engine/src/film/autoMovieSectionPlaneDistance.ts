@@ -13,9 +13,6 @@ import { IAutoMovieSectionPlane } from "./IAutoMovieSectionPlane";
  * way — a fragment is discarded only at negative signed distance to its plane —
  * so this number and the pixel the renderer draws agree at the boundary instead
  * of disagreeing by one plane.
- *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Measures a world point against the declared cut and keeps geometry lying exactly on the plane.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Implements the specified signed distance `n·(p − p0)` with zero declared on the kept side.
  */
 export const autoMovieSectionPlaneDistance = (
   plane: IAutoMovieSectionPlane,

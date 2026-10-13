@@ -15,25 +15,12 @@ import { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
  * The patch is planar on purpose. A curved separation is authored as several
  * boundaries, each one flat, rather than as one face carrying a surface the
  * containment test would then have to approximate.
- *
- * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `IAutoMovieBoundaryFace` as the portable data boundary for the interior wall boundary validation requirement.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `IAutoMovieBoundaryFace` for the interior space wall partition boundary system contract.
  */
 export interface IAutoMovieBoundaryFace {
-  /**
-   * World-space origin of the boundary's own frame.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `origin` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `origin` for the interior space wall partition boundary system contract.
-   */
+  /** World-space origin of the boundary's own frame. */
   origin: IAutoMovieVector3;
 
-  /**
-   * Unit quaternion taking the boundary's local axes into world space.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `rotation` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `rotation` for the interior space wall partition boundary system contract.
-   */
+  /** Unit quaternion taking the boundary's local axes into world space. */
   rotation: IAutoMovieQuaternion;
 
   /**
@@ -42,17 +29,11 @@ export interface IAutoMovieBoundaryFace {
    * The outline is a simple polygon: it may be concave, but it may not cross
    * itself, because a self-crossing outline has no inside for an opening to be
    * checked against.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `outline` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `outline` for the interior space wall partition boundary system contract.
    */
   outline: IAutoMoviePlanarPoint[];
 
   /**
    * Positive separation thickness along the boundary's local `+Z`, in metres.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `thickness` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `thickness` for the interior space wall partition boundary system contract.
    */
   thickness: number;
 }

@@ -93,9 +93,6 @@ const restWorldFrames = (
  * `x 0…60, y 0…24, z −1…1` where the vertical read alone reports only
  * `y 0…24`. Returns null when a model has nothing to measure, leaving the
  * caller's own fallback in charge rather than inventing an extent.
- *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-landmark-framing computeModelRestExtent measures drawn geometry in model space on all three axes so landmark framing uses the subject's visible horizontal extent as well as its vertical one.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-framing-landmark-relations computeModelRestExtent realizes landmark-based framing: A model's rest-pose box in model space: the axis-aligned range of the geometry a renderer would actually draw, on all three axes. computeModelRestExtentY is this measurement read on one axis, and the two are the same traversal for the reason the vertical one gives: every part is placed the way the renderer places it, and primitives are measured through tessellate, the code that produces the vertices, so the extent cannot drift from the picture. The horizontal half is what a subject wider than it is tall is framed and graded from. A figure is taller than it is wide at every shot size, so its width never decides its distance; a building element is the opposite, and a 60 m facade authored outward from its element origin has a drawn box of x 0…60, y 0…24, z −1…1 where the vertical read alone reports only y 0…24. Returns null when a model has nothing to measure, leaving the caller's own fallback in charge rather than inventing an extent.
  */
 export const computeModelRestExtent = (
   model: IAutoMovieModel,

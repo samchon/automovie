@@ -1,11 +1,6 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 
-/**
- * One builder-registry target accepted by the evidence capture tool.
- *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `AutoMovieCaptureTarget` as the portable data boundary for the agent host evidence requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `AutoMovieCaptureTarget` for the spec authoring host evidence output system contract.
- */
+/** One builder-registry target accepted by the evidence capture tool. */
 export type AutoMovieCaptureTarget =
   | {
       /** Current compiled shot frame. */

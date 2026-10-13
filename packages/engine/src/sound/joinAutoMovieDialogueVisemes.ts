@@ -23,12 +23,6 @@ const DIALOGUE_VISEMES = new Set<IAutoMovieProductionViseme["viseme"]>([
  * the engine does not select an actor, synthesize phonemes for external audio,
  * or move mouth motion to the later audible-arrival frame. Valid receipt gaps
  * become explicit `rest` ranges, so silence has a deterministic closed mouth.
- *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-final-bytes-authority Uses only the receipt timeline derived from final audio bytes.
- * @evidence requirements/actors/voice-and-utterance-identity.md#actor-utterance-performance Joins final-byte film ranges to the explicitly resolved speaking actor and exposes that actor's mouth timeline.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Consumes the ordered phoneme state derived from those bytes.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Builds the builder-visible emission-clock join.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-voice-utterance-expression Carries actor identity, utterance interval, and proxy viseme ranges into a mouth-only performance channel.
  */
 export const joinAutoMovieDialogueVisemes = (props: {
   /** Dialogue line whose film range is authoritative. */

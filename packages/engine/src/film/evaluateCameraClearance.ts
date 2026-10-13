@@ -214,11 +214,6 @@ const obstaclesByNode = (
  * @throws Error when the supplied samples omit a base fixed-clock instant, are
  * not strictly ordered, or do not carry one coherent obstacle identity set.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clearance Evaluates declared camera and rig volumes against resolved scene obstacles rather than treating the optical point as the body.
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-dynamic-spatial-sampling Covers each adjacent fixed-clock interval with continuous conservative bounds so clear endpoints cannot hide an interior penetration.
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-spatial-geometry-revision Refuses to apply a report whose resolved geometry revision is no longer current.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Returns addressed body/rig contacts rather than silently accepting a physically impossible take.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Evaluates the declared physical camera and rig envelope against current resolved geometry over every fixed-clock interval.
  * @author Samchon
  */
 export function evaluateCameraClearance(

@@ -24,8 +24,6 @@ const SOURCE = [".ts", ".mts", ".cts", ".tsx", ".js", ".mjs", ".json", ".wasm"];
  * @evidence contracts/common.md#clear-and-simple-design One resolver separates relative-source probing from public manifest selection without a private-package leaf fallback.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, blocked or unsupported public targets remain unknown; an existing private file cannot override the package's declared route.
  * @evidence contracts/common.md#meaningful-documentation States the current inspection source consumers, separate normal browser authority, manifest selection and actual target ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supported relative and workspace specifiers probe actual source and emitted-extension candidates through the supplied filesystem authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One existence-based resolver supplies the revision graph with a shared path and extension convention.
  */
 export function resolveHumanViewerImport(
   specifier: string,

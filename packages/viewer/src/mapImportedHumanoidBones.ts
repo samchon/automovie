@@ -8,9 +8,6 @@ import type * as THREE from "three";
  * Unreal names for the major body chains are normalized through the same
  * aliases accepted by the ingest package. The first loaded node wins for each
  * slot so separate clothing skins cannot replace the body rig accidentally.
- *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-mapping-selection Selects deterministic humanoid slots from direct names and known aliases.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Implements the concrete source-node to target-slot retarget mapping candidate.
  */
 export const mapImportedHumanoidBones = (
   object: THREE.Object3D,

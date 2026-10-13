@@ -11,8 +11,6 @@ import { readViewerMaintainedSourceFiles } from "../../inspection/readViewerMain
  * @evidence contracts/common.md#clear-and-simple-design One source snapshot owner serves startup and reuse; it creates no numerical cache.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Git membership, declared watched scopes and current file bytes supply authority without private SDK runtime manifests or expected-source digest literals.
  * @evidence contracts/common.md#meaningful-documentation States source membership and distinct Node authority.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Snapshots the current files and bytes in the declared checked numerical project scopes before startup or reuse can be admitted.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Git membership and explicit inputs feed one sorted SHA-256 witness, independent from browser compile stamps and production canonical JSON fingerprints.
  */
 export function readHumanViewerNodeInputs(
   root: string,

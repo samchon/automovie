@@ -145,12 +145,7 @@ export class AutoMovieDesignDerivationError extends Error {
   }
 }
 
-/**
- * Canonical identity of one target-local producer closure.
- *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-closed-basis Reduces one closed generation basis to a single comparable digest.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Domain-separates and canonically orders every basis field before hashing.
- */
+/** Canonical identity of one target-local producer closure. */
 export const autoMovieDesignDerivationBasisDigest = (
   basis: IAutoMovieDesignDerivationBasis,
 ): AutoMovieContentDigest =>
@@ -164,9 +159,6 @@ export const autoMovieDesignDerivationBasisDigest = (
  * the derivation manifest and the builder's inspection all name a target
  * through this one spelling, so a record can never be derived under one
  * address and inspected under another.
- *
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-generated-output-record Gives every recorded design output one stable target identity.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Addresses each derived record identically in the manifest and in the resident design tree.
  */
 export const autoMovieDesignTargetAddress = (
   target: IAutoMovieDesignTarget,
@@ -180,9 +172,6 @@ export const autoMovieDesignTargetAddress = (
  *
  * The running project supplies its source inventory. Node and ttsx resolve
  * imports; this function records input bytes without linking or executing them.
- *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-closed-basis Captures the exact emitter, export, transitive runtime source and tool identity that produce one record.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-change-impact-invariant Records the supplied project source inventory so a changed helper invalidates the emitted design.
  */
 export const captureAutoMovieDesignDerivationBasis = (props: {
   production: string;
@@ -233,10 +222,6 @@ export const captureAutoMovieDesignDerivationBasis = (props: {
  * returned records and manifest in one project transaction only after the
  * supplied live-basis reacquisition still matches every frozen basis.
  *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-closed-basis Records the exact emitter, export, transitive source and tool identity behind each design target.
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Refuses a changed or same-basis-divergent design candidate before publication.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Compares exact canonical target bytes under one frozen producer identity.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-change-impact-invariant Rechecks the supplied project source inventory before design publication.
  * @author Samchon
  */
 export const createAutoMovieDesignDerivationCandidate = (props: {
@@ -364,10 +349,6 @@ export interface IAutoMovieDesignDerivationRun {
  * setters, and those run in the declared plan order so a record measured
  * against another one is stored after the record it depends on.
  *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-explicit-generation Regenerates design records only through this explicit run and never as a side effect of compilation.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-nondeterministic-generation Refuses a producer whose two evaluations of one frozen basis disagree instead of sealing one of them as current.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Publishes each derived record together with the exact source revision it was evaluated from.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Holds emitter, mapping, transitive source and tool identity fixed across both evaluations of one run.
  * @author Samchon
  */
 export const runAutoMovieDesignDerivation = (props: {
@@ -465,13 +446,6 @@ export const runAutoMovieDesignDerivation = (props: {
  * A resident record path the manifest does not own is reported as stale for
  * the same reason a missing manifest entry is: no current producer answers
  * for it, so nothing may treat its bytes as derived from current source.
- *
- * @evidence requirements/agent-authoring/deterministic-precomputation.md#agent-precomputed-compile-refusal Refuses a stale, missing, tampered, or unowned design record at compile time instead of regenerating it.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-derivation-impact Names the exact target whose recorded producer basis no longer matches the live closure.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-change-impact-invariant Marks exactly the records whose recorded closure differs from the live one.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-ownership-failure Distinguishes a malformed manifest, a stale basis, a stale output, and an unowned resident record as separate failures.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-change-impact-report Names exactly the design records a source change invalidated and leaves the ones whose recorded basis still matches untouched.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-reapproval-after-change Marks stale exactly the derived records whose recorded basis differs from the live closure and preserves the rest with their proof relation.
  */
 export const inspectAutoMovieDesignDerivation = (props: {
   manifest: IAutoMovieDesignDerivationManifest | null;

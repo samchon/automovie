@@ -6,8 +6,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
 /**
  * Everything one pose-to-image call needs.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence `IAutoMovieViewerSubjectViewRequest` gathers the subject, viewpoint, and render inputs one observation is derived from.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation `IAutoMovieViewerSubjectViewRequest` types the inputs the observation record is produced from.
  * @author Samchon
  */
 export interface IAutoMovieViewerSubjectViewRequest {

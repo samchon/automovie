@@ -17,9 +17,6 @@ import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentText
  * changes retire the old conversion before a replacement tuple is accepted.
  * Immutable capacity changes require a new Texture and decoded Source.
  * Shared ownership and failed retirement refuse before scene state changes.
- *
- * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-image-based-environment Applies the declared environment image, rotation, and intensity to the scene.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Implements the corresponding image, background, and spatial-orientation state.
  */
 export const applySceneEnvironment = (
   scene: THREE.Scene,

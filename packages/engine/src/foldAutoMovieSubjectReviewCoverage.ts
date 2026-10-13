@@ -15,13 +15,6 @@ import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReview
  * receipt, malformed payload, or another subject can be counted as foreign
  * without being cast into subject coverage. Plan order is authoritative and
  * preserved; unrelated input order cannot change the result.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Refuses stale, malformed and wrong-subject receipts as current subject evidence.
- * @evidence requirements/review/subject-inspection.md#review-subject-coverage Separates the declared viewpoint denominator from current, missing and stale observations.
- * @evidence requirements/review/subject-inspection.md#review-subject-time-noninterchange Prevents frame-shaped evidence from satisfying a subject obligation.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Admits only receipt-shaped subject observations bound to this identity and revision.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Makes a changed compiled revision stale without treating a shot rerender as renewal.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-coverage Computes deterministic planned, actual and missing coverage without duplicate inflation.
  */
 export const foldAutoMovieSubjectReviewCoverage = (
   unit: IAutoMovieSubjectReviewUnit,

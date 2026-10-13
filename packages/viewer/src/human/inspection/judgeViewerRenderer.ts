@@ -19,8 +19,6 @@
  *
  * @param renderer The unmasked renderer string the page reports.
  * @returns `real` and, when it is not, the reason to print.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Classifies the reported renderer string and refuses blank or recognized software device descriptions before capture publication.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-capture-runtime-identity This device-string predicate contributes runtime observation but does not prove model display, controls or complete runtime identity on its own.
  */
 export function judgeViewerRenderer(renderer: string): {
   real: boolean;

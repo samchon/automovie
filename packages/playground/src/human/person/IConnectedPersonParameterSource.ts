@@ -3,8 +3,6 @@
  * it: the lash owners publish their profile parameters in this form. Every
  * member is the owner's statement; the catalogue copies it.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reads a face owner's published parameter with its unit, envelope and meaning.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Lets the catalogue list an owner's parameter table without a hand-kept copy of it.
  * @author Samchon
  */
 export interface IConnectedPersonParameterSource {

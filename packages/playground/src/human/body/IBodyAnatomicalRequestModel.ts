@@ -8,8 +8,6 @@ import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "@automovie/human
  * source-conditioned exterior candidate; the panel displays whichever is
  * present and never treats either as a resolved clinical skin.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Exposes the candidate qualification the numerical request panel displays with each frame.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps the inspection report and exterior candidate distinct from a resolved whole-body skin.
  * @author Samchon
  */
 export interface IBodyAnatomicalRequestModel {

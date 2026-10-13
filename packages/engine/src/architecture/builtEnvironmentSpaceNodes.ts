@@ -23,12 +23,6 @@ import {
  * caller that wants the placement law. Regeneration names a procedural member
  * `instance:<set>:slot:<six-digit-index>` and an explicit member
  * `instance:<set>:<transform-id>`, exactly as the production materializer does.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceNodes` names the staged set nodes and populations standing in a logical space and its descendants. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceNodes` collects staged node ids from a logical space and every child space within its building boundary.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-logical-group `builtEnvironmentSpaceNodes` answers for a compact population under the space that owns it, so compression does not remove the population from the question "what stands here".
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality `builtEnvironmentSpaceNodes` keeps a compressed population addressable by one stable owner id without expanding or omitting its members.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality `builtEnvironmentSpaceNodes` addresses a compressed population by its stable owner id rather than dropping it from the staged listing.
  */
 export const builtEnvironmentSpaceNodes = (
   environment: IAutoMovieBuiltEnvironment,

@@ -42,11 +42,6 @@ const WASTE_MEDIUM = "waste-water";
  * each raise, because every one of them would otherwise produce a domain that
  * silently conserves the wrong amount of water.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `lowerWetZoneDrainage` places the wet zone's declared supply demands and waste outlets onto the fluid lattice that carries the room's water.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `lowerWetZoneDrainage` derives cell-aligned sources and bed-level drains from resolved service ports while rejecting unknown zones, off-grid nodes, and identifier collisions.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-dry-transition `lowerWetZoneDrainage` carries the validated dry threshold and service-port relation into the bounded drainage domain.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-slope-drainage `lowerWetZoneDrainage` converts the authored scalar fall, waste drain, sources, and sill into cell-aligned bed levels and fluid boundaries without claiming per-point ponding or pressure flow.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-wet-zone-waterproofing `lowerWetZoneDrainage` materializes the validated wet-zone fall, threshold, source, and drain relation as the solver input subset.
  * @author Samchon
  */
 export const lowerWetZoneDrainage = (props: {

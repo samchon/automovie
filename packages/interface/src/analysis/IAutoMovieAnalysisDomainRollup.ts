@@ -1,97 +1,37 @@
 import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 
-/**
- * One domain's tally, in the fixed domain order.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `IAutoMovieAnalysisDomainRollup` as the portable data boundary for the diagnostics stable order requirement.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `IAutoMovieAnalysisDomainRollup` for the validation canonical diagnostic order system contract.
- */
+/** One domain's tally, in the fixed domain order. */
 export interface IAutoMovieAnalysisDomainRollup {
-  /**
-   * Domain this row answers for.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `domain` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `domain` for the validation canonical diagnostic order system contract.
-   */
+  /** Domain this row answers for. */
   domain: AutoMovieAnalysisDomain;
 
-  /**
-   * Runs submitted for the domain.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `runs` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `runs` for the validation canonical diagnostic order system contract.
-   */
+  /** Runs submitted for the domain. */
   runs: number;
 
-  /**
-   * Runs that solved against the current revision.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `solved` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `solved` for the validation canonical diagnostic order system contract.
-   */
+  /** Runs that solved against the current revision. */
   solved: number;
 
-  /**
-   * Runs the host cannot perform.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `unsupported` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `unsupported` for the validation canonical diagnostic order system contract.
-   */
+  /** Runs the host cannot perform. */
   unsupported: number;
 
-  /**
-   * Runs an adapter could have performed but did not.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `notRun` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `notRun` for the validation canonical diagnostic order system contract.
-   */
+  /** Runs an adapter could have performed but did not. */
   notRun: number;
 
-  /**
-   * Solved runs that read a superseded design revision.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `stale` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `stale` for the validation canonical diagnostic order system contract.
-   */
+  /** Solved runs that read a superseded design revision. */
   stale: number;
 
-  /**
-   * Metrics declared across the domain's current solved runs.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `metrics` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `metrics` for the validation canonical diagnostic order system contract.
-   */
+  /** Metrics declared across the domain's current solved runs. */
   metrics: number;
 
-  /**
-   * Of those, the ones that produced a value.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `measured` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `measured` for the validation canonical diagnostic order system contract.
-   */
+  /** Of those, the ones that produced a value. */
   measured: number;
 
-  /**
-   * Of the measured ones, those satisfying a declared target.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `meets` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `meets` for the validation canonical diagnostic order system contract.
-   */
+  /** Of the measured ones, those satisfying a declared target. */
   meets: number;
 
-  /**
-   * Of the measured ones, those violating a declared target.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `misses` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `misses` for the validation canonical diagnostic order system contract.
-   */
+  /** Of the measured ones, those violating a declared target. */
   misses: number;
 
-  /**
-   * Whether the production required this domain to be answered.
-   *
-   * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-stable-order Exposes `required` as the portable data boundary for the diagnostics stable order requirement.
-   * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-canonical-diagnostic-order Types `required` for the validation canonical diagnostic order system contract.
-   */
+  /** Whether the production required this domain to be answered. */
   required: boolean;
 }

@@ -28,9 +28,6 @@ type BindingWrites = { colorSpace: THREE.ColorSpace; sampler?: {
  * These are owned object inputs, not native keys, handles or byte estimates.
  * A binding-issued wrapper cannot become a decoder original, including within
  * its own cache; this prevents an alias from laundering its earlier history.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Keeps source and issued-wrapper allocation authority factual across binding, alias and lifetime transitions.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves uncertain histories as null storage/cardinality and prevents disposal completion from hiding detached allocations.
  */
 export class AutoMovieTextureCacheAllocationAuthority {
   private static readonly originals = new WeakMap<THREE.Texture, Claim>();

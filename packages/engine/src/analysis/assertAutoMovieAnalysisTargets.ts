@@ -8,9 +8,6 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * blank key, a blank unit, a non-finite value, an unknown direction, or two
  * targets fighting over the same key are all authoring mistakes with no sane
  * interpretation.
- *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `assertAutoMovieAnalysisTargets` fails before solving when a target is blank, non-finite, directionless, or duplicated by key.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The assertion validates target identity, unit, threshold, comparison direction, and uniqueness in declaration order.
  */
 export const assertAutoMovieAnalysisTargets = (
   targets: readonly IAutoMovieAnalysisTarget[],

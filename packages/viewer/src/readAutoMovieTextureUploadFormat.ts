@@ -5,9 +5,6 @@ import * as THREE from "three";
  * An explicit internal format owns storage width; otherwise format and component
  * type identifies it. Unsupported formats stay unknown rather than becoming
  * an assumed four-byte texel. This does not certify dimensions or allocation.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Supplies one representation owner shared by decoded sources and target attachments.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves unsupported storage width for source and framebuffer refusal.
  */
 export function readAutoMovieTextureUploadFormat(texture: THREE.Texture): "r16f" | "rgba8" | "rg16f" | "rgba16f" | "rgba32f" | undefined {
   return texture.internalFormat === "RGBA32F" ? "rgba32f" :

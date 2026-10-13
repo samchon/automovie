@@ -3,8 +3,6 @@
  * The refinement owner alone admits the original full KKT. Rejected
  * candidates never replace the caller's preceding native primal or dual.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Preserves the original affine constraints and objective while preparing a numerical correction candidate.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Retains original coordinate and row authority; numerical factorization does not establish geometric validity.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticPolishingResult {

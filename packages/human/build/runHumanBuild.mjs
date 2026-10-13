@@ -7,10 +7,6 @@ import { publishHumanBuild } from './publishHumanBuild.mjs';
  *
  * @param {import('./IHumanBuildHost').IHumanBuildHost} host
  * @returns {Promise<void>}
- *
- * @evidence contracts/common.md#principled-implementation Sequential ordinary compiler passes establish both variants before publication mutates runtime output.
- * @evidence contracts/common.md#clear-and-simple-design One stage and one publication owner define the lifetime; the host supplies compiler and filesystem effects.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Compiler failures propagate without fallback to old output, and cleanup cannot replace the original diagnostic.
  */
 export async function runHumanBuild(host) {
   const stage = host.createStage();

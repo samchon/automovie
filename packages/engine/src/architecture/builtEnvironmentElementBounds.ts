@@ -105,10 +105,6 @@ const placedElementPoints = (
  * one environment pays that once per locator, which is worth knowing before
  * putting this inside a loop over thousands of placements.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance `builtEnvironmentElementBounds` answers for one placed occurrence by its own stable identity, keeping a single placement's extent distinct from the prototype it reuses.
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentElementBounds` reports the world box one declared building element's placed geometry fills. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance `builtEnvironmentElementBounds` reports the placement fact recorded against one instance identity rather than a fact about its shared prototype.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentElementBounds` resolves one element's hierarchy, operating state, and geometry into its world extent inside one building-interior boundary.
  * @author Samchon
  */
 export const builtEnvironmentElementBounds = (

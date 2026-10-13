@@ -7,8 +7,6 @@
  * subject with nothing to measure reports a zero total over zero owners and
  * says so out loud.
  *
- * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `AutoMovieQuantitySubject` as the portable data boundary for the building exterior schedules quantities requirement.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `AutoMovieQuantitySubject` for the building envelope deliverable quantity invariant system contract.
  * @author Samchon
  */
 export type AutoMovieQuantitySubject =

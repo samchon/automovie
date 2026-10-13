@@ -82,18 +82,6 @@ import {
  * solve, is named at the step it first appeared rather than quietly turning
  * into NaN frames a renderer would draw as nothing at all.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Reconstructs the requested absolute step from declared initial state.
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-volume-boundary Advances declared sources, drains, walls, open edges, and retained cell volume in physical volume units.
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-conservation-account Returns retained volume beside cumulative source, drain, and open-boundary outflow for the same solve.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Implements the bounded flux-form surface state and its explicit volume-change account.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Produces the same bounded state for repeated and out-of-order seeks.
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level `simulateFluidDomain` computes bounded cell depths, retained volume, sources, drains, and open-boundary outflow for the requested deterministic step.
- * @evidence requirements/map/rivers-and-inland-water.md#map-water-boundary-volume `simulateFluidDomain` advances the declared basin walls and open edges while accounting retained, sourced, drained, and escaped water volume in the same solve.
- * @evidence requirements/map/rivers-and-inland-water.md#map-water-flow The flux-form step derives directional neighbour flow from declared bed elevation and depth instead of substituting a static water surface.
- * @evidence requirements/map/rivers-and-inland-water.md#map-flood-inundation The returned cell depths and retained-volume state expose which bounded cells are inundated at the requested absolute step.
- * @evidence specifications/world-and-site/hydrology-coast-and-groundwater.md#world-site-watershed-water-boundary-input The solver consumes explicit lattice, wall, open-edge, source, and drain boundaries and preserves their volume contribution in its result ledger.
- * @evidence specifications/world-and-site/hydrology-coast-and-groundwater.md#world-site-water-flow-season-event The deterministic absolute-step solve materializes the declared source and drain event state as directional cell flux and depth.
- * @evidence specifications/world-and-site/hydrology-coast-and-groundwater.md#world-site-flood-inundation-output The state returns bounded per-cell water depth plus the volume account needed to inspect inundation without claiming a broader watershed model.
  * @author Samchon
  */
 export const simulateFluidDomain = (

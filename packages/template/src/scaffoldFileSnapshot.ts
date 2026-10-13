@@ -15,37 +15,17 @@ import type { ScaffoldFilePublicationOutcome } from "./scaffoldPublication";
  * reopen through a mutable absolute child pathname, or delete a reported
  * partial slot.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Binds exact candidate bytes to one captured physical parent generation.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Makes the native parent capability and candidate bytes the closed reuse input.
  * @author Samchon
  */
 export interface IScaffoldParentPublicationRequest {
-  /**
-   * Exact bytes the held descriptor must write and read back.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Pins the complete deterministic value before native creation.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Prevents a retry from rebuilding different bytes after mutation begins.
-   */
+  /** Exact bytes the held descriptor must write and read back. */
   bytes: readonly number[];
-  /**
-   * Single child segment created relative to the held parent handle.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Names the exact slot protected by exclusive creation.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Keeps competitor refusal inside the captured parent.
-   */
+  /** Single child segment created relative to the held parent handle. */
   childName: string;
-  /**
-   * Physical identity the opened parent handle must prove before creation.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Refuses a successor instead of publishing into its inventory.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Allows reuse only of the captured parent generation.
-   */
+  /** Physical identity the opened parent handle must prove before creation. */
   expectedParentIdentity: string;
   /**
    * Path used only to acquire the parent handle whose identity is then proved.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Locates the parent capability without authorizing child creation through the mutable path.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Separates capability acquisition from relative exclusive creation.
    */
   parentPath: string;
 }
@@ -59,79 +39,34 @@ export interface IScaffoldParentPublicationRequest {
  * one-link and held-parent-relative resident identity, final status, and close
  * may return `completed`.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Reports absence and bound partial state without pathname cleanup.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Supplies the exact one-slot result that candidate recovery consumes.
  * @author Samchon
  */
 export interface IScaffoldParentPublicationCapability {
   /**
    * Execute one native parent-bound publication and return its truthful effect.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Preserves the effect boundary across native create, write, verification, and close.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Makes the native outcome explicit rather than reconstructing it from a pathname.
    */
   publish(
     request: IScaffoldParentPublicationRequest,
   ): ScaffoldFilePublicationOutcome;
 }
 
-/**
- * Captured physical identity of one ordinary scaffold directory generation.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Keeps repeated scaffold writes bound to the same verified directory generation.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Reuses a write target only while its captured physical identity still matches.
- */
+/** Captured physical identity of one ordinary scaffold directory generation. */
 export interface IScaffoldPhysicalDirectory {
-  /**
-   * Device-and-inode identity of the captured directory.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Prevents a repeated write from silently adopting a replaced directory.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Requires the physical identity to match before reusing the target.
-   */
+  /** Device-and-inode identity of the captured directory. */
   identity: string;
-  /**
-   * Absolute lexical path selected for the directory.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Keeps every repeated write addressed to the same explicit target.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Carries the stable target into every reuse check.
-   */
+  /** Absolute lexical path selected for the directory. */
   path: string;
-  /**
-   * Native real path used to reject linked escapes.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Prevents path aliasing from changing a repeated write's destination.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Reuses only a target with the same resolved physical boundary.
-   */
+  /** Native real path used to reject linked escapes. */
   real: string;
 }
 
-/**
- * Captured pathname generation that authorizes a later read or replacement.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Keeps exact predecessor authority across preparation and publication.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Rejects a later resident instead of treating it as the approved input.
- */
+/** Captured pathname generation that authorizes a later read or replacement. */
 export interface IScaffoldFileSnapshot {
-  /**
-   * Physical file identity reported by pathname metadata.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Pins the approved file generation.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Refuses replacement by another physical file.
-   */
+  /** Physical file identity reported by pathname metadata. */
   identity: string;
-  /**
-   * Absolute pathname whose resident was captured.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Addresses the same approved target on retry.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Keeps reuse scoped to one named slot.
-   */
+  /** Absolute pathname whose resident was captured. */
   path: string;
-  /**
-   * Size and timestamp generation together with the physical identity.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Detects changed bytes within the original file.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Refuses in-place changes before a repeated operation.
-   */
+  /** Size and timestamp generation together with the physical identity. */
   version: string;
 }
 
@@ -150,12 +85,6 @@ class ScaffoldDescriptorCleanupError extends AggregateError {}
  * generation, and accepts a refusal only with one of the three pre-create
  * reasons. It performs no pathname retry and authorizes no cleanup.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Sends one immutable byte sequence to exactly the captured parent generation.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Rejects an adapter result that cannot prove the requested parent identity.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Preserves target-competitor refusal at the native exclusive-create boundary.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Makes the exact relative slot the only admissible native create target.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Returns truthful zero-publication or bound-partial state without deleting either generation.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Carries the native one-slot outcome directly into candidate recovery.
  * @author Samchon
  */
 export const publishScaffoldFileToCapturedParent = (props: {
@@ -221,9 +150,6 @@ export const publishScaffoldFileToCapturedParent = (props: {
 /**
  * Create or capture one ordinary scaffold base without following a linked
  * parent.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Refuses an existing non-directory or linked target instead of silently changing duplicate-write scope.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Resolves repeated creation against one captured physical base.
  */
 export const ensureScaffoldBaseDirectory = (
   directory: string,
@@ -256,9 +182,6 @@ export const ensureScaffoldBaseDirectory = (
 /**
  * Capture one ordinary physical directory without accepting symlinks or
  * junctions.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Captures the stable target identity required by repeated deterministic writes.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Makes physical identity a precondition of target reuse.
  */
 export const captureScaffoldPhysicalDirectory = (
   directory: string,
@@ -304,12 +227,7 @@ const physicalDirectoryIdentity = (
   }
 };
 
-/**
- * Revalidate one captured scaffold directory generation.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Rejects replacement between repeated write steps.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Requires the resident generation to match the captured reuse identity.
- */
+/** Revalidate one captured scaffold directory generation. */
 export const assertScaffoldPhysicalDirectory = (
   ownership: IScaffoldPhysicalDirectory,
 ): void => {
@@ -347,9 +265,6 @@ const captureEmptyScaffoldPhysicalDirectory = (
 
 /**
  * Resolve and retain every physical descendant directory needed by one file.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Reuses only descendants proven to remain inside the same scaffold base.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Validates cached directory identities before every reuse.
  */
 export const ensureScaffoldFileDirectory = (props: {
   base: IScaffoldPhysicalDirectory;
@@ -397,11 +312,6 @@ export const ensureScaffoldFileDirectory = (props: {
 /**
  * Create or explicitly overwrite one exact final file through its bound
  * descriptor.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Refuses an existing file unless the caller explicitly authorizes exact-target replacement.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Resolves a repeated file write without creating a second logical target.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-alias-visible-bytes Refuses replacement when another directory entry names the resident inode, preserving the unrequested path's bytes.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-alias-visible-bytes Admits in-place replacement only after the write descriptor proves that exactly one entry names its file.
  */
 export const writeScaffoldFile = (props: {
   base: IScaffoldPhysicalDirectory;
@@ -566,9 +476,6 @@ const overwriteScaffoldFile = (props: {
  * duration of a command, which made a link count here refuse ordinary inputs
  * such as the project's reference-client configuration. A symbolic link stays
  * refused, and the writer that truncates in place keeps its stricter admission.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Pins the predecessor generation before preparing a repeated write.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Refuses a symbolic link and a non-file target as reusable inputs.
  */
 export const captureScaffoldFile = (file: string): IScaffoldFileSnapshot =>
   captureAdmittedScaffoldFile(file, assertOrdinaryScaffoldFile);
@@ -583,9 +490,6 @@ export const captureScaffoldFile = (file: string): IScaffoldFileSnapshot =>
  * relaxed capture exists for a generated project, whose root-direct inputs the
  * documented script runner mirrors while a command runs, and that reason does
  * not transfer to a launcher choosing what to operate on.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Pins a predecessor generation for reuse only while one directory entry names it, so an aliased target never becomes the approved input.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Narrows reusable-input admission past the ordinary judgment by also refusing a target another pathname names.
  */
 export const captureSingleLinkScaffoldFile = (
   file: string,
@@ -670,12 +574,7 @@ const assertOpenedScaffoldFileSnapshot = (
   return current;
 };
 
-/**
- * Refuse a pathname whose physical file or content generation has changed.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Keeps reuse tied to the originally approved resident.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Checks both identity and byte-generation metadata before reuse.
- */
+/** Refuse a pathname whose physical file or content generation has changed. */
 export const assertScaffoldFileSnapshot = (
   snapshot: IScaffoldFileSnapshot,
 ): void => {
@@ -692,9 +591,6 @@ export const assertScaffoldFileSnapshot = (
 /**
  * Read the descriptor that proves a captured pathname generation. Descriptor
  * identity is separate because Windows path and handle device ids can differ.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Retains exact bytes and observed generation before a repeated write is planned.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Refuses a changed resident before its bytes can authorize reuse.
  */
 export const readScaffoldFileSnapshot = (
   file: string,
@@ -713,9 +609,6 @@ export const readScaffoldFileSnapshot = (
  * rather than adopted. Admission is where that promise lives: a second entry
  * appearing after this read leaves the inode identity unchanged, so the
  * generation checks that follow are not the place to look for it.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Retains bytes and generation for reuse only from a target no second pathname names.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Admits a reusable source under the narrower judgment, refusing an aliased resident before its bytes authorize anything.
  */
 export const readSingleLinkScaffoldFileSnapshot = (
   file: string,

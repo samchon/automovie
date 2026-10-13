@@ -37,8 +37,6 @@ const STARRED = /\bexport\s+\*\s*(?:as\s+([\w$]+)\s*)?from\s*["']([^"']+)["']/g;
  * @evidence contracts/common.md#clear-and-simple-design Export-table and answer memos share one traversal while the import resolver retains path semantics.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Source export declarations decide reach; a cycle or unreadable owner does not invent a fixture-specific dependency or suppress the caller's whole-file fallback.
  * @evidence contracts/common.md#meaningful-documentation Lists supported re-export forms, named-import purpose and the null result's conservative dependency meaning.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Traces supported named re-export forms to the actual source files read by inspection runtime imports.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Memoized source export tables keep unresolved or cyclic ownership explicit so callers retain their conservative whole-module dependency.
  */
 export function createHumanViewerExportOwners(props: {
   root: string;

@@ -11,57 +11,24 @@ import { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRange";
  * when they cannot honour {@link minSpacing}, so a cluster is a stated
  * arrangement with a stated collision rule instead of a list of coordinates
  * somebody typed.
- *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `IAutoMoviePlantingCluster` as the portable data boundary for the interior soft collision clearance requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingCluster` for the interior space soft furnishing planting system contract.
  */
 export interface IAutoMoviePlantingCluster {
-  /**
-   * Stable cluster identity within the production.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `id` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-   */
+  /** Stable cluster identity within the production. */
   id: string;
 
-  /**
-   * Id of the planting recipe every member grows from.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `domain` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `domain` for the interior space soft furnishing planting system contract.
-   */
+  /** Id of the planting recipe every member grows from. */
   domain: string;
 
-  /**
-   * Members to place; an integer of at least 1.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `count` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `count` for the interior space soft furnishing planting system contract.
-   */
+  /** Members to place; an integer of at least 1. */
   count: number;
 
-  /**
-   * World centre of the placement rectangle.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `anchor` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `anchor` for the interior space soft furnishing planting system contract.
-   */
+  /** World centre of the placement rectangle. */
   anchor: IAutoMovieVector3;
 
-  /**
-   * Half-extent of the placement rectangle in metres; each `>= 0`.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `extent` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `extent` for the interior space soft furnishing planting system contract.
-   */
+  /** Half-extent of the placement rectangle in metres; each `>= 0`. */
   extent: IAutoMoviePlantingExtent;
 
-  /**
-   * Deterministic seed; any safe integer.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `seed` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `seed` for the interior space soft furnishing planting system contract.
-   */
+  /** Deterministic seed; any safe integer. */
   seed: number;
 
   /**
@@ -69,26 +36,13 @@ export interface IAutoMoviePlantingCluster {
    * that cannot be placed within {@link attempts} tries is refused and counted,
    * never squeezed in: a cluster that quietly overlapped would be a cluster
    * whose author was told nothing and whose frames changed anyway.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `minSpacing` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `minSpacing` for the interior space soft furnishing planting system contract.
    */
   minSpacing: number;
 
-  /**
-   * Seeded placement attempts per member; an integer of at least 1.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `attempts` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `attempts` for the interior space soft furnishing planting system contract.
-   */
+  /** Seeded placement attempts per member; an integer of at least 1. */
   attempts: number;
 
-  /**
-   * Per-axis scale range every member is drawn from.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `scale` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `scale` for the interior space soft furnishing planting system contract.
-   */
+  /** Per-axis scale range every member is drawn from. */
   scale: IAutoMoviePlantingScaleRange;
 
   /**
@@ -97,9 +51,6 @@ export interface IAutoMoviePlantingCluster {
    * normalized quaternion interpolation, so a partial jitter is a partial
    * rotation rather than a scaled angle no trigonometry-free derivation could
    * reproduce exactly.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-collision-clearance Exposes `yawJitter` as the portable data boundary for the interior soft collision clearance requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `yawJitter` for the interior space soft furnishing planting system contract.
    */
   yawJitter: number;
 }

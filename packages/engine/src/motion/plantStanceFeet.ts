@@ -63,9 +63,6 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  * {@link spaceGround} (#605). Path/turning locomotion is #599; the shared
  * two-bone lowering could be factored out of {@link reachPose} (follow-up).
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Detects stance against the declared ground and tolerance, then pins each run to its contact target.
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-refusal Bounds an unreachable stance correction at the limb's reachable shell instead of emitting non-finite motion.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Resolves planted support into ROM-bounded dense motion and an explicit contact record.
  * @author Samchon
  */
 export const plantStanceFeet = (props: {

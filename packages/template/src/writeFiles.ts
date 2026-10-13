@@ -19,9 +19,6 @@ import {
  *
  * Existing files are replaced only when their captured ordinary single-link
  * identity still matches. Other directory entries never grant write authority.
- *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Requires explicit force before a duplicate final path can be replaced.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Carries the permission to admit an existing root and replace exact captured single-link files.
  */
 export interface IScaffoldPublicationOptions {
   /** Admit an existing root and permit exact captured single-link replacement. */
@@ -33,16 +30,11 @@ export interface IScaffoldPublicationOptions {
  * receipt retained for recovery. Raised only after the exact observed effect
  * has been captured, so the receipt crosses the throwing boundary intact.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Keeps the completed prefix and stopping effect attached to a failed legacy write call.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Lets a caller inspect the same receipt used by the non-throwing publication API.
  * @author Samchon
  */
 export class ScaffoldPublicationError extends Error {
   /**
    * Exact candidate-wide effect observed before the compatibility call threw.
-   *
-   * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Preserves the completed prefix and stopping effect for reconciliation.
-   * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Supplies the immutable receipt to an explicit recovery decision.
    */
   public readonly receipt: IScaffoldPublicationReceipt;
 
@@ -91,20 +83,7 @@ export class ScaffoldPublicationError extends Error {
  * single-link files.
  * Rendering the map is {@link renderScaffold}'s job; this is its write half.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Repeated explicit writes converge on the same scaffold bytes while an unforced duplicate is refused.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Binds a retry to the same deterministic file map and verifies each resident result.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-duplicate-submission Refuses duplicate final paths unless exact replacement is explicitly authorized.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-duplicate-submission Resolves an existing target through explicit refusal or exact replacement.
  * @author Samchon
- *
- * @evidence requirements/operations-and-recovery/README.md#운영과-복구-요구사항 Writes a rendered tree into a directory the user already owns without destroying what is there.
- * @evidence specifications/execution-and-recovery/README.md#실행과-복구-시스템-계약 Implements the write half of scaffold materialization under captured physical identity.
- * @evidenceExclude requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-exactly-once-claim-boundary Materialization has no claim ticket and no delivery attempt; repeated calls converge on the same bytes rather than being deduplicated by an identifier.
- * @evidenceExclude requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-external-side-effect-outcome Every effect is inside the target directory, so no external system observes an outcome this write must classify.
- * @evidenceExclude specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-exactly-once-boundary The scaffold write carries no submission identity, so it defines no exactly-once boundary.
- * @evidenceExclude specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-external-outcome-reconciliation There is no external outcome: the write's entire effect is the local tree it materializes.
- * @evidenceExclude specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-retry-backoff-schedule The caller decides whether to run the command again; this function schedules nothing.
- * @evidenceExclude specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-retry-eligibility-limit A refusal is terminal and named, so no eligibility window or attempt limit applies.
  */
 export const writeFiles = (
   location: string,
@@ -130,10 +109,6 @@ export const writeFiles = (
  * stops at the first refusal or partial result and never cleans up through a
  * mutable pathname.
  *
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-idempotent-deterministic-results Closes the complete target and byte candidate before the first filesystem mutation.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-deterministic-result-reuse Publishes one immutable candidate in deterministic entry order.
- * @evidence requirements/operations-and-recovery/idempotency-and-side-effects.md#operations-compensation-reconciliation Returns the completed prefix and exact stopping effect without blind cleanup.
- * @evidence specifications/execution-and-recovery/retry-backoff-and-idempotency.md#execution-compensation-adoption Preserves parent-bound partial state for an explicit caller decision.
  * @author Samchon
  */
 export const publishFiles = (

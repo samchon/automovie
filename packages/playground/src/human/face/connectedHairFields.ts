@@ -16,9 +16,6 @@ type Field = {
  * colour and ratios retain their declared units. Optional guide, part and
  * region coordinates appear only when their complete structures exist. The document
  * admission boundary owns ranges and coupled constraints, without UI clamping.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes every fine numerical styling coordinate independently of subject identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Gives displayed physical units reversible conversions to canonical document values.
  */
 export function connectedHairFields(layer: Layer): Field[] {
   const fields: Field[] = [];

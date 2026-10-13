@@ -27,8 +27,6 @@ const assertFiniteVector = (label: string, vector: IAutoMovieVector3): void => {
  * sent sideways walks facing its path instead of strafing. Omit it (the
  * default) to keep the rest facing: a strafe or a backpedal.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Repeats the selected gait by whole cycles while preserving its declared phase law.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Turns the selected gait into a finite clip that arrives at the requested destination.
  * @author Samchon
  */
 export const locomoteMotion = (

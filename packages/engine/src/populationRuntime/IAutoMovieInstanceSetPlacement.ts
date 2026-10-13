@@ -12,9 +12,6 @@ import {
  * out the default its base recipe stands for. A caller holding a design
  * resolves both before asking, so there is one member law rather than one per
  * record shape, and the default is counted once.
- *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Separates the shared prototype choices and base recipe from the one occurrence a slot regenerates.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Carries the prototype table, placement law, and variation law that one instance occurrence is resolved against.
  */
 export type IAutoMovieInstanceSetPlacement = Pick<
   IAutoMovieCompiledInstanceSet,

@@ -33,9 +33,6 @@ import { footprintRingPlacement } from "./footprintRingPlacement";
  * there is no shape for them to agree on. That is why `validateSpace` refuses a
  * self-crossing ring outright rather than leaving either reading to stand for
  * it.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `footprintConvexPieces` produces the footprint as convex pieces whose union is exactly the region. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `footprintConvexPieces` performs convex pieces footprint evaluation when the engine checks finite planar topology before consuming geometry.
  */
 export const footprintConvexPieces = (
   footprint: IAutoMovieFootprint,

@@ -19,33 +19,16 @@ import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
  * because "we did not look" and "we looked and it was fine" are different facts
  * and only one of them clears an artifact.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderReport` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderReport` for the spec render artifact lifecycle system contract.
  * @author Samchon
  */
 export interface IAutoMovieRenderReport {
-  /**
-   * Report format.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `version` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `version` for the spec render artifact lifecycle system contract.
-   */
+  /** Report format. */
   version: 1;
 
-  /**
-   * Versioned report protocol.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `protocol` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `protocol` for the spec render artifact lifecycle system contract.
-   */
+  /** Versioned report protocol. */
   protocol: "automovie.render-report.v1";
 
-  /**
-   * Quality tier the budget declared.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `tier` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `tier` for the spec render artifact lifecycle system contract.
-   */
+  /** Quality tier the budget declared. */
   tier: string;
 
   /**
@@ -59,9 +42,6 @@ export interface IAutoMovieRenderReport {
    * `unbudgeted` and the tier spelled `unbudgeted`, which is the documented
    * default and is deliberately distinguishable from a production that declared
    * limits and met them.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `status` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `status` for the spec render artifact lifecycle system contract.
    */
   status: "within" | "over" | "incomplete";
 
@@ -70,33 +50,17 @@ export interface IAutoMovieRenderReport {
    *
    * Fixed length, so the report's size never depends on how large the
    * production is.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `findings` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `findings` for the spec render artifact lifecycle system contract.
    */
   findings: IAutoMovieRenderFinding[];
 
-  /**
-   * Digest of the semantic mask this report is evidence beside.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `mask` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `mask` for the spec render artifact lifecycle system contract.
-   */
+  /** Digest of the semantic mask this report is evidence beside. */
   mask: AutoMovieContentDigest;
 
-  /**
-   * Renderer, settings and assets the measurement is bound to.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `target` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `target` for the spec render artifact lifecycle system contract.
-   */
+  /** Renderer, settings and assets the measurement is bound to. */
   target: IAutoMovieRenderTarget;
 
   /**
    * Digest over the protocol, tier, findings, mask digest and target digest.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `digest` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `digest` for the spec render artifact lifecycle system contract.
    */
   digest: AutoMovieContentDigest;
 }

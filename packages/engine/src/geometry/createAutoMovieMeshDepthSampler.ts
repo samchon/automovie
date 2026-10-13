@@ -11,8 +11,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * not change the envelope. Faces parallel to the query ray supply no isolated
  * intersection and are skipped; triangle edges belong to both neighbours.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Resolves attachment depths from existing resident triangles so a constructed surface can follow its host geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Samples a mesh without changing topology or attributes and retains the caller's metric coordinate frame for dependent geometry.
  * @author Samchon
  */
 export function createAutoMovieMeshDepthSampler(

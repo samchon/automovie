@@ -8,8 +8,6 @@
  * this declaration would make `instanceof` false for every error the verifier
  * actually throws, and every refusal would read as an unrelated exception.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Distinguishes historical palette compatibility from a current payload whose declared identity is false.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Carries the stable refusal classification semantic product receipts consume.
  * @author Samchon
  */
 export class AutoMovieSemanticMaskVerificationError extends Error {

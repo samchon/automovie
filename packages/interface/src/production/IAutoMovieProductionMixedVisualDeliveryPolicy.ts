@@ -1,11 +1,6 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 
-/**
- * Reviewed policy for every adjacent crossing between unlike visual lanes.
- *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Binds each actual lane crossing to the current aggregate observation.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity Makes transition review versioned and occurrence-addressed.
- */
+/** Reviewed policy for every adjacent crossing between unlike visual lanes. */
 export interface IAutoMovieProductionMixedVisualDeliveryPolicy {
   /** Protocol version. */
   version: 1;

@@ -10,10 +10,6 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
  * capture therefore cannot satisfy subject coverage merely because it contains
  * the subject.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Binds an observation to the subject, compiled revision, viewpoint and exact artifact that was inspected.
- * @evidence requirements/review/subject-inspection.md#review-subject-time-noninterchange Makes subject-view evidence structurally distinct from frame and range evidence.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Types the independently addressable subject observation record.
- * @evidence specifications/review-and-acceptance/target-scope-and-context.md#review-system-presentation-context Preserves the subject, viewpoint, pose, artifact, evidence kind, runtime identity, and terminal status that bound the observation.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewObservation {

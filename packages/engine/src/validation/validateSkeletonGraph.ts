@@ -4,8 +4,6 @@ import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Reports unresolved parents, invalid root counts and unreachable skeleton members in original bone order.
- * @evidence requirements/actors/validation.md#actor-input-binding-validation Checks parent resolution, the single root and reachability without normalizing or repairing the skeleton.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Checks parent resolution, the single root and reachability without normalizing or repairing the skeleton.
  */
 export const validateSkeletonGraph = (
   skeleton: IAutoMovieSkeleton,

@@ -1,9 +1,4 @@
-/**
- * Computational family of a node.
- *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `AutoMovieServiceNodeKind` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `AutoMovieServiceNodeKind` for the interior space service network contract system contract.
- */
+/** Computational family of a node. */
 export type AutoMovieServiceNodeKind =
   /** Where the medium enters or leaves the building: a main, a panel, a stack. */
   | "source"

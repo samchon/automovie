@@ -33,8 +33,6 @@ import { validateUniqueIds } from "./validateUniqueIds";
  * registry supplies the referenced clips, and how a project addresses its
  * files. Those are questions about a deployment, not about the artifact.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateShotArtifact` reports every malformed shot id, reference, performance, motion, event, intent, and coverage member at its artifact path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateShotArtifact` preserves shot-root identity, nested collection positions, observed values, and expected structural contracts across the complete commit gate.
  * @author Samchon
  */
 

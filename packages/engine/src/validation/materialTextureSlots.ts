@@ -41,9 +41,6 @@ const OWN_SLOTS: ReadonlyArray<{
  * Every image a material binds, its own slots and then each overlay's colour
  * and normal map, so validation, asset closure and the texture inventory
  * read one list rather than copies of it.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Lists every image slot a material binds, overlays included, with the decoding each requires.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual Lists every image slot a material binds, overlays included, with the decoding each requires.
  */
 export const materialTextureSlots = (
   material: IAutoMovieMaterial,

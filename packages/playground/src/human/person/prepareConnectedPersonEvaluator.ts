@@ -17,8 +17,6 @@ import { describeConnectedPersonFaceProgress } from "@automovie/human/human/runt
  * reads that same evaluator's final model instead of compiling a second
  * whole-person evaluator for face measurements.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Compiles the evaluator person measurements are read and solved on.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Joins the head and body views once both arrive and builds the one-skin evaluator.
  * @author Samchon
  */
 export async function prepareConnectedPersonEvaluator(

@@ -21,8 +21,6 @@ const assertFiniteVector = (name: string, vector: IAutoMovieVector3): void => {
  * that falls within the segment. A degenerate segment (`a == b`) reduces to a
  * point-in-sphere test.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-collision-proxies Tests a bounded segment against the declared spherical proxy.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Computes the first world contact without persistent solver state.
  * @author Samchon
  */
 export const segmentSphere = (

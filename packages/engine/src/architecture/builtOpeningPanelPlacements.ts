@@ -26,11 +26,6 @@ import { IAutoMovieOpeningPanelPlacement } from "./IAutoMovieOpeningPanelPlaceme
  * is a shot `objectMotions` clip over the
  * {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the
  * architecture record never grows a second clock beside the shot's own.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtOpeningPanelPlacements` returns where an opening's panels stand, in world space, at one named state. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtOpeningPanelPlacements` resolves every opening panel to its world-space placement at the requested state.
- * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-components `builtOpeningPanelPlacements` materializes the declared movable fill panels at their named-state world placements without claiming unmodeled frame or hardware components.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation `builtOpeningPanelPlacements` resolves the movable panel subset of the host opening's declared operation state.
  */
 export const builtOpeningPanelPlacements = (
   environment: IAutoMovieBuiltEnvironment,

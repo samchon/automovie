@@ -14,41 +14,20 @@ import type { createHumanViewerViewportHost } from "./createHumanViewerViewportH
  * @evidence contracts/common.md#clear-and-simple-design Viewport ownership is supplied once beside explicit preview or construction selection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ambient occlusion and construction are authored options; neither depends on an example face identity.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Face document, AO choice and original face request/result port reach the same product viewport host.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Ambient occlusion and construction are authored options; neither depends on an example face identity.
- *
  * @author Samchon
  */
 export interface IBuildHumanViewerFaceResidentProps {
-  /**
-   * The viewport host the resident owns.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Retains the supplied face viewport host as the owner of controls, sizing and release.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains the supplied face viewport host as the owner of controls, sizing and release.
-   */
+  /** The viewport host the resident owns. */
   host: ReturnType<typeof createHumanViewerViewportHost>;
 
-  /**
-   * The face document.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Supplies the original Face document whose basis and channels the Human runtime admits.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Supplies the original Face document whose basis and channels the Human runtime admits.
-   */
+  /** The face document. */
   document: IAutoMovieHumanFaceBasisDocument;
 
-  /**
-   * Whether ambient occlusion is evaluated.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Carries the caller's explicit ambient-occlusion choice to the same Face build rather than changing document geometry.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Carries the caller's explicit ambient-occlusion choice to the same Face build rather than changing document geometry.
-   */
+  /** Whether ambient occlusion is evaluated. */
   ao: boolean;
 
   /**
    * Explicit owner construction inspection; omission retains admitted preview.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Keeps preview and construction selection explicit while omission retains the existing preview path.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Keeps preview and construction selection explicit while omission retains the existing preview path.
    */
   operation?: "preview" | "construct";
 
@@ -59,9 +38,6 @@ export interface IBuildHumanViewerFaceResidentProps {
    * @evidence contracts/common.md#clear-and-simple-design A single supplied factory opens the resident's numerical connection.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the supported face port without replacing Worker globals or bypassing admission.
    * @evidence contracts/common.md#meaningful-documentation The factory creates a connection owned by the face resident and retired on release.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The factory provides the original Face request/result protocol to the product viewport.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The factory creates a connection owned by the face resident and retired on release.
    */
   worker: () => HumanResidentPort<ConnectedFaceRequest, ConnectedFaceResult>;
 }

@@ -14,8 +14,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * scale with that framing radius, keeping their ratio stable for a fixed lens
  * and distance factor without claiming scale invariance below the floor.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `frameAutoMovieViewerSubject` derives the angle, distance, and projection from the subject's own extent, so the inspection owns the viewpoint instead of inheriting an authored camera.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `frameAutoMovieViewerSubject` resolves one viewpoint plan entry into camera state without taking authored camera, shot boundary, or film time as input.
  * @author Samchon
  */
 export const frameAutoMovieViewerSubject = (

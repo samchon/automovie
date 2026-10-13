@@ -13,9 +13,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * is undefined and cannot justify skipping Float32 face preservation.
  * Positions are local metres; welding uses the engine's shared nanometre grid.
  * Neither the source mesh nor its connectivity is changed.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Identifies source degeneracy before deciding whether Float32 packing lost a face.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Supplies source face ordinals for the numerical surface admission boundary.
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices = triangleIndicesOf(mesh, "mesh topology");

@@ -45,9 +45,6 @@ let nextObjectIdentity = 0;
  * in a reused context; its host must retain the earlier phase facts there.
  * Both allocation owners are observed before extent/layout checks; one refusal
  * or a malformed image cannot hide another owner's sticky input history.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Supplies actual decoded dimensions and upload component width to resident-memory preflight.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Prevents author-entered byte estimates from substituting for the capture host's decoded texture facts.
  */
 export function readAutoMovieTextureSource(
   asset: string,

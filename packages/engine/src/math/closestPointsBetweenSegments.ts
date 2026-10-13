@@ -31,8 +31,6 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * orientation on a nonunique minimum; it does not change the separation.
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Returns paired contact witnesses and their shared separation without an absolute scale-dependent parallel cutoff.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Minimises the bounded contact-feature quadratic and measures the separation of the same owned witnesses used for a contact normal.
  * @author Samchon
  */
 export const closestPointsBetweenSegments = (

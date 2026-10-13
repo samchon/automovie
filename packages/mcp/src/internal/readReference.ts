@@ -8,11 +8,6 @@ type Heading = ParsedReference["headings"][number];
 
 /**
  * Select an exact file or heading subtree and return only its original visible pieces.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-source Keeps source digest, content and optional reconstruction ranges on the same snapshot.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-selection Refuses missing, ambiguous or unsupported anchors instead of guessing a nearby section.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-source Rejects stale digests and returns ordered original intervals for detail reads.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-selection Separates selected-heading metadata and ends the body at the next same-or-shallower heading.
  */
 export function readReference(
   parsed: ParsedReference,

@@ -13,11 +13,6 @@ import {assertAutoMovieSceneShadowProfile} from "./assertAutoMovieSceneShadowPro
  * Both owners are restored independently, even after drawing or one restore
  * fails. The primary failure remains first rather than being replaced by a
  * secondary restoration error. Caller-owned scene and renderer are retained.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Restores both renderer environment and scene pass state after every draw.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Attempts every pass-local restoration and preserves primary failures.
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Applies the sample's single effective beauty display transform before drawing its source.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Leaves beauty and structural configuration to their owning adapters.
  */
 export const renderAutoMovieScenePass=(renderer:THREE.WebGLRenderer,scene:THREE.Scene,camera:THREE.Camera,environment:IAutoMovieSceneEnvironment|null|undefined,pass:AutoMovieGuidePass,delivery?:IAutoMovieSceneEnvironment["toneMapping"]):void=>{
   const priorShadows={enabled:renderer.shadowMap.enabled,type:renderer.shadowMap.type};

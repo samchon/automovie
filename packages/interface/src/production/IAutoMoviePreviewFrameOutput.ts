@@ -2,44 +2,23 @@ import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 
-/**
- * An actual PNG frame bound to a compile and render bundle.
- *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `IAutoMoviePreviewFrameOutput` as the portable data boundary for the agent contract guidance requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `IAutoMoviePreviewFrameOutput` for the spec authoring knowledge request output system contract.
- */
+/** An actual PNG frame bound to a compile and render bundle. */
 export interface IAutoMoviePreviewFrameOutput {
   /**
    * True only after current decodable, dimension-matching PNG bytes with
    * visible pixel variance are verified and committed to a render bundle.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `captured` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `captured` for the spec authoring knowledge request output system contract.
    */
   captured: boolean;
 
-  /**
-   * Current compile fingerprint.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `compileFingerprint` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `compileFingerprint` for the spec authoring knowledge request output system contract.
-   */
+  /** Current compile fingerprint. */
   compileFingerprint: AutoMovieContentDigest;
 
   /**
    * Project-relative content-addressed render bundle, or null on any refusal.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `renderBundle` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `renderBundle` for the spec authoring knowledge request output system contract.
    */
   renderBundle: string | null;
 
-  /**
-   * Verified frame metadata or null on refusal.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `frame` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `frame` for the spec authoring knowledge request output system contract.
-   */
+  /** Verified frame metadata or null on refusal. */
   frame: {
     /** Zero-based frame index. */
     index: number;
@@ -66,11 +45,6 @@ export interface IAutoMoviePreviewFrameOutput {
     height: number;
   } | null;
 
-  /**
-   * Exact capture refusal diagnostics and correction, empty on success.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `diagnostics` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `diagnostics` for the spec authoring knowledge request output system contract.
-   */
+  /** Exact capture refusal diagnostics and correction, empty on success. */
   diagnostics: IAutoMovieDiagnostic[];
 }

@@ -9,8 +9,6 @@ import type { IAutoMovieSoftBodyState } from "@automovie/interface";
  * or a second machine reproduced the reference state rather than merely a close
  * one.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Records exact equality of one computed soft-body state.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Provides the repeatability receipt for a fixed-step transition result.
  * @author Samchon
  */
 export const softBodyStateDigest = (state: IAutoMovieSoftBodyState): string => {

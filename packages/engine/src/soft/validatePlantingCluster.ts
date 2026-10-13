@@ -16,8 +16,6 @@ import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
  * arrangement here is what keeps {@link arrangePlantingCluster} from silently
  * returning fewer members than an author believed they had asked for.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Refuses impossible member counts, regions, spacing, and variation before placement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Validates the bounded arrangement half of an interior planting.
  * @author Samchon
  */
 export const validatePlantingCluster = (props: {

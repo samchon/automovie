@@ -10,9 +10,6 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness.js";
  * without them (`null`) the record only borrows the candidate's arrays for one
  * comparison. Nothing is turned into text: the largest arrays are compared
  * element by element and kept once, in the witnesses.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Decides resident buffer reuse from the actual static model structure.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reduces a face model to the structure that decides whether the displayed buffers are reused.
  */
 export function connectedFaceStructure(
   model: IAutoMovieModel,

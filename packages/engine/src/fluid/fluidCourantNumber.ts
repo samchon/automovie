@@ -9,8 +9,6 @@ import { IAutoMovieFluidDomain } from "@automovie/interface";
  * integrated at all, which is why the validator reads it instead of guessing a
  * step on the author's behalf.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-refusal Measures whether the authored explicit solve is numerically admissible.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#world-coupling-invalidation-and-refusal Supplies the stability fact used to refuse an invalid fluid domain.
  * @author Samchon
  */
 export const fluidCourantNumber = (domain: IAutoMovieFluidDomain): number =>

@@ -27,8 +27,6 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * record, so the geometry metrics report `not-run` rather than approve a
  * triangle count this repository invented.
  *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Reads every compiled fluid, cloth, planting, instance, scene, and model contribution into the drawable cost closure.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Converts builder-owned domains and bindings into explicit measured or not-run preflight inputs.
  * @author Samchon
  */
 export const autoMovieRenderSubjectOfCompiledShot = (props: {

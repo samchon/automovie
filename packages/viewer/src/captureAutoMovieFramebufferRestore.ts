@@ -9,9 +9,6 @@ import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState
  * A temporary target rectangle supplies the captured physical values to the
  * supported bind operation, then its authored fields are restored immediately.
  * Every independent restoration is attempted after a native resource operation.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-state-isolation Preserves public framebuffer and raster state across native shadow attachment ownership operations.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Restores all observed caller selection fields independently.
  */
 export const captureAutoMovieFramebufferRestore=(renderer:THREE.WebGLRenderer):()=>void=>{
   const target=renderer.getRenderTarget(),face=renderer.getActiveCubeFace(),mip=renderer.getActiveMipmapLevel();

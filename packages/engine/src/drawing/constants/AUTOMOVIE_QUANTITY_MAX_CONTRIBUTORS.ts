@@ -6,8 +6,5 @@
  * the artifact somebody orders material from grows with the building until
  * nobody reads it. What the bound leaves out is counted and summed, never
  * dropped, so the named owners and the total always reconcile.
- *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-quantities-waste Bounds each take-off's named owner sample while preserving the count and value of every omitted contributor.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Sets the canonical contributor-list limit to eight before omitted owners are separately counted and summed.
  */
 export const AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS = 8;

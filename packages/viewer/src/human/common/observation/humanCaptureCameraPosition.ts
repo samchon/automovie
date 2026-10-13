@@ -5,9 +5,6 @@ import type { IHumanCaptureCamera } from "./IHumanCaptureCamera.js";
  * The spherical direction is `(cos(p) sin(y), sin(p), cos(p) cos(y))`;
  * eye placement is independent of viewport resolution and field of view.
  * The caller admits finite angles, positive distance and finite target values.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reproduces an admitted recorded viewing direction around the displayed model.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Applies the recorded metre-scale camera without fitting the numerical asset to an image.
  */
 export function humanCaptureCameraPosition(
   camera: IHumanCaptureCamera,

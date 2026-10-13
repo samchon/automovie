@@ -28,9 +28,6 @@ const unitPlane = (plane: {
  * independent, and the point belongs to the cell when every other plane admits
  * it. Unbounded cells simply produce fewer points, which is the honest answer
  * for a half-space that closes nothing.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Turns a stated space volume into the points an observation station can be measured against.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Derives the convex-cell corner set the interior station rule reads.
  */
 export const builtConvexCellVertices = (
   cell: IAutoMovieConvexSpaceCell,

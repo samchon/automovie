@@ -15,8 +15,6 @@ import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderMod
  * The body and face preview renderers release replaced or withdrawn frames
  * through this one owner.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Attempts every distinct resource of a withdrawn preview and preserves cleanup failures, leaving texture retirement to its cache owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Collects each geometry and standard/custom shadow material once before independently attempting disposal; successful public calls do not certify physical retirement.
  * @author Samchon
  */
 export function releaseHumanPreviewGroup(group: THREE.Group): void {

@@ -7,8 +7,6 @@ import { AutoMovieContentDigest } from "@automovie/interface";
  * timeline it holds, never from the runtime array itself, so a stale artifact
  * cannot vouch for its own currentness.
  *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-cache-identity Names the production, film, compile, and edit identities a persisted stream must match before it is reused.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#checkpoint-cache-identity-and-validity Carries the production and edit key fields whose mismatch is a cache miss rather than a stale success.
  * @author Samchon
  */
 export interface IAutoMovieFilmEffectCurrentIdentity {

@@ -11,8 +11,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * and it makes no claim about a support relation: it reports what the record
  * measures under a body, which is a measurement rather than an inferred bearing.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-structural-support Finds a floating or disconnected placed body without a project-authored relation naming it first.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-structural-support-input-output Carries the signed clearance to the nearest measurable body below and the basis both extents were taken from.
  * @author Samchon
  */
 export interface IAutoMovieBuiltFloatingBody {

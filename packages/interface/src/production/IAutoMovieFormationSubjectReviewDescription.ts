@@ -10,8 +10,6 @@ import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary
  * builder-owned formation record directly while sharing only identity,
  * revision, kind, and bounded member summary with other subject descriptions.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity Keeps a formation reviewable under its own identity without expanding every anonymous member.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record Types the compact formation record as a subject without misclassifying it as an instance set.
  * @author Samchon
  */
 export interface IAutoMovieFormationSubjectReviewDescription {

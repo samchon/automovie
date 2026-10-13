@@ -31,13 +31,6 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  * formation. The digest is SHA-256 over canonical JSON v2 computed without a
  * Node built-in, equal to the Node builder's digest of the same canonical
  * bytes.
- *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality Stores a large set as laws, seed, and bounded chunk summaries from which each member's identity is still regenerated.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Compresses the population by count, index, seed, and prototype while keeping one conservative radius over every selectable prototype.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Compiles the reusable prototypes, the base recipe's default included once, apart from the occurrences that select them.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Records each prototype's tiers and radius as the shared definition every slot occurrence refers to.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Rebuilds the same compiled set, including its seeded variation law, from the same design, routes, recipes, and radii.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Digests the canonical record so identical declared inputs and seed yield the identical runtime identity.
  */
 export const materializeCompiledInstanceSet = (props: {
   /** Instance set design to compile. */

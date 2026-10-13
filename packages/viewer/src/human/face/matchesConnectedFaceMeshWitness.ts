@@ -8,9 +8,6 @@ import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness.js";
  * the same Float32 conversion and topology verdict. Vertex colours are omitted
  * because neither geometry gate reads them; the numerical model admission and
  * GPU material preparation still do.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Reuses a gate verdict only for exactly the certified arrays.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Decides whether a mesh is exactly the certified one so its verdict may be reused.
  */
 export function matchesConnectedFaceMeshWitness(
   mesh: IAutoMovieMesh,

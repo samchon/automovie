@@ -10,9 +10,6 @@ import type { IConnectedPersonUndescribedInput } from "./IConnectedPersonUndescr
  * ones the document type states. Motion inputs (pose, expression and the
  * performed fractions) are outside this list by scope.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Names the face inputs that are editable but whose supported range their owner has not published.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names the body inputs without a published range or a dedicated person control.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view States where each such input is edited on the person screen.
  * @author Samchon
  */
 export const CONNECTED_PERSON_UNDESCRIBED_INPUTS: IConnectedPersonUndescribedInput[] =

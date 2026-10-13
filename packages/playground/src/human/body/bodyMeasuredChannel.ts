@@ -17,8 +17,6 @@ import type {
  * second row for the same channel would be a second input overwriting the
  * same weight. The group list and the rows read this one predicate.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Decides once which channels the body panel offers as millimetre controls.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps a bound one-sided channel to one row, under its anatomical path, instead of two inputs for one weight.
  * @author Samchon
  */
 export function bodyMeasuredChannel(

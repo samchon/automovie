@@ -13,9 +13,6 @@ import { preparedSurfaceContains } from "./preparedSurfaceContains";
  * crowds and the camera base all read. `validateSpace` refused those footprints
  * precisely because this query could not tell the truth about them; it can now,
  * so they are authored instead of forbidden.
- *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `surfaceContains` answers "Is `(x, z)` on the surface's footprint?" This ensures marks and supports resolve against their declared host geometry.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `surfaceContains` performs contains surface evaluation when the engine resolves host-relative support geometry and whole-footprint zone membership.
  */
 export const surfaceContains = (
   surface: IAutoMovieSurface,

@@ -15,9 +15,6 @@ const AXIS_EPSILON = 1e-12;
  * unobstructed plane sees every one of its directions, so the estimate of an
  * isotropic sky's contribution collapses to the declared horizontal illuminance
  * with no sampling error at all, for any count.
- *
- * @evidence requirements/map/weather-and-seasons.md#map-calendar-time-celestial-state `autoMovieHemisphereDirections` supplies repeatable sky-facing sample directions around an authored measurement normal.
- * @evidence specifications/world-and-site/ecology-weather-and-calendar.md#world-site-calendar-time-celestial-input The Hammersley and Malley construction maps a sample count to one deterministic cosine-weighted hemisphere sequence.
  */
 export const autoMovieHemisphereDirections = (props: {
   normal: IAutoMovieVector3;

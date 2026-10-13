@@ -13,9 +13,6 @@ import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFo
  * a fractional JavaScript width as an unmeasurable texture.
  * The target owns allocation identity independently of its texture's Source.
  * No target state, pixels or caller lifetime is changed.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Supplies actual framebuffer formats, mips, samples and depth attachment facts to memory preflight.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Prevents target color textures from substituting for the complete attachment cost.
  */
 export function readAutoMovieRenderTextureTarget(
   owner: string,

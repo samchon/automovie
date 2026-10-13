@@ -22,8 +22,6 @@ import { selectProcessOwnershipTree } from "./internal/selectProcessOwnershipTre
  * @evidence contracts/common.md#clear-and-simple-design The stable static facade composes one capture/admission controller with the actual Node effect host; native effects and pure result interpretation retain separate owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No process is selected by executable name and no recursive operating-system kill extends the admitted set.
  * @evidence contracts/common.md#meaningful-documentation States identity precision, ancestry rules, failure effects and the POSIX signalling limitation.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Windows creation stamps and retained process handles establish the selected operating-system identities before termination.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One process boundary owns identity discovery, ancestry admission and platform termination.
  */
 export class ProcessOwnership {
   private static readonly controller = new ProcessOwnershipController(createNodeProcessOwnershipHost());
@@ -36,8 +34,6 @@ export class ProcessOwnership {
    * @evidence contracts/common.md#clear-and-simple-design One WeakMap records identities while the ChildProcess object retains its original lifecycle observations.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace child methods, infer ownership from executable names or synthesize a creation stamp for an absent process.
    * @evidence contracts/common.md#meaningful-documentation States capture timing, unchanged handle ownership and the absence of authority when identity cannot be established.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The child handle and its observed OS creation stamp jointly retain the spawned process identity for later termination admission.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One WeakMap records identities while the ChildProcess object retains its original lifecycle observations.
    */
   public static own(child: ChildProcess): void {
     ProcessOwnership.controller.own(child);
@@ -52,8 +48,6 @@ export class ProcessOwnership {
    * @evidence contracts/common.md#clear-and-simple-design One child-handle adapter delegates platform termination to stop while sharing the capture map created by own.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing capture authority and never expands termination by executable name, elapsed time or blind descendant traversal.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes an ended child from a live but unstamped child and states the latter's explicit refusal.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Original exit/signal observations and the captured OS creation stamp determine whether the same spawned child can still be stopped.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One child-handle adapter delegates platform termination to stop while sharing the capture map created by own.
    */
   public static stopChild(child: ChildProcess): void {
     ProcessOwnership.controller.stopChild(child);
@@ -69,8 +63,6 @@ export class ProcessOwnership {
    * @evidence contracts/common.md#clear-and-simple-design One platform boundary supplies the opaque creation identity to both owned-child capture and persisted process records.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses native process APIs, procfs or ps without process-name matching, guessed age or private launcher state as a substitute identity.
    * @evidence contracts/common.md#meaningful-documentation States platform representations, absent-process null and propagation of operational discovery failures.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Native OS creation information distinguishes the current PID allocation, including Linux reboot identity and Windows microsecond precision.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One platform boundary supplies the opaque creation identity to both owned-child capture and persisted process records.
    */
   public static read(pid: number): string | null {
     return ProcessOwnership.controller.read(pid);
@@ -86,8 +78,6 @@ export class ProcessOwnership {
    * @evidence contracts/common.md#clear-and-simple-design One parent-first traversal owns ancestry admission independently of native handle opening or termination.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects ambiguous snapshots and reused roots instead of adopting stale parent IDs or invoking a shell's unchecked recursive process kill.
    * @evidence contracts/common.md#meaningful-documentation Defines immutable snapshot ownership, creation-order ancestry and refusal before any process is terminated.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation A unique PID/creation snapshot and strictly later child creation admit only descendants of the same currently identified parent allocation.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One parent-first traversal owns ancestry admission independently of native handle opening or termination.
    */
   public static tree(
     snapshot: ReadonlyArray<{ pid: number; parentPid: number; createdAt: string }>,
@@ -108,8 +98,6 @@ export class ProcessOwnership {
    * @evidence contracts/common.md#clear-and-simple-design Shared identity discovery and tree admission select the termination boundary before each platform performs its native operation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects absent creation authority and PID reuse, uses individual retained Windows handles without taskkill tree expansion, and never selects unrelated processes by name.
    * @evidence contracts/common.md#meaningful-documentation States pre-termination identity/access refusal, absent-process behavior and the POSIX signalling limitation without claiming atomicity.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Windows pins and verifies all admitted process handles before termination; POSIX verifies the current creation identity before its explicit signal, with its documented native race.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Shared identity discovery and tree admission select the termination boundary before each platform performs its native operation.
    */
   public static stop(pid: number, createdAt: string): void {
     ProcessOwnership.controller.stop(pid, createdAt);

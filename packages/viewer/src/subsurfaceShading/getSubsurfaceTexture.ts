@@ -8,9 +8,6 @@ let shared: THREE.DataTexture | null = null;
 /**
  * Cache the actual half-float lookup across material consumers. Its shared
  * shader role prevents an environment handoff from retiring the same wrapper.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Creates the shared material lookup whose actual texture facts supply its retained byte bound.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps one lookup object across material consumers and separate from material disposal.
  */
 export const getSubsurfaceTexture = (): THREE.DataTexture => {
   if (shared !== null) return shared;

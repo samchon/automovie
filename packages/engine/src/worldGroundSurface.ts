@@ -13,9 +13,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * The height that goes with it is {@link worldSurfaceHeight} of the same record.
  * Both answers come from here so a placement, a gate and an oracle cannot each
  * pick a different surface.
- *
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Selects the authored terrain surface whose footprint contains the queried XZ point, including its boundary.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Resolves ground membership from ordered explicit footprints before any elevation is sampled.
  */
 export const worldGroundSurface = (
   surfaces: readonly IAutoMovieWorldSurface[],

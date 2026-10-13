@@ -13,8 +13,6 @@ import type { IHumanViewerInputs } from "./IHumanViewerInputs.js";
  * @evidence contracts/common.md#clear-and-simple-design One step owns the verdict split; the admission itself is injected.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every example follows the injected original admission, including its pending state, with no fixture exemption or downgraded preview verdict.
  * @evidence contracts/common.md#meaningful-documentation States what is drawable and how the rest is listed.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state A viewer-authored document is drawable only after its owner admitted it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One step owns the verdict split; the admission itself is injected.
  */
 export function admitHumanViewerAuthoredEntries(
   entries: readonly IHumanViewerCatalogueEntry[],

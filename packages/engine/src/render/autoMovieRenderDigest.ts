@@ -22,8 +22,6 @@ import { utf8Bytes } from "./utf8Bytes";
  * endianness, word size, and floating-point behavior cannot make one platform
  * disagree with another.
  *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Computes the stable SHA-256 fingerprint used to bind render evidence to its canonical inputs.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Supplies the content-addressed digest primitive for render target, inventory, mask, and report identities.
  * @author Samchon
  */
 export const autoMovieRenderDigest = (text: string): AutoMovieContentDigest =>

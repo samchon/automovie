@@ -25,10 +25,6 @@ interface IAutoMovieCaptionGraphemeRuntime {
  * The grapheme runtime is injected because the host owns it: a Node project
  * binds its installed `Intl.Segmenter` and reports that exact identity, while
  * a caller measuring an unsupported identity gets measurements and no verdict.
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-reading-overlap Measures reading rate, line count, line length, duration and same-language gap per cue against the declared profile boundaries.
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Computes a verdict only when the profile's complete segmentation identity equals the runtime that measured the cue, and reports measure-only `not-run` otherwise.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Applies the language profile's complete identity, boundaries and canonical cue text exactly as this contract states them.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-measurement Implements the measure-always, verdict-only-on-exact-identity evaluator with the case-insensitive same-language gap lookup.
  */
 export const inspectAutoMovieCaptionReadabilityWithRuntime = (
   timeline: IAutoMovieFilmTimeline,

@@ -13,8 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One owner counts holds and the recorded withdrawal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Records actual compile withdrawal until the last loading hold ends, without editing source or expiring a valid candidate by age.
  * @evidence contracts/common.md#meaningful-documentation States why withdrawal is held and when it is applied.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Holds pending compile withdrawal while an inspection candidate loads its modules and applies it after the last hold releases.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Reference-counted holds isolate one candidate's module preparation without promising that failed work succeeds or expiring it by time.
  */
 export function createHumanViewerCompileGate() {
   let holds = 0;

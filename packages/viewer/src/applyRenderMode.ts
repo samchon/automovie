@@ -87,8 +87,6 @@ const hideNonMeshRenderables = (scene: THREE.Scene): (() => void) => {
  * clamp to black past that range in the bundled capture. Override via a direct
  * call, not the hook.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps this surface explicit about beauty versus structural output.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that distinction as a reversible render-product pass.
  * @author Samchon
  */
 export const applyRenderMode = (

@@ -23,8 +23,6 @@ import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCach
  * their supported sampler/decoding changes and single upload-version increment.
  * Prior fixed-input or uncontrolled version drift remains uncertified.
  *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves each authored texture binding into the declared render material slot.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Applies the binding's colour space, UV transform and sampler at the render boundary.
  * @author Samchon
  */
 export const resolveAutoMovieMaterialTexture = (

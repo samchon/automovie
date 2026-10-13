@@ -2,9 +2,6 @@ import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 
 /**
  * The smallest box containing every given box, or null when none were given.
- *
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-bounds-state-motion unionSubjectBoxes exposes state-dependent asset extent: The smallest box containing every given box, or null when none were given.
- * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-dynamic-bounds-invariants unionSubjectBoxes realizes dynamic-bounds invariants: The smallest box containing every given box, or null when none were given.
  */
 export const unionSubjectBoxes = (
   boxes: readonly IAutoMovieSubjectBox[],

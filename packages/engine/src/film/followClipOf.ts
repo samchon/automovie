@@ -25,8 +25,6 @@ const drivingStart = (clip: IAutoMovieClip, node: string): number =>
  * parent handoff without interpreting its artifact id. Ties go to the later
  * producer entry.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects followClipOf selects the baked parent transform source needed to continue a chained object coupling for the addressed node.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff followClipOf realizes declared attachment and object handoff: The baked clip that supplies a chained coupling's parent transform for `node`, or `null` when none does. `coupleObjects` already groups these clips by the child they drive. The latest clip to start wins, so a chained coupling composes through the last parent handoff without interpreting its artifact id. Ties go to the later producer entry.
  * @author Samchon
  */
 export const followClipOf = (

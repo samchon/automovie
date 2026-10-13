@@ -13,9 +13,6 @@ import { ViolationCollector } from "./ViolationCollector";
  * chooses exact numeric pairs when possible and delimited pairs otherwise.
  * Omitted correspondence keeps legacy traversal and diagnostic labels exactly.
  * Compact identities impose no population ceiling beyond valid array buffers.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `appendMeshTopology` appends welded-edge topology faults at the caller's exact mesh-part path.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `appendMeshTopology` shares one incidence-and-winding calculation between model validation and the public standalone result.
  */
 export const appendMeshTopology = (
   mesh: IAutoMovieMesh,

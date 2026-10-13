@@ -12,8 +12,6 @@ const ROOT_PARENT = "__root__";
 /**
  * Index a skeleton's parent-child topology once for repeated FK work.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rest-bind-deformation Builds the parent-first traversal required to compose rest transforms consistently.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Builds deterministic parent-first traversal metadata from declared hierarchy links.
  * @author Samchon
  */
 export const indexSkeletonTopology = (

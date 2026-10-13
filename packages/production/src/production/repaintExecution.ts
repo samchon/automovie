@@ -15,9 +15,6 @@ import type { AutoMovieRepaintClaimAdmission } from "./repaintAttemptClaim";
  * The project claim store's own refusals pass through unchanged; a store that
  * threw or answered with a shape outside the admission contract is reported as
  * a failed admission carrying only a safe message, never as a dispatch.
- *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Preserves whether the same request prefix is held by another attempt, closed by an unknown outcome, or moved, so the author can tell a wait from a new request identity.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Keeps every non-acquired admission a typed outcome instead of a bare boolean that erases its cause.
  */
 export type AutoMovieRepaintClaimRefusal =
   | Exclude<AutoMovieRepaintClaimAdmission, { status: "acquired" }>
@@ -32,55 +29,55 @@ interface IAutoMovieRepaintAttemptOutput {
 
 /** One immutable terminal transport-attempt record. */
 export interface IAutoMovieRepaintAttemptRecord {
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Versions the immutable attempt record. */
+  /** Versions the immutable attempt record. */
   version: 1;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Names the owning production. */
+  /** Names the owning production. */
   productionId: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Names the exact shot. */
+  /** Names the exact shot. */
   shot: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Keeps retry request identity stable. */
+  /** Keeps retry request identity stable. */
   requestId: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Detects request mutation across retry. */
+  /** Detects request mutation across retry. */
   requestFingerprint: AutoMovieContentDigest;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Gives each provider call a distinct identity. */
+  /** Gives each provider call a distinct identity. */
   attemptId: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Records budget order. */
+  /** Records budget order. */
   ordinal: number;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Locks builder input. */
+  /** Locks builder input. */
   compileFingerprint: AutoMovieContentDigest;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Locks deterministic source bytes. */
+  /** Locks deterministic source bytes. */
   sourceRenderFingerprint: AutoMovieContentDigest;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Retains provider and model identity. */
+  /** Retains provider and model identity. */
   adapterIdentity: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-seed-semantics Retains the seed as a control rather than a reproducibility promise. */
+  /** Retains the seed as a control rather than a reproducibility promise. */
   seed: number;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Records provider-call start. */
+  /** Records provider-call start. */
   startedAt: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Records terminal time. */
+  /** Records terminal time. */
   completedAt: string;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Distinguishes accepted, failed, cancelled, invalid, and stale attempts. */
+  /** Distinguishes accepted, failed, cancelled, invalid, and stale attempts. */
   status: "succeeded" | "failed" | "cancelled" | "invalid" | "stale";
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Preserves classified refusal and retryability. */
+  /** Preserves classified refusal and retryability. */
   failure: {
     class: AutoMovieRepaintFailureClass;
     message: string;
     retryable: boolean;
   } | null;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Charges the request cost ceiling. */
+  /** Charges the request cost ceiling. */
   costUnits: number;
-  /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Preserves available partial bytes without admitting a candidate. */
+  /** Preserves available partial bytes without admitting a candidate. */
   availableOutput: IAutoMovieRepaintAttemptOutput | null;
 }
 
 /** A classified adapter refusal with optional metered cost and partial output. */
 export class AutoMovieRepaintAttemptError extends Error {
   public constructor(
-    /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Gives the refusal a durable failure class. */
+    /** Gives the refusal a durable failure class. */
     public readonly failureClass: AutoMovieRepaintFailureClass,
     message: string,
-    /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Charges failed provider work to the budget. */
+    /** Charges failed provider work to the budget. */
     public readonly costUnits: number = 0,
-    /** @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-attempt-failure-provenance Preserves a partial digest without accepting it. */
+    /** Preserves a partial digest without accepting it. */
     public readonly availableOutput: IAutoMovieRepaintAttemptOutput | null = null,
     /** Runtime-only bytes the host must quarantine before journaling this error. */
     public readonly rawOutput?: { bytes: Uint8Array; mediaType: string },
@@ -120,9 +117,7 @@ interface IAutoMovieRepaintExecutionResult<T> {
   claimRefusal: AutoMovieRepaintClaimRefusal | null;
 }
 
-/** Validate the exact bounded repaint policy before any provider execution.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-fidelity-failure-choice Refuses a rendition attempt whose bounded policy does not hold before any provider runs, leaving the deterministic output as the standing result.
- */
+/** Validate the exact bounded repaint policy before any provider execution. */
 export const assertAutoMovieRepaintExecutionPolicy = (
   policy: IAutoMovieRepaintExecutionPolicy,
 ): void => {

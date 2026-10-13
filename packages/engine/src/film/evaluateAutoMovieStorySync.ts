@@ -20,17 +20,6 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
  * an unresolved operand fails rather than being skipped, because a claim nobody
  * can measure is not a claim that holds. The summary names which operand it was
  * so the failure is actionable without a second query.
- *
- * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Maps every addressed realization through its own shot pin before measuring their common-clock spread.
- * @evidence requirements/story/coverage-and-acceptance.md#story-scene-event-acceptance Evaluates the exact authored shot-and-event operands and preserves an unresolved operand as a deterministic failure.
- * @evidence requirements/story/coverage-and-acceptance.md#story-falsifiable-acceptance Binds the addressed shot-event operands, realized times, story pins, numeric tolerance, and explicit false boundary into one repeatable synchronization criterion.
- * @evidence requirements/story/coverage-and-acceptance.md#story-acceptance-judgment-measurement Reports only resolved story times, numeric spread, and tolerance comparison and does not claim clarity, theme, emotion, or audience judgment.
- * @evidence requirements/story/coverage-and-acceptance.md#story-acceptance-empty-unsupported Returns an explicit false outcome for an empty operand set or any missing, non-finite, or unpinned event instead of treating the unanalyzable remainder as a pass.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization evaluateAutoMovieStorySync compares realized events on the common story clock and preserves the declared synchronization tolerance.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-story-sync-criterion Measures current realized event times against the declared tolerance without substituting frame or renderer identity for the story criterion.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-story-criterion-cases Makes the declared tolerance the exact pass/fail boundary for the explicitly addressed realized story times.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-story-human-machine-verdict Limits the automatic verdict to finite story-time arithmetic and leaves qualitative story judgment to its human authority.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-coverage-gap-status Preserves empty, missing, unpinned, and non-finite synchronization inputs as deterministic false outcomes rather than a reduced-scope success.
  */
 export const evaluateAutoMovieStorySync = (props: {
   /** Addressed shot-and-event pairs in their declared order. */

@@ -9,8 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One owner holds the pending request.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Coalesces actual republication requests without suppressing verdicts or using elapsed time to restart an active viewport.
  * @evidence contracts/common.md#meaningful-documentation States the measured cause and the folding rule.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Republication follows the last verdict of a burst, never each one, without delaying beyond the current turn.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One owner holds the pending request.
  */
 export function createHumanViewerCatalogueRepublish(
   rebuild: () => void,

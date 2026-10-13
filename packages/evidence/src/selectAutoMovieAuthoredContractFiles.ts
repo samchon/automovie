@@ -16,9 +16,6 @@ import { projectAutoMovieNativeReferences } from "./projectAutoMovieNativeClaims
  * naturalness. Research, settings, and design select their technical contracts
  * in every production shape. The complete inventory still ships with every
  * production.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Limits each contract family to the authored role that owes it across all production shapes.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Gives graph claims and account admission the same deterministic applicability selection.
  */
 export function selectAutoMovieAuthoredContractFiles(
   kind: AutoMovieProductionKind | null,
@@ -66,12 +63,7 @@ export function selectAutoMovieAuthoredContractFiles(
   };
 }
 
-/**
- * Selects audience-language contracts for final screenplay revision.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Selects shared and creation-language targets for the expression-only final pass.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Gives final screenplay claims one complete role-specific contract inventory.
- */
+/** Selects audience-language contracts for final screenplay revision. */
 export function selectAutoMovieScreenplayNaturalnessContractFiles(): string[] {
   return [
     "naturalness/core/common.md",
@@ -80,12 +72,7 @@ export function selectAutoMovieScreenplayNaturalnessContractFiles(): string[] {
   ];
 }
 
-/**
- * Binds every final screenplay unit to every selected naturalness target.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Requires each final unit to answer its selected naturalness contracts without exclusions.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Keeps every naturalness target's checklist without companion-review requirements.
- */
+/** Binds every final screenplay unit to every selected naturalness target. */
 export function createAutoMovieScreenplayNaturalnessReferences(
   _review: boolean,
 ): ITtscEvidenceGraphMarkdownReference[] {
@@ -100,12 +87,7 @@ export function createAutoMovieScreenplayNaturalnessReferences(
   }));
 }
 
-/**
- * Binds a layer's open searches to its work-specific contract hosts.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-discovery Selects common and specialist discovery duties for the authored role, including language searches for narrative layers.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-discovery Emits ordinary discovery coverage with permitted truthful no-result exclusions.
- */
+/** Binds a layer's open searches to its work-specific contract hosts. */
 export function createAutoMovieAuthoredDiscoveryReferences(
   kind: AutoMovieProductionKind | null,
   layer: AutoMovieAuthoredDocumentLayer,
@@ -122,12 +104,7 @@ export function createAutoMovieAuthoredDiscoveryReferences(
   );
 }
 
-/**
- * Binds each applicable principle to every selected authored unit.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves independent per-unit principle answers after role selection.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits the selected principle files with no-exclusion checklist and companion-free structural flags.
- */
+/** Binds each applicable principle to every selected authored unit. */
 export function createAutoMovieAuthoredPrincipleReferences(
   kind: AutoMovieProductionKind | null,
   layer: AutoMovieAuthoredDocumentLayer,
@@ -151,9 +128,6 @@ export function createAutoMovieAuthoredPrincipleReferences(
  *
  * Technical design relationships belong to their consuming H2 units. A second
  * file host would duplicate the same foundation coverage without another owner.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Places technical foundation answers on their consuming units while preserving narrative and delivery document parentage.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits file claims only for narrative and delivery roles with inherited references, preserving their stage and population.
  */
 export function createAutoMovieAuthoredFileClaims(
   layer: AutoMovieAuthoredDocumentLayer,

@@ -1,18 +1,8 @@
 import { AutoMovieTextureCoordinateSource } from "./AutoMovieTextureCoordinateSource";
 
-/**
- * One renderer-resolved texture and its deterministic sampling intent.
- *
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `IAutoMovieTextureReference` as the portable data boundary for the asset texture coordinates scale requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `IAutoMovieTextureReference` for the asset spec material texture relations system contract.
- */
+/** One renderer-resolved texture and its deterministic sampling intent. */
 export interface IAutoMovieTextureReference {
-  /**
-   * Project asset id.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `asset` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `asset` for the asset spec material texture relations system contract.
-   */
+  /** Project asset id. */
   asset: string;
 
   /**
@@ -31,9 +21,6 @@ export interface IAutoMovieTextureReference {
    *
    * A set index above zero therefore addresses geometry this repository did not
    * generate: an ingested mesh that arrived carrying its own extra set.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `texCoord` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `texCoord` for the asset spec material texture relations system contract.
    */
   texCoord: number;
 
@@ -50,19 +37,10 @@ export interface IAutoMovieTextureReference {
    * importing a mesh does not normalize that layout by itself.
    * `transform.scale` is read against whichever source this names, and the
    * three cannot be told apart from the material record without it.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Declares the coordinate system this binding's real scale is expressed in, so the same input places the same way.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Supplies the coordinate set the binding record must state beside its transform and real scale.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Carries the declared vocabulary the convention's three coordinate sources are named in, which is what makes the unit a binding states readable from the record alone.
    */
   coordinateSource?: AutoMovieTextureCoordinateSource;
 
-  /**
-   * How stored texels must be decoded before shading.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `colorSpace` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `colorSpace` for the asset spec material texture relations system contract.
-   */
+  /** How stored texels must be decoded before shading. */
   colorSpace: "srgb" | "linear";
 
   /**
@@ -73,9 +51,6 @@ export interface IAutoMovieTextureReference {
    * `"normalized"`. A `"source-uv"` set has no general physical-scale formula;
    * read its source layout or adoption receipt. Read {@link coordinateSource}
    * before authoring it.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `transform` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `transform` for the asset spec material texture relations system contract.
    */
   transform?: {
     offset: { x: number; y: number };
@@ -83,12 +58,7 @@ export interface IAutoMovieTextureReference {
     rotationDeg: number;
   };
 
-  /**
-   * Optional texture filtering and wrap policy.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `sampler` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `sampler` for the asset spec material texture relations system contract.
-   */
+  /** Optional texture filtering and wrap policy. */
   sampler?: {
     wrapS: "clamp" | "repeat" | "mirror";
     wrapT: "clamp" | "repeat" | "mirror";

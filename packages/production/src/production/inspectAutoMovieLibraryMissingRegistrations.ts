@@ -16,9 +16,6 @@ import type { IAutoMovieLibrarySourceExecutionPlan } from "./libraryAuthoringSna
  *
  * This projection sorts copies of design owners and units, leaves the acquired
  * graph and registration map intact, and creates no artifacts or project state.
- *
- * @evidence requirements/agent-authoring/partial-work.md#agent-partial-verification-scope Reports unrealized library owners at the requested source or completion gate without imposing film requirements.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-verification-invariant Attributes missing realization diagnostics to exact selected library owners and distinguishes work-in-progress warnings from completion errors.
  */
 export const inspectAutoMovieLibraryMissingRegistrations = (props: {
   /** Exact design owner population acquired for this attempt. */

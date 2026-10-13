@@ -16,9 +16,6 @@ import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
  * envelope, its corners, the openings cut through it, and the connectors that
  * cross it beside the spaces, and every one of those populations is derived
  * from the record rather than declared by whoever writes the review.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Aggregates every derived envelope, corner, entrance, space, and route population per building unit.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Implements the building aggregate the review denominator and the subject hierarchy share.
  */
 export const builtEnvironmentBuildingCensus = (
   environment: IAutoMovieBuiltEnvironment,

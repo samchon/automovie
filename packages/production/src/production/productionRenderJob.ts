@@ -19,10 +19,7 @@ import path from "node:path";
 import { autoMovieFileSystem as fileSystem } from "../project/fileSystem";
 import { canonicalizeAutoMovieJson } from "./contentIdentity";
 
-/**
- * Byte-exact PNG committed by one completed chunk.
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-image-sequences Records each frame's number, path and digest so a sequence's exact count, gaps and stray frames are checkable.
- */
+/** Byte-exact PNG committed by one completed chunk. */
 export interface IAutoMovieProductionRenderedFrameReceipt {
   /**
    * Exact zero-based film frame.
@@ -162,12 +159,7 @@ export const verifyProductionRenderJobPlan = (props: {
     );
 };
 
-/**
- * Classify current identities without treating an old slot as current.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-planned-materialized Separates planned, materialized and verified chunk states instead of reading a receipt's existence as proof of frames.
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-partial-artifact Reports completed chunks beside the missing set instead of exposing a partial sequence as a complete film.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-partial-artifact-isolation Keeps a chunk whose slot is not current out of the current set so a partial generation is never consumed as a complete manifest.
- */
+/** Classify current identities without treating an old slot as current. */
 export const productionRenderChunkStatuses = (props: {
   plan: IAutoMovieProductionRenderJobPlan;
   receipts: readonly IAutoMovieProductionRenderChunkReceipt[];
@@ -229,10 +221,7 @@ export const productionRenderChunkStatuses = (props: {
   });
 };
 
-/**
- * Verify completion identity, exact range coverage, raster, and byte facts.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-resume Admits a chunk for reuse only when its receipt matches the current plan and chunk identity; anything else is rerendered or preserved for adjudication.
- */
+/** Verify completion identity, exact range coverage, raster, and byte facts. */
 export const verifyProductionRenderChunkReceipt = (props: {
   plan: IAutoMovieProductionRenderJobPlan;
   chunk: IAutoMovieProductionRenderChunk;

@@ -12,8 +12,6 @@
  * point: a subject is named by what it is, never by the delivered picture that
  * happens to contain it.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `AutoMovieViewerSubjectKind` enumerates the authored kinds a subject identity may name, keeping prototype and placement apart.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record `AutoMovieViewerSubjectKind` types the kind field of the subject record the inspection surface resolves.
  * @author Samchon
  */
 export type AutoMovieViewerSubjectKind =

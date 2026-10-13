@@ -16,9 +16,6 @@ import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
  * A model too short to measure keeps the stand-in height and its own floor, and
  * keeps its measured width: a plaza slab 60 m across and 20 mm thick is a real
  * horizontal extent even where its vertical one is unusable.
- *
- * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-bounds-state-motion nodeSubjectExtent exposes state-dependent asset extent: The model-space box a node subject is framed and graded from, the drawn box when a model was compiled and the degenerate segment a rig span or the stand-in height describes when it was not.
- * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-dynamic-bounds-invariants nodeSubjectExtent realizes dynamic-bounds invariants: The model-space box a node subject is framed and graded from: what its model draws when the builder supplied one, and the horizontally degenerate segment a rig span or the stand-in height describes when it did not. Stated once because a node is measured by the framing solve and again by the contract check, and two answers to what he fills is how a shot comes to be graded against a subject nobody framed. A model too short to measure keeps the stand-in height and its own floor, and keeps its measured width: a plaza slab 60 m across and 20 mm thick is a real horizontal extent even where its vertical one is unusable.
  */
 export const nodeSubjectExtent = (
   extent: IAutoMovieSubjectBox | null,

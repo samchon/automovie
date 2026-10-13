@@ -12,8 +12,6 @@ import { IAutoMoviePointTarget } from "./IAutoMoviePointTarget";
  * {@link IAutoMovieOffscreenTarget} for relative goals ("walk off to the left")
  * so the model never has to invent world coordinates.
  *
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-target-refusal Exposes `IAutoMovieActionTarget` as the portable data boundary for the camera target refusal requirement.
- * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-diagnostics-refusal Types `IAutoMovieActionTarget` for the clv focus diagnostics refusal system contract.
  * @author Samchon
  */
 export type IAutoMovieActionTarget =

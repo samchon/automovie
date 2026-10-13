@@ -18,37 +18,21 @@ import { compareCodeUnits, digestAutoMovieBytes } from "./contentIdentity";
 
 /**
  * Runtime agreement between a semantic palette and the scene actually drawn.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-gaps Preserves unresolved declarations and unnamed runtime geometry as explicit partial-deliverable facts.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Carries the exact runtime gap population that prevents a structural render product from becoming complete.
  */
 export type IAutoMovieProductionSemanticMaskCoverage =
   IAutoMovieSemanticMaskCoverage;
 
 /**
  * One shot's palette and runtime coverage captured as an atomic observation.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Binds the host-observed semantic payload and its runtime completeness to the exact shot it describes.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Defines the semantic evidence value a manifest or render receipt must carry without separating palette from coverage.
  */
 export type IAutoMovieProductionSemanticMaskEvidence =
   IAutoMovieSemanticMaskEvidence;
 
-/**
- * Resident sidecar facts committed beside one mask image.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Makes the exact sidecar bytes a content-addressed dependency of the structural image.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Carries the relative location, digest, and byte count needed to reopen the semantic dependency.
- */
+/** Resident sidecar facts committed beside one mask image. */
 export type IAutoMovieProductionSemanticMaskReceipt =
   IAutoMovieSemanticMaskReceipt;
 
-/**
- * Current semantic product classification for preview, review, and render.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-gaps Keeps absence, incompatibility, foreign identity, malformed evidence, and observed incompleteness distinct.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Prevents a mask PNG or beauty success from silently replacing unavailable or incomplete semantic evidence.
- */
+/** Current semantic product classification for preview, review, and render. */
 export type AutoMovieProductionSemanticMaskStatus =
   | {
       status: "complete";
@@ -64,12 +48,7 @@ export type AutoMovieProductionSemanticMaskStatus =
       reason: string;
     };
 
-/**
- * Verify one atomic palette and coverage observation for an expected shot.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Refuses a semantic deliverable whose schema, shot identity, palette digest, or runtime coverage cannot be reopened exactly.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Validates the complete semantic handoff before any manifest or receipt can call it current.
- */
+/** Verify one atomic palette and coverage observation for an expected shot. */
 export const verifyAutoMovieProductionSemanticMaskEvidence = (props: {
   evidence: IAutoMovieProductionSemanticMaskEvidence;
   expectedShot: string;
@@ -92,10 +71,6 @@ export const verifyAutoMovieProductionSemanticMaskEvidence = (props: {
 
 /**
  * Classify an optional host observation without erasing why it is non-current.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-gaps Reports unavailable and incomplete semantic products with their exact retained cause.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Admits only a current self-verified palette with zero unresolved and unnamed runtime population as complete.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-unsupported-and-not-run Keeps a not-run observation, an unsupported schema version, a foreign shot and an invalid record as four distinct statuses with their own retained reason, and never folds any of them into the complete status a publication may consume.
  */
 export const classifyAutoMovieProductionSemanticMaskEvidence = (props: {
   observation: AutoMovieCaptureObservation<IAutoMovieProductionSemanticMaskEvidence>;
@@ -147,9 +122,6 @@ export const classifyAutoMovieProductionSemanticMaskEvidence = (props: {
 
 /**
  * Seal canonical sidecar bytes and runtime coverage into one receipt record.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Makes each mask frame name the exact semantic sidecar and coverage that give its pixels meaning.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Produces the canonical record shared by preview and chunk completion receipts.
  */
 export const createAutoMovieProductionSemanticMaskReceipt = (props: {
   frame: number;
@@ -191,9 +163,6 @@ export const createAutoMovieProductionSemanticMaskReceipt = (props: {
 
 /**
  * Reopen one receipt against its exact shot, frame, palette, coverage, and bytes.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-freshness Prevents a historical, moved, tampered, or partial semantic dependency from standing in for current mask evidence.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Revalidates the resident sidecar and semantic record before a preview or render chunk is reusable.
  */
 export const verifyAutoMovieProductionSemanticMaskReceipt = (props: {
   receipt: IAutoMovieProductionSemanticMaskReceipt;
@@ -272,9 +241,6 @@ export const verifyAutoMovieProductionSemanticMaskReceipt = (props: {
  * deliverable. The plan is the only authority on which shot the mask pass
  * draws at that frame, so a receipt whose frame, shot, or deliverable the plan
  * does not schedule describes another generation and is not current evidence.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-freshness Decides from the current plan, not the receipt's own claim, whether a delivered semantic dependency still describes a scheduled frame.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Keeps the render plan the owning source a delivered sidecar record is checked against.
  */
 export const productionRenderPlanOwnsSemanticMaskReceipt = (props: {
   plan: IAutoMovieProductionRenderJobPlan;
@@ -303,9 +269,6 @@ export const productionRenderPlanOwnsSemanticMaskReceipt = (props: {
  * not belong to this deliverable, file, or current plan, `stale` receipt does
  * not reopen against the resident bytes, and `incomplete` evidence reopens but
  * records runtime gaps a delivered mask product may not carry.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-gaps Reports the exact reason a delivered mask sidecar is not current instead of one folded failure.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-authority-gaps Separates missing, foreign, stale, and incomplete semantic dependencies so each maps to its own correction.
  */
 export type AutoMovieProductionDeliverableSemanticMaskFinding =
   | { status: "media" }
@@ -327,9 +290,6 @@ export type AutoMovieProductionDeliverableSemanticMaskFinding =
  * The project's terminal commit, the read-only final builder, and the proxy
  * publication preflight all decide it here so no ledger admits a sidecar
  * another one would refuse.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Ties a delivered sidecar's receipt to its exact bytes, path, and plan-scheduled frame rather than to its label.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Reopens the semantic dependency of a delivered mask product from the receipt every publication ledger carries.
  */
 export const classifyAutoMovieProductionDeliverableSemanticMask = (props: {
   deliverable: { id: string; kind: IAutoMovieProductionDeliverable["kind"] };
@@ -403,12 +363,7 @@ export const classifyAutoMovieProductionDeliverableSemanticMask = (props: {
   return { status: "semantic-mask", receipt };
 };
 
-/**
- * Refuse a delivered file whose semantic standing is anything but current.
- *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Stops a publication ledger from notarizing a sidecar whose receipt, bytes, path, or plan binding does not hold.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-deliverable-provenance-handoff Makes the semantic reopen a precondition of writing a proxy or final publication rather than a later review step.
- */
+/** Refuse a delivered file whose semantic standing is anything but current. */
 export const assertAutoMovieProductionDeliverableSemanticMask = (
   props: Parameters<
     typeof classifyAutoMovieProductionDeliverableSemanticMask

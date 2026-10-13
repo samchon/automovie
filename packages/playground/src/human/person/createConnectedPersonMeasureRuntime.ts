@@ -51,9 +51,6 @@ import { prepareConnectedPersonEvaluator } from "./prepareConnectedPersonEvaluat
  * A refusal is returned as the reply of its own request; any other kind is
  * refused by name.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reads and solves the person editor's measurements on the same views its preview evaluates.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Returns each numerical refusal as the reply of its own request and leaves the worker available.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Reads and solves registered face measurements on the final whole-person model.
  * @author Samchon
  */
 export function createConnectedPersonMeasureRuntime(

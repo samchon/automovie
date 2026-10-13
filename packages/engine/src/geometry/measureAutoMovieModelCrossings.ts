@@ -61,9 +61,6 @@ const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
  * @param model A built model, whatever composed it.
  * @param options `withinParts` also counts each part against itself.
  * @returns One entry per crossing pair, empty when nothing crosses.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Judges the result of composing operations by topology rather than by whether each operation reported success.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports the crossing by the part identities the model already carries, so the finding maps onto the buffers a caller owns.
  */
 export function measureAutoMovieModelCrossings(
   model: IAutoMovieModel,

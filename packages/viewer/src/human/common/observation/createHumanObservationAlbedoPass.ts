@@ -18,11 +18,6 @@ import { createHumanObservationAlbedoMaterial } from "./createHumanObservationAl
  * Unnamed shader hooks, unknown shader patches and mapped displacement refuse
  * rather than invent a colour projection or silently change the observed
  * surface; the material owner states which viewer patches it admits.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Supplies a distinct material-colour observation without altering the source asset.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Restores source materials and names unsupported shader observations.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Retains failed owned-material retirement and attempts other restorations and disposals independently.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves original setup and cleanup causes without changing synchronous restoration.
  */
 export function createHumanObservationAlbedoPass() {
   /**

@@ -3,8 +3,6 @@
  *
  * Every refusal carries a closed code so a builder diagnostic, a render plan,
  * and a viewer classify the same failure without parsing its message.
- *
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#clock-seek-failure-and-recovery Returns an explicit refused state rather than a remapped clock or a downgraded fallback.
  */
 export class AutoMovieFilmEffectRuntimeError extends Error {
   public constructor(

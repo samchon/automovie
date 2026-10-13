@@ -21,11 +21,6 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
  * to its segment, and a shot the compiled set does not contain contributes no
  * interval because the builder's shot-availability diagnostics own that
  * refusal.
- *
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Projects every shot-authored cue onto the film clock so film and shot owners can be compared.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Decides cue ownership from the rational frame boundary instead of a display-rate float product.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Supplies the shot-owner intervals the one-authority check reads.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Applies the inclusive-start, exclusive-end boundary law to the shot cue's realized frames.
  */
 export const projectProductionShotEffectFilmIntervals = (props: {
   timeline: IAutoMovieFilmEffectClock;

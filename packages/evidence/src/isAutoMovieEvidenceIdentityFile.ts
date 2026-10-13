@@ -18,8 +18,6 @@ interface IAutoMovieEvidenceIdentityFile {
  * bytes at all. The population judgment is a different decision and keeps its
  * own single-link requirement.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-physical-integrity Admits the identity manifest as a regular non-symlink file without demanding a directory-entry count of it.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-physical-integrity Implements the manifest admission half of the two separate physical judgments this unit distinguishes.
  * @author Samchon
  */
 export const isAutoMovieEvidenceIdentityFile = (

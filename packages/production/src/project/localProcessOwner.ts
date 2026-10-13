@@ -4,9 +4,6 @@ import os from "node:os";
 
 /**
  * One process generation whose identity remains stable for this Node process.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Makes the host and process generation behind a mutable owner claim explicit.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Carries the process generation that distinguishes one owner from a reused PID.
  */
 export interface IAutoMovieLocalProcessOwner {
   /** Host whose process table assigned {@link pid}. */
@@ -17,12 +14,7 @@ export interface IAutoMovieLocalProcessOwner {
   generation: string;
 }
 
-/**
- * What a local process-table observation proves about a persisted owner.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Allows reclaim only from affirmative proof that the recorded owner disappeared.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-stale-claim-recovery Preserves same-owner, absence, PID reuse, remote-host, and unavailable observations as distinct recovery states.
- */
+/** What a local process-table observation proves about a persisted owner. */
 export type AutoMovieLocalProcessOwnerObservation =
   | {
       /** The descriptor is exactly this observing process generation. */
@@ -59,30 +51,17 @@ export type AutoMovieLocalProcessOwnerObservation =
 
 /**
  * The signal-zero process-table probe every local owner observation consumes.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Types the only liveness input a local claim may consult, so a reader cannot substitute wall-clock age for it.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Binds the probe to signal zero, whose success and permission denial mean occupancy rather than generation liveness.
  */
 export type AutoMovieLocalProcessQuery = (pid: number, signal: 0) => unknown;
 
 const PROCESS_QUERY = new AsyncLocalStorage<AutoMovieLocalProcessQuery>();
 
-/**
- * The invocation-scoped process query, or the real Node process table.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Resolves one process table for every reader in an invocation, so the commit lock and render recovery cannot observe different hosts.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Defaults to `process.kill(pid, 0)`, the signal-zero occupancy probe the observation states are defined against.
- */
+/** The invocation-scoped process query, or the real Node process table. */
 export const currentAutoMovieLocalProcessQuery =
   (): AutoMovieLocalProcessQuery =>
     PROCESS_QUERY.getStore() ?? ((pid, signal) => process.kill(pid, signal));
 
-/**
- * Run one operation with an explicit process-table observation capability.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Lets a recovery decision be exercised against absent, occupied, denied, and failing probes without a real process table deciding the case.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-stale-claim-recovery Scopes the injected probe to one operation, so the two independent observations reclaim requires read the same table.
- */
+/** Run one operation with an explicit process-table observation capability. */
 export const withAutoMovieLocalProcessQuery = <Output>(
   query: AutoMovieLocalProcessQuery,
   operation: () => Output,
@@ -103,12 +82,7 @@ const processGeneration = (): string => {
   return (owner[PROCESS_GENERATION_SYMBOL] ??= randomUUID());
 };
 
-/**
- * Validate a persisted local process owner before any process-table query.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Rejects owner claims whose host, PID, or process generation is not queryable.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Enforces the complete local owner identity consumed by recovery decisions.
- */
+/** Validate a persisted local process owner before any process-table query. */
 export const isAutoMovieLocalProcessOwner = (
   value: unknown,
 ): value is IAutoMovieLocalProcessOwner => {
@@ -128,12 +102,7 @@ export const isAutoMovieLocalProcessOwner = (
   );
 };
 
-/**
- * Return this Node process's stable local owner generation.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Emits one queryable host, PID, and process generation for every local claim.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Reuses one owner generation across this process's claims while claim tokens remain independent fences.
- */
+/** Return this Node process's stable local owner generation. */
 export const currentAutoMovieLocalProcessOwner =
   (): IAutoMovieLocalProcessOwner => ({
     host: os.hostname(),
@@ -147,11 +116,6 @@ export const currentAutoMovieLocalProcessOwner =
  * Descriptor validation happens before the injected process query. Signal-zero
  * success and `EPERM` establish occupancy only, `ESRCH` establishes absence,
  * and every other platform result remains unknown.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-stale-lock-recovery Refuses stale recovery unless the original local owner is proved absent.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-stale-claim-recovery Implements the generation-aware observation used before takeover or cleanup.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-concurrent-work Classifies a recorded worker by host, PID and process generation so concurrent workers are coordinated by identity rather than by bare PID occupancy.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-failure-recovery Proves a lost worker absent, and keeps reused, remote, malformed and unqueryable owners as refusals, before any recovery may reclaim its claim.
  */
 export const observeAutoMovieLocalProcessOwner = (props: {
   /** Persisted owner-shaped value to validate and observe. */

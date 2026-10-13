@@ -17,8 +17,6 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
  * @evidence contracts/common.md#clear-and-simple-design One function maps a domain to its owner's admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Delegates parsed documents and the original body assembly to the domain admissions without subject-specific validation or preview substitution.
  * @evidence contracts/common.md#meaningful-documentation States where admission runs, why, and the result's meaning.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The face, body and person owners' admissions decide validity; the viewer adds no schema copy.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One function maps a domain to its owner's admission.
  */
 export function admitHumanViewerDocument(
   domain: string,

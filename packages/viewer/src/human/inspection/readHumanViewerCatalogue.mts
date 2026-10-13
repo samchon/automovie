@@ -30,8 +30,6 @@ import { readHumanViewerStandardBodies } from "./readHumanViewerStandardBodies.j
  * @evidence contracts/common.md#clear-and-simple-design A small orchestrator names the group order; every group has its own reader.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Published subjects and standard states supply the population without consumer-specific cases.
  * @evidence contracts/common.md#meaningful-documentation Describes the groups, their order, cache authority and identity refusal.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Document, basis and source digests identify the numerical generation independently of display state.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view A small orchestrator names the group order; every group has its own reader.
  */
 export function readHumanViewerCatalogue(
   props: IReadHumanViewerCatalogueProps,

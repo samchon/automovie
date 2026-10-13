@@ -25,8 +25,6 @@ import { channelKey } from "./channelKey";
  * `duration` when the clip `loop`s. A track with a single keyframe (or sampled
  * before its first / after its last key) yields that key's value verbatim.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Evaluates each track with its declared interpolation mode.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Samples sparse keys deterministically at the normalized clip time.
  * @author Samchon
  */
 export const sampleClip = (

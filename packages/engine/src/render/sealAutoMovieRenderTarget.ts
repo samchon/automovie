@@ -25,12 +25,6 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * malformed digest is an authoring or adapter defect, and a fingerprint that
  * accepted it would be a stable name for something that cannot be rendered.
  *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Seals renderer identity, frame-affecting settings, and sorted asset digests into one canonical target fingerprint.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Binds reusable render evidence to the protocol, renderer, frame settings, and sorted dependency digests that determine its content.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-stale-cache-invalidation Makes any canonical renderer, setting, dependency membership, or dependency digest change produce a different target identity.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Implements the versioned render-target closure against which reports are measured and reused.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-target-fingerprint-protocol Includes the protocol revision and ordered field encoding in the fingerprint input rather than relying on object serialization.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Seals the exact render inputs and sorted asset content identities used to invalidate a prior report after dependency drift.
  * @author Samchon
  */
 export const sealAutoMovieRenderTarget = (props: {

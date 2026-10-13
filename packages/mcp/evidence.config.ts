@@ -1,42 +1,28 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-// Process entries expose no declaration; their callable boundaries are in src.
-const publicSources = [
-  "src/**/*.ts",
-  "!src/**/index.ts",
-  "!src/bin.ts",
-  "!src/reference-bin.ts",
-];
-
-const graph: IEvidenceConfig = {
+/** Every exported declaration answers the checklists that apply to this package. */
+export default {
+  severity: "error",
   claims: [
     {
-      name: "reference exports implement navigation requirements",
+      name: "mcp declarations",
       type: "typescript",
-      files: publicSources,
-      symbol: ["type", "function", "property"],
+      files: [
+        "src/**/*.ts",
+        "!src/**/index.ts",
+      ],
+      symbol: ["type", "function"],
       reference: {
         type: "markdown",
-        root: "../../docs",
-        files: ["requirements/agent-authoring/reference-navigation.md"],
-        symbol: "h3",
-      },
-    },
-    {
-      name: "reference exports implement navigation specifications",
-      type: "typescript",
-      files: publicSources,
-      symbol: ["type", "function", "property"],
-      reference: {
-        type: "markdown",
-        root: "../../docs",
+        root: "../../.agents/skills",
         files: [
-          "specifications/authoring-and-authority/reference-navigation.md",
+          "contracts/common.md",
+          "contracts/performance.md",
+          "contracts/portability.md",
         ],
-        symbol: "h3",
+        symbol: "h2",
+        checklist: true,
       },
     },
   ],
-};
-
-export default { ...graph, severity: "error" } satisfies IEvidenceConfig;
+} satisfies IEvidenceConfig;

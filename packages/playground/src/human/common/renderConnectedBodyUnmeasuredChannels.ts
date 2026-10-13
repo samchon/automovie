@@ -16,8 +16,6 @@ import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
  * tables, so it shrinks as rules and bindings are added. Only channels
  * matching the search are listed; nothing is appended when none match.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Shows each source channel no measurement names instead of hiding it or offering it as a sculpt slider.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists the channels without a rule or binding as disabled rows derived from the basis and the two tables.
  * @author Samchon
  */
 export function renderConnectedBodyUnmeasuredChannels(

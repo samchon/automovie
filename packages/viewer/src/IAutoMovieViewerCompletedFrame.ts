@@ -9,8 +9,6 @@ import type * as THREE from "three";
  * @evidence contracts/common.md#clear-and-simple-design One completion shape supports ordinary viewports and handled composites.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No copied renderer, subject lookup or fabricated ready/model state is introduced.
  * @evidence contracts/common.md#meaningful-documentation Defines observation timing and controller ownership.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Exposes original completed view and runtime objects to the application observation owner.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Separates source-produced observation from requested state and review verdicts.
  * @author Samchon
  */
 export interface IAutoMovieViewerCompletedFrame {

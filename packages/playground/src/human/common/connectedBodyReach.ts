@@ -17,8 +17,6 @@ import type { IConnectedBodyReach } from "./IConnectedBodyReach";
  * it is refused by the runtime with the missing target named. Nothing is
  * hidden or silently clamped in the document.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Determines which body channels the editor can offer on a generation's body view.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Lists channels whose endpoint is unavailable as missing and limits the rest to the reach the view evaluates.
  * @author Samchon
  */
 export function connectedBodyReach(

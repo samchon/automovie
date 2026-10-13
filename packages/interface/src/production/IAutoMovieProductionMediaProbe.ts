@@ -5,12 +5,7 @@ import type { IAutoMovieProductionSoundEvidence } from "./IAutoMovieProductionSo
 import { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
 import { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
 
-/**
- * Parser-derived metadata for one renderer-owned output file.
- *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `IAutoMovieProductionMediaProbe` as the portable data boundary for the diagnostics derived result finding requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `IAutoMovieProductionMediaProbe` for the validation derived result finding system contract.
- */
+/** Parser-derived metadata for one renderer-owned output file. */
 export type IAutoMovieProductionMediaProbe =
   | {
       /** Decoded PNG raster. */

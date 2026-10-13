@@ -304,9 +304,6 @@ const sharePlaneAndOverlap = (
  * @param second Mesh tested against it, in the same frame.
  * @param options Pair population and optional near-boundary contact tolerance.
  * @returns Crossings in first-triangle and spatial candidate order.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies a direction-free crossing test composable with the axis-ordered clearance measure, without depending on any catalogue item.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports crossings against the original triangle ordinals of both meshes so a caller can map them onto the buffers it owns.
  */
 export function measureAutoMovieMeshCrossings(
   first: IAutoMovieMesh,

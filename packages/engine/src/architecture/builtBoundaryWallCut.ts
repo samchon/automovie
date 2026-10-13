@@ -22,11 +22,6 @@ import { polygonBounds } from "./polygonBounds";
  * as outlines may therefore still have overlapping bounds, and the kernel
  * refuses that pair by name; that refusal is the rectangle's limit speaking,
  * not a defect in the design it was handed.
- *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtBoundaryWallCut` turns one boundary's declared face into the wall panel a mesh kernel can cut. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtBoundaryWallCut` converts a declared boundary face into the wall-panel cut consumed by the mesh layer.
- * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-form-layout `builtBoundaryWallCut` lowers the host-local opening profile, hull or arc into the exact wall-panel cut while preserving the validated host containment and cut layout.
- * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-cut-input-output `builtBoundaryWallCut` converts the declared host face and aperture geometry into the deterministic opening-cut input consumed by the mesh layer.
  */
 export const builtBoundaryWallCut = (
   environment: IAutoMovieBuiltEnvironment,

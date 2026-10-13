@@ -10,8 +10,6 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * The solver and residual reader share these same rest transforms and constraints;
  * offsets and endpoints use the resolved model metre frame.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Carries the actual two-link rest geometry used to bound and reconstruct a contact solve.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Retains the compiled chain frames and effective joint domains shared by inverse solving and final effector readback.
  * @author Samchon
  */
 export interface IPreparedChainPlant {

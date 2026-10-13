@@ -2,47 +2,19 @@ import { parseAutoMovieEvidenceMarkdownHeadings } from "./parseAutoMovieEvidence
 
 /**
  * Opening delimiter of the canonical script and screenplay index link block.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Separates generated links from authoritative unit prose.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Gives the derived index one stable replaceable boundary.
  */
 export const AUTO_MOVIE_DELIVERY_TOC_START = "<!-- automovie:toc:start -->";
 
-/**
- * Closing delimiter paired with {@link AUTO_MOVIE_DELIVERY_TOC_START}.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Closes the generated link region without absorbing authoritative unit prose.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Makes malformed or duplicate managed boundaries observable.
- */
+/** Closing delimiter paired with {@link AUTO_MOVIE_DELIVERY_TOC_START}. */
 export const AUTO_MOVIE_DELIVERY_TOC_END = "<!-- automovie:toc:end -->";
 
-/**
- * Canonical delivery index bytes and their read-only freshness result.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Reports index drift without turning the index into a second prose owner.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Returns the same rendering to generation and check modes.
- */
+/** Canonical delivery index bytes and their read-only freshness result. */
 export interface IAutoMovieDeliveryTocResult {
-  /**
-   * Whether the supplied index differs from the canonical rendered bytes.
-   *
-   * @evidence requirements/story/delivery-index.md#story-delivery-index Exposes delivery-index drift to check mode.
-   * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Compares the observed index with the generated link block.
-   */
+  /** Whether the supplied index differs from the canonical rendered bytes. */
   changed: boolean;
-  /**
-   * Read-only freshness diagnostics; empty when the index is current.
-   *
-   * @evidence requirements/story/delivery-index.md#story-delivery-index Refuses missing, stale, or misordered delivery links.
-   * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Preserves check-mode refusal separately from canonical bytes.
-   */
+  /** Read-only freshness diagnostics; empty when the index is current. */
   diagnostics: readonly string[];
-  /**
-   * Canonical index bytes in both generation and check modes.
-   *
-   * @evidence requirements/story/delivery-index.md#story-delivery-index Keeps generation and freshness inspection on one rendering.
-   * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Returns byte-identical output for the same ordered unit inventory.
-   */
+  /** Canonical index bytes in both generation and check modes. */
   source: string;
 }
 
@@ -108,9 +80,6 @@ const indexTitleLine = (indexSource: string, indexPath: string): string => {
  * The canonical index is the authored H1 line, one blank line, and the managed
  * link block in unit filename order; check and write compare and emit those
  * same bytes.
- *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Keeps the index a stable link owner rather than a second screenplay.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Derives ordered index links from authoritative unit identities and refuses authored body outside the H1 and delimiters.
  */
 export const planAutoMovieDeliveryToc = (props: {
   check?: boolean;

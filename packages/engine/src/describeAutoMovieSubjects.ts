@@ -28,11 +28,6 @@ import { compareAutoMovieRenderIds } from "./render";
 /**
  * Enumerate directly stored compiled subjects without expanding placed parts or
  * compact instance members.
- *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-description Lets a reviewer discover stable compiled subject identities without rendering.
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-compiled-truth Measures the inventory from the compiled artifact consumed by render and oracle services.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-record Enumerates prototypes, prototype parts, elements, instance sets, and spaces in deterministic order.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-description-bounds Derives geometry and space boxes from compiled content and declarations.
  */
 export const describeAutoMovieSubjects = (
   artifact: IAutoMovieSubjectArtifact,

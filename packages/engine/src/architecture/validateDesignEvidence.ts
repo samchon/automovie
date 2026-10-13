@@ -14,11 +14,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * accountability this graph exists for. What it may not do is point at nothing.
  * A dangling document, a dangling candidate, or a blank rationale each turn the
  * citation into a decoration that survives the evidence it claims to rest on.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-manifest-closure `validateDesignEvidence` rejects consumer citations whose reference document or observed candidates do not resolve in the adopted manifest.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-manifest-closure `validateDesignEvidence` closes each design consumer relation by resolving its document and candidate ids against the recorded references.
- * @evidence requirements/asset-authoring/era-and-style.md#asset-style-reference-role `validateDesignEvidence` binds each authored consumer to explicit reference candidates and a non-blank rationale, preserving the declared reference role without treating the observation as geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-era-style-inputs The evidence relation supplies the explicit consumer, selected observations, and rationale subset for applying a style reference without inferring scope from proximity.
  */
 export const validateDesignEvidence = (props: {
   references: readonly IAutoMovieDesignReference[];

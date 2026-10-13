@@ -7,9 +7,6 @@ import { residentPngJs } from "./residentPngJs";
 
 /**
  * Decode one PNG and preserve its IHDR, color, alpha, aspect, and orientation facts.
- *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-color-sequences Reads color meaning from published bytes instead of a filename or browser default.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Carries parser-observed picture facts into the fieldwise delivery comparison.
  */
 export const probeProductionPngPicture = (
   bytes: Uint8Array,

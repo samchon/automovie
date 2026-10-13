@@ -25,15 +25,6 @@ import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
  * @evidence contracts/common.md#clear-and-simple-design One per-session queue owns ordering and filesystem publication.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the supplied observed display PNG with its original source and checked ordering, without relabeling it as a newer build, generating pixels or moving logs and cache files into output.
  * @evidence contracts/common.md#meaningful-documentation States image, metadata, ordering and failure ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Preserves the displayed frame's reported source, camera, renderer and ordering beside its supplied PNG rather than relabelling it as the server's newer source.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Per-session serialized PNG dimension checking and metadata-before-image rename keep the latest accepted display bytes and record together without establishing anatomical acceptance.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-late-writer-fencing Serializes the tab session's saves and rejects older generations or non-increasing sequences before replacing that session's accepted image.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-fencing-late-writer Serializes the tab session's saves and rejects older generations or non-increasing sequences before replacing that session's accepted image.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-byte-digest Computes SHA-256 from the actual encoded PNG bytes and records that byte digest separately from the displayed source revision and view facts; it does not calculate canonical pixel or channel content identity.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Computes SHA-256 from the actual encoded PNG bytes and records that byte digest separately from the displayed source revision and view facts; it does not calculate canonical pixel or channel content identity.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-publication-ownership-conflict Scopes publication to the viewer port/tab session and explicitly refuses superseded generation or sequence saves rather than silently replacing that session's newer accepted display.
- * @evidence requirements/operations-and-recovery/partial-artifacts-and-publication.md#operations-publication-conflict-rollback Scopes publication to the viewer port/tab session and explicitly refuses superseded generation or sequence saves rather than silently replacing that session's newer accepted display.
  */
 export function serveHumanViewerDisplay(props: {
   root: string;

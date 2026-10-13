@@ -12,8 +12,6 @@ import { createBodySimpleWorkerTransport } from "./bodySimpleWorkerTransport";
  * page's thread. Its stature and mass are read on the whole person with the
  * standard face (`CONNECTED_BODY_WHOLE_SOURCE`).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Expands, projects and solves the simple tier off the page's thread for the editor's identity and tape inputs.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Sends each simple-tier inversion to the dedicated worker and reads stature and mass on the whole person.
  * @author Samchon
  */
 export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers {

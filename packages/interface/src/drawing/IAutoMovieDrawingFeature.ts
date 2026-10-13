@@ -10,33 +10,18 @@ import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
  * find it. Both outcomes are correct; a stale number that still looks right is
  * the only wrong one.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingFeature` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingFeature` for the interior space drawing schedule quantity system contract.
  * @author Samchon
  */
 export interface IAutoMovieDrawingFeature {
-  /**
-   * Building element the feature belongs to.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `element` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `element` for the interior space drawing schedule quantity system contract.
-   */
+  /** Building element the feature belongs to. */
   element: string;
 
   /**
    * Model part within the element, or `null` for the element's whole geometry.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `part` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `part` for the interior space drawing schedule quantity system contract.
    */
   part: string | null;
 
-  /**
-   * Which family of feature is addressed.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `kind` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Which family of feature is addressed. */
   kind: AutoMovieDrawingFeatureKind;
 
   /**
@@ -47,9 +32,6 @@ export interface IAutoMovieDrawingFeature {
    * them, so reordering a model's parts does not move every note on every
    * sheet. For `axis` this is `0`, `1` or `2` for the element's local X, Y or
    * Z; for `centroid` it is ignored and must be `0`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `index` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `index` for the interior space drawing schedule quantity system contract.
    */
   index: number;
 
@@ -61,9 +43,6 @@ export interface IAutoMovieDrawingFeature {
    * which is the point; but if the count changed, the index now addresses a
    * different feature, and the target is reported stale rather than silently
    * relocated onto whichever feature inherited the number.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `count` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `count` for the interior space drawing schedule quantity system contract.
    */
   count: number | null;
 }

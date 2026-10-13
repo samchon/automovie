@@ -36,10 +36,6 @@ import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTrian
  * caller-owned differential observations; the operation validates their shape
  * and finite domain, not their provenance or unsampled interpolation.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Applies composable spatial displacement and stretch fields to resident geometry without changing its triangle population.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves connectivity and shared normals through one analytic deformation, rejecting local folds instead of emitting inverted surface patches.
- * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses malformed resident triangles and deformation output whose area collapses or opposes its transported face orientation.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Checks the actual emitted triangle population as well as vertex derivatives, naming a triangle that cannot preserve an oriented surface.
  * @author Samchon
  */
 export function createAutoMovieMeshDeformer(

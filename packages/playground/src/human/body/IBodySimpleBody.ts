@@ -9,8 +9,6 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "@automovie/human
  * the editor does not show; the pair is the projection's input and its
  * invalidation key.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Carries the inputs a simple-tier reading of the shown body depends on.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Keys the projection by the authored weights and anatomy together.
  * @author Samchon
  */
 export interface IBodySimpleBody {

@@ -1,11 +1,6 @@
 import ts from "typescript-compiler";
 
-/**
- * One source document whose native evidence carriers are parsed.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Makes the carrier path and exact source explicit parser input.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines the complete lexical input identity.
- */
+/** One source document whose native evidence carriers are parsed. */
 export interface IAutoMovieEvidenceSyntaxDocument {
   /** Project-relative path used to choose Markdown or TypeScript syntax. */
   path: string;
@@ -13,12 +8,7 @@ export interface IAutoMovieEvidenceSyntaxDocument {
   source: string;
 }
 
-/**
- * One evidence declaration read only from a native carrier.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Exposes each native declaration with its stable host and line address.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Carries one syntax-aware declaration projection.
- */
+/** One evidence declaration read only from a native carrier. */
 export interface IAutoMovieEvidenceSyntaxAnnotation {
   /** Markdown heading or TypeScript documentation block that owns the row. */
   host: string;
@@ -30,12 +20,7 @@ export interface IAutoMovieEvidenceSyntaxAnnotation {
   text: string;
 }
 
-/**
- * Line-preserving Markdown views used by graph and reader validation.
- *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Separates native declarations from visible target prose.
- * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Defines aligned annotation and visible-line projections.
- */
+/** Line-preserving Markdown views used by graph and reader validation. */
 export interface IAutoMovieMarkdownSyntaxProjection {
   /** Evidence declarations carried by live HTML comments. */
   annotations: readonly IAutoMovieEvidenceSyntaxAnnotation[];
@@ -63,11 +48,6 @@ const ANCHOR = /[ \t]+\{#([^{}\s]+)\}[ \t]*$/u;
  * ordinary comments never become carriers. The result therefore supplies one
  * lexical owner to review auditing, target validation, and authored-body
  * measurement without reimplementing graph selection.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Restricts deterministic evidence preflight to the native carrier syntax the production contract declares.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Preserves exact source lines while excluding code examples and non-carrier text from preflight.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Provides one canonical lexical projection for Markdown comments and TypeScript JSDoc.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Returns stable host and line identities for every parsed declaration.
  */
 export function parseAutoMovieEvidenceSyntax(
   document: IAutoMovieEvidenceSyntaxDocument,
@@ -77,14 +57,7 @@ export function parseAutoMovieEvidenceSyntax(
     : typescriptAnnotations(document);
 }
 
-/**
- * Projects reader-visible Markdown and its live evidence-comment carriers.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps target prose and evidence carriers as separate, syntax-aware views.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Makes target-form validation independent of Markdown code notation.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Excludes comments, matched fences, and indented code from visible target prose.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Preserves line count so diagnostics retain their original addresses.
- */
+/** Projects reader-visible Markdown and its live evidence-comment carriers. */
 export function projectAutoMovieMarkdownSyntax(
   document: IAutoMovieEvidenceSyntaxDocument,
 ): IAutoMovieMarkdownSyntaxProjection {
@@ -121,9 +94,6 @@ export function projectAutoMovieMarkdownSyntax(
  * General HTML comments, headings, prose, punctuation, and source line
  * endings remain protected. This is the canonical denominator for a
  * metadata-only rewrite check and for authored-body revision measurement.
- *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Makes metadata-only operations distinguish evidence rows from authored work.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Produces a byte-comparable projection by removing only comments made entirely of evidence declarations.
  */
 export function projectAutoMovieAuthoredMarkdown(source: string): string {
   const regions = markdownCommentRegions(source).filter(

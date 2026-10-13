@@ -9,11 +9,7 @@ import {maskColor} from "./maskColor.js";
 
 import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
 
-/** Per-top-level-node flat colors on a black background. 
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Preserves child-index palette ownership while closing every temporary mask material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Preserves child-index palette ownership while closing every temporary mask material.
- */
+/** Per-top-level-node flat colors on a black background. */
 export const applyMaskMode = (scene: THREE.Scene): IAutoMovieRenderModeHandle => {
   const background = scene.background;
   scene.background = new THREE.Color(0x000000);

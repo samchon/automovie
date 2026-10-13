@@ -23,8 +23,6 @@ import { IAutoMovieServiceCheckReport } from "./IAutoMovieServiceCheckReport";
  * before faces existed cannot be asked where its holes are. Saying `supported`
  * in either case would be the dressing-up this report exists to prevent.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceAnalysisSupport` tells the author which structural service checks ran and which discipline-performance questions remain unsolved.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceAnalysisSupport` derives support from located spaces, faced boundaries, and available validators while marking each declared discipline solver unavailable.
  * @author Samchon
  */
 export const serviceAnalysisSupport = (props: {

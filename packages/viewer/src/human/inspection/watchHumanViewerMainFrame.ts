@@ -13,8 +13,6 @@ import type { Page } from "playwright";
  * @evidence contracts/common.md#clear-and-simple-design One native document-load observer informs the existing residency owner without another navigation-state cache.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Observes actual browser events without patching History methods or interpreting a hash-only camera update as a viewport restart.
  * @evidence contracts/common.md#meaningful-documentation States why only a new document is a reload and why the History API updates are excluded.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The server's view of the page follows the browser's own document-load event, not a timeout or a URL comparison.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One native document-load observer informs the existing residency owner without another navigation-state cache.
  */
 export function watchHumanViewerMainFrame(
   page: Page,

@@ -8,8 +8,6 @@ import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
  * whose worker encodes it, and the test that the same person is still
  * displayed when the bytes arrive.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Names the displayed person as the only subject of a static export.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Discards an encoded file when the displayed person changed while it was encoded.
  * @author Samchon
  */
 export interface IConnectedPersonAssetExportProps<Model> {

@@ -34,9 +34,6 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * when an event fires. The editor may still be building the previous edit;
  * composing against the render snapshot would discard that pending axis or
  * another bone's edit.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Binds each joint's clinical flexion, abduction and twist to bounded inputs that state the rest angle and refuse nothing the range admits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Reads effective override/default ranges through the engine's constraint owner and neutral angles from the admitted basis, writes only moved joints into the sparse pose, and displays declared coordination separately from the current draft's resolved source-rig coordinates.
  */
 export const renderBodyPoseControls = (props: IBodyPoseControlsProps): void => {
   const { dom, container, basis } = props;

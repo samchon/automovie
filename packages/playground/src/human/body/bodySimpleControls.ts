@@ -156,9 +156,6 @@ const FIELDS: IBodySimpleField[] = [
  * A pose-only commit leaves the rest shape unchanged, so `refresh` reuses
  * the last accepted reading and preserves any unfinished input text. A shape
  * change invalidates that reading and requests the worker again.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
  */
 export const renderBodySimpleControls = (
   props: IBodySimpleControlsProps,

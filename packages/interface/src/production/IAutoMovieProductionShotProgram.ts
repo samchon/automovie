@@ -25,35 +25,21 @@ import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
  *
  * Formation and effect cues remain declarative builder inputs; dense actor
  * motion, scene, and shot artifacts are deliberately absent.
- *
- * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `IAutoMovieProductionShotProgram` as the portable data boundary for the formation membership requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `IAutoMovieProductionShotProgram` for the performance formation hierarchy membership command system contract.
  */
 export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
   /**
    * Source-owned generated models assembled by ordinary TypeScript. Imported
    * assets remain builder-owned production inputs rather than sandbox output.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `models` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `models` for the performance formation hierarchy membership command system contract.
    */
   models?: IAutoMovieModel[];
 
-  /**
-   * Source-owned semantic props whose model and behavior are validated.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `props` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `props` for the performance formation hierarchy membership command system contract.
-   */
+  /** Source-owned semantic props whose model and behavior are validated. */
   props?: IAutoMoviePropSpec[];
 
   /**
    * Code-authored buildings used by the shot. They remain structured in the
    * compiled artifact; visible placements and support space are staged from the
    * same record rather than transcribed into a second design.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `builtEnvironments` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `builtEnvironments` for the performance formation hierarchy membership command system contract.
    */
   builtEnvironments?: IAutoMovieBuiltEnvironment[];
 
@@ -63,90 +49,37 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * A reading is never promoted into the design. They are here so the builder
    * can hold each document against the bytes it claims to have observed and
    * refuse a citation whose file has moved on.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `designReferences` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designReferences` for the performance formation hierarchy membership command system contract.
    */
   designReferences?: IAutoMovieDesignReference[];
 
-  /**
-   * Citations from authored design members back to those observations.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `designEvidence` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designEvidence` for the performance formation hierarchy membership command system contract.
-   */
+  /** Citations from authored design members back to those observations. */
   designEvidence?: IAutoMovieDesignEvidence[];
 
-  /**
-   * Phase, alternative and change-impact lineage over those identities.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `designLineages` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `designLineages` for the performance formation hierarchy membership command system contract.
-   */
+  /** Phase, alternative and change-impact lineage over those identities. */
   designLineages?: IAutoMovieDesignLineage[];
 
-  /**
-   * Independent deterministic fluid domains this shot's source declares.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `fluidDomains` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `fluidDomains` for the performance formation hierarchy membership command system contract.
-   */
+  /** Independent deterministic fluid domains this shot's source declares. */
   fluidDomains?: IAutoMovieFluidDomain[];
 
-  /**
-   * Bindings that make those domains a building's own water features.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `waterFeatures` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `waterFeatures` for the performance formation hierarchy membership command system contract.
-   */
+  /** Bindings that make those domains a building's own water features. */
   waterFeatures?: IAutoMovieWaterFeature[];
 
-  /**
-   * Cloth and cushion domains this shot's source declares.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `softBodyDomains` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `softBodyDomains` for the performance formation hierarchy membership command system contract.
-   */
+  /** Cloth and cushion domains this shot's source declares. */
   softBodyDomains?: IAutoMovieSoftBodyDomain[];
 
-  /**
-   * Bindings that hang those domains on a building's own elements.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `softFurnishings` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `softFurnishings` for the performance formation hierarchy membership command system contract.
-   */
+  /** Bindings that hang those domains on a building's own elements. */
   softFurnishings?: IAutoMovieSoftFurnishing[];
 
-  /**
-   * Growth recipes for the planting this shot's source declares.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `plantingDomains` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingDomains` for the performance formation hierarchy membership command system contract.
-   */
+  /** Growth recipes for the planting this shot's source declares. */
   plantingDomains?: IAutoMoviePlantingDomain[];
 
-  /**
-   * Arrangements those recipes are grown into.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `plantingClusters` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingClusters` for the performance formation hierarchy membership command system contract.
-   */
+  /** Arrangements those recipes are grown into. */
   plantingClusters?: IAutoMoviePlantingCluster[];
 
-  /**
-   * Bindings that plant those clusters in a building's own spaces.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `plantingInstallations` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `plantingInstallations` for the performance formation hierarchy membership command system contract.
-   */
+  /** Bindings that plant those clusters in a building's own spaces. */
   plantingInstallations?: IAutoMoviePlantingInstallation[];
 
-  /**
-   * Port networks that serve the buildings this shot stages.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `serviceNetworks` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `serviceNetworks` for the performance formation hierarchy membership command system contract.
-   */
+  /** Port networks that serve the buildings this shot stages. */
   serviceNetworks?: IAutoMovieServiceNetwork[];
 
   /**
@@ -154,9 +87,6 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    *
    * The host still masks, layers, ROM-checks, and assembles these clips through
    * `performShot`; they are not precompiled shot output.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `clips` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `clips` for the performance formation hierarchy membership command system contract.
    */
   clips?: IAutoMovieMotion[];
 
@@ -170,9 +100,6 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * the host carries them onto the compiled shot's `lightMotions`. Omitted, the
    * shot's lighting is constant and its compiled artifact is byte-identical to
    * one compiled before this field existed.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `lightMotions` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `lightMotions` for the performance formation hierarchy membership command system contract.
    */
   lightMotions?: IAutoMovieClip[];
 
@@ -197,33 +124,15 @@ export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
    * shot's own clock, and a driven prop joint must stay inside the travel that
    * prop's profile declares. Omitted, the compiled shot carries exactly the
    * clips the engine baked, as it always did.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `objectMotions` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `objectMotions` for the performance formation hierarchy membership command system contract.
    */
   objectMotions?: IAutoMovieClip[];
 
-  /**
-   * Optional compact formation-level cues.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `formationMotions` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `formationMotions` for the performance formation hierarchy membership command system contract.
-   */
+  /** Optional compact formation-level cues. */
   formationMotions?: IAutoMovieFormationMotion[];
 
-  /**
-   * Optional sparse per-member exceptions inside compact formations.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `formationSlotMotions` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `formationSlotMotions` for the performance formation hierarchy membership command system contract.
-   */
+  /** Optional sparse per-member exceptions inside compact formations. */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
 
-  /**
-   * Optional bounded shot-local deterministic effect cues.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `effectCues` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `effectCues` for the performance formation hierarchy membership command system contract.
-   */
+  /** Optional bounded shot-local deterministic effect cues. */
   effectCues?: IAutoMovieShotEffectCue[];
 }

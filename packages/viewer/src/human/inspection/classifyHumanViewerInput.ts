@@ -10,8 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One classifier handles the paired person case before the separate face/body cases.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects by document shape without named-subject exceptions or treating a classified object as validated geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines each domain's discriminator and explicitly separates classification from numerical validity.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Structural face/body discriminants choose the existing numerical domain; classification leaves schema and basis admission to its owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document One classifier handles the paired person case before the separate face/body cases.
  */
 export function classifyHumanViewerInput(
   document: unknown,

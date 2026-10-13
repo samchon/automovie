@@ -12,8 +12,6 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * fps read the same integrated state whenever they land inside the same step,
  * instead of each integrating a different number of times.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Maps an arbitrary shot second to the declared absolute fluid step.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Returns the repeatable state at the snapped seek boundary.
  * @author Samchon
  */
 export const sampleFluidDomain = (

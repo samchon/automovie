@@ -15,8 +15,6 @@ import { channelKey } from "./channelKey";
  * one-per-component matching the channel width
  * ({@link IAutoMovieChannelLimit}).
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Enforces each declared component range while retaining the requested value in a violation.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Emits the clamped channel with per-component correction receipts.
  * @author Samchon
  */
 export const applyChannelLimit = (

@@ -1,8 +1,6 @@
 /**
  * One branch participating in a declared authoring foundation topology.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Makes branch activity and authoring order explicit topology inputs.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Represents one branch in the selected production state machine.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceTopologyBranch {
@@ -17,8 +15,6 @@ export interface IAutoMovieEvidenceTopologyBranch {
 /**
  * One canonical provider-to-consumer relationship.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Keeps foundation ownership in the shared topology instead of copied prose.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Defines one expected foundation edge and its coordinated-stage exception.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceTopologyEdge {
@@ -33,8 +29,6 @@ export interface IAutoMovieEvidenceTopologyEdge {
 /**
  * One account-owned declaration of a foundation relationship or absence.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Makes a population account the visible owner of one foundation decision.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Distinguishes a positive consumer from a reviewed inapplicable edge.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceTopologyDeclaration {
@@ -51,8 +45,6 @@ export interface IAutoMovieEvidenceTopologyDeclaration {
 /**
  * One deterministic structural defect in a topology account.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Names the exact edge and repair direction for every topology defect.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Defines the closed diagnostic result emitted before graph publication.
  * @author Samchon
  */
 export interface IAutoMovieEvidenceTopologyDiagnostic {
@@ -76,10 +68,6 @@ export interface IAutoMovieEvidenceTopologyDiagnostic {
 /**
  * Inspects an account-owned foundation topology against its canonical matrix.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps selected and disabled foundation relationships distinguishable.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-deterministic-result Reports every missing, extra, stale, or misordered relationship in stable order.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Validates provider and consumer state against the declared production branches.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-deterministic-result Produces a complete diagnostic set instead of accepting a partial topology.
  * @author Samchon
  */
 export function inspectAutoMovieEvidenceTopology(props: {

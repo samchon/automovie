@@ -6,40 +6,18 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The worker receives actual host-observed byte membership instead of trusting the entry filename alone.
  * @evidence contracts/common.md#meaningful-documentation The declaration states origin ownership, absolute entry meaning and after-load source matching.
  *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Loopback origin, revision, maintained entry and input digests specify the source authority accepted at numerical startup.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The worker receives actual host-observed byte membership instead of trusting the entry filename alone.
  * @author Samchon
  */
 export interface IHumanViewerNodeWorkerData {
-  /**
-   * Verified loopback origin serving unchanged digest-checked basis routes.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps the checked numerical realm's basis requests on the verified loopback data provider.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps the checked numerical realm's basis requests on the verified loopback data provider.
-   */
+  /** Verified loopback origin serving unchanged digest-checked basis routes. */
   origin: string;
 
-  /**
-   * Current source revision selected before startup.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Preserves source identity elected before startup rather than a later catalogue reading.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Preserves source identity elected before startup rather than a later catalogue reading.
-   */
+  /** Current source revision selected before startup. */
   revision: string;
 
-  /**
-   * Absolute maintained entry actually launched by this host.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Names the actual maintained absolute numerical entry launched by this host.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Names the actual maintained absolute numerical entry launched by this host.
-   */
+  /** Absolute maintained entry actually launched by this host. */
   entry: string;
 
-  /**
-   * Exact host-observed source bytes that must still match after loading.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps the host-observed source membership and byte digests that must still match after loading.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps the host-observed source membership and byte digests that must still match after loading.
-   */
+  /** Exact host-observed source bytes that must still match after loading. */
   inputs: Record<string, string>;
 }

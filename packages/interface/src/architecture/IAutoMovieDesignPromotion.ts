@@ -9,32 +9,14 @@ import { IAutoMovieDesignWithholding } from "./IAutoMovieDesignWithholding";
  * Every candidate lands in exactly one of {@link promoted} or {@link withheld},
  * and every analysis that produced nothing is named in {@link skipped}. There is
  * no fourth pile, so a caller cannot mistake silence for agreement.
- *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignPromotion` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignPromotion` for the narrative intent reference lineage system contract.
  */
 export interface IAutoMovieDesignPromotion {
-  /**
-   * Readings settled enough to become metric geometry.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `promoted` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `promoted` for the narrative intent reference lineage system contract.
-   */
+  /** Readings settled enough to become metric geometry. */
   promoted: IAutoMovieDesignPromotedReading[];
 
-  /**
-   * Readings left as observation, each with its blocking reason.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `withheld` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `withheld` for the narrative intent reference lineage system contract.
-   */
+  /** Readings left as observation, each with its blocking reason. */
   withheld: IAutoMovieDesignWithholding[];
 
-  /**
-   * Analyses that were unsupported or never run.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `skipped` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `skipped` for the narrative intent reference lineage system contract.
-   */
+  /** Analyses that were unsupported or never run. */
   skipped: IAutoMovieDesignSkippedAnalysis[];
 }
