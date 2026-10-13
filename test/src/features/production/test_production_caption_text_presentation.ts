@@ -21,7 +21,9 @@ import { TestValidator } from "@nestia/e2e";
  * 5. Annotation text uses a separate single-line sanitizer, while header and
  *    cue identifiers are preserved verbatim: WebVTT defines no entity escape
  *    for them, so escaping would change the identity they carry, and one that
- *    contains a line break or the cue timing arrow is refused instead.
+ *    is empty, contains a line break, or contains the cue timing arrow is
+ *    refused instead, because an empty identifier line is a blank line that
+ *    would drop the cue's id.
  * 6. Direct WebVTT serialization refuses a malformed language rather than
  *    publishing it as an annotation.
  */
@@ -33,7 +35,7 @@ const refusedIdentifier = (value: string): boolean => {
     return (
       error instanceof Error &&
       error.message ===
-        "WebVTT header and cue identifiers must not contain a line break or -->."
+        "WebVTT header and cue identifiers must be non-empty and must not contain a line break or -->."
     );
   }
 };
@@ -67,10 +69,11 @@ export const test_production_caption_text_presentation = (): void => {
     "identifiers are preserved verbatim or refused, never escaped",
     {
       preserved: serializeAutoMovieWebVttIdentifier("cue <&> one"),
+      empty: refusedIdentifier(""),
       lineBreak: refusedIdentifier("cue\none"),
       arrow: refusedIdentifier("cue --> one"),
     },
-    { preserved: "cue <&> one", lineBreak: true, arrow: true },
+    { preserved: "cue <&> one", empty: true, lineBreak: true, arrow: true },
   );
 
   const timeline: IAutoMovieFilmTimeline = {

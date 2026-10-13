@@ -13,361 +13,279 @@ import {
 } from "./sequenceRenderPlan";
 
 /**
- * One independently-renderable slice of a sequence render: a contiguous range
- * of the whole plan's output frames with its own frame directory, paths, and
- * encoder output. A 1-hour film is rendered (and regenerated) chunk by chunk in
- * bounded windows without ever holding the whole timeline at once.
+ * One independently renderable slice of a sequence render: a contiguous range
+ * of the whole plan's output frames with its own frame directory, paths and
+ * encoder invocation.
  *
+ * A host captures and encodes one chunk at a time, so a long film is rendered,
+ * and re-rendered after a change, in bounded windows of frame files.
+ *
+ * @evidence contracts/common.md#principled-implementation A chunk is a half-open range `[frameStart, frameEnd)` of global output indices with chunk-local file indices, so concatenating chunks in `index` order reproduces the whole schedule and every chunk's frame files start at `frame_00000`.
+ * @evidence contracts/common.md#clear-and-simple-design The chunk repeats the whole plan's per-render fields (frame directory, first and last frame, input pattern, output path, ffmpeg arguments) so a host renders it with the same code path as an unchunked plan.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every sample field of a chunk frame is copied from the whole plan rather than recomputed, so a chunk cannot render differently from the same frames of the unchunked plan, and no chunk position is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The prose states what a chunk is for; members give the inclusive and exclusive bounds, the global and chunk-local frames of reference, and when the guide-pass field is present.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only types one chunk's manifest and executes nothing; the slicing cost is answered on `planChunkedSequenceRender`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A chunk manifest is inert data and coordinates no work between phases or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A chunk names files a host writes but owns no handle or task; its frame list grows with `chunkFrames` and lives inside the chunk plan.
  * @author Samchon
  */
 export interface IAutoMovieRenderChunk {
-  /**
-   * Chunk ordinal (0-based, capture order).
-   *
-   * @author Samchon
-   */
+  /** Zero-based chunk ordinal in capture and concatenation order. */
   index: number;
 
-  /**
-   * First global output frame index in this chunk (inclusive).
-   *
-   * @author Samchon
-   */
+  /** First global output frame index in this chunk, inclusive. */
   frameStart: number;
 
-  /**
-   * One past the last global output frame index (exclusive).
-   *
-   * @author Samchon
-   */
+  /** One past the last global output frame index in this chunk, exclusive. */
   frameEnd: number;
 
-  /**
-   * Number of frames in this chunk.
-   *
-   * @author Samchon
-   */
+  /** Number of frames in this chunk, `frameEnd - frameStart`. */
   frameCount: number;
 
-  /**
-   * Global output second of this chunk's first frame.
-   *
-   * @author Samchon
-   */
+  /** Global output time of this chunk's first frame, in seconds. */
   startSeconds: number;
 
-  /**
-   * Global output second of this chunk's last frame.
-   *
-   * @author Samchon
-   */
+  /** Global output time of this chunk's last frame, in seconds. */
   endSeconds: number;
 
   /**
    * The chunk's frames. Each carries a chunk-local
-   * {@link IAutoMovieSequenceRenderFrame.index} and `path` (so the chunk
-   * captures its own files independently), while every sample field
-   * (`timeSeconds`, `shot`, `shotTimeSeconds`, `blend`) is copied verbatim from
-   * the whole plan, so a chunk renders frame-identical to the same frames of
-   * the un-chunked render.
-   *
-   * @author Samchon
+   * {@link IAutoMovieSequenceRenderFrame.index} and `path`, so the chunk writes
+   * its own files, while every sample field (`timeSeconds`, `shot`,
+   * `shotTimeSeconds`, `blend`) is copied from the whole plan, so a chunk
+   * renders identically to the same frames of the unchunked render.
    */
   frames: IAutoMovieSequenceRenderFrame[];
 
-  /**
-   * Directory where this chunk's frame files should be written.
-   *
-   * @author Samchon
-   */
+  /** Directory this chunk's frame files are written to. */
   frameDir: string;
 
-  /**
-   * First chunk frame path.
-   *
-   * @author Samchon
-   */
+  /** Path of the chunk's first frame file. */
   firstFrame: string;
 
-  /**
-   * Last chunk frame path.
-   *
-   * @author Samchon
-   */
+  /** Path of the chunk's last frame file. */
   lastFrame: string;
 
-  /**
-   * Ffmpeg input pattern for this chunk's frame sequence.
-   *
-   * @author Samchon
-   */
+  /** Ffmpeg input pattern matching this chunk's frame files. */
   inputPattern: string;
 
   /**
-   * This chunk's encoded video output path.
-   *
-   * @author Samchon
+   * This chunk's encoded video path: the whole plan's output path tagged with
+   * the chunk label before its extension.
    */
   outputPath: string;
 
-  /**
-   * Exact ffmpeg argument vector for this chunk's encoded output.
-   *
-   * @author Samchon
-   */
+  /** Exact ffmpeg argument vector that encodes this chunk's frames. */
   ffmpegArgs: string[];
 
   /**
-   * Per-pass output locations inside this chunk's frame dir, chunk-local
-   * indices, present only when the plan requested guide passes. The `beauty`
-   * pass's untagged paths coincide with {@link frames}' paths (it IS the base
-   * capture); tagged passes sit beside them (`frame_00000.depth.png`).
-   *
-   * @author Samchon
+   * Per-pass output locations inside this chunk's frame directory, with
+   * chunk-local indices; present only when the plan requested guide passes.
+   * The `beauty` pass's untagged paths coincide with {@link frames}' paths,
+   * because it is the base capture, and tagged passes sit beside them, such as
+   * `frame_00000.depth.png`.
    */
   passOutputs?: IAutoMovieGuidePassOutput[];
 }
 
 /**
- * One guide pass's whole-timeline walk order across the chunks, how a diffusion
- * host visits every frame of a pass without a video concat: the chunk frame
- * directories in play order, with the per-chunk ffmpeg input pattern alongside
- * for hosts that want to encode a pass per chunk.
+ * One guide pass's whole-timeline walk order across the chunks: how a host
+ * visits every frame of the pass without a video concatenation.
  *
+ * Tagged passes end as frame sequences, so this manifest is their reassembly;
+ * the per-chunk input patterns let a host that wants a video encode one per
+ * chunk.
+ *
+ * @evidence contracts/common.md#principled-implementation Two arrays parallel to the chunk list describe the walk, because the chunk directories already order the frames and the pass tag only changes the file pattern inside each directory.
+ * @evidence contracts/common.md#clear-and-simple-design The manifest carries only directories, patterns and the total, and leaves frame-level paths to each chunk's `passOutputs`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The beauty pass gets a manifest like every other pass, and no pass name is treated specially here; the beauty pass additionally reassembles as video through the concat plan.
+ * @evidence contracts/common.md#meaningful-documentation The prose states that this is how a tagged pass is reassembled and why patterns are included; members state order, parallelism and the frame total.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The manifest is a data shape with no logic; building it is linear in chunks and is answered on the planner.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type shares no work across phases; a host reads it once to walk a pass.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The manifest holds two string arrays of chunk-count length and owns no handle or task.
  * @author Samchon
  */
 export interface IAutoMovieRenderPassManifest {
-  /**
-   * The guide pass this manifest walks.
-   *
-   * @author Samchon
-   */
+  /** The guide pass this manifest walks. */
   pass: AutoMovieGuidePass;
 
-  /**
-   * Chunk frame directories in play order.
-   *
-   * @author Samchon
-   */
+  /** Chunk frame directories in play order. */
   chunkFrameDirs: string[];
 
-  /**
-   * Per-chunk ffmpeg input patterns, parallel to {@link chunkFrameDirs}.
-   *
-   * @author Samchon
-   */
+  /** Per-chunk ffmpeg input patterns for this pass, parallel to {@link chunkFrameDirs}. */
   inputPatterns: string[];
 
-  /**
-   * Total frames of the pass across all chunks (equals the plan's).
-   *
-   * @author Samchon
-   */
+  /** Total frames of the pass across all chunks, equal to the plan's frame count. */
   frameCount: number;
 }
 
 /**
- * The plan to stitch the rendered chunk videos back into one timeline.
+ * The plan that stitches the encoded chunk videos back into one video with
+ * ffmpeg's concat demuxer and stream copy.
  *
+ * The host writes `concatListLines` to `concatListPath` and runs ffmpeg with
+ * `ffmpegArgs`. The list holds chunk basenames because the demuxer resolves a
+ * relative entry against the list file's directory, which is also the chunk
+ * outputs' directory.
+ *
+ * @evidence contracts/common.md#principled-implementation Stream copy through the concat demuxer joins chunks without re-encoding, which the demuxer supports because every chunk is encoded with the same spec and so carries identical stream parameters, and basename entries resolve correctly because the demuxer resolves relative entries against the list file's directory.
+ * @evidence contracts/common.md#clear-and-simple-design The plan gives the list path, its exact lines and the argument vector, so the host only writes one file and spawns one process with no path logic of its own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `-safe 0` is ffmpeg's documented switch for accepting arbitrary entry names, needed because chunk basenames may contain characters the safe mode rejects, and no output name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The prose states the host's two steps and why entries are basenames; members state order, the line format and that the arguments copy streams.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a data shape whose construction cost belongs to the chunk planner.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reassembly plan coordinates no repeated work; the host runs it once after every chunk is encoded.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type names a list file and a process the host owns; it holds only chunk-count strings itself.
  * @author Samchon
  */
 export interface IAutoMovieRenderReassembly {
-  /**
-   * Final video path (the whole plan's `outputPath`).
-   *
-   * @author Samchon
-   */
+  /** Final video path, the whole plan's `outputPath`. */
   outputPath: string;
 
-  /**
-   * Chunk output video paths, in play order.
-   *
-   * @author Samchon
-   */
+  /** Chunk output video paths, in play order. */
   chunkOutputs: string[];
 
-  /**
-   * Path of the ffmpeg concat-demuxer list the host writes.
-   *
-   * @author Samchon
-   */
+  /** Path of the concat-demuxer list file the host writes, beside the output. */
   concatListPath: string;
 
   /**
-   * Lines of that list (`file '<path>'`), in play order.
-   *
-   * @author Samchon
+   * Lines of that list, `file '<basename>'` with each apostrophe escaped, in
+   * play order.
    */
   concatListLines: string[];
 
-  /**
-   * Ffmpeg argument vector that concatenates the chunk videos losslessly.
-   *
-   * @author Samchon
-   */
+  /** Ffmpeg argument vector that concatenates the chunk videos with stream copy. */
   ffmpegArgs: string[];
 }
 
 /**
- * A long sequence render split into independently-renderable chunks plus the
+ * A long sequence render split into independently renderable chunks plus the
  * plan to reassemble them.
  *
+ * @evidence contracts/common.md#principled-implementation The plan keeps the whole render's identity, rate and frame total beside the chunks, so a host can check that the chunks cover the render before reassembling it.
+ * @evidence contracts/common.md#clear-and-simple-design Chunks, the video reassembly and the optional pass manifests are separate fields because the beauty video and tagged frame sequences finish differently.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent `passManifests` means no passes were requested, and the plan carries no host-specific field.
+ * @evidence contracts/common.md#meaningful-documentation The prose states what the plan holds; members state what is copied from the whole plan, the shorter last chunk, and when pass manifests are present and how beauty and tagged passes finish.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The chunk plan type runs no code; producing it is answered on `planChunkedSequenceRender`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A chunk plan is a value handed to a host and coordinates no shared work itself.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The plan holds a copy of every output frame across its chunks, owned by whoever holds the value, and no handle or task.
  * @author Samchon
  */
 export interface IAutoMovieRenderChunkPlan {
-  /**
-   * Render target identity (copied from the whole plan).
-   *
-   * @author Samchon
-   */
+  /** Render target identity, copied from the whole plan. */
   target: IAutoMovieSequenceRenderPlan["target"];
 
-  /**
-   * Output fps (copied from the whole plan).
-   *
-   * @author Samchon
-   */
+  /** Output frames per second, copied from the whole plan. */
   renderFps: number;
 
-  /**
-   * Total output frames across all chunks (equals the whole plan).
-   *
-   * @author Samchon
-   */
+  /** Total output frames across all chunks, equal to the whole plan's. */
   frameCount: number;
 
-  /**
-   * Frames per chunk (the last chunk may be shorter).
-   *
-   * @author Samchon
-   */
+  /** Frames per chunk; the last chunk may be shorter. */
   chunkFrames: number;
 
-  /**
-   * Number of chunks.
-   *
-   * @author Samchon
-   */
+  /** Number of chunks, `ceil(frameCount / chunkFrames)`. */
   chunkCount: number;
 
-  /**
-   * The chunks, in capture order.
-   *
-   * @author Samchon
-   */
+  /** The chunks, in capture order. */
   chunks: IAutoMovieRenderChunk[];
 
-  /**
-   * How to stitch the chunk outputs into the final video.
-   *
-   * @author Samchon
-   */
+  /** How to stitch the chunk videos into the final video. */
   reassembly: IAutoMovieRenderReassembly;
 
   /**
    * Per-pass whole-timeline walk orders, present only when guide passes were
    * requested. The `beauty` pass reassembles as video through
-   * {@link reassembly}; tagged passes terminate as frame sequences (diffusion
-   * consumes frames, not videos), so their reassembly IS this walk order.
-   *
-   * @author Samchon
+   * {@link reassembly}; tagged passes end as frame sequences, because diffusion
+   * guidance consumes frames, so their walk order is their reassembly.
    */
   passManifests?: IAutoMovieRenderPassManifest[];
 }
 
 /**
- * Split a {@link planSequenceRender} manifest into `chunkFrames`-sized,
- * independently-renderable chunks so an arbitrarily long timeline is rendered
- * in bounded windows.
+ * Split a `planSequenceRender` manifest into `chunkFrames`-sized,
+ * independently renderable chunks and the plan to concatenate them.
  *
- * The boundary rule is **frame-atomic**: a frame is the indivisible unit and
- * belongs to exactly one chunk (chunks are contiguous slices of the whole
- * plan's `frames`, `[i·chunkFrames, (i+1)·chunkFrames)`). Because a
- * transition's blend is already baked into each output frame's `blend`, a
- * transition that straddles a chunk boundary is simply split at a frame
- * boundary with each frame keeping its exact blend: no frame is duplicated or
- * dropped, and concatenating the chunks reproduces the whole render
- * frame-for-frame. Deterministic: it only slices and re-labels the
- * already-rational frame schedule.
+ * Chunks are frame-atomic: chunk `i` holds the whole plan's frames
+ * `[i × chunkFrames, (i + 1) × chunkFrames)`, the last one clipped to the
+ * total. A transition's blend is already baked into each frame's `blend`, so a
+ * transition that straddles a boundary is split between frames with each frame
+ * keeping its blend, and concatenating the chunks reproduces the whole render
+ * frame for frame. Running chunks in parallel or on a farm is a host concern.
+ * The plan holds every frame of the render; only capture and encoding are
+ * bounded per chunk.
  *
- * Executing the chunks in parallel / on a render farm is a host concern; this
- * only produces the independent chunk manifests and the concat plan.
+ * When `passes` is given, every chunk also plans its per-pass frame paths
+ * through `planGuidePassOutputs`, with chunk-local indices, and the plan gains
+ * one {@link IAutoMovieRenderPassManifest} per pass. Omitting `passes` omits
+ * every pass field; an empty list plans empty pass sets; an unknown pass name
+ * throws before any chunk is built. Throws when `chunkFrames` is not a positive
+ * integer.
  *
- * **Guide passes (#644).** When `passes` is given, every chunk also plans its
- * per-pass frame paths (chunk-local indices, the same re-base as the beauty
- * frames; naming via {@link planGuidePassOutputs}: `beauty` untagged and
- * coinciding with the chunk's base frames, others tagged
- * `frame_00000.depth.png`), and the plan gains one
- * {@link IAutoMovieRenderPassManifest} per pass. The output decision: `beauty`
- * keeps the per-chunk video encode and the concat reassembly (unchanged);
- * tagged passes terminate as **frame sequences**: diffusion guidance
- * (ControlNet et al.) consumes frames, not videos, with each chunk's ffmpeg
- * input pattern still emitted so a host that wants a video can encode one. No
- * per-pass concat exists; a pass's whole-timeline order IS its manifest's
- * chunk-dir walk. `passes` absent omits every pass field (byte-identical to the
- * pass-less plan); an empty list plans empty pass sets (the
- * {@link planGuidePassOutputs} convention); an unknown pass name throws before
- * any chunk is built.
+ * `planProductionRenderJob` partitions frames with the same arithmetic but a
+ * different contract, restarting its index per deliverable and admitting only
+ * safe integers, so the two do not share a helper.
  *
- * **Not shared with the production render plan.** `planProductionRenderJob`
- * partitions the same way arithmetically, from `k * chunkFrames` to
- * `min(start + chunkFrames, total)`, and the two agree on every frame count and
- * chunk size tried: zero frames, exact division, a one-frame remainder, a chunk
- * larger than the total, a chunk of one, and the safe-integer maximum. They stay
- * separate on purpose. This planner needs the chunk count before it iterates,
- * because one label pad width is fixed from it for every chunk, and its `index`
- * is the ordinal the concat reassembly walks. That planner restarts `index` for
- * each deliverable and pass, because its index is one field of a
- * content-addressed slot rather than a position in a sequence. The admission
- * rules differ too: this one accepts any positive integer, that one only a
- * positive safe integer, so 9007199254740992 is a chunk size here and a refusal
- * there. Three lines of shared arithmetic do not pay for a primitive carrying
- * two partition contracts, nor for the first root-to-subfolder edge in this
- * package.
- *
+ * @evidence contracts/common.md#principled-implementation Chunks are contiguous slices of the already rational frame schedule, so the method only re-labels frames and paths and never resamples time; the concat entries are basenames with each apostrophe written as `'\''`, the quoting `av_get_token` parses, because the demuxer resolves entries against the list file's directory and ends a quoted string at an apostrophe.
+ * @evidence contracts/common.md#clear-and-simple-design Frame naming, patterns and encoder arguments come from `plan.ts`, and pass normalization and naming from `guidePasses.ts`, so a chunk is named like a whole render; the production planner keeps its own three lines of partition arithmetic because its index restarts per deliverable and pass and its admission rule differs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The label pad width comes from the chunk count so labels sort in play order, the concat arguments are ffmpeg's documented lossless form, and no chunk, pass or path is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The doc states the boundary rule and why transitions survive it, that the plan holds all frames, the pass behavior for absent, empty and unknown lists, every refusal, and why production partitioning stays separate.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames, C chunks and P passes the cost is O(F + C × P): each frame is sliced and re-labelled once, and per-chunk work is constant apart from pass outputs and the argument vector.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner builds one chunk plan from one whole plan per call and coordinates no phases or consumers whose results it could share.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned plan, owned by the caller, holds a relabelled copy of all F frames plus O(C × P) strings; the per-chunk slices are released as each chunk's frames are built, and no handle or task is opened.
  * @author Samchon
  */
 export const planChunkedSequenceRender = (props: {
   /** The whole-sequence render manifest to split. */
   plan: IAutoMovieSequenceRenderPlan;
 
-  /** Render spec (for each chunk's encoder args); its `target` matched the plan. */
+  /** Render spec for each chunk's encoder arguments; its target matches the plan. */
   spec: IAutoMovieRenderSpec;
 
-  /** Output frames per chunk. A positive integer. */
+  /** Output frames per chunk, a positive integer. */
   chunkFrames: number;
 
   /** Guide passes to plan per chunk; omit for a beauty-only render. */
   passes?: readonly string[];
 }): IAutoMovieRenderChunkPlan => {
-  const { plan, spec, chunkFrames } = props;
+  const plan: IAutoMovieSequenceRenderPlan = props.plan;
+  const spec: IAutoMovieRenderSpec = props.spec;
+  const chunkFrames: number = props.chunkFrames;
   if (!Number.isInteger(chunkFrames) || chunkFrames <= 0)
     throw new Error(
       `chunkFrames must be a positive integer, but was ${chunkFrames}`,
     );
-  const passes =
+  const passes: AutoMovieGuidePass[] | undefined =
     props.passes === undefined ? undefined : normalizeGuidePasses(props.passes);
 
-  const chunkCount = Math.ceil(plan.frames.length / chunkFrames);
-  const pad = String(Math.max(chunkCount - 1, 0)).length;
+  const chunkCount: number = Math.ceil(plan.frames.length / chunkFrames);
+  const pad: number = String(Math.max(chunkCount - 1, 0)).length;
 
   const chunks: IAutoMovieRenderChunk[] = Array.from(
     { length: chunkCount },
-    (_, index): IAutoMovieRenderChunk => {
-      const frameStart = index * chunkFrames;
-      const frameEnd = Math.min(frameStart + chunkFrames, plan.frames.length);
-      const slice = plan.frames.slice(frameStart, frameEnd);
-      const label = `chunk_${String(index).padStart(pad, "0")}`;
-      const frameDir = `${plan.frameDir}/${label}`;
+    (_: unknown, index: number): IAutoMovieRenderChunk => {
+      const frameStart: number = index * chunkFrames;
+      const frameEnd: number = Math.min(
+        frameStart + chunkFrames,
+        plan.frames.length,
+      );
+      const slice: IAutoMovieSequenceRenderFrame[] = plan.frames.slice(
+        frameStart,
+        frameEnd,
+      );
+      const label: string = `chunk_${String(index).padStart(pad, "0")}`;
+      const frameDir: string = `${plan.frameDir}/${label}`;
       const frames: IAutoMovieSequenceRenderFrame[] = slice.map(
-        (frame, local): IAutoMovieSequenceRenderFrame => ({
+        (
+          frame: IAutoMovieSequenceRenderFrame,
+          local: number,
+        ): IAutoMovieSequenceRenderFrame => ({
           ...frame,
           index: local,
           path: `${frameDir}/${frameName(local)}`,
         }),
       );
-      const inputPattern = `${frameDir}/${framePattern()}`;
-      const outputPath = taggedOutput(plan.outputPath, label);
+      const inputPattern: string = `${frameDir}/${framePattern()}`;
+      const outputPath: string = taggedOutput(plan.outputPath, label);
       return {
         index,
         frameStart,
@@ -395,18 +313,15 @@ export const planChunkedSequenceRender = (props: {
     },
   );
 
-  const chunkOutputs = chunks.map((chunk) => chunk.outputPath);
-  const concatListPath = `${plan.outputPath}.concat.txt`;
-  // ffmpeg's concat demuxer resolves relative entries against the LIST FILE's
-  // directory, not the invoking cwd. The chunk outputs always sit beside the
-  // list (taggedOutput preserves the directory), so the lines must carry
-  // basenames. A directory-qualified output ("renders/seq.mp4") would
-  // otherwise resolve to "renders/renders/seq.chunk_0.mp4". Each basename is
-  // single-quote escaped: the demuxer's quoted string ends at the first `'`,
-  // so an apostrophe basename ("directors'cut.mp4") otherwise malforms the
-  // list and the lossless concat fails or misparses (#1089).
-  const concatListLines = chunkOutputs.map(
-    (output) => `file '${escapeConcatEntry(baseName(output))}'`,
+  const chunkOutputs: string[] = chunks.map(
+    (chunk: IAutoMovieRenderChunk): string => chunk.outputPath,
+  );
+  const concatListPath: string = `${plan.outputPath}.concat.txt`;
+  // The concat demuxer resolves a relative entry against the list file's
+  // directory, and `taggedOutput` keeps every chunk beside the list, so entries
+  // are basenames; a directory-qualified entry would resolve twice.
+  const concatListLines: string[] = chunkOutputs.map(
+    (output: string): string => `file '${escapeConcatEntry(baseName(output))}'`,
   );
   return {
     target: plan.target,
@@ -419,11 +334,14 @@ export const planChunkedSequenceRender = (props: {
       ? {}
       : {
           passManifests: passes.map(
-            (pass): IAutoMovieRenderPassManifest => ({
+            (pass: AutoMovieGuidePass): IAutoMovieRenderPassManifest => ({
               pass,
-              chunkFrameDirs: chunks.map((chunk) => chunk.frameDir),
+              chunkFrameDirs: chunks.map(
+                (chunk: IAutoMovieRenderChunk): string => chunk.frameDir,
+              ),
               inputPatterns: chunks.map(
-                (chunk) => `${chunk.frameDir}/${guidePassFramePattern(pass)}`,
+                (chunk: IAutoMovieRenderChunk): string =>
+                  `${chunk.frameDir}/${guidePassFramePattern(pass)}`,
               ),
               frameCount: plan.frames.length,
             }),
@@ -450,26 +368,30 @@ export const planChunkedSequenceRender = (props: {
   };
 };
 
-/** The path's last segment (after the final `/` or `\`). */
+/** The path's last segment, after the final `/` or `\`. */
 const baseName = (path: string): string =>
   path.slice(Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
 /**
- * Escape one concat-demuxer list entry for its single-quoted `file '…'` line: a
- * quoted string cannot CONTAIN `'`, so each apostrophe closes the quote, emits
- * an escaped quote, and reopens (`'` → `'\''`), the same idiom POSIX shells
- * use, and the grammar ffmpeg's `av_get_token` parses (#1089).
+ * Escape one concat-demuxer entry for its single-quoted `file '…'` line. A
+ * quoted string cannot contain `'`, so each apostrophe closes the quote, emits
+ * an escaped quote, and reopens it (`'` becomes `'\''`), the grammar ffmpeg's
+ * `av_get_token` parses.
  */
 const escapeConcatEntry = (name: string): string => name.replace(/'/g, "'\\''");
 
 /**
- * Insert a `.<label>` tag before the output's extension (or append it). The
- * extension dot is scanned only within the basename, so a dotted directory
- * (`out.v2/render`) tags the file, not the directory.
+ * Insert a `.<label>` tag before the output's extension, or append it when the
+ * basename has none. The extension dot is searched only within the basename,
+ * so a dotted directory such as `out.v2/render` tags the file, not the
+ * directory.
  */
 const taggedOutput = (output: string, label: string): string => {
-  const dot = output.lastIndexOf(".");
-  const separator = Math.max(output.lastIndexOf("/"), output.lastIndexOf("\\"));
+  const dot: number = output.lastIndexOf(".");
+  const separator: number = Math.max(
+    output.lastIndexOf("/"),
+    output.lastIndexOf("\\"),
+  );
   return dot <= separator
     ? `${output}.${label}`
     : `${output.slice(0, dot)}.${label}${output.slice(dot)}`;

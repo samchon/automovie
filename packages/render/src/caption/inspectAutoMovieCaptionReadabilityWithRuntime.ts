@@ -15,80 +15,109 @@ import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaption
 interface IAutoMovieCaptionGraphemeRuntime {
   /** Complete identity of the exact segmentation behavior below. */
   identity: IAutoMovieCaptionGraphemeSegmentationIdentity;
-  /** Segment one canonical caption line into grapheme clusters. */
+
+  /**
+   * Segment one canonical caption line into grapheme clusters; only the number
+   * of yielded items is read.
+   */
   segment(value: string): Iterable<unknown>;
 }
 
 /**
- * Measure caption readability through one injected, identity-bearing runtime.
+ * Measure caption readability through one injected, identity-bearing runtime
+ * and judge each cue against its language's profile.
  *
- * The grapheme runtime is injected because the host owns it: a Node project
- * binds its installed `Intl.Segmenter` and reports that exact identity, while
- * a caller measuring an unsupported identity gets measurements and no verdict.
+ * The grapheme runtime is injected because the host owns it: production binds
+ * Node's installed `Intl.Segmenter` and reports that exact identity. Each cue is
+ * measured on its canonical presentation: graphemes, lines, the longest line,
+ * duration, the gap since the previous cue of the same language identity in
+ * track order, and graphemes per second at `timeline.fps`. A cue whose language
+ * has no profile, or whose profile names a segmentation identity other than the
+ * runtime's, keeps its measurement with a `not-run` outcome instead of a
+ * verdict. Profiles are matched by ASCII case-insensitive language identity;
+ * design validation refuses two profiles for one identity, so none is shadowed.
+ * The track must be in start order with positive durations, as film assembly
+ * guarantees; a zero-length cue would report an infinite rate.
+ *
+ * @evidence contracts/common.md#principled-implementation Graphemes are counted by the injected segmenter rather than by code units, so a combining sequence or emoji counts as one, and the verdict compares each measurement to the profile's boundary with its declared inclusive or exclusive sense; the gap and rate formulas rely on film assembly's sorted, positive-duration cues.
+ * @evidence contracts/common.md#clear-and-simple-design Thresholds and identity matching live here, while the runtime binding lives in production's `inspectAutoMovieCaptionReadability`, so the render package stays free of Node globals and a test can inject a fixture runtime through the same seam.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An identity mismatch yields `not-run` instead of substituting the resident runtime, and a cue with an unparseable language gets no profile and no gap rather than a guessed language; no profile or cue is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The doc states why the runtime is injected, every measured quantity and its basis, both `not-run` conditions, how profiles match, and the ordering and duration premises with their failure effect.
+ * @evidence contracts/performance.md#efficient-algorithms For C cues of total text length L and P profiles, the cost is O(P) to index profiles plus one segmentation pass over each line, O(L), counting yielded graphemes without materializing them and folding the line total and maximum into that same pass.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One call measures one timeline once; the profile index is built per call because profiles arrive with each call and are not known to be equal across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The profile index holds at most P entries and the preceding-end index one number per distinct cue language, both released on return; the returned report, owned by the caller, holds one entry per cue.
  */
 export const inspectAutoMovieCaptionReadabilityWithRuntime = (
   timeline: IAutoMovieFilmTimeline,
   profiles: readonly IAutoMovieCaptionReadabilityProfile[],
   runtime: IAutoMovieCaptionGraphemeRuntime,
 ): IAutoMovieCaptionReadabilityReport => {
-  const profilesByLanguage = new Map<
-    string,
-    IAutoMovieCaptionReadabilityProfile
-  >();
+  const profilesByLanguage: Map<string, IAutoMovieCaptionReadabilityProfile> =
+    new Map();
   for (const profile of profiles) {
-    const languageIdentity = autoMovieCaptionLanguageComparisonKey(
-      profile.language,
-    );
+    const languageIdentity: string | null =
+      autoMovieCaptionLanguageComparisonKey(profile.language);
     if (languageIdentity !== null)
       profilesByLanguage.set(languageIdentity, profile);
   }
-  const precedingEndByLanguage = new Map<string, number>();
+  const precedingEndByLanguage: Map<string, number> = new Map();
   return {
     version: 2,
-    cues: timeline.tracks.captions.map((cue) => {
-      const canonicalText = canonicalizeAutoMovieCaptionText(cue.text);
-      const lines = canonicalText.split("\n");
-      const graphemesByLine = lines.map(
-        (line) => [...runtime.segment(line)].length,
-      );
-      const graphemes = graphemesByLine.reduce(
-        (total, count) => total + count,
-        0,
-      );
-      const durationFrames = cue.endFrame - cue.startFrame;
-      const languageIdentity = autoMovieCaptionLanguageComparisonKey(
-        cue.language,
-      );
-      const precedingEnd =
-        languageIdentity === null
-          ? undefined
-          : precedingEndByLanguage.get(languageIdentity);
-      if (languageIdentity !== null)
-        precedingEndByLanguage.set(languageIdentity, cue.endFrame);
-      const measurement: IAutoMovieCaptionReadabilityMeasurement = {
-        cue: cue.id,
-        language: cue.language,
-        segmentation: runtime.identity,
-        graphemes,
-        lines: lines.length,
-        maxLineGraphemes: Math.max(...graphemesByLine),
-        durationFrames,
-        gapBeforeFrames:
-          precedingEnd === undefined ? null : cue.startFrame - precedingEnd,
-        graphemesPerSecond: (graphemes * timeline.fps) / durationFrames,
-      };
-      return {
-        measurement,
-        outcome: captionReadabilityOutcome(
-          measurement,
+    cues: timeline.tracks.captions.map(
+      (
+        cue: IAutoMovieFilmTimeline["tracks"]["captions"][number],
+      ): IAutoMovieCaptionReadabilityReport["cues"][number] => {
+        const lines: string[] = canonicalizeAutoMovieCaptionText(
+          cue.text,
+        ).split("\n");
+        let graphemes: number = 0;
+        let maxLineGraphemes: number = 0;
+        for (const line of lines) {
+          const count: number = countItems(runtime.segment(line));
+          graphemes += count;
+          if (count > maxLineGraphemes) maxLineGraphemes = count;
+        }
+        const durationFrames: number = cue.endFrame - cue.startFrame;
+        const languageIdentity: string | null =
+          autoMovieCaptionLanguageComparisonKey(cue.language);
+        const precedingEnd: number | undefined =
           languageIdentity === null
             ? undefined
-            : profilesByLanguage.get(languageIdentity),
-          runtime.identity,
-        ),
-      };
-    }),
+            : precedingEndByLanguage.get(languageIdentity);
+        if (languageIdentity !== null)
+          precedingEndByLanguage.set(languageIdentity, cue.endFrame);
+        const measurement: IAutoMovieCaptionReadabilityMeasurement = {
+          cue: cue.id,
+          language: cue.language,
+          segmentation: runtime.identity,
+          graphemes,
+          lines: lines.length,
+          maxLineGraphemes,
+          durationFrames,
+          gapBeforeFrames:
+            precedingEnd === undefined ? null : cue.startFrame - precedingEnd,
+          graphemesPerSecond: (graphemes * timeline.fps) / durationFrames,
+        };
+        return {
+          measurement,
+          outcome: captionReadabilityOutcome(
+            measurement,
+            languageIdentity === null
+              ? undefined
+              : profilesByLanguage.get(languageIdentity),
+            runtime.identity,
+          ),
+        };
+      },
+    ),
   };
+};
+
+/** Number of items an iterable yields, without materializing them. */
+const countItems = (items: Iterable<unknown>): number => {
+  let count: number = 0;
+  for (const _ of items) count += 1;
+  return count;
 };
 
 const captionReadabilityOutcome = (

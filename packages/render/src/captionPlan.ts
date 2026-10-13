@@ -1,89 +1,108 @@
-import { playbackCursor, sequenceTimeline } from "@automovie/engine";
+import {
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  playbackCursor,
+  sequenceTimeline,
+} from "@automovie/engine";
 import {
   IAutoMovieScript,
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
 
+import { IAutoMovieBeatCaption } from "./caption/IAutoMovieBeatCaption";
 import { beatCaptions } from "./caption/beatCaptions";
 import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
 } from "./captionSidecar";
+import { frameTimes } from "./plan";
 
 /**
- * Plan the caption sidecar: lay the cut onto the output clock
- * ({@link sequenceTimeline}, the same frame-atomic arithmetic the render and
- * chunk plans use), resolve which shot is LIVE at every output frame
- * (transitions hand the frame to the incoming shot, exactly as playback does),
- * group consecutive frames of one shot into spans, and join each span's beat
- * (`shot.id = "shot:" + beat`; an unprefixed id passes through as the beat id)
- * to the screenplay tree's beat node for the caption and the enclosing scene's
- * slug. Treeless scripts caption every span `null`. The sidecar still carries
- * the frame→beat map.
+ * Plan the caption sidecar of one sequence render: which beat's shot is live
+ * at every output frame, grouped into spans, each joined to its beat's caption
+ * and enclosing scene slug.
  *
- * Planning only: the host writes the file ({@link renderCaptionSidecar}).
+ * The cut is laid on the output clock by `sequenceTimeline`, and the output
+ * frames are the `frameTimes` schedule `planSequenceRender` captures, so span
+ * boundaries land on the same frames as the render. A frame inside a
+ * transition belongs to the incoming shot, as in playback. A shot id
+ * `shot:<beat>` names that beat; an unprefixed id is taken as the beat id
+ * itself. A beat with no caption, or a script without a tree, yields null
+ * `caption` and `slug` while the frame-to-beat spans remain. Throws when `fps`
+ * is not a finite positive number, when the runtime rounds to zero output
+ * frames (the same refusal `planSequenceRender` makes), or when
+ * `sequenceTimeline` refuses the cut. Planning only: the host writes the file
+ * through `renderCaptionSidecar`.
  *
+ * @evidence contracts/common.md#principled-implementation Frames come from `frameTimes`, the exact-rational `i / fps` schedule the render plan uses, and a forward-only `playbackCursor` resolves each instant to the live shot; the cursor's premise of a non-decreasing clock holds because the schedule is strictly increasing, and grouping consecutive equal beats into half-open spans covers every frame exactly once.
+ * @evidence contracts/common.md#clear-and-simple-design Timeline layout and live-shot resolution stay in the engine, the beat index in `beatCaptions`, and serialization in `renderCaptionSidecar`; this function owns only sampling, grouping and the join, so the sidecar cannot drift from the render's frame schedule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The `shot:` prefix is the interface's documented shot-to-beat naming, not a fixture case; the same parse is duplicated in `poseKeypointPlan`, a gap this file does not own, and no sequence or beat is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The doc states the clock and schedule shared with the render, the transition rule, the shot-to-beat mapping, the null states, every refusal, and that the host writes the file.
+ * @evidence contracts/performance.md#efficient-algorithms For F output frames, E cut entries and N tree nodes the cost is O(F + E + N): one cursor sweep resolves all frames, spans are extended in the same pass, and each span joins the beat index once; the only array of size F is the frame schedule itself.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner computes one sidecar per call from caller-supplied values and coordinates no phases; a host that also plans the render recomputes the shared schedule, which is cheap arithmetic.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The frame schedule, cursor and beat index are local and released on return; the returned sidecar, owned by the caller, holds one entry per run of consecutive frames of one beat, at most F.
  * @author Samchon
  */
 export const planCaptionSidecar = (props: {
-  /** The script whose tree carries captions and slugs. */
+  /** The script whose screenplay tree carries captions and scene slugs. */
   script: IAutoMovieScript;
+
   /** The cut being rendered. */
   sequence: IAutoMovieSequence;
-  /** The shots the cut references. */
+
+  /** The shots the cut references, each id at most once. */
   shots: IAutoMovieShot[];
-  /** Output frames per second (the render clock, not necessarily sequence.fps). */
+
+  /**
+   * Output frames per second: the render clock, which may differ from
+   * `sequence.fps`.
+   */
   fps: number;
 }): IAutoMovieCaptionSidecar => {
-  const { script, sequence, shots, fps } = props;
+  const script: IAutoMovieScript = props.script;
+  const sequence: IAutoMovieSequence = props.sequence;
+  const shots: IAutoMovieShot[] = props.shots;
+  const fps: number = props.fps;
   if (!Number.isFinite(fps) || fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${fps}`);
 
-  const timeline = sequenceTimeline(sequence, shots);
-  const frameCount = Math.round(timeline.runtime * fps);
-  // Match planSequenceRender's zero-frame policy: a degenerate runtime that
-  // rounds to no output frames is an error on both the render and the caption
-  // side, so a host never gets a render throw beside a silently-empty sidecar.
-  if (frameCount === 0)
+  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    sequence,
+    shots,
+  );
+  const times: number[] = frameTimes(fps, timeline.runtime);
+  if (times.length === 0)
     throw new Error(
       `planCaptionSidecar requires at least one frame; fps ${fps} and duration ${timeline.runtime} produced zero frames`,
     );
-  const captions = beatCaptions(script);
-
-  const cursor = playbackCursor(sequence, timeline);
-  const frameBeats = Array.from({ length: frameCount }, (_, frame) =>
-    beatOf(cursor(frame / fps).shot),
+  const captions: Map<string, IAutoMovieBeatCaption> = beatCaptions(script);
+  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(
+    sequence,
+    timeline,
   );
-  const entries = groupSpans(frameBeats).map((span): IAutoMovieCaptionEntry => {
-    const authored = captions.get(span.beat);
-    return {
-      ...span,
-      caption: authored?.caption ?? null,
-      slug: authored?.slug ?? null,
-    };
-  });
 
-  return { target: sequence.id, fps, frameCount, entries };
-};
-
-/** Group consecutive frames of one beat into `[frameStart, frameEnd)` spans. */
-const groupSpans = (
-  beats: readonly string[],
-): Array<{ frameStart: number; frameEnd: number; beat: string }> => {
-  const spans: Array<{ frameStart: number; frameEnd: number; beat: string }> =
-    [];
-  beats.forEach((beat, frame) => {
-    const last = spans[spans.length - 1];
+  const entries: IAutoMovieCaptionEntry[] = [];
+  times.forEach((time: number, frame: number): void => {
+    const beat: string = beatOf(cursor(time).shot);
+    const last: IAutoMovieCaptionEntry | undefined =
+      entries[entries.length - 1];
     if (last !== undefined && last.beat === beat) {
       last.frameEnd = frame + 1;
       return;
     }
-    spans.push({ frameStart: frame, frameEnd: frame + 1, beat });
+    const authored: IAutoMovieBeatCaption | undefined = captions.get(beat);
+    entries.push({
+      frameStart: frame,
+      frameEnd: frame + 1,
+      beat,
+      caption: authored?.caption ?? null,
+      slug: authored?.slug ?? null,
+    });
   });
-  return spans;
+  return { target: sequence.id, fps, frameCount: times.length, entries };
 };
 
-/** `shot:duel` → `duel`; an unprefixed id is already the beat id. */
+/** `shot:duel` names beat `duel`; an unprefixed id is already the beat id. */
 const beatOf = (shotId: string): string =>
   shotId.startsWith("shot:") ? shotId.slice("shot:".length) : shotId;
