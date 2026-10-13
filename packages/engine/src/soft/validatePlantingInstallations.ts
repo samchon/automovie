@@ -1,14 +1,4 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieFluidDomain,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
-  IAutoMoviePlantingInstallation,
-  IAutoMoviePlantingPlacement,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMoviePlantingPlacement, IAutoMovieValidation, IAutoMovieVector3, IAutoMovieBuiltSpace, IAutoMovieBuiltElement, IAutoMovieBuiltBoundary, IAutoMovieBuiltSurface, IAutoMoviePlantingSupport, IAutoMoviePlantingIrrigation, IAutoMoviePlantingArrangement, IAutoMovieSoftBounds } from "@automovie/interface";
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -16,8 +6,8 @@ import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
-
-const INSTALLATION_KINDS = new Set([
+/** Fixed schema kinds reused by installation admission; module-owned set is never mutated by a pass. */
+const INSTALLATION_KINDS: Set<string> = new Set([
   "potted",
   "planter",
   "green-wall",
@@ -25,31 +15,22 @@ const INSTALLATION_KINDS = new Set([
   "other",
 ]);
 
-const IRRIGATION_MEDIA = new Set(["potable", "reclaimed", "rainwater", "pond"]);
+/** Fixed declared irrigation media; this membership check does not establish a connected water service. */
+const IRRIGATION_MEDIA: Set<string> = new Set(["potable", "reclaimed", "rainwater", "pond"]);
 
 /**
- * Validate the bindings that make independent planting clusters a building's
- * planting.
+ * Join planting recipes, clusters and installation references, then inspect member canopy bounds in authored rooms.
  *
- * This is the seam, and it is deliberately one-directional: the architecture
- * record knows nothing about plants, and the planting records know nothing
- * about architecture. The installation is the only place the names meet, so
- * this is the only place their agreement can be checked — that the cited space
- * is a real logical space of the cited environment, that the support really is
- * the surface, element or boundary it claims, that the irrigation port resolves
- * to an element, that a `green-wall` is trained against something vertical
- * rather than resting on a floor patch, that an `aquatic` planting actually
- * stands in a fluid domain and that a dry one does not pretend to, and that
- * every generated member lands inside the room instead of through its wall.
- *
- * A room declared as a purely semantic container (a logical space that states
- * no volume at all) is not geometrically checked: there is no volume to check
- * against, and inventing one would be the design deciding a fact the author did
- * not state.
- *
+ * @evidence contracts/common.md#principled-implementation Maps resolve environment/domain/cluster/fluid identities; admitted growth supplies the stem-and-leaf envelope, member TRS transforms its eight corners, and room containment checks those corners plus the placement origin. This is not continuous containment proof in nonconvex room unions.
+ * @evidence contracts/common.md#clear-and-simple-design Installation owns the architecture/plant join, support/irrigation kind rules and aquatic free-surface check; recipe and cluster owners retain their own admission laws.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Semantic-only rooms skip geometric claims, unresolved refs produce findings, and invalid recipe/cluster admission skips derivation. Support-id existence does not prove physical load-bearing contact; generation or malformed typed containers may still throw.
+ * @evidence contracts/common.md#meaningful-documentation Documents reference joining, unique cluster use, geometric versus semantic rooms, per-axis scale and aqueous rooting; exact diagnostic paths are preserved when nested findings are repathed.
+ * @evidence contracts/performance.md#efficient-algorithms For D domains, C clusters and I installations, map construction and validation precede per-installation arrangement/growth; repeated recipe/cluster checks and derivations are still paid, and each of P placements makes at most nine room-point queries plus one fluid-cell query.
+ * @evidence contracts/performance.md#reuse-equivalent-work Maps share completed identity lookups and each installation derives one canopy for all its members; repeated installation recipe admission is not cached, and changed mutable inputs require a fresh pass.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local maps, arrangements and canopies leave scope after validation; only returned findings retain offending records/points, with no renderer, fluid solver or background work acquired.
  * @author Samchon
  */
-export const validatePlantingInstallations = (props: {
+export const validatePlantingInstallations: (props: { environment: IAutoMovieBuiltEnvironment; installations: IAutoMoviePlantingInstallation[]; clusters: IAutoMoviePlantingCluster[]; domains: IAutoMoviePlantingDomain[]; fluidDomains?: IAutoMovieFluidDomain[] | undefined; }) => IAutoMovieValidation = (props: {
   environment: IAutoMovieBuiltEnvironment;
   installations: IAutoMoviePlantingInstallation[];
   clusters: IAutoMoviePlantingCluster[];
@@ -57,26 +38,26 @@ export const validatePlantingInstallations = (props: {
   /** Fluid domains available for aquatic planting; empty when there are none. */
   fluidDomains?: IAutoMovieFluidDomain[];
 }): IAutoMovieValidation => {
-  const { environment, installations, clusters, domains } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const { environment, installations, clusters, domains }: typeof props = props;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
-  const spaces = new Map(environment.spaces.map((space) => [space.id, space]));
-  const elements = new Set(environment.elements.map((element) => element.id));
-  const boundaries = new Set(
-    environment.boundaries.map((boundary) => boundary.id),
+  const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(environment.spaces.map((space: IAutoMovieBuiltSpace): [string, IAutoMovieBuiltSpace] => [space.id, space]));
+  const elements: Set<string> = new Set(environment.elements.map((element: IAutoMovieBuiltElement): string => element.id));
+  const boundaries: Set<string> = new Set(
+    environment.boundaries.map((boundary: IAutoMovieBuiltBoundary): string => boundary.id),
   );
-  const surfaces = new Set(
-    environment.surfaces.map((surface) => surface.surface.id),
+  const surfaces: Set<string> = new Set(
+    environment.surfaces.map((surface: IAutoMovieBuiltSurface): string => surface.surface.id),
   );
-  const byCluster = new Map(clusters.map((cluster) => [cluster.id, cluster]));
-  const byDomain = new Map(domains.map((domain) => [domain.id, domain]));
-  const byFluid = new Map(
-    (props.fluidDomains ?? []).map((domain) => [domain.id, domain]),
+  const byCluster: Map<string, IAutoMoviePlantingCluster> = new Map(clusters.map((cluster: IAutoMoviePlantingCluster): [string, IAutoMoviePlantingCluster] => [cluster.id, cluster]));
+  const byDomain: Map<string, IAutoMoviePlantingDomain> = new Map(domains.map((domain: IAutoMoviePlantingDomain): [string, IAutoMoviePlantingDomain] => [domain.id, domain]));
+  const byFluid: Map<string, IAutoMovieFluidDomain> = new Map(
+    (props.fluidDomains ?? []).map((domain: IAutoMovieFluidDomain): [string, IAutoMovieFluidDomain] => [domain.id, domain]),
   );
 
-  const seenDomains = new Set<string>();
-  domains.forEach((domain, index) => {
+  const seenDomains: Set<string> = new Set<string>();
+  domains.forEach((domain: IAutoMoviePlantingDomain, index: number): void => {
     if (seenDomains.has(domain.id))
       out.push(
         "type",
@@ -92,9 +73,9 @@ export const validatePlantingInstallations = (props: {
     );
   });
 
-  const seenClusters = new Set<string>();
-  clusters.forEach((cluster, index) => {
-    const path = `${root}.clusters[${index}]`;
+  const seenClusters: Set<string> = new Set<string>();
+  clusters.forEach((cluster: IAutoMoviePlantingCluster, index: number): void => {
+    const path: string = `${root}.clusters[${index}]`;
     if (seenClusters.has(cluster.id))
       out.push(
         "type",
@@ -113,10 +94,10 @@ export const validatePlantingInstallations = (props: {
       );
   });
 
-  const seenInstallations = new Set<string>();
-  const placedClusters = new Map<string, string>();
-  installations.forEach((installation, index) => {
-    const path = `${root}.installations[${index}]`;
+  const seenInstallations: Set<string> = new Set<string>();
+  const placedClusters: Map<string, string> = new Map<string, string>();
+  installations.forEach((installation: IAutoMoviePlantingInstallation, index: number): void => {
+    const path: string = `${root}.installations[${index}]`;
     if (installation.id.trim().length === 0)
       out.push(
         "type",
@@ -148,7 +129,7 @@ export const validatePlantingInstallations = (props: {
         installation.environment,
       );
 
-    const space = spaces.get(installation.space);
+    const space: IAutoMovieBuiltSpace | undefined = spaces.get(installation.space);
     if (space === undefined)
       out.push(
         "type",
@@ -157,7 +138,7 @@ export const validatePlantingInstallations = (props: {
         installation.space,
       );
 
-    const support = installation.support;
+    const support: IAutoMoviePlantingSupport = installation.support;
     if (support.kind === "surface" && !surfaces.has(support.surface))
       out.push(
         "type",
@@ -190,7 +171,7 @@ export const validatePlantingInstallations = (props: {
         support.kind,
       );
 
-    const irrigation = installation.irrigation;
+    const irrigation: IAutoMoviePlantingIrrigation | null = installation.irrigation;
     if (irrigation !== null) {
       if (!elements.has(irrigation.port))
         out.push(
@@ -217,8 +198,8 @@ export const validatePlantingInstallations = (props: {
           irrigation.medium,
         );
     }
-    const aquatic = installation.kind === "aquatic";
-    const submerged = irrigation === null ? null : irrigation.fluidDomain;
+    const aquatic: boolean = installation.kind === "aquatic";
+    const submerged: string | null = irrigation === null ? null : irrigation.fluidDomain;
     if (aquatic && submerged === null)
       out.push(
         "type",
@@ -233,7 +214,7 @@ export const validatePlantingInstallations = (props: {
         "only aquatic planting may cite a fluid domain",
         submerged,
       );
-    const water = submerged === null ? undefined : byFluid.get(submerged);
+    const water: IAutoMovieFluidDomain | undefined = submerged === null ? undefined : byFluid.get(submerged);
     if (submerged !== null && water === undefined)
       out.push(
         "type",
@@ -245,7 +226,7 @@ export const validatePlantingInstallations = (props: {
     // A cluster is a world-space arrangement, so a second installation placing
     // it does not put a second bed anywhere: it draws the same members twice,
     // at the same coordinates, and charges a render budget for both.
-    const placedBy = placedClusters.get(installation.cluster);
+    const placedBy: string | undefined = placedClusters.get(installation.cluster);
     if (placedBy !== undefined)
       out.push(
         "type",
@@ -255,7 +236,7 @@ export const validatePlantingInstallations = (props: {
       );
     else placedClusters.set(installation.cluster, installation.id);
 
-    const cluster = byCluster.get(installation.cluster);
+    const cluster: IAutoMoviePlantingCluster | undefined = byCluster.get(installation.cluster);
     if (cluster === undefined) {
       out.push(
         "type",
@@ -266,26 +247,26 @@ export const validatePlantingInstallations = (props: {
       return;
     }
     if (validatePlantingCluster({ cluster }).success === false) return;
-    const arrangement = arrangePlantingCluster(cluster);
+    const arrangement: IAutoMoviePlantingArrangement = arrangePlantingCluster(cluster);
     // The canopy is checked, not only the rooting point. A bed whose members
     // all stand inside the room while their crowns grow through its wall is
     // exactly the collision this binding exists to catch, and testing one point
     // per member would report it clean. The recipe is derived once and its
     // corner box is carried through each member's own transform.
-    const recipe = byDomain.get(cluster.domain);
-    const canopy =
+    const recipe: IAutoMoviePlantingDomain | undefined = byDomain.get(cluster.domain);
+    const canopy: IAutoMovieSoftBounds | null =
       recipe !== undefined &&
       validatePlantingDomain({ domain: recipe }).success === true
         ? (growPlanting(recipe).bounds ?? null)
         : null;
     for (const placement of arrangement.placements) {
-      const outside =
+      const outside: IAutoMovieVector3 | undefined =
         space !== undefined && builtSpaceStatesVolume(space)
           ? [
               placement.translation,
               ...(canopy === null ? [] : corners(canopy, placement)),
             ].find(
-              (point) =>
+              (point: IAutoMovieVector3): boolean =>
                 builtEnvironmentContainsPoint(
                   environment,
                   installation.space,
@@ -303,7 +284,7 @@ export const validatePlantingInstallations = (props: {
         break;
       }
       if (water === undefined) continue;
-      const level = freeSurfaceAt(water, placement.translation);
+      const level: number | null = freeSurfaceAt(water, placement.translation);
       if (level === null) {
         out.push(
           "type",
@@ -330,7 +311,7 @@ export const validatePlantingInstallations = (props: {
 };
 
 /** Re-path one nested validation onto the address the binding knows it by. */
-const repath = (
+const repath: (out: ViolationCollector, path: string, validation: IAutoMovieValidation) => void = (
   out: ViolationCollector,
   path: string,
   validation: IAutoMovieValidation,
@@ -349,23 +330,23 @@ const repath = (
  * per axis, and translated. A rotated box therefore widens rather than being
  * silently re-fitted, exactly as a staged prop's clearance volume does.
  */
-const corners = (
+const corners: (bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3; }, placement: IAutoMoviePlantingPlacement) => IAutoMovieVector3[] = (
   bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
   placement: IAutoMoviePlantingPlacement,
 ): IAutoMovieVector3[] => {
-  const { x: qx, y: qy, z: qz, w: qw } = placement.rotation;
+  const { x: qx, y: qy, z: qz, w: qw }: typeof placement.rotation = placement.rotation;
   const out: IAutoMovieVector3[] = [];
   for (const x of [bounds.min.x, bounds.max.x])
     for (const y of [bounds.min.y, bounds.max.y])
       for (const z of [bounds.min.z, bounds.max.z]) {
-        const sx = x * placement.scale.x;
-        const sy = y * placement.scale.y;
-        const sz = z * placement.scale.z;
+        const sx: number = x * placement.scale.x;
+        const sy: number = y * placement.scale.y;
+        const sz: number = z * placement.scale.z;
         // q * v * q⁻¹, written as the cross-product form so no matrix has to be
         // built for eight points.
-        const tx = 2 * (qy * sz - qz * sy);
-        const ty = 2 * (qz * sx - qx * sz);
-        const tz = 2 * (qx * sy - qy * sx);
+        const tx: number = 2 * (qy * sz - qz * sy);
+        const ty: number = 2 * (qz * sx - qx * sz);
+        const tz: number = 2 * (qx * sy - qy * sx);
         out.push({
           x: placement.translation.x + sx + qw * tx + qy * tz - qz * ty,
           y: placement.translation.y + sy + qw * ty + qz * tx - qx * tz,
@@ -390,17 +371,17 @@ const corners = (
  * comparison against `NaN` is false, which would make a malformed pond report
  * every reed as properly planted.
  */
-const freeSurfaceAt = (
+const freeSurfaceAt: (domain: IAutoMovieFluidDomain, point: { x: number; y: number; z: number; }) => number | null = (
   domain: IAutoMovieFluidDomain,
   point: { x: number; y: number; z: number },
 ): number | null => {
-  const column = Math.floor(
+  const column: number = Math.floor(
     (point.x - domain.grid.origin.x) / domain.grid.cellX,
   );
-  const row = Math.floor((point.z - domain.grid.origin.z) / domain.grid.cellZ);
+  const row: number = Math.floor((point.z - domain.grid.origin.z) / domain.grid.cellZ);
   if (column < 0 || column >= domain.grid.columns) return null;
   if (row < 0 || row >= domain.grid.rows) return null;
-  const cell = row * domain.grid.columns + column;
-  const level = domain.grid.origin.y + domain.bed[cell] + domain.depth[cell];
+  const cell: number = row * domain.grid.columns + column;
+  const level: number = domain.grid.origin.y + domain.bed[cell] + domain.depth[cell];
   return Number.isFinite(level) ? level : null;
 };

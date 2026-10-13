@@ -1,37 +1,32 @@
-import {
-  IAutoMoviePlantingDomain,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { validateSoftVector as vector } from "./validateSoftVector";
+import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftIdentity as identity } from "./validateSoftIdentity";
+import { IAutoMoviePlantingDomain, IAutoMovieValidation, IAutoMovieVector3, IAutoMoviePlantingStructure, IAutoMoviePlantingChild, IAutoMoviePlantingBudget } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { PLANTING_MAX_BRANCHES } from "./constants/PLANTING_MAX_BRANCHES";
 import { PLANTING_MAX_CHILDREN } from "./constants/PLANTING_MAX_CHILDREN";
 import { PLANTING_MAX_LEAVES } from "./constants/PLANTING_MAX_LEAVES";
 import { PLANTING_MAX_LEVELS } from "./constants/PLANTING_MAX_LEVELS";
 import { plantingBudget } from "./plantingBudget";
-
 /**
- * Validate one planting recipe's branching law, growth state, pruning envelope,
- * foliage rule and budget.
+ * Validate a typed planting recipe's scalar law, child identities, pruning and emission budgets.
  *
- * The point of the pass is that a recipe which survives it can be grown without
- * the derivation second-guessing its own input: every ratio contracts, the
- * growth span is positive so the deepest level can actually emerge, no
- * direction is the zero vector, and the complete `k`-ary tree the law describes
- * fits inside the cap the recipe declared for itself. A recipe that fails is
- * refused with the path of every offending field, never quietly clamped — a
- * clamped plant is a plant whose author was told nothing and whose frames
- * changed anyway.
- *
+ * @evidence contracts/common.md#principled-implementation Finite scalar ranges, positive growth span and bounded depth feed the same worst-case branching/foliage budget used by growth; ratios may equal one, and finite fields alone do not guarantee every derived coordinate remains representable.
+ * @evidence contracts/common.md#clear-and-simple-design One recipe owner supplies both production binding validation and lowering admission, with shared scalar/integer/vector/id helpers preserving diagnostic paths and traversal order.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid values are reported rather than clamped. Direction zero uses squared components and can misclassify tiny nonzero inputs; the pass is not a universal finite-geometry or continuity certificate.
+ * @evidence contracts/common.md#meaningful-documentation States typed-record admission, range and budget effects, recipe-local law and remaining squared-arithmetic/derived-representability limits; malformed container shapes can still throw.
+ * @evidence contracts/performance.md#efficient-algorithms C child records and depth D take O(C+D) validation/budget work plus identity storage; foliage budgeting uses the same level walk and this pass never emits the full tree.
+ * @evidence contracts/performance.md#reuse-equivalent-work Scalar, integer, vector and sibling-id policies are shared with soft-domain validation, while each pass owns its sets and recipe-specific limits; no mutable-recipe result cache is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh collector and child-id set are local; returned findings retain offending values, and no emitted plant, viewer handle or task is acquired.
  * @author Samchon
  */
-export const validatePlantingDomain = (props: {
+export const validatePlantingDomain: (props: { domain: IAutoMoviePlantingDomain; }) => IAutoMovieValidation = (props: {
   domain: IAutoMoviePlantingDomain;
 }): IAutoMovieValidation => {
-  const { domain } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const { domain }: typeof props = props;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
   if (domain.id.trim().length === 0)
     out.push("type", `${root}.id`, "planting id must be non-empty", domain.id);
@@ -57,7 +52,7 @@ export const validatePlantingDomain = (props: {
       domain.seed,
     );
 
-  const structure = domain.structure;
+  const structure: IAutoMoviePlantingStructure = domain.structure;
   integer(
     out,
     `${root}.structure.levels`,
@@ -145,9 +140,9 @@ export const validatePlantingDomain = (props: {
       structure.children.length,
       structure.children.length - PLANTING_MAX_CHILDREN,
     );
-  const childIds = new Set<string>();
-  structure.children.forEach((child, index) => {
-    const path = `${root}.structure.children[${index}]`;
+  const childIds: Set<string> = new Set<string>();
+  structure.children.forEach((child: IAutoMoviePlantingChild, index: number): void => {
+    const path: string = `${root}.structure.children[${index}]`;
     identity(out, path, "child", child.id, childIds);
     direction(out, `${path}.direction`, "child direction", child.direction);
     numeric(out, `${path}.offset`, "child offset", child.offset, 0, false, 1);
@@ -171,7 +166,7 @@ export const validatePlantingDomain = (props: {
     false,
     1,
   );
-  const spanned = domain.growth.onset * (structure.levels - 1);
+  const spanned: number = domain.growth.onset * (structure.levels - 1);
   if (Number.isFinite(spanned) && spanned >= 1)
     out.push(
       "range",
@@ -276,7 +271,7 @@ export const validatePlantingDomain = (props: {
     structure.levels >= 1 &&
     structure.levels <= PLANTING_MAX_LEVELS
   ) {
-    const budget = plantingBudget({ domain });
+    const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });
     if (
       Number.isSafeInteger(domain.budget.maxBranches) &&
       budget.worstCaseBranches > domain.budget.maxBranches
@@ -310,7 +305,7 @@ export const validatePlantingDomain = (props: {
 };
 
 /** A non-zero finite direction vector. */
-const direction = (
+const direction: (out: ViolationCollector, path: string, label: string, value: IAutoMovieVector3) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -324,78 +319,4 @@ const direction = (
     value.x * value.x + value.y * value.y + value.z * value.z === 0
   )
     out.push("type", path, `${label} must be a non-zero vector`, value);
-};
-
-/** Every component of an authored vector must be a real number. */
-const vector = (
-  out: ViolationCollector,
-  path: string,
-  value: IAutoMovieVector3,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    numeric(
-      out,
-      `${path}.${axis}`,
-      `${axis} component`,
-      value[axis],
-      -Infinity,
-      false,
-      Infinity,
-    );
-};
-
-/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
-const numeric = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  exclusive: boolean,
-  max: number,
-): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
-    out.push(
-      "range",
-      path,
-      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A safe integer inside `[min, max]`. */
-const integer = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  max: number,
-): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
-    out.push(
-      "type",
-      path,
-      `${label} must be an integer within [${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A non-empty id that has not already been used by a sibling. */
-const identity = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  id: string,
-  seen: Set<string>,
-): void => {
-  if (id.trim().length === 0)
-    out.push("type", `${path}.id`, `${label} id must be non-empty`, id);
-  else if (seen.has(id))
-    out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
-  seen.add(id);
 };

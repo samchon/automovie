@@ -1,17 +1,17 @@
-import type {
-  IAutoMovieProductionSoundEvent,
-  IAutoMovieSoundPropagationProfile,
-} from "@automovie/interface";
-
+import { IAutoMovieProductionSoundEvent, IAutoMovieSoundPropagationProfile } from "@automovie/interface";
 /**
- * Derive one declared emitter-to-listener propagation result.
+ * Derive distance gain, one film-clock arrival and the selected segment/spectral outcome.
  *
- * Delay is rounded once onto the film clock. The production's segment-boundary
- * choice then either carries the arrival across the cut or marks it trimmed; an
- * arrival outside the finished film is always refused. The `none` spectral
- * choice remains `null`, never a successful absorption estimate.
+ * @evidence contracts/common.md#principled-implementation Finite nonnegative distance and a positive speed/fps feed distance/speed and one nearest-frame rounding; softened inverse-square gain and optional dB/metre attenuation follow the selected profile. Binary64 products can overflow to zero gain or underflow, and this is a declared approximation.
+ * @evidence contracts/common.md#clear-and-simple-design The pure propagation owner keeps emission independent of audible arrival and preserves the production's carry/trim boundary choice for the mixer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-film arrival and unsupported numeric/profile choices throw; spectral none remains null instead of fabricated attenuation, and authored assumptions are required rather than inferred from a scene name.
+ * @evidence contracts/common.md#meaningful-documentation States metres, safe whole-frame bounds, exclusive segment/film ends, arrival rounding and closed carry/trim/no-spectral meanings; this derives no room response or occlusion.
+ * @evidence contracts/performance.md#efficient-algorithms A assumptions require O(A) string validation; delay/gain/spectral calculations and the fresh result have constant scalar cost/storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One computed arrival and distance feed the returned receipt consumed by the mix; changed profile or clock inputs require a new derivation rather than a retained stateful propagation cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The result transfers to the caller by value; the profile/request is not retained and no acoustic device, host handle or scheduled arrival task is acquired.
+ * @author Samchon
  */
-export const deriveAutoMovieSoundPropagation = (props: {
+export const deriveAutoMovieSoundPropagation: (props: { distanceMeters: number; emissionFrame: number; segmentEndFrame: number; fps: number; totalFrames: number; profile: IAutoMovieSoundPropagationProfile; }) => { profile: string; arrivalFrame: number; arrivalTimeSeconds: number; distanceGain: number; highFrequencyGain: number | null; boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment"; } = (props: {
   /** Effective source/listener distance in metres. */
   distanceMeters: number;
   /** Exact story emission frame. */
@@ -53,7 +53,7 @@ export const deriveAutoMovieSoundPropagation = (props: {
   if (
     props.profile.assumptions.length === 0 ||
     props.profile.assumptions.some(
-      (assumption) => assumption.trim().length === 0,
+      (assumption: string): boolean => assumption.trim().length === 0,
     )
   )
     throw new Error(
@@ -65,16 +65,16 @@ export const deriveAutoMovieSoundPropagation = (props: {
   )
     throw new Error("sound propagation segment-boundary policy is unsupported");
 
-  const delaySeconds =
+  const delaySeconds: number =
     props.distanceMeters / props.profile.speedOfSoundMetersPerSecond;
-  const arrivalFrame =
+  const arrivalFrame: number =
     props.emissionFrame + Math.round(delaySeconds * props.fps);
   if (arrivalFrame >= props.totalFrames)
     throw new Error(
       `sound propagation arrival frame ${arrivalFrame} lies outside the ${props.totalFrames}-frame film`,
     );
-  const crossed = arrivalFrame >= props.segmentEndFrame;
-  const boundary = crossed
+  const crossed: boolean = arrivalFrame >= props.segmentEndFrame;
+  const boundary: NonNullable<IAutoMovieProductionSoundEvent["propagation"]>["boundary"] = crossed
     ? props.profile.segmentBoundary === "carry-across-cut"
       ? "carried-across-cut"
       : "trimmed-at-segment"
@@ -109,17 +109,20 @@ export const deriveAutoMovieSoundPropagation = (props: {
   };
 };
 
-const assertFinitePositive = (value: number, label: string): void => {
+/** Refuse a non-finite or nonpositive speed/frame-rate scalar before delay arithmetic; the caller supplies its diagnostic label. */
+const assertFinitePositive: (value: number, label: string) => void = (value: number, label: string): void => {
   if (!Number.isFinite(value) || value <= 0)
     throw new Error(`${label} must be finite and positive`);
 };
 
-const assertFiniteNonnegative = (value: number, label: string): void => {
+/** Refuse a non-finite or negative distance/absorption/coefficient scalar while preserving admitted zero. */
+const assertFiniteNonnegative: (value: number, label: string) => void = (value: number, label: string): void => {
   if (!Number.isFinite(value) || value < 0)
     throw new Error(`${label} must be finite and non-negative`);
 };
 
-const assertInteger = (value: number, label: string, minimum: number): void => {
+/** Require a safe whole frame value at or above the caller's bound, without rounding fractional or unsafe input. */
+const assertInteger: (value: number, label: string, minimum: number) => void = (value: number, label: string, minimum: number): void => {
   if (!Number.isSafeInteger(value) || value < minimum)
     throw new Error(`${label} must be an integer at least ${minimum}`);
 };
