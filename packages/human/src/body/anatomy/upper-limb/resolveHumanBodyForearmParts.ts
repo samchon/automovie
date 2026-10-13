@@ -1,28 +1,29 @@
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
+import type { IAutoMovieHumanBodyForearmMeasurements } from "./IAutoMovieHumanBodyForearmMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
 
 /**
- * Answer each side's radius, ulna, brachioradialis, flexor digitorum
- * superficialis and extensor digitorum.
+ * Answer each side's radius, ulna, brachioradialis, flexor digitorum superficialis and extensor digitorum.
  *
- * The connected source's elbow and wrist points are rig joint centres; it
- * registers no radial head, olecranon or styloid process, so the radius and
- * ulna are `missing-bone-landmark`. The source's forearm twist distributes a
- * skin rotation along one lower-arm bone and is no radioulnar articulation.
- * The one exterior skin holds no muscle boundary, so the three forearm
- * muscles are `missing-tissue-boundary`. An observed value in a part's
- * request refuses it as `acquisition-not-registered`. The forearm and wrist
- * girths and the elbow-to-wrist length belong to the skin.
+ * No qualified radius, ulna or forearm-muscle generator is registered here. Fixed landmark and tissue causes report that limitation without inspecting the supplied basis. Each side's two bones and three muscle bellies remain separate; observed values in their own requests receive `acquisition-not-registered` precedence. Forearm twist or skin girth/length cannot establish radioulnar articulation or internal boundaries.
  *
+ * @evidence contracts/common.md#principled-implementation Ten fixed unavailable results preserve separate bilateral forearm bones/muscles and shared request-local observation precedence.
+ * @evidence contracts/common.md#clear-and-simple-design One side mapping owns named forearm components while the common unavailable helper detects observed acquisition requests.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed causes cannot prove missing caller-source anatomy because basis is unread; exterior twist and dimensions cannot replace radioulnar or tissue geometry.
+ * @evidence contracts/common.md#meaningful-documentation The prose states generation limits, component separation and acquisition precedence without asserting inspected source absence.
+ * @evidence contracts/performance.md#efficient-algorithms Ten output records are constant-size and observed detection traverses only each supplied part subtree.
+ * @evidence contracts/performance.md#reuse-equivalent-work Bilateral forearms reuse the same mapping/helper but distinct requests receive independently allocated failure records.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local side arrays expire after composition; returned records retain no forearm mesh or borrowed basis.
  * @author Samchon
  */
 export function resolveHumanBodyForearmParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const muscle = "missing-tissue-boundary" as const;
-  return (["left", "right"] as const).flatMap((side) => {
-    const forearm = input.targets?.[`${side}UpperLimb`]?.forearm;
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
+  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+    const forearm: IAutoMovieHumanBodyForearmMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.forearm;
     return [
       humanBodyUnavailablePart(
         `${side}Radius` as const,

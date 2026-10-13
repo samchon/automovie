@@ -11,17 +11,18 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 /**
  * Compile the skin's spatial chromophore variation for one body revision.
  *
- * The document's tone strength and age select a deterministic 1/20-strength
- * bin. Each bin's generated texture is cached only for this basis; the
- * document's copied skin material receives the tiled sRGB map and its
- * compensating base colour. The area-weighted median source UV-to-surface
- * area ratio sets one repeat count in metres; local UV stretch still varies across the body.
- * This stage reads the body basis
- * and document and mutates only the caller's fresh material copy. It changes
- * neither the shared skin positions nor the per-site colour multipliers.
+ * The document's tone strength and age select a deterministic 1/20-strength bin. Each bin's generated texture is cached only for this basis; the document's copied skin material receives the tiled sRGB map and its compensating base colour. The area-weighted median source UV-to-surface area ratio sets one repeat count in metres; local UV stretch still varies across the body. This stage reads the body basis and document and mutates only the caller's fresh material copy. It changes neither the shared skin positions nor the per-site colour multipliers.
+ *
+ * @evidence contracts/common.md#principled-implementation Declared strength and age curve select a rounded texture strength; neutral surface-to-UV median supplies repeat scale, while reciprocal pre-encoding mean compensation adjusts the material. Texture quantization and material clipping prevent a final mean-invariance guarantee.
+ * @evidence contracts/common.md#clear-and-simple-design A basis-owned closure separates texture preparation from per-document material binding and leaves positions untouched.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested tone requires its skin material, textured skin regions and admitted strength; median scaling still leaves local UV distortion and does not assert measured pigmentation.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains binning, cache ownership, copied-material mutation and the unresolved local scaling variation.
+ * @evidence contracts/performance.md#efficient-algorithms Each request scans regions for admission; texture construction runs only for a missing strength bin and UV median sorting only for the first positive tone.
+ * @evidence contracts/performance.md#reuse-equivalent-work A strength-keyed map and one UV repeat value reuse basis-equivalent texture work; this assumes the captured basis and global table remain unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Generated PNG strings and the captured basis remain reachable with the closure; table-derived admitted strength bins bound the map, and dropping the closure releases its references without external handles.
  */
-export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis) {
-  const tones = new Map<
+export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis): (document: IAutoMovieHumanBodyBasisDocument, materialMap: Map<string, IAutoMovieMaterial>) => void {
+  const tones: Map<number, ReturnType<typeof createHumanBodySkinToneTexture>> = new Map<
     number,
     ReturnType<typeof createHumanBodySkinToneTexture>
   >();
@@ -30,23 +31,23 @@ export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis) {
     document: IAutoMovieHumanBodyBasisDocument,
     materialMap: Map<string, IAutoMovieMaterial>,
   ): void => {
-    const toneOf = document.skinTone;
+    const toneOf: IAutoMovieHumanBodyBasisDocument["skinTone"] = document.skinTone;
     if (toneOf === undefined) return;
-    const skin = HUMAN_BODY_SKIN_SITES.material;
+    const skin: string = HUMAN_BODY_SKIN_SITES.material;
     if (
       !materialMap.has(skin) ||
       !(toneOf.strength >= 0 && toneOf.strength <= 1) ||
-      basis.surfaces.some((surface) =>
+      basis.surfaces.some((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
         surface.regions.some(
-          (region) => region.material === skin && region.uvs === null,
+          (region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): boolean => region.material === skin && region.uvs === null,
         ),
       )
     )
       throw new Error(
         "Body skin tone needs a skin material on textured regions and a strength in [0,1].",
       );
-    const material = materialMap.get(skin)!;
-    const toneStrength =
+    const material: IAutoMovieMaterial = materialMap.get(skin)!;
+    const toneStrength: number =
       Math.round(
         20 *
           toneOf.strength *
@@ -56,7 +57,7 @@ export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis) {
           ),
       ) / 20;
     if (toneStrength <= 0) return;
-    let tone = tones.get(toneStrength);
+    let tone: ReturnType<typeof createHumanBodySkinToneTexture> | undefined = tones.get(toneStrength);
     if (tone === undefined) {
       tone = createHumanBodySkinToneTexture(HUMAN_BODY_SKIN_TONE, toneStrength);
       tones.set(toneStrength, tone);
@@ -81,7 +82,7 @@ export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis) {
         magFilter: "linear",
       },
     };
-    const [kr, kg, kb] = tone.compensation;
+    const [kr, kg, kb]: [number, number, number] = tone.compensation;
     material.baseColor = {
       ...material.baseColor,
       r: Math.min(1, material.baseColor.r * kr),

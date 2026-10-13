@@ -1,75 +1,51 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Half the width, in metres, of the band around a station in which a triangle
- * is kept as a candidate. The signed distance a section reads is a sum of
- * three products of body coordinates (a metre or two at most) and the
- * projection this index compares is another arrangement of the same
- * products, so the two differ by rounding near 1e-15 m. A nanometre is a
- * million times that, and no straddling triangle can fall outside it.
- */
-const MARGIN_METRES = 1e-9;
-
-/**
- * For each station of a stack of parallel section planes, the ordinals of the
- * triangles that can straddle it, ascending.
+ * Select ascending source triangle ordinals for parallel section stations without changing source arrays or aliasing station lists. Admitted source incidence and a shared finite normal are caller premises; this candidate selector does not certify normal length, anatomical placement or the cutter's resulting metrics.
  *
- * A tape rule cuts one shaped surface at ten to twenty stations along a
- * segment, all with the plane normal the rule fixes, and a full cut walks
- * every triangle at every station. A triangle straddles the plane at
- * `level` (the projection of the station's point on the normal) only when
- * that level lies between the lowest and highest projections of its corners,
- * so one pass over the triangles, projecting each corner once and finding by
- * bisection the stations its span covers, lists for every station the few
- * hundred triangles it can cut. `measureHumanSection` then walks only
- * those. A listed triangle need not straddle: the exact sign test of the
- * cut decides that, on the same arithmetic as a full walk, so the section is
- * the one a full walk gives. A triangle that straddles is always listed,
- * because its corner projections bracket the level within the margin.
+ * Actual station points use exactly measureHumanSection's subtract-first signed-distance arithmetic, Float64 storage and nonnegative-side convention. A triangle is selected when its corner signs differ, with no padding or additional tolerance. Triangles that contribute cutter crossings retain full-walk source order; the cutter still owns crossing identities, closed-loop assembly and readings. The optional point count must match the original level count, and points locate planes while levels retain station count/order metadata.
  *
- * The normal must be finite; the levels need no order. Coordinates are
- * metres in the rest body's frame, the levels are metres along the normal
- * and an empty stack answers an empty list. Cost is linear in the triangle
- * count plus the listed triangles, once per stack.
+ * Legacy calls without points cannot reliably recover those subtract-first planes from absolute levels, so each station conservatively receives every source triangle. This preserves completeness at the cost of walking the full population. Neither path has runtime equivalence evidence from this change; the relationship follows the shared arithmetic in the two source implementations.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual station points drive the same subtract-first distance and nonnegative sign classification as the cutter; ascending ordinals preserve crossing order. Legacy level-only input returns the complete population rather than relying on an unproven projection margin.
+ * @evidence contracts/common.md#clear-and-simple-design This owner selects source ordinals and the cutter owns intersections and metrics; the measurement caller supplies actual shared-normal station points, with levels retained for compatible station identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No expected reading, specimen lookup, fixed padding or new tolerance selects triangles. Without points the conservative population avoids false negatives; normal validity and numerical reading quality remain caller/cutter premises.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes point-driven selection from compatible level-only fallback, gives the point-count refusal, input/list ownership and shared arithmetic, and separates source reasoning from unperformed runtime verification.
+ * @evidence contracts/performance.md#efficient-algorithms For V vertices, T triangles, L stations and K listed pairs, point-driven work is O(L(V+T)+K), replacing the former projection/sort shortcut to preserve cutter selection; legacy fallback is O(LT). Storage is O(V+L+K), with worst-case output O(LT).
+ * @evidence contracts/performance.md#reuse-equivalent-work One call-local vertex distance buffer is overwritten per station and reused across that station's triangles; vertex arithmetic is performed once per station rather than once per triangle corner. Changed source/planes receive fresh work without a cross-call cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Distances are call-local and only independent station lists escape; their ordinals may occupy O(LT), with no persistent mesh handle, scheduler or resource cap claimed.
  */
 export function indexHumanBodySectionTriangles(
   positions: number[],
   indices: number[],
   normal: IAutoMovieVector3,
   levels: number[],
+  points?: readonly IAutoMovieVector3[],
 ): number[][] {
-  const lists: number[][] = levels.map(() => []);
-  if (levels.length === 0) return lists;
-  const order = levels.map((_, station) => station);
-  order.sort((a, b) => levels[a] - levels[b]);
-  const sorted = order.map((station) => levels[station]);
-  const projection = new Float64Array(positions.length / 3);
-  for (let v = 0; v < projection.length; v++)
-    projection[v] =
-      positions[v * 3] * normal.x +
-      positions[v * 3 + 1] * normal.y +
-      positions[v * 3 + 2] * normal.z;
-  const first = (level: number): number => {
-    let low = 0;
-    let high = sorted.length;
-    while (low < high) {
-      const middle = (low + high) >> 1;
-      if (sorted[middle] < level) low = middle + 1;
-      else high = middle;
+  if (points !== undefined && points.length !== levels.length)
+    throw new Error("Section station points must match the level count.");
+  const lists: number[][] = levels.map((): number[] => []);
+  if (points === undefined) {
+    for (const list of lists)
+      for (let triangle: number = 0; triangle < indices.length / 3; triangle++)
+        list.push(triangle);
+    return lists;
+  }
+  if (points.length === 0) return lists;
+  const distance: Float64Array<ArrayBuffer> = new Float64Array(positions.length / 3);
+  for (let station: number = 0; station < points.length; station++) {
+    const point: IAutoMovieVector3 = points[station];
+    for (let vertex: number = 0; vertex < distance.length; vertex++)
+      distance[vertex] =
+        (positions[vertex * 3] - point.x) * normal.x +
+        (positions[vertex * 3 + 1] - point.y) * normal.y +
+        (positions[vertex * 3 + 2] - point.z) * normal.z;
+    for (let triangle: number = 0; triangle < indices.length / 3; triangle++) {
+      const a: boolean = distance[indices[triangle * 3]] >= 0;
+      const b: boolean = distance[indices[triangle * 3 + 1]] >= 0;
+      const c: boolean = distance[indices[triangle * 3 + 2]] >= 0;
+      if (a !== b || a !== c) lists[station].push(triangle);
     }
-    return low;
-  };
-  for (let t = 0; t < indices.length / 3; t++) {
-    const a = projection[indices[t * 3]];
-    const b = projection[indices[t * 3 + 1]];
-    const c = projection[indices[t * 3 + 2]];
-    const high = Math.max(a, b, c) + MARGIN_METRES;
-    for (
-      let rank = first(Math.min(a, b, c) - MARGIN_METRES);
-      rank < sorted.length && sorted[rank] <= high;
-      rank++
-    )
-      lists[order[rank]].push(t);
   }
   return lists;
 }
