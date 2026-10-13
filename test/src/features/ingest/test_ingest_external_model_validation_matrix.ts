@@ -480,6 +480,15 @@ export const test_ingest_external_model_validation_matrix = (): void => {
       () => accepts(dataDocument("data:application/octet-stream,abcdefghijkl")),
     ],
     [
+      "rawAstralDataEncodesWholeCodePoints",
+      () =>
+        accepts(
+          dataDocument(
+            "data:application/octet-stream,\u{1F600}\u{1F600}\u{1F600}",
+          ),
+        ),
+    ],
+    [
       "embeddedImageData",
       () =>
         accepts(changed(["images"], [{ uri: "data:image/png;base64,AQ==" }])),
@@ -1221,6 +1230,45 @@ const vrmFacts = (): [string, () => boolean][] => {
             ),
           "unknown, duplicate or dangling",
         ),
+    ],
+    [
+      "vrmZeroThumbNamesMigrateToVrmOne",
+      () => {
+        const document: JsonObject = vrm0();
+        document.nodes = [
+          { mesh: 0, skin: 0 },
+          { name: "Hips" },
+          { name: "ThumbBase" },
+          { name: "ThumbMiddle" },
+          { name: "ThumbTip" },
+        ];
+        set(
+          document,
+          ["extensions", "VRM", "humanoid", "humanBones"],
+          [
+            { bone: "hips", node: 1 },
+            { bone: "leftThumbProximal", node: 2 },
+            { bone: "leftThumbIntermediate", node: 3 },
+            { bone: "leftThumbDistal", node: 4 },
+          ],
+        );
+        const inspected: {
+          humanoidBones: { bone: string; node: number }[];
+        } = inspectVrm(document) as {
+          humanoidBones: { bone: string; node: number }[];
+        };
+        return (
+          JSON.stringify(
+            inspected.humanoidBones.map(({ bone, node }) => [bone, node]),
+          ) ===
+          JSON.stringify([
+            ["hips", 1],
+            ["leftThumbMetacarpal", 2],
+            ["leftThumbProximal", 3],
+            ["leftThumbDistal", 4],
+          ])
+        );
+      },
     ],
     [
       "vrmMetadataIsRequired",

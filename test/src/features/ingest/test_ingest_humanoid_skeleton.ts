@@ -1,7 +1,7 @@
 import { resolvePose } from "@automovie/engine";
 import { humanoidSkeleton } from "@automovie/ingest";
 import { IAutoMovieBone } from "@automovie/interface";
-import { Document } from "@gltf-transform/core";
+import { Document, Node as GLTFNode } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
@@ -45,6 +45,8 @@ const find = (bones: IAutoMovieBone[], bone: string): IAutoMovieBone => {
  * 9. UE-mannequin naming maps in-chain: `pelvis → spine_01 → spine_02 → spine_03`
  *    land on hips/spine/chest/upperChest (#1042's amplifier: an unmapped spine
  *    chain made dropped helper offsets the common case).
+ * 10. A joint named `constructor`, an `Object.prototype` member, maps to no
+ *     slot, so the skeleton keeps only the hips it really names.
  */
 export const test_ingest_humanoid_skeleton = (): void => {
   // 1. no skin
@@ -207,5 +209,20 @@ export const test_ingest_humanoid_skeleton = (): void => {
       (b) => find(ueSkel.bones, b).parent,
     ),
     [null, "hips", "spine", "chest"],
+  );
+
+  // 10. a prototype member name is not an alias
+  const inherited: Document = new Document();
+  const iHips: GLTFNode = inherited.createNode("Hips");
+  const iOther: GLTFNode = inherited.createNode("constructor");
+  iHips.addChild(iOther);
+  inherited.createSkin("skin").addJoint(iHips).addJoint(iOther);
+  inherited.createScene().addChild(iHips);
+  TestValidator.equals(
+    "a joint named after an Object.prototype member maps to no slot",
+    humanoidSkeleton(inherited, "inherited")?.bones.map(
+      (bone: IAutoMovieBone): string => bone.bone,
+    ),
+    ["hips"],
   );
 };

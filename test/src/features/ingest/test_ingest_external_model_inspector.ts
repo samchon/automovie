@@ -19,6 +19,9 @@ import { namedFacts, throwsError } from "../internal/predicates";
  *    not silently decompose or discard shear.
  * 5. JSON glTF and GLB refuse duplicate object members, including names that
  *    become equal only after JSON escape decoding.
+ * 6. A document nested 100,000 levels deep is accepted when its members are
+ *    unique and refused when the deepest object repeats a member, so the
+ *    duplicate scan never turns nesting depth into call-stack depth.
  */
 export const test_ingest_external_model_inspector = (): void => {
   const inspected = inspect(motionFixture());
@@ -187,6 +190,15 @@ export const test_ingest_external_model_inspector = (): void => {
     '"asset":',
     '"extras":{"list":[1,{"k":1,"k":2}]},"asset":',
   );
+  const depth: number = 100_000;
+  const deepNesting: string = source.replace(
+    '"asset":',
+    `"extras":${"[".repeat(depth)}${"]".repeat(depth)},"asset":`,
+  );
+  const deepDuplicate: string = source.replace(
+    '"asset":',
+    `"extras":${'{"k":'.repeat(depth)}{"d":1,"d":2}${"}".repeat(depth)},"asset":`,
+  );
   const trickyStrings = source.replace(
     '"asset":',
     '"extras":{"note":"{\\"a\\":[1,{\\"b\\":2}]}","q\\"uote":"]}","\\u007b":" , "},"asset":',
@@ -250,6 +262,21 @@ export const test_ingest_external_model_inspector = (): void => {
         },
       ],
       [
+        "jsonDeepNestingIsAccepted",
+        () => {
+          inspectSource(deepNesting, "public/motion/deep.gltf");
+          return true;
+        },
+      ],
+      [
+        "jsonDeepDuplicate",
+        () =>
+          throwsError(
+            () => inspectSource(deepDuplicate, "public/motion/deep.gltf"),
+            'duplicate member "d"',
+          ),
+      ],
+      [
         "glbRootDuplicate",
         () =>
           throwsError(
@@ -266,6 +293,8 @@ export const test_ingest_external_model_inspector = (): void => {
       glbRootDuplicate: true,
       jsonArrayElementDuplicate: true,
       jsonBracesAndEscapesInsideStringsAreNotStructure: true,
+      jsonDeepDuplicate: true,
+      jsonDeepNestingIsAccepted: true,
       jsonEscapedDuplicate: true,
       jsonNestedDuplicate: true,
       jsonRootDuplicate: true,

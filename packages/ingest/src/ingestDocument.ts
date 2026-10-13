@@ -6,118 +6,184 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 import type {
+  Accessor,
+  Animation,
   AnimationChannel,
+  AnimationSampler,
+  Camera,
   Document,
   Node as GLTFNode,
+  Mesh,
+  Root,
+  Skin,
+  vec3,
+  vec4,
 } from "@gltf-transform/core";
 
-type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
+import { accessorValues } from "./internal/accessorValues";
 
 /**
- * The automovie-core payload an imported glTF/GLB resolves to.
+ * The core node graph and clips one parsed glTF/GLB document maps to.
  *
+ * Ids are positional: node `node_{i}` is the document's `i`-th node, clip
+ * `clip_{i}` its `i`-th animation, and mesh, camera and skin references are the
+ * decimal index of that resource in its root list. The ids are therefore stable
+ * for one document revision and never collide when names repeat, but they do
+ * not survive a re-export that reorders the lists.
+ *
+ * @evidence contracts/common.md#principled-implementation Positional ids follow glTF's own index-based references, so a node, clip, mesh, camera or skin id equals its index in the document's lists and cross-references resolve without name lookup.
+ * @evidence contracts/common.md#clear-and-simple-design The result is the two lists the engine already consumes, nodes and clips, with no wrapper around either.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The documentation states that positional ids do not survive a re-export that reorders the lists rather than presenting them as content identity.
+ * @evidence contracts/common.md#meaningful-documentation The comments give the id scheme for every referenced resource, the parent meaning of each node, and the order, looping and duration meaning of each clip.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the mapper's return value and runs no code.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A result type has no work of its own that could be shared.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; the arrays it names are created by `ingestDocument` and owned by its caller.
  * @author Samchon
  */
 export interface IAutoMovieIngestResult {
-  /** The scene graph as a flat list of core nodes (parent by id reference). */
+  /**
+   * Every glTF node in document order as a core node whose `parent` names the
+   * node that lists it as a child, or `null` for a root.
+   */
   nodes: IAutoMovieNode[];
 
-  /** One clip per glTF animation, its tracks targeting node TRS / weights. */
+  /**
+   * One non-looping clip per glTF animation in document order, its tracks in
+   * channel order and its duration the latest keyframe time in seconds.
+   */
   clips: IAutoMovieClip[];
 }
 
 /**
- * Ingest a parsed glTF/GLB {@link Document} into automovie's **core** model (the
- * node graph and animation clips), with no three.js and no humanoid
- * assumptions.
+ * Map a parsed glTF/GLB {@link Document} onto automovie's core node graph and
+ * animation clips, with no three.js and no humanoid assumptions.
  *
- * This is the import side of the pipeline: `@gltf-transform/core` parses the
- * bytes headlessly (so the same loader runs in CI, a worker, or a render farm),
- * and this mapper rewrites glTF's structures onto automovie's interface. The
- * mapping is deliberately structural and lossless-where-it-matters: every glTF
- * node becomes an {@link IAutoMovieNode} (TRS, parent, kind, and the
- * mesh/camera/ skin it carries), and every glTF animation becomes an
- * {@link IAutoMovieClip} whose tracks are glTF channel+sampler pairs
- * ({@link IAutoMovieTrack}), the exact forms the engine's sample pass already
- * consumes. Humanoid retargeting (mapping bones onto the VRM slots) is a later,
- * separate stage; this layer stays generic so props, cameras, and characters
- * all import the same way.
+ * `@gltf-transform/core` parses the bytes headlessly, and this mapper rewrites
+ * its structures structurally so props, cameras and characters import the same
+ * way. Every node keeps its local TRS, its parent, and the mesh, camera and
+ * skin it carries; a skin joint is a `bone` even when it also carries a mesh,
+ * then a mesh node is `mesh`, a camera node `camera`, and anything else
+ * `group`. Lights are not read. Every animation channel becomes a node track
+ * with the glTF sampler's keyframes, its interpolation mapped LINEAR, STEP and
+ * CUBICSPLINE to `linear`, `step` and `cubicspline` with an absent one read as
+ * LINEAR as glTF specifies, and its values decoded
+ * from normalized integers where the accessor declares them. Humanoid
+ * retargeting is the separate {@link humanoidSkeleton} stage.
  *
- * Node identity: glTF nodes have no stable id, so each is keyed by its index
- * (`node_{i}`), deterministic and collision-free even when names repeat. All
- * cross-references (a child's `parent`, a channel's target) use the same key.
+ * A channel that the engine's sample pass could not replay throws instead of
+ * importing: no target node, no or unknown target path, no sampler, no input
+ * or output data, an unknown interpolation, keyframe times that are not
+ * finite, non-negative and strictly increasing, non-finite output values, or an
+ * output length that disagrees with the keyframe count, the path's component
+ * count and the cubic-spline tangent triple.
  *
+ * @param doc Parsed document; it is only read.
+ * @returns New arrays the caller owns, sharing no storage with the document.
+ *
+ * @evidence contracts/common.md#principled-implementation Node and clip structure is mapped one to one with index ids, kinds follow a fixed precedence of joint, mesh, camera, then group, and each channel is checked against glTF's own sampler rules: an allowed path and interpolation, strictly increasing times, finite values, and output arity of keyframes times components times three for cubic splines; normalized accessors decode through `accessorValues`.
+ * @evidence contracts/common.md#clear-and-simple-design The function builds the id, parent, joint and resource-index maps once and maps nodes and animations; `toTrack` owns all channel validation, and the path and interpolation tables replace the former unchecked casts and the silent linear fallback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown interpolation or target path now throws instead of becoming `linear` or passing through a cast, and no fixture-specific node, path or value is special-cased; lights are documented as not read.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states what each node keeps, the kind precedence, the interpolation mapping, normalized decoding, every refusal, and that the returned arrays share no storage with the document.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is linear in nodes plus their child links, skin joints, and the total keyframe values across channels; each accessor is copied once into its track and every lookup goes through a hash map built once per call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The mapper is a pure single pass over one document per call; a sampler shared by channels is copied per track so each track owns its arrays, which the result's ownership contract requires.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The lookup maps are local and released on return or throw; the result retains new node records and per-track copies of keyframe data proportional to the document's animation size, owned by the caller, and no handle or task.
  * @author Samchon
  */
 export const ingestDocument = (doc: Document): IAutoMovieIngestResult => {
-  const root = doc.getRoot();
-  const gltfNodes = root.listNodes();
+  const root: Root = doc.getRoot();
+  const gltfNodes: GLTFNode[] = root.listNodes();
 
-  // Stable id per glTF node (index-based) and the reverse for channel targets.
-  const idByNode = new Map<GLTFNode, string>();
-  gltfNodes.forEach((n, i) => idByNode.set(n, `node_${i}`));
-
-  // Parent lookup: a node's parent is whichever node lists it as a child.
-  const parentByNode = new Map<GLTFNode, GLTFNode>();
-  for (const n of gltfNodes)
-    for (const child of n.listChildren()) parentByNode.set(child, n);
-
-  // Joint nodes (members of any skin) are bones.
-  const jointSet = new Set<GLTFNode>();
-  root
-    .listSkins()
-    .forEach((skin) => skin.listJoints().forEach((j) => jointSet.add(j)));
-
-  const meshIds = indexIds(root.listMeshes());
-  const cameraIds = indexIds(root.listCameras());
-  const skinIds = indexIds(root.listSkins());
-
-  const nodes: IAutoMovieNode[] = gltfNodes.map((n) => {
-    const parent = parentByNode.get(n);
-    const t = n.getTranslation();
-    const r = n.getRotation();
-    const s = n.getScale();
-    const mesh = n.getMesh();
-    const camera = n.getCamera();
-    const skin = n.getSkin();
-    return {
-      id: idByNode.get(n)!,
-      name: n.getName() === "" ? null : n.getName(),
-      parent: parent !== undefined ? idByNode.get(parent)! : null,
-      kind: kindOf(n, jointSet),
-      transform: {
-        translation: { x: t[0], y: t[1], z: t[2] },
-        rotation: { x: r[0], y: r[1], z: r[2], w: r[3] },
-        scale: { x: s[0], y: s[1], z: s[2] },
-      },
-      mesh: mesh !== null ? meshIds.get(mesh)! : null,
-      camera: camera !== null ? cameraIds.get(camera)! : null,
-      light: null,
-      skin: skin !== null ? skinIds.get(skin)! : null,
-    };
+  const idByNode: Map<GLTFNode, string> = new Map<GLTFNode, string>();
+  gltfNodes.forEach((node: GLTFNode, i: number): void => {
+    idByNode.set(node, `node_${i}`);
   });
 
-  const clips: IAutoMovieClip[] = root.listAnimations().map((anim, i) => {
-    const tracks = anim.listChannels().map((ch) => toTrack(ch, idByNode));
-    return {
-      id: `clip_${i}`,
-      name: anim.getName() === "" ? null : anim.getName(),
-      duration: tracks.reduce(
-        (max, tr) => Math.max(max, tr.times[tr.times.length - 1]!),
-        0,
-      ),
-      loop: false,
-      tracks,
-    };
-  });
+  const parentByNode: Map<GLTFNode, GLTFNode> = new Map<GLTFNode, GLTFNode>();
+  for (const node of gltfNodes)
+    for (const child of node.listChildren()) parentByNode.set(child, node);
+
+  const jointSet: Set<GLTFNode> = new Set<GLTFNode>();
+  for (const skin of root.listSkins())
+    for (const joint of skin.listJoints()) jointSet.add(joint);
+
+  const meshIds: Map<Mesh, string> = indexIds(root.listMeshes());
+  const cameraIds: Map<Camera, string> = indexIds(root.listCameras());
+  const skinIds: Map<Skin, string> = indexIds(root.listSkins());
+
+  const nodes: IAutoMovieNode[] = gltfNodes.map(
+    (node: GLTFNode): IAutoMovieNode => {
+      const parent: GLTFNode | undefined = parentByNode.get(node);
+      const t: vec3 = node.getTranslation();
+      const r: vec4 = node.getRotation();
+      const s: vec3 = node.getScale();
+      const mesh: Mesh | null = node.getMesh();
+      const camera: Camera | null = node.getCamera();
+      const skin: Skin | null = node.getSkin();
+      return {
+        id: idByNode.get(node)!,
+        name: node.getName() === "" ? null : node.getName(),
+        parent: parent !== undefined ? idByNode.get(parent)! : null,
+        kind: kindOf(node, jointSet),
+        transform: {
+          translation: { x: t[0], y: t[1], z: t[2] },
+          rotation: { x: r[0], y: r[1], z: r[2], w: r[3] },
+          scale: { x: s[0], y: s[1], z: s[2] },
+        },
+        mesh: mesh !== null ? meshIds.get(mesh)! : null,
+        camera: camera !== null ? cameraIds.get(camera)! : null,
+        light: null,
+        skin: skin !== null ? skinIds.get(skin)! : null,
+      };
+    },
+  );
+
+  const clips: IAutoMovieClip[] = root
+    .listAnimations()
+    .map((anim: Animation, i: number): IAutoMovieClip => {
+      const tracks: IAutoMovieTrack[] = anim
+        .listChannels()
+        .map(
+          (channel: AnimationChannel): IAutoMovieTrack =>
+            toTrack(channel, idByNode),
+        );
+      return {
+        id: `clip_${i}`,
+        name: anim.getName() === "" ? null : anim.getName(),
+        duration: tracks.reduce(
+          (max: number, track: IAutoMovieTrack): number =>
+            Math.max(max, track.times[track.times.length - 1]!),
+          0,
+        ),
+        loop: false,
+        tracks,
+      };
+    });
 
   return { nodes, clips };
 };
 
-/** Map each item to a stable index id (`prefix` defaults to the position). */
+type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
+
+/** Components per keyframe for each fixed-width path; `weights` varies. */
+const COMPONENTS: Readonly<Record<AutoMovieNodeTrackPath, number | null>> = {
+  translation: 3,
+  rotation: 4,
+  scale: 3,
+  weights: null,
+};
+
+const INTERPOLATIONS: Readonly<Record<string, AutoMovieInterpolation>> = {
+  LINEAR: "linear",
+  STEP: "step",
+  CUBICSPLINE: "cubicspline",
+};
+
+/** Map each item to its decimal list index. */
 const indexIds = <T>(items: T[]): Map<T, string> => {
-  const map = new Map<T, string>();
-  items.forEach((item, i) => map.set(item, `${i}`));
+  const map: Map<T, string> = new Map<T, string>();
+  items.forEach((item: T, i: number): void => {
+    map.set(item, `${i}`);
+  });
   return map;
 };
 
@@ -134,101 +200,79 @@ const toTrack = (
   channel: AnimationChannel,
   idByNode: Map<GLTFNode, string>,
 ): IAutoMovieTrack => {
-  const target = channel.getTargetNode();
+  const target: GLTFNode | null = channel.getTargetNode();
   if (target === null) throw new Error("animation channel must target a node");
-  const targetId = idByNode.get(target)!;
+  const targetId: string = idByNode.get(target)!;
+  const fail = (message: string): never => {
+    throw new Error(`animation channel for node "${targetId}" ${message}`);
+  };
 
-  const sampler = channel.getSampler();
-  if (sampler === null)
-    throw new Error(
-      `animation channel for node "${targetId}" must have a sampler`,
+  const targetPath: string | null = channel.getTargetPath();
+  if (targetPath === null || Object.hasOwn(COMPONENTS, targetPath) === false)
+    return fail(
+      `target path must be translation, rotation, scale, or weights, but was ${JSON.stringify(targetPath)}`,
+    );
+  const path: AutoMovieNodeTrackPath = targetPath as AutoMovieNodeTrackPath;
+
+  const sampler: AnimationSampler | null = channel.getSampler();
+  if (sampler === null) return fail("must have a sampler");
+  const input: Accessor | null = sampler.getInput();
+  if (input === null) return fail("must have input times");
+  const output: Accessor | null = sampler.getOutput();
+  if (output === null) return fail("must have output values");
+
+  const times: number[] | null = accessorValues(input);
+  if (times === null) return fail("input times must have data");
+  if (times.length === 0) return fail("input times must not be empty");
+  const values: number[] | null = accessorValues(output);
+  if (values === null) return fail("output values must have data");
+  if (values.length === 0) return fail("output values must not be empty");
+
+  // glTF reads an absent interpolation as LINEAR; a sampler built in code
+  // without one reports `undefined` despite the declared string type.
+  const rawInterpolation: string =
+    (sampler.getInterpolation() as string | undefined) ?? "LINEAR";
+  const interpolation: AutoMovieInterpolation | undefined = Object.hasOwn(
+    INTERPOLATIONS,
+    rawInterpolation,
+  )
+    ? INTERPOLATIONS[rawInterpolation]
+    : undefined;
+  if (interpolation === undefined)
+    return fail(
+      `interpolation must be LINEAR, STEP, or CUBICSPLINE, but was ${JSON.stringify(rawInterpolation)}`,
     );
 
-  const input = sampler.getInput();
-  if (input === null)
-    throw new Error(
-      `animation channel for node "${targetId}" must have input times`,
-    );
-  const output = sampler.getOutput();
-  if (output === null)
-    throw new Error(
-      `animation channel for node "${targetId}" must have output values`,
-    );
+  for (let i: number = 0; i < times.length; ++i)
+    if (
+      Number.isFinite(times[i]) === false ||
+      times[i]! < 0 ||
+      (i > 0 && times[i]! <= times[i - 1]!)
+    )
+      return fail(
+        `input times must be finite, non-negative and strictly increasing, but key ${i} is ${times[i]}`,
+      );
+  if (values.every(Number.isFinite) === false)
+    return fail("output values must be finite");
 
-  const inputArray = input.getArray();
-  if (inputArray === null)
-    throw new Error(
-      `animation channel for node "${targetId}" input times must have data`,
+  const perKeyframeGroup: number =
+    times.length * (interpolation === "cubicspline" ? 3 : 1);
+  const fixed: number | null = COMPONENTS[path];
+  if (fixed !== null) {
+    const expected: number = perKeyframeGroup * fixed;
+    if (values.length !== expected)
+      return fail(
+        `${path} output values length must be ${expected}, but was ${values.length}`,
+      );
+  } else if (values.length % perKeyframeGroup !== 0)
+    return fail(
+      `weights output values length must be a multiple of ${perKeyframeGroup}, but was ${values.length}`,
     );
-  if (inputArray.length === 0)
-    throw new Error(
-      `animation channel for node "${targetId}" input times must not be empty`,
-    );
-  const outputArray = output.getArray();
-  if (outputArray === null)
-    throw new Error(
-      `animation channel for node "${targetId}" output values must have data`,
-    );
-  if (outputArray.length === 0)
-    throw new Error(
-      `animation channel for node "${targetId}" output values must not be empty`,
-    );
-
-  const targetPath = channel.getTargetPath() as AutoMovieNodeTrackPath;
-  const interpolation = toInterpolation(sampler.getInterpolation());
-  validateOutputArity({
-    targetId,
-    targetPath,
-    interpolation,
-    keyframes: inputArray.length,
-    outputValues: outputArray.length,
-  });
 
   return {
-    channel: {
-      kind: "node",
-      node: targetId,
-      path: targetPath,
-    },
-    times: Array.from(inputArray),
-    values: Array.from(outputArray),
+    channel: { kind: "node", node: targetId, path },
+    times,
+    values,
     interpolation,
   };
-};
-
-const toInterpolation = (interp: string): AutoMovieInterpolation =>
-  interp === "STEP"
-    ? "step"
-    : interp === "CUBICSPLINE"
-      ? "cubicspline"
-      : "linear";
-
-const componentCount = (path: AutoMovieNodeTrackPath): number | null =>
-  path === "rotation" ? 4 : path === "weights" ? null : 3;
-
-const validateOutputArity = (props: {
-  targetId: string;
-  targetPath: AutoMovieNodeTrackPath;
-  interpolation: AutoMovieInterpolation;
-  keyframes: number;
-  outputValues: number;
-}): void => {
-  const { targetId, targetPath, interpolation, keyframes, outputValues } =
-    props;
-  const cubicFactor = interpolation === "cubicspline" ? 3 : 1;
-  const perKeyframeGroup = keyframes * cubicFactor;
-  const fixed = componentCount(targetPath);
-  if (fixed !== null) {
-    const expected = perKeyframeGroup * fixed;
-    if (outputValues !== expected)
-      throw new Error(
-        `animation channel for node "${targetId}" ${targetPath} output values length must be ${expected}, but was ${outputValues}`,
-      );
-    return;
-  }
-
-  if (outputValues % perKeyframeGroup !== 0)
-    throw new Error(
-      `animation channel for node "${targetId}" weights output values length must be a multiple of ${perKeyframeGroup}, but was ${outputValues}`,
-    );
 };

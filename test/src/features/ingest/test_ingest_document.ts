@@ -56,6 +56,13 @@ const makeAnimatedDoc = () => {
  *    LINEAR→linear, STEP→step, CUBICSPLINE→cubicspline. Clip duration is the
  *    latest keyframe time; the empty unnamed animation yields a null-named,
  *    zero-duration, trackless clip.
+ * 5. A channel the sample pass could not replay is refused by its fault: a
+ *    missing target, sampler, input or output, empty data, an output length
+ *    off the path's arity, no target path, an interpolation outside glTF's
+ *    three, keyframe times that do not strictly increase, and a non-finite
+ *    output value.
+ * 6. A normalized 16-bit rotation output decodes to the unit quaternion it
+ *    means rather than its raw integers.
  */
 export const test_ingest_document = (): void => {
   const doc = new Document();
@@ -427,5 +434,70 @@ export const test_ingest_document = (): void => {
       () => ingestDocument(unevenWeightsOutput.doc),
       ["weights output values length", "multiple of 2", "3"],
     ),
+  );
+
+  const replayable = (): ReturnType<typeof makeAnimatedDoc> => {
+    const fixture: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
+    fixture.sampler.setInput(fixture.time).setOutput(fixture.values);
+    fixture.channel.setTargetNode(fixture.node).setSampler(fixture.sampler);
+    return fixture;
+  };
+
+  const noPath: ReturnType<typeof makeAnimatedDoc> = replayable();
+  noPath.channel.setTargetPath(null as unknown as "translation");
+  TestValidator.predicate(
+    "animation channel without a target path rejects",
+    throwsError(
+      () => ingestDocument(noPath.doc),
+      'animation channel for node "node_0" target path must be translation, rotation, scale, or weights, but was null',
+    ),
+  );
+
+  const unknownInterpolation: ReturnType<typeof makeAnimatedDoc> =
+    replayable();
+  unknownInterpolation.sampler.setInterpolation(
+    "BEZIER" as unknown as "LINEAR",
+  );
+  TestValidator.predicate(
+    "unknown interpolation rejects instead of reading as linear",
+    throwsError(
+      () => ingestDocument(unknownInterpolation.doc),
+      'interpolation must be LINEAR, STEP, or CUBICSPLINE, but was "BEZIER"',
+    ),
+  );
+
+  const backwardTimes: ReturnType<typeof makeAnimatedDoc> = replayable();
+  backwardTimes.time.setArray(new Float32Array([1, 0]));
+  TestValidator.predicate(
+    "keyframe times that do not increase reject",
+    throwsError(
+      () => ingestDocument(backwardTimes.doc),
+      "input times must be finite, non-negative and strictly increasing, but key 1 is 0",
+    ),
+  );
+
+  const nonFiniteOutput: ReturnType<typeof makeAnimatedDoc> = replayable();
+  nonFiniteOutput.values.setArray(new Float32Array([0, 0, 0, 1, NaN, 1]));
+  TestValidator.predicate(
+    "a non-finite output value rejects",
+    throwsError(
+      () => ingestDocument(nonFiniteOutput.doc),
+      "output values must be finite",
+    ),
+  );
+
+  const quantized: ReturnType<typeof makeAnimatedDoc> = replayable();
+  quantized.sampler.setOutput(
+    quantized.doc
+      .createAccessor()
+      .setType("VEC4")
+      .setArray(new Int16Array([0, 0, 0, 32767, 0, 32767, 0, 0]))
+      .setNormalized(true),
+  );
+  quantized.channel.setTargetPath("rotation");
+  TestValidator.equals(
+    "normalized rotation output decodes to unit quaternions",
+    ingestDocument(quantized.doc).clips[0]!.tracks[0]!.values,
+    [0, 0, 0, 1, 0, 1, 0, 0],
   );
 };

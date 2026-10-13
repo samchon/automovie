@@ -4,127 +4,88 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import type { Document, Node as GLTFNode } from "@gltf-transform/core";
+import type {
+  Document,
+  Node as GLTFNode,
+  Skin,
+  vec3,
+  vec4,
+} from "@gltf-transform/core";
+
+import { composeLocalTransform } from "./internal/composeLocalTransform";
+import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
 
 /**
- * Bone-name aliases → normalized humanoid slots, covering the common rig naming
- * conventions an imported glTF uses: the glTF/Blender standard (`Spine`,
- * `LeftUpLeg`), Mixamo (`mixamorig:LeftArm`), and VRM-ish (`leftUpperArm`).
- * Keys are already {@link normalize}d (lowercased, separators and a `mixamorig`
- * prefix stripped). Fingers/eyes/jaw are out of scope for this first mapping.
- */
-const HUMANOID_ALIASES: Record<string, AutoMovieHumanoidBone> = {
-  hips: "hips",
-  pelvis: "hips",
-  spine: "spine",
-  spine1: "chest",
-  chest: "chest",
-  spine2: "upperChest",
-  upperchest: "upperChest",
-  // UE-mannequin chains (`spine_01..` normalize to `spine01..`): without
-  // these the whole spine is unmapped in-chain, making dropped helper
-  // offsets the common case for such imports (#1042).
-  spine01: "spine",
-  spine02: "chest",
-  spine03: "upperChest",
-  neck: "neck",
-  head: "head",
-  leftshoulder: "leftShoulder",
-  leftclavicle: "leftShoulder",
-  leftarm: "leftUpperArm",
-  leftupperarm: "leftUpperArm",
-  leftforearm: "leftLowerArm",
-  leftlowerarm: "leftLowerArm",
-  lefthand: "leftHand",
-  rightshoulder: "rightShoulder",
-  rightclavicle: "rightShoulder",
-  rightarm: "rightUpperArm",
-  rightupperarm: "rightUpperArm",
-  rightforearm: "rightLowerArm",
-  rightlowerarm: "rightLowerArm",
-  righthand: "rightHand",
-  leftupleg: "leftUpperLeg",
-  leftupperleg: "leftUpperLeg",
-  leftleg: "leftLowerLeg",
-  leftlowerleg: "leftLowerLeg",
-  leftfoot: "leftFoot",
-  lefttoebase: "leftToes",
-  lefttoes: "leftToes",
-  rightupleg: "rightUpperLeg",
-  rightupperleg: "rightUpperLeg",
-  rightleg: "rightLowerLeg",
-  rightlowerleg: "rightLowerLeg",
-  rightfoot: "rightFoot",
-  righttoebase: "rightToes",
-  righttoes: "rightToes",
-};
-
-const normalize = (name: string): string =>
-  name
-    .toLowerCase()
-    .replace(/^mixamorig:?/, "")
-    .replace(/[\s_.:|-]/g, "");
-
-/**
- * Retarget an imported glTF's skins onto a normalized humanoid
- * {@link IAutoMovieSkeleton} by matching every skin's joint names to
- * {@link AutoMovieHumanoidBone} slots (all skins in document order, first match
- * per slot wins), the bridge that turns a real rigged glTF/VRM into a automovie
- * character (poses and motions authored on the slots then replay on it).
- * Reading every skin matters because exporters bind clothes, hair, and
- * accessories as separate skins with no ordering guarantee: the body rig must
- * be found wherever it sits.
+ * Retarget a parsed glTF's skins onto a normalized humanoid
+ * {@link IAutoMovieSkeleton} by matching joint names to
+ * {@link AutoMovieHumanoidBone} slots.
  *
- * The skeleton's hierarchy is rebuilt over the mapped joints only: a bone's
- * parent is its nearest _mapped_ ancestor in the glTF node tree, so
- * non-humanoid helper bones between two slots are skipped. Rest transforms
- * compose the joint's local TRS through every skipped helper (#1042):
- * {@link IAutoMovieBone.rest} is "relative to `parent`", so a helper's offset or
- * roll must survive into the emitted rest or every bone beneath it lands
- * misplaced under FK. A root bone (no mapped ancestor) keeps its own local TRS:
- * armature/scene transforms belong to the imported object, not the skeleton.
- * Returns `null` when there is no skin or no `hips` (the required root) could
- * be identified. The caller then keeps the model as a non-articulated object.
+ * Every skin is read in document order and the first joint to claim a slot
+ * keeps it, because exporters bind clothes, hair and accessories as separate
+ * skins in no guaranteed order and the body rig must be found wherever it sits.
+ * A joint name maps through the glTF/Blender, Mixamo, VRM-style and Unreal
+ * mannequin aliases; fingers, eyes and jaw are not mapped.
  *
+ * The hierarchy is rebuilt over mapped joints only: a bone's parent is its
+ * nearest mapped ancestor in the node tree, and the local TRS of every skipped
+ * helper node between them composes into the bone's rest, because
+ * {@link IAutoMovieBone.rest} is relative to `parent` and a dropped helper
+ * offset or roll would misplace every bone beneath it. The composition is exact
+ * unless a skipped helper combines non-uniform scale with a rotated child. A
+ * root bone keeps its own local TRS, since armature and scene transforms belong
+ * to the imported object rather than the skeleton. Bones carry no constraint.
+ *
+ * @param doc Parsed document; it is only read.
+ * @param skeletonId Id for the returned skeleton.
+ * @returns The skeleton with bones in first-claim order, or `null` when the
+ *   document has no skin or no joint maps to `hips`, the required root; the
+ *   caller then treats the model as a non-articulated object.
+ *
+ * @evidence contracts/common.md#principled-implementation Slots come from a normalized alias table, the hierarchy from a child-to-parent map walked to the nearest mapped ancestor, and each rest from composing skipped helper TRS with `composeLocalTransform`; that composition drops the shear a non-uniform helper scale under a rotated child would need, the limitation the documentation states.
+ * @evidence contracts/common.md#clear-and-simple-design The function owns slot claiming and hierarchy rebuilding, while name normalization and transform composition live in internal modules the byte inspector and motion adoption share, so the alias table and the composition formula each exist once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias table names published rig conventions, not fixture rigs; the table is a `Map`, so a joint named after an `Object.prototype` member such as `constructor` maps to nothing instead of an inherited function, and first-claim order is the documented rule for duplicate slots.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states the every-skin first-claim rule and its reason, the covered naming conventions and unmapped fingers, eyes and jaw, the helper composition and its exactness, the root-bone exception, the null cases, and that constraints are left empty.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is linear in joints across skins plus nodes and their children for the parent map, plus, per mapped bone, its walk to the nearest mapped ancestor; the hash maps make each lookup constant time, and the parent map is the only full node scan.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one document once and the result depends on that document alone, so there is no work across requests to share.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The slot and parent maps and the helper arrays are local and released on return or throw; the returned skeleton holds new transform objects proportional to the mapped bones, at most the humanoid slot count, owned by the caller.
  * @author Samchon
  */
 export const humanoidSkeleton = (
   doc: Document,
-  skeletonId = "skeleton",
+  skeletonId: string = "skeleton",
 ): IAutoMovieSkeleton | null => {
-  const skins = doc.getRoot().listSkins();
+  const skins: Skin[] = doc.getRoot().listSkins();
   if (skins.length === 0) return null;
 
-  // First-wins mapping of joint node → humanoid slot, over EVERY skin's
-  // joints in document order: exporters bind clothes/hair as their own skins
-  // with no ordering guarantee, so reading only the first skin demoted a
-  // fully rigged character to a prop whenever an accessory skin came first
-  // (#1104). The union keeps single-skin documents byte-identical.
-  const slotByNode = new Map<GLTFNode, AutoMovieHumanoidBone>();
-  const used = new Set<AutoMovieHumanoidBone>();
+  const slotByNode: Map<GLTFNode, AutoMovieHumanoidBone> = new Map<
+    GLTFNode,
+    AutoMovieHumanoidBone
+  >();
+  const used: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
   for (const skin of skins)
     for (const joint of skin.listJoints()) {
-      const slot = HUMANOID_ALIASES[normalize(joint.getName())];
-      if (slot !== undefined && !used.has(slot)) {
+      const slot: AutoMovieHumanoidBone | undefined = humanoidBoneOfName(
+        joint.getName(),
+      );
+      if (slot !== undefined && used.has(slot) === false) {
         slotByNode.set(joint, slot);
         used.add(slot);
       }
     }
-  if (!used.has("hips")) return null;
+  if (used.has("hips") === false) return null;
 
-  const parentNode = new Map<GLTFNode, GLTFNode>();
-  for (const n of doc.getRoot().listNodes())
-    for (const child of n.listChildren()) parentNode.set(child, n);
+  const parentNode: Map<GLTFNode, GLTFNode> = new Map<GLTFNode, GLTFNode>();
+  for (const node of doc.getRoot().listNodes())
+    for (const child of node.listChildren()) parentNode.set(child, node);
 
   const bones: IAutoMovieBone[] = [];
   for (const [node, slot] of slotByNode) {
-    // Walk to the nearest mapped ancestor, collecting the skipped helpers so
-    // their local TRS composes into the emitted rest (#1042).
     const helpers: GLTFNode[] = [];
-    let ancestor = parentNode.get(node);
+    let ancestor: GLTFNode | undefined = parentNode.get(node);
     let parent: AutoMovieHumanoidBone | null = null;
     while (ancestor !== undefined) {
-      const mapped = slotByNode.get(ancestor);
+      const mapped: AutoMovieHumanoidBone | undefined =
+        slotByNode.get(ancestor);
       if (mapped !== undefined) {
         parent = mapped;
         break;
@@ -132,82 +93,22 @@ export const humanoidSkeleton = (
       helpers.push(ancestor);
       ancestor = parentNode.get(ancestor);
     }
-    let rest = localTransform(node);
+    let rest: IAutoMovieTransform = localTransform(node);
     if (parent !== null)
       for (const helper of helpers)
-        rest = composeLocal(localTransform(helper), rest);
+        rest = composeLocalTransform(localTransform(helper), rest);
     bones.push({ bone: slot, parent, rest, constraint: null });
   }
   return { id: skeletonId, bones };
 };
 
 const localTransform = (node: GLTFNode): IAutoMovieTransform => {
-  const t = node.getTranslation();
-  const r = node.getRotation();
-  const s = node.getScale();
+  const t: vec3 = node.getTranslation();
+  const r: vec4 = node.getRotation();
+  const s: vec3 = node.getScale();
   return {
     translation: { x: t[0], y: t[1], z: t[2] },
     rotation: { x: r[0], y: r[1], z: r[2], w: r[3] },
     scale: { x: s[0], y: s[1], z: s[2] },
   };
 };
-
-/**
- * Compose two local TRS transforms (`parent` applied over `child`): the
- * standard rig decomposition `t' = t_p + R_p·(s_p ∘ t_c)`, `r' = r_p·r_c`, `s'
- * = s_p ∘ s_c`. Exact whenever scales are uniform or the rotation chain does
- * not shear, the shapes real skeleton hierarchies use.
- */
-const composeLocal = (
-  p: IAutoMovieTransform,
-  c: IAutoMovieTransform,
-): IAutoMovieTransform => ({
-  translation: add(
-    p.translation,
-    rotate(p.rotation, {
-      x: p.scale.x * c.translation.x,
-      y: p.scale.y * c.translation.y,
-      z: p.scale.z * c.translation.z,
-    }),
-  ),
-  rotation: mulQuat(p.rotation, c.rotation),
-  scale: {
-    x: p.scale.x * c.scale.x,
-    y: p.scale.y * c.scale.y,
-    z: p.scale.z * c.scale.z,
-  },
-});
-
-type IVec3 = IAutoMovieTransform["translation"];
-type IQuat = IAutoMovieTransform["rotation"];
-
-const add = (a: IVec3, b: IVec3): IVec3 => ({
-  x: a.x + b.x,
-  y: a.y + b.y,
-  z: a.z + b.z,
-});
-
-const cross = (a: IVec3, b: IVec3): IVec3 => ({
-  x: a.y * b.z - a.z * b.y,
-  y: a.z * b.x - a.x * b.z,
-  z: a.x * b.y - a.y * b.x,
-});
-
-/** Rotate a vector by a unit quaternion: `v' = v + 2q_w(q×v) + 2q×(q×v)`. */
-const rotate = (q: IQuat, v: IVec3): IVec3 => {
-  const u = { x: q.x, y: q.y, z: q.z };
-  const t = cross(u, v);
-  const t2 = { x: 2 * t.x, y: 2 * t.y, z: 2 * t.z };
-  return add(
-    add(v, { x: q.w * t2.x, y: q.w * t2.y, z: q.w * t2.z }),
-    cross(u, t2),
-  );
-};
-
-/** Hamilton product `a·b` (apply `b`, then `a`). */
-const mulQuat = (a: IQuat, b: IQuat): IQuat => ({
-  x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-  y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-  z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
-  w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-});
