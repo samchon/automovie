@@ -8,17 +8,17 @@ import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAut
 import { joinHumanPersonSkin } from "./joinHumanPersonSkin";
 
 /**
- * Read one person girth on a person's final skin, in metres, or null
- * when the skin cannot answer it.
+ * Read a source-landmark section of the final skin in metres. The body landmark must name an actual generation sample; the sample anchors a plane perpendicular to the finite landmark segment, and its projected segment point seeds the nearest closed contour. Physical correspondence can join separate skin parts at the cut, but closure is answered by the section instrument rather than presumed here.
  *
- * The rule's skin point is read on the body view (`skinLandmarks`) and its
- * source sample found; the skin halves are joined around that sample
- * (`joinHumanPersonSkin`), so a section that crosses the head/body cut
- * closes. A body view that does not declare the point, or does not place it
- * on a source sample, refuses by name. The plane passes through that sample perpendicular to the landmark
- * segment. The closed loop nearest the segment is kept and its tape girth
- * reported (`measureHumanSection`). A missing landmark, a missing sample,
- * a degenerate segment or a plane that closes no loop answers null.
+ * Missing posed landmarks, missing joined anchor, a nonpositive segment length or no closed section return null. Missing declared source registration refuses by name. The caller supplies admitted finite landmarks/source geometry; this geometric protocol preserves its source acquisition/clinical limits and does not observe current rendering.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual declared source sample and final physical correspondence place the section plane and loop-choice seed; measured contour length supplies the result.
+ * @evidence contracts/common.md#clear-and-simple-design Source landmark lookup, skin joining and section traversal remain separate existing owners, with null for an unavailable geometric reading.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent source point refuses rather than using a coordinate proxy, and source correspondence does not stand in for guaranteed closure or clinical accuracy.
+ * @evidence contracts/common.md#meaningful-documentation Prose identifies metre units, plane/seed construction, distinct null/refusal paths and finite admitted-input premises.
+ * @evidence contracts/performance.md#efficient-algorithms Landmark arithmetic is fixed work, while joining scans included mesh/source populations and the existing section reader pays actual triangle/contour traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each supplied performed model/plane is read afresh; this instrument owns no shape, joined-skin or contour cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Joined buffers and section workspace are call-local, and only the measured section/plane escapes with no retained source task or render resource.
  */
 export function readHumanPersonGirth(
   model: IAutoMovieModel,
@@ -26,35 +26,35 @@ export function readHumanPersonGirth(
   rule: IAutoMovieHumanPersonGirthMeasurement,
   body: IAutoMovieHumanBodyBasis,
 ): IAutoMovieHumanPersonMeasurementReading | null {
-  const from = landmarks[rule.from];
-  const to = landmarks[rule.to];
+  const from: IAutoMovieVector3 | undefined = landmarks[rule.from];
+  const to: IAutoMovieVector3 | undefined = landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
-  const point = humanSkinLandmark(body, rule.landmark);
-  const sample =
+  const point: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(body, rule.landmark);
+  const sample: number | undefined =
     body.surfaces[point.surface].sourcePartition?.samples[point.vertex];
   if (sample === undefined)
     throw new Error(
       `The body view ${body.id} places ${rule.landmark} on no source sample of the generation.`,
     );
-  const skin = joinHumanPersonSkin(model, sample);
+  const skin: ReturnType<typeof joinHumanPersonSkin> = joinHumanPersonSkin(model, sample);
   if (skin === null) return null;
-  const axis = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
-  const length = Math.hypot(axis.x, axis.y, axis.z);
+  const axis: IAutoMovieVector3 = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
+  const length: number = Math.hypot(axis.x, axis.y, axis.z);
   if (!(length > 0)) return null;
-  const normal = { x: axis.x / length, y: axis.y / length, z: axis.z / length };
+  const normal: IAutoMovieVector3 = { x: axis.x / length, y: axis.y / length, z: axis.z / length };
   // the segment point on the plane seeds the loop choice
-  const { anchor } = skin;
-  const along =
+  const { anchor }: typeof skin = skin;
+  const along: number =
     (anchor.x - from.x) * normal.x +
     (anchor.y - from.y) * normal.y +
     (anchor.z - from.z) * normal.z;
-  const seed = {
+  const seed: IAutoMovieVector3 = {
     x: from.x + normal.x * along,
     y: from.y + normal.y * along,
     z: from.z + normal.z * along,
   };
-  const plane = { point: anchor, normal };
-  const section = measureHumanSection(
+  const plane: Parameters<typeof measureHumanSection>[2] = { point: anchor, normal };
+  const section: ReturnType<typeof measureHumanSection> = measureHumanSection(
     skin.positions,
     skin.indices,
     plane,

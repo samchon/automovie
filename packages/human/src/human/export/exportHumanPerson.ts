@@ -14,24 +14,19 @@ import { writeHumanFaceOralExportQualification } from "../../face/export/writeHu
 /**
  * Serialize a built person to GLB and glTF with resident resources.
  *
- * A person is a static resident model, posed and skinned already, so it takes
- * the shared static exporter unchanged: parts grouped by material, Float32
- * topology validated at the output boundary, optical materials carried as
- * glTF extensions. No skeleton or skin binding is written; a consumer that
- * wants another pose replays the document through the builder. The document
- * and the writer stay in one module instance, as the face's and the body's
- * do, because glTF-Transform relies on class identity.
- * An optional atlas report opts into generic source-part correspondence and
- * joins acquired body atlas receipts under their actual `body:` source IDs.
- * It preserves reference-only registration and unavailable personal anatomy;
- * omission keeps both optional namespaces absent.
- * A separate coarse anatomical assembly report joins source tissue members
- * under their actual `body:anatomical-source:` IDs, retaining original rights,
- * authored registration and unavailable clinical resolution in the same
- * writer Document. Neither qualification is inferred from a material name.
- * Optional oral qualification joins actual `face:oral:` source intervals in
- * that same Document, preserving licensed/native source digests and the oral
- * owner's explicit clinical gaps.
+ * The existing static geometry owner validates resident and actual Float32 topology, preserves exact material/TRS grouping, supported resident textures and optical extensions, and emits no editable skeleton/skin binding. Another pose requires document replay. The writer shares this glTF-Transform module instance's Document; consumers still own image decoding and support for required optical extensions.
+ *
+ * Actual body atlas, coarse anatomical/native-subcutaneous and generated oral members require their supplied owner qualifications. Any supplied qualification opts into generic source-part intervals, then dedicated adapters join exact member receipts under existing body/face prefixes before serialization. Physical source correspondence remains an independent namespace. Metadata preserves rights/registration and explicit clinical gaps rather than certifying authentic acquisition, patient anatomy or current rendered appearance.
+ *
+ * Inputs remain unchanged. Metadata adapters may mutate the export-local Document before refusing; failure discards this local result rather than publishing partial bytes. Returned binary and resource-bearing JSON are owned by the caller. This function serializes resident data without writing a filesystem file or restoring a raw source asset.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual member populations require their explicit qualification owners, then the shared static geometry/Float32 exporter and same-instance writer carry exact intervals, physical lineage and required optical metadata into both portable containers.
+ * @evidence contracts/common.md#clear-and-simple-design This facade owns qualification presence/order and serialization; geometry packing and atlas/assembly/oral exact joins remain dedicated shared owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing member qualification refuses instead of inferred anatomy from names, and metadata/publication validity is not claimed clinical source authenticity or current GPU proof.
+ * @evidence contracts/common.md#meaningful-documentation Prose states static metre geometry, independent identity namespaces, module-instance constraint, output ownership and failure-local Document mutation.
+ * @evidence contracts/performance.md#efficient-algorithms Presence checks scan P parts; preparation pays actual material/group/mesh/image/topology costs, qualification adapters pay member/accessor checks, and binary plus JSON writing each traverses actual Document/resource populations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both containers share one prepared/qualified Document and registered extension set; resident texture reuse remains with the geometry owner and exports are not cached across mutable models.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Document/writer and preparation maps are call-local until async writes finish; returned buffers/JSON retain resources by caller choice, with no ongoing source fetch, file handle or exporter cache.
  */
 export async function exportHumanPerson(
   model: IAutoMovieModel,
@@ -40,30 +35,30 @@ export async function exportHumanPerson(
   oral?: IAutoMovieHumanFaceOralExportQualification,
 ): Promise<IAutoMovieHumanGltfExport> {
   if (assembly?.nativeSubcutaneous === undefined &&
-      model.parts.some((part) => part.id.startsWith("body:native-subcutaneous:")))
+      model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => part.id.startsWith("body:native-subcutaneous:")))
     throw new Error("Person native subcutaneous export needs its actual field/exterior/member qualification.");
   if (
     atlas === undefined &&
-    model.parts.some((part) => /^body:anatomical-atlas:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^body:anatomical-atlas:/.test(part.id))
   )
     throw new Error(
       "Person atlas inspection export needs its source rights and reference qualification.",
     );
   if (
     assembly === undefined &&
-    model.parts.some((part) => /^body:anatomical-source:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^body:anatomical-source:/.test(part.id))
   )
     throw new Error(
       "Person coarse anatomical export needs its source rights and shared registration qualification.",
     );
   if (
     oral === undefined &&
-    model.parts.some((part) => /^face:oral:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^face:oral:/.test(part.id))
   )
     throw new Error(
       "Person oral export needs its licensed source and clinical-gap qualification.",
     );
-  const document = createGltfDocument(model, {
+  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(model, {
     sourcePartIdentity:
       atlas !== undefined || assembly !== undefined || oral !== undefined,
   });
@@ -71,8 +66,8 @@ export async function exportHumanPerson(
   if (assembly !== undefined)
     writeHumanBodyAssemblyQualification(document, assembly);
   if (oral !== undefined) writeHumanFaceOralExportQualification(document, oral);
-  const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
-  const glb = await writer.writeBinary(document);
-  const gltf = await writer.writeJSON(document);
+  const writer: WebIO = new WebIO().registerExtensions(gltfMaterialExtensions);
+  const glb: IAutoMovieHumanGltfExport["glb"] = await writer.writeBinary(document);
+  const gltf: IAutoMovieHumanGltfExport["gltf"] = await writer.writeJSON(document);
   return { glb, gltf };
 }

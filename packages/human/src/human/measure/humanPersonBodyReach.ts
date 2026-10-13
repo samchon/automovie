@@ -3,21 +3,17 @@ import type { IAutoMovieHumanPersonBodyReach } from "../structures/IAutoMovieHum
 import type { IAutoMovieHumanPersonGeneration } from "../structures/IAutoMovieHumanPersonGeneration";
 
 /**
- * Read the body domain of a paired head/body evaluator from its real endpoint
- * dependencies. A body channel side supplies its absolute weight to the head's
- * driver of that endpoint, so both supports must contain each trial. Body
- * unavailable endpoints and corrective onsets remain owned by
- * `humanBodyChannelReach`. The original views and their authoring domains stay
- * unchanged; this copied basis is for solves that evaluate the whole person.
+ * Copy a solve-only body basis and intersect channel-side support with its actual head driver. Body channels touching unavailable endpoints are omitted and reported separately; remaining corrective onset/support comes from the body reach owner. Source views and authoring domains stay unchanged.
  *
- * Independent channel intervals apply only when a driven endpoint has one
- * channel-side owner or corrective-only contributions whose summed authored
- * upper bounds fit the head driver. Body corrective factors and normalization
- * never exceed one, so their authored weights bound those contributions.
- * A shared channel/corrective endpoint, repeated channel owner, or a corrective
- * sum requiring a coupled head constraint refuses by endpoint instead of being
- * represented by an invented axis envelope. A missing, non-shape or non-neutral
- * head driver also refuses. No gain is clipped and no endpoint is removed.
+ * Independent intervals admit one channel-side owner or corrective-only authored gains whose sum fits the head's positive support. Repeated channel owners, mixed channel/corrective ownership, unbounded gains and missing/non-shape/non-neutral head drivers refuse instead of inventing an independent envelope. The head positive bound applies to absolute body-side gain; this is not a general coupled-domain or anatomical reach solver.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual endpoint ownership and neutral-containing source ranges determine copied solve intervals and their explicit omission/limit explanations.
+ * @evidence contracts/common.md#clear-and-simple-design Body onset interpretation remains in humanBodyChannelReach; this adapter adds only paired head ownership/support and returns copied channel records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported coupled gain domains refuse rather than clipping runtime gains, silently modifying source endpoints or certifying clinical reach.
+ * @evidence contracts/common.md#meaningful-documentation Prose states unavailable-channel omission, absolute side gains, corrective bounds, source preservation and independent-envelope limits.
+ * @evidence contracts/performance.md#efficient-algorithms Each driver scans head channels, body owners/correctives and copied channels; missing-channel membership is a linear array lookup, so cost follows actual driver/channel populations rather than constant lookup claims.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function derives a fresh solve basis from the supplied source context and owns no cross-call cache; callers may retain the returned basis.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned channels, missing list and limit map scale with source channels; temporary owner/corrective arrays are local and no worker or geometry task is acquired.
  */
 export function humanPersonBodyReach(
   generation: Pick<
@@ -25,18 +21,18 @@ export function humanPersonBodyReach(
     "body" | "face" | "drivers"
   >,
 ): IAutoMovieHumanPersonBodyReach {
-  const { body, face } = generation;
-  const unavailable = new Set(body.unavailableTargets ?? []);
-  const missing = body.channels.filter(
-    (channel) =>
+  const { body, face }: typeof generation = generation;
+  const unavailable: Set<string> = new Set(body.unavailableTargets ?? []);
+  const missing: typeof body.channels = body.channels.filter(
+    (channel: (typeof body.channels)[number]): boolean =>
       unavailable.has(channel.positive) ||
       (channel.negative !== null && unavailable.has(channel.negative)),
   );
-  const limits = new Map<string, string[]>();
-  const channels = body.channels
-    .filter((channel) => !missing.includes(channel))
-    .map((channel) => {
-      const reach = humanBodyChannelReach(body, channel);
+  const limits: Map<string, string[]> = new Map<string, string[]>();
+  const channels: typeof body.channels = body.channels
+    .filter((channel: (typeof body.channels)[number]): boolean => !missing.includes(channel))
+    .map((channel: (typeof body.channels)[number]): (typeof body.channels)[number] => {
+      const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(body, channel);
       if (
         !Number.isFinite(reach.minimum) ||
         !Number.isFinite(reach.maximum) ||
@@ -52,7 +48,7 @@ export function humanPersonBodyReach(
       return { ...channel, minimum: reach.minimum, maximum: reach.maximum };
     });
   for (const driver of generation.drivers ?? []) {
-    const head = face.channels.find((channel) => channel.id === driver.channel);
+    const head: (typeof face.channels)[number] | undefined = face.channels.find((channel: (typeof face.channels)[number]): boolean => channel.id === driver.channel);
     if (
       head === undefined ||
       head.kind !== "shape" ||
@@ -67,17 +63,17 @@ export function humanPersonBodyReach(
           driver.endpoint +
           ".",
       );
-    const owners = body.channels.filter(
-      (channel) =>
+    const owners: typeof body.channels = body.channels.filter(
+      (channel: (typeof body.channels)[number]): boolean =>
         channel.positive === driver.endpoint ||
         channel.negative === driver.endpoint,
     );
-    const correctives = (body.correctives ?? []).filter(
-      (corrective) => corrective.target === driver.endpoint,
+    const correctives: NonNullable<typeof body.correctives> = (body.correctives ?? []).filter(
+      (corrective: NonNullable<typeof body.correctives>[number]): boolean => corrective.target === driver.endpoint,
     );
     if (
       correctives.some(
-        (corrective) =>
+        (corrective: NonNullable<typeof body.correctives>[number]): boolean =>
           !Number.isFinite(corrective.weight) ||
           corrective.weight <= 0 ||
           corrective.weight > 1,
@@ -90,9 +86,9 @@ export function humanPersonBodyReach(
       );
     if (
       owners.length > 1 ||
-      owners.some((channel) => channel.positive === channel.negative) ||
+      owners.some((channel: (typeof body.channels)[number]): boolean => channel.positive === channel.negative) ||
       (owners.length !== 0 && correctives.length !== 0) ||
-      correctives.reduce((sum, corrective) => sum + corrective.weight, 0) >
+      correctives.reduce((sum: number, corrective: NonNullable<typeof body.correctives>[number]): number => sum + corrective.weight, 0) >
         head.maximum
     )
       throw new Error(
@@ -107,16 +103,16 @@ export function humanPersonBodyReach(
           ".",
       );
     for (const channel of channels) {
-      const positive = channel.positive === driver.endpoint;
-      const negative = channel.negative === driver.endpoint;
+      const positive: boolean = channel.positive === driver.endpoint;
+      const negative: boolean = channel.negative === driver.endpoint;
       if (!positive && !negative) continue;
-      const bound = positive
+      const bound: number = positive
         ? Math.min(channel.maximum, head.maximum)
         : Math.max(channel.minimum, -head.maximum);
       if (bound === (positive ? channel.maximum : channel.minimum)) continue;
       if (positive) channel.maximum = bound;
       else channel.minimum = bound;
-      const reasons = limits.get(channel.id) ?? [];
+      const reasons: string[] = limits.get(channel.id) ?? [];
       reasons.push(
         `${positive ? "Above" : "Below"} weight ${bound} the head driver ${driver.channel} of ${driver.endpoint} exceeds its source support [${head.minimum}, ${head.maximum}].`,
       );
