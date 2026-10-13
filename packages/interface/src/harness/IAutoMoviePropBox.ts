@@ -1,18 +1,25 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One axis-aligned model-local volume.
+ * One axis-aligned volume in the prop's model frame, in metres: a declared
+ * footprint, or the base of a clearance box.
  *
- * The engine transforms all eight corners by the prop's full staged TRS
- * (translation, unit quaternion, per-axis scale) and takes the world bounds of
- * the result, so a rotated box widens rather than being silently re-fitted.
+ * `validatePropPlacements` refuses a box whose bounds are not finite with
+ * `min < max` on every axis. The engine carries all eight corners through the
+ * set piece's staged transform (translation, unit rotation and per-axis scale)
+ * and takes the world-axis-aligned bound of the result, so a rotated box widens
+ * rather than being re-fitted.
  *
+ * @evidence contracts/common.md#principled-implementation `transformedBoxBounds` takes the bound of the eight transformed corners, which is the exact world-axis-aligned bound of a box under an affine transform.
+ * @evidence contracts/common.md#clear-and-simple-design Two corners describe the volume, and `IAutoMovieClearanceBox` extends this record with an id, so footprints and clearances share one corner rule and one transform.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A flat, inverted or non-finite box is refused rather than widened by a tolerance or reordered.
+ * @evidence contracts/common.md#meaningful-documentation States the frame and unit, where the box is used, the corner rule and its validator, and how staging transforms it; members give each corner's role and bound.
  * @author Samchon
  */
 export interface IAutoMoviePropBox {
-  /** Local minimum corner. */
+  /** Model-local minimum corner. */
   min: IAutoMovieVector3;
 
-  /** Local maximum corner, strictly greater on every axis. */
+  /** Model-local maximum corner, strictly greater on every axis. */
   max: IAutoMovieVector3;
 }
