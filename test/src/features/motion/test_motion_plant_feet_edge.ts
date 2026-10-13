@@ -1,26 +1,29 @@
-import { plantStanceFeet, resolvePose, sampleMotion } from "@automovie/engine";
+import { plantStanceFeet, resolvePose, sampleMotion, IAutoMovieFootLeg } from "@automovie/engine";
 import {
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  AutoMovieHumanoidBone,
+  IAutoMovieKeyframe,
+  IAutoMovieJointPose,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const LEG = {
+const LEG: IAutoMovieFootLeg = {
   foot: "leftFoot",
   upper: "leftUpperLeg",
   lower: "leftLowerLeg",
-} as const;
+};
 
-const staticMotion = (skeletonId: string, travelX = 0): IAutoMovieMotion => ({
+const staticMotion: (skeletonId: string, travelX?: number) => IAutoMovieMotion = (skeletonId: string, travelX: number = 0): IAutoMovieMotion => ({
   id: "m",
   skeleton: skeletonId,
   duration: 1,
@@ -43,7 +46,7 @@ const staticMotion = (skeletonId: string, travelX = 0): IAutoMovieMotion => ({
   ],
 });
 
-const bone = (name: string, parent: string | null, rest: IAutoMovieTransform) =>
+const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieSkeleton [ "bones" ] [ number ] = (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform): IAutoMovieSkeleton["bones"][number] =>
   ({
     bone: name,
     parent,
@@ -149,8 +152,14 @@ const indirectLeg: IAutoMovieSkeleton = {
  * 6. A lower/effector branch separated from the declared upper is likewise left
  *    untouched, while a valid indirect descendant chain is still solved.
  * 7. A non-positive sample rate throws.
+ * 8. Nonfinite/negative tolerance, scalar ground, callback height and carried opening-target coordinates refuse; zero tolerance on an actual ground contact remains valid.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises planting through absent/degenerate/branched and valid indirect chains, then observes finite unreachable correction and exact input refusals; malformed contact fields cannot silently suppress detection or inject NaN targets.
+ * @evidence contracts/testing.md#independent-expectations Declared hierarchy determines whether upper→lower→foot is descendant-connected, and explicit zero-length offsets determine degeneracy independently; finite-coordinate and nonnegative-tolerance domains require refusal, while a zero-height foot at tolerance0 is contact.
+ * @evidence contracts/testing.md#distinguishing-cases Missing/zero/folded/unreachable/branched/split/indirect chains, sample-rate boundary and static/dynamic/contact-target invalid numbers distinguish non-destructive best effort from malformed numeric input; exact achievable pin and swing trajectories belong to planting suites.
+ * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_plant_feet_edge; this export owns the directly invoked numeric cases and requires no Human inspection, renderer or native artifact.
  */
-export const test_motion_plant_feet_edge = (): void => {
+export function test_motion_plant_feet_edge(): void {
   TestValidator.equals(
     "absent leg segments: run detected, leg untouched",
     plantStanceFeet({
@@ -179,26 +188,26 @@ export const test_motion_plant_feet_edge = (): void => {
     1,
   );
 
-  const far = plantStanceFeet({
+  const far: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: reachLeg,
     motion: staticMotion("reach", 0.5),
     legs: [LEG],
     sampleRate: 8,
   });
-  const foot = resolvePose(sampleMotion(far.motion, 1).pose, reachLeg).find(
-    (b) => b.bone === "leftFoot",
+  const foot: ReturnType<typeof resolvePose>[number]["worldPosition"] = resolvePose(sampleMotion(far.motion, 1).pose, reachLeg).find(
+    (b: ReturnType<typeof resolvePose>[number]) : boolean => b.bone === "leftFoot",
   )!.worldPosition;
   TestValidator.equals(
     "unreachable pin extends the leg without NaN",
     namedFacts([
-      ["isFiniteFootX", () => Number.isFinite(foot.x)],
-      ["isFiniteFootY", () => Number.isFinite(foot.y)],
-      ["isFiniteFootZ", () => Number.isFinite(foot.z)],
+      ["isFiniteFootX", () : boolean => Number.isFinite(foot.x)],
+      ["isFiniteFootY", () : boolean => Number.isFinite(foot.y)],
+      ["isFiniteFootZ", () : boolean => Number.isFinite(foot.z)],
     ]),
     { isFiniteFootX: true, isFiniteFootY: true, isFiniteFootZ: true },
   );
 
-  const branched = plantStanceFeet({
+  const branched: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: branchedLeg,
     motion: staticMotion("branched-leg", 0.25),
     legs: [LEG],
@@ -207,27 +216,27 @@ export const test_motion_plant_feet_edge = (): void => {
   TestValidator.equals(
     "branched pseudo-chain stays unchanged",
     namedFacts([
-      ["branchedPlantsLength", () => branched.plants.length === 1],
+      ["branchedPlantsLength", () : boolean => branched.plants.length === 1],
       [
         "branchedMotionKeyframes",
-        () =>
+        () : boolean =>
           branched.plants.length === 1 &&
-          branched.motion.keyframes.every((keyframe) =>
+          branched.motion.keyframes.every((keyframe: IAutoMovieKeyframe) : boolean =>
             keyframe.pose.joints.every(
-              (joint) => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
+              (joint: IAutoMovieJointPose) : boolean => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
             ),
           ),
       ],
     ]),
     { branchedPlantsLength: true, branchedMotionKeyframes: true },
   );
-  const split = plantStanceFeet({
+  const split: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: splitLeg,
     motion: staticMotion("split-leg", 0.25),
     legs: [LEG],
     sampleRate: 8,
   });
-  const indirect = plantStanceFeet({
+  const indirect: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: indirectLeg,
     motion: staticMotion("indirect-leg", 0.25),
     legs: [LEG],
@@ -236,23 +245,23 @@ export const test_motion_plant_feet_edge = (): void => {
   TestValidator.equals(
     "both ancestry edges are enforced without rejecting indirect descendants",
     namedFacts([
-      ["splitPlants", () => split.plants.length === 1],
+      ["splitPlants", () : boolean => split.plants.length === 1],
       [
         "splitMotionKeyframes",
-        () =>
-          split.motion.keyframes.every((keyframe) =>
+        () : boolean =>
+          split.motion.keyframes.every((keyframe: IAutoMovieKeyframe) : boolean =>
             keyframe.pose.joints.every(
-              (joint) => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
+              (joint: IAutoMovieJointPose) : boolean => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
             ),
           ),
       ],
-      ["indirectPlants", () => indirect.plants.length === 1],
+      ["indirectPlants", () : boolean => indirect.plants.length === 1],
       [
         "indirectMotionKeyframes",
-        () =>
-          indirect.motion.keyframes.some((keyframe) =>
+        () : boolean =>
+          indirect.motion.keyframes.some((keyframe: IAutoMovieKeyframe) : boolean =>
             keyframe.pose.joints.some(
-              (joint) => joint.bone === LEG.upper || joint.bone === LEG.lower,
+              (joint: IAutoMovieJointPose) : boolean => joint.bone === LEG.upper || joint.bone === LEG.lower,
             ),
           ),
       ],
@@ -267,7 +276,7 @@ export const test_motion_plant_feet_edge = (): void => {
 
   TestValidator.predicate(
     "non-positive sample rate throws",
-    throwsError(() =>
+    throwsError(() : ReturnType<typeof plantStanceFeet> =>
       plantStanceFeet({
         skeleton: reachLeg,
         motion: staticMotion("reach"),
@@ -275,4 +284,11 @@ export const test_motion_plant_feet_edge = (): void => {
       }),
     ),
   );
-};
+  for (const tolerance of [-0.01, Number.NaN, Number.POSITIVE_INFINITY])
+    TestValidator.predicate("invalid tolerance cannot hide stance", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], tolerance }), "finite and non-negative"));
+  for (const groundY of [Number.NaN, Number.NEGATIVE_INFINITY])
+    TestValidator.predicate("nonfinite scalar ground refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], groundY }), "ground height must be finite"));
+  TestValidator.predicate("nonfinite sampled ground refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], groundY: (): number => Number.NaN }), "contact ground height"));
+  TestValidator.predicate("nonfinite opening pin refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], openingPlants: [{ foot: LEG.foot, position: { x: 0, y: Number.NaN, z: 0 } }] }), "stance target"));
+  TestValidator.equals("zero tolerance retains exact ground contact", plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], tolerance: 0 }).plants.length, 1);
+}

@@ -1,10 +1,14 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieMotion,
+  IAutoMovieKeyframe,
   IAutoMovieSkeleton,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
@@ -18,70 +22,62 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { sampleMotion } from "./sampleMotion";
 import { sampleTimes } from "./sampleTimes";
 
-const DEFAULT_SAMPLE_RATE = 24;
+const DEFAULT_SAMPLE_RATE: number = 24;
 
-const DEFAULT_GROUND_Y = 0;
+const DEFAULT_GROUND_Y: number = 0;
 
-const DEFAULT_TOLERANCE = 0.02;
+const DEFAULT_TOLERANCE: number = 0.02;
+
 
 /**
  * The humanoid legs, named from the shared chain table so the ground-IK pass
  * and the retarget contact pass cannot disagree about which bones a leg is.
  */
 const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
-  (chain) => ({
+  (chain: (typeof HUMANOID_LEG_CHAINS)[number]): IAutoMovieFootLeg => ({
     foot: chain.effector,
     upper: chain.upper,
     lower: chain.lower,
   }),
 );
 
+
 /**
- * The deterministic ground-IK pass: plant each leg's stance foot so a baked
- * gait no longer skates or sinks. It samples the motion on a fixed clock,
- * detects each foot's **stance runs** (frames where the foot is at or below the
- * ground plane, mirroring {@link validateGroundContact}'s `y <= groundY +
- * tolerance`), pins the foot's world XZ to its stance-start contact, with `y`
- * snapped to the ground plane, across the whole run, and re-solves the leg
- * (thigh/shin via {@link solveTwoBoneIK}, ankle toward the pinned target) so the
- * foot holds still while the hip travels over it. The correction is lowered
- * into the leg's bone-local clinical angles the way {@link reachPose} lowers an
- * arm, rooted at the **current posed hip** (not rest) so it composes on top of
- * the gait's root travel and torso motion. An unreachable pin extends the leg
- * fully toward it (foot stops on the reachable shell) rather than producing
- * NaN.
+ * Sample admitted motion on a fixed clock, detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable/constrained pins retain the best allowed pose and may leave residual; the result does not guarantee exact no-skate contact. Opening plants resume authoritative targets only for opening stance.
  *
- * The corrected clip is re-keyed densely at the pass sample rate; sampled at
- * those times a stance foot's world XZ is constant, so it passes
- * {@link validateFootSkate} and {@link validateGroundContact} where the raw gait
- * failed. Swing frames and non-leg joints are carried through unchanged.
- * Imported or non-canonical rigs pass the same `jointAxes` and `restFrames`
- * used for playback: stance detection, IK decomposition, ROM clamping, and
- * residual FK then share one clinical contract.
- *
- * Ground is a scalar plane or a `(x, z) → y` source. Plug a space in via
- * {@link spaceGround} (#605). Path/turning locomotion is #599; the shared
- * two-bone lowering could be factored out of {@link reachPose} (follow-up).
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Shares one unchanged skeleton topology across detection and re-keying, uses inclusive ground+tolerance masks and maximal-run pins, then scores ROM-clamped chain FK through fitChainToTarget. Sample times include clip endpoints; ground/tolerance inputs are finite and tolerance nonnegative.
+ * @evidence contracts/common.md#clear-and-simple-design The coordinator separates dense sampling, run pinning, chain correction and result assembly through existing single-purpose helpers, all using identical topology and clinical axes/rest frames.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid sample rate, scalar ground or tolerance and nonfinite sampled/carried targets throw; absent/degenerate/unimprovable chains keep articulation rather than inventing contact success. Default legs and zero ground are explicit API defaults.
+ * @evidence contracts/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
+ * @evidence contracts/performance.md#efficient-algorithms F samples require motion interpolation and O(FB) FK for B bones, then O(FL) stance work and bounded solves for pinned legs L; topology is built once and reused across all detection/correction frames.
+ * @evidence contracts/performance.md#reuse-equivalent-work Completed sampled poses/FK maps feed run detection directly; one topology and each run's fixed target are reused while changing parent poses still need per-frame chain preparation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned dense frames and plants belong to the caller; sample/FK/target arrays are call-local, bounded by frame/leg/bone populations, and no renderer/native handles or continuing tasks are retained.
  */
-export const plantStanceFeet = (props: {
+export const plantStanceFeet: (props: { /** Rig for forward kinematics. */ skeleton : IAutoMovieSkeleton ; /** The humanoid gait/motion to correct. */ motion : IAutoMovieMotion ; /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */ groundY ? : number | ( ( x : number , z : number ) => number ) ; /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */ tolerance ? : number ; /** Legs to plant. Defaults to both humanoid legs. */ legs ? : readonly IAutoMovieFootLeg [ ] ; /** Optional clinical-axis remap used consistently by detection and IK. */ jointAxes ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Optional clinical rest frames used consistently by detection and IK. */ restFrames ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Samples/second for detection and re-keying. Defaults to `24`. */ sampleRate ? : number ; /** Prior beat plants expressed in this motion's model frame. When a detected stance begins at the opening sample, its first pin resumes this authoritative position instead of deriving a nearby replacement. */ openingPlants ? : ReadonlyArray < Pick < IAutoMovieFootPlant , "foot" | "position" > > ; }) => IAutoMoviePlantedFeet = (props: {
   /** Rig for forward kinematics. */
   skeleton: IAutoMovieSkeleton;
+
   /** The humanoid gait/motion to correct. */
   motion: IAutoMovieMotion;
+
   /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */
   groundY?: number | ((x: number, z: number) => number);
+
   /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */
   tolerance?: number;
+
   /** Legs to plant. Defaults to both humanoid legs. */
   legs?: readonly IAutoMovieFootLeg[];
+
   /** Optional clinical-axis remap used consistently by detection and IK. */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+
   /** Optional clinical rest frames used consistently by detection and IK. */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+
   /** Samples/second for detection and re-keying. Defaults to `24`. */
   sampleRate?: number;
+
   /**
    * Prior beat plants expressed in this motion's model frame.
    *
@@ -90,41 +86,47 @@ export const plantStanceFeet = (props: {
    */
   openingPlants?: ReadonlyArray<Pick<IAutoMovieFootPlant, "foot" | "position">>;
 }): IAutoMoviePlantedFeet => {
-  const groundAt = groundFunction(props.groundY ?? DEFAULT_GROUND_Y);
-  const tolerance = props.tolerance ?? DEFAULT_TOLERANCE;
-  const legs = props.legs ?? DEFAULT_LEGS;
-  const sampleRate = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
+  const groundAt: ReturnType<typeof groundFunction> = groundFunction(props.groundY ?? DEFAULT_GROUND_Y);
+  const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
+  const legs: readonly IAutoMovieFootLeg[] = props.legs ?? DEFAULT_LEGS;
+  const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
+  if (!Number.isFinite(tolerance) || tolerance < 0)
+    throw new Error("contact tolerance must be finite and non-negative");
+  if (typeof props.groundY === "number" && !Number.isFinite(props.groundY))
+    throw new Error("source ground height must be finite");
   if (!Number.isFinite(sampleRate) || sampleRate <= 0)
     throw new Error(
       `sampleRate must be a finite number > 0, but was ${sampleRate}`,
     );
 
-  const times = sampleTimes(props.motion.duration, sampleRate);
-  const poses = times.map((time) => sampleMotion(props.motion, time));
-  const resolved = poses.map((sampled) =>
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
+  const times: number[] = sampleTimes(props.motion.duration, sampleRate);
+  const poses: ReturnType<typeof sampleMotion>[] = times.map((time: number): ReturnType<typeof sampleMotion> => sampleMotion(props.motion, time));
+  const resolved: ReturnType<typeof resolveBoneMap>[] = poses.map((sampled: ReturnType<typeof sampleMotion>): ReturnType<typeof resolveBoneMap> =>
     resolveBoneMap(
       props.skeleton,
       sampled.pose,
-      undefined,
+      topology,
       props.jointAxes,
       props.restFrames,
     ),
   );
 
   // A stance run per leg pinned to its start contact; per-frame solve targets.
-  const { plants, targets } = pinStanceTargets({
+  const { plants, targets }: ReturnType<typeof pinStanceTargets> = pinStanceTargets({
     legs,
     resolved,
     times,
     groundAt,
     tolerance,
     openingTargets: new Map(
-      (props.openingPlants ?? []).map((plant) => [plant.foot, plant.position]),
+      (props.openingPlants ?? []).map((plant: Pick<IAutoMovieFootPlant, "foot" | "position">): [AutoMovieHumanoidBone, IAutoMovieVector3] => [plant.foot, plant.position]),
     ),
   });
 
-  const keyframes = rekeyPlantedFeet({
+  const keyframes: IAutoMovieKeyframe[] = rekeyPlantedFeet({
     skeleton: props.skeleton,
+    topology,
     times,
     poses,
     legs,

@@ -3,12 +3,13 @@ import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieVector3,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
 
-const kf = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "s", root: null, joints: [] },
   expression: null,
@@ -32,8 +33,8 @@ const L_PATH: IAutoMovieVector3[] = [
   { x: 2, y: 0, z: 2 },
 ];
 
-const rootAt = (motion: IAutoMovieMotion, time: number) =>
-  motion.keyframes.find((k) => nclose(k.time, time))!.pose.root!;
+const rootAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieTransform = (motion: IAutoMovieMotion, time: number): IAutoMovieTransform =>
+  motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time))!.pose.root!;
 
 /**
  * FollowPathMotion bakes a gait along a waypoint polyline: the root follows arc
@@ -57,9 +58,16 @@ const rootAt = (motion: IAutoMovieMotion, time: number) =>
  *    the earlier stretch), already 0° just past it.
  * 5. The report is exact: length 4, cycles 4, effective speed 1, and the
  *    non-looping clip spans 4 s with the seam keyframes deduplicated.
+ * 6. Model-frame sway rotates with path heading and seam easing comes from the incoming cycle.
+ * 7. Mutating a default output scale cannot change another frame or the next path bake.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Bakes L-shaped and straight paths and observes exact root points, yaw/tangents, cycle/clock metadata, seam easing and default-scale ownership; catches wrong segment ties, sway frame and module state exposure.
+ * @evidence contracts/testing.md#independent-expectations A four-metre L at snapped1m/s determines positions and four cycles; a one-metre corner window linearly blends90to0degrees giving45atcentre/22.5threequarters, and +Y90 maps model+x sway to world-z.
+ * @evidence contracts/testing.md#distinguishing-cases Straight stretches, exact corner, both corner-window sides, zero-window earlier-boundary tie, null and swaying roots, seam deduplication and output mutation distinguish unchanged meaning from altered placement; invalid/overflow input belongs to path_guards.
+ * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_path_locomotion; the export owns numeric bake cases and uses no renderer, Human inspection host or native artifact.
  */
-export const test_motion_path_locomotion = (): void => {
-  const path = followPathMotion({
+export function test_motion_path_locomotion(): void {
+  const path: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-L",
     gait,
     waypoints: L_PATH,
@@ -84,8 +92,8 @@ export const test_motion_path_locomotion = (): void => {
     vclose(rootAt(path.motion, 4).translation, { x: 2, y: 0, z: 2 }),
   );
 
-  const yawOf = (time: number) =>
-    path.frames.find((f) => nclose(f.time, time))!.yawDeg;
+  const yawOf: (time: number) => number = (time: number) : number =>
+    path.frames.find((f: ReturnType<typeof followPathMotion>["frames"][number]) : boolean => nclose(f.time, time))!.yawDeg;
   TestValidator.predicate("yaw 90 mid stretch", nclose(yawOf(1), 90));
   TestValidator.predicate("yaw 45 at the corner", nclose(yawOf(2), 45));
   TestValidator.predicate("yaw 22.5 at s=2.25", nclose(yawOf(2.25), 22.5));
@@ -98,7 +106,7 @@ export const test_motion_path_locomotion = (): void => {
     ),
   );
 
-  const corner = path.frames.find((f) => nclose(f.time, 2))!;
+  const corner: ReturnType<typeof followPathMotion>["frames"][number] = path.frames.find((f: ReturnType<typeof followPathMotion>["frames"][number]) : boolean => nclose(f.time, 2))!;
   TestValidator.predicate(
     "frame carries the path point",
     vclose(corner.position, { x: 2, y: 0, z: 0 }),
@@ -117,15 +125,15 @@ export const test_motion_path_locomotion = (): void => {
     path.motion.keyframes.length,
   );
 
-  const snap = followPathMotion({
+  const snap: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-snap",
     gait,
     waypoints: L_PATH,
     speed: 1,
     turnWindow: 0,
   });
-  const snapYaw = (time: number) =>
-    snap.frames.find((f) => nclose(f.time, time))!.yawDeg;
+  const snapYaw: (time: number) => number = (time: number) : number =>
+    snap.frames.find((f: ReturnType<typeof followPathMotion>["frames"][number]) : boolean => nclose(f.time, time))!.yawDeg;
   TestValidator.predicate(
     "snap keeps 90 at the boundary",
     nclose(snapYaw(2), 90),
@@ -145,7 +153,7 @@ export const test_motion_path_locomotion = (): void => {
 
   // 6. a model-frame lateral sway rotates with the path facing, and the seam
   //    keyframe carries the incoming cycle's first-segment easing
-  const swayRoot = {
+  const swayRoot: IAutoMovieTransform = {
     translation: { x: 0.1, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
@@ -168,7 +176,7 @@ export const test_motion_path_locomotion = (): void => {
       },
     ],
   };
-  const straight = followPathMotion({
+  const straight: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "sway-straight",
     gait: sway,
     waypoints: [
@@ -184,18 +192,22 @@ export const test_motion_path_locomotion = (): void => {
     namedFacts([
       [
         "ncloseRootAtStraight",
-        () => nclose(rootAt(straight.motion, 1).translation.z, -0.1),
+        () : boolean => nclose(rootAt(straight.motion, 1).translation.z, -0.1),
       ],
       [
         "ncloseRootAtStraight2",
-        () => nclose(rootAt(straight.motion, 1).translation.x, 1),
+        () : boolean => nclose(rootAt(straight.motion, 1).translation.x, 1),
       ],
     ]),
     { ncloseRootAtStraight: true, ncloseRootAtStraight2: true },
   );
   TestValidator.equals(
     "path seam carries the incoming cycle's easing",
-    straight.motion.keyframes.find((k) => nclose(k.time, 1))!.easing,
+    straight.motion.keyframes.find((k: IAutoMovieKeyframe) : boolean => nclose(k.time, 1))!.easing,
     "easeIn",
   );
-};
+  path.motion.keyframes[0]!.pose.root!.scale.x = 5;
+  const independent: ReturnType<typeof followPathMotion> = followPathMotion({ id: "independent", gait, waypoints: L_PATH, speed: 1 });
+  TestValidator.predicate("fallback scale is owned by each output", (): boolean =>
+    nclose(path.motion.keyframes[1]!.pose.root!.scale.x, 1) && independent.motion.keyframes.every((frame: IAutoMovieKeyframe): boolean => nclose(frame.pose.root!.scale.x, 1)));
+}

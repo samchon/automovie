@@ -16,13 +16,16 @@ import { groundFunction } from "../space/groundFunction";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
+import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";
 
+
 /** Contact tolerance above the source ground counted as a planted contact. */
-const DEFAULT_TOLERANCE = 0.02;
+const DEFAULT_TOLERANCE: number = 0.02;
+
 
 /**
  * Drift below this, in target model units, is floating-point residue rather
@@ -33,102 +36,91 @@ const DEFAULT_TOLERANCE = 0.02;
  * untouched. That is what makes contact preservation a mathematical no-op on a
  * proportional rig, and why it is safe to leave on by default.
  */
-const NOOP_EPSILON = 1e-9;
+const NOOP_EPSILON: number = 1e-9;
+
 
 /** A chain plus the frames on which its contact must be preserved. */
 interface IAutoMovieContactWindow {
   chain: IAutoMoviePlantChain;
+
   /** `null` detects stance against the ground; a span declares it. */
   window: { start: number; end: number } | null;
 }
 
 /**
- * The contact-preserving stage of {@link retargetHumanoidMotion}.
+ * Correct a root-scaled retarget clip at its existing authored key times using each source frame's foot/declared hand contact mapped by rootScale. Source slides persist; ROM-limited residuals above tolerance*rootScale are collector warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs have passed retarget admission and parallel source/target key times agree.
  *
- * V1 copied clinical joint angles verbatim and scaled only the root path, which
- * is exact for a proportional rig and wrong for any other: a target whose legs
- * are relatively longer plants its foot somewhere else entirely, and the clip
- * skates. This pass closes that gap without abandoning the clinical-angle
- * contract.
- *
- * For every existing keyframe it FK-resolves the clip on the **source** rig,
- * decides which effectors are in contact (feet via the shared
- * {@link contactMask} ground predicate, hands via the caller's declared
- * windows), maps each contact position into target space by the **same
- * `rootScale` the root path uses** (so the contact and the root stay one
- * consistent frame) and re-solves the target limb onto it with the shared
- * two-bone lowering. The pin is the source effector's position on **that**
- * frame rather than the stance run's first frame: retargeting reproduces the
- * source performance, including a slide the source itself authored;
- * {@link plantStanceFeet} is the pass that removes skate.
- *
- * Three properties make it safe to leave on by default:
- *
- * - **Proportional rigs are untouched.** A frame whose effector already sits on
- *   its mapped contact within {@link NOOP_EPSILON} is skipped outright, so a
- *   uniform scale changes not one angle.
- * - **Keyframes are preserved.** The clip is corrected in place at its authored
- *   times; nothing is re-keyed onto a fixed clock.
- * - **ROM binds the correction.** The IK result is derived data, not authored
- *   intent, so it is clamped into the target's ROM
- *   ({@link clampJointToSkeleton}) instead of being allowed to fail the
- *   retarget. When the clamped chain then cannot hold the contact, the residual
- *   is a `warning`, residual slide is implausible, not impossible.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Finds chains root-reachable on both rigs, FK-resolves source frames under source clinical tables, classifies foot stance or inclusive hand windows, and fits target chains to per-frame scaled source points under target ROM. A 1e-9 drift no-op preserves proportional rigs, and prior corrected pose breaks equal-residual bend ties.
+ * @evidence contracts/common.md#clear-and-simple-design This stage owns source-contact mapping and worst-per-effector residual reporting; contactMask and fitChainToTarget own classification and constrained candidate choice, with rig topology built once per side.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolved chains are skipped whole, proportional already-on-pin frames keep authored articulation, and impossible residual remains warning data rather than fabricated success or a hidden target offset.
+ * @evidence contracts/common.md#meaningful-documentation States authored-key correction, per-frame source slide preservation, rootScale mapping, warning budget, parallel-clock/admission premises and dynamic ground failure boundary.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames and B bones, source FK costs O(FB); H admitted chains add O(FH) masks/pins and bounded target fitting, with fixed-size worst-per-effector records instead of one warning per frame.
+ * @evidence contracts/performance.md#reuse-equivalent-work Source and target topology are reused for all frames, source FK maps serve every contact chain, and each frame's target FK is refreshed only after an accepted pose correction.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary source maps/pins and corrected keyframes scale with F and admitted chains; the returned clip owns its new keyframe array, unchanged records may be shared, collector warnings belong to the caller, and no resource handles persist.
  */
-export const preserveRetargetContacts = (props: {
+export const preserveRetargetContacts: (props: { /** Rig the clip was authored on. */ source : IAutoMovieSkeleton ; /** Rig the clip now plays on. */ target : IAutoMovieSkeleton ; /** The authored clip, read for source-space contact detection. */ sourceMotion : IAutoMovieMotion ; /** The root-scaled clip this pass corrects. */ retargeted : IAutoMovieMotion ; /** Root translation multiplier the contacts are mapped through. */ rootScale : number ; /** Lowest world Y of the source rest pose; the default ground plane. */ sourceFloor : number ; /** Source clinical axes. */ sourceJointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Source clinical rest frames. */ sourceRestFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Target clinical axes. */ targetJointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Target clinical rest frames. */ targetRestFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Caller policy; omitted means humanoid legs and no hand contact. */ contacts : IAutoMovieRetargetContactProps | undefined ; /** Sink the residual-slide warnings are reported on. */ collector : ViolationCollector ; }) => IAutoMovieMotion = (props: {
   /** Rig the clip was authored on. */
   source: IAutoMovieSkeleton;
+
 
   /** Rig the clip now plays on. */
   target: IAutoMovieSkeleton;
 
+
   /** The authored clip, read for source-space contact detection. */
   sourceMotion: IAutoMovieMotion;
+
 
   /** The root-scaled clip this pass corrects. */
   retargeted: IAutoMovieMotion;
 
+
   /** Root translation multiplier the contacts are mapped through. */
   rootScale: number;
+
 
   /** Lowest world Y of the source rest pose; the default ground plane. */
   sourceFloor: number;
 
+
   /** Source clinical axes. */
   sourceJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+
 
   /** Source clinical rest frames. */
   sourceRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 
+
   /** Target clinical axes. */
   targetJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+
 
   /** Target clinical rest frames. */
   targetRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 
+
   /** Caller policy; omitted means humanoid legs and no hand contact. */
   contacts: IAutoMovieRetargetContactProps | undefined;
+
 
   /** Sink the residual-slide warnings are reported on. */
   collector: ViolationCollector;
 }): IAutoMovieMotion => {
-  const contacts = props.contacts ?? {};
-  const groundAt = groundFunction(contacts.groundY ?? props.sourceFloor);
-  const tolerance = contacts.tolerance ?? DEFAULT_TOLERANCE;
+  const contacts: IAutoMovieRetargetContactProps = props.contacts ?? {};
+  const groundAt: ReturnType<typeof groundFunction> = groundFunction(contacts.groundY ?? props.sourceFloor);
+  const tolerance: number = contacts.tolerance ?? DEFAULT_TOLERANCE;
 
-  const sourceTopology = indexSkeletonTopology(props.source);
-  const targetTopology = indexSkeletonTopology(props.target);
-  const sourceBones = reachableBoneNames(props.source, sourceTopology);
-  const targetBones = reachableBoneNames(props.target, targetTopology);
+  const sourceTopology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(props.source);
+  const targetTopology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(props.target);
+  const sourceBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(props.source, sourceTopology);
+  const targetBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(props.target, targetTopology);
 
   // Only a chain both rigs actually resolve can carry a contact; a rig missing
   // an arm (or a hand contact declared against bones it does not have) is
   // skipped rather than half-solved.
   const windows: IAutoMovieContactWindow[] = [
-    ...HUMANOID_LEG_CHAINS.map((chain) => ({ chain, window: null })),
-    ...(contacts.hands ?? []).map((hand) => ({
+    ...HUMANOID_LEG_CHAINS.map((chain: IAutoMoviePlantChain): IAutoMovieContactWindow => ({ chain, window: null })),
+    ...(contacts.hands ?? []).map((hand: IAutoMovieRetargetHandContact): IAutoMovieContactWindow => ({
       chain: {
         effector: hand.hand,
         upper: hand.upper,
@@ -136,13 +128,13 @@ export const preserveRetargetContacts = (props: {
       },
       window: { start: hand.start, end: hand.end },
     })),
-  ].filter(({ chain }) =>
-    [sourceBones, targetBones].every((bones) => resolvable(chain, bones)),
+  ].filter(({ chain }: IAutoMovieContactWindow): boolean =>
+    [sourceBones, targetBones].every((bones: ReadonlySet<AutoMovieHumanoidBone>): boolean => resolvable(chain, bones)),
   );
   if (windows.length === 0) return props.retargeted;
 
-  const frames = props.retargeted.keyframes;
-  const sourceResolved = props.sourceMotion.keyframes.map((kf) =>
+  const frames: IAutoMovieKeyframe[] = props.retargeted.keyframes;
+  const sourceResolved: ReturnType<typeof resolveBoneMap>[] = props.sourceMotion.keyframes.map((kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
     resolveBoneMap(
       props.source,
       kf.pose,
@@ -153,13 +145,13 @@ export const preserveRetargetContacts = (props: {
   );
 
   // Per-frame contact pins, already mapped into target space.
-  const pins = frames.map(
-    () => new Map<AutoMovieHumanoidBone, IAutoMovieVector3>(),
+  const pins: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> = frames.map(
+    (): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => new Map(),
   );
-  const chains = new Map<AutoMovieHumanoidBone, IAutoMoviePlantChain>();
+  const chains: Map<AutoMovieHumanoidBone, IAutoMoviePlantChain> = new Map();
   for (const { chain, window } of windows) {
     chains.set(chain.effector, chain);
-    const mask =
+    const mask: boolean[] =
       window === null
         ? contactMask({
             effector: chain.effector,
@@ -167,8 +159,8 @@ export const preserveRetargetContacts = (props: {
             groundAt,
             tolerance,
           })
-        : frames.map((kf) => kf.time >= window.start && kf.time <= window.end);
-    mask.forEach((inContact, index) => {
+        : frames.map((kf: IAutoMovieKeyframe): boolean => kf.time >= window.start && kf.time <= window.end);
+    mask.forEach((inContact: boolean, index: number): void => {
       if (inContact === false) return;
       pins[index]!.set(
         chain.effector,
@@ -180,14 +172,14 @@ export const preserveRetargetContacts = (props: {
     });
   }
 
-  const worst = new Map<
+  const worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }> = new Map<
     AutoMovieHumanoidBone,
     { residual: number; index: number }
   >();
   const keyframes: IAutoMovieKeyframe[] = [];
   let referencePose: IAutoMoviePose | undefined;
-  frames.forEach((keyframe, index) => {
-    const corrected = correctFrame({
+  frames.forEach((keyframe: IAutoMovieKeyframe, index: number): void => {
+    const corrected: IAutoMovieKeyframe = correctFrame({
       keyframe,
       index,
       pins: pins[index]!,
@@ -203,7 +195,7 @@ export const preserveRetargetContacts = (props: {
     referencePose = corrected.pose;
   });
 
-  const budget = tolerance * props.rootScale;
+  const budget: number = tolerance * props.rootScale;
   for (const [effector, entry] of worst)
     if (entry.residual > budget)
       props.collector.warn(
@@ -217,23 +209,27 @@ export const preserveRetargetContacts = (props: {
   return { ...props.retargeted, keyframes };
 };
 
+
 /** Every bone of the chain resolves on the rig's FK walk. */
-const resolvable = (
+const resolvable: (chain: IAutoMoviePlantChain, bones: ReadonlySet < AutoMovieHumanoidBone >) => boolean = (
   chain: IAutoMoviePlantChain,
   bones: ReadonlySet<AutoMovieHumanoidBone>,
 ): boolean =>
-  [chain.effector, chain.upper, chain.lower].every((bone) => bones.has(bone));
+  [chain.effector, chain.upper, chain.lower].every((bone: AutoMovieHumanoidBone): boolean => bones.has(bone));
+
 
 /**
  * Re-solve one keyframe's pinned limbs and record each effector's worst
  * residual. A limb already on its pin, or one whose chain is geometrically
  * degenerate, is left exactly as authored.
  */
-const correctFrame = (props: {
+const correctFrame: (props: { keyframe : IAutoMovieKeyframe ; index : number ; pins : ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieVector3 > ; chains : ReadonlyMap < AutoMovieHumanoidBone , IAutoMoviePlantChain > ; /** Rig whose unchanged topology and ROM constrain correction. */ skeleton : IAutoMovieSkeleton ; topology : ReturnType < typeof indexSkeletonTopology > ; jointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; restFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; worst : Map < AutoMovieHumanoidBone , { residual : number ; index : number } > ; referencePose ? : IAutoMoviePose ; }) => IAutoMovieKeyframe = (props: {
   keyframe: IAutoMovieKeyframe;
   index: number;
   pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
   chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
+
+  /** Rig whose unchanged topology and ROM constrain correction. */
   skeleton: IAutoMovieSkeleton;
   topology: ReturnType<typeof indexSkeletonTopology>;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
@@ -243,7 +239,7 @@ const correctFrame = (props: {
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
 
-  const resolve = (pose: IAutoMoviePose): ReturnType<typeof resolveBoneMap> =>
+  const resolve: (pose: IAutoMoviePose) => ReturnType < typeof resolveBoneMap > = (pose: IAutoMoviePose): ReturnType<typeof resolveBoneMap> =>
     resolveBoneMap(
       props.skeleton,
       pose,
@@ -253,12 +249,12 @@ const correctFrame = (props: {
     );
 
   let pose: IAutoMoviePose = props.keyframe.pose;
-  let resolved = resolve(pose);
+  let resolved: ReturnType<typeof resolve> = resolve(pose);
   for (const [effector, target] of props.pins) {
-    const current = resolved.get(effector)!.worldPosition;
+    const current: IAutoMovieVector3 = resolved.get(effector)!.worldPosition;
     if (drift(current, target) <= NOOP_EPSILON) continue;
-    const chain = props.chains.get(effector)!;
-    const fitted = fitChainToTarget({
+    const chain: IAutoMoviePlantChain = props.chains.get(effector)!;
+    const fitted: IAutoMoviePose = fitChainToTarget({
       skeleton: props.skeleton,
       pose,
       chain,
@@ -274,8 +270,8 @@ const correctFrame = (props: {
   }
 
   for (const [effector, target] of props.pins) {
-    const residual = drift(resolved.get(effector)!.worldPosition, target);
-    const prior = props.worst.get(effector);
+    const residual: number = drift(resolved.get(effector)!.worldPosition, target);
+    const prior: { residual: number; index: number } | undefined = props.worst.get(effector);
     if (prior === undefined || residual > prior.residual)
       props.worst.set(effector, { residual, index: props.index });
   }
@@ -285,9 +281,11 @@ const correctFrame = (props: {
     : { ...props.keyframe, pose };
 };
 
+
 /** Distance between a resolved effector and the contact it must hold. */
-const drift = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
   Vector3.length(Vector3.subtract(a, b));
 
+
 /** Six-decimal rounding so a warning message stays readable and stable. */
-const round = (value: number): number => Math.round(value * 1e6) / 1e6;
+const round: (value: number) => number = (value: number): number => Math.round(value * 1e6) / 1e6;

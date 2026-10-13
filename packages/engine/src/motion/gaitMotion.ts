@@ -16,15 +16,16 @@ const IDENTITY_ROOT: Pick<IAutoMovieTransform, "rotation" | "scale"> = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-/** Wrap a cycle position into `[0, 1)`. */
-const wrap01 = (x: number): number => positiveModulo(x, 1);
 
-const gaitRoot = (
+/** Wrap a cycle position into `[0, 1)`. */
+const wrap01: (x: number) => number = (x: number): number => positiveModulo(x, 1);
+
+const gaitRoot: (gait: IAutoMovieGait, time: number) => IAutoMovieTransform | null = (
   gait: IAutoMovieGait,
   time: number,
 ): IAutoMovieTransform | null => {
   if (gait.rootBob === undefined) return null;
-  const rootBob = gait.rootBob;
+  const rootBob: NonNullable<IAutoMovieGait["rootBob"]> = gait.rootBob;
   if (!Number.isFinite(rootBob.amplitude))
     throw new Error("gait root bob amplitude must be finite");
   if (!Number.isFinite(rootBob.phase))
@@ -32,26 +33,26 @@ const gaitRoot = (
   if (!Number.isFinite(rootBob.center))
     throw new Error("gait root bob center must be finite");
 
-  const cycle = wrap01(time / gait.period + rootBob.phase);
+  const cycle: number = wrap01(time / gait.period + rootBob.phase);
   return {
     translation: {
       x: 0,
       y: rootBob.center + rootBob.amplitude * Math.sin(cycle * Math.PI * 2),
       z: 0,
     },
-    rotation: IDENTITY_ROOT.rotation,
-    scale: IDENTITY_ROOT.scale,
+    rotation: { ...IDENTITY_ROOT.rotation },
+    scale: { ...IDENTITY_ROOT.scale },
   };
 };
 
-const gaitJoints = (
+const gaitJoints: (limbs: readonly IAutoMovieGaitLimb [ ], time: number, period: number) => IAutoMovieJointPose [ ] = (
   limbs: readonly IAutoMovieGaitLimb[],
   time: number,
   period: number,
 ): IAutoMovieJointPose[] => {
-  const joints = new Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose>();
+  const joints: Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose> = new Map();
   for (const limb of limbs) {
-    let joint = joints.get(limb.bone);
+    let joint: IAutoMovieJointPose | undefined = joints.get(limb.bone);
     if (joint === undefined) {
       joint = {
         bone: limb.bone,
@@ -66,43 +67,35 @@ const gaitJoints = (
   return [...joints.values()];
 };
 
-const assertUniqueGaitAxes = (limbs: readonly IAutoMovieGaitLimb[]): void => {
-  const seen = new Set<string>();
+const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb [ ]) => void = (limbs: readonly IAutoMovieGaitLimb[]): void => {
+  const seen: Set<string> = new Set<string>();
   for (const limb of limbs) {
-    const axis = limb.axis ?? "flexion";
-    const key = `${limb.bone}:${axis}`;
+    const axis: NonNullable<IAutoMovieGaitLimb["axis"]> = limb.axis ?? "flexion";
+    const key: string = `${limb.bone}:${axis}`;
     if (seen.has(key))
       throw new Error(`duplicate gait row for ${limb.bone}.${axis}`);
     seen.add(key);
   }
 };
 
+
 /**
- * Synthesise a **declarative gait** ({@link IAutoMovieGait}) into a looping
- * {@link IAutoMovieMotion}: the engine fattening a creature's characteristic
- * locomotion (per-limb phase / duty / amplitude) into per-frame flexion. The
- * result is an ordinary one-cycle clip (sampled at `samples` even steps, the
- * closing keyframe repeating the first for a seamless loop) that
- * `locomoteMotion` / `travelMotion` can drive across the floor.
+ * Bake one declarative gait cycle into samples+1 evenly timed clinical poses, including a closing copy of cycle phase. Optional phase is seconds into the cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation remains the consumer's responsibility.
  *
- * The same synthesiser produces a human walk, a horse's lateral-sequence walk,
- * a cat's stalk. The difference lives entirely in the gait data, not the code.
- *
- * `phase` slides the whole cycle by that many seconds (#1176): the clip's
- * keyframe at local time `t` samples the gait at `t + phase`, so a beat that
- * opens mid-stride resumes exactly where the previous beat's end-state
- * (`gaitPhase`) left the cycle instead of restarting it, the difference between
- * a continuous walk and a stutter at every cut. The wrapped cycle stays a
- * seamless loop for any constant phase.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Samples the same wrapped phase for all limb rows and optional sinusoidal root bob; bone/axis rows aggregate into one joint per bone, and the closing sample wraps to the same phase for a looping clip.
+ * @evidence contracts/common.md#clear-and-simple-design The synthesizer owns the sample clock, row aggregation and gaitCycle metadata; gaitLimbFlexion owns per-row stance/swing interpolation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects invalid sample count, period, phase, root-bob scalars and duplicate bone/axis rows; all creatures use the same data-driven law rather than name-specific code.
+ * @evidence contracts/common.md#meaningful-documentation States sample population, cycle closure, phase units, clinical output and the remaining rig-ROM gate.
+ * @evidence contracts/performance.md#efficient-algorithms For S sample intervals and L limb rows, synthesis uses O((S+1)L) work and stores O((S+1)B) joints for B distinct bones; per-sample maps combine multiple axes without scanning prior joints.
+ * @evidence contracts/performance.md#reuse-equivalent-work All rows at a frame share its sampleTime and each bone's joint record; identity root values are copied into caller-owned records, while no generated clip is memoized across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned clip owns sampled joints, roots and keyframes including nested rotation/scale; temporary per-frame maps are released, and module identity constants contain no growing population or handles.
  */
-export const gaitMotion = (
+export const gaitMotion: (id: string, skeleton: string, gait: IAutoMovieGait, samples: number, phase?: number) => IAutoMovieMotion = (
   id: string,
   skeleton: string,
   gait: IAutoMovieGait,
   samples: number,
-  phase = 0,
+  phase: number = 0,
 ): IAutoMovieMotion => {
   if (!Number.isInteger(samples))
     throw new Error("gait samples must be a positive integer");
@@ -113,11 +106,11 @@ export const gaitMotion = (
     throw new Error("gait period must be finite and positive");
   if (!Number.isFinite(phase)) throw new Error("gait phase must be finite");
   assertUniqueGaitAxes(gait.limbs);
-  const phaseAt = positiveModulo(phase, gait.period);
+  const phaseAt: number = positiveModulo(phase, gait.period);
   const keyframes: IAutoMovieKeyframe[] = [];
-  for (let i = 0; i <= samples; ++i) {
-    const time = (i / samples) * gait.period;
-    const sampleTime = addPositiveModulo(phaseAt, time, gait.period);
+  for (let i: number = 0; i <= samples; ++i) {
+    const time: number = (i / samples) * gait.period;
+    const sampleTime: number = addPositiveModulo(phaseAt, time, gait.period);
     keyframes.push({
       time,
       pose: {

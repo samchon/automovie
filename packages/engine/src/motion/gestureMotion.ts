@@ -8,7 +8,7 @@ import {
 
 import { AutoMovieGenericGesture } from "./AutoMovieGenericGesture";
 
-const GENERIC = new Set<string>([
+const GENERIC: Set<string> = new Set<string>([
   "bow",
   "nod",
   "shake",
@@ -25,7 +25,7 @@ const GENERIC = new Set<string>([
 // arm gestures are authored in **clinical** space (abduction 0 = arm down, 90 =
 // horizontal, 180 = overhead: the same value raises either arm); the per-side
 // rest-frame remap that fits it to a rig lives in the render, not these angles.
-const j = (
+const j: (bone: AutoMovieHumanoidBone, axes: Partial < Pick < IAutoMovieJointPose , "flexion" | "abduction" | "twist" > >) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
 ): IAutoMovieJointPose => ({
@@ -34,6 +34,7 @@ const j = (
   abduction: axes.abduction ?? null,
   twist: axes.twist ?? null,
 });
+
 
 /**
  * Each generic gesture as a list of `[fraction, joints]` stops over the beat:
@@ -208,6 +209,7 @@ const SHAPES: Record<
   ],
 };
 
+
 /**
  * Both arms thrown up in a V, scaled by `s` (a pump raises them higher). The
  * clinical abduction raises either arm alike, so both sides carry the same
@@ -267,13 +269,14 @@ const JUMP_STOPS: [number, number, number][] = [
   [1, 0, 0], // recover
 ];
 
+
 /** The pose at a jump stop: symmetric leg bend + a root risen to `rootY`. */
 function jumpPose(
   skeleton: string,
   rootY: number,
   legFlex: number,
 ): IAutoMoviePose {
-  const knee = Math.min(legFlex * 1.4, 62);
+  const knee: number = Math.min(legFlex * 1.4, 62);
   return {
     skeleton,
     root: {
@@ -292,21 +295,17 @@ function jumpPose(
 }
 
 /**
- * Synthesise a **postural or whole-body gesture**, the trunk/leg half of the
- * harness `gesture` verb, into a short ROM-safe clip. `bow`/`nod`/`shake`/
- * `crouch` are single-axis trunk/head oscillations, `kick` is a right-leg front
- * snap, `stagger` lurches the trunk off balance and catches it, `wave` raises
- * the right arm and swings the forearm, `celebrate` throws both arms up in a V,
- * `draw` pulls a bow, `throw` whips an overhand throw, and `jump` is a
- * whole-body coil-and-leap carrying root translation. The arm gestures are
- * authored in clinical space (abduction 0 = down, 90 = horizontal, 180 =
- * overhead: the same value raises either arm), read up through the rig's rest
- * frame at render. `strike` (a targeted jab) needs reach content and returns
- * `null` here, left to the richer synthesiser.
+ * Bake a supported generic gesture or jump over the requested duration using engine-authored clinical stops; targeted strike and unknown kinds return null. Angles fit the default humanoid ROM, while custom rig admission belongs to validateMotion. The caller supplies finite positive duration.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Scales fixed gesture stop fractions by duration and emits easeInOut segments; jump additionally carries authored root-height stops. Preset clinical angles are authored motion content, not measurements or target-dependent IK.
+ * @evidence contracts/common.md#clear-and-simple-design Generic shape data and jump stops live with this synthesizer; target-dependent strike stays at the reach-based action owner because this API has no target or rig geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Gesture names select explicit supported content; unsupported kinds return null rather than a substitute gesture. New output joint arrays/records isolate callers from the private preset tables.
+ * @evidence contracts/common.md#meaningful-documentation States supported/unsupported scope, clinical/default-ROM meaning, caller-owned duration admission and the independent output records.
+ * @evidence contracts/performance.md#efficient-algorithms Work and output scale with the selected shape's authored stops and joints; supported presets have fixed small populations and require no IK, render or time sweep.
+ * @evidence contracts/performance.md#reuse-equivalent-work Private shape tables are reused as read-only authored content, but every emitted joint record is copied so mutating one clip cannot rewrite later calls' presets.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Module preset tables have a fixed population; callers own generated keyframes/poses/joints and no output retains a mutable preset joint or acquires a resource handle.
  */
-export const gestureMotion = (
+export const gestureMotion: (id: string, skeleton: string, kind: string, duration: number) => IAutoMovieMotion | null = (
   id: string,
   skeleton: string,
   kind: string,
@@ -314,7 +313,7 @@ export const gestureMotion = (
 ): IAutoMovieMotion | null => {
   if (kind === "jump") {
     const keyframes: IAutoMovieKeyframe[] = JUMP_STOPS.map(
-      ([fraction, rootY, legFlex]) => ({
+      ([fraction, rootY, legFlex]: [number, number, number]): IAutoMovieKeyframe => ({
         time: fraction * duration,
         pose: jumpPose(skeleton, rootY, legFlex),
         expression: null,
@@ -325,9 +324,13 @@ export const gestureMotion = (
     return { id, skeleton, duration, loop: false, keyframes };
   }
   if (!GENERIC.has(kind)) return null;
-  const shape = SHAPES[kind as AutoMovieGenericGesture];
-  const keyframes: IAutoMovieKeyframe[] = shape.map(([fraction, joints]) => {
-    const pose: IAutoMoviePose = { skeleton, root: null, joints };
+  const shape: [number, IAutoMovieJointPose[]][] = SHAPES[kind as AutoMovieGenericGesture];
+  const keyframes: IAutoMovieKeyframe[] = shape.map(([fraction, joints]: [number, IAutoMovieJointPose[]]): IAutoMovieKeyframe => {
+    const pose: IAutoMoviePose = {
+      skeleton,
+      root: null,
+      joints: joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint })),
+    };
     return {
       time: fraction * duration,
       pose,

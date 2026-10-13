@@ -4,10 +4,11 @@ import { positiveModulo } from "../math/positiveModulo";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-/** Wrap a cycle position into `[0, 1)`. */
-const wrap01 = (x: number): number => positiveModulo(x, 1);
 
-const gaitPhaseEase = (
+/** Wrap a cycle position into `[0, 1)`. */
+const wrap01: (x: number) => number = (x: number): number => positiveModulo(x, 1);
+
+const gaitPhaseEase: (curve: IAutoMovieGaitLimb [ "stanceEasing" ], bezier: IAutoMovieGaitLimb [ "stanceBezier" ], t: number) => number = (
   curve: IAutoMovieGaitLimb["stanceEasing"],
   bezier: IAutoMovieGaitLimb["stanceBezier"],
   t: number,
@@ -16,19 +17,19 @@ const gaitPhaseEase = (
     ? cubicBezierEasing(bezier, t)
     : ease(curve ?? "linear", t);
 
+
 /**
- * One limb's flexion (degrees) at cycle time `t`. Over its **stance** fraction
- * (`duty`) the limb sweeps from `+amplitude` (forward-planted) to `−amplitude`
- * (pushed back), driving the body; over the remaining **swing** fraction it
- * lifts and recovers from `−amplitude` back to `+amplitude`. The `phase` offset
- * slides the whole cycle so limbs fall in sequence, and the swing is centered
- * on the limb's `neutral` (default 0) so a one-way joint like a knee stays on
- * its anatomical side of zero. Optional stance/swing easing curves shape each
- * half separately while preserving the same endpoints.
+ * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets the wrapped cycle and neutral shifts both halves; optional easing shapes each half.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Wraps t/period+phase into [0,1), splits at duty in (0,1), and interpolates opposite amplitude endpoints through stance/swing easing; the same scalar law can drive the gait row's selected clinical axis despite this legacy function name.
+ * @evidence contracts/common.md#clear-and-simple-design One piecewise scalar evaluator owns the phase/duty law; gaitMotion owns bone/axis aggregation and cubicBezierEasing owns parameterized easing inversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid period, phase, duty, amplitude or authored neutral throws; no body or named gait is special-cased. Finite sample time and CSS-legal easing controls remain the caller's admitted input premise.
+ * @evidence contracts/common.md#meaningful-documentation Gives degrees/seconds, wrapped phase, neutral default and the independent stance/swing easing meaning without guaranteeing a custom rig's ROM.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of scalar operations plus one bounded easing evaluation takes constant time and auxiliary space per limb row.
+ * @evidence contracts/performance.md#reuse-equivalent-work Only the selected stance or swing easing is evaluated at the current phase; no sampled trajectory is cached across mutable gait rows.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one angle and retains no gait row, frame history or external resource.
  */
-export const gaitLimbFlexion = (
+export const gaitLimbFlexion: (limb: IAutoMovieGaitLimb, t: number, period: number) => number = (
   limb: IAutoMovieGaitLimb,
   t: number,
   period: number,
@@ -50,9 +51,9 @@ export const gaitLimbFlexion = (
     if (!Number.isFinite(limb.neutral))
       throw new Error("gait limb neutral must be finite");
 
-  const u = wrap01(t / period + limb.phase);
-  const a = limb.amplitude;
-  const swing =
+  const u: number = wrap01(t / period + limb.phase);
+  const a: number = limb.amplitude;
+  const swing: number =
     u < limb.duty
       ? a *
         (1 -
