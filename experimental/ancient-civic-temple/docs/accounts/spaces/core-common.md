@@ -1,71 +1,47 @@
-# 공간 설계 population의 공통 의무
+# Common obligations of the space design population
 
-## 파일 역할과 공간 납품 {#file-roles}
-
-<!--
-@evidence obligations/core/common.md#purpose-fit 27개 파일을 기준 평면/높이·경계/접합·동선·입면·방·roof·표면 소유·관찰·대지 역할로 대조했다. 방 목록만 남기면 물리 접합과 외관이 비고, 외피만 남기면 각 방의 직접 문과 이용 영역이 비며, 대지가 없으면 두 접점이 이어질 외부 공간과 외벽 하단이 읽을 지면이 비고, junctions의 단면 규칙이 없으면 네 입면의 석재 띠가 모서리에서 어긋나며, ownership의 띠 분할이 없으면 주랑·제실의 적갈색 띠가 붙을 표면이 없는 서로 다른 후속 결정을 아래 지도에 기록한다.
--->
+## File roles and space delivery {#file-roles}
 
 <!--
+@evidence obligations/core/common.md#purpose-fit Twenty-seven files were compared by datum plan/heights, boundaries/joints, circulation, facades, rooms, roofs, surface ownership, observations and site. The map below records distinct downstream gaps: room lists alone omit physical joints/exterior; envelope alone omits each room's direct doors/use region; absent site omits external connections and ground for lower walls; absent junction sections misalign facade stone bands at corners; absent ownership band splits leave colonnade/sanctuary reddish-brown bands without host surfaces.
 -->
 
-이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄와 외벽 기단·코핑의 단면을 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광과, 네 입면이 따로 정하면 모서리에서 어긋날 석재 띠의 만남을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
+This population designs the interior and envelope of one single-storey temple together. [building](../../spaces/building.md) owns the outline, shared datums, parent hierarchy and external interfaces; [storey](../../spaces/storey.md) owns heights, threshold supports and lower external walls. Without either, matching room plans cannot connect road, thresholds and ground into the same building. [openings](../../spaces/openings.md) owns boundary identities and actual void/door/window positions; [junctions](../../spaces/junctions.md) settles wall-end/gable closure and exterior plinth/coping sections. The latter addresses corner overlap and light leakage beneath roofs that an opening table alone cannot prevent, and stone-band meetings that would misalign if four facades decided independently. [circulation](../../spaces/circulation.md) settles distinct public/service starts and the traversal order through the colonnade.
 
-[남측](../../spaces/facades/south.md)·[북측](../../spaces/facades/north.md)·[서측](../../spaces/facades/west.md)·[동측](../../spaces/facades/east.md)은 각각 후퇴 현관, 높은 박공/낮은 마당 벽, 긴 무창 봉헌실 벽, 외부 서비스 출입의 완결 외면을 소유한다. 서로를 대체하면 후면과 옆면의 실제 닫힘이 사라진다. rooms의 [현관](../../spaces/rooms/entrance.md)·[중정](../../spaces/rooms/courtyard.md)·[주랑](../../spaces/rooms/colonnade.md)·[제실](../../spaces/rooms/sanctuary.md)·[봉헌실](../../spaces/rooms/offering.md)·[관리실](../../spaces/rooms/administration.md)·[기록실](../../spaces/rooms/records.md)·[보관실](../../spaces/rooms/storage.md)·[서비스 마당](../../spaces/rooms/service-yard.md)은 각각 자기 volume·접근·내부 표면과 용도별 예약을 가져 공간명만 나열한 방을 남기지 않는다.
+[South](../../spaces/facades/south.md), [north](../../spaces/facades/north.md), [west](../../spaces/facades/west.md) and [east](../../spaces/facades/east.md) respectively own complete exterior faces for the setback entrance, high gable/low yard wall, long windowless offering-room wall and external service entrance. Substituting one for another removes actual rear/side closure. Room documents for [entrance](../../spaces/rooms/entrance.md), [courtyard](../../spaces/rooms/courtyard.md), [colonnade](../../spaces/rooms/colonnade.md), [sanctuary](../../spaces/rooms/sanctuary.md), [offering room](../../spaces/rooms/offering.md), [administration](../../spaces/rooms/administration.md), [records](../../spaces/rooms/records.md), [storage](../../spaces/rooms/storage.md) and [service yard](../../spaces/rooms/service-yard.md) each settle their volume, access, internal surfaces and use-specific reservations rather than leaving rooms as names alone.
 
-roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·겹침 선택을, [sanctuary](../../spaces/roofs/sanctuary.md)·[west](../../spaces/roofs/west.md)·[east](../../spaces/roofs/east.md)·[porch](../../spaces/roofs/porch.md)·[colonnade](../../spaces/roofs/colonnade.md)는 각 지지 영역·끝선·관찰을 담당한다. 공통 계산만으로 각 roof의 끝을 고를 수 없고, 개별 roof만으로는 교차부의 중복을 해소할 수 없다. [ownership](../../spaces/ownership.md)은 이 소유를 완결 표면 단위로 잇고 주랑·제실 벽 하부 띠처럼 한 방 안의 높이 경계로 생기는 표면 분할을 정한다. [observations](../../spaces/observations.md)는 전체 질문을 현재 산출물에서 유도하고 그 값을 그릴 viewer 경로를 정해 대표 외관 하나만으로 실내 누락이 가려지는 것을 막는다.
+Roof [assembly](../../spaces/roofs/assembly.md) owns height, thickness, projection and overlap choices; [sanctuary](../../spaces/roofs/sanctuary.md), [west](../../spaces/roofs/west.md), [east](../../spaces/roofs/east.md), [porch](../../spaces/roofs/porch.md) and [colonnade](../../spaces/roofs/colonnade.md) own their support regions, end lines and observations. Shared calculations alone cannot choose each roof's ends; individual roofs alone cannot resolve intersection duplication. [ownership](../../spaces/ownership.md) joins these assignments by complete visual surface and settles surface splits caused by height boundaries within one room, such as colonnade/sanctuary lower wall bands. [observations](../../spaces/observations.md) derives the complete questions from current artifacts and specifies the viewer path that draws them, preventing one representative exterior from hiding missing interiors.
 
-[site](../../spaces/site.md)는 건물과 다른 소유 단위로 대지 범위·지면 높이·포장 구획·두 connector·배치 구역·먼 능선을 정한다. 이 파일이 없으면 building의 두 접점이 이어질 외부 공간이 없고 storey의 외벽 하단이 읽을 지면이 없어 건물이 허공에 뜬 채 남는다. 반대로 대지가 건물 파일에 섞이면 외벽 경계가 방과 대지 두 공간을 가져 입면 census가 사라지므로 별도 파일과 별도 뿌리로 둔다.
+[site](../../spaces/site.md), owned separately from the building, settles site extent, ground heights, paving zones, two connectors, placement zones and distant ridges. Without it, building's two interfaces have no connected external space and storey's lower walls have no ground to read, leaving the building suspended. Conversely, merging site into the building file would give outer boundaries both room and site spaces, losing the facade census; therefore it has a separate file and root.
 
-## 공간과 다른 제작 분기의 경계 {#layer-routing}
+## Boundary between spaces and other production branches {#layer-routing}
 
 <!--
-@evidence obligations/core/common.md#layer-boundary building부터 각 방/roof/대지까지는 경계·부피·연결·접합·접근 예약과 지면을 정한다. 기둥/수반/집기와 이웃·나무 실체, 마감 수치, 반복 population과 조명은 후속 분기에 남고 viewer 전달도 공간 geometry를 재작성하지 않는다고 명시돼 있다.
+@evidence obligations/core/common.md#layer-boundary From building through each room/roof/site, spaces settles boundaries, volumes, connections, joints, access reservations and ground. Actual columns/basins/fixtures, neighbors/trees, finish values, repeated populations and lighting remain downstream; viewer delivery explicitly cannot reauthor spatial geometry.
 -->
+
+Twenty-seven files design spaces topology, envelope, site, dimensions, surface assignment and observations. Desks/altars/basins mentioned in room documents supply center, access and relationship inputs the room accommodates, rather than designing prototype curved surfaces, beam sections or tile meshes. Roof documents' sloped massing and closure belong to the building envelope; later model/instance branches consume tile/rafter repetition detail. Facade plaster/plinth descriptions define covered surface boundaries; materials owns roughness, UV and color values.
+
+building's two interfaces and storey's lower walls consume ground and connectors from the [site](../../spaces/site.md) in the same spaces branch. Because spaces enters review first and cannot open maps, a separate spaces owner handles the site. The site file assigns neither individual neighbor/tree positions nor shapes, passing placement zones to instances. observations' CJS path delivers the same source to measurement/display; it authorizes neither engine changes nor another building authored in the browser. systems owns actual lighting and jet state, models/instances owns independent objects and repetition, and all executable source remains under src.
+
+## Working language and identifier notation {#working-language}
 
 <!--
+@evidence obligations/core/common.md#production-language Room roles, datums, level changes and failure conditions read in English; identities such as temple/colonnade, API fields such as cells/profile and source addresses retain exact identifiers. The comparison below distinguishes document meaning from executable notation.
 -->
 
-27개 파일은 spaces의 topology·외피·대지·치수·표면 배정·관찰 설계다. room 문서의 책상/제단/수반 언급은 방이 수용할 중심·접근·관계의 입력이며 prototype의 곡면·보 단면·기와 mesh를 만드는 설계가 아니다. roof 문서의 경사 매스와 닫힘은 건물 외피가 소유하고 기와/서까래 반복 상세는 후속 모델/반복 분기가 소비한다. 입면의 회벽·기단은 그 재료가 덮을 표면 경계이며 roughness·UV·색 수치는 materials가 소유한다.
+Under the [language setting](../../settings/00-delivery.md#working-language), design decisions, reasons and observations use technical English. Writing in administration, dry storage/reading in records and offering delivery in storage are distinguished directly without guessing meaning from filenames. west/east and north/south datums are defined in building's X/Z table; cell half-spaces are defined by colonnade inequalities; metre units and slope degrees follow the production coordinate convention. Source angle conversion and exact API spelling remain unchanged during implementation.
 
-building의 두 접점과 storey의 외벽 하단은 같은 spaces의 [대지](../../spaces/site.md)가 만든 지면과 connector를 소비한다. spaces가 먼저 review에 들어가 maps 분기를 열 수 없으므로 대지는 spaces의 별도 소유 단위가 맡는다. 대지 파일도 이웃·나무의 개체 위치나 형상은 정하지 않고 배치 구역만 instances에 넘긴다. observations의 CJS 경로는 같은 source를 계측/화면에 넘기는 관찰 설계이며 engine을 바꾸거나 브라우저에 다른 건물을 저작할 권한이 아니다. 실제 조명과 물줄기 상태는 systems, 독립 물체와 반복은 models/instances, 모든 실행 소스는 src에 남아 있다.
+English viewer-path descriptions and keyboard controls are design requirements rather than claims that the UI already exists. unverified consistently names items without actual measurements/renders, keeping input arithmetic separate from execution results. Spaces documents do not invent ancient-language inscriptions, film subtitles or character dialogue absent from this delivery.
 
-## 작업 언어와 식별 표기 {#working-language}
+## Comparison of scale and development amount {#proportion}
 
 <!--
-@evidence obligations/core/common.md#production-language 방의 역할·기준선·단차·실패 조건은 한국어로 읽히고 영어는 temple/colonnade 같은 identity, cells/profile 같은 API 필드와 예정 source 주소에 쓰인다. 아래 비교에서 문서 용도와 실행 식별자를 구분했다.
+@evidence obligations/core/common.md#proportionate-development The complete 27-file/45-H2 population was read by role. Observations, openings, datums, site, joints and surface ownership cover multiple boundary/failure cases; individual wings/rooms consume shared upstream decisions. Comparison with the v-077 submission preserves massing and circulation scope without treating text length as a product test.
 -->
 
-<!--
--->
+The comparison basis is a 21×20.5m single-storey building, nine spaces on the same storey, four outer facades, one colonnade, the envelope addressed by six roof documents and the surrounding local site. These describe authored-design distribution rather than a compiled census. The current population has 27 files/45 H2s.
 
-[언어 설정](../../settings/00-delivery.md#working-language)에 따라 설계의 결정·이유·관찰은 한국어 기술 서술이다. 관리실의 작성, 기록실의 건조 보관/열람, 보관실의 봉헌물 반입이 한국어로 구별되어 영어 파일명을 추측할 필요가 없다. west/east와 north/south 기준선은 building의 X/Z 표에, cell의 반공간은 colonnade의 부등식에 뜻이 있고 단위 m와 경사 도수는 생산 좌표 규약을 따른다. source 각도 변환과 API의 정확한 철자는 구현 시에도 유지한다.
+The colonnade and entrance require more development than other rooms because they respectively settle a union with a hole and segment-specific stepped floors. Even the concise porch roof owns two support lines, front projection, the rear end above the setback wall, triangular closure ownership and underside observations. site divides extent, ground equations, zoning, connectors, placement zones and ridges into six H2s. observations owns the complete topology set, returned-pose limits, actual thresholds/joints/ground and transfer boundaries, so one representative-view description cannot replace it. Concentrating detail in these interfaces rather than ordinary rooms sharing the same skeleton serves the delivery.
 
-viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이미 UI가 구현됐다는 주장이 아니다. unverified는 실제 계측·렌더가 없는 항목의 상태로 일관되게 쓰고 입력 산술과 실행 결과를 섞지 않는다. 현재 납품에 없는 고대 언어 비문·영화 자막·인물 대사를 spaces 문서가 만들어 내지 않는다.
-
-## 규모와 전개 분량의 비교 {#proportion}
-
-<!--
-@evidence obligations/core/common.md#proportionate-development 현재 27파일/45 H2를 전체로 읽고 본문 분량을 역할별로 비교했다. 관찰·개구부·기준선·대지·접합·표면 소유는 다수 경계/실패 경우를 다루어 길고 단일 날개/방은 상위 공유 결정을 소비해 짧다. v-077 제출본과 파일/단위 수 및 본문을 비교해 매스·동선 축소가 없음을 기록한다.
--->
-
-<!--
--->
-
-비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문의 유니코드 코드 포인트 수이며 `npm run self-check`가 같은 방식으로 파일마다 출력한다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.
-
-| 역할 | 파일/H2 | 파일별 본문 문자 수 |
-| --- | --- | --- |
-| building·storey | 2/7 | 3655·3218 |
-| openings·junctions·circulation | 3/8 | 7043·4840·2103 |
-| 남·북·서·동 입면 | 4/4 | 1326·887·824·820 |
-| 현관·중정·주랑 | 3/3 | 1900·1038·1747 |
-| 제실·봉헌실 | 2/2 | 846·646 |
-| 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
-| assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·790·1488 |
-| ownership·observations | 2/4 | 4359·11368 |
-| site | 1/6 | 5626 |
-
-주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.
-
-부모 settings는 허용 범위와 방/부재 정체성을 정하고 spaces는 기준선·벽 두께·문 중심·roof 지지선·순환·대지 구획과 표면 소유를 더했다. v-077 판정 제출본 `a4c1d46870fb186cbf29c5b112a5476a2bfeb0e4`는 같은 계수법으로 26파일/37 H2였고 현재 수치는 위의 전수 생성 표에서 읽는다. 기존 26파일은 모두 남았다. 그중 roofs/colonnade와 roofs/porch만 짧아졌다. 파라펫 뒤 외쪽 경사로 바꿀 때 폐기한 최소 높이 제한과 notch 문장이 빠졌지만 두 문서의 지지선·끝선·하부 소유는 유지했다. 늘어난 기존 열여덟 파일은 변경 이유가 다르다. 남·서·북·동 입면에는 파라펫·코핑·띠 분할과 제실·포치 접점을, roofs/west와 assembly·sanctuary·east roof에는 후보 영역·지지·경사 및 제실 지지와 동측 박공 수리를 더했다. courtyard와 service-yard는 논리 상한 참조를 주랑 처마 3.20m로 바로잡았다. junctions에는 박공 폐쇄 표·기단/코핑 단면·L/T 접합·마당/보관실 상부 경계를, observations에는 대지·주랑·접합·단면·reference·문창 방향 pose와 반환벽 상부 관찰을 더했다. ownership에는 대지·실내 dado·reveal 역검사를, openings에는 제실 창 여덟과 여섯 일정 높이 host·두 반환벽 경사 분할을 더했다. building·storey는 대지 접점과 접지를, circulation은 서비스 문 connector를, entrance는 포치 기둥·보·삼각 막음의 위치 관계를 더했다. 새 site는 대지 결정 여섯 H2를 소유한다. 이 비교를 처음 작성했을 때 administration·colonnade room·offering·records·sanctuary·storage는 바뀌지 않은 여섯 파일이었다. 이어받기에서는 실제 건물 관찰과 모순된 상태 문장을 building·storey·openings·junctions·circulation·entrance·courtyard·colonnade room·sanctuary·porch roof·observations·site에서 고쳤다. 위 표는 그 현재 본문 분량이며 이 문서 수리는 방·geometry·조명의 변경이 아니다. 새 account와 주석은 공간 수를 늘린 것으로 세지 않는다. 이 분포 비교는 실제 구현 깊이·통과·시각 품질의 완료 판정이 아니며 후속 소스와 프레임에서 별도로 검토한다.
+Parent settings settles admissible ranges and room/member identity; spaces adds datums, wall thicknesses, door centers, roof support lines, circulation, site zones and surface ownership. All 26 files of the earlier v-077 submission remain. roofs/colonnade and roofs/porch dropped obsolete minimum-height/notch clauses when changing to inward monopitch slopes behind parapets, retaining support lines, end lines and underside ownership. The four facades gained parapets, coping, band splits and sanctuary/porch interfaces; roofs/west and assembly/sanctuary/east gained candidate regions, supports, slopes and sanctuary-support/east-gable repairs. courtyard and service-yard corrected logical upper-bound references to the colonnade eave at 3.20m. junctions gained gable-closure, plinth/coping, L/T-joint and yard/storage upper-boundary decisions. observations gained site, colonnade, joint, section, reference, door/window-direction and return-wall upper observations. ownership gained site, interior dado and reveal reverse inspection; openings gained eight sanctuary windows and slope splitting for six constant-height hosts/two return walls. building/storey gained site interfaces and ground contact; circulation gained the service-door connector; entrance gained porch-column/beam/triangular-closure relationships. New site owns six site-decision H2s. At the first comparison, administration, colonnade room, offering, records, sanctuary and storage were six unchanged files. The handoff later corrected state statements contradicting actual building observations in building, storey, openings, junctions, circulation, entrance, courtyard, colonnade room, sanctuary, porch roof, observations and site. These document repairs change neither rooms, geometry nor lighting. New accounts/comments do not increase space count. Distribution comparisons establish neither implementation depth, acceptance nor visual quality; downstream source and frames are reviewed separately.

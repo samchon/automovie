@@ -1,101 +1,95 @@
-# 최초 공간 설계의 완결 표면 소유
+﻿# Complete-surface ownership in the initial space design
 
-## 입면·방·층·지붕의 소유 지도 {#surface-map}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 입면·방 바닥/내벽/천장·층·roof/처마, 내부 경계벽과 그 reveal, 대지 흙띠·포장·능선의 완결 표면을 표로 배정하고 문턱과 박공의 노출 면까지 같은 소유에 포함한다.
-@evidence principles/core/common.md#substantive-completion 각 완결 표면에 design와 source 주소를 짝짓고 surface.<owner>.<face> 식별 및 단독 저작 규칙을 정한다.
-@evidence principles/core/common.md#declared-basis 사용자 surface-ownership 의무를 실제 기준 평면과 연결하고, 표와 별도로 방출된 surface ID를 owner별로 열거하는 역검사 결과를 표의 행과 대조한다.
-@evidence principles/design/spaces.md#space-topology 공유 물리벽 하나의 양쪽 마감은 다른 시각 표면이고 내부 접촉면은 노출 마감에서 제외한다.
-@evidence principles/design/spaces.md#space-boundary-authority 접합 계산·cell 분해·반복 instance가 완결 시각 표면을 쪼개지 못하며 독립 물체 전체는 prototype owner에 남긴다.
-@evidence principles/design/spaces.md#space-verification-address source의 실제 노출 면을 역으로 읽어 누락·이중 owner·없는 경계 중 하나라도 있으면 최초 공간 단계를 닫지 않는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 분기 배정을 개별 입면·방·지붕·대지 구획의 단독 파일 주소와 실제 접합 면의 귀속으로 좁힌다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work build-scope의 공간/독립 물체/마감/반복 분담과 사용자 완결 표면 조건을 대조했다. 물리벽과 두 마감의 소유를 구별하면 각 분기를 보존할 수 있어 이 표면 지도 때문에 부모 분담을 바꿀 결함은 없었다. 대지 배정 수정은 site의 결함 보고에 속한다.
-@evidence settings/00-delivery.md#build-scope 외피 host와 공간 표면을 spaces에, 대지 지면·경계석·먼 능선을 spaces의 대지 owner에, 기둥·문·수반·이웃·식생 등 독립 물체는 model에 배정한다.
-@evidence obligations/design/spaces.md#addressable-spatial-decisions 표면마다 design anchor와 source를 짝짓고 junctions의 계산과 실제 노출 면 소유를 분리한다.
-@evidence contracts/obligations-spaces.md#surface-ownership 입면/방/층/roof/대지 전체 소유 표에 문턱·박공·외부 처마 하부·내부 경계벽 reveal까지 귀속시키고 실제 면에서 역검사할 누락 조건을 정한다.
-@evidenceExclude settings/00-delivery.md#coverage-map spaces의 전체 H2를 읽었을 때 설정 파일의 사실 소유 목록을 재작성하는 단위는 없다. 각 공간은 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 직접 소비하며 설정 목록 자체의 완전성은 settings account에 남는다.
-@evidenceExclude settings/40-environment.md#daylight spaces는 개구부와 가림 geometry 및 그 관찰을 정하지만 태양 고도·광원 방향·노출 값을 정하는 host는 없다. viewer-path도 원래 source를 전달할 경계이며 실제 조명값은 systems의 후속 책임이다.
-@evidenceExclude settings/35-objects.md#bench 벤치의 좌면·받침은 독립 물체이고 중정 포장·문턱 표면을 다시 나누지 않는다
-@evidenceExclude settings/35-objects.md#portable-lamp 소형 등잔의 금속 접시·줄기는 모델 부재이고 방 벽·바닥의 완결 면이 아니다
-@evidenceExclude settings/35-objects.md#jar-rack 두 자리 항아리 받침은 보관실의 이동 가구로서 바닥 판의 표면 owner를 바꾸지 않는다
-@evidenceExclude settings/35-objects.md#carrying-yoke 멜대와 고리는 마당에 내려놓는 prototype이며 마당 포장 형상이 아니다
-@evidenceExclude settings/35-objects.md#handcart 정지 손수레의 바퀴·판은 독립 외부 소품이고 마당 길이나 문턱 통과의 공간 형상을 결정하지 않는다
-@evidenceExclude settings/35-objects.md#bucket 빈 물동이의 몸체·손잡이는 옮길 수 있는 용기이며 중정·마당 바닥 면이 아니다
-@evidenceExclude settings/35-objects.md#planter 화분과 흙면은 중정 가장자리 비품이고 대지 흙띠나 중정 포장의 분할이 아니다
-@evidenceExclude settings/35-objects.md#votive-plaque 봉헌판의 빈 앞면은 물체 표면이고 제실·봉헌실 벽면 장식이 아니다
-@evidenceExclude settings/35-objects.md#offering-tray 얕은 쟁반의 판·테는 독립 소품이며 제단이나 봉헌 탁자의 바닥 표면을 새로 소유하지 않는다
-@evidenceExclude settings/35-objects.md#textile 접은 천은 놓이는 비품이고 방 천장·벽·바닥 표면의 재료 띠가 아니다
-@evidenceExclude settings/35-objects.md#stylus 첨필의 짧은 막대는 책상 소품이며 관리실·기록실 벽이나 바닥 완결 면이 아니다
-@evidenceExclude settings/35-objects.md#writing-tablet 글자 없는 필기판은 책상 소품이며 기록실의 벽 마감이나 바닥 판이 아니다
-@evidenceExclude settings/35-objects.md#rope-coil 느슨한 끈의 고리·묶음 띠는 이동 소품이며 보관실이나 마당 포장과 합치지 않는다
-@evidenceExclude settings/35-objects.md#censer 꺼진 향로의 컵·재·향은 제단 위 독립 비품이고 제실 벽·바닥의 소유가 아니다
-@evidenceExclude settings/35-objects.md#floor-cushion 낮은 좌구의 천 면은 제실 바닥 위 독립 물체이며 바닥의 dado나 포장을 분할하지 않는다
-@evidenceExclude settings/35-objects.md#jar-stand 한 자리 원형 받침은 보관실의 독립 가구이고 바닥 구조체나 고정 문턱이 아니다
--->
+## Facade, room, storey, and roof ownership map {#surface-map}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Assigns complete facade, room floor/wall/ceiling, storey, roof/eave, internal-wall reveal, and site earth/paving/ridge surfaces, including thresholds and exposed gable faces.
+@evidence principles/core/common.md#substantive-completion Pairs design/source addresses for each complete surface and defines surface.<owner>.<face> identity and sole authorship.
+@evidence principles/core/common.md#declared-basis Connects the user's surface-ownership obligation to the actual reference plan and distinguishes authored ownership from actual emitted surface IDs grouped by owner.
+@evidence principles/design/spaces.md#space-topology Treats opposite finishes of one physical shared wall as different visual surfaces, excluding internal contacts from exposed finishes.
+@evidence principles/design/spaces.md#space-boundary-authority Junction calculations, cell decomposition, and repeated instances cannot split complete visual surfaces; independent objects retain whole-prototype ownership.
+@evidence principles/design/spaces.md#space-verification-address Reverse-reads actual exposed source faces and keeps missing faces, multiple owners, or nonexistent boundaries unresolved before closing the initial space stage.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Narrows settings branch allocations into sole file addresses for each facade, room, roof, and site region, including actual contact-face ownership.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared build-scope space/object/finish/repetition allocation with the user's complete-surface rule. Distinguishing wall solids from their two finishes preserves every branch without a parent-allocation defect; site-allocation repairs belong to site's defect report.
+@evidence settings/00-delivery.md#build-scope Assigns envelope hosts and space surfaces to spaces, ground/curbs/distant ridge to its site owner, and independent columns/doors/basin/neighbors/vegetation to models.
+@evidence obligations/design/spaces.md#addressable-spatial-decisions Pairs design anchors with source for every surface, separating junction computations from actual exposed-face ownership.
+@evidence contracts/obligations-spaces.md#surface-ownership Assigns thresholds, gables, exterior eave undersides, and internal-wall reveals within complete facade/room/storey/roof/site ownership and identifies omissions to inspect from actual faces.
+@evidenceExclude settings/00-delivery.md#coverage-map No spaces H2 rewrites the settings-file fact-owner list. Spaces directly consume the graph, envelope, interior, site, and observation targets it names; settings account retains list-completeness responsibility.
+@evidenceExclude settings/40-environment.md#daylight Spaces defines openings, occluders, and observations but no sun elevation, light direction, or exposure host. Viewer-path passes original source; actual lighting values remain downstream systems responsibility.
+@evidenceExclude settings/35-objects.md#bench Bench seats/supports are independent objects, not new courtyard-paving or threshold subdivisions.
+@evidenceExclude settings/35-objects.md#portable-lamp Small-lamp metal dishes/stems are model members, not complete room-wall/floor surfaces.
+@evidenceExclude settings/35-objects.md#jar-rack Two-place jar racks are movable storage furniture, leaving floor-surface ownership unchanged.
+@evidenceExclude settings/35-objects.md#carrying-yoke Yokes/rings are yard prototypes, not yard paving geometry.
+@evidenceExclude settings/35-objects.md#handcart Stationary-cart wheels/platforms are independent exterior props, not spatial yard-path or threshold geometry.
+@evidenceExclude settings/35-objects.md#bucket Empty bucket bodies/handles are portable vessels, not courtyard/yard floor faces.
+@evidenceExclude settings/35-objects.md#planter Planters/soil surfaces are courtyard-edge fixtures, not site-earth or courtyard-paving subdivisions.
+@evidenceExclude settings/35-objects.md#votive-plaque Blank plaque fronts are object surfaces, not sanctuary/offering wall decoration.
+@evidenceExclude settings/35-objects.md#offering-tray Shallow tray plates/rims are independent props, without new ownership of altar/offering-table supporting surfaces.
+@evidenceExclude settings/35-objects.md#textile Folded cloth is placed equipment, not a room ceiling/wall/floor material band.
+@evidenceExclude settings/35-objects.md#stylus A stylus is a short desk prop, not a complete administration/records wall or floor surface.
+@evidenceExclude settings/35-objects.md#writing-tablet Blank writing tablets are desk props, not records wall finishes or floor slabs.
+@evidenceExclude settings/35-objects.md#rope-coil Loose rope loops/bindings are movable props, not merged with storage/yard paving.
+@evidenceExclude settings/35-objects.md#censer An unlit censer's cup/ash/incense is independent altar equipment, not sanctuary wall/floor ownership.
+@evidenceExclude settings/35-objects.md#floor-cushion Low cushion fabric is an independent object above sanctuary floor, not a subdivision of its dado or paving.
+@evidenceExclude settings/35-objects.md#jar-stand A single circular stand is independent storage furniture, not floor structure or a fixed threshold.
 -->
 
-[추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.
+Connect the [additional space obligation](../contracts/obligations-spaces.md#surface-ownership) to actual plan boundaries. Each source address below is the sole authoring owner of a complete surface. A table does not establish compiled binding. Original production authorship belongs to one author; even during fan-out, do not divide a row's complete surface among people. [Boundaries](openings.md#boundary-ownership) singly owns internal-wall physical topology; opposite finishes belong to their respective rooms.
 
-| 완결 표면/역할 | design owner | 후속 source owner | 방출 owner |
+| Complete surface/role | Design owner | Downstream source owner | Emitted owner |
 | --- | --- | --- | --- |
-| 남측 외피와 후퇴 입구 바깥 반환면 | [남측](facades/south.md#south-envelope) | src/spaces/facades/south.ts | `facade-south` |
-| 북측 외피·제실 북 박공 | [북측](facades/north.md#north-envelope) | src/spaces/facades/north.ts | `facade-north` |
-| 서측 전체 외피 | [서측](facades/west.md#west-envelope) | src/spaces/facades/west.ts | `facade-west` |
-| 동측 전체 외피·서비스 문 바깥 | [동측](facades/east.md#east-envelope) | src/spaces/facades/east.ts | `facade-east` |
-| 한 층의 기준·바닥 구조체 공유 접합 | [층](storey.md#ground-storey) | src/spaces/storey.ts | 없음(각 방 바닥 owner에 귀속) |
-| 내부 경계벽의 실체와 그 벽을 뚫은 문·창의 reveal(문설주·인방 안쪽 면) | [경계와 개구부](openings.md#boundary-ownership) | src/spaces/boundaries.ts | `boundaries` |
-| 현관 안쪽 반환면·계단·상부참 | [현관](rooms/entrance.md#entrance-volume) | src/spaces/rooms/entrance.ts | `entrance` |
-| 중정 바닥·연속 석재 턱 | [중정](rooms/courtyard.md#court-volume) | src/spaces/rooms/courtyard.ts | `courtyard` |
-| 한 고리 전체 내벽·바닥·노출 천장 | [주랑](rooms/colonnade.md#ring-volume) | src/spaces/rooms/colonnade.ts | `colonnade` |
-| 제실 내벽·바닥·노출 박공 하부 | [제실](rooms/sanctuary.md#sanctuary-volume) | src/spaces/rooms/sanctuary.ts | `sanctuary` |
-| 봉헌실 내벽·바닥·낮은 천장 | [봉헌실](rooms/offering.md#offering-volume) | src/spaces/rooms/offering.ts | `offering` |
-| 관리실 내벽·바닥·천장 | [관리실](rooms/administration.md#office-volume) | src/spaces/rooms/administration.ts | `administration` |
-| 기록실 내벽·바닥·천장 | [기록실](rooms/records.md#records-volume) | src/spaces/rooms/records.ts | `records` |
-| 보관실 내벽·바닥·천장 | [보관실](rooms/storage.md#storage-volume) | src/spaces/rooms/storage.ts | `storage` |
-| 마당 포장·안쪽 벽·낮은 벽 상단 | [서비스 마당](rooms/service-yard.md#yard-volume) | src/spaces/rooms/service-yard.ts | `service-yard` |
-| 제실 지붕 상부·바깥 처마 하부 | [제실 지붕](roofs/sanctuary.md#sanctuary-roof) | src/spaces/roofs/sanctuary.ts | `roof-sanctuary` |
-| 서측 날개 지붕 상부·바깥 하부 | [서측 지붕](roofs/west.md#west-roof) | src/spaces/roofs/west.ts | `roof-west` |
-| 동측 날개 지붕 상부·바깥 하부 | [동측 지붕](roofs/east.md#east-roof) | src/spaces/roofs/east.ts | `roof-east` |
-| 남북 주랑 덮개 상부·바깥 끝 | [주랑 지붕](roofs/colonnade.md) | src/spaces/roofs/colonnade.ts | `roof-colonnade` |
-| 포치 지붕과 외부 처마 전체 | [포치 지붕](roofs/porch.md#porch-roof) | src/spaces/roofs/porch.ts | `roof-porch` |
-| 대지 흙띠·경계석·포장·이웃 바닥 | [흙띠·경계석·포장](site.md#site-paving) | src/spaces/site/ground.ts | `site` |
-| 먼 능선과 기슭 | [먼 능선과 기슭](site.md#distant-ridge) | src/spaces/site/ridge.ts | `site-distant` |
+| South envelope and exterior entrance returns | [South](facades/south.md#south-envelope) | src/spaces/facades/south.ts | `facade-south` |
+| North envelope and sanctuary north gable | [North](facades/north.md#north-envelope) | src/spaces/facades/north.ts | `facade-north` |
+| Entire west envelope | [West](facades/west.md#west-envelope) | src/spaces/facades/west.ts | `facade-west` |
+| Entire east envelope and exterior service door | [East](facades/east.md#east-envelope) | src/spaces/facades/east.ts | `facade-east` |
+| Storey references and shared floor-structure junctions | [Storey](storey.md#ground-storey) | src/spaces/storey.ts | None; assigned to each room floor owner |
+| Internal wall solids and door/window reveals (inner jamb/lintel faces) | [Boundaries/openings](openings.md#boundary-ownership) | src/spaces/boundaries.ts | `boundaries` |
+| Entrance inner returns, stairs, upper landing | [Entrance](rooms/entrance.md#entrance-volume) | src/spaces/rooms/entrance.ts | `entrance` |
+| Courtyard floor and continuous stone step | [Courtyard](rooms/courtyard.md#court-volume) | src/spaces/rooms/courtyard.ts | `courtyard` |
+| Entire ring's inner walls, floor, exposed ceiling | [Colonnade](rooms/colonnade.md#ring-volume) | src/spaces/rooms/colonnade.ts | `colonnade` |
+| Sanctuary inner walls, floor, exposed gable underside | [Sanctuary](rooms/sanctuary.md#sanctuary-volume) | src/spaces/rooms/sanctuary.ts | `sanctuary` |
+| Offering inner walls, floor, low ceiling | [Offering](rooms/offering.md#offering-volume) | src/spaces/rooms/offering.ts | `offering` |
+| Administration inner walls, floor, ceiling | [Administration](rooms/administration.md#office-volume) | src/spaces/rooms/administration.ts | `administration` |
+| Records inner walls, floor, ceiling | [Records](rooms/records.md#records-volume) | src/spaces/rooms/records.ts | `records` |
+| Storage inner walls, floor, ceiling | [Storage](rooms/storage.md#storage-volume) | src/spaces/rooms/storage.ts | `storage` |
+| Yard paving, inner walls, low-wall tops | [Service yard](rooms/service-yard.md#yard-volume) | src/spaces/rooms/service-yard.ts | `service-yard` |
+| Sanctuary roof top/exterior eave underside | [Sanctuary roof](roofs/sanctuary.md#sanctuary-roof) | src/spaces/roofs/sanctuary.ts | `roof-sanctuary` |
+| West-wing roof top/exterior underside | [West roof](roofs/west.md#west-roof) | src/spaces/roofs/west.ts | `roof-west` |
+| East-wing roof top/exterior underside | [East roof](roofs/east.md#east-roof) | src/spaces/roofs/east.ts | `roof-east` |
+| North/south canopy tops/exterior ends | [Colonnade roof](roofs/colonnade.md) | src/spaces/roofs/colonnade.ts | `roof-colonnade` |
+| Entire porch roof/exterior eaves | [Porch roof](roofs/porch.md#porch-roof) | src/spaces/roofs/porch.ts | `roof-porch` |
+| Site earth strips, curbs, paving, neighbor ground | [Earth/curbs/paving](site.md#site-paving) | src/spaces/site/ground.ts | `site` |
+| Distant ridge and foothills | [Distant ridge/foothills](site.md#distant-ridge) | src/spaces/site/ridge.ts | `site-distant` |
 
-2026-09-25 사물 제작 지시로 추가한 낮은 벤치·소형 등잔·항아리 받침대·멜대·정지 손수레·물동이·화분·봉헌판·쟁반·접은 천·첨필·필기판·끈 뭉치·향로·좌구·한 자리 받침은 모두 독립 물체 prototype이다. 각 방에서 물체가 닿는 위치와 수량은 instances의 후속 검토 대상이며, 이 공간 표면 지도는 그 물체의 part나 부피를 방 바닥·벽·대지 포장에 흡수하지 않는다.
+The 2026-09-25 object instruction added low benches, small lamps, jar racks, yokes, stationary handcarts, buckets, planters, plaques, trays, folded cloth, styluses, writing tablets, rope coils, censers, cushions, and single jar stands as independent prototypes. Instances must later review their quantities and contacts in each room. This map does not absorb their parts/volumes into room floors, walls, or site paving.
 
-surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary/element의 면 범위에 결속한다. [벽 접합](junctions.md#wall-junctions)의 공통 내부 접면은 노출 마감이 아니며 모서리 절단이 외측 면의 소유를 바꾸지 않는다. [박공 폐쇄](junctions.md#gable-closures)의 노출 면도 위의 입면·방·지붕 소유에 속한다. junctions는 접합 계산의 소유이고 완결 시각 표면의 새 공동 소유자가 아니다. 마감의 수치값은 materials가 이 host를 소비하며 면을 다른 owner로 쪼개지 않는다. 기둥·문틀·문짝·수반·제단 같은 독립 물체의 전체 표면은 해당 model prototype 한 소유이고 방 파일은 배치와 접촉을 소비한다. 반복 instance마다 표면 정의를 복제하지 않는다.
+Stabilize surface IDs as `surface.<owner>.<face>` and bind them to actual boundary/element face extents. Shared internal [wall-junction](junctions.md#wall-junctions) contacts are not exposed finishes; corner cuts do not change exterior-face ownership. Exposed [gable-closure](junctions.md#gable-closures) faces also retain the facade/room/roof owners above. Junctions owns computation, not joint authorship of complete visual surfaces. Materials consumes these hosts for finish values without splitting ownership. Independent columns, frames, leaves, basins, and altars retain one prototype owner for all their surfaces; room files consume placement/contact. Repeated instances do not duplicate surface definitions.
 
-표의 방 바닥은 [문턱 귀속](storey.md#threshold-support)에 배정된 벽 두께 안 문턱까지 포함한다. 같은 문턱을 주랑과 방이 반씩 만들거나 문 model이 별도 바닥으로 덮지 않는다. 계측용 support patch나 계산 cell의 분해도 이 완결 표면 소유를 나누지 않는다.
+Room floors include thresholds within wall thickness assigned by [threshold ownership](storey.md#threshold-support). Colonnade and room must not each build half a threshold, nor may a door model cover it with another floor. Measurement support patches and computational cell subdivisions do not split complete-surface ownership either.
 
-이 지도는 compiled host binding이 아니다. source의 실제 모든 노출 면을 역으로 읽어 빠진 면·두 owner가 붙은 면·존재하지 않는 경계를 분모에 남긴다. `npm run self-check`가 방출된 surface ID를 owner별로 열거하고 위 표의 `방출 owner` 열과 양방향으로 대조한다. 방출 owner가 표에 없거나 표의 owner가 방출되지 않거나 표에 중복되면 실패한다. 대지의 지면·경계석·먼 능선 표면은 [대지](site.md#site-extent) owner가 건물과 다른 소유 단위로 만든다. 이웃 외피·나무·풀의 전체 표면은 각 model prototype 한 소유이고 instances가 [배치 구역](site.md#placement-zones) 안에 둔다. 대지 표면을 건물 표면에 섞지 않는다.
+This map is not compiled host binding. Reverse-read every actual exposed source face, retaining missing faces, multiple owners, and nonexistent boundaries as unresolved cases. `npm run self-check` lists actual emitted surface IDs grouped by owner; that listing does not automatically verify this authored table. [Site](site.md#site-extent) owns ground, curbs, and distant-ridge surfaces separately from the building. Each neighbor-envelope/tree/grass model singly owns its whole prototype; instances places it inside [placement zones](site.md#placement-zones). Do not mix site surfaces into building surfaces.
 
-## 주랑과 제실 벽의 하부 띠 {#interior-dado}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 주랑 전 둘레와 제실 네 벽의 하부 띠를 함께 나누고 띠를 두지 않는 방과 외부 입면을 명시해 적용 범위를 닫는다.
-@evidence principles/core/common.md#substantive-completion 띠 윗선 Y=0.60m, 두 dado 표면 ID, 문에서의 끊김과 묻힌 면의 처리를 정해 source가 경계를 새로 고르지 않게 한다.
-@evidence principles/core/common.md#declared-basis 띠의 존재와 범위는 material-language·sanctuary 설정에서 받고 0.60m는 이미지 03·04의 문 높이 비교에서 고른 저작 값이라고 밝힌다.
-@evidence principles/design/spaces.md#space-topology 띠는 기존 주랑·제실 벽 마감 위의 면 분할일 뿐 새 공간·경계·턱을 만들지 않고 문 통과를 막지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 벽 실체는 기존 입면·경계 owner, 두 dado 표면은 주랑·제실 방 owner에 남고 재료 값은 materials로 보낸다.
-@evidence principles/design/spaces.md#space-verification-address 주랑 여섯 영역·제실 네 벽·문 양옆에서 다른 방으로 샌 띠, 높이 불일치, 문을 가로지른 띠, 겹친 표면을 실패로 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 낮은 적갈색 띠라는 색 관계를 높이·표면 ID·적용 방이 정해진 공간 표면 분할로 바꾼다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work material-language의 띠 범위, walls의 높이 경계, sanctuary의 낮은 붉은 띠와 방별 문 높이를 대조했다. 기존 벽 마감을 한 수평선으로 나누면 모두 성립해 부모를 고치지 않았다.
-@evidence settings/20-envelope.md#material-language 적갈색 띠를 중정 둘레(주랑 벽)와 제실 벽 하부에만 두고 업무방은 밝은 회벽으로 남긴다.
-@evidence settings/20-envelope.md#walls 띠의 재료 경계를 임의 패치가 아니라 바닥 위 일정 높이의 수평 경계에 둔다.
-@evidence settings/30-interiors.md#sanctuary 이미지 04의 낮은 붉은 띠를 제실 네 벽 하부의 dado 표면으로 받는다.
-@evidence contracts/obligations-spaces.md#surface-ownership 새 dado 표면을 각 방의 완결 표면으로 귀속시키고 한 벽 면이 두 표면에 겹치지 않게 한다.
--->
+## Lower bands on colonnade and sanctuary walls {#interior-dado}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Divides the lower band around the whole colonnade and four sanctuary walls, explicitly excluding other rooms and exterior facades.
+@evidence principles/core/common.md#substantive-completion Defines band top Y=0.60m, two dado IDs, door interruptions, and buried-face treatment so source does not choose new boundaries.
+@evidence principles/core/common.md#declared-basis Uses material-language/sanctuary for band existence/scope; 0.60m is an authored choice from image 03/04 door-height comparisons.
+@evidence principles/design/spaces.md#space-topology Splits existing finishes only, creating no space, boundary, or curb and blocking no door.
+@evidence principles/design/spaces.md#space-boundary-authority Existing facade/boundary owners retain wall solids, colonnade/sanctuary retain dado surfaces, and materials owns values.
+@evidence principles/design/spaces.md#space-verification-address Fails bands leaking into other rooms, inconsistent heights, door crossings, or overlapping surfaces across six colonnade regions/four sanctuary walls/door sides.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns the low reddish-brown color relation into spatial surface subdivision with fixed height, IDs, and rooms.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared material-language band scope, walls height boundaries, sanctuary low red band, and room door heights. One horizontal division of existing finishes satisfies them without parent changes.
+@evidence settings/20-envelope.md#material-language Limits reddish-brown bands to courtyard-surrounding colonnade and sanctuary lower walls; administrative rooms retain light plaster.
+@evidence settings/20-envelope.md#walls Locates the material boundary at a constant height above floor rather than an arbitrary patch.
+@evidence settings/30-interiors.md#sanctuary Receives image 04's low red band as dado on all four sanctuary walls.
+@evidence contracts/obligations-spaces.md#surface-ownership Assigns new dado surfaces to complete room ownership without overlapping two surfaces on one wall face.
 -->
 
-[재료 관계](../settings/20-envelope.md#material-language)는 적갈색 띠가 중정과 제실 벽 하부를 연속해서 따르고 업무방은 밝은 회벽을 유지한다고 정한다. [외피 canon](../settings/20-envelope.md#walls)은 재료 경계가 부재와 높이 경계를 따르게 하고, [제실](../settings/30-interiors.md#sanctuary)은 이미지 04의 낮은 붉은 띠를 채택한다. 이 H2는 그 경계를 공간 표면의 분할로 정한다. 중정을 둘러싼 벽은 [주랑](rooms/colonnade.md#ring-volume)의 벽 마감 `surface.colonnade.wall`이고 제실은 [제실](rooms/sanctuary.md#sanctuary-volume)의 벽 마감 `surface.sanctuary.wall`이다.
+[Material relations](../settings/20-envelope.md#material-language) place continuous reddish-brown bands around courtyard/sanctuary lower walls while administrative rooms retain light plaster. [Envelope canon](../settings/20-envelope.md#walls) aligns materials to members/heights, and [sanctuary](../settings/30-interiors.md#sanctuary) adopts image 04's low red band. This H2 defines spatial surface subdivisions: courtyard-surrounding walls use [colonnade](rooms/colonnade.md#ring-volume) finish `surface.colonnade.wall`; [sanctuary](rooms/sanctuary.md#sanctuary-volume) uses `surface.sanctuary.wall`.
 
-저작자 결정: 띠의 윗선은 두 방의 완성 바닥 Y=0 위 0.60m 수평선이다. 이미지 03·04에서 문 높이에 견준 띠 윗선이 약 0.5~0.75m로 읽혀 그 안에서 고른 값이며 실측은 아니다. 윗선 아래 면은 `surface.colonnade.dado`와 `surface.sanctuary.dado`, 위는 원래 벽 마감 ID로 남는다. 두 방의 띠는 같은 높이로 이어지고 문 void와 문틀에서만 끊긴다. 봉헌실·관리실·기록실·보관실·서비스 마당과 외부 입면에는 띠를 두지 않는다.
+Author decision: the band top is a horizontal line 0.60m above both rooms' finished Y=0 floors. In images 03/04, comparison with door heights suggests around 0.5~0.75m; this choice lies within that range and is not surveyed. Below are `surface.colonnade.dado` and `surface.sanctuary.dado`; above retain original finish IDs. Both bands continue at one height, interrupted only at voids/frames. Offering, administration, records, storage, service yard, and exterior facades receive no band.
 
-이 분할은 벽 실체와 두께를 바꾸지 않는 같은 평면의 면 분할이며 새 공간·경계·부재가 아니다. 띠 윗선에 턱이나 돌출을 만들지 않는다. 바닥 아래로 묻힌 벽 면도 띠 표면에 들지만 바닥 slab 뒤에 가려진다. 표면 소유는 위 [소유 지도](#surface-map)의 주랑·제실 행을 따르며 두 dado 표면도 각 방 owner의 완결 표면이다. 색·거칠기·마모는 materials가 두 dado 표면에 결속한다. 대상 표면과 높이는 `src/spaces/ownership.ts`가 내보내고 environment가 해당 벽 면을 그 높이에서 나눈다.
+This coplanar face subdivision changes no wall solid/thickness and creates no space, boundary, or member. Add no ledge or projection at the top. Buried wall faces also belong to dado but remain concealed behind floor slabs. The [ownership map](#surface-map) colonnade/sanctuary rows apply; both dado surfaces are complete surfaces of those room owners. Materials binds color, roughness, and wear. `src/spaces/ownership.ts` exports target surfaces/height; environment splits corresponding wall faces there.
 
-관찰은 주랑 여섯 영역의 벽, 제실 네 벽, 각 문 양옆의 띠 끝을 owner 색 검사와 납품 보기에서 함께 본다. 띠가 업무방·봉헌실이나 외부로 새거나, 두 방의 높이가 다르거나, 문 void를 가로지르거나, 한 벽 면이 두 표면에 겹치면 실패다.
+Observe walls in all six colonnade regions, all four sanctuary walls, and band ends beside every door in owner-color and delivery views. Bands leaking into administrative/offering rooms or outside, differing heights, crossing voids, or two surfaces on one wall face fail.

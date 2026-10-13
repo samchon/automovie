@@ -68,7 +68,7 @@ Part map: `step`=step; `top`=top slab; `support`=pedestal.
 
 Parts and surfaces are `step`, `top` and `support`. The top face of the top slab is the face the [shallow offering bowl](wares.md#offering-bowl) lies on. The pedestal top and bottom faces and the step underside are hidden contact faces. instances consumes the reviewed north axis reservation of the sanctuary (at least 0.7m behind the altar to the wall, an activity depth of at least 1.5m in front) for placement.
 
-On the review board the front, side and three-quarter views show the top slab projection, the empty space between the two pedestals and the single step. Building observation checks from the sanctuary threshold that the altar lies on the north central axis and stays clear of the door swing. A single box without pedestals, a height over 1.05m, or an altar standing on the floor without the step is a failure.
+On the review board the front, side and 3/4 views show the top slab projection, the empty space between the two pedestals and the single step. Building observation checks from the sanctuary threshold that the altar lies on the north central axis and stays clear of the door swing. A single box without pedestals, a height over 1.05m, or an altar standing on the floor without the step is a failure.
 
 The UV0 of the altar `step`, `top` and `support` is the default planar projection along the outward normal of each stone slab. Vertices are split at the top slab underside, the pedestal top faces and the hard edges of the step.
 

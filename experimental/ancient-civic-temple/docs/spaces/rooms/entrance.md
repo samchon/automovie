@@ -1,39 +1,36 @@
-# 직사각형 안으로 물린 현관
+﻿# Entrance recessed within the rectangle
 
-## 정문과 포치의 깊이 {#entrance-volume}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 직사각 외곽 안에 후퇴 현관·두 석단·상부참·기둥 받침과 후퇴벽 문턱을 함께 수용한다.
-@evidence principles/core/common.md#substantive-completion 단높이 0.12m·디딤 0.35m·폭 1.8m, 참 깊이와 기둥 중심 Z=10.00m·보 폭 및 구간별 cell 아래 경계를 결정한다.
-@evidence principles/core/common.md#declared-basis 현관 범위는 평면 기준선에서, 높이는 도로/층에서 받고 표의 Z 구간은 디딤 깊이에서 뺀 산술이라고 명시한다.
-@evidence principles/design/spaces.md#space-topology 한 entrance 안에서 계단과 양측 받침의 cell만 나누며 정문에서 주랑·중정 축까지 새 방을 끼우지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority 계단·참·안쪽 반환면은 현관, 바깥면은 남측 입면, 지붕은 porch owner로 나눈다.
-@evidence principles/design/spaces.md#space-verification-address 도로부터 열린 문까지의 종단면에서 실제 디딤과 cell 아래 경계를 대조하고 문 양면 및 기둥 받침 단면도 본다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치와 낮은 석단이라는 설정을 도로 높이차를 메우는 두 단의 단면·기둥 자리로 구체화한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entrance-porch의 두 원주와 ground-access의 단높이/디딤 한계를 대조했다. 외곽 안 후퇴부에 두 단과 참을 배정할 수 있어 도로로 돌출하거나 부모 단차를 바꾸지 않았다.
-@evidence settings/20-envelope.md#entrance-porch 두 기둥의 같은 높이 받침과 기둥 위 보·삼각 막음의 접촉을 정면 가까이 현관 안에 예약한다.
-@evidence settings/10-building.md#ground-access 실제 수평 디딤과 두 챌면으로 정문 높이차를 해결하고 경사 support로 대신하지 않는다.
--->
+## Main door and porch depth {#entrance-volume}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Fits the recessed entrance, two stone steps, upper landing, column supports, and recessed-wall threshold inside the rectangular outline.
+@evidence principles/core/common.md#substantive-completion Defines 0.12m risers, 0.35m treads, 1.8m width, landing depth, column center Z=10.00m, beam width, and each cell's lower boundary.
+@evidence principles/core/common.md#declared-basis Uses plan datums for the entrance extent and road/storey levels for heights; the table's Z intervals are arithmetic derived by subtracting tread depths.
+@evidence principles/design/spaces.md#space-topology Subdivides steps and side supports into cells within one entrance without inserting another room on the main-door-to-colonnade/courtyard axis.
+@evidence principles/design/spaces.md#space-boundary-authority Assigns steps, landing, and inner returns to the entrance, outer faces to the south facade, and roof to the porch owner.
+@evidence principles/design/spaces.md#space-verification-address Compares actual treads and cell lower boundaries in the road-to-open-door longitudinal section, and examines both door faces and column-support sections.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns the porch and low stone steps into a two-step section bridging the road height and locating its columns.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared the two entrance-porch columns with ground-access riser and tread limits. Two steps and a landing fit in the recess without projecting into the road or changing the parent's level difference.
+@evidence settings/20-envelope.md#entrance-porch Reserves equal-height column supports and actual beam/triangular-infill contact near the front of the entrance.
+@evidence settings/10-building.md#ground-access Resolves the entrance height with actual horizontal treads and two risers, without substituting sloped support.
 -->
 
-공간 ID `entrance`의 본체는 [평면 기준선](../building.md#plan-datums)의 west-porch-inner~east-porch-inner, entrance-front~south-outer에 놓인 지붕 있는 외부 전이 공간이다. 뒤의 후퇴벽은 entrance-back~entrance-front이고 그 중앙 실제 양개문이 주랑으로 통한다. 정문 축에서 중정 중심까지 시선을 꺾는 벽이나 방은 없다. 양옆 반환벽은 porch-inner~porch-outer 사이의 실제 두께를 가지며 정면 외피와 이어진다.
+The body of space ID `entrance` is a roofed exterior transition spanning west-porch-inner~east-porch-inner and entrance-front~south-outer in the [plan datums](../building.md#plan-datums). The recessed rear wall occupies entrance-back~entrance-front, with an actual central double door into the colonnade. No wall or room bends the sightline from the main entrance axis to the courtyard center. The side returns have actual thickness between porch-inner~porch-outer and join the front envelope.
 
-후퇴벽 안 `door-entry`의 문턱 바닥과 통과 부피는 [층의 배정](../storey.md#threshold-support)에 따라 이 현관에 귀속하며 상부참에서 주랑 쪽 벽면까지 연속한다.
+The entrance owns the threshold floor and passage volume of `door-entry` in the recessed wall under the [storey allocation](../storey.md#threshold-support), continuous from the upper landing to the colonnade-side wall face.
 
-두 단의 석단은 각 단높이 0.12m, 유효 디딤 0.35m이며 정면 외곽 안에서 도로 접점에서 Y=0의 현관 상부참으로 오른다. 계단 폭은 1.8m이고 상부참의 문 앞 깊이는 1.2m다. 두 포치 기둥의 기단은 각각 0.5m 정방형 이내, 중심 X=±1.35m, Z=10.00m로 채택해 반환벽과 중앙 계단을 피하고 기단 앞면을 south-outer에 맞춘다. 기둥 머리 위 수평 보는 south-outer 안쪽 0.30m 폭으로 놓여 [남측 입면](../facades/south.md#south-envelope)의 삼각 막음을 받치므로, 보·삼각 막음·포치 앞끝이 정면 가까이에서 한 박공으로 읽힌다. 계단 양옆의 석재 받침은 기둥 밑에서 Y=0까지 연속해 두 기둥이 단높이가 다른 디딤 면에 걸치지 않는다. 부재는 [정면 포치](../../settings/20-envelope.md#entrance-porch)를 따라 실제 보·박공에 닿아야 한다. 조립된 두 기둥·보·박공의 실체를 정면·양사선과 기둥 받침 평행 단면에서 읽었고 받침에서 뜬 기단이나 보와 박공 사이 빈 틈을 발견하지 않았다.
+Each of the two stone steps has a 0.12m riser and 0.35m usable tread. Within the front outline, they rise from the road contact to the entrance's upper landing at Y=0. The stair width is 1.8m and the landing depth in front of the door is 1.2m. Each porch column base is no larger than 0.5m square, centered at X=±1.35m, Z=10.00m to avoid the returns and central stair, with its front aligned to south-outer. A horizontal beam above the capitals occupies a 0.30m width inside south-outer and supports the [south facade](../facades/south.md#south-envelope) triangular infill. Beam, infill, and porch front therefore read as one gable near the frontage. Stone side supports continue beneath both columns to Y=0, rather than leaving them on treads of different heights. Members must meet the actual beam and gable under the [front porch setting](../../settings/20-envelope.md#entrance-porch). Front and both diagonal views of the assembled columns, beam, and gable, together with parallel column-support sections, showed neither floating bases nor a gap between beam and gable.
 
-종단면은 south-outer에서 -Z 방향으로 앞 문단의 디딤 깊이를 두 번 빼고, 남은 구간을 entrance-front까지의 상부참으로 정한다. 높이는 [도로와 층 바닥](../storey.md#ground-storey)에 결속한다. 아래 수치는 이 입력의 산술을 보인 것이며 별도 치수 원본이나 compiled 측정값이 아니다.
+The longitudinal section subtracts the preceding tread depth twice in the -Z direction from south-outer, leaving the upper landing to entrance-front. Heights follow the [road and storey floor](../storey.md#ground-storey). The following values show this input arithmetic; they are neither independent dimension authorities nor compiled measurements.
 
-| 중앙 계단 구간 | Z 범위(m) | 완성면 Y(m) | 접합 |
+| Central stair segment | Z interval (m) | Finished Y (m) | Junction |
 | --- | --- | --- | --- |
-| 첫 디딤 | 9.90~10.25 | -0.12 | south-outer에서 도로보다 한 단 높음 |
-| 둘째 디딤 | 9.55~9.90 | 0 | 첫 디딤에서 한 단 올라옴 |
-| 문 앞 상부참 | 8.35~9.55 | 0 | 둘째 디딤과 같은 높이로 연속 |
+| First tread | 9.90~10.25 | -0.12 | One riser above the road at south-outer |
+| Second tread | 9.55~9.90 | 0 | One riser above the first tread |
+| Upper landing before the door | 8.35~9.55 | 0 | Continuous at the second tread's level |
 
-중앙 구간의 X 범위는 계단 폭의 절반을 축 양쪽에 적용한다. 그 바깥에서 현관 안쪽 반환벽까지의 양측 석재 받침은 본체 깊이 전체에 Y=0으로 이어진다. 둘째 디딤과 상부참 사이에는 추가 챌면이나 겹친 상판을 만들지 않는다. 도로→첫 디딤과 첫째→둘째 사이만 수직 챌면이며, 그 위를 경사 지지면으로 덮지 않는다. 디딤·참·받침의 실제 상면과 수직 면은 같은 현관 바닥 owner가 소유한다. 보행 support는 실제 수평 면에만 배정하고 기둥 기단과 열린 문짝이 차지한 곳을 통과 여유로 세지 않는다.
+The central X interval extends half the stair width to either side of the axis. Beyond it, stone supports continue at Y=0 throughout the entrance depth to the inner returns. Do not add a riser or overlapping slab between the second tread and landing. Only road→first tread and first→second tread have vertical risers; do not cover them with sloped support. One entrance floor owner owns the actual horizontal and vertical faces of treads, landing, and supports. Assign walking support only to actual horizontal faces, without counting occupied column bases or open leaves as passage clearance.
 
-현관은 한 `entrance` 공간이며 바닥 높이가 바뀌는 구간과 양측 받침에서 `cells`를 나눈다. 아래 경계는 각 구간의 완성면이고 위 경계는 [합성된 포치 지붕](../roofs/porch.md#porch-roof)의 실제 하부다. 계단의 최저 높이를 현관 전체의 바닥으로 복사해 석재 내부를 공간에 포함하지 않는다. 동일 높이의 둘째 디딤·참은 합칠 수 있고, 경사지붕 때문에 더 나눈 cell도 같은 공간에 남는다. 후퇴벽의 문턱 통과 cell은 기존 층 배정을 따른다. cell 접면은 물리벽·새 방·새 순환 경로를 만들지 않으며, 실제 보·기둥·문짝 충돌은 별도로 확인한다.
+This is one `entrance` space. Subdivide its `cells` at floor-height changes and side supports. Each lower boundary is the corresponding finished surface; the upper boundary is the actual underside of the [composed porch roof](../roofs/porch.md#porch-roof). Do not copy the lowest stair level throughout the entrance and include the stone interior in the space. The level second tread and landing may merge; additional cells needed beneath a sloped roof still belong to the same space. The recessed-wall threshold cell follows the existing storey allocation. Cell interfaces create no physical walls, new rooms, or new circulation paths. Actual beam, column, and leaf collisions require separate examination.
 
-source `src/spaces/rooms/entrance.ts`가 현관 공간, 석단·상부참, 안쪽 반환벽의 완결 표면을 맡는다. 바깥 정면과 포치 지붕은 각 [입면](../facades/south.md#south-envelope)과 [지붕](../roofs/porch.md#porch-roof) owner다. 관찰은 도로→두 단→상부참→열린 문→주랑의 종단면, 기둥 받침 X=±1.35m를 지나는 [평행 단면](../observations.md#geometry-observations), 네 모서리와 문 안/밖 threshold다. 종단면 X=0은 기둥 받침을 지나지 않으므로 평행 단면에서 받침과 기둥의 접촉을 별도로 확인하며 카메라 이동으로 실제 발 디딤 연결을 대신하지 않는다.
+Source `src/spaces/rooms/entrance.ts` owns the entrance space, stone steps, upper landing, and complete inner-return surfaces. The respective [facade](../facades/south.md#south-envelope) and [roof](../roofs/porch.md#porch-roof) owners own the exterior frontage and porch roof. Observe the longitudinal section road→two steps→landing→open door→colonnade, [parallel sections](../observations.md#geometry-observations) through column supports at X=±1.35m, all four corners, and both sides of the door threshold. The X=0 longitudinal section misses the column supports, so inspect their contact with the columns in parallel sections; camera movement does not establish actual foot-support continuity.

@@ -35,9 +35,7 @@ Use the commands declared in `package.json`:
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
-The model contact census uses exact approved phrases for the eight older model files as a change detector; a harmless rewording can require a renewed review. Its 91 original PASS links are not independent measurements; six added geometric joint claims use reconstructed part intersections or contact. The `portable` and `ritual` files instead enter a generated census: 14 sentences have measured part contact, ten have derived geometric relations, and 57 are classified as descriptions, review instructions, or instance-owned contacts. At this revision, `model-prose-consistency.mjs` reports 579 part-bound and union rows across 44 occupancy-box H2s, 22 part-contact rows, five wall-contact rows, 16 shape-relation rows, two polygonal tube rows, and eleven positive part-box overlaps checked against declared assembly relations. It splits repeated components, hollow radial parts, bent plates, cut beams, and roof/wall mating faces before treating an enclosing box as solid. Recovered part axes and occupancy boxes enter the audit, but an unparsed axis can be missed when another interval on the same line is read as its substitute. Positive part-box overlaps require a named construction relation. Claimed insertions and intersections also need a surface point inside the receiving solid; an unparsed construction fails. Polygonal vessel and Bézier-handle insertions measure both capped ends and compare stated depths with the recovered sections.
-
-Polygonal tube-to-host clearance is measured only for `portable#bucket`. The following curved parts have recovered occupancy axes, but their swept-path clearance against a host is outside that checker. Their host geometry or assembly state needs a separate sweep grammar before a clearance claim can be made.
+Model contact and clearance claims need measurements of the actual compiled geometry. Earlier PASS links and prose-derived occupancy boxes do not establish those relations. The following curved-part swept-path relations remain unmeasured; their host geometry and assembly state need direct geometric evaluation before a clearance claim can be made.
 
 | H2 | Part | Unmeasured relation axis | Reason |
 | --- | --- | --- | --- |
@@ -53,13 +51,11 @@ Polygonal tube-to-host clearance is measured only for `portable#bucket`. The fol
 | `wares#basket` | `rim` | curve ↔ woven wall | A toroidal rim caps a woven shell. |
 | `wares#scroll` | `tie` | curve ↔ rolled paper | Three variants have distinct cylinders and wrap paths. |
 
-The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
-
 ## Visual work
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The current viewer renders the structural space source in neutral review clay. Model source resumes only after `models` passes independent review and `modelSources` enters `draft`. The retired model prototypes, dependent object assembly and placements, source-only tests, and `src/geometry/jar-rack-board.ts` are recoverable from commit `ac4b6cb4`. Restore the rack geometry inside its `src/models` class when that layer opens. Material bindings resume after `materials` passes independent review and `materialSources` enters `draft`; the binding source is recoverable from commit `ce41e8a0`. The texture assets, generator, and material design draft remain in the active tree.
+The building and model-board viewers consume the active spatial, model, material, and placement source. Their current branch stages are declared in `lint.config.ts`. A stage declaration or successful source check does not establish visual completion: inspect actual frames, joints, material response, and the recorded unresolved questions through the linked review procedure.
 
 ## Ownership
 

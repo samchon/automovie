@@ -1,27 +1,24 @@
-# 동측 업무 날개의 지붕
+﻿# East administrative-wing roof
 
-## 마당 앞에서 끝나는 덮개 {#east-roof}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 세 업무방과 동쪽 주랑을 덮고 동측 외벽 처마·마당 쪽 북쪽 끝·남동/북동 골을 남기면서 후면 서비스 마당의 열린 하늘을 보존한다.
-@evidence principles/core/common.md#substantive-completion east-court 지지선 3.20m와 동측 외벽 중심 지지선 3.55m, 공통 접합의 동측 박공 19도 두 경사, east-court−0.35~east-outer+0.35, yard-front−0.35~south-inner 영역을 정한다.
-@evidence principles/core/common.md#declared-basis 높이·경사·돌출은 공통 접합을 소비하고 용마루 약 X=7.36m·4.53m, 코핑 아랫면 대비 약 0.16m와 널판 천장 여유 약 3.46m를 입력 비교로 적는다.
-@evidence principles/design/spaces.md#space-topology 북쪽은 마당 앞에서 끝나며 주랑 위 겹침만 북쪽·남쪽 외쪽 지붕과 합성해 마당을 실내 방으로 바꾸지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority east roof는 상면/용마루/외부 하부를 소유하고 각 업무방 천장과 주랑 노출 하부는 방 owner에게 준다.
-@evidence principles/design/spaces.md#space-verification-address 동측 입면·마당에서 올려다본 북끝·남측 파라펫 뒤 끝·세 방 천장·중정 처마로 열린 마당과 덮인 보관실이 뒤바뀌는 오류를 찾는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 우측 연속 업무방과 후면 마당의 요구에 roof 북단이 멈출 공유벽, 남단이 멈출 파라펫, 동측 처마의 지지 높이를 더한다.
-@evidence settings/30-interiors.md#service-yard 마당 하늘에는 북쪽 돌출 처마 이외의 업무 날개 roof를 연장하지 않는다.
-@evidence settings/20-envelope.md#roof-form 이미지 01의 가운데 용마루 박공을 업무 날개에 두고 동측 외벽 쪽에만 바깥 처마를 남긴다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work service-yard의 열린 하늘과 수리된 roof-form의 박공·처마 범위를 동측 박공에 대조했다. 동측 지지를 3.55m로 두고 경사를 범위 안의 19도로 낮춰 업무방 널판 천장 위 여유와 남측 코핑 아래 용마루를 함께 지킬 수 있어 이 단위가 부모에 새 결함을 드러내지 않았다.
--->
+## Cover ending before the yard {#east-roof}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Covers three administrative rooms and the east colonnade, retaining east outer-wall eaves, the yard-side north end, southeast/northeast valleys, and open rear-yard sky.
+@evidence principles/core/common.md#substantive-completion Defines east-court support at 3.20m, east outer-wall center support at 3.55m, shared east-gable slopes of 19 degrees, and extent east-court−0.35~east-outer+0.35, yard-front−0.35~south-inner.
+@evidence principles/core/common.md#declared-basis Uses shared heights/slopes/projections; records ridge around X=7.36m and 4.53m high, around 0.16m beneath coping underside, and underside height around Y=3.46m above the plank-ceiling reservation as input comparisons.
+@evidence principles/design/spaces.md#space-topology Ends northward before the yard, composing only colonnade overlaps with north/south monopitches without turning the yard into an interior room.
+@evidence principles/design/spaces.md#space-boundary-authority East roof owns top/ridge/exterior underside; room ceilings and exposed colonnade underside belong to their room owners.
+@evidence principles/design/spaces.md#space-verification-address Examines the east facade, north end from the yard, end behind south parapet, three room ceilings, and courtyard eaves for swapped open-yard/covered-storage boundaries.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds the north shared-wall termination, south parapet termination, and east eave support height to the right-side room row and rear-yard requirement.
+@evidence settings/30-interiors.md#service-yard Extends no administrative-wing roof over the yard except the projecting north eave.
+@evidence settings/20-envelope.md#roof-form Places image 01's central-ridge gable over the administrative wing and retains exterior eaves only toward the east outer wall.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared service-yard open sky and repaired roof-form gable/eave ranges with the east gable. East support 3.55m and a 19-degree slope within the range preserve plank-ceiling clearance and a ridge below south coping without exposing a new parent defect.
 -->
 
-박공의 지지선은 [중정 동쪽 기준선](../building.md#plan-datums) east-court와 동측 외벽 중심 X=10.2m다. east-court 위치의 상면은 [공통 지지 높이](assembly.md#roof-junctions)의 주랑 처마 값이고 동측 외벽 중심은 3.55m다. 두 면은 [공통 접합](assembly.md#roof-junctions)의 동측 박공 경사 19도이므로 용마루는 중점보다 동쪽인 약 X=7.36m에서 Z 방향으로 이어지고 그 상면은 입력 산술상 약 4.53m다. 남쪽 끝의 용마루는 남측 코핑 아랫면 4.69m보다 약 0.16m 낮아 코핑 안쪽 돌출 아래로 들어가며 그 만남은 [박공과 파라펫 폐쇄](../junctions.md#gable-closures)의 표를 따른다. 동측 외벽 안쪽 면의 하부는 약 3.46m로 [업무방 널판 천장](../storey.md#ground-storey) 위 구조 예약보다 높다. 이 수치는 실측이 아니다.
+Gable support lines are east-court in the [courtyard east datums](../building.md#plan-datums) and the east outer-wall center X=10.2m. The east-court top consumes the colonnade-eave [shared support height](assembly.md#roof-junctions); the outer-wall center is 3.55m. Both planes use the [shared](assembly.md#roof-junctions) east-gable slope of 19 degrees, producing a Z-direction ridge east of the midpoint around X=7.36m, with top around 4.53m by input arithmetic. At the south end this is around 0.16m below coping underside 4.69m, entering beneath its inward projection according to the [gable/parapet closure](../junctions.md#gable-closures) table. The underside at the east wall's inner face is around 3.46m, above the structural reservation over the [administrative-room plank ceilings](../storey.md#ground-storey). These are not surveyed measurements.
 
-후보 영역은 X로 east-court에서 0.35m 중정 쪽으로 나간 처마선부터 east-outer에서 0.35m 나간 동측 외벽 처마선까지, Z로 yard-front에서 0.35m 마당 쪽으로 나간 북쪽 끝부터 south-inner까지다. 동측 외벽은 처마를 받는 벽이고 남쪽 끝은 [남측 파라펫](../facades/south.md#south-envelope)의 안쪽 면에서 끝나 바깥 처마가 없다. 북쪽 끝은 서비스 마당/보관실 공유 벽 위이며 돌출 처마를 제외하고 마당 하늘을 덮지 않는다. 동쪽 주랑 위의 중정 쪽 면은 [북쪽](colonnade.md#north-canopy)·[남쪽](colonnade.md#south-canopy) 외쪽 지붕과 날개 합성해 북동·남동 골이 된다.
+The X candidate runs from the eave 0.35m courtyardward of east-court to the eave 0.35m beyond east-outer. Z runs from the north end 0.35m yardward of yard-front to south-inner. The east outer wall supports the eaves; the south end stops at the [south parapet](../facades/south.md#south-envelope) inner face without an exterior eave. The north end lies above the service-yard/storage shared wall and covers no yard sky beyond its projecting eave. Its courtyard-facing plane above the east colonnade composes with the [north](colonnade.md#north-canopy) and [south](colonnade.md#south-canopy) monopitches into northeast/southeast valleys.
 
-source `src/spaces/roofs/east.ts`가 업무 날개 상면·용마루·외부 처마 하부를 소유한다. 관리실·기록실·보관실의 낮은 천장과 주랑의 노출 하부는 각각 자기 공간 소유가 받는다. 서비스 마당을 평평한 지붕 아래 방으로 바꾸지 않는다.
+Source `src/spaces/roofs/east.ts` owns the wing's top, ridge, and exterior eave undersides. Administration, records, and storage own their low ceilings; colonnade owns its exposed underside. Do not turn the service yard into a room beneath a flat roof.
 
-동측 입면, 마당에서 북쪽 지붕 끝을 올려다보는 장면, 남측 파라펫 뒤 끝, 세 방 천장과 중정 쪽 처마를 검사한다. 마당의 열린 면이나 보관실의 덮인 면이 서로 바뀌면 이 지붕과 공간의 공유 경계부터 수리한다.
+Inspect the east facade, the north roof end viewed upward from the yard, end behind the south parapet, three room ceilings, and courtyard eaves. If open yard and covered storage faces are exchanged, repair the shared roof/space boundary first.

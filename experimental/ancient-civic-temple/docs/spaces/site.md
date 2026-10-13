@@ -1,171 +1,153 @@
-# 신전을 받치는 국소 대지
+﻿# Local site supporting the temple
 
-## 대지 단위와 범위 {#site-extent}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 대지를 건물 네 바깥면에서 각각 25m 나간 직사각형 전체로 잡고 지면·포장·배치 구역과 범위 밖 먼 능선의 자리를 나눠 외관 앞 한 조각만 만드는 축소를 막는다.
-@evidence principles/core/common.md#substantive-completion 소유 단위 temple-site, 뿌리 element site.root, kind site 공간과 네 볼록 cell의 X·Z·Y 범위를 수치로 정한다.
-@evidence principles/core/common.md#declared-basis 25m 범위는 40-environment#site의 저작자 선택에서, 외곽 좌표는 building#footprint에서 받고 필지나 실측 도로선이 아니라고 밝힌다.
-@evidence principles/design/spaces.md#space-topology temple-site가 건물·층 아래에 들지 않는 별도 뿌리이며 두 connector로만 건물 공간과 이어지고 네 cell이 건물 공간과 외곽 바깥면에서만 만나는 관계를 적는다.
-@evidence principles/design/spaces.md#space-boundary-authority 범위·기준선은 extent.ts 한 곳, 건물 외곽은 building, 현관 후퇴부 바닥은 entrance가 소유하고 대지는 외곽 안에 표면을 두지 않는다.
-@evidence principles/design/spaces.md#space-verification-address 대지 공간과 외곽의 겹침, 범위 밖 포장, site.root 아래 건물 element를 관찰 owner의 대지 항목에서 실패로 삼는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 25m 국소 setting과 대지 배정을 별도 소유 단위·뿌리 공간·네 cell의 공간 구조로 바꾼다.
-@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 대지를 공간으로 놓으려 하자 build-scope가 대지를 열 수 없는 maps에 배정했음이 드러나 00-delivery#build-scope를 spaces owner로 고쳤다. 대지 범위를 25m 직사각형으로 옮기려 하자 40-environment#site의 ‘외벽에서 최대 25m’가 모서리를 막아, 그 H2를 네 바깥면별 직사각형으로 고쳤다(a6e001e1).
-@evidence settings/40-environment.md#site 네 바깥면을 각각 수직 25m 옮긴 국소 setting을 대지 범위 X=-35.5~35.5, Z=-35.25~35.25로 옮기고 먼 배경을 범위 밖으로 나눈다.
-@evidence settings/00-delivery.md#build-scope 고친 배정대로 지면·경계석·먼 능선과 배치 구역을 이 파일이 소유하고 이웃·식생 개체는 models/instances에 남긴다.
--->
+## Site unit and extent {#site-extent}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Uses the whole rectangle 25m beyond each exterior building face, separating ground/paving/placement zones from distant ridge outside, rather than making only a front scenery fragment.
+@evidence principles/core/common.md#substantive-completion Defines unit temple-site, root element site.root, kind site space, and four convex cells' X/Z/Y extents numerically.
+@evidence principles/core/common.md#declared-basis Uses 40-environment#site's authored 25m and building#footprint coordinates, without claiming parcel or surveyed-road boundaries.
+@evidence principles/design/spaces.md#space-topology Makes temple-site a separate root outside building/storey, connected only through two connectors; four cells meet building spaces only at exterior outline faces.
+@evidence principles/design/spaces.md#space-boundary-authority Extent.ts singly owns site extents/datums, building owns its outline, and entrance owns recessed flooring; site has no surface inside the outline.
+@evidence principles/design/spaces.md#space-verification-address Site observations fail site/building volume overlap, paving outside extent, or building elements beneath site.root.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns the 25m local setting/site allocation into a separate unit, root space, and four-cell structure.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work Designing site as a space exposed build-scope allocation to unavailable maps, so 00-delivery#build-scope moved it to spaces. A 25m rectangle also conflicted with 40-environment#site's former maximum distance from walls at corners; that H2 was repaired to a rectangle offset from each of four faces (a6e001e1).
+@evidence settings/40-environment.md#site Offsets each exterior face perpendicularly 25m into X=-35.5~35.5, Z=-35.25~35.25, separating distant background outside.
+@evidence settings/00-delivery.md#build-scope Owns ground, curbs, distant ridge, and placement zones under the repaired allocation, leaving neighbor/vegetation objects to models/instances.
 -->
 
-[국소 대지](../settings/40-environment.md#site)와 [제작 대상과 분기](../settings/00-delivery.md#build-scope)의 지면·길·경계·배치 구역 배정을 소비한다. 대지는 건물 `temple`과 별도의 소유 단위 `temple-site`다. 이 단위의 뿌리 element는 `site.root`, 뿌리 공간은 kind `site`의 `temple-site`이며 어느 쪽도 건물 뿌리나 `temple-ground` 층 아래에 들어가지 않는다. 건물 안 공간과 대지는 [대지와 건물의 연결](#site-connections)의 두 connector로만 만난다. 이 production에서 maps 분기는 열리지 않는다. spaces가 이미 review이고 활성화된 미검토 기반 위에서는 spaces가 review에 머물 수 없으므로, 부모 설정의 대지 배정이 spaces로 옮겨졌고 이 파일이 그 단독 공간 owner다.
+Consume ground, path, boundary, and placement-zone allocation from [local site](../settings/40-environment.md#site) and [build scope/branches](../settings/00-delivery.md#build-scope). `temple-site` is separate from building `temple`. Its root element is `site.root`; its root space is `temple-site`, kind `site`. Neither belongs beneath building root or storey `temple-ground`. Only two [site/building connectors](#site-connections) join site and interior spaces. This production's maps branch is closed. Because spaces is already in review and cannot remain there above an active unreviewed foundation, parent settings moved site allocation to spaces, and this file is its sole space owner.
 
-범위는 [국소 대지 설정](../settings/40-environment.md#site)이 정한 대로 [외곽](building.md#footprint)의 네 바깥면에서 각각 수직으로 25m 떨어진 직사각형 X=-35.5~35.5m, Z=-35.25~35.25m다. 모서리의 외벽 최근접점 거리는 25m보다 길며 이 선은 설정이 정한 국소 제작 한계이지 필지 경계나 실측 도로선이 아니다. 범위 안에는 [지면 높이](#site-grade), [흙띠·경계석·포장](#site-paving), [배치 구역](#placement-zones)이 있고 범위 밖은 [먼 능선과 기슭](#distant-ridge)만 있다. 건물 외곽 X=±10.5m, Z=±10.25m 안에는 대지 표면·공간·배치가 없으며 현관 후퇴부의 바닥도 기존 [현관](rooms/entrance.md#entrance-volume) 소유다.
+As [site settings](../settings/40-environment.md#site) specify, offset each of the [outline](building.md#footprint)'s four exterior faces perpendicularly 25m, giving rectangle X=-35.5~35.5m, Z=-35.25~35.25m. Corners are farther than 25m from the nearest wall point; this is a local production limit, not a parcel boundary or surveyed road. Inside are [grade](#site-grade), [earth/curbs/paving](#site-paving), and [placement zones](#placement-zones); outside only [distant ridge/foothills](#distant-ridge). Site supplies no surface, space, or placement inside building X=±10.5m, Z=±10.25m. The entrance recess floor retains [entrance](rooms/entrance.md#entrance-volume) ownership.
 
-`temple-site` 공간은 건물 외곽을 뺀 범위를 남·북 띠(X 전폭, Z=10.25~35.25m와 -35.25~-10.25m)와 동·서 띠(Z=-10.25~10.25m, X=10.5~35.5m와 -35.5~-10.5m)의 네 볼록 cell로 덮는다. 각 cell은 Y=-0.30m에서 Y=6.0m까지다. 아래 한계는 가장 낮은 지면 -0.24m 아래이고 위 한계는 보행·관찰을 담는 논리 범위이며 하늘을 가리는 면이 아니다. 네 cell은 서로 면으로만 맞닿고 건물 공간과는 외곽의 바깥면에서만 만나며 어느 쪽과도 양의 체적으로 겹치지 않는다.
+Four convex cells cover `temple-site` minus the building: south/north strips spanning all X at Z=10.25~35.25m and -35.25~-10.25m, and east/west strips at Z=-10.25~10.25m, X=10.5~35.5m and -35.5~-10.5m. Every cell spans Y=-0.30m~6.0m. The lower limit is beneath lowest grade -0.24m; the upper limit logically contains walking/observations without sky-blocking faces. Cells meet each other only along faces and building spaces only along exterior outline faces, never with positive-volume overlap.
 
-source 조립 owner는 `src/spaces/site/assembly.ts`이고 범위·기준선은 `src/spaces/site/extent.ts`가 단일 입력으로 내보낸다. 반증은 [관찰](observations.md#geometry-observations)의 대지 항목이다. compiled 대지 공간이 건물 외곽과 겹치거나, 범위 밖으로 포장이 나가거나, 건물 쪽 element가 `site.root` 아래에 들어가면 이 owner부터 고친다.
+Assembly owner is `src/spaces/site/assembly.ts`; `src/spaces/site/extent.ts` exports sole extent/datum inputs. [Site observations](observations.md#geometry-observations) provide counterexamples. Repair this owner first for compiled site/building overlap, paving beyond the extent, or building elements under `site.root`.
 
-## 지면의 높이 {#site-grade}
+## Ground heights {#site-grade}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 정문 도로, 서비스 외부, 동·서 외벽을 따른 경사와 범위 전체 표면의 높이를 한 규칙으로 다뤄 접점 두 곳만 맞추는 축소를 막는다.
-@evidence principles/core/common.md#substantive-completion yard-front 북쪽 Y=0, south-outer 남쪽 Y=-0.24와 그 사이 Y=-0.24×(Z+2.45)/12.7의 식을 정한다.
-@evidence principles/core/common.md#declared-basis 두 높이는 storey#ground-storey, 전환선은 building#plan-datums에서 받고 기울기는 배수 설계나 실측 지형이 아닌 저작 선택이라고 밝힌다.
-@evidence principles/design/spaces.md#space-topology 지면이 정문 계단 발치와 서비스 문 앞을 끊김 없이 잇고 X 방향 경사나 둔덕이 없다는 관계를 형상보다 먼저 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 접점 높이는 storey, 전환선 Z는 기준선 표가 소유하고 이 H2는 그 사이 지면 식과 외벽 하단이 읽을 최저값만 낸다.
-@evidence principles/design/spaces.md#space-verification-address 동·서 외벽 종단면과 두 접점 단면에서 틈·접점 높이 불일치·전환선 단차를 실패로 삼는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 도로와 서비스 접근이 끊기지 않는다는 조건을 Z에만 따르는 세 구간 지면 식과 평면 조각 분할로 구체화한다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work ground-access의 정문 석단 허용과 서비스 무단차, storey의 -0.24/0 두 높이를 대조했다. 12.7m에 걸친 약 1.9% 경사로 두 조건이 함께 성립해 부모의 높이나 단차 한계를 고치지 않았다.
-@evidence settings/10-building.md#ground-access 정문 쪽 낮은 석단과 서비스 쪽 무단차를 서로 다른 지면 높이로 받아 한쪽 높이를 다른 쪽에 복사하지 않는다.
-@evidence settings/40-environment.md#site 도로와 서비스 접근의 연속과 지면-기단 맞닿음을 동·서 외벽을 따라 이어지는 경사 지면으로 만든다.
+@evidence principles/core/common.md#scope-preservation Applies one rule to main road, exterior service area, east/west wall slopes, and the entire site rather than matching only two contacts.
+@evidence principles/core/common.md#substantive-completion Defines Y=0 north of yard-front, Y=-0.24 south of south-outer, and Y=-0.24×(Z+2.45)/12.7 between.
+@evidence principles/core/common.md#declared-basis Uses storey#ground-storey heights and building#plan-datums transition lines; slope is authored, not drainage engineering or surveyed terrain.
+@evidence principles/design/spaces.md#space-topology Connects main stair foot/service frontage continuously with neither X slope nor mounds before choosing geometry.
+@evidence principles/design/spaces.md#space-boundary-authority Storey owns contact heights and datum table owns transition Z; this H2 supplies the intervening formula and minimum for wall bottoms.
+@evidence principles/design/spaces.md#space-verification-address East/west wall and both contact sections fail gaps, mismatched contact heights, or steps at slope transitions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Defines continuous road/service access through a three-segment Z-only grade formula and planar subdivision.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared ground-access main-step permission/level service access and storey heights -0.24/0. Around 1.9% over 12.7m satisfies both without revising parent heights or limits.
+@evidence settings/10-building.md#ground-access Receives low main steps and level service entry at different ground heights without copying either to the other.
+@evidence settings/40-environment.md#site Provides continuous paths and ground/plinth contact through slopes along east/west outer walls.
 -->
+
+Join [ground-access](../settings/10-building.md#ground-access) main steps/level service entry and [storey](storey.md#ground-storey) main road Y=-0.24m/service exterior Y=0 with one ground. Height depends only on Z. North of [datum](building.md#plan-datums) `yard-front` Z=-2.45m use Y=0; south of `south-outer` Z=10.25m use Y=-0.24m. Across the intervening 12.7m, use Y=-0.24×(Z+2.45)/12.7. Around 1.9% slope lowers toward the south frontage, with no X slope or local mounds.
+
+The main stair foot then meets Y=-0.24m, while the service frontage at center Z=-6.4m meets Y=0. Ground is designed to receive each contact independently. Along east/west exteriors the same slope meets wall faces, giving [wall-bottom](storey.md#wall-ground-contact) minimum contact -0.24m at the front. This authored continuous join is neither drainage engineering nor surveyed terrain.
+
+Derive all site surfaces and curb tops from this rule, exported as one function in `src/spaces/site/extent.ts`. Split surfaces at Z=-2.45m and Z=10.25m so every piece is planar; supports use the same planar height rule. Observe east/west wall longitudinal sections and both contact sections. Ground/wall gaps, mismatched contacts, or transition steps fail.
+
+## Earth strips, curbs, and paving {#site-paving}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Partitions the entire extent into wall-base earth, curbs, front street, three alleys, main approach, service frontage, and neighbor ground without gaps.
+@evidence principles/core/common.md#substantive-completion Defines plan regions/surface IDs, earth depths 3.0m/1.0m, curb width 0.30m, height 0.12m, and embedment 0.10m.
+@evidence principles/core/common.md#declared-basis Uses image 01 and 40-environment#site for paving/curb/dry-earth relations; region dimensions are authored choices.
+@evidence principles/design/spaces.md#space-topology Interrupts the curb ring only at two access paths, with disjoint surfaces and earth touching walls.
+@evidence principles/design/spaces.md#space-boundary-authority Uses site-grade heights, entrance-return inner faces for approach width, openings for service width, and materials for paving texture.
+@evidence principles/design/spaces.md#space-verification-address Overview regions, both curb interruptions, four corners, and alley-slope sections expose detached earth, blocked access, or duplicate surfaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns stone paths, low curbs, and dry earth into eight plan regions and curb-interruption rules.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared 40-environment#site paving/curb/earth and vegetation's wall-base grass with regions. All fit one plan without changing parent materials or extent.
+@evidence settings/40-environment.md#site Creates rough main-front paving, low curbs, and dry wall-edge earth as distinct paving/curb/earth surfaces.
 -->
 
-[바닥 접근](../settings/10-building.md#ground-access)의 정문 석단과 서비스 무단차 조건, [층](storey.md#ground-storey)의 정문 도로 Y=-0.24m와 서비스 외부 Y=0을 한 지면으로 잇는다. 지면 높이는 Z에만 따른다. [기준선](building.md#plan-datums) `yard-front` Z=-2.45m보다 북쪽은 Y=0, `south-outer` Z=10.25m보다 남쪽은 Y=-0.24m이고 그 사이 12.7m는 Y=-0.24×(Z+2.45)/12.7로 곧게 이어진다. 기울기는 약 1.9%로 남쪽 정면을 향해 낮아진다. X 방향 경사나 국소 둔덕은 두지 않는다.
+Allocate [local site's](../settings/40-environment.md#site) rough front paving, low curbs, and narrow dry wall-edge earth in plan. All heights follow [grade](#site-grade).
 
-이 규칙으로 정문 계단 발치는 Y=-0.24m 지면에, 서비스 문(Z=-6.4m 중심) 앞은 Y=0 지면에 닿는다. 두 접점의 높이는 지면이 그 값을 가지도록 정한 것이며 서로 복사하지 않는다. 동·서 외벽을 따라서는 이 경사가 그대로 벽 바깥면에 닿으므로 [외벽 하단](storey.md#wall-ground-contact)이 읽는 외부 접촉선 최저값은 정면의 -0.24m다. 지면 기울기는 배수 설계나 실측 지형이 아니라 두 접점을 끊김 없이 잇는 저작 선택이다.
-
-모든 대지 표면과 경계석 상면은 이 규칙에서 유도하고 source는 `src/spaces/site/extent.ts`의 한 함수로 내보낸다. 표면을 경사 전환선 Z=-2.45m와 Z=10.25m에서 나누어 각 조각이 평면이 되게 하고, 보행 support는 조각마다 같은 평면 높이 규칙을 가진다. 관찰은 동·서 외벽을 따른 종단면과 두 접점의 단면이며 지면과 벽 하단 사이 틈, 접점 높이 불일치, 경사 전환선의 단차가 있으면 실패다.
-
-## 흙띠·경계석·포장 {#site-paving}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 벽 밑 흙띠·경계석·정면 거리·세 골목·진입 포장·서비스 문 앞 포장·이웃 바닥으로 범위 전체를 빈틈 없이 나눈다.
-@evidence principles/core/common.md#substantive-completion 구획별 평면 범위와 표면 ID, 흙띠 깊이 3.0m/1.0m, 경계석 폭 0.30m·높이 0.12m·매입 0.10m를 정한다.
-@evidence principles/core/common.md#declared-basis 포장·경계석·마른 흙의 관계는 이미지 01과 40-environment#site에서 받고 구획 치수는 저작 선택이다.
-@evidence principles/design/spaces.md#space-topology 경계석 고리가 두 접근 경로에서만 끊기고 표면들이 겹치지 않으며 흙띠가 벽에 닿는 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 높이는 site-grade, 진입 포장 폭은 현관 반환벽 안쪽 면, 서비스 문 폭은 openings에서 받고 포장석 결은 materials에 남긴다.
-@evidence principles/design/spaces.md#space-verification-address 조감의 구획 평면, 두 접근의 경계석 끊김, 네 모서리, 골목 경사 단면으로 흙띠 이탈·접근 차단·표면 중복을 반증한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 석재 길·낮은 경계석·마른 흙을 여덟 구획의 평면표와 경계석 끊김 규칙으로 바꾼다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 40-environment#site의 포장·경계석·흙 관계와 vegetation의 벽 밑 풀을 구획에 대조했다. 모두 한 평면표 안에 자리를 얻어 설정의 재료 관계나 범위를 고칠 필요가 없었다.
-@evidence settings/40-environment.md#site 정문 앞 거친 석재 포장, 낮은 경계석, 벽 가장자리 마른 흙을 각각 paving·curb·earth 표면으로 만든다.
--->
-
-<!--
--->
-
-[국소 대지](../settings/40-environment.md#site)의 정문 앞 거친 석재 포장, 낮은 경계석, 벽 가장자리의 좁은 마른 흙을 평면으로 배정한다. 모든 높이는 [지면의 높이](#site-grade)를 따른다.
-
-| 구획 | 평면 범위(m) | 표면 |
+| Region | Plan extent (m) | Surface |
 | --- | --- | --- |
-| 벽 밑 흙띠 | 건물 외곽에서 경계석 안쪽 선까지. 안쪽 선은 X=±11.5, 북 Z=-11.25, 남 Z=13.25 | `surface.site.earth` |
-| 경계석 | 안쪽 선 바깥 0.30m 띠(X=±11.5~±11.8, Z=-11.25~-11.55, Z=13.25~13.55), 상면은 지면 위 0.12m | `surface.site.curb` |
-| 정면 거리 | Z=13.55~21.55, 범위 전폭 | `surface.site.paving` |
-| 동측 골목·서측 골목 | X=11.8~14.8과 -14.8~-11.8, Z=-11.55~13.55 | `surface.site.paving` |
-| 북측 골목 | Z=-14.55~-11.55, X=-14.8~14.8 | `surface.site.paving` |
-| 정문 진입 포장 | X=-1.65~1.65, Z=10.25~13.55 | `surface.site.paving` |
-| 서비스 문 앞 포장 | X=10.5~11.8, Z=-7.3~-5.5 | `surface.site.paving` |
-| 이웃 바닥 | 범위 안의 나머지 | `surface.site.ground` |
+| Wall-base earth strip | Building outline to curb inner line X=±11.5, north Z=-11.25, south Z=13.25 | `surface.site.earth` |
+| Curbs | 0.30m outside inner lines (X=±11.5~±11.8, Z=-11.25~-11.55, Z=13.25~13.55), top 0.12m above grade | `surface.site.curb` |
+| Front street | Z=13.55~21.55, full extent width | `surface.site.paving` |
+| East/west alleys | X=11.8~14.8 and -14.8~-11.8, Z=-11.55~13.55 | `surface.site.paving` |
+| North alley | Z=-14.55~-11.55, X=-14.8~14.8 | `surface.site.paving` |
+| Main approach paving | X=-1.65~1.65, Z=10.25~13.55 | `surface.site.paving` |
+| Service frontage paving | X=10.5~11.8, Z=-7.3~-5.5 | `surface.site.paving` |
+| Neighbor ground | Remaining area inside extent | `surface.site.ground` |
 
-정면의 흙띠는 깊이 3.0m, 동·서·북은 폭 1.0m다. 경계석 띠는 정문 진입 포장(X=±1.65)과 서비스 문 앞 포장(Z=-7.3~-5.5)에서 끊겨 두 접근 경로에 0.12m 턱이 없다. 진입 포장의 폭은 현관 반환벽 안쪽 면 사이와 같고, 서비스 문 앞 포장은 문 유효 폭 1.1m에 양쪽 0.35m씩 더한 길이다. 네 모서리에서 경계석은 끊기지 않는 직사각형 고리로 만난다.
+Front earth depth is 3.0m; east/west/north width is 1.0m. Interrupt curbs at main approach X=±1.65 and service frontage Z=-7.3~-5.5, leaving no 0.12m access curb. Main width matches entrance-return inner faces; service frontage extends clear door width 1.1m by 0.35m at both sides. Curbs join at four corners as a continuous rectangular ring.
 
-흙띠·포장·이웃 바닥은 지면 높이의 윗면만 가진 열린 표면이고 경계석은 지면 아래 0.10m부터 지면 위 0.12m까지의 닫힌 석재 띠다. 표면들은 서로 겹치지 않고 경계석 띠 자리에는 경계석만 있다. 포장 석재의 줄눈·요철과 흙의 결은 materials가 이 표면에 결속하며 spaces는 개별 포장석을 만들지 않는다. 벽 밑 흙띠에는 [벽 밑 풀](../settings/40-environment.md#vegetation)만 놓일 수 있고 나무와 이웃은 놓이지 않는다.
+Earth/paving/neighbor ground are open top-only surfaces at grade. Curbs are closed stone bands from 0.10m below to 0.12m above grade. Surfaces do not overlap; curb footprints contain only curb. Materials binds paving joints/relief and soil texture; spaces creates no individual paving stones. Only [wall-base grass](../settings/40-environment.md#vegetation), no trees/neighbors, may occupy the earth strip.
 
-source owner는 `src/spaces/site/ground.ts`다. 관찰은 조감의 구획 평면, 정문 진입과 서비스 문 앞의 경계석 끊김, 네 모서리 경계석, 동·서 골목의 경사 단면이다. 흙띠가 벽에 닿지 않거나 경계석이 접근 경로를 막거나 표면 두 개가 같은 자리에 겹치면 실패다.
+Source owner is `src/spaces/site/ground.ts`. Observe overview regions, both approach interruptions, four curb corners, and east/west alley-slope sections. Earth detached from walls, curbs blocking access, or coincident surfaces fail.
 
-## 대지와 건물의 연결 {#site-connections}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 정문 계단과 외부 서비스 문 두 접점을 모두 connector로 만들고 다른 통로가 없다고 한정한다.
-@evidence principles/core/common.md#substantive-completion 두 connector의 ID·종류·방향·경로 끝점·단 수·폭·유효 높이를 표로 정한다.
-@evidence principles/core/common.md#declared-basis 계단 치수는 entrance, 문 폭·높이는 openings, 문턱 소유는 storey#threshold-support에서 받는다.
-@evidence principles/design/spaces.md#space-topology temple-site↔entrance와 service-yard↔temple-site 두 연결만 두고 대지를 층이나 외벽 경계의 두 번째 공간으로 등록하지 않는다.
-@evidence principles/design/spaces.md#space-boundary-authority connector는 circulation.ts, 대지 support와 공간은 assembly.ts가 소유하고 문턱 바닥은 service-yard 소유로 남긴다.
-@evidence principles/design/spaces.md#space-verification-address 두 connector의 종단면과 경로 폭 안 장애물에서 벽·기둥·경계석 통과와 공간 밖 끝점을 실패로 삼는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 건물 접점 두 ID를 실제 외부 공간과 잇는 stair/passage connector 기록으로 바꾼다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work building#approach-contacts의 두 접점, entrance의 두 단, openings의 서비스 문 치수를 대지 connector에 대조했다. 모두 그대로 소비돼 부모 접점이나 설정의 접근 조건을 고치지 않았다.
-@evidence settings/40-environment.md#site 도로와 외부 서비스 접근이 끊기지 않도록 대지에서 건물로 들어가는 두 경로를 실제 connector로 만든다.
-@evidence settings/10-building.md#ground-access 정문은 두 단 stair, 서비스 문은 같은 높이 passage로 만들어 서비스 쪽에 단을 두지 않는다.
--->
+## Site/building connections {#site-connections}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Makes both main-stair/exterior-service contacts connectors and permits no other passage.
+@evidence principles/core/common.md#substantive-completion Defines both IDs, kinds, directions, endpoints, step counts, widths, and clear heights in the table.
+@evidence principles/core/common.md#declared-basis Uses entrance stair dimensions, openings door dimensions, and storey#threshold-support ownership.
+@evidence principles/design/spaces.md#space-topology Keeps only temple-site↔entrance and service-yard↔temple-site without registering site as storey or second outer-boundary space.
+@evidence principles/design/spaces.md#space-boundary-authority Circulation.ts owns connectors, assembly.ts site support/space, and service-yard its threshold floor.
+@evidence principles/design/spaces.md#space-verification-address Both connector sections and route-width obstacles fail wall/column/curb penetration or endpoints outside owning spaces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Converts two building-contact IDs into stair/passage connector records to actual exterior space.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work Compared building#approach-contacts, entrance's two steps, and openings' service dimensions with connectors. All are consumed unchanged without parent contact/access revisions.
+@evidence settings/40-environment.md#site Creates two actual site-to-building connectors for continuous road/service access.
+@evidence settings/10-building.md#ground-access Uses two-step main stair and level service passage, without service steps.
 -->
 
-[건물 접점](building.md#approach-contacts)의 두 ID를 `temple-site`의 두 connector로 소비한다. 외부 쪽 공간은 모두 `temple-site`다.
+Consume two [building contact](building.md#approach-contacts) IDs through two `temple-site` connectors. Both exterior-side spaces are `temple-site`.
 
-| connector | 종류와 방향 | 경로와 치수 |
+| Connector | Kind/direction | Path and dimensions |
 | --- | --- | --- |
-| connector.site-entrance-stair | stair, temple-site→entrance, 양방향 | X=0에서 계단 발치 앞 Z=10.60m(Y=-0.24)부터 상부참 Z=9.90m(Y=0)까지, 두 단(단높이 0.12m, 디딤 0.35m), 폭은 [현관 계단](rooms/entrance.md#entrance-volume)의 1.8m |
-| connector.door-service-exterior | passage, service-yard→temple-site, 양방향 | Z=-6.4m에서 벽 안쪽 면 0.3m 안(X=9.6)부터 바깥면 0.3m 밖(X=10.8)까지 Y=0, 폭과 유효 높이는 [외부 서비스 문](openings.md#doors)의 1.1×2.2m |
+| connector.site-entrance-stair | stair, temple-site→entrance, bidirectional | X=0, before stair foot Z=10.60m (Y=-0.24) to upper landing Z=9.90m (Y=0), two steps (0.12m riser, 0.35m tread), [entrance stair](rooms/entrance.md#entrance-volume) width 1.8m |
+| connector.door-service-exterior | passage, service-yard→temple-site, bidirectional | Z=-6.4m, 0.3m inside inner wall face (X=9.6) to 0.3m beyond outer face (X=10.8), Y=0, [exterior service door](openings.md#doors) width/clear height 1.1×2.2m |
 
-정문 connector의 유효 높이는 경로 위 포치 지붕 하부에서 읽고 지붕 밖 구간은 하늘로 열린다. 서비스 문 connector는 기존 문 통과와 같은 규칙으로 만들고 문턱 바닥은 [문턱 귀속](storey.md#threshold-support)대로 service-yard 소유다. 대지 쪽 보행 support는 흙띠·포장의 표면이며 이웃 바닥과 경계석은 보행 목록에 넣지 않는다.
+Read main connector clear height from the porch underside along its path; portions beyond roof are open sky. Service follows the existing door-passage rule; [threshold ownership](storey.md#threshold-support) remains service-yard. Site walking support uses earth/paving, excluding neighbor ground and curbs.
 
-이 두 connector 외에 건물과 대지를 잇는 통로는 없다. 대지는 건물의 방이나 층이 아니므로 `temple-site`를 `temple-ground`에 귀속하거나 건물 외벽 경계에 두 번째 공간으로 등록하지 않는다. 외벽 경계는 계속 방 하나만 가진 입면으로 남는다. source는 connector를 `src/spaces/circulation.ts`가, 대지 support와 공간을 `src/spaces/site/assembly.ts`가 소유한다. 관찰은 두 connector의 종단면과 경로 폭 안의 장애물이며 connector가 벽·기둥·경계석을 통과하거나 끝점이 자기 공간 밖에 있으면 실패다.
+No other passage joins building/site. Site is neither a building room nor storey: do not assign `temple-site` to `temple-ground` or as a second outer-wall boundary space. Exterior walls remain single-room facades. `src/spaces/circulation.ts` owns connectors; `src/spaces/site/assembly.ts` owns site support/space. Observe both connector sections and route-width obstacles. Penetrating walls/columns/curbs or endpoints outside their spaces fail.
 
-## 이웃과 수목의 배치 구역 {#placement-zones}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 네 이웃 구역과 벽 밑 풀 띠, 포장·접근 경로의 금지와 관찰 시선 보호를 함께 정해 배경 배치를 무제한으로 두지 않는다.
-@evidence principles/core/common.md#substantive-completion 구역별 평면 범위와 허용 개체, 1.5m 후퇴, 풀 띠 0.6m, 접근 양옆 0.5m 금지를 정한다.
-@evidence principles/core/common.md#declared-basis 이웃 높이 제한과 비가림은 40-environment#neighborhood·#vegetation에서 받고 후퇴 거리는 저작 선택이다.
-@evidence principles/design/spaces.md#space-topology 구역이 포장 밖 이웃 바닥 위에 있고 포장·경계석과 겹치지 않으며 외부 관찰 시선을 막지 않는 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority spaces는 구역만, 개체 위치·수·크기·회전은 instances, 형상은 models가 소유한다고 나눈다.
-@evidence principles/design/spaces.md#space-verification-address 조감의 구역과 실제 배치를 대조해 구역 밖 개체·포장 위 개체·관찰 시선 차단을 실패로 삼는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 비가림·높이 조건을 네 구역 좌표와 허용 개체·금지 폭으로 바꾼다.
-@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 구역을 정하려 하자 40-environment#neighborhood가 열릴 수 없는 maps에 이웃 위치·크기를 맡기고 있음이 드러났다. 그 H2를 spaces 구역과 instances 배치로 고쳤다.
-@evidence settings/40-environment.md#neighborhood 길 건너 이웃 외피를 네 구역에만 두고 포치·박공·외곽과 관찰 시선을 가리는 배치를 거부한다.
-@evidence settings/40-environment.md#vegetation 나무는 이웃 구역, 풀은 벽 밑 띠에만 두고 문 앞과 접근 포장에서 떨어뜨린다.
--->
+## Neighbor and tree placement zones {#placement-zones}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Bounds background placement through four neighbor zones, wall-base grass, paving/access prohibitions, and protected observation sightlines.
+@evidence principles/core/common.md#substantive-completion Defines region extents/permitted objects, 1.5m setback, 0.6m grass strip, and 0.5m access-side exclusions.
+@evidence principles/core/common.md#declared-basis Uses 40-environment#neighborhood/#vegetation height/nonocclusion requirements; setbacks are authored choices.
+@evidence principles/design/spaces.md#space-topology Locates regions on neighbor ground beyond paving without curb/paving overlap or exterior sightline blockage.
+@evidence principles/design/spaces.md#space-boundary-authority Spaces owns zones, instances positions/counts/sizes/rotations, and models geometry.
+@evidence principles/design/spaces.md#space-verification-address Compares overview zones/actual placements; outside-zone or paved objects and blocked observation sightlines fail.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns settings' nonocclusion/heights into four coordinate zones, permitted objects, and forbidden widths.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work Defining regions exposed 40-environment#neighborhood allocation of neighbor positions/sizes to unavailable maps; repaired it to spaces zones and instances placement.
+@evidence settings/40-environment.md#neighborhood Limits across-street neighbor envelopes to four zones and rejects occlusion of porch/gables/outline or observation sightlines.
+@evidence settings/40-environment.md#vegetation Places trees only in neighbor zones and grass only at wall bases, away from doors/access paving.
 -->
 
-[주변 건물](../settings/40-environment.md#neighborhood)과 [식생](../settings/40-environment.md#vegetation)을 instances가 배치할 구역과 금지 조건을 정한다. spaces는 구역만 소유하고 개체의 위치·수·크기·회전은 instances, 형상은 models 소유다.
+Define zones and prohibitions for instances placing [neighbors](../settings/40-environment.md#neighborhood) and [vegetation](../settings/40-environment.md#vegetation). Spaces owns only zones; instances owns positions/counts/sizes/rotations, and models owns geometry.
 
-| 구역 | 평면 범위(m) | 허용 개체 |
+| Zone | Plan extent (m) | Permitted objects |
 | --- | --- | --- |
-| 남쪽 이웃 구역 | Z=23.05~35.25, 범위 전폭 | 이웃 외피, 나무 |
-| 서쪽 이웃 구역 | X=-35.5~-16.3, Z=-35.25~12.05 | 이웃 외피, 나무 |
-| 동쪽 이웃 구역 | X=16.3~35.5, Z=-35.25~12.05 | 이웃 외피, 나무 |
-| 북쪽 이웃 구역 | Z=-35.25~-16.05, X=-16.3~16.3 | 이웃 외피, 나무 |
-| 벽 밑 풀 띠 | 벽 밑 흙띠 중 벽 바깥면에서 0.6m 안 | 풀 |
+| South neighbors | Z=23.05~35.25, full width | Neighbor envelopes, trees |
+| West neighbors | X=-35.5~-16.3, Z=-35.25~12.05 | Neighbor envelopes, trees |
+| East neighbors | X=16.3~35.5, Z=-35.25~12.05 | Neighbor envelopes, trees |
+| North neighbors | Z=-35.25~-16.05, X=-16.3~16.3 | Neighbor envelopes, trees |
+| Wall-base grass | Earth strip within 0.6m of exterior wall faces | Grass |
 
-이웃 구역은 포장 가장자리에서 1.5m 물러난 이웃 바닥 위다. 네 구역 밖의 포장·경계석·진입 포장·서비스 문 앞 포장에는 어떤 개체도 두지 않는다. 풀은 정문 진입 포장과 서비스 문 앞 포장의 양옆 0.5m 안에 두지 않는다. 이웃 외피의 높이는 설정대로 신전보다 낮거나 비슷해야 하며 [관찰](observations.md#geometry-observations)의 외부 관찰 위치와 그 시선이 신전의 포치·박공·외곽에 닿는 경로를 막는 배치는 구역 안이라도 거부한다.
+Neighbor regions sit on neighbor ground, 1.5m back from paving edges. No objects occupy paving, curbs, main approach, or service frontage outside these regions. Exclude grass within 0.5m of either side of main/service paving. Neighbor heights must be below or comparable to the temple per settings. Even within zones, reject placements blocking [exterior observations](observations.md#geometry-observations) or their sightlines to porch, gables, and outline.
 
-구역 경계는 `src/spaces/site/extent.ts`가 내보내고 instances가 소비한다. 현재 `src/instances/site.ts`가 이웃 외피 세 개, 나무 네 개와 풀 군락 여섯 개를 조립한다. 조감 평면의 구역과 실제 배치, 정문·서비스 접근 및 서측 골목의 화면을 대조했고 포치·박공·출입 시선을 막는 배치를 발견하지 않았다. 구역 밖 개체, 포장 위 개체, 외부 관찰 시선을 막는 개체가 있으면 실패다.
+`src/spaces/site/extent.ts` exports zones for instances. Currently `src/instances/site.ts` assembles three neighbor envelopes, four trees, and six grass clumps. Comparing overview regions/placements, main/service access, and west alley views found no occlusion of porch, gables, or access sightlines. Outside-zone objects, objects on paving, or blocked exterior observation sightlines fail.
 
-## 먼 능선과 기슭 {#distant-ridge}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 40~100m 능선과 대지 밖 기슭만 맡고 보행·시설·식생 개체를 두지 않는다.
-@evidence principles/core/common.md#substantive-completion 발치·마루 반지름, 마루 높이 식, 72분할, 기슭 220m 사각형을 정한다.
-@evidence principles/core/common.md#declared-basis 거리 범위와 낮은 윤곽은 40-environment#distant-terrain에서 받고 반지름과 높이 식은 저작 선택이다.
-@evidence principles/design/spaces.md#space-topology 능선과 기슭이 보행 support·공간 cell·배치 구역 밖의 배경 표면이라는 관계를 정한다.
-@evidence principles/design/spaces.md#space-boundary-authority 기슭 높이는 site-grade 규칙을 이어받고 능선 형상은 ridge.ts 한 곳이 소유한다.
-@evidence principles/design/spaces.md#space-verification-address 외부 조감과 거리 서쪽 끝 눈높이 시점에서 능선의 위계와 기슭 단차·틈을 실패 조건으로 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 40~100m 낮은 능선을 반지름·높이 식·분할로 된 입체 형상으로 바꾼다.
-@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 능선을 만들려 하자 40-environment#distant-terrain이 열릴 수 없는 maps에 높이·윤곽을 맡기고 있음이 드러나 그 H2를 spaces 대지 owner로 고쳤다.
-@evidence settings/40-environment.md#distant-terrain 건물에서 약 41.3~97.8m 떨어진 낮고 완만한 입체 능선을 사진 없이 만든다.
--->
+## Distant ridge and foothills {#distant-ridge}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Owns only the 40~100m ridge and foothills outside site, without walking, facilities, or vegetation objects.
+@evidence principles/core/common.md#substantive-completion Defines foot/crest radii, crest-height formula, 72 subdivisions, and 220m-square foothills.
+@evidence principles/core/common.md#declared-basis Uses 40-environment#distant-terrain distance/low-profile requirements; radii and height formula are authored choices.
+@evidence principles/design/spaces.md#space-topology Keeps ridge/foothills as background outside walking support, spatial cells, and placement zones.
+@evidence principles/design/spaces.md#space-boundary-authority Foothills inherit site-grade heights; ridge.ts singly owns ridge geometry.
+@evidence principles/design/spaces.md#space-verification-address Exterior overview and west street-end eye-height views test ridge hierarchy and foothill steps/gaps.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Turns the low 40~100m ridge into radii, height formula, and subdivided three-dimensional geometry.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work Creating ridge exposed 40-environment#distant-terrain heights/outlines allocated to unavailable maps; repaired that H2 to the spaces site owner.
+@evidence settings/40-environment.md#distant-terrain Creates low gentle volumetric ridge around 41.3~97.8m from the building without photographs.
 -->
 
-[먼 지형](../settings/40-environment.md#distant-terrain)의 40~100m 낮고 완만한 입체 능선을 소유한다. 능선은 원점을 중심으로 한 고리 모양의 열린 표면이다. 안쪽 발치 반지름 56m, 마루 반지름 88m, 바깥 발치 반지름 108m이고 발치는 Y=-0.30m에서 지면 아래로 들어간다. 건물에서 가장 가까운 거리는 외곽 모서리(반지름 약 14.7m)에서 안쪽 발치까지 약 41.3m, 가장 먼 거리는 축 방향 바깥면에서 바깥 발치까지 약 97.8m로 설정 범위 안에 있다.
+Own the [distant terrain](../settings/40-environment.md#distant-terrain)'s low gentle 40~100m volumetric ridge as an open ring around the origin. Inner foot radius is 56m, crest 88m, outer foot 108m; feet enter the ground at Y=-0.30m. Nearest building distance is around 41.3m from outline corners (radius around 14.7m) to inner foot; farthest is around 97.8m from axial exterior faces to outer foot, within settings.
 
-마루 높이는 방위각 φ(정면 +Z에서 0, 동쪽 +X로 증가)에 대해 H(φ)=7.0−2.5·cos φ+1.2·sin(3φ+0.7)+0.6·sin(7φ+1.9) m다. 정면을 중심으로 한 ±60° 구간은 약 3.3~5.9m로 낮고 신전 뒤쪽 ±60° 구간은 약 8.1~10.7m로 높아 지붕 뒤 수평선을 이룬다. 안쪽 경사는 가장 높은 곳에서도 약 19°, 정면 쪽은 약 11° 이하다. 둘레를 72조각(5°)으로 나누고 각 조각은 안쪽 경사·바깥 경사의 삼각형 면으로 만든다. 능선 아래와 국소 대지 사이의 기슭은 대지 범위 밖에서 한 변 220m 사각형까지 [지면의 높이](#site-grade) 규칙을 이어받은 평면이다.
+For azimuth φ (0 toward front +Z, increasing toward east +X), crest height is H(φ)=7.0−2.5·cos φ+1.2·sin(3φ+0.7)+0.6·sin(7φ+1.9) m. The front ±60° stays low around 3.3~5.9m; rear ±60° rises around 8.1~10.7m to form the horizon behind roofs. Inner slope is around 19° at its highest and no more than around 11° toward the front. Divide circumference into 72 pieces (5°), each with inner/outer triangular slopes. Between ridge and local site, foothills continue the [grade](#site-grade) rule outside site to a square of side 220m.
 
-능선과 기슭은 보행·시설·식생 개체가 없는 배경 표면이며 보행 support나 공간 cell에 넣지 않는다. 평면 사진이나 billboard를 쓰지 않는다. 산이나 절벽처럼 신전보다 주인공이 되는 형상도 만들지 않는다. 표면은 `surface.site-distant.ridge`와 `surface.site-distant.ground`이고 source owner는 `src/spaces/site/ridge.ts`다. 관찰은 외부 setting 조감과 정면 거리 서쪽 끝(X=-26, Z=18)의 눈높이 시점에서 능선이 신전 실루엣 뒤에 낮게 놓이는지와 국소 대지와 기슭 사이 단차·틈이 없는지다.
+Ridge/foothills are background without walking, facilities, or vegetation objects, excluded from supports and space cells. Use neither flat photos nor billboards, nor mountain/cliff forms dominating the temple. Surfaces are `surface.site-distant.ridge` and `surface.site-distant.ground`; owner is `src/spaces/site/ridge.ts`. Observe exterior-setting overview and eye height at west front-street end (X=-26, Z=18) for a low ridge behind the temple silhouette and no site/foothill steps or gaps.

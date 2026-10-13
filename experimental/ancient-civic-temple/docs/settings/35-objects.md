@@ -1,469 +1,394 @@
-# 실내 물체의 정체성
+# Identity of interior objects
 
-## 석조 제단 {#altar}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 제단의 상판·두 지지부·봉헌 그릇과 제실의 접근/등잔 간격 소비를 연결한다.
-@evidence principles/core/common.md#substantive-completion 폭·깊이·높이·상판 두께 범위와 자립 지지 관계를 정해 얇은 판 대체를 막는다.
-@evidence principles/core/common.md#declared-basis 이미지 02·04와 제실 요구를 따르며 수치 치수는 저작자 허용 범위다.
-@evidence principles/core/settings.md#fact-status 석단 상면 기준 0.85~1.05m는 저작 입력이지 발굴 제단 실측치가 아니다.
-@evidence principles/core/settings.md#source-support 두꺼운 석재 제단의 근거를 02·04에 두고 특정 의례나 유물의 출처를 발명하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 얕은 그릇을 올리는 자립 물체로 한정하고 사람 형상·글자·현대 장식은 넣지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 폭 1.2~1.6m·깊이 0.6~0.9m·상판 0.10~0.16m 범위에서 모델이 치수를 정한다.
-@evidence principles/core/settings.md#observable-identity 옅은 돌의 두꺼운 직사각 상판과 분리되어 읽히는 양측 받침이 제단의 중심 형태다.
--->
+## Stone altar {#altar}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Altar top, two supports and offering bowl link to sanctuary access/lamp-spacing consumers.
+@evidence principles/core/common.md#substantive-completion Width, depth, height, top thickness and freestanding support prevent a thin-plate substitute.
+@evidence principles/core/common.md#declared-basis Images 02/04 and sanctuary requirements ground form; numeric dimensions are author ranges.
+@evidence principles/core/settings.md#fact-status Height 0.85~1.05m above platform top is authored input rather than an excavated altar measurement.
+@evidence principles/core/settings.md#source-support Images 02/04 ground thick stone altar form without invented ritual/artifact provenance.
+@evidence principles/core/settings.md#capability-boundary This freestanding shallow-bowl support includes neither human forms, lettering nor modern decoration.
+@evidence principles/core/settings.md#constraint-sufficiency Model dimensions stay within width 1.2~1.6m, depth 0.6~0.9m and top thickness 0.10~0.16m.
+@evidence principles/core/settings.md#observable-identity A pale thick rectangular top and distinct paired side supports define the altar.
 -->
 
-이미지 02·04와 사용자 제실 요구를 근거로 한다. 저작자 결정: 제단은 옅은 석재의 두꺼운 직사각 상판과 두 측면 지지부를 가진 자립 물체다. 폭 1.2~1.6m, 깊이 0.6~0.9m, 석단 상면부터 높이 0.85~1.05m, 상판 두께 0.10~0.16m 범위에서 모델 설계가 치수를 결정한다. 상판 가장자리와 받침이 분리되어 읽히고 얕은 봉헌 그릇이 올려진다. 사람 형상·글자·현대 장식은 없다. 제실 [공간](30-interiors.md#sanctuary)은 이 물체 앞의 접근과 양측 등잔 간격을 확보한다.
+Images 02/04 and the user's sanctuary requirement provide the grounds. Author decision: the altar is a freestanding object with a pale stone thick rectangular top and two side supports. Model design chooses width 1.2~1.6m, depth 0.6~0.9m, height 0.85~1.05m above platform top and top thickness 0.10~0.16m. Top edges/supports read separately, supporting a shallow offering bowl. There are no human forms, lettering or modern decoration. Sanctuary [space](30-interiors.md#sanctuary) reserves front access and lamp spacing on both sides.
 
-## 봉헌 탁자 {#offering-table}
+## Offering table {#offering-table}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 공동 봉헌용 긴 돌 탁자의 받침·상판·그릇·빈 여백을 소유한다.
-@evidence principles/core/common.md#substantive-completion 높이 0.7~0.9m·깊이 0.65~0.85m·길이 1.8~2.4m로 제단과 다른 사용 비례를 정한다.
-@evidence principles/core/common.md#declared-basis 이미지 02의 탁자를 참고한 저작자 치수와 일상 용도 선택이다.
-@evidence principles/core/settings.md#fact-status 탁자의 낮고 긴 비례는 채택 형상이며 역사 제구의 규격이라고 말하지 않는다.
-@evidence principles/core/settings.md#source-support 공동 봉헌실 reference 02에서 형태 근거를 가져오고 사진 비례로 길이를 재지 않는다.
-@evidence principles/core/settings.md#capability-boundary 양옆에서 작은 소품을 놓는 용도로 제한하고 제실의 높은 제단 역할을 대신하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 그릇이 상판에 놓이고 빈 여백·상판 아래가 보여 물체가 탁자를 완전히 가리지 않게 한다.
-@evidence principles/core/settings.md#observable-identity 두 다리받침과 약하게 닳은 긴 석재 상판으로 낮은 공용 봉헌대를 식별한다.
+@evidence principles/core/common.md#scope-preservation Supports, top, bowls and empty margins of the long communal stone table share this owner.
+@evidence principles/core/common.md#substantive-completion Height 0.7~0.9m, depth 0.65~0.85m and length 1.8~2.4m establish use proportions distinct from the altar.
+@evidence principles/core/common.md#declared-basis Image 02 informs author-selected dimensions and everyday use.
+@evidence principles/core/settings.md#fact-status Low elongated proportions are adopted form rather than historical ritual-furniture standards.
+@evidence principles/core/settings.md#source-support Reference 02's communal offering room grounds form without length measured from image ratios.
+@evidence principles/core/settings.md#capability-boundary Small objects are placed from both sides; the table does not replace the sanctuary's high altar role.
+@evidence principles/core/settings.md#constraint-sufficiency Bowls rest on top with empty margins and visible underside, without completely obscuring the table.
+@evidence principles/core/settings.md#observable-identity Two leg supports and a lightly worn long stone top identify a low communal offering table.
 -->
+
+Image 02's communal offering room provides the grounds. Author decision: a long stone top on two leg supports, height 0.7~0.9m, depth 0.65~0.85m and length 1.8~2.4m. Unlike the altar, it is low/long for everyday placement of small objects from both sides. Edges are lightly worn and the underside remains visible. Bowls rest on top with empty margins.
+
+## Lampstands {#lampstands}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Foot, stem, dish, metal wear and downstream placement beside the altar are covered.
+@evidence principles/core/common.md#substantive-completion Height 0.9~1.3m, foot/dish diameter 0.18~0.3m and flame-free state are settled.
+@evidence principles/core/common.md#declared-basis Images 02/04's metal lampstands ground author-limited size.
+@evidence principles/core/settings.md#fact-status Tall freestanding stands are adopted objects rather than artifact measurements or combustion results.
+@evidence principles/core/settings.md#source-support Two references identify dark vertical stands and upper dishes directly.
+@evidence principles/core/settings.md#capability-boundary Lamps emit no flame; instances decides count, ground contact and stable placement.
+@evidence principles/core/settings.md#constraint-sufficiency Small foot/dish diameters prevent members oversized relative to the altar.
+@evidence principles/core/settings.md#observable-identity Broad low feet, narrow stems, shallow round dishes and worn metal edges read in hierarchy.
 -->
 
-이미지 02의 공동 봉헌실을 근거로 한다. 저작자 결정: 돌 상판과 두 다리받침의 긴 탁자이며 높이 0.7~0.9m, 깊이 0.65~0.85m, 길이 1.8~2.4m다. 제단과 달리 낮고 길며 양옆에서 소품을 놓는 일상 용도를 갖는다. 테두리는 약하게 닳았고 상판 아래가 보인다. 그릇은 상판에 놓이며 빈 여백을 남긴다.
+Dark metal lampstands in images 02/04 provide the grounds. Author decision: tall freestanding sanctuary stands connect narrow vertical stems, broadened low feet and shallow round dishes in a clear hierarchy. Height is 0.9~1.3m and foot/dish diameter 0.18~0.3m, without overwhelming the altar. [Portable small lamps](#portable-lamp) have separate identity/height ranges. Dark metal bodies differ from worn edges; no flames appear. instances determines sanctuary side counts, ground contact and stable positions.
 
-## 등잔대 {#lampstands}
+## Desks and seats {#workstation}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 발·줄기·접시·금속 마모와 제단 양측 배치의 후속 소유를 다룬다.
-@evidence principles/core/common.md#substantive-completion 높이 0.9~1.3m와 발/접시 지름 0.18~0.3m, 불꽃 없는 상태를 정한다.
-@evidence principles/core/common.md#declared-basis 이미지 02·04의 금속 등잔대를 바탕으로 저작자가 크기를 제한한다.
-@evidence principles/core/settings.md#fact-status 높은 자립 등잔대는 채택 물체이며 유물 치수나 실제 연소 성능의 결과가 아니다.
-@evidence principles/core/settings.md#source-support 어두운 세로 등잔대와 상부 접시의 자료를 두 reference로 특정한다.
-@evidence principles/core/settings.md#capability-boundary 등잔은 불꽃을 내지 않으며 배치 수·접지·기울지 않는 위치는 instances에서 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 발과 접시를 작은 지름으로 제한해 제단보다 과대한 부재가 되지 않게 한다.
-@evidence principles/core/settings.md#observable-identity 넓어진 낮은 발·좁은 줄기·얕은 원형 접시의 위계와 닳은 금속 가장자리가 읽혀야 한다.
+@evidence principles/core/common.md#scope-preservation Administration writing/records reading desks, stools and withdrawal clearance are settled together.
+@evidence principles/core/common.md#substantive-completion Tops, four legs, cross-supports and desk/seat height ranges determine usable furniture proportions.
+@evidence principles/core/common.md#declared-basis Image 05's work scene grounds author-selected stool consistency and dimensional ranges.
+@evidence principles/core/settings.md#fact-status Seat height 0.42~0.48m is object design rather than ergonomic certification or verified character sitting.
+@evidence principles/core/settings.md#source-support References and authored numbers remain separate without citing modern furniture standards.
+@evidence principles/core/settings.md#capability-boundary Static writing/reading furniture includes neither seated character motion nor modern rails, wheels or cushions.
+@evidence principles/core/settings.md#constraint-sufficiency Desk height 0.7~0.8m, width 0.9~1.3m, depth 0.5~0.7m and passage-side seat clearance are specified.
+@evidence principles/core/settings.md#observable-identity Distinct dark timber tops, legs and crossbars with simple stools identify small workstations.
 -->
+
+Image 05's administration/reading work provides the grounds. Author decision: dark timber desks have distinct tops, four legs and cross-supports, height 0.7~0.8m, width 0.9~1.3m and depth 0.5~0.7m. Administration/records seats consistently use simple stools 0.42~0.48m high. [Sanctuary floor cushions](#floor-cushion) are low supplies outside this work-seat range. Work stools have no modern drawer rails, wheels or cushions. Administration uses writing desks and records uses reading desks, retaining passage-side stool withdrawal space. Seated character motion is outside scope.
+
+## Shelves {#shelves}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Records scroll compartments and low broad offering-vessel compartments remain distinct within one shelf family.
+@evidence principles/core/common.md#substantive-completion Height 1.2~1.8m, depth 0.25~0.45m, supports beneath objects and no wall burial are settled.
+@evidence principles/core/common.md#declared-basis Images 02/05 ground author-selected room-specific compartment uses/ranges.
+@evidence principles/core/settings.md#fact-status Supports are designed for object size/access rather than presented as load-verified shelves.
+@evidence principles/core/settings.md#source-support Images 02/05 ground timber storage forms without structural-standard or load-capacity claims.
+@evidence principles/core/settings.md#capability-boundary Horizontal scrolls/vessels receive support without wall burial or ungrounded load decorations.
+@evidence principles/core/settings.md#constraint-sufficiency Models/placement chooses length, compartment count and support from object sizes and access.
+@evidence principles/core/settings.md#observable-identity Thick sides and deep horizontal compartments distinguish small multilevel records cells from broad offering cells.
 -->
 
-이미지 02·04의 어두운 금속 등잔대를 근거로 한다. 저작자 결정: 좁은 세로 줄기, 넓어진 낮은 발, 얕은 원형 접시가 위계 있게 이어지는 제실의 높은 자립 등잔대다. 높이 0.9~1.3m, 발과 접시 지름 0.18~0.3m이며 제단을 압도하지 않는다. [이동식 소형 등잔](#portable-lamp)은 별도 정체성과 높이 범위를 가진다. 금속의 어두운 몸체와 닳은 가장자리가 구분되고 불꽃은 없다. 제실의 좌우 배치 수와 접지·전도 없는 위치는 instances가 결정한다.
+Timber storage units in images 02/05 provide the grounds. Author decision: thick timber sides and horizontal compartments expose internal depth/supports. Records stacks multiple small compartments for horizontal scrolls; offering uses broad low compartments for bowls. Overall height is 1.2~1.8m and depth 0.25~0.45m; shelf boards sit below objects without burial in walls. Models/placement chooses room-specific lengths, compartment counts and supports for object size/access rather than unsupported decoration imitating loads.
 
-## 책상과 좌석 {#workstation}
+## Scrolls {#scrolls}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 관리실 작성과 기록실 열람의 책상·스툴·인출 여백을 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 상판·네 다리·가로 지지재와 책상/좌석 높이 범위를 주어 사용 집기의 비례를 결정한다.
-@evidence principles/core/common.md#declared-basis 이미지 05의 작업 장면을 근거로 저작자가 스툴 통일과 치수 범위를 채택한다.
-@evidence principles/core/settings.md#fact-status 좌석 0.42~0.48m는 물체 설계값이며 인체공학 인증이나 인물 앉기 검증이 아니다.
-@evidence principles/core/settings.md#source-support 현대 가구 규격을 인용하지 않고 reference와 저작 수치를 구별한다.
-@evidence principles/core/settings.md#capability-boundary 작성·열람용 정지 집기로 쓰고 앉는 인물 동작이나 현대 레일·바퀴·쿠션은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 책상 높이 0.7~0.8m·폭 0.9~1.3m·깊이 0.5~0.7m와 통로 쪽 좌석 여백을 지정한다.
-@evidence principles/core/settings.md#observable-identity 어두운 목재 상판·다리·횡재가 구분된 책상과 단순 스툴이 작은 업무 공간을 구성한다.
+@evidence principles/core/common.md#scope-preservation Closed bundles, one partly opened desktop sheet and distinct records/administration densities share this owner.
+@evidence principles/core/common.md#substantive-completion Diameter 0.04~0.08m, length 0.2~0.35m, rolled edges, ties and colors are settled.
+@evidence principles/core/common.md#declared-basis Document objects follow images 02/05; numbers and absent lettering are author decisions.
+@evidence principles/core/settings.md#fact-status Document form is adopted without claiming actual historical text or personal records.
+@evidence principles/core/settings.md#source-support Rolled reference materials ground form without fabricated historical phrases suggesting sourced documents.
+@evidence principles/core/settings.md#capability-boundary No document-reading feature exists; instances chooses regular shelf counts/spacing and sparse administration display.
+@evidence principles/core/settings.md#constraint-sufficiency Closed cylinder bundles differ from partly open sheets, excluding stone/log substitutes.
+@evidence principles/core/settings.md#observable-identity Yellow-white/pale-brown round sections, rolled edges and bundle ties must read as stored documents.
 -->
+
+Images 02/05 provide the grounds. Author decision: yellow-white and pale-brown rolled material distinguishes closed cylinder bundles of diameter 0.04~0.08m and length 0.2~0.35m from one partly opened desktop sheet. Round sections, rolled edges and ties must read without resembling stone or logs. No fabricated historical phrases, readable personal information or readable body text appears. instances chooses regular records-shelf counts/spacing and sparse administration display.
+
+## Storage chests {#chests}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Board body, separate lid, hinges, front hasp and floor placement are settled together.
+@evidence principles/core/common.md#substantive-completion A closed display model, width 0.6~1.0m and depth/height 0.4~0.6m, defines the object.
+@evidence principles/core/common.md#declared-basis Image 05 grounds author-selected dimensions and default closure.
+@evidence principles/core/settings.md#fact-status Visible locks establish representation rather than actual locking performance or contents.
+@evidence principles/core/settings.md#source-support Service-area image 05 grounds appearance without extrapolating artifact manufacture or lock performance.
+@evidence principles/core/settings.md#capability-boundary Lid-opening animation and hidden content spaces are not delivered.
+@evidence principles/core/settings.md#constraint-sufficiency Closed floor-standing chests preserve actual lid thickness and separate board construction.
+@evidence principles/core/settings.md#observable-identity A rectangular board body, separate lid and front metal hasp differ from a simple timber block.
 -->
 
-이미지 05의 관리·열람 작업을 근거로 한다. 저작자 결정: 어두운 목재 책상은 상판·네 다리·가로 지지재가 구분되고 높이 0.7~0.8m, 폭 0.9~1.3m, 깊이 0.5~0.7m다. 관리실·기록실의 작업 좌석은 높이 0.42~0.48m의 단순 스툴로 통일한다. [제실 바닥 좌구](#floor-cushion)는 작업 좌석 범위 밖의 낮은 비품이다. 작업 스툴에 현대 서랍 레일·바퀴·쿠션은 없다. 관리실은 작성, 기록실은 열람에 쓰며 통로 쪽으로 스툴이 빠져나올 자리를 남긴다. 앉는 인물의 동작 구현은 범위 밖이다.
+Image 05 provides the grounds. Author decision: rectangular timber boards form the body, with a separate lid, hinges and visible front metal locking hasp. Width is 0.6~1.0m, depth 0.4~0.6m and height 0.4~0.6m, placed on the floor. Default state is closed and lid thickness reads as solid. The display model delivers neither opening animation nor hidden content space.
 
-## 선반 {#shelves}
+## Pottery and offering bowls {#vessels}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 기록실의 두루마리 칸과 봉헌실의 낮고 넓은 그릇 칸을 같은 선반 계열 안에서 구분한다.
-@evidence principles/core/common.md#substantive-completion 높이 1.2~1.8m·깊이 0.25~0.45m, 물건 아래 지지판과 벽 비매몰을 정한다.
-@evidence principles/core/common.md#declared-basis 이미지 02·05를 참고해 방별 칸의 용도와 치수 범위를 저작자가 선택한다.
-@evidence principles/core/settings.md#fact-status 지지 방식은 물체 크기·접근에 맞출 설계 대상이며 하중 검증이 끝난 선반으로 제시하지 않는다.
-@evidence principles/core/settings.md#source-support 목재 보관대의 시각 자료는 02·05이고 특정 목재 구조 규격이나 내하력은 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 수평 두루마리와 그릇을 지지하되 벽 속에 묻히거나 근거 없는 하중 장식으로 처리하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 길이·칸 수·지지 방식은 모델/배치가 물체 크기와 접근을 보고 정하도록 범위를 둔다.
-@evidence principles/core/settings.md#observable-identity 두꺼운 측판과 수평 칸의 깊이가 보여야 하며 작은 다단 기록 칸과 넓은 봉헌 칸이 구별된다.
+@evidence principles/core/common.md#scope-preservation Small desktop vessels, large storage vessels and shallow offering bowls all receive form families.
+@evidence principles/core/common.md#substantive-completion Bellies, necks, lips, open mouths, attached handles and size groups settle vessel types.
+@evidence principles/core/common.md#declared-basis Vessels follow five images; height/diameter ranges are author choices.
+@evidence principles/core/settings.md#fact-status Exterior sizes/matte materials are adopted inputs rather than guaranteed volume/liquid weight.
+@evidence principles/core/settings.md#source-support User images ground pottery/bowls without ancient ceramic classifications or manufacturing claims.
+@evidence principles/core/settings.md#capability-boundary Open mouths/concave bowls cannot be replaced by recolored spheres/boxes.
+@evidence principles/core/settings.md#constraint-sufficiency Small heights 0.12~0.3m, large heights 0.45~0.8m and bowl diameters 0.15~0.3m constrain relative scale.
+@evidence principles/core/settings.md#observable-identity Reddish-brown bellied narrow-neck pottery differs from thick-rimmed shallow metal/pottery bowls.
 -->
+
+Pottery/bowls in the five images provide the grounds. Author decision: matte reddish-brown pottery has bases, swollen bellies, narrow necks, lips and open mouths; carrying handles are actual curved surfaces attached to bodies. Small desktop vessels are 0.12~0.3m high and large storage vessels 0.45~0.8m. Shallow metal or pottery offering bowls have diameter 0.15~0.3m, thick rims and concave interiors. Recolored spheres/boxes cannot substitute for vessel types. Capacity and actual liquid weight are not guaranteed.
+
+## Carrying baskets {#baskets}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Round body, rim, base, weave and storage/service-yard placement roles are covered.
+@evidence principles/core/common.md#substantive-completion Diameter 0.3~0.5m, height 0.25~0.4m and actual rim/wall thickness are settled.
+@evidence principles/core/common.md#declared-basis Images 02/05 ground author-selected division between solid geometry and fine weave.
+@evidence principles/core/settings.md#fact-status Yellow-brown woven bodies are authored appearance rather than verified fiber species/historical weaving techniques.
+@evidence principles/core/settings.md#source-support Reference baskets ground form without claiming reproduction through pasted front photographs.
+@evidence principles/core/settings.md#capability-boundary Carried objects remain clear of passages and demonstrate no actual load capacity.
+@evidence principles/core/settings.md#constraint-sufficiency Models choose only fine-weave representation at review distance; round rims/wall thickness remain solid.
+@evidence principles/core/settings.md#observable-identity Small weave gaps, round rims and bases of yellow-brown bodies differ from pictures attached to panels.
 -->
 
-이미지 02·05의 목재 보관대를 근거로 한다. 저작자 결정: 두꺼운 목재 측판과 수평 칸을 가진 선반으로 내부 깊이와 지지부가 보인다. 기록실은 작은 칸을 여러 단 쌓아 두루마리를 수평으로, 봉헌실은 넓고 낮은 칸에 그릇을 놓는다. 전체 높이 1.2~1.8m, 깊이 0.25~0.45m 범위이며 선반 판은 물건보다 아래에 있고 벽에 매몰되지 않는다. 방별 길이·칸 수·지지 방식은 하중을 흉내 내는 무근거 장식 대신 물체 크기와 접근에 맞춰 모델/배치가 결정한다.
+Woven baskets in images 02/05 provide the grounds. Author decision: yellow-brown round bodies expose rounded rims, bases and small weave gaps, with diameter 0.3~0.5m and height 0.25~0.4m. Rather than attaching a sharp front image to a board, geometry supplies rim/wall thickness; models choose fine-weave representation at review distance. They are carried objects for storage/service yard and do not obstruct passage.
 
-## 두루마리 {#scrolls}
+## Low stone bench {#bench}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 닫힌 묶음과 책상 위 일부 펼친 한 장, 기록실/관리실의 다른 배치 밀도를 소유한다.
-@evidence principles/core/common.md#substantive-completion 지름 0.04~0.08m·길이 0.2~0.35m와 말린 가장자리·끈·색을 정한다.
-@evidence principles/core/common.md#declared-basis 이미지 02·05의 문서 물체를 따르고 수치와 글자 부재는 저작자가 결정한다.
-@evidence principles/core/settings.md#fact-status 문서의 형상만 채택하며 실제 역사 본문이나 개인정보를 담은 기록이라고 하지 않는다.
-@evidence principles/core/settings.md#source-support reference의 말린 재료를 근거로 하되 가짜 역사 문구를 만들어 출처 있는 문서처럼 보이지 않게 한다.
-@evidence principles/core/settings.md#capability-boundary 문서 내용을 읽는 기능은 없고 규칙 있는 선반 수량/간격과 관리실 소량 표시는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 닫힌 원통 묶음과 일부 펼친 상태를 구분하고 돌·나무토막으로 보이는 대체를 거부한다.
-@evidence principles/core/settings.md#observable-identity 황백/옅은 갈색의 원형 단면, 말린 가장자리와 묶음 끈이 저장 문서로 읽혀야 한다.
+@evidence principles/core/common.md#scope-preservation Low stone bench identity and use at main-entrance, courtyard and colonnade edges retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A stationary long stone seat rests on two supports without back or arms. Choose width 1.0~1.5m and height 0.40~0.50m, leaving the space between supports open. Measured sitting/passage-safety performance is not delivered; instances places it outside passage.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes low stone bench scope; images 01/03/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A stationary long stone seat rests on two supports without back or arms. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 01/03/05 ground the scale, materials and spatial relationships of two supports and an open underside, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary No measured sitting or passage-safety performance is claimed; instances owns placement outside passage.
+@evidence principles/core/settings.md#constraint-sufficiency The low stone bench ranges and main-entrance, courtyard and colonnade edges use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes two supports and an open underside.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 01/03/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at main-entrance, courtyard and colonnade edges. A stationary long stone seat rests on two supports without back or arms. Choose width 1.0~1.5m and height 0.40~0.50m, leaving the space between supports open. Measured sitting/passage-safety performance is not delivered; instances places it outside passage.
+
+## Portable small lamp {#portable-lamp}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Portable small lamp identity and use at main entrance, courtyard, offering room and [administration](30-interiors.md#administration) retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A desktop or floor supply connects a low foot, short stem and shallow metal dish. Height is 0.24~0.35m, distinct from [tall sanctuary lampstands](#lampstands). No flame, fuel or emitted light is present; instances chooses position/count.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes portable small lamp scope; images 02/04 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A desktop or floor supply connects a low foot, short stem and shallow metal dish. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/04 ground the scale, materials and spatial relationships of a short stem and dish distinct from tall lampstands, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary No flame, fuel or emitted light is present; instances owns position/count.
+@evidence principles/core/settings.md#constraint-sufficiency The portable small lamp ranges and main entrance, courtyard, offering room and [administration](30-interiors.md#administration) use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a short stem and dish distinct from tall lampstands.
 -->
 
-이미지 02·05를 근거로 한다. 저작자 결정: 황백색과 옅은 갈색의 말린 재료로, 지름 0.04~0.08m·길이 0.2~0.35m인 닫힌 원통 묶음과 책상 위 일부 펼친 한 장을 구분한다. 원형 단면·말린 가장자리·묶음 끈이 읽히며 돌이나 나무토막으로 보이지 않아야 한다. 가짜 역사 문구와 읽을 수 있는 개인정보·본문은 없다. 기록실 선반에서의 규칙 있는 수량·간격과 관리실의 소량 표시는 instances가 정한다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/04 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at main entrance, courtyard, offering room and [administration](30-interiors.md#administration). A desktop or floor supply connects a low foot, short stem and shallow metal dish. Height is 0.24~0.35m, distinct from [tall sanctuary lampstands](#lampstands). No flame, fuel or emitted light is present; instances chooses position/count.
 
-## 보관 궤 {#chests}
+## Two-jar rack {#jar-rack}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 판 몸체·분리 뚜껑·경첩·전면 걸쇠와 바닥 배치 상태를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.6~1.0m·깊이/높이 0.4~0.6m의 닫힌 표시 모델로 물체를 확정한다.
-@evidence principles/core/common.md#declared-basis 이미지 05의 궤를 근거로 저작자가 치수 범위와 닫힘 기본 상태를 정한다.
-@evidence principles/core/settings.md#fact-status 잠금 장치가 보이는 표현이며 실제 자물쇠 작동이나 내용물의 존재를 입증한 것이 아니다.
-@evidence principles/core/settings.md#source-support 시각 근거를 서비스 구역 이미지 05로 한정하고 유물 제작법이나 잠금 성능을 외삽하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 뚜껑 열림 애니메이션과 내용물의 숨은 공간을 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 바닥에 놓인 닫힌 궤에서 뚜껑 두께가 읽혀야 하며 분리된 판 구성이 유지되어야 한다.
-@evidence principles/core/settings.md#observable-identity 직사각 목재 판 몸체 위 별도 뚜껑과 전면 금속 걸쇠가 단순 목재 블록과 구별한다.
+@evidence principles/core/common.md#scope-preservation Two-jar rack identity and use at storage wall edges retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion Four legs support a low timber top with two shallow round wells. Height is 0.20~0.35m and width 1.0~1.3m; well floors supporting two jars do not pierce the board. instances determines jar counts, actual contact and passage clearance.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes two-jar rack scope; images 02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status Four legs support a low timber top with two shallow round wells. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/05 ground the scale, materials and spatial relationships of a low timber top with two shallow wells and four legs, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary instances owns jar counts, actual contact and passage clearance.
+@evidence principles/core/settings.md#constraint-sufficiency The two-jar rack ranges and storage wall edges use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a low timber top with two shallow wells and four legs.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at storage wall edges. Four legs support a low timber top with two shallow round wells. Height is 0.20~0.35m and width 1.0~1.3m; well floors supporting two jars do not pierce the board. instances determines jar counts, actual contact and passage clearance.
+
+## Carrying yoke {#carrying-yoke}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Carrying yoke identity and use at service yard retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A laid-down supply has a long timber crossbar and two metal loops at its ends. Choose width 1.0~1.3m, keeping loop holes distinct from the timber bar. Actual carrying, loads and restoration of ancient carrying practices are not claimed.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes carrying yoke scope; images 02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A laid-down supply has a long timber crossbar and two metal loops at its ends. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/05 ground the scale, materials and spatial relationships of a bar with open loops at both ends, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Actual carrying, loads and restoration of ancient carrying practices are not claimed.
+@evidence principles/core/settings.md#constraint-sufficiency The carrying yoke ranges and service yard use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a bar with open loops at both ends.
 -->
 
-이미지 05를 근거로 한다. 저작자 결정: 직사각 목재 판으로 짠 몸체, 분리된 뚜껑, 경첩과 전면 금속 잠금 걸쇠가 보인다. 폭 0.6~1.0m, 깊이 0.4~0.6m, 높이 0.4~0.6m 범위로 바닥에 놓는다. 닫힌 상태를 기본으로 하고 뚜껑 두께가 실체로 읽힌다. 표시 모델은 열림 애니메이션이나 내용물의 숨은 공간을 납품하지 않는다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at service yard. A laid-down supply has a long timber crossbar and two metal loops at its ends. Choose width 1.0~1.3m, keeping loop holes distinct from the timber bar. Actual carrying, loads and restoration of ancient carrying practices are not claimed.
 
-## 도기와 봉헌 그릇 {#vessels}
+instances determines actual yoke positions and quantities.
+
+## Stationary small handcart {#handcart}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 작은 탁상 용기·큰 저장 용기·얕은 봉헌 그릇의 형태군을 모두 지정한다.
-@evidence principles/core/common.md#substantive-completion 배·목·입술·열린 입·붙은 손잡이와 크기군으로 용기 종류를 완결한다.
-@evidence principles/core/common.md#declared-basis 다섯 이미지에 보이는 용기를 따르고 높이·지름 범위는 저작자가 정한다.
-@evidence principles/core/settings.md#fact-status 외형 크기와 무광 재료는 채택 입력이며 실제 용량·액체 무게는 보증하지 않는다.
-@evidence principles/core/settings.md#source-support 도기/그릇의 모양은 사용자 이미지에서 취하고 고대 도자기 분류나 제조법을 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 열린 입과 오목한 그릇을 표현하지만 색만 바꾼 구체·상자를 용기 대신 쓰지 못한다.
-@evidence principles/core/settings.md#constraint-sufficiency 작은 높이 0.12~0.3m·큰 높이 0.45~0.8m·그릇 지름 0.15~0.3m로 상대 규모를 묶는다.
-@evidence principles/core/settings.md#observable-identity 적갈색 도기의 부푼 배와 좁은 목, 두꺼운 테두리의 얕은 금속/도기 그릇이 서로 구별된다.
+@evidence principles/core/common.md#scope-preservation Stationary small handcart identity and use at service yard retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion An empty carrier has distinct deck, two wheels, axle and rear handles. Width 0.65~0.85m and length 1.5~2.0m define a small stationary prop, without rolling or doorway-passage performance. instances chooses placement beside the external delivery door with passage clear.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes stationary small handcart scope; images 01/02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status An empty carrier has distinct deck, two wheels, axle and rear handles. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 01/02/05 ground the scale, materials and spatial relationships of an empty deck with two wheels, axle and rear handles, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Width 0.65~0.85m and length 1.5~2.0m define a stationary prop; rolling and doorway-passage performance are not delivered.
+@evidence principles/core/settings.md#constraint-sufficiency The stationary small handcart ranges and service yard use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes an empty deck with two wheels, axle and rear handles.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 01/02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at service yard. An empty carrier has distinct deck, two wheels, axle and rear handles. Width 0.65~0.85m and length 1.5~2.0m define a small stationary prop, without rolling or doorway-passage performance. instances chooses placement beside the external delivery door with passage clear.
+
+Deck, handles, axle and wheels read as dark wood.
+
+## Handled bucket {#bucket}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Handled bucket identity and use at courtyard and service yard retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A small empty vessel has an upward-flaring open pottery body and one high loop handle. Choose height 0.35~0.5m; its identity differs from [bellied narrow-neck storage vessels](#vessels). Water surfaces, weight, flow and carrying motion are not delivered.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes handled bucket scope; images 02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A small empty vessel has an upward-flaring open pottery body and one high loop handle. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/05 ground the scale, materials and spatial relationships of a flared mouth beneath one open high loop, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Water surfaces, weight, flow and carrying motion are not delivered.
+@evidence principles/core/settings.md#constraint-sufficiency The handled bucket ranges and courtyard and service yard use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a flared mouth beneath one open high loop.
 -->
 
-다섯 이미지의 도기·그릇을 근거로 한다. 저작자 결정: 무광 적갈색 도기는 바닥·부푼 배·좁은 목·입술과 열린 입을 가지며 운반 용기의 손잡이는 몸체와 붙은 실제 곡면이다. 작은 탁상 용기는 높이 0.12~0.3m, 큰 저장 용기는 0.45~0.8m다. 얕은 봉헌 그릇은 지름 0.15~0.3m의 두꺼운 테두리와 오목한 안쪽 면을 가진 금속 또는 도기다. 색만 바꾼 구체·상자로 용기 종류를 대신하지 않는다. 용량·실제 액체 무게는 보증하지 않는다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at courtyard and service yard. A small empty vessel has an upward-flaring open pottery body and one high loop handle. Choose height 0.35~0.5m; its identity differs from [bellied narrow-neck storage vessels](#vessels). Water surfaces, weight, flow and carrying motion are not delivered.
 
-## 운반 바구니 {#baskets}
+instances determines actual bucket positions and quantities.
+
+## Low soil-filled planter {#planter}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 원형 몸체·테두리·바닥·짜임과 보관실/서비스 마당 배치 역할을 다룬다.
-@evidence principles/core/common.md#substantive-completion 지름 0.3~0.5m·높이 0.25~0.4m 및 실제 테두리/벽 두께를 정한다.
-@evidence principles/core/common.md#declared-basis 이미지 02·05의 바구니를 근거로 저작자가 geometry와 미세 짜임의 분담을 결정한다.
-@evidence principles/core/settings.md#fact-status 황갈색 짠 몸체는 제작 외형이며 식물 섬유 종류나 역사적 짜기 기법의 고증이 아니다.
-@evidence principles/core/settings.md#source-support reference의 짠 바구니를 형태 자료로 사용하고 전면 사진을 붙여 재현했다고 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 운반물로 배치하되 통로를 가리지 않으며 실제 적재 하중을 입증하는 물체로 쓰지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 미세 짜임 방식만 리뷰 거리에서 모델이 정하고 둥근 테두리와 벽 두께는 입체로 유지한다.
-@evidence principles/core/settings.md#observable-identity 황갈색 원형 몸체의 작은 짜임 간극·둥근 테두리·바닥이 판에 붙인 그림과 구별되어야 한다.
+@evidence principles/core/common.md#scope-preservation Low soil-filled planter identity and use at soil edges at the main entrance and courtyard retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A stationary pottery supply has an open mouth wider than its base and a low soil surface inside. Diameter is 0.35~0.50m and height 0.30~0.45m; plants are separately placed vegetation prototypes. instances chooses positions where soil does not pierce pottery walls or obscure walking surfaces.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes low soil-filled planter scope; images 01/03 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A stationary pottery supply has an open mouth wider than its base and a low soil surface inside. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 01/03 ground the scale, materials and spatial relationships of soil contained inside a broad pottery mouth, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Plants are separate vegetation prototypes; instances places soil without intruding through pottery walls or into walking surfaces.
+@evidence principles/core/settings.md#constraint-sufficiency The low soil-filled planter ranges and soil edges at the main entrance and courtyard use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes soil contained inside a broad pottery mouth.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 01/03 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at soil edges at the main entrance and courtyard. A stationary pottery supply has an open mouth wider than its base and a low soil surface inside. Diameter is 0.35~0.50m and height 0.30~0.45m; plants are separately placed vegetation prototypes. instances chooses positions where soil does not pierce pottery walls or obscure walking surfaces.
+
+## Unlettered votive plaque {#votive-plaque}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Unlettered votive plaque identity and use at sanctuary, offering room and colonnade retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A small rectangular stone slab stands on a low base at a scale one person can move. Width is 0.25~0.40m and height 0.35~0.50m; no lettering, imagery or fictional donor names are engraved. instances places it without obscuring the sanctuary altar center.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes unlettered votive plaque scope; images 02/04 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A small rectangular stone slab stands on a low base at a scale one person can move. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/04 ground the scale, materials and spatial relationships of a small rectangular stone slab on a low base, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary No lettering, imagery or fictional donor names are created; instances preserves the altar center view.
+@evidence principles/core/settings.md#constraint-sufficiency The unlettered votive plaque ranges and sanctuary, offering room and colonnade use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a small rectangular stone slab on a low base.
 -->
 
-이미지 02·05의 짠 바구니를 근거로 한다. 저작자 결정: 황갈색의 원형 몸체, 둥근 테두리, 바닥과 작은 짜임 간극이 보이고 지름 0.3~0.5m·높이 0.25~0.4m다. 선명한 전면 그림을 판에 붙여 만드는 대신 테두리와 벽 두께는 geometry로 만들며 미세 짜임 표현의 방식은 리뷰 거리에서 모델이 결정한다. 보관실/서비스 마당의 운반물로 쓰고 통로를 가리지 않는다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/04 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at sanctuary, offering room and colonnade. A small rectangular stone slab stands on a low base at a scale one person can move. Width is 0.25~0.40m and height 0.35~0.50m; no lettering, imagery or fictional donor names are engraved. instances places it without obscuring the sanctuary altar center.
 
-## 낮은 석재 벤치 {#bench}
+## Low offering tray {#offering-tray}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 낮은 석재 벤치: 낮은 석재 벤치의 정체성과 정문·중정·주랑의 가장자리 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 낮은 석재 벤치: 등받이와 팔걸이 없이 긴 석재 좌판을 두 받침 위에 올린 정지 비품이다. 폭 1.0~1.5m, 높이 0.40~0.50m 안에서 고르며 받침 사이가 열린다. 앉는 사람과 통행 안전의 실측 성능은 납품하지 않고 통로 밖 배치는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 낮은 석재 벤치: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 01·03·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 낮은 석재 벤치: 낮은 석재 벤치은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 낮은 석재 벤치: 제공 이미지 01·03·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 앉는 인물과 통행 안전의 실측 성능을 주장하지 않고 통로 밖 배치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 낮은 석재 벤치: 낮은 석재 벤치의 허용 범위와 정문·중정·주랑의 가장자리 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 낮은 석재 벤치: 두 받침과 열린 하부라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/common.md#scope-preservation Low offering tray identity and use at offering room and sanctuary retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A separate supply groups small bowls on a flat floor with four low rims. Width is 0.4~0.6m and depth 0.25~0.4m, with the center open above. It rests on an altar/table top; instances chooses the bowls' count and positions inside.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes low offering tray scope; images 02/04 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A separate supply groups small bowls on a flat floor with four low rims. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/04 ground the scale, materials and spatial relationships of four rims around a flat floor and open center, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary The tray rests on an altar/table top; instances owns bowl counts and positions inside.
+@evidence principles/core/settings.md#constraint-sufficiency The low offering tray ranges and offering room and sanctuary use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes four rims around a flat floor and open center.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/04 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at offering room and sanctuary. A separate supply groups small bowls on a flat floor with four low rims. Width is 0.4~0.6m and depth 0.25~0.4m, with the center open above. It rests on an altar/table top; instances chooses the bowls' count and positions inside.
+
+The tray floor and four rims read as dark metal.
+
+## Folded fabric {#textile}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Folded fabric identity and use at sanctuary, offering room, administration, records and storage retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A thin stationary supply shows two layers and folded edges as altar cloth, work cloth or vessel cover. Choose width 0.4~0.6m, depth 0.3~0.5m and thickness 0.02~0.06m; thread weaving and seams are not geometry. [Sanctuary floor cushions](#floor-cushion) are outside this cover variant.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes folded fabric scope; images 04/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A thin stationary supply shows two layers and folded edges as altar cloth, work cloth or vessel cover. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 04/05 ground the scale, materials and spatial relationships of thin cloth with two layers and folded edges, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Thread weaving and seams are not geometric detail; sanctuary floor cushions remain a separate prototype.
+@evidence principles/core/settings.md#constraint-sufficiency The folded fabric ranges and sanctuary, offering room, administration, records and storage use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes thin cloth with two layers and folded edges.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 01·03·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 정문·중정·주랑의 가장자리에서 사용한다. 등받이와 팔걸이 없이 긴 석재 좌판을 두 받침 위에 올린 정지 비품이다. 폭 1.0~1.5m, 높이 0.40~0.50m 안에서 고르며 받침 사이가 열린다. 앉는 사람과 통행 안전의 실측 성능은 납품하지 않고 통로 밖 배치는 instances가 정한다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 04/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at sanctuary, offering room, administration, records and storage. A thin stationary supply shows two layers and folded edges as altar cloth, work cloth or vessel cover. Choose width 0.4~0.6m, depth 0.3~0.5m and thickness 0.02~0.06m; thread weaving and seams are not geometry. [Sanctuary floor cushions](#floor-cushion) are outside this cover variant.
 
-## 이동식 소형 등잔 {#portable-lamp}
+instances determines actual folded-fabric positions and quantities.
+
+## Writing stylus {#stylus}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 이동식 소형 등잔: 이동식 소형 등잔의 정체성과 정문·중정·봉헌실·관리실 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 이동식 소형 등잔: 낮은 발·짧은 줄기·얕은 금속 접시가 이어지는 탁상 또는 바닥 비품이다. 높이 0.24~0.35m이고 [제실의 높은 등잔대](#lampstands)와 다른 치수군이다. 불꽃·연료·빛 방출은 없으며 놓이는 위치와 개수는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 이동식 소형 등잔: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 이동식 소형 등잔: 이동식 소형 등잔은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 이동식 소형 등잔: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 이동식 소형 등잔의 범위에서 불꽃·연료·빛 방출은 없으며 놓이는 위치와 개수는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 이동식 소형 등잔: 이동식 소형 등잔의 허용 범위와 정문·중정·봉헌실·관리실 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 이동식 소형 등잔: 높은 등잔대와 구별되는 짧은 줄기와 접시라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/common.md#scope-preservation Writing stylus identity and use at administration and records desks retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A stationary writing tool is a short metal rod pointed at one end. Length is 0.18~0.25m, with no written content or hand-writing motion. instances chooses desktop position and relationship to the tool container.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes writing stylus scope; image 05 is a visual reference and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A stationary writing tool is a short metal rod pointed at one end. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Image 05 grounds the scale, materials and spatial relationships of a rod with one pointed end, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Written content and hand-writing motion are excluded; instances owns desktop placement.
+@evidence principles/core/settings.md#constraint-sufficiency The writing stylus ranges and administration and records desks use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a rod with one pointed end.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Image 05 provides visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at administration and records desks. A stationary writing tool is a short metal rod pointed at one end. Length is 0.18~0.25m, with no written content or hand-writing motion. instances chooses desktop position and relationship to the tool container.
+
+## Unlettered writing tablet {#writing-tablet}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Unlettered writing tablet identity and use at administration and records desks retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A stationary prop holds a flat empty writing surface below the rim of a shallow rectangular frame. Width is 0.24~0.35m and depth 0.18~0.28m; no actual writing or invented inscriptions appear. instances chooses desktop positions and spacing from other documents.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes unlettered writing tablet scope; image 05 is a visual reference and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A stationary prop holds a flat empty writing surface below the rim of a shallow rectangular frame. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Image 05 grounds the scale, materials and spatial relationships of an empty writing surface lower than its frame, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Actual writing and invented inscriptions are excluded; instances owns desktop positions and document spacing.
+@evidence principles/core/settings.md#constraint-sufficiency The unlettered writing tablet ranges and administration and records desks use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes an empty writing surface lower than its frame.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 정문·중정·봉헌실·[관리실](30-interiors.md#administration)에서 사용한다. 낮은 발·짧은 줄기·얕은 금속 접시가 이어지는 탁상 또는 바닥 비품이다. 높이 0.24~0.35m이고 [제실의 높은 등잔대](#lampstands)와 다른 치수군이다. 불꽃·연료·빛 방출은 없으며 놓이는 위치와 개수는 instances가 정한다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Image 05 provides visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at administration and records desks. A stationary prop holds a flat empty writing surface below the rim of a shallow rectangular frame. Width is 0.24~0.35m and depth 0.18~0.28m; no actual writing or invented inscriptions appear. instances chooses desktop positions and spacing from other documents.
 
-## 항아리 두 자리 받침대 {#jar-rack}
+The tablet frame reads as dark timber and the writing surface as parchment.
+
+## Loose rope coil {#rope-coil}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 항아리 두 자리 받침대: 항아리 두 자리 받침대의 정체성과 보관실 벽가 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 항아리 두 자리 받침대: 두 원형의 얕은 홈을 가진 낮은 목재 상판과 네 다리다. 높이 0.20~0.35m, 폭 1.0~1.3m이고 두 항아리를 받는 홈 바닥은 판을 관통하지 않는다. 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 항아리 두 자리 받침대: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 항아리 두 자리 받침대: 항아리 두 자리 받침대은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 항아리 두 자리 받침대: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 항아리 두 자리 받침대의 범위에서 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 항아리 두 자리 받침대: 항아리 두 자리 받침대의 허용 범위와 보관실 벽가 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 항아리 두 자리 받침대: 두 얕은 홈이 있는 낮은 목재 상판과 네 다리라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/common.md#scope-preservation Loose rope coil identity and use at records, storage and service yard retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion Several fiber loops and a small binding band lie separately from document ties. Diameter is 0.18~0.30m, with an open center and gaps between loops. Actual tying tension and carrying motion are not delivered.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes loose rope coil scope; images 02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status Several fiber loops and a small binding band lie separately from document ties. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/05 ground the scale, materials and spatial relationships of multiple fiber loops with open center/gaps and a small binding band, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Actual tying tension and carrying motion are not delivered.
+@evidence principles/core/settings.md#constraint-sufficiency The loose rope coil ranges and records, storage and service yard use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes multiple fiber loops with open center/gaps and a small binding band.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at records, storage and service yard. Several fiber loops and a small binding band lie separately from document ties. Diameter is 0.18~0.30m, with an open center and gaps between loops. Actual tying tension and carrying motion are not delivered.
+
+instances determines actual rope-coil positions and quantities.
+
+## Low censer {#censer}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Low censer identity and use at sanctuary altar top retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A small ritual supply connects foot, short stem and upward-open cup with extinguished incense above ash. Height is 0.25~0.40m; its silhouette replaces neither altar nor offering bowl. Smoke, flames, smell and ritual performance are not delivered.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes low censer scope; images 02/04 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A small ritual supply connects foot, short stem and upward-open cup with extinguished incense above ash. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/04 ground the scale, materials and spatial relationships of an open cup with extinguished incense above ash, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Smoke, flames, smell and ritual performance are not delivered.
+@evidence principles/core/settings.md#constraint-sufficiency The low censer ranges and sanctuary altar top use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes an open cup with extinguished incense above ash.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 보관실 벽가에서 사용한다. 두 원형의 얕은 홈을 가진 낮은 목재 상판과 네 다리다. 높이 0.20~0.35m, 폭 1.0~1.3m이고 두 항아리를 받는 홈 바닥은 판을 관통하지 않는다. 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/04 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at sanctuary altar top. A small ritual supply connects foot, short stem and upward-open cup with extinguished incense above ash. Height is 0.25~0.40m; its silhouette replaces neither altar nor offering bowl. Smoke, flames, smell and ritual performance are not delivered.
 
-## 운반 멜대 {#carrying-yoke}
+The censer foot, stem and cup are dark metal; instances determines actual positions and quantities.
+
+## Sanctuary floor cushion {#floor-cushion}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 운반 멜대: 운반 멜대의 정체성과 서비스 마당 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 운반 멜대: 긴 목재 가로대 양끝에 금속 고리 둘이 달린 내려놓은 비품이다. 폭 1.0~1.3m 안에서 고르며 고리의 구멍과 목재 막대가 분리된다. 실제 운반 동작·하중·고대 운반 방식의 복원은 주장하지 않는다.
-@evidence principles/core/common.md#declared-basis 운반 멜대: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 운반 멜대: 운반 멜대은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 운반 멜대: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 운반 멜대의 범위에서 실제 운반 동작·하중·고대 운반 방식의 복원은 주장하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 운반 멜대: 운반 멜대의 허용 범위와 서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 운반 멜대: 막대와 양끝의 열린 고리라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/common.md#scope-preservation Sanctuary floor cushion identity and use at floor before the sanctuary altar retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A stationary low seat shows a thick seating surface, lower layer and rear fold line. Width is 0.40~0.55m and height 0.12~0.20m; it does not replace administration/records [work stools](#workstation). instances preserves altar access, with no character sitting motion.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes sanctuary floor cushion scope; image 04 is a visual reference and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A stationary low seat shows a thick seating surface, lower layer and rear fold line. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Image 04 grounds the scale, materials and spatial relationships of a low seating surface thicker than folded cover cloth, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary Work-stool use and character sitting motion are excluded; instances preserves altar access.
+@evidence principles/core/settings.md#constraint-sufficiency The sanctuary floor cushion ranges and floor before the sanctuary altar use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a low seating surface thicker than folded cover cloth.
 -->
+
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Image 04 provides visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at floor before the sanctuary altar. A stationary low seat shows a thick seating surface, lower layer and rear fold line. Width is 0.40~0.55m and height 0.12~0.20m; it does not replace administration/records [work stools](#workstation). instances preserves altar access, with no character sitting motion.
+
+## Single-jar stand {#jar-stand}
 
 <!--
+@evidence principles/core/common.md#scope-preservation Single-jar stand identity and use at storage wall edges retain downstream placement ownership.
+@evidence principles/core/common.md#substantive-completion A low independent supply has a round foot, narrow post and one upper support ring. Height is 0.28~0.40m and outer diameter 0.5~0.7m, with role/silhouette distinct from the [two-jar timber rack](#jar-rack). instances owns actual jar contact and room passage.
+@evidence principles/core/common.md#declared-basis The user's 2026-09-25 all-objects instruction authorizes single-jar stand scope; images 02/05 are visual references and shape ranges are author choices.
+@evidence principles/core/settings.md#fact-status A low independent supply has a round foot, narrow post and one upper support ring. This is adopted stationary appearance rather than artifact measurements or actual performance results.
+@evidence principles/core/settings.md#source-support Images 02/05 ground the scale, materials and spatial relationships of a narrow post over a round foot and an open upper ring, without pixel-measured dimensions or historical-object restoration.
+@evidence principles/core/settings.md#capability-boundary instances owns actual jar contact and room passage.
+@evidence principles/core/settings.md#constraint-sufficiency The single-jar stand ranges and storage wall edges use conditions bound model and placement choices.
+@evidence principles/core/settings.md#observable-identity A distinguishable silhouette exposes a narrow post over a round foot and an open upper ring.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 서비스 마당에서 사용한다. 긴 목재 가로대 양끝에 금속 고리 둘이 달린 내려놓은 비품이다. 폭 1.0~1.3m 안에서 고르며 고리의 구멍과 목재 막대가 분리된다. 실제 운반 동작·하중·고대 운반 방식의 복원은 주장하지 않는다.
+The user's 2026-09-25 instruction, "All objects must be made in the remaining 3 hours," includes this object in scope. Images 02/05 provide visual grounds for space/supply relationships; individual object adoption and dimensional ranges below are author decisions. Use it at storage wall edges. A low independent supply has a round foot, narrow post and one upper support ring. Height is 0.28~0.40m and outer diameter 0.5~0.7m, with role/silhouette distinct from the [two-jar timber rack](#jar-rack). instances owns actual jar contact and room passage.
 
-운반 멜대의 실제 위치와 수량은 instances가 정한다.
-
-## 정지된 작은 손수레 {#handcart}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 정지된 작은 손수레: 정지된 작은 손수레의 정체성과 서비스 마당 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 정지된 작은 손수레: 판·두 바퀴·축·뒤 손잡이가 구별되는 빈 운반대다. 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다. 외부 반입문 옆에서 통로를 남기는 위치는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 정지된 작은 손수레: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 01·02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 정지된 작은 손수레: 정지된 작은 손수레은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 정지된 작은 손수레: 제공 이미지 01·02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 정지된 작은 손수레의 범위에서 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 정지된 작은 손수레: 정지된 작은 손수레의 허용 범위와 서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 정지된 작은 손수레: 판·두 바퀴·축·뒤 손잡이가 구별되는 빈 운반대라는 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 01·02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 서비스 마당에서 사용한다. 판·두 바퀴·축·뒤 손잡이가 구별되는 빈 운반대다. 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다. 외부 반입문 옆에서 통로를 남기는 위치는 instances가 정한다.
-
-판·손잡이·축·바퀴는 어두운 목재로 읽는다.
-
-## 손잡이 있는 물동이 {#bucket}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 손잡이 있는 물동이: 손잡이 있는 물동이의 정체성과 중정·서비스 마당 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 손잡이 있는 물동이: 위로 벌어진 열린 도기 몸체와 하나의 높은 고리 손잡이를 가진 작은 빈 용기다. 높이 0.35~0.5m 안에서 고르며 [부푼 배와 좁은 목의 저장 용기](#vessels)와 다른 정체성이다. 물 표면·무게·흐름·운반 동작은 납품하지 않는다.
-@evidence principles/core/common.md#declared-basis 손잡이 있는 물동이: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 손잡이 있는 물동이: 손잡이 있는 물동이은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 손잡이 있는 물동이: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 손잡이 있는 물동이의 범위에서 물 표면·무게·흐름·운반 동작은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 손잡이 있는 물동이: 손잡이 있는 물동이의 허용 범위와 중정·서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 손잡이 있는 물동이: 벌어진 입과 그 위의 열린 고리라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 중정·서비스 마당에서 사용한다. 위로 벌어진 열린 도기 몸체와 하나의 높은 고리 손잡이를 가진 작은 빈 용기다. 높이 0.35~0.5m 안에서 고르며 [부푼 배와 좁은 목의 저장 용기](#vessels)와 다른 정체성이다. 물 표면·무게·흐름·운반 동작은 납품하지 않는다.
-
-물동이의 실제 위치와 수량은 instances가 정한다.
-
-## 흙을 담은 낮은 화분 {#planter}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 흙을 담은 낮은 화분: 흙을 담은 낮은 화분의 정체성과 정문·중정의 흙 가장자리 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 흙을 담은 낮은 화분: 아래보다 넓은 열린 도기 입 안에 낮은 흙면이 보이는 정지 비품이다. 지름 0.35~0.50m, 높이 0.30~0.45m이고 식물 자체는 별도 식생 prototype의 배치다. 흙이 도기 벽을 뚫지 않고 통행면을 가리지 않도록 instances가 위치를 정한다.
-@evidence principles/core/common.md#declared-basis 흙을 담은 낮은 화분: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 01·03은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 흙을 담은 낮은 화분: 흙을 담은 낮은 화분은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 흙을 담은 낮은 화분: 제공 이미지 01·03의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 식물 자체는 별도 식생 prototype이며 흙면이 도기 벽과 통행면을 침범하지 않는 배치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 흙을 담은 낮은 화분: 흙을 담은 낮은 화분의 허용 범위와 정문·중정의 흙 가장자리 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 흙을 담은 낮은 화분: 넓은 도기 입 안쪽에 담긴 흙면라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 01·03의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 정문·중정의 흙 가장자리에서 사용한다. 아래보다 넓은 열린 도기 입 안에 낮은 흙면이 보이는 정지 비품이다. 지름 0.35~0.50m, 높이 0.30~0.45m이고 식물 자체는 별도 식생 prototype의 배치다. 흙이 도기 벽을 뚫지 않고 통행면을 가리지 않도록 instances가 위치를 정한다.
-
-## 글자 없는 봉헌판 {#votive-plaque}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 글자 없는 봉헌판: 글자 없는 봉헌판의 정체성과 제실·봉헌실·주랑 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 글자 없는 봉헌판: 낮은 받침 위에 세운 작은 직사각 석판이며 한 사람이 옮길 수 있는 규모다. 폭 0.25~0.40m, 높이 0.35~0.50m이고 글자·도상·가상 봉헌자 이름은 새기지 않는다. 제실의 제단 중심을 가리지 않는 배치는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 글자 없는 봉헌판: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 글자 없는 봉헌판: 글자 없는 봉헌판은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 글자 없는 봉헌판: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 글자·도상·가상 봉헌자 이름을 만들지 않으며 제단 중심을 가리지 않는 위치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 글자 없는 봉헌판: 글자 없는 봉헌판의 허용 범위와 제실·봉헌실·주랑 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 글자 없는 봉헌판: 낮은 받침 위에 세운 작은 직사각 석판이라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·주랑에서 사용한다. 낮은 받침 위에 세운 작은 직사각 석판이며 한 사람이 옮길 수 있는 규모다. 폭 0.25~0.40m, 높이 0.35~0.50m이고 글자·도상·가상 봉헌자 이름은 새기지 않는다. 제실의 제단 중심을 가리지 않는 배치는 instances가 정한다.
-
-## 낮은 봉헌 쟁반 {#offering-tray}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 낮은 봉헌 쟁반: 낮은 봉헌 쟁반의 정체성과 봉헌실·제실 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 낮은 봉헌 쟁반: 작은 그릇을 모아 놓는 납작한 바닥과 네 낮은 테두리의 별도 비품이다. 폭 0.4~0.6m, 깊이 0.25~0.4m이며 중앙은 위로 열려 있다. 제단 또는 탁자의 상판 위에 놓이고 안의 그릇 수와 위치는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 낮은 봉헌 쟁반: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 낮은 봉헌 쟁반: 낮은 봉헌 쟁반은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 낮은 봉헌 쟁반: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 낮은 봉헌 쟁반의 범위에서 제단 또는 탁자의 상판 위에 놓이고 안의 그릇 수와 위치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 낮은 봉헌 쟁반: 낮은 봉헌 쟁반의 허용 범위와 봉헌실·제실 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 낮은 봉헌 쟁반: 바닥을 둘러싼 네 림과 열린 가운데라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 봉헌실·제실에서 사용한다. 작은 그릇을 모아 놓는 납작한 바닥과 네 낮은 테두리의 별도 비품이다. 폭 0.4~0.6m, 깊이 0.25~0.4m이며 중앙은 위로 열려 있다. 제단 또는 탁자의 상판 위에 놓이고 안의 그릇 수와 위치는 instances가 정한다.
-
-쟁반의 바닥과 네 림은 어두운 금속으로 읽는다.
-
-## 접은 직물 {#textile}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 접은 직물: 접은 직물의 정체성과 제실·봉헌실·관리실·기록실·보관실 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 접은 직물: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹과 접힌 가장자리가 보이는 얇은 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
-@evidence principles/core/common.md#declared-basis 접은 직물: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 04·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 접은 직물: 접은 직물은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 접은 직물: 제공 이미지 04·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 실의 직조·봉합선을 형상으로 만들지 않으며 제실 바닥 좌구는 별도 prototype으로 둔다.
-@evidence principles/core/settings.md#constraint-sufficiency 접은 직물: 접은 직물의 허용 범위와 제실·봉헌실·관리실·기록실·보관실 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 접은 직물: 두 겹과 접힌 가장자리가 보이는 얇은 천라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 04·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·관리실·기록실·보관실에서 사용한다. 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹과 접힌 가장자리가 보이는 얇은 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
-
-접은 직물의 실제 위치와 수량은 instances가 정한다.
-
-## 필기용 첨필 {#stylus}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 필기용 첨필: 필기용 첨필의 정체성과 관리실·기록실의 책상 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 필기용 첨필: 짧은 금속 막대의 한 끝이 뾰족한 정지 필기 도구다. 길이 0.18~0.25m이며 문자 내용과 손의 필기 동작은 없다. 책상 위 위치와 도구 용기와의 관계는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 필기용 첨필: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 필기용 첨필: 필기용 첨필은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 필기용 첨필: 제공 이미지 05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 문자 내용과 손의 필기 동작을 제외하고 책상 위 위치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 필기용 첨필: 필기용 첨필의 허용 범위와 관리실·기록실의 책상 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 필기용 첨필: 막대와 뾰족한 한 끝라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 관리실·기록실의 책상에서 사용한다. 짧은 금속 막대의 한 끝이 뾰족한 정지 필기 도구다. 길이 0.18~0.25m이며 문자 내용과 손의 필기 동작은 없다. 책상 위 위치와 도구 용기와의 관계는 instances가 정한다.
-
-## 글자 없는 필기판 {#writing-tablet}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 글자 없는 필기판: 글자 없는 필기판의 정체성과 관리실·기록실의 책상 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 글자 없는 필기판: 얕은 직사각 틀 안에 테두리보다 낮은 평평한 빈 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 글자 없는 필기판: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 글자 없는 필기판: 글자 없는 필기판은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 글자 없는 필기판: 제공 이미지 05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 실제 글자와 가짜 비문을 제외하고 책상 위 위치·기록물 간격은 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 글자 없는 필기판: 글자 없는 필기판의 허용 범위와 관리실·기록실의 책상 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 글자 없는 필기판: 테두리보다 낮은 빈 필기면라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 관리실·기록실의 책상에서 사용한다. 얕은 직사각 틀 안에 테두리보다 낮은 평평한 빈 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
-
-필기판의 틀은 어두운 목재, 쓰기 면은 양피지로 읽는다.
-
-## 느슨한 끈 뭉치 {#rope-coil}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 느슨한 끈 뭉치: 느슨한 끈 뭉치의 정체성과 기록실·보관실·서비스 마당 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 느슨한 끈 뭉치: 문서에 묶인 끈과 별개로 내려놓은 여러 섬유 고리와 작은 묶음 띠다. 지름 0.18~0.30m이며 가운데와 고리 사이는 빈다. 실제 결속 장력과 운반 동작은 납품하지 않는다.
-@evidence principles/core/common.md#declared-basis 느슨한 끈 뭉치: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 느슨한 끈 뭉치: 느슨한 끈 뭉치은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 느슨한 끈 뭉치: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 느슨한 끈 뭉치의 범위에서 실제 결속 장력과 운반 동작은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 느슨한 끈 뭉치: 느슨한 끈 뭉치의 허용 범위와 기록실·보관실·서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 느슨한 끈 뭉치: 가운데와 고리 사이가 빈 여러 섬유 고리와 작은 묶음 띠라는 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 기록실·보관실·서비스 마당에서 사용한다. 문서에 묶인 끈과 별개로 내려놓은 여러 섬유 고리와 작은 묶음 띠다. 지름 0.18~0.30m이며 가운데와 고리 사이는 빈다. 실제 결속 장력과 운반 동작은 납품하지 않는다.
-
-끈 뭉치의 실제 위치와 수량은 instances가 정한다.
-
-## 낮은 향로 {#censer}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 낮은 향로: 낮은 향로의 정체성과 제실의 제단 위 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 낮은 향로: 발·짧은 줄기·위로 열린 컵 안의 재 위로 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
-@evidence principles/core/common.md#declared-basis 낮은 향로: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 낮은 향로: 낮은 향로은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 낮은 향로: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 낮은 향로의 범위에서 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 낮은 향로: 낮은 향로의 허용 범위와 제실의 제단 위 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 낮은 향로: 열린 컵과 재 위의 꺼진 향라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실의 제단 위에서 사용한다. 발·짧은 줄기·위로 열린 컵 안의 재 위로 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
-
-향로의 발·줄기·컵은 어두운 금속이며 실제 위치와 수량은 instances가 정한다.
-
-## 제실 바닥 좌구 {#floor-cushion}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 제실 바닥 좌구: 제실 바닥 좌구의 정체성과 제실의 제단 앞쪽 바닥 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 제실 바닥 좌구: 두꺼운 낮은 좌면과 아래층·뒤 접힘선으로 읽히는 정지 좌구다. 폭 0.40~0.55m, 높이 0.12~0.20m이며 관리실·기록실의 [작업 스툴](#workstation)을 대신하지 않는다. 제단 접근을 가리지 않는 위치는 instances가 정하고 인물의 앉기 동작은 없다.
-@evidence principles/core/common.md#declared-basis 제실 바닥 좌구: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 04은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 제실 바닥 좌구: 제실 바닥 좌구은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 제실 바닥 좌구: 제공 이미지 04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 작업 스툴 역할과 인물의 앉기 동작을 제외하고 제단 접근을 남기는 배치는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 제실 바닥 좌구: 제실 바닥 좌구의 허용 범위와 제실의 제단 앞쪽 바닥 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 제실 바닥 좌구: 접은 덮개 천보다 두꺼운 낮은 좌면라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실의 제단 앞쪽 바닥에서 사용한다. 두꺼운 낮은 좌면과 아래층·뒤 접힘선으로 읽히는 정지 좌구다. 폭 0.40~0.55m, 높이 0.12~0.20m이며 관리실·기록실의 [작업 스툴](#workstation)을 대신하지 않는다. 제단 접근을 가리지 않는 위치는 instances가 정하고 인물의 앉기 동작은 없다.
-
-## 항아리 한 자리 받침 {#jar-stand}
-
-<!--
-@evidence principles/core/common.md#scope-preservation 항아리 한 자리 받침: 항아리 한 자리 받침의 정체성과 보관실 벽가 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 항아리 한 자리 받침: 원형 발·좁은 기둥·위의 한 자리 받침 고리로 된 낮은 독립 비품이다. 높이 0.28~0.40m, 바깥 지름 0.5~0.7m이며 [두 자리 목재 받침대](#jar-rack)와 역할과 실루엣이 다르다. 항아리의 실제 접촉과 방 통로는 instances가 정한다.
-@evidence principles/core/common.md#declared-basis 항아리 한 자리 받침: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·05은 시각 참조이며 형상 범위는 저작자 선택이다.
-@evidence principles/core/settings.md#fact-status 항아리 한 자리 받침: 항아리 한 자리 받침은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
-@evidence principles/core/settings.md#source-support 항아리 한 자리 받침: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 항아리 한 자리 받침의 범위에서 항아리의 실제 접촉과 방 통로는 instances가 정한다.
-@evidence principles/core/settings.md#constraint-sufficiency 항아리 한 자리 받침: 항아리 한 자리 받침의 허용 범위와 보관실 벽가 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 항아리 한 자리 받침: 원형 발 위 좁은 기둥과 열린 위 고리라는 구분 가능한 실루엣을 요구한다.
--->
-
-<!--
--->
-
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 보관실 벽가에서 사용한다. 원형 발·좁은 기둥·위의 한 자리 받침 고리로 된 낮은 독립 비품이다. 높이 0.28~0.40m, 바깥 지름 0.5~0.7m이며 [두 자리 목재 받침대](#jar-rack)와 역할과 실루엣이 다르다. 항아리의 실제 접촉과 방 통로는 instances가 정한다.
-
-받침의 발·기둥·고리는 석재로 읽는다.
+The stand foot, post and ring read as stone.
