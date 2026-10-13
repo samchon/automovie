@@ -1,36 +1,14 @@
-import { growPlanting, plantingStateDigest } from "@automovie/engine";
-import { IAutoMoviePruningEnvelope } from "@automovie/interface";
+import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
+import { plantingStateDigest } from "../../../../packages/engine/src/soft/plantingStateDigest";
+import { IAutoMoviePruningEnvelope, IAutoMoviePlantingState, IAutoMoviePlantingBranch } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
-
 /** A vertical trunk of unit length under one pruning envelope. */
-const clipped = (pruning: IAutoMoviePruningEnvelope) =>
+const clipped: (pruning: IAutoMoviePruningEnvelope) => IAutoMoviePlantingState = (pruning: IAutoMoviePruningEnvelope): IAutoMoviePlantingState =>
   growPlanting(plantingRecipe({ pruning }));
 
-/**
- * The pruning envelope cuts the derived structure analytically, and only the
- * children that emerge before the cut survive.
- *
- * Clipping in the renderer would be the cheap answer and the wrong one: a
- * quantity take-off, a collision check and a camera would then be reading three
- * different plants. Cutting the structure means the envelope is a fact about
- * the plant. The cut itself is the exact slab or quadratic root rather than a
- * sampled crossing, so a trained hedge's face does not move when a step count
- * changes.
- *
- * The trunk runs from the origin along `+y` for exactly one metre, so every
- * expectation below is a plain reading of the envelope:
- *
- * ```text
- *   box   : the nearest slab crossing ahead, here y = 0.75
- *   sphere: −b + √(b² − c) with b = o·d = 0 and c = |o|² − r² = −0.5625,
- *           so the root is exactly √0.5625 = 0.75
- * ```
- *
- * Its two children emerge at half height and at the tip, which straddles that
- * cut: the first survives, the second is gone.
+/** Verify analytic box/sphere pruning and child survival through emitted branch endpoints and ids.
  *
  * Scenarios:
  *
@@ -51,20 +29,26 @@ const clipped = (pruning: IAutoMoviePruningEnvelope) =>
  * 6. A cut structure digests differently from an uncut one and reproduces its own
  *    digest, so pruning is carried by the derived record rather than by a flag
  *    nobody reads.
+
+ *
+ * @evidence contracts/testing.md#behavioral-verification Real growth output catches changed cut distance, closed envelope membership, child emergence filtering, pruned flags and empty bounds; roomy and missed envelopes distinguish actual cutting from merely declaring an envelope.
+ * @evidence contracts/testing.md#independent-expectations A one-metre +Y trunk crosses an authored ceiling/radius at .75; children emerge at .5 and 1, so only the former survives. Digest comparisons are auxiliary 32-bit diagnostics and cannot independently prove geometry identity.
+ * @evidence contracts/testing.md#distinguishing-cases Preserve none, cutting box/sphere, outside base, roomy box/sphere and repeat/changed diagnostic cases; scaled visible canopy clearance belongs to installation validation rather than this branch-centreline test.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_planting_pruning_envelope; the exported test owns every envelope case and reads emitted geometry without a renderer or sampled clipping host.
  */
-export const test_planting_pruning_envelope = (): void => {
-  const free = clipped({ kind: "none" });
+export function test_planting_pruning_envelope(): void {
+  const free: IAutoMoviePlantingState = clipped({ kind: "none" });
   TestValidator.equals(
     "an unpruned structure reaches its full length",
     namedFacts([
-      ["end", () => vclose(free.branches[0].end, { x: 0, y: 1, z: 0 })],
-      ["flag", () => free.branches.every((branch) => branch.pruned === false)],
-      ["count", () => free.branches.length === 7],
+      ["end", (): boolean => vclose(free.branches[0].end, { x: 0, y: 1, z: 0 })],
+      ["flag", (): boolean => free.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.pruned === false)],
+      ["count", (): boolean => free.branches.length === 7],
     ]),
     { end: true, flag: true, count: true },
   );
 
-  const boxed = clipped({
+  const boxed: IAutoMoviePlantingState = clipped({
     kind: "box",
     min: { x: -1, y: -1, z: -1 },
     max: { x: 1, y: 0.75, z: 1 },
@@ -72,21 +56,21 @@ export const test_planting_pruning_envelope = (): void => {
   TestValidator.equals(
     "a box cuts the trunk at its slab crossing and drops what grows past it",
     namedFacts([
-      ["end", () => vclose(boxed.branches[0].end, { x: 0, y: 0.75, z: 0 })],
-      ["pruned", () => boxed.branches[0].pruned === true],
+      ["end", (): boolean => vclose(boxed.branches[0].end, { x: 0, y: 0.75, z: 0 })],
+      ["pruned", (): boolean => boxed.branches[0].pruned === true],
       [
         "survivor",
-        () => boxed.branches.some((branch) => branch.id === "trunk/a"),
+        (): boolean => boxed.branches.some((branch: IAutoMoviePlantingBranch): boolean => branch.id === "trunk/a"),
       ],
       [
         "dropped",
-        () => boxed.branches.every((branch) => branch.id !== "trunk/b"),
+        (): boolean => boxed.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.id !== "trunk/b"),
       ],
       [
         "survivorBase",
-        () =>
+        (): boolean =>
           vclose(
-            boxed.branches.filter((branch) => branch.id === "trunk/a")[0].start,
+            boxed.branches.filter((branch: IAutoMoviePlantingBranch): boolean => branch.id === "trunk/a")[0].start,
             { x: 0, y: 0.5, z: 0 },
           ),
       ],
@@ -100,7 +84,7 @@ export const test_planting_pruning_envelope = (): void => {
     },
   );
 
-  const balled = clipped({
+  const balled: IAutoMoviePlantingState = clipped({
     kind: "sphere",
     center: { x: 0, y: 0, z: 0 },
     radius: 0.75,
@@ -108,22 +92,22 @@ export const test_planting_pruning_envelope = (): void => {
   TestValidator.equals(
     "a sphere cuts at the quadratic root, to the same place",
     namedFacts([
-      ["end", () => vclose(balled.branches[0].end, { x: 0, y: 0.75, z: 0 })],
-      ["pruned", () => balled.branches[0].pruned === true],
+      ["end", (): boolean => vclose(balled.branches[0].end, { x: 0, y: 0.75, z: 0 })],
+      ["pruned", (): boolean => balled.branches[0].pruned === true],
       [
         "dropped",
-        () => balled.branches.every((branch) => branch.id !== "trunk/b"),
+        (): boolean => balled.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.id !== "trunk/b"),
       ],
     ]),
     { end: true, pruned: true, dropped: true },
   );
 
-  const missed = clipped({
+  const missed: IAutoMoviePlantingState = clipped({
     kind: "box",
     min: { x: 4, y: 4, z: 4 },
     max: { x: 5, y: 5, z: 5 },
   });
-  const elsewhere = clipped({
+  const elsewhere: IAutoMoviePlantingState = clipped({
     kind: "sphere",
     center: { x: 9, y: 9, z: 9 },
     radius: 1,
@@ -131,21 +115,21 @@ export const test_planting_pruning_envelope = (): void => {
   TestValidator.equals(
     "a base outside the envelope grows nothing at all",
     namedFacts([
-      ["box", () => missed.branches.length === 0 && missed.bounds === null],
+      ["box", (): boolean => missed.branches.length === 0 && missed.bounds === null],
       [
         "sphere",
-        () => elsewhere.branches.length === 0 && elsewhere.bounds === null,
+        (): boolean => elsewhere.branches.length === 0 && elsewhere.bounds === null,
       ],
     ]),
     { box: true, sphere: true },
   );
 
-  const roomy = clipped({
+  const roomy: IAutoMoviePlantingState = clipped({
     kind: "box",
     min: { x: -4, y: -4, z: -4 },
     max: { x: 4, y: 4, z: 4 },
   });
-  const wide = clipped({
+  const wide: IAutoMoviePlantingState = clipped({
     kind: "sphere",
     center: { x: 0, y: 0, z: 0 },
     radius: 10,
@@ -153,14 +137,14 @@ export const test_planting_pruning_envelope = (): void => {
   TestValidator.equals(
     "an envelope the plant fits inside cuts nothing",
     namedFacts([
-      ["count", () => roomy.branches.length === 7],
-      ["flag", () => roomy.branches.every((branch) => branch.pruned === false)],
-      ["end", () => vclose(roomy.branches[0].end, { x: 0, y: 1, z: 0 })],
-      ["sphereCount", () => wide.branches.length === 7],
-      ["sphereFlag", () => wide.branches.every((branch) => !branch.pruned)],
+      ["count", (): boolean => roomy.branches.length === 7],
+      ["flag", (): boolean => roomy.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.pruned === false)],
+      ["end", (): boolean => vclose(roomy.branches[0].end, { x: 0, y: 1, z: 0 })],
+      ["sphereCount", (): boolean => wide.branches.length === 7],
+      ["sphereFlag", (): boolean => wide.branches.every((branch: IAutoMoviePlantingBranch): boolean => !branch.pruned)],
       [
         "sameAsUnpruned",
-        () => plantingStateDigest(wide) === plantingStateDigest(free),
+        (): boolean => plantingStateDigest(wide) === plantingStateDigest(free),
       ],
     ]),
     {
@@ -178,11 +162,11 @@ export const test_planting_pruning_envelope = (): void => {
     namedFacts([
       [
         "differs",
-        () => plantingStateDigest(boxed) !== plantingStateDigest(free),
+        (): boolean => plantingStateDigest(boxed) !== plantingStateDigest(free),
       ],
       [
         "stable",
-        () =>
+        (): boolean =>
           plantingStateDigest(
             clipped({
               kind: "box",
@@ -194,4 +178,4 @@ export const test_planting_pruning_envelope = (): void => {
     ]),
     { differs: true, stable: true },
   );
-};
+}

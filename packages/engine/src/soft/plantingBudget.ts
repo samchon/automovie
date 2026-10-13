@@ -1,63 +1,37 @@
-import {
-  IAutoMoviePlantingBudget,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
-} from "@automovie/interface";
-
-/**
- * The bounded cost a planting recipe, and optionally its cluster, adds to a
- * shot.
+import { IAutoMoviePlantingBudget, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingStructure, IAutoMoviePlantingFoliage } from "@automovie/interface";
+/** Measure a planting recipe's complete-tree branch/leaf upper counts and optional requested member products without deriving geometry. Callers admit bounded depth first; numeric products can overflow for unsupported huge ungated values.
  *
- * Nothing here grows a branch: a production is refused for an unaffordable
- * green wall before the first derivation, and the same numbers ride into the
- * builder's report so a reviewer sees what the planting cost.
- *
- * The worst case is the complete `k`-ary tree of depth `levels`, which is what
- * an unpruned recipe at full growth actually emits.
- *
- * Foliage is counted the same way rather than read off the declared cap. A
- * branch at level `l` is no longer than
- *
- * ```text
- *   Λ(l) = length · lengthRatio^l · (1 + lengthJitter)^(l + 1)
- * ```
- *
- * One jitter draw per generation and each strictly below its own bound, and it
- * bears `⌊density · Λ(l)⌋` blades. The worst case is that count summed over the
- * complete tree from `minLevel` down. Growth and pruning only ever shorten a
- * branch, so the number bounds every state the recipe can be in.
- *
- * Both totals are counted by **walking the declared depth**, so this is only
- * asked of a recipe whose `structure.levels` is already known to be inside
- * {@link PLANTING_MAX_LEVELS}: a record claiming a quadrillion levels would
- * otherwise be walked a quadrillion times by the very report that exists to
- * price it. {@link validatePlantingDomain} refuses such a depth on its own path
- * and only measures once it is in range, which is the order any other caller
- * follows too.
+ * @evidence contracts/common.md#principled-implementation Walking the declared child branching factor and accumulated maximum length jitter bounds unpruned branch and density-derived leaf populations across growth stages; pruning can only remove them. Separate declared caps are returned without replacing these derived counts.
+ * @evidence contracts/common.md#clear-and-simple-design Domain admission and production render-simulation budgeting share one cost owner, while actual derivation enforces emitted caps independently.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid enormous depth is not capped here into a plausible report; depth admission precedes this linear walk, and requested member count is not mistaken for accepted arrangement count.
+ * @evidence contracts/common.md#meaningful-documentation States worst-case versus declared caps, depth premise and requested-member meaning.
+ * @evidence contracts/performance.md#efficient-algorithms For admitted depth D, a scalar recurrence computes counts in O(D) time and constant extra storage, regardless of the potentially exponential derived population.
+ * @evidence contracts/performance.md#reuse-equivalent-work One level/maximum-reach recurrence supplies both branch and leaf bounds; cheap scalar reports are recomputed for changed recipe/cluster values rather than cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A fixed fresh scalar report transfers to the caller; no tree, placement array or recipe handle is retained.
  *
  * @author Samchon
  */
-export const plantingBudget = (props: {
+export const plantingBudget: (props: { domain: IAutoMoviePlantingDomain; cluster?: IAutoMoviePlantingCluster | undefined; }) => IAutoMoviePlantingBudget = (props: {
   domain: IAutoMoviePlantingDomain;
   cluster?: IAutoMoviePlantingCluster;
 }): IAutoMoviePlantingBudget => {
-  const { domain } = props;
-  const structure = domain.structure;
-  const foliage = domain.foliage;
-  const children = structure.children.length;
-  const spread = 1 + structure.lengthJitter;
-  let worstCaseBranches = 0;
-  let worstCaseLeaves = 0;
-  let level = 1;
-  let reach = structure.length * spread;
-  for (let at = 0; at < structure.levels; ++at) {
+  const { domain }: typeof props = props;
+  const structure: IAutoMoviePlantingStructure = domain.structure;
+  const foliage: IAutoMoviePlantingFoliage | null = domain.foliage;
+  const children: number = structure.children.length;
+  const spread: number = 1 + structure.lengthJitter;
+  let worstCaseBranches: number = 0;
+  let worstCaseLeaves: number = 0;
+  let level: number = 1;
+  let reach: number = structure.length * spread;
+  for (let at: number = 0; at < structure.levels; ++at) {
     worstCaseBranches += level;
     if (foliage !== null && at >= foliage.minLevel)
       worstCaseLeaves += level * Math.floor(foliage.density * reach);
     level *= children;
     reach *= structure.lengthRatio * spread;
   }
-  const members = props.cluster === undefined ? 1 : props.cluster.count;
+  const members: number = props.cluster === undefined ? 1 : props.cluster.count;
   return {
     domain: domain.id,
     worstCaseBranches,
