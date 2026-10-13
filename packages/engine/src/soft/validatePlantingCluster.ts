@@ -1,11 +1,14 @@
-import { IAutoMoviePlantingCluster, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftVector as vector } from "./validateSoftVector";
+import { IAutoMoviePlantingCluster, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { PLANTING_MAX_ATTEMPTS } from "./constants/PLANTING_MAX_ATTEMPTS";
 import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
 /** Admit a typed cluster's finite region, positive scale intervals, safe seed and bounded member/attempt counts. It does not prove all requested placements fit; arrangement returns explicit rejected slots when sampling cannot satisfy spacing.
  *
  * @evidence contracts/common.md#principled-implementation Finite/range and safe-integer predicates accumulate authored-value findings in field order, using the canonical member/attempt caps; arbitrary huge finite coordinates remain admitted even where downstream arithmetic loses precision.
- * @evidence contracts/common.md#clear-and-simple-design Cluster shape admission belongs to this gate, separate from recipe derivation and the seeded arrangement's actual spacing decisions.
+ * @evidence contracts/common.md#clear-and-simple-design Cluster shape admission belongs to this gate; canonical soft scalar/integer/vector owners preserve identical predicates, messages and traversal order across recipe and cluster validation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate clamp, count reduction or invented placement turns an impossible request into success; the original claim that admission prevents all rejected arrangements is not supported.
  * @evidence contracts/common.md#meaningful-documentation States typed-input scope, cap policy, ordered findings and geometric feasibility/precision limits.
  * @evidence contracts/performance.md#efficient-algorithms A fixed field set and three scale axes take constant work and bounded finding storage, independent of requested member count.
@@ -112,63 +115,4 @@ export const validatePlantingCluster: (props: { cluster: IAutoMoviePlantingClust
   );
 
   return out.toValidation();
-};
-
-/** Every component of an authored vector must be a real number. */
-const vector: (out: ViolationCollector, path: string, value: IAutoMovieVector3) => void = (
-  out: ViolationCollector,
-  path: string,
-  value: IAutoMovieVector3,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    numeric(
-      out,
-      `${path}.${axis}`,
-      `${axis} component`,
-      value[axis],
-      -Infinity,
-      false,
-      Infinity,
-    );
-};
-
-/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
-const numeric: (out: ViolationCollector, path: string, label: string, value: number, min: number, exclusive: boolean, max: number) => void = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  exclusive: boolean,
-  max: number,
-): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
-    out.push(
-      "range",
-      path,
-      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A safe integer inside `[min, max]`. */
-const integer: (out: ViolationCollector, path: string, label: string, value: number, min: number, max: number) => void = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  max: number,
-): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
-    out.push(
-      "type",
-      path,
-      `${label} must be an integer within [${min}, ${max}]`,
-      value,
-    );
 };

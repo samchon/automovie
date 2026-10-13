@@ -24,8 +24,9 @@ const clipped: (pruning: IAutoMoviePruningEnvelope) => IAutoMoviePlantingState =
  *    all, so an envelope that misses the plant entirely yields nothing and
  *    `null` bounds rather than a stub at the origin.
  * 5. An envelope the whole plant fits inside — of either shape — cuts nothing and
- *    derives exactly the unpruned structure, so the pruned flag is a
- *    measurement and not a property of having declared an envelope.
+ *    retains the unpruned branch count and flags, with the box trunk endpoint
+ *    and sphere diagnostic checked separately; declaring an envelope alone
+ *    does not make the pruned flag fire.
  * 6. A cut structure digests differently from an uncut one and reproduces its own
  *    digest, so pruning is carried by the derived record rather than by a flag
  *    nobody reads.

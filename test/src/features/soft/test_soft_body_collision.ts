@@ -4,7 +4,7 @@ import { IAutoMovieSoftCollider, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodySta
 import { TestValidator } from "@nestia/e2e";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
-/** A weightless strip dropped straight onto whatever colliders are declared. */
+/** An unanchored strip dropped straight onto the declared colliders. */
 const dropped: (colliders: IAutoMovieSoftCollider[]) => IAutoMovieSoftBodyDomain = (colliders: IAutoMovieSoftCollider[]): IAutoMovieSoftBodyDomain =>
   softPanel({
     columns: 1,
@@ -31,7 +31,7 @@ const dropped: (colliders: IAutoMovieSoftCollider[]) => IAutoMovieSoftBodyDomain
  *
  * 1. A half-space with a **non-unit** normal `(0, 2, 0)` and offset `−0.5` holds
  *    the strip at exactly `y = −0.5`: the normal is normalized rather than used
- *    as a scale, and the contact count is one per particle per step.
+ *    as a scale, and the final contact count is one for the lower particle.
  * 2. A tilted half-space is escaped along its own normal, not along `y`: the
  *    resting particle satisfies `n̂ · p = offset` to within a rounding
  *    tolerance while both of its coordinates moved.

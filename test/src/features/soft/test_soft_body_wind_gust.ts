@@ -40,7 +40,7 @@ const breeze: (props: { direction: IAutoMovieVector3; acceleration: number; gust
  * 1. Four steps of the gust reproduce `v₄ = 5/64` and `p₄ = 15/4096` exactly, on
  *    both particles, with the transverse coordinates untouched.
  * 2. A non-unit direction is normalized rather than scaling the force: `(2,0,0)`
- *    produces exactly the same state as `(1,0,0)`.
+ *    reproduces the first particle's X velocity and X position from `(1,0,0)`.
  * 3. The gust is genuinely signed: by step 12 the draught has reversed, so the
  *    strip is slower than it was at its peak rather than monotonically faster.
  * 4. `gustHz = 0` holds the gust at its peak, so the acceleration is exactly the

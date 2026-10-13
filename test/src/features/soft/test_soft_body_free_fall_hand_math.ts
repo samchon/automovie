@@ -38,8 +38,8 @@ const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (drag: number): IA
  *    is `g·dt²·n(n+1)/2`.
  * 2. The rigid fall leaves `maxStrain` at exactly zero and `contacts` at zero, so
  *    nothing was corrected or collided on the way down.
- * 3. `maxSpeed` reports exactly the analytic speed, which is the measured evidence
- *    the declared `referenceSpeed` budget is checked against.
+ * 3. `maxSpeed` reports the hand-derived speed exactly; this checks the
+ *    measurement and does not enforce the separately declared reference speed.
  * 4. Damped with `dt·k = 1`, so `r = 1/2`: after 4 steps the velocity is exactly
  *    `−0.125·(1 − 2⁻⁴)` and the drop is exactly `(1/512)·(n − 1 + 2⁻ⁿ)`, the
  *    closed form of the damped sum.

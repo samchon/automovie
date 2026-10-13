@@ -33,17 +33,16 @@ const closestPair: (placements: readonly { translation: { x: number; z: number; 
  *    drawn onto the same point.
  * 3. Every member's transform is lossless: a unit quaternion, a pure turn about
  *    `+y`, and three independently drawn scale axes inside the declared range.
- * 4. The arrangement is a pure function of the cluster: two calls agree bit for
- *    bit, a different seed disagrees, and slot ids and indices are stable.
+ * 4. Two calls reproduce each ordinary member's X position, rotation W and
+ *    scale Y exactly; a different seed changes X, and slot ids and indices are stable.
  * 5. Boundaries: a single member with zero extent lands exactly on the anchor; a
  *    cluster with zero yaw jitter hands out the exact identity rotation; and a
  *    cluster whose extent is zero but whose spacing is positive rejects every
  *    slot after the first.
  * 6. A four-thousand-member meadow places, accounts for and spaces every slot, and
- *    reproduces itself exactly. The spacing test is answered through a uniform
- *    grid of side `minSpacing` rather than against every member placed so far,
- *    which is what makes the declared budget bounded work instead of a number
- *    of distance tests nobody could wait for.
+ *    reproduces every X position and the rejection count exactly. Production
+ *    admission uses a uniform grid of side minSpacing; this test verifies its
+ *    spacing independently through an X-sorted pair sweep.
  * 7. The cost of the whole bed is derived from the recipe and the cluster alone,
  *    with no branch grown: the complete `k`-ary tree times the member count, so
  *    a production can be refused before anything is derived. Foliage is counted
