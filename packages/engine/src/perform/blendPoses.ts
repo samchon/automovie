@@ -4,10 +4,12 @@ import {
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
-
 import { IAutoMoviePoseLayer } from "./IAutoMoviePoseLayer";
 
-const AXES = ["flexion", "abduction", "twist"] as const;
+
+
+const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
+
 
 interface IAxisAccumulator {
   /** Summed weight of the layers that set each axis (non-null). */
@@ -17,40 +19,31 @@ interface IAxisAccumulator {
 }
 
 /**
- * Blend several pose layers by **weighted additive composition**: per bone, per
- * axis (flexion / abduction / twist), the result is the weight-normalized sum
- * of the layers that set that axis. A `null` axis contributes nothing and does
- * not dilute the others, so a single layer at weight 1 reproduces its own value
- * exactly, which makes this a drop-in for the last-wins {@link mergePoses} on
- * the disjoint-region layering path (no bone is set twice there), while adding
- * real blending when layers genuinely overlap on an axis (e.g. a carry pose
- * plus a reaction flinch on the same arm).
+ * Blend a nonempty list of admitted same-skeleton clinical poses by positive finite weights per non-null axis. Bone order follows first appearance; root is the last owning layer's value, else the last non-null root. The result does not clamp ROM.
  *
- * The blend never clamps: a weighted result outside a joint's ROM stays out of
- * range so `validateMotion` reports it. The model must reweigh or reposition,
- * the engine does not hide it. Root: the last `ownsRoot` layer, else the last
- * non-null root; skeleton: the first layer's. The input must be non-empty.
- *
- * Weights are supplied by the caller; deriving them from action priority or an
- * IK solver is a later pass.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Accumulates weight and weight-times-value for each bone/axis, then divides only axes with positive accumulated weight; unset axes stay null instead of diluting another layer.
+ * @evidence contracts/common.md#clear-and-simple-design One bone-keyed accumulator owns weighted means and root authority, separate from timeline sampling and region masks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture-specific blending or hidden neutral-angle offset exists; callers supply valid finite weights/angles, and binary64 products/sums must remain representable.
+ * @evidence contracts/common.md#meaningful-documentation States clinical weighted means, null-axis treatment, input premises, first-bone order, borrowed root and ROM refusal downstream.
+ * @evidence contracts/performance.md#efficient-algorithms For J supplied joint entries, B distinct bones and L layers, O(J+B+L) time and O(B) accumulator/output storage; every set axis must contribute once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each bone has one shared accumulator across layers; sampled poses and the selected root are read directly without another FK or motion bake.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Accumulators are invocation-local and the caller owns fresh joint output; the root remains borrowed and no pose cache, task or external resource persists.
  */
-export const blendPoses = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {
+export const blendPoses: (layers: IAutoMoviePoseLayer [ ]) => IAutoMoviePose = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {
   if (layers.length === 0) throw new Error("blend poses must not be empty");
 
-  const acc = new Map<AutoMovieHumanoidBone, IAxisAccumulator>();
+  const acc: Map<AutoMovieHumanoidBone, IAxisAccumulator> = new Map<AutoMovieHumanoidBone, IAxisAccumulator>();
   const order: AutoMovieHumanoidBone[] = [];
   for (const layer of layers)
     for (const joint of layer.pose.joints) {
-      let entry = acc.get(joint.bone);
+      let entry: IAxisAccumulator | undefined = acc.get(joint.bone);
       if (entry === undefined) {
         entry = { weight: [0, 0, 0], weighted: [0, 0, 0] };
         acc.set(joint.bone, entry);
         order.push(joint.bone);
       }
-      AXES.forEach((axis, i) => {
-        const value = joint[axis];
+      AXES.forEach((axis: "flexion" | "abduction" | "twist", i: number) : void => {
+        const value: number | null = joint[axis];
         if (value !== null) {
           entry!.weight[i] += layer.weight;
           entry!.weighted[i] += layer.weight * value;
@@ -58,9 +51,9 @@ export const blendPoses = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {
       });
     }
 
-  const joints: IAutoMovieJointPose[] = order.map((bone) => {
-    const entry = acc.get(bone)!;
-    const axisValue = (i: number): number | null =>
+  const joints: IAutoMovieJointPose[] = order.map((bone: AutoMovieHumanoidBone) : { bone: AutoMovieHumanoidBone; flexion: number | null; abduction: number | null; twist: number | null; } => {
+    const entry: IAxisAccumulator = acc.get(bone)!;
+    const axisValue: (i: number) => number | null = (i: number): number | null =>
       entry.weight[i] > 0 ? entry.weighted[i] / entry.weight[i] : null;
     return {
       bone,
@@ -71,7 +64,7 @@ export const blendPoses = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {
   });
 
   let root: IAutoMovieTransform | null = layers[0]!.pose.root;
-  const owning = layers.filter((layer) => layer.ownsRoot === true);
+  const owning: IAutoMoviePoseLayer[] = layers.filter((layer: IAutoMoviePoseLayer) : boolean => layer.ownsRoot === true);
   if (owning.length > 0) root = owning[owning.length - 1]!.pose.root;
   else
     for (const layer of layers)

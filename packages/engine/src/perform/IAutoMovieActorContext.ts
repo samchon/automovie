@@ -9,82 +9,45 @@ import {
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**
- * The per-actor context the reference {@link makeActorSynthesizer} needs to
- * fatten an actor's verbs deterministically: which skeleton its clips target,
- * the gaits it can perform (whatever named locomotion its profile carries),
- * where it stands at the shot's start (so a `locomote` knows how far to
- * travel), how fast it moves, and the rest pose it holds. The host assembles
- * one of these per actor from the actor's profile and staged rig.
+ * Borrowed per-actor inputs to the reference action synthesizer: skeleton id, named gaits, staged metre position, ground speed, +Y facing, eye height and rest articulation. Optional rig and clinical rest frames enable constrained gaze and arm/reaction solves.
  *
+ * @evidence contracts/common.md#principled-implementation Collects the exact inputs read by makeActorSynthesizer; host staging supplies finite quantities and matching skeleton/pose/rig data, while prior verified beats may replace position, facing, speed, phase and pose.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps synthesis inputs together without owning timeline assembly or importing a renderer object.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rig-less gaze keeps the existing single-bone fallback, while arm and reaction verbs require geometry; no guessed arm lengths or anatomical height fraction is stored here.
+ * @evidence contracts/common.md#meaningful-documentation Member comments state metres, metres/second, degrees, phase seconds, optional-rig behavior and paired clinical rest-frame conventions.
+ * @evidence contracts/performance.md#efficient-algorithms The record itself has no runtime algorithm; gait lookup and IK cost live in the synthesizer, and the number of gaits/bones drives those operations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Gaits, rest pose, rig and rest frames are borrowed across actions; replacement on a resumed beat happens through a new context record rather than mutation of this record.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns context data for the shot and any resumed snapshots; the interface retains no renderer, native solver or task.
  * @author Samchon
  */
 export interface IAutoMovieActorContext {
-  /** Skeleton id every synthesised clip targets. */
+  /** Id shared by the actor's poses, gaits and optional rig. */
   skeleton: string;
 
-  /** The gaits this actor can perform, looked up by an action's gait name. */
+  /** Borrowed available cycles; reference synthesis rejects duplicate names and looks up exact action gait names. */
   gaits: IAutoMovieGait[];
 
-  /** Where the actor stands at the start of the shot (world meters). */
+  /** Staged actor ground origin in world metres; a verified prior beat can replace it with its carried translation. */
   position: IAutoMovieVector3;
 
-  /** Locomotion speed (m/s): how fast a `locomote` carries it. */
+  /** Positive finite ground speed in metres/second used for locomotion sizing, not vertical travel speed. */
   speed: number;
 
-  /**
-   * Seconds into the looping gait cycle at the shot's start (#1176): the
-   * continuity twin of the beat end-state's `gaitPhase`. A beat that opens
-   * mid-stride passes the previous beat's recorded phase here and the
-   * synthesised gait resumes at that point of the cycle instead of restarting
-   * it. Omit (or pass `null`, the end-state's non-looping marker) to start at
-   * the cycle's beginning.
-   */
+  /** Seconds into the looping gait cycle at the opening beat; omitted or null starts at the cycle beginning. */
   gaitPhase?: number | null;
 
-  /**
-   * Heading the actor faces, degrees about +Y (0 = +Z), for a `lookAt`'s yaw.
-   */
+  /** Finite degrees about +Y, zero facing +Z; staged synthesis supports this rigid heading rather than arbitrary affine placement. */
   facingDeg: number;
 
-  /**
-   * Eye height above the actor's position (meters): where a `lookAt` aims from.
-   */
+  /** Finite vertical eye offset in metres for gaze origin and staged actor aim targets; animated eye FK is not represented. */
   eyeHeight: number;
 
-  /** The pose the actor settles into for a `hold`. */
+  /** Borrowed clinical articulation used by hold and seeded into gait bones that the cycle does not drive. */
   restPose: IAutoMoviePose;
 
-  /**
-   * The actor's resolved skeleton geometry: the rig bones and their ROM
-   * constraints. Required by the physics/IK verbs that measure or clamp against
-   * the body (`react` folds a flinch bounded by each joint's ROM), and READ,
-   * when present, by `lookAt`, which spreads its solved aim over the `neck` and
-   * `head` ranges the rig declares instead of piling it all on the head
-   * (#1360). The gait/hold/emote verbs need only the `skeleton` id, so a
-   * context built for those alone may omit it; a physics verb with no `rig`
-   * synthesises nothing, and a rig-less `lookAt` keeps the single-bone aim,
-   * which is exactly what `performShot` gates such an actor by (no rig, no ROM
-   * check).
-   */
+  /** Optional matching skeleton geometry and clinical constraints; arms/reactions require it, gaze distributes over its neck/head ranges when present and otherwise uses its existing single-head fallback. */
   rig?: IAutoMovieSkeleton;
 
-  /**
-   * Per-bone rest frames the IK/arm verbs (`reach`/`point`/`strike`) express
-   * their arm angles through, lifted by `sign·r + neutral` so a downstream
-   * renderer reads them up through the same frames (abduction 180 raises either
-   * arm overhead regardless of side). When supplied it must be paired with the
-   * same frames on the player ({@link IAutoMovieActorContext} feeds
-   * `AutoMoviePlayer`'s `restFrames`).
-   *
-   * **Omitting it no longer means raw rig space.** `reachPose` now defaults to
-   * the canonical `HUMANOID_REST_FRAME` that pairs with the humanoid arm axes
-   * it already applies unconditionally, because a pose carries clinical angles
-   * by definition and is validated against the clinical ROM table by a direct
-   * per-axis comparison. While this was optional, an actor context without it
-   * made `perform`'s arm verbs emit rest-relative angles that the clinical
-   * table then judged off by the shoulder's whole 90-degree rest abduction, and
-   * disagree with `getReach`, which had always passed the frame (#1346). Supply
-   * this only for a rig whose rest convention is genuinely its own.
-   */
+  /** Optional clinical sign/neutral frames for arm IK, paired with the same convention in playback; omitted entries use reachPose's canonical humanoid rest frames rather than raw rest-relative angles. */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }

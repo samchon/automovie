@@ -1,11 +1,5 @@
-import {
-  AutoMovieBodyRegion,
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-} from "@automovie/interface";
+import type { IAutoMovieTransform, IAutoMovieJointPose, AutoMovieEasing, IAutoMovieGaitCycle, AutoMovieBodyRegion, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieExpression, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type { IAutoMovieMotionSample } from "../motion/IAutoMovieMotionSample";
 
 import { IAutoMoviePlacement } from "../motion/IAutoMoviePlacement";
 import { arrangeMotion } from "../motion/arrangeMotion";
@@ -19,7 +13,10 @@ import { actionRegion } from "./actionRegion";
 import { blendPoses } from "./blendPoses";
 import { bodyRegionBones } from "./bodyRegionBones";
 
-const ROOT_REGIONS = new Set<AutoMovieBodyRegion>(["lowerBody", "fullBody"]);
+
+
+const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>(["lowerBody", "fullBody"]);
+
 
 /**
  * Width of the boundary keyframes that pin a clip's envelope onto the union
@@ -27,13 +24,15 @@ const ROOT_REGIONS = new Set<AutoMovieBodyRegion>(["lowerBody", "fullBody"]);
  * boundary sample itself is excluded, far smaller than any frame interval so
  * the ramp across it is invisible.
  */
-const BOUNDARY_EPSILON = 1e-6;
+const BOUNDARY_EPSILON: number = 1e-6 as const;
+
 
 /** One placed clip, carrying the index of the action that produced it. */
 interface IAutoMovieRegionPlacement extends IAutoMoviePlacement {
   /** Index into the action list `compilePerformance` was given. */
   action: number;
 }
+
 
 /**
  * What one mask trimmed, before the action and actor that own it are known.
@@ -45,16 +44,18 @@ type IAutoMovieMaskedChannels = Pick<
   "bones" | "root" | "expression"
 >;
 
+
 /** Whether a mask record carries anything worth reporting. */
-const maskedAnything = (masked: IAutoMovieMaskedChannels): boolean =>
+const maskedAnything: (masked: IAutoMovieMaskedChannels) => boolean = (masked: IAutoMovieMaskedChannels): boolean =>
   masked.bones.length > 0 || masked.root || masked.expression;
 
-const maskMotionToRegion = (
+
+const maskMotionToRegion: (motion: IAutoMovieMotion, region: AutoMovieBodyRegion, keepRoot: boolean) => IAutoMovieMaskedChannels & { motion : IAutoMovieMotion } = (
   motion: IAutoMovieMotion,
   region: AutoMovieBodyRegion,
   keepRoot: boolean,
 ): IAutoMovieMaskedChannels & { motion: IAutoMovieMotion } => {
-  const bones = new Set(bodyRegionBones(region));
+  const bones: Set<AutoMovieHumanoidBone> = new Set(bodyRegionBones(region));
   // Expression is FACE content: joints are made disjoint by the bone filter
   // below, but a synthesizer authoring an expression on a non-face clip (a
   // grimace on a fullBody stagger) used to ride through and overlap an emote
@@ -62,11 +63,11 @@ const maskMotionToRegion = (
   // silently ate the other (#1101). Stripping it here makes the fullBody↔face
   // exemption's disjointness claim true by construction: only the face
   // region's owner speaks for the face.
-  const keepExpression = region === "face";
-  const dropped = new Set<AutoMovieHumanoidBone>();
-  let droppedRoot = false;
-  let droppedExpression = false;
-  const keyframes = motion.keyframes.map((keyframe) => {
+  const keepExpression: boolean = region === "face";
+  const dropped: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
+  let droppedRoot: boolean = false;
+  let droppedExpression: boolean = false;
+  const keyframes: { expression: IAutoMovieExpression | null; pose: { root: IAutoMovieTransform | null; joints: IAutoMovieJointPose[]; skeleton: string; }; time: number; easing: AutoMovieEasing; bezier: [number, number, number, number] | null; }[] = motion.keyframes.map((keyframe: IAutoMovieKeyframe) : { expression: IAutoMovieExpression | null; pose: { root: IAutoMovieTransform | null; joints: IAutoMovieJointPose[]; skeleton: string; }; time: number; easing: AutoMovieEasing; bezier: [number, number, number, number] | null; } => {
     if (!keepRoot && keyframe.pose.root !== null) droppedRoot = true;
     if (!keepExpression && keyframe.expression !== null)
       droppedExpression = true;
@@ -76,7 +77,7 @@ const maskMotionToRegion = (
       pose: {
         ...keyframe.pose,
         root: keepRoot ? keyframe.pose.root : null,
-        joints: keyframe.pose.joints.filter((joint) => {
+        joints: keyframe.pose.joints.filter((joint: IAutoMovieJointPose) : boolean => {
           if (bones.has(joint.bone)) return true;
           dropped.add(joint.bone);
           return false;
@@ -94,6 +95,7 @@ const maskMotionToRegion = (
     expression: droppedExpression,
   };
 };
+
 
 /**
  * Layer several per-region clips into one by **sampling and blending**: at
@@ -118,32 +120,32 @@ const maskMotionToRegion = (
  * envelope edge onto the grid, so every interpolated segment lies entirely
  * inside or entirely outside the envelope.
  */
-const layerClips = (
+const layerClips: (id: string, clips: IAutoMovieMotion [ ]) => IAutoMovieMotion = (
   id: string,
   clips: IAutoMovieMotion[],
 ): IAutoMovieMotion => {
-  const envelopes = clips.map((clip) => ({
+  const envelopes: { clip: IAutoMovieMotion; first: number; last: number; }[] = clips.map((clip: IAutoMovieMotion) : { clip: IAutoMovieMotion; first: number; last: number; } => ({
     clip,
     first: clip.keyframes[0]!.time,
     last: clip.keyframes[clip.keyframes.length - 1]!.time,
   }));
-  const timeSet = new Set(clips.flatMap((c) => c.keyframes.map((k) => k.time)));
-  const earliest = Math.min(...envelopes.map((e) => e.first));
-  const latest = Math.max(...envelopes.map((e) => e.last));
+  const timeSet: Set<number> = new Set(clips.flatMap((c: IAutoMovieMotion) : number[] => c.keyframes.map((k: IAutoMovieKeyframe) : number => k.time)));
+  const earliest: number = Math.min(...envelopes.map((e: { clip: IAutoMovieMotion; first: number; last: number; }) : number => e.first));
+  const latest: number = Math.max(...envelopes.map((e: { clip: IAutoMovieMotion; first: number; last: number; }) : number => e.last));
   for (const { first, last } of envelopes) {
     if (first - earliest > BOUNDARY_EPSILON)
       timeSet.add(first - BOUNDARY_EPSILON);
     if (latest - last > BOUNDARY_EPSILON) timeSet.add(last + BOUNDARY_EPSILON);
   }
-  const times = [...timeSet].sort((a, b) => a - b);
-  const keyframes: IAutoMovieKeyframe[] = times.map((time) => {
+  const times: number[] = [...timeSet].sort((a: number, b: number) : number => a - b);
+  const keyframes: IAutoMovieKeyframe[] = times.map((time: number) : { time: number; pose: IAutoMoviePose; expression: IAutoMovieExpression | null; easing: "linear"; bezier: null; } => {
     // An inserted boundary time may fall where NO envelope contributes (all
     // clips rootless and out of span). That instant is honestly rest.
     const samples: { pose: IAutoMoviePose; weight: number }[] = [];
-    let expression = null;
+    let expression: IAutoMovieExpression | null = null;
     for (const { clip, first, last } of envelopes) {
       if (time < first - 1e-9) continue; // not started: no claim yet
-      const s = sampleMotion(clip, time);
+      const s: IAutoMovieMotionSample = sampleMotion(clip, time);
       if (time > last + 1e-9) {
         if (s.pose.root !== null)
           samples.push({
@@ -169,9 +171,9 @@ const layerClips = (
   // Disjoint regions mean at most ONE clip strides (the root-bearing
   // locomotion region); its cycle is the layered composite's cycle. Two
   // striding regions would be ambiguous, so the clock is honestly dropped.
-  const cycles = clips
-    .map((clip) => clip.gaitCycle ?? null)
-    .filter((cycle) => cycle !== null);
+  const cycles: IAutoMovieGaitCycle[] = clips
+    .map((clip: IAutoMovieMotion) : IAutoMovieGaitCycle | null => clip.gaitCycle ?? null)
+    .filter((cycle: IAutoMovieGaitCycle | null) : cycle is IAutoMovieGaitCycle => cycle !== null);
 
   return {
     id,
@@ -182,6 +184,7 @@ const layerClips = (
     gaitCycle: cycles.length === 1 ? cycles[0]! : null,
   };
 };
+
 
 /**
  * Hold rest before a late-starting composite (#1003). A shot samples its
@@ -196,10 +199,10 @@ const layerClips = (
  * but let a late emote's face leak back to t=0. With rest at both ends the
  * lead-in segment is null-expression throughout.
  */
-const padRestLeadIn = (motion: IAutoMovieMotion): IAutoMovieMotion => {
-  const first = motion.keyframes[0]!.time;
+const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (motion: IAutoMovieMotion): IAutoMovieMotion => {
+  const first: number = motion.keyframes[0]!.time;
   if (first <= 1e-9) return motion;
-  const rest = (
+  const rest: (time: number, easing: IAutoMovieKeyframe [ "easing" ]) => IAutoMovieKeyframe = (
     time: number,
     easing: IAutoMovieKeyframe["easing"],
   ): IAutoMovieKeyframe => ({
@@ -222,65 +225,48 @@ const padRestLeadIn = (motion: IAutoMovieMotion): IAutoMovieMotion => {
 };
 
 /**
- * Compile a shot's flat {@link IAutoMovieActionCall} list into **one performance
- * clip per actor**, keyed by node id.
+ * Compile admitted actions through an injected synthesizer into exact actor-keyed timelines and deterministic region-loss reports. Null synthesis is skipped; repeat expands one returned cycle, same-region nonoverlapping actions arrange into lanes, and concurrent lanes layer sampled poses.
  *
- * The builder does the orchestration the PERFORMANCE stage needs and the
- * engine primitives do not: it **splits unison actions** (`actor: string[]`)
- * onto each actor's timeline; **expands `repeat`** by concatenating the
- * synthesised cycle ({@link sequenceMotion}); and groups each actor's actions by
- * **body region**. Actions sharing a region are placed on one timeline and
- * **held across gaps** ({@link arrangeMotion}): they take turns. Actions on
- * **disjoint** regions are **layered** ({@link layerClips}): a walk can play at
- * the same time as a content-disjoint gesture or look-at. Actions in one broad
- * region normally share an arranged timeline; when two overlap on disjoint
- * carried bones they receive separate lanes and layer without either being
- * truncated. The per-action keyframes come entirely from `synthesize`. A `null`
- * synthesis is skipped.
- *
- * The builder also **states what it did not apply**: every clip the region
- * mask trimmed rides back on `masked` (#1349), so the caller that owns the
- * success envelope can refuse or report it instead of returning a clip that
- * silently omits half of what the author asked for.
- *
- * @param actions The shot's action calls (any order; arranged by `start`).
- * @param synthesize The content seam: one action → one base clip (or null).
- * @returns Per-actor performance motion keyed by actor node id, plus every
- *   piece of authored content the region mask discarded.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Fans unison actors, assigns stable start/action-order lanes, masks actual channels, then samples the union of keyframe and envelope-boundary times; epsilon boundary pins prevent long backward interpolation leaks while persistent roots outlive joint/expression envelopes.
+ * @evidence contracts/common.md#clear-and-simple-design The compiler owns assembly and loss reporting; synthesis owns rig-specific content, arrangeMotion owns gaps, and blendPoses owns per-axis composition.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 1e-6 second boundary pin and 1e-9 envelope comparisons are existing temporal tolerances; loss is reported rather than hidden, and arbitrary actor keys are stored as own data properties.
+ * @evidence contracts/common.md#meaningful-documentation States admitted inputs, null handling, repeat behavior, regional lanes, persistent roots, exact actor keys and mask ordering; sampling remains approximate between union instants.
+ * @evidence contracts/performance.md#efficient-algorithms For A action/actor expansions, K repeated keyframes, P placements and U union times over L lanes, assembly copies O(K), lane sorting costs O(P log P) plus O(P L) lane search, and layering visits every lane per union time plus its motion sampling and joint blend cost; output/storage grow with authored repeats and samples.
+ * @evidence contracts/performance.md#reuse-equivalent-work One synthesized base is reused for repeats, one mask pass also records loss, and union times are deduplicated before sampling; callbacks are not cached across distinct actions because their content may depend on action/actor state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns performances and reports; lane maps, grids and accumulators are released after return/throw, borrowed nested motion content follows helper contracts, and no retained host/task exists.
  */
-export const compilePerformance = (
+export const compilePerformance: (actions: IAutoMovieActionCall [ ], synthesize: IAutoMovieActionSynthesizer) => IAutoMovieCompiledPerformance = (
   actions: IAutoMovieActionCall[],
   synthesize: IAutoMovieActionSynthesizer,
 ): IAutoMovieCompiledPerformance => {
   // 1. fan each action to every actor that performs it, grouped by body region
-  const byActor = new Map<
+  const byActor: Map<string, Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>> = new Map<
     string,
     Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>
   >();
-  actions.forEach((action, index) => {
-    const actors =
+  actions.forEach((action: IAutoMovieActionCall, index: number) : void => {
+    const actors: string[] =
       typeof action.actor === "string" ? [action.actor] : action.actor;
     for (const actor of actors) {
-      const base = synthesize(action, actor);
+      const base: IAutoMovieMotion | null = synthesize(action, actor);
       if (base === null) continue; // no motion for this actor, skip
 
       // 2. repeat: concatenate the base cycle N times within the action's span
-      const cycles =
+      const cycles: number =
         action.repeat !== undefined && action.repeat > 1 ? action.repeat : 1;
-      const motion =
+      const motion: IAutoMovieMotion =
         cycles > 1
           ? sequenceMotion(
               `${base.id}:x${cycles}`,
-              Array.from({ length: cycles }, () => base),
+              Array.from({ length: cycles }, () : IAutoMovieMotion => base),
             )
           : base;
 
-      const region = actionRegion(action);
-      const regions =
+      const region: AutoMovieBodyRegion = actionRegion(action);
+      const regions: Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]> =
         byActor.get(actor) ??
         new Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>();
-      const placements = regions.get(region) ?? [];
+      const placements: IAutoMovieRegionPlacement[] = regions.get(region) ?? [];
       placements.push({ start: action.start, motion, action: index });
       regions.set(region, placements);
       byActor.set(actor, regions);
@@ -294,18 +280,18 @@ export const compilePerformance = (
   const performances: Record<string, IAutoMovieMotion> = {};
   const masked: IAutoMovieMaskedContent[] = [];
   for (const [actor, regions] of byActor) {
-    const layered = regions.size > 1;
-    const regionClips = [...regions.entries()].flatMap(
-      ([region, placements]) => {
-        const keepRoot = !layered || ROOT_REGIONS.has(region);
+    const layered: boolean = regions.size > 1;
+    const regionClips: IAutoMovieMotion[] = [...regions.entries()].flatMap(
+      ([region, placements]: [AutoMovieBodyRegion, IAutoMovieRegionPlacement[]]) : IAutoMovieMotion[] => {
+        const keepRoot: boolean = !layered || ROOT_REGIONS.has(region);
         const lanes: Array<{
           end: number;
           placements: IAutoMoviePlacement[];
         }> = [];
         for (const placement of [...placements].sort(
-          (a, b) => a.start - b.start || a.action - b.action,
+          (a: IAutoMovieRegionPlacement, b: IAutoMovieRegionPlacement) : number => a.start - b.start || a.action - b.action,
         )) {
-          const trimmed = maskMotionToRegion(
+          const trimmed: IAutoMovieMaskedChannels & { motion: IAutoMovieMotion; } = maskMotionToRegion(
             placement.motion,
             region,
             keepRoot,
@@ -319,9 +305,9 @@ export const compilePerformance = (
               root: trimmed.root,
               expression: trimmed.expression,
             });
-          const item = { start: placement.start, motion: trimmed.motion };
-          const lane = lanes.find(
-            (candidate) => candidate.end <= item.start + 1e-9,
+          const item: { start: number; motion: IAutoMovieMotion; } = { start: placement.start, motion: trimmed.motion };
+          const lane: { end: number; placements: IAutoMoviePlacement[]; } | undefined = lanes.find(
+            (candidate: { end: number; placements: IAutoMoviePlacement[]; }) : boolean => candidate.end <= item.start + 1e-9,
           );
           if (lane === undefined)
             lanes.push({
@@ -333,21 +319,26 @@ export const compilePerformance = (
             lane.end = item.start + item.motion.duration;
           }
         }
-        return lanes.map((lane, index) =>
+        return lanes.map((lane: { end: number; placements: IAutoMoviePlacement[]; }, index: number) : IAutoMovieMotion =>
           arrangeMotion(`perform:${actor}:${region}:${index}`, lane.placements),
         );
       },
     );
-    performances[actor] = padRestLeadIn(
-      regionClips.length === 1
-        ? { ...regionClips[0]!, id: `perform:${actor}` }
-        : layerClips(`perform:${actor}`, regionClips),
-    );
+    Object.defineProperty(performances, actor, {
+      value: padRestLeadIn(
+        regionClips.length === 1
+          ? { ...regionClips[0]!, id: `perform:${actor}` }
+          : layerClips(`perform:${actor}`, regionClips),
+      ),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
   // Action order first, then actor, so the report reads in the order the author
   // wrote the shot rather than in Map-insertion order.
   masked.sort(
-    (a, b) => a.action - b.action || compareCodeUnits(a.actor, b.actor),
+    (a: IAutoMovieMaskedContent, b: IAutoMovieMaskedContent) : number => a.action - b.action || compareCodeUnits(a.actor, b.actor),
   );
   return { performances, masked };
 };

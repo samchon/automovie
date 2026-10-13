@@ -1,13 +1,4 @@
-import {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieJointPose, IAutoMovieTransform, IAutoMovieExpression, AutoMovieEasing, AutoMovieHumanoidBone, IAutoMovieGait, IAutoMovieYawPitch, AutoMovieExpressionPreset, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import { aimYawPitch } from "../kinematics/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";
@@ -15,7 +6,6 @@ import { reachPose } from "../kinematics/reachPose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
-import { ease } from "../motion/ease";
 import { gaitMotion } from "../motion/gaitMotion";
 import { gestureMotion } from "../motion/gestureMotion";
 import { holdMotion } from "../motion/holdMotion";
@@ -26,27 +16,30 @@ import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 import { resolveTargetPoint } from "./resolveTargetPoint";
+import type { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
+import { actorContextWorldFrame } from "./actorContextWorldFrame";
+import { resumeActorSynthesisRuntime } from "./resumeActorSynthesisRuntime";
+import { actorAimPoints } from "./actorAimPoints";
+import { createActorExtendClip } from "./createActorExtendClip";
+import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
+import { createDynamicActorExtendClip } from "./createDynamicActorExtendClip";
+import { createDynamicActorJabClip } from "./createDynamicActorJabClip";
+import { createActorJabClip } from "./createActorJabClip";
+import { actorPointInModelSpace } from "./actorPointInModelSpace";
 
-/** Keyframes per gait cycle the reference synthesiser bakes. */
-const GAIT_SAMPLES = 8;
+const GAIT_SAMPLES: number = 8 as const;
 
-/** Peak flinch deflection (degrees) a full-force (1.0) blow drives. */
-const REACT_MAX_DEFLECTION = 32;
+const REACT_MAX_DEFLECTION: number = 32 as const;
 
-/** An unbalancing blow flinches this much harder (a floored reaction). */
-const REACT_UNBALANCE_GAIN = 1.5;
+const REACT_UNBALANCE_GAIN: number = 1.5 as const;
 
-/** The chain a torso/head blow ripples down: head whips most, hips least. */
-const REACT_CHAIN = ["head", "neck", "chest", "spine"] as const;
+const REACT_CHAIN: readonly ["head", "neck", "chest", "spine"] = ["head", "neck", "chest", "spine"] as const;
 
-/** Keyframes per second for a target that is itself animated. */
-const BONE_TARGET_HZ = 24;
-
-const assertUniqueActorGaits = (
+const assertUniqueActorGaits: (actor: string, gaits: IAutoMovieActorContext [ "gaits" ]) => void = (
   actor: string,
   gaits: IAutoMovieActorContext["gaits"],
 ): void => {
-  const seen = new Set<string>();
+  const seen: Set<string> = new Set<string>();
   for (const gait of gaits) {
     if (seen.has(gait.name))
       throw new Error(`duplicate actor gait name ${actor}.${gait.name}`);
@@ -54,302 +47,7 @@ const assertUniqueActorGaits = (
   }
 };
 
-const staticActorWorldFrame = (
-  context: IAutoMovieActorContext,
-): IAutoMovieActorWorldFrame => ({
-  position: context.position,
-  rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.facingDeg),
-  facingDeg: context.facingDeg,
-});
-
-/** Resume one actor context from a verified prior beat snapshot. */
-const resumeActorContext = (
-  context: IAutoMovieActorContext,
-  previous: IAutoMovieBeatEndActorState | undefined,
-): IAutoMovieActorContext => {
-  if (previous === undefined) return context;
-  const carriedSpeed =
-    previous.rootVelocity === null
-      ? 0
-      : Math.hypot(previous.rootVelocity.x, previous.rootVelocity.z);
-  return {
-    ...context,
-    position: previous.transform.translation,
-    facingDeg:
-      (Math.atan2(previous.facing.x, previous.facing.z) * 180) / Math.PI,
-    gaitPhase: previous.gaitPhase,
-    speed: carriedSpeed > 1e-6 ? carriedSpeed : context.speed,
-    restPose: previous.pose ?? context.restPose,
-  };
-};
-
-/** Apply prior root positions to every positional target in the live beat. */
-const resumedRuntime = (
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  placements: ReadonlyMap<string, IAutoMovieVector3>,
-  previous: IAutoMovieBeatEndState | null | undefined,
-): {
-  contexts: Map<string, IAutoMovieActorContext>;
-  nodes: Map<string, IAutoMovieVector3>;
-} => {
-  if (previous === null || previous === undefined)
-    return {
-      contexts: new Map(contexts),
-      nodes: new Map(placements),
-    };
-  const states = new Map(previous.actors.map((actor) => [actor.node, actor]));
-  const liveContexts = new Map(
-    [...contexts].map(
-      ([node, context]) =>
-        [node, resumeActorContext(context, states.get(node))] as const,
-    ),
-  );
-  const nodes = new Map(placements);
-  for (const actor of previous.actors)
-    if (nodes.has(actor.node))
-      nodes.set(actor.node, actor.transform.translation);
-  return { contexts: liveContexts, nodes };
-};
-
-/** Drop a world point into an actor's model space (undo its live frame). */
-const toModelSpace = (
-  world: IAutoMovieVector3,
-  frame: IAutoMovieActorWorldFrame,
-): IAutoMovieVector3 =>
-  Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    Vector3.subtract(world, frame.position),
-  );
-
-/**
- * The placement table lifted to **aim** points: every id an actor context knows
- * is raised by that actor's `eyeHeight`, every other id keeps its placement.
- *
- * A placement is where a thing stands, which for a humanoid is the floor under
- * it; an aim point is where another actor's gaze meets it. `eyeHeight` is
- * already defined as "where a `lookAt` aims from", so using it as where a
- * `lookAt` aims TO is the symmetric read (eyes meet eyes) and invents no
- * number. Ids with no context keep their placement on purpose: a prop's origin
- * is wherever staging put it rather than a floor convention, and a camera's
- * translation is already its optical point.
- *
- * The key set is identical to the placement table's, so the perform gate (which
- * asks only whether a target resolves) and this synthesizer can never disagree
- * about which ids are legal. Routing the lift through the table rather than
- * through the verb is what makes a `group` target average EYE points instead of
- * ground points without a second code path.
- *
- * **Only `lookAt` reads this table**, and that is a decision, not an oversight.
- * `locomote` walks to a place on the ground, so its destination is the
- * placement itself. The arm verbs (`reach`, the `point` and `strike` gestures)
- * do not reach for eyes, and no measured chest/hand datum exists on the context
- * to lift them by; each of those branches says so where it resolves.
- */
-const aimPointsOf = (
-  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
-  nodes: ReadonlyMap<string, IAutoMovieVector3>,
-): Map<string, IAutoMovieVector3> =>
-  new Map(
-    [...nodes].map(([id, point]) => {
-      const eyeHeight = contexts.get(id)?.eyeHeight;
-      return [
-        id,
-        eyeHeight === undefined
-          ? point
-          : { x: point.x, y: point.y + eyeHeight, z: point.z },
-      ] as const;
-    }),
-  );
-
-/** A rest → hold-pose → hold clip: ease into `pose` over half the span, hold. */
-const extendHoldClip = (
-  id: string,
-  skeleton: string,
-  pose: IAutoMoviePose,
-  duration: number,
-): IAutoMovieMotion => {
-  const rest: IAutoMoviePose = { skeleton, root: null, joints: [] };
-  const key = (time: number, p: IAutoMoviePose): IAutoMovieKeyframe => ({
-    time,
-    pose: p,
-    expression: null,
-    easing: "easeInOut",
-    bezier: null,
-  });
-  return {
-    id,
-    skeleton,
-    duration,
-    loop: false,
-    keyframes: [key(0, rest), key(duration * 0.5, pose), key(duration, pose)],
-  };
-};
-
-const boneTargetTimes = (
-  duration: number,
-  landmarks: readonly number[] = [],
-): number[] => {
-  const count = Math.max(2, Math.ceil(duration * BONE_TARGET_HZ) + 1);
-  return [
-    ...new Set([
-      ...Array.from(
-        { length: count },
-        (_, index) => (duration * index) / (count - 1),
-      ),
-      ...landmarks,
-    ]),
-  ].sort((a, b) => a - b);
-};
-
-const dynamicPoseClip = (props: {
-  id: string;
-  skeleton: string;
-  duration: number;
-  poseAt: (time: number) => IAutoMoviePose | null;
-  landmarks?: readonly number[];
-}): IAutoMovieMotion | null => {
-  const keyframes: IAutoMovieKeyframe[] = [];
-  for (const time of boneTargetTimes(props.duration, props.landmarks)) {
-    const pose = props.poseAt(time);
-    if (pose === null) return null;
-    keyframes.push({
-      time,
-      pose,
-      expression: null,
-      easing: "linear",
-      bezier: null,
-    });
-  }
-  return {
-    id: props.id,
-    skeleton: props.skeleton,
-    duration: props.duration,
-    loop: false,
-    keyframes,
-  };
-};
-
-const weightedArmPose = (
-  skeleton: string,
-  pose: IAutoMoviePose,
-  weight: number,
-): IAutoMoviePose => ({
-  skeleton,
-  root: null,
-  joints:
-    weight === 0
-      ? []
-      : pose.joints.map((joint) => ({
-          bone: joint.bone,
-          // Every caller supplies reachPose's two clinical arm joints, whose
-          // three axes are numbers by construction. Preserve that stronger
-          // internal invariant instead of branching on impossible null axes.
-          flexion: joint.flexion! * weight,
-          abduction: joint.abduction! * weight,
-          twist: joint.twist! * weight,
-        })),
-});
-
-/** A sampled live-target version of rest -> extend -> hold. */
-const dynamicExtendHoldClip = (props: {
-  id: string;
-  skeleton: string;
-  duration: number;
-  poseAt: (time: number) => IAutoMoviePose | null;
-}): IAutoMovieMotion | null => {
-  const extendedAt = props.duration * 0.5;
-  return dynamicPoseClip({
-    ...props,
-    landmarks: [extendedAt],
-    poseAt: (time) => {
-      const pose = props.poseAt(time);
-      if (pose === null) return null;
-      const weight =
-        time >= extendedAt ? 1 : ease("easeInOut", time / extendedAt);
-      return weightedArmPose(props.skeleton, pose, weight);
-    },
-  });
-};
-
-/** A sampled live-target version of rest -> 40% strike peak -> rest. */
-const dynamicJabClip = (props: {
-  id: string;
-  skeleton: string;
-  duration: number;
-  poseAt: (time: number) => IAutoMoviePose | null;
-}): IAutoMovieMotion | null => {
-  const peakAt = props.duration * 0.4;
-  return dynamicPoseClip({
-    ...props,
-    landmarks: [peakAt],
-    poseAt: (time) => {
-      const pose = props.poseAt(time);
-      if (pose === null) return null;
-      const weight =
-        time <= peakAt
-          ? ease("easeIn", time / peakAt)
-          : 1 - ease("easeOut", (time - peakAt) / (props.duration - peakAt));
-      return weightedArmPose(props.skeleton, pose, weight);
-    },
-  });
-};
-
-/** A rest → strike → rest jab: snap out to `pose` early, then retract. */
-const jabClip = (
-  id: string,
-  skeleton: string,
-  pose: IAutoMoviePose,
-  duration: number,
-): IAutoMovieMotion => {
-  const rest: IAutoMoviePose = { skeleton, root: null, joints: [] };
-  const key = (
-    time: number,
-    p: IAutoMoviePose,
-    easing: IAutoMovieKeyframe["easing"],
-  ): IAutoMovieKeyframe => ({
-    time,
-    pose: p,
-    expression: null,
-    easing,
-    bezier: null,
-  });
-  return {
-    id,
-    skeleton,
-    duration,
-    loop: false,
-    keyframes: [
-      key(0, rest, "easeIn"),
-      key(duration * 0.4, pose, "easeOut"),
-      key(duration, rest, "easeInOut"),
-    ],
-  };
-};
-
-/**
- * Fit a synthesised locomotion clip onto the span its action DECLARES.
- *
- * `IAutoMovieActionBase.duration` is defined as "length in seconds, or `"auto"`
- * to let the engine pick a natural duration", and every other verb here sizes
- * its clip by that number. `locomote` did not: it sized the walk from distance
- * and the actor's speed and discarded what the author wrote, so a walk declared
- * 7.5s compiled to 3.0s with no violation, no warning, and nothing in the guide
- * corpus saying it would (#1366). That is the substitute-in-silence shape #1349
- * refused for channels, moved from content to timing, and it is the one
- * quantity `performShot` already treats as authoritative everywhere else: its
- * `spanOf` gates overlaps and covers blocking anchors with exactly this
- * number.
- *
- * The fit is a uniform time scale, so the walk still arrives exactly where
- * {@link locomoteMotion} landed it and still plays whole gait cycles: only the
- * cadence changes, which is how a body covers the same ground in more or less
- * time. It deliberately overrides the ½-nominal-speed floor `locomoteMotion`
- * holds for its OWN sizing (#1065), because that floor bounds what the engine
- * may choose when nobody said, not what an author may state.
- *
- * `"auto"` is untouched, and remains the way to ask for the engine's sizing.
- */
-const fitDeclaredSpan = (
+const fitDeclaredSpan: (motion: IAutoMovieMotion, duration: IAutoMovieActionCall [ "duration" ]) => IAutoMovieMotion = (
   motion: IAutoMovieMotion,
   duration: IAutoMovieActionCall["duration"],
 ): IAutoMovieMotion =>
@@ -357,14 +55,13 @@ const fitDeclaredSpan = (
     ? motion
     : timeScaleMotion(motion, duration / motion.duration);
 
-/** Preserve carried articulation on gait bones the new cycle does not drive. */
-const seedRestArticulation = (
+const seedRestArticulation: (motion: IAutoMovieMotion, restPose: IAutoMoviePose) => IAutoMovieMotion = (
   motion: IAutoMovieMotion,
   restPose: IAutoMoviePose,
 ): IAutoMovieMotion => ({
   ...motion,
-  keyframes: motion.keyframes.map((keyframe) => {
-    const driven = new Set(keyframe.pose.joints.map((joint) => joint.bone));
+  keyframes: motion.keyframes.map((keyframe: IAutoMovieKeyframe) : { pose: { joints: IAutoMovieJointPose[]; skeleton: string; root: IAutoMovieTransform | null; }; time: number; expression: IAutoMovieExpression | null; easing: AutoMovieEasing; bezier: [number, number, number, number] | null; } => {
+    const driven: Set<AutoMovieHumanoidBone> = new Set(keyframe.pose.joints.map((joint: IAutoMovieJointPose) : AutoMovieHumanoidBone => joint.bone));
     return {
       ...keyframe,
       pose: {
@@ -372,8 +69,8 @@ const seedRestArticulation = (
         joints: [
           ...keyframe.pose.joints,
           ...restPose.joints
-            .filter((joint) => driven.has(joint.bone) === false)
-            .map((joint) => ({ ...joint })),
+            .filter((joint: IAutoMovieJointPose) : boolean => driven.has(joint.bone) === false)
+            .map((joint: IAutoMovieJointPose) : { bone: AutoMovieHumanoidBone; flexion: number | null; abduction: number | null; twist: number | null; } => ({ ...joint })),
         ],
       },
     };
@@ -381,55 +78,17 @@ const seedRestArticulation = (
 });
 
 /**
- * Build a reference {@link IAutoMovieActionSynthesizer} (the content seam
- * {@link compilePerformance} injects) for the verbs the engine can fatten
- * **deterministically** from an actor's context:
+ * Create the reference actor action callback from borrowed contexts and placements. It supports gait locomotion, hold, gaze, expression, reference gestures, analytic arm targets and ROM-bounded reactions; unknown actors or unsupported/unresolvable content return null. Duplicate gait names throw at construction.
  *
- * - `locomote` → the actor's matching {@link IAutoMovieGait}; if its target
- *   resolves to a world point ({@link resolveTargetPoint}, against `nodes`), the
- *   gait is carried that far at the actor's speed ({@link locomoteMotion}),
- *   otherwise it steps in place (a relative target, "off to the left", has no
- *   positional point yet). Either way an explicit `duration` sets the clip's
- *   span ({@link fitDeclaredSpan}) and `"auto"` keeps the engine's own sizing;
- * - `hold` → the actor's rest pose held for the duration ({@link holdMotion});
- * - `lookAt` → the gaze chain turned to aim at a resolved target, resolved
- *   against the **aim points** rather than the raw placements (see below), and
- *   distributed over `neck`/`head` by the context's declared ROM when it
- *   carries a `rig` ({@link gazeChainJoints});
- * - `emote` → a face-region expression clip;
- * - `gesture` → the postural/whole-body gestures (bow/nod/shake/crouch/kick/
- *   stagger/wave/celebrate/jump) via {@link gestureMotion}, plus the reachPose
- *   arm gestures: `point` (arm extended toward `at`, held) and `strike` (a jab
- *   thrown at `at`, then retracted); the remaining combat kinds return null;
- * - `reach` → analytic two-bone arm IK to a resolved target ({@link reachPose}),
- *   the target dropped into the actor's model space; needs the context's `rig`
- *   and is left unclamped so an impossible reach fails the shot's ROM gate;
- * - `react` → a ROM-clamped flinch away from the blow ({@link reactMotion}),
- *   decomposed into the actor's frame so a front hit snaps the torso back and a
- *   side hit leans it; needs the context's `rig` (the flinch is bounded by
- *   joint ROM), so a rig-less context synthesises nothing for it.
- *
- * Every other verb returns `null` (the host supplies its rig-specific content,
- * or a richer synthesiser does), and an unknown actor returns `null`. This is
- * the bridge that makes the action builder actually produce motion from the
- * declarative gait/profile data: the thin verb in, dense motion out.
- *
- * `lookAt` resolves against {@link aimPointsOf} instead of `nodes` because a
- * placement is a **ground** point: staging writes an actor's position straight
- * into its node transform, and a humanoid rig's origin sits between its feet,
- * so "look at him" aimed the head at the floor and two actors at conversational
- * range could not regard each other at all (1.6 m of eye height over 0.7 m of
- * separation is 66.37 degrees of flexion against a 45 degree head limit). The
- * camera solve met the same wall and answered it with a measured aim fraction
- * of the subject's height; this is the aim verbs' half of that answer, using
- * the one datum the context already carries for exactly this purpose. Since
- * #1360 that same 66.37 degrees is legal on a declared chain, which does not
- * soften the reason: a gaze aimed between the subject's feet is a stoop, and
- * the lift is what makes it a look.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Uses resumed verified beat facts, shared rigid actor-frame conversion and the existing gait/IK primitives; explicit locomotion durations scale the clock, positional destinations preserve full displacement with ground-speed cadence, and live targets are sampled at 24 Hz.
+ * @evidence contracts/common.md#clear-and-simple-design Verb dispatch remains here while shared frame/continuation, static and dynamic envelopes own their isolated responsibilities; both frame readers use one staged conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference constants 8 gait samples, 24 Hz live targets, 40% jab peaks and 32 degree maximum reaction are declared choreography policies, not measured physical guarantees; no guessed rig geometry or hidden ROM clamp is introduced for reaches.
+ * @evidence contracts/common.md#meaningful-documentation States supported verbs, geometry requirements, rigid model/world frames, eye-height gaze lifting, prior-beat ownership, callback failure and null outcomes; returned clips still require downstream gates and live-target interpolation is approximate.
+ * @evidence contracts/performance.md#efficient-algorithms Construction checks gait names linearly; each action rebuilds O(A+N+P) resumed maps for contexts, nodes and prior actors, plus verb-specific gait lookup, keyframe copies, analytic IK or 24 Hz target sampling. Different actions may observe mutable inputs, so snapshots are not cached.
+ * @evidence contracts/performance.md#reuse-equivalent-work A resumed snapshot and static frame serve the action, static targets solve once, repeat consumers reuse the resulting clip, and dynamic sampling evaluates each distinct time once; mutable host maps and callbacks prevent unjustified cross-action caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns captured context/placement maps for the callback lifetime; invocation-local snapshots and intermediate poses are released on success/null/throw, returned clips belong to callers, and no process or renderer handle is retained.
  */
-export const makeActorSynthesizer = (
+export const makeActorSynthesizer: (contexts: Map < string , IAutoMovieActorContext >, placements: Map < string , IAutoMovieVector3 >, boneTargetAt?: ( target : IAutoMovieActionTarget , seconds : number , ) => IAutoMovieVector3 | null, actorFrameAt?: ( actor : string , seconds : number , ) => IAutoMovieActorWorldFrame | null) => IAutoMovieActionSynthesizer = (
   contexts: Map<string, IAutoMovieActorContext>,
   placements: Map<string, IAutoMovieVector3>,
   boneTargetAt?: (
@@ -447,15 +106,14 @@ export const makeActorSynthesizer = (
     actor: string,
     previous?: IAutoMovieBeatEndState | null,
   ): IAutoMovieMotion | null => {
-    const live = resumedRuntime(contexts, placements, previous);
-    const nodes = live.nodes;
-    const aimPoints = aimPointsOf(live.contexts, nodes);
-    const ctx = live.contexts.get(actor);
+    const live: { contexts: Map<string, IAutoMovieActorContext>; nodes: Map<string, IAutoMovieVector3>; } = resumeActorSynthesisRuntime(contexts, placements, previous);
+    const nodes: Map<string, IAutoMovieVector3> = live.nodes;
+    const ctx: IAutoMovieActorContext | undefined = live.contexts.get(actor);
     if (ctx === undefined) return null;
-    const staticFrame = staticActorWorldFrame(ctx);
-    const frameAt = (seconds: number): IAutoMovieActorWorldFrame =>
+    const staticFrame: IAutoMovieActorWorldFrame = actorContextWorldFrame(ctx);
+    const frameAt: (seconds: number) => IAutoMovieActorWorldFrame = (seconds: number): IAutoMovieActorWorldFrame =>
       actorFrameAt?.(actor, seconds) ?? staticFrame;
-    const resolveTarget = (
+    const resolveTarget: (target: IAutoMovieActionTarget, table: Map < string , IAutoMovieVector3 >, seconds: number) => IAutoMovieVector3 | null = (
       target: IAutoMovieActionTarget,
       table: Map<string, IAutoMovieVector3>,
       seconds: number,
@@ -464,9 +122,9 @@ export const makeActorSynthesizer = (
         ? (boneTargetAt?.(target, seconds) ?? null)
         : resolveTargetPoint(target, table);
     if (action.verb === "locomote") {
-      const gait = ctx.gaits.find((g) => g.name === action.gait);
+      const gait: IAutoMovieGait | undefined = ctx.gaits.find((g: IAutoMovieGait) : boolean => g.name === action.gait);
       if (gait === undefined) return null;
-      const cycle = seedRestArticulation(
+      const cycle: IAutoMovieMotion = seedRestArticulation(
         gaitMotion(
           `${actor}:${action.gait}`,
           ctx.skeleton,
@@ -476,35 +134,28 @@ export const makeActorSynthesizer = (
         ),
         ctx.restPose,
       );
-      const dest = resolveTarget(action.to, nodes, action.start);
-      // Every arm below is fitted to a DECLARED duration (#1366). The engine
-      // sizes the walk from distance and speed, which is what `"auto"` asks
-      // for; a number is the author stating the span, exactly as it does on
-      // every other verb, and it used to be discarded here in silence (a walk
-      // declared 7.5s compiled to 3.0s with no violation and no warning).
+      const dest: IAutoMovieVector3 | null = resolveTarget(action.to, nodes, action.start);
+
+
+
       if (dest === null) return fitDeclaredSpan(cycle, action.duration); // relative/unresolved → step in place
-      // Travel is baked onto the pose root, which the renderer applies in the
-      // actor's model frame (under its staged facing). So aim it in model space
-      // (undo the facing) and the composed render carries it to the world
-      // destination; a turned actor would otherwise walk off its heading.
-      const local = toModelSpace(dest, staticFrame);
-      const displacement = classifyLocomoteGroundDisplacement(local);
+
+
+
+      const local: IAutoMovieVector3 = actorPointInModelSpace(dest, staticFrame);
+      const displacement: { groundDistance: number; travelDistance: number; alreadyThere: boolean; verticalOnly: boolean; } = classifyLocomoteGroundDisplacement(local);
       if (displacement.alreadyThere)
         return fitDeclaredSpan(cycle, action.duration); // already there → step in place
-      // A gait cannot realize a purely vertical displacement. Returning null
-      // makes the performance gate report the unsupported ground destination;
-      // pretending it is "already there" would silently leave the actor at
-      // the wrong height, while carrying it vertically would turn a walk into
-      // an elevator. The same epsilon prevents an unbounded slope ratio.
+
+
+
       if (displacement.verticalOnly) return null;
-      // A locomote destination is the ground point the actor must actually
-      // reach, including a ramp's rise. Keep gait cadence governed by the XZ
-      // distance (the actor profile's speed is its ground speed), but carry the
-      // complete displacement through locomoteMotion. Scaling the 3D speed by
-      // the same slope ratio leaves distance / speed, cycle count, and duration
-      // identical to the planar walk while making the baked root arrive at the
-      // authored Y instead of silently discarding it (#1473).
-      const travelSpeed =
+
+
+
+
+
+      const travelSpeed: number =
         ctx.speed * (displacement.travelDistance / displacement.groundDistance);
       return fitDeclaredSpan(
         locomoteMotion(
@@ -526,18 +177,16 @@ export const makeActorSynthesizer = (
         action.duration,
       );
     if (action.verb === "lookAt") {
-      // The AIM table, not the placement table: a look meets the subject's
-      // eyes, not the ground its feet stand on (see the aim-point note above).
-      const duration = action.duration === "auto" ? 1 : action.duration;
-      // Turn the gaze CHAIN: twist toward the target, flexion to tilt (up =
-      // extension), spread over `neck` and `head` as the rig declares they can
-      // hold it (#1360). Piling the whole solved angle on the head emitted
-      // poses the rig itself forbade for any target much below eye level, and
-      // the `head` region this verb drives already owns the neck, so nothing
-      // downstream had to change for the second joint to survive the mask.
-      const poseAt = (time: number): IAutoMoviePose | null => {
-        const frame = frameAt(action.start + time);
-        const eye = Vector3.add(
+      const aimPoints: Map<string, IAutoMovieVector3> = actorAimPoints(live.contexts, nodes);
+
+      const duration: number = action.duration === "auto" ? 1 : action.duration;
+
+
+
+
+      const poseAt: (time: number) => IAutoMoviePose | null = (time: number): IAutoMoviePose | null => {
+        const frame: IAutoMovieActorWorldFrame = frameAt(action.start + time);
+        const eye: IAutoMovieVector3 = Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, {
             x: 0,
@@ -545,9 +194,9 @@ export const makeActorSynthesizer = (
             z: 0,
           }),
         );
-        const target = resolveTarget(action.to, aimPoints, action.start + time);
+        const target: IAutoMovieVector3 | null = resolveTarget(action.to, aimPoints, action.start + time);
         if (target === null) return null;
-        const { yawDeg, pitchDeg } = aimYawPitch(eye, target, frame.facingDeg);
+        const { yawDeg, pitchDeg }: IAutoMovieYawPitch = aimYawPitch(eye, target, frame.facingDeg);
         return {
           skeleton: ctx.skeleton,
           root: null,
@@ -562,13 +211,13 @@ export const makeActorSynthesizer = (
         action.to.kind === "bone" ||
         (actorFrameAt?.(actor, action.start) ?? null) !== null
       )
-        return dynamicPoseClip({
+        return createDynamicActorPoseClip({
           id: `${actor}:lookAt`,
           skeleton: ctx.skeleton,
           duration,
           poseAt,
         });
-      const pose = poseAt(0);
+      const pose: IAutoMoviePose | null = poseAt(0);
       return pose === null
         ? null
         : {
@@ -595,14 +244,14 @@ export const makeActorSynthesizer = (
           };
     }
     if (action.verb === "emote") {
-      // a face-region clip: only the expression, no body joints to merge
-      const duration = action.duration === "auto" ? 1 : action.duration;
-      const expression = {
+
+      const duration: number = action.duration === "auto" ? 1 : action.duration;
+      const expression: { preset: AutoMovieExpressionPreset; intensity: number; blendshapes: null; } = {
         preset: action.preset,
         intensity: action.intensity,
         blendshapes: null,
       };
-      const frame = (time: number): IAutoMovieKeyframe => ({
+      const frame: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
         time,
         pose: { skeleton: ctx.skeleton, root: null, joints: [] },
         expression,
@@ -618,21 +267,17 @@ export const makeActorSynthesizer = (
       };
     }
     if (action.verb === "gesture") {
-      const duration = action.duration === "auto" ? 1 : action.duration;
-      // `point` rides reachPose (an arm extended toward `at`; reachPose
-      // clamps a far target onto the reach shell, which is exactly a pointing
-      // arm). Left unclamped like `reach`, so an impossible point fails the
-      // shot's ROM gate. Needs the rig and a resolvable target.
-      //
-      // The arm verbs resolve `nodes`, NOT `aimPoints`: the lift is deliberately
-      // not applied here. `eyeHeight` answers "where does a gaze meet this
-      // actor", and an arm does not reach for eyes; the chest/hand datum an arm
-      // target would need does not exist on the context, and inventing a
-      // fraction here would be the guess the "measure, don't hope" doctrine
-      // forbids. Author an explicit `point` for a precise arm goal until a
-      // measured datum exists.
+      const duration: number = action.duration === "auto" ? 1 : action.duration;
+
+
+
+
+
+
+
+
       if (action.kind === "point" && ctx.rig !== undefined) {
-        const world =
+        const world: IAutoMovieVector3 | null =
           action.at === undefined
             ? null
             : resolveTarget(action.at, nodes, action.start);
@@ -641,12 +286,12 @@ export const makeActorSynthesizer = (
           action.at?.kind === "bone" ||
           (actorFrameAt?.(actor, action.start) ?? null) !== null
         )
-          return dynamicExtendHoldClip({
+          return createDynamicActorExtendClip({
             id: `${actor}:point`,
             skeleton: ctx.skeleton,
             duration,
-            poseAt: (time) => {
-              const point = resolveTarget(
+            poseAt: (time: number) : IAutoMoviePose | null => {
+              const point: IAutoMovieVector3 | null = resolveTarget(
                 action.at!,
                 nodes,
                 action.start + time,
@@ -656,27 +301,26 @@ export const makeActorSynthesizer = (
                 : reachPose(
                     ctx.rig!,
                     "right",
-                    toModelSpace(point, frameAt(action.start + time)),
+                    actorPointInModelSpace(point, frameAt(action.start + time)),
                     ctx.restFrames,
                   );
             },
           });
-        const pose = reachPose(
+        const pose: IAutoMoviePose | null = reachPose(
           ctx.rig,
           "right",
-          toModelSpace(world, staticFrame),
+          actorPointInModelSpace(world, staticFrame),
           ctx.restFrames,
         );
         return pose === null
           ? null
-          : extendHoldClip(`${actor}:point`, ctx.skeleton, pose, duration);
+          : createActorExtendClip(`${actor}:point`, ctx.skeleton, pose, duration);
       }
-      // `strike` (a jab) also rides reachPose (the fist thrown toward the
-      // target), but snaps out and retracts (jabClip) instead of holding, so it
-      // reads as a punch. Same rig + resolvable-target requirement as point,
-      // and the same placement-not-aim-point resolution (see above).
+
+
+
       if (action.kind === "strike" && ctx.rig !== undefined) {
-        const world =
+        const world: IAutoMovieVector3 | null =
           action.at === undefined
             ? null
             : resolveTarget(action.at, nodes, action.start);
@@ -685,12 +329,12 @@ export const makeActorSynthesizer = (
           action.at?.kind === "bone" ||
           (actorFrameAt?.(actor, action.start) ?? null) !== null
         )
-          return dynamicJabClip({
+          return createDynamicActorJabClip({
             id: `${actor}:strike`,
             skeleton: ctx.skeleton,
             duration,
-            poseAt: (time) => {
-              const point = resolveTarget(
+            poseAt: (time: number) : IAutoMoviePose | null => {
+              const point: IAutoMovieVector3 | null = resolveTarget(
                 action.at!,
                 nodes,
                 action.start + time,
@@ -700,23 +344,22 @@ export const makeActorSynthesizer = (
                 : reachPose(
                     ctx.rig!,
                     "right",
-                    toModelSpace(point, frameAt(action.start + time)),
+                    actorPointInModelSpace(point, frameAt(action.start + time)),
                     ctx.restFrames,
                   );
             },
           });
-        const pose = reachPose(
+        const pose: IAutoMoviePose | null = reachPose(
           ctx.rig,
           "right",
-          toModelSpace(world, staticFrame),
+          actorPointInModelSpace(world, staticFrame),
           ctx.restFrames,
         );
         return pose === null
           ? null
-          : jabClip(`${actor}:strike`, ctx.skeleton, pose, duration);
+          : createActorJabClip(`${actor}:strike`, ctx.skeleton, pose, duration);
       }
-      // The postural gestures (bow/nod/shake/crouch) are engine-authored; the
-      // remaining arm/combat kinds return null (rig-specific or reach-dependent).
+
       return gestureMotion(
         `${actor}:${action.kind}`,
         ctx.skeleton,
@@ -725,82 +368,75 @@ export const makeActorSynthesizer = (
       );
     }
     if (action.verb === "reach") {
-      // An IK verb: needs the rig geometry (arm lengths, rest FK). Resolve the
-      // target to a world point, drop it into the actor's model space (undo the
-      // placement), and solve the arm. reachPose SEEKS a ROM-valid pose but
-      // never CLAMPS to one (#1345): where the rig's declared ranges admit no
-      // articulation that reaches, it returns the least-violating candidate and
-      // the shot's ROM gate rejects it. The model must reposition, not the
-      // engine hide it.
-      //
-      // `nodes`, not `aimPoints`, for the reason spelled out at the `point`
-      // gesture: an arm target is not an eye, and the context carries no
-      // measured chest/hand height to lift by.
+
+
+
+
+
+
+
       if (ctx.rig === undefined) return null;
-      const world = resolveTarget(action.to, nodes, action.start);
+      const world: IAutoMovieVector3 | null = resolveTarget(action.to, nodes, action.start);
       if (world === null) return null; // relative target: no point to reach
-      const duration = action.duration === "auto" ? 0.6 : action.duration;
+      const duration: number = action.duration === "auto" ? 0.6 : action.duration;
       if (
         action.to.kind === "bone" ||
         (actorFrameAt?.(actor, action.start) ?? null) !== null
       )
-        return dynamicExtendHoldClip({
+        return createDynamicActorExtendClip({
           id: `${actor}:reach`,
           skeleton: ctx.skeleton,
           duration,
-          poseAt: (time) => {
-            const point = resolveTarget(action.to, nodes, action.start + time);
+          poseAt: (time: number) : IAutoMoviePose | null => {
+            const point: IAutoMovieVector3 | null = resolveTarget(action.to, nodes, action.start + time);
             return point === null
               ? null
               : reachPose(
                   ctx.rig!,
                   action.hand,
-                  toModelSpace(point, frameAt(action.start + time)),
+                  actorPointInModelSpace(point, frameAt(action.start + time)),
                   ctx.restFrames,
                 );
           },
         });
-      const reach = reachPose(
+      const reach: IAutoMoviePose | null = reachPose(
         ctx.rig,
         action.hand,
-        toModelSpace(world, staticFrame),
+        actorPointInModelSpace(world, staticFrame),
         ctx.restFrames,
       );
       if (reach === null) return null;
-      return extendHoldClip(`${actor}:reach`, ctx.skeleton, reach, duration);
+      return createActorExtendClip(`${actor}:reach`, ctx.skeleton, reach, duration);
     }
     if (action.verb === "react") {
-      // A physics verb: the flinch is clamped to each joint's ROM, so it needs
-      // the rig geometry. Without it (a context built only for gait/hold), the
-      // reference synthesiser produces nothing.
+
+
       if (ctx.rig === undefined) return null;
-      const duration = action.duration === "auto" ? 0.5 : action.duration;
-      const magnitude =
+      const duration: number = action.duration === "auto" ? 0.5 : action.duration;
+      const magnitude: number =
         REACT_MAX_DEFLECTION *
         Math.max(0, Math.min(1, action.force)) *
         (action.unbalance === true ? REACT_UNBALANCE_GAIN : 1);
 
-      // Decompose the blow into the actor's own frame so a front hit snaps the
-      // torso back (extension, −flexion) and a side hit leans it (abduction).
-      // `from` is where the blow comes from; the body recoils away from it.
-      const source = resolveTarget(action.from, nodes, action.start);
-      const facing = (ctx.facingDeg * Math.PI) / 180;
-      const forward = { x: Math.sin(facing), y: 0, z: Math.cos(facing) };
-      // Anatomical right: facing 0 looks down +Z and the actor's LEFT is +X
-      // (aimYawPitch's +90° yaw), so right is −X there. Positive spine
-      // abduction tilts toward −X, so dot(away, right) leans AWAY from the
-      // blow. The previous +X "right" leaned the body into it.
-      const right = { x: -Math.cos(facing), y: 0, z: Math.sin(facing) };
-      let push;
+
+
+      const source: IAutoMovieVector3 | null = resolveTarget(action.from, nodes, action.start);
+      const facing: number = (ctx.facingDeg * Math.PI) / 180;
+      const forward: { x: number; y: number; z: number; } = { x: Math.sin(facing), y: 0, z: Math.cos(facing) };
+
+
+
+      const right: { x: number; y: number; z: number; } = { x: -Math.cos(facing), y: 0, z: Math.sin(facing) };
+      let push: IAutoMovieRecoilPush;
       if (source === null)
         push = { flexion: -magnitude }; // unknown → snap back
       else {
-        const away = {
+        const away: { x: number; y: number; z: number; } = {
           x: ctx.position.x - source.x,
           y: 0,
           z: ctx.position.z - source.z,
         };
-        const dir =
+        const dir: IAutoMovieVector3 =
           Vector3.length(away) < 1e-6 ? forward : Vector3.normalize(away);
         push = {
           flexion: Vector3.dot(dir, forward) * magnitude,
