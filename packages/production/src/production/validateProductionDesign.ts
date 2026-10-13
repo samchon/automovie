@@ -1,5 +1,5 @@
 import {
-  autoMovieStoryTime,
+  autoMovieStoryInterval,
   resolveProductionFrameRate,
   validateProfileCapabilities,
 } from "@automovie/engine";
@@ -2014,10 +2014,7 @@ const validateStorySyncCriterion = (
         (Number.isFinite(pin.rate) === false || pin.rate <= 0))
     )
       continue;
-    windows.push({
-      from: autoMovieStoryTime(pin, event.window.from),
-      to: autoMovieStoryTime(pin, event.window.to),
-    });
+    windows.push(autoMovieStoryInterval(pin, event.window));
   }
   if (
     toleranceUsable === false ||

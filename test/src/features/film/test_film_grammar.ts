@@ -1,11 +1,13 @@
 import {
+  IAutoMovieGrammarDiagnostic,
+  IAutoMovieGrammarInput,
   IAutoMovieGrammarShotObservation,
-  analyzeFilmGrammar,
   classifyGrammarShotSize,
   grammarDiagnosticsToReviewNotes,
   lookRotation,
+  readFilmGrammar,
 } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
@@ -75,8 +77,13 @@ const shot = (
   ...overrides,
 });
 
+/** The findings no declared exception excepted, the list these cases assert on. */
+const reportedGrammar = (
+  input: IAutoMovieGrammarInput,
+): IAutoMovieGrammarDiagnostic[] => readFilmGrammar(input).reported;
+
 const codes = (shots: readonly IAutoMovieGrammarShotObservation[]): string[] =>
-  analyzeFilmGrammar({ shots }).map((diagnostic) => diagnostic.code);
+  reportedGrammar({ shots }).map((diagnostic) => diagnostic.code);
 
 /**
  * Mechanical film grammar stays deterministic and keeps style suppression
@@ -95,7 +102,8 @@ const codes = (shots: readonly IAutoMovieGrammarShotObservation[]): string[] =>
  * 7. Measured shot size, displacement, entrant re-establishment, and pacing
  *    diagnostics expose fact, impact, and recovery through review notes.
  * 8. Empty, valid-boundary, and malformed observation inputs exercise every public
- *    validation family without relying on runtime schema coercion.
+ *    validation family without relying on runtime schema coercion, and a
+ *    missing vector or rotation component is refused like a non-finite one.
  */
 export const test_film_grammar = (): void => {
   const rejects = (
@@ -107,13 +115,13 @@ export const test_film_grammar = (): void => {
       throwsError(() => {
         const input = structuredClone(shot(`invalid-${name}`));
         mutate(input);
-        analyzeFilmGrammar({ shots: [input] });
+        reportedGrammar({ shots: [input] });
       }),
     );
   };
   TestValidator.equals(
     "empty edit has no pacing or grammar diagnostic",
-    analyzeFilmGrammar({ shots: [] }),
+    reportedGrammar({ shots: [] }),
     [],
   );
   const axisSubjects = [
@@ -221,8 +229,8 @@ export const test_film_grammar = (): void => {
   );
   TestValidator.equals(
     "subject and action-axis collection spelling normalize deterministically",
-    analyzeFilmGrammar({ shots: [positive, negative] }),
-    analyzeFilmGrammar({
+    reportedGrammar({ shots: [positive, negative] }),
+    reportedGrammar({
       shots: [
         { ...positive, subjects: [...positive.subjects].reverse() },
         {
@@ -364,7 +372,7 @@ export const test_film_grammar = (): void => {
   });
   TestValidator.predicate(
     "continuing eyeline compares horizontal and vertical screen components",
-    analyzeFilmGrammar({
+    reportedGrammar({
       shots: [verticalLook, brokenVerticalLook],
     }).some(
       (diagnostic) =>
@@ -456,7 +464,7 @@ export const test_film_grammar = (): void => {
   );
   TestValidator.equals(
     "a displacement plus entrant produces one re-establish diagnostic",
-    analyzeFilmGrammar({
+    reportedGrammar({
       shots: [
         shot("before-both"),
         {
@@ -479,7 +487,7 @@ export const test_film_grammar = (): void => {
     ]).includes("grammar-pacing") === false,
   );
 
-  const diagnostics = analyzeFilmGrammar({
+  const diagnostics = reportedGrammar({
     shots: [wrongSize, { ...displaced, duration: 3 }],
   });
   TestValidator.equals(
@@ -573,13 +581,13 @@ export const test_film_grammar = (): void => {
   TestValidator.predicate(
     "duplicate shot ids are invalid",
     throwsError(() =>
-      analyzeFilmGrammar({ shots: [shot("duplicate"), shot("duplicate")] }),
+      reportedGrammar({ shots: [shot("duplicate"), shot("duplicate")] }),
     ),
   );
   TestValidator.predicate(
     "non-positive cut angle is invalid",
     throwsError(() =>
-      analyzeFilmGrammar({
+      reportedGrammar({
         shots: [shot("valid")],
         minimumCutAngleDegrees: 0,
       }),
@@ -588,7 +596,7 @@ export const test_film_grammar = (): void => {
   TestValidator.predicate(
     "non-positive re-establish distance is invalid",
     throwsError(() =>
-      analyzeFilmGrammar({
+      reportedGrammar({
         shots: [shot("valid-distance")],
         reestablishDistance: 0,
       }),
@@ -596,7 +604,7 @@ export const test_film_grammar = (): void => {
   );
   TestValidator.predicate(
     "explicit positive thresholds are accepted",
-    analyzeFilmGrammar({
+    reportedGrammar({
       shots: [shot("explicit-thresholds")],
       minimumCutAngleDegrees: 45,
       reestablishDistance: 20,
@@ -625,6 +633,14 @@ export const test_film_grammar = (): void => {
   });
   rejects("non-finite camera rotation", (input) => {
     input.camera.start.rotation.w = Number.NaN;
+  });
+  // A component the producer left out is refused like a non-finite one,
+  // instead of passing because no key names it.
+  rejects("missing camera rotation component", (input) => {
+    delete (input.camera.start.rotation as Partial<IAutoMovieQuaternion>).w;
+  });
+  rejects("missing subject coordinate", (input) => {
+    delete (input.subjects[0]!.end as Partial<IAutoMovieVector3>).z;
   });
   rejects("blank subject id", (input) => {
     input.subjects[0]!.id = "";

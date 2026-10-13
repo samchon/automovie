@@ -1,4 +1,4 @@
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { IAutoMovieSubjectBox } from "@automovie/interface";
 
 /**
  * The smallest box containing every given box, or null when none were given.
@@ -13,7 +13,7 @@ import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
  * @evidence contracts/common.md#clear-and-simple-design One fold over the list with no options; the empty case answers null so a caller distinguishes "no subject" from a real point box.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Treats every box alike and caps no input size; the argument-count limit of a spread call is removed by folding, not caught and retried.
  * @evidence contracts/common.md#meaningful-documentation States the null for an empty list, that any list length is accepted, the `NaN` propagation, and that the result is a new box leaving the inputs untouched.
- * @evidence contracts/performance.md#efficient-algorithms One pass over the boxes with constant extra space, replacing six mapped arrays and six spread calls over them.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` boxes, `O(n)` time with constant extra space beyond the returned box, and no intermediate per-axis arrays; callers such as building content bounds pass every placed part box, so the pass must not allocate per box.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure fold over the given list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the one returned box.
  */

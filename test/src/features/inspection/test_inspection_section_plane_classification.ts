@@ -56,9 +56,9 @@ const box = (
  *    with zero on the kept side. Guards the boundary rule itself.
  * 2. A non-unit normal (length 4) reports the same metres as its unit twin, so
  *    the caller is not asked to pre-normalize. Guards the division.
- * 3. A zero normal and a non-finite normal are refused with `RangeError`
- *    instead of silently meaning "keep everything". Guards both halves of the
- *    degenerate check.
+ * 3. A zero normal, a non-finite normal and a non-finite plane point are refused
+ *    with `RangeError` instead of silently meaning "keep everything" or "remove
+ *    everything". Guards every half of the degenerate check.
  * 4. Point keep: kept under the cut, removed above it, and kept exactly on it;
  *    an empty plane list keeps a point that any declared plane would remove.
  *    Guards the "no section is the absence of a declaration" rule.
@@ -76,6 +76,9 @@ const box = (
  * 9. An empty plane list classifies any box as `kept`, the regression that
  *    keeps an uncut scene reading exactly as it did before section planes
  *    existed.
+ * 10. An inverted box (min above max on an axis) or a non-finite corner is
+ *    refused with `RangeError`: its support corners would be swapped, so a box
+ *    wholly under the cut would read as cut.
  */
 export const test_inspection_section_plane_classification = (): void => {
   // 1. signed distance, including the boundary
@@ -119,6 +122,20 @@ export const test_inspection_section_plane_classification = (): void => {
         { point: { x: 0, y: 0, z: 0 }, normal: { x: Number.NaN, y: 1, z: 0 } },
         { x: 1, y: 1, z: 1 },
       ),
+    ),
+  );
+  TestValidator.predicate(
+    "a non-finite plane point is refused",
+    throwsError(
+      () =>
+        autoMovieSectionPlaneDistance(
+          {
+            point: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
+            normal: { x: 0, y: 1, z: 0 },
+          },
+          { x: 1, y: 1, z: 1 },
+        ),
+      "point",
     ),
   );
 
@@ -233,5 +250,29 @@ export const test_inspection_section_plane_classification = (): void => {
       ...box([-100, -100, -100], [100, 100, 100]),
     }),
     "kept",
+  );
+
+  // 10. a malformed box is refused rather than misclassified
+  TestValidator.predicate(
+    "an inverted box is refused",
+    throwsError(
+      () =>
+        classifyAutoMovieSectionPlaneBox({
+          planes: [CEILING],
+          ...box([-1, 2, -1], [1, 0, 1]),
+        }),
+      "box",
+    ),
+  );
+  TestValidator.predicate(
+    "a non-finite box corner is refused",
+    throwsError(
+      () =>
+        classifyAutoMovieSectionPlaneBox({
+          planes: [CEILING],
+          ...box([-1, 0, -1], [1, Number.NaN, 1]),
+        }),
+      "box",
+    ),
   );
 };

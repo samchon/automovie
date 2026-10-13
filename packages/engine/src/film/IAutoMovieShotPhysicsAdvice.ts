@@ -1,51 +1,76 @@
 import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 
-/**
- * One D010 physical suggestion carried as data.
- *
- * The engine never applies {@link IAutoMovieShotPhysicsAdvice.proposal} by
- * implication. The coding agent may keep it pending, accept it, replace it with
- * a modified response, or reject it with rationale; the decision remains
- * visible beside the build.
- */
+/** The fields every advice state carries. */
 interface IAutoMovieShotPhysicsAdviceBase {
-  /** Stable advice identity chosen by the shot code. */
+  /** Advice id chosen by the supplier; non-blank and unique within the shot. */
   id: string;
-  /** Engine-computed impact, push and optional ROM-bounded recoil. */
+
+  /**
+   * The engine-computed collision response: impact, recoil push and, when a
+   * struck chain was given, the ROM-bounded flinch pose.
+   */
   proposal: IAutoMovieCollisionResponse;
 }
 
-/** One explicit author disposition over an engine D010 proposal. */
+/**
+ * One suggested collision response and the author's decision about it,
+ * carried as data.
+ *
+ * A collision response from `suggestCollisionResponse` is advice, not an
+ * imposed result: the engine never applies `proposal` by implication. Shot code or a host analysis pass supplies the
+ * list through `IAutoMovieShotRuntime.advice`; the author may keep an item
+ * pending, accept it, replace it with a modified response, or reject it with a
+ * rationale. `compileDefinedShot` refuses an inconsistent item and copies the
+ * list onto the compiled result, so the decision stays visible beside the
+ * build.
+ *
+ * @evidence contracts/common.md#principled-implementation A discriminated union on `decision`, whose four states fix which of `selected` and `rationale` may be present; `compileDefinedShot` additionally requires a non-blank unique id and a non-blank rationale for every decision, and compares `selected` with `proposal` by key-sorted JSON, so `accepted` must equal the proposal and `modified` must differ from it regardless of key order.
+ * @evidence contracts/common.md#clear-and-simple-design The shared id and proposal live once in a base, and each state adds only the two fields whose meaning changes, so no state carries a field it cannot use; the record is a decision log, with applying a selected response left to the author's own motion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The compiler never folds `selected` into motion and never fills a missing rationale, so an accepted proposal still reaches the shot only through what the author wrote, and a pending item stays pending.
+ * @evidence contracts/common.md#meaningful-documentation States that the response is advice never applied by the engine, who supplies it and through which field, each decision state and what its `selected` and `rationale` must be, and that the compiler validates and copies the list.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; validation is one pass with a canonical JSON comparison per item, answered on `compileDefinedShot`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied once per shot compilation and deep-cloned onto its result; the engine computes no advice for this record and caches none.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the input items; the compiled result owns its own `structuredClone` of them, including any recoil pose, so neither aliases the other.
+ * @author Samchon
+ */
 export type IAutoMovieShotPhysicsAdvice =
   | (IAutoMovieShotPhysicsAdviceBase & {
-      /** The proposal has not been adjudicated yet. */
+      /** Not adjudicated yet. */
       decision: null;
-      /** No response is selected while the decision is pending. */
+
+      /** Always `null` while pending. */
       selected: null;
-      /** Pending advice carries no invented rationale. */
+
+      /** Always `null` while pending; no rationale is invented. */
       rationale: null;
     })
   | (IAutoMovieShotPhysicsAdviceBase & {
-      /** The engine proposal is selected unchanged. */
+      /** The proposal is selected unchanged. */
       decision: "accepted";
-      /** Exact selected response; validation requires it to equal proposal. */
+
+      /** Equal to `proposal` by value, regardless of key order. */
       selected: IAutoMovieCollisionResponse;
+
       /** Non-blank author reason for accepting the suggestion. */
       rationale: string;
     })
   | (IAutoMovieShotPhysicsAdviceBase & {
-      /** A source-authored replacement is selected. */
+      /** An authored replacement is selected. */
       decision: "modified";
-      /** Replacement response, observably distinct from proposal. */
+
+      /** The replacement response; must differ from `proposal` by value. */
       selected: IAutoMovieCollisionResponse;
+
       /** Non-blank author reason for changing the suggestion. */
       rationale: string;
     })
   | (IAutoMovieShotPhysicsAdviceBase & {
       /** The suggestion is deliberately rejected. */
       decision: "rejected";
-      /** Rejection applies no collision response. */
+
+      /** Always `null`: rejection selects no collision response. */
       selected: null;
+
       /** Non-blank author reason for rejecting the suggestion. */
       rationale: string;
     });

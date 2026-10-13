@@ -1,4 +1,5 @@
-import { IAutoMovieSubjectBox, unionSubjectBoxes } from "@automovie/engine";
+import { unionSubjectBoxes } from "@automovie/engine";
+import { IAutoMovieSubjectBox } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";

@@ -54,7 +54,8 @@ const sync = (
  * Scenarios:
  *
  * 1. A pin maps shot-local seconds onto the clock, honouring an explicit rate, and
- *    reports the story interval a whole shot occupies.
+ *    maps a shot-local window, the whole shot or an event window inside it, onto
+ *    the story interval it occupies.
  * 2. Two shots pinned to the same story moment are judged simultaneous from
  *    different local times, and the verdict names both events.
  * 3. Two shots that are not are judged apart, and the failure names the gap it
@@ -79,11 +80,15 @@ export const test_film_story_clock = (): void => {
       [
         "interval",
         () => {
-          const interval = autoMovieStoryInterval(
-            { originSeconds: 10, rate: 0.5 },
-            6,
+          const pin: IAutoMovieShotStoryTime = { originSeconds: 10, rate: 0.5 };
+          const whole = autoMovieStoryInterval(pin, { from: 0, to: 6 });
+          const event = autoMovieStoryInterval(pin, { from: 2, to: 6 });
+          return (
+            whole.from === 10 &&
+            whole.to === 13 &&
+            event.from === 11 &&
+            event.to === 13
           );
-          return interval.from === 10 && interval.to === 13;
         },
       ],
     ]),
