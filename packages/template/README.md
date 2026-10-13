@@ -17,4 +17,4 @@
 
 ## Development checks
 
-`pnpm run build` syncs the scaffold's version placeholders and shared instructions, then compiles with source correctness lint. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
+`pnpm run build` syncs the scaffold's version placeholders and shared instructions, then compiles with source correctness lint and the shared evidence declaration guards. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`.

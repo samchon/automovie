@@ -16,4 +16,4 @@ The package exports `run`, the argument parser `readAutoMovieCommandArguments`, 
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
+`pnpm run build` compiles with source correctness lint and the shared evidence declaration guards. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`.
