@@ -1,24 +1,29 @@
 ---
 name: documentation
-description: Owns automovie's writing rules for READMEs, JSDoc, and every Markdown file. Use before writing or changing any document, and with prompting before changing AGENTS.md or a skill.
+description: Owns automovie's writing rules and writes its READMEs and doc comments. Use before writing or changing a README or a doc comment, and with prompting before changing AGENTS.md or a skill.
 ---
 
 # Documentation
 
+Good writing is the same for every reader: deliver the core point concisely and clearly. Only the reader, and so what the reader needs, differs by document; agent prompts add the rules in the [prompting skill](../prompting/SKILL.md).
+
 ## Writing
 
-- Write only what the reader needs and would not otherwise know. Cut padding, repetition, preamble, filler, and closing summaries.
-- One point, one sentence, one place. Give the reason when it is not obvious, and link to a fact's owner instead of restating it.
+- Write only what the reader needs and would not otherwise know. Cut padding, repetition, preamble, filler, and closing summaries; completeness means covering what the reader needs, never longer phrasing.
+- One point, one sentence, one place. Give the reason when it is not obvious.
 - Say what to do rather than what to avoid; when a prohibition is needed, name the concrete pattern.
 - Plain English with one term per concept, and no emphasis capitals, em-dashes, emoji in prose, promotional adjectives, stock AI phrasing, or hedging.
 
 ## Paragraphs And Lists
 
-A paragraph is one topic, written on one source line. Start a new one when the topic changes; merging topics and splitting every sentence are both failures.
+A paragraph is one topic. Start a new one when the topic changes and keep sentences on the same topic together; merging topics to save paragraphs and splitting every sentence are both failures. Write each paragraph on one source line.
 
-Use a list for parallel items and ordered steps, prose for an argument whose conditions and exceptions depend on each other, a table for repeated mappings, and a code block for exact commands.
+Use a list for parallel items, for steps whose order changes the result, and for their sub-steps, marking a sublist differently from its parent, such as `-` items under a numbered list. Write an argument whose conditions, reasons, and exceptions depend on each other as prose. Use a table for repeated mappings and a code block for exact commands.
 
-## Code Documentation
+## READMEs
 
-- JSDoc follows [Meaningful documentation](../contracts/common.md#meaningful-documentation), and interface types close with `@author Samchon`.
-- A README serves the package's user: what it is, when to use it, and its public surface, with examples taken from code that runs.
+A README is for the package's user: what it is, when to use it, installation, the smallest working setup, and its public surface. Take every code example from code that runs.
+
+## Doc Comments
+
+JSDoc follows the Writing and Paragraphs And Lists rules above, and interface types close with `@author Samchon`. What a public declaration's comment must say is the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter.

@@ -1,28 +1,32 @@
 ---
 name: contracts
-description: Defines the @evidence checklists every maintained automovie declaration and test answers, and their evidence.config.ts wiring. Use when writing or reviewing maintained source or tests, or changing evidence selection.
+description: Defines the @evidence checklists every maintained automovie declaration and test answers, and their evidence.config.ts wiring. Use when writing or reviewing maintained source or tests, or changing Evidence selection.
 ---
 
 # Contracts
 
-Each checklist H2 is a question every selected declaration answers in its doc comment. `pnpm run evidence` checks that answers exist; review checks that they are true.
+Each checklist H2 is a question that every selected declaration answers in its doc comment. A package's `evidence.config.ts` selects the checklists; `pnpm run evidence` checks that answers exist, and [review](../review/SKILL.md) checks that they are true and complete.
 
-| Checklist | Asks about | Selected by |
-| --- | --- | --- |
-| [common.md](common.md) | Method, design, shortcuts, and documentation | Every enrolled package |
-| [performance.md](performance.md) | Computation cost and resource lifetime | Every enrolled package except `interface` |
-| [testing.md](testing.md) | Behavior, expectations, and cases of tests | `test` |
-
-`packages/human` is outside evidence until it is complete (#2774).
+| Checklist | Asks about |
+| --- | --- |
+| [common.md](common.md) | Method, design, shortcuts, and documentation of production code |
+| [performance.md](performance.md) | Computation cost, reuse, and resource lifetime |
+| [testing.md](testing.md) | Behavior, expectations, and cases of every test |
 
 ## Answering
 
-- Write `@evidence contracts/<file>.md#<anchor> <reason>` for each selected H2 after a blank comment line, and `@evidenceExclude` the same way for a single chapter that does not apply, never a whole file.
-- Say why the approach fits and what it assumes or leaves unresolved, specific to the declaration. Do not certify results; a test answer names the cases it owns.
-- Fix a defect before answering it; one outside the change's scope is stated honestly in the answer and filed as an issue. Never pass the check with a generic answer, a narrower selector, or a lower severity.
+1. Before writing, read the declaration and everything its H2 asks about, such as its callees, callers, and tests.
+2. Answer every fact the H2 asks for, from what the code actually does. A partial, generic, or untrue answer is a defect, not a pass.
+3. If the code falls short of the question, fix the code, and state any gap that remains instead of claiming the requirement is met.
+4. Write `@evidence contracts/<file>.md#<anchor> <reason>` after a blank comment line, and `@evidenceExclude` the same way only for an item that does not apply, never for a whole file.
 
 ## Selection
 
-- A package selects its exported types and functions under `src`, minus `index.ts` barrels, and keeps the native guards (`evidence/documented`, `evidence/singular`, `evidence/todo`). `pnpm exec evidence list` and `pnpm exec evidence inspect '<target>'` show what a selector reaches.
-- Exclude only generated files and files the adapter cannot address (a default-export configuration, a global augmentation), which review covers.
-- Renaming or removing a checklist H2 migrates every answer citing it. Keep one chapter per question and no links inside a checklist.
+- From a package, `pnpm exec evidence list` and `pnpm exec evidence inspect '<target>'` show what a selector reaches.
+- `Claims: 3/4 active` means a selector matched nothing, without a diagnostic, and `Coverage` counts checklist sections, not declarations.
+- Exclude only generated, copied, or dependency material with verified provenance, and files the adapter cannot address, such as a default-export configuration or a global augmentation, which [review](../review/SKILL.md) covers.
+- Never narrow a selector or lower a severity to pass the check.
+
+## Editing The Checklists
+
+Tens of thousands of tags cite their paths and H2s, so adding, renaming, or removing an H2 needs an authorized migration of every answer. Keep one chapter per question.

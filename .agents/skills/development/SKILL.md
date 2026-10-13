@@ -1,38 +1,42 @@
 ---
 name: development
-description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; checklist answers belong to contracts and visual verification to 3d-modeling.
+description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; acknowledgments belong to contracts and visual verification to 3d-modeling.
 ---
 
 # Development
 
 ## Repair
 
-Before editing, group every known symptom by cause, then trace each cause, and your change, through callers and consumers (generated-project scripts and the viewer's projection of engine output included), error and recovery paths, caching and determinism, and Windows and POSIX. Cover each resulting case with a test, fix the owner, and delete the compensations the fix makes unnecessary. A failure that returns after each patch means the design is wrong.
+Before editing, group every known symptom by cause, then trace each cause, and your change, through callers and consumers, error and recovery paths, caches and determinism, and Windows and POSIX. Cover each resulting case with a test, fix the owner, and delete the compensations the fix makes unnecessary.
+
+## Contracts
+
+Every maintained declaration answers, in its doc comment, the [contracts](../contracts/SKILL.md) checklists its package selects:
+
+- production types and functions: [`common.md`](../contracts/common.md) and [`performance.md`](../contracts/performance.md), except `interface`, which selects only `common.md`;
+- tests: [`testing.md`](../contracts/testing.md).
 
 ## Code
 
-- Review every new import and dependency against the [package boundaries](../project/SKILL.md#packages); nothing else enforces them.
 - Annotate the type of every variable and parameter and the return type of every function; leave a type to inference only where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
+- Respect the [package boundaries](../project/SKILL.md#packages); review reads every new import and dependency against them.
 - `interface` is pure types with no runtime dependency: plain `string` and `number`, no wrapper aliases or `typia` tags, units and ranges in JSDoc enforced by `engine` validators, and closed `AutoMovie*` unions as the only structural constraint.
-- A source file has at most 500 lines and exports one symbol named after it, barrels excepted. Split by responsibility, never by compressing code or moving logic into data; an existing oversized file is a violation, not a precedent.
-- A public producer lands with its consumer, a README or shipped-skill entry, or `@publicUnconsumed <planned consumer>: <reason>`; test-only reach is not wiring.
-- Make a new or changed lint rule, evidence selector, or CI gate fail on an invalid input before trusting it.
-- When a transform seems ignored on correct source, look for stale emitted JavaScript beside it.
-- Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion and constraint tables are specification; change them only on request or for a product reason, and say so.
+- A source file has at most 500 lines and exports one symbol named after it, barrels excepted.
+- A public producer lands with its consumer; test-only reach is not wiring.
+- Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion and constraint tables are specification. Change them only on request or for a product reason, and say so.
 
 ## Tests
 
 | Kind | Location |
 | --- | --- |
-| Unit | `test/src/features/<domain>/test_<name>.ts` declaring `export function test_<name>(): void` or `export async function test_<name>(): Promise<void>`, never an arrow function, run by `@nestia/e2e`'s `DynamicExecutor` |
-| Shared helper | `test/src/features/internal/` |
+| Unit | A `test_<name>.ts` under `test/src/features/<domain>/` declaring `export function test_<name>(): void` or `export async function test_<name>(): Promise<void>`, never an arrow function, and importing the source it calls. |
 
-- A test calls the source with typed in-memory inputs and finishes in under 500 ms. It never installs a generated project, launches a CLI, child process, browser, or GPU host, or reads repository files; a branch reachable only through a whole project belongs to a function not yet separated out.
+- Observe through the product's seams or its own output; never replace globals or foreign methods in a test.
+- Open each case with what it pins, then a numbered `Scenarios:` list. Reuse `test/src/features/internal/`.
 - Compare floats with `TestValidator.predicate` over `nclose`, `vclose`, or `qclose`, never deep equality.
-- A test's JSDoc states what it pins, then a numbered `Scenarios:` list, then its checklist answers.
-- Every executable position on a line a change writes is exercised by a test. No coverage tool checks this; the reviewer reads the diff beside its tests.
 
 ## Validation And CI
 
-- Prove the change with the narrowest test that fails without it (`pnpm test --include <name>`), type-check with `pnpm --filter @automovie/test build`, and let CI run the full suites.
-- Run `pnpm run format` only at a pull request's final preparation for merge.
+- Before finishing, prove the change with the narrowest test that fails without it (`pnpm test --include <name>`). Run the affected tests locally, then let CI run the full suites.
+- Verify a render or viewer change under the [3D modeling skill](../3d-modeling/SKILL.md#visual-debugging).
+- Run `pnpm run format` once, at a [pull request](../pull-request/SKILL.md)'s final preparation for merge; fix any later defect without rerunning it.

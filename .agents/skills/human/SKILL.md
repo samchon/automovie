@@ -5,7 +5,7 @@ description: Defines the anatomy rules, visual debugging files, and supervision 
 
 # Human
 
-Human is outside evidence until it is complete (#2774); these rules govern it meanwhile, beside the [3d-modeling skill](../3d-modeling/SKILL.md).
+These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human work.
 
 ## Anatomy
 
