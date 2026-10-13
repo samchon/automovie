@@ -12,9 +12,7 @@ interface IRenderedScaffoldEntry {
 }
 
 /**
- * Normalize `\r\n` to `\n` so the scaffold emits identical bytes on every host:
- * a Windows checkout with `core.autocrlf` would otherwise ship CRLF. The tree
- * is text only, so the replacement cannot corrupt binary content.
+ * Normalize `\r\n` to `\n` so the scaffold emits identical bytes on every host: a Windows checkout with `core.autocrlf` would otherwise ship CRLF. The tree is text only, so the replacement cannot corrupt binary content.
  */
 const normalizeLineEndings: (content: string) => string = (content: string): string =>
   content.replaceAll("\r\n", "\n");
@@ -27,11 +25,7 @@ const toPosix: (value: string) => string = (value: string): string => value.spli
 /**
  * The rendered key for one scaffold-relative path.
  *
- * Path segments get the same strict substitution and unknown-token failure as
- * file contents, so a templated path cannot ship verbatim. The root
- * `_gitignore` stand-in becomes `.gitignore` only here, because npm pack
- * renames a packed `.gitignore` to `.npmignore`; nested files of that name
- * stay ordinary paths.
+ * Path segments get the same strict substitution and unknown-token failure as file contents, so a templated path cannot ship verbatim. The root `_gitignore` stand-in becomes `.gitignore` only here, because npm pack renames a packed `.gitignore` to `.npmignore`; nested files of that name stay ordinary paths.
  */
 const renderKey: (relative: string, variables: Readonly<Record<string, string>>) => string = (
   relative: string,
@@ -49,15 +43,9 @@ const renderKey: (relative: string, variables: Readonly<Record<string, string>>)
 
 
 /**
- * Render a list of scaffold sources into a `{ posixPath: content }` map,
- * refusing the whole list when two sources render to the same path.
+ * Render a list of scaffold sources into a `{ posixPath: content }` map, refusing the whole list when two sources render to the same path.
  *
- * Each content has CRLF normalized to LF and its tokens rendered; each path is
- * rendered the same way, with `/` separators, and a root `_gitignore` becomes
- * `.gitignore`, so a scaffold that ships both is refused as a collision. The
- * collision error names the first colliding path in code-unit order and both
- * source paths, independent of the input order. The returned object has no
- * prototype, so a key such as `__proto__` is an ordinary file path.
+ * Each content has CRLF normalized to LF and its tokens rendered; each path is rendered the same way, with `/` separators, and a root `_gitignore` becomes `.gitignore`, so a scaffold that ships both is refused as a collision. The collision error names the first colliding path in code-unit order and both source paths, independent of the input order. The returned object has no prototype, so a key such as `__proto__` is an ordinary file path.
  *
  * @param entries Source paths relative to the scaffold root, with their text.
  * @param variables Token values, as for {@link renderTemplate}.

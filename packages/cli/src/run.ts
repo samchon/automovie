@@ -24,21 +24,12 @@ Options:
 `;
 
 /**
- * The `automovie` CLI entry. `argv` is the full process vector; its first two
- * positions (executable and script) are skipped.
+ * The `automovie` CLI entry. `argv` is the full process vector; its first two positions (executable and script) are skipped.
  *
- * - `help` and `version` write to stdout; the version is read from this
- *   package's `package.json`.
- * - `start` renders the scaffold, naming the project with
- *   `deriveAutoMovieProjectName`, and publishes it into the directory resolved
- *   against the working directory, refusing a non-empty one without `--force`.
- *   On success it lists the written files relative to the target, then the
- *   next steps. Files written before a failed publication stay, and the error
- *   names them.
+ * - `help` and `version` write to stdout; the version is read from this package's `package.json`.
+ * - `start` renders the scaffold, naming the project with `deriveAutoMovieProjectName`, and publishes it into the directory resolved against the working directory, refusing a non-empty one without `--force`. On success it lists the written files relative to the target, then the next steps. Files written before a failed publication stay, and the error names them.
  *
- * Returns the process exit code, 0 on success or 1 after writing the error's
- * message and each of its `cause` messages (without stacks) to stderr, rather
- * than exiting, so queued output drains before the process ends.
+ * Returns the process exit code, 0 on success or 1 after writing the error's message and each of its `cause` messages (without stacks) to stderr, rather than exiting, so queued output drains before the process ends.
  *
  * @evidence contracts/common.md#principled-implementation The request is fully parsed before any effect, the target is resolved once with `path.resolve` against `process.cwd()`, and the npm project name comes from `deriveAutoMovieProjectName`; a refused publication is reported through the standard `Error.cause` chain, which carries the template's own reason such as the non-empty-target refusal.
  * @evidence contracts/common.md#clear-and-simple-design `run` owns only dispatch and console output: argument admission is `readAutoMovieCommandArguments`, the project name is `deriveAutoMovieProjectName`, the closing text is `renderAutoMovieScaffoldNextSteps`, and rendering and publication are `@automovie/template`'s; the executable guard lives in `bin.ts` so importing this module never starts the CLI.
@@ -87,10 +78,7 @@ export function run(argv: readonly string[]): number {
 }
 
 /**
- * This package's version, read at runtime from the sibling `package.json`
- * (`require`, not an `import`, so it stays outside `rootDir`). `__dirname`
- * resolves to `src` under ttsx and `lib` when published; the file sits one
- * level up in both.
+ * This package's version, read at runtime from the sibling `package.json` (`require`, not an `import`, so it stays outside `rootDir`). `__dirname` resolves to `src` under ttsx and `lib` when published; the file sits one level up in both.
  */
 function packageVersion(): string {
   const manifest: { version: string } = require(
@@ -100,8 +88,7 @@ function packageVersion(): string {
 }
 
 /**
- * One stderr block: the error's message, then each distinct `cause` message on
- * its own `caused by:` line. A value that is not an `Error` is stringified.
+ * One stderr block: the error's message, then each distinct `cause` message on its own `caused by:` line. A value that is not an `Error` is stringified.
  */
 function describeError(error: unknown): string {
   const lines: string[] = [];

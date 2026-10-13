@@ -12,23 +12,13 @@ import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./AUTOMOVIE_TEMPLATE_VERSIONS";
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map.
  *
- * Every shipped file under the package's `scaffold` directory is read as
- * UTF-8, its line endings normalized to LF, and its `{{name}}` and
- * `{{version:<key>}}` tokens replaced: the name from `props`, the versions
- * from the build-time {@link AUTOMOVIE_TEMPLATE_VERSIONS}. The root
- * `_gitignore` stand-in is returned as `.gitignore`. Nothing is written;
- * {@link publishFiles} and {@link writeFiles} write the map.
+ * Every shipped file under the package's `scaffold` directory is read as UTF-8, its line endings normalized to LF, and its `{{name}}` and `{{version:<key>}}` tokens replaced: the name from `props`, the versions from the build-time {@link AUTOMOVIE_TEMPLATE_VERSIONS}. The root `_gitignore` stand-in is returned as `.gitignore`. Nothing is written; {@link publishFiles} and {@link writeFiles} write the map.
  *
- * The name is trimmed, then refused when empty, `.` or `..`, ending in `.`,
- * containing `<>:"/\|?*` or a control character, or equal to a reserved
- * Windows device name such as `con` or `lpt1`, with or without an extension.
- * It therefore fits one directory segment on every platform and needs no
- * escaping inside the JSON string of `package.json`.
+ * The name is trimmed, then refused when empty, `.` or `..`, ending in `.`, containing `<>:"/\|?*` or a control character, or equal to a reserved Windows device name such as `con` or `lpt1`, with or without an extension. It therefore fits one directory segment on every platform and needs no escaping inside the JSON string of `package.json`.
  *
  * @param props The project's name.
  * @returns The rendered file map.
- * @throws When the name is refused, when the scaffold directory is missing, or
- *   on a token error or path collision from {@link renderScaffoldEntries}.
+ * @throws When the name is refused, when the scaffold directory is missing, or on a token error or path collision from {@link renderScaffoldEntries}.
  *
  * @evidence contracts/common.md#principled-implementation The name rule is the intersection of Windows file-name restrictions and POSIX segment rules, checked after `trim` so surrounding whitespace is normalized instead of refused; the excluded quote, backslash, and control characters are also the ones JSON would need to escape, which keeps the plain token substitution into `package.json` valid; files are read as UTF-8 because the scaffold is text only.
  * @evidence contracts/common.md#clear-and-simple-design The function joins three owned steps: `scaffoldAssetDirectory` finds the assets, `listAutoMovieScaffoldFiles` decides what ships, and `renderScaffoldEntries` renders and checks collisions; it owns only the name rule and the variable table.

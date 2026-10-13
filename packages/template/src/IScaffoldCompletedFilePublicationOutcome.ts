@@ -12,8 +12,7 @@
  */
 export interface IScaffoldCompletedFilePublicationOutcome {
   /**
-   * Identity of the captured parent directory generation the file was created
-   * in; must be non-empty.
+   * Identity of the captured parent directory containing the verified created or rewritten file; must be non-empty.
    */
   parentIdentity: string;
 

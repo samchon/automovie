@@ -12,28 +12,13 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
 
 
 /**
- * Create one new scaffold file relative to a held parent directory handle and
- * report the effect.
+ * Create one new scaffold file relative to a held parent directory handle and report the effect.
  *
- * POSIX opens the parent with `open(O_DIRECTORY | O_NOFOLLOW)` and creates the
- * child with `openat(O_CREAT | O_EXCL | O_NOFOLLOW)`. Windows opens the parent
- * with `CreateFileW` without following a reparse point and creates the child
- * with `NtCreateFile(FILE_CREATE)` using `OBJECT_ATTRIBUTES.RootDirectory`.
- * The parent must report `expectedParentIdentity` before the create. The new
- * file is written, flushed, read back, and checked to be one ordinary
- * single-link file of the exact size, then reopened relative to the same held
- * parent, before and after its own handle closes, to prove the name still
- * holds that file.
+ * POSIX opens the parent with `open(O_DIRECTORY | O_NOFOLLOW)` and creates the child with `openat(O_CREAT | O_EXCL | O_NOFOLLOW)`. Windows opens the parent with `CreateFileW` without following a reparse point and creates the child with `NtCreateFile(FILE_CREATE)` using `OBJECT_ATTRIBUTES.RootDirectory`. The parent must report `expectedParentIdentity` before the create. The new file is written, flushed, read back, and checked to be one ordinary single-link file of the exact size, then reopened relative to the same held parent, before and after its own handle closes, to prove the name still holds that file.
  *
- * The function returns rather than throws. `refused` means no slot was
- * created: the request was malformed, the parent could not be opened or
- * changed, or the create failed or met an existing entry
- * (`target-competitor`). `partial` means a slot exists that did not pass
- * every check, with the bytes written so far; the adapter never deletes it and
- * never retries through an absolute child path. `completed` carries the captured parent's identity.
+ * The function returns rather than throws. `refused` means no slot was created: the request was malformed, the parent could not be opened or changed, or the create failed or met an existing entry (`target-competitor`). `partial` means a slot exists that did not pass every check, with the bytes written so far; the adapter never deletes it and never retries through an absolute child path. `completed` carries the captured parent's identity.
  *
- * @param request Parent path, its expected identity, the child segment, and
- *   the bytes.
+ * @param request Parent path, its expected identity, the child segment, and the bytes.
  * @returns The frozen outcome.
  *
  * @evidence contracts/common.md#principled-implementation The method is the documented handle-relative create of each platform, `openat` with `O_EXCL | O_NOFOLLOW` and `NtCreateFile` with a root directory handle and `FILE_CREATE`, both of which fail rather than follow an existing entry or a link; its premises are that the parent handle is held for the whole call and that required native flags are resolved before opening. `resolveScaffoldPosixConstants` supplies the documented Linux/Android and Darwin close-on-exec bits when Node omits them and refuses unknown missing ABI values.
@@ -220,9 +205,7 @@ const openBoundParent: (request: IScaffoldParentPublicationRequest) => IBoundPar
 
 
 /**
- * Reopen `childName` relative to the held parent and require the same
- * ordinary single-link file generation, attempting to close the reopened
- * handle on every outcome and preserving close failures.
+ * Reopen `childName` relative to the held parent and require the same ordinary single-link file generation, attempting to close the reopened handle on every outcome and preserving close failures.
  */
 const assertBoundResident: (parent: IBoundParent, childName: string, expectedVersion: string) => void = (
   parent: IBoundParent,

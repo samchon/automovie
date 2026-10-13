@@ -10,8 +10,7 @@ const DARWIN_O_CLOEXEC: number = 0x01000000;
 
 
 /**
- * Resolve the running POSIX system's open flags before binding libc.
- * Native constants take precedence; missing required flags refuse rather than becoming zero. Linux and Android use the generic Linux close-on-exec bit and Darwin uses its XNU bit when Node omits it. Other systems without that native bit refuse.
+ * Resolve the running POSIX system's open flags before binding libc. Native constants take precedence; missing required flags refuse rather than becoming zero. Linux and Android use the generic Linux close-on-exec bit and Darwin uses its XNU bit when Node omits it. Other systems without that native bit refuse.
  *
  * @evidence contracts/common.md#principled-implementation Supplied native bits retain their ABI meaning; missing close-on-exec uses Linux UAPI's 1<<19 for Linux/Android or Apple XNU's 0x01000000 for Darwin, while an unknown ABI refuses. Both primary headers are linked beside their constants.
  * @evidence contracts/common.md#clear-and-simple-design Flag resolution is pure and separate from libc loading so platform admission finishes before a library or descriptor is acquired.

@@ -1,8 +1,7 @@
 /**
  * A file slot that exists in the captured parent but is not complete.
  *
- * The publisher never deletes it, because a deletion through a pathname could
- * reach a different file than the one it created.
+ * The publisher never deletes it, because a deletion through a pathname could reach a different file than the one it created.
  *
  * @evidence contracts/common.md#principled-implementation An exclusive reservation, including an unusable returned handle, or a truncation of an existing resident makes later failures partial; the parent identity and confirmed byte count describe that file effect without claiming completion.
  * @evidence contracts/common.md#clear-and-simple-design This variant distinguishes file effects requiring recovery from a refusal before target-file mutation; directory preparation remains outside the per-file outcome.

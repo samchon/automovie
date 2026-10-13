@@ -14,9 +14,7 @@
  */
 export interface IScaffoldFileSnapshot {
   /**
-   * `<device>:<inode>` from a pathname stat. It is compared only with other
-   * pathname stats, because a Windows pathname stat and a handle stat can
-   * report different device numbers.
+   * `<device>:<inode>` from a pathname stat. It is compared only with other pathname stats, because a Windows pathname stat and a handle stat can report different device numbers.
    */
   identity: string;
 

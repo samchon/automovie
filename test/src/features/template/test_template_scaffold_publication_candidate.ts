@@ -12,30 +12,19 @@ import path from "node:path";
 import { throwsError } from "../internal/predicates";
 
 /**
- * A scaffold candidate is validated before mutation, published in order up to
- * its first non-completed entry, and every adapter outcome outside the
- * contract is refused.
+ * A scaffold candidate is validated before mutation, published in order up to its first non-completed entry, and every adapter outcome outside the contract is refused.
  *
  * Scenarios:
  *
- * 1. Planning keeps insertion order, encodes UTF-8, resolves targets below the
- *    root, and freezes entries; it refuses the root itself, escapes, NUL,
- *    non-text content, case-only repeats, and a file below another file even
- *    when an unrelated path sorts between them, while siblings that share a
- *    prefix are admitted.
- * 2. Publishing reports `completed`, a first-entry `refused`, and `partial` for
- *    a refusal after a completion or a partial slot, and never calls the
- *    publisher after the stop.
- * 3. A frozen entry is reused by reference and an unfrozen one is copied, so a
- *    later mutation of the caller's array does not reach the receipt.
- * 4. Outcomes without a parent identity, with an unknown refusal reason, with a
- *    byte count outside the entry, or with an unknown status throw.
- * 5. `ScaffoldPublicationError` keeps the receipt, chains the stopping cause,
- *    and names the completed and stopping entries.
+ * 1. Planning keeps insertion order, encodes UTF-8, resolves targets below the root, and freezes entries; it refuses the root itself, escapes, NUL, non-text content, case-only repeats, and a file below another file even when an unrelated path sorts between them, while siblings that share a prefix are admitted. On Windows, an absolute contained key whose root spelling differs only by case terminates the ancestor walk.
+ * 2. Publishing reports `completed`, a first-entry `refused`, and `partial` for a refusal after a completion or a partial slot, and never calls the publisher after the stop.
+ * 3. A frozen entry is reused by reference and an unfrozen one is copied, so a later mutation of the caller's array does not reach the receipt.
+ * 4. Outcomes without a parent identity, with an unknown refusal reason, with a byte count outside the entry, or with an unknown status throw.
+ * 5. `ScaffoldPublicationError` keeps the receipt, chains the stopping cause, and names the completed and stopping entries.
  *
  * @evidence contracts/testing.md#behavioral-verification The test calls `planScaffoldPublication`, `publishScaffoldCandidate`, and the `ScaffoldPublicationError` constructor and asserts their returned entries, receipts, thrown refusals, and error fields, catching a missed collision, a wrong candidate-wide status, a call after the stop, a shared mutable entry, or an adapter outcome accepted against the contract.
- * @evidence contracts/testing.md#independent-expectations Byte arrays come from the UTF-8 code points of `é` written out by hand, targets from `path.join` of the root and segments, and statuses from the receipt's documented derivation rule; none is read back from the functions under test.
- * @evidence contracts/testing.md#distinguishing-cases Each refusal has an admitted neighbour: `a-b` beside `a/c` is admitted while adding `a` collides through the non-adjacent `a/c`, `A.txt` collides with `a.txt` while `ab` and `a/b` coexist, and the partial byte count is accepted at the entry length and refused one past it; the empty candidate and a refusal at the first versus second entry cover the boundaries. File-system publication is owned by `test_template_scaffold_publication_files` and `test_template_scaffold_publication_force`.
+ * @evidence contracts/testing.md#independent-expectations U+00E9 encodes as the independently written UTF-8 bytes 0xc3,0xa9; targets come from path.join of literal root segments and statuses from the receipt's derivation rule. The Windows root-case expectation uses that platform's case-insensitive path identity without deriving termination from the planner; other hosts do not exercise Windows path semantics.
+ * @evidence contracts/testing.md#distinguishing-cases Each refusal has an admitted neighbour: a-b beside a/c is admitted while adding a collides, A.txt collides with a.txt while ab and a/b coexist, and a partial count at entry length is admitted while one past it refuses. The empty candidate and first-versus-second refusal cover status boundaries; Windows alone exercises a case-equivalent absolute root spelling. Filesystem publication belongs to test_template_scaffold_publication_files and test_template_scaffold_publication_force.
  * @evidence contracts/testing.md#execution-ownership This unit test runs in-process with a recording callback as the publisher and touches no file system or native adapter; it is discovered as an exported `test_` function under `features/template`.
  */
 export function test_template_scaffold_publication_candidate(): void {
@@ -71,6 +60,22 @@ export function test_template_scaffold_publication_candidate(): void {
       ),
   );
   TestValidator.equals("empty map", plan({}).length, 0);
+  if (process.platform === "win32") {
+    const upperRoot: string = root.toUpperCase();
+    const lowerTarget: string = path.join(root.toLowerCase(), "nested", "file");
+    const differentlyCased: readonly IScaffoldPublicationEntry[] =
+      planScaffoldPublication({
+        files: { [lowerTarget]: "case-equivalent root" },
+        root: upperRoot,
+      });
+    TestValidator.equals(
+      "Windows case-equivalent root terminates the ancestor walk",
+      differentlyCased.map(
+        (entry: IScaffoldPublicationEntry): string => entry.target,
+      ),
+      [lowerTarget],
+    );
+  }
   for (const relative of ["", ".", "..", "../x", "a/../../x"])
     TestValidator.predicate(
       `refuses escape ${JSON.stringify(relative)}`,

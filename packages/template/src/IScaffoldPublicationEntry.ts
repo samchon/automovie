@@ -1,11 +1,7 @@
 /**
  * One validated file of an immutable scaffold publication candidate.
  *
- * {@link planScaffoldPublication} builds and freezes every entry before any
- * directory or file is touched, so the bytes and target a publisher receives
- * are the ones that passed validation. `readonly` is compile-time only; the
- * runtime immutability comes from those producers freezing the entry and its
- * byte array.
+ * {@link planScaffoldPublication} builds and freezes every entry before any directory or file is touched, so the bytes and target a publisher receives are the ones that passed validation. `readonly` is compile-time only; the runtime immutability comes from those producers freezing the entry and its byte array.
  *
  * @evidence contracts/common.md#principled-implementation UTF-8 bytes use a frozen number array because a nonempty typed array cannot be frozen; planScaffoldPublication proves target containment lexically, and ensureScaffoldFileDirectory plus assertScaffoldOwnership qualify physical directory containment before writing.
  * @evidence contracts/common.md#clear-and-simple-design Each field has one reader: `bytes` feeds the adapter's write and readback, `relative` names the entry in errors and receipts, and `target` selects the parent directory and child name.
@@ -26,8 +22,7 @@ export interface IScaffoldPublicationEntry {
 
 
   /**
-   * Absolute target that lexically stays below the candidate root; links are
-   * checked only when its parent directory is captured.
+   * Absolute target that lexically stays below the candidate root; links are checked only when its parent directory is captured.
    */
   target: string;
 }

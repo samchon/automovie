@@ -1,6 +1,5 @@
 /**
- * A failed attempt that created or rewrote no file at the target.
- * An existing competitor can remain there, and directories prepared before refusal can remain.
+ * A failed attempt that created or rewrote no file at the target. An existing competitor can remain there, and directories prepared before refusal can remain.
  *
  * @evidence contracts/common.md#principled-implementation The reasons identify refusal before an exclusive slot was created or an existing file was truncated; the guarantee concerns this attempt's file effect, not the absence of a competitor or previously prepared directories.
  * @evidence contracts/common.md#clear-and-simple-design One closed reason union covers failures before this attempt creates or truncates a file; it distinguishes changed parent authority and occupied names from other pre-mutation errors.
@@ -17,10 +16,7 @@ export interface IScaffoldRefusedFilePublicationOutcome {
 
 
   /**
-   * Why this attempt changed no file: `parent-changed` when the held parent no longer
-   * matched its captured identity, `target-competitor` when the name was
-   * already occupied, and `create-failed` for any other failure before this
-   * attempt created a slot or truncated an existing resident.
+   * Why this attempt changed no file: `parent-changed` when a missing or invalid requested parent could not be opened, or its held directory identity differed; `target-competitor` when the name was already occupied, and `create-failed` for any other failure before this attempt created a slot or truncated an existing resident.
    */
   reason: "create-failed" | "parent-changed" | "target-competitor";
 

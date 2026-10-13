@@ -9,22 +9,15 @@ import * as path from "node:path";
 
 
 /**
- * Resolve, creating where missing, every directory between the captured root
- * and `directory`, and return the capture of `directory`.
+ * Resolve, creating where missing, every directory between the captured root and `directory`, and return the capture of `directory`.
  *
- * Each level is checked against the root and the level above it before it is
- * read, created, or reused. A level created here must be empty. A level whose
- * real path leaves the root's real path is refused, which catches a junction
- * or symbolic link at any depth.
+ * Each level is checked against the root and the level above it before it is read, created, or reused. A level created here must be empty. A level whose real path leaves the root's real path is refused, which catches a junction or symbolic link at any depth.
  *
  * @param props.base Captured scaffold root.
- * @param props.cache Captures of levels already resolved in this publication,
- *   keyed by absolute path. The function adds every level it captures; a hit
- *   is revalidated before use.
+ * @param props.cache Captures of levels already resolved in this publication, keyed by absolute path. The function adds every level it captures; a hit is revalidated before use.
  * @param props.directory Directory to resolve, inside the root.
  * @returns The capture of `directory`, or `base` when they are the same.
- * @throws When `directory` is outside the root lexically or physically, or any
- *   level fails revalidation.
+ * @throws When `directory` is outside the root lexically or physically, or any level fails revalidation.
  *
  * @evidence contracts/common.md#principled-implementation Containment is decided twice: lexically with `path.relative`, which rejects `..` and absolute results, and physically by comparing native real paths, because a link can make a lexically contained path resolve elsewhere; creation uses non-recursive `mkdirSync` after revalidating the parent so only a captured parent receives a new level.
  * @evidence contracts/common.md#clear-and-simple-design The function owns descendant levels and their per-publication cache, while the caller owns the cache's lifetime and the root capture.

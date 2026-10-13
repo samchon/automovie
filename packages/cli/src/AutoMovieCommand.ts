@@ -1,9 +1,7 @@
 /**
  * One admitted CLI request, discriminated by `command`.
  *
- * `help` and `version` carry nothing because they are standalone requests.
- * `start` carries the target directory exactly as typed, relative or absolute,
- * which `run` resolves against the working directory.
+ * `help` and `version` carry nothing because they are standalone requests. `start` carries the target directory exactly as typed, relative or absolute, which `run` resolves against the working directory.
  *
  * @evidence contracts/common.md#principled-implementation A string-literal discriminated union lets TypeScript narrow each request by `command`, so `run` cannot read a `start` field on a help or version request; the `start` directory stays unresolved because resolution depends on the caller's working directory, which `run` owns.
  * @evidence contracts/common.md#clear-and-simple-design The union has exactly the three requests the CLI admits and only the two `start` facts the scaffold publication consumes, with no option bag for flags the parser refuses.

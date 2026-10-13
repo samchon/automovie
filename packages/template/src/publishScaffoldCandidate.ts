@@ -3,21 +3,12 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
 import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
 import { type IScaffoldCompletedPublication } from "./IScaffoldCompletedPublication";
 /**
- * Publish a candidate in order through a one-file publisher and report the
- * exact effect.
+ * Publish a candidate in order through a one-file publisher and report the exact effect.
  *
- * Stops at the first entry whose outcome is not `completed`. Throws instead of
- * returning a receipt when the publisher reports an outcome that breaks its
- * contract: a completed or partial result without a parent identity, an
- * unknown refusal reason, a byte count outside the entry, or an unknown
- * status. A frozen entry with a frozen byte array is used as is; any other
- * entry is copied and frozen first, so the publisher and the receipt see the
- * same immutable data.
+ * Stops at the first entry whose outcome is not `completed`. Throws instead of returning a receipt when the publisher reports an outcome that breaks its contract: a completed or partial result without a parent identity, an unknown refusal reason, a byte count outside the entry, or an unknown status. A frozen entry with a frozen byte array is used as is; any other entry is copied and frozen first, so the publisher and the receipt see the same immutable data.
  *
- * @param props.candidate Entries to publish, normally from
- *   {@link planScaffoldPublication}.
- * @param props.publish Publishes one entry and reports its outcome; must not
- *   throw.
+ * @param props.candidate Entries to publish, normally from {@link planScaffoldPublication}.
+ * @param props.publish Publishes one entry and reports its outcome; must not throw.
  * @returns Frozen receipt describing the completed prefix and any failure.
  *
  * @evidence contracts/common.md#principled-implementation A sequential loop that stops at the first non-completed outcome makes the completed set a prefix of the candidate, so the receipt is exact without probing the file system afterwards; adapter outcomes are validated against the union's invariants before they enter the receipt.

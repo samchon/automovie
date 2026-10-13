@@ -47,9 +47,7 @@ const resolveTemplateVersions: () => Record<string, string> = (): Record<string,
 /**
  * The generated module body, from the versions this repository resolved.
  *
- * Unquoted identifier keys and double-quoted values, so the file it writes is
- * already prettier-canonical: `JSON.stringify` quotes its keys and the
- * repository's own `format:check` would flag the result of every sync.
+ * Unquoted identifier keys and double-quoted values, so the file it writes is already prettier-canonical: `JSON.stringify` quotes its keys and the repository's own `format:check` would flag the result of every sync.
  */
 const renderAutoMovieTemplateVersionsModule: (versions: Readonly<Record<string, string>>) => string = (
   versions: Readonly<Record<string, string>>,
@@ -70,8 +68,7 @@ const renderAutoMovieTemplateVersionsModule: (versions: Readonly<Record<string, 
 /**
  * Write that module, when this file is the process entry.
  *
- * Guarded so importing the resolver does not write a file. The build command
- * executes this entry directly when it intends to regenerate the module.
+ * Guarded so importing the resolver does not write a file. The build command executes this entry directly when it intends to regenerate the module.
  */
 if (
   process.argv[1] !== undefined &&

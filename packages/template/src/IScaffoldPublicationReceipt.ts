@@ -4,9 +4,7 @@ import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
 /**
  * Everything observed while publishing one candidate.
  *
- * Entries are published in candidate order and publication stops at the first
- * entry that does not complete, so `completed` is a prefix of `planned` and
- * every entry after `failure` was not attempted.
+ * Entries are published in candidate order and publication stops at the first entry that does not complete, so `completed` is a prefix of `planned` and every entry after `failure` was not attempted.
  *
  * @evidence contracts/common.md#principled-implementation The receipt is a prefix description of a sequential, stop-at-first-failure loop, so `completed`, `failure`, and `planned` together determine every file's state without a per-entry status list.
  * @evidence contracts/common.md#clear-and-simple-design The candidate-wide `status` is derived from the other fields by `publishScaffoldCandidate`, and the throwing form in `writeFiles` and the CLI both decide success from that one field.
@@ -31,9 +29,7 @@ export interface IScaffoldPublicationReceipt {
 
 
   /**
-   * `completed` when every entry completed, `refused` when the first entry was
-   * refused before any target file changed, and `partial` otherwise. Prepared
-   * directories and existing competitors are not described by this status.
+   * `completed` when every entry completed, `refused` when the first entry was refused before any target file changed, and `partial` otherwise. Prepared directories and existing competitors are not described by this status.
    */
   status: "completed" | "partial" | "refused";
 }

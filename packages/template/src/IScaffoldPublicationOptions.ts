@@ -12,10 +12,7 @@
  */
 export interface IScaffoldPublicationOptions {
   /**
-   * Admit a non-empty target directory and replace existing files in place.
-   * A file is replaced only when it is an ordinary file with exactly one link
-   * whose identity did not change between capture and write. Omitted or
-   * `false` refuses a non-empty directory before writing anything.
+   * Admit a non-empty target directory and replace existing files in place. A file is replaced only when it is an ordinary file with exactly one link whose identity did not change between capture and write. Omitted or `false` refuses a non-empty directory before writing anything.
    */
   force?: boolean;
 }

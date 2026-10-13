@@ -2,9 +2,7 @@ import * as fs from "node:fs";
 
 
 /**
- * Admission for the in-place rewrite: a regular file, not a symbolic link,
- * that exactly one directory entry names, because the rewrite changes the
- * inode every other name would show.
+ * Admission for the in-place rewrite: a regular file, not a symbolic link, that exactly one directory entry names, because the rewrite changes the inode every other name would show.
  *
  * @evidence contracts/common.md#principled-implementation A bigint stat must name a regular non-symlink file with exactly one hard link before in-place replacement.
  * @evidence contracts/common.md#clear-and-simple-design One admission predicate is shared by pathname capture and descriptor verification.

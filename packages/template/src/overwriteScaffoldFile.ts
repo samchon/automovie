@@ -12,10 +12,7 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
 /**
  * Replace one existing ordinary single-link scaffold file in place.
  *
- * The link count is read from the descriptor this operation writes through
- * rather than from a pathname stat, so the decision and the write look at the
- * same file. Rewriting the inode is admissible only while exactly one entry
- * names it, because every other name would observe the write.
+ * The link count is read from the descriptor this operation writes through rather than from a pathname stat, so the decision and the write look at the same file. Rewriting the inode is admissible only while exactly one entry names it, because every other name would observe the write.
  *
  * @evidence contracts/common.md#principled-implementation One ordinary single-link file descriptor is verified against pathname generations before truncation, after write/readback and after close.
  * @evidence contracts/common.md#clear-and-simple-design The replacement owner groups positioned writing and resident verification while shared ownership and snapshot helpers define identity.
@@ -122,9 +119,7 @@ export const overwriteScaffoldFile: (props: { base: IScaffoldPhysicalDirectory; 
 
 
 /**
- * Verify a held descriptor against its captured pathname generation: the
- * pathname still names the snapshot's file, the descriptor still shows
- * `expectedWritten`, and a fresh pathname open shows the same written state.
+ * Verify a held descriptor against its captured pathname generation: the pathname still names the snapshot's file, the descriptor still shows `expectedWritten`, and a fresh pathname open shows the same written state.
  */
 const assertScaffoldFileDescriptor: (snapshot: IScaffoldFileSnapshot, descriptor: number, expectedWritten: string) => void = (
   snapshot: IScaffoldFileSnapshot,
@@ -172,11 +167,7 @@ const assertScaffoldFileDescriptor: (snapshot: IScaffoldFileSnapshot, descriptor
 
 
 /**
- * Recapture a snapshot's pathname while this operation holds descriptors on
- * it and require the same file and written state. The change time is left
- * out: Windows advances it whenever any handle opens the path, including this
- * module's own verification opens, while identity, size, and modification time
- * still move only on a real change.
+ * Recapture a snapshot's pathname while this operation holds descriptors on it and require the same file and written state. The change time is left out: Windows advances it whenever any handle opens the path, including this module's own verification opens, while identity, size, and modification time still move only on a real change.
  */
 const assertOpenedScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => IScaffoldFileSnapshot = (
   snapshot: IScaffoldFileSnapshot,
@@ -194,8 +185,7 @@ const assertOpenedScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => ISc
 
 
 /**
- * Require the exact captured generation, change time included, after every
- * descriptor of this operation has closed.
+ * Require the exact captured generation, change time included, after every descriptor of this operation has closed.
  */
 const assertScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => void = (snapshot: IScaffoldFileSnapshot): void => {
   const current: IScaffoldFileSnapshot = captureScaffoldFile(snapshot.path);

@@ -2,16 +2,9 @@
 class ScaffoldCleanupError extends AggregateError {}
 
 /**
- * Combine an operation's earlier failure with the failure of a cleanup step
- * that ran because of it, so a close error never hides the error that caused
- * the close.
+ * Combine an operation's earlier failure with the failure of a cleanup step that ran because of it, so a close error never hides the error that caused the close.
  *
- * `first` is `undefined` when the operation had not failed; `second` is then
- * returned unchanged. Otherwise the result is one `AggregateError` listing
- * `first` before `second`, and a `first` that this function built is spread
- * into the new list, so repeated cleanups yield one flat list in failure
- * order. Any other `AggregateError` stays a single member, keeping its own
- * message.
+ * `first` is `undefined` when the operation had not failed; `second` is then returned unchanged. Otherwise the result is one `AggregateError` listing `first` before `second`, and a `first` that this function built is spread into the new list, so repeated cleanups yield one flat list in failure order. Any other `AggregateError` stays a single member, keeping its own message.
  *
  * @param first Failure observed before the cleanup, or `undefined` for none.
  * @param second Failure of the cleanup step.

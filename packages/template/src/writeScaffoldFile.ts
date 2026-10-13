@@ -10,21 +10,11 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
 
 
 /**
- * Write one scaffold file into a captured parent directory and report the
- * effect.
+ * Write one scaffold file into a captured parent directory and report the effect.
  *
- * A missing file is created through {@link publishNativeScaffoldFile},
- * relative to a handle on `parent`. With `force`, an existing file is instead
- * rewritten in place, and only when it is one ordinary file that exactly one
- * directory entry names: the descriptor that truncates it must stay the file
- * the pathname names before the truncation, after the write, and after the
- * final readback. Without `force`, an existing file meets the exclusive
- * create and is refused as `target-competitor`.
+ * A missing file is created through {@link publishNativeScaffoldFile}, relative to a handle on `parent`. With `force`, an existing file is instead rewritten in place, and only when it is one ordinary file that exactly one directory entry names: the descriptor that truncates it must stay the file the pathname names before the truncation, after the write, and after the final readback. Without `force`, an existing file meets the exclusive create and is refused as `target-competitor`.
  *
- * An in-place rewrite reports `refused` (`create-failed`) for any failure
- * before truncation and `partial` with the bytes written for any failure
- * after it. A link to the file created between the descriptor's link-count
- * check and the truncation is not seen, and the rewrite then reaches it.
+ * An in-place rewrite reports `refused` (`create-failed`) for any failure before truncation and `partial` with the bytes written for any failure after it. A link to the file created between the descriptor's link-count check and the truncation is not seen, and the rewrite then reaches it.
  *
  * @param props.base Captured scaffold root; `parent` must lie inside it.
  * @param props.bytes Exact file content.
@@ -32,9 +22,7 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @param props.parent Captured directory that must be `target`'s parent.
  * @param props.target Path of the file.
  * @returns The frozen outcome.
- * @throws Before any write, when `target` is not directly inside `parent`,
- *   when `base` or `parent` fails revalidation, or, with `force`, when an
- *   existing `target` is a link, not a file, or has more than one link.
+ * @throws Before any write, when `target` is not directly inside `parent`, when `base` or `parent` fails revalidation, or, with `force`, when an existing `target` is a link, not a file, or has more than one link.
  *
  * @evidence contracts/common.md#principled-implementation A new file uses the native exclusive create relative to the parent handle, which cannot follow a link or replace an entry; an existing file is rewritten through `ftruncate` and positioned writes on one descriptor, and every check compares that descriptor's identity, size, and modification time with a fresh pathname capture, leaving the change time out because Windows moves it when this module's own verification opens the file; the link race named in the comment is the unresolved limitation.
  * @evidence contracts/common.md#clear-and-simple-design This function chooses create versus replacement and checks ownership against base; publishNativeScaffoldFile owns handle-relative creation and overwriteScaffoldFile owns the replacement descriptor sequence.

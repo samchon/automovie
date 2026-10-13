@@ -5,18 +5,13 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
 
 
 /**
- * Write a `{ relativePath: content }` map under `location` and return the
- * absolute paths written, sorted by UTF-16 code unit.
+ * Write a path-to-text map under `location` and return the absolute paths written, sorted by UTF-16 code unit.
  *
- * This is the throwing form of {@link publishFiles}: it applies the same
- * validation and writes, and throws {@link ScaffoldPublicationError} when the
- * receipt is not `completed`. Files written before the failure are left in
- * place. Rendering the map is {@link renderScaffold}'s job.
+ * This is the throwing form of {@link publishFiles}: it applies the same validation and writes, and throws {@link ScaffoldPublicationError} when the receipt is not `completed`. Files written before the failure are left in place. Rendering the map is {@link renderScaffold}'s job.
  *
  * @param location Target directory, resolved against the working directory.
- * @param files Map from root-relative path to UTF-8 text.
- * @param options `force` admits a populated directory and in-place
- *   replacement.
+ * @param files UTF-8 text keyed by paths resolved against `location`; absolute keys are admitted when their targets remain below it.
+ * @param options `force` admits a populated directory and in-place replacement.
  * @returns Absolute paths of every file written, sorted.
  *
  * @evidence contracts/common.md#principled-implementation The comparator uses the string relational operators, which compare UTF-16 code units independent of locale, so the returned order is the same on every host; `localeCompare` would vary with the host's ICU data.

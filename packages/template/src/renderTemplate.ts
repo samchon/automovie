@@ -1,12 +1,7 @@
 /**
  * Replace every `{{key}}` token in `content` with `variables[key]`.
  *
- * A key is one or more of `A-Z`, `a-z`, `0-9`, `:`, `_`, `@`, `.`, `/`, and
- * `-`, such as `name` or `version:engine`. Everything else is an error, so a
- * mistyped placeholder fails the render instead of shipping a broken file: a
- * `{{` without a later `}}`, a `}}` before any `{{`, an empty, blank, or
- * malformed key, a key that is not an own property of `variables`, and a value
- * that itself contains `{{` or `}}`. A replaced value is never scanned again.
+ * A key is one or more of `A-Z`, `a-z`, `0-9`, `:`, `_`, `@`, `.`, `/`, and `-`, such as `name` or `version:engine`. Everything else is an error, so a mistyped placeholder fails the render instead of shipping a broken file: a `{{` without a later `}}`, a `}}` before any `{{`, an empty, blank, or malformed key, a key that is not an own property of `variables`, and a value that itself contains `{{` or `}}`. A replaced value is never scanned again.
  *
  * @param content Template text.
  * @param variables Values by key; inherited properties are not keys.

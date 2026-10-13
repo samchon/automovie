@@ -3,21 +3,15 @@ import * as path from "node:path";
 
 
 /**
- * Validate a rendered file map and freeze it as a publication candidate,
- * before any directory or file is touched.
+ * Validate a rendered file map and freeze it as a publication candidate, before any directory or file is touched.
  *
- * Throws when a value is not a string, a key contains NUL, a target resolves
- * to the root or outside it, or two targets collide. Targets are compared
- * after lower-casing, so `A.txt` and `a.txt` collide on every platform, and a
- * file also collides with any file below it, such as `a` and `a/b`.
- * Lower-casing approximates the case folding of Windows and macOS file systems
- * and does not apply Unicode normalization.
+ * Throws when a value is not a string, a key contains NUL, a target resolves to the root or outside it, or two targets collide. Targets are compared after lower-casing, so `A.txt` and `a.txt` collide on every platform, and a file also collides with any file below it, such as `a` and `a/b`. Lower-casing approximates the case folding of Windows and macOS file systems and does not apply Unicode normalization.
  *
- * @param props.files Map from root-relative path to UTF-8 text.
+ * @param props.files UTF-8 text keyed by paths resolved against `root`; absolute keys are admitted when their targets remain below it.
  * @param props.root Directory the candidate is published under.
  * @returns Frozen entries in the map's insertion order.
  *
- * @evidence contracts/common.md#principled-implementation Containment uses `path.resolve` and `path.relative`, refusing an empty, `..`, `..` plus separator, or absolute remainder; collisions are found with a hash map of lower-cased targets, one lookup for an exact repeat and one per ancestor directory for a file below another file. Lower-casing is the stated approximation of case-insensitive file systems and ignores Unicode normalization.
+ * @evidence contracts/common.md#principled-implementation Containment and the ancestor walk's root boundary both use `path.relative`, preserving Windows case-equivalent root spellings instead of looping at the drive root; empty, parent and absolute remainders refuse. Lower-cased target keys detect exact and file-ancestor collisions, approximating case-insensitive file systems without Unicode normalization.
  * @evidence contracts/common.md#clear-and-simple-design This owner validates and encodes with one private collision walk; publishFiles coordinates mutation, ensureScaffoldFileDirectory captures descendant directories, and writeScaffoldFile owns target admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No path or file name is special-cased; case-only collisions are refused on every platform so that one rendered map is publishable on any host, and the runtime string check exists for untyped JavaScript callers rather than for a test.
  * @evidence contracts/common.md#meaningful-documentation The comment lists every refusal, the case-folding rule and its limits, the parameters' meaning, and that entries keep insertion order.
@@ -59,8 +53,7 @@ export const planScaffoldPublication: (props: { files: Readonly<Record<string, s
 
 
 /**
- * Throw when two entries name the same target, ignoring case, or when one
- * entry's target is an ancestor directory of another's.
+ * Throw when two entries name the same target, ignoring case, or when one entry's target is an ancestor directory of another's.
  */
 const assertDistinctScaffoldTargets: (root: string, entries: readonly IScaffoldPublicationEntry[]) => void = (
   root: string,
@@ -79,7 +72,7 @@ const assertDistinctScaffoldTargets: (root: string, entries: readonly IScaffoldP
   for (const entry of entries)
     for (
       let directory: string = path.dirname(entry.target);
-      directory !== root;
+      path.relative(root, directory).length !== 0;
       directory = path.dirname(directory)
     ) {
       const ancestor: IScaffoldPublicationEntry | undefined = owners.get(

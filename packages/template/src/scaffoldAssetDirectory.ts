@@ -5,13 +5,10 @@ import * as path from "node:path";
 /**
  * Absolute path of the bundled `scaffold` directory.
  *
- * The directory is resolved from this module's own location, one level up, so
- * the same code finds it from `src` under `ttsx` and from the published `lib`,
- * which the package ships next to `scaffold`.
+ * The directory is resolved from this module's own location, one level up, so the same code finds it from `src` under `ttsx` and from the published `lib`, which the package ships next to `scaffold`.
  *
  * @returns The absolute scaffold directory.
- * @throws When nothing exists at that path, naming the path, which means the
- *   package was installed or built without its `scaffold` folder.
+ * @throws When nothing exists at that path, naming the path, which means the package was installed or built without its `scaffold` folder.
  *
  * @evidence contracts/common.md#principled-implementation `__dirname` is the CommonJS location of the compiled module, and both `src` and `lib` sit directly under the package root next to `scaffold`, which `package.json` lists in `files`; the premise fails only for a bundler that relocates the module, which the package does not use.
  * @evidence contracts/common.md#clear-and-simple-design One function owns where the assets are, so `renderScaffold` reads the scaffold without knowing the package layout; it takes no parameter because no caller needs another root.

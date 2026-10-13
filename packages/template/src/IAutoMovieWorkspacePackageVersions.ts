@@ -1,12 +1,7 @@
 /**
- * Version ranges of the AutoMovie workspace packages, keyed by package
- * directory name, as the scaffold's `{{version:<key>}}` tokens receive them.
+ * Version ranges of the AutoMovie workspace packages, keyed by package directory name, as the scaffold's `{{version:<key>}}` tokens receive them.
  *
- * The build reads each `packages/<key>/package.json` and supplies `^` plus its
- * `version`; {@link resolveAutoMovieTemplateDependencyVersions} copies every
- * value unchanged into the generated version table. Each value is an npm range
- * that a generated project's `package.json` writes as the package's
- * dependency.
+ * The build reads each `packages/<key>/package.json` and supplies `^` plus its `version`; {@link resolveAutoMovieTemplateDependencyVersions} copies every value unchanged into the generated version table. Each value is an npm range that a generated project's `package.json` writes as the package's dependency.
  *
  * @evidence contracts/common.md#principled-implementation A caret range on the package's own version admits compatible patch and minor releases under npm semver, which is how a generated project should follow the workspace it was built from.
  * @evidence contracts/common.md#clear-and-simple-design One required field per workspace package makes a missing package a type error at the build script instead of a missing token at render time; reading the manifests stays in the build script.

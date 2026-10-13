@@ -1,11 +1,7 @@
 /**
- * Input of {@link publishNativeScaffoldFile}: one new file created relative to
- * a held parent directory handle.
+ * Input of {@link publishNativeScaffoldFile}: one new file created relative to a held parent directory handle.
  *
- * The adapter opens `parentPath` once without following a final link, proves
- * that the opened handle reports `expectedParentIdentity`, and creates
- * `childName` relative to that handle. The path is never used again, so a
- * parent renamed or replaced after the check cannot redirect the create.
+ * The adapter opens `parentPath` once without following a final link, proves that the opened handle reports `expectedParentIdentity`, and creates `childName` relative to that handle. The path is never used again, so a parent renamed or replaced after the check cannot redirect the create.
  *
  * @evidence contracts/common.md#principled-implementation The request carries an identity next to the path because a path names whatever is there now, while the device-and-inode identity names the directory that was captured; the adapter's handle-relative create relies on that difference.
  * @evidence contracts/common.md#clear-and-simple-design Four fields are exactly what the native create needs: the bytes, the one segment to create, the path to open, and the identity that authorizes it; ownership checks against the scaffold root stay with `writeScaffoldFile`, which builds the request.
@@ -18,23 +14,19 @@
  */
 export interface IScaffoldParentPublicationRequest {
   /**
-   * Exact content of the new file. The adapter writes and reads it back
-   * through the created handle, reading this array in place without a copy.
+   * Exact content of the new file. The adapter writes and reads it back through the created handle, reading this array in place without a copy.
    */
   bytes: Uint8Array;
 
 
   /**
-   * One path segment to create: not empty, `.`, or `..`, and free of `/`,
-   * `\`, and NUL. Anything else is refused before any native call.
+   * One path segment to create: not empty, `.`, or `..`, and free of `/`, `\`, and NUL. Anything else is refused before any native call.
    */
   childName: string;
 
 
   /**
-   * `<device>:<inode>` identity, as formatted by `scaffoldPhysicalIdentity`,
-   * that the opened parent must report. A mismatch is refused as
-   * `parent-changed` and nothing is created.
+   * `<device>:<inode>` identity, as formatted by `scaffoldPhysicalIdentity`, that the opened parent must report. A mismatch is refused as `parent-changed` and nothing is created.
    */
   expectedParentIdentity: string;
 

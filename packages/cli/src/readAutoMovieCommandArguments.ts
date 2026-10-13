@@ -2,12 +2,7 @@ import { type AutoMovieCommand } from "./AutoMovieCommand";
 /**
  * Resolve one complete CLI request before any scaffold publication begins.
  *
- * `args` excludes the node executable and script positions. No arguments, or a
- * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version.
- * `start` takes exactly one non-blank target directory and an optional single
- * `--force`, in either order. There is no `--` terminator, so a directory
- * beginning with `-` must be spelled `./-name`. Every refusal throws an `Error`
- * whose message names the correction.
+ * `args` excludes the node executable and script positions. No arguments, or a lone `-h`/`--help`, means help; a lone `-v`/`--version` means version. `start` takes exactly one non-blank target directory and an optional single `--force`, in either order. There is no `--` terminator, so a directory beginning with `-` must be spelled `./-name`. Every refusal throws an `Error` whose message names the correction.
  *
  * @evidence contracts/common.md#principled-implementation A single left-to-right pass classifies each `start` token as the one known flag, an unknown option by its leading `-`, or a positional, and the whole request is validated before returning, so `run` never begins publication on a partially understood command line; the premise is that no admitted directory starts with `-`, which the `./-name` spelling preserves.
  * @evidence contracts/common.md#clear-and-simple-design The grammar has one command and one flag, so a direct scan replaces an argument-parsing dependency; standalone help and version are decided first because they admit no other token.

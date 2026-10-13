@@ -2,12 +2,9 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
 
 
 /**
- * Error thrown when a scaffold publication did not complete, carrying the
- * receipt so the caller can see which files exist.
+ * Error thrown when a scaffold publication did not complete, carrying the receipt so the caller can see which files exist.
  *
- * The message lists the completed relative paths and the stopping entry with
- * its status, refusal reason or partial byte count, and parent identity. The
- * stopping outcome's own error becomes `cause`.
+ * The message lists the completed relative paths and the stopping entry with its status, refusal reason or partial byte count, and parent identity. The stopping outcome's own error becomes `cause`.
  *
  * @evidence contracts/common.md#principled-implementation The error is built from the frozen receipt after publication stopped, so the throwing form loses none of the observed effect; `cause` uses the standard `ErrorOptions` chaining for the native error.
  * @evidence contracts/common.md#clear-and-simple-design One error class serves both throwing callers, `writeFiles` and the CLI, and holds the receipt instead of copying its fields onto the error.

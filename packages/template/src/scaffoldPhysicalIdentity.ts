@@ -2,14 +2,9 @@ import type * as fs from "node:fs";
 
 
 /**
- * Physical identity of a file or directory, formatted `<device>:<inode>` from
- * a bigint stat.
+ * Physical identity of a file or directory, formatted `<device>:<inode>` from a bigint stat.
  *
- * Captured directory identities and the identity a held native parent handle
- * reports are compared as these strings. On POSIX both come from `fstat` via
- * this function. On Windows, Node reports the volume serial number as `dev`
- * and the file index as `ino`, which is the pair the native adapter reads from
- * `GetFileInformationByHandle` and formats the same way.
+ * Captured directory identities and the identity a held native parent handle reports are compared as these strings. On POSIX both come from `fstat` via this function. On Windows, Node reports the volume serial number as `dev` and the file index as `ino`, which is the pair the native adapter reads from `GetFileInformationByHandle` and formats the same way.
  *
  * @param status Stat taken with `{ bigint: true }`.
  * @returns The identity string.

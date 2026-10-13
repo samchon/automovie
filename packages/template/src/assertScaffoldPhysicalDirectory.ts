@@ -3,12 +3,10 @@ import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirec
 
 
 /**
- * Require that a captured directory's path still names the same ordinary
- * directory with the same real path.
+ * Require that a captured directory's path still names the same ordinary directory with the same real path.
  *
  * @param ownership The earlier capture.
- * @throws When the path is now missing, a link, not a directory, or a
- *   different directory, or when its real path moved.
+ * @throws When the path is now missing, a link, not a directory, or a different directory, or when its real path moved.
  *
  * @evidence contracts/common.md#principled-implementation Revalidation recaptures the path and compares identity and real path, the two values that change when a directory is replaced or redirected, while a rename of an unrelated sibling leaves both intact.
  * @evidence contracts/common.md#clear-and-simple-design The check reuses the capture function instead of a second stat routine, so capture and revalidation cannot disagree on what identity means.

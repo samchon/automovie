@@ -5,13 +5,7 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
 /**
  * Build the version table behind the scaffold's `{{version:<key>}}` tokens.
  *
- * Workspace package ranges are copied unchanged. Every external dependency is
- * read from the pnpm catalog that owns it: `media` for the media and runtime
- * libraries, `three`, `vite`, `utils` for `@types/node`, `samchon` for the
- * compiler, lint, and evidence tools, and `typescript`. For
- * `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose
- * runtime graphs must agree on one exact version, a leading `^` or `~` is
- * removed; any other range form is kept as written.
+ * Workspace package ranges are copied unchanged. Every external dependency is read from the pnpm catalog that owns it: `media` for the media and runtime libraries, `three`, `vite`, `utils` for `@types/node`, `samchon` for the compiler, lint, and evidence tools, and `typescript`. For `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose runtime graphs must agree on one exact version, a leading `^` or `~` is removed; any other range form is kept as written.
  *
  * @param props The manifest text and the workspace package ranges.
  * @returns The table keyed by token name, such as `engine` or `kokoroJs`.

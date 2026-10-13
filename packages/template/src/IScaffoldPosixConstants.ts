@@ -1,6 +1,5 @@
 /**
- * Native open flags needed for held-parent POSIX scaffold publication.
- * Values are the running system's ABI bits, not normalized platform-independent flags.
+ * Native open flags needed for held-parent POSIX scaffold publication. Values are the running system's ABI bits, not normalized platform-independent flags.
  *
  * @evidence contracts/common.md#principled-implementation Named integer flags preserve the native open and openat ABI; the resolver supplies only a documented close-on-exec value absent from Node's constants.
  * @evidence contracts/common.md#clear-and-simple-design The record contains precisely the seven flags the parent and child open operations combine.

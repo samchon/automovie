@@ -14,26 +14,15 @@ import * as fs from "node:fs";
 
 
 /**
- * Write a `{ relativePath: content }` map under `location` and return a
- * receipt naming every completed file and the first entry that did not
- * complete.
+ * Write a path-to-text map under `location` and return a receipt naming every completed file and the first entry that did not complete.
  *
- * The whole map is validated by {@link planScaffoldPublication} before the
- * directory is created. Without `force`, a directory that already has an entry
- * refuses the first file, so nothing is written. Each file is then created
- * exclusively relative to its captured parent directory handle, refusing
- * linked parent directories. Publication stops at the first refusal or
- * partial slot, and nothing is deleted.
- * Directories created while preparing a failed entry can remain even when the receipt is refused.
+ * The whole map is validated by {@link planScaffoldPublication} before the directory is created. Without `force`, a directory that already has an entry refuses the first file, so nothing is written. New files are created exclusively relative to captured parent directory handles, refusing linked parent directories; with `force`, existing ordinary single-link files are rewritten in place through verified descriptors. Publication stops at the first refusal or partial slot, and nothing is deleted. Directories created while preparing a failed entry can remain even when the receipt is refused.
  *
- * Every error thrown while preparing directories or before a file is written
- * becomes a `create-failed` refusal for that file. Invalid input and an
- * outcome that breaks the publication contract still throw.
+ * Every error thrown while preparing directories or before a file is written becomes a `create-failed` refusal for that file. Invalid input and an outcome that breaks the publication contract still throw.
  *
  * @param location Target directory, resolved against the working directory.
- * @param files Map from root-relative path to UTF-8 text.
- * @param options `force` admits a populated directory and in-place
- *   replacement.
+ * @param files UTF-8 text keyed by paths resolved against `location`; absolute keys are admitted when their targets remain below it.
+ * @param options `force` admits a populated directory and in-place replacement.
  * @returns Frozen receipt of the attempt.
  *
  * @evidence contracts/common.md#principled-implementation Physical directory captures authorize new handle-relative file creation and forced descriptor-based replacement through writeScaffoldFile; the no-force emptiness probe reads one entry and revalidates the captured root, while prepared directories can remain after a later refusal.
@@ -95,8 +84,7 @@ interface IScaffoldPublicationSession {
 }
 
 /**
- * Create or capture the root and, without `force`, refuse one that already
- * has an entry. Runs on the first file so an empty candidate touches nothing.
+ * Create or capture the root and, without `force`, refuse one that already has an entry. Runs on the first file so an empty candidate touches nothing.
  */
 const openScaffoldPublicationSession: (root: string, force: boolean) => IScaffoldPublicationSession = (
   root: string,

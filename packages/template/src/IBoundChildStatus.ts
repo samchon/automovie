@@ -7,7 +7,7 @@
  * @evidence contracts/common.md#meaningful-documentation Members explain link and regular-file qualification, byte units and opaque generation comparison.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The held child status schema declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The held child status schema type coordinates no request or cached work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held child status schema schema acquires no runtime handles, bytes or tasks.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held child status schema acquires no runtime handles, bytes or tasks.
  *
  * @author Samchon
  */

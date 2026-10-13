@@ -4,11 +4,7 @@ import { type IScaffoldPartialFilePublicationOutcome } from "./IScaffoldPartialF
 /**
  * Outcome a one-file publisher reports for one candidate entry.
  *
- * The publisher returns rather than throws because a thrown I/O error cannot
- * describe a write's effect. `refused` means this attempt created or rewrote
- * no target file; a competitor or prepared directories can remain. `partial`
- * names the parent and confirmed byte count after reservation or truncation,
- * and `completed` means the file was verified.
+ * The publisher returns rather than throws because a thrown I/O error cannot describe a write's effect. `refused` means this attempt created or rewrote no target file; a competitor or prepared directories can remain. `partial` names the parent and confirmed byte count after reservation or truncation, and `completed` means the file was verified.
  *
  * @evidence contracts/common.md#principled-implementation A status discriminator separates pre-mutation refusal, incomplete file effect and verified completion for both exclusive create and forced replacement, without deriving state from error-message text.
  * @evidence contracts/common.md#clear-and-simple-design The union is the one seam between the candidate loop and any adapter; validation of each variant against the contract stays with `publishScaffoldCandidate`.

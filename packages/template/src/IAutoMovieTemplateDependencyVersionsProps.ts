@@ -2,8 +2,7 @@ import type { IAutoMovieWorkspacePackageVersions } from "./IAutoMovieWorkspacePa
 
 
 /**
- * Inputs of {@link resolveAutoMovieTemplateDependencyVersions}, read by the
- * caller before resolution so the resolver itself touches no file.
+ * Inputs of {@link resolveAutoMovieTemplateDependencyVersions}, read by the caller before resolution so the resolver itself touches no file.
  *
  * @evidence contracts/common.md#principled-implementation Passing the manifest text and the package ranges as values makes resolution a pure function of its inputs, which is what lets the build script and the test drive the same code with different workspaces.
  * @evidence contracts/common.md#clear-and-simple-design The two fields mirror the two sources of the version table, the pnpm catalogs and the workspace package manifests, and acquiring them stays with the build script.
@@ -16,8 +15,7 @@ import type { IAutoMovieWorkspacePackageVersions } from "./IAutoMovieWorkspacePa
  */
 export interface IAutoMovieTemplateDependencyVersionsProps {
   /**
-   * Complete `pnpm-workspace.yaml` text. Its top-level `catalogs` mapping
-   * must contain every catalog and dependency the resolver reads.
+   * Complete `pnpm-workspace.yaml` text. Its top-level `catalogs` mapping must contain every catalog and dependency the resolver reads.
    */
   workspace: string;
 

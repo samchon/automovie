@@ -11,17 +11,9 @@ import {
 
 
 /**
- * Parse a pnpm workspace manifest once and return a lookup of its catalog
- * entries.
+ * Parse a pnpm workspace manifest once and return a lookup of its catalog entries.
  *
- * The lookup returns the string at `catalogs.<catalog>.<dependency>`, reading
- * only direct children of each mapping: the same key at the top level, in a
- * sibling catalog, or deeper inside the requested catalog never answers. An
- * alias resolves to its anchored node. Parsing is strict and refuses
- * duplicate keys, and a YAML error or warning, a missing key, an owner that
- * is not a mapping, or a value that is not a non-blank string throws from the
- * lookup with a message naming the requested catalog and dependency. A parse
- * error is therefore raised by every lookup, not by this call.
+ * The lookup returns the string at `catalogs.<catalog>.<dependency>`, reading only direct children of each mapping: the same key at the top level, in a sibling catalog, or deeper inside the requested catalog never answers. An alias resolves to its anchored node. Parsing is strict and refuses duplicate keys, and a YAML error or warning, a missing key, an owner that is not a mapping, or a value that is not a non-blank string throws from the lookup with a message naming the requested catalog and dependency. A parse error is therefore raised by every lookup, not by this call.
  *
  * @param workspace Complete `pnpm-workspace.yaml` text.
  * @returns Lookup from catalog and dependency name to the specifier as written.
