@@ -15,7 +15,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 
-/** Relative round-trip error above which a world matrix carries shear. */
+/** Linear-basis round-trip tolerance, scaled by max(1, largest basis entry). */
 const MATRIX_ROUND_TRIP_EPSILON: number = 1e-8;
 
 const SHEAR_ADVICE: string =
@@ -41,14 +41,15 @@ const SHEAR_ADVICE: string =
  * Operations whose moved subtrees overlap are also checked in every joint
  * assignment of their named states. Independent branches do not interact.
  * A matrix is sheared when recomposing its decomposition differs in the linear
- * basis by more than 1e-8 of that basis's largest entry; translation cannot
- * hide shear. Non-finite compositions are refused by the same gate.
+ * basis by more than 1e-8 times max(1, that basis's largest absolute entry).
+ * The unit floor gives tiny bases an absolute tolerance; translation cannot
+ * enlarge it. Non-finite compositions are refused by the same gate.
  *
  * @param environment Building already free of validation errors.
  * @param root Violation path of the building record, `$input`.
  * @param collector Sink that receives the violations.
  *
- * @evidence contracts/common.md#principled-implementation TRS requires orthogonal scaled basis columns, tested by decomposition and recomposition with relative linear-basis error. Every named state combination affecting one element is checked, since operations on its ancestors can compose shear even when each alone is TRS; translation is excluded from the error scale and non-finite matrices are refused.
+ * @evidence contracts/common.md#principled-implementation TRS requires orthogonal scaled basis columns, tested by decomposition and recomposition with linear-basis error bounded by 1e-8 times max(1, largest absolute basis entry). Every named state combination affecting one element is checked; translation is excluded from the error scale, tiny bases retain the absolute tolerance floor, and non-finite matrices are refused.
  * @evidence contracts/common.md#clear-and-simple-design One staged check separated from `validateBuiltEnvironment`; staging and subtree walks come from their shared owners instead of the private staging and fixed-point descendant copies the validator kept.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No element, door or run is special-cased; shear is refused rather than decomposed away, and a state is reported once because its author fixes one hierarchy.
  * @evidence contracts/common.md#meaningful-documentation States current-state paths, alternative subtree checks, interacting named-state combinations, independent-branch separation, translation-independent tolerance and non-finite refusal.

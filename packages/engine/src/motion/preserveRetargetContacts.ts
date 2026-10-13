@@ -28,13 +28,7 @@ const DEFAULT_TOLERANCE: number = 0.02;
 
 
 /**
- * Drift below this, in target model units, is floating-point residue rather
- * than a proportion mismatch. Under a uniform rig scale the factor distributes
- * cleanly through the FK walk (rotate is linear and every accumulated sum
- * scales with it), so a target effector sits on its mapped source contact to
- * the last bit, the drift measures zero, and the pass leaves the frame
- * untouched. That is what makes contact preservation a mathematical no-op on a
- * proportional rig, and why it is safe to leave on by default.
+ * Target model-unit drift at or below this absolute threshold skips another fit. Binary64 scaling and FK need not commute exactly, so this is a numerical no-op policy rather than a zero-residual or scale-relative error proof.
  */
 const NOOP_EPSILON: number = 1e-9;
 
@@ -50,7 +44,7 @@ interface IAutoMovieContactWindow {
 /**
  * Correct a root-scaled retarget clip at its existing authored key times using each source frame's foot/declared hand contact mapped by rootScale. Source slides persist; ROM-limited residuals above tolerance*rootScale are collector warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs have passed retarget admission and parallel source/target key times agree.
  *
- * @evidence contracts/common.md#principled-implementation Finds chains root-reachable on both rigs, FK-resolves source frames under source clinical tables, classifies foot stance or inclusive hand windows, and fits target chains to per-frame scaled source points under target ROM. A 1e-9 drift no-op preserves proportional rigs, and prior corrected pose breaks equal-residual bend ties.
+ * @evidence contracts/common.md#principled-implementation Finds chains root-reachable on both rigs, FK-resolves source frames under source clinical tables, classifies foot stance or inclusive hand windows, and fits target chains to per-frame scaled source points under target ROM. Drift at or below absolute 1e-9 target model units skips another fit; prior corrected pose breaks equal-residual bend ties.
  * @evidence contracts/common.md#clear-and-simple-design This stage owns source-contact mapping and worst-per-effector residual reporting; contactMask and fitChainToTarget own classification and constrained candidate choice, with rig topology built once per side.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolved chains are skipped whole, proportional already-on-pin frames keep authored articulation, and impossible residual remains warning data rather than fabricated success or a hidden target offset.
  * @evidence contracts/common.md#meaningful-documentation States authored-key correction, per-frame source slide preservation, rootScale mapping, warning budget, parallel-clock/admission premises and dynamic ground failure boundary.

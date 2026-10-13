@@ -4,7 +4,6 @@ import {
   IAutoMovieCompiledInstancePrototype,
   IAutoMovieCompiledInstanceSet,
   IAutoMovieModel,
-  IAutoMovieModelPart,
   IAutoMovieSubjectArtifact,
   IAutoMovieSubjectChange,
   IAutoMovieSubjectDescription,
@@ -14,6 +13,7 @@ import {
 
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
+import { createAutoMovieSubjectPartIndex } from "./createAutoMovieSubjectPartIndex";
 import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "./constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
 import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
 import { instancePrototypeChoices } from "./populationRuntime/instancePrototypeChoices";
@@ -52,9 +52,9 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * @evidence contracts/common.md#clear-and-simple-design The diff owns classification and fan-out only; descriptions come from `describeAutoMovieSubjects`, addresses from `autoMovieSubjectAddress`, paging from `autoMovieSubjectMemberSummary`, and the prototype table rule from `instancePrototypeChoices`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or model is special-cased; a missing explicit prototype is keyed as missing by an explicit membership test instead of by matching the text of the selection's error, and environment-owned models are compared like compiled ones.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the exclusivity rules, what placement and shape mean per kind, how each fan-out count is formed and from which revision, the tolerance and its rotation metric, the matching and ordering, the unchanged summary, and the failure.
- * @evidence contracts/performance.md#efficient-algorithms Linear in both inventories plus the compared records, with every shape lookup through a per-revision index; prototype fan-out regenerates each revision's slot selections at most once, linear in its compact members, instead of once per changed prototype.
- * @evidence contracts/performance.md#reuse-equivalent-work Within one call each revision's inventory, record indexes and model usage table are built once and shared by every subject compared; usage is computed only when a prototype or part change needs it, and nothing is kept across calls because the artifacts are the caller's values.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The inventories, indexes and usage tables are local to the call and released on return, bounded by each artifact's subjects, models and sets; the returned diff holds descriptions of changed subjects and one bounded unchanged sample.
+ * @evidence contracts/performance.md#efficient-algorithms Inventory construction delegates geometry, placement and material measurement to describeAutoMovieSubjects, then O(S log S) orders subject ids and structural equality visits compared values. Each queried model's parts are indexed once, avoiding quadratic part lookup. Lazy usage costs O(sum of slot count times prototype count), since each weighted or explicit slot selection scans its table; common-slot changes do the same. Each returned member summary also copies and sorts its supplied ids, including repeated fanout summaries.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within one call each revision's inventory and record indexes are built once; part indexes are built only for models whose part shapes are compared, and usage only for prototype or part fanout. First duplicate parts preserve the previous find rule, and no mutable artifact cache survives across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Inventories, requested part indexes and usage tables are call-local, bounded by artifact subjects, queried parts, models and sets. The returned diff holds changed descriptions and one bounded unchanged sample; descriptions may borrow nested artifact records.
  */
 export const diffAutoMovieSubjects: (beforeArtifact: IAutoMovieSubjectArtifact, afterArtifact: IAutoMovieSubjectArtifact, tolerance?: number) => IAutoMovieSubjectDiff = (
   beforeArtifact: IAutoMovieSubjectArtifact,
@@ -129,6 +129,7 @@ interface IRevision {
   artifact: IAutoMovieSubjectArtifact;
   inventory: Map<string, IAutoMovieSubjectDescription>;
   models: Map<string, IAutoMovieModel>;
+  partOf: ReturnType<typeof createAutoMovieSubjectPartIndex>;
   sets: Map<string, IAutoMovieCompiledInstanceSet>;
   records: Map<string, IAutoMovieBuildingUnit | IAutoMovieBuiltSpace>;
   usage: Map<string, IModelUsage> | null;
@@ -172,6 +173,7 @@ const indexRevision: (artifact: IAutoMovieSubjectArtifact) => IRevision = (artif
       ),
     ),
     models,
+    partOf: createAutoMovieSubjectPartIndex(models),
     sets: new Map(
       artifact.compiled.instanceSets.map(
         (
@@ -200,16 +202,8 @@ const shapeOf: (revision: IRevision, description: IAutoMovieSubjectDescription) 
 ): unknown => {
   if (description.kind === "prototype")
     return revision.models.get(description.model!);
-  if (description.kind === "part") {
-    const model: IAutoMovieModel | undefined = revision.models.get(
-      description.model!,
-    );
-    return model?.parts.find(
-      (part: IAutoMovieModelPart): boolean =>
-        autoMovieSubjectAddress("prototype-part", model.id, part.id) ===
-        description.id,
-    );
-  }
+  if (description.kind === "part")
+    return revision.partOf(description.model!, description.id);
   if (description.kind === "element")
     return {
       semanticKind: description.semanticKind,

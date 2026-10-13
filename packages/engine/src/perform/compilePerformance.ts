@@ -19,10 +19,7 @@ const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>(["lo
 
 
 /**
- * Width of the boundary keyframes that pin a clip's envelope onto the union
- * grid (#1060). Larger than the envelope comparison tolerance (1e-9) so the
- * boundary sample itself is excluded, far smaller than any frame interval so
- * the ramp across it is invisible.
+ * Boundary-pin width in seconds, greater than the 1e-9 envelope comparison tolerance. Composite interpolation can still ramp over this one-microsecond interval; the constant proves no visual threshold.
  */
 const BOUNDARY_EPSILON: number = 1e-6 as const;
 
@@ -98,27 +95,11 @@ const maskMotionToRegion: (motion: IAutoMovieMotion, region: AutoMovieBodyRegion
 
 
 /**
- * Layer several per-region clips into one by **sampling and blending**: at
- * every keyframe time across the clips, sample each and {@link blendPoses} the
- * result (equal weight: the regions are disjoint here, so the additive blend
- * equals a union), so disjoint regions play _concurrently_ (legs walk while
- * arms wave while the head tracks). A face clip's expression rides along.
+ * Sample each region clip at the union of its keyframe and boundary times, then blend set axes with equal weights. Disjoint axes form a union; overlapping axes take an arithmetic mean. A face clip supplies expression.
  *
- * A region claims its bones only from its first keyframe onward (#1003):
- * clamp-sampling before that would replay a late lookAt's aim (or a react's
- * explicit-zero rest) backward over the whole shot, breaking causality. PAST
- * its last keyframe a region keeps only its ROOT (a walk's destination
- * persists) while joint and expression claims release, so a finished flinch or
- * emote stops diluting whatever other regions do next.
+ * Before its first frame a clip contributes nothing; after its last frame it keeps only its root, preserving a walk destination while releasing joint and expression claims.
  *
- * The envelope must hold BETWEEN union keyframes too (#1060): the composite is
- * later interpolated by {@link sampleMotion}, so gating only at union times
- * would ramp a late clip's content backward across the entire preceding segment
- * (a lookAt at 4s visibly turning the head from t=0), and expressions, which
- * interpolation carries at full strength from either segment end, would leak
- * all the way back. Boundary keyframes at `first − ε` / `last + ε` pin each
- * envelope edge onto the grid, so every interpolated segment lies entirely
- * inside or entirely outside the envelope.
+ * Boundary samples narrow preceding/following interpolation ramps to at most BOUNDARY_EPSILON. Expressions interpolate against neutral when one endpoint is absent, using segment easing like pose. These samples shorten transitions rather than making discontinuous envelopes.
  */
 const layerClips: (id: string, clips: IAutoMovieMotion [ ]) => IAutoMovieMotion = (
   id: string,
@@ -168,9 +149,8 @@ const layerClips: (id: string, clips: IAutoMovieMotion [ ]) => IAutoMovieMotion 
       bezier: null,
     };
   });
-  // Disjoint regions mean at most ONE clip strides (the root-bearing
-  // locomotion region); its cycle is the layered composite's cycle. Two
-  // striding regions would be ambiguous, so the clock is honestly dropped.
+  // A single stride clock survives layering; multiple clock-bearing clips
+  // are ambiguous and clear the composite clock, even when clocks agree.
   const cycles: IAutoMovieGaitCycle[] = clips
     .map((clip: IAutoMovieMotion) : IAutoMovieGaitCycle | null => clip.gaitCycle ?? null)
     .filter((cycle: IAutoMovieGaitCycle | null) : cycle is IAutoMovieGaitCycle => cycle !== null);
@@ -187,17 +167,9 @@ const layerClips: (id: string, clips: IAutoMovieMotion [ ]) => IAutoMovieMotion 
 
 
 /**
- * Hold rest before a late-starting composite (#1003). A shot samples its
- * performance from t=0 with clamping, which would otherwise replay the first
- * keyframe's pose backward over the pre-action span (a lookAt at 3s aimed from
- * frame 0). The `step` easing holds the rest pose across the whole lead-in
- * segment, so the action still begins exactly at its authored start.
+ * Hold rest before a late-starting composite, preventing clamp sampling from extending its first pose across the lead-in. Step easing holds rest up to the optional short linear boundary segment.
  *
- * A second rest keyframe at `first − ε` closes the expression hole (#1060):
- * expression interpolation ignores easing and carries a segment-end expression
- * at full strength from either endpoint, so the step pad alone held the POSE
- * but let a late emote's face leak back to t=0. With rest at both ends the
- * lead-in segment is null-expression throughout.
+ * A second rest frame keeps both ends of the long lead-in at null expression. The final linear segment can begin pose and neutral-to-expression interpolation up to one BOUNDARY_EPSILON before authored start; exact onset is not guaranteed.
  */
 const padRestLeadIn: (motion: IAutoMovieMotion) => IAutoMovieMotion = (motion: IAutoMovieMotion): IAutoMovieMotion => {
   const first: number = motion.keyframes[0]!.time;

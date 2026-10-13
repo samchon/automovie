@@ -31,12 +31,12 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @param props.digest Digest the bytes must still have, or null when replaced.
  * @returns Success, possibly with the seed warning, or every violation found.
  *
- * @evidence contracts/common.md#principled-implementation Each claim is checked against what would back it: `Number.isSafeInteger` is the exact set of integers a JSON number carries without rounding, the digest form is one lowercase spelling so equal bytes compare equal as strings, and the reproducibility rules are evaluated only after the seed is known to be a real draw.
+ * @evidence contracts/common.md#principled-implementation Number.isSafeInteger admits the integer range whose adjacent seed identities survive JSON-number transport. Digest spelling is lowercase SHA-256, and seed-presence rules run after seed-domain admission; this metadata gate does not execute the provider or certify replay of its bytes.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the acquisition record's honesty rules, using the collector's blank-string rule and the shared digest pattern instead of private copies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No provider or model is special-cased; an irreproducible seed is a warning by contract because it is not a defect in the bytes, and nothing is normalized to pass.
  * @evidence contracts/common.md#meaningful-documentation The documentation states why each rule exists, the seed domain and its precedence, every field rule, the null-digest meaning, the path root, which finding is a warning, and that inputs are not resolved.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the input path count, with constant work for every other field.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one generation record per call; each acquisition is validated once by its caller and nothing is shared.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the input path count plus lengths of strings trimmed or tested; numeric and Boolean fields add constant work. Findings retain rejected values instead of copying asset bytes.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One supplied generation record is checked per call; this gate retains no shared result and makes no equivalence assumption about mutable records.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
 export const validateGeneratedAcquisition: (props: { /** Generation identity recorded for one set of returned bytes. */ acquisition : IAutoMovieGeneratedAcquisition ; /** Digest the returned bytes must still have, or null when a recorded local transformation has since replaced them. */ digest : string | null ; }) => IAutoMovieValidation = (props: {

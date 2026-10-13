@@ -3,7 +3,7 @@ import { IAutoMovieMotion } from "@automovie/interface";
 import { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
 
 /**
- * compilePerformance's actor-keyed clips and every channel removed by body-region masks. Null syntheses have no actor entry; mask reports retain the original action index and actor.
+ * compilePerformance's actor-keyed clips and every channel removed by body-region masks. Actors without a returned clip have no entry; mask reports retain the original action index and actor.
  *
  * @evidence contracts/common.md#principled-implementation A string-keyed record matches downstream per-node motion lookup, and a separate ordered report prevents discarded authored content from being confused with successfully applied content.
  * @evidence contracts/common.md#clear-and-simple-design Keeps timeline output and loss diagnostics in one return value without a status wrapper or extra synthesis pass.
@@ -19,9 +19,9 @@ export interface IAutoMovieCompiledPerformance {
   performances: Record<string, IAutoMovieMotion>;
 
   /**
-   * Every piece of authored content a region mask dropped, ordered by action
-   * index then actor. Empty when every clip fell inside its own region, which
-   * is the ordinary case.
+   * Every action/actor's content removed by its region mask. Traversal follows
+   * first-encounter actor and region order, then placement start and action
+   * index within that region; it is not globally action-index sorted.
    */
   masked: IAutoMovieMaskedContent[];
 }

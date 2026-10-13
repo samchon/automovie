@@ -1,12 +1,7 @@
 import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * One planted-foot stance run the pass detected and pinned: the foot stayed on
- * the ground from `start` to `end` and its model-frame position was held at
- * `position` (its `y` snapped to the ground plane).
- * Prior-beat opening targets may instead supply the authoritative position.
- * start and end use the returned clip's local seconds; positions use its model
- * frame and are shared with the per-frame solve targets.
+ * One inclusive run of sampled ground-plus-tolerance contacts and its fixed model-frame solve target. New targets use sampled ground Y; prior-beat opening pins may supply another position. Reach and ROM constraints can leave residual, so the record does not certify exact held contact. Start/end are clip-local seconds, and position is shared with the per-frame targets.
  *
  * @evidence contracts/common.md#principled-implementation Records a maximal inclusive stance run and one fixed model-frame contact target, matching pinStanceTargets' grouping of adjacent contact samples; a carried opening target preserves beat continuity.
  * @evidence contracts/common.md#clear-and-simple-design Separates compact stance metadata from dense corrected keyframes, so later beat handoff reads one contact per run instead of re-detecting stance.
@@ -28,6 +23,6 @@ export interface IAutoMovieFootPlant {
   /** Inclusive stance-run end, seconds. */
   end: number;
 
-  /** Fixed model-frame contact; ground-snapped unless an opening pin supplied it. */
+  /** Fixed model-frame solve target; ground-snapped unless an opening pin supplied it. */
   position: IAutoMovieVector3;
 }

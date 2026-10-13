@@ -31,7 +31,7 @@ const assertFiniteQuaternion: (label: string, quaternion: IAutoMovieQuaternion) 
  *
  * @evidence contracts/common.md#principled-implementation Global-time translation keeps travel continuous across repeated seams; incoming first-segment easing replaces the retained seam easing, and optional facing composes before travel is added.
  * @evidence contracts/common.md#clear-and-simple-design One loop owns cycle repetition, root placement and stride-clock carry; the locomotion caller determines speed and cycle count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid cycles, velocity and facing are rejected before baking; empty or otherwise malformed base clips remain outside the admitted-motion premise, and output growth has no arbitrary choreography cap.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsafe or nonpositive cycles and nonfinite velocity or facing components are rejected before baking. Unit-quaternion facing and nonempty valid base clips remain caller admission premises; output growth has no arbitrary choreography cap.
  * @evidence contracts/common.md#meaningful-documentation States motion-frame metres/second, cycle admission, facing composition, seam behavior and fallback identity ownership.
  * @evidence contracts/performance.md#efficient-algorithms For C cycles and K base keyframes, O(CK) time and output storage are required to bake every repeated keyframe; there is no continuous physics integration.
  * @evidence contracts/performance.md#reuse-equivalent-work Base articulation and authored root values remain borrowed, while fallback identity values are fresh per output root; gait metadata is carried once rather than recalculated.
