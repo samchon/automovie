@@ -77,11 +77,11 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one reference per call that coordinates no shared work; `promoteDesignObservations` calls it once per promotion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, frame and candidate indexes and the producing-analysis map are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignReference = (props: {
+export const validateDesignReference: (props: { /** Observed design reference to validate. */ reference : IAutoMovieDesignReference ; }) => IAutoMovieValidation = (props: {
   /** Observed design reference to validate. */
   reference: IAutoMovieDesignReference;
 }): IAutoMovieValidation => {
-  const { reference } = props;
+  const reference: IAutoMovieDesignReference = props.reference;
   const out: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
@@ -361,7 +361,7 @@ export const validateDesignReference = (props: {
 };
 
 /** One primitive: its frame, family, point count, points and literal text. */
-const validatePrimitive = (
+const validatePrimitive: (primitive: IAutoMovieObservedPrimitive, owner: IAutoMovieDesignSourceFrame | undefined, path: string, out: ViolationCollector) => void = (
   primitive: IAutoMovieObservedPrimitive,
   owner: IAutoMovieDesignSourceFrame | undefined,
   path: string,
@@ -440,7 +440,7 @@ const validatePrimitive = (
 };
 
 /** One issue: a known kind, a detail, and subjects that resolve once each. */
-const validateIssue = (
+const validateIssue: (issue: IAutoMovieDesignIssue, primitiveIds: ReadonlySet < string >, candidateIds: ReadonlySet < string >, path: string, out: ViolationCollector) => void = (
   issue: IAutoMovieDesignIssue,
   primitiveIds: ReadonlySet<string>,
   candidateIds: ReadonlySet<string>,

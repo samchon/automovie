@@ -48,7 +48,7 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * @param tolerance Absolute comparison tolerance, as described above.
  * @returns The classified changes and the unchanged summary.
  *
- * @evidence contracts/common.md#principled-implementation Matches subjects by stable address and compares a placement projection and a shape projection with a structural, tolerance-aware equality that treats quaternions as rotations, so `q` and `-q` compare equal; prototype draws are counted with the same weighted selection the member regenerator uses, and an explicit member naming a prototype its table lacks is recognized by table membership before selecting.
+ * @evidence contracts/common.md#principled-implementation Matches stable subject addresses and compares placement and shape projections with tolerance-aware equality, including quaternion sign equivalence. Slot selections use the runtime weighted draw and JSON tuples of selection status, prototype and model, so delimiters inside ids cannot merge distinct identities; absent explicit prototypes are detected by table membership.
  * @evidence contracts/common.md#clear-and-simple-design The diff owns classification and fan-out only; descriptions come from `describeAutoMovieSubjects`, addresses from `autoMovieSubjectAddress`, paging from `autoMovieSubjectMemberSummary`, and the prototype table rule from `instancePrototypeChoices`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or model is special-cased; a missing explicit prototype is keyed as missing by an explicit membership test instead of by matching the text of the selection's error, and environment-owned models are compared like compiled ones.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the exclusivity rules, what placement and shape mean per kind, how each fan-out count is formed and from which revision, the tolerance and its rotation metric, the matching and ordering, the unchanged summary, and the failure.
@@ -56,7 +56,7 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each revision's inventory, record indexes and model usage table are built once and shared by every subject compared; usage is computed only when a prototype or part change needs it, and nothing is kept across calls because the artifacts are the caller's values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The inventories, indexes and usage tables are local to the call and released on return, bounded by each artifact's subjects, models and sets; the returned diff holds descriptions of changed subjects and one bounded unchanged sample.
  */
-export const diffAutoMovieSubjects = (
+export const diffAutoMovieSubjects: (beforeArtifact: IAutoMovieSubjectArtifact, afterArtifact: IAutoMovieSubjectArtifact, tolerance?: number) => IAutoMovieSubjectDiff = (
   beforeArtifact: IAutoMovieSubjectArtifact,
   afterArtifact: IAutoMovieSubjectArtifact,
   tolerance: number = AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
@@ -141,7 +141,7 @@ interface IModelUsage {
   sets: string[];
 }
 
-const indexRevision = (artifact: IAutoMovieSubjectArtifact): IRevision => {
+const indexRevision: (artifact: IAutoMovieSubjectArtifact) => IRevision = (artifact: IAutoMovieSubjectArtifact): IRevision => {
   const models: Map<string, IAutoMovieModel> = new Map();
   const records: Map<string, IAutoMovieBuildingUnit | IAutoMovieBuiltSpace> =
     new Map();
@@ -187,14 +187,14 @@ const indexRevision = (artifact: IAutoMovieSubjectArtifact): IRevision => {
   };
 };
 
-const placementOf = (description: IAutoMovieSubjectDescription): unknown => ({
+const placementOf: (description: IAutoMovieSubjectDescription) => unknown = (description: IAutoMovieSubjectDescription): unknown => ({
   transform: description.transform,
   owner: description.owner,
   space: description.space,
   prototype: description.prototype,
 });
 
-const shapeOf = (
+const shapeOf: (revision: IRevision, description: IAutoMovieSubjectDescription) => unknown = (
   revision: IRevision,
   description: IAutoMovieSubjectDescription,
 ): unknown => {
@@ -238,7 +238,7 @@ const shapeOf = (
   return revision.records.get(description.id);
 };
 
-const changeOf = (
+const changeOf: (previous: IAutoMovieSubjectDescription | null, next: IAutoMovieSubjectDescription | null, before: IRevision, after: IRevision) => IAutoMovieSubjectChange = (
   previous: IAutoMovieSubjectDescription | null,
   next: IAutoMovieSubjectDescription | null,
   before: IRevision,
@@ -254,7 +254,7 @@ const changeOf = (
   };
 };
 
-const fanoutOf = (
+const fanoutOf: (description: IAutoMovieSubjectDescription, previous: IAutoMovieSubjectDescription | null, next: IAutoMovieSubjectDescription | null, before: IRevision, after: IRevision) => IAutoMovieSubjectDiffFanout = (
   description: IAutoMovieSubjectDescription,
   previous: IAutoMovieSubjectDescription | null,
   next: IAutoMovieSubjectDescription | null,
@@ -303,10 +303,10 @@ const fanoutOf = (
  * Every runtime model's elements, compact members and drawing sets in one
  * revision, computed on first use by regenerating each slot's selection once.
  */
-const usageOf = (revision: IRevision): Map<string, IModelUsage> => {
+const usageOf: (revision: IRevision) => Map < string , IModelUsage > = (revision: IRevision): Map<string, IModelUsage> => {
   if (revision.usage !== null) return revision.usage;
   const usage: Map<string, IModelUsage> = new Map();
-  const entry = (model: string): IModelUsage => {
+  const entry: (model: string) => IModelUsage = (model: string): IModelUsage => {
     let found: IModelUsage | undefined = usage.get(model);
     if (found === undefined) {
       found = { elements: 0, instances: 0, sets: [] };
@@ -331,7 +331,7 @@ const usageOf = (revision: IRevision): Map<string, IModelUsage> => {
   return usage;
 };
 
-const changedPrototypeSelections = (
+const changedPrototypeSelections: (before: IAutoMovieCompiledInstanceSet, after: IAutoMovieCompiledInstanceSet) => number = (
   before: IAutoMovieCompiledInstanceSet,
   after: IAutoMovieCompiledInstanceSet,
 ): number => {
@@ -352,7 +352,7 @@ const changedPrototypeSelections = (
  * prototype its table lacks is read as that missing prototype, which equals
  * only the same missing name in another revision, and draws no model.
  */
-const selectedPrototype = (
+const selectedPrototype: (set: IAutoMovieCompiledInstanceSet, slot: number) => { key : string ; model : string | null } = (
   set: IAutoMovieCompiledInstanceSet,
   slot: number,
 ): { key: string; model: string | null } => {
@@ -367,7 +367,7 @@ const selectedPrototype = (
         choice.id === explicit,
     )
   )
-    return { key: `missing:${explicit}`, model: null };
+    return { key: JSON.stringify(["missing", explicit]), model: null };
   const selected:
     | IAutoMovieCompiledInstancePrototype
     | Pick<
@@ -376,7 +376,7 @@ const selectedPrototype = (
       > = selectInstancePrototype(set, slot, explicit);
   const model: string | null =
     ("lod" in selected ? selected.lod : set.lod)[0]?.model ?? null;
-  return { key: `${selected.id}:${String(model)}`, model };
+  return { key: JSON.stringify(["selected", selected.id, model]), model };
 };
 
 /**
@@ -385,7 +385,7 @@ const selectedPrototype = (
  * element by element; records compare every key either side defines, ignoring
  * keys that are `undefined` on both.
  */
-const tolerantEqual = (
+const tolerantEqual: (left: unknown, right: unknown, tolerance: number) => boolean = (
   left: unknown,
   right: unknown,
   tolerance: number,
@@ -437,7 +437,7 @@ const tolerantEqual = (
   return true;
 };
 
-const isQuaternion = (
+const isQuaternion: (value: unknown) => value is { x : number ; y : number ; z : number ; w : number } = (
   value: unknown,
 ): value is { x: number; y: number; z: number; w: number } => {
   if (value === null || typeof value !== "object" || Array.isArray(value))

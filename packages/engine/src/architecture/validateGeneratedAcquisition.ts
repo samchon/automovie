@@ -39,7 +39,7 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one generation record per call; each acquisition is validated once by its caller and nothing is shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
-export const validateGeneratedAcquisition = (props: {
+export const validateGeneratedAcquisition: (props: { /** Generation identity recorded for one set of returned bytes. */ acquisition : IAutoMovieGeneratedAcquisition ; /** Digest the returned bytes must still have, or null when a recorded local transformation has since replaced them. */ digest : string | null ; }) => IAutoMovieValidation = (props: {
   /** Generation identity recorded for one set of returned bytes. */
   acquisition: IAutoMovieGeneratedAcquisition;
 
@@ -49,7 +49,7 @@ export const validateGeneratedAcquisition = (props: {
    */
   digest: string | null;
 }): IAutoMovieValidation => {
-  const { acquisition } = props;
+  const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
   const out: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
   out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");

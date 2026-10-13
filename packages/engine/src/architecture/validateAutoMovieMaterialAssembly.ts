@@ -65,7 +65,7 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
  */
-export const validateAutoMovieMaterialAssembly = (props: {
+export const validateAutoMovieMaterialAssembly: (props: { /** Layered build-up to judge. */ assembly : IAutoMovieMaterialAssembly ; /** Substances the layers may cite; omitted skips reference resolution. */ substances ? : readonly IAutoMovieMaterialSubstance [ ] ; /** Host dimension the layers must sum to; omitted skips the comparison. */ host ? : IAutoMovieAssemblyHost ; }) => IAutoMovieValidation = (props: {
   /** Layered build-up to judge. */
   assembly: IAutoMovieMaterialAssembly;
 
@@ -75,7 +75,7 @@ export const validateAutoMovieMaterialAssembly = (props: {
   /** Host dimension the layers must sum to; omitted skips the comparison. */
   host?: IAutoMovieAssemblyHost;
 }): IAutoMovieValidation => {
-  const { assembly } = props;
+  const assembly: IAutoMovieMaterialAssembly = props.assembly;
   const collector: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
@@ -232,7 +232,7 @@ export const validateAutoMovieMaterialAssembly = (props: {
  * it; both are defects, and naming them apart is what tells the author whether
  * to delete a layer or move it.
  */
-const appendFinishDefects = (
+const appendFinishDefects: (assembly: IAutoMovieMaterialAssembly, collector: ViolationCollector, root: string) => void = (
   assembly: IAutoMovieMaterialAssembly,
   collector: ViolationCollector,
   root: string,
@@ -288,7 +288,7 @@ const appendFinishDefects = (
  * buried wrap would otherwise be counted into the finished opening size and
  * quietly narrow a door nothing actually lines.
  */
-const appendWrapDefects = (
+const appendWrapDefects: (layers: readonly IAutoMovieMaterialLayer [ ], collector: ViolationCollector, root: string) => void = (
   layers: readonly IAutoMovieMaterialLayer[],
   collector: ViolationCollector,
   root: string,

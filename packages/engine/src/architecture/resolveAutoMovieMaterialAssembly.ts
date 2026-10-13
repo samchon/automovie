@@ -45,7 +45,7 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one build-up that coordinates no work across calls; callers that place the same build-up repeatedly own any caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record, one resolved layer per input layer, which the caller owns; nothing else outlives the call.
  */
-export const resolveAutoMovieMaterialAssembly = (props: {
+export const resolveAutoMovieMaterialAssembly: (props: { /** Layered build-up to place; validated before any position is computed. */ assembly : IAutoMovieMaterialAssembly ; /** Substances the layers may cite; omitted skips reference resolution. */ substances ? : readonly IAutoMovieMaterialSubstance [ ] ; /** Host dimension the layers must sum to; omitted skips the comparison. */ host ? : IAutoMovieAssemblyHost ; }) => IAutoMovieResolvedAssembly = (props: {
   /** Layered build-up to place; validated before any position is computed. */
   assembly: IAutoMovieMaterialAssembly;
 
@@ -63,7 +63,7 @@ export const resolveAutoMovieMaterialAssembly = (props: {
       `material assembly "${props.assembly.id}" is invalid at ${first.path}: ${first.expected}`,
     );
   }
-  const { assembly } = props;
+  const assembly: IAutoMovieMaterialAssembly = props.assembly;
   const direction: number = assembly.sense === "positive" ? 1 : -1;
   let cursor: number = assembly.offset;
   let total: number = 0;

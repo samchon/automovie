@@ -69,15 +69,15 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * @evidence contracts/common.md#clear-and-simple-design The orchestrator of building validation: each section with rules of its own lives in its own `validateBuilt*` function, and the shared id, reference, cycle, outline and region rules come from their owners, so this file states the order, the cross-section references, the opening voids and the staging gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No building, kind or id is special-cased; a defect already reported is not compounded, so an opening on an unusable face is not also reported as leaving it, and staged checks wait for an error-free record instead of guarding each unusable input.
  * @evidence contracts/common.md#meaningful-documentation The documentation lists every section in order, the staging gate and what it runs, the path root and warnings, that nothing throws, and which consumers refuse a rejected record.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the record's declarations and references through id sets, plus pairwise void overlap among the openings of the work, the quadratic simplicity test of each small outline, and one staging per operating state in the staged checks.
+ * @evidence contracts/performance.md#efficient-algorithms Id indexes make reference checks linear in declarations and references; opening overlap is pairwise, planar containment resolves vertex contacts, and simplicity scans edge pairs. Staged validation checks individual states and Cartesian named-state assignments only among operations affecting the same element, with exponential worst-case cost in interacting operations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one record per call; lowering and every query validate the record they are handed, and nothing is cached because the record is the caller's mutable value.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, face and hull maps and the work-wide driven-element table are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateBuiltEnvironment = (props: {
+export const validateBuiltEnvironment: (props: { /** Building record to validate. */ environment : IAutoMovieBuiltEnvironment ; }) => IAutoMovieValidation = (props: {
   /** Building record to validate. */
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieValidation => {
-  const { environment } = props;
+  const environment: IAutoMovieBuiltEnvironment = props.environment;
   const collector: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
@@ -367,7 +367,7 @@ export const validateBuiltEnvironment = (props: {
  * Append a nested validation's findings, warnings included, re-rooting each
  * `$input` path onto this record.
  */
-const appendNested = (
+const appendNested: (collector: ViolationCollector, validation: IAutoMovieValidation, reroot: ( path : string ) => string) => void = (
   collector: ViolationCollector,
   validation: IAutoMovieValidation,
   reroot: (path: string) => string,

@@ -59,7 +59,7 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one reference and floor that coordinates no work across calls; the reference is the caller's value, so no promotion is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The frame, primitive, issue and producer indexes are local and released on return, each bounded by its record count; the caller owns the returned promotion, whose outlines are bounded by the promoted candidates' points.
  */
-export const promoteDesignObservations = (props: {
+export const promoteDesignObservations: (props: { /** Observed reference whose candidates are judged; validated before use. */ reference : IAutoMovieDesignReference ; /** Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a certain reading promotes unless the caller consciously lowers the bar. */ minimumConfidence ? : number ; }) => IAutoMovieDesignPromotion = (props: {
   /** Observed reference whose candidates are judged; validated before use. */
   reference: IAutoMovieDesignReference;
 
@@ -131,7 +131,7 @@ export const promoteDesignObservations = (props: {
   }
 
   for (const candidate of reference.candidates) {
-    const withhold = (
+    const withhold: (reason: IAutoMovieDesignWithholding [ "reason" ], detail: string) => void = (
       reason: IAutoMovieDesignWithholding["reason"],
       detail: string,
     ): void => {

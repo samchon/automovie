@@ -47,7 +47,7 @@ const SUPPORT_TOLERANCE: number = 1e-6;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A one-shot gate over one world layout that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only per-test footprint corners and closest points and retains nothing; it returns nothing and throws on the first contradiction.
  */
-export const assertWorldPlacements = (input: {
+export const assertWorldPlacements: (input: { /** Static world masses, as axis-aligned world boxes. */ blocks : readonly IAutoMovieWorldBlock [ ] ; /** Terrain and floor surfaces that may support a block or hold a landmark. */ surfaces : readonly IAutoMovieWorldSurface [ ] ; /** Routes whose segments, widened by half their formation width, must clear every block. */ routes : readonly IAutoMovieWorldRoute [ ] ; /** Points of interest that must be reachable from walkable ground or a route. */ landmarks : readonly IAutoMovieWorldLandmark [ ] ; }) => void = (input: {
   /** Static world masses, as axis-aligned world boxes. */
   blocks: readonly IAutoMovieWorldBlock[];
 
@@ -121,7 +121,7 @@ export const assertWorldPlacements = (input: {
 };
 
 /** Whether two boxes share interior volume; touching faces do not count. */
-const overlaps = (
+const overlaps: (left: IAutoMovieWorldBlock, right: IAutoMovieWorldBlock) => boolean = (
   left: IAutoMovieWorldBlock,
   right: IAutoMovieWorldBlock,
 ): boolean =>
@@ -133,7 +133,7 @@ const overlaps = (
   left.bounds.max.z > right.bounds.min.z;
 
 /** Whether a surface carries a block's whole footprint at the block's base. */
-const surfaceSupportsBlock = (
+const surfaceSupportsBlock: (surface: IAutoMovieWorldSurface, block: IAutoMovieWorldBlock) => boolean = (
   surface: IAutoMovieWorldSurface,
   block: IAutoMovieWorldBlock,
 ): boolean => {
@@ -167,7 +167,7 @@ const surfaceSupportsBlock = (
     )
   )
     return false;
-  const plan = (point: { x: number; z: number }): IAutoMoviePlanarPoint => ({
+  const plan: (point: { x : number ; z : number }) => IAutoMoviePlanarPoint = (point: { x: number; z: number }): IAutoMoviePlanarPoint => ({
     x: point.x,
     y: point.z,
   });
@@ -193,7 +193,7 @@ const surfaceSupportsBlock = (
  * Whether a plan segment enters a block footprint widened by `padding`, by
  * clipping the segment's parameter range against the X and Z slabs.
  */
-const segmentIntersectsBounds = (
+const segmentIntersectsBounds: (from: { x : number ; z : number }, to: { x : number ; z : number }, bounds: IAutoMovieWorldBlock [ "bounds" ], padding: number) => boolean = (
   from: { x: number; z: number },
   to: { x: number; z: number },
   bounds: IAutoMovieWorldBlock["bounds"],

@@ -35,7 +35,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one citation list per call that coordinates no shared work across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The document index and the seen-key set are local and released on return, bounded by the candidate and citation counts; the returned validation holds the findings.
  */
-export const validateDesignEvidence = (props: {
+export const validateDesignEvidence: (props: { /** Observed documents the citations may point at, keyed by their `id`. */ references : readonly IAutoMovieDesignReference [ ] ; /** Authored citations from building subjects to observed candidates. */ evidence : readonly IAutoMovieDesignEvidence [ ] ; }) => IAutoMovieValidation = (props: {
   /** Observed documents the citations may point at, keyed by their `id`. */
   references: readonly IAutoMovieDesignReference[];
 

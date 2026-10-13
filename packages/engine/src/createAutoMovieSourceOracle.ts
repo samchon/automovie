@@ -44,7 +44,7 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers are regenerated per question by design, because a compact slot is cheaper to recompute than to store and the records may change between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned oracle retains references to the three props for as long as the caller holds it and copies nothing; it allocates only per-answer results, which the caller owns.
  */
-export const createAutoMovieSourceOracle = (props: {
+export const createAutoMovieSourceOracle: (props: { /** World whose surfaces answer ground height. */ world : Pick < IAutoMovieWorldDesign , "surfaces" > ; /** Compiled formation runtimes keyed by formation id. */ formationRuntime : Readonly < Record < string , IAutoMovieCompiledFormation > > ; /** Compiled instance-set runtimes keyed by set id. */ instanceSetRuntime : Readonly < Record < string , IAutoMovieCompiledInstanceSet > > ; }) => IAutoMovieSourceOracle = (props: {
   /** World whose surfaces answer ground height. */
   world: Pick<IAutoMovieWorldDesign, "surfaces">;
 

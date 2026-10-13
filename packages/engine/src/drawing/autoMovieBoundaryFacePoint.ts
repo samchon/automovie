@@ -35,7 +35,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-point map that coordinates no work across calls; callers place each outline point once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the local offset and the returned point, and retains nothing.
  */
-export const autoMovieBoundaryFacePoint = (
+export const autoMovieBoundaryFacePoint: (face: IAutoMovieBoundaryFace, point: IAutoMoviePlanarPoint, depth?: number) => IAutoMovieVector3 = (
   face: IAutoMovieBoundaryFace,
   point: IAutoMoviePlanarPoint,
   depth: number = 0,

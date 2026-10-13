@@ -64,11 +64,11 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one record per call; every lineage query validates its input once before answering, and nothing here is shared across those calls because the record is the caller's mutable value.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, the phase and variant indexes and each prerequisite walk are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignLineage = (props: {
+export const validateDesignLineage: (props: { /** Lineage record to validate. */ lineage : IAutoMovieDesignLineage ; }) => IAutoMovieValidation = (props: {
   /** Lineage record to validate. */
   lineage: IAutoMovieDesignLineage;
 }): IAutoMovieValidation => {
-  const { lineage } = props;
+  const lineage: IAutoMovieDesignLineage = props.lineage;
   const out: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
@@ -406,7 +406,7 @@ export const validateDesignLineage = (props: {
  * repeat that one defect as an ordering complaint. A cycle terminates because
  * each phase is entered once.
  */
-const phasesBefore = (
+const phasesBefore: (phasesById: ReadonlyMap < string , IAutoMovieDesignPhase >, phase: string) => Set < string > = (
   phasesById: ReadonlyMap<string, IAutoMovieDesignPhase>,
   phase: string,
 ): Set<string> => {
