@@ -9,10 +9,17 @@ import type { IAutoMovieHumanPersonSkinPlan } from "./IAutoMovieHumanPersonSkinP
 import type { IAutoMovieHumanPersonSourceNormalInput } from "./IAutoMovieHumanPersonSourceNormalInput";
 
 /**
- * Everything a one-skin generation fixes before any document: the admitted
- * views, the shared-sample plan, the body's rest rows at the shared and band
- * vertices, the neutral head anchor, aliases and drivers, and the region
- * corner tables. The full evaluator and the rest reader both read it.
+ * Document-invariant context for the registered full evaluator and source-rest readers: admitted generation correspondence, optional transient band face view, shared sample plan, compact metre rest rows, neutral eye anchor, aliases/drivers, body region corner maps and one normal-field reader. Source normal compilation captures admitted partition copies; faceSource/bodySource and unchanged generation/plan members still borrow source records. Mutable arrays/maps and closures require unchanged source context rather than relying on runtime freeze.
+ *
+ * This context establishes source chart/weight correspondence under compiler checks. It does not establish clinical head/body proportion, global embeddedness, current GPU appearance or equivalence of rest shortcuts to omitted full stages.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual shared sample identities, source/band rest operands and source-normal correspondence expose one generation's invariant inputs to both evaluator routes.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical generation/skin/source schemas hold their separate domains while indices, compact rest rows and region maps name existing consumer seams.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Borrowed source partitions are not falsely called detached/frozen, and source metadata admission is not promoted into clinical, global geometry or rendered qualification.
+ * @evidence contracts/common.md#meaningful-documentation Prose states metre/rest timing, copied versus borrowed context, mutable plan/cache premises and full/rest qualification boundary.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This context type runs no compilation, correspondence scan or normal evaluation; concrete owners execute those algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Compile-once table reuse is evaluator/compiler behavior rather than a cache implemented by the interface.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Declaring context acquires no source fetch, worker or handle; the actual containing builder/caller owns borrowed source and compiled buffer lifetime.
  *
  * @author Samchon
  */
@@ -60,7 +67,15 @@ export interface IAutoMovieHumanPersonCompiledGeneration {
   bodyRegions: ReadonlyMap<string, readonly number[]>;
 
   /**
-   * The one normal field over both halves.
+   * Read the source-normal field over both halves from actual performed metre fields and, when required, their same-generation reference. Returned normals are dimensionless owned coordinates; source incidence/callback purity and unchanged compiled context remain concrete owner premises.
+   *
+   * @evidence contracts/common.md#principled-implementation Matching performed source halves and explicit required reference address the single canonical shading field used by assembled skin parts.
+   * @evidence contracts/common.md#clear-and-simple-design The callback exposes the existing source normal owner while geometry/chart admission and cofactor transport stay in their implementations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Required reference is not replaced by invented neutral data, and shading/source validity alone supplies no clinical volume mechanics or current visual proof.
+   * @evidence contracts/common.md#meaningful-documentation Prose states actual metre inputs, dimensionless output, same-generation reference and owner purity/lifetime premises.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This erased function property runs no source-cell or star traversal; its compiled implementation owns actual costs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Normal plan/query reuse is the concrete field owner's behavior rather than memoization in this signature.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature acquires no field buffer or task; returned arrays and actual compiled closures follow caller/builder lifetime.
    */
   sourceNormals: (input: IAutoMovieHumanPersonSourceNormalInput) => number[];
 }

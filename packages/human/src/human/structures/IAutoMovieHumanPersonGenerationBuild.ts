@@ -4,17 +4,17 @@ import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieH
 import type { IAutoMovieHumanPersonBoundaryReading } from "./IAutoMovieHumanPersonBoundaryReading";
 
 /**
- * One evaluation of a person document by the one-skin evaluator.
+ * Registered generation output in common posed metre Y-up/+Z-forward coordinates. Face:/body: parts/materials share canonical source boundary positions and one source normal field where emitted. Generation assembly uses existing complementary cells without legacy cut/collar/stitch/fair stages. Actual resident validation executes in the producer; this carrier supplies no global embeddedness, clinical proportion or current visual guarantee.
  *
- * `model` is the whole person as one static resident model: face parts and
- * materials under `face:` names, body parts under `body:` names, posed, in
- * the shared metre, Y-up, +Z-forward frame. The two skin halves are the head
- * and body cells of one skin; each shared boundary sample has one position
- * and one normal in every part that has it. Without registered skin layers,
- * `body` retains its independent evaluation of the derived body document.
- * With layers, its skin, garment and layers use the final formed body exterior.
- * `boundary` reads what the two
- * partitions' fields asked of the boundary.
+ * Without registered layers, body retains its independent derived-document evaluation; with layers, its skin/garment/layers use the final formed body exterior. SourceSkinModel, when present, retains joined parts before fabric material partition/lift in the same final placed frame, including actual other emitted parts. Ordinary runtime packing/export reads model. Boundary scalars instead report requested pre-pose source fields, not final posed adjacent-ring clearance bounds.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual registered source cells/rig and shared normal field produce distinct final person, source observation and body evaluation outputs without legacy seam fitting.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical model/body/bone/boundary records separate final emission, optional source observation and rig/source-field receipts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts SourceSkinModel is not called a separately authored asset or legacy neck-stitch result, and shared field metadata does not establish global/clinical or current GPU acceptance.
+ * @evidence contracts/common.md#meaningful-documentation Prose states metre frame, namespace prefixes, layer-dependent body output, pre-fabric source observation and pre-pose boundary scope.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This output schema executes no shared skin/normal, layer or resident validation work; the registered builder owns those algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runtime/source observation reuse of one result is consumer behavior rather than a cache implemented by this carrier.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Declaring model references acquires no renderer or source task; actual build/caller owners control final/source/body buffer lifetime.
  *
  * @author Samchon
  */
@@ -23,11 +23,7 @@ export interface IAutoMovieHumanPersonGenerationBuild {
   model: IAutoMovieModel;
 
   /**
-   * The same final joined evaluation before its garment material partition.
-   * Positions, unit normals, physical sample identities and ground placement
-   * retain the model's final frame and neck stitching. Omission means model
-   * still contains that complete source-region population. This derived
-   * observation model is not rendered, exported or authored separately.
+   * Same joined parts before garment material partition/lift, retaining actual final placed frame and source correspondence without a legacy neck-stitch stage. When omitted, consumers use model's source-region population under its owner contract; ordinary runtime output remains model.
    */
   sourceSkinModel?: IAutoMovieModel;
 
