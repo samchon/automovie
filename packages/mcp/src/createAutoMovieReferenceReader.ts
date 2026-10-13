@@ -1,125 +1,19 @@
 import type { AutoMovieAuthoredDocumentLayer } from "@automovie/evidence";
-import { type BigIntStats, constants } from "node:fs";
-import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import {
-  MAX_FILES,
   MAX_SOURCE_BYTES,
-  ReferenceError,
   fail,
 } from "./internal/referenceError";
 import { admitReferencePath, validComponent } from "./internal/referencePath";
 import type { IAutoMovieReferenceReader } from "./structures/IAutoMovieReference";
-
-/**
- * The observed identity needed to reject links, substitutions and concurrent writes.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Distinguishes a physical single-link file from an alias or changed source.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Carries device, inode, link count and write metadata for pathname and handle comparisons.
- * @author Samchon
- */
-export interface IAutoMovieReferenceIdentity {
-  /** Physical entry type without following a symbolic link. */
-  kind: "file" | "directory" | "link" | "other";
-  /** Device identifier on the observation's pathname or descriptor basis. */
-  device: bigint;
-  /** Inode/file identifier on that device. */
-  inode: bigint;
-  /** Physical link count; authored files require exactly one. */
-  links: bigint;
-  /** Observed byte extent, bounded before allocating the read buffer. */
-  size: bigint;
-  /** Nanosecond content-modification time. */
-  modified: bigint;
-  /** Nanosecond metadata-change time, subject to native own-open semantics. */
-  changed: bigint;
-}
-
-/**
- * Read-only physical operations injected independently of the reference policy.
- *
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Restricts the physical adapter to metadata, enumeration and a bounded read-only handle.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Makes namespace and handle identity checks exercisable without filesystem fixtures.
- * @author Samchon
- */
-export interface IAutoMovieReferenceFileSystem {
-  /** Native observation semantics; injected readers default to strict metadata. */
-  readonly platform?: NodeJS.Platform;
-  /** Observe the pathname entry itself, never its symbolic-link target. */
-  lstat(location: string): Promise<IAutoMovieReferenceIdentity>;
-  /** Resolve physical ancestry for comparison with the declared pathname. */
-  realpath(location: string): Promise<string>;
-  /** Enumerate one directory without reading child contents. */
-  list(location: string): Promise<readonly string[]>;
-  /** Hold one read-only source descriptor until verification and close finish. */
-  open(location: string): Promise<{
-    /** Observe metadata through this held descriptor. */
-    stat(): Promise<IAutoMovieReferenceIdentity>;
-    /** Read at most the requested extent plus one overflow-detection byte. */
-    read(maximum: number): Promise<Uint8Array>;
-    /** Release this descriptor, including when admission or reading fails. */
-    close(): Promise<void>;
-  }>;
-}
-
-const identity = (entry: BigIntStats): IAutoMovieReferenceIdentity => ({
-  kind: entry.isSymbolicLink()
-    ? "link"
-    : entry.isDirectory()
-      ? "directory"
-      : entry.isFile()
-        ? "file"
-        : "other",
-  device: entry.dev,
-  inode: entry.ino,
-  links: entry.nlink,
-  size: entry.size,
-  modified: entry.mtimeNs,
-  changed: entry.ctimeNs,
-});
-
-/**
- * Adapt Node-compatible read primitives to bounded physical source observations.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-isolation Opens source handles read-only and exposes no mutation primitive.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation Maps lstat and handle identities and reads at most one byte beyond the configured ceiling.
- */
-export function createAutoMovieReferenceFileSystem(
-  native: Pick<typeof fs, "lstat" | "realpath" | "readdir" | "open"> = fs,
-): IAutoMovieReferenceFileSystem {
-  return {
-    platform: process.platform,
-    lstat: async (location) =>
-      identity(await native.lstat(location, { bigint: true })),
-    realpath: native.realpath,
-    list: native.readdir,
-    open: async (location) => {
-      const handle = await native.open(
-        location,
-        constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0),
-      );
-      return {
-        stat: async () => identity(await handle.stat({ bigint: true })),
-        read: async (maximum) => {
-          const bytes = Buffer.alloc(maximum + 1);
-          let length = 0;
-          while (length < bytes.length) {
-            const read = await handle.read(
-              bytes,
-              length,
-              bytes.length - length,
-              length,
-            );
-            if (read.bytesRead === 0) break;
-            length += read.bytesRead;
-          }
-          return Buffer.from(bytes.subarray(0, length));
-        },
-        close: () => handle.close(),
-      };
-    },
-  };
-}
+import { createAutoMovieReferenceFileSystem } from "./createAutoMovieReferenceFileSystem";
+import type { IAutoMovieReferenceFileSystem } from "./structures/IAutoMovieReferenceFileSystem";
+import type { IAutoMovieReferenceIdentity } from "./structures/IAutoMovieReferenceIdentity";
+import { admitReferenceInventoryIdentity } from "./internal/admitReferenceInventoryIdentity";
+import { appendReferenceInventoryFile } from "./internal/appendReferenceInventoryFile";
+import { observeInitialReferenceLayer } from "./internal/observeInitialReferenceLayer";
+import { resolveReferenceIoFailure } from "./internal/resolveReferenceIoFailure";
 
 const sameNode = (
   a: IAutoMovieReferenceIdentity,
@@ -133,30 +27,6 @@ const sameFile = (
   a.size === b.size &&
   a.modified === b.modified &&
   a.changed === b.changed;
-
-function ioFailure(error: unknown): never {
-  if (error instanceof ReferenceError) throw error;
-  const code =
-    error !== null && typeof error === "object" && "code" in error
-      ? error.code
-      : null;
-  if (code === "ENOENT")
-    return fail(
-      "MISSING_FILE",
-      "The requested file or directory does not exist.",
-    );
-  if (code === "EACCES" || code === "EPERM")
-    return fail(
-      "PERMISSION_DENIED",
-      "The bound production does not permit this read.",
-    );
-  if (code === "ELOOP" || code === "ENOTDIR")
-    return fail(
-      "PATH_IDENTITY_CHANGED",
-      "The path is linked, replaced or no longer a physical directory.",
-    );
-  return fail("IO_ERROR", "The physical reference read failed.");
-}
 
 /**
  * Bind an absolute production root to a stateless, physically checked Markdown reader.
@@ -184,10 +54,10 @@ export async function createAutoMovieReferenceReader(
       "INVALID_ROOT",
       "Bind an absolute, normalized production root at startup.",
     );
-  const rootIdentity = await io.lstat(root).catch(ioFailure);
+  const rootIdentity = await io.lstat(root).catch(resolveReferenceIoFailure);
   if (
     rootIdentity.kind !== "directory" ||
-    path.relative(root, await io.realpath(root).catch(ioFailure)) !== ""
+    path.relative(root, await io.realpath(root).catch(resolveReferenceIoFailure)) !== ""
   )
     fail(
       "PATH_IDENTITY_CHANGED",
@@ -203,10 +73,10 @@ export async function createAutoMovieReferenceReader(
   let ancestor = rootPath;
   for (const segment of ["", ...rootSegments]) {
     ancestor = path.join(ancestor, segment);
-    const entry = await io.lstat(ancestor).catch(ioFailure);
+    const entry = await io.lstat(ancestor).catch(resolveReferenceIoFailure);
     if (
       entry.kind !== "directory" ||
-      path.relative(ancestor, await io.realpath(ancestor).catch(ioFailure)) !==
+      path.relative(ancestor, await io.realpath(ancestor).catch(resolveReferenceIoFailure)) !==
         ""
     )
       fail(
@@ -365,7 +235,7 @@ export async function createAutoMovieReferenceReader(
           await handle.close();
         }
       } catch (error) {
-        return ioFailure(error);
+        return resolveReferenceIoFailure(error);
       }
     },
     list: async (layer: AutoMovieAuthoredDocumentLayer) => {
@@ -387,15 +257,9 @@ export async function createAutoMovieReferenceReader(
           const entry = await io.lstat(path.join(location, name));
           if (entry.kind === "directory") await walk(file, depth + 1);
           else {
-            if (entry.kind !== "file" || entry.links !== 1n)
-              fail(
-                "PATH_IDENTITY_CHANGED",
-                "Layer contains a linked or special entry.",
-              );
+            admitReferenceInventoryIdentity(entry);
             if (name.endsWith(".md")) {
-              files.push(file);
-              if (files.length > MAX_FILES)
-                fail("RESOURCE_LIMIT", "Layer exceeds the 10,000 file limit.");
+              appendReferenceInventoryFile(files, file);
             }
           }
         }
@@ -403,24 +267,15 @@ export async function createAutoMovieReferenceReader(
       };
       try {
         // Only absence of the requested population root means an empty layer.
-        try {
-          await inspectDirectories(`docs/${layer}`);
-        } catch (error) {
-          if (
-            error !== null &&
-            typeof error === "object" &&
-            "code" in error &&
-            error.code === "ENOENT"
-          ) {
-            await recheck(pinned);
-            return [];
-          }
-          throw error;
-        }
+        const initial = await observeInitialReferenceLayer(
+          () => inspectDirectories(`docs/${layer}`),
+          () => recheck(pinned),
+        );
+        if (initial === null) return [];
         await walk(`docs/${layer}`, 0);
         return files;
       } catch (error) {
-        return ioFailure(error);
+        return resolveReferenceIoFailure(error);
       }
     },
   };

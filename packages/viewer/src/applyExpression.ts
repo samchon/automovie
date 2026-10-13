@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /** VRM preset names the viewer resets and drives every expression frame. */
 const AUTOMOVIE_EXPRESSION_PRESETS = [

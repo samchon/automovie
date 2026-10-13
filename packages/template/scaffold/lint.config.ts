@@ -1,11 +1,8 @@
 import {
   type AutoMovieProductionLanguage,
   type IAutoMovieEvidenceConfigProps,
-  createAutoMovieEvidenceConfig,
-  createAutoMovieStandaloneEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
 } from "@automovie/evidence";
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -39,11 +36,3 @@ export const productionEvidence = {
     "{{language}}" as AutoMovieProductionLanguage,
   ),
 } satisfies IAutoMovieEvidenceConfigProps;
-
-const graph = createAutoMovieEvidenceConfig(productionEvidence);
-
-/** Standalone evidence evaluation consumes the sole production declaration. */
-export default createAutoMovieStandaloneEvidenceConfig(
-  graph,
-  productionEvidence.location,
-) satisfies IEvidenceConfig;

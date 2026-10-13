@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
-import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake";
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 
 /**
  * The rest-to-posed matrix of one part at one cycle position.

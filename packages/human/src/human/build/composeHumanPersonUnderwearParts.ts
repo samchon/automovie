@@ -4,7 +4,7 @@ import { applyHumanBodyUnderwearMaterial } from "../../body/basis/applyHumanBody
 import type { IHumanPersonUnderwearPartsInput } from "../structures/IHumanPersonUnderwearPartsInput";
 
 /**
- * Apply the prepared fabric only to explicitly registered final Body regions.
+ * Cut and lift prepared fabric only from registered final Body regions.
  * Face, neck stitching and anatomical layer readings finish before this step.
  * The Body namespace is the Person material composition's existing convention;
  * region membership comes from the source owner rather than a name heuristic.
@@ -19,6 +19,7 @@ export function composeHumanPersonUnderwearParts(
     const region = input.regions.get(part.id);
     return region === undefined ? [part] : applyHumanBodyUnderwearMaterial({
       part, field: region.field, sources: region.sources, material,
+      offsetMetres: garment.offsetMetres,
     });
   });
 }

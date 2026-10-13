@@ -1,151 +1,22 @@
-import {
-  disposeFadeToBlack,
-  renderFadeToBlackFrame,
-  resolveAutoMovieFilmBeautyComposition,
-} from "@automovie/viewer";
-import { TestValidator } from "@nestia/e2e";
+import {disposeFadeToBlack,renderFadeToBlackFrame,resolveAutoMovieFilmBeautyComposition} from "@automovie/viewer";
+import {TestValidator} from "@nestia/e2e";
 import * as THREE from "three";
-
-import { namedFacts } from "../internal/predicates";
-
-const captureError = (operation: () => void): unknown => {
-  try {
-    operation();
-    return undefined;
-  } catch (error) {
-    return error;
-  }
-};
-
-const fakeRenderer = (
-  width = 64,
-  height = 32,
-  antialias: boolean | "unreported" = true,
-) => {
-  const size = new THREE.Vector2(width, height);
-  let target: THREE.WebGLRenderTarget | null = null;
-  let autoClear = true;
-  let clearColor = new THREE.Color(0x336699);
-  let clearAlpha = 0.4;
-  const targets: Array<THREE.WebGLRenderTarget | null> = [];
-  const opacities: number[] = [];
-  const toneMapped: boolean[] = [];
-  const clearColors: Array<{ color: number; alpha: number }> = [];
-  const renderedInto: Array<THREE.WebGLRenderTarget | null> = [];
-  const restorationAttempts = { autoClear: 0, color: 0, target: 0 };
-  let failAutoClear: Error | undefined;
-  let failColor: Error | undefined;
-  let failTarget:
-    | { value: THREE.WebGLRenderTarget | null; error: Error }
-    | undefined;
-  let targetFailureOnRender:
-    | { value: THREE.WebGLRenderTarget | null; error: Error }
-    | undefined;
-  const renderer = {
-    get autoClear(): boolean {
-      return autoClear;
-    },
-    set autoClear(value: boolean) {
-      if (value === true && failAutoClear !== undefined) {
-        restorationAttempts.autoClear += 1;
-        throw failAutoClear;
-      }
-      autoClear = value;
-    },
-    getDrawingBufferSize: (output: THREE.Vector2) => output.copy(size),
-    // A renderer that does not report its context attributes is the prior
-    // unconditional default, AA on, exactly as the dissolve helper reads it.
-    ...(antialias === "unreported"
-      ? {}
-      : { getContextAttributes: () => ({ antialias }) }),
-    getRenderTarget: () => target,
-    setRenderTarget: (value: THREE.WebGLRenderTarget | null) => {
-      if (failTarget !== undefined && value === failTarget.value) {
-        restorationAttempts.target += 1;
-        throw failTarget.error;
-      }
-      target = value;
-      targets.push(value);
-    },
-    getClearColor: (output: THREE.Color) => output.copy(clearColor),
-    getClearAlpha: () => clearAlpha,
-    setClearColor: (value: THREE.Color | number, alpha: number) => {
-      if (value instanceof THREE.Color && failColor !== undefined) {
-        restorationAttempts.color += 1;
-        throw failColor;
-      }
-      clearColor =
-        value instanceof THREE.Color ? value.clone() : new THREE.Color(value);
-      clearAlpha = alpha;
-      clearColors.push({ color: clearColor.getHex(), alpha });
-    },
-    clear: () => undefined,
-    render: (scene: THREE.Scene) => {
-      renderedInto.push(target);
-      const mesh = scene.children[0] as THREE.Mesh | undefined;
-      const material = mesh?.material;
-      if (material instanceof THREE.MeshBasicMaterial)
-        opacities.push(material.opacity);
-      if (material instanceof THREE.MeshBasicMaterial)
-        toneMapped.push(material.toneMapped);
-      if (targetFailureOnRender !== undefined) {
-        failTarget = targetFailureOnRender;
-        targetFailureOnRender = undefined;
-      }
-    },
-  } as unknown as THREE.WebGLRenderer;
-  return {
-    renderer,
-    size,
-    targets,
-    opacities,
-    toneMapped,
-    clearColors,
-    renderedInto,
-    restorationAttempts,
-    state: () => ({
-      target,
-      autoClear,
-      clearColor: clearColor.getHex(),
-      clearAlpha,
-    }),
-    failAutoClear: (error: Error) => {
-      failAutoClear = error;
-    },
-    failColor: (error: Error) => {
-      failColor = error;
-    },
-    failTargetAfterRender: (
-      value: THREE.WebGLRenderTarget | null,
-      error: Error,
-    ) => {
-      targetFailureOnRender = { value, error };
-    },
-  };
-};
-
+import {namedFacts} from "../internal/predicates";
+import {createDisplayCompositionRenderer} from "../internal/createDisplayCompositionRenderer";
+const captureError=(operation:()=>void):unknown=>{try{operation();return undefined;}catch(error){return error;}};
 /**
- * Film beauty projection must preserve the builder-owned fade weight and all
- * mutable renderer state.
+ * Builder-owned film weights select a beauty operator without resampling.
+ * GPU color parity is observed separately; these inputs exercise orchestration.
  *
  * Scenarios:
- *
- * 1. One full-weight layer is direct, one fractional layer fades over black,
- *    and two complementary layers select the existing dissolve alpha.
- * 2. Empty, oversized, non-finite, out-of-range and non-complementary layer
- *    inputs are refused instead of clamped or drawn opaquely.
- * 3. Fade weights zero, one-half and one reach the GPU quad exactly, with black
- *    output clear and callback execution at every boundary; the offscreen
- *    target matches the renderer's antialiasing, and a renderer that reports
- *    no context attributes is treated as antialiased.
- * 4. Per-renderer targets are reused, resized and disposed independently, and
- *    disposal before creation or twice is safe.
- * 5. Target, auto-clear, clear color and clear alpha are restored after success,
- *    including a success that started on a caller-owned render target whose
- *    composite lands in that target, after primary rendering failure, after
- *    each restoration failure, and after combined failure.
+ * 1. Direct, fade and dissolve preserve sampled layer identity and weights.
+ * 2. Unsupported cardinalities, weights and complementary sums refuse.
+ * 3. Fade endpoints reach the byte shader and source callbacks run directly.
+ * 4. Reuse, resize, release and recreation preserve renderer-local ownership.
+ * 5. Render, copy and restoration failures retain every failure and restore
+ *    unaffected state; a caller-owned target retains its canvas backing.
  */
-export const test_viewer_film_fade = (): void => {
+export const test_viewer_film_fade=():void=>{
   const directLayer = { shot: "shot-a", weight: 1 };
   const fadedLayer = { shot: "shot-a", weight: 0.5 };
   const outgoing = { shot: "shot-a", weight: 0.25 };
@@ -206,249 +77,34 @@ export const test_viewer_film_fade = (): void => {
     invalid.every((error) => error instanceof Error),
   );
 
-  const first = fakeRenderer();
-  const second = fakeRenderer(128, 72, false);
-  const unreported = fakeRenderer(8, 8, "unreported");
-  disposeFadeToBlack(first.renderer);
-  let callbacks = 0;
-  for (const weight of [0, 0.5, 1])
-    renderFadeToBlackFrame(
-      first.renderer,
-      () => {
-        callbacks += 1;
-      },
-      weight,
-    );
-  renderFadeToBlackFrame(second.renderer, () => undefined, 0.5);
-  renderFadeToBlackFrame(unreported.renderer, () => undefined, 0.5);
-  const firstTarget = first.targets[0] as THREE.WebGLRenderTarget;
-  const secondTarget = second.targets[0] as THREE.WebGLRenderTarget;
-  const unreportedTarget = unreported.targets[0] as THREE.WebGLRenderTarget;
-  TestValidator.equals(
-    "fade sends exact weights through renderer-local targets over black",
-    namedFacts([
-      ["callbacks", () => callbacks === 3],
-      [
-        "weights",
-        () => JSON.stringify(first.opacities) === JSON.stringify([0, 0.5, 1]),
-      ],
-      [
-        "noSecondToneMap",
-        () => first.toneMapped.every((value) => value === false),
-      ],
-      [
-        "blackClear",
-        () =>
-          first.clearColors.some(
-            (entry) => entry.color === 0 && entry.alpha === 1,
-          ),
-      ],
-      [
-        "targetReused",
-        () =>
-          first.targets
-            .filter((value) => value !== null)
-            .every((value) => value === firstTarget),
-      ],
-      ["rendererLocal", () => firstTarget !== secondTarget],
-      ["aaOn", () => firstTarget.samples === 4],
-      ["aaOff", () => secondTarget.samples === 0],
-      ["aaUnreportedIsOn", () => unreportedTarget.samples === 4],
-      [
-        "stateRestored",
-        () =>
-          JSON.stringify(first.state()) ===
-          JSON.stringify({
-            target: null,
-            autoClear: true,
-            clearColor: 0x336699,
-            clearAlpha: 0.4,
-          }),
-      ],
-    ]),
-    {
-      callbacks: true,
-      weights: true,
-      noSecondToneMap: true,
-      blackClear: true,
-      targetReused: true,
-      rendererLocal: true,
-      aaOn: true,
-      aaOff: true,
-      aaUnreportedIsOn: true,
-      stateRestored: true,
-    },
-  );
 
-  // A capture host composes into its own render target; the fade must land
-  // there and leave that target selected rather than switching to the screen.
-  const hosted = fakeRenderer();
-  const hostTarget = new THREE.WebGLRenderTarget(4, 4);
-  hosted.renderer.setRenderTarget(hostTarget);
-  renderFadeToBlackFrame(hosted.renderer, () => undefined, 0.25);
-  TestValidator.equals(
-    "fade composes into a caller-owned render target and keeps it selected",
-    namedFacts([
-      [
-        "compositeTarget",
-        () =>
-          hosted.renderedInto.length === 1 &&
-          hosted.renderedInto[0] === hostTarget,
-      ],
-      ["selectedAfter", () => hosted.state().target === hostTarget],
-      ["weight", () => hosted.opacities[0] === 0.25],
-      [
-        "clearRestored",
-        () =>
-          hosted.state().clearColor === 0x336699 &&
-          hosted.state().clearAlpha === 0.4,
-      ],
-    ]),
-    {
-      compositeTarget: true,
-      selectedAfter: true,
-      weight: true,
-      clearRestored: true,
-    },
-  );
-  hostTarget.dispose();
-
-  first.size.set(320, 180);
-  renderFadeToBlackFrame(first.renderer, () => undefined, 0.5);
-  TestValidator.equals(
-    "fade target follows only its renderer drawing buffer",
-    namedFacts([
-      ["width", () => firstTarget.width === 320],
-      ["height", () => firstTarget.height === 180],
-      ["otherWidth", () => secondTarget.width === 128],
-    ]),
-    { width: true, height: true, otherWidth: true },
-  );
-  let targetDisposals = 0;
-  firstTarget.addEventListener("dispose", () => {
-    targetDisposals += 1;
-  });
-  disposeFadeToBlack(first.renderer);
-  disposeFadeToBlack(first.renderer);
-  renderFadeToBlackFrame(first.renderer, () => undefined, 0.5);
-  // One fade pushes three targets: the fade target, the previous target the
-  // quad is composited into, and the previous target again from restoration.
-  const freshTarget = first.targets.at(-3);
-  TestValidator.equals(
-    "fade disposal is idempotent and permits lazy recreation",
-    namedFacts([
-      ["oneDisposal", () => targetDisposals === 1],
-      [
-        "fresh",
-        () =>
-          freshTarget instanceof THREE.WebGLRenderTarget &&
-          freshTarget !== firstTarget,
-      ],
-    ]),
-    { oneDisposal: true, fresh: true },
-  );
-
-  const primary = fakeRenderer();
-  const primaryFailure = new Error("frame rendering failed");
-  const primaryCaught = captureError(() =>
-    renderFadeToBlackFrame(
-      primary.renderer,
-      () => {
-        throw primaryFailure;
-      },
-      0.5,
-    ),
-  );
-  const auto = fakeRenderer();
-  const autoFailure = new Error("autoClear restoration failed");
-  auto.failAutoClear(autoFailure);
-  const autoCaught = captureError(() =>
-    renderFadeToBlackFrame(auto.renderer, () => undefined, 0.5),
-  );
-  const color = fakeRenderer();
-  const colorFailure = new Error("clear color restoration failed");
-  color.failColor(colorFailure);
-  const colorCaught = captureError(() =>
-    renderFadeToBlackFrame(color.renderer, () => undefined, 0.5),
-  );
-  const target = fakeRenderer();
-  const priorTarget = new THREE.WebGLRenderTarget(2, 2);
-  target.renderer.setRenderTarget(priorTarget);
-  const targetFailure = new Error("target restoration failed");
-  target.failTargetAfterRender(priorTarget, targetFailure);
-  const targetCaught = captureError(() =>
-    renderFadeToBlackFrame(target.renderer, () => undefined, 0.5),
-  );
-  const multiple = fakeRenderer();
-  const multipleAuto = new Error("multiple autoClear failed");
-  const multipleColor = new Error("multiple clear color failed");
-  multiple.failAutoClear(multipleAuto);
-  multiple.failColor(multipleColor);
-  const multipleCaught = captureError(() =>
-    renderFadeToBlackFrame(multiple.renderer, () => undefined, 0.5),
-  );
-  const combined = fakeRenderer();
-  const combinedPrimary = new Error("combined render failed");
-  const combinedAuto = new Error("combined autoClear failed");
-  const combinedColor = new Error("combined clear color failed");
-  combined.failAutoClear(combinedAuto);
-  combined.failColor(combinedColor);
-  const combinedCaught = captureError(() =>
-    renderFadeToBlackFrame(
-      combined.renderer,
-      () => {
-        throw combinedPrimary;
-      },
-      0.5,
-    ),
-  );
-  const invalidWeight = captureError(() =>
-    renderFadeToBlackFrame(
-      primary.renderer,
-      () => undefined,
-      Number.POSITIVE_INFINITY,
-    ),
-  );
-  TestValidator.equals(
-    "fade restores every mutable renderer state on all exits",
-    namedFacts([
-      ["primary", () => primaryCaught === primaryFailure],
-      ["primaryTarget", () => primary.state().target === null],
-      ["auto", () => autoCaught === autoFailure],
-      ["autoAttempt", () => auto.restorationAttempts.autoClear === 1],
-      ["color", () => colorCaught === colorFailure],
-      ["colorAttempt", () => color.restorationAttempts.color === 1],
-      ["target", () => targetCaught === targetFailure],
-      ["targetAttempt", () => target.restorationAttempts.target === 1],
-      [
-        "multiple",
-        () =>
-          multipleCaught instanceof AggregateError &&
-          multipleCaught.errors[0] === multipleAuto &&
-          multipleCaught.errors[1] === multipleColor,
-      ],
-      [
-        "combined",
-        () =>
-          combinedCaught instanceof AggregateError &&
-          combinedCaught.errors[0] === combinedPrimary &&
-          combinedCaught.errors[1] === combinedAuto &&
-          combinedCaught.errors[2] === combinedColor,
-      ],
-      ["invalidWeight", () => invalidWeight instanceof Error],
-    ]),
-    {
-      primary: true,
-      primaryTarget: true,
-      auto: true,
-      autoAttempt: true,
-      color: true,
-      colorAttempt: true,
-      target: true,
-      targetAttempt: true,
-      multiple: true,
-      combined: true,
-      invalidWeight: true,
-    },
-  );
+  const first=createDisplayCompositionRenderer(),second=createDisplayCompositionRenderer(128,72);
+  disposeFadeToBlack(first.renderer);let callbacks=0;
+  for(const weight of [0,.5,1]) renderFadeToBlackFrame(first.renderer,()=>{callbacks++;TestValidator.predicate("source is direct display",first.state().target===null);},weight);
+  TestValidator.equals("fade contributions reach shader",first.rendered.map(x=>x.alpha),[1,.5,0]);
+  TestValidator.equals("every endpoint resolves its source",callbacks,3);
+  renderFadeToBlackFrame(second.renderer,()=>undefined,.5);
+  TestValidator.predicate("copies are reused only within their renderer",first.copied[1]===first.copied[3]&&first.copied[1]!==second.copied[1]);
+  first.size.set(320,180);renderFadeToBlackFrame(first.renderer,()=>undefined,.5);
+  TestValidator.equals("source copy dimensions track owned drawing buffer",[first.copied[1]!.image.width,first.copied[1]!.image.height,second.copied[1]!.image.width],[320,180,128]);
+  let disposed=0;first.copied[1]!.addEventListener("dispose",()=>{disposed++;});
+  disposeFadeToBlack(first.renderer);disposeFadeToBlack(first.renderer);renderFadeToBlackFrame(first.renderer,()=>undefined,.5);
+  TestValidator.predicate("idempotent release then fresh copy",disposed===1&&first.copied.at(-1)!==first.copied[1]);
+  const host=createDisplayCompositionRenderer(),target=new THREE.WebGLRenderTarget(4,4);host.renderer.setRenderTarget(target);
+  renderFadeToBlackFrame(host.renderer,()=>undefined,.25);
+  TestValidator.predicate("composite destination and backing are preserved",host.rendered[0]!.target===target&&host.rendered[1]!.backing&&host.renderer.getRenderTarget()===target);
+  for(const invalidWeight of [NaN,Infinity,-.01,1.01]) TestValidator.predicate("invalid fade weight",captureError(()=>renderFadeToBlackFrame(first.renderer,()=>undefined,invalidWeight)) instanceof Error);
+  for(const operation of ["reset","clear","copy","compositeRender","restoreAuto","restoreColor","quadTone","quadExposure","restoreTone","restoreExposure"]){
+    const failed=createDisplayCompositionRenderer(),error=new Error(operation);failed.errors.set(operation,error);
+    const observed=captureError(()=>renderFadeToBlackFrame(failed.renderer,()=>undefined,.5));
+    TestValidator.predicate("failures remain observable",observed===error||(observed instanceof AggregateError&&observed.errors.every(x=>x===error)));
+    TestValidator.predicate("target restoration is attempted",failed.calls.includes("screen"));
+  }
+  const failed=createDisplayCompositionRenderer(),primary=new Error("source"),restore=new Error("restore");failed.errors.set("restoreAuto",restore);
+  const error=captureError(()=>renderFadeToBlackFrame(failed.renderer,()=>{throw primary;},.5));
+  TestValidator.predicate("aggregate retains primary before restoration",error instanceof AggregateError&&error.errors[0]===primary&&error.errors[1]===restore);
+  const backing=createDisplayCompositionRenderer();backing.renderer.setRenderTarget(target);backing.errors.set("backingRender",primary);backing.errors.set("restoreColor",restore);
+  TestValidator.predicate("backing and later restoration failures remain visible",captureError(()=>renderFadeToBlackFrame(backing.renderer,()=>undefined,.5)) instanceof AggregateError);
+  TestValidator.predicate("foreign callback target refused",captureError(()=>renderFadeToBlackFrame(first.renderer,()=>first.renderer.setRenderTarget(target),.5)) instanceof Error);
+  target.dispose();disposeFadeToBlack(first.renderer);disposeFadeToBlack(second.renderer);disposeFadeToBlack(host.renderer);
 };

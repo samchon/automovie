@@ -1,8 +1,8 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget";
-import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame";
+import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js";
+import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 
 /**
  * A built model: its `three.js` root object and a lookup of its bones.

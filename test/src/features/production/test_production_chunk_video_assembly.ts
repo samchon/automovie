@@ -12,11 +12,10 @@ import {
 } from "@automovie/render/node";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
-import {
-  productionH264Mp4,
-  productionMpeg4Part2Mp4,
-} from "./productionMediaFixtures";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
+import { productionMpeg4Part2Mp4 } from "../internal/productionMedia/productionMpeg4Part2Mp4";
+import { parseProductionMp4 } from "../internal/productionMedia/parseProductionMp4";
 
 const WIDTH = 16;
 const HEIGHT = 16;
@@ -30,8 +29,9 @@ const digest = (digit: string): AutoMovieContentDigest =>
   `sha256:${digit.repeat(64)}`;
 
 /**
- * The same ranges expressed as a cut-only edit, so the expected assembly can be
- * derived through the independent repaint-conform path rather than restated.
+ * The same ranges expressed as a cut-only edit for cross-consumer parity.
+ * The expected payload order and clocks are independently stated by the test;
+ * two writers sharing an append helper are not an independent numerical oracle.
  */
 const rangeTimeline = (): IAutoMovieFilmTimeline => {
   let startFrame = 0;
@@ -75,13 +75,18 @@ const rangeTimeline = (): IAutoMovieFilmTimeline => {
  * samples in order. Copying them costs the bytes and nothing else, and it
  * cannot alter a reviewed pixel.
  *
+ * This unit reads independently authored resident sample tables through the
+ * actual parser and splice writers. It proves byte and clock transport; the
+ * real encoder's decoded-picture interoperability is a separate generated
+ * consumer observation.
+ *
  * Scenarios:
  *
- * 1. An assembly spanning one chunk is byte-identical to encoding that chunk,
+ * 1. An assembly spanning one chunk is byte-identical to its input chunk,
  *    which is the whole film for a production short enough to do both ways.
  * 2. An assembly of many chunks carries every source sample unaltered, in play
- *    order, on one continuous clock -- proven against the same ranges conformed
- *    through the independent repaint path.
+ *    order, on one continuous clock, with an independent input-payload oracle
+ *    and parity against the same ranges conformed through the repaint path.
  * 3. Assembling twice, and assembling again after an interrupted attempt, produce
  *    byte-identical films: the assembly is a pure function of the receipt-bound
  *    chunk bytes, so a resumed render publishes what an uninterrupted one would
@@ -90,30 +95,67 @@ const rangeTimeline = (): IAutoMovieFilmTimeline => {
  *    frame total the chunks do not cover, and a runtime past the exact MP4
  *    clock are each refused rather than silently re-encoded.
  */
-export const test_production_chunk_video_assembly = async (): Promise<void> => {
+export const test_production_chunk_video_assembly = (): void => {
   const frameFormat = { fps: FPS, height: HEIGHT, width: WIDTH };
   const chunks: Uint8Array[] = [];
   for (const frameCount of CHUNK_FRAMES)
     chunks.push(
-      await productionH264Mp4({
+      productionSampleMp4({
         width: WIDTH,
         height: HEIGHT,
         fps: FPS,
         frameCount,
       }),
     );
-  const narrowChunk = await productionH264Mp4({
+  const narrowChunk = productionSampleMp4({
     width: WIDTH - 8,
     height: HEIGHT - 8,
     fps: FPS,
     frameCount: 2,
   });
-  const whole = await productionH264Mp4({
+  const whole = productionSampleMp4({
     width: WIDTH,
     height: HEIGHT,
     fps: FPS,
     frameCount: TOTAL_FRAMES,
   });
+  const twoTickChunks = CHUNK_FRAMES.map((frameCount) =>
+    productionSampleMp4({
+      width: WIDTH,
+      height: HEIGHT,
+      fps: FPS,
+      frameCount,
+      ticksPerFrame: 2,
+    }),
+  );
+  const scaledClock = probeProductionVideoMp4(
+    assembleProductionChunkVideoMp4({
+      chunks: twoTickChunks,
+      frameFormat,
+      totalFrames: TOTAL_FRAMES,
+    }),
+  );
+  TestValidator.equals(
+    "the supported two-tick input really exposes six frames on twelve ticks",
+    {
+      frames: scaledClock.frameCount,
+      mediaDuration: scaledClock.presentation.mediaDuration,
+      timescale: scaledClock.samples.timescale,
+      sampleDuration: scaledClock.samples.duration,
+      frameRate: scaledClock.frameRate,
+    },
+    {
+      frames: 6,
+      mediaDuration: 12,
+      timescale: 4,
+      sampleDuration: 2,
+      frameRate: { numerator: 2, denominator: 1 },
+    },
+  );
+  TestValidator.predicate(
+    "twelve ticks at four ticks per second retain the exact three-second runtime",
+    nclose(scaledClock.runtimeSeconds, 3, 0),
+  );
 
   const single = assembleProductionChunkVideoMp4({
     chunks: [whole],
@@ -121,7 +163,7 @@ export const test_production_chunk_video_assembly = async (): Promise<void> => {
     totalFrames: TOTAL_FRAMES,
   });
   TestValidator.equals(
-    "an assembly spanning one chunk is the monolithic encode of that chunk",
+    "an assembly spanning one chunk preserves that exact input container",
     namedFacts([
       [
         "theSingleChunkAssemblyIsByteIdentical",
@@ -153,6 +195,30 @@ export const test_production_chunk_video_assembly = async (): Promise<void> => {
     ),
   });
   const probe = probeProductionVideoMp4(assembled);
+  const parsedAssembly = parseProductionMp4(assembled);
+  const assembledSamples = parsedAssembly.file.getTrackSamplesInfo(
+    parsedAssembly.movie.videoTracks[0]!.id,
+  );
+  // Each chunk's authored sample ordinal restarts at zero. This oracle comes
+  // from the input construction, not another conform implementation.
+  const inputOrdinals = [0, 1, 2, 0, 1, 0];
+  TestValidator.equals(
+    "assembly preserves input sample bytes and rebases every clock tick",
+    assembledSamples.map((sample) => ({
+      payload: Array.from(
+        assembled.subarray(sample.offset, sample.offset + sample.size),
+      ),
+      duration: sample.duration,
+      dts: sample.dts,
+      cts: sample.cts,
+    })),
+    inputOrdinals.map((ordinal, index) => ({
+      payload: [0, 0, 0, 2, 0x65, ordinal],
+      duration: 1,
+      dts: index,
+      cts: index,
+    })),
+  );
   const timeline = rangeTimeline();
   const mixed = conformProductionVisualDeliveryVideoMp4({
     timeline,
@@ -319,7 +385,13 @@ export const test_production_chunk_video_assembly = async (): Promise<void> => {
         "aRuntimePastTheExactClockIsRefused",
         () =>
           refuses(
-            { chunks, frameFormat, totalFrames: Number.MAX_SAFE_INTEGER },
+            {
+              // The frame count is safe; two ticks per frame make the media
+              // duration 2 * (2^53 - 1), outside the safe-integer clock.
+              chunks: twoTickChunks,
+              frameFormat,
+              totalFrames: Number.MAX_SAFE_INTEGER,
+            },
             "exceeds the exact MP4 clock range",
           ),
       ],

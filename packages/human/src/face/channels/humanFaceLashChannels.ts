@@ -1,6 +1,5 @@
 import { portraitEyelashParameters } from "../anatomy/lash/portraitEyelashParameters";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
-import { millimetrePoint as p } from "../mesh/millimetrePoint";
 import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**

@@ -6,15 +6,15 @@ This package name is reused for a new reference-only contract. The retired produ
 
 ## Use
 
-Generated projects install this package and expose `npm run reference`. The generated [production lifecycle](../template/scaffold/.agents/skills/production-lifecycle/index.md) owns the reference procedure and client registration instructions.
+Reference integration is optional. Install a chosen version of this package explicitly in the production, or use its existing installation. The generated scaffold does not install it or provide a `reference` script. The installed standalone binaries accept an explicit absolute production root; JSON quoting follows the invoking shell. The [public integration surface](#public-integration-surface) describes the provider and client-registration planner.
 
 ```sh
-npm run reference -- --request '{"operation":"get_index_of_layer","layer":"settings"}'
-npm run reference -- --request '{"operation":"get_index_of_file","file":"docs/settings/place.md"}'
-npm run reference -- --request '{"operation":"read_section_without_annotations","location":"docs/settings/place.md#access"}'
+automovie-reference --root /absolute/production --request '{"operation":"get_index_of_layer","layer":"settings"}'
+automovie-reference --root /absolute/production --request '{"operation":"get_index_of_file","file":"docs/settings/place.md"}'
+automovie-reference --root /absolute/production --request '{"operation":"read_section_without_annotations","location":"docs/settings/place.md#access"}'
 ```
 
-The installed standalone binaries accept an explicit absolute production root. JSON quoting follows the invoking shell.
+For a local production installation, invoke the binaries through the package manager's local execution command. A customer may explicitly add a `reference` script bound to that root and then use `npm run reference -- --request '<JSON>'`; this script is customer-owned integration rather than a scaffold default.
 
 ```sh
 automovie-reference --root /absolute/production --request '{"operation":"read_file_without_annotations","file":"docs/settings/place.md","detail":true}'
@@ -56,7 +56,7 @@ One file is limited to 8 MiB. A layer is limited to 10,000 files, 32 MiB total s
 
 `planAutoMovieReferenceClientConfiguration({ root, nodeExecutable, claude?, codex? })` synchronously returns `.mcp.json` and `.codex/config.toml` candidates without writing. It preserves unrelated JSON values and TOML bytes. Claude updates require the exact generated schema and installed-bin/root binding; Codex updates require an intact digest-marked block. The recorded Node executable is a fact about the machine that published the entry, so a registration written by another Node install is updated rather than refused. Matching current unmarked Codex registration remains untouched. Edited entries and conflicting unmarked entries require explicit reconciliation by the configuration owner. Client trust and enablement remain client decisions.
 
-The CommonMark AST and HTML tokenizer are trusted dependencies. This package selects original source intervals from their syntax, without reproducing Markdown, evidence or MCP protocol parsers. It uses native dynamic imports for ESM Markdown parsing dependencies while publishing the repository's CommonJS package surface. Synchronous client planning uses the TOML package's published CommonJS entry with its public declaration types.
+The CommonMark AST and HTML tokenizer are trusted dependencies. This package selects original source intervals from their syntax, without reproducing Markdown, evidence or MCP protocol parsers. Node 22.23.2 or later is required. Its NodeNext compilation preserves the CommonJS package surface while the provider loads its real synchronous ESM Markdown dependency through Node's supported CommonJS interoperability. Syntax is parsed from each current bounded read; no parsed fixture or preliminary parse is required. Synchronous client planning uses the TOML package's published CommonJS entry with its public declaration types.
 
 See the [product requirements](../../docs/requirements/agent-authoring/reference-navigation.md) and [system contract](../../docs/specifications/authoring-and-authority/reference-navigation.md) for the authoritative promises and source, budget, refusal and transport semantics.
 

@@ -30,12 +30,15 @@ Select the production kind in `lint.config.ts` and author its required inputs. T
 
 Use installed `automovie` help for external-asset inspection and capability routes. The scaffold supplies no production content, viewer stub or capture/render command. Author required runtime/view code through public package APIs.
 
+The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`. Mark type imports and exports with `type`; runtime imports and exports retain their written module syntax. The compiler rejects type-only value imports and code that cannot be transformed one file at a time, keeping Node execution and browser bundlers consistent. These options preserve full-program type checking and the configured source-correctness plugins in `npm run lint`.
+
 ## Ownership
 
 - `src` holds executable source, including viewer and command entries.
 - `public` holds HTML and static assets.
 - `docs` holds production facts, contracts and observations; Git holds history.
 - `lint.config.ts` is the sole typed production/evidence declaration. Compiler settings stay in their declared configuration files.
+- `evidence.config.ts` derives the standalone graph from that declaration and is selected by the normal evidence command.
 - `package.json` owns dependencies and commands. Keep inputs typed and outputs separate from source.
 
 Use the production's actual source for rendering and measurement. Validate and inspect the requested result before reporting completion.

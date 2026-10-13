@@ -5,12 +5,15 @@
  * package's channel scale measurement. The package validates controls,
  * forms the model and exports it; camera/clay state never enters the document.
  * A failed or superseded edit retains the committed preview and downloads.
+ * Resource retirement is awaited after synchronous history publication; its
+ * failure reports the newly committed display rather than rolling it back.
  */
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/parseHumanFaceBasisDocument";
 import { serializeHumanFaceBasisDocument } from "@automovie/human/face/document/serializeHumanFaceBasisDocument";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import type { IConnectedFacePanelModel } from "./IConnectedFacePanelModel";
 import type { IConnectedFacePanelProps } from "./IConnectedFacePanelProps";
@@ -25,8 +28,10 @@ import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Provides shape/expression inputs, presets, history, file IO and orbit/clay controls for a connected facial prior.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Publishes and downloads only the latest committed document/model while refusing invalid or obsolete requests.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-surface-maps Exposes an initially checked occlusion choice and forwards its current value to original numerical builds and static export; the package producer owns the geometry-derived material map.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Binds scalar controls to numerical edits, states each control's envelope and measured metric effect, and keeps camera and display state outside replay data.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Shares transactional history and cancels stale file reads and builds by generation.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Forwards the checkbox's actual flag to original viewport builds and export; geometry-derived PNG production and preservation of model geometry and normals remain with the package's occlusion owner.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The panel is the face editing screen alone; the face domain index also spans the package builder, provenance and review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The panel lists component controls and composes no component; the package builder does.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The panel displays articulation readings and evaluates no jaw, lid or attachment; the package builder does.
@@ -38,7 +43,6 @@ import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-review The panel produces no review evidence or likeness judgement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The panel colours no skin; the package builder does.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition The panel shapes no skin condition or wrinkle.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps The panel builds no surface map.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The panel owns the face editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation The panel evaluates no articulation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments The panel builds no shared joint or internal structure.
@@ -96,6 +100,17 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
     withdraw();
     status(error instanceof Error ? error.message : String(error), "error");
   };
+  const settle = async (): Promise<void> => {
+    try {
+      await viewport.settleRetirements();
+    } catch (cause) {
+      throw new Error(
+        "Resource cleanup failed; the displayed face is retained: " +
+          (cause instanceof Error ? cause.message : String(cause)),
+        { cause },
+      );
+    }
+  };
   const refresh = (): void => {
     const state = editor!.snapshot();
     draft = state.document;
@@ -147,10 +162,13 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     const ticket = ++revision;
     draft = structuredClone(next);
     status("Building the latest face…", "building");
-    const success = await editor!.edit(next);
-    if (ticket !== revision) return;
-    if (success) viewport.publish(editor!.snapshot().model);
-    refresh();
+    try {
+      await editor!.edit(next);
+      if (ticket === revision) refresh();
+      await settle();
+    } catch (error) {
+      if (ticket === revision) refuse(error);
+    }
   };
   const applyText = async (text: string): Promise<void> => {
     try {
@@ -211,10 +229,13 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     element("face-" + action).onclick = async () => {
       const ticket = withdraw();
       status("Restoring the selected face…", "building");
-      const success = await editor![action]();
-      if (ticket !== revision) return;
-      if (success) viewport.publish(editor!.snapshot().model);
-      refresh();
+      try {
+        await editor![action]();
+        if (ticket === revision) refresh();
+        await settle();
+      } catch (error) {
+        if (ticket === revision) refuse(error);
+      }
     };
   for (const preset of props.presets) {
     const button = dom.createElement("button");
@@ -263,7 +284,10 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       if (rest === undefined) {
         const neutral = await build(props.initial, true);
         const reading = neutral.crossings;
-        viewport.dispose(neutral);
+        await createAutoMovieResourceRetirement([
+          () => viewport.dispose(neutral),
+          () => settle(),
+        ])();
         if (ticket !== revision) return;
         if (reading === null || reading === undefined) {
           status("This build does not supply a crossing reading.", "error");
@@ -273,7 +297,10 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       }
       const posed = await build(editor!.snapshot().document, true);
       const reading = posed.crossings;
-      viewport.dispose(posed);
+      await createAutoMovieResourceRetirement([
+        () => viewport.dispose(posed),
+        () => settle(),
+      ])();
       if (ticket !== revision) return;
       status(
         reading === null || reading === undefined
@@ -306,21 +333,27 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     try {
       const model = await build(props.initial);
       if (ticket !== revision) {
-        viewport.dispose(model);
+        await createAutoMovieResourceRetirement([
+          () => viewport.dispose(model),
+          () => settle(),
+        ])();
         return;
       }
       editor = createHumanFaceEditor({
         document: props.initial,
         model,
         build,
+        publish: viewport.publish,
+        dispose: viewport.dispose,
       });
       viewport.publish(model);
       viewport.fitView();
       element<HTMLFieldSetElement>("editing").disabled = false;
       refresh();
+      await settle();
     } catch (error) {
       if (ticket === revision) refuse(error);
     }
   })();
-  return { ready, snapshot: () => editor?.snapshot() };
+  return { ready, snapshot: () => editor?.snapshot(), load: applyText };
 }

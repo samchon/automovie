@@ -1,6 +1,6 @@
 ---
 name: scaffold
-description: Defines maintenance of the generated-project scaffold, its language contracts, materialization and verification. Use before editing packages/template/scaffold, language-contracts or their materializers.
+description: Defines maintenance of the generated-project scaffold, its language contracts, materialization and verification, and routes production-content orientation to project-owned instructions, documents, declarations and installed package APIs. Use before editing packages/template/scaffold, language-contracts or their materializers, and before interpreting, authoring or reviewing production content anywhere, including repository fixtures and sandboxes.
 ---
 
 # Maintaining the scaffold
@@ -8,6 +8,8 @@ description: Defines maintenance of the generated-project scaffold, its language
 The scaffold supplies project-owned instructions, contracts and configuration. [Ownership](../../../packages/template/scaffold/README.md#ownership) defines placement; [Static-document updates](../../../packages/template/scaffold/README.md#static-document-updates) defines adoption.
 
 The shipped skill is [3D modeling](../../../packages/template/scaffold/.agents/skills/3d-modeling/SKILL.md). Runtime APIs and graph mechanics are documented by their installed packages.
+
+Before interpreting, authoring or reviewing production content, locate its project-owned `AGENTS.md`, `README.md`, `docs` and typed declaration under the scaffold's [ownership boundary](../../../packages/template/scaffold/README.md#ownership). Read the selected contract documents and installed package APIs for that production; installed `@automovie/evidence` documentation owns graph mechanics. This skill owns scaffold maintenance, while the production's documents and declaration own its meaning.
 
 ## Shared inventory
 

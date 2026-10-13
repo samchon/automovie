@@ -3,6 +3,7 @@ export * from "./IAutoMovieHumanPersonDocument";
 export * from "./IAutoMovieHumanPersonSeam";
 export * from "./IAutoMovieHumanPersonBoundaryReading";
 export * from "./IAutoMovieHumanPersonGeneration";
+export * from "./IAutoMovieHumanPersonBodyReach";
 export * from "./IAutoMovieHumanPersonGenerationBuild";
 export * from "./IAutoMovieHumanPersonGenerationBuilderProps";
 export * from "./IAutoMovieHumanPersonHeadSkin";

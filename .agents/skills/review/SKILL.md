@@ -49,7 +49,7 @@ Self-Review does not authorize creating, pushing, updating or merging a pull req
 
 ## "It is missing" is a claim that needs its own evidence
 
-A failed name search does not establish a missing capability or an unintended omission. Before accepting that claim, inspect the owning contract and type JSDoc, related fields and any declared exclusion or reopening condition; the checked-in implementation and reachable consumer, through the actual exported identity rather than only a filename or generated artifact; and the relevant guide and closed decision. When generated-production authoring reachability is in question, follow the [scaffold skill](../scaffold/SKILL.md#authoring-procedures-live-with-the-production) to the applicable shipped route and search in the author's vocabulary.
+A failed name search does not establish a missing capability or an unintended omission. Before accepting that claim, inspect the owning contract and type JSDoc, related fields and any declared exclusion or reopening condition; the checked-in implementation and reachable consumer, through the actual exported identity rather than only a filename or generated artifact; and the relevant guide and closed decision. When generated-production authoring reachability is in question, follow the [scaffold skill](../scaffold/SKILL.md) to the applicable shipped route and search in the author's vocabulary.
 
 When this inspection turns up a declared position, the finding becomes "this was deferred, and here is what now lets it be done deliberately within stated bounds", which carries a different burden of proof.
 

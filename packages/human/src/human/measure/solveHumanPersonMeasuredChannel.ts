@@ -5,6 +5,7 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
 import type { IAutoMovieHumanPersonMeasuredChannelProps } from "../structures/IAutoMovieHumanPersonMeasuredChannelProps";
 import type { IAutoMovieHumanPersonMeasuredChannelSolution } from "../structures/IAutoMovieHumanPersonMeasuredChannelSolution";
 import type { IAutoMovieHumanPersonMeasurementReading } from "../structures/IAutoMovieHumanPersonMeasurementReading";
+import { humanPersonBodyReach } from "./humanPersonBodyReach";
 import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
 
 /**
@@ -14,7 +15,9 @@ import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
  * `HUMAN_PERSON_MEASUREMENTS` names the instrument, keyed by the body channel
  * that moves it. Each trial weight is read by `measureHumanPersonDocument`:
  * the actual person built at rest on the one-skin evaluator, its final
- * Float32 skin measured. The returned document
+ * Float32 skin measured. The bracket uses `humanPersonBodyReach`, the body's
+ * available support intersected with its actual head endpoint drivers; the
+ * body's independent authoring envelope stays unchanged. The returned document
  * keeps the caller's pose and expression and changes only that channel.
  * `invertHumanMeasurement` owns the bracket, the 0.1 mm readout precision
  * and the refusals: a target outside the channel's reach, a reversing
@@ -37,7 +40,9 @@ export function solveHumanPersonMeasuredChannel(
   const rule = Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, id)
     ? HUMAN_PERSON_MEASUREMENTS[id]
     : undefined;
-  const channel = generation.body.channels.find((one) => one.id === id);
+  const channel = humanPersonBodyReach(generation).basis.channels.find(
+    (one) => one.id === id,
+  );
   // one instrument per channel: a channel the body rule table measures is the body's
   if (
     rule === undefined ||

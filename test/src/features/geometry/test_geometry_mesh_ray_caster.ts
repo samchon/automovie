@@ -2,6 +2,8 @@ import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { rayTriangleTravelOracle } from "../internal/rayTriangleTravelOracle";
+
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -153,35 +155,18 @@ export const test_geometry_mesh_ray_caster = (): void => {
       );
   }
   const fieldCaster = createAutoMovieMeshRayCaster(mesh(field, null));
-  const brute = (o: number[], d: number[]) => {
-    const l = Math.hypot(...d);
-    const n = d.map((v) => v / l);
-    let best: number | null = null;
-    for (let t = 0; t < 200; ++t) {
-      const [p0, p1, p2] = [0, 1, 2].map((k) =>
-        field.slice(9 * t + 3 * k, 9 * t + 3 * k + 3),
-      );
-      const e1 = [0, 1, 2].map((i) => p1![i]! - p0![i]!);
-      const e2 = [0, 1, 2].map((i) => p2![i]! - p0![i]!);
-      const p = [
-        n[1]! * e2[2]! - n[2]! * e2[1]!,
-        n[2]! * e2[0]! - n[0]! * e2[2]!,
-        n[0]! * e2[1]! - n[1]! * e2[0]!,
-      ];
-      const det = e1[0]! * p[0]! + e1[1]! * p[1]! + e1[2]! * p[2]!;
-      if (Math.abs(det) < 1e-18) continue;
-      const s = [0, 1, 2].map((i) => o[i]! - p0![i]!);
-      const u = (s[0]! * p[0]! + s[1]! * p[1]! + s[2]! * p[2]!) / det;
-      if (u < 0 || u > 1) continue;
-      const q = [
-        s[1]! * e1[2]! - s[2]! * e1[1]!,
-        s[2]! * e1[0]! - s[0]! * e1[2]!,
-        s[0]! * e1[1]! - s[1]! * e1[0]!,
-      ];
-      const v = (n[0]! * q[0]! + n[1]! * q[1]! + n[2]! * q[2]!) / det;
-      if (v < 0 || u + v > 1) continue;
-      const hit = (e2[0]! * q[0]! + e2[1]! * q[1]! + e2[2]! * q[2]!) / det;
-      if (hit >= 0 && hit <= 20 && (best === null || hit < best)) best = hit;
+  // Decode caller-owned triangle corners once. The independent oracle still
+  // visits all 200 triangles for every one of the original 300 rays.
+  const oracleTriangles = Array.from({length:200},(_,t)=>{
+    const a=field.slice(9*t,9*t+3),b=field.slice(9*t+3,9*t+6),c=field.slice(9*t+6,9*t+9);
+    return {a,ab:b.map((value,axis)=>value-a[axis]!),ac:c.map((value,axis)=>value-a[axis]!)};
+  });
+  const brute = (o:number[],d:number[]):number|null=>{
+    const length=Math.hypot(...d),unit=d.map(value=>value/length);
+    let best:number|null=null;
+    for(const triangle of oracleTriangles){
+      const hit=rayTriangleTravelOracle(o,unit,triangle,20);
+      if(hit!==null&&(best===null||hit<best))best=hit;
     }
     return best;
   };

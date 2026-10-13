@@ -4,6 +4,12 @@
 
 ### Shadow State와 Sampling {#clv-shadow-state-sampling}
 
+An effective renderer shadow enablement or filter change also invalidates the current scene's material programs through the supported material update boundary. The scene-pass owner marks unique shared materials and the scene override on application and restoration, so a later direct consumer cannot retain a program compiled against a different shadow policy. Updating the renderer flag alone is not proof that an existing material realizes the new policy.
+
+A filter-family change retires every scene light's retained depth and distribution targets, including a light absent from the current render list. Public target slots are cleared and the next renderer/light update is marked dirty on application and restoration. This prevents renderer-global filter history from reusing a per-light PCF comparison attachment under VSM or the inverse; independent disposal failures cannot skip other resource owners or the rebuild request.
+
+Formation cycle deformation uses the same rigid-part table, member phase, advance, turn and periodic interpolation in beauty, directional/spot shadow depth and point shadow distance passes. Each palette group's alpha, map, side, clipping and displacement state reaches its shadow draw, including groups whose shader features are identical but whose texture uniforms differ. Tier resources and all declared cycle tables retire together when their runtime is released.
+
 <!-- @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadows-reflections-transmission Light result가 source, geometry, material, environment와 mode의 같은 state를 읽게 한다. -->
 <!-- @evidence requirements/lighting/analysis-and-visual-validation.md#lighting-analysis-geometry-trace Analysis가 실제 opening, caster, receiver와 surface revision을 보고하게 한다. -->
 

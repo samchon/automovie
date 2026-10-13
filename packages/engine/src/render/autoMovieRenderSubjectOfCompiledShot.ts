@@ -2,6 +2,7 @@ import { IAutoMovieCompiledShotSource } from "@automovie/interface";
 
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
+import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
 import { autoMovieRenderSubjectOfShot } from "./autoMovieRenderSubjectOfShot";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -33,8 +34,10 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 export const autoMovieRenderSubjectOfCompiledShot = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
-  /** Known texture dimensions, if the caller resolved the assets. */
+  /** Actual host-decoded upload and sharing facts for resolved source assets. */
   textures?: readonly IAutoMovieRenderTextureSource[];
+  /** Other live scopes and context-retained texture storage, when not fresh. */
+  textureResidency?: IAutoMovieRenderTextureResidency;
 }): IAutoMovieRenderSubject => {
   const { compiled } = props;
   const waterOwner = bindingOf(
@@ -55,6 +58,7 @@ export const autoMovieRenderSubjectOfCompiledShot = (props: {
   return autoMovieRenderSubjectOfShot({
     compiled,
     textures: props.textures,
+    textureResidency: props.textureResidency,
     waterBodies: (compiled.fluidDomains ?? []).map((domain) => {
       const feature = waterOwner.get(domain.id);
       return {

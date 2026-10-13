@@ -1,7 +1,7 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 
-import { applyTransform } from "./applyTransform";
+import { applyTransform } from "./applyTransform.js";
 
 /**
  * Write one {@link IAutoMovieLight}'s value onto the `three.js` light that plays

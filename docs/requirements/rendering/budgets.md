@@ -8,6 +8,10 @@ Draw submission, triangle, vertex, instance, skin joint, morph, material, decode
 
 Source bytes, expanded geometry, vertex와 index buffer, decoded texture, acceleration-like data, intermediate target와 retained cache를 별도 항목으로 계산해야 한다. Compressed file size를 runtime peak memory로 사용하거나 shared resource를 매 frame마다 중복 계산해서는 안 된다.
 
+Texture memory closes over actual resident representations in one graphics context. Shared decoded pixels share storage only under equivalent native upload state; sampler and color decoding can create independent uploads, while shader UV placement alone cannot. Environment background and image-lighting derivatives, renderer scratch and lookup tables, simultaneous live scenes and retained framebuffer attachments remain in the bound until their actual owner releases them. Host-decoded facts and supported conservative native profiles determine the bound; authors declare assets and bindings rather than invented byte estimates. Missing required representation facts and unsafe arithmetic remain unknown and refuse admission.
+
+A cache's current original does not certify an earlier issued wrapper whose creation inputs or allocation history differs. Normal owning binding and environment transitions acknowledge only their supported writes; restoring arbitrary properties alone does not erase uncertainty. A detached source can leave an earlier native allocation alive after public disposal, so successful method completion or empty bookkeeping cannot establish its physical retirement. The reused-context bound retains that unknown footprint until its actual lifetime ends.
+
 ### Per-frame와 Total {#rendering-frame-total-budget}
 
 한 frame의 peak, 한 chunk의 retained resources, concurrent products, 전체 film의 frame-pass work, encode work와 output storage를 구분해야 한다. Average cost가 peak limit을 숨기지 않도록 worst frame과 contributor를 보고해야 한다.
@@ -19,6 +23,8 @@ Preview, proxy, evidence, blocking beauty와 final delivery-like project profile
 ### Expansion Bound {#rendering-expansion-bounds}
 
 Instancing, procedural geometry, formations, particles-like bounded effects, image sequences와 archive-like inputs은 materialize되기 전 최대 확장량을 검증해야 한다. Unknown 또는 unbounded count는 실행 중 메모리가 바닥날 때까지 허용해서는 안 된다.
+
+Texture expansion includes every supported material channel, environment consumer, runtime data table and required shadow or transmission attachment. Source sharing does not eliminate independent sampler uploads, environment clones or mip chains. The bound distinguishes currently uploaded allocations from retained, reachable resources and planned native replacements; a conservative union of distinct phases is reported as a bound rather than an actual counter.
 
 ### Budget Decision {#rendering-budget-decision}
 

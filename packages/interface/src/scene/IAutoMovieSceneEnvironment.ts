@@ -5,6 +5,7 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
  *
  * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-image-based-environment Exposes `IAutoMovieSceneEnvironment` as the portable data boundary for the lighting image based environment requirement.
  * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `IAutoMovieSceneEnvironment` for the clv environment image spatial variation system contract.
+ * @author Samchon
  */
 export interface IAutoMovieSceneEnvironment {
   /**
@@ -84,6 +85,11 @@ export interface IAutoMovieSceneEnvironment {
     enabled: boolean;
 
     /** Deterministic Three.js shadow-filter family. */
+    /**
+     * Effective filters are PCF and VSM. The legacy pcfSoft spelling is a PCF
+     * alias. VSM is supported for directional and spot shadows; enabled
+     * shadow-casting point lights with VSM are refused before rendering.
+     */
     type: "pcf" | "pcfSoft" | "vsm";
   };
 }

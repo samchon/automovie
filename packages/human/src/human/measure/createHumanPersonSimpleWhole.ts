@@ -2,6 +2,7 @@ import type { IAutoMovieHumanBodySimpleWhole } from "../../body/structures/IAuto
 import type { IAutoMovieHumanPersonCompiledGeneration } from "../structures/IAutoMovieHumanPersonCompiledGeneration";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import type { IAutoMovieHumanPersonRestReading } from "../structures/IAutoMovieHumanPersonRestReading";
+import { humanPersonBodyReach } from "./humanPersonBodyReach";
 import { readHumanPersonRest } from "./readHumanPersonRest";
 
 /**
@@ -13,6 +14,10 @@ import { readHumanPersonRest } from "./readHumanPersonRest";
  * stays as the caller's document states it, and aliased macros follow the
  * body shape through the generation's drivers. The last shape read is
  * cached, since the simple tier asks stature and volume of one trial body.
+ * The paired evaluator's solve-only body reach accompanies the reader, so
+ * its inverse samples only weights supported by both endpoint owners.
+ * That reach is derived lazily: a valid held shape can still be projected
+ * when the generation's coupled support has no independent axis form.
  */
 export function createHumanPersonSimpleWhole(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
@@ -20,6 +25,7 @@ export function createHumanPersonSimpleWhole(
 ): IAutoMovieHumanBodySimpleWhole {
   let lastKey: string | undefined;
   let last: IAutoMovieHumanPersonRestReading | undefined;
+  let bodyReach: IAutoMovieHumanBodySimpleWhole["bodyReach"];
   const read = (
     shape: Readonly<Record<string, number>>,
   ): IAutoMovieHumanPersonRestReading => {
@@ -34,6 +40,9 @@ export function createHumanPersonSimpleWhole(
     return last;
   };
   return {
+    get bodyReach() {
+      return (bodyReach ??= humanPersonBodyReach(compiled.generation).basis);
+    },
     stature: (shape) => read(shape).statureMetres,
     volume: (shape) => read(shape).volumeCubicMetres,
   };

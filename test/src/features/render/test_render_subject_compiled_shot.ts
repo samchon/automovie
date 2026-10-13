@@ -129,7 +129,7 @@ export const test_render_subject_compiled_shot = (): void => {
   const subject = autoMovieRenderSubjectOfCompiledShot({
     compiled: furnished,
     textures: [
-      { asset: "textures/stone.png", width: 2, height: 2, mipmapped: false },
+      { format: "rgba8" as const, asset: "textures/stone.png", width: 2, height: 2, mipmapped: false },
     ],
   });
   TestValidator.equals(

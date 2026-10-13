@@ -1,56 +1,39 @@
-import { mountGallery } from "@automovie/website/gallery";
 import { TestValidator } from "@nestia/e2e";
 
-import { websiteGalleryFixture } from "../internal/websiteGalleryFixture";
+import { GalleryUnit } from "../internal/GalleryUnit";
+import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
 
 /**
- * Native close is delivered after the open property changes. Synchronous
- * cleanup must survive teardown, and an older notification must not unlock
- * or move focus out of a gallery that has since reopened.
+ * Close completion observes current open state. An older delivered notification
+ * cannot release a newer opening; actual native closure releases current focus.
  *
  * Scenarios:
- * 1. Defer close notification, close then reopen: the late event is ignored.
- * 2. Deliver a native Escape close: it unlocks and restores the current opener.
- * 3. Dispose before a pending close notification: the document still unlocks.
+ * 1. Close, reopen, then deliver the old notification: the new lock remains.
+ * 2. Observe native Escape closure and duplicate notification: current opener restores.
+ * 3. Dispose an open gallery: closure and release are synchronous and idempotent.
  */
 export const test_website_gallery_close_events = (): void => {
-  const f = websiteGalleryFixture();
-  f.dialog.close = () => {
-    f.dialog.open = false;
-  };
-  const dispose = mountGallery(f.document);
-  f.openers[0].click();
-  f.element<HTMLButtonElement>("#gallery-close").click();
-  TestValidator.predicate(
-    "close releases lock synchronously",
-    !f.document.documentElement.classList.contains("gallery-open"),
-  );
-  f.openers[1].click();
-  const focused = f.element<HTMLButtonElement>("#gallery-close");
-  focused.focus();
-  f.dialog.dispatchEvent(new f.dom.window.Event("close"));
-  TestValidator.predicate(
-    "late close cannot change reopened modal",
-    f.dialog.open &&
-      f.document.documentElement.classList.contains("gallery-open") &&
-      f.document.activeElement === focused,
-  );
-  f.dialog.open = false;
-  f.dialog.dispatchEvent(new f.dom.window.Event("close"));
-  TestValidator.predicate(
-    "native close restores current opener",
-    !f.document.documentElement.classList.contains("gallery-open") &&
-      f.document.activeElement === f.openers[1],
-  );
-  f.openers[2].click();
-  f.dialog.close();
-  dispose();
-  f.dialog.dispatchEvent(new f.dom.window.Event("close"));
-  TestValidator.predicate(
-    "teardown survives pending close",
-    !f.dialog.open &&
-      !f.document.documentElement.classList.contains("gallery-open") &&
-      f.document.activeElement === f.openers[2],
-  );
-  f.dom.window.close();
+  const { host, facts } = createGalleryHostFacts();
+  const controller = new GalleryUnit.Controller(host, [3, 3]);
+  const click = { button: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false };
+  controller.open(0, "first", click, () => {});
+  controller.close();
+  TestValidator.equals("explicit close completed", [facts.open, facts.locked, facts.focused], [false, false, "first"]);
+  controller.open(1, "second", click, () => {});
+  const before = facts.effects.length;
+  controller.closed();
+  TestValidator.equals("delayed old event causes no effects", facts.effects.length, before);
+  TestValidator.equals("reopening stays locked", [facts.open, facts.locked, facts.focused], [true, true, "first"]);
+  facts.open = false;
+  controller.closed();
+  TestValidator.equals("actual native closure restores current opener", [facts.locked, facts.focused], [false, "second"]);
+  controller.closed();
+  TestValidator.equals("duplicate completion preserves released state", [facts.locked, facts.focused], [false, "second"]);
+  controller.open(0, "third", click, () => {});
+  controller.dispose();
+  TestValidator.equals("disposal completes closure synchronously", [facts.open, facts.locked, facts.focused, facts.effects.at(-1)], [false, false, "third", "dispose"]);
+  const completed = facts.effects.length;
+  controller.closed();
+  controller.dispose();
+  TestValidator.equals("late completion and repeated disposal are inert", facts.effects.length, completed);
 };

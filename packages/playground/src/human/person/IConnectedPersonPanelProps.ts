@@ -6,6 +6,7 @@ import type {
   IAutoMovieHumanPersonChannelAlias,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
+import type { IAutoMovieHumanPersonBodyReach } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyReach";
 import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
 import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
@@ -52,6 +53,9 @@ export interface IConnectedPersonPanelProps<
 
   /** The body partition view. */
   body: IAutoMovieHumanBodyBasis;
+
+  /** The paired generation's solve support and named limits, without rewriting the body view. */
+  bodyReach: IAutoMovieHumanPersonBodyReach;
 
   /** The document the page opens with and Reset returns to. */
   initial: IAutoMovieHumanPersonDocument;

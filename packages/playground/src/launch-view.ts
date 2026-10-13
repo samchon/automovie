@@ -323,6 +323,7 @@ const cameraDepthPrecision = assertAutoMovieViewerCameraDepthPrecision({
 ): void => {
   renderAt(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,

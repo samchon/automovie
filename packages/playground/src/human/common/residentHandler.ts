@@ -1,5 +1,5 @@
 import type { IHumanResidentHandlerProps } from "./IHumanResidentHandlerProps";
-import type { IHumanResidentRequest } from "./IHumanResidentRequest";
+import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 
 /**
  * Bind asynchronous preparation and evaluation to the initiating request ID.

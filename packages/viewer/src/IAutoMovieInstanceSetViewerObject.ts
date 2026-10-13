@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats";
+import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats.js";
 
 /**
  * Viewer-owned chunked object for a compiled general instance set.
@@ -25,6 +25,7 @@ export interface IAutoMovieInstanceSetViewerObject {
    * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-bounds-framing-culling-failures Keeps instance-set LOD and culling state separate from authored visibility and compact member identity.
    */
   stats: IAutoMovieInstanceSetViewerStats;
+
   /**
    * Recompute chunk visibility for the current camera.
    *

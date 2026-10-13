@@ -1,6 +1,7 @@
 {
   "name": "@automovie/mcp",
   "version": "0.1.0",
+  "engines": { "node": ">=22.23.2" },
   "description": "Read-only authored Markdown reference navigation for AutoMovie productions.",
   "main": "src/index.ts",
   "exports": { ".": "./src/index.ts", "./package.json": "./package.json" },

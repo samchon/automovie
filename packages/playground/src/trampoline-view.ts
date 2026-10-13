@@ -40,6 +40,11 @@ const DUR = 9;
 
 // Precompute the bounce timeline: each landing, resolveImpact gives the rebound
 // speed, and a 1-D vertical projectile arc carries the figure to the next.
+/**
+ * One precomputed trampoline flight interval and its upward launch velocity.
+ *
+ * @author Samchon
+ */
 interface Arc {
   start: number;
   end: number;
@@ -177,6 +182,7 @@ const handle = mountViewer(canvas, scene, camera, (elapsed) => {
 ): void => {
   step(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 
 (window as unknown as { __automovie: unknown }).__automovie = {

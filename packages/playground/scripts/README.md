@@ -1,19 +1,12 @@
-# Regenerating `.shots` (GLB models + demo GIFs)
+# Regenerating model and demonstration outputs
 
-`.shots/` is **gitignored scratch**: everything in it is derived from the
-playground's TypeScript AST, so it is regenerated, never committed. On a fresh
-checkout the folder is empty; these scripts rebuild it.
+The model and demonstration outputs listed here are ignored derivatives of Playground's TypeScript models and view pages. These scripts regenerate their own outputs. The repository's `.shots` also holds required Human inputs, reference photographs and resident viewer runtime files; its [Human cleanup procedure](../../../.agents/skills/project/human.md#visual-debugging-files) owns the preservation boundary.
 
-All commands run from `packages/playground` (or via `pnpm --filter
-@automovie/playground <script>`).
+All commands run from `packages/playground` or through `pnpm --filter @automovie/playground <script>`.
 
 ## Type-check boundary
 
-`tsconfig.scripts.json` owns the root `scripts/*.ts` production entries and
-their shared TypeScript support. The playground `build` checks this Node/DOM
-program before Vite builds the separate browser `src` program, so workspace API
-drift fails the normal package and repository build. Every maintained script is
-a typed entry under `scripts/*.ts`, which this boundary picks up automatically.
+[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts` and `scripts/*.cts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
 
 ## Models (`.glb`)
 

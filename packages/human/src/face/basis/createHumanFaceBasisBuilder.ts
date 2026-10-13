@@ -3,7 +3,6 @@ import { createMeshPhysicalPartitionMatcher } from "@automovie/engine/math/creat
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
-import { applyHumanSkinFinish } from "../../common/skin/applyHumanSkinFinish";
 import { buildHumanFaceBrowAssembly } from "../anatomy/brow/buildHumanFaceBrowAssembly";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
 import { assertHumanFaceLashContact } from "../anatomy/lash/assertHumanFaceLashContact";
@@ -106,7 +105,9 @@ import { resolveHumanFaceAppearanceDocument } from "./resolveHumanFaceAppearance
  * (`createHumanFaceIrisPigment`) after the material overrides, so an override
  * of the eye's colour still multiplies the repainted texture. Fields contain no
  * image data. A new model owns its arrays and materials; neither basis nor
- * edits mutate. Model structure and materials are admitted on the prepared
+ * edits mutate. Source materials retain their authored scattering; facial
+ * construction adds no implicit skin finish. Model structure and materials
+ * are admitted on the prepared
  * neutral. Registered surfaces gather their canonical physical samples through
  * the region's UV table in the document instance and source-generation domain.
  * Opposite contact samples stay distinct; UV and normal aliases keep one ID.
@@ -228,7 +229,6 @@ export function createHumanFaceBasisBuilder(
         ? undefined
         : new Set(["leftEye", "rightEye"]),
     );
-    applyHumanSkinFinish(materials);
     const pose = evaluatePose(
       state,
       document.shape,

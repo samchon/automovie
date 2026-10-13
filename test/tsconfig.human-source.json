@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "rootDir": "." },
-  "include": ["scripts/human-source/*.ts", "scripts/human-source/structures/*.ts"]
-}

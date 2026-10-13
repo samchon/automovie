@@ -1,7 +1,7 @@
 /**
  * Viewer package boundaries for authoring authority and provenance.
  *
- * The package's lint.config.ts selects this declaration as an exclusion
+ * The package's evidence.config.ts selects this declaration as an exclusion
  * carrier within its complete public-source population. It has no runtime
  * state and is not re-exported by the package barrel. Each declared
  * target/reason pair below owns one intentional negative relationship;
@@ -20,9 +20,7 @@
  * @evidenceExclude requirements/agent-authoring/partial-work.md The viewer consumes compiled artifacts; agent instructions, authoring workflow, and source ownership remain outside this runtime.
  * @evidenceExclude requirements/agent-authoring/project-ownership.md The viewer consumes compiled artifacts; agent instructions, authoring workflow, and source ownership remain outside this runtime.
  * @evidenceExclude requirements/agent-authoring/README.md The viewer consumes compiled artifacts; agent instructions, authoring workflow, and source ownership remain outside this runtime.
- * @evidenceExclude requirements/agent-authoring/roles-and-authorities.md The viewer consumes compiled artifacts; agent instructions, authoring workflow, and source ownership remain outside this runtime.
  * @evidenceExclude requirements/agent-authoring/source-owned-loop.md The viewer consumes compiled artifacts; agent instructions, authoring workflow, and source ownership remain outside this runtime.
- * @evidenceExclude requirements/evidence-and-provenance/canonical-digests-and-content-identity.md The viewer renders compiled state; provenance capture, evidence retention, and audit authority remain outside this projection layer.
  * @evidenceExclude requirements/evidence-and-provenance/chain-of-custody-and-tamper-detection.md The viewer renders compiled state; provenance capture, evidence retention, and audit authority remain outside this projection layer.
  * @evidenceExclude requirements/evidence-and-provenance/completeness-freshness-and-refusal.md The viewer renders compiled state; provenance capture, evidence retention, and audit authority remain outside this projection layer.
  * @evidenceExclude requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md The viewer renders compiled state; provenance capture, evidence retention, and audit authority remain outside this projection layer.
@@ -38,7 +36,6 @@
  * @evidenceExclude requirements/production-evidence/native-input.md#agent-production-evidence-native-boundary Native graph configuration belongs to the evidence adapter; the viewer consumes compiled production state without transforming graph declarations.
  * @evidenceExclude requirements/production-evidence/input.md The viewer projects admitted production state and does not configure or validate the generated project's authoring evidence graph.
  * @evidenceExclude specifications/authoring-and-authority/capability-and-content-boundary.md The viewer consumes compiled state; authoring authority, source lineage, reconciliation, and refusal remain outside this runtime.
- * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md The viewer consumes compiled state; authoring authority, source lineage, reconciliation, and refusal remain outside this runtime.
  * @evidenceExclude specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-basis The viewer renders compiled results and implements no derived ledger, basis closure, generation attempt, compile freshness matrix, publication path invariant, or execution-budget boundary.
  * @evidenceExclude specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-freshness The viewer renders compiled results and implements no derived ledger, basis closure, generation attempt, compile freshness matrix, publication path invariant, or execution-budget boundary.
  * @evidenceExclude specifications/authoring-and-authority/deterministic-precomputed-artifacts.md#spec-authoring-precomputed-generation The viewer renders compiled results and implements no derived ledger, basis closure, generation attempt, compile freshness matrix, publication path invariant, or execution-budget boundary.
@@ -50,7 +47,6 @@
  * @evidenceExclude specifications/authoring-and-authority/prototype-determinism-and-fidelity.md The viewer consumes compiled state; authoring authority, source lineage, reconciliation, and refusal remain outside this runtime.
  * @evidenceExclude specifications/authoring-and-authority/README.md The viewer consumes compiled state; authoring authority, source lineage, reconciliation, and refusal remain outside this runtime.
  * @evidenceExclude specifications/authoring-and-authority/source-authority-and-derivation.md The viewer consumes compiled state; authoring authority, source lineage, reconciliation, and refusal remain outside this runtime.
- * @evidenceExclude specifications/evidence-and-provenance/canonical-digests-and-content-identity.md The viewer renders compiled state; evidence policy, provenance lineage, audit retention, and adjudication remain outside this projection layer.
  * @evidenceExclude specifications/evidence-and-provenance/chain-of-custody-and-tamper-detection.md The viewer renders compiled state; evidence policy, provenance lineage, audit retention, and adjudication remain outside this projection layer.
  * @evidenceExclude specifications/evidence-and-provenance/completeness-freshness-and-refusal.md The viewer renders compiled state; evidence policy, provenance lineage, audit retention, and adjudication remain outside this projection layer.
  * @evidenceExclude specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md The viewer renders compiled state; evidence policy, provenance lineage, audit retention, and adjudication remain outside this projection layer.
@@ -79,5 +75,17 @@
  * @evidenceExclude specifications/authoring-and-authority/reference-navigation.md#spec-reference-bounds The viewer displays compiled scene inputs; it neither serves authored-Markdown reference requests nor launches repository sandboxes.
  * @evidenceExclude specifications/authoring-and-authority/reference-navigation.md#spec-reference-isolation The viewer displays compiled scene inputs; it neither serves authored-Markdown reference requests nor launches repository sandboxes.
  * @evidenceExclude specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports The viewer displays compiled scene inputs; it neither serves authored-Markdown reference requests nor launches repository sandboxes.
+ * @evidenceExclude requirements/agent-authoring/roles-and-authorities.md#agent-director-authority The inspection host does not assign a director's creative decisions or approval authority.
+ * @evidenceExclude requirements/agent-authoring/roles-and-authorities.md#agent-user-delegation-authority User delegation of authoring authority to agents is not part of the inspection protocol.
+ * @evidenceExclude requirements/agent-authoring/roles-and-authorities.md#agent-author-authority Code-agent source editing and proposal authority remain outside the runtime request executor.
+ * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-decision-authority-state The inspection protocol has no ledger of director, user and code-agent authoring decisions.
+ * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-user-director-input The viewer does not arbitrate user and director intent or unresolved authoring decisions.
+ * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-agent-input-output The viewer accepts numerical runtime requests, not code-agent proposals or source-editing authority transitions.
+ * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility A replaceable HTTP host is not an authoring-authority migration; this package does not preserve an agent decision ledger across client or vendor replacement.
+ * @evidenceExclude requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-algorithm-change-and-collision The inspector consumes the current identity protocol rather than publishing digest-algorithm migrations and historical identity replacement relations.
+ * @evidenceExclude specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-algorithm-migration-collision The local capture and source readers do not migrate digest algorithms or publish old-to-new identity relations.
+ * @evidenceExclude requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-byte-and-semantic-identity The inspection writer records encoded image bytes and reported source/view facts; canonical decoded semantic identity, decoder protocol and represents relations belong to the content-identity/evidence owner rather than the mutable latest-display slot.
+ * @evidenceExclude specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-violation-failure The viewer checks numerical source and page-session admission; delegated creative decision authority and decision-required authoring choices belong to the authoring host.
+ * @evidenceExclude specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-byte-semantic-identity The inspection writer records encoded image bytes and reported source/view facts; canonical decoded semantic identity, decoder protocol and represents relations belong to the content-identity/evidence owner rather than the mutable latest-display slot.
  */
 export type AutoMovieViewerAuthoringEvidenceExclusions = never;

@@ -5,8 +5,9 @@
  * entering the browser's back/forward cache keeps its working enhancement.
  */
 import { mountGallery } from "./gallery";
+import { shouldDisposeGalleryPage } from "./gallery/shouldDisposeGalleryPage";
 
 const dispose = mountGallery(document);
 window.addEventListener("pagehide", (event) => {
-  if (!event.persisted) dispose();
+  if (shouldDisposeGalleryPage(event.persisted)) dispose();
 });

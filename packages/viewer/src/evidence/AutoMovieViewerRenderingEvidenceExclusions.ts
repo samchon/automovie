@@ -1,7 +1,7 @@
 /**
  * Viewer package boundaries for camera, lighting, rendering and delivery.
  *
- * The package's lint.config.ts selects this declaration as an exclusion
+ * The package's evidence.config.ts selects this declaration as an exclusion
  * carrier within its complete public-source population. It has no runtime
  * state and is not re-exported by the package barrel. Each declared
  * target/reason pair below owns one intentional negative relationship;
@@ -68,7 +68,6 @@
  * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-optical-approximation The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
  * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-reflection-identity The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
  * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-result-findings The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
- * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
  * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-structural-passes The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
  * @evidenceExclude requirements/lighting/shadows-reflections-and-transmission.md#lighting-transparent-boundary The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
  * @evidenceExclude requirements/lighting/shape-filters-and-linking.md The viewer applies resolved lights; lighting authorship, analysis, safety policy, and validation remain upstream.
@@ -90,11 +89,9 @@
  * @evidenceExclude requirements/rendering/budgets.md#rendering-budget-refusal The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/budgets.md#rendering-budget-tiers The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/budgets.md#rendering-expansion-bounds The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
- * @evidenceExclude requirements/rendering/budgets.md#rendering-geometry-memory-budget The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/budgets.md#rendering-runtime-budget-enforcement The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/chunks-resume-and-recovery.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/encoding-and-multiplexing.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
- * @evidenceExclude requirements/rendering/frame-identity-and-content-addressing.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-boundary-convention The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-number-time The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/frame-schedules-and-sampling.md#rendering-schedule-audio-cues The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
@@ -107,7 +104,6 @@
  * @evidenceExclude requirements/rendering/geometry-visibility-and-culling.md#rendering-frustum-boundaries The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/geometry-visibility-and-culling.md#rendering-visibility-state The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
- * @evidenceExclude requirements/rendering/headless-and-platform-determinism.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/materials-lighting-and-color.md#rendering-color-recovery The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/materials-lighting-and-color.md#rendering-external-materials The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/materials-lighting-and-color.md#rendering-lighting-evaluation The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
@@ -119,7 +115,6 @@
  * @evidenceExclude requirements/rendering/passes-channels-and-products.md#rendering-pass-refusal The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/README.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-partial-retry The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
- * @evidenceExclude requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-refusal The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-build-order The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-time-update The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
  * @evidenceExclude requirements/rendering/scope-and-artifact-identity.md The viewer owns interactive projection only; render scheduling, headless capture policy, encoding, packaging, and publication remain in the render lane.
@@ -163,13 +158,15 @@
  * @evidenceExclude specifications/editorial-render-and-delivery/rational-timeline-and-composition.md The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
  * @evidenceExclude specifications/editorial-render-and-delivery/README.md The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-chunk-recovery The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
- * @evidenceExclude specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-raster-admission-bound The viewer applies an admitted canvas size but does not compute or enforce the production raster pixel limit.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-target-dependency-fingerprint The viewer draws supplied runtime state and does not construct the target dependency closure used for render identity.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-target-fingerprint-protocol The viewer draws supplied runtime state and does not define or encode the versioned target fingerprint protocol.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-encoding-and-validation.md The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
  * @evidenceExclude specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
- * @evidenceExclude specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-capture-runtime-identity The viewer owns a renderer lifecycle but does not canonicalize or record the browser, executable, platform, graphics, and capture-mode identity.
- * @evidenceExclude specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The viewer projects resolved frames; editorial planning, render scheduling, encoding, packaging, and delivery authority remain outside it.
+ * @evidenceExclude requirements/rendering/headless-and-platform-determinism.md#rendering-font-decoder-closure The inspector uses host image and canvas facilities without sealing a delivery profile's required font and media-decoder closure.
+ * @evidenceExclude requirements/rendering/headless-and-platform-determinism.md#rendering-cross-platform-evidence A device-scoped inspection capture does not supply cross-platform comparison receipts or their pixel and metric acceptance bounds.
+ * @evidenceExclude requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint The viewer consumes resolved rendering state and records local inspection witnesses; canonical frame and target fingerprint encoding belongs to Engine sealing and Production target identity.
+ * @evidenceExclude requirements/rendering/frame-identity-and-content-addressing.md#rendering-identity-collision-corruption The latest inspector slot is replaced by ordered observations; immutable final-artifact same-identity/different-content and destination-collision admission belongs to final render/production publication.
+ * @evidenceExclude requirements/rendering/headless-and-platform-determinism.md#rendering-cross-platform-paths Host-local inspection paths and mutable session slots do not define portable final production identity segments or their output collision policy; Production owns that encoding and admission.
  */
 export type AutoMovieViewerRenderingEvidenceExclusions = never;

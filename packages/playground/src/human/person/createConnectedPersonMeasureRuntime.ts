@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanFaceMeasurementReading,
+  IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
@@ -10,15 +11,16 @@ import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projec
 import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleWhole";
 import { HUMAN_FACE_MEASUREMENTS } from "@automovie/human/face/anatomy/resolution/HUMAN_FACE_MEASUREMENTS";
 import { solveHumanFaceMeasurementTarget } from "@automovie/human/face/anatomy/resolution/solveHumanFaceMeasurementTarget";
+import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { createHumanPersonSimpleWhole } from "@automovie/human/human/measure/createHumanPersonSimpleWhole";
+import { humanPersonBodyReach } from "@automovie/human/human/measure/humanPersonBodyReach";
 import { measureHumanPersonDocument } from "@automovie/human/human/measure/measureHumanPersonDocument";
 import { measureHumanPersonHead } from "@automovie/human/human/measure/measureHumanPersonHead";
 import { solveHumanPersonHead } from "@automovie/human/human/measure/solveHumanPersonHead";
 import { solveHumanPersonMeasuredChannel } from "@automovie/human/human/measure/solveHumanPersonMeasuredChannel";
 
 import type { IBodySimpleReply } from "../body/IBodySimpleReply";
-import { connectedBodyReach } from "../common/connectedBodyReach";
 import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
 import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasureMessage } from "./IConnectedPersonMeasureMessage";
@@ -57,9 +59,13 @@ import { prepareConnectedPersonEvaluator } from "./prepareConnectedPersonEvaluat
 export function createConnectedPersonMeasureRuntime(
   props: IConnectedPersonMeasureRuntimeProps,
 ) {
-  // The solve brackets within the reach the body view can evaluate, the same
-  // reach the panel shows (`connectedBodyReach`).
-  const reach = props.body.then((view) => connectedBodyReach(view.body).basis);
+  // The solver and the person panel share the paired endpoint owner's reach.
+  let reach: Promise<IAutoMovieHumanBodyBasis> | undefined;
+  const bodyReach = () =>
+    (reach ??= Promise.all([props.head, props.body]).then(
+      ([head, body]) =>
+        humanPersonBodyReach(joinHumanPersonGeneration(head, body)).basis,
+    ));
   let person: Promise<IConnectedPersonEvaluator> | undefined;
   let faceReadings: AutoMovieHumanFaceMeasurementReading[] = [];
   // Face readings come from the same whole-person generation and final skin.
@@ -107,7 +113,10 @@ export function createConnectedPersonMeasureRuntime(
         request.kind === "expandPersonSimple" ||
         request.kind === "projectPersonSimple"
       ) {
-        const basis = await reach;
+        const basis =
+          request.kind === "expandPersonSimple"
+            ? await bodyReach()
+            : (await props.body).body;
         const { compiled } = await evaluator();
         const document = parseHumanPersonDocument(
           request.document,
@@ -115,6 +124,9 @@ export function createConnectedPersonMeasureRuntime(
         );
         const reader = createHumanPersonSimpleWhole(compiled, document);
         const whole: IAutoMovieHumanBodySimpleWhole = {
+          get bodyReach() {
+            return reader.bodyReach;
+          },
           stature: (shape) => {
             const value = reader.stature(shape);
             props.signal("person-rest-stature-read");
@@ -145,7 +157,7 @@ export function createConnectedPersonMeasureRuntime(
       }
       if (request.kind === "solveMeasurement") {
         const result = solveHumanBodyMeasuredChannel({
-          basis: await reach,
+          basis: await bodyReach(),
           shape: request.shape,
           channel: request.channel,
           targetMetres: request.targetMetres,

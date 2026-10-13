@@ -7,25 +7,15 @@ const sharedSources = [
   "src/subjects/**/*.ts",
   ...subjects.map((subject) => `!src/subjects/${subject}/**/*.ts`),
 ];
-// The body folder of the human package is inspected by the body study review;
-// the face reviews keep the residual population, so a new human source file
-// owes an inspection somewhere by default.
-// Domain review carriers remain attached to the root construction record.
-// Match their explicit suffix, so a future preview.ts is still source to review.
-const studyReviews = [
-  "studies/human-face/review.ts",
-  "studies/human-face/**/*-review.ts",
-];
-const studySources = [
-  "studies/human-face/**/*.ts",
-  ...studyReviews.map((file) => `!${file}`),
-];
 
 /**
  * A model owes every recorded view, and that review owes the complete current
- * construction source. Source relationships remain visible as warnings while
- * review companion tags are removed. These diagnostics do not establish that
- * an anatomical construction or photographic likeness is acceptable.
+ * construction source. This graph covers the retained authored subjects only;
+ * current example documents and product assets are owned by Playground and
+ * Human. Their retired portable-study review carriers establish no current
+ * source or render acceptance. Human retains its complete implementation
+ * contracts population in its own configuration. Surviving subject and shared
+ * source selectors are unchanged, including their warning severity.
  */
 const graph: IEvidenceConfig = {
   claims: [
@@ -111,162 +101,6 @@ const graph: IEvidenceConfig = {
         },
       },
     ]),
-    {
-      name: "portable face studies retain every per-person observation",
-      type: "typescript",
-      files: studySources,
-      symbol: ["type", "function", "property"],
-      reference: [
-        {
-          type: "markdown",
-          files: ["studies/human-face/review.md"],
-          symbol: "h2",
-          checklist: true,
-          noEvidenceExclude: true,
-          severity: "warning",
-        },
-      ],
-    },
-    {
-      name: "portable face studies retain their construction review",
-      type: "typescript",
-      files: studySources,
-      symbol: ["type", "function", "property"],
-      reference: {
-        type: "typescript",
-        files: ["studies/human-face/review.ts"],
-        symbol: "property",
-        singleEvidencePerSymbol: true,
-        noEvidenceExclude: true,
-      },
-    },
-    {
-      name: "portable face construction source is inspected",
-      type: "typescript",
-      files: studyReviews,
-      symbol: "property",
-      reference: [
-        {
-          type: "typescript",
-          root: "../packages/human",
-          files: ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"],
-          symbol: ["type", "function", "property"],
-          noEvidenceExclude: true,
-        },
-        {
-          type: "typescript",
-          files: studySources,
-          symbol: ["type", "function", "property"],
-          noEvidenceExclude: true,
-        },
-      ],
-    },
-    {
-      name: "portable face construction review retains its domain inspections",
-      type: "typescript",
-      files: ["studies/human-face/review.ts"],
-      symbol: "property",
-      reference: {
-        type: "typescript",
-        files: ["studies/human-face/**/*-review.ts"],
-        symbol: "property",
-        noEvidenceExclude: true,
-      },
-    },
-    {
-      name: "portable body construction source is inspected",
-      type: "typescript",
-      files: ["studies/human-body/review.ts"],
-      symbol: "property",
-      reference: {
-        type: "typescript",
-        root: "../packages/human",
-        files: ["src/body/**/*.ts", "!src/**/index.ts"],
-        symbol: ["type", "function", "property"],
-        noEvidenceExclude: true,
-        severity: "warning",
-      },
-    },
-    {
-      name: "portable body studies retain the provenance and review contract",
-      type: "typescript",
-      files: ["studies/human-body/**/*.ts"],
-      symbol: ["type", "function", "property"],
-      reference: [
-        {
-          type: "markdown",
-          root: "../docs",
-          files: ["requirements/actors/body-authoring/**/README.md"],
-          symbol: "h1",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "requirements/actors/body-authoring/**/*.md",
-            "!requirements/actors/body-authoring/**/README.md",
-          ],
-          symbol: "h3",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "specifications/asset-and-representation/body-authoring/**/README.md",
-          ],
-          symbol: "h1",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "specifications/asset-and-representation/body-authoring/**/*.md",
-            "!specifications/asset-and-representation/body-authoring/**/README.md",
-          ],
-          symbol: "h3",
-        },
-      ],
-    },
-    {
-      name: "portable face studies retain the provenance and review contract",
-      type: "typescript",
-      files: ["studies/human-face/**/*.ts"],
-      symbol: ["type", "function", "property"],
-      reference: [
-        {
-          type: "markdown",
-          root: "../docs",
-          files: ["requirements/actors/facial-authoring/**/README.md"],
-          symbol: "h1",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "requirements/actors/facial-authoring/**/*.md",
-            "!requirements/actors/facial-authoring/**/README.md",
-          ],
-          symbol: "h3",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "specifications/asset-and-representation/facial-authoring/**/README.md",
-          ],
-          symbol: "h1",
-        },
-        {
-          type: "markdown",
-          root: "../docs",
-          files: [
-            "specifications/asset-and-representation/facial-authoring/**/*.md",
-            "!specifications/asset-and-representation/facial-authoring/**/README.md",
-          ],
-          symbol: "h3",
-        },
-      ],
-    },
   ],
 };
 

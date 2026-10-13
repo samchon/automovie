@@ -1,26 +1,39 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { partitionHumanSkinMaterial } from "../../common/mesh/partitionHumanSkinMaterial";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IHumanBodyUnderwearMaterialInput } from "../structures/IHumanBodyUnderwearMaterialInput";
 
 /**
- * Replace one final skin region by complementary skin and fabric parts.
- * Both parts retain the source transform and physical contour correspondence.
+ * Append independent lifted fabric to one unchanged final skin region.
+ * Its cut reads carried rest coverage and actual final posed normals, after
+ * Body placement or Person stitching has completed.
  * Fabric has its own colour and roughness rather than the skin's per-vertex
- * colour or relief multiplier. No overlapping area or displaced geometry is
- * appended. Final model and portable exporter admission remain unchanged.
+ * colour or relief multiplier. The r16 normal-offset representation is a
+ * blocking costume; it provides no cloth fitting or self-contact guarantee.
+ * Source skin remains the anatomy and contact authority. Fabric carries no
+ * skin physical-vertex lineage. Model and portable exporter admission remain.
  */
 export function applyHumanBodyUnderwearMaterial(
   input: IHumanBodyUnderwearMaterialInput,
 ): IAutoMovieModel["parts"] {
-  const { part, field, sources, material } = input;
+  const { part, field, sources, material, offsetMetres } = input;
   if (part.geometry.type !== "mesh")
     throw new Error("Skin-attached underwear requires its actual source mesh part.");
   const partition = partitionHumanSkinMaterial({ mesh: part.geometry.mesh, field, sources });
-  const parts: IAutoMovieModel["parts"] = [];
-  if (partition.uncovered.indices!.length !== 0)
-    parts.push({ ...part, geometry: { type: "mesh", mesh: partition.uncovered } });
+  const parts: IAutoMovieModel["parts"] = [part];
   if (partition.covered.indices!.length !== 0) {
+    const normals = partition.covered.normals;
+    if (normals === null || !Number.isFinite(offsetMetres))
+      throw new Error("Underwear normal lift needs final skin normals and finite metres.");
+    partition.covered.positions = partition.covered.positions.map(
+      (value, at) => value + offsetMetres * normals[at],
+    );
+    partition.covered.normals = areaWeightedNormals(
+      partition.covered.positions, partition.covered.indices!,
+    );
+    partition.covered.uvs = null;
+    delete partition.covered.physicalVertices;
     delete partition.covered.colors;
     delete partition.covered.reliefWeights;
     parts.push({ ...part, id: part.id + "/" + material.id,

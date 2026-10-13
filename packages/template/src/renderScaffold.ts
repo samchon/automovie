@@ -10,7 +10,7 @@ import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./templateVersions";
 import {
   validateAutoMovieInstructionDocumentLinks,
   validateAutoMovieSkillRouterLinks,
-} from "./validateAutoMovieSkillRouters";
+} from "./instructionRoutes";
 
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map:

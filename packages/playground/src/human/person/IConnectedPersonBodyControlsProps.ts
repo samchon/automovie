@@ -2,6 +2,7 @@ import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanBodyBasisDocument,
 } from "@automovie/human";
+import type { IAutoMovieHumanPersonBodyReach } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyReach";
 
 import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
 
@@ -24,6 +25,9 @@ export interface IConnectedPersonBodyControlsProps {
 
   /** The body partition view of the person generation. */
   body: IAutoMovieHumanBodyBasis;
+
+  /** Whole-person solve support shown by these body controls, from the same generation as body. */
+  reach: IAutoMovieHumanPersonBodyReach;
 
   /** The current draft body document. */
   current: () => IAutoMovieHumanBodyBasisDocument;

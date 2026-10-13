@@ -1,4 +1,4 @@
-import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
 
 /**
  * One request the body editor posts to a body-protocol worker.

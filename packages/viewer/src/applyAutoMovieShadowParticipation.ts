@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { SPACE_GROUP_NAME } from "./buildSpace";
+import { SPACE_GROUP_NAME } from "./buildSpace.js";
 
 /**
  * Say which objects cast a shadow and which receive one.

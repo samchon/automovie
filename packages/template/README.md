@@ -16,6 +16,8 @@ Every rendered project is self-contained:
 
 The scaffold's [static-document policy](./scaffold/README.md#static-document-updates) owns installed instructions, contracts, and other project files. Updating the package does not update those files.
 
+The scaffold's [canonical command routes](./scaffold/README.md#canonical-command-routes) own its explicit ES-module and single-file transformation contract, including type import syntax and full-program source validation.
+
 The source inventory carries its root ignore rules in `scaffold/_gitignore`, which the materializer installs as `.gitignore`. This keeps npm's pack-time `.gitignore` to `.npmignore` rename from changing the generated project's Git boundary. A direct `.gitignore` source remains supported; supplying both root identities is a collision and refuses the candidate.
 
 Initial scaffold candidates validate local targets and heading links from every shipped Markdown skill topic as well as the production `SKILL.md` router and `AGENTS.md`. The complete installation population includes referenced README, configuration and asset files. Skill frontmatter and a leading H1 identify each entry; procedure headings remain ordinary Markdown. A broken sibling route refuses creation before publication. Later project-owned edits follow the static-document policy.

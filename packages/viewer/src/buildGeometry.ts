@@ -2,11 +2,15 @@ import { tessellate } from "@automovie/engine";
 import { IAutoMovieGeometry } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieGeometryPhysicalVertices } from "./AutoMovieGeometryPhysicalVertices";
+import { AutoMovieGeometryPhysicalVertices } from "./AutoMovieGeometryPhysicalVertices.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
  * parametric primitive (via the engine) or uploading raw mesh arrays.
+ * Its buffer object is owned before tessellation or attribute initialization;
+ * an initialization refusal independently reports disposal and its original
+ * cause rather than leaving an unreturned allocation with no owner.
  *
  * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Lowers compiled geometry into a viewer-owned runtime buffer object.
  * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the runtime ownership side of isolated scene lowering.
@@ -15,7 +19,8 @@ import { AutoMovieGeometryPhysicalVertices } from "./AutoMovieGeometryPhysicalVe
 export const buildGeometry = (
   geometry: IAutoMovieGeometry,
 ): THREE.BufferGeometry => {
-  const geo = new THREE.BufferGeometry();
+  return constructAutoMovieOwnedResources((own) => {
+  const geo = own(new THREE.BufferGeometry());
   if (geometry.type === "primitive") {
     const t = tessellate(geometry.shape);
     geo.setAttribute(
@@ -64,4 +69,5 @@ export const buildGeometry = (
   AutoMovieGeometryPhysicalVertices.writeOwned(geo, mesh.physicalVertices);
   AutoMovieGeometryPhysicalVertices.read(geo);
   return geo;
+  });
 };

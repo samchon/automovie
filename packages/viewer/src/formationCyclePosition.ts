@@ -1,4 +1,4 @@
-import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence";
+import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence.js";
 
 /**
  * Where one member stands in its cycle, in `[0, 1)`.

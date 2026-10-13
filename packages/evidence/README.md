@@ -70,6 +70,6 @@ The factory and production readers consume the same exported declaration. Additi
 
 ## Independent checks
 
-`pnpm run build` compiles the library with correctness lint. `pnpm run evidence` runs the standalone repository graph, then its native documentation and todo guards. Generated productions run `npm run lint` for TypeScript and `npm run evidence` for their authored graph and source todo guard. Their sole production declaration remains `lint.config.ts`; the CLI selects it explicitly.
+`pnpm run build` compiles the library with correctness lint. `pnpm run evidence` runs the standalone repository graph, then its native documentation and todo guards. Generated productions run `npm run lint` for TypeScript and `npm run evidence` for their authored graph and source todo guard. Their sole production declaration remains `lint.config.ts`; `evidence.config.ts` derives the standalone graph from that same exported object, and the normal evidence command selects the derived entry explicitly.
 
 The standalone evaluator accepts named severity levels. `createAutoMovieStandaloneEvidenceConfig` converts numeric levels and `warn` and resolves roots from the explicit production location without changing claim or reference policy. TypeScript references use explicit `root` and `files`; compiler-only package populations must be authored in that standalone form.

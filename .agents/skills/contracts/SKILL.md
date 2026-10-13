@@ -1,6 +1,6 @@
 ---
 name: contracts
-description: Defines the implementation acknowledgments that maintained source declarations answer with @evidence tags, in three layers of checklist chapters: common engineering principles, modeling principles and anatomical principles for human forms. Use when implementing or reviewing maintained source, when enrolling source in a contracts claim, or when writing or revising a checklist chapter. It does not define product requirements, system specifications or a generated production's contract, which the evidence-graph skill and the scaffold's shipped skills own.
+description: Defines the implementation acknowledgments that maintained source declarations answer with @evidence tags, in three layers of checklist chapters: common engineering principles, modeling principles and anatomical principles for human forms. Use when implementing or reviewing maintained source, when enrolling source in a contracts claim, or when writing or revising a checklist chapter. Product requirements and system specifications belong to the evidence-graph skill. A generated production's selected project-owned contract documents and typed declaration own its contract; installed @automovie/evidence documentation describes graph mechanics.
 ---
 
 # Implementation Contracts

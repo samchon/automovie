@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanPersonBodyView } from "@automovie/human";
+import bodyViewUrl from "@automovie/human/assets/person/body.json.gz?url";
 
-import { readConnectedFaceAsset } from "../common/connectedAsset";
+import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 
 /**
  * Read the body partition view of the published person generation, the body
@@ -18,11 +19,7 @@ export function readConnectedBodyView(
   return readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
     read: () =>
       fetch(
-        source ??
-          new URL(
-            "../../../../../test/studies/human-person/generation/body.json.gz",
-            import.meta.url,
-          ),
+        source ?? bodyViewUrl,
       ),
   });
 }

@@ -1,11 +1,11 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation";
-import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps";
-import { bakeFormationCycle } from "./bakeFormationCycle";
-import { buildModel } from "./buildModel";
-import { flattenRigidParts } from "./flattenRigidParts";
-import { instancedModelParts } from "./instancedModelParts";
+import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
+import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
+import { bakeFormationCycle } from "./bakeFormationCycle.js";
+import { buildModel } from "./buildModel.js";
+import { flattenRigidParts } from "./flattenRigidParts.js";
+import { instancedModelParts } from "./instancedModelParts.js";
 
 /**
  * Flatten one runtime model for a chunked instancing consumer.

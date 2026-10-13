@@ -4,7 +4,9 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
+import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
+import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
+import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 
 /**
  * Resolve one material texture binding to a configured `three.js` texture.
@@ -14,6 +16,12 @@ import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
  * UV set 0. The resolver returns a material-owned texture, onto which this
  * writes the colour space, UV channel, optional offset/scale/rotation and
  * optional wrap modes and filters, then marks it for upload.
+ * The same wrapper cannot be claimed by an environment scene; decoding may be
+ * shared through separate clones, while scene/material state ownership remains
+ * exclusive before any sampling or color writes.
+ * A cache allocation receipt starts before those writes and acknowledges only
+ * their supported sampler/decoding changes and single upload-version increment.
+ * Prior fixed-input or uncontrolled version drift remains uncertified.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves each authored texture binding into the declared render material slot.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Applies the binding's colour space, UV transform and sampler at the render boundary.
@@ -28,12 +36,15 @@ export const resolveAutoMovieMaterialTexture = (
     return null;
   const texture = resolver(binding);
   if (texture === undefined) return null;
+  AutoMovieEnvironmentTextureOwnership.material(texture);
+  const allocation = AutoMovieTextureCacheAllocationAuthority.beginBinding(texture);
   const reference: IAutoMovieTextureReference =
     typeof binding === "string"
       ? { asset: binding, texCoord: 0, colorSpace: legacyColorSpace }
       : binding;
-  texture.colorSpace =
+  const colorSpace =
     reference.colorSpace === "srgb" ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  texture.colorSpace = colorSpace;
   texture.channel = reference.texCoord;
   if (reference.transform !== undefined) {
     texture.offset.set(
@@ -46,16 +57,20 @@ export const resolveAutoMovieMaterialTexture = (
     );
     texture.rotation = (reference.transform.rotationDeg * Math.PI) / 180;
   }
-  if (reference.sampler !== undefined) {
-    texture.wrapS = wrapMode(reference.sampler.wrapS);
-    texture.wrapT = wrapMode(reference.sampler.wrapT);
-    texture.minFilter = minFilter(reference.sampler.minFilter);
-    texture.magFilter =
-      reference.sampler.magFilter === "nearest"
-        ? THREE.NearestFilter
-        : THREE.LinearFilter;
+  const sampler = reference.sampler;
+  const sampling: Pick<THREE.Texture, "wrapS" | "wrapT" | "minFilter" | "magFilter"> | undefined = sampler === undefined ? undefined : {
+    wrapS: wrapMode(sampler.wrapS), wrapT: wrapMode(sampler.wrapT),
+    minFilter: minFilter(sampler.minFilter),
+    magFilter: sampler.magFilter === "nearest" ? THREE.NearestFilter : THREE.LinearFilter,
+  };
+  if (sampling !== undefined) {
+    texture.wrapS = sampling.wrapS;
+    texture.wrapT = sampling.wrapT;
+    texture.minFilter = sampling.minFilter;
+    texture.magFilter = sampling.magFilter;
   }
   texture.needsUpdate = true;
+  AutoMovieTextureCacheAllocationAuthority.finishBinding(allocation, { colorSpace, sampler: sampling });
   return texture;
 };
 

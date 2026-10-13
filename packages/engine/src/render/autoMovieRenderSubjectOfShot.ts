@@ -4,6 +4,7 @@ import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
+import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
 import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 
 /**
@@ -34,6 +35,8 @@ export const autoMovieRenderSubjectOfShot = (props: {
   plantings?: readonly IAutoMovieRenderPlanting[];
   /** Known texture dimensions, if the caller resolved the assets. */
   textures?: readonly IAutoMovieRenderTextureSource[];
+  /** Other live scopes and context-retained texture storage, when not fresh. */
+  textureResidency?: IAutoMovieRenderTextureResidency;
 }): IAutoMovieRenderSubject => ({
   scene: props.compiled.scene,
   models: props.compiled.models,
@@ -45,4 +48,5 @@ export const autoMovieRenderSubjectOfShot = (props: {
   softBodies: props.softBodies ?? [],
   plantings: props.plantings ?? [],
   textures: props.textures ?? [],
+  textureResidency: props.textureResidency,
 });

@@ -24,9 +24,11 @@ import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBo
  * of 169 complete humeri with no recorded pathology lie a median 4-5 mm off
  * that line. This population observation identifies a missing anatomical
  * frame; it is not a fixed sideways correction to apply to every arm.
- * The current MPFB study records its landmark and constraint sources in
- * `test/studies/human-body/connected-basis/joints-receipt.json`. Other bases
- * must carry their own source and valid range.
+ * The basis publisher owns its landmark protocol, constraint sources and valid
+ * range. The shipped generation's upstream and extraction ancestry is retained
+ * in `packages/human/assets/person/source-manifest.json`; historical input
+ * paths and hashes there do not provide a maintained receipt or establish
+ * clinical qualification. Other bases carry their own source and valid range.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisJoint {
@@ -38,6 +40,7 @@ export interface IAutoMovieHumanBodyBasisJoint {
 
   /** Landmark ids of the joint centre and of the bone's distal end. */
   head: string;
+
   /** Landmark at the bone's distal end. */
   tail: string;
 

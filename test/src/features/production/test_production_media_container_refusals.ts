@@ -8,12 +8,10 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import { type Box, createFile } from "mp4box";
 
-import {
-  productionH264Mp4,
-  productionOpusMp4,
-  rawMp4Box,
-  rewriteProductionH264Mp4,
-} from "./productionMediaFixtures";
+import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
+import { productionOpusMp4 } from "../internal/productionMedia/productionOpusMp4";
+import { rawMp4Box } from "../internal/productionMedia/rawMp4Box";
+import { rewriteProductionH264Mp4 } from "../internal/productionMedia/rewriteProductionH264Mp4";
 
 /** The refusal message of `task`, or null when it returned. */
 const refusal = (task: () => unknown): string | null => {
@@ -83,8 +81,8 @@ const CLOCK_REFUSAL = "MP4 presentation clocks must be positive safe integers.";
  *    box, and a sample entry without any child box as such.
  */
 export const test_production_media_container_refusals =
-  async (): Promise<void> => {
-    const video = await productionH264Mp4({
+  (): void => {
+    const video = productionSampleMp4({
       width: 16,
       height: 16,
       fps: 24,

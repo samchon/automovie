@@ -5,6 +5,8 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { hasPlantingSpacingOracle } from "../internal/hasPlantingSpacingOracle";
+
 import { namedFacts, qunit } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
@@ -282,6 +284,9 @@ export const test_planting_cluster_arrangement = (): void => {
     },
   );
 
+  // Retain the full 4,000-member witness; an independent x-sorted sweep
+  // replaces only its quadratic exhaustive spacing oracle. Small populations
+  // above still use the original exhaustive closest-pair calculation.
   const crowd = arrangePlantingCluster(
     plantingCluster({
       id: "meadow",
@@ -296,7 +301,7 @@ export const test_planting_cluster_arrangement = (): void => {
     namedFacts([
       ["placed", () => crowd.placements.length > 3_000],
       ["accounted", () => crowd.placements.length + crowd.rejected === 4_000],
-      ["spacing", () => closestPair(crowd.placements) >= 1],
+      ["spacing", () => hasPlantingSpacingOracle(crowd.placements, 1)],
       [
         "reproducible",
         () => {

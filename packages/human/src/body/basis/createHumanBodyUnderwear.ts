@@ -10,13 +10,12 @@ import { createHumanBodyUnderwearCoverage } from "./createHumanBodyUnderwearCove
 import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 
 /**
- * Compile landmark-based coverage for a zero-thickness skin-attached garment.
+ * Compile landmark-based rest coverage and the costume's normal lift.
  * Each document evaluates coverage on its shaped rest skin once. Final Body
- * and Person consumers partition their performed skin by this same field and
- * assign the fabric material to covered triangles instead of keeping a second
- * coincident surface. Shape, pose, sag and the person's shared skin remain the
- * only geometry authority. This basic garment adds no thickness, crease fit,
- * support mechanics or independent cloth shape. Style and colour retain their
+ * and Person consumers cut their performed skin by this same field and lift
+ * independent fabric there. Shape, pose, sag and the person's shared skin
+ * remain the geometry authority. The conventional normal offset restores the
+ * r16 costume representation without fitting or cloth dynamics. Style and colour retain their
  * normal document, editor, save and portable static-material export meaning.
  */
 export function createHumanBodyUnderwear(
@@ -25,6 +24,8 @@ export function createHumanBodyUnderwear(
 ): (props: IAutoMovieHumanBodyUnderwearProps) => IAutoMovieHumanBodyUnderwearParts {
   if (basis.materials.some((material) => material.id === table.material))
     throw new Error("Body underwear needs an unused material id: " + table.material);
+  if (!Number.isFinite(table.offsetMetres))
+    throw new Error("Body underwear needs a finite normal lift in metres.");
   const uncovered = new Set<AutoMovieHumanoidBone>(table.uncovered);
   for (const joint of basis.joints)
     if (joint.parent !== null && uncovered.has(joint.parent)) uncovered.add(joint.bone);
@@ -62,6 +63,7 @@ export function createHumanBodyUnderwear(
     if (sourceFields.some((field) => !field.every(Number.isFinite)))
       throw new Error("Body underwear coverage is not finite on its actual shaped rest skin.");
     return {
+      offsetMetres: table.offsetMetres,
       sourceFields,
       regions: new Map(regions.map((region) => [region.id, {
         surface: region.surface, sources: region.sources,

@@ -22,8 +22,10 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * so an author can tell "allowed to be large" from "nobody thought about it".
  *
  * A budget declares limits, not passes. The renderer decides which passes a
- * frame runs: one depth pass per shadow caster, or the outline guide pass when
- * there is none. The conservative one-frame peak has to include them whether
+ * frame runs: one depth pass per shadow view (six faces for a point light),
+ * the supported filter's post passes, or the alternative outline guide peak.
+ * One casting light's shadow resource is distinct from these submissions.
+ * The conservative one-frame peak has to include them whether
  * or not a production has an opinion about them. There is deliberately no field
  * here to switch one off, because switching a pass off is not budgeting, it is
  * choosing a different frame. What the production is owed instead is the
