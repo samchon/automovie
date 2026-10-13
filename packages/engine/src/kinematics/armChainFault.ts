@@ -1,15 +1,8 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieArmChainFault } from "./IAutoMovieArmChainFault";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-
 /**
  * Sine of the angle below which a hinge counts as parallel to the segment it
  * drives. It is the same `1e-6` the engine's other degeneracy guards use for a
@@ -55,7 +48,7 @@ const PARALLEL_SINE: number = 1e-6;
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned fault.
  * @author Samchon
  */
-export const armChainFault = (
+export const armChainFault: (skeleton: IAutoMovieSkeleton, side: "left" | "right", jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>) => IAutoMovieArmChainFault | null = (
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   jointAxes: Partial<
@@ -70,7 +63,7 @@ export const armChainFault = (
   const hand: IAutoMovieBone | undefined = skeleton.bones.find(
     (bone: IAutoMovieBone): boolean => bone.bone === handName,
   );
-  if (hand === undefined) return null;
+  if (hand === undefined || hand.parent !== lowerName) return null;
 
   // The mid joint's articulation is applied INSIDE the bone's rest rotation
   // (`worldRot = parentWorld · rest · articulation`), so it rotates the hand's
@@ -86,8 +79,8 @@ export const armChainFault = (
 
   const sine: number = Vector3.length(
     Vector3.cross(
-      Vector3.scale(flexion, 1 / hingeLength),
-      Vector3.scale(fore, 1 / foreLength),
+      Vector3.normalize(flexion),
+      Vector3.normalize(fore),
     ),
   );
   if (sine >= PARALLEL_SINE) return null;
@@ -104,8 +97,8 @@ export const armChainFault = (
   };
 };
 
-const axisText = (axis: IAutoMovieVector3): string =>
+const axisText: (axis: IAutoMovieVector3) => string = (axis: IAutoMovieVector3): string =>
   `${trim(axis.x)}, ${trim(axis.y)}, ${trim(axis.z)}`;
 
 /** Six significant digits, trailing zeros dropped: a readable, stable number. */
-const trim = (value: number): string => String(Number(value.toPrecision(6)));
+const trim: (value: number) => string = (value: number): string => String(Number(value.toPrecision(6)));

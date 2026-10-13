@@ -1,3 +1,4 @@
+
 /**
  * The lower index of the segment straddling `time` in a strictly increasing
  * sequence of `length` key times read through `timeAt`: the `lo` in `[0,
@@ -17,9 +18,16 @@
  * The accessor form (rather than a `readonly number[]`) lets the pose sampler
  * search keyframes without materializing a times array on the hot path.
  *
+ * @evidence contracts/common.md#principled-implementation Lower-bound search finds the first key at or above a strict-interior time and returns its preceding segment; increasing resident keys and prehandled endpoints make all reads defined.
+ * @evidence contracts/common.md#clear-and-simple-design The accessor serves existing pose/track key records directly, avoiding hot-path time-array materialization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact interior hits choose the ending segment uniformly, without an epsilon or fixture-specific boundary exception.
+ * @evidence contracts/common.md#meaningful-documentation States strict-interior/length prerequisites, endpoint ownership, inclusive straddling relation, exact-key tie and logarithmic search.
+ * @evidence contracts/performance.md#efficient-algorithms Each iteration halves the candidate range, giving O(log N) accessor calls and constant storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work The accessor reads existing keys rather than copying equivalent times; no index cache survives key-sequence changes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only low/high/midpoint indices are live; callback and key storage are not retained after the result returns.
  * @author Samchon
  */
-export const segmentIndex = (
+export const segmentIndex: (length: number, timeAt: (index: number) => number, time: number) => number = (
   length: number,
   timeAt: (index: number) => number,
   time: number,
@@ -27,10 +35,10 @@ export const segmentIndex = (
   // Lower bound: the first index whose key time is >= `time`. The interior
   // precondition puts that index in [1, length - 1], so the straddling segment
   // is [bound - 1, bound]; the search starts at 1 because timeAt(0) < time.
-  let lo = 1;
-  let hi = length - 1;
+  let lo: number = 1;
+  let hi: number = length - 1;
   while (lo < hi) {
-    const mid = (lo + hi) >>> 1;
+    const mid: number = (lo + hi) >>> 1;
     if (timeAt(mid) < time) lo = mid + 1;
     else hi = mid;
   }

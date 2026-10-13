@@ -1,33 +1,26 @@
-import {
-  type IAutoMovieAngleRange,
-  IAutoMovieJointConstraint,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
-import type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
-import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
+import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 import { normalizeJointAxes } from "./normalizeJointAxes";
-
 const RAD2DEG: number = 180 / Math.PI;
 
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
 /**
- * Cosine-sine bound past which the middle angle of the extraction counts as
- * ±90 degrees, within about 0.08 degrees, and the gimbal branch pins one angle.
+ * Projected cosine below which cancellation is at unit-matrix roundoff and the
+ * gimbal convention pins one outer angle. Resolvable near-gimbal turns stay active.
  */
-const GIMBAL_BOUND: number = 0.999999;
+const GIMBAL_COSINE_EPSILON: number = 4 * Number.EPSILON;
 
 /** Choose an admitted full-turn alias when one exists; never clamp an angle. */
-const periodicAngle = (
+const periodicAngle: (angle: number, range: IAutoMovieAngleRange | null) => number = (
   angle: number,
   range: IAutoMovieAngleRange | null,
 ): number => {
@@ -41,7 +34,7 @@ const periodicAngle = (
     : angle + 360 * Math.max(first, Math.min(last, 0));
 };
 
-const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
+const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (q: IAutoMovieQuaternion): void => {
   for (const axis of QUATERNION_AXES) {
     const value: number = q[axis];
     if (!Number.isFinite(value))
@@ -88,7 +81,7 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * @param domain Bone and resolved ROM that choose among equivalent charts;
  *   omitted or with a `null` constraint, the principal chart is returned.
  *
- * @evidence contracts/common.md#principled-implementation Closed-form Euler extraction in the joint's own basis, `R'ᵢⱼ = axisᵢ · (q axisⱼ)`, with `asin` arguments clamped to [-1, 1] against rounding and a gimbal branch past `GIMBAL_BOUND`; it premises an orthonormal basis, which `normalizeJointAxes` enforces, and a unit quaternion, which is the caller's stated input; chart selection relies on the identity that both Euler charts and every 360-degree alias describe one rotation, so choosing among them never changes the pose.
+ * @evidence contracts/common.md#principled-implementation Closed-form Euler extraction reads sine and projected cosine through atan2, preserving resolvable near-gimbal rotations that asin can round to ninety degrees; only cosine at four binary64 unit epsilons takes the undetermined-angle convention. Normalized orthogonal axes and unit input rotations are the premises, and alternate charts/full turns retain the same rotation up to roundoff.
  * @evidence contracts/common.md#clear-and-simple-design The extraction, the handedness correction, the clinical lift and the ROM chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot` and frame arithmetic to `toClinicalAngle`, so the gate and this inverse read one rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, not a compensation, and no bone is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the inverse relationship, both composition orders, the gimbal convention, the handedness correction, the frame lift, both alternate charts and the tie rule, the thrown inputs, the unit-quaternion premise, and each parameter's default.
@@ -97,7 +90,7 @@ const assertFiniteQuaternion = (q: IAutoMovieQuaternion): void => {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned angles.
  * @author Samchon
  */
-export const decomposeJointRotation = (
+export const decomposeJointRotation: (q: IAutoMovieQuaternion, axes?: IAutoMovieJointAxes, frame?: IAutoMovieRestFrame | undefined, domain?: IAutoMovieJointRotationDomain | undefined) => IAutoMovieResolvedJointAngles = (
   q: IAutoMovieQuaternion,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
@@ -111,7 +104,7 @@ export const decomposeJointRotation = (
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const clinical = (
+  const clinical: (rig: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
     rig: IAutoMovieResolvedJointAngles,
   ): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
@@ -127,13 +120,13 @@ export const decomposeJointRotation = (
       ? 1
       : -1;
   const twistAxis: IAutoMovieVector3 = Vector3.scale(basis.twist, handed);
-  const lift = (
+  const lift: (rig: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
     rig: IAutoMovieResolvedJointAngles,
   ): IAutoMovieResolvedJointAngles => {
     const principal: IAutoMovieResolvedJointAngles = clinical(rig);
     if (domain === undefined || domain.constraint === null) return principal;
     const constraint: IAutoMovieJointConstraint = domain.constraint;
-    const align = (
+    const align: (candidate: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
       candidate: IAutoMovieResolvedJointAngles,
     ): IAutoMovieResolvedJointAngles => ({
       flexion: periodicAngle(candidate.flexion, constraint.flexion),
@@ -179,7 +172,10 @@ export const decomposeJointRotation = (
     // R10 = cos f sin t, R11 = cos f cos t (row i: basis axis i, column j:
     // basis axis j rotated)
     const r12: number = Vector3.dot(basis.abduction, Rt);
-    if (r12 < -GIMBAL_BOUND || r12 > GIMBAL_BOUND) {
+    const r10: number = Vector3.dot(basis.abduction, Rf);
+    const r11: number = Vector3.dot(basis.abduction, Ra);
+    const cosine: number = Math.hypot(r10, r11);
+    if (cosine <= GIMBAL_COSINE_EPSILON) {
       // with abduction pinned to 0, R = Rx(±90°)·Rz(t): R00 = cos t, R01 = −sin t
       const r00: number = Vector3.dot(basis.flexion, Rf);
       const r01: number = Vector3.dot(basis.flexion, Ra);
@@ -190,16 +186,13 @@ export const decomposeJointRotation = (
       });
     }
     return lift({
-      flexion: Math.asin(Math.max(-1, Math.min(1, -r12))) * RAD2DEG,
+      flexion: Math.atan2(-r12, cosine) * RAD2DEG,
       abduction:
         Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) *
         RAD2DEG,
       twist:
         handed *
-        Math.atan2(
-          Vector3.dot(basis.abduction, Rf),
-          Vector3.dot(basis.abduction, Ra),
-        ) *
+        Math.atan2(r10, r11) *
         RAD2DEG,
     });
   }
@@ -210,7 +203,8 @@ export const decomposeJointRotation = (
   const m21: number = Vector3.dot(twistAxis, Ra);
   const m22: number = Vector3.dot(twistAxis, Rt);
 
-  if (m20 < -GIMBAL_BOUND || m20 > GIMBAL_BOUND) {
+  const cosine: number = Math.hypot(m00, m10);
+  if (cosine <= GIMBAL_COSINE_EPSILON) {
     // Gimbal: abduction = ±90°, flexion folds into twist. Pin flexion = 0.
     const m01: number = Vector3.dot(basis.flexion, Ra);
     const m11: number = Vector3.dot(basis.abduction, Ra);
@@ -223,7 +217,7 @@ export const decomposeJointRotation = (
 
   return lift({
     flexion: Math.atan2(m21, m22) * RAD2DEG,
-    abduction: Math.asin(Math.max(-1, Math.min(1, -m20))) * RAD2DEG,
+    abduction: Math.atan2(-m20, cosine) * RAD2DEG,
     twist: handed * Math.atan2(m10, m00) * RAD2DEG,
   });
 };

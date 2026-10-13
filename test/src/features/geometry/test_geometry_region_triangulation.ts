@@ -1,29 +1,25 @@
-import {
-  IAutoMovieRegionTriangulation,
-  triangulateAutoMovieRegion,
-} from "@automovie/engine";
+import { IAutoMovieRegionTriangulation } from "../../../../packages/engine/src/geometry/IAutoMovieRegionTriangulation";
+import { triangulateAutoMovieRegion } from "../../../../packages/engine/src/geometry/triangulateAutoMovieRegion";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-
 interface IPlanarPoint {
   x: number;
   y: number;
 }
 
-const signedArea = (points: readonly IPlanarPoint[]): number => {
-  let total = 0;
-  for (let index = 0; index < points.length; ++index) {
-    const from = points[index]!;
-    const to = points[(index + 1) % points.length]!;
+const signedArea: (points: readonly IPlanarPoint[]) => number = (points: readonly IPlanarPoint[]): number => {
+  let total: number = 0;
+  for (let index: number = 0; index < points.length; ++index) {
+    const from: IPlanarPoint = points[index]!;
+    const to: IPlanarPoint = points[(index + 1) % points.length]!;
     total += from.x * to.y - to.x * from.y;
   }
   return total / 2;
 };
 
-const triangleAreas = (plan: IAutoMovieRegionTriangulation): number[] => {
+const triangleAreas: (plan: IAutoMovieRegionTriangulation) => number[] = (plan: IAutoMovieRegionTriangulation): number[] => {
   const areas: number[] = [];
-  for (let at = 0; at < plan.triangles.length; at += 3)
+  for (let at: number = 0; at < plan.triangles.length; at += 3)
     areas.push(
       signedArea([
         plan.points[plan.triangles[at]!]!,
@@ -35,20 +31,31 @@ const triangleAreas = (plan: IAutoMovieRegionTriangulation): number[] => {
 };
 
 /**
- * A triangulation covers the region exactly when its triangles are all wound
- * counter-clockwise and their areas add up to the region's own area: a fan that
- * strayed outside the contour would need an inverted triangle to cancel the
- * excess, so the two sums disagreeing is the witness of both failures at once.
+ * Positive triangle winding, the declared boundary chain and independently
+ * known area jointly detect overlaps, omissions and filled holes. Cancelling
+ * internal oriented edges leaves exactly the outer boundary and hole loops.
  */
-const coversExactly = (
+const coversExactly: (plan: IAutoMovieRegionTriangulation, area: number) => boolean = (
   plan: IAutoMovieRegionTriangulation,
   area: number,
 ): boolean => {
-  const areas = triangleAreas(plan);
+  const areas: number[] = triangleAreas(plan);
+  const boundary: Map<string, number> = new Map();
+  const edge: (from: number, to: number, sign: number) => void = (from: number, to: number, sign: number): void => {
+    const key: string = `${Math.min(from, to)}/${Math.max(from, to)}`;
+    boundary.set(key, (boundary.get(key) ?? 0) + sign * (from < to ? 1 : -1));
+  };
+  for (let at: number = 0; at < plan.triangles.length; at += 3)
+    for (let corner: number = 0; corner < 3; ++corner)
+      edge(plan.triangles[at + corner]!, plan.triangles[at + (corner + 1) % 3]!, 1);
+  for (const ring of plan.rings)
+    for (let corner: number = 0; corner < ring.count; ++corner)
+      edge(ring.start + corner, ring.start + (corner + 1) % ring.count, -1);
   return (
-    areas.every((one) => one > 0) &&
+    [...boundary.values()].every((count: number): boolean => count === 0) &&
+    areas.every((one: number): boolean => one > 0) &&
     nclose(
-      areas.reduce((total, one) => total + one, 0),
+      areas.reduce((total: number, one: number): number => total + one, 0),
       area,
       1e-12,
     ) &&
@@ -56,7 +63,7 @@ const coversExactly = (
   );
 };
 
-const ringOf = (
+const ringOf: (plan: IAutoMovieRegionTriangulation, at: number) => IPlanarPoint[] = (
   plan: IAutoMovieRegionTriangulation,
   at: number,
 ): IPlanarPoint[] =>
@@ -65,7 +72,7 @@ const ringOf = (
     plan.rings[at]!.start + plan.rings[at]!.count,
   );
 
-const ell = [
+const ell: IPlanarPoint[] = [
   { x: 0, y: 0 },
   { x: 3, y: 0 },
   { x: 3, y: 1 },
@@ -74,14 +81,14 @@ const ell = [
   { x: 0, y: 3 },
 ];
 
-const square = [
+const square: IPlanarPoint[] = [
   { x: 0, y: 0 },
   { x: 4, y: 0 },
   { x: 4, y: 4 },
   { x: 0, y: 4 },
 ];
 
-const inner = [
+const inner: IPlanarPoint[] = [
   { x: 1, y: 1 },
   { x: 3, y: 1 },
   { x: 3, y: 3 },
@@ -94,10 +101,9 @@ const inner = [
  * Every expectation is hand math against the authored outline. An L of legs 3x1
  * and 1x2 encloses 5 m² and a simple hexagon resolves to four triangles; a 4 m
  * square holding a 2 m square hole encloses 12 m² and the ten corners the
- * bridge leaves resolve to eight. Coverage is checked as a pair of sums rather
- * than a triangle count, because a count alone cannot tell a triangulation from
- * a fan that strayed outside the contour and cancelled the excess with an
- * inverted triangle.
+ * bridge leaves resolve to eight. Coverage requires positive areas, the known
+ * total area and cancellation of every internal oriented edge to exactly the
+ * declared outer and hole boundary chains; a count alone cannot establish it.
  *
  * Scenarios:
  *
@@ -115,43 +121,48 @@ const inner = [
  * 6. Negative twins: each refusal fires one property away from a region that
  *    triangulates, covering short, non-finite, repeated, spiked, empty,
  *    self-crossing, touching, escaped, and nested rings.
+  *
+ * @evidence contracts/testing.md#behavioral-verification Calls triangulateAutoMovieRegion for concavity and holes, including a sheltered first hole; positive triangle winding and boundary-chain conservation catch filled holes or inconsistent coverage as well as declaration-order bridge failure.
+ * @evidence contracts/testing.md#independent-expectations Authored dimensions give outer-minus-hole areas independently, and oriented-edge cancellation expresses the triangulation boundary contract without using the ear algorithm; separate source-identity tests own each canonical ring point's provenance.
+ * @evidence contracts/testing.md#distinguishing-cases Covers concavity, multiple/sheltered holes, reversed winding, deterministic rebuilds and short/nonfinite/repeated/spiked/crossing/touching/escaped/nested rings; source-identity tests own point provenance.
+ * @evidence contracts/testing.md#execution-ownership The discoverable geometry entry runs portable triangulation and ordinary assertion helpers directly; all cases belong to this function without host startup.
  */
-export const test_geometry_region_triangulation = (): void => {
-  const concave = triangulateAutoMovieRegion({ outer: ell });
+export function test_geometry_region_triangulation(): void {
+  const concave: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: ell });
   TestValidator.equals(
     "a concave contour triangulates to exactly its own area",
     namedFacts([
-      ["triangles", () => concave.triangles.length === (ell.length - 2) * 3],
-      ["rings", () => concave.rings.length === 1],
+      ["triangles", (): boolean => concave.triangles.length === (ell.length - 2) * 3],
+      ["rings", (): boolean => concave.rings.length === 1],
       [
         "span",
-        () =>
+        (): boolean =>
           concave.rings[0]!.start === 0 &&
           concave.rings[0]!.count === ell.length,
       ],
-      ["covers", () => coversExactly(concave, 5)],
+      ["covers", (): boolean => coversExactly(concave, 5)],
     ]),
     { triangles: true, rings: true, span: true, covers: true },
   );
 
-  const holed = triangulateAutoMovieRegion({ outer: square, holes: [inner] });
+  const holed: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: square, holes: [inner] });
   TestValidator.equals(
     "a square holding a square hole bridges into one ring and covers the remainder",
     namedFacts([
       // Four outer corners, four hole corners, and the bridge repeating one of
       // each: ten corners, so ten minus two triangles.
-      ["triangles", () => holed.triangles.length === 8 * 3],
-      ["points", () => holed.points.length === 8],
+      ["triangles", (): boolean => holed.triangles.length === 8 * 3],
+      ["points", (): boolean => holed.points.length === 8],
       [
         "rings",
-        () =>
+        (): boolean =>
           holed.rings.length === 2 &&
           holed.rings[1]!.start === 4 &&
           holed.rings[1]!.count === 4,
       ],
-      ["outerWinding", () => signedArea(ringOf(holed, 0)) === 16],
-      ["holeWinding", () => signedArea(ringOf(holed, 1)) === -4],
-      ["covers", () => coversExactly(holed, 12)],
+      ["outerWinding", (): boolean => signedArea(ringOf(holed, 0)) === 16],
+      ["holeWinding", (): boolean => signedArea(ringOf(holed, 1)) === -4],
+      ["covers", (): boolean => coversExactly(holed, 12)],
     ]),
     {
       triangles: true,
@@ -163,7 +174,7 @@ export const test_geometry_region_triangulation = (): void => {
     },
   );
 
-  const twoHoles = triangulateAutoMovieRegion({
+  const twoHoles: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
     outer: square,
     holes: [
       [
@@ -182,7 +193,7 @@ export const test_geometry_region_triangulation = (): void => {
   });
   // A hole inside a concave outer ring, so the contour the bridge is chosen
   // against is not convex.
-  const notched = triangulateAutoMovieRegion({
+  const notched: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
     outer: [
       { x: 0, y: 0 },
       { x: 6, y: 0 },
@@ -205,10 +216,10 @@ export const test_geometry_region_triangulation = (): void => {
   TestValidator.equals(
     "several holes and a hole inside a concave contour each bridge and cover",
     namedFacts([
-      ["twoHoles", () => coversExactly(twoHoles, 16 - 1 - 1)],
-      ["twoHoleTriangles", () => twoHoles.triangles.length === 14 * 3],
-      ["notched", () => coversExactly(notched, 6 * 6 - 1 * 4 - 1)],
-      ["notchedTriangles", () => notched.triangles.length === 12 * 3],
+      ["twoHoles", (): boolean => coversExactly(twoHoles, 16 - 1 - 1)],
+      ["twoHoleTriangles", (): boolean => twoHoles.triangles.length === 14 * 3],
+      ["notched", (): boolean => coversExactly(notched, 6 * 6 - 1 * 4 - 1)],
+      ["notchedTriangles", (): boolean => notched.triangles.length === 12 * 3],
     ]),
     {
       twoHoles: true,
@@ -222,7 +233,7 @@ export const test_geometry_region_triangulation = (): void => {
   // the middle of the outer ring's right side, so no outer corner is visible
   // from it: it can only bridge once the C has joined the ring, although it is
   // declared first.
-  const sheltered = triangulateAutoMovieRegion({
+  const sheltered: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
     outer: [
       { x: 0, y: 0 },
       { x: 10, y: 0 },
@@ -255,22 +266,22 @@ export const test_geometry_region_triangulation = (): void => {
     "a hole sheltered in another hole's cavity bridges after the hole it can see",
     namedFacts([
       // 19 corners and two bridges that each repeat two: 23, so 21 triangles.
-      ["triangles", () => sheltered.triangles.length === 21 * 3],
-      ["covers", () => coversExactly(sheltered, 100 - 6.8 - 0.5)],
+      ["triangles", (): boolean => sheltered.triangles.length === 21 * 3],
+      ["covers", (): boolean => coversExactly(sheltered, 100 - 6.8 - 0.5)],
     ]),
     { triangles: true, covers: true },
   );
 
-  const reversed = triangulateAutoMovieRegion({
+  const reversed: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
     outer: [...square].reverse(),
     holes: [[...inner].reverse()],
   });
   TestValidator.equals(
     "a region authored the other way round is canonicalized, not refused",
     namedFacts([
-      ["outerWinding", () => signedArea(ringOf(reversed, 0)) === 16],
-      ["holeWinding", () => signedArea(ringOf(reversed, 1)) === -4],
-      ["covers", () => coversExactly(reversed, 12)],
+      ["outerWinding", (): boolean => signedArea(ringOf(reversed, 0)) === 16],
+      ["holeWinding", (): boolean => signedArea(ringOf(reversed, 1)) === -4],
+      ["covers", (): boolean => coversExactly(reversed, 12)],
     ]),
     { outerWinding: true, holeWinding: true, covers: true },
   );
@@ -286,7 +297,7 @@ export const test_geometry_region_triangulation = (): void => {
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "short ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -297,7 +308,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "non-finite corner",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [{ x: 0, y: Number.POSITIVE_INFINITY }, ...ell.slice(1)],
         }),
@@ -305,7 +316,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "repeated corner",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -318,7 +329,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "spike",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -331,7 +342,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "collinear ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -343,7 +354,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "ring whose halves cancel",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -356,7 +367,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "self-crossing ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: [
             { x: 0, y: 0 },
@@ -369,7 +380,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "hole crossing the outer ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: square,
           holes: [
@@ -385,7 +396,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "hole touching the outer ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: square,
           holes: [
@@ -401,7 +412,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "hole outside the outer ring",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: square,
           holes: [
@@ -417,7 +428,7 @@ export const test_geometry_region_triangulation = (): void => {
     ],
     [
       "hole nested in another hole",
-      () =>
+      (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({
           outer: square,
           holes: [
@@ -438,4 +449,4 @@ export const test_geometry_region_triangulation = (): void => {
       `${name} is refused by its own diagnostic`,
       throwsError(callback, message),
     );
-};
+}

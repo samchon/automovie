@@ -24,7 +24,6 @@ export * from "./rotationBetween";
 export * from "./seededValue";
 export * from "./segmentIndex";
 export * from "./segmentSegmentDistance";
-export * from "./solveAutoMovieAbsoluteDisplacement";
 export * from "./solveAutoMovieBoundedDisplacement";
 export * from "./solveAutoMovieQuadraticProgram";
 export * from "./srgbHexToLinearColor";

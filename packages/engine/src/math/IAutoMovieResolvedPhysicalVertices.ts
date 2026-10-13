@@ -1,3 +1,4 @@
+
 /**
  * Physical vertex identity of every render vertex in one mesh, returned by
  * `resolveAutoMovieMeshPhysicalVertices`.
@@ -21,9 +22,11 @@ export interface IAutoMovieResolvedPhysicalVertices {
   /**
    * Stable key of each identity, indexed by identity ordinal. A declared
    * source point reads `source:["<domain>",<id>]`. A vertex identified by
-   * position reads its local coordinates rounded to whole nanometres, as
-   * `x,y,z` integer nanometre counts, prefixed `legacy:` when the mesh declares source points
-   * for other vertices.
+   * position reads `x,y,z` with each axis rounded to integer nanometres while
+   * that index is a safe integer. Larger magnitudes use `=<metre coordinate>`
+   * for that axis: adjacent binary64 values there exceed a nanometre and cannot
+   * share a cell. The whole key is prefixed `legacy:` when the mesh declares
+   * explicit source points for other vertices.
    */
   labels: string[];
 

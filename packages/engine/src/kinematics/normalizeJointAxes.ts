@@ -2,7 +2,6 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
 import { validateJointAxesBasis } from "./validateJointAxesBasis";
-
 /**
  * Validate a joint-axis basis and return it with unit-length axes, ready for
  * quaternion composition and decomposition.
@@ -21,11 +20,11 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A skewed or degenerate basis throws instead of being orthogonalized or replaced by the default, and no bone or caller is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the accepted basis, the thrown message shape with an example, that the result is new with unit axes, and when `twistPlacement` is copied.
  * @evidence contracts/performance.md#efficient-algorithms Constant work: one validation of three axes and three normalizations, allocating the returned basis only.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one basis that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each requested basis is validated before normalization, and mutable authored axis records have no shared validated identity across conversions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned basis.
  * @author Samchon
  */
-export const normalizeJointAxes = (
+export const normalizeJointAxes: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxes = (
   axes: IAutoMovieJointAxes,
   path: string,
 ): IAutoMovieJointAxes => {

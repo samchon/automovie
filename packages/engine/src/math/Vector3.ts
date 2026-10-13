@@ -1,5 +1,4 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-
 /**
  * Pure vector math over {@link IAutoMovieVector3} (`{ x, y, z }`).
  *
@@ -11,8 +10,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/common.md#clear-and-simple-design A namespace of stateless functions over the interface's plain record instead of a vector class, so positions stay JSON values and the module needs no renderer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No function special-cases a caller; the only branches are the zero vector in `normalize` and the magnitude range where squaring a component would overflow or underflow.
  * @evidence contracts/common.md#meaningful-documentation States the record shape, that inputs are never changed, and why the engine keeps its own math instead of `three.js`.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A namespace with no body of its own; each member answers its own cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stateless functions that coordinate no work across calls.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Cartesian operations have three fixed components; magnitude and interpolation members explain their individual arithmetic and numeric ranges.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Vectors remain plain mutable caller records, so this algebra module retains no coordinate-dependent cache across scene evaluations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace holds no state; each function retains nothing after it returns.
  */
 export namespace Vector3 {
@@ -25,9 +24,9 @@ export namespace Vector3 {
    * @evidence contracts/common.md#meaningful-documentation States the zero default and that the record is new.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One record literal with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per call that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The new coordinate record owns three supplied scalars, including zero defaults, and no global origin object is shared.
    */
-  export const create = (
+  export const create: (x?: number, y?: number, z?: number) => IAutoMovieVector3 = (
     x: number = 0,
     y: number = 0,
     z: number = 0,
@@ -42,13 +41,13 @@ export namespace Vector3 {
    *
    * @evidence contracts/common.md#principled-implementation Vector addition is defined per component, so each output component is the binary64 sum of the matching inputs.
    * @evidence contracts/common.md#clear-and-simple-design One two-operand sum, the form every caller needs; a longer sum chains it.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds every component the same way, with no rounding or clamping.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every coordinate is added directly; zero or axis-aligned operands receive no special arithmetic path.
    * @evidence contracts/common.md#meaningful-documentation States the operation and that it is component-wise, the one fact the name leaves implicit.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three additions with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Position and offset sums depend on current coordinate values, and this operation stores no prior addition result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three coordinate sums transfer into one fresh record, leaving both input objects unretained and unchanged.
    */
-  export const add = (
+  export const add: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -62,13 +61,13 @@ export namespace Vector3 {
    *
    * @evidence contracts/common.md#principled-implementation Vector subtraction is defined per component, and `a − b` is the displacement that carries point `b` to point `a`.
    * @evidence contracts/common.md#clear-and-simple-design Its own function because a displacement between two points is the most common vector query, and computing it directly takes one allocation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Subtracts every component the same way, with no rounding or clamping.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The displacement keeps the same operand order on every axis, without snapping small differences to zero.
    * @evidence contracts/common.md#meaningful-documentation States the operand order and its geometric meaning, which is the fact a caller gets wrong when it is implicit.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three subtractions with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A displacement belongs to its current endpoint coordinates; there is no retained endpoint-pair result to invalidate.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One fresh displacement record holds three differences and retains neither source point.
    */
-  export const subtract = (
+  export const subtract: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
@@ -82,9 +81,9 @@ export namespace Vector3 {
    * @evidence contracts/common.md#meaningful-documentation States that the factor is one scalar applied to every component.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three multiplications with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector and a scalar that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned scaled coordinates are independent scalar values; no factor object or source vector is retained.
    */
-  export const scale = (
+  export const scale: (a: IAutoMovieVector3, s: number) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     s: number,
   ): IAutoMovieVector3 => ({
@@ -101,10 +100,10 @@ export namespace Vector3 {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Sums the three products in a fixed order with no compensated or reordered summation for particular inputs.
    * @evidence contracts/common.md#meaningful-documentation States the geometric meaning a caller uses it for, beyond the name.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three multiplications and two additions with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing and returns a number.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each inner product uses the current pair of vector components; projection callers own any reuse of the resulting scalar.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Component products sum directly to a scalar without allocating a record or retaining operands.
    */
-  export const dot = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+  export const dot: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     a.x * b.x + a.y * b.y + a.z * b.z;
 
   /**
@@ -116,10 +115,10 @@ export namespace Vector3 {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Computes every component by the same formula with no normalization or zero special case, so a parallel pair yields the exact zero vector a caller can test for.
    * @evidence contracts/common.md#meaningful-documentation States the handedness with an example, the direction, and the length formula.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Six multiplications and three subtractions with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The oriented perpendicular depends on the current ordered pair; swapping or changing an operand requires a new product.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three determinant components form one owned perpendicular record, and neither input direction is retained.
    */
-  export const cross = (
+  export const cross: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -143,10 +142,10 @@ export namespace Vector3 {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The `2^-511` and `2^511` thresholds are the binary64 limits where a square underflows or overflows, not values tuned to a caller; ordinary input keeps `sqrt(dot)` so its result stays identical to that expression wherever callers compute it directly.
    * @evidence contracts/common.md#meaningful-documentation States which formula applies in which magnitude range and why, that ordinary results equal `sqrt(dot)` exactly, and the non-finite behavior.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One maximum of three magnitudes and one square root in constant time, with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing and returns a number.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The magnitude range is read from the current components once; no length cache survives mutations of a vector record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Magnitude checks and the returned norm use scalars only, with no allocated vector or retained source.
    */
-  export const length = (a: IAutoMovieVector3): number =>
+  export const length: (a: IAutoMovieVector3) => number = (a: IAutoMovieVector3): number =>
     normalizationScale(a) === 0
       ? Math.sqrt(dot(a, a))
       : Math.hypot(a.x, a.y, a.z);
@@ -165,10 +164,10 @@ export namespace Vector3 {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The zero vector for zero length is the stated degenerate value with no direction to keep, not a fallback; the rescaling thresholds are binary64 limits, and a non-finite input stays non-finite instead of being replaced.
    * @evidence contracts/common.md#meaningful-documentation States the zero-length result, the extreme-range rescaling and what it preserves, and the non-finite behavior.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One magnitude test, one length and three multiplications in constant time, with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector that coordinates no work across calls.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The selected positive rescaling supplies all normalized components within the call; directions are not cached for mutable source records.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the rescaled vector when extreme and the returned record, and retains nothing.
    */
-  export const normalize = (a: IAutoMovieVector3): IAutoMovieVector3 => {
+  export const normalize: (a: IAutoMovieVector3) => IAutoMovieVector3 = (a: IAutoMovieVector3): IAutoMovieVector3 => {
     const divisor: number = normalizationScale(a);
     const value: IAutoMovieVector3 =
       divisor === 0
@@ -184,7 +183,7 @@ export namespace Vector3 {
    * number and the sum of three squares cannot overflow, so the plain formula
    * is safe; zero and non-finite vectors also return zero and take it.
    */
-  const normalizationScale = (a: IAutoMovieVector3): number => {
+  const normalizationScale: (a: IAutoMovieVector3) => number = (a: IAutoMovieVector3): number => {
     const largest: number = Math.max(
       Math.abs(a.x),
       Math.abs(a.y),
@@ -208,9 +207,9 @@ export namespace Vector3 {
    * @evidence contracts/common.md#meaningful-documentation States the formula, the endpoint values, and that an out-of-range `t` extrapolates.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three subtractions, multiplications and additions with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors and a parameter that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each interpolated point owns three computed coordinates, with no endpoint or progress history retained.
    */
-  export const lerp = (
+  export const lerp: (a: IAutoMovieVector3, b: IAutoMovieVector3, t: number) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     t: number,

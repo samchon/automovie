@@ -1,6 +1,5 @@
-import type { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
-import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
-
+import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
+import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
 /**
  * The solution `refineAutoMovieQuadraticProgram` returns for a diagonal
  * quadratic program, with its residuals measured on every original row.
@@ -17,7 +16,7 @@ import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPo
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Polishing can replace the solution only through full-row admission and never changes `status`, so no residual or status is massaged into success.
  * @evidence contracts/common.md#meaningful-documentation States when the solution is the native one or the polished candidate, that the status is never promoted, the caller's admission rule, ownership, and each residual's formula and unit.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the cost is answered on `refineAutoMovieQuadraticProgram`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The refinement report carries one native call and its optional polishing trace, all measured against the same original coefficients; it coordinates no solver sharing across programs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller: vectors of the variable and row counts, one ordinal per row in `rowGroups`, and the optional polishing traces bounded by the budget.
  * @author Samchon
  */

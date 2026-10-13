@@ -1,18 +1,10 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieAttachment,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieAttachment, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
-
 /**
  * The transform of a child model's root rigidly coupled to one bone of a posed
  * parent skeleton, in the parent skeleton's model space: a rider on a horse, a
@@ -41,7 +33,7 @@ import { resolvePose } from "./resolvePose";
  * @param restFrames Per-bone rest frames for reading the pose as clinical.
  *
  * @evidence contracts/common.md#principled-implementation Rigid composition of the bone's resolved world frame with the offset transform, the fixed-joint relation; it premises unit-length rotations and treats the bone frame as unscaled, since a resolved bone carries no scale, so the offset's scale passes through unchanged.
- * @evidence contracts/common.md#clear-and-simple-design Reuses `resolvePose` for the forward kinematics instead of a private chain walk, so the child rides exactly the bones the renderer poses; `compileAttach` samples it per frame and `resolveAffordanceSeat` mirrors its convention for model frames.
+ * @evidence contracts/common.md#clear-and-simple-design Reuses resolvePose for forward kinematics instead of a private chain walk, so the child rides the same posed bones as the renderer; compileAttach samples this bone-to-child composition per frame.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolvable bone throws instead of falling back to the root or skipping the frame, and no rig or bone is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the output frame, the three composition rules, when it throws and why, the requirement that axes and rest frames match the renderer, and each parameter's role.
  * @evidence contracts/performance.md#efficient-algorithms One forward-kinematics pass over the parent skeleton, linear in its bone count, then a linear search for the bone and constant composition; the full pass is needed because the bone's frame depends on every ancestor.
@@ -49,7 +41,7 @@ import { resolvePose } from "./resolvePose";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the resolved bones are local to the call and the returned transform, including its copied scale, is owned by the caller.
  * @author Samchon
  */
-export const resolveAttachment = (
+export const resolveAttachment: (parentPose: IAutoMoviePose, parentSkeleton: IAutoMovieSkeleton, attachment: IAutoMovieAttachment, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined) => IAutoMovieTransform = (
   parentPose: IAutoMoviePose,
   parentSkeleton: IAutoMovieSkeleton,
   attachment: IAutoMovieAttachment,
@@ -77,6 +69,6 @@ export const resolveAttachment = (
       Quaternion.rotateVector(seat.worldRotation, offset.translation),
     ),
     rotation: Quaternion.multiply(seat.worldRotation, offset.rotation),
-    scale: offset.scale,
+    scale: { ...offset.scale },
   };
 };

@@ -1,10 +1,11 @@
+import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import { IAutoMovieQuadraticWorkingSetStep } from "./IAutoMovieQuadraticWorkingSetStep";
 import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
 import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
-import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
-import type { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
-import type { IAutoMovieQuadraticRefinementOptions } from "./IAutoMovieQuadraticRefinementOptions";
-import type { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
-
+import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
+import { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
+import { IAutoMovieQuadraticRefinementOptions } from "./IAutoMovieQuadraticRefinementOptions";
+import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 type Problem = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
 type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
 
@@ -65,6 +66,14 @@ type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  * @param readGradient Original stationarity measurement, owned by that caller.
  * @param readComplementarity Original signed/null/equality predicate, owned by that caller.
  * @param fixedPrimalEligible Original native feasibility and complementarity already pass.
+ *
+ * @evidence contracts/common.md#principled-implementation A feasible primal receives signed-dual coordinate minimizers; other candidates use independent QR working sets, sign-aware departures and full-row blockers. Only original KKT callbacks admit trials, with no convergence promise under a finite budget.
+ * @evidence contracts/common.md#clear-and-simple-design The refiner supplies original residuals and interval groups, this owner executes one correction path, and the working-set step owns reduced algebra.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No phase name, relaxed row, shifted objective or extra native solve selects a path; uncertain factors preserve refusal diagnostics.
+ * @evidence contracts/common.md#meaningful-documentation Documents both correction methods, grouping and endpoint ownership, feasible-start premise, shared budget and separation from final admission.
+ * @evidence contracts/performance.md#efficient-algorithms For B steps and Z coefficients, dual sweeps cost O(B times Z); working steps add their owner's dense factorization costs and full-row scans, while trace storage is budget-bounded.
+ * @evidence contracts/performance.md#reuse-equivalent-work Sparse multiplier changes update each sweep's gradient before original full remeasurement; exact coefficient groups share equations without removing original checks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Current/trial vectors and bounded traces transfer to the result or become unreachable; this owner creates no native instance or task.
  */
 export function polishAutoMovieQuadraticProgram(
   input: Problem,
@@ -76,17 +85,17 @@ export function polishAutoMovieQuadraticProgram(
   readComplementarity: (row: number, value: number, multiplier: number) => number,
   fixedPrimalEligible: boolean,
 ): IAutoMovieQuadraticPolishingResult {
-  let primal = native.primal.slice(), dual = native.dual.slice();
+  let primal: number[] = native.primal.slice(), dual: number[] = native.dual.slice();
   const activeRows: number[][] = [];
   const stepSizes: number[] = [], merits: number[] = [];
   const dualUpdates: number[] = [];
   const linearResiduals: number[] = [], jointMerits: number[] = [];
   const workingRanks: number[] = [], workingChanges: string[] = [];
-  let trialPrimal: number[] = [], trialDual: number[] = [], trialStarted = false;
-  const method = fixedPrimalEligible ? "fixed-primal-dual" : "interval-joint";
-  let reason = "The original native solve is not Solved.";
-  let iterations = 0, dualPasses = 0;
-  const result = (): IAutoMovieQuadraticPolishingResult => ({
+  let trialPrimal: number[] = [], trialDual: number[] = [], trialStarted: boolean = false;
+  const method: "fixed-primal-dual" | "interval-joint" = fixedPrimalEligible ? "fixed-primal-dual" : "interval-joint";
+  let reason: string = "The original native solve is not Solved.";
+  let iterations: number = 0, dualPasses: number = 0;
+  const result: () => IAutoMovieQuadraticPolishingResult = (): IAutoMovieQuadraticPolishingResult => ({
     accepted: false, primal, dual, iterations, activeRows,
     stepSizes, merits, method, dualPasses, dualUpdates,
     linearResiduals, jointMerits, workingRanks, workingChanges,
@@ -98,7 +107,7 @@ export function polishAutoMovieQuadraticProgram(
     reason = "The caller supplied no polishing work budget.";
     return result();
   }
-  let merit = readMerit(primal, dual);
+  let merit: number = readMerit(primal, dual);
   if (!Number.isFinite(merit) || merit < 0) {
     reason = "The original full-row KKT merit is not representable.";
     return result();
@@ -110,16 +119,16 @@ export function polishAutoMovieQuadraticProgram(
     reason = "The caller's original dual correction work budget was exhausted.";
     while (iterations < options.maximumRefinements) {
       iterations++; dualPasses++; dualUpdates.push(0);
-      const gradient = readGradient(primal, dual);
+      const gradient: number[] = readGradient(primal, dual);
       if (!gradient.every(Number.isFinite)) {
         reason = "The original fixed-primal stationarity is not representable.";
         return result();
       }
-      for (let at = 0; at < input.rows.length; at++) {
-        const row = input.rows[at];
-        let value = 0, maximum = 0;
-        for (let corner = 0; corner < row.indices.length; corner++) {
-          const coefficient = row.weights[corner];
+      for (let at: number = 0; at < input.rows.length; at++) {
+        const row: IAutoMovieQuadraticRow = input.rows[at];
+        let value: number = 0, maximum: number = 0;
+        for (let corner: number = 0; corner < row.indices.length; corner++) {
+          const coefficient: number = row.weights[corner];
           value += coefficient * primal[row.indices[corner]];
           maximum = Math.max(maximum, Math.abs(coefficient));
         }
@@ -128,24 +137,24 @@ export function polishAutoMovieQuadraticProgram(
           return result();
         }
         if (maximum === 0) continue;
-        let squared = 0, projection = 0;
-        for (let corner = 0; corner < row.indices.length; corner++) {
-          const normalized = row.weights[corner] / maximum;
+        let squared: number = 0, projection: number = 0;
+        for (let corner: number = 0; corner < row.indices.length; corner++) {
+          const normalized: number = row.weights[corner] / maximum;
           squared += normalized * normalized;
           projection += normalized * gradient[row.indices[corner]];
         }
-        const correction = -(projection / squared) / maximum;
+        const correction: number = -(projection / squared) / maximum;
         if (!Number.isFinite(correction)) {
           reason = "The fixed-primal scalar correction is not representable.";
           return result();
         }
-        const limit = (bound: number | null): number => bound === null
+        const limit: (bound: number | null) => number = (bound: number | null): number => bound === null
           ? options.tolerance : value === bound ? Infinity
             : options.tolerance / Math.abs(value - bound);
-        const equality = row.lower !== null && row.lower === row.upper;
-        const lower = equality ? -Infinity : -limit(row.lower);
-        const upper = equality ? Infinity : limit(row.upper);
-        let candidate = Math.max(lower, Math.min(upper, dual[at] + correction));
+        const equality: boolean = row.lower !== null && row.lower === row.upper;
+        const lower: number = equality ? -Infinity : -limit(row.lower);
+        const upper: number = equality ? Infinity : limit(row.upper);
+        let candidate: number = Math.max(lower, Math.min(upper, dual[at] + correction));
         if (!Number.isFinite(candidate)) {
           reason = "The original signed-dual scalar candidate is not representable.";
           return result();
@@ -163,12 +172,12 @@ export function polishAutoMovieQuadraticProgram(
             return result();
           }
         }
-        const change = candidate - dual[at];
+        const change: number = candidate - dual[at];
         if (change === 0) continue;
         dual[at] = candidate; dualUpdates[dualUpdates.length - 1]++;
         // The sparse difference updates the algorithm's working gradient;
         // the refinement owner remeasures the full original formula each pass.
-        for (let corner = 0; corner < row.indices.length; corner++)
+        for (let corner: number = 0; corner < row.indices.length; corner++)
           gradient[row.indices[corner]] += row.weights[corner] * change;
       }
       merit = readMerit(primal, dual);
@@ -188,13 +197,13 @@ export function polishAutoMovieQuadraticProgram(
     }
     return result();
   }
-  const valueOf = (row: Problem["rows"][number], values: readonly number[]): number => {
-    let value = 0;
-    for (let at = 0; at < row.indices.length; at++) value += row.weights[at] * values[row.indices[at]];
+  const valueOf: (row: IAutoMovieQuadraticRow, values: readonly number[]) => number = (row: Problem["rows"][number], values: readonly number[]): number => {
+    let value: number = 0;
+    for (let at: number = 0; at < row.indices.length; at++) value += row.weights[at] * values[row.indices[at]];
     return value;
   };
-  const feasible = (values: readonly number[]): boolean => input.rows.every((row) => {
-    const value = valueOf(row, values);
+  const feasible: (values: readonly number[]) => boolean = (values: readonly number[]): boolean => input.rows.every((row: IAutoMovieQuadraticRow): boolean => {
+    const value: number = valueOf(row, values);
     return Number.isFinite(value) &&
       (row.lower === null || row.lower - value <= options.tolerance) &&
       (row.upper === null || value - row.upper <= options.tolerance);
@@ -205,25 +214,25 @@ export function polishAutoMovieQuadraticProgram(
   }
   const selected: Group[] = [], bounds: number[] = [], owners: number[] = [];
   const free: boolean[] = [];
-  let objectiveScale = 1;
+  let objectiveScale: number = 1;
   for (const value of input.diagonal) objectiveScale = Math.max(objectiveScale, value);
   for (const group of groups) {
-    const value = valueOf(group, native.primal);
-    let squared = 0;
+    const value: number = valueOf(group, native.primal);
+    let squared: number = 0;
     for (const coefficient of group.weights) squared += coefficient * coefficient;
-    const multiplier = group.originals.reduce((sum, at) => sum + native.dual[at], 0);
-    const shift = multiplier * squared / objectiveScale;
+    const multiplier: number = group.originals.reduce((sum: number, at: number): number => sum + native.dual[at], 0);
+    const shift: number = multiplier * squared / objectiveScale;
     if (!Number.isFinite(value) || !Number.isFinite(shift)) {
       reason = "working-set-native-activity-not-representable";
       return result();
     }
-    const point = group.lower !== null && group.lower === group.upper;
-    const lower = group.lower !== null && (point || shift < group.lower - value) &&
+    const point: boolean = group.lower !== null && group.lower === group.upper;
+    const lower: boolean = group.lower !== null && (point || shift < group.lower - value) &&
       Math.abs(value - group.lower) <= options.tolerance;
-    const upper = group.upper !== null && shift > group.upper - value &&
+    const upper: boolean = group.upper !== null && shift > group.upper - value &&
       Math.abs(value - group.upper) <= options.tolerance;
     if (point || lower || upper) {
-      const bound = lower || point ? group.lower : group.upper;
+      const bound: number | null = lower || point ? group.lower : group.upper;
       if (bound === null) {
         reason = "working-set-selected-endpoint-is-unbounded"; return result();
       }
@@ -231,12 +240,12 @@ export function polishAutoMovieQuadraticProgram(
       owners.push(lower || point ? group.lowerOwner : group.upperOwner); free.push(point);
     }
   }
-  const restoreDual = (multipliers: readonly number[]): number[] => {
-    const restored = new Array<number>(input.rows.length).fill(0);
-    for (let at = 0; at < selected.length; at++) {
+  const restoreDual: (multipliers: readonly number[]) => number[] = (multipliers: readonly number[]): number[] => {
+    const restored: number[] = new Array<number>(input.rows.length).fill(0);
+    for (let at: number = 0; at < selected.length; at++) {
       const group: Group = selected[at];
       const multiplier: number = multipliers[at];
-      const owner = free[at] ? multiplier >= 0 ? group.upperOwner : group.lowerOwner : owners[at];
+      const owner: number = free[at] ? multiplier >= 0 ? group.upperOwner : group.lowerOwner : owners[at];
       restored[owner] += multiplier;
     }
     return restored;
@@ -245,8 +254,8 @@ export function polishAutoMovieQuadraticProgram(
   reason = "The original working-set correction budget was exhausted.";
   while (iterations < options.maximumRefinements) {
     activeRows.push(owners.slice()); iterations++;
-    const solved = solveAutoMovieQuadraticWorkingSetStep(
-      input.diagonal, input.linear, owners.map((at) => input.rows[at]), bounds, free, trialPrimal,
+    const solved: IAutoMovieQuadraticWorkingSetStep = solveAutoMovieQuadraticWorkingSetStep(
+      input.diagonal, input.linear, owners.map((at: number): IAutoMovieQuadraticRow => input.rows[at]), bounds, free, trialPrimal,
     );
     workingRanks.push(solved.basis.rank);
     if (solved.refusal !== null) { reason = solved.refusal; return result(); }
@@ -269,27 +278,27 @@ export function polishAutoMovieQuadraticProgram(
       reason = "working-set-no-primal-or-flat-direction"; return result();
     }
     const preceding: readonly number[] = trialPrimal;
-    const target = solved.primal;
-    const flat = solved.flatDirection;
+    const target: number[] | null = solved.primal;
+    const flat: number[] | null = solved.flatDirection;
     let direction: number[];
-    if (target !== null) direction = target.map((value, at) => value - preceding[at]);
+    if (target !== null) direction = target.map((value: number, at: number): number => value - preceding[at]);
     else if (flat !== null) direction = flat.slice();
     else { reason = "working-set-no-direction"; return result(); }
     if (!direction.every(Number.isFinite)) {
       reason = "working-set-direction-not-representable"; return result();
     }
-    let step = flat === null ? 1 : Infinity;
-    let blocking: Group | null = null, endpoint = 0, blockingOwner = -1;
+    let step: number = flat === null ? 1 : Infinity;
+    let blocking: Group | null = null, endpoint: number = 0, blockingOwner: number = -1;
     // Working endpoints are enforced by the affine solve; every other endpoint
     // blocks. Every original row independently measures feasibility afterward.
     for (const group of groups) {
       if (group.lower !== null && group.lower === group.upper) continue;
-      const value = valueOf(group, preceding), travel = valueOf(group, direction);
-      const bound = travel < 0 ? group.lower : travel > 0 ? group.upper : null;
+      const value: number = valueOf(group, preceding), travel: number = valueOf(group, direction);
+      const bound: number | null = travel < 0 ? group.lower : travel > 0 ? group.upper : null;
       if (bound === null) continue;
-      const working = selected.indexOf(group);
+      const working: number = selected.indexOf(group);
       if (working !== -1 && bounds[working] === bound) continue;
-      const ratio = Math.max(0, (bound - value) / travel);
+      const ratio: number = Math.max(0, (bound - value) / travel);
       // A positive infinite quotient is beyond every finite step, not a lost
       // constraint: the original complete-row feasibility is still remeasured.
       if (ratio === Infinity) continue;
@@ -304,7 +313,7 @@ export function polishAutoMovieQuadraticProgram(
     if (!Number.isFinite(step)) {
       reason = "working-set-flat-descent-has-no-finite-blocker"; return result();
     }
-    const next: number[] = preceding.map((value, at) => value + step * direction[at]);
+    const next: number[] = preceding.map((value: number, at: number): number => value + step * direction[at]);
     if (!next.every(Number.isFinite) || !feasible(next)) {
       reason = "working-set-original-row-feasibility-refused"; return result();
     }
@@ -312,15 +321,15 @@ export function polishAutoMovieQuadraticProgram(
     stepSizes.push(step);
     if (solved.dual !== null) {
       trialDual = restoreDual(solved.dual);
-      const measured = readMerit(trialPrimal, trialDual);
+      const measured: number = readMerit(trialPrimal, trialDual);
       jointMerits.push(measured);
       if (!Number.isFinite(measured) || measured < 0) {
         reason = "working-set-original-KKT-not-representable"; return result();
       }
-      const gradient = readGradient(trialPrimal, trialDual);
-      let residual = 0;
+      const gradient: number[] = readGradient(trialPrimal, trialDual);
+      let residual: number = 0;
       for (const value of gradient) residual = Math.max(residual, Math.abs(value));
-      for (let at = 0; at < owners.length; at++)
+      for (let at: number = 0; at < owners.length; at++)
         residual = Math.max(residual, Math.abs(valueOf(input.rows[owners[at]], trialPrimal) - bounds[at]));
       linearResiduals.push(residual);
       if (measured <= options.tolerance) {
@@ -332,10 +341,10 @@ export function polishAutoMovieQuadraticProgram(
     // At the feasible working optimum, a wrong-sign multiplier releases its
     // inequality. A blocked direction instead adds its blocking endpoint first.
     if (blocking === null && solved.dual !== null) {
-      let leaving = -1, wrong = options.tolerance;
-      for (let at = 0; at < selected.length; at++) {
+      let leaving: number = -1, wrong: number = options.tolerance;
+      for (let at: number = 0; at < selected.length; at++) {
         if (free[at]) continue;
-        const violation = owners[at] === selected[at].lowerOwner ? solved.dual[at] : -solved.dual[at];
+        const violation: number = owners[at] === selected[at].lowerOwner ? solved.dual[at] : -solved.dual[at];
         if (violation > wrong) { wrong = violation; leaving = at; }
       }
       if (leaving !== -1) {
@@ -348,7 +357,7 @@ export function polishAutoMovieQuadraticProgram(
     if (blocking === null) {
       reason = "working-set-candidate-failed-original-KKT-without-a-blocker"; return result();
     }
-    const present = selected.indexOf(blocking);
+    const present: number = selected.indexOf(blocking);
     if (present !== -1) {
       reason = "working-set-existing-endpoint-blocked-represented-progress"; return result();
     }

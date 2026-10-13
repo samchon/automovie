@@ -1,12 +1,10 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-
 import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { finitePoint } from "./finitePoint";
 import { finiteVector } from "./finiteVector";
 import { meshOf } from "./meshOf";
 import { pathFrames } from "./pathFrames";
-
 /**
  * Sweep a convex 2D profile along a 3D polyline using a stable local frame.
  *
@@ -51,7 +49,7 @@ import { pathFrames } from "./pathFrames";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one requested mesh whose buffers the caller owns; a service network sweeps each segment once.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the hull and frames are released on return and the position, index and normal arrays, sized by N * P, are transferred to the returned mesh.
  */
-export const sweepAutoMovieProfile = (props: {
+export const sweepAutoMovieProfile: (props: { profile: readonly IAutoMovieProfilePoint[]; path: readonly IAutoMovieVector3[]; }) => IAutoMovieMesh = (props: {
   profile: readonly IAutoMovieProfilePoint[];
   path: readonly IAutoMovieVector3[];
 }): IAutoMovieMesh => {
@@ -67,7 +65,7 @@ export const sweepAutoMovieProfile = (props: {
   );
   const positions: number[] = [];
   props.path.forEach((point: IAutoMovieVector3, index: number): void => {
-    const { right, up } = frames[index]!;
+    const { right, up }: ReturnType<typeof pathFrames>[number] = frames[index]!;
     for (const profilePoint of profile)
       positions.push(
         point.x + right.x * profilePoint.x + up.x * profilePoint.y,
@@ -98,7 +96,7 @@ export const sweepAutoMovieProfile = (props: {
 };
 
 /** The profile's corners in counter-clockwise hull order, refusing any profile that is not strictly convex. */
-const profileHull = (
+const profileHull: (profile: readonly IAutoMovieProfilePoint[]) => IAutoMovieProfilePoint[] = (
   profile: readonly IAutoMovieProfilePoint[],
 ): IAutoMovieProfilePoint[] => {
   profile.forEach((point: IAutoMovieProfilePoint, index: number): void =>

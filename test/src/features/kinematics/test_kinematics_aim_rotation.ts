@@ -1,21 +1,18 @@
-import { Quaternion, aimRotation } from "@automovie/engine";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
 import { TestValidator } from "@nestia/e2e";
-
 import { qclose, throwsError, vclose } from "../internal/predicates";
-
-const X = { x: 1, y: 0, z: 0 };
-const Y = { x: 0, y: 1, z: 0 };
-const nX = { x: -1, y: 0, z: 0 };
-const nY = { x: 0, y: -1, z: 0 };
+const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+const nX: IAutoMovieVector3 = { x: -1, y: 0, z: 0 };
+const nY: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
 /** 0.05° in radians: inside the OLD quatFromTo identity deadzone. */
-const TINY = (0.05 * Math.PI) / 180;
+const TINY: number = (0.05 * Math.PI) / 180;
 
 /**
- * `aimRotation`: the shortest-arc rotation taking one direction onto another
- * (the heart of an aim/look-at driver AND the analytic two-bone lowering, hence
- * `reachPose`/`legPlant`). Verified by rotating `from` with the result and
- * checking it lands on `to`.
+ * Shortest-arc aiming retains representable direction changes without snapping.
  *
  * Scenarios:
  *
@@ -24,16 +21,21 @@ const TINY = (0.05 * Math.PI) / 180;
  * 3. Antiparallel where the first perpendicular axis is degenerate (+X → −X:
  *    `|a.x| >= 0.9` ⇒ the +Y-axis branch) still flips +X to −X.
  * 4. Antiparallel with the `|a.x| < 0.9` branch (+Y → −Y) flips +Y to −Y.
- * 5. Non-unit inputs are normalized first.
- * 6. **Deadzone-free (#643/#720):** a target 0.05° off-axis, inside the old `cos
+ * 5. Non-unit finite inputs normalize, zero direction gives identity, and NaN
+ *    or infinite components refuse with their argument and component named.
+ * 6. A 0.05 degree turn and signed slopes below 1e-12 remain active, including
+ *    a 1e-200 slope whose unscaled squared axis length would underflow.
  *
- * > 0.999999`deadzone, now aims EXACTLY at the target instead of snapping to the
- * > identity. Because`aimRotation`is the shared core
- * > of`twoBoneChainArticulation`, this is the sub-0.081° correction
- * > `reachPose`(an arm putting a hand on a lever) and`legPlant` (a foot plant)
- * > used to silently drop.
+ * @evidence contracts/testing.md#behavioral-verification Runs aimRotation and rotates the input direction, asserting general, collinear and microscopic turns so a hidden sine deadzone or axis-norm underflow cannot return identity.
+ * @evidence contracts/testing.md#independent-expectations Right-handed cardinal-axis turns define general and antiparallel expectations; authored signed slopes define microscopic Y components with tolerance relative to their nonzero magnitude.
+ * @evidence contracts/testing.md#distinguishing-cases Covers both antiparallel axis branches, aligned/zero/nonunit directions, NaN/infinite refusals and signed/subnormal-scale turns; quaternion tests own generic rotation normalization.
+ * @evidence contracts/testing.md#execution-ownership The exported kinematics entry directly reaches CPU vector/quaternion source and owns all cases without a Human basis, probe, renderer or native driver.
  */
-export const test_kinematics_aim_rotation = (): void => {
+export function test_kinematics_aim_rotation(): void {
+  TestValidator.predicate(
+    "a zero direction has no turn to recover",
+    qclose(aimRotation({ x: 0, y: 0, z: 0 }, Y), { x: 0, y: 0, z: 0, w: 1 }),
+  );
   // 1. general
   TestValidator.predicate(
     "+X → +Y aims onto +Y",
@@ -72,14 +74,14 @@ export const test_kinematics_aim_rotation = (): void => {
   TestValidator.predicate(
     "NaN from vector rejects",
     throwsError(
-      () => aimRotation({ x: Number.NaN, y: 0, z: 0 }, Y),
+      (): IAutoMovieQuaternion => aimRotation({ x: Number.NaN, y: 0, z: 0 }, Y),
       ["aimRotation from.x", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(
     "infinite to vector rejects",
     throwsError(
-      () => aimRotation(X, { x: 0, y: Infinity, z: 0 }),
+      (): IAutoMovieQuaternion => aimRotation(X, { x: 0, y: Infinity, z: 0 }),
       ["aimRotation to.y", "finite", "Infinity"],
     ),
   );
@@ -88,9 +90,9 @@ export const test_kinematics_aim_rotation = (): void => {
   //    is aimed at EXACTLY. from = −Z, to = 0.05° rotated toward +X: rotating
   //    `from` by the result must land on `to` (x = sin 0.05° ≈ 8.7e-4 ≠ 0, which
   //    the old cos > 0.999999 snap would have left at 0).
-  const from = { x: 0, y: 0, z: -1 };
-  const to = { x: Math.sin(TINY), y: 0, z: -Math.cos(TINY) };
-  const aimed = Quaternion.rotateVector(aimRotation(from, to), from);
+  const from: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
+  const to: IAutoMovieVector3 = { x: Math.sin(TINY), y: 0, z: -Math.cos(TINY) };
+  const aimed: IAutoMovieVector3 = Quaternion.rotateVector(aimRotation(from, to), from);
   TestValidator.predicate(
     "0.05° off-axis is aimed exactly (no deadzone snap)",
     vclose(aimed, to),
@@ -99,4 +101,11 @@ export const test_kinematics_aim_rotation = (): void => {
     "the rotation is real, not the old identity (x ≈ sin 0.05° ≠ 0)",
     aimed.x > 1e-4,
   );
-};
+  for (const slope of [1e-14, -1e-14, 1e-200]) {
+    const turned: IAutoMovieVector3 = Quaternion.rotateVector(aimRotation(X, { x: 1, y: slope, z: 0 }), X);
+    TestValidator.predicate(
+      "every representable nonzero turn remains active below former sine thresholds",
+      Math.abs(turned.y - slope) <= Math.abs(slope) * 1e-14,
+    );
+  }
+}

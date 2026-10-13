@@ -1,3 +1,4 @@
+
 /**
  * One polishing attempt on a solved quadratic program and its diagnostics, as
  * `polishAutoMovieQuadraticProgram` returns it inside a refinement result.
@@ -17,7 +18,7 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The method is chosen by measured residuals, never by a problem's phase or a particular row, and `accepted` can only be set by the independent admission.
  * @evidence contracts/common.md#meaningful-documentation States how the method is chosen, the shared budget, that the values are an unadmitted candidate, who admits them, and ownership; each field states its unit and which method fills it.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the correction cost is answered on `polishAutoMovieQuadraticProgram`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each diagnostic trace describes one polishing attempt from one native solution under its original rows and step budget; no candidate is cached for another program.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owned by the caller; each trace grows by at most two entries per started step, so every trace is linear in `maximumRefinements`, and `activeRows` holds at most one working-row list per step; nothing else is retained.
  * @author Samchon
  */

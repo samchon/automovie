@@ -1,8 +1,6 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-
+import { IAutoMovieMesh } from "@automovie/interface";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-
 /**
  * Original ordinals of the triangles whose corners repeat a vertex on the
  * topology weld grid.
@@ -23,9 +21,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @returns Ascending ordinals of degenerate triangles.
  * @throws Error when the index run is malformed, or when a position is not finite, because a non-finite coordinate has no grid cell.
  *
- * @evidence contracts/common.md#principled-implementation A triangle is degenerate on the grid exactly when two of its corners intern to the same `weldMeshVertices` identity, the same rounding physical correspondence applies to a mesh without explicit sources, so `inspectAutoMovieMeshTopology` reports the same collapsed faces for such a mesh; non-finite positions are refused first because `Math.round` of a non-finite value names no cell.
+ * @evidence contracts/common.md#principled-implementation A triangle is degenerate on the grid exactly when two corners intern to the same weldMeshVertices identity, matching legacy physical correspondence and topology reports; the shared welder admits dense finite triples and preserves large-coordinate identity where a nanometre index exceeds safe integer range.
  * @evidence contracts/common.md#clear-and-simple-design A dedicated query instead of the full topology report, because its callers need only the degenerate ordinals; index admission and welding are the shared `triangleIndicesOf` and `weldMeshVertices`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A non-finite position is refused rather than skipped, so it cannot hide a collapsed face from the Float32 gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The shared welder refuses sparse and nonfinite positions instead of converting them to origin coordinates, so malformed buffers cannot hide a collapsed face from the Float32 gate.
  * @evidence contracts/common.md#meaningful-documentation States the degeneracy rule and grid, which callers use the ordinals for, what is deliberately not computed, the unit, that the input is unchanged, the result order and each refusal.
  * @evidence contracts/performance.md#efficient-algorithms For V vertices and T triangles, one welding pass is O(V) with one string key per vertex, and the triangle scan is O(T) with three integer comparisons each, avoiding the edge map of a full topology report.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each caller asks once per mesh per gate, and the weld labels are not retained because the callers need only the ordinals.
@@ -33,9 +31,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices: number[] = triangleIndicesOf(mesh, "mesh topology");
-  if (mesh.positions.some((value: number): boolean => !Number.isFinite(value)))
-    throw new Error("Mesh topology needs finite source positions.");
-  const { vertices } = weldMeshVertices(mesh.positions);
+  const { vertices }: ReturnType<typeof weldMeshVertices> = weldMeshVertices(mesh.positions);
   const degenerate: number[] = [];
   for (let at: number = 0; at < indices.length; at += 3) {
     const a: number = vertices[indices[at]!]!;

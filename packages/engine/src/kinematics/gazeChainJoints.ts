@@ -1,14 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieSkeleton } from "@automovie/interface";
 import { getConstraint } from "../rom/getConstraint";
-
 /** The bone a gaze is expressed on: the last link, and the one the eyes ride. */
 const HEAD: AutoMovieHumanoidBone = "head";
 
@@ -26,7 +17,7 @@ const NECK: AutoMovieHumanoidBone = "neck";
  * zero (a rig whose neck rests bent) cannot inject rotation the aim did not ask
  * for: a zero need always yields a zero share.
  */
-const shareOf = (need: number, range: IAutoMovieAngleRange | null): number => {
+const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (need: number, range: IAutoMovieAngleRange | null): number => {
   if (range === null) return 0;
   return need >= 0
     ? Math.min(need, Math.max(range.max, 0))
@@ -75,17 +66,17 @@ const shareOf = (need: number, range: IAutoMovieAngleRange | null): number => {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
  * @author Samchon
  */
-export const gazeChainJoints = (props: {
+export const gazeChainJoints: (props: { rig: IAutoMovieSkeleton | null; flexionDeg: number; twistDeg: number; }) => IAutoMovieJointPose[] = (props: {
   rig: IAutoMovieSkeleton | null;
   flexionDeg: number;
   twistDeg: number;
 }): IAutoMovieJointPose[] => {
-  const declared = (bone: AutoMovieHumanoidBone): IAutoMovieBone | null =>
+  const declared: (bone: AutoMovieHumanoidBone) => IAutoMovieBone | null = (bone: AutoMovieHumanoidBone): IAutoMovieBone | null =>
     props.rig?.bones.find((entry: IAutoMovieBone): boolean => entry.bone === bone) ??
     null;
   const headBone: IAutoMovieBone | null = declared(HEAD);
   const neckBone: IAutoMovieBone | null = declared(NECK);
-  if (headBone === null || neckBone === null)
+  if (headBone === null || neckBone === null || headBone.parent !== NECK)
     return [
       {
         bone: HEAD,
@@ -106,7 +97,7 @@ export const gazeChainJoints = (props: {
     NECK,
     neckBone.constraint,
   )!;
-  const split = (
+  const split: (need: number, axis: "flexion" | "twist") => { head: number; neck: number; } = (
     need: number,
     axis: "flexion" | "twist",
   ): { head: number; neck: number } => {

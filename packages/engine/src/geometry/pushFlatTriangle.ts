@@ -1,8 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
-
 /**
  * Append one triangle that owns its three corners and its own plane normal.
  *
@@ -22,11 +20,11 @@ import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
  * @evidence contracts/common.md#clear-and-simple-design One helper for the flat-shaded side walls of `loftAutoMovieSections`, writing into the shared `IAutoMovieMeshTarget` that `emptyMeshTarget` creates, so the caller only chooses corner order.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Corners are never shared with neighbouring triangles to save vertices, because a shared corner would average two plane normals; no orientation is flipped or repaired here.
  * @evidence contracts/common.md#meaningful-documentation States why corners are not shared, the normal formula and its winding rule, the zero-area result, and each parameter's unit and order.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per call: one cross product, one normalization and eleven appended numbers; a loft with S ring edges and P path legs calls it 2SP times, linear in its output.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per call: one cross product, one normalization, twenty-four position/normal/UV values and three indices; a loft with S ring edges and P path legs calls it 2SP times, linear in its output.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each triangle's corners and normal are its own by design, so nothing is shared between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; the appended values live in the caller's target, which grows by three vertices and one triangle per call and is handed to the returned mesh.
  */
-export const pushFlatTriangle = (
+export const pushFlatTriangle: (target: IAutoMovieMeshTarget, corners: readonly [readonly [IAutoMovieVector3, number, number], readonly [IAutoMovieVector3, number, number], readonly [IAutoMovieVector3, number, number]]) => void = (
   target: IAutoMovieMeshTarget,
   corners: readonly [
     readonly [IAutoMovieVector3, number, number],

@@ -1,3 +1,4 @@
+
 /**
  * The law-of-cosines solution `solveTwoBoneIK` returns for a two-segment chain
  * reaching a point at a given distance from its root.
@@ -5,7 +6,7 @@
  * Both angles are in degrees and say nothing about the bend plane, which the
  * caller chooses; `twoBoneChainArticulation` reads only `lift`.
  *
- * @evidence contracts/common.md#principled-implementation The interior triangle angles at the mid joint and at the root for side lengths upper, lower and the clamped distance, each from the law of cosines with its cosine clamped to `[-1, 1]` against rounding, so a reachable goal is met exactly.
+ * @evidence contracts/common.md#principled-implementation The interior angles at the mid joint and root follow the law of cosines on the reachable triangle, subject to binary64 precision; solveTwoBoneIK owns common-unit rescaling and refuses unrepresentable relative side products before constructing this record.
  * @evidence contracts/common.md#clear-and-simple-design Two scalar angles and a flag, the plane-free part of a two-bone solve, so arm and leg callers orient the chain in their own bend plane.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unreachable goal is clamped to the reachable shell and reported with `clamped` rather than returning `NaN` or silently presenting the clamped pose as a hit.
  * @evidence contracts/common.md#meaningful-documentation States the producer and consumer, the unit, the meaning and range of each angle including the straight and folded ends, the zero-distance convention, and what `clamped` reports.

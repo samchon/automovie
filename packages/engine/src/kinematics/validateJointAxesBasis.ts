@@ -1,9 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
-
 type AutoMovieJointAxis = "flexion" | "abduction" | "twist";
 
 const JOINT_AXES: readonly AutoMovieJointAxis[] = [
@@ -48,11 +46,11 @@ const AXIS_PAIRS: readonly (readonly [AutoMovieJointAxis, AutoMovieJointAxis])[]
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every basis meets the same thresholds; nothing is repaired, orthogonalized or defaulted, and no bone is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States each requirement with its threshold, that non-unit axes are accepted and why, when orthogonality is checked, the issue order and path shape, and that an empty list means usable.
  * @evidence contracts/performance.md#efficient-algorithms Constant work: nine finiteness checks, three lengths and, when usable, three normalizations and three dot products.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one basis that coordinates no work across calls.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unit copies of the three admitted axes serve all three pairwise dot checks inside the call; issues are rebuilt for the current values and diagnostic path.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned issues.
  * @author Samchon
  */
-export const validateJointAxesBasis = (
+export const validateJointAxesBasis: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxesIssue[] = (
   axes: IAutoMovieJointAxes,
   path: string,
 ): IAutoMovieJointAxesIssue[] => {

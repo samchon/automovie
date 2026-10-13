@@ -1,8 +1,6 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-
-import type { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
+import { IAutoMovieMesh, IAutoMovieMeshPhysicalVertices } from "@automovie/interface";
+import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { weldMeshVertices } from "./weldMeshVertices";
-
 /**
  * Resolve actual source-point aliases and current-position legacy vertices.
  * Source pairs are interned in first render occurrence order, independently
@@ -17,18 +15,26 @@ import { weldMeshVertices } from "./weldMeshVertices";
  * the declaration. Unused and repeated valid source rows are harmless.
  * Returned arrays are owned. Geometry, indices, areas and intersections remain
  * their independent owners' obligations, not a promise of this equivalence.
+ *
+ * @evidence contracts/common.md#principled-implementation Explicit domain/id pairs and legacy grid cells use separate first-occurrence interning spaces; every explicit alias must agree on the same nanometre coordinate grid.
+ * @evidence contracts/common.md#clear-and-simple-design The identity owner reuses position welding and supplies labels/ordinals to topology, deformation, merge and partition matching.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed metadata and separated aliases throw; only omitted correspondence selects legacy welding rather than silently ignoring a declaration.
+ * @evidence contracts/common.md#meaningful-documentation Documents key separation, dense numbering, finite positions, source-reference admission, alias agreement and geometry properties identity alone cannot establish.
+ * @evidence contracts/performance.md#efficient-algorithms For V vertices and S source rows, key construction, welding and interning use O(V plus S) expected map work and storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One weld table supplies all alias-cell comparisons, and each source key is constructed once for all its render references.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Interning maps are released on return; caller-owned labels and ordinals are bounded by source/render populations and retain no source-buffer reference.
  */
 export function resolveAutoMovieMeshPhysicalVertices(
   mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">,
 ): IAutoMovieResolvedPhysicalVertices {
-  const metadata = mesh.physicalVertices;
+  const metadata: IAutoMovieMeshPhysicalVertices | undefined = mesh.physicalVertices;
   if (metadata === undefined) return weldMeshVertices(mesh.positions);
-  const refuse = (reason: string): never => {
+  const refuse: (reason: string) => never = (reason: string): never => {
     throw new Error(`Mesh physicalVertices ${reason}.`);
   };
   if (
     mesh.positions.length % 3 !== 0 ||
-    Array.from(mesh.positions).some((value) => !Number.isFinite(value))
+    Array.from(mesh.positions).some((value: number): boolean => !Number.isFinite(value))
   )
     refuse("needs finite complete XYZ positions");
   if (
@@ -52,13 +58,13 @@ export function resolveAutoMovieMeshPhysicalVertices(
       refuse("sources need nonblank domains and nonnegative safe integer IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
   }
-  const coordinates = weldMeshVertices(mesh.positions);
+  const coordinates: { labels: string[]; vertices: number[]; } = weldMeshVertices(mesh.positions);
   const labels: string[] = [];
   const vertices: number[] = [];
-  const identities = new Map<string, number>();
-  const aliasCells = new Map<string, string>();
-  for (let vertex = 0; vertex < metadata.vertices.length; vertex++) {
-    const reference = metadata.vertices[vertex];
+  const identities: Map<string, number> = new Map<string, number>();
+  const aliasCells: Map<string, string> = new Map<string, string>();
+  for (let vertex: number = 0; vertex < metadata.vertices.length; vertex++) {
+    const reference: number | null = metadata.vertices[vertex];
     if (
       reference !== null &&
       (!Number.isSafeInteger(reference) ||
@@ -66,15 +72,15 @@ export function resolveAutoMovieMeshPhysicalVertices(
         reference! >= keys.length)
     )
       refuse(`vertices[${vertex}] must be null or a resident source reference`);
-    const cell = coordinates.labels[coordinates.vertices[vertex]];
-    const key = reference === null ? `legacy:${cell}` : keys[reference!];
+    const cell: string = coordinates.labels[coordinates.vertices[vertex]];
+    const key: string = reference === null ? `legacy:${cell}` : keys[reference!];
     if (reference !== null) {
-      const previous = aliasCells.get(key);
+      const previous: string | undefined = aliasCells.get(key);
       if (previous !== undefined && previous !== cell)
         refuse(`source ${key} aliases disagree on the coordinate grid`);
       aliasCells.set(key, cell);
     }
-    let identity = identities.get(key);
+    let identity: number | undefined = identities.get(key);
     if (identity === undefined) {
       identity = labels.length;
       identities.set(key, identity);

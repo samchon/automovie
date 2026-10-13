@@ -1,5 +1,4 @@
 import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
-
 /**
  * The squared distance of one joint's clinical angles from the anatomical
  * neutral, `flexion² + abduction² + twist²`, in square degrees.
@@ -17,11 +16,11 @@ import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Weighs the three axes equally for every bone; no bone, side or pose is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the formula, its unit, why zero is the neutral, which solve uses it and in what role, and that it is meaningless for rest-relative angles.
  * @evidence contracts/performance.md#efficient-algorithms Three multiplications and two additions with no allocation, called once per joint per swivel candidate.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of three numbers that coordinates no work across calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Swivel candidates have different clinical angles, so their squared neutral distances are evaluated separately without a score cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three squared angle values are summed directly, allocating no vector and retaining no candidate joint.
  * @author Samchon
  */
-export const clinicalDeviation = (joint: IAutoMovieResolvedJointAngles): number =>
+export const clinicalDeviation: (joint: IAutoMovieResolvedJointAngles) => number = (joint: IAutoMovieResolvedJointAngles): number =>
   joint.flexion * joint.flexion +
   joint.abduction * joint.abduction +
   joint.twist * joint.twist;

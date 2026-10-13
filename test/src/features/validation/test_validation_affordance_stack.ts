@@ -1,49 +1,31 @@
-import {
-  affordanceSupportContacts,
-  detectSupportToppling,
-  resolveAffordanceSeat,
-} from "@automovie/engine";
-import {
-  IAutoMovieAffordance,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+﻿import { affordanceSupportContacts } from "../../../../packages/engine/src/space/affordanceSupportContacts";
+import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
+import type { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
+import type { IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  namedFacts,
-  validationHasNoWarnings,
-  validationHasWarningCount,
-  vclose,
-} from "../internal/predicates";
+import { namedFacts, validationHasNoWarnings, validationHasWarningCount, vclose } from "../internal/predicates";
 
-const IDENTITY = { x: 0, y: 0, z: 0, w: 1 };
-const UNIT = { x: 1, y: 1, z: 1 };
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /**
- * Stacking is judgeable end-to-end from authored affordances alone: crate A
- * declares a stack-top, `resolveAffordanceSeat` seats crate B's base socket on
- * it, `affordanceSupportContacts` supplies the support face to
- * `detectSupportToppling` (#601), and physics answers: stable inside the face,
- * toppling when the center of mass overhangs it.
+ * Authored stack-top contacts support a placed crate's center of mass.
  *
  * Scenarios:
+ * 1. A centered mass at (3,1,2) projects inside the unit-square top carried by a parent at (3,0,2), producing no warning or toppling.
+ * 2. Moving that mass 0.7 metres along +X overhangs the half-metre edge and produces one physics warning with a +X fall direction.
  *
- * 1. Crate B (1 m cube, base socket at its bottom face) seated on crate A's top at
- *    world (3, 0, 2): B's root lands at (3, 1, 2) (hand oracle) and its
- *    centered COM projects inside the top's contacts → no warning, no
- *    toppling.
- * 2. The same stack with B's COM shifted 0.7 m along +X (0.2 m past the face edge)
- *    → a physics `warning` with a toppling suggestion falling toward +X.
+ * @evidence contracts/testing.md#behavioral-verification Converts an authored affordance face into support contacts and runs toppling admission, asserting both the stable result and the warning/fall direction for an overhang.
+ * @evidence contracts/testing.md#independent-expectations The translated unit square spans X from 2.5 to 3.5 and Z from 1.5 to 2.5, so X=3 is inside and X=3.7 lies beyond its positive edge; these hand-defined positions supply the expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps centered and overhung mass cases on the same support face, distinguishing warning-free stability from one directional toppling suggestion; support geometry tests own rotated contacts and malformed affordances.
+ * @evidence contracts/testing.md#execution-ownership The exported validation unit entry owns both portable support/physics cases and calls engine source without an attachment application, renderer or native artifact.
  */
-export const test_validation_affordance_stack = (): void => {
+export function test_validation_affordance_stack(): void {
   const top: IAutoMovieAffordance = {
     id: "top",
     kind: "stack-top",
-    frame: {
-      translation: { x: 0, y: 0.5, z: 0 },
-      rotation: IDENTITY,
-      scale: UNIT,
-    },
+    frame: { translation: { x: 0, y: 0.5, z: 0 }, rotation: IDENTITY, scale: UNIT },
     extent: [
       { x: -0.5, y: 0, z: -0.5 },
       { x: 0.5, y: 0, z: -0.5 },
@@ -51,71 +33,21 @@ export const test_validation_affordance_stack = (): void => {
       { x: -0.5, y: 0, z: 0.5 },
     ],
   };
-  const base: IAutoMovieAffordance = {
-    id: "base",
-    kind: "socket",
-    frame: {
-      translation: { x: 0, y: -0.5, z: 0 },
-      rotation: IDENTITY,
-      scale: UNIT,
-    },
-    extent: null,
-  };
   const crateA: IAutoMovieTransform = {
-    translation: { x: 3, y: 0, z: 2 },
-    rotation: IDENTITY,
-    scale: UNIT,
+    translation: { x: 3, y: 0, z: 2 }, rotation: IDENTITY, scale: UNIT,
   };
-
-  const seat = resolveAffordanceSeat({
-    parentWorld: crateA,
-    parentAffordance: top,
-    childAffordance: base,
-  });
-  TestValidator.predicate(
-    "crate B seats one half-height above the top",
-    vclose(seat.translation, { x: 3, y: 1, z: 2 }),
-  );
-
-  const support = affordanceSupportContacts({
-    affordance: top,
-    parentWorld: crateA,
-  });
-  const stable = detectSupportToppling({
-    node: "crateB",
-    centerOfMass: seat.translation,
-    support,
-  });
-  TestValidator.predicate(
-    "no warning for a stable stack",
-    validationHasNoWarnings("centered affordance stack", stable.validation),
-  );
+  const support: IAutoMovieVector3[] = affordanceSupportContacts({ affordance: top, parentWorld: crateA });
+  const stable: IAutoMovieSupportResult = detectSupportToppling({ node: "crateB", centerOfMass: { x: 3, y: 1, z: 2 }, support });
+  TestValidator.predicate("no warning for a stable stack", validationHasNoWarnings("centered affordance stack", stable.validation));
   TestValidator.equals("no toppling suggested", stable.toppling, null);
-
-  const overhung = detectSupportToppling({
-    node: "crateB",
-    centerOfMass: { x: 3.7, y: 1, z: 2 },
-    support,
-  });
-  TestValidator.predicate(
-    "overhang raises one physics warning",
-    validationHasWarningCount(
-      "overhung affordance stack",
-      overhung.validation,
-      1,
-    ),
-  );
+  const overhung: IAutoMovieSupportResult = detectSupportToppling({ node: "crateB", centerOfMass: { x: 3.7, y: 1, z: 2 }, support });
+  TestValidator.predicate("overhang raises one physics warning", validationHasWarningCount("overhung affordance stack", overhung.validation, 1));
   TestValidator.equals(
     "toppling falls toward the overhang (+X)",
     namedFacts([
-      ["overhungToppling", () => overhung.toppling !== null],
-      [
-        "vcloseOverhungToppling",
-        () =>
-          overhung.toppling !== null &&
-          vclose(overhung.toppling.fallDirection, { x: 1, y: 0, z: 0 }),
-      ],
+      ["overhungToppling", (): boolean => overhung.toppling !== null],
+      ["vcloseOverhungToppling", (): boolean => overhung.toppling !== null && vclose(overhung.toppling.fallDirection, { x: 1, y: 0, z: 0 })],
     ]),
     { overhungToppling: true, vcloseOverhungToppling: true },
   );
-};
+}

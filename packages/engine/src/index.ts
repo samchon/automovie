@@ -97,7 +97,6 @@ export { solveAutoMovieQuadraticProgram } from "./math/solveAutoMovieQuadraticPr
 export { admitAutoMovieQuadraticProgram } from "./math/admitAutoMovieQuadraticProgram";
 export { assembleAutoMovieQuadraticProgram } from "./math/assembleAutoMovieQuadraticProgram";
 export { solveAutoMovieBoundedDisplacement } from "./math/solveAutoMovieBoundedDisplacement";
-export { solveAutoMovieAbsoluteDisplacement } from "./math/solveAutoMovieAbsoluteDisplacement";
 export { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 export { linearColorToSrgbHex } from "./math/linearColorToSrgbHex";
 export { AUTOMOVIE_SABINE_CONSTANT } from "./analysis/constants/AUTOMOVIE_SABINE_CONSTANT";
@@ -367,9 +366,12 @@ export { validateHonorableChannel } from "./validation/validateHonorableChannel"
 export { lightClipChannelGate } from "./validation/lightClipChannelGate";
 export { appendLightMotionsArtifact } from "./validation/appendLightMotionsArtifact";
 export { validateSpace } from "./validation/validateSpace";
+export { validateColor } from "./validation/validateColor";
+export { validateTransformScalars } from "./validation/validateTransformScalars";
 export type { IAutoMovieTextureImageFacts } from "./validation/IAutoMovieTextureImageFacts";
 export type { AutoMovieTextureMediaType } from "./validation/AutoMovieTextureMediaType";
 export { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./validation/constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
+export { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATTERN";
 export type { IAutoMovieSceneEnvironmentUse } from "./validation/IAutoMovieSceneEnvironmentUse";
 export type { IAutoMovieTextureClosureInput } from "./validation/IAutoMovieTextureClosureInput";
 export { validateTextureAssets } from "./validation/validateTextureAssets";

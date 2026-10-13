@@ -1,15 +1,14 @@
-import {
-  closestPointOnSegmentXZ,
-  convexHull2D,
-  nearestHullEdge,
-  pointHullDistance,
-  pointInHull,
-} from "@automovie/engine";
+import { IAutoMovieHullEdge } from "../../../../packages/engine/src/math/IAutoMovieHullEdge";
+import { IAutoMovieVector3 } from "@automovie/interface";
+import { closestPointOnSegmentXZ } from "../../../../packages/engine/src/math/closestPointOnSegmentXZ";
+import { convexHull2D } from "../../../../packages/engine/src/math/convexHull2D";
+import { nearestHullEdge } from "../../../../packages/engine/src/math/nearestHullEdge";
+import { pointHullDistance } from "../../../../packages/engine/src/math/pointHullDistance";
+import { pointInHull } from "../../../../packages/engine/src/math/pointInHull";
 import { TestValidator } from "@nestia/e2e";
-
-import { namedFacts, nclose, vclose } from "../internal/predicates";
-
-const v = (x: number, z: number) => ({ x, y: 0, z });
+import { namedFacts, nclose, vclose, throwsError } from "../internal/predicates";
+import { IAutoMovieVector3 } from "@automovie/interface";
+const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
  * The shared 2D convex hull over the XZ plane underpins support and balance, so
@@ -31,9 +30,19 @@ const v = (x: number, z: number) => ({ x, y: 0, z });
  *    hull degenerates to a zero-length edge.
  * 6. ClosestPointOnSegmentXZ clamps before the start, projects onto the middle,
  *    clamps past the end, and survives a zero-length segment.
+ * 7. An empty hull refuses a nearest-edge query rather than returning absent endpoints.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs hull construction, containment, boundary distance and projection, asserting declared geometry and a named empty-nearest-edge refusal rather than accepting missing endpoints.
+ * @evidence contracts/testing.md#independent-expectations Square, collinear and singleton coordinates determine expected hull populations and analytic point/segment gaps; assertions use those authored dimensions rather than captured product output.
+ * @evidence contracts/testing.md#distinguishing-cases Covers interior/exterior/edge queries, duplicates, collinear/empty/singleton hulls, secondary sorting and clamped/zero-length projection; small-scale tests own tiny nonzero spans.
+ * @evidence contracts/testing.md#execution-ownership The discoverable math function owns its local planar cases and directly calls TypeScript geometry without a renderer, external process or native build.
  */
-export const test_math_convex_hull = (): void => {
-  const square = convexHull2D([v(0, 0), v(2, 0), v(2, 2), v(0, 2), v(1, 1)]);
+export function test_math_convex_hull(): void {
+  TestValidator.predicate(
+    "an empty hull has no boundary edge to return",
+    throwsError((): IAutoMovieHullEdge => nearestHullEdge(v(0, 0), []), "nonempty hull"),
+  );
+  const square: IAutoMovieVector3[] = convexHull2D([v(0, 0), v(2, 0), v(2, 2), v(0, 2), v(1, 1)]);
   TestValidator.equals("square hull drops interior point", square.length, 4);
   TestValidator.equals(
     "duplicate points collapse",
@@ -86,14 +95,14 @@ export const test_math_convex_hull = (): void => {
     nclose(pointHullDistance(v(1, 1), [v(0, 0), v(2, 0)]), 1),
   );
 
-  const edge = nearestHullEdge(v(3, 1), square);
+  const edge: IAutoMovieHullEdge = nearestHullEdge(v(3, 1), square);
   TestValidator.predicate("nearest edge distance", nclose(edge.distance, 1));
-  const single = nearestHullEdge(v(3, 0), [v(0, 0)]);
+  const single: IAutoMovieHullEdge = nearestHullEdge(v(3, 0), [v(0, 0)]);
   TestValidator.equals(
     "single-vertex hull yields a zero-length edge",
     namedFacts([
-      ["vertexDistance", () => nclose(single.distance, 3)],
-      ["edgeCollapsed", () => vclose(single.start, single.end)],
+      ["vertexDistance", (): boolean => nclose(single.distance, 3)],
+      ["edgeCollapsed", (): boolean => vclose(single.start, single.end)],
     ]),
     { vertexDistance: true, edgeCollapsed: true },
   );
@@ -114,4 +123,4 @@ export const test_math_convex_hull = (): void => {
     "zero-length segment returns its point",
     vclose(closestPointOnSegmentXZ(v(1, 1), v(5, 5), v(5, 5)), v(5, 5)),
   );
-};
+}

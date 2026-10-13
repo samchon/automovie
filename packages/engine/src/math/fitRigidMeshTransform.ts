@@ -1,10 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "./Quaternion";
-
 /**
  * Fit a proper rotation and translation between corresponding mesh vertices.
  * The facial basis builder uses this to perform a shape-edited rigid component
@@ -24,6 +19,14 @@ import { Quaternion } from "./Quaternion";
  * first-maximum ordering select one deterministically. A collapsed covariance
  * selects identity and the centroid translation. This fit is geometric, and
  * establishes neither a physiological joint trajectory nor nonpenetration.
+ *
+ * @evidence contracts/common.md#principled-implementation Horn's symmetric quaternion eigensystem maximizes proper-rotation covariance; scaled centered clouds avoid product overflow and fixed Jacobi sweep/maximum ordering choose deterministic degenerate solutions.
+ * @evidence contracts/common.md#clear-and-simple-design Returned centers let the facial basis consumer apply centered coordinates without cancelling large translations against rotated absolute positions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Scale, shear and reflection are never introduced to fit correspondence; malformed selections and nonrepresentable centering refuse.
+ * @evidence contracts/common.md#meaningful-documentation States unique correspondence selection, centered application, fixed scale, Jacobi construction and physiological/nonpenetration limits.
+ * @evidence contracts/performance.md#efficient-algorithms For S selected vertices, centroids and covariance cost O(S); twenty-four four-by-four Jacobi sweeps add fixed work and storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One center and scale per cloud serve every covariance term; another target population requires a fresh fit.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Covariance/eigenvector arrays are temporary, and only a new quaternion and two center records escape without retaining mesh buffers.
  */
 export function fitRigidMeshTransform(props: {
   reference: readonly number[];
@@ -34,34 +37,34 @@ export function fitRigidMeshTransform(props: {
   referenceCenter: IAutoMovieVector3;
   targetCenter: IAutoMovieVector3;
 } {
-  const { reference, target, vertices } = props;
+  const { reference, target, vertices }: { reference: readonly number[]; target: readonly number[]; vertices: readonly number[]; } = props;
   if (
     reference.length !== target.length ||
     reference.length % 3 !== 0 ||
     vertices.length === 0 ||
     new Set(vertices).size !== vertices.length ||
     vertices.some(
-      (v) => !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
+      (v: number): boolean => !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
     )
   )
     throw new Error(
       "Rigid fitting needs aligned XYZ and distinct resident vertices.",
     );
-  const a = [0, 0, 0];
-  const b = [0, 0, 0];
+  const a: number[] = [0, 0, 0];
+  const b: number[] = [0, 0, 0];
   for (const vertex of vertices)
-    for (let k = 0; k < 3; k++) {
-      const x = reference[3 * vertex + k];
-      const y = target[3 * vertex + k];
+    for (let k: number = 0; k < 3; k++) {
+      const x: number = reference[3 * vertex + k];
+      const y: number = target[3 * vertex + k];
       if (!Number.isFinite(x) || !Number.isFinite(y))
         throw new Error("Rigid fitting needs finite corresponding positions.");
       a[k] += x / vertices.length;
       b[k] += y / vertices.length;
     }
-  let referenceScale = 0;
-  let targetScale = 0;
+  let referenceScale: number = 0;
+  let targetScale: number = 0;
   for (const vertex of vertices)
-    for (let k = 0; k < 3; k++) {
+    for (let k: number = 0; k < 3; k++) {
       referenceScale = Math.max(
         referenceScale,
         Math.abs(reference[3 * vertex + k] - a[k]),
@@ -75,20 +78,20 @@ export function fitRigidMeshTransform(props: {
     throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
   // Positive uniform rescaling of either cloud leaves the maximizing rotation
   // unchanged. Normalize before multiplication to avoid overflow and underflow.
-  const referenceDivisor = referenceScale === 0 ? 1 : referenceScale;
-  const targetDivisor = targetScale === 0 ? 1 : targetScale;
-  const h = new Array<number>(9).fill(0);
+  const referenceDivisor: number = referenceScale === 0 ? 1 : referenceScale;
+  const targetDivisor: number = targetScale === 0 ? 1 : targetScale;
+  const h: number[] = new Array<number>(9).fill(0);
   for (const vertex of vertices)
-    for (let i = 0; i < 3; i++)
-      for (let j = 0; j < 3; j++)
+    for (let i: number = 0; i < 3; i++)
+      for (let j: number = 0; j < 3; j++)
         h[3 * i + j] +=
           ((reference[3 * vertex + i] - a[i]) / referenceDivisor) *
           ((target[3 * vertex + j] - b[j]) / targetDivisor);
-  const scale = Math.max(...h.map(Math.abs));
-  const divisor = scale === 0 ? 1 : scale;
-  const [xx, xy, xz, yx, yy, yz, zx, zy, zz] = h.map((x) => x / divisor);
+  const scale: number = Math.max(...h.map(Math.abs));
+  const divisor: number = scale === 0 ? 1 : scale;
+  const [xx, xy, xz, yx, yy, yz, zx, zy, zz]: number[] = h.map((x: number): number => x / divisor);
   // Scalar-first quaternion convention here; convert to glTF order on return.
-  const n = [
+  const n: number[] = [
     xx + yy + zz,
     yz - zy,
     zx - xz,
@@ -106,30 +109,30 @@ export function fitRigidMeshTransform(props: {
     yz + zy,
     -xx - yy + zz,
   ];
-  const vectors = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  for (let sweep = 0; sweep < 24; sweep++) {
-    let changed = false;
-    for (let p = 0; p < 4; p++)
-      for (let q = p + 1; q < 4; q++) {
-        const pq = n[4 * p + q];
+  const vectors: number[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  for (let sweep: number = 0; sweep < 24; sweep++) {
+    let changed: boolean = false;
+    for (let p: number = 0; p < 4; p++)
+      for (let q: number = p + 1; q < 4; q++) {
+        const pq: number = n[4 * p + q];
         if (Math.abs(pq) <= Number.EPSILON) continue;
         changed = true;
-        const pp = n[4 * p + p];
-        const qq = n[4 * q + q];
-        const angle = Math.atan2(2 * pq, qq - pp) / 2;
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        for (let k = 0; k < 4; k++) {
+        const pp: number = n[4 * p + p];
+        const qq: number = n[4 * q + q];
+        const angle: number = Math.atan2(2 * pq, qq - pp) / 2;
+        const c: number = Math.cos(angle);
+        const s: number = Math.sin(angle);
+        for (let k: number = 0; k < 4; k++) {
           if (k !== p && k !== q) {
-            const kp = n[4 * k + p];
-            const kq = n[4 * k + q];
+            const kp: number = n[4 * k + p];
+            const kq: number = n[4 * k + q];
             n[4 * k + p] = c * kp - s * kq;
             n[4 * p + k] = n[4 * k + p];
             n[4 * k + q] = s * kp + c * kq;
             n[4 * q + k] = n[4 * k + q];
           }
-          const vp = vectors[4 * k + p];
-          const vq = vectors[4 * k + q];
+          const vp: number = vectors[4 * k + p];
+          const vq: number = vectors[4 * k + q];
           vectors[4 * k + p] = c * vp - s * vq;
           vectors[4 * k + q] = s * vp + c * vq;
         }
@@ -140,8 +143,8 @@ export function fitRigidMeshTransform(props: {
       }
     if (!changed) break;
   }
-  let largest = 0;
-  for (let i = 1; i < 4; i++)
+  let largest: number = 0;
+  for (let i: number = 1; i < 4; i++)
     if (n[4 * i + i] > n[4 * largest + largest]) largest = i;
   return {
     rotation: Quaternion.normalize({

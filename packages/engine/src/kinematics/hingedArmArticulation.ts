@@ -1,11 +1,9 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
 import { aimRotation } from "./aimRotation";
-
 const RAD2DEG: number = 180 / Math.PI;
 
 /**
@@ -55,11 +53,11 @@ const SPAN_EPSILON: number = 1e-9;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
  * @evidence contracts/performance.md#efficient-algorithms At most two branches times 360 swivel steps, each one quaternion product plus one `score` call, so cost is constant per solve and dominated by `score`; the step is a resolution choice among equally exact poses, and the solve runs once per authored arm action.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one chain and target that coordinates no work across calls.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the current best candidate during the sweep and retains nothing after it; the caller owns the returned rotations.
  * @author Samchon
  */
-export const hingedArmArticulation = (props: {
+export const hingedArmArticulation: (props: { upper: IAutoMovieChainBone; midOffset: IAutoMovieVector3; midRest: IAutoMovieQuaternion; endOffset: IAutoMovieVector3; hinge: IAutoMovieVector3; target: IAutoMovieVector3; score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => { overshoot: number; deviation: number; }; }) => IAutoMovieHingedArticulation | null = (props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
 
@@ -101,7 +99,7 @@ export const hingedArmArticulation = (props: {
 
   const hingeLength: number = Vector3.length(props.hinge);
   if (hingeLength < 1e-6) return null;
-  const hinge: IAutoMovieVector3 = Vector3.scale(props.hinge, 1 / hingeLength);
+  const hinge: IAutoMovieVector3 = Vector3.normalize(props.hinge);
 
   // |m(θ)|² = k + α cos θ + β sin θ, with the far segment split into the part
   // the hinge cannot move (along the hinge) and the part it swings.
@@ -111,7 +109,7 @@ export const hingedArmArticulation = (props: {
     Vector3.scale(hinge, along),
   );
   const radius: number = Vector3.length(swung);
-  const rotated = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
+  const rotated: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
     Quaternion.rotateVector(props.midRest, vector);
   const k: number =
     Vector3.dot(midOffset, midOffset) +

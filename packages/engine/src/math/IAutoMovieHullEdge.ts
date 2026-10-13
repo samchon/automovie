@@ -1,5 +1,4 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-
 /**
  * The support-hull boundary edge nearest to a query point, as
  * `nearestHullEdge` returns it: the axis an object tips over when its centre of
@@ -14,7 +13,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A plain result record with no caller-specific field; the single-vertex answer is the stated degenerate case, not a compensation.
  * @evidence contracts/common.md#meaningful-documentation States what the edge means for toppling, that distance is planar in XZ, that endpoints alias the hull's vertices, and the single-vertex case.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the edge search is answered on `nearestHullEdge`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A nearest boundary edge belongs to one hull and horizontal query; changing the centre of mass requires a new edge search.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds references to two of the caller's hull vertices and one number; nothing else is retained.
  * @author Samchon
  */

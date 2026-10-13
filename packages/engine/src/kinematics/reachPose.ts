@@ -1,13 +1,4 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
@@ -22,7 +13,6 @@ import { decomposeJointRotation } from "./decomposeJointRotation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 import { resolvePose } from "./resolvePose";
-
 /** A joint whose three clinical angles are all known numbers. */
 interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
   bone: AutoMovieHumanoidBone;
@@ -71,7 +61,7 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the rest-pose bones and candidate scores are local to the call, and the caller owns the returned pose.
  * @author Samchon
  */
-export const reachPose = (
+export const reachPose: (skeleton: IAutoMovieSkeleton, side: "left" | "right", target: IAutoMovieVector3, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>) => IAutoMoviePose | null = (
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   target: IAutoMovieVector3,
@@ -87,7 +77,7 @@ export const reachPose = (
     side === "left" ? "leftLowerArm" : "rightLowerArm";
   const handName: AutoMovieHumanoidBone =
     side === "left" ? "leftHand" : "rightHand";
-  const declared = (name: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
+  const declared: (name: AutoMovieHumanoidBone) => IAutoMovieBone | undefined = (name: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
     skeleton.bones.find((bone: IAutoMovieBone): boolean => bone.bone === name);
   const upperBone: IAutoMovieBone | undefined = declared(upperName);
   const lowerBone: IAutoMovieBone | undefined = declared(lowerName);
@@ -98,8 +88,8 @@ export const reachPose = (
     upperBone === undefined ||
     lowerBone === undefined ||
     handBone === undefined ||
-    false ||
-    false
+    lowerBone.parent !== upperName ||
+    handBone.parent !== lowerName
   )
     return null;
 
@@ -128,7 +118,7 @@ export const reachPose = (
     lowerBone.constraint,
   );
 
-  const jointsOf = (
+  const jointsOf: (upperDelta: IAutoMovieQuaternion, lowerDelta: IAutoMovieQuaternion) => [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] = (
     upperDelta: IAutoMovieQuaternion,
     lowerDelta: IAutoMovieQuaternion,
   ): [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] => [

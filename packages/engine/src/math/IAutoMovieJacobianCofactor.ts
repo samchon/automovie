@@ -1,3 +1,4 @@
+
 /**
  * The determinant and cofactor matrix of one 3×3 deformation Jacobian, as
  * `cofactorAutoMovieJacobian` returns them.
@@ -14,7 +15,7 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A plain result record with no caller-specific field; positivity is a guarantee of the producer, which throws rather than returning a flipped map.
  * @evidence contracts/common.md#meaningful-documentation States the formula, storage order, units, what the matrix transports, the determinant guarantee and why, that entries can still overflow, and ownership.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the evaluation is answered on `cofactorAutoMovieJacobian`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The determinant and cofactor share one Jacobian evaluation; consumers reuse this pair only while applying that unchanged local deformation map.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One number and a nine-entry array owned by the caller.
  * @author Samchon
  */

@@ -1,17 +1,10 @@
-import {
-  IAutoMovieMesh,
-  IAutoMovieMeshPhysicalSource,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieMesh, IAutoMovieMeshPhysicalSource, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 import { finiteVector } from "./finiteVector";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-
 /** Largest admitted distance of a placement rotation's norm from one. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
@@ -66,7 +59,7 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call places one mesh under one transform into buffers the caller owns, so there is nothing to share across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the resolved correspondence tables are discarded after admission, and the new position, normal, UV, color, relief, index and correspondence arrays, linear in V and T, are transferred to the caller.
  */
-export const transformAutoMovieMesh = (
+export const transformAutoMovieMesh: (mesh: IAutoMovieMesh, transform: IAutoMovieMeshTransform) => IAutoMovieMesh = (
   mesh: IAutoMovieMesh,
   transform: IAutoMovieMeshTransform,
 ): IAutoMovieMesh => {
@@ -122,7 +115,8 @@ export const transformAutoMovieMesh = (
     );
     normals.push(turned.x, turned.y, turned.z);
   }
-  const mirrored: boolean = scale.x * scale.y * scale.z < 0;
+  const mirrored: boolean =
+    Math.sign(scale.x) * Math.sign(scale.y) * Math.sign(scale.z) < 0;
   const indices: number[] = [];
   for (let index: number = 0; index < triangles.length; index += 3)
     indices.push(

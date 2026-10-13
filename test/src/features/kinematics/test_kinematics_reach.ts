@@ -1,16 +1,13 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  reachPose,
-  resolvePose,
-} from "@automovie/engine";
-import { IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieTransform, IAutoMovieSkeleton, IAutoMoviePose, IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
+import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { TestValidator } from "@nestia/e2e";
-
 import { createSkeleton } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
-
-const idTransform = {
+const idTransform: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -23,7 +20,7 @@ const idTransform = {
  * read them back through the same rest frame. Resolving without one would
  * measure a different pose than the one the solver returned.
  */
-const handAt = (
+const handAt: (pose: IAutoMoviePose) => IAutoMovieVector3 = (
   pose: NonNullable<ReturnType<typeof reachPose>>,
 ): IAutoMovieVector3 =>
   resolvePose(
@@ -31,7 +28,7 @@ const handAt = (
     createSkeleton(),
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
-  ).find((b) => b.bone === "leftHand")!.worldPosition;
+  ).find((b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand")!.worldPosition;
 
 /**
  * `reachPose`: analytic two-bone arm IK. The contract is the FK oracle: pose
@@ -59,9 +56,14 @@ const handAt = (
  *    in the elbow's own hinge plane, so no pole and no fallback are involved;
  *    the case is kept because the axis-aligned target is still the one most
  *    likely to expose a degenerate cross product.
+  *
+ * @evidence contracts/testing.md#behavioral-verification Runs reachPose and replays the returned clinical pose through forward kinematics, catching target misses, incorrect reach-shell extension and failure to reject degenerate chains.
+ * @evidence contracts/testing.md#independent-expectations Targets are authored points and the unreachable endpoint is shoulder plus a normalized ray times the independent 0.55 metre segment sum; FK roundtrips share the documented angle convention.
+ * @evidence contracts/testing.md#distinguishing-cases Covers reachable directions, unreachable shell, missing hand, target at shoulder, collapsed segment and vertical reach; arm-chain fault tests own malformed parenting and hinge diagnosis.
+ * @evidence contracts/testing.md#execution-ownership This discoverable kinematics function executes portable solvers against code-authored skeleton fixtures; no Human source basis, host process or GPU participates.
  */
-export const test_kinematics_reach = (): void => {
-  const skeleton = createSkeleton();
+export function test_kinematics_reach(): void {
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
   const shoulder: IAutoMovieVector3 = { x: 0.2, y: 1.4, z: 0 };
 
   const targets: IAutoMovieVector3[] = [
@@ -71,7 +73,7 @@ export const test_kinematics_reach = (): void => {
     { x: 0.1, y: 1.15, z: 0.25 }, // across the body
   ];
   for (const target of targets) {
-    const pose = reachPose(skeleton, "left", target);
+    const pose: IAutoMoviePose | null = reachPose(skeleton, "left", target);
     TestValidator.predicate(
       `reach ${JSON.stringify(target)} poses`,
       pose !== null,
@@ -85,15 +87,15 @@ export const test_kinematics_reach = (): void => {
 
   // 2. unreachable → arm fully extended along the ray at reach distance
   const far: IAutoMovieVector3 = { x: 1.4, y: 1.4, z: 0 };
-  const farPose = reachPose(skeleton, "left", far)!;
-  const handFar = handAt(farPose);
-  const dir = {
+  const farPose: IAutoMoviePose = reachPose(skeleton, "left", far)!;
+  const handFar: IAutoMovieVector3 = handAt(farPose);
+  const dir: IAutoMovieVector3 = {
     x: far.x - shoulder.x,
     y: far.y - shoulder.y,
     z: far.z - shoulder.z,
   };
-  const len = Math.hypot(dir.x, dir.y, dir.z);
-  const onShell = {
+  const len: number = Math.hypot(dir.x, dir.y, dir.z);
+  const onShell: IAutoMovieVector3 = {
     x: shoulder.x + (dir.x / len) * 0.55,
     y: shoulder.y + (dir.y / len) * 0.55,
     z: shoulder.z + (dir.z / len) * 0.55,
@@ -116,9 +118,9 @@ export const test_kinematics_reach = (): void => {
   );
 
   // a malformed rig: the forearm collapses onto the elbow (l2 = 0)
-  const degenerate = createSkeleton();
-  const forearm = degenerate.bones.find(
-    (b) => b.bone === "leftHand",
+  const degenerate: IAutoMovieSkeleton = createSkeleton();
+  const forearm: IAutoMovieBone = degenerate.bones.find(
+    (b: IAutoMovieBone): boolean => b.bone === "leftHand",
   ) as IAutoMovieBone;
   forearm.rest = idTransform; // hand coincident with the elbow → zero segment
   TestValidator.equals(
@@ -130,9 +132,9 @@ export const test_kinematics_reach = (): void => {
   // 4. straight-down target: the axis-aligned case that used to need the pole
   // fallback, kept as the likeliest place for a degenerate cross product
   const below: IAutoMovieVector3 = { x: 0.2, y: 1.0, z: 0 };
-  const belowPose = reachPose(skeleton, "left", below)!;
+  const belowPose: IAutoMoviePose = reachPose(skeleton, "left", below)!;
   TestValidator.predicate(
     "a straight-down reach still lands",
     vclose(handAt(belowPose), below, 1e-3),
   );
-};
+}

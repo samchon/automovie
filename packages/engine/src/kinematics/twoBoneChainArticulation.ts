@@ -1,12 +1,10 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
 import { aimRotation } from "./aimRotation";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
-
 /** World-down, the direction the default bend displaces the mid joint toward. */
 const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
@@ -42,11 +40,11 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No limb or rig is special-cased; the vertical-axis fallback plane is a stated degeneracy rule, and an unreachable target is extended onto the shell rather than reported as reached.
  * @evidence contracts/common.md#meaningful-documentation States what is measured from the chain, how the bend plane is chosen including both fallbacks, how deltas become bone-local, the unreachable behavior, the free-swing caveat and the hinge alternative, every `null` case with its threshold, and each input's frame.
  * @evidence contracts/performance.md#efficient-algorithms Constant time: a few vector differences, one `solveTwoBoneIK`, two `aimRotation` calls and a handful of quaternion products.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one chain and target that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
  * @author Samchon
  */
-export const twoBoneChainArticulation = (props: {
+export const twoBoneChainArticulation: (props: { upper: IAutoMovieChainBone; lower: IAutoMovieChainBone; end: IAutoMovieVector3; target: IAutoMovieVector3; bendNormal?: IAutoMovieVector3 | undefined; }) => IAutoMovieTwoBoneArticulation | null = (props: {
   /** Resolved chain-root bone (hip or shoulder) in world space. */
   upper: IAutoMovieChainBone;
 

@@ -1,3 +1,4 @@
+
 /** One directed use of an undirected edge by a source triangle. */
 interface IEdgeUse {
   triangle: number;
@@ -38,8 +39,8 @@ export function selectAutoMovieTriangleRegion(props: {
   indices: readonly number[];
   boundary: readonly number[];
 }): number[] {
-  const { indices, boundary } = props;
-  const invalidIndex = (index: number): boolean =>
+  const { indices, boundary }: typeof props = props;
+  const invalidIndex: (index: number) => boolean = (index: number): boolean =>
     !Number.isInteger(index) || index < 0;
   if (
     indices.length % 3 !== 0 ||
@@ -51,7 +52,7 @@ export function selectAutoMovieTriangleRegion(props: {
     throw new Error(
       "A triangle region needs complete triangles and distinct nonnegative boundary vertices.",
     );
-  const key = (a: number, b: number): string =>
+  const key: (a: number, b: number) => string = (a: number, b: number): string =>
     Math.min(a, b) + "/" + Math.max(a, b);
   const barriers: Set<string> = new Set(
     boundary.map(

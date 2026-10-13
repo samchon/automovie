@@ -1,3 +1,4 @@
+
 /**
  * Linear interpolation of one scalar, `from · (1 − progress) + to · progress`.
  *
@@ -16,9 +17,9 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamp, easing or caller-specific case; extrapolation outside `[0, 1]` is stated rather than hidden.
  * @evidence contracts/common.md#meaningful-documentation States the formula, the exact-endpoint property and why it matters, that progress is unclamped, and who uses it.
  * @evidence contracts/performance.md#efficient-algorithms Two multiplications, one subtraction and one addition with no allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of three numbers that coordinates no work across calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Formation samples supply their current endpoint values and progress, and interpolation stores no sample history between frames.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Weighted scalar interpolation allocates no buffer and retains neither endpoints nor progress after returning the number.
  * @author Samchon
  */
-export const lerp = (from: number, to: number, progress: number): number =>
+export const lerp: (from: number, to: number, progress: number) => number = (from: number, to: number, progress: number): number =>
   from * (1 - progress) + to * progress;

@@ -1,9 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
 import { rotationBetween } from "./rotationBetween";
-
 /**
  * Pure 4×4 matrix math in column-major order, element `m[col * 4 + row]`, the
  * storage order of glTF and `three.js`.
@@ -20,9 +18,9 @@ import { rotationBetween } from "./rotationBetween";
  * @evidence contracts/common.md#clear-and-simple-design A namespace of stateless functions over plain `number[]` instead of a matrix class, so the engine's records stay JSON values and the module stays free of a renderer dependency.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No function special-cases a caller or matrix; `decompose` completes a collapsed axis by the same rule for every matrix, and the affine premise of `transformPoint` is stated rather than compensated.
  * @evidence contracts/common.md#meaningful-documentation States the storage order and element formula, why matrices exist internally though the interface carries only transforms, and that every function returns a new value.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A namespace with no body of its own; each member answers its own cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stateless functions that coordinate no work across calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace holds no state; each function retains nothing after it returns.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace groups fixed-size affine operations; matrix multiplication and decomposition state their arithmetic on their members.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Matrix results depend on current coefficients and transforms, and this module owns no composition cache across hierarchy passes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Three canonical axis records remain for collapsed-basis completion; each matrix result is a separate caller-owned array and no input matrix is retained.
  */
 export namespace Matrix4 {
   /**
@@ -34,9 +32,9 @@ export namespace Matrix4 {
    * @evidence contracts/common.md#meaningful-documentation States that each call returns a new array, which is the fact a caller that mutates the result needs.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One sixteen-element array literal with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh array is the contract, so sharing one would be wrong rather than cheaper.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The sixteen identity entries are freshly allocated for the caller; no shared mutable matrix is retained.
    */
-  export const identity = (): number[] => [
+  export const identity: () => number[] = (): number[] => [
     1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
   ];
 
@@ -60,9 +58,9 @@ export namespace Matrix4 {
    * @evidence contracts/common.md#meaningful-documentation States the order the parts apply in, the bit-for-bit agreement with `three.js`, the unit-rotation premise and what breaks without it, how a zero scale behaves, and each parameter's role.
    * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed set of twelve products and the scaled basis, in constant time with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one transform that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Doubled quaternion components remain scalar locals, and the sixteen composed coefficients transfer to the caller without retaining the translation or scale records.
    */
-  export const compose = (
+  export const compose: (t: IAutoMovieVector3, r: IAutoMovieQuaternion, s: IAutoMovieVector3) => number[] = (
     t: IAutoMovieVector3,
     r: IAutoMovieQuaternion,
     s: IAutoMovieVector3,
@@ -106,15 +104,15 @@ export namespace Matrix4 {
    * @param b Inner (earlier) transform, column-major.
    * @returns A new column-major matrix; neither input is changed.
    *
-   * @evidence contracts/common.md#principled-implementation The definition of the matrix product, entry `(row, col)` as the sum over `k` of `a(row, k) · b(k, col)`, read through the column-major index `col * 4 + row`; it multiplies the full 4×4 including the fourth row, so it is correct for any matrix, not only affine ones.
+   * @evidence contracts/common.md#principled-implementation The matrix product sums `a(row, k) · b(k, col)` through column-major indices for every row and column, including the fourth row; finite sixteen-entry operands are the caller premise, and large products may overflow binary64.
    * @evidence contracts/common.md#clear-and-simple-design One general product shared by hierarchy composition, world drivers, springs and placement code, returning a new array so no caller's matrix is overwritten.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every entry is summed in the same `k` order for every matrix; no identity or affine input takes a shortcut that would change rounding between callers.
    * @evidence contracts/common.md#meaningful-documentation States which operand applies first, the storage order of both inputs, and that the result is new with inputs unchanged.
    * @evidence contracts/performance.md#efficient-algorithms Constant time: 64 multiply-adds into one preallocated sixteen-element array, the direct product for a fixed 4×4 size where no faster method applies.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two matrices that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One sixteen-entry product array accumulates the sums and becomes caller-owned; neither operand is retained or overwritten.
    */
-  export const multiply = (a: number[], b: number[]): number[] => {
+  export const multiply: (a: number[], b: number[]) => number[] = (a: number[], b: number[]): number[] => {
     const out: number[] = new Array<number>(16);
     for (let col: number = 0; col < 4; ++col)
       for (let row: number = 0; row < 4; ++row) {
@@ -139,9 +137,9 @@ export namespace Matrix4 {
    * @evidence contracts/common.md#meaningful-documentation States what the column means for a world matrix and which elements are read.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three array reads with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure read that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned vector and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The extracted origin owns its three copied translation values and keeps no reference to the matrix array.
    */
-  export const position = (m: number[]): IAutoMovieVector3 => ({
+  export const position: (m: number[]) => IAutoMovieVector3 = (m: number[]): IAutoMovieVector3 => ({
     x: m[12]!,
     y: m[13]!,
     z: m[14]!,
@@ -168,7 +166,7 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map of one point that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the returned point only and retains nothing.
    */
-  export const transformPoint = (
+  export const transformPoint: (m: number[], p: IAutoMovieVector3) => IAutoMovieVector3 = (
     m: number[],
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -188,7 +186,7 @@ export namespace Matrix4 {
    * Replaces each null (collapsed) column of a unit basis with its orthonormal
    * completion, leaving every present column unchanged.
    */
-  const completeBasis = (
+  const completeBasis: (columns: readonly (IAutoMovieVector3 | null)[]) => IAutoMovieVector3[] = (
     columns: readonly (IAutoMovieVector3 | null)[],
   ): IAutoMovieVector3[] => {
     const present: number[] = [0, 1, 2].filter(
@@ -217,7 +215,7 @@ export namespace Matrix4 {
    * `axis` onto the unit vector `direction`, with that column set to
    * `direction` itself.
    */
-  const alignedBasis = (
+  const alignedBasis: (axis: number, direction: IAutoMovieVector3) => IAutoMovieVector3[] = (
     axis: number,
     direction: IAutoMovieVector3,
   ): IAutoMovieVector3[] => {
@@ -260,7 +258,7 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one matrix that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the three basis vectors and the returned record and retains nothing.
    */
-  export const decompose = (
+  export const decompose: (m: number[]) => { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = (
     m: number[],
   ): {
     position: IAutoMovieVector3;
