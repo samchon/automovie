@@ -124,6 +124,7 @@ const panels: IAutoMoviePatternFacet[] = [1, 2, 3].map((index) => ({
 }));
 
 /**
+ *
  * One pattern laid around a corner and across a curved facade.
  *
  * A joint, a cut piece, and a take-off are measured on the surface, so a wall
@@ -160,6 +161,10 @@ const panels: IAutoMoviePatternFacet[] = [1, 2, 3].map((index) => ({
  * 7. A facet naming a zone nothing was laid in, a zone named twice, a non-finite
  *    anchor, an axis that is not a unit vector, and axes that are not
  *    perpendicular are each refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Lays a two-zone brick corner and a four-panel folded facade with `generateAutoMovieSurfacePattern`, then places them through `autoMoviePatternInstanceTransforms` with and without facets; the assertions on ids, joint totals, slot translations, rotated normals, pair findings and facet refusals catch a facet ignored so return bricks stay on the first wall, a facet anchor not subtracted, a normal not taken as `u cross v`, a corner joint skipped because it crosses zones, and a facet frame accepted when unknown, repeated, non-finite, non-unit or skewed.
+ * @evidence contracts/testing.md#independent-expectations Six 0.49 by 0.6 m bricks cover 1.764 of 1.8 m2, so the 0.036 m2 of joint at 10 mm is 3.6 m; a 0.45 m return brick opens 30 mm and 50 mm gaps against a 2 mm tolerance; the return wall's frame `u = -z` puts its first brick at `(2, 0.3, -0.25)` with normal `+x`; facade centres are computed by the test's own `seam` and `heading` walk and must be `cos 7.5 deg` apart, the half-angle chord of two unit half-panels; refusal texts are matched whole, so a reworded message fails here.
+ * @evidence contracts/testing.md#distinguishing-cases Folded versus unfolded run of the same result shows the facet alone moves the return bricks while the first wall stays put; nominal and short brick widths show the joint scan crosses the fold; six facet refusals each differ from a valid facet by one field; flat single-frame instancing and prototype tables are owned by the instancing test, and slivers and grain breaks by the findings test.
  */
 export const test_architecture_surface_pattern_facets = (): void => {
   const laid = corner(0.49);

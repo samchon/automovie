@@ -6,6 +6,7 @@ import { humanViewerCalibrationRig } from "./humanViewerCalibrationRig.js";
 const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
 
 /**
+ *
  * Put the hand-typed calibration spheres into a displayed model group, or
  * take them out. Any earlier rig is removed first, so the cached group never
  * carries two and a frame without `calibrate` never carries one. The spheres
@@ -18,12 +19,6 @@ const HUMAN_VIEWER_CALIBRATION_NAME = "calibration-rig";
  * @evidence contracts/common.md#clear-and-simple-design One function owns the rig's presence in a group.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds fixed independent geometry and never alters the subject or its numerical cache.
  * @evidence contracts/common.md#meaningful-documentation States ordering with framing, lighting independence and removal.
- * @evidence contracts/modeling.md#emitted-geometry Five spheres of fixed 16 by 12 segment count, independent of any subject.
- * @evidence contracts/modeling.md#part-identity-and-grouping One auxiliary calibration group owns five independently named marker spheres from the existing reference table; it does not redefine subject parts.
- * @evidence contracts/modeling.md#parameter-channels The presence flag adds or removes the complete independent rig; marker positions, radii and colors remain reference data rather than anatomical controls.
- * @evidence contracts/modeling.md#spatial-conventions Marker positions and radii are metre values in the displayed group frame; the existing rig table owns its Y-up, +Z-front reference convention and byte-to-color conversion.
- * @evidence contracts/modeling.md#rendered-observation The independent unlit markers support front, opposite-view and enlarged observation through the existing viewer controls; removing and restoring the auxiliary rig preserves subject framing and part identity. This responsibility covers the markers, not anatomical quality or body occlusion.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Independent calibration spheres construct no continuous surface or join with the subject; auxiliary exclusion keeps their geometry outside subject operations.
  */
 export function addHumanViewerCalibration(
   root: THREE.Object3D,

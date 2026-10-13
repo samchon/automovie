@@ -7,6 +7,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 
 /**
+ *
  * Directory-only observations used to enumerate a closed maintenance input.
  *
  * Production binds `@automovie/template`'s directory capture and assertion and
@@ -17,14 +18,12 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design Kept apart from `IAutoMovieMaintenanceObservationIO` because enumeration needs a listing and no file read, while observation needs reads and no listing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Production always binds the fixed defaults; the seam exists so tests can inject a changed or invalid listing, and it alters no production path.
  * @evidence contracts/common.md#meaningful-documentation States the default binding, the test-only alternatives, and that the port never reads content.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The port fixes call shapes for the walker; each member states its per-call cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port caches nothing; the walker decides how often each directory is captured and asserted.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Capture and assert open and close one directory descriptor inside the call, and the listing returns a complete array, so no handle stays open between calls.
- * @evidence contracts/portability.md#os-neutral-implementation Listing classifies through Node's `Dirent`, which reports a Windows junction as a symbolic link, and capture uses `lstat` and the native real path, so junctions and symlinks refuse alike.
+ * @evidence contracts/performance.md#cost-and-resources The port fixes call shapes for the walker; each member states its per-call cost. The port caches nothing; the walker decides how often each directory is captured and asserted. Capture and assert open and close one directory descriptor inside the call, and the listing returns a complete array, so no handle stays open between calls.
  * @author Samchon
  */
 export interface IAutoMovieMaintenanceDirectoryIO {
   /**
+   *
    * Capture one ordinary directory and its physical identity. A missing one
    * throws an `ENOENT` error, which the walker reads as an empty subtree; a
    * link or non-directory throws any other error.
@@ -33,14 +32,12 @@ export interface IAutoMovieMaintenanceDirectoryIO {
    * @evidence contracts/common.md#clear-and-simple-design The walker captures each visited directory once, at entry, and revalidates it through `assert` afterwards.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws rather than following a link; reading `ENOENT` as an empty subtree, such as a delivery layer not yet created, is the walker's decision.
    * @evidence contracts/common.md#meaningful-documentation States what is captured and how a missing directory and a link are each reported.
-   * @evidence contracts/performance.md#efficient-algorithms A constant number of native calls per visited directory.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Captures are not kept across walks, because `toc`'s second walk exists to see a changed tree.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The default opens the directory read-only only long enough to `fstat` it and closes it in `finally`.
-   * @evidence contracts/portability.md#os-neutral-implementation `lstat` reports a Windows junction as a symbolic link, and `real` is the native final path compared with `path.relative`, case-insensitive on Windows.
+   * @evidence contracts/performance.md#cost-and-resources A constant number of native calls per visited directory. Captures are not kept across walks, because `toc`'s second walk exists to see a changed tree. The default opens the directory read-only only long enough to `fstat` it and closes it in `finally`.
    */
   capture: (target: string) => IScaffoldPhysicalDirectory;
 
   /**
+   *
    * Refuse a changed captured directory. The walker calls it on the root when
    * entering a directory, on the root and the current directory before every
    * entry, and on both at each directory's exit.
@@ -49,14 +46,12 @@ export interface IAutoMovieMaintenanceDirectoryIO {
    * @evidence contracts/common.md#clear-and-simple-design Separate from capture so the walker states where the root and current directory must still hold.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Never re-adopts a changed generation; a change refuses the whole enumeration.
    * @evidence contracts/common.md#meaningful-documentation States when the walker invokes it and what a change means.
-   * @evidence contracts/performance.md#efficient-algorithms Each call is one full capture; the walker makes two per listed entry and three per visited directory, so these calls dominate a walk's native call count while staying linear in entries.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call must re-observe, since detecting change since capture is its purpose.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Opens and closes one directory descriptor within each call and retains nothing.
-   * @evidence contracts/portability.md#os-neutral-implementation Compares the native real path and descriptor identity strings exactly, without case folding.
+   * @evidence contracts/performance.md#cost-and-resources Each call is one full capture; the walker makes two per listed entry and three per visited directory, so these calls dominate a walk's native call count while staying linear in entries. Every call must re-observe, since detecting change since capture is its purpose. Opens and closes one directory descriptor within each call and retains nothing.
    */
   assert: (directory: IScaffoldPhysicalDirectory) => void;
 
   /**
+   *
    * Enumerate only entry names and kinds, in the order the platform returns;
    * text is read through the snapshot reader. `link` covers a symbolic link or
    * Windows junction, and `other` covers sockets, FIFOs and devices, which the
@@ -66,10 +61,7 @@ export interface IAutoMovieMaintenanceDirectoryIO {
    * @evidence contracts/common.md#clear-and-simple-design Returns names and kinds only; reading content belongs to the observation port.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Classifies every entry without exception; the walker, not the listing, decides that `other` entries and non-Markdown files are skipped silently.
    * @evidence contracts/common.md#meaningful-documentation States the unordered result, each kind's meaning, and that `other` is skipped.
-   * @evidence contracts/performance.md#efficient-algorithms One directory read per visited directory, linear in its entry count.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each visited directory is listed once per walk, and the walker sorts that one listing.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources `readdirSync` opens and closes the directory within the call and returns a complete array sized by the entry count, with no cap.
-   * @evidence contracts/portability.md#os-neutral-implementation Kinds come from Node's `Dirent`, which reports a Windows junction as a symbolic link; order is left to the platform and normalized by the walker's code-unit sort.
+   * @evidence contracts/performance.md#cost-and-resources One directory read per visited directory, linear in its entry count. Each visited directory is listed once per walk, and the walker sorts that one listing. `readdirSync` opens and closes the directory within the call and returns a complete array sized by the entry count, with no cap.
    */
   list: (directory: string) => readonly {
     name: string;
@@ -94,6 +86,7 @@ const directoryIO: IAutoMovieMaintenanceDirectoryIO = {
 };
 
 /**
+ *
  * Enumerate Markdown paths without following linked or replaced ancestors.
  *
  * `relative` names one directory below the root; the root itself or a path
@@ -107,10 +100,7 @@ const directoryIO: IAutoMovieMaintenanceDirectoryIO = {
  * @evidence contracts/common.md#clear-and-simple-design One walker parameterized by a start directory, with the delivery wrapper supplying the fixed layers; its inline comparator restates the `compareCodeUnits` that the sibling observation module imports from `@automovie/engine`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses links instead of following them; non-Markdown files and `other` entries are skipped silently, and a missing start directory is an empty result rather than an error.
  * @evidence contracts/common.md#meaningful-documentation States the accepted start directory, the output spelling and order, the case-sensitive suffix, and each refusal.
- * @evidence contracts/performance.md#efficient-algorithms Linear in visited entries plus a sort per directory; each listed entry costs two directory captures for revalidation, which dominate the native calls, and recursion depth equals directory depth.
- * @evidence contracts/performance.md#reuse-equivalent-work Within one walk each directory is captured and listed once; nothing is cached between walks because `toc`'s second walk exists to detect a changed population.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Holds at most one directory descriptor at a time, inside capture or assert, plus one listing array per recursion level; the output grows with the number of Markdown files, with no cap.
- * @evidence contracts/portability.md#os-neutral-implementation Converts each found path to `/` spelling with `split(path.sep)`, refuses names containing `/`, `\` or NUL on every OS, and checks containment with `path.relative`, case-insensitive on Windows; the `.md` test is case-sensitive everywhere, so `NOTES.MD` is skipped even on a case-insensitive filesystem.
+ * @evidence contracts/performance.md#cost-and-resources Linear in visited entries plus a sort per directory; each listed entry costs two directory captures for revalidation, which dominate the native calls, and recursion depth equals directory depth. Within one walk each directory is captured and listed once; nothing is cached between walks because `toc`'s second walk exists to detect a changed population. Holds at most one directory descriptor at a time, inside capture or assert, plus one listing array per recursion level; the output grows with the number of Markdown files, with no cap.
  */
 export const readAutoMovieMaintenanceMarkdownPaths = (
   root: IScaffoldPhysicalDirectory,
@@ -183,6 +173,7 @@ export const readAutoMovieMaintenanceMarkdownPaths = (
 };
 
 /**
+ *
  * Close delivery maintenance over scripts and both screenplay passes.
  *
  * Concatenates the walks of `docs/scripts`, `docs/screenplays` and
@@ -192,10 +183,7 @@ export const readAutoMovieMaintenanceMarkdownPaths = (
  * @evidence contracts/common.md#clear-and-simple-design A three-element `flatMap` over the walker; the same layer names are restated in `@automovie/template`'s `planAutoMovieProjectDeliveryTocs` and `planAutoMovieDeliveryTocPublication`, so a new layer must be added in both packages.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The three paths are the contract's delivery layers, a real supported difference rather than a consumer special case.
  * @evidence contracts/common.md#meaningful-documentation States the layers, their order, and that a missing layer is empty.
- * @evidence contracts/performance.md#efficient-algorithms Cost is the sum of three walks, linear in their entries; the layers do not overlap, so no entry is visited twice.
- * @evidence contracts/performance.md#reuse-equivalent-work `run` calls it before planning and again before writing and compares the lists; returning a fresh array each time is what lets that comparison see an added sibling.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no resource beyond the walker calls it sequences; its only allocation is the concatenated array.
- * @evidence contracts/portability.md#os-neutral-implementation Spells the layers with `/`, which `path.resolve` accepts on Windows and POSIX alike, and returns `/` paths independent of the host separator.
+ * @evidence contracts/performance.md#cost-and-resources Cost is the sum of three walks, linear in their entries; the layers do not overlap, so no entry is visited twice. `run` calls it before planning and again before writing and compares the lists; returning a fresh array each time is what lets that comparison see an added sibling. Owns no resource beyond the walker calls it sequences; its only allocation is the concatenated array.
  */
 export const readAutoMovieDeliveryMaintenanceMarkdownPaths = (
   root: IScaffoldPhysicalDirectory,
@@ -206,6 +194,7 @@ export const readAutoMovieDeliveryMaintenanceMarkdownPaths = (
   );
 
 /**
+ *
  * Recheck the complete enumerated population, including newly added siblings.
  *
  * Throws unless both lists match in length, order and spelling, so both must
@@ -215,10 +204,7 @@ export const readAutoMovieDeliveryMaintenanceMarkdownPaths = (
  * @evidence contracts/common.md#clear-and-simple-design A pure comparison kept apart from enumeration so the TOC command states its recheck explicitly.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses on any difference, including a reorder, instead of merging or adopting the newer list.
  * @evidence contracts/common.md#meaningful-documentation States the exact-match rule and that both inputs must come from the same walk.
- * @evidence contracts/performance.md#efficient-algorithms Linear in list length, exiting at once on a length mismatch.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Compares two lists it is handed and produces nothing to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Compares the two arrays in place and allocates nothing except the error it throws on a mismatch.
- * @evidenceExclude contracts/portability.md#os-neutral-implementation Compares `/`-spelled strings and touches no filesystem, native path or process.
+ * @evidence contracts/performance.md#cost-and-resources Linear in list length, exiting at once on a length mismatch. Compares two lists it is handed and produces nothing to share. Compares the two arrays in place and allocates nothing except the error it throws on a mismatch.
  */
 export const assertAutoMovieMaintenanceMarkdownInventory = (
   expected: readonly string[],

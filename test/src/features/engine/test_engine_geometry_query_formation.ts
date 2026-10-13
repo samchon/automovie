@@ -12,6 +12,7 @@ import { geometryFormationTestUnit as unit } from "../internal/geometryFormation
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
+ *
  * A formation query reads a unit where its compiled runtime places it, and
  * checks its representative members against the ground under each of them.
  *
@@ -44,6 +45,10 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 5. A missing formation, a unit no current shot fully materializes, a shot the
  *    unit is not in, a time outside the shot, a missing camera, and a missing
  *    production frame format each refuse.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieGeometry` with `formation` requests over records compiled by `materializeCompiledFormation` and asserts compiled heights, representative-slot and ground-violation counts, unit counts, extent, centroid, identity motion, route clearance, digest, chunk distance, near, far and culled tallies, hero visibility and each refusal; it catches members placed from the terrain-free design, a raised or unwalkable unit passing, a removed member still measured, the camera's facing ignored when culling, a hero counted when its node is absent, a second participating shot left uncounted, a hero whose performed root offset fails to resolve, and a unit whose shots disagree on digest or count still measured.
+ * @evidence contracts/testing.md#independent-expectations Ground is the hand ramp `(z + 10) / 2`, so ranks at z = 0 and 3 stand at 5 and 6.5 m and the centroid height is their mean 5.75; width 4 and depth 3 come from three files 2 m apart and two ranks 3 m apart; clearance is the 10 m route less 4; the chunk distance is `hypot(0, 5.75 - 6, 1.5 - 20)` from the camera at (0, 6, 20); representative slots 0, 2 and 5 are a chunk's first, middle and last; the near-tier tally relies on the default near tier, whose selection rule belongs to LOD tests.
+ * @evidence contracts/testing.md#distinguishing-cases Grounded, raised by one metre, standing on an unwalkable bog, and with slot 5 removed; camera facing the unit and turned away; with routes, without routes and without a world; banner present, absent and performing in a second named shot at time 1; refusals for an unknown formation, no participating contract, no runtime, no compiled shot, disagreeing digests, a count mismatch, empty chunks, a non-participating shot, times 5 and -1, a missing camera and no production; compiling the record is owned by test_engine_compiled_formation_runtime.
  */
 export const test_engine_geometry_query_formation = (): void => {
   const grounded = materializeCompiledFormation({

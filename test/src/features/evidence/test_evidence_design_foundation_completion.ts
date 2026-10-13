@@ -9,6 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * A layer completes at `evidence`, so a child opens and a foundation pays its
  * units from that stage without any review fingerprint.
  *
@@ -23,6 +24,10 @@ import { throwsError } from "../internal/predicates";
  *    and foundation gates.
  * 5. Completed foundations are selected in declared order; draft and disabled
  *    foundations and a host without foundations select none.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieProductionStages` on library stage maps built from `createBlankAutoMovieProductionEvidence`, expecting acceptance or a named refusal, and `selectAutoMovieCompletedDesignFoundations` for materials, instances and settings hosts; it catches a source branch opened over a draft or disabled design, a design completed over an active draft foundation, motions completed ahead of the systems they co-found, the later `review` stage treated as incomplete, a disabled or draft foundation charged to its host, and foundations returned out of declared order.
+ * @evidence contracts/testing.md#independent-expectations Accept and refuse outcomes restate the documented rule that a layer completes at `evidence` and a child or host may advance only over completed or disabled parents; the foundation lists restate the declared design ladder, materials over models and spaces and instances over maps, models, spaces and materials; refusals are matched by their full gate sentence, while accepted calls are asserted only by not throwing.
+ * @evidence contracts/testing.md#distinguishing-cases Positive source and design over completed, disabled and reviewed foundations, and draft over draft; negatives for a source over draft and disabled designs, a design over a draft foundation and motions ahead of systems; selection with all, one, none and a disabled foundation and a host with no foundation; per-layer contract files belong to `test_evidence_authored_contract_applicability`, and film reset stages to `test_evidence_film_reset_checkpoint`.
  */
 export const test_evidence_design_foundation_completion = (): void => {
   const blank = createBlankAutoMovieProductionEvidence(

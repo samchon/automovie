@@ -26,6 +26,17 @@ import { IAutoMovieOpeningPanelPlacement } from "./IAutoMovieOpeningPanelPlaceme
  * is a shot `objectMotions` clip over the
  * {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the
  * architecture record never grows a second clock beside the shot's own.
+ *
+ * An opening without an operation answers an empty list. Throws when the
+ * opening does not exist, the named state is not one of its states, or a
+ * panel's element is missing from the record. Naming a state applies it to
+ * every opening and run that declares a state with that id.
+ *
+ * @evidence contracts/common.md#principled-implementation Stages world matrices with each moving member displaced to the named or current state (prismatic translation or pivot-corrected revolute turn after the rest transform), then decomposes each panel element's matrix into position, normalized rotation and scale.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: shares its staging helpers by copy with `builtConnectorCarriagePlacements`, which is the same query for carriages; keeping states as configurations leaves animation to shot `objectMotions`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown state and a missing panel element throw by name, and an opening with no operation answers empty rather than inventing a rest pose; no opening id is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the default state, that naming a state leaves the record unedited and reaches every member declaring it, that motion on screen is a shot clip over the returned node ids, the empty case, and the refusals.
+ * @evidence contracts/performance.md#cost-and-resources Defect: stages every element and moving member, `O(E + members)`, to place one opening's panels when only their ancestor chains matter; matrices are memoized per call so shared ancestors compose once, and every map is dropped on return.
  */
 export const builtOpeningPanelPlacements = (
   environment: IAutoMovieBuiltEnvironment,

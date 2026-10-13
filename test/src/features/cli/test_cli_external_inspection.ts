@@ -66,6 +66,7 @@ const fixture = (revision: string) => {
 };
 
 /**
+ *
  * Validate the project-local external-inspection bridge without filesystem I/O.
  *
  * Scenarios:
@@ -75,6 +76,10 @@ const fixture = (revision: string) => {
  *    unchanged sidecar retains its identity.
  * 3. Scheme, query, fragment, backslash, encoded alias, malformed escape, and
  *    escaping URI forms fail before a resource reader runs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `inspectAutoMovieExternalProjectBytes` on a glTF motion document whose five buffers declare `motion.bin` three times in two spellings plus `z.bin` and `a.bin`, and asserts the source envelope, the resource closure, the paths handed to `readResource` and the take count; it also calls `resolveAutoMovieExternalProjectResourcePath` directly. It catches a sidecar read twice or split into two identities by `./`, closure entries re-sorted instead of kept in first-use order, a primary digest that ignores the document bytes, an absent sidecar or noncanonical source accepted, and any scheme, network path, query, fragment, backslash, encoded alias, malformed escape or `..` escape resolved to a path.
+ * @evidence contracts/testing.md#independent-expectations Digests are recomputed in the test with `node:crypto` SHA-256 rather than the product's `digestAutoMovieBytes`; byte lengths come from the fixture buffers; the closure order and `declaredUris` follow the interface's first-use rule; the accepted path `public/motion/buffers/motion.bin` is POSIX joining done by hand. Refusals are matched by message fragment, and the motion facts are checked only by take count because the inspector's own output is ingest's to pin.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: one canonical source with duplicate and alias URIs, and a plain nested sidecar URI. Change: a second revision alters only the source digest while the unchanged sidecar keeps its digest. Negative: parent-relative and absolute sources, a missing sidecar, twelve rejected URI forms, and five rejected sources for the resolver (parent-relative, drive, backslash, `.`, unnormalized). The glTF parsing and motion-take extraction are owned by the ingest inspector tests.
  */
 export const test_cli_external_inspection = (): void => {
   const first = fixture("first");

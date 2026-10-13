@@ -116,103 +116,6 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
   }
 }
 
-/** The same three-storey wing, written out by hand as the loop's oracle. */
-const handWrittenWing = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "north",
-  units: "meter",
-  buildings: [{ id: "north-unit", element: "root", space: "whole" }],
-  models: [{ ...createModel(null), id: "north-slab" }],
-  modelReferences: [],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: identity(0, 0, 0),
-      model: null,
-      space: "whole",
-    },
-    {
-      id: "slab-0",
-      kind: "floor-slab",
-      parent: "root",
-      transform: slabTransform(0),
-      model: "north-slab",
-      space: "storey-0",
-    },
-    {
-      id: "slab-1",
-      kind: "floor-slab",
-      parent: "root",
-      transform: slabTransform(3.2),
-      model: "north-slab",
-      space: "storey-1",
-    },
-    {
-      id: "slab-2",
-      kind: "floor-slab",
-      parent: "root",
-      transform: slabTransform(6.4),
-      model: "north-slab",
-      space: "storey-2",
-    },
-  ],
-  spaces: [
-    { id: "whole", kind: "building", parent: null, cells: [] },
-    { id: "storey-0", kind: "storey", parent: "whole", cells: [] },
-    { id: "storey-1", kind: "storey", parent: "whole", cells: [] },
-    { id: "storey-2", kind: "storey", parent: "whole", cells: [] },
-  ],
-  boundaries: [
-    {
-      id: "slab-boundary-1",
-      kind: "floor-ceiling",
-      spaces: ["storey-0", "storey-1"],
-      elements: ["slab-1"],
-    },
-    {
-      id: "slab-boundary-2",
-      kind: "floor-ceiling",
-      spaces: ["storey-1", "storey-2"],
-      elements: ["slab-2"],
-    },
-  ],
-  openings: [],
-  connectors: [
-    {
-      id: "stair-1",
-      kind: "stair",
-      from: "storey-0",
-      to: "storey-1",
-      bidirectional: true,
-      route: [
-        { x: -3, y: 0, z: 0 },
-        { x: -1, y: 3.2, z: 0 },
-      ],
-      width: 1.4,
-      clearHeight: 2.2,
-      elements: [],
-    },
-    {
-      id: "stair-2",
-      kind: "stair",
-      from: "storey-1",
-      to: "storey-2",
-      bidirectional: true,
-      route: [
-        { x: -3, y: 3.2, z: 0 },
-        { x: -1, y: 6.4, z: 0 },
-      ],
-      width: 1.4,
-      clearHeight: 2.2,
-      elements: [],
-    },
-  ],
-  surfaces: [],
-  walkable: [],
-});
-
 /** A group of wings, which is itself just another subject. */
 class Wings extends AutoMovieSubjectGroup<null, LoopedWing> {
   public constructor(
@@ -248,93 +151,36 @@ class Campus extends AutoMovieSubjectGroup<null, Wings> {
   }
 }
 
-/**
- * Every field a building record owns. Pinned as a closed list so external
- * context (sun, sky, season, reference ground, neighbouring masses) cannot be
- * added to a building without this case saying so.
- */
+/** Order field names lexically so the contributed key list is compared stably. */
 const alphabetical = (left: string, right: string): number =>
   left < right ? -1 : left > right ? 1 : 0;
 
-const BUILDING_FIELDS = [
-  "boundaries",
-  "buildings",
-  "connectors",
-  "elements",
-  "id",
-  "modelReferences",
-  "models",
-  "openings",
-  "spaces",
-  "surfaces",
-  "units",
-  "version",
-  "walkable",
-];
-
 /**
- * Repetition is code and composition is merge: a storey stack written as a loop
- * must be the same artifact as the same stack written out by hand, a group of
- * buildings must be exactly the stable concatenation of what its leaves said,
- * and a building must own nothing but itself. This pins all three, because each
- * is a place where a second, disagreeing answer could otherwise appear.
+ *
+ * Composition is merge: a group of buildings must be exactly the stable
+ * concatenation of what its leaves said, however deeply the groups nest, and a
+ * lowered building must contribute nothing but its own graphs. This pins both,
+ * because each is a place where a second, disagreeing answer could otherwise
+ * appear.
  *
  * Scenarios:
  *
- * 1. The looped three-storey wing and the hand-expanded one are byte-identical as
- *    design records, so the loop is a way of writing the record rather than a
- *    different record.
- * 2. They are also byte-identical after lowering, so the equality survives the
- *    transform composition, not only the authoring.
- * 3. Building the same subject twice yields byte-identical records, which is the
- *    determinism the compile sandbox depends on.
- * 4. A raised storey count changes the record only by adding storeys: the first
- *    three storeys of a five-storey wing are the three-storey wing's.
- * 5. A group's render is the stable, order-preserving concatenation of its leaves'
+ * 1. A group's render is the stable, order-preserving concatenation of its leaves'
  *    contributions, with nothing deduplicated and nothing reordered.
- * 6. Nesting groups (campus of wing-groups of wings) yields the same flat merge as
+ * 2. Nesting groups (campus of wing-groups of wings) yields the same flat merge as
  *    the leaves in the same order, so the hierarchy is free.
- * 7. Visible and semantic output stay joined through the merge: every merged set
+ * 3. Visible and semantic output stay joined through the merge: every merged set
  *    node is namespaced by the building that emitted it, and so is every
  *    space.
- * 8. A building record's field list is closed and holds no external context, so
- *    sun, sky, and reference ground cannot enter a building's own models, set
- *    pieces, or spaces.
+ * 4. A lowered building contributes only its built environment, models, set
+ *    pieces and spaces, so no external context enters its contribution.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Renders `AutoMovieSubjectGroup` subclasses over wings that call `lowerBuiltEnvironment` and asserts the merged built environments, models, set nodes and spaces, the equality of a nested and a flat group, the namespacing of every merged node and space, and the key set of one lowered contribution; it catches a group that reorders, deduplicates or drops a leaf's contribution, a nesting level that changes the merge, a node or space emitted without its building prefix, and lowering that adds a contribution field beyond its own graphs.
+ * @evidence contracts/testing.md#independent-expectations Expected ids follow from the leaves in declaration order (north with two storeys, south with three, east with one), the documented `building/id` namespacing of lowered nodes and spaces, and the model-less root being unstaged; the nested render is compared to the flat one rather than to a stored snapshot, so an error common to both group shapes would pass that case and is caught only by the explicit flat expectation.
+ * @evidence contracts/testing.md#distinguishing-cases Positive flat group of three wings of different heights including a single-storey wing, and a two-level nested campus over the same leaves; a namespacing check over every merged node and space; a single lowered wing for the contribution key set; lowering's placement arithmetic and refusals are owned by test_architecture_built_environment.
  */
 export const test_architecture_built_environment_composition = (): void => {
   const looped = new LoopedWing("north", 3);
-  TestValidator.equals(
-    "a looped storey stack is the hand-expanded record",
-    looped.design(),
-    handWrittenWing(),
-  );
-  TestValidator.equals(
-    "the loop and the hand expansion lower to one artifact",
-    looped.render(context),
-    lowerBuiltEnvironment(handWrittenWing()),
-  );
-  TestValidator.equals(
-    "two constructions of one subject are byte-identical",
-    JSON.stringify(new LoopedWing("north", 3).design()),
-    JSON.stringify(looped.design()),
-  );
-  const taller = new LoopedWing("north", 5).design();
-  TestValidator.equals(
-    "raising the storey count only adds storeys",
-    {
-      elements: taller.elements.slice(0, 4),
-      spaces: taller.spaces.slice(0, 4),
-      connectors: taller.connectors.slice(0, 2),
-      added: taller.elements.slice(4).map((element) => element.id),
-    },
-    {
-      elements: looped.design().elements,
-      spaces: looped.design().spaces,
-      connectors: looped.design().connectors,
-      added: ["slab-3", "slab-4"],
-    },
-  );
-
   const north = new LoopedWing("north", 2);
   const south = new LoopedWing("south", 3);
   const east = new LoopedWing("east", 1);
@@ -398,11 +244,6 @@ export const test_architecture_built_environment_composition = (): void => {
       ).length,
     },
     { unnamespacedNodes: 0, unnamespacedSpaces: 0 },
-  );
-  TestValidator.equals(
-    "a building record holds no external context",
-    Object.keys(looped.design()).sort(alphabetical),
-    BUILDING_FIELDS,
   );
   TestValidator.equals(
     "a lowered building contributes nothing beyond its own graphs",

@@ -6,6 +6,7 @@ import { TestValidator } from "@nestia/e2e";
 import type { ITtscEvidenceGraphReference } from "@ttsc/evidence";
 
 /**
+ *
  * File parentage belongs to narrative and delivery documents; technical design
  * consumes foundations through its H2 owners without a duplicate file duty.
  *
@@ -14,6 +15,10 @@ import type { ITtscEvidenceGraphReference } from "@ttsc/evidence";
  *    delivery roles produce a file claim.
  * 2. Enabled and disabled claims retain the supplied population and references.
  * 3. An empty reference population produces no file claim for any role.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `createAutoMovieAuthoredFileClaims` for every authored layer, enabled and disabled, with two parent references and with none, and asserts the claim count and each claim's type, root, symbol, files, disabled flag and projected references; it catches a design or foundation layer given a duplicate whole-file parent duty, a narrative or brief layer that loses it, a disabled flag inverted or ignored, a population replaced or reordered, and a claim emitted with no parent to answer.
+ * @evidence contracts/testing.md#independent-expectations The four whole-document roles come from the documented split that narrative and delivery documents own file parentage while design consumes foundations through H2 owners; the expected claim carries the caller's own population and references with `requireReview` cleared, as the native projection documents, and the `uniqueEvidence` flag is expected to pass through untouched.
+ * @evidence contracts/testing.md#distinguishing-cases Positive treatments, scripts, screenplays and briefs; negative settings, research and every design layer; enabled and disabled twins; boundary of an empty reference list for every layer; contract applicability per layer belongs to `test_evidence_authored_contract_applicability`, and claim lowering to native records to `test_evidence_native_claim_projection`.
  */
 export const test_evidence_authored_file_parentage = (): void => {
   const population = ["design/one.md", "design/two.md"];

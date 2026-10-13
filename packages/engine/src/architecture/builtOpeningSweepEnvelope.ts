@@ -44,6 +44,17 @@ const FULL_TURN_EPSILON = 1e-6;
  * caller wanting that union asks for each state in turn and takes the hull
  * itself; inventing it here would quietly report a chain's envelope under one
  * panel's name.
+ *
+ * Each entry is a world-space axis-aligned box over the four corners of the
+ * panel's `width` by `height` leaf. An opening without an operation answers an
+ * empty list. Throws when the opening does not exist, a panel's element is
+ * missing, or a travel has an infinite limit or spans more than a full turn.
+ *
+ * @evidence contracts/common.md#principled-implementation Writes each leaf corner's revolute path as `A + B cos t + D sin t` in world space and takes per axis the extremes at the travel limits and at every critical angle `phase + k pi` inside them; a prismatic leaf reaches its extremes at its two limits.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: carries another copy of the staging, delta and box-fold helpers; measuring one panel's own travel keeps a chain of leaves out of one panel's answer and leaves the chain union to the caller.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A travel with an infinite limit or more than a full turn plus `FULL_TURN_EPSILON` throws using the cap validation shares, so the critical-angle walk cannot hang; ancestors stay at their current state by design.
+ * @evidence contracts/common.md#meaningful-documentation States the solved-not-sampled method, that it measures volume rather than passability, the per-panel scope and why the chain union is not invented, the leaf rectangle and frame, and the refusals.
+ * @evidence contracts/performance.md#cost-and-resources Defect: copies the staged deltas and rebuilds every element's world matrix once per panel, `O(P E)`, although removing a panel's own joint leaves its ancestors' matrices unchanged and one staging would serve all panels; the corner solve is constant, at most three critical angles per axis.
  */
 export const builtOpeningSweepEnvelope = (
   environment: IAutoMovieBuiltEnvironment,

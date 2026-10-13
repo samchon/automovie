@@ -12,6 +12,7 @@ import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /**
+ *
  * Solve one space for ventilation, and refuse to pretend it solved the air.
  *
  * What a well-mixed zone model can answer, it answers exactly: the air change
@@ -26,9 +27,18 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * still" is that this host does not know, and a number invented here would be
  * indistinguishable from one that was computed.
  *
+ * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
+ * returned run is always `solved` and carries no spatial samples.
+ *
+ * @evidence contracts/common.md#principled-implementation Evaluates the well-mixed single-zone balance in closed form (air change rate, outdoor air per person, steady-state carbon dioxide) and reports velocity and stagnation as `unsupported` because a zone model has no flow field.
+ * @evidence contracts/common.md#clear-and-simple-design Validation, five metrics and sealing in one function, with each gap reason chosen by the missing input (no flow, zero flow, zero occupants).
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null flow, zero flow and zero occupancy each produce a named gap instead of a substituted value; the zero-flow reason speaks of an occupied space even when the declared occupancy is zero.
+ * @evidence contracts/common.md#meaningful-documentation States the three closed forms, the unsupported flow-field metrics, why no number is invented for still air, what throws, and that the run has no samples.
+ * @evidenceExclude contracts/performance.md#cost-and-resources Constant work per study apart from validating and matching targets, which is linear in targets per metric. One request yields one run, and its flow quotients serve no other run. Builds five metrics and one settings string and retains nothing after sealing.
  * @author Samchon
  */
 export const analyzeAutoMovieSpaceAir = (props: {
+  /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieSpaceAirRequest;
 }): IAutoMovieAnalysisRun => {
   const request = props.request;

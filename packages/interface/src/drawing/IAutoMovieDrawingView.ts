@@ -21,6 +21,15 @@ import { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
  * design cites; a derived drawing is output the design produces. Neither may be
  * read back as the other, and a drawing never becomes a source of truth.
  *
+ * Deriving a drawing throws before reading geometry when `origin`,
+ * `direction` or `up` is not finite, when `direction` or `up` is zero or the
+ * two are parallel, when `scale` is not a finite positive number, or when
+ * `depth` or `overhead` is negative or not finite.
+ *
+ * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` builds an orthonormal page basis with its normal opposite `direction`, right as `up x normal` and up re-orthogonalized, negating right for a reflected ceiling plan; each drawable is then banded by signed plane distance into overhead, hidden, cut and projected linework using `depth` and `overhead`, and a degenerate vector, bad scale or negative band throws first.
+ * @evidence contracts/common.md#clear-and-simple-design The view is a question with no geometry of its own: one field each for the space filter, the kind filter, feature-referencing dimension and note specs, and the pen, with `discipline` a free label copied to the output rather than a type hierarchy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared name in `spaces` becomes a `view-space-filter` gap rather than a blank sheet, while an unmatched element kind is deliberately not a gap because kinds have no registry; neither rule singles out a particular view or discipline.
+ * @evidence contracts/common.md#meaningful-documentation Gives each field's frame and unit, the plan, ceiling and elevation conventions for `direction` and `up`, what `null` depth and overhead mean, descendant inclusion in `spaces`, the refusal conditions, and that `scale` changes only serialization.
  * @author Samchon
  */
 export interface IAutoMovieDrawingView {
@@ -72,6 +81,9 @@ export interface IAutoMovieDrawingView {
 
   /**
    * Drawing scale denominator: `50` means 1:50. Must be finite and positive.
+   *
+   * Derived coordinates stay in model metres whatever the scale; only the SVG
+   * serializer applies it, at `1000 / scale` page millimetres per metre.
    */
   scale: number;
 
@@ -91,7 +103,8 @@ export interface IAutoMovieDrawingView {
    *
    * Material the cut removed is not simply gone: a beam, a mezzanine edge or a
    * wall cabinet above the cut is drawn `overhead` within this band, which is
-   * the dashed convention every floor plan uses.
+   * the dashed convention every floor plan uses. An `elevation` cuts nothing,
+   * so it ignores this band.
    */
   overhead: number | null;
 
@@ -112,7 +125,8 @@ export interface IAutoMovieDrawingView {
   spaces: string[];
 
   /**
-   * Element kinds this view draws. Empty draws every kind.
+   * Element kinds this view draws. Empty draws every kind. A boundary that draws
+   * its own face is matched by its boundary kind.
    *
    * This is what makes a discipline view a filter rather than a separate model:
    * a mechanical view lists the kinds its discipline owns and gets the same

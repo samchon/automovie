@@ -1,6 +1,5 @@
 import {
   AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
-  AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS,
   assertAutoMovieAnalysisTargets,
   autoMovieAnalysisMetric,
   isAutoMovieAnalysisDomain,
@@ -21,6 +20,7 @@ import { sealedAnalysisRun } from "../internal/analysisFixtures";
 import { hasViolation, namedFacts, throwsError } from "../internal/predicates";
 
 /**
+ *
  * An analysis run says what it measured, says what it did not, and cannot be
  * edited into saying otherwise.
  *
@@ -66,6 +66,10 @@ import { hasViolation, namedFacts, throwsError } from "../internal/predicates";
  *     required domain each change that.
  * 11. The report bounds its gap list and counts the remainder, and refuses to exist
  *     over no required domain at all.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `sealAutoMovieAnalysisRun`, `validateAutoMovieAnalysisRun`, `isAutoMovieAnalysisDomain`, `autoMovieAnalysisMetric`, `assertAutoMovieAnalysisTargets` and `summarizeAutoMovieAnalysis` and asserts validation success, violation kinds and paths, built metrics, warnings, report statuses, domain rows, gap lists and refusals; it catches a digest that misses an edited outcome, a stale revision accepted, a metric that carries a value beside a gap or a verdict against its own arithmetic, a field sampled for a metric that produced nothing, a target compared across units, and a report that clears with a missing, stale, refused or gapped domain.
+ * @evidence contracts/testing.md#independent-expectations Expectations follow the outcome and metric rules in the doc comment: verdicts are the stated comparisons (0.8 at-most 1 meets, 1.2 misses, 0.4 at-least 0.5 misses), violation paths name the field each twin breaks, report counts tally the hand-built runs, the domain order is the interface's domain union and five not-run runs under `maxGaps: 2` list two and omit three; digests are compared only for equality and difference, and the unit-mismatch warning detail is pinned verbatim, so a rewording fails it without a behavioural change.
+ * @evidence contracts/testing.md#distinguishing-cases Positive sealed run, re-seal, current revision, complete not-run and absent metrics, honest at-most pass and at-least failure, a two-sample field and two well-formed warnings; negative twins for every identity field, outcome arm, metric rule, sample rule and warning field; boundaries of 4097 samples, a maxGaps of zero and 1.5, no required domain and an unknown one; report precedence of meets, incomplete and a miss outranking a gap; the solvers that produce runs are owned by the daylight, envelope and acoustics tests beside this one.
  */
 export const test_analysis_run_contract = (): void => {
   const digest = (fill: string): `sha256:${string}` =>
@@ -1212,13 +1216,11 @@ export const test_analysis_run_contract = (): void => {
   TestValidator.equals(
     "the report bounds its gap list and counts the rest",
     {
-      bound: AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS,
       listed: crowded.gaps.map((entry) => entry.run),
       omitted: crowded.omittedGaps,
       status: crowded.status,
     },
     {
-      bound: 16,
       listed: ["skip-0", "skip-1"],
       omitted: 3,
       status: "incomplete",

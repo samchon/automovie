@@ -73,6 +73,7 @@ const mapping = [
 ];
 
 /**
+ *
  * Imported node tracks lower at authored times with no semantic inference.
  *
  * Scenarios:
@@ -85,6 +86,10 @@ const mapping = [
  *    characterization retain their declared absence or supplied basis.
  * 4. Absolute imported transforms are normalized against the source rest pose
  *    rather than copied as clinical angles.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `importedNodeClipToAutoMovieMotion` on a two-bone captured take and asserts the lowered motion id, skeleton, keyframe times, root x, spine flexion, easing, null roots and refusal messages; it catches key times sampled from one track instead of the union, a hips translation copied without subtracting rest, absolute node rotations reported as clinical angles, output that depends on mapping order, and silent approximation of cubic-spline, scale, weights, non-root translation or corrupt quaternion input.
+ * @evidence contracts/testing.md#independent-expectations Times 0, 0.5 and 1 are the union of the authored tracks; root x 1 is the midpoint of the 0-to-2 pelvis path; 90 degrees of flexion is the `SQRT1_2` quaternion about +x; the rest-relative case expects zero root and zero joint angles because each key equals its rest transform; the mapping-reversal case compares two independent runs rather than a stored snapshot, and the characterized case asserts only its three keyframes, so the supplied axis basis is shown to be accepted, not to change the decomposition.
+ * @evidence contracts/testing.md#distinguishing-cases Positive mapped clip, reversed mapping, rotation-only and spine-only clips with null root, and rest-normalized keys; negatives for a missing rotation channel, a repeated channel, an unmapped node, cubic-spline and mixed interpolation, NaN and non-unit quaternions, a repeated bone or node, non-root translation, scale and weights channels, a bone channel, blank ids, an empty mapping, a duplicated skeleton bone, non-finite or non-unit rest, an absent bone and no channels; boundary of a single key time. Retargeting the lowered motion onto another skeleton belongs to `test_engine_retarget_source_validation`.
  */
 export const test_engine_imported_node_motion = (): void => {
   const motion = importedNodeClipToAutoMovieMotion({

@@ -14,9 +14,22 @@ import { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
  * Nothing here re-states geometry. The basin's extent is the architecture's
  * logical space, the lattice's extent is the domain's grid, and the engine
  * checks that the binding actually resolves rather than trusting a name.
+ *
+ * `validateWaterFeatures` refuses a binding whose `environment` is not the
+ * environment being validated, whose space or rim boundaries do not resolve
+ * there, whose rim does not bound that space, whose domain is absent or itself
+ * invalid, or whose lattice cell centres at bed height fall outside a basin
+ * that states a volume (the four corner cells decide a convex basin, every cell
+ * any other). A basin that states no volume is not measured.
+ *
+ * @evidence contracts/common.md#principled-implementation A one-directional binding: the feature names environment, space, rim boundaries and domain by id, and `validateWaterFeatures` checks each citation plus point-in-space containment of cell centres, deciding a convex basin by its corner cells and any other basin cell by cell.
+ * @evidence contracts/common.md#clear-and-simple-design The only record where architecture and fluid ids meet, so neither the built environment nor the fluid domain references the other, and no geometry is restated here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `null` material is the contract spelling of the renderer default and a blank id is refused instead of being read as that default; a semantic-only basin that states no volume is left unmeasured rather than given an invented one.
+ * @evidence contracts/common.md#meaningful-documentation States who owns each cited id, what each mode does and that the `flowing` hint has no reader yet, when `boundaries` may be empty, the material default rule, and every way validation refuses a binding.
+ * @author Samchon
  */
 export interface IAutoMovieWaterFeature {
-  /** Stable feature identity within the production. */
+  /** Stable, non-blank feature identity within the production. */
   id: string;
 
   /** Id of the `IAutoMovieBuiltEnvironment` that owns the feature. */
@@ -36,16 +49,18 @@ export interface IAutoMovieWaterFeature {
    *
    * - `static`: always the authored step-0 state. A mirror pool that must read
    *   identically in every frame of a cut.
-   * - `flowing`: the simulated state, and the renderer is told to scroll ripples
-   *   along the solved velocity field.
+   * - `flowing`: the simulated state, plus a `flowing` hint the viewer stores
+   *   for a ripple shader to scroll along the solved velocity field; no shader
+   *   in this repository reads it yet.
    * - `simulated`: the simulated state with no additional surface animation.
    */
   mode: AutoMovieWaterFeatureMode;
 
   /**
    * Ids of the environment's boundaries forming the rim that retains the water,
-   * such as the coping of a basin or the parapet of a roof pool. May be empty
-   * for a feature retained by its own bed alone.
+   * such as the coping of a basin or the parapet of a roof pool. Each must
+   * resolve, appear once, and bound `space`. May be empty for a feature
+   * retained by its own bed alone.
    */
   boundaries: string[];
 

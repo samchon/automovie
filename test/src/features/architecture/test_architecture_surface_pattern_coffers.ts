@@ -136,6 +136,7 @@ const ceiling = (minimumPiece: number) =>
   });
 
 /**
+ *
  * A coffered ceiling: a mitred border, a coffer field, and an inlay at its
  * centre.
  *
@@ -168,6 +169,10 @@ const ceiling = (minimumPiece: number) =>
  * 6. The fifteen coffers become fifteen instance slots hanging from the ceiling
  *    frame, and the four cut mouldings are named instead of being scaled into
  *    the wrong shape.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs `generateAutoMovieSurfacePattern` over nine abutting zones of a 3 by 2 m ceiling and feeds the result to `autoMoviePatternInstanceTransforms`; asserting occurrence order and cut kinds, per-zone and total areas, empty findings, slivers at a 0.9 minimum, slot count, translations, the downward normal and per-axis scale catches a mitre clip that keeps the full rectangle, a field module lost or doubled across region borders, a false overlap reported where two zones' pieces only touch, and a cut moulding scaled into an instance.
+ * @evidence contracts/testing.md#independent-expectations Areas are trapezoid arithmetic on the declared outlines: `(3 + 2.5) / 2 * 0.25 = 0.6875` and `(2 + 1.5) / 2 * 0.25 = 0.4375` per moulding, giving coverages eleven twelfths and seven eighths, fifteen 0.25 m2 coffers, 6 m2 covered of 6.25 m2 consumed and a 0.04 ratio; coffer ids follow the documented row-major lattice from origin 0.25 at pitch 0.5, and slot translations add the ceiling frame origin to `u * center.u + v * center.v` with the normal `x cross z = -y`.
+ * @evidence contracts/testing.md#distinguishing-cases Positive mitred border plus split field at minimum 0.8 with no findings, and the same ceiling at 0.9 where the two short mouldings fall under and the two long ones stay over the rule; the inlay is the single zone with a different material; refusals, exclusions, joints and grain belong to the refusals, facets and findings tests in this folder.
  */
 export const test_architecture_surface_pattern_coffers = (): void => {
   const laid = ceiling(0.8);

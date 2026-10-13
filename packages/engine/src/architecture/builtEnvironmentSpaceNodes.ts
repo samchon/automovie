@@ -23,6 +23,15 @@ import {
  * caller that wants the placement law. Regeneration names a procedural member
  * `instance:<set>:slot:<six-digit-index>` and an explicit member
  * `instance:<set>:<transform-id>`, exactly as the production materializer does.
+ *
+ * Transform-only elements are left out because they draw nothing. Throws for an
+ * undeclared space id.
+ *
+ * @evidence contracts/common.md#principled-implementation Lists `<environment>/<element>` for every drawn element assigned to the subtree, then `instance-set:<set>` for every subtree population, the same spellings lowering and the render inventory emit.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: private `descendantSpaces` and `requireSpace` copies; elements and populations are listed in a fixed order from one subtree set rather than two traversals.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A population is named once by its set id instead of being expanded to members, and a transform-only element is omitted because it draws nothing; no element or set id is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the two id spellings and their order, why a population is named rather than expanded with the measured slate example, how a member id is regenerated, the omitted elements, and the refusal.
+ * @evidence contracts/performance.md#cost-and-resources An `O(S D)` subtree pass, then linear filters over elements and populations; output size is drawn elements plus populations, never population members, and no list is cached between the drawing schedule's per-space calls.
  */
 export const builtEnvironmentSpaceNodes = (
   environment: IAutoMovieBuiltEnvironment,

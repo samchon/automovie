@@ -10,8 +10,14 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * A joint behind the camera or outside the frame rectangle is still projected
  * (never silently clamped: a clamped off-screen point reads as a false edge
  * keypoint and corrupts ControlNet conditioning) but flagged `inFrame: false`,
- * so a consumer keeps it or drops it deliberately.
+ * so a consumer keeps it or drops it deliberately. Such a joint's `x` or `y`
+ * may lie outside `[0, 1]`. A bone the skeleton lacks is omitted rather than
+ * emitted.
  *
+ * @evidence contracts/common.md#principled-implementation `resolvePoseKeypoints` runs forward kinematics in rig space, applies the staged node's TRS, projects through the shot camera at the sampled time with the delivery crop, and maps NDC onto a top-left unit frame without clamping.
+ * @evidence contracts/common.md#clear-and-simple-design Carries only bone, position and a visibility flag; aspect, crop and joint selection are resolver inputs, so one record serves every raster size.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Bones the skeleton lacks are skipped rather than given a fabricated position; when no aspect is passed the resolver assumes 16:9, which misplaces `x` for any other raster.
+ * @evidence contracts/common.md#meaningful-documentation States the frame origin and axes, that off-frame points are projected unclamped and may leave [0, 1], that missing bones are omitted, and that `inFrame` also requires depth within the clip range.
  * @author Samchon
  */
 export interface IAutoMoviePoseKeypoint {
@@ -25,7 +31,8 @@ export interface IAutoMoviePoseKeypoint {
   y: number;
 
   /**
-   * Whether the joint is in front of the camera AND within the frame rectangle.
+   * Whether the joint lies between the camera's near and far clip distances
+   * AND within the frame rectangle.
    */
   inFrame: boolean;
 }

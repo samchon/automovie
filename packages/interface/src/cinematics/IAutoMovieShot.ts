@@ -16,6 +16,10 @@ import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
  * move is an ordinary {@link IAutoMovieClip} of transform (and FOV) tracks: no
  * special camera-animation concept.
  *
+ * @evidence contracts/common.md#principled-implementation The camera move is an ordinary node clip checked by the same `validateClipArtifact` as object motions, and `validateShotArtifact` checks scene and camera references, performance nodes and motions, light pointers, event and intent metadata, and clearance reports.
+ * @evidence contracts/common.md#clear-and-simple-design Optional metadata (`lightMotions`, `events`, `cameraIntent`, `coverage`, `cameraClearance`) uses absent for legacy data and an empty list for assembled-with-none, so older artifacts stay valid while new ones state a decision.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `performShot` runs `validateShotArtifact` on its own output and throws on failure, treating it as an engine defect rather than an author violation; no shot or camera id is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation Documents shot-local seconds, the null static camera, the absent-versus-empty meaning of each optional list, the pointer grammar of light tracks, and that coverage takes never become timeline entries.
  * @author Samchon
  */
 export interface IAutoMovieShot {
@@ -37,7 +41,7 @@ export interface IAutoMovieShot {
    */
   cameraMotion: IAutoMovieClip | null;
 
-  /** Per scene-node performances for this shot. */
+  /** Per scene-node performances for this shot, at most one per node. */
   performances: IAutoMovieShotPerformance[];
 
   /**
@@ -99,6 +103,6 @@ export interface IAutoMovieShot {
    */
   cameraClearance?: IAutoMovieCameraClearanceReport[];
 
-  /** Shot length in seconds (local time origin = 0). */
+  /** Finite positive shot length in seconds (local time origin = 0). */
   duration: number;
 }

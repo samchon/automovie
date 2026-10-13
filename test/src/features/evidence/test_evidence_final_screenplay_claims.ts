@@ -5,6 +5,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
+ *
  * Final screenplay claims preserve construction identity at each host depth
  * while placing audience-language checklists only on authored heading units.
  *
@@ -15,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    directories; a disabled construction branch retains its full denominator.
  * 3. File lineage has no naturalness checklist; each heading independently
  *    answers the common, story, and selected-language naturalness families.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `createAutoMovieScreenplayNaturalnessClaims` for two population scopes, two construction states and four final stages, and asserts the claim depths, final host globs, disabled flag, the same-depth construction lineage reference with its uniqueness policy, and which naturalness checklists follow it; it catches a missing or reordered depth, final claims enabled at draft or disabled at evidence or review, a first-pilot scope that narrows a disabled construction branch, lineage bound across depths, and a whole-file claim burdened with heading checklists.
+ * @evidence contracts/testing.md#independent-expectations Expectations restate the documented final-pass contract: four host depths from file to H4, claims active only at evidence and review, the pilot partition group used only while construction is active, one-to-one same-depth lineage, and the three naturalness families on headings alone; the glob and file paths are the shipped docs layout, so a deliberate rename of that layout must change this test.
+ * @evidence contracts/testing.md#distinguishing-cases Every combination of complete and first-pilot scope, disabled and reviewed construction, and disabled, draft, evidence and review final stage, with the file depth as the negative for checklists; population counting of final hosts belongs to `test_evidence_final_screenplay_population`, and the naturalness reference builder to `test_evidence_authored_contract_applicability`.
  */
 export const test_evidence_final_screenplay_claims = (): void => {
   const blank = createBlankAutoMovieProductionEvidence(

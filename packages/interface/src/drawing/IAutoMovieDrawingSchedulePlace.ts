@@ -23,6 +23,10 @@ import { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
  * somebody has looked at a zone is a fact about a review, not about the
  * building. It belongs to the review record and joins to this by zone id.
  *
+ * @evidence contracts/common.md#principled-implementation A union discriminated by `kind` (`space`, `opening`, `connector`), so a consumer narrows with one switch, and each variant is produced only by the schedule deriver for the subject of the same name.
+ * @evidence contracts/common.md#clear-and-simple-design Separate variants rather than one record of optional fields, because a room carries boxes, contents and fidelity that an opening or connector place never has; review state stays out and joins by zone id.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Membership is read from what elements and populations declare through `builtEnvironmentSpaceNodes`, never from id prefixes, which the prose records as the cause of the undercount in experiment #1902.
+ * @evidence contracts/common.md#meaningful-documentation Explains where membership comes from, why declared and content extents are two boxes, and why review state is not a field here.
  * @author Samchon
  */
 export type IAutoMovieDrawingSchedulePlace =

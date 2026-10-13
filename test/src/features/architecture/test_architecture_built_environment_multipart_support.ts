@@ -193,6 +193,7 @@ const environment = (): IAutoMovieBuiltEnvironment => ({
 });
 
 /**
+ *
  * A body's box is not its body, and a placement probe now reads its parts.
  *
  * A `#1954` production stood eight scroll cases on a two-tier shelf. Every one
@@ -232,6 +233,10 @@ const environment = (): IAutoMovieBuiltEnvironment => ({
  * environment and nothing else, so they are what an author runs over a finished
  * building, and a named-pair fix that left them reading union boxes would have
  * fixed the query nobody ran.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentPlacementBounds`, `builtEnvironmentElementPartBounds`, `builtEnvironmentSupportStatus`, `builtEnvironmentPlacementOverlap`, `builtEnvironmentSupportSweep` and `builtEnvironmentPlacementOverlapSweep` over a shelf and an L-shaped bench and asserts the union box, the per-part boxes, bearing status and gap, overlap status, and the sweeps' floating list, borne count and intersecting pairs; it catches a probe that reads a multi-part body as its union box and so reports a seated case floating and overlapping, a case over the bench's open quarter reported resting, and tightened boxes that stop reporting a genuinely sunk case.
+ * @evidence contracts/testing.md#independent-expectations Values are hand arithmetic on the declared boxes: the panel spans y 0..1.8, the lower board's top is `0.75 + 0.05 / 2 = 0.775`, the 0.28 m case at origin 0.915 has its underside at exactly 0.775 for a zero gap, the case lowered to 0.85 sinks into the board, and the case at (0.5, 0.5) stands over neither the x arm at z -1..-0.5 nor the z arm at x -1..-0.5; the validation result of the fixture is computed but not asserted, so a malformed fixture would surface only through the other assertions.
+ * @evidence contracts/testing.md#distinguishing-cases Positive seated case resting with no gap and no overlap; negative sunk case reported sunk and intersecting in the sweep; the notch case over no part with a null gap; single-part cases behaving as before through the case model itself; support and overlap sweeps on the clean and the sunk world; single-box placement, overlap volume and support refusals are owned by test_architecture_built_environment_placement and test_architecture_built_population_placement_bounds.
  */
 export const test_architecture_built_environment_multipart_support =
   (): void => {

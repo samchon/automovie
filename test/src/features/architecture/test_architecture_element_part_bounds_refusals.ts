@@ -10,6 +10,7 @@ import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
+ *
  * Two different absences answer `null` here, and only one of them was pinned.
  *
  * Per-part boxes exist so a caller can ask how much of a body's box is body,
@@ -27,6 +28,10 @@ import { namedFacts, vclose } from "../internal/predicates";
  * 3. A placed unit box answers with the half-metre reach its own placement puts
  *    it at, so the refusals are read against a working positive rather than
  *    against a record nothing works on.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentElementPartBounds` and asserts the part count and world box of a placed unit box and the null answers for an undeclared id and a model-less group; it catches a placed part reported at its local origin or with the wrong reach, an undeclared id answered with a box or thrown on, and a transform-only group answered with a point box.
+ * @evidence contracts/testing.md#independent-expectations The box is hand arithmetic: a unit cube placed at (2, 0, 3) under an identity root reaches 1.5..2.5, -0.5..0.5 and 2.5..3.5; the two null cases follow the documented absence answers, which this oracle cannot tell apart from each other by value.
+ * @evidence contracts/testing.md#distinguishing-cases One positive single-part element beside the two distinct null absences; multi-part bodies and their use by support and overlap probes are owned by test_architecture_built_environment_multipart_support, and whole-element bounds by test_architecture_built_environment_element_bounds.
  */
 export const test_architecture_element_part_bounds_refusals = (): void => {
   const record = pair();

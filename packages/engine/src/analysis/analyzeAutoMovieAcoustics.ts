@@ -20,6 +20,7 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
 const EPSILON = 1e-12;
 
 /**
+ *
  * Solve one room for reverberation, equipment noise and partition performance.
  *
  * Three closed forms, each stated so a reader can check the arithmetic:
@@ -45,9 +46,19 @@ const EPSILON = 1e-12;
  * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
  * which is the arithmetic of the model rather than a property of the room.
  *
+ * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}) and
+ * when the sealed run would fail validation; otherwise the run is always
+ * `solved`, with one sound-pressure sample per receiver when a level exists.
+ *
+ * @evidence contracts/common.md#principled-implementation Evaluates Sabine reverberation, the room constant with a direct-plus-diffuse receiver level, and tau-weighted composite transmission loss in closed form; each assumes a diffuse field, so the zero- and full-absorption extremes become gaps instead of numbers.
+ * @evidence contracts/common.md#clear-and-simple-design Validation, arithmetic, gap choice and sealing stay in one function with private helpers for the receiver sum and the settings text, while target checks, metric shape and sealing come from the helpers every analyzer shares.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 0.161 Sabine constant and the 1e-12 m coincidence refusal are equation facts, not tuned values; a partition with a negative sound reduction index passes validation and raises the composite transmittance above its area share, which the model does not refuse.
+ * @evidence contracts/common.md#meaningful-documentation States the three closed forms, the excluded speech index, both diffuse-field gap cases with why Sabine's anechoic value is withheld, and what throws.
+ * @evidence contracts/performance.md#cost-and-resources Cost is O(R * S) for R receivers (at most 4096) and S sources, paid twice because validation computes every receiver-source distance and `receiverLevel` computes it again; other work is linear in surfaces, partitions, and metrics times targets. Computes the absorption area and room constant once for the reverberation, room-constant and level metrics, and the receiver levels once for the mean, the maximum and the samples; the validation pass's distances are not reused by the solve pass. Allocates per-call arrays bounded by receivers and metrics and keeps none of them after returning the sealed run.
  * @author Samchon
  */
 export const analyzeAutoMovieAcoustics = (props: {
+  /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieAcousticRequest;
 }): IAutoMovieAnalysisRun => {
   const request = props.request;

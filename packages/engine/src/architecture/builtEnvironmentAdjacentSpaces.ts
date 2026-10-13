@@ -11,6 +11,17 @@ import {
  * stops at are the floors it joins. A one-way run reaches only stops further
  * along its own route, which is the same rule its two-ended form has always
  * followed, generalized to the stops between them.
+ *
+ * A shared boundary joins two spaces whether or not any opening passes through
+ * it, so a closed partition still makes its rooms adjacent. Ids come back in
+ * discovery order, boundaries first, without sorting. Throws for an undeclared
+ * space id.
+ *
+ * @evidence contracts/common.md#principled-implementation Adds the co-listed spaces of every boundary naming the space, then for every run the other stops in route order (`from`, landings, `to`), admitting earlier stops only when the run is bidirectional; a `Set` removes repeats.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: `requireSpace` and `connectorStops` are private copies also carried by `builtEnvironmentSpaceConnectors` and the other space queries instead of one shared helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No space or connector kind is special-cased; one-way travel is the contract's own `bidirectional` flag, and an undeclared space id throws instead of answering empty.
+ * @evidence contracts/common.md#meaningful-documentation States that every declared stop is reachable, the one-way rule, that a boundary joins spaces regardless of openings, the unsorted discovery order, and the refusal.
+ * @evidence contracts/performance.md#cost-and-resources One existence scan over spaces, one pass over boundaries and their short space lists, and one over runs and their stops, so linear in record size; no index is cached, and the drawing schedule's per-space calls repeat both scans.
  */
 export const builtEnvironmentAdjacentSpaces = (
   environment: IAutoMovieBuiltEnvironment,

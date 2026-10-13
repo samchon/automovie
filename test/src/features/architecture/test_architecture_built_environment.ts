@@ -18,6 +18,7 @@ import { builtEnvironmentTestRefusalPaths as refusalPaths } from "../internal/bu
 import { namedFacts, qclose, throwsError } from "../internal/predicates";
 
 /**
+ *
  * A building keeps its visible assembly, its logical partitions, and its
  * traversal relations as three linked graphs over one set of stable ids, then
  * lowers once into ordinary shot contributions. This pins that the two
@@ -53,6 +54,10 @@ import { namedFacts, qclose, throwsError } from "../internal/predicates";
  * 12. One work owns two independently rooted, independently placed units.
  * 13. Sixty-eight malformed graphs are each refused at their own path.
  * 14. Lowering refuses an invalid building rather than emitting a partial set.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `lowerBuiltEnvironment`, `mergeAutoMovieSpaces`, `builtEnvironmentContainsPoint`, `builtEnvironmentAdjacentSpaces`, `builtEnvironmentSpaceConnectors`, `builtEnvironmentSpaceSurfaces`, `builtEnvironmentSpaceNodes` and `builtEnvironmentBuildingOfSpace` over the tower and asserts lowered models, buildings, namespaced spaces and staged TRS, merged supports, containment, adjacency, connector records, surface rows, staged-node sets, owners, refusals and violation paths; it catches an unflattened or yaw-only placement, un-namespaced stage spaces, walkability conflated with support, a one-way ladder answered both ways, an envelope element forced into a room, an unknown space answered emptily, and a malformed graph accepted.
+ * @evidence contracts/testing.md#independent-expectations Values are hand composition of the fixture's literal transforms: the slab at local x 2 under a root at x 10 lands at 12 with its own 4, 0.2, 3 scale, the bridge keeps its declared quarter turn about z, stage ids are `tower/` plus the space or element id, containment and adjacency follow the hand-placed cells, boundaries and connector directions, and each violation path names the field its mutation breaks; the declaration-order case asserts only the staged count of four, so it would not catch a reordered set placed at wrong positions.
+ * @evidence contracts/testing.md#distinguishing-cases Positive tower and two-unit campus; containment for a room, its ancestor and a point outside both; adjacency through a boundary, a two-way stair and lift and a one-way ladder from both ends; a connector-less space answering empty; walkable floors against a non-walkable deck; an element with no space staged but in no room; seven unknown or unowned space refusals; reversed declaration order; sixty-eight malformed graphs via `assertBuiltEnvironmentTestRefusals` beside the untouched fixture producing no path; lowering of an invalid parent; connector geometry, opening operation and placement are owned by their own built-connector, built-opening and placement tests.
  */
 export const test_architecture_built_environment = (): void => {
   const source = building();

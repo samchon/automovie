@@ -11,11 +11,16 @@ import {
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
 /**
+ *
  * Planning snapshots selected profiles and samples both emitter and listener at the event's actual story time.
  *
  * Scenarios:
  * 1. Planning captures independent propagation assumptions and adopted room mappings before callers mutate their inputs.
  * 2. At event time0.2 s, emitter x6 and listener x1 derive distance5 and arrival frame 3.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `deriveProductionSoundPlan` with a propagation profile and a provider-bearing adopted response, mutates both inputs afterwards, and asserts the event's propagation profile id and the plan's retained assumption and room mapping; then plans a shot whose actor and camera both move and asserts emitter x, listener x, distance and arrival frame; it catches a plan aliasing caller-owned profiles, an emitter or listener sampled at rest or at shot start instead of event time, and propagation computed from stale positions.
+ * @evidence contracts/testing.md#independent-expectations Positions are hand interpolation at t = 0.2 s: the actor moves 4 to 14 m and the camera 0 to 5 m over one second, giving 6 and 1, so the distance is 5 m; arrival is 0.2 s plus 5 m at the declared 100 m/s, 0.25 s, which at 10 fps lands in frame 3; the snapshot values are the caller's pre-mutation literals.
+ * @evidence contracts/testing.md#distinguishing-cases Positive mutation-after-planning case for both profile kinds and a positive moving-emitter, moving-listener case; equal sort keys and static formations belong to `test_engine_sound_plan_member_ordering`, providerless adopted profiles to `test_engine_sound_plan_acoustic_profile_variants`, and the propagation law itself to `test_engine_sound_propagation`.
  */
 export const test_engine_sound_plan_motion_and_profiles = (): void => {
   const { digest, profile, minimalTimeline, minimalContract, minimalCompiled } = createSoundPropagationTestInputs();

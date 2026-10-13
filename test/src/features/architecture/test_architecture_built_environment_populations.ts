@@ -228,6 +228,7 @@ const unpopulated = (): IAutoMovieBuiltEnvironment => {
 };
 
 /**
+ *
  * A space answers for the populations standing in it, not only its elements.
  *
  * A repeated part is authored as one compact set rather than as thousands of
@@ -276,6 +277,10 @@ const unpopulated = (): IAutoMovieBuiltEnvironment => {
  *    the separate fidelity answer about the space's own declared volume.
  * 10. Lowering hands the populations to the world as the compact sets they are,
  *    while a record without populations omits the key entirely.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentSpaceContentBounds`, `builtEnvironmentSpacePopulations`, `builtEnvironmentSpaceNodes`, `builtEnvironmentSpaceFidelity` and `lowerBuiltEnvironment` beside `validateBuiltEnvironment` over a residence furnished by elements and grid populations and asserts content boxes, owned set ids, node strings, fidelity and the lowered instance sets, slot total and set-piece count; it catches a population ignored by a room's bounds, membership leaking from a cellar below, a porch beyond or a covering roof field, a population listed once per member, populations changing fidelity, and lowering that expands sets or emits an empty key.
+ * @evidence contracts/testing.md#independent-expectations Every box follows the grid law `(column - (columns - 1) / 2) * spacing.x`, `row * spacing.z` about the anchor plus the unit prototype: the undercroft casks give x 0.75..3.25, y -2.5..-1.5, z 2.5..5, the hall union of table, flags and paving gives x 1.5..7.5, y 0..1, z 1.5..8.5, the solar chest gives x 14.5..15.5, and the whole work reaches x 18, y 10 and z -0.5..12.5; the slot total 30 is the sum of declared counts, and node strings follow the documented `<environment>/<element>` and `instance-set:<set>` forms.
+ * @evidence contracts/testing.md#distinguishing-cases A population-only room, an element-only room compared against the same record with populations stripped, a room holding both, and the root holding the covering field; owned-set lists per room, at the root and with populations omitted; an emptied record answering null; fidelity with and without populations; lowering with and without the populations key; population placement bounds and refusals are owned by test_architecture_built_population_placement_bounds and test_architecture_built_population_refusals.
  */
 export const test_architecture_built_environment_populations = (): void => {
   const work = residence();

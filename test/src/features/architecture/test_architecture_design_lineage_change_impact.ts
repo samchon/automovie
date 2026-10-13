@@ -5,6 +5,7 @@ import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * Pin that one changed identity invalidates exactly the outputs derived from
  * it, and nothing else.
  *
@@ -36,6 +37,10 @@ import { throwsError } from "../internal/predicates";
  *    which is the boundary that proves the partition is total.
  * 7. An identity no graph declared is refused rather than traced as empty, and an
  *    incoherent lineage is refused before any impact is computed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `designLineageImpact` over the renovation lineage and asserts the changed, invalidated and unaffected lists and the refusals; it catches an impact that stops at direct dependents, reaches artifacts with no derivation path to the change, ignores asset bytes cited by an output, omits a changed derived artifact itself, lets one change shadow another, counts a repeated change twice, leaves an artifact in neither list, or traces an undeclared identity or an incoherent lineage.
+ * @evidence contracts/testing.md#independent-expectations Each list is the transitive closure of the fixture's authored `inputs` edges worked by hand: `opening-door` reaches `mesh-wall-north` and `mesh-door-leaf`, then `cut-floor-oak`, `quantity-finishes` and `render-lobby`; `oak-texture` reaches the cut and `render-warm` but not `render-cool`, which never reads it; every list is sorted and the two lists always partition the eleven derived artifacts; refusals match phrases naming the identity or the head revision.
+ * @evidence contracts/testing.md#distinguishing-cases A source subject, an asset, a derived artifact, two unrelated changes, a duplicated change and the empty change set; an undeclared identity and an unresolved head refused; validation of derivation edges and asset citations is owned by test_architecture_design_lineage_derivation_refusals.
  */
 export const test_architecture_design_lineage_change_impact = (): void => {
   const lineage = renovationLineage();

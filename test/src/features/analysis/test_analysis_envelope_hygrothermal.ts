@@ -17,6 +17,7 @@ import { analysisContext } from "../internal/analysisFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
+ *
  * An envelope is solved for heat and for surface condensation as two separate
  * domains, and a space is solved for ventilation without pretending it solved
  * the air.
@@ -65,6 +66,10 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 10. Every malformed envelope and ventilation request is refused at its own
  *     message.
  * 11. The exported dew point refuses air that has no dew point.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `analyzeAutoMovieEnvelope`, `analyzeAutoMovieSpaceAir` and `autoMovieDewPoint` and asserts the thermal and moisture runs' metrics, statuses, per-assembly samples and warnings, the air run's balance metrics and gaps, and every refusal; it catches a wrong film or layer resistance sum, a bridge left out of heat loss, an unweighted transmittance or surface mean, a dew point off the Magnus form, a risk flag on the wrong surface, an assumed exterior temperature, a ventilation metric divided by a missing or zero flow or headcount, and a cross-domain target miscounted as unknown.
+ * @evidence contracts/testing.md#independent-expectations Every number is the hand-solved steady-state network in the doc comment: U of 1 and 1.25 W/m2K from `0.1 + d / k + 0.1`, 290 W from `(12.5 + 4 * 0.5) * 20`, 40 / 290 bridge share, 215 / 12 area-weighted face temperature, 1.8 air changes from `0.05 * 3600 / 100`, 12.5 L/s per person and 800 ppm from `400 + 4 * 5e-6 / 0.05 * 1e6`; the dew points are the Sonntag-coefficient Magnus form evaluated independently (9.2552 within 1e-3, the full-precision value within 1e-9), so they pin those published coefficients and would not admit another valid psychrometric formula.
+ * @evidence contracts/testing.md#distinguishing-cases Positive base envelope and ventilated space; humidity raised from 0.5 to 0.88 so exactly the 17.5 degC glazing crosses its dew point; boundaries of isothermal indoor air (zero heat flow, bridge share gapped, reverse-heat-flow warning), zero humidity (moisture gaps, empty field, thermal still solved), saturated air whose dew point equals its temperature, no supply flow, zero supply flow and zero occupants; not-run for no instant and for an instant without outdoor temperature; unsupported solar gain, interstitial condensation, air speed and stagnation; met, missed and cross-run target keys; thirty-two malformed inputs including 4097 assemblies; context validation is owned by test_analysis_environment_context and run sealing by test_analysis_run_contract.
  */
 export const test_analysis_envelope_hygrothermal = (): void => {
   const context = analysisContext();

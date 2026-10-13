@@ -27,13 +27,18 @@ import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
  * It folds because {@link builtEnvironmentContainsPoint} folds: the caller who
  * asked whether a prop stands in a storey, or whether a fluid lattice stays in
  * a basin, got an answer over that whole subtree and this is how exact that
- * answer was. **Nothing inside the engine asks it yet.** The take-off and the
- * drafter read the declaration directly instead, because a gap has to name the
- * spaces that carry it rather than a verdict over a subtree, so the folded form
- * is here for the authoring surface — where the same question is asked before a
- * placement rather than after a measurement — and it needs an entry on the
- * sandbox's engine export list before a source module can reach it.
+ * answer was. The drawing schedule reports it for every space, and project
+ * source can ask it before a placement. The take-off and the drafter read each
+ * space's declaration directly instead, because a gap has to name the spaces
+ * that carry it rather than a verdict over a subtree.
  *
+ * Throws for an undeclared space id.
+ *
+ * @evidence contracts/common.md#principled-implementation Folds the subtree's volume-stating spaces: none gives `unstated`, any `faceted` declaration gives `faceted`, otherwise `exact`; only the declared `fidelity` flag is read, never geometry or contents.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: private copies of `descendantSpaces` and `requireSpace` again; the closed three-value answer is the whole interface because the only question is whether any stated volume is an approximation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No curved primitive is pretended; a curved region reads `faceted` exactly when its author declared it so, and an undeclared id throws rather than answering `unstated`.
+ * @evidence contracts/common.md#meaningful-documentation States the three answers, why the fold spans descendants, that contents never affect it, the missing curved primitive, which consumers read this fold and which read the declaration, and the refusal.
+ * @evidence contracts/performance.md#cost-and-resources One `O(S D)` descendant pass and one filter with a constant-time volume test per space; the drawing schedule calls it per space, rebuilding each subtree, and no result is cached.
  * @author Samchon
  */
 export const builtEnvironmentSpaceFidelity = (

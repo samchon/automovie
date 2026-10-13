@@ -84,6 +84,7 @@ const floor = (
   });
 
 /**
+ *
  * Herringbone boards, laid, measured, and instanced.
  *
  * Herringbone is the case a texture repeat cannot even approximate: the boards
@@ -116,6 +117,10 @@ const floor = (
  *    carrying its own board's long axis, and the four cut ones are named
  *    instead.
  * 7. The same declaration laid twice produces the same bytes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Lays a one-cell herringbone of 0.3 by 0.15 m boards with `generateAutoMovieSurfacePattern` and instances it with `autoMoviePatternInstanceTransforms`, asserting the ten piece ids, the four cut ids, the take-off, empty findings, grain-break pairs, sliver lists at three minimums and slot translations and long axes; it catches rotated corners computed with the wrong sign so turned boards overlap, a lattice range too narrow to reach cells (0, -1) and (-1, 0), an edge-touching board kept as a zero-area piece, a grain scan that flags two boards of a kind, and a cut board instanced as whole.
+ * @evidence contracts/testing.md#independent-expectations Ids and cut status come from hand-placing the bond in board widths: step n's flat board spans `[n, n + 2] x [n, n + 1]` and its upright `[n, n + 1] x [n + 1, n + 3]`, so in a four-width room steps 0 to 2 are whole, v2 and h3 are halved, and the neighbouring cells contribute v2, v3 and h3; ten boards consume `10 * 0.045 = 0.45` m2 over a 0.36 m2 room for a 0.2 ratio; the floor frame maps U to `+z` and V to `+x`, giving `(0.075, 0, 0.15)` and `(0.3, 0, 0.075)` for the first flat and upright slots.
+ * @evidence contracts/testing.md#distinguishing-cases Grain tolerance 5 flags only mixed pairs at 90 degrees while 90 and null flag none; halved boards sit exactly on minimum 0.5, become four slivers at 0.6 and none at 0.4; a byte-identical relaunch pins determinism; single-axis courses belong to the courses test and multi-zone ornament to the coffers test.
  */
 export const test_architecture_surface_pattern_herringbone = (): void => {
   const laid = generateAutoMovieSurfacePattern({ pattern: floor() });

@@ -6,6 +6,7 @@ import type { HumanViewerStage } from "./HumanViewerStage.js";
 import { frameHumanViewerParts } from "./frameHumanViewerParts.js";
 
 /**
+ *
  * Point the stage's camera where the address asks: around the named parts or
  * a zoomed whole, at an explicit frame, or along a named view; then an
  * explicit look, when given, replaces the camera position.
@@ -14,12 +15,6 @@ import { frameHumanViewerParts } from "./frameHumanViewerParts.js";
  * @evidence contracts/common.md#meaningful-documentation States the precedence of the framing forms.
  * @evidence contracts/common.md#clear-and-simple-design One dispatcher owns address framing precedence while existing geometry bounds and capture-camera placement own their respective calculations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Consumes exact part names, explicit frame/look values and observed geometry through existing camera APIs; no document-specific centre or camera answer is supplied.
- * @evidence contracts/modeling.md#part-identity-and-grouping Forwards the exact existing mesh names to the part-bound owner while selecting camera framing; it creates no alternative subject partition.
- * @evidence contracts/modeling.md#parameter-channels Named view/pitch, positive inverse-distance zoom, explicit sphere and exact look remain independent display channels with the documented exact-look precedence.
- * @evidenceExclude contracts/modeling.md#emitted-geometry This camera adapter emits no mesh primitives; the numerical model and calibration owners determine geometry populations.
- * @evidence contracts/modeling.md#spatial-conventions Sphere centers, radii, target and distance use the displayed scene's metre frame; angular look values use degrees and the existing capture-camera placement owns their conversion.
- * @evidenceExclude contracts/modeling.md#shared-boundaries Camera placement constructs no surface or join and preserves all input mesh boundaries.
- * @evidence contracts/modeling.md#rendered-observation The adapter owns placement of the displayed camera, while the viewport and capture owners observe the resulting view; it makes no anatomical or whole-model appearance claim.
  */
 export function frameHumanViewerAddress(
   stage: HumanViewerStage,

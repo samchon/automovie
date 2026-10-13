@@ -12,11 +12,16 @@ import {
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
 /**
+ *
  * A one-sample presentation keeps missing dialogue silent, interpolated input finite and late phonemes bounded.
  *
  * Scenarios:
  * 1. One-sample dialogue at 48000 Hz stays silent when missing and finite when fitted from two supplied samples.
  * 2. A late phoneme outside the source extent is merged into the bounded existing phoneme span.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Renders a one-sample 48 kHz dialogue line with `renderProductionSound` without and with a two-sample supplied buffer, asserting zero peak and finite samples, and calls `productionPhonemesToVisemes` with a chunk past the ten-sample source, asserting the first viseme's phoneme text; it catches a missing line that produces noise, a resampler that divides by a zero-length span into NaN, and a late phoneme either dropped or emitted past the line's end frame.
+ * @evidence contracts/testing.md#independent-expectations Silence follows from no buffer being supplied; finiteness is a property any valid resample must hold; `ab` follows from the bounded contract that no viseme starts at or after the end frame while no phoneme text is lost, so the late `b` must join the existing `a` span; the fitted dialogue samples themselves are not pinned.
+ * @evidence contracts/testing.md#distinguishing-cases Boundary of a one-frame line at the native rate, both missing and supplied, and a phoneme chunk entirely beyond the source extent; an empty supplied buffer and multi-frame resampling belong to `test_engine_sound_decoded_pcm_admission`.
  */
 export const test_engine_sound_short_dialogue_clock = (): void => {
   const { eventPlan } = createSoundPropagationTestInputs();

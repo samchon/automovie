@@ -12,6 +12,10 @@ import { IAutoMovieInstanceSetDesign } from "../production/IAutoMovieInstanceSet
  * the same population's extent beside it would be an assertion nobody
  * re-measures, and it would drift the first time either side was edited.
  *
+ * @evidence contracts/common.md#principled-implementation A population pairs a declared space id with a compact instance set and a model-local prototype box; `builtInstanceSetPlacementBounds` folds that box through the set's placement law into a conservative world envelope without expanding a single member.
+ * @evidence contracts/common.md#clear-and-simple-design The set is held by value and lowered unchanged as an instance set, so the building's space queries and the production world read one placement law rather than two copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Space membership is declared rather than derived from member positions, `along-route` layouts are refused because a building record cannot reach a route, and the prototype box is authored and never re-measured against the recipes it covers.
+ * @evidence contracts/common.md#meaningful-documentation States the single-space rule and that validation only resolves its id, the prototype box frame and refresh obligation, which degenerate boxes are valid, and the refused layout.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPopulation {
@@ -25,6 +29,10 @@ export interface IAutoMovieBuiltPopulation {
    * stands in the room, not what covers it. A field that genuinely runs through
    * two rooms is authored as two populations, one per room, which costs two
    * compact records rather than two thousand member records.
+   *
+   * Validation only checks that the id resolves; choosing the smallest
+   * containing space is the author's obligation, and space queries trust the
+   * declared id instead of testing member positions.
    */
   space: string;
 

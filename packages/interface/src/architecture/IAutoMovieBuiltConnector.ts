@@ -17,6 +17,11 @@ import { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
  * which further spaces it stops at, and where its car stands — so that later
  * work has something exact to read instead of re-deriving it from whatever
  * happened to be modelled.
+ *
+ * @evidence contracts/common.md#principled-implementation Traversal shape is a world polyline with optional per-station quaternions and either a constant or a sampled section; validation derives net climb and horizontal run from the route and refuses a stated slope off by more than 1e-6 rad or a step total off by more than 1 mm.
+ * @evidence contracts/common.md#clear-and-simple-design Slope and step totals are optional claims checked against the route rather than second truths, and width takes exactly one of two spellings; the route-metrics arithmetic itself is written twice, in `validateBuiltEnvironment` and in `builtConnectorGeometry`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unlisted traversal type is `other` rather than a near kind, and slope uses the route's horizontal length rather than the endpoint chord; because it is the net average, a route that rises and then falls reads shallower than its steepest leg.
+ * @evidence contracts/common.md#meaningful-documentation States the section spelling rule, how slope is measured and checked, step agreement, landing order, the orientation count, one-way drive limits and what each omitted field means.
  */
 export interface IAutoMovieBuiltConnector {
   /** Stable connector identity. */
@@ -45,7 +50,7 @@ export interface IAutoMovieBuiltConnector {
   /** Logical space at the start of the route. */
   from: string;
 
-  /** Logical space at the end of the route. */
+  /** Logical space at the end of the route; never the same as {@link from}. */
   to: string;
 
   /**
@@ -73,7 +78,10 @@ export interface IAutoMovieBuiltConnector {
    */
   landings?: IAutoMovieConnectorLanding[];
 
-  /** World-space center route, including both endpoints. */
+  /**
+   * World-space center route, including both endpoints: at least two finite
+   * points, consecutive ones more than `1e-9` metres apart.
+   */
   route: IAutoMovieVector3[];
 
   /**
@@ -120,10 +128,19 @@ export interface IAutoMovieBuiltConnector {
    * The route already implies it, so stating it is a claim the engine checks
    * rather than a second source of truth: a declared slope that disagrees with
    * the route is refused instead of quietly winning.
+   *
+   * The implied value is `atan2(|last.y - first.y|, horizontal route length)`,
+   * the net climb averaged over the whole route rather than its steepest
+   * segment, and a stated slope must lie within `[0, PI / 2]` and agree with it
+   * to `1e-6` radians.
    */
   slope?: number;
 
-  /** The repeated step of a stepped run, or nothing for a smooth one. */
+  /**
+   * The repeated step of a stepped run, or nothing for a smooth one. Step count
+   * times rise must match the route's net climb, and count times run its
+   * horizontal length, each within one millimetre.
+   */
   steps?: IAutoMovieConnectorSteps;
 
   /**
@@ -137,6 +154,10 @@ export interface IAutoMovieBuiltConnector {
    */
   operation?: IAutoMovieConnectorOperation;
 
-  /** Visible elements realizing the connector, such as steps or a lift car. */
+  /**
+   * Visible elements realizing the connector, such as steps or a lift car;
+   * each resolves and is listed once, and the list may not be empty when an
+   * {@link operation} is stated.
+   */
   elements: string[];
 }

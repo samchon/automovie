@@ -9,6 +9,7 @@ import { boxCell } from "../internal/envelopeFixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
+ *
  * A room is stated as the planes that cut it, so its corners have to be solved.
  *
  * Every question an interior observation asks starts from where the room
@@ -33,6 +34,10 @@ import { namedFacts, vclose } from "../internal/predicates";
  * 5. A celled space reports the extent of the corners its cells cut, a shelled
  *    space the extent of its own vertices, and a space stating neither reports
  *    nothing rather than a box at the origin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtConvexCellVertices` and `builtSpaceVolumeBounds` and asserts the solved corner set and count, and the extent or null a space reports; it catches parallel or out-of-cell triples kept as corners, an over-determined corner repeated, a zero-normal plane treated as a half-space, an unbounded half-space producing corners, and an unstated or unbounded space reported as a box at the origin.
+ * @evidence contracts/testing.md#independent-expectations The cube's corners are the eight 0/1 coordinate triples of the box the planes bound, the degenerate box is its one point, two box cells spanning x 0..4, y 0..3, z 0..4 give that union extent, and the tetrahedron shell's extent is its unit vertex coordinates; corners are rounded to the nanometre before comparison, so an error below that is outside the oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Positive unit cube, two-cell space and shelled space; degenerate cell of six planes through one point, a zero-normal plane beside a valid cube, a single half-space with no corners; null for a space stating no volume and for a cell that closes nothing; containment and volume of shells are owned by test_architecture_built_space_shell.
  */
 export const test_architecture_convex_cell_vertices = (): void => {
   TestValidator.equals(

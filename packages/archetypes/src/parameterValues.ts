@@ -1,4 +1,5 @@
 /**
+ *
  * One recipe's exact parameter map, keyed by parameter name.
  *
  * The alias does not imply acceptance: `build` receives a map the design gate
@@ -9,9 +10,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One alias shared by the readers in this file; `IAutoMovieModelArchetype.ts` spells the same record type inline in three members instead of naming it, so the shape has two spellings in this package.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no field, brand or acceptance marker; whether a map was accepted is the caller's ordering fact and is not encoded in the type.
  * @evidence contracts/common.md#meaningful-documentation States that acceptance is not implied and which archetype members receive unjudged maps.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias erases at compile time and performs no work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Names a map the recipe already owns and computes nothing that could be shared.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The `Readonly` view adds no storage; the recipe that owns the map decides its lifetime.
+ * @evidenceExclude contracts/performance.md#cost-and-resources A type alias erases at compile time and performs no work. Names a map the recipe already owns and computes nothing that could be shared. The `Readonly` view adds no storage; the recipe that owns the map decides its lifetime.
  * @author Samchon
  */
 export type AutoMovieArchetypeParameters = Readonly<
@@ -19,6 +18,7 @@ export type AutoMovieArchetypeParameters = Readonly<
 >;
 
 /**
+ *
  * Read one parameter as the number the design gate already accepted.
  *
  * The read is an unchecked cast: it returns whatever the map holds, including
@@ -29,9 +29,7 @@ export type AutoMovieArchetypeParameters = Readonly<
  * @evidence contracts/common.md#clear-and-simple-design A named one-line reader, so the primitive-prop and stickman builders state the accepted-value premise at each dimension read instead of repeating the cast.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Performs no runtime check, so a map that bypassed the gate would hand a string, boolean or `undefined` to geometry as a number; that is the documented ordering premise, and `numberOf` is the checked reader for pre-gate callers.
  * @evidence contracts/common.md#meaningful-documentation States that the cast is unchecked, what a missing key yields, and which caller may use it.
- * @evidenceExclude contracts/performance.md#efficient-algorithms One keyed property read with no algorithm or data structure to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Builders read each dimension (`width`, `height`, `depth`, `radius`, `headRadius`, `limbRadius`) once per build, leaving no repeated read to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a primitive from the caller's map and keeps no reference to that map.
+ * @evidenceExclude contracts/performance.md#cost-and-resources One keyed property read with no algorithm or data structure to choose. Builders read each dimension (`width`, `height`, `depth`, `radius`, `headRadius`, `limbRadius`) once per build, leaving no repeated read to share. Returns a primitive from the caller's map and keeps no reference to that map.
  * @author Samchon
  */
 export const numberParameter = (
@@ -40,6 +38,7 @@ export const numberParameter = (
 ): number => parameters[key] as number;
 
 /**
+ *
  * Read one parameter as the string the design gate already accepted.
  *
  * Like `numberParameter`, an unchecked cast for an accepted map; its only caller
@@ -49,9 +48,7 @@ export const numberParameter = (
  * @evidence contracts/common.md#clear-and-simple-design Pairs with `numberParameter`, so the builder's one discriminator read states the same accepted-map premise.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Performs no runtime check; if the gate were bypassed, a non-string or unknown `shape` would reach `shapeOf`, whose final branch builds a plane without complaint.
  * @evidence contracts/common.md#meaningful-documentation States the unchecked cast and its single caller and key.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A single keyed read of `shape` with no algorithm to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work primitive-prop reads `shape` once per build and passes it straight to `shapeOf`.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns the string already held by the caller's map and retains nothing.
+ * @evidenceExclude contracts/performance.md#cost-and-resources A single keyed read of `shape` with no algorithm to choose. primitive-prop reads `shape` once per build and passes it straight to `shapeOf`. Returns the string already held by the caller's map and retains nothing.
  * @author Samchon
  */
 export const stringParameter = (
@@ -60,6 +57,7 @@ export const stringParameter = (
 ): string => parameters[key] as string;
 
 /**
+ *
  * Read one parameter as a finite number, or zero when it is neither.
  *
  * Measurement runs before geometry and outside the design gate, so a recipe
@@ -74,9 +72,7 @@ export const stringParameter = (
  * @evidence contracts/common.md#clear-and-simple-design The single checked reader, used only by `projectionRadius` implementations that run before the gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Substitutes zero for an absent or non-finite value; the basis is that the design gate refuses such a recipe, so the placeholder radius never reaches an accepted build.
  * @evidence contracts/common.md#meaningful-documentation States the zero result, why measurement needs a total reader, and that neither zero nor an out-of-range value is a bound before acceptance.
- * @evidenceExclude contracts/performance.md#efficient-algorithms One property read and two constant-time tests, with no algorithm to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A radius reads at most three dimensions once per recipe, and `productionProjectionRadii` already stores the resulting radius per recipe id.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number and holds no reference to the map it read.
+ * @evidenceExclude contracts/performance.md#cost-and-resources One property read and two constant-time tests, with no algorithm to choose. A radius reads at most three dimensions once per recipe, and `productionProjectionRadii` already stores the resulting radius per recipe id. Returns a number and holds no reference to the map it read.
  * @author Samchon
  */
 export const numberOf = (

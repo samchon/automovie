@@ -186,6 +186,7 @@ const at = (
 });
 
 /**
+ *
  * Camera and film-time queries report hand-computable projection and frame
  * facts, and refuse what they cannot place.
  *
@@ -211,6 +212,10 @@ const at = (
  *    last, too large to be an exact frame, or not finite is refused; a frame no
  *    segment covers is refused; and a film-time query without a timeline is
  *    refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieGeometry` with `camera` and `film-time` requests and asserts root-point counts, the least frame margin, the occlusion fields, the owning segment, source frame, times and transition kinds, and each refusal; it catches an absent subject counted as resolved, a root behind the camera or past the far plane counted in depth, an off-frame root counted in frame, a least margin that skips the off-frame root or reports zero when nothing resolves, the earlier segment winning an overlapped dissolve frame, a source frame not offset by the segment's in-point, and an off-grid or out-of-range time rounded onto a frame.
+ * @evidence contracts/testing.md#independent-expectations With a 90 degree field of view and aspect two, a root `d` metres ahead maps `x` to `x / (2d)`, so the root 15 m right at 5 m reads 1.5 and margin `1 - 1.5 = -0.5`; depth -5 and 200 fall outside 0.1..100; frame 20 in shot b is `12 + 20 - 18 = 14`, frame 47 is 41, half a second at 24 fps is frame 12, and times are frames over 24; refusals are matched by message phrase, which identifies the failing check rather than the full correction text.
+ * @evidence contracts/testing.md#distinguishing-cases Positive mixed subject list with in-frame, out-of-frame, behind and beyond-far roots plus one absent id, and an all-absent list for the -1 margin; refusals for absent shot, absent contract, times -1 and 5 around 0..4, empty and repeated subjects, absent camera and no production; film frames inside the dissolve overlap, inside one segment and at the last frame; off-grid frame and seconds, -1, 48, 2^60, infinity, an uncovered frame and no timeline; occlusion is never measured here and selector, formation, effect and reach queries belong to their own geometry-query tests.
  */
 export const test_engine_geometry_query_camera_film_time = (): void => {
   const framed = measure({

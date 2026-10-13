@@ -6,6 +6,17 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * composes a move that changes mid-shot ("follow the charge, then hold static
  * on the fall"). The engine realises the framing/move against the target as a
  * camera-node clip (`cameraMotion` on the shot).
+ *
+ * The `actor` must be exactly one staged camera, and a shot has one live
+ * camera. Its moves may not share a start or overlap; an `"auto"` duration runs
+ * until the next move starts, or to the shot end. `compileCameraMove` owns the
+ * path each `move` takes.
+ *
+ * @evidence contracts/common.md#principled-implementation `compileCameraMove` fits the framed distance with `d = (visible / 2) / tan(half-angle)` against the subject's height and width and approaches along the staged bearing, so `framing` and `move` select a deterministic path rather than free camera keys.
+ * @evidence contracts/common.md#clear-and-simple-design Two closed enums plus a target, with the lens intents as optional fields that ride to `shot.cameraIntent`; the camera solve never reads `focus` or `focalLength`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or camera is special-cased; overlapping moves are refused instead of resolved by timestamp, and an unknown framing or move literal is a validation error.
+ * @evidence contracts/common.md#meaningful-documentation States the single-camera rule, the overlap and `"auto"` behaviour, which compiler owns move paths, that the two lens fields are intent only, and their units.
+ * @author Samchon
  */
 export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   /** Selects camera framing as the action family. */
@@ -31,9 +42,9 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
 
   /**
    * Lens intent in millimetres (full-frame equivalent: 24 wide, 50 normal, 85
-   * portrait). Structural guide INTENT only (#1187): the scene camera's `fovY`
-   * stays the geometric truth and this never changes the solve. Omit when the
-   * lens is not a directorial choice.
+   * portrait), finite and `> 0`. Structural guide INTENT only (#1187): the
+   * scene camera's `fovY` stays the geometric truth and this never changes the
+   * solve. Omit when the lens is not a directorial choice.
    */
   focalLength?: number;
 }

@@ -6,6 +6,7 @@ import type { synchronizeHumanBuild as Synchronize } from "../../../../packages/
 import { loadSourceModule } from "../internal/loadSourceModule";
 
 /**
+ *
  * Complete staged files replace changed bytes before obsolete membership is
  * removed. Typed file effects exercise the production ordering and errors;
  * no filesystem or compiler is reproduced.
@@ -14,6 +15,10 @@ import { loadSourceModule } from "../internal/loadSourceModule";
  * 1. First, identical, changed and removed inventories select independent effects.
  * 2. Replacement failure stops obsolete removal and preserves original failure identity.
  * 3. Removal and inventory failures propagate; absent-source rollback clears membership.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `synchronizeHumanBuild` through an `IHumanBuildFileHost` that records each `replace` and `remove`, and asserts the recorded effect list, the `staged` and `published` roots each effect receives, and the identity of the thrown error; it catches rewriting a file whose digest is unchanged, removing an obsolete file before a replacement has completed, continuing past a failed write, swallowing an inventory or removal error, and an undefined source that leaves old members behind.
+ * @evidence contracts/testing.md#independent-expectations Each expected effect list is derived from the module's stated rules (equal digests need no write, replacements precede obsolete removal, an undefined source means empty membership) applied by hand to the three-file inventories; the error must be the same `Error` object the fake threw. Limitation: writes are expected in staged-inventory order, which the contract does not promise, and digests are opaque labels, so real byte hashing is not checked.
+ * @evidence contracts/testing.md#distinguishing-cases Owns seven inventory pairs: empty previous (all three written), identical (no effect), one equal, one changed, one added and one obsolete (two writes then one removal), failure on the first write (later write and removal skipped), failure on the removal, absent source (three removals), and a failing inventory read (no effect); single-file replacement and its sibling cleanup belong to test_package_build_file_replacement.
  */
 export function test_package_build_file_publication(): void {
   const synchronize = loadSourceModule<{ synchronizeHumanBuild: typeof Synchronize }>(

@@ -11,11 +11,16 @@ import {
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
 
 /**
+ *
  * Room identities select shared Sabine results, outdoor copying, adopted outcomes and unresolved gaps.
  *
  * Scenarios:
  * 1. Same and different rooms consume the Sabine basis: T60 is0.322 s and20 dB transmission has gain 0.1.
  * 2. Outdoor, unresolved and adopted paths retain distinct outcomes; zero absorption remains unsupported.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `deriveAutoMovieInteriorAcousticResponse` for same-room, cross-room, outdoor, half-unresolved, adopted-profile and zero-absorption inputs and asserts status, path, T60, a positive direct-to-diffuse ratio and transmission gain; it catches rooms compared by the wrong identity, a cross-room result carrying T60 instead of partition gain, an outdoor pair treated as a room, an adopted profile reported as available without its bytes, and a lossless room given a finite diffuse result.
+ * @evidence contracts/testing.md#independent-expectations T60 0.322 s is Sabine `0.161 * 100 / (100 * 0.5)`, gain 0.1 is `10^(-20/20)` for the 20 dB partition, and the outdoor, unsupported and not-run outcomes restate the derivation's documented space rules; the ratio is asserted only to be positive, so its magnitude is not pinned.
+ * @evidence contracts/testing.md#distinguishing-cases Positive same-room and cross-room paths; outdoor with both spaces null; unresolved with one; adopted response not run; boundary of zero absorption that has no bounded diffuse field; malformed inputs belong to `test_engine_interior_acoustic_derivation_admission`, absorption ordering to `test_engine_interior_acoustic_material_tail`, and PCM application to `test_engine_interior_acoustic_pcm_paths`.
  */
 export const test_engine_interior_acoustic_response = (): void => {
   const { digest, profile, request } = createInteriorAcousticTestInputs();

@@ -71,15 +71,15 @@ const placedElementPoints = (
 /**
  * The world box one named element's placed geometry fills.
  *
- * **This is the engine's one computation of an element's world extent, and
- * every layer above asks it rather than repeating it.** Placement validation
- * resolves an element locator through here, subject description answers "where
- * is this element" through here, and the space fold above measures its elements
- * through the same private placement and tessellation this calls. A fourth
- * spelling of the same box is the defect this sentence exists to prevent: the
- * medieval-residence campaign built its own element-bounds probe by hand and
- * used it more than the viewer, which is exactly how a second answer to one
- * question gets written.
+ * Placement resolution ({@link builtEnvironmentPlacementBounds}) and subject
+ * description answer "where is this element" through this query rather than a
+ * probe of their own; the medieval-residence campaign built its own
+ * element-bounds probe by hand and used it more than the viewer, which is how a
+ * second answer to one question gets written.
+ * {@link builtEnvironmentElementPartBounds}, {@link builtEnvironmentPartBoxes},
+ * and {@link builtEnvironmentSpaceContentBounds} measure with private copies of
+ * the same placement and tessellation code, so a change to how an element is
+ * placed has to reach all four files.
  *
  * The element stands where the environment's current operating state puts it,
  * so a leaf authored open is measured where it rests. Geometry is read through
@@ -90,7 +90,8 @@ const placedElementPoints = (
  * never declared resolves to nothing, because the caller is usually resolving a
  * locator that project source authored and an unresolved locator is a finding
  * for that caller to report rather than an engine refusal — which is why this
- * answers `null` where the space queries in this file throw. A transform-only
+ * answers `null` where the space queries such as
+ * {@link builtEnvironmentSpaceContentBounds} throw. A transform-only
  * element draws nothing, so it has no geometry box either, and it is left out
  * here for exactly the reason {@link builtEnvironmentSpaceContentBounds} leaves
  * it out of a room's contents: a grouping node standing eight metres up is not
@@ -105,6 +106,11 @@ const placedElementPoints = (
  * one environment pays that once per locator, which is worth knowing before
  * putting this inside a loop over thousands of placements.
  *
+ * @evidence contracts/common.md#principled-implementation Places each part under its own TRS and then the element's world matrix (parent chain times rest times current-state joint), reads vertices from `tessellate` or the stated mesh, and folds an axis-aligned box; an element without vertices yields its world origin as a degenerate box.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: the world-matrix, operation-delta, travel-delta, part-placement, matrix-apply and box-fold helpers are verbatim copies shared with `builtEnvironmentElementPartBounds`, `builtEnvironmentPartBoxes` and `builtEnvironmentSpaceContentBounds`, so one placement rule lives in four files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared or transform-only element answers null instead of throwing because an unresolved locator is the caller's finding, and a runtime model reference contributes its origin point, which the placement-bounds layer labels `element-origin-point`.
+ * @evidence contracts/common.md#meaningful-documentation States which callers rely on it and which files copy its code, the current-operating-state frame, the two null readings and why they are not refusals, the origin fallback, and the per-call cost of staging the whole hierarchy.
+ * @evidence contracts/performance.md#cost-and-resources Defect: each call stages every element's world matrix and every operation delta, `O(E + members)`, plus linear element and model searches, to measure one element whose ancestor chain is all it needs; nothing is cached, so the overlap and support sweeps and the subject describers, calling it once per element, become quadratic in element count.
  * @author Samchon
  */
 export const builtEnvironmentElementBounds = (

@@ -163,6 +163,14 @@ const firstAtOrBelow = (
  * other body and its `element-origin-point` basis travels with the finding, which
  * is how a caller reads "floating" as a claim about a point.
  *
+ * Throws when the tolerance is negative or non-finite, or `groundY` is not
+ * finite. `compared` counts the candidate parts examined.
+ *
+ * @evidence contracts/common.md#principled-implementation Sorts every part box by top height descending, binary-searches the first part at or below each subject's underside plus tolerance, and walks down to the first footprint-overlapping part of another body; subjects within tolerance of `groundY` count as grounded.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: `builtEnvironmentBodies`, `solidBoxes`, `IWorldBox` and the default tolerance are copies of those in the overlap sweep and support status; measurement and classification otherwise share one pass.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names the nearest body below without claiming it is the support, keeps each subject's union underside, and treats a point-only body as a point with its basis attached instead of excluding it.
+ * @evidence contracts/common.md#meaningful-documentation States what this adds over the pairwise status, that it measures rather than asserts support, why parts are used with the shelf case, the `groundY` default, how an origin-point body is read, the refusals, and what `compared` counts.
+ * @evidence contracts/performance.md#cost-and-resources Defect: sorting is `O(P log P)` in parts and each subject binary-searches its start, but the downward walk can reach every lower part when nothing overlaps (`O(n P)` worst case), and union boxes come from the per-element query, restaging the hierarchy per body (`O(E^2)`); part boxes are staged once and dropped with the report.
  * @author Samchon
  */
 export const builtEnvironmentSupportSweep = (props: {

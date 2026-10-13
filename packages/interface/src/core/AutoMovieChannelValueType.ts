@@ -9,6 +9,10 @@
  * variable-width `float[]` (one per morph target), the only non-fixed-width
  * kind.
  *
+ * @evidence contracts/common.md#principled-implementation Mirrors the glTF and KHR_animation_pointer element types; the engine's `channelValueWidth` maps scalar, vec2, vec3, vec4 and quaternion to widths 1 to 4, and `channelIsRotation` selects slerp for a `quaternion` pointer channel.
+ * @evidence contracts/common.md#clear-and-simple-design `quaternion` is kept apart from `vec4` only because its interpolation differs, and `weights` has no fixed width, so the width table omits it and track-shape checks skip the width assertion for it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine's `CHANNEL_VALUE_TYPES` set re-lists this union for runtime checks by hand; no value type is special-cased beyond the documented `weights` width exemption.
+ * @evidence contracts/common.md#meaningful-documentation Documents the width each tag implies, why `quaternion` is distinct from `vec4`, and that `weights` holds one value per morph target.
  * @author Samchon
  */
 export type AutoMovieChannelValueType =

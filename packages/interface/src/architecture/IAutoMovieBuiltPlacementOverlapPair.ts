@@ -11,6 +11,10 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * volume travels with the pair and the fraction says how much of the smaller
  * body is inside the larger.
  *
+ * @evidence contracts/common.md#principled-implementation Volume is the sum over part-box pairs of their axis-aligned intersection volume, and fraction divides it by the smaller body's summed part volume, clamped to one because one body's own overlapping parts are counted more than once.
+ * @evidence contracts/common.md#clear-and-simple-design A pair names both bodies, both bases and two grades, so a caller can rank or filter findings without recomputing any geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Face contact drops out through the strict inequalities of the box test, and the clamp at one is a stated compensation for double-counted self-overlap rather than a measured share.
+ * @evidence contracts/common.md#meaningful-documentation States the record order of left and right, the cubic-metre unit and how volume sums parts, the fraction denominator and clamp, and the zero-volume origin-point case.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapPair {
@@ -26,13 +30,19 @@ export interface IAutoMovieBuiltPlacementOverlapPair {
   /** Derivation of the right body's extent. */
   rightBasis: Exclude<AutoMovieBuiltPlacementBasis, "surface-height-rule">;
 
-  /** Shared volume in cubic metres, always greater than zero. */
+  /**
+   * Shared volume in cubic metres, always greater than zero: the sum of the
+   * intersection volumes of every pair of drawn part boxes, one from each
+   * body, so parts of one body that overlap each other are counted for each.
+   */
   volume: number;
 
   /**
    * Shared volume over the smaller body's own volume, within `[0, 1]`. It is
    * `0` when that body measures no volume, which an `element-origin-point`
    * basis explains and which cannot intersect anything in the first place.
+   * A body's own volume is the sum of its part box volumes, and the ratio is
+   * clamped to `1`.
    */
   fraction: number;
 }

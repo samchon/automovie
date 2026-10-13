@@ -30,7 +30,14 @@ import { IAutoMovieBuiltSurface } from "./IAutoMovieBuiltSurface";
  *
  * This is an engine/interchange record produced by ordinary TypeScript. A
  * building class may use loops, parameters, and reusable parts, then lower the
- * resulting record to scene models, set pieces, and locomotion spaces.
+ * resulting record to scene models, set pieces, and locomotion spaces. Lowering
+ * names the scene space of logical space `s` as `${id}/${s}` and the set piece
+ * of element `e` as `${id}/${e}`.
+ *
+ * @evidence contracts/common.md#principled-implementation A versioned metre-unit record whose ids, hierarchies and cross-references are checked by `validateBuiltEnvironment` before `lowerBuiltEnvironment` composes element matrices into world TRS set pieces and emits one scene space per logical space.
+ * @evidence contracts/common.md#clear-and-simple-design Elements, spaces, boundaries, openings, connectors, surfaces and populations are sibling lists joined by id, so each relation is validated in one place and queries never walk nested ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Site conditions have no field here at all, an omitted `populations` list reads as empty so older records validate unchanged, and no element or space kind is special-cased by its label.
+ * @evidence contracts/common.md#meaningful-documentation States the element and space separation, where the building scope ends, unit ownership, population purpose and omission meaning, walkable resolution and the ids lowering produces.
  */
 export interface IAutoMovieBuiltEnvironment {
   /** Schema version. */
@@ -99,6 +106,9 @@ export interface IAutoMovieBuiltEnvironment {
   /** Ground/support patches assigned to logical spaces. */
   surfaces: IAutoMovieBuiltSurface[];
 
-  /** Surface ids on which locomotion is permitted. */
+  /**
+   * Surface ids on which locomotion is permitted; each names a
+   * {@link surfaces} entry and appears once.
+   */
   walkable: string[];
 }

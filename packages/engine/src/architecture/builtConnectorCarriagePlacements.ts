@@ -24,6 +24,18 @@ import { IAutoMovieConnectorCarriagePlacement } from "./IAutoMovieConnectorCarri
  * bottom. The space each carriage serves is handed back beside its placement,
  * because "where the car is" and "which floor that is" are one answer and
  * making a caller rejoin them invites two.
+ *
+ * A connector without an operation answers an empty list, and `serves` is null
+ * when the state names no served space for that carriage. Throws when the
+ * connector does not exist, the named state is not one of its states, or a
+ * carriage's element is missing from the record. Naming a state applies it to
+ * every opening and run that declares a state with that id.
+ *
+ * @evidence contracts/common.md#principled-implementation Composes each element's world matrix as parent times rest times joint displacement, where a moving member's displacement is a prismatic translation or a pivot-corrected revolute quaternion at the state's value, then decomposes each carriage's matrix into position, normalized rotation and scale.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: the world-matrix, travel-delta and operation-delta helpers are verbatim copies of those in `builtOpeningPanelPlacements`, `builtEnvironmentElementBounds` and four other files rather than one shared module, so a change to the displacement rule must be repeated in each.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown state throws; a state omitting a carriage leaves it at rest, a compensation for unvalidated records that validation refuses by name; no connector or state id is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the default-to-current-state rule, that naming a state leaves the record unedited and reaches every member declaring it, why the served space travels with each placement, the null cases, and the refusals.
+ * @evidence contracts/performance.md#cost-and-resources Defect: stages world matrices for every element and displacements for every opening and run, `O(E + members)`, to place one connector's carriages whose ancestor chains are all it needs; matrices are memoized per call by element id so shared ancestors compose once, and the maps are dropped on return.
  */
 export const builtConnectorCarriagePlacements = (
   environment: IAutoMovieBuiltEnvironment,

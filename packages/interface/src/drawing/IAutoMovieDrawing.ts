@@ -18,13 +18,23 @@ import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
  * design to drawing, so a sheet cannot become a second source of truth for the
  * building it depicts.
  *
- * The record is deterministic by construction. Page coordinates are rounded to
- * a fixed grid, every array is in a canonical order that does not depend on the
- * order the design happened to declare things in, and the digest covers the
- * whole of it — so the same design and the same view produce byte-identical
- * output on every machine and every run, which is what makes a drawing usable
- * as evidence at all.
+ * The record is deterministic by construction. Page coordinates are world
+ * metres along the frame's axes, rounded to six decimals; `scale` is applied
+ * only when a serializer prints the sheet. Every array is in a canonical order
+ * that does not depend on the order the design happened to declare things in,
+ * so the same design and the same view produce byte-identical output on every
+ * machine and every run, which is what makes a drawing usable as evidence at
+ * all.
  *
+ * The digest is a SHA-256 over a canonical text of the record. That text omits
+ * `version` and every dimension's `from` and `to` points, and it joins fields
+ * with unescaped `|` and newline separators, so authored text containing them
+ * can make two different records hash alike.
+ *
+ * @evidence contracts/common.md#principled-implementation A pure function of design and view: `deriveAutoMovieDrawing` validates the environment, projects through one frame, rounds every coordinate to six decimals, sorts lines by role, layer, owner and endpoints and regions, openings and gaps by id through `compareAutoMovieRenderIds`, drops duplicate strokes, and hashes a canonical text with a pure SHA-256.
+ * @evidence contracts/common.md#clear-and-simple-design One record carries the view's declared settings, the resolved frame and every derived collection, so a consumer can check any number against the design without the view or a second call.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical text leaves out `version` and dimension endpoints and does not escape its separators, so two records can differ without changing the digest; stated in the prose and reported as a finding instead of hidden behind the determinism claim.
+ * @evidence contracts/common.md#meaningful-documentation States the one-way design-to-drawing rule, the unit, rounding and scale of page coordinates, the ordering of each array, and exactly what the digest covers and misses.
  * @author Samchon
  */
 export interface IAutoMovieDrawing {
@@ -43,7 +53,10 @@ export interface IAutoMovieDrawing {
   /** Discipline the view declared. */
   discipline: string;
 
-  /** Scale denominator the view declared. */
+  /**
+   * Scale denominator the view declared (`50` means 1:50); page coordinates do
+   * not include it.
+   */
   scale: number;
 
   /** Built environment this drawing was derived from. */
@@ -67,7 +80,10 @@ export interface IAutoMovieDrawing {
    */
   extent: IAutoMovieDrawingExtent | null;
 
-  /** Drafted segments, in canonical order. */
+  /**
+   * Drafted segments, sorted by role, layer, owner and then endpoints, with
+   * identical strokes kept once.
+   */
   lines: IAutoMovieDrawingLine[];
 
   /**
@@ -93,9 +109,9 @@ export interface IAutoMovieDrawing {
   /** Resolved notes, in the order the view authored them. */
   annotations: IAutoMovieDrawingAnnotation[];
 
-  /** Derivations this drawing could not perform, in canonical order. */
+  /** Derivations this drawing could not perform, sorted by subject. */
   gaps: IAutoMovieDrawingGap[];
 
-  /** Digest over the whole record. */
+  /** SHA-256 digest over the canonical text described above. */
   digest: AutoMovieContentDigest;
 }

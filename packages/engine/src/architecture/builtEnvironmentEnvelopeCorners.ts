@@ -18,6 +18,18 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * corner. The side the corner turns toward is read from the meeting point
  * itself: a corner is exterior when each facade's own body lies behind the
  * other's outward plane, and reentrant when it lies in front of it.
+ *
+ * Only facades of the same building are paired. A corner's id is
+ * `<boundary>+<boundary>` in code-unit order, its position is the mean of the
+ * midpoints of the nearest vertex pairs along the shared edge, its normal
+ * bisects the two
+ * outward normals, and the list is sorted by id.
+ *
+ * @evidence contracts/common.md#principled-implementation For each non-parallel same-building facade pair, keeps the vertex pairs within the thicker wall plus epsilon and nearest overall, averages their midpoints into one corner, and reads exterior or reentrant from the sign of one facade's normal toward the other's centroid.
+ * @evidence contracts/common.md#clear-and-simple-design Corners are derived from `builtEnvironmentEnvelopeFaces` rather than declared, and come back as plain records whose two facade ids name the pair.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Parallel facades, a coincident centroid and a turn within epsilon of perpendicular are skipped instead of forced into a kind; the wall-thickness slack is the construction gap between two faces authored on one corner.
+ * @evidence contracts/common.md#meaningful-documentation States the meeting rule and its thickness tolerance, how the turn is classified, the same-building pairing, the id spelling and sort, and how position and normal are formed.
+ * @evidence contracts/performance.md#cost-and-resources Pairwise over all facades, `O(F^2)`, plus `O(V_a V_b)` vertex comparisons per same-building non-parallel pair, where grouping by building first would skip the cross-building pairs now rejected one by one; it recomputes the faces itself and caches nothing.
  */
 export const builtEnvironmentEnvelopeCorners = (
   environment: IAutoMovieBuiltEnvironment,

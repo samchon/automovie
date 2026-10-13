@@ -9,6 +9,10 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * next beat can keep a planted foot exactly where the previous beat left it
  * instead of letting the first stride re-derive (and shift) the contact.
  *
+ * @evidence contracts/common.md#principled-implementation Mirrors one stance run of the ground-IK pass with inclusive bounds on the ended beat's clock, so `plantsAtEnd` keeps a plant exactly when `start <= cut <= end`.
+ * @evidence contracts/common.md#clear-and-simple-design Four fields, the foot bone, the run bounds and the pinned position, which is all the next beat needs to pin the same foot at the same world point.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No foot is special-cased; when several runs of one foot contain the cut, `plantsAtEnd` keeps the latest start and gives equal starts to the later entry, a stated tie rule.
+ * @evidence contracts/common.md#meaningful-documentation States the bone, that both bounds are inclusive seconds on the ended beat's local clock, and that `position` is a world point whose `y` lies on the ground.
  * @author Samchon
  */
 export interface IAutoMovieBeatEndFootPlant {

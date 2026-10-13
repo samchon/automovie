@@ -17,6 +17,15 @@ import {
  * asking a building root returns the connectors declared on the root itself
  * rather than every connector inside it. That is the same rule
  * {@link builtEnvironmentAdjacentSpaces} follows.
+ *
+ * The returned connectors are the record's own objects in record order. Throws
+ * for an undeclared space id.
+ *
+ * @evidence contracts/common.md#principled-implementation Keeps every connector whose stop list (`from`, each landing's space, `to`) contains the id exactly, and returns those records with routes as authored.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: `connectorStops` duplicates the one in `builtEnvironmentAdjacentSpaces` and `requireSpace` is copied again; the query is otherwise one filter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Stops are matched exactly rather than through containment, so a building root gets only connectors declared on it; no connector kind is dropped or reordered.
+ * @evidence contracts/common.md#meaningful-documentation States the difference from adjacency, why routes come back intact, the exact stop rule, that results are shared record objects, and the refusal.
+ * @evidence contracts/performance.md#cost-and-resources Builds and searches each connector's stop array, `O(C L)` in connectors and landings, after an `O(S)` existence check; nothing is cached, so the census and drawing schedule rebuild the stop arrays per space.
  */
 export const builtEnvironmentSpaceConnectors = (
   environment: IAutoMovieBuiltEnvironment,

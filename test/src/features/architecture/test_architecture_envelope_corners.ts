@@ -19,6 +19,7 @@ import {
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
+ *
  * A corner is where an elevation hides itself, so it is derived, not declared.
  *
  * The survey guidance draws a rectangle as four perpendicular facade views plus
@@ -49,6 +50,10 @@ import { namedFacts, vclose } from "../internal/predicates";
  *    there is no direction from the corner into its body to read.
  * 7. A meeting whose second body sits exactly on the first's outward plane
  *    produces nothing, because it turns neither way.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentEnvelopeCorners` beside `validateBuiltEnvironment` and asserts corner ids, kinds, owning building, meeting point, outward bisector and facade order, plus empty answers for non-corners; it catches parallel or distant facades paired, a re-entrant notch classified as exterior or missed, a meeting point or bisector off the shared edge, facades named out of order, two units' facades joined into one corner, and an unclassifiable meeting reported either way.
+ * @evidence contracts/testing.md#independent-expectations Values are read off the hand-typed face frames: the rectangle's east and north walls share the vertical edge at x 4, z 6, so the corner sits at its mid-height (4, 1.5, 6) with bisector `(sqrt 1/2, 0, sqrt 1/2)`; the L footprint `(0,0) (4,0) (4,2) (2,2) (2,4) (0,4)` has its one inside angle at (2, 1.5, 2) between walls 2 and 3; ids are the two facade ids in code-unit order joined by `+`.
+ * @evidence contracts/testing.md#distinguishing-cases Positive four exterior rectangle corners and six L corners with exactly one re-entrant; negative opposite rectangle walls and non-adjacent L walls producing no corner, two units meeting at a point, an arealess facade whose centroid is the meeting point, and a triangular facade whose body lies on the other's outward plane; facade aspect derivation is owned by test_architecture_envelope_faces and the census that counts corners by test_architecture_building_census.
  */
 export const test_architecture_envelope_corners = (): void => {
   const rectangle = builtEnvironmentEnvelopeCorners(rectangularBuilding());

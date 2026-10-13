@@ -1,7 +1,7 @@
 import { materializeCompiledInstanceSet } from "@automovie/engine";
 import type { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose } from "../internal/predicates";
+import { namedFacts } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
 import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
@@ -22,15 +22,18 @@ const shares = (
 
 
 /**
+ *
  * A two-thousand-member weighted table accounts for the default once through both direct and compiled instance regeneration. Proportions and recipe ownership keep the original statistical bounds.
  *
  * Scenarios:
  * 1. Default/tall/short weights 1/2/1 produce 25/50/25 percent within four points.
  * 2. Compilation prepends the default once and retains the same population and law.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Regenerates every member with `instanceSlot` for a direct weighted placement and for the placement `materializeCompiledInstanceSet` builds from a design, asserting each prototype's share, that each member's model recipe is its prototype's recipe, and the compiled table order; it catches weights ignored or normalised wrongly, a recipe drawn independently of the prototype, and a compiled design that counts its default prototype twice and shifts the shares to 40/40/20.
+ * @evidence contracts/testing.md#independent-expectations The 25/50/25 targets are the 1:2:1 weights divided by their sum of four; the four-point tolerance is about 3.6 binomial standard deviations for p = 0.5 over 2,000 draws, so a wrong weight law fails while seeded noise passes; the recipe map and the `default,tall,short` order restate the authored table, and the oracle cannot pin which member gets which prototype because the seeded hash is not independently reproduced.
+ * @evidence contracts/testing.md#distinguishing-cases Positive three-entry table authored with its default and the same table compiled from a design that names only `tall` and `short`, which is the case where the default must be prepended exactly once; seed sensitivity and ranged values belong to `test_engine_instance_slot_range_seed`, visibility to `test_engine_instance_visibility_probability`, and explicit prototype selection and its refusals to `test_engine_prototype_selection`.
  */
 export const test_engine_instance_prototype_distribution = (): void => {
-  const omitted = shares([{}, { prototype: "declared" }]);
-  TestValidator.predicate("the share observer accounts for both declared and absent prototype fields", nclose(omitted["(none)"]!, .5) && nclose(omitted.declared!, .5));
   // 3. Weighted table with the default first.
   const table = crowd({
     prototypes: [

@@ -1,4 +1,5 @@
 /**
+ *
  * Explain the authoring work between a blank harness and a runnable production.
  *
  * `directory` is printed as given (run passes the absolute target). The text
@@ -10,10 +11,7 @@
  * @evidence contracts/common.md#clear-and-simple-design A pure string function kept apart from `run` so the guidance text lives in one place; nothing ties its file and script names to the scaffold mechanically, so renaming a scaffold file or script would leave this text stale.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no particular production, language or kind; the caller's directory is the only varying input.
  * @evidence contracts/common.md#meaningful-documentation States how the directory is printed, why the text opens with a blank line, and which scaffold files and scripts the steps depend on.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Concatenates fixed text around one directory string; there is no algorithm or structure to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work `start` calls it once after a completed publication, so there is no repeated rendering to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one string of fixed length plus the directory's length and keeps no reference to it.
- * @evidenceExclude contracts/portability.md#os-neutral-implementation Prints the directory for display only and opens, compares or spawns nothing; the printed `npm` commands read the same in cmd, PowerShell and POSIX shells.
+ * @evidenceExclude contracts/performance.md#cost-and-resources Concatenates fixed text around one directory string; there is no algorithm or structure to choose. `start` calls it once after a completed publication, so there is no repeated rendering to share. Returns one string of fixed length plus the directory's length and keeps no reference to it.
  */
 export const renderAutoMovieScaffoldNextSteps = (directory: string): string =>
   `\n\nNext (from ${directory}):\n` +

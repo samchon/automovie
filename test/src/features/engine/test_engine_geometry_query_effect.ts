@@ -170,6 +170,7 @@ const measure = (
 };
 
 /**
+ *
  * An effect query samples its zone's compiled stream at the asked time and
  * measures how much of the camera's view the stream fills.
  *
@@ -194,6 +195,10 @@ const measure = (
  * 4. A zone with no stream, a time between two streams of one zone, an invalid
  *    or late time, an absent shot, an absent camera, a missing production frame
  *    format, and a subject list too long or repeated each refuse.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieGeometry` with `effect` requests and asserts activity, particle count and cap, intensity, density, opacity range, camera distance, ray crossing length, visibility risk, subject counts, representative frame, digest and each refusal; it catches a density over the wrong volume, an opacity range swapped or not read from the recipe, a crossing length that ignores the far plane or counts a ray that misses the box, a subject past a face counted inside, a time outside every cue resolved to an arbitrary stream, and an unbounded or repeated subject list admitted.
+ * @evidence contracts/testing.md#independent-expectations Volume is 10^3 = 1,000 m3, the camera at z = 10 looking down -Z is 10 m from the centre and crosses 10 m of the cube, or 12 - 5 = 7 m when the far plane is 12; risk is `min(1, count / 1000 * 10 * 0.6)` and frame 48 is 2 s at 24 fps; the particle count itself is taken from `sampleCompiledEffect` at the same time and distance, so this test trusts the sampler for how many particles exist and checks only how the query composes them.
+ * @evidence contracts/testing.md#distinguishing-cases One subject inside and six each one metre past a different face, an empty subject list, the inactive time 0.5 s for a zone's only stream, a far plane cutting the box, a camera beside the box looking parallel to a face and one turned away; refusals for no stream, a time between two streams, -1, NaN and 5 s, an absent shot, an absent camera, no production, 257 subjects and a repeated subject; particle emission and fixed-step sampling belong to test_film_effect_runtime_sampling.
  */
 export const test_engine_geometry_query_effect = (): void => {
   const reference = sampleCompiledEffect(effect("gust", 1, 3), 2, 10);

@@ -8,6 +8,12 @@
  * from the design instead. The design always held the answer: an opening names
  * its host `boundary`, and a boundary names the one region it encloses or the
  * two it separates.
+ *
+ * @evidence contracts/common.md#principled-implementation `openingPlace` looks up the opening's host boundary, copies its `spaces` sorted by UTF-16 code unit, and resolves each through `builtEnvironmentBuildingOfSpace`, naming a unit only when every separated region resolves to the same one; it relies on the environment having passed validation, so the boundary exists and cites one or two regions.
+ * @evidence contracts/common.md#clear-and-simple-design The opening variant of the schedule place union carries only what the host boundary already declares, leaving extents, contents and fidelity to the space variant that has them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A `null` building for a boundary straddling two units is the stated answer for a real case, not a fallback; the `?? []` in `openingPlace` only guards a missing host boundary that validation already refuses.
+ * @evidence contracts/common.md#meaningful-documentation Says when `building` is `null` and why, that `separates` is ascending with one or two entries and never empty, and quotes the validation message that guarantees the lower bound.
+ * @author Samchon
  */
 export interface IAutoMovieDrawingOpeningPlace {
   /** Discriminant naming the subject this place describes. */

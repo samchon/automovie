@@ -135,6 +135,16 @@ const sharedVolume = (left: IWorldBox, right: IWorldBox): number =>
  * inside the larger and deepest first, because a quoin toothed a centimetre into
  * its wall and a column standing wholly inside one are not one finding.
  *
+ * Every element and population is a body. A pair is confirmed part against part
+ * and reported with its summed shared volume in cubic metres and the share of
+ * the smaller body's part volume, clamped to `1`; `measured` counts resolved
+ * bodies and `unresolved` lists the rest.
+ *
+ * @evidence contracts/common.md#principled-implementation Sort-and-sweep on the lower x bound with an active list pruned by upper x, union boxes as the conservative prune because they contain every part, then part-against-part shared volume; pairs are graded by that volume over the smaller body's summed part volume.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: `builtEnvironmentBodies`, `solidBoxes` and `IWorldBox` are private copies shared with `builtEnvironmentSupportSweep`, and the stray comment "Whether two boxes share footprint area" above `IWorldBox` documents a function that is not there.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact face contact is excluded by `propBoundsOverlap` itself, the share is clamped because two parts of one body may overlap each other, and no body or pair is exempted by id.
+ * @evidence contracts/common.md#meaningful-documentation States the sweep and why it is needed, that `compared` reports the work done, the face-contact exclusion, the part confirmation, the units and clamp of each pair's figures, and the grading order.
+ * @evidence contracts/performance.md#cost-and-resources Defect: the sweep is `O(n log n + k)` in bodies and active-pair tests (expired entries removed by linear `splice`), and part boxes are staged once and shared by element id, but each body's union box comes from the per-element query, restaging the hierarchy per body (`O(E^2)`) and transforming every drawn vertex a second time; nothing outlives the report.
  * @author Samchon
  */
 export const builtEnvironmentPlacementOverlapSweep = (props: {

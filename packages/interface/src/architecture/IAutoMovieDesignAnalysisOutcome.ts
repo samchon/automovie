@@ -5,6 +5,12 @@
  * cannot perform is `unsupported`, and one that was simply never executed is
  * `not-run`; both carry a reason and no candidates, so an absent reading is
  * never mistaken for a clean sheet.
+ *
+ * @evidence contracts/common.md#principled-implementation A discriminated union on `status` so only `observed` can hold candidates and only `unsupported` or `not-run` hold a reason; validation also refuses an observed outcome with no candidate, a blank reason, and any other status string.
+ * @evidence contracts/common.md#clear-and-simple-design Three variants share no optional field, so an empty reading cannot be spelled as `observed` with an empty list and pass.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The three status literals are the contract's discriminants; `promoteDesignObservations` copies a non-observed reason verbatim into `skipped` instead of rewording it.
+ * @evidence contracts/common.md#meaningful-documentation States which variant carries readings, how unsupported differs from not-run, that candidates come from the analysed frame only and are named once, and that reasons are non-blank.
+ * @author Samchon
  */
 export type IAutoMovieDesignAnalysisOutcome =
   | {

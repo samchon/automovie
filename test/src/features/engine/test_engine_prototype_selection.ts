@@ -35,6 +35,7 @@ const share = (drawn: readonly IChoice[], id: string): number =>
   drawn.filter((value) => value.id === id).length / drawn.length;
 
 /**
+ *
  * One instance slot draws its prototype by the weights its table declares, or
  * takes the one an explicit member names.
  *
@@ -59,6 +60,10 @@ const share = (drawn: readonly IChoice[], id: string): number =>
  * 4. An explicit member takes the entry it names, even one of weight zero, and a
  *    set without a table answers `default`. A name the table lacks refuses that
  *    slot by name, while the twin naming a present entry is answered.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `selectInstancePrototype` for 2,000 slots of several weight tables and for explicit names, asserting the drawn ids, shares, object identity with the table entry, seed repeatability and the refusal message; it catches weights ignored or inverted, a zero-weight entry that can still win, a draw that depends on absolute weight rather than proportion, a copy returned instead of the table's own entry, a draw not tied to the seed, and an unknown explicit name that falls back to a weighted draw.
+ * @evidence contracts/testing.md#independent-expectations Shares are the weights divided by their sum (1:2:1 gives 25/50/25, three ones give a third each) within about 3.6 binomial standard deviations over 2,000 draws; scale invariance holds because quadrupling every weight multiplies the sample and every threshold equally; the all-zero table takes its last entry by the documented table-order rule that the last choice is what remains; the seeded hash itself is not reproduced, so which slot takes which entry is unpinned.
+ * @evidence contracts/testing.md#distinguishing-cases Positive no-table default, one-entry table, weighted table and scaled twin; zero weight in the middle, first and every position against a weight-one twin; same and different seeds; explicit names for a zero-weight entry, the implicit default, a present entry and a missing one; materialising members from these choices belongs to `test_engine_instance_prototype_distribution` and `test_engine_instance_slot_variation`.
  */
 export const test_engine_prototype_selection = (): void => {
   const lone = choice("lone", 3);

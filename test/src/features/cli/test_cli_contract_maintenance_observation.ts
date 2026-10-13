@@ -18,6 +18,7 @@ const contractMaintenanceFailure = (task: () => unknown): unknown => {
 };
 
 /**
+ *
  * Maintenance observes every physical ancestor of source and target paths,
  * including the source-only work of an already-published rename.
  *
@@ -28,6 +29,10 @@ const contractMaintenanceFailure = (task: () => unknown): unknown => {
  *    generation changes refuse without granting any mutation authority.
  * 3. Invalid UTF-8 is refused and a UTF-8 BOM is retained while an own-open
  *    change-time drift preserves the admitted file's identity and bytes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `observeAutoMovieMaintenanceFiles`, `assertAutoMovieMaintenanceObservation` and `assertAutoMovieMaintenanceGeneration` through the documented `IAutoMovieMaintenanceObservationIO` port and asserts decoded sources, null entries for absent paths, key order, the pinned root directory, refusals by `Error`, and the very object a host threw; it catches a stripped byte-order mark, lossy decoding of invalid UTF-8, an absent ancestor treated as an error or a permission error treated as absence, a linked or escaping ancestor or root accepted, a replaced file, parent or root re-adopted, a ctime-only drift from our own reopen refused, and a subset comparison that tolerates a dropped input.
+ * @evidence contracts/testing.md#independent-expectations Expected sources are the literal bytes the fake holds, with the BOM kept as the interface promises; key order `Z`, `a`, `z`, `é` is UTF-16 code-unit order worked out by hand; every refusal follows a stated rule (only `ENOENT` means absence, lexical path must equal real path, any identity or non-ctime version change refuses, ctime alone may drift). Refusals are checked as `instanceof Error`, so message wording is not pinned.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: nested source, duplicate request, absent leaf, absent intermediate directory, BOM file, empty population, and a population extended by `new.md`. Negative: nine malformed paths (empty, absolute, `..`, empty or `.` segment, backslash, NUL, drive colon), five non-`ENOENT` host errors including `null` and a string, linked and aliased parent, replaced parent and root, five file competitors, a disappeared file, a generation changed during the re-read, a claimed-absent file that appears, mismatched descriptor path, a root reached through a link, ten records with inconsistent descriptor or source presence in either comparison direction, a shrunk population, and six records with a changed root or ancestor. Boundary: ctime differing only in its last field passes. Directory listing of Markdown populations belongs to test_cli_maintenance_markdown_inventory.
  */
 export const test_cli_contract_maintenance_observation = (): void => {
   const root = path.resolve("maintenance-observation");

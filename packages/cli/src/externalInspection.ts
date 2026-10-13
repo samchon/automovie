@@ -23,6 +23,7 @@ const isCanonicalProjectPath = (value: string): boolean =>
   value.split("/").every((segment) => segment.length > 0 && segment !== "..");
 
 /**
+ *
  * One sidecar the inspection opened, identified by exact resident bytes.
  *
  * One record exists per canonical path, however many declared URIs reached it;
@@ -32,10 +33,7 @@ const isCanonicalProjectPath = (value: string): boolean =>
  * @evidence contracts/common.md#clear-and-simple-design Four printable fields; the resident buffer used during inspection is stripped before the record is returned.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Records every declared spelling instead of picking one, and no field exists for a particular consumer.
  * @evidence contracts/common.md#meaningful-documentation States the one-record-per-path rule, the byte unit, the digest algorithm, the URI order, and that bytes are not retained.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A printed record; the read and digest it reports were computed once by the inspection.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record reports the inspection's sharing through `declaredUris` and computes nothing itself.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a count, a digest string, a path and one string per distinct declared URI, never the bytes.
- * @evidence contracts/portability.md#os-neutral-implementation `path` is the `/`-spelled canonical project key and `declaredUris` the document's URL spelling, kept apart so a percent-encoded or `./` URI never stands in for a filesystem path.
+ * @evidenceExclude contracts/performance.md#cost-and-resources A printed record; the read and digest it reports were computed once by the inspection. The record reports the inspection's sharing through `declaredUris` and computes nothing itself. Holds a count, a digest string, a path and one string per distinct declared URI, never the bytes.
  * @author Samchon
  */
 export interface IAutoMovieExternalProjectResource {
@@ -53,6 +51,7 @@ export interface IAutoMovieExternalProjectResource {
 }
 
 /**
+ *
  * Deterministic inspection envelope that `automovie inspect-external` prints as
  * JSON: the primary source identity, the sidecar closure it opened, and the
  * inspector's structural facts.
@@ -61,10 +60,7 @@ export interface IAutoMovieExternalProjectResource {
  * @evidence contracts/common.md#clear-and-simple-design Three fields: source identity, sidecar closure, and the inspector result passed through unchanged.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Copies the inspector result as returned and adds no semantic mapping or adoption decision.
  * @evidence contracts/common.md#meaningful-documentation States which command prints it, the resource order, and each identity's unit and digest.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A result record; its cost belongs to `inspectAutoMovieExternalProjectBytes`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work One envelope per inspected source, printed once by the command.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds metadata and the inspector facts; no byte buffer survives into it.
- * @evidence contracts/portability.md#os-neutral-implementation `source.path` is the `/` relative path that `run` derives from the native relative path, so the printed JSON is the same on Windows and POSIX for the same project.
+ * @evidenceExclude contracts/performance.md#cost-and-resources A result record; its cost belongs to `inspectAutoMovieExternalProjectBytes`. One envelope per inspected source, printed once by the command. Holds metadata and the inspector facts; no byte buffer survives into it.
  * @author Samchon
  */
 export interface IAutoMovieExternalProjectInspection {
@@ -88,6 +84,7 @@ export interface IAutoMovieExternalProjectInspection {
 }
 
 /**
+ *
  * Resolve one glTF sidecar URI to its canonical project-relative path.
  *
  * The declared URI is data, never a location the tool may open on its own
@@ -105,10 +102,7 @@ export interface IAutoMovieExternalProjectInspection {
  * @evidence contracts/common.md#clear-and-simple-design A pure function kept apart from inspection so the path policy is checkable alone; it re-validates `source` because it is exported and callable without the inspector.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a disallowed spelling instead of rewriting it, and names no asset; decoding before joining turns `%2F` into a separator, which this function accepts as a subdirectory.
  * @evidence contracts/common.md#meaningful-documentation States the resolution base, the `../` rule, the code-unit meaning of canonical with its Windows case and stream gaps, and the throw.
- * @evidence contracts/performance.md#efficient-algorithms Linear in URI length: a few regular-expression tests, one decode, one join and one normalize.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work `inspectAutoMovieExternalProjectBytes` calls it once per resolve request and keys its read cache on the result; the resolution is cheap string work with nothing worth caching.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one normalized path string and keeps no state between calls, so nothing outlives the call.
- * @evidence contracts/portability.md#os-neutral-implementation Uses `path.posix` throughout, so the URL spelling and the canonical key are identical on every OS, and refuses backslashes and drive prefixes; it does not refuse a `:` after the first segment or a case variant, so on Windows `t/a.png:s` reads an alternate data stream of `t/a.png`, and `t/A.png` reads the same file under a second key.
+ * @evidence contracts/performance.md#cost-and-resources Linear in URI length: a few regular-expression tests, one decode, one join and one normalize. `inspectAutoMovieExternalProjectBytes` calls it once per resolve request and keys its read cache on the result; the resolution is cheap string work with nothing worth caching. Returns one normalized path string and keeps no state between calls, so nothing outlives the call.
  */
 export const resolveAutoMovieExternalProjectResourcePath = (props: {
   /** Canonical project-relative model or motion path. */
@@ -156,6 +150,7 @@ export const resolveAutoMovieExternalProjectResourcePath = (props: {
 };
 
 /**
+ *
  * Inspect one project-owned asset and retain the exact byte closure it used.
  *
  * Every sidecar is read once through the injected project reader, keyed by its
@@ -171,10 +166,7 @@ export const resolveAutoMovieExternalProjectResourcePath = (props: {
  * @evidence contracts/common.md#clear-and-simple-design Reading is injected through `readResource`, so containment and native paths stay with `run`; parsing stays with the ingest inspector.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplies no placeholder bytes for an absent sidecar, and the inspector's facts pass through unaltered.
  * @evidence contracts/common.md#meaningful-documentation States the read-once rule, the digests recorded, what throws, and how an absent sidecar is handled.
- * @evidence contracts/performance.md#efficient-algorithms Cost is the inspector's parse plus one read and one SHA-256 per distinct sidecar and one for the source, linear in total bytes; `declaredUris.includes` is linear in the URIs already recorded for that path.
- * @evidence contracts/performance.md#reuse-equivalent-work A map keyed by canonical path lets two URIs naming one file share one read, digest and buffer; equivalence is canonical-path equality within one call, which assumes the file does not change during it, and an absent result is not cached, so a repeated absent path is read again.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains every sidecar buffer in the local map until the call returns, growing with the distinct sidecars' total bytes with no cap; the returned records drop the buffers.
- * @evidence contracts/portability.md#os-neutral-implementation Handles only canonical `/` project paths and opens nothing itself; `run`'s `readResource` maps each canonical path back to native segments.
+ * @evidence contracts/performance.md#cost-and-resources Cost is the inspector's parse plus one read and one SHA-256 per distinct sidecar and one for the source, linear in total bytes; `declaredUris.includes` is linear in the URIs already recorded for that path. A map keyed by canonical path lets two URIs naming one file share one read, digest and buffer; equivalence is canonical-path equality within one call, which assumes the file does not change during it, and an absent result is not cached, so a repeated absent path is read again. Retains every sidecar buffer in the local map until the call returns, growing with the distinct sidecars' total bytes with no cap; the returned records drop the buffers.
  */
 export const inspectAutoMovieExternalProjectBytes = (props: {
   /** Canonical project-relative source path. */

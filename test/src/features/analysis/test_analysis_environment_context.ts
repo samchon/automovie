@@ -23,6 +23,7 @@ import {
 } from "../internal/predicates";
 
 /**
+ *
  * The read-only world an analysis reads is validated as context and never as
  * geometry the building owns.
  *
@@ -61,6 +62,10 @@ import {
  * 7. Cosine-weighted hemisphere directions are unit length, strictly inside the
  *    hemisphere of their normal for both signs of its z, and refuse a
  *    fractional, zero or negative count and a zero normal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieEnvironmentContext`, `autoMovieEnvironmentInstant`, `autoMovieContextSolids`, `assertAutoMovieAnalysisSolids`, `autoMovieSolidBlocks`, `autoMovieRayObstructed`, `autoMovieSkyward` and `autoMovieHemisphereDirections` and asserts their validation results, violation kinds and paths, returned booleans and directions; it catches a context field accepted when malformed, a below-horizon beam admitted, a context or occluder id allowed to collide with a reserved building id, a slab test that blocks behind, beyond its length or on an exit at the origin, and sky directions that leave their hemisphere or lose unit length.
+ * @evidence contracts/testing.md#independent-expectations Slab and skyward answers are hand geometry over the unit cube and the declared ground (near face at t = 1, so a 0.5 ray misses and a 1.0 ray touches), violation paths come from the field each twin breaks, and the hemisphere check is the defining property of the output (unit length and positive dot with the normal) rather than stored directions; determinism is compared run against run, so the oracle does not pin the cosine weighting of the sample distribution, which the daylight test's exact unobstructed vault covers.
+ * @evidence contracts/testing.md#distinguishing-cases Clean site and unrelated reserved ids beside eighteen single-field refusing twins; a below-horizon sun with a beam refused, the same sun without one accepted, and a zero ground reporting only itself; reserved collisions for context, instant and occluder ids; occluders with three half-spaces, a zero normal or a non-finite offset, and the assertion's accept, blank, duplicate and malformed cases; slab inside, ahead, behind, parallel outside, too short, exactly long enough, tangent at origin and a diagonal miss; obstruction by none, one and an empty solid list; up, down and grazing skyward; hemispheres for positive, negative and oblique normals, a single direction, and fractional, zero count and zero normal refusals; their use inside studies is owned by test_analysis_daylight_workplane.
  */
 export const test_analysis_environment_context = (): void => {
   const context = analysisContext();

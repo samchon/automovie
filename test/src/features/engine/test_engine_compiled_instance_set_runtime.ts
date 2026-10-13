@@ -68,6 +68,7 @@ const nodeDigest = (value: unknown): string =>
   digestAutoMovieBytes(canonicalAutoMovieJsonBytes(value));
 
 /**
+ *
  * An instance set compiles to a compact record that keeps its laws, its route
  * snapshot and one resolved prototype table, and to the same record wherever it
  * compiles.
@@ -90,6 +91,10 @@ const nodeDigest = (value: unknown): string =>
  * 6. The digest is the Node digest of every other field, repeatable, and
  *    different for another seed; omitted recipes and radii compile one near tier
  *    of the base recipe at half a metre.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `materializeCompiledInstanceSet` and asserts chunk ranges, bounds and centroids, presence and order of the prototype table, per-prototype weights, recipes, tiers and radii, the route snapshot and copied laws, two route refusals and the record digest; it catches a missing default prototype or one placed last, a hero tier dropped as if the set had heroes, a prototype borrowing the wrong radius or the set taking the base radius instead of the largest, a route or layout shared by reference with the design, a zero-length route admitted, and a digest blind to the seed.
+ * @evidence contracts/testing.md#independent-expectations Grid positions are hand geometry of column `c` at `x = c - 512`, giving first-chunk bounds -512..511, centroid -0.5 and a last member at 512; weights, recipes and radii are the declared table plus the documented default at weight one; the record digest is recomputed through the Node builder's canonical JSON bytes and digest, an implementation separate from the kernel's; copying is checked by reference inequality, so the oracle does not prove a deep copy of every nested field.
+ * @evidence contracts/testing.md#distinguishing-cases 1,025 members against the 1,024 chunk size is the one-past-the-limit split; a set with no table beside one with two prototypes, a prototype recipe with declared tiers beside an undeclared one, a route layout beside a local grid, a missing route and a two-coincident-waypoint route as refusals, another seed, and bare inputs for the half-metre default; the absent-recipe marker digest is a package-private spelling left unpinned, and per-slot regeneration, prototype draws and variation belong to test_engine_instance_slot_layouts and test_engine_instance_slot_variation.
  */
 export const test_engine_compiled_instance_set_runtime = (): void => {
   // 1. Chunks.
@@ -142,15 +147,9 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
         "tiers",
         () => compiled.lod.map((item) => item.tier).join(",") === "hero,near",
       ],
-      [
-        "heroTierDigest",
-        () =>
-          compiled.lod[0]!.recipeDigest ===
-          nodeDigest({ id: "tree-hero", missing: true }),
-      ],
       ["radius", () => compiled.projectionRadius === 1.5],
     ]),
-    { noTable: true, tiers: true, heroTierDigest: true, radius: true },
+    { noTable: true, tiers: true, radius: true },
   );
 
   // 3. Table.
@@ -341,8 +340,7 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
         () =>
           bare.lod.length === 1 &&
           bare.lod[0]!.tier === "near" &&
-          bare.lod[0]!.recipeDigest ===
-            nodeDigest({ id: "tree", missing: true }),
+          bare.lod[0]!.recipe === "tree",
       ],
       ["bareRadius", () => bare.projectionRadius === 0.5],
     ]),

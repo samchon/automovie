@@ -17,6 +17,14 @@ import { IAutoMovieTrack } from "./IAutoMovieTrack";
  * under the humanoid profile's retarget discipline (rotation-only except the
  * root), so one shot legitimately holds both representations at once.
  *
+ * `sampleClip` reads every track at one query time, clamped to `[0, duration]`
+ * or wrapped modulo `duration` when `loop` is set. Two tracks on the same
+ * channel within one clip throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Mirrors a glTF animation as parallel time and value tracks; `sampleClip` normalizes the query time once per clip, clamping or taking a non-negative modulo when `loop` is set, and samples every track at that time, so all channels of the clip share one clock.
+ * @evidence contracts/common.md#clear-and-simple-design Holds only identity, duration, loop and tracks; the semantic `IAutoMovieMotion` stays a separate type because pose keyframes and flat channel tracks serve different authors, with `motionToClip` as the one bridge.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel kind is special-cased by the clip itself; the sampler throws on a repeated channel key instead of letting the later track overwrite the earlier one.
+ * @evidence contracts/common.md#meaningful-documentation Explains the clip-versus-motion split, how query time is clamped or wrapped, the duration rules of the sampler and the artifact gate, and the one-track-per-channel rule.
  * @author Samchon
  */
 export interface IAutoMovieClip {
@@ -26,12 +34,16 @@ export interface IAutoMovieClip {
   /** Human / LLM readable name. Null if unnamed. */
   name: string | null;
 
-  /** Total length in seconds. Every track time should be `<= duration`. */
+  /**
+   * Total length in seconds. The sampler requires a finite, non-negative value
+   * and throws on any key time past it; the clip artifact gate further requires
+   * it to be positive.
+   */
   duration: number;
 
-  /** Whether the clip loops seamlessly. */
+  /** Whether a query time wraps modulo `duration` instead of clamping to it. */
   loop: boolean;
 
-  /** The tracks; each targets one channel. */
+  /** The tracks; each targets one channel, and no two share a channel. */
   tracks: IAutoMovieTrack[];
 }

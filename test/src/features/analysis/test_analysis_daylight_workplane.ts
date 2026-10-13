@@ -13,6 +13,7 @@ import { analysisContext, boxSolid } from "../internal/analysisFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
+ *
  * A workplane is measured against the sun, the sky and the fittings the
  * production declares, and every number is the governing equation rather than
  * whatever the code emitted.
@@ -56,6 +57,10 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 10. Identical requests digest identically and any change to the study digests
  *     differently.
  * 11. Every malformed request is refused at its own message.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `analyzeAutoMovieDaylight` and asserts the sealed run's metric values and statuses, per-cell samples, warnings, unsupported and not-run outcomes and digest identity; it catches a beam that ignores the sun cosine or an occluding canopy or neighbour mass, a sky term that counts below-horizon or blocked directions, a luminaire that lights through a shade or from behind the plane, a uniformity or contrast divided by zero instead of gapped, a substituted sky model, a target judged across units, and a validator that admits a malformed request.
+ * @evidence contracts/testing.md#independent-expectations Values follow from the fixture's declared instants and the stated equations: `1000 * cos 0` beam and 200 lx vault at noon, `800 / sqrt 2` for the (1, 1, 0) sun, `900 / 3^2` for the downlight, the cell centre `origin + U * sizeU / 2 + V * sizeV / 2`, and mean 50 and uniformity 0 from samples of 100 and 0 lx; the vertical plane's `DHI / 2` is analytic but held only within 10 lx because the estimator samples the hemisphere, refusals match message fragments, and digests are compared for equality and difference, never to a stored value.
+ * @evidence contracts/testing.md#distinguishing-cases Positive noon, afternoon and artificial-only studies; negative canopy, neighbour-occluder, downward-plane, behind-plane, dark-instant and one-dark-cell cases; boundaries of a fitting lying on the plane, a 65x64 grid past the 4096-sample bound, zero sky samples and parallel or zero axes; unsupported sky and unlit not-run outcomes; targets met, missed, in a foreign unit and naming an unreported key; eighteen malformed requests; environment-context validation is owned by test_analysis_environment_context and the generic run contract by test_analysis_run_contract.
  */
 export const test_analysis_daylight_workplane = (): void => {
   const context = analysisContext();

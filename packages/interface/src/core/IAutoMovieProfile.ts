@@ -19,6 +19,16 @@ import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
  * than classes. Adding a control with a default is a non-breaking change (old
  * data still resolves), so profiles version only on removals/type changes.
  *
+ * Node references inside `limits` and `drivers` are semantic keys, not node
+ * ids: `bindProfile` maps each through an {@link IAutoMovieProfileBinding}'s
+ * `boneMap`, prepends the placement prefix, and throws on an unmapped or blank
+ * key, while pointer channels pass through unchanged. No engine pass reads or
+ * binds `controls` today.
+ *
+ * @evidence contracts/common.md#principled-implementation A USD-style applied schema as plain data: semantic keys in limits and drivers are resolved per application by `bindProfile` through the binding's `boneMap`, so one profile serves every bound subtree without being copied.
+ * @evidence contracts/common.md#clear-and-simple-design Limits, drivers, controls, traits and gaits sit on one declarative record; `controls` and `traits` have no runtime consumer beyond validation and legacy-record conversion, which this chapter's rule against presumed future needs flags, and `gaits` is a documented one-way reference into motion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No profile name is special-cased by binding or validation; an unmapped semantic key throws in `bindProfile` instead of silently dropping the limit or driver that cited it.
+ * @evidence contracts/common.md#meaningful-documentation States that node references are semantic keys and how they bind, that pointers pass through, which fields lack a runtime consumer, the trait rule and its current readers, and why gaits reach into motion.
  * @author Samchon
  */
 export interface IAutoMovieProfile {
@@ -28,16 +38,20 @@ export interface IAutoMovieProfile {
   /** Profile name (e.g. `"humanoid"`, `"hinge"`). */
   name: string;
 
-  /** The named controls this profile exposes. */
+  /** The named controls this profile exposes; no engine pass reads them yet. */
   controls: IAutoMovieProfileControl[];
 
   /**
    * Standard drivers that resolve the controls (eye look-at, finger curl,
-   * springs).
+   * springs), with node fields written as semantic keys.
    */
   drivers: IAutoMovieDriver[];
 
-  /** Standard value constraints (the profile's default ROM / limits). */
+  /**
+   * Standard value constraints (the profile's default ROM / limits), with node
+   * channels written as semantic keys. A violation of one is reported with this
+   * profile's id.
+   */
   limits: IAutoMovieChannelLimit[];
 
   /**
@@ -46,7 +60,8 @@ export interface IAutoMovieProfile {
    * Omitted is equivalent to an empty list. An engine verb must find the
    * matching trait here; model names and free-form capability labels never
    * grant permission. Locomotion remains the existing `gaits` capability and is
-   * not duplicated as a second trait marker.
+   * not duplicated as a second trait marker. Today only
+   * `validateProfileCapabilities` and the production design lint read traits.
    */
   traits?: IAutoMovieProfileTrait[];
 

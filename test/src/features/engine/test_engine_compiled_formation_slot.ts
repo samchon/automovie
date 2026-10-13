@@ -43,6 +43,7 @@ const bank = worldRamp({
 });
 
 /**
+ *
  * A member regenerated from a compiled formation is the member the grounded
  * design places, hero or anonymous.
  *
@@ -62,6 +63,10 @@ const bank = worldRamp({
  * 3. The design without its terrain places a member up the bank at the anchor's
  *    own height, which is the flat answer a compiled record does not give.
  * 4. A slot outside the formation refuses.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `compiledFormationSlot` for all thirty slots of a record compiled by `materializeCompiledFormation` and asserts each regenerated member, the hero and anonymous names, the height up the bank and the out-of-range refusal; it catches a compiled record that drops the dressing, seed, heading or terrain snapshot a member needs, a hero looked up from the wrong slot after promotion, an anonymous node id with the wrong padding, and a member placed at the anchor height on terrain.
+ * @evidence contracts/testing.md#independent-expectations The member-by-member comparison uses `formationSlot` on the design with the same ground, which is the identity law the compiled regenerator must agree with; both share `formationSlotRecord` and `formationSlotPosition`, so a defect in those shared helpers would pass that comparison and is covered only by the hand facts: node strings from the documented `formation:<id>:slot:<6 digits>` spelling, actor names from the overrides, a highest member above anchor height plus 1 m on a bank rising 0.5 m per metre, and the anchor height within 1e-12 without terrain.
+ * @evidence contracts/testing.md#distinguishing-cases A dressed, 30-degree-turned, two-hero unit on a slope exercises every slot of both spellings; hero slot 7 against anonymous slot 3, the grounded record against the terrain-free design for the same slot, and slot 30 as the first index past the range; compiling the record itself is owned by test_engine_compiled_formation_runtime and the record law by test_engine_formation_slot_record.
  */
 export const test_engine_compiled_formation_slot = (): void => {
   const design = unit();

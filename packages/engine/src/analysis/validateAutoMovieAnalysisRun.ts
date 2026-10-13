@@ -34,10 +34,22 @@ const satisfied = (
  * Passing `revision` additionally asks whether the run is still about the
  * current design. A run that read an older revision is reported as stale: it
  * was a real measurement of a building that no longer exists.
+ *
+ * Every violation is returned rather than thrown. The rules are semantic: the
+ * run must already have the declared shape, because nested fields such as
+ * `solver.id` are read without a guard, so a JSON value missing one throws a
+ * `TypeError` instead of producing a violation.
+ *
+ * @evidence contracts/common.md#principled-implementation Accumulates violations in a `ViolationCollector`, checks metric-key and sample-id uniqueness with `Set`s, re-derives each targeted metric's verdict from its value, target and comparison, and recomputes the SHA-256 seal; it assumes a structurally typed input, which is the stated limitation for raw JSON.
+ * @evidence contracts/common.md#clear-and-simple-design The record-level walk stays here while per-metric rules live in the private `validateMetric`; the private `nonEmpty` helper is duplicated verbatim in `validateAutoMovieEnvironmentContext.ts` instead of being shared.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed values are contract constants (version 1, the protocol string, the `sha256:` digest pattern, `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`); an unknown outcome status is reported rather than skipped, and the casts in that branch only read a status the union says cannot occur.
+ * @evidence contracts/common.md#meaningful-documentation States the absent-measurement invariant every rule defends, the digest recomputation, the optional staleness check, the non-throwing result, and the shape premise.
+ * @evidence contracts/performance.md#cost-and-resources Linear in metrics, samples and warnings with hashed uniqueness lookups, dominated by rebuilding and hashing the canonical text the tamper check requires; no digest is cached, so the seal path, which hashed the same draft just before calling, pays twice. The collector and three key sets are call-local, and returned violations may reference fragments of the run.
  */
 export const validateAutoMovieAnalysisRun = (props: {
-  /** Run to check. */
+  /** Run to check; it must already have the declared shape. */
   run: IAutoMovieAnalysisRun;
+
   /** Current design revision, when staleness is being checked. */
   revision?: string;
 }): IAutoMovieValidation => {

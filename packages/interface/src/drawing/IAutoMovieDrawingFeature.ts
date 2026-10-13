@@ -10,14 +10,19 @@ import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
  * find it. Both outcomes are correct; a stale number that still looks right is
  * the only wrong one.
  *
+ * @evidence contracts/common.md#principled-implementation Positional addressing over computed families: `resolveAutoMovieDrawingFeature` welds vertices and undirected edges at six decimals and sorts them numerically, takes faces in emission order, and treats a changed `count` as a different feature rather than relocating the target.
+ * @evidence contracts/common.md#clear-and-simple-design Element, optional part, kind, index and optional count address any computed feature without storing coordinates that would go stale.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Faces are not canonicalized as vertices and edges are, so reordering parts renumbers face targets and `count` cannot notice when the triangle total is unchanged; stated in the prose and reported as a finding.
+ * @evidence contracts/common.md#meaningful-documentation States how each family is ordered, the axis and centroid index rules, what a `null` part means, and what `count` protects against.
  * @author Samchon
  */
 export interface IAutoMovieDrawingFeature {
-  /** Building element the feature belongs to. */
+  /** Building element the feature belongs to; its world matrix places it. */
   element: string;
 
   /**
    * Model part within the element, or `null` for the element's whole geometry.
+   * Ignored for `axis`.
    */
   part: string | null;
 
@@ -25,13 +30,13 @@ export interface IAutoMovieDrawingFeature {
   kind: AutoMovieDrawingFeatureKind;
 
   /**
-   * Index into the addressed family, in the engine's canonical order.
+   * Index into the addressed family.
    *
-   * Vertices, edges and faces are addressed in a canonical order derived from
-   * the geometry itself rather than in the order the model happened to emit
-   * them, so reordering a model's parts does not move every note on every
-   * sheet. For `axis` this is `0`, `1` or `2` for the element's local X, Y or
-   * Z; for `centroid` it is ignored and must be `0`.
+   * Vertices and edges are welded at six decimals and sorted by coordinate, so
+   * reordering a model's parts does not renumber them. Faces are triangles in
+   * the order the model's parts emit them, so reordering parts or changing the
+   * triangulation does renumber face targets. For `axis` this is `0`, `1` or
+   * `2` for the element's local X, Y or Z; for `centroid` it must be `0`.
    */
   index: number;
 

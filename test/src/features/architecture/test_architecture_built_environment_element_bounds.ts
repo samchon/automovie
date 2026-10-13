@@ -129,6 +129,7 @@ const work = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
 });
 
 /**
+ *
  * One element's world box, computed once for everyone who asks it.
  *
  * "Where is this thing" is the question the medieval-residence campaign asked
@@ -164,6 +165,10 @@ const work = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
  * 7. The element answers and the space fold agree: the union of every element's
  *    own box is the space's content bounds, so the two are one computation
  *    rather than two that could drift.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentElementBounds` and `builtEnvironmentSpaceContentBounds` beside `validateBuiltEnvironment` and asserts one element's world min and max, the null answers, the degenerate box of a referenced model, the leaf's box in two operating states and the space union; it catches a parent offset or element scale dropped, a grouping node reported as a point box, an undeclared id thrown on instead of answered null, an unowned model reference answered with nothing, an operated leaf measured at its authored place, and a space fold that disagrees with its elements.
+ * @evidence contracts/testing.md#independent-expectations Bounds are hand arithmetic over the unit box: the chest scaled (2, 1, 4) at (2, 0.5, 3) under a wing at x 10 fills x 11..13, y 0..1, z 1..5, the leaf at (0, 1, 0) fills -0.5..0.5 on x and z and 0.5..1.5 on y and moves 0.9 m along -x when open, the vault is the point (4, 6, 7), and the space is the hand union of those boxes; a referenced model is measured as its origin only, so its real extent is outside this oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Positive placed element through a parent chain, a referenced model and a leaf closed and open; null answers for a transform-only node and for an undeclared id; the agreement of the element answers with the space fold; selection of a space's members across descendants and siblings is owned by test_architecture_built_environment_content_bounds and malformed part geometry by test_architecture_element_part_bounds_refusals.
  */
 export const test_architecture_built_environment_element_bounds = (): void => {
   const closed = work();

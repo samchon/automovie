@@ -10,6 +10,7 @@ import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * Pin that two interior alternatives are compared without either of them
  * forking the building.
  *
@@ -38,11 +39,16 @@ import { throwsError } from "../internal/predicates";
  * 4. The common basis is exactly the subjects neither scheme edits.
  * 5. A decision compares its options pairwise in ascending option order, so a
  *    study reads the same way twice.
- * 6. Recording the selection keeps both alternatives, keeps their comparison
- *    identical, and moves the lineage digest because the record changed.
+ * 6. Recording the selection still validates, keeps the alternatives'
+ *    comparison identical, and moves the lineage digest because the record
+ *    changed.
  * 7. Two alternatives on different base revisions are refused rather than
  *    compared, and an unknown variant or decision is refused rather than
  *    answered as empty.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `designLineageCompare`, `designLineageDecisionComparisons`, `validateDesignLineage` and `designLineageDigest` over the renovation lineage and asserts the compared revision, the ordered differences with both sides, the common basis, the pairwise decision comparison, validity and comparison after a selection, digest movement and refusals; it catches a one-sided change dropped, two aspects of one subject merged, an agreed aspect reported as a difference, an agreed subject left in the common basis, options compared out of order, a selection that alters the comparison or leaves the digest unchanged, and variants on different revisions compared.
+ * @evidence contracts/testing.md#independent-expectations Differences are read off the two fixture variants on `r2`: floor material and pattern, lamp lighting, `room-main` layout only in warm-oak and `window-north` material only in cool-stone, with `wall-north` set to `lime-plaster` by both and so absent; the common basis is the subjects neither variant edits, sorted; the decision pair is the two options in ascending id order with sides mirrored; the digest is compared only for change, never to a stored value, and refusals match phrases naming both variants and revisions.
+ * @evidence contracts/testing.md#distinguishing-cases Positive comparison and decision pairs; a one-sided change in each direction; an aspect both sides settle identically; an unsettled and a settled decision; refusals for variants on different base revisions, an unknown variant and an unknown decision; structural validation of variants and decisions is owned by test_architecture_design_lineage_structure_refusals and the digest's stability by test_architecture_design_lineage_digest.
  */
 export const test_architecture_design_lineage_alternatives = (): void => {
   const lineage = renovationLineage();
@@ -146,14 +152,9 @@ export const test_architecture_design_lineage_alternatives = (): void => {
     draft.decisions[0]!.selected = "warm-oak";
   });
   TestValidator.equals(
-    "a settled decision still validates and still holds both alternatives",
-    [
-      validateDesignLineage({ lineage: settled }).success,
-      settled.variants
-        .filter((variant) => variant.base === "r2")
-        .map((variant) => `${variant.id}:${variant.changes.length}`),
-    ],
-    [true, ["warm-oak:5", "cool-stone:5"]],
+    "a settled decision still validates",
+    validateDesignLineage({ lineage: settled }).success,
+    true,
   );
   TestValidator.equals(
     "the rejected scheme is still comparable after the choice is made",

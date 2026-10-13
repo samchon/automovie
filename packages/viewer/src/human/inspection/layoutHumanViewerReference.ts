@@ -4,6 +4,7 @@ import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.
 
 
 /**
+ *
  * The pixel layout of a capture that shows a reference photograph beside or
  * over the render. The display page draws the photograph as a DOM layer above
  * the canvas, so the canvas alone never contains it. This layout is the same
@@ -22,18 +23,12 @@ import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.
  * @evidence contracts/common.md#clear-and-simple-design One pure layout serves the page capture and its unit test.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No document, photograph or subject is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States why the canvas lacks the photograph, the units and each mode.
- * @evidence contracts/modeling.md#spatial-conventions Capture pixels with a top-left origin; the only conversion is the contain-fit of the photograph into its cell.
  *
  * @param mode Presentation mode.
  * @param size Square cell side in pixels, positive.
  * @param opacity Render share in overlay mode, swipe position in swipe mode, between zero and one.
  * @param photo Natural photograph size in pixels, both positive.
  * @param landmarks Observed landmarks in unit image coordinates, empty for none.
- * @evidence contracts/modeling.md#part-identity-and-grouping An ordered render layer and photograph layer own the two image sources; landmark group labels are preserved rather than inventing new observed points.
- * @evidence contracts/modeling.md#parameter-channels Cell size controls pixel extent; mode selects split/overlay/swipe; opacity is render share for overlay and the horizontal cut fraction for swipe.
- * @evidence contracts/modeling.md#emitted-geometry Every mode plans two image rectangles plus one marker per supplied landmark, so the population follows the observed input instead of a subject catalogue.
- * @evidence contracts/modeling.md#shared-boundaries The same contain-fitted photograph rectangle owns photo placement and landmark conversion, and swipe clip coordinates derive from the same cell width and opacity fraction.
- * @evidence contracts/modeling.md#rendered-observation This pure pixel plan owns no painted surface; the shared canvas painter and visible DOM comparison own display observation and consume these exact rectangles and markers.
  */
 export function layoutHumanViewerReference(
   mode: "split" | "overlay" | "swipe",

@@ -14,6 +14,7 @@ import {
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
+ *
  * The exposed envelope is what encloses one space, read from its own geometry.
  *
  * A review of a building is counted over its facades, its corners and its roof,
@@ -48,6 +49,10 @@ import { namedFacts, vclose } from "../internal/predicates";
  *    out of it.
  * 7. A face whose outline encloses no area still reports a centroid, taken from
  *    the mean of its own points.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `builtEnvironmentEnvelopeFaces` beside `validateBuiltEnvironment` and asserts each face's boundary, aspect, building, space, world vertices, centroid, outward normal, kind and thickness, and which separations are absent; it catches a face kept out of boundary order, an aspect read from the `kind` label instead of the normal, a frame mis-transformed into world space, an inward-wound face reported pointing into its own space, an arealess outline without a centroid, and a shared, faceless, unbounded or orphaned separation reported as exposed.
+ * @evidence contracts/testing.md#independent-expectations Values are read off the hand-typed frames of `rectangularBuilding`: the east wall's quarter turn about +y at origin (4, 0, 6) maps its 6 by 3 outline to (4, 0, 6), (4, 0, 0), (4, 3, 0), (4, 3, 6) with centroid (4, 1.5, 3) and normal +x; the roof's quarter turn about -x faces +y and the floor's about +x faces -y; the flipped face's half turn would face -z into the hall, so the reported normal is +z; the degenerate outline's mean point is (1, 0, 6).
+ * @evidence contracts/testing.md#distinguishing-cases Positive six faces of a valid hall across all three aspects; an odd record holding a two-space partition, a faceless threshold, a space-less wall and a wall citing an unknown space that must all be absent, beside an inward-wound face and an arealess face that must be present and corrected; corners derived from these faces are owned by test_architecture_envelope_corners and their census by test_architecture_building_census.
  */
 export const test_architecture_envelope_faces = (): void => {
   const record = rectangularBuilding();

@@ -10,6 +10,7 @@ import type { ITtscEvidenceGraphMarkdownReference } from "@ttsc/evidence";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * AutoMovie principle metadata retains its owning checklist policy rather than
  * describing a stronger obligation than the native evaluator receives.
  *
@@ -19,6 +20,10 @@ import { throwsError } from "../internal/predicates";
  * 2. Claim and reference severity, exclusion, review, cardinality, target kind,
  *    host kind, and malformed target inventories cannot detach from that policy.
  * 3. Metadata-free native declarations retain their independently chosen policy.
+ *
+ * @evidence contracts/testing.md#behavioral-verification For both passes and all four stages, builds a screenplay principle with `createAutoMovieProductionPrincipleClaim`, admits canonical variants and a pilot audit through `validateAutoMovieLocalContractClaims`, refuses each reference and claim mutation, and admits a metadata-free native twin with its own policy; it catches a bound principle whose native reference allows exclusion, demands review, carries any severity, loses `checklist`, gains uniqueness rules, targets a file, H1, index, nested or second document, or whose claim overrides severity, symbol, name or reference count while metadata still claims the canonical checklist.
+ * @evidence contracts/testing.md#independent-expectations Outcomes restate the documented principle policy: an error-level H2 checklist on a flat contract file under `docs`, no exclusion, no review requirement, and nothing stronger than the native evaluator receives; refusals use `throwsError` without fragments, so each of the thirty-five mutations shows only that some refusal fired.
+ * @evidence contracts/testing.md#distinguishing-cases Positive canonical claim, implicit severity, scalar reference, two documents, the alternate `docs/contracts` root with one symbol and a pilot-only audit, at every stage and pass; twenty-one reference and fourteen claim mutations as negatives; a native twin with warning severity and a TypeScript reference as the adjacent accepted case; host globs and roots belong to `test_evidence_local_principle_hosts`.
  */
 export const test_evidence_local_principle_policy = (): void => {
   const blank = createBlankAutoMovieProductionEvidence(

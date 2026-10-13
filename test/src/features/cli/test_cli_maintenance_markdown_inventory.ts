@@ -10,12 +10,17 @@ import path from "node:path";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * A directory-only walk rejects aliases and closes added/removed siblings.
  *
  * Scenarios:
  * 1. Nested, missing, and non-Markdown entries determine the exact input set.
  * 2. Changed inventories, aliases, escapes, and failed observations refuse.
  * 3. Delivery maintenance includes final screenplays at both observation points.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `readAutoMovieMaintenanceMarkdownPaths`, `readAutoMovieDeliveryMaintenanceMarkdownPaths` and `assertAutoMovieMaintenanceMarkdownInventory` through an `IAutoMovieMaintenanceDirectoryIO` fake and asserts the returned `/`-separated path lists, the number of directory re-checks, and refusals; it catches listing order leaking into the result, a `.ts` file or an `other` entry counted as Markdown, a missing directory treated as an error, a followed link or a parent whose real path leaves the root, a slash or NUL in a child name, a non-`ENOENT` capture failure read as absence, the final screenplay pass left out of delivery, and an added, removed or reordered member accepted.
+ * @evidence contracts/testing.md#independent-expectations Expected lists are the fake tree's Markdown files written by hand in name order with nested directories expanded where they sort; delivery order is the three documented layers. The re-check floor of more than ten comes from the rule that no replaced ancestor may be followed: six listed entries under two directories each need the root and their parent confirmed, twelve checks at least; it proves repetition but not that every entry is guarded. Refusals are detected as thrown errors without pinning messages.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: two Markdown files, a nested directory, a non-Markdown file and an `other` entry; a missing directory and absent delivery layers yield empty lists; an identical inventory passes. Negative: empty, extended and reordered inventories, four escaping relatives (`.`, `..`, `../outside`, an absolute path outside), six invalid child names, a linked entry, a linked parent, a failing root assertion, a denied capture, and a final-screenplay sibling added between plan and publication. Per-file byte and generation checks belong to test_cli_contract_maintenance_observation.
  */
 export const test_cli_maintenance_markdown_inventory = (): void => {
   const root = {

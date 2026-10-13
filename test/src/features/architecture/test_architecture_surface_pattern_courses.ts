@@ -5,6 +5,7 @@ import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
+ *
  * A module program laid over a real region, in a fixed order, twice.
  *
  * The point of a pattern run is that it is a program and not a texture repeat:
@@ -30,6 +31,10 @@ import { namedFacts, nclose } from "../internal/predicates";
  *    marks it `boundary`, and leaves the whole ones untouched.
  * 6. A generator that lays nothing produces no occurrences, no waste ratio, and no
  *    findings, rather than a run that divides by zero.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `generateAutoMovieSurfacePattern` on the default 2 by 1 m stack-bond field, a 1.75 m field and an empty generator, asserting ids, cut kinds, coverage, area, centres, outlines, totals and a repeated-run serialization; it catches a lattice that drops or adds a course, column-major ordering, an out-of-region cell surfacing as a zero-area piece, a boundary cut not clipped to the region, and a waste ratio that divides by zero.
+ * @evidence contracts/testing.md#independent-expectations Eight whole 0.25 m2 squares tile 2 m2 exactly; at 1.75 m the fourth module of each course keeps `0.25 / 0.5 = 0.5` coverage and 0.125 m2, leaving 1.75 m2 covered of 2 m2 consumed and a `0.25 / 2 = 0.125` ratio; ids `t-column-row` come from the fixture's own generator; the repeat check is a determinism relation, so it cannot catch a deterministic but wrong order, which the explicit id list covers.
+ * @evidence contracts/testing.md#distinguishing-cases Exactly divisible field, a field one quarter module short where only the two edge pieces turn `boundary`, and a generator returning nothing where the joint area equals the 2 m2 region; multi-zone coverage is owned by the coffers test, minimum-piece slivers and pair findings by the findings test, and malformed declarations by the refusals test.
  */
 export const test_architecture_surface_pattern_courses = (): void => {
   const field = pattern();

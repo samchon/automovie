@@ -49,6 +49,17 @@ interface IResolvedSupport {
  * how the caller reads a `floating` answer as "the origin sits this high"
  * instead of "this member hangs in the air".
  *
+ * A support surface bears on its footprint polygon and height rule; a support
+ * body bears on the top of the drawn part nearest the subject's underside among
+ * the parts its footprint covers. `gap` is the signed metre distance from that
+ * face to the subject's underside, null when unresolved, suspended, or not over
+ * the support. The tolerance defaults to `1e-9` metres.
+ *
+ * @evidence contracts/common.md#principled-implementation Resolves the subject's reported box and the support face (a surface's footprint and height rule, or the top of the support part nearest the subject's underside), then classifies `propSupportGap`'s signed gap as resting within the tolerance, floating above it or sunk below it.
+ * @evidence contracts/common.md#clear-and-simple-design Defect: `DEFAULT_SUPPORT_TOLERANCE` and `IWorldBox` are duplicated in `builtEnvironmentSupportSweep`, and the comment "Whether two boxes share footprint area" above `IWorldBox` is stray; choosing the bearing part stays in private helpers here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A negative or non-finite tolerance throws instead of defaulting, a subject over no part is measured against one part so `not-over-support` stays true, and suspension is accepted once both sides resolve with no structural claim.
+ * @evidence contracts/common.md#meaningful-documentation States the delegation to the prop kernel, the visual-not-structural scope, how the bearing face is chosen, the signed gap and its null cases, the tolerance default and refusal, and how the bases qualify a floating answer.
+ * @evidence contracts/performance.md#cost-and-resources Defect: one query stages the whole element hierarchy up to three times (subject box, support box, support part boxes), `O(E + members)` each, where one staging would serve all three; nothing is cached and only the verdict escapes.
  * @author Samchon
  */
 export const builtEnvironmentSupportStatus = (props: {

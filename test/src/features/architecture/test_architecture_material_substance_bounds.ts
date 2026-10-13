@@ -16,6 +16,7 @@ const judge = (
   });
 
 /**
+ *
  * A substance record is the production's to fill and the engine's to bound.
  *
  * Nothing here ships a material: `classification`, every property, and the
@@ -39,6 +40,10 @@ const judge = (
  *    zero and above one, vapour resistance below still air, and a service life
  *    of zero. Every one is paired with the boundary value that must pass.
  * 5. A non-finite property is refused wherever a finite one is required.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateAutoMovieMaterialSubstance` and asserts success, violation kind and path, and violation count; it catches an unmeasured null property treated as a defect, blank text accepted or a null name or surface refused, a numeric bound applied at the wrong value or with the wrong strictness, a non-finite property accepted, and one bad property reported more than once.
+ * @evidence contracts/testing.md#independent-expectations Bounds follow the physical meaning stated in the doc comment rather than the validator's tables: density, specific heat and service life must be positive, conductivity non-negative, absorption a fraction in [0, 1], and vapour resistance at least still air's factor of 1; each refusal sits 1e-9 past its bound and each twin sits on or just inside it, and the fully measured record uses plausible fired-brick values only as clean input, not as reference data.
+ * @evidence contracts/testing.md#distinguishing-cases Positive all-null and fully measured records; blank id, classification, name and surface against null name and surface; zero density against 1e-9, -1e-9 conductivity against zero, zero specific heat, absorption below 0 and above 1 against both ends, vapour resistance below 1 against exactly 1, zero service life; infinite or NaN density, conductivity and absorption, and a NaN specific heat raising exactly one violation; how substances are cited by layered assemblies is owned by test_architecture_material_assembly_defects and test_architecture_material_assembly_dimension.
  */
 export const test_architecture_material_substance_bounds = (): void => {
   TestValidator.equals("an entirely unmeasured substance is clean", judge({}), {

@@ -21,11 +21,16 @@ const keysOf = (value: object): string[] =>
 
 
 /**
+ *
  * Legacy omission and each enhanced feature preserve their admitted output shape; explicit members select the declared prototype and refuse an unavailable identity.
  *
  * Scenarios:
  * 1. Each enhanced declaration adds the four contract fields beside the legacy eight.
  * 2. An explicit prototype resolves the named recipe; its adjacent missing name refuses.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `instanceSlot` on slot 0 of a legacy placement and six placements that each declare one enhanced feature, asserting the sorted key set of the returned member, then on an explicit member naming `short` and `ghost`; it catches a legacy set that starts emitting `prototype`, `rotation`, `scale3` or `visible`, an enhanced feature that omits any of the four, an explicit prototype that falls back to a weighted draw, and an unknown prototype that resolves silently.
+ * @evidence contracts/testing.md#independent-expectations The eight legacy keys and the four added keys restate the member output contract the engine documents for sets with and without enhanced declarations; `short-body` is the recipe the authored table pairs with `short`, and the refusal is matched by its message fragment; key presence is checked, not the drawn values inside them.
+ * @evidence contracts/testing.md#distinguishing-cases Negative legacy placement with no enhanced feature, positives for prototypes, lattice, explicit layout, `scale3`, `rotationDeg` and `visibleProbability` declared alone, a named prototype, and the adjacent missing name; weighted proportions belong to `test_engine_instance_prototype_distribution`, rotation and per-axis values to `test_engine_instance_transform_axes`, and lattice and explicit positions to `test_engine_instance_slot_layouts`.
  */
 export const test_engine_instance_slot_variation = (): void => {
   const table = crowd({

@@ -35,6 +35,10 @@
  * Reference: glTF 2.0 `pbrMetallicRoughness.baseColorFactor` (linear), CSS
  * Color Module Level 4.
  *
+ * @evidence contracts/common.md#principled-implementation Stores linear RGB in [0, 1], the space glTF `baseColorFactor` and PBR shading consume; `srgbHexToLinearColor` decodes with the IEC 61966-2-1 transfer function and `linearColorToSrgbHex` re-encodes with the exact 1/2.4 exponent, round-tripping every eight-bit value.
+ * @evidence contracts/common.md#clear-and-simple-design A numeric triple with nullable alpha and a nullable `hex` label, so agents adjust color arithmetically and validators range-check it, while `a: null` marks an opacity-irrelevant slot without a separate color type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing compares `hex` with the triple: `validateColor` checks only the `#RRGGBB` format, so a hand-typed label can contradict the rendered numbers, which the prose discloses as a deferred refusal.
+ * @evidence contracts/common.md#meaningful-documentation States linear versus sRGB encoding, which side is authoritative, the null-alpha meaning, the 2.3x midtone error of pasting a swatch, and which helpers write each form.
  * @author Samchon
  */
 export interface IAutoMovieColor {

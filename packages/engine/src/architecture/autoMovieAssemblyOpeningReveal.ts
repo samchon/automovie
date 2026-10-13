@@ -21,6 +21,15 @@ import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
  * to wrap from behind one that stops there cannot turn the corner, which is why
  * validation refuses it; measuring the runs rather than the flags means it also
  * cannot narrow an opening here if one ever reaches this function unvalidated.
+ *
+ * Throws when either structural dimension is not a finite number above zero,
+ * and when the lining leaves no positive clear width or height.
+ *
+ * @evidence contracts/common.md#principled-implementation Counts the maximal leading and trailing runs of `wrapsOpening` layers, clamps the trailing run so an all-wrapping build-up is not counted twice, and takes twice their summed thickness off both dimensions; the model assumes every wrapping layer's full thickness stands on both jambs.
+ * @evidence contracts/common.md#clear-and-simple-design Two private run counters and one positivity guard serve this single function; layer resolution stays in `resolveAutoMovieMaterialAssembly`, and the reveal comes back as a plain record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The `!(width > 0)` form is deliberate so a non-finite thickness is refused instead of returning `NaN`, and measuring runs rather than flags keeps an unvalidated wrap behind a stopping layer from narrowing the opening.
+ * @evidence contracts/common.md#meaningful-documentation States the structural-versus-finished distinction, the twice-inset rule, how lining depth and bare jamb are derived, the refusal of a consumed opening and its `NaN` reasoning, and the metre unit and positivity of both inputs.
+ * @evidence contracts/performance.md#cost-and-resources Linear in the build-up's layer count: one forward run, one backward run and two slices summed, with no sort, search or cache, and only the two slices and the returned record allocated.
  */
 export const autoMovieAssemblyOpeningReveal = (props: {
   resolved: IAutoMovieResolvedAssembly;

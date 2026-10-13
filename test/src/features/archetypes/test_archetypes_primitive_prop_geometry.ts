@@ -47,6 +47,7 @@ const BOX = { width: 2, height: 3, depth: 6 };
 const PLANE = { width: 6, depth: 8 };
 
 /**
+ *
  * The single-primitive archetype measures and builds exactly the shape it was
  * asked for.
  *
@@ -77,6 +78,10 @@ const PLANE = { width: 6, depth: 8 };
  *    belongs, and so do a plane's two.
  * 4. The built part is one primitive on the archetype's own material, carrying no
  *    bone and no local transform, and the archetype owns no skeleton.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `PRIMITIVE_PROP_ARCHETYPE.projectionRadius` and `PRIMITIVE_PROP_ARCHETYPE.build` and asserts the bounding radius per shape and the built primitive's type, dimension keys, material, bone, transform and skeleton; it catches a radius formula borrowed from another shape, a cylinder measured from its full height, a capsule missing its cap, a dimension written under another key such as a box's width and depth exchanged, and an unreadable parameter turning the bound into NaN or discarding the readable part.
+ * @evidence contracts/testing.md#independent-expectations Each radius is the closed-form bound of the shape written in the comment beside it: 2 for the sphere, `3 + 8 / 2 = 7` for the capsule, `hypot(3, 4) = 5` for the cylinder and cone, `hypot(6, 8) / 2 = 5` for the plane and `hypot(2, 3, 6) / 2 = 3.5` for the box; built dimensions must equal the literals passed in, and the fixtures use pairwise different dimensions so a key swap changes the answer; the radius oracle cannot tell an equal-formula pair apart, which is why cylinder and cone share 5 and only their types are separated.
+ * @evidence contracts/testing.md#distinguishing-cases Positive bounds and builds for all six shapes, with capsule, cylinder and sphere over one shaft proven distinct; degenerate absent, string and infinite radii measuring zero and a capsule with an unreadable height keeping its readable radius; the single-part, skeleton-free build; the archetype's `plan` admission, which refuses an unsupported shape or a dimension the shape ignores, is not exercised here and has no dedicated test in this folder.
  */
 export const test_archetypes_primitive_prop_geometry = (): void => {
   TestValidator.equals(

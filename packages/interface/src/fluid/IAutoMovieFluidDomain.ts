@@ -32,12 +32,22 @@ import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
  * cannot be in equilibrium with — an uneven free surface, a declared source or
  * drain, an open rim — so an initial velocity field is not a thing an author
  * has to invent, and two authors cannot state the same current twice.
+ *
+ * The solver assumes a record `validateFluidDomain` accepted: arrays of the
+ * right length, depths within the design depth, flows off solid cells, and a
+ * stable step. It does not re-check them while integrating.
+ *
+ * @evidence contracts/common.md#principled-implementation A linearized shallow-water field on an Arakawa C grid with flux-form first-order upwind continuity and a per-cell positivity limiter, which conserves volume except through declared sources, drains and `open` edges; it presumes a record `validateFluidDomain` accepted and omits momentum advection by design.
+ * @evidence contracts/common.md#clear-and-simple-design Lattice, solver settings, edges, per-cell arrays and declared flows sit in one record with no building reference, so the same domain stands alone or is bound to a space by `IAutoMovieWaterFeature`; flat row-major arrays make a state index equal a cell index.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `version: 1` and `units: "meter"` are contract discriminants that validation checks; the record has no initial velocity field, so the solver never special-cases an authored current, and sprays stay outside the conserved depth field by contract.
+ * @evidence contracts/common.md#meaningful-documentation States the index order and axes, the `origin.y` datum for bed and surface, the depth and solid-cell rules, the per-list caps, the velocity-at-rest start, that spray is not conserved water, and that the CPU state is the normative one.
+ * @author Samchon
  */
 export interface IAutoMovieFluidDomain {
   /** Schema version. */
   version: 1;
 
-  /** Stable identity of this fluid domain. */
+  /** Stable, non-blank identity of this fluid domain. */
   id: string;
 
   /** All authored lengths are measured in metres. */
@@ -60,29 +70,36 @@ export interface IAutoMovieFluidDomain {
   bed: number[];
 
   /**
-   * Initial water depth of every cell in metres, row-major, each `>= 0`. The
-   * world elevation of the free surface is `grid.origin.y + bed[k] +
-   * depth[k]`.
+   * Initial water depth of every cell in metres, row-major, each `>= 0` and at
+   * most `solver.referenceDepth`. The world elevation of the free surface is
+   * `grid.origin.y + bed[k] + depth[k]`.
    */
   depth: number[];
 
   /**
    * Cells occupied by solid matter (a pier, an island, a channel wall). A solid
-   * cell holds no water and every face touching it reflects. Length must be
-   * exactly `grid.columns * grid.rows`, row-major.
+   * cell holds no water (its `depth` must be `0`), every face touching it
+   * reflects, and no source, drain, or spray may sit on it. Length must be
+   * exactly `grid.columns * grid.rows`, row-major, and every entry a boolean.
    */
   solid: boolean[];
 
-  /** Declared inflows. Water they add is counted, never invented silently. */
+  /**
+   * Declared inflows, at most 256. Water they add is counted, never invented
+   * silently.
+   */
   sources: IAutoMovieFluidSource[];
 
-  /** Declared outflows such as a fountain return or a basin overflow. */
+  /**
+   * Declared outflows such as a fountain return or a basin overflow, at most
+   * 256.
+   */
   drains: IAutoMovieFluidDrain[];
 
   /**
-   * Decorative bounded spray emitters. Spray is **not** part of the conserved
-   * water: it is a bounded particle garnish sampled from the same clock, and
-   * its mass never enters or leaves the depth field.
+   * Decorative bounded spray emitters, at most 32. Spray is **not** part of the
+   * conserved water: it is a bounded particle garnish sampled from the same
+   * clock, and its mass never enters or leaves the depth field.
    */
   sprays: IAutoMovieFluidSpray[];
 }

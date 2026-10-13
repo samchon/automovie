@@ -28,6 +28,10 @@ import { IAutoMovieFaceNose } from "./IAutoMovieFaceNose";
  * the template, not here: this document stays a pure, portable trait vector, so
  * the same edit ("rounder cheeks, narrower jaw") applies to any character.
  *
+ * @evidence contracts/common.md#principled-implementation Optional nested groups of signed weights that `flattenFace` walks in a fixed table order, emitting only present leaves, so `validateFace` paths and `morphFace` targets come from one mapping and an omitted field leaves the template unchanged.
+ * @evidence contracts/common.md#clear-and-simple-design One interface per facial feature so a tool-calling model reads the schema region by region, while likeness and skin stay in the template and motion stays in `IAutoMovieExpression`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Paired features follow the documented side rule and the eye pair adds `eyes.spacing` to each side's offset; both are contract rules applied once in `flattenFace`, not branches for particular callers.
+ * @evidence contracts/common.md#meaningful-documentation States the signed range and the meaning of zero, one and beyond, that omission means neutral, which validator enforces magnitudes, which morph vocabulary each leaf projects onto, and what belongs to the template instead.
  * @author Samchon
  */
 export interface IAutoMovieFace {

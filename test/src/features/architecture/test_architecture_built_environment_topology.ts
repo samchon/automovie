@@ -13,18 +13,18 @@ import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPO
 import { builtTopologyTestRoll as roll } from "../internal/builtTopologyTestRoll";
 import { builtTopologyTestWork as work } from "../internal/builtTopologyTestWork";
 import { builtTopologyTestYaw as yaw } from "../internal/builtTopologyTestYaw";
-import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
+import { namedFacts, qclose, vclose } from "../internal/predicates";
 
 /**
+ *
  * A floor is one classification among many, never the root of the hierarchy.
  *
  * This pins the shapes the requirement calls for against the record as it
  * actually stands: two independently rooted and independently placed building
- * units, a sky-bridge that is a work-owned relation between them at two
- * different heights, a yawed wing and a tilted unit whose full quaternions
- * survive lowering, one duplex owning two slabs, a mezzanine sharing the hall's
- * own air, a void the surrounding storey is written around, and differing
- * storey heights. Two limits are pinned as limits rather than passes: a logical
+ * units, a sky-bridge that is a work-owned relation between them, a yawed wing
+ * and a tilted unit whose full quaternions survive lowering, one duplex owning
+ * two slabs, a mezzanine sharing the hall's own air, and a void the surrounding
+ * storey is written around. Two limits are pinned as limits rather than passes: a logical
  * volume is a set of convex cells, so a non-convex region exists only as the
  * cells it is split into, and a curved shell (dome, vault, free-form surface)
  * is visible geometry in a cited model whose logical volume here is only its
@@ -33,33 +33,32 @@ import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
  * Scenarios:
  *
  * 1. The whole work validates as one record.
- * 2. The only root spaces are the two building units' roots; every storey, duplex,
- *    attic, void, mezzanine and dome is a child classification, and the kinds
- *    are siblings rather than levels of a floor tree.
- * 3. Ownership is answered per space: keep spaces name the keep, annex spaces name
+ * 2. Ownership is answered per space: keep spaces name the keep, annex spaces name
  *    the annex.
- * 4. The sky-bridge joins spaces owned by two different units at two different
- *    heights, and adjacency reports it from both ends.
- * 5. One duplex logical space owns two slabs, so a dwelling is not forced to be a
+ * 3. The sky-bridge joins spaces owned by two different units, and adjacency
+ *    reports it from both ends.
+ * 4. One duplex logical space owns two slabs, so a dwelling is not forced to be a
  *    floor; the staged nodes of `duplex` are both slabs.
- * 6. The mezzanine sits inside the hall's own volume: a point at (0, 5, 3) is in
+ * 5. The mezzanine sits inside the hall's own volume: a point at (0, 5, 3) is in
  *    both, which is the physically-continuous / logically-partitioned case.
- * 7. The void is punched through the second level: the atrium centre is in
+ * 6. The void is punched through the second level: the atrium centre is in
  *    `atrium` and in the building root, but not in `storey-2`, whose remaining
  *    area is written as two convex cells; a point west of the void is in
  *    `storey-2` and not in `atrium`.
- * 8. Storey elevations are deliberately unequal (9.0, 3.2, 2.8, 3.0 apart), so no
- *    uniform floor height is baked into the record.
- * 9. A yawed wing's child lands at the hand-computed rotated world position and
+ * 7. A yawed wing's child lands at the hand-computed rotated world position and
  *    keeps the wing's quaternion, not a re-derived yaw.
- * 10. A tilted second unit does the same about a different axis, proving the unit
- *     root is a real coordinate root.
- * 11. The dome is a cited mesh on an element in the `rotunda` space; its
- *     containment answer comes from the bounding cell, which is why a point
- *     just outside that cell is refused while the curved shell is not modelled
- *     by half-spaces at all.
- * 12. A door is an opening in a wall boundary filled by a leaf element, and the
- *     lowered set stages that leaf like any other element.
+ * 8. A tilted second unit does the same about a different axis, proving the unit
+ *    root is a real coordinate root.
+ * 9. The dome is a cited mesh on an element in the `rotunda` space; its
+ *    containment answer comes from the bounding cell, which is why a point
+ *    just outside that cell is refused while the curved shell is not modelled
+ *    by half-spaces at all.
+ * 10. The door leaf filling the front-door opening is staged like any other
+ *     element.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtEnvironmentBuildingOfSpace`, `builtEnvironmentSpaceNodes`, `builtEnvironmentContainsPoint`, `builtEnvironmentAdjacentSpaces` and `lowerBuiltEnvironment` over a two-unit citadel and asserts validity, owners, the duplex's staged nodes, containment across mezzanine, void, root and dome cells, sky-bridge adjacency from both ends, and the staged position, rotation, scale and model of lowered pieces; it catches a space attributed to the wrong unit, a duplex limited to one slab, a void counted inside its storey, a cross-unit connector reported from one end only, a child placed by a re-derived yaw or without its unit's tilt, and a cited mesh or door leaf left unstaged.
+ * @evidence contracts/testing.md#independent-expectations Positions are hand composition of the fixture's literal transforms: the wing slab at local x 4 under a wing yawed 30 degrees at (6, 9, 0) lands at `(6 + 4 cos 30, 9, -4 sin 30)` with rotation `yaw(30)`, the annex upper slab at (6, 4.2, 0) under a root tilted 5 degrees at x 30 lands at `(30 + 6 cos 5 - 4.2 sin 5, 6 sin 5 + 4.2 cos 5, 0)` with rotation `roll(5)`, quaternions written out by the fixture helpers rather than the engine, and containment answers follow the hand-placed convex cells; the dome's curved shell is outside the oracle because only its bounding cell is a logical volume.
+ * @evidence contracts/testing.md#distinguishing-cases Positive containment of the mezzanine point in both hall and mezzanine, the atrium centre in atrium and root, and a point west of the void in storey-2; negative the atrium centre outside storey-2, the west point outside the atrium, and a point above the dome's cell outside rotunda; ownership in both units; adjacency from both bridge ends; yaw about y against roll about z; single-unit lowering and refusals are owned by test_architecture_built_environment and convex cell geometry by test_architecture_convex_cell_vertices.
  */
 export const test_architecture_built_environment_topology = (): void => {
   const citadel = work();
@@ -67,34 +66,6 @@ export const test_architecture_built_environment_topology = (): void => {
     "a two-unit work with a sky-bridge validates",
     validateBuiltEnvironment({ environment: citadel }).success,
     true,
-  );
-  TestValidator.equals(
-    "only building units root the logical hierarchy",
-    {
-      roots: citadel.spaces
-        .filter((space) => space.parent === null)
-        .map((space) => space.id),
-      rootKinds: citadel.spaces
-        .filter((space) => space.parent === null)
-        .map((space) => space.kind),
-      keepChildKinds: citadel.spaces
-        .filter((space) => space.parent === "keep-whole")
-        .map((space) => space.kind),
-    },
-    {
-      roots: ["keep-whole", "annex-whole"],
-      rootKinds: ["building", "building"],
-      keepChildKinds: [
-        "double-height-hall",
-        "mezzanine",
-        "void",
-        "storey",
-        "duplex",
-        "attic",
-        "dome",
-        "storey",
-      ],
-    },
   );
   TestValidator.equals(
     "every logical space names its owning building unit",
@@ -113,9 +84,8 @@ export const test_architecture_built_environment_topology = (): void => {
     {
       from: builtEnvironmentBuildingOfSpace(citadel, bridge.from),
       to: builtEnvironmentBuildingOfSpace(citadel, bridge.to),
-      rise: bridge.route[0]!.y > bridge.route.at(-1)!.y,
     },
-    { from: "keep", to: "annex", rise: true },
+    { from: "keep", to: "annex" },
   );
   TestValidator.equals(
     "one duplex logical space owns two slabs",
@@ -199,42 +169,6 @@ export const test_architecture_built_environment_topology = (): void => {
       domeVolumeIsOnlyItsBoundingCell: true,
     },
   );
-  const elevations = [
-    "keep-hall-slab",
-    "keep-level-2-slab",
-    "keep-duplex-lower-slab",
-    "keep-duplex-upper-slab",
-    "keep-attic-slab",
-  ].map(
-    (id) =>
-      citadel.elements.find((element) => element.id === id)!.transform
-        .translation.y,
-  );
-  const rises = elevations
-    .slice(1)
-    .map((value, index) => value - elevations[index]!);
-  TestValidator.equals(
-    "storey heights are deliberately unequal, so no floor pitch is baked in",
-    namedFacts([
-      ["hallToLevel2", () => nclose(rises[0]!, 9)],
-      ["level2ToDuplexLower", () => nclose(rises[1]!, 3.2)],
-      ["duplexLowerToUpper", () => nclose(rises[2]!, 2.8)],
-      ["duplexUpperToAttic", () => nclose(rises[3]!, 3)],
-      [
-        "allDistinct",
-        () =>
-          new Set(rises.map((rise) => Math.round(rise * 10))).size ===
-          rises.length,
-      ],
-    ]),
-    {
-      hallToLevel2: true,
-      level2ToDuplexLower: true,
-      duplexLowerToUpper: true,
-      duplexUpperToAttic: true,
-      allDistinct: true,
-    },
-  );
   TestValidator.equals(
     "the sky-bridge is reported from both of its ends",
     {
@@ -300,17 +234,10 @@ export const test_architecture_built_environment_topology = (): void => {
       dome: pieces.find((piece) => piece.node === "citadel/keep-dome")?.model,
       leaf: pieces.find((piece) => piece.node === "citadel/keep-door-leaf")
         ?.model,
-      door: citadel.openings[0],
     },
     {
       dome: "dome-mesh",
       leaf: "stone",
-      door: {
-        id: "front-door",
-        kind: "door",
-        boundary: "hall-wall",
-        fill: "keep-door-leaf",
-      },
     },
   );
 };

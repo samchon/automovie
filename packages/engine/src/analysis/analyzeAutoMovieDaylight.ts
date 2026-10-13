@@ -32,6 +32,7 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
 const EPSILON = 1e-12;
 
 /**
+ *
  * Measure one workplane under one declared instant, one set of shades and one
  * set of luminaires.
  *
@@ -59,9 +60,20 @@ const EPSILON = 1e-12;
  * identical requests produce one identical artifact and any change to shading,
  * time or grid produces a different one.
  *
+ * The cosine-weighted sky estimate is exact only for an unobstructed plane
+ * whose hemisphere lies wholly above the reference ground; a tilted or shaded
+ * plane's sky term depends on `diffuseSamples`. Throws on a malformed request
+ * (see {@link IAutoMovieDaylightRequest}).
+ *
+ * @evidence contracts/common.md#principled-implementation Sums beam, isotropic-sky and point-luminaire illuminance at each cell centre, with occlusion by the analytic half-space slab test and the sky term estimated over a deterministic cosine-weighted Hammersley hemisphere.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns validation, sampling, metrics and sealing, with a private helper per light component, while hemisphere directions, ray occlusion, target checks and sealing are shared analysis helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unimplemented sky returns an `unsupported` run and ground reflection is an `unsupported` metric; the 1e-12 epsilon guards only degenerate axes and coincident fittings, and no study or fixture is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the three illuminance laws, the excluded ground reflection, the unsupported, not-run and gap cases, the settings digest, and where the sky estimate is exact.
+ * @evidence contracts/performance.md#cost-and-resources Time is O(C * (D + L) * P) for C cells (at most 4096), D sky samples (unbounded), L luminaires and P planes across all solids; directions are built once per study, but `autoMovieSkyward` re-normalizes the ground up vector for every cell and direction although its answer depends only on the direction. Shares one normal, one sky-direction set and one solid list across every cell, plus one coincident-luminaire set so each warning is raised once; the skyward test is recomputed per cell instead of filtered once per study. Holds per-study arrays of at most C samples and D directions only until the run is sealed, and nothing persists across calls.
  * @author Samchon
  */
 export const analyzeAutoMovieDaylight = (props: {
+  /** Study to measure; validated in full before any ray is cast. */
   request: IAutoMovieDaylightRequest;
 }): IAutoMovieAnalysisRun => {
   const request = props.request;

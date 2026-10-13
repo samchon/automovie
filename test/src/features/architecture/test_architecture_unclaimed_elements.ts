@@ -13,6 +13,7 @@ import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
 /**
+ *
  * Only a hierarchy root no space claims is left over for the index to name.
  *
  * Leaving an element unassigned is correct rather than careless: an exterior
@@ -41,6 +42,10 @@ import { namedFacts } from "../internal/predicates";
  *    it.
  * 4. The fixture carrying all three is a legal building, so the rule is read
  *    off a record the engine accepts rather than off an invented one.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment` to confirm the residence record is legal, then `builtEnvironmentUnclaimedElements` on it, asserting the exact one-entry list and the absence of four other ids; it catches a rule that names every space-less element (buttress, chair seat, garden wall), one that names a claimed root, one that forgets the environment id prefix, and one that misses an unclaimed root.
+ * @evidence contracts/testing.md#independent-expectations The expected list is read off the hierarchy by hand: of seven elements only `garden-wall-root` has both a null parent and a null space, so the answer is `residence/garden-wall-root`; the other four ids are each excluded by the documented reason, a parent or a claiming space; the narrative's thirty-element building count is context and no assertion depends on it.
+ * @evidence contracts/testing.md#distinguishing-cases One record carries every branch: an unclaimed root (named), a claimed root, a claimed child, an unclaimed child of a group, and an unclaimed child of a modelled wall (all silent); an empty building and invalid hierarchies such as cycles are left to the built-environment validation tests, since the function presumes a resolvable hierarchy.
  */
 export const test_architecture_unclaimed_elements = (): void => {
   const record = environment();

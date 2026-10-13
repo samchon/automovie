@@ -53,6 +53,7 @@ const onRoad = (
   });
 
 /**
+ *
  * One instance member stands where its layout law puts it, from the compiled
  * shape alone.
  *
@@ -84,6 +85,10 @@ const onRoad = (
  *    missing, renamed or one-point route, a route without finite positive
  *    length, a non-finite scale, trait or anchor, and an empty palette that an
  *    explicit colour then satisfies.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `instanceSlot` for grid, lattice, scatter, explicit and along-route placements and asserts member positions, node ids, rotation, `scale3`, palette, trait, visibility, prototype and refusal messages; it catches a heading turned the wrong way or not about the anchor, layers stacked along the wrong axis, a scatter member outside its disk, explicit values overwritten by seeded ones or leaking into a sibling, route spacing measured per leg instead of by arc length, jitter applied along the leg, and a non-finite or unplaceable member that is emitted instead of refused.
+ * @evidence contracts/testing.md#independent-expectations Positions are hand geometry: grid offsets of 2 m columns and 3 m rows turned a quarter about the anchor (10, 1, -5) give (10, 1, -3) and (13, 1, -5); lattice corners follow from centred columns and rows and layers stacked at spacing (1, 2, 3); four members on the 30 m road sit at 3.75, 11.25, 18.75 and 26.25 m of arc; the scatter turn is the hand rotation `(x, z) -> (z, -x)` about (3, 4); the trait range and jitter width bound the seeded values without reproducing them.
+ * @evidence contracts/testing.md#distinguishing-cases Positives for every layout kind and both explicit members; boundaries of the last slot, a member reached only after skipping one or two legs, and a heading that must not move route members; negatives past the count, below zero and fractional, a missing, renamed, one-point, zero-length or infinite route, infinite scale, trait and anchor, and an empty palette, each beside an accepted twin, including the explicit colour that satisfies the empty palette; distributions of seeded draws belong to `test_engine_instance_slot_range_seed` and `test_engine_instance_transform_axes`.
  */
 export const test_engine_instance_slot_layouts = (): void => {
   // 1. Grid at a quarter turn.

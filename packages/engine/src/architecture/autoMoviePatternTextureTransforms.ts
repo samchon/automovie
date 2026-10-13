@@ -44,6 +44,15 @@ const SHEAR_EPSILON = 1e-9;
  * turned off its grain by anything else needs a shear the transform has no term
  * for, and is reported by id rather than handed back as a transform that
  * quietly skews the image.
+ *
+ * Throws when a tile length is not a finite number above zero or a face
+ * sheet's origin is not finite.
+ *
+ * @evidence contracts/common.md#principled-implementation Forms each piece's 2x2 map `diag(1/tile) R(turn) diag(width, height)`, rejects it when its rows are not orthogonal within a relative `1e-9`, and otherwise reads angle, signed scale and offset from those rows; this is exact because the renderer's texture matrix is scale-then-rotate with no shear term.
+ * @evidence contracts/common.md#clear-and-simple-design One call states one material's sheet, so a multi-material run is several calls, and module-versus-face pinning is a two-case union rather than a set of flags.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A piece needing shear is listed in `sheared` instead of receiving an approximate transform, and a mirrored piece is a negative U scale in the existing record, not a second texturing path.
+ * @evidence contracts/common.md#meaningful-documentation States the normalized UV source the transform assumes, why a cut piece keeps its module rectangle, the grain rotation, the one-material-per-call rule, the metre tile size, and when a piece is reported as sheared.
+ * @evidence contracts/performance.md#cost-and-resources Constant trigonometry per placement, so linear in the run's occurrence count with one transform record per expressible piece; no cache is kept and both returned arrays belong to the caller.
  */
 export const autoMoviePatternTextureTransforms = (props: {
   result: IAutoMovieSurfacePatternResult;

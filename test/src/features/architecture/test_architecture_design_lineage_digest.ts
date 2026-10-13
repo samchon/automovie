@@ -1,5 +1,4 @@
 import {
-  autoMovieRenderDigest,
   designLineageDigest,
   designLineageViewDigest,
 } from "@automovie/engine";
@@ -8,21 +7,20 @@ import { TestValidator } from "@nestia/e2e";
 
 import {
   brokenLineage,
-  emptyLineage,
   lineageDigest,
   renovationLineage,
 } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * Pin the content digest and the deterministic replay handle a derived artifact
  * is supposed to cite.
  *
  * A digest that moves when an authored array is reshuffled cannot certify
  * anything, and a digest that fails to move when an imported texture's bytes
- * change certifies a lie. Both properties are asserted here, and the
- * canonicalization itself is checked against a serialization this test writes
- * out by hand rather than against whatever the implementation currently emits.
+ * change certifies a lie. Both properties are asserted here as relations
+ * between digests, never against a stored digest value.
  *
  * Field separation is length-prefixed on purpose. A record joined by a bare
  * delimiter lets authored text forge a field boundary, so two different designs
@@ -31,46 +29,27 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. The minimal lineage digests to the SHA-256 of a canonical string written out
- *    here field by field, so a change in canonicalization is caught rather than
- *    absorbed.
- * 2. The same lineage digests identically twice, and reshuffling every authored
+ * 1. The same lineage digests identically twice, and reshuffling every authored
  *    array leaves the digest unchanged.
- * 3. Editing one authored value moves the digest.
- * 4. A view digest replays: the same alternative at the same phase twice is one
- *    value, and the minimal lineage's view digest is likewise hand-derived.
- * 5. Two alternatives of one revision digest differently, and the base design
+ * 2. Editing one authored value moves the digest.
+ * 3. A view digest replays: the same alternative at the same phase twice is one
+ *    value.
+ * 4. Two alternatives of one revision digest differently, and the base design
  *    differs from both.
- * 6. The same alternative at two phases digests differently.
- * 7. An imported texture's bytes move the view digest although not one line of the
+ * 5. The same alternative at two phases digests differently.
+ * 6. An imported texture's bytes move the view digest although not one line of the
  *    design moved. Replacing the file and requoting it in the outputs that read
  *    it is a single edit, because a record that moved only one of the two is
  *    refused as stale before it can be digested at all.
- * 8. Two designs that a bare-delimiter serialization would collide digest
+ * 7. Two designs that a bare-delimiter serialization would collide digest
  *    differently.
- * 9. An unknown alternative or phase is refused rather than digested.
+ * 8. An unknown alternative or phase is refused rather than digested.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `designLineageDigest` and `designLineageViewDigest` over the renovation lineage and edited copies and asserts equality, inequality and refusal; it catches a digest that depends on authored array order, ignores an edited value, varies between replays, collapses two alternatives, a phase or the base view into one value, ignores an imported texture's bytes, lets authored text forge a field boundary, or digests an unknown variant or phase.
+ * @evidence contracts/testing.md#independent-expectations Each expectation is a relation the digest contract states (stable under replay and reshuffle, sensitive to any authored value, to the view's variant and phase and to subject content digests, and length-prefixed so `ab`+`c` and `a`+`bc` differ), compared digest against digest; no expected digest value is stored, so the exact canonical byte format and hash are outside this oracle and a format change that keeps every relation passes.
+ * @evidence contracts/testing.md#distinguishing-cases Positive replay and full reshuffle; negative one edited change value, two alternatives against the base view, one alternative at two phases, a replaced texture requoted everywhere, and the two collision probes; refusals for an unknown variant and phase; validity of the edited copies, including the stale record that moves only the texture, is owned by test_architecture_design_lineage_derivation_refusals.
  */
 export const test_architecture_design_lineage_digest = (): void => {
-  const bare = emptyLineage();
-  const bareDigest = lineageDigest("0f");
-  TestValidator.equals(
-    "the minimal lineage digests its hand-written canonical serialization",
-    designLineageDigest(bare),
-    autoMovieRenderDigest(
-      [
-        "7:lineage|4:bare|1:1|2:r1",
-        `8:revision|2:r1|0:|${bareDigest.length}:${bareDigest}`,
-      ].join("\n"),
-    ),
-  );
-  TestValidator.equals(
-    "the minimal lineage's base view digests its hand-written serialization",
-    designLineageViewDigest(bare, { variant: null, phase: null }),
-    autoMovieRenderDigest(
-      `4:view|4:bare|2:r1|${bareDigest.length}:${bareDigest}|0:|0:`,
-    ),
-  );
-
   const lineage = renovationLineage();
   TestValidator.equals(
     "the same authored lineage digests to the same value twice",

@@ -1,6 +1,7 @@
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
 
 /**
+ *
  * Every archetype one host may build, keyed by the id a recipe names.
  *
  * A read-only map is the whole seam: the production core looks an archetype up
@@ -16,9 +17,7 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * @evidence contracts/common.md#clear-and-simple-design A type alias over the standard map interface with no wrapper class; lookup, key listing for diagnostics and iteration use the built-in API.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Defines no fallback archetype: the gate reports `model-archetype-unregistered`, the materializer throws, and the radius table answers null; a hand-built map whose key differs from its definition's `id` would still satisfy the type.
  * @evidence contracts/common.md#meaningful-documentation States the lookup-and-report split, the exact key semantics, and that the factory's invariants are not implied by the type alone.
- * @evidence contracts/performance.md#efficient-algorithms Each recipe costs one hash lookup in the gate, the materializer and the radius table; the only full pass is the sorted key list the gate prints when an archetype is unregistered.
- * @evidence contracts/performance.md#reuse-equivalent-work `AUTOMOVIE_REGISTERED_ARCHETYPES` is built once at module load and is the default registry of the gate, the materializer, the radius table and the production project, so registration is not repeated per call; the map object's identity decides sharing, and its entries never change after registration.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains a strong reference to every registered definition for as long as its holder keeps the map, which for the shipped registry is the process lifetime; size is the catalogue length (two shipped definitions), and no handle is held.
+ * @evidence contracts/performance.md#cost-and-resources Each recipe costs one hash lookup in the gate, the materializer and the radius table; the only full pass is the sorted key list the gate prints when an archetype is unregistered. `AUTOMOVIE_REGISTERED_ARCHETYPES` is built once at module load and is the default registry of the gate, the materializer, the radius table and the production project, so registration is not repeated per call; the map object's identity decides sharing, and its entries never change after registration. Retains a strong reference to every registered definition for as long as its holder keeps the map, which for the shipped registry is the process lifetime; size is the catalogue length (two shipped definitions), and no handle is held.
  * @author Samchon
  */
 export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
@@ -27,6 +26,7 @@ export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
 >;
 
 /**
+ *
  * Register one closed catalogue of archetypes for a host to build from.
  *
  * Registration is where a duplicate or blank id has to fail, because after it
@@ -42,9 +42,7 @@ export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
  * @evidence contracts/common.md#clear-and-simple-design Validation sits at the single place a registry is constructed, and the result is returned as the plain read-only map type rather than a registry class.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a duplicate instead of resolving it first-wins or last-wins, and trims only to test blankness without rewriting the stored id.
  * @evidence contracts/common.md#meaningful-documentation States why registration is the failure point, the single in-order consumption of the iterable, the fail-fast reporting, and the untrimmed storage.
- * @evidence contracts/performance.md#efficient-algorithms Linear in catalogue length with one `trim` and one hash probe per definition, and no sort or second pass.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call registers its caller's catalogue into a new map that caller keeps; the server registry calls it once at module load, so no registration is repeated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned map retains one reference per definition and nothing else; a throw partway leaves the partial map unreachable to any caller.
+ * @evidence contracts/performance.md#cost-and-resources Linear in catalogue length with one `trim` and one hash probe per definition, and no sort or second pass. Each call registers its caller's catalogue into a new map that caller keeps; the server registry calls it once at module load, so no registration is repeated. The returned map retains one reference per definition and nothing else; a throw partway leaves the partial map unreachable to any caller.
  * @author Samchon
  */
 export const createAutoMovieArchetypeRegistry = (

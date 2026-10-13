@@ -11,6 +11,16 @@ import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
  * local origin with the leaf running along `+X` is therefore the natural way to
  * author a door, and the swept envelope is measured from exactly that
  * rectangle.
+ *
+ * When the opening states a profile on a host face, that rectangle at rest must
+ * lie inside the opening's void in the face's own plane. One element carries
+ * one displacement, so no other panel or carriage in the work may drive it.
+ *
+ * @evidence contracts/common.md#principled-implementation A state's value is composed after the element's rest pose as a turn about `pivot` or a slide along the normalized axis; validation requires the element to be the fill or below it, undriven by any other panel or carriage, and the rest-pose rectangle to fit the void's hull.
+ * @evidence contracts/common.md#clear-and-simple-design An id, an element, two extents, and one motion; folding is expressed by parenting one leaf's element under another's rather than by a panel-to-panel link.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every leaf is the element-local rectangle from the origin to `(width, height)`, so a leaf of any other outline is measured by that rectangle for fit and sweep; no door type is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the rest-pose rule, the local frame of axis and pivot, the rectangle's placement and metre extents, the fill constraint, the fit check, and the single-driver rule.
+ * @author Samchon
  */
 export interface IAutoMovieMovablePanel {
   /** Stable panel identity within the opening. */

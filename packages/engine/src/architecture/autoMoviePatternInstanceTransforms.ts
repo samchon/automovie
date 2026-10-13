@@ -35,6 +35,17 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * A host that folds at a corner or curves is one developed face standing on
  * several flat panels, so a zone may name its own {@link IAutoMoviePatternFacet}
  * and every zone that does not stays on {@link frame}.
+ *
+ * Throws when the thickness is not a finite positive number, a frame axis is
+ * not unit length or the two axes are not perpendicular within `1e-6`, a facet
+ * names a zone the run did not lay or repeats one, or an occurrence's variant
+ * has no entry in `prototypes`.
+ *
+ * @evidence contracts/common.md#principled-implementation Builds each whole occurrence's rotation from the orthonormal basis `(u cos + v sin, normal x axisU, normal)` decomposed through `Matrix4.decompose`; that requires unit, perpendicular frame axes, which `resolveFacet` checks to `1e-6` before any slot is built.
+ * @evidence contracts/common.md#clear-and-simple-design Facet resolution, axis checks and the per-occurrence loop are private helpers of one function, and cut pieces leave by id because building their geometry belongs to the caller's mesh path.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cut piece is never scaled into a fake instance, and an unknown or repeated facet zone or a variant beyond the prototype table throws instead of falling back or wrapping around.
+ * @evidence contracts/common.md#meaningful-documentation States the slot-id identity, the per-axis scale meaning, the prototype axis convention, the facet fallback to `frame`, the metre thickness, that cut occurrences come back by id, and every refusal.
+ * @evidence contracts/performance.md#cost-and-resources Linear in placements plus facets: each facet basis is validated and its normal computed once and shared by its zone's occurrences through a zone-keyed map, each whole occurrence costs one lookup and a constant 4x4 decomposition, and the map is dropped when the slot and cut arrays are returned.
  */
 export const autoMoviePatternInstanceTransforms = (props: {
   result: IAutoMovieSurfacePatternResult;

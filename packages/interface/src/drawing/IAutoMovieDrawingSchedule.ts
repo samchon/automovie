@@ -16,6 +16,13 @@ import { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
  * members with the remainder counted. That bound is what keeps a schedule over
  * a tower the same size as a schedule over a room.
  *
+ * A `space` schedule is the exception to grouping: every room is its own row,
+ * because two rooms of one kind and size are still two places to visit.
+ *
+ * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawingSchedule` validates the environment, reduces each opening, space or connector to one occurrence, groups openings and connectors by kind, model, width, height and basis, and sets `total` to the occurrence count, so the row counts sum to it by construction; the digest is SHA-256 over a canonical line-joined text of every other field.
+ * @evidence contracts/common.md#clear-and-simple-design The record holds only subject, rows, total, gaps and digest, and the size of an opening comes from the same extent helpers the drawing uses, so the sheet and the schedule cannot measure one opening two ways.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed per-subject gaps (`space-fit-out`, `space-enclosure`, `opening-performance`, `traversal-performance`) declare what the design cannot answer instead of printing empty columns, and an unmeasured type is a gap with `null` sizes rather than a zero.
+ * @evidence contracts/common.md#meaningful-documentation States that `total` equals the summed row counts, why rows group by type and why a room schedule does not, that members are a bounded sample, and that rows and gaps follow a canonical order.
  * @author Samchon
  */
 export interface IAutoMovieDrawingSchedule {

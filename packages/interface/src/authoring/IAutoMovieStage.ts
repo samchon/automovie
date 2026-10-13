@@ -12,7 +12,14 @@ import { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
  *
  * This is an engine input, not an LLM application payload. Positions and
  * couplings are kept declarative so {@code stageScene} can validate every
- * identity and lower the set into deterministic scene data.
+ * identity and lower the set into deterministic scene data. Node ids must be
+ * unique across actors, set pieces, cameras and lights.
+ *
+ * @evidence contracts/common.md#principled-implementation `stageScene` checks referential integrity (every cast member placed, every placement a cast member, ids unique across all four lists, resolvable camera targets and mount parents) and lowers the set into an `IAutoMovieScene` without judging distances.
+ * @evidence contracts/common.md#clear-and-simple-design Actors, set pieces, cameras and lights keep separate lists with their own placement shapes, while `space`, `fog` and `environment` go through `validateSpace`, `validateFogPlacement` and `validateSceneEnvironment` instead of stage-specific rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent `space` lowers to `space: null` while absent `fog` and `environment` are omitted from the scene, a stated asymmetry that keeps the bytes and digest of scenes that never mention fog.
+ * @evidence contracts/common.md#meaningful-documentation States the scene-id citation, the cross-list id uniqueness, that `plan` is unchecked prose, that set pieces never perform, and what omitting `fog` means.
+ * @author Samchon
  */
 export interface IAutoMovieStage {
   /**
@@ -20,7 +27,10 @@ export interface IAutoMovieStage {
    */
   scene: IAutoMovieNamedId;
 
-  /** Human-readable geometric rationale retained beside the authored values. */
+  /**
+   * Human-readable geometric rationale retained beside the authored values;
+   * `stageScene` does not read it.
+   */
   plan: string;
 
   /** One placement for every scripted cast node that appears on the set. */
@@ -31,6 +41,7 @@ export interface IAutoMovieStage {
 
   /**
    * Walkable surfaces whose geometry drives grounding and locomotion checks.
+   * Omitted lowers to `space: null`, the scalar ground plane.
    */
   space?: IAutoMovieSpace;
 

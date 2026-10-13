@@ -12,6 +12,13 @@
  * facial vocabulary; this set includes full-head shape. Neither is the
  * anatomical component document interpreted by the separate human face editor.
  *
+ * In this repository only the engine's `flattenHead` produces these names; no
+ * engine function applies them to geometry.
+ *
+ * @evidence contracts/common.md#principled-implementation A closed literal union of 41 morph names; `flattenHead` maps each `IAutoMovieHead` leaf to exactly one of them through a per-group field table, and the authored template's additive deltas decide what each name moves.
+ * @evidence contracts/common.md#clear-and-simple-design Kept apart from `AutoMovieFaceParameterName` because it covers cranium and full-head shape symmetrically, without side suffixes, and names a different template set even where a spelling such as `faceWidth` coincides.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A retained compatibility vocabulary: in-repo code only emits these names, nothing applies them to vertices, and no validator range-checks the weights that feed them.
+ * @evidence contracts/common.md#meaningful-documentation Lists the covered regions, the additive-delta model and sign convention, how it differs from the face vocabulary and the human face editor, and that only `flattenHead` produces it here.
  * @author Samchon
  */
 export type AutoMovieHeadParameterName =

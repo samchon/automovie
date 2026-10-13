@@ -64,6 +64,7 @@ const sample = (
 };
 
 /**
+ *
  * Laid pieces sample their material through the UV transform the PBR record
  * already carries.
  *
@@ -105,6 +106,10 @@ const sample = (
  *    square piece at the same angle samples exactly.
  * 10. A non-positive texture turn and a non-finite sheet origin are refused.
  * 11. The same run transformed twice produces the same bytes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `autoMoviePatternTextureTransforms` on laid stack-bond, cross-grain, mirrored, boundary-cut, book-matched, 45 degree grain and 45 degree rotated runs and asserts offsets, scales, rotation angles, sampled sheet corners, sheared ids and three refusals; it catches a face sheet that gives every piece the same image, grain applied to the piece instead of the sheet, a mirror that flips V or moves the span, a cut piece renormalized over its sliver, a shear silently returned as a skewed transform, and a zero tile or infinite origin accepted.
+ * @evidence contracts/testing.md#independent-expectations The local `sample` function restates the renderer's scale-then-rotate law `diag(scale) R(-rotation) uv + offset` and every corner check is read through it; direct numbers follow from tile ratios, such as 0.5 m squares on a 2 by 1 m sheet stepping offsets by `0.25` and `0.5`, and a 0.3 m square turned 45 degrees under a 0.6 by 0.15 m tile scaling by `0.3 / 0.6 = 0.5` and `0.3 / 0.15 = 2` at -45 degrees; the cut-piece and repeat checks are equalities between two engine outputs, so they pin invariance rather than the values themselves.
+ * @evidence contracts/testing.md#distinguishing-cases Module versus face pinning, a cross-grain field against its straight twin, a book-matched pair against an unmatched twin with a zero-tolerance grain scan that must stay silent, a square at 45 degrees that samples while a 0.6 by 0.15 plank at the same angle is reported sheared, and two non-positive tiles plus a non-finite origin refused; laying the pieces and their findings belong to the courses and findings tests.
  */
 export const test_architecture_surface_pattern_texture = (): void => {
   const field = generateAutoMovieSurfacePattern({ pattern: pattern() });

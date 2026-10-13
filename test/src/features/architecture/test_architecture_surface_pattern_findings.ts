@@ -29,6 +29,7 @@ const course =
         ];
 
 /**
+ *
  * The three neighbour defects a laid pattern reports, and the transition where
  * one zone meets another.
  *
@@ -63,6 +64,10 @@ const course =
  *    and stay silent inside each zone.
  * 7. A null grain tolerance disables the grain scan entirely, even where the grain
  *    turns ninety degrees.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `generateAutoMovieSurfacePattern` on overlapping, border-straddling, triangle-clipped, narrowed and grain-turned layouts and asserts finding kinds, occurrence pairs, measured values, limits, order and detail phrases; it catches a pair scan that misses neighbours or reports pairs beyond adjacency, neighbours judged on designed rectangles instead of laid outlines, a clipper that repeats a corner and turns the joint into NaN, a joint finding emitted after its grain finding, and a grain scan that runs with a null tolerance.
+ * @evidence contracts/testing.md#independent-expectations Values follow from the declared module widths and pitches: 0.6 m modules on a 0.5 m pitch penetrate by 0.1 m, the region from -0.1 to 2.1 keeps exactly modules m-1 through m4, the triangle `u + v <= 2` leaves two 0.5 m2 halves meeting at a 0 m butt, a 0.94 m middle module beside 0.98 m ones opens two 0.04 m joints against 0.02, and 0 against 90 degrees of grain is 90; detail checks match one phrase only, so wording elsewhere in the message is not pinned.
+ * @evidence contracts/testing.md#distinguishing-cases Each defect has a silent twin: distant non-adjacent pairs beside overlapping ones, zone-cut pieces whose designed rectangles coincide yet report nothing, a nominal course beside the narrowed one, grain turns inside a zone versus across the border, and a null grain tolerance at ninety degrees; quantities belong to the quantities test, malformed declarations to the refusals test, and the corner fold to the facets test.
  */
 export const test_architecture_surface_pattern_findings = (): void => {
   const overlapping = generateAutoMovieSurfacePattern({

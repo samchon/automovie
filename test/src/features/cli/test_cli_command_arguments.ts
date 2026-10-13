@@ -7,6 +7,7 @@ import {
 import { throwsError } from "../internal/predicates";
 
 /**
+ *
  * CLI admission consumes a whole request before a dispatcher can act.
  *
  * Scenarios:
@@ -14,6 +15,10 @@ import { throwsError } from "../internal/predicates";
  * 1. Supported source commands preserve their explicitly supplied inputs.
  * 2. Missing, repeated, extra, unsupported and retired inputs refuse dispatch.
  * 3. Valid input invokes its dispatcher exactly once and returns its result.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `readAutoMovieCommandArguments` and asserts the whole command object for help, version, `start`, `toc`, `routes` and `inspect-external`, then calls `dispatchAutoMovieCommandArguments` and asserts that every malformed argv throws before the counting dispatcher runs and that a valid argv runs it once and returns its value; it catches a dropped `force` or `check` flag, a last-wins duplicate option, a silently ignored extra token, a retired command still accepted, a blank target directory, and a dispatcher reached by refused input.
+ * @evidence contracts/testing.md#independent-expectations Expected objects are written from the documented grammar (lone help or version flag, next-token option values, duplicates refused, no `--` terminator); the four languages, three production kinds and four ingest profiles are spelled out by hand instead of read from the owning packages' constants, so a vocabulary that shrinks fails here. Refusals are checked only as thrown `Error`s, so the correction each message names is not pinned.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: no arguments and both help and version spellings, every language, `--force` placed before the directory, `toc` with and without `--check`, every kind and profile. Negative: thirty-one argv arrays covering a help or version flag beside another token, unknown and retired commands (`migrate`, `contracts migrate`, `verify`, `render all`, `sync`), a missing, dangling, flag-valued or unsupported option value, repeated `--language`, `--force`, `--check` and `--profile`, unknown options, two positionals and a blank directory. What `run` performs for each admitted command is not exercised here; the inspection core belongs to test_cli_external_inspection.
  */
 export const test_cli_command_arguments = (): void => {
   const read = (...args: string[]) => readAutoMovieCommandArguments(args);

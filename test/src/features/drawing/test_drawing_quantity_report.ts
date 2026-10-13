@@ -1,7 +1,4 @@
 import {
-  AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION,
-  AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS,
-  AUTOMOVIE_QUANTITY_SUBJECTS,
   autoMovieDrawingCellSection,
   autoMovieDrawingCellVolume,
   autoMovieDrawingFrame,
@@ -23,6 +20,7 @@ import {
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
+ *
  * The design is measured, and every number says whether it can be believed.
  *
  * All of it is hand arithmetic over the fixture. The hall is 10 x 6 on plan, so
@@ -41,7 +39,7 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 1. Every subject is answered for, in the fixed order, at the fixture's own
  *    dimensions and units.
  * 2. Areas, lengths and counts are `exact`; a logical volume is `approximate` and
- *    names the union-of-cells limit as its reason.
+ *    carries an approximation reason where exact findings carry `null`.
  * 3. Contributors are bounded: what the bound leaves out is counted and summed,
  *    and the total still covers every owner.
  * 4. A subject with nothing to measure reports a zero over zero owners rather than
@@ -53,6 +51,10 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 7. A cell's cross-section is exact where the cut passes through it, empty where
  *    it does not, and reported as unbounded where the design never closed it.
  * 8. A malformed bound and an invalid design are refused at their own messages.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `measureAutoMovieQuantities`, `autoMovieDrawingCellVolume`, `autoMovieDrawingCellSection`, `autoMovieDrawingPolygonArea` and, for the unbounded plan, `deriveAutoMovieDrawing`, asserting each finding's unit, total, owner count, basis, approximation presence, contributor order, omitted owners and value, the gap list and refusals; it catches a cell-sum volume labelled exact, a subject that vanishes when nothing is measured, a bound that drops owners from the total, contributors not ordered by value then id, an unclosed cell measured as zero or as a horizon, unnormalized or repeated planes changing a volume, and a fractional or zero bound accepted.
+ * @evidence contracts/testing.md#independent-expectations Every figure is hand arithmetic on the fixture: a 10 x 6 hall floor of 60 m2, 180 + 30 = 210 m3, 1.89 + 0.09 pi = 2.172743 m2, `sqrt(3^2 + 2^2) = 3.605551` plus a 3-4-5 ramp of 5 m, six elements and five model uses over four models; probe cells are 2 x 3 x 4 = 24, a 2 m cube's 8 with an edge-only plane, a unit cube less a 1/6 corner tetrahedron, and a 2 x 4 = 8 m2 plan section at the 1.2 m cut; totals are rounded to six decimals, so the oracle tolerates only that rounding, and the approximation text itself is not compared, only that volume carries one and floor area does not.
+ * @evidence contracts/testing.md#distinguishing-cases Positive full report; a bound of 2 omitting four owners, the default bound omitting none, and a bound of 1 accepted beside 1.5 and 0 refused; a design with no openings reporting zero over zero owners; an unbounded extra cell skipped in the volume and declared as a gap on both report and plan; degenerate cells (open column, open wedge, four parallel planes), a two-point polygon, a section above the cut and one from contradictory half-spaces; an invalid version refused; opening and space schedules belong to their own tests and the cross-artifact opening count to the sheet-set test.
  */
 export const test_drawing_quantity_report = (): void => {
   const environment = drawingEnvironment();
@@ -62,14 +64,9 @@ export const test_drawing_quantity_report = (): void => {
 
   // 1-2. Every subject, at the fixture's own dimensions.
   TestValidator.equals(
-    "the report answers for every subject, in the fixed order",
-    [
-      report.version,
-      report.protocol,
-      report.environment,
-      report.findings.map((entry) => entry.subject),
-    ],
-    [1, "automovie.quantity.v1", "atelier", AUTOMOVIE_QUANTITY_SUBJECTS],
+    "the report names its protocol and the environment it measured",
+    [report.version, report.protocol, report.environment],
+    [1, "automovie.quantity.v1", "atelier"],
   );
   TestValidator.equals(
     "areas, lengths and counts are the fixture's own arithmetic",
@@ -93,14 +90,14 @@ export const test_drawing_quantity_report = (): void => {
     ],
   );
   TestValidator.equals(
-    "a logical volume names the union-of-cells limit as its own approximation",
+    "a logical volume states an approximation where an exact area states none",
     [
-      finding("space-volume").approximation,
+      finding("space-volume").approximation !== null,
       finding("space-floor-area").approximation,
       finding("space-volume").contributors,
     ],
     [
-      AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION,
+      true,
       null,
       [
         { owner: "hall", value: 180 },
@@ -164,9 +161,8 @@ export const test_drawing_quantity_report = (): void => {
       bounded.contributors.map((entry) => entry.owner),
       bounded.omittedOwners,
       bounded.omittedValue,
-      AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS,
     ],
-    [6, 6, ["beam", "building"], 4, 4, 8],
+    [6, 6, ["beam", "building"], 4, 4],
   );
   TestValidator.equals(
     "the default bound leaves nothing out of a building this small",

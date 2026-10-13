@@ -9,6 +9,14 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * drawing against the design would have to re-derive the frame and hope it
  * matched.
  *
+ * For a reflected ceiling plan `right` is negated, so that basis is left-handed
+ * (`right × up = -normal`). A derived drawing rounds every component to six
+ * decimals, so unit length holds only to that precision.
+ *
+ * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` takes `normal` as the negated view direction, `right` as `up × normal` normalized and `up` re-orthogonalized as `normal × right`, then negates `right` for the reflected ceiling plan; zero, non-finite or parallel inputs throw.
+ * @evidence contracts/common.md#clear-and-simple-design An origin and three unit vectors are the least data that maps a page point back to the world, published so consumers never re-derive it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The ceiling-plan mirror lives only in this frame's negated `right` and in no consumer, which is exactly why that basis is left-handed.
+ * @evidence contracts/common.md#meaningful-documentation States what each vector means, the handedness of the reflected case, and the rounding precision of the published components.
  * @author Samchon
  */
 export interface IAutoMovieDrawingFrame {

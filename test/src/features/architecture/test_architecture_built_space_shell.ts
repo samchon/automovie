@@ -24,6 +24,7 @@ import { drawingView } from "../internal/drawingFixtures";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 
 /**
+ *
  * A logical volume may be its own closed boundary, and that boundary may have a
  * void through it.
  *
@@ -64,6 +65,10 @@ import { hasViolation, namedFacts, nclose } from "../internal/predicates";
  *    over: an index naming no vertex contributes no facet to the volume or the
  *    winding, and a facet with no area is skipped rather than summed as a `NaN`
  *    that would poison every later answer.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `validateBuiltEnvironment`, `builtEnvironmentContainsPoint`, `builtSpaceShellVolume`, `builtEnvironmentSpaceFidelity`, `measureAutoMovieQuantities`, `deriveAutoMovieDrawing`, `builtSpaceStatesVolume`, `builtSpaceIsConvex` and `builtSpaceContainsPoint` over shelled, celled and faceted halls and asserts containment, enclosed volume, validity and violation paths, folded fidelity, take-off contributors, totals and gaps, drawn regions and drawing gaps, and the volume and convexity answers; it catches a void counted as inside, a corner lost by a solid-angle test, a shell beside cells accepted, a malformed or inside-out shell accepted, fidelity not folded to the parent, a faceted space measured as exact, a shell sectioned silently, and a dangling index or flat facet poisoning the arithmetic.
+ * @evidence contracts/testing.md#independent-expectations The hall is a 10 by 4 by 10 box with a 4 by 4 by 4 inward-wound atrium, so its volume is `400 - 64 = 336` and containment of room, atrium, outside, face, edge, corner and atrium-wall points is read off the box coordinates; fidelity words, gap subjects and statuses are the interface's documented values; one cell is convex by definition and two cells or a shell are not claimed convex; reasons are matched by the space name only.
+ * @evidence contracts/testing.md#distinguishing-cases Positive room point, face, edge, corner and atrium wall with negative atrium and beyond-hall points; an exact and a faceted hall, a junk fidelity word and fidelity on a volume-less space refused, and a volume-less subtree unstated; a faceted gap raised against an exact take-off raising none; a shelled hall drawing no region and naming a gap against a celled one drawing its region; a shell, one cell, two cells and a name for both volume questions; a whole cube passing beside every malformed shell via `assertBuiltSpaceShellTestRefusals`; an empty-vertex and a flat-facet shell read without throwing; convex-cell vertex geometry is owned by test_architecture_convex_cell_vertices.
  */
 export const test_architecture_built_space_shell = (): void => {
   const shelled = work({});

@@ -29,6 +29,13 @@ import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
  * A resolvable hierarchy is the precondition, which `validateBuiltEnvironment`
  * enforces by rejecting an unresolved parent and a parent cycle.
  *
+ * Answers `<environment>/<element>` node ids in record order.
+ *
+ * @evidence contracts/common.md#principled-implementation Keeps elements with neither a `space` nor a `parent`, because every child is reached through its parent and every claimed element through its space, so only an unindexed root is reached by nothing.
+ * @evidence contracts/common.md#clear-and-simple-design One filter and map over the element list; the reach rule comes from the record's own ownership hierarchy rather than the compiled scene's drawn set.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unassigned envelope and machinery elements are reported without being treated as errors, no element kind is exempted, and hierarchy resolvability is left to validation rather than re-checked.
+ * @evidence contracts/common.md#meaningful-documentation States why an unassigned element is not careless with the measured nine-of-thirty example, why reach follows the element hierarchy, the drawn-set reading it replaced, the precondition, and the id spelling.
+ * @evidence contracts/performance.md#cost-and-resources A single pass over elements testing two fields each, `O(E)`, allocating one id string per unclaimed root and caching nothing.
  * @author Samchon
  */
 export const builtEnvironmentUnclaimedElements = (
