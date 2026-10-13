@@ -1,6 +1,9 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
 
-import { ffmpegArgs, frameName, framePattern, frameTimes } from "./plan";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { frameName } from "./frameName";
+import { framePattern } from "./framePattern";
+import { frameTimes } from "./frameTimes";
 
 /**
  * The host-supplied I/O a render needs. Kept as injected dependencies so the

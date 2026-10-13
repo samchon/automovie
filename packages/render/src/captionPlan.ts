@@ -16,7 +16,8 @@ import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
 } from "./captionSidecar";
-import { frameTimes } from "./plan";
+import { frameTimes } from "./frameTimes";
+import { shotBeat } from "./shotBeat";
 
 /**
  * Plan the caption sidecar of one sequence render: which beat's shot is live
@@ -37,7 +38,7 @@ import { frameTimes } from "./plan";
  *
  * @evidence contracts/common.md#principled-implementation Frames come from `frameTimes`, the exact-rational `i / fps` schedule the render plan uses, and a forward-only `playbackCursor` resolves each instant to the live shot; the cursor's premise of a non-decreasing clock holds because the schedule is strictly increasing, and grouping consecutive equal beats into half-open spans covers every frame exactly once.
  * @evidence contracts/common.md#clear-and-simple-design Timeline layout and live-shot resolution stay in the engine, the beat index in `beatCaptions`, and serialization in `renderCaptionSidecar`; this function owns only sampling, grouping and the join, so the sidecar cannot drift from the render's frame schedule.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The `shot:` prefix is the interface's documented shot-to-beat naming, not a fixture case; the same parse is duplicated in `poseKeypointPlan`, a gap this file does not own, and no sequence or beat is special-cased.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The `shot:` prefix is the interface's documented shot-to-beat naming, not a fixture case, read through `shotBeat`, which the pose-keypoint plan shares, and no sequence or beat is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states the clock and schedule shared with the render, the transition rule, the shot-to-beat mapping, the null states, every refusal, and that the host writes the file.
  * @evidence contracts/performance.md#efficient-algorithms For F output frames, E cut entries and N tree nodes the cost is O(F + E + N): one cursor sweep resolves all frames, spans are extended in the same pass, and each span joins the beat index once; the only array of size F is the frame schedule itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner computes one sidecar per call from caller-supplied values and coordinates no phases; a host that also plans the render recomputes the shared schedule, which is cheap arithmetic.
@@ -84,7 +85,7 @@ export const planCaptionSidecar = (props: {
 
   const entries: IAutoMovieCaptionEntry[] = [];
   times.forEach((time: number, frame: number): void => {
-    const beat: string = beatOf(cursor(time).shot);
+    const beat: string = shotBeat(cursor(time).shot);
     const last: IAutoMovieCaptionEntry | undefined =
       entries[entries.length - 1];
     if (last !== undefined && last.beat === beat) {
@@ -102,7 +103,3 @@ export const planCaptionSidecar = (props: {
   });
   return { target: sequence.id, fps, frameCount: times.length, entries };
 };
-
-/** `shot:duel` names beat `duel`; an unprefixed id is already the beat id. */
-const beatOf = (shotId: string): string =>
-  shotId.startsWith("shot:") ? shotId.slice("shot:".length) : shotId;

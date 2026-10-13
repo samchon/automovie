@@ -1,13 +1,21 @@
 import {
+  IAutoMovieDesignChange,
+  IAutoMovieDesignDecision,
+  IAutoMovieDesignLifecycle,
   IAutoMovieDesignLineage,
-  IAutoMovieDesignStamp,
+  IAutoMovieDesignPhase,
+  IAutoMovieDesignRevision,
+  IAutoMovieDesignSubject,
+  IAutoMovieDesignVariant,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-
-/** A plain SHA-256 content digest as this project writes it. */
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+import { appendGraphCycles } from "../validation/appendGraphCycles";
+import { collectDeclaredIds } from "../validation/collectDeclaredIds";
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
+import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
+import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
 
 /**
  * Validate one lineage record as a self-consistent phase, alternative, and
@@ -37,22 +45,34 @@ const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
  * Comparison fairness is a validation rule rather than a convention. When two
  * alternatives of one decision both carry a derived artifact of the same kind,
  * those artifacts must share a lowering configuration and a phase, because a
- * comparison shot under two cameras compares the cameras.
+ * comparison shot under two cameras compares the cameras. The derived artifact
+ * rules are listed on {@link validateDesignLineageDerived}.
  *
  * Every digest must be a lowercase `sha256:` hex digest. Findings are returned
  * with `$input` paths and nothing throws; the lineage query functions throw on
  * the first finding instead. Host identities are not checked here;
  * {@link validateDesignLineageBinding} does that.
+ *
+ * @param props.lineage Lineage record to validate.
+ * @returns Success, or every violation found.
+ *
+ * @evidence contracts/common.md#principled-implementation Treats the lineage as id-keyed graphs: references resolve through declared id sets, the revision, phase and derivation graphs are checked for cycles with a depth-first walk, and removal order is decided by the transitive prerequisites of the removing phase, computed by breadth-first search.
+ * @evidence contracts/common.md#clear-and-simple-design The lineage owns its subject, revision, phase, lifecycle, variant and decision rules; the derived-artifact rules live in `validateDesignLineageDerived`, and id declaration, reference resolution, cycle detection and blank strings come from the shared validation helpers instead of private copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, phase or variant is special-cased; a missing lifecycle is refused rather than defaulted, and a dangling prerequisite is reported once on its own path rather than repeated as an ordering complaint.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states every refusal class and why staleness refuses, how to rebake, why lifecycle coverage is total, the fairness rule, the digest form, the path root, that nothing throws, and which function checks host identities.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the records and references through id sets and a variant index built once, plus one breadth-first prerequisite walk per lifecycle with a removing phase, O(P + R) each over P phases and R requirements; the earlier per-lifecycle phase index and per-option variant search are gone.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one record per call; every lineage query validates its input once before answering, and nothing here is shared across those calls because the record is the caller's mutable value.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, the phase and variant indexes and each prerequisite walk are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
 export const validateDesignLineage = (props: {
   /** Lineage record to validate. */
   lineage: IAutoMovieDesignLineage;
 }): IAutoMovieValidation => {
   const { lineage } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
-  nonEmpty(lineage.id, `${root}.id`, "design lineage id", out);
+  out.nonEmpty(`${root}.id`, lineage.id, "design lineage id");
   if (lineage.version !== 1)
     out.push(
       "type",
@@ -61,25 +81,30 @@ export const validateDesignLineage = (props: {
       lineage.version,
     );
 
-  const subjectIds = collectIds(
+  const subjectIds: Set<string> = collectDeclaredIds(
     lineage.subjects,
     `${root}.subjects`,
     "lineage subject",
     out,
   );
-  lineage.subjects.forEach((subject, index) => {
-    const path = `${root}.subjects[${index}]`;
-    nonEmpty(subject.graph, `${path}.graph`, "lineage subject graph", out);
-    if (subject.digest !== null && !DIGEST_PATTERN.test(subject.digest))
-      out.push(
-        "type",
-        `${path}.digest`,
-        `lineage subject digest must be a lowercase "sha256:" hex digest, but was ${String(subject.digest)}`,
-        subject.digest,
-      );
-  });
+  lineage.subjects.forEach(
+    (subject: IAutoMovieDesignSubject, index: number): void => {
+      const path: string = `${root}.subjects[${index}]`;
+      out.nonEmpty(`${path}.graph`, subject.graph, "lineage subject graph");
+      if (
+        subject.digest !== null &&
+        !SHA256_DIGEST_PATTERN.test(subject.digest)
+      )
+        out.push(
+          "type",
+          `${path}.digest`,
+          `lineage subject digest must be a lowercase "sha256:" hex digest, but was ${String(subject.digest)}`,
+          subject.digest,
+        );
+    },
+  );
 
-  const revisionIds = collectIds(
+  const revisionIds: Set<string> = collectDeclaredIds(
     lineage.revisions,
     `${root}.revisions`,
     "design revision",
@@ -92,30 +117,42 @@ export const validateDesignLineage = (props: {
       "a design lineage must record at least one revision",
       lineage.revisions,
     );
-  lineage.revisions.forEach((revision, index) => {
-    const path = `${root}.revisions[${index}]`;
-    if (revision.parent !== null && !revisionIds.has(revision.parent))
-      out.push(
-        "type",
-        `${path}.parent`,
-        `design revision parent "${revision.parent}" does not resolve`,
-        revision.parent,
-      );
-    if (!DIGEST_PATTERN.test(revision.digest))
-      out.push(
-        "type",
-        `${path}.digest`,
-        `design revision digest must be a lowercase "sha256:" hex digest, but was ${String(revision.digest)}`,
-        revision.digest,
-      );
-  });
-  appendCycles(
-    lineage.revisions.map((revision, index) => ({
-      id: revision.id,
-      links: revision.parent === null ? [] : [revision.parent],
-      path: `${root}.revisions[${index}].parent`,
-    })),
-    "design revision",
+  lineage.revisions.forEach(
+    (revision: IAutoMovieDesignRevision, index: number): void => {
+      const path: string = `${root}.revisions[${index}]`;
+      if (revision.parent !== null && !revisionIds.has(revision.parent))
+        out.push(
+          "type",
+          `${path}.parent`,
+          `design revision parent "${revision.parent}" does not resolve`,
+          revision.parent,
+        );
+      if (!SHA256_DIGEST_PATTERN.test(revision.digest))
+        out.push(
+          "type",
+          `${path}.digest`,
+          `design revision digest must be a lowercase "sha256:" hex digest, but was ${String(revision.digest)}`,
+          revision.digest,
+        );
+    },
+  );
+  appendGraphCycles(
+    lineage.revisions.map(
+      (
+        revision: IAutoMovieDesignRevision,
+        index: number,
+      ): { id: string; links: string[]; path: string; value: unknown } => {
+        const links: string[] =
+          revision.parent === null ? [] : [revision.parent];
+        return {
+          id: revision.id,
+          links,
+          path: `${root}.revisions[${index}].parent`,
+          value: links,
+        };
+      },
+    ),
+    "design revision graph must be acyclic",
     out,
   );
   if (!revisionIds.has(lineage.head))
@@ -126,16 +163,16 @@ export const validateDesignLineage = (props: {
       lineage.head,
     );
 
-  const phaseIds = collectIds(
+  const phaseIds: Set<string> = collectDeclaredIds(
     lineage.phases,
     `${root}.phases`,
     "construction phase",
     out,
   );
-  lineage.phases.forEach((phase, index) => {
-    const path = `${root}.phases[${index}]`;
-    nonEmpty(phase.label, `${path}.label`, "construction phase label", out);
-    validateReferences(
+  lineage.phases.forEach((phase: IAutoMovieDesignPhase, index: number): void => {
+    const path: string = `${root}.phases[${index}]`;
+    out.nonEmpty(`${path}.label`, phase.label, "construction phase label");
+    validateDeclaredReferences(
       phase.requires,
       phaseIds,
       `${path}.requires`,
@@ -143,53 +180,67 @@ export const validateDesignLineage = (props: {
       out,
     );
   });
-  appendCycles(
-    lineage.phases.map((phase, index) => ({
-      id: phase.id,
-      links: phase.requires,
-      path: `${root}.phases[${index}].requires`,
-    })),
-    "construction phase",
+  appendGraphCycles(
+    lineage.phases.map(
+      (
+        phase: IAutoMovieDesignPhase,
+        index: number,
+      ): { id: string; links: string[]; path: string; value: unknown } => ({
+        id: phase.id,
+        links: phase.requires,
+        path: `${root}.phases[${index}].requires`,
+        value: phase.requires,
+      }),
+    ),
+    "construction phase graph must be acyclic",
     out,
   );
+  const phasesById: Map<string, IAutoMovieDesignPhase> = new Map(
+    lineage.phases.map(
+      (phase: IAutoMovieDesignPhase): [string, IAutoMovieDesignPhase] => [
+        phase.id,
+        phase,
+      ],
+    ),
+  );
 
-  const covered = new Set<string>();
-  lineage.lifecycles.forEach((lifecycle, index) => {
-    const path = `${root}.lifecycles[${index}]`;
-    if (!subjectIds.has(lifecycle.subject))
-      out.push(
-        "type",
-        `${path}.subject`,
-        `lifecycle subject "${lifecycle.subject}" does not resolve`,
-        lifecycle.subject,
-      );
-    if (covered.has(lifecycle.subject))
-      out.push(
-        "type",
-        `${path}.subject`,
-        `lifecycle subject "${lifecycle.subject}" already has a lifecycle`,
-        lifecycle.subject,
-      );
-    covered.add(lifecycle.subject);
-    for (const field of ["introducedIn", "removedIn"] as const) {
-      const phase = lifecycle[field];
-      if (phase !== null && !phaseIds.has(phase))
+  const covered: Set<string> = new Set();
+  lineage.lifecycles.forEach(
+    (lifecycle: IAutoMovieDesignLifecycle, index: number): void => {
+      const path: string = `${root}.lifecycles[${index}]`;
+      if (!subjectIds.has(lifecycle.subject))
         out.push(
           "type",
-          `${path}.${field}`,
-          `lifecycle ${field} phase "${phase}" does not resolve`,
-          phase,
+          `${path}.subject`,
+          `lifecycle subject "${lifecycle.subject}" does not resolve`,
+          lifecycle.subject,
         );
-    }
-    if (
-      lifecycle.removedIn !== null &&
-      phaseIds.has(lifecycle.removedIn) &&
-      (lifecycle.introducedIn === null || phaseIds.has(lifecycle.introducedIn))
-    ) {
-      const before = phasesBefore(lineage, lifecycle.removedIn);
+      if (covered.has(lifecycle.subject))
+        out.push(
+          "type",
+          `${path}.subject`,
+          `lifecycle subject "${lifecycle.subject}" already has a lifecycle`,
+          lifecycle.subject,
+        );
+      covered.add(lifecycle.subject);
+      for (const field of ["introducedIn", "removedIn"] as const) {
+        const phase: string | null = lifecycle[field];
+        if (phase !== null && !phaseIds.has(phase))
+          out.push(
+            "type",
+            `${path}.${field}`,
+            `lifecycle ${field} phase "${phase}" does not resolve`,
+            phase,
+          );
+      }
       if (
+        lifecycle.removedIn !== null &&
         lifecycle.introducedIn !== null &&
-        !before.has(lifecycle.introducedIn)
+        phaseIds.has(lifecycle.removedIn) &&
+        phaseIds.has(lifecycle.introducedIn) &&
+        !phasesBefore(phasesById, lifecycle.removedIn).has(
+          lifecycle.introducedIn,
+        )
       )
         out.push(
           "type",
@@ -197,433 +248,176 @@ export const validateDesignLineage = (props: {
           `lifecycle subject "${lifecycle.subject}" is removed in phase "${lifecycle.removedIn}", which does not follow its introducing phase "${lifecycle.introducedIn}"`,
           lifecycle.removedIn,
         );
-    }
-  });
-  lineage.subjects.forEach((subject, index) => {
-    if (!covered.has(subject.id))
-      out.push(
-        "type",
-        `${root}.subjects[${index}].id`,
-        `lineage subject "${subject.id}" declares no lifecycle; every declared identity needs exactly one`,
-        subject.id,
-      );
-  });
+    },
+  );
+  lineage.subjects.forEach(
+    (subject: IAutoMovieDesignSubject, index: number): void => {
+      if (!covered.has(subject.id))
+        out.push(
+          "type",
+          `${root}.subjects[${index}].id`,
+          `lineage subject "${subject.id}" declares no lifecycle; every declared identity needs exactly one`,
+          subject.id,
+        );
+    },
+  );
 
-  const variantIds = collectIds(
+  const variantIds: Set<string> = collectDeclaredIds(
     lineage.variants,
     `${root}.variants`,
     "design variant",
     out,
   );
-  const changeIds = new Set<string>();
-  lineage.variants.forEach((variant, index) => {
-    const path = `${root}.variants[${index}]`;
-    nonEmpty(variant.label, `${path}.label`, "design variant label", out);
-    if (!revisionIds.has(variant.base))
-      out.push(
-        "type",
-        `${path}.base`,
-        `design variant base revision "${variant.base}" does not resolve`,
-        variant.base,
-      );
-    const edited = new Set<string>();
-    variant.changes.forEach((change, changeIndex) => {
-      const changePath = `${path}.changes[${changeIndex}]`;
-      nonEmpty(change.id, `${changePath}.id`, "design change id", out);
-      if (changeIds.has(change.id))
-        out.push(
-          "type",
-          `${changePath}.id`,
-          `design change id "${change.id}" must be unique`,
-          change.id,
-        );
-      changeIds.add(change.id);
-      if (!subjectIds.has(change.subject))
-        out.push(
-          "type",
-          `${changePath}.subject`,
-          `design change subject "${change.subject}" does not resolve`,
-          change.subject,
-        );
-      nonEmpty(
-        change.aspect,
-        `${changePath}.aspect`,
-        "design change aspect",
-        out,
-      );
-      nonEmpty(
-        change.rationale,
-        `${changePath}.rationale`,
-        "design change rationale",
-        out,
-      );
-      const key = record(change.subject, change.aspect);
-      if (edited.has(key))
-        out.push(
-          "type",
-          `${changePath}.aspect`,
-          `design variant "${variant.id}" changes aspect "${change.aspect}" of subject "${change.subject}" twice`,
-          change.aspect,
-        );
-      edited.add(key);
-    });
-  });
-
-  collectIds(lineage.decisions, `${root}.decisions`, "design decision", out);
-  lineage.decisions.forEach((decision, index) => {
-    const path = `${root}.decisions[${index}]`;
-    nonEmpty(
-      decision.question,
-      `${path}.question`,
-      "design decision question",
-      out,
-    );
-    if (decision.options.length < 2)
-      out.push(
-        "range",
-        `${path}.options`,
-        `a design decision compares at least two alternatives, but cited ${decision.options.length}`,
-        decision.options,
-      );
-    validateReferences(
-      decision.options,
-      variantIds,
-      `${path}.options`,
-      "design variant",
-      out,
-    );
-    const bases = new Set(
-      decision.options.flatMap((option) => {
-        const variant = lineage.variants.find(
-          (candidate) => candidate.id === option,
-        );
-        return variant === undefined ? [] : [variant.base];
-      }),
-    );
-    if (bases.size > 1)
-      out.push(
-        "type",
-        `${path}.options`,
-        `design decision "${decision.id}" compares alternatives on ${bases.size} different base revisions; a comparison needs one common basis`,
-        decision.options,
-      );
-    if (
-      decision.selected !== null &&
-      !decision.options.includes(decision.selected)
-    )
-      out.push(
-        "type",
-        `${path}.selected`,
-        `design decision selection "${decision.selected}" is not one of the compared alternatives`,
-        decision.selected,
-      );
-  });
-
-  const derivedIds = collectIds(
-    lineage.derived,
-    `${root}.derived`,
-    "derived artifact",
-    out,
-  );
-  const stampable = new Set<string>([...subjectIds, ...derivedIds]);
-  const derivedById = new Map(
-    lineage.derived.map((artifact) => [artifact.id, artifact] as const),
-  );
-  const subjectBytes = new Map(
-    lineage.subjects.flatMap((subject) =>
-      subject.digest === null ? [] : [[subject.id, subject.digest] as const],
+  const variantsById: Map<string, IAutoMovieDesignVariant> = new Map(
+    lineage.variants.map(
+      (variant: IAutoMovieDesignVariant): [string, IAutoMovieDesignVariant] => [
+        variant.id,
+        variant,
+      ],
     ),
   );
-  lineage.derived.forEach((artifact, index) => {
-    const path = `${root}.derived[${index}]`;
-    if (subjectIds.has(artifact.id))
-      out.push(
-        "type",
-        `${path}.id`,
-        `derived artifact id "${artifact.id}" collides with a declared subject identity`,
-        artifact.id,
-      );
-    nonEmpty(artifact.kind, `${path}.kind`, "derived artifact kind", out);
-    if (artifact.inputs.length === 0)
-      out.push(
-        "range",
-        `${path}.inputs`,
-        "a derived artifact must cite at least one input identity",
-        artifact.inputs,
-      );
-    validateReferences(
-      artifact.inputs,
-      stampable,
-      `${path}.inputs`,
-      "lineage identity",
-      out,
-    );
-    if (!DIGEST_PATTERN.test(artifact.digest))
-      out.push(
-        "type",
-        `${path}.digest`,
-        `derived artifact digest must be a lowercase "sha256:" hex digest, but was ${String(artifact.digest)}`,
-        artifact.digest,
-      );
-    if (!DIGEST_PATTERN.test(artifact.stamp.configuration))
-      out.push(
-        "type",
-        `${path}.stamp.configuration`,
-        `derived artifact configuration digest must be a lowercase "sha256:" hex digest, but was ${String(artifact.stamp.configuration)}`,
-        artifact.stamp.configuration,
-      );
-    if (artifact.stamp.revision !== lineage.head)
-      out.push(
-        "type",
-        `${path}.stamp.revision`,
-        `derived artifact "${artifact.id}" is stale: it stamps revision "${artifact.stamp.revision}" while the work is on "${lineage.head}"`,
-        artifact.stamp.revision,
-      );
-    if (artifact.stamp.variant !== null) {
-      const variant = lineage.variants.find(
-        (candidate) => candidate.id === artifact.stamp.variant,
-      );
-      if (variant === undefined)
+  const changeIds: Set<string> = new Set();
+  lineage.variants.forEach(
+    (variant: IAutoMovieDesignVariant, index: number): void => {
+      const path: string = `${root}.variants[${index}]`;
+      out.nonEmpty(`${path}.label`, variant.label, "design variant label");
+      if (!revisionIds.has(variant.base))
         out.push(
           "type",
-          `${path}.stamp.variant`,
-          `derived artifact variant "${artifact.stamp.variant}" does not resolve`,
-          artifact.stamp.variant,
+          `${path}.base`,
+          `design variant base revision "${variant.base}" does not resolve`,
+          variant.base,
         );
-      else if (variant.base !== artifact.stamp.revision)
-        out.push(
-          "type",
-          `${path}.stamp.variant`,
-          `derived artifact "${artifact.id}" applies variant "${variant.id}" of revision "${variant.base}" to revision "${artifact.stamp.revision}"`,
-          artifact.stamp.variant,
-        );
-    }
-    if (artifact.stamp.phase !== null && !phaseIds.has(artifact.stamp.phase))
-      out.push(
-        "type",
-        `${path}.stamp.phase`,
-        `derived artifact phase "${artifact.stamp.phase}" does not resolve`,
-        artifact.stamp.phase,
+      const edited: Set<string> = new Set();
+      variant.changes.forEach(
+        (change: IAutoMovieDesignChange, changeIndex: number): void => {
+          const changePath: string = `${path}.changes[${changeIndex}]`;
+          out.nonEmpty(`${changePath}.id`, change.id, "design change id");
+          if (changeIds.has(change.id))
+            out.push(
+              "type",
+              `${changePath}.id`,
+              `design change id "${change.id}" must be unique`,
+              change.id,
+            );
+          changeIds.add(change.id);
+          if (!subjectIds.has(change.subject))
+            out.push(
+              "type",
+              `${changePath}.subject`,
+              `design change subject "${change.subject}" does not resolve`,
+              change.subject,
+            );
+          out.nonEmpty(
+            `${changePath}.aspect`,
+            change.aspect,
+            "design change aspect",
+          );
+          out.nonEmpty(
+            `${changePath}.rationale`,
+            change.rationale,
+            "design change rationale",
+          );
+          // Serialized as an array: any separator an id could itself contain
+          // would let two distinct (subject, aspect) pairs collide on one key.
+          const key: string = JSON.stringify([change.subject, change.aspect]);
+          if (edited.has(key))
+            out.push(
+              "type",
+              `${changePath}.aspect`,
+              `design variant "${variant.id}" changes aspect "${change.aspect}" of subject "${change.subject}" twice`,
+              change.aspect,
+            );
+          edited.add(key);
+        },
       );
-    artifact.inputs.forEach((input, inputIndex) => {
-      const upstream = derivedById.get(input);
-      if (upstream !== undefined && !sameStamp(upstream.stamp, artifact.stamp))
-        out.push(
-          "type",
-          `${path}.inputs[${inputIndex}]`,
-          `derived artifact "${artifact.id}" is stale against input "${input}", which was computed under a different revision, variant, phase, or configuration`,
-          input,
-        );
-    });
-    const importedInputs = new Set(
-      artifact.inputs.filter((input) => subjectBytes.has(input)),
-    );
-    const cited = new Set<string>();
-    artifact.assets.forEach((citation, citationIndex) => {
-      const citationPath = `${path}.assets[${citationIndex}]`;
-      const current = subjectBytes.get(citation.subject);
-      if (!importedInputs.has(citation.subject))
-        out.push(
-          "type",
-          `${citationPath}.subject`,
-          `derived artifact "${artifact.id}" cites bytes for "${citation.subject}", which is not one of its inputs carrying imported bytes`,
-          citation.subject,
-        );
-      else if (cited.has(citation.subject))
-        out.push(
-          "type",
-          `${citationPath}.subject`,
-          `derived artifact "${artifact.id}" cites the bytes of "${citation.subject}" twice`,
-          citation.subject,
-        );
-      else if (citation.digest !== current)
-        out.push(
-          "type",
-          `${citationPath}.digest`,
-          `derived artifact "${artifact.id}" is stale against imported input "${citation.subject}": it was computed from ${citation.digest} while that identity now carries ${String(current)}`,
-          citation.digest,
-        );
-      cited.add(citation.subject);
-    });
-    // In input order, like every other per-artifact complaint above; the set
-    // was filled from `artifact.inputs`, so iterating it keeps that order.
-    [...importedInputs]
-      .filter((input) => !cited.has(input))
-      .forEach((input) =>
-        out.push(
-          "type",
-          `${path}.assets`,
-          `derived artifact "${artifact.id}" reads imported input "${input}" without citing the bytes it read`,
-          artifact.assets,
-        ),
-      );
-  });
-  appendCycles(
-    lineage.derived.map((artifact, index) => ({
-      id: artifact.id,
-      links: artifact.inputs,
-      path: `${root}.derived[${index}].inputs`,
-    })),
-    "derived artifact",
-    out,
+    },
   );
 
-  lineage.decisions.forEach((decision) => {
-    const options = new Set(decision.options);
-    const seen = new Map<
-      string,
-      { configuration: string; phase: string | null }
-    >();
-    lineage.derived.forEach((artifact, artifactIndex) => {
+  collectDeclaredIds(
+    lineage.decisions,
+    `${root}.decisions`,
+    "design decision",
+    out,
+  );
+  lineage.decisions.forEach(
+    (decision: IAutoMovieDesignDecision, index: number): void => {
+      const path: string = `${root}.decisions[${index}]`;
+      out.nonEmpty(
+        `${path}.question`,
+        decision.question,
+        "design decision question",
+      );
+      if (decision.options.length < 2)
+        out.push(
+          "range",
+          `${path}.options`,
+          `a design decision compares at least two alternatives, but cited ${decision.options.length}`,
+          decision.options,
+        );
+      validateDeclaredReferences(
+        decision.options,
+        variantIds,
+        `${path}.options`,
+        "design variant",
+        out,
+      );
+      const bases: Set<string> = new Set();
+      for (const option of decision.options) {
+        const variant: IAutoMovieDesignVariant | undefined =
+          variantsById.get(option);
+        if (variant !== undefined) bases.add(variant.base);
+      }
+      if (bases.size > 1)
+        out.push(
+          "type",
+          `${path}.options`,
+          `design decision "${decision.id}" compares alternatives on ${bases.size} different base revisions; a comparison needs one common basis`,
+          decision.options,
+        );
       if (
-        artifact.stamp.variant === null ||
-        !options.has(artifact.stamp.variant)
-      )
-        return;
-      const previous = seen.get(artifact.kind);
-      if (previous === undefined)
-        seen.set(artifact.kind, {
-          configuration: artifact.stamp.configuration,
-          phase: artifact.stamp.phase,
-        });
-      else if (
-        previous.configuration !== artifact.stamp.configuration ||
-        previous.phase !== artifact.stamp.phase
+        decision.selected !== null &&
+        !decision.options.includes(decision.selected)
       )
         out.push(
           "type",
-          `${root}.derived[${artifactIndex}].stamp`,
-          `derived artifact "${artifact.id}" compares alternatives of decision "${decision.id}" under a different configuration or phase than another "${artifact.kind}" artifact of the same decision`,
-          artifact.stamp,
+          `${path}.selected`,
+          `design decision selection "${decision.selected}" is not one of the compared alternatives`,
+          decision.selected,
         );
-    });
-  });
+    },
+  );
 
+  validateDesignLineageDerived({
+    lineage,
+    subjectIds,
+    phaseIds,
+    variants: variantsById,
+    root,
+    out,
+  });
   return out.toValidation();
 };
 
-/** Every phase that must complete strictly before the given one. */
+/**
+ * Every phase that must complete strictly before the given one, by a
+ * breadth-first walk of `requires`. A prerequisite naming no phase is kept but
+ * not walked: it is reported on its own path, and walking it further would only
+ * repeat that one defect as an ordering complaint. A cycle terminates because
+ * each phase is entered once.
+ */
 const phasesBefore = (
-  lineage: IAutoMovieDesignLineage,
+  phasesById: ReadonlyMap<string, IAutoMovieDesignPhase>,
   phase: string,
 ): Set<string> => {
-  const byId = new Map(
-    lineage.phases.map((entry) => [entry.id, entry] as const),
-  );
-  const before = new Set<string>();
-  const queue = [...byId.get(phase)!.requires];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
+  const before: Set<string> = new Set();
+  const queue: string[] = [...(phasesById.get(phase)?.requires ?? [])];
+  for (let index: number = 0; index < queue.length; ++index) {
+    const current: string = queue[index]!;
     if (before.has(current)) continue;
     before.add(current);
-    // A prerequisite naming no phase is reported on its own path; walking it
-    // further would only repeat that one defect as an ordering complaint.
-    const next = byId.get(current);
+    const next: IAutoMovieDesignPhase | undefined = phasesById.get(current);
     if (next !== undefined) queue.push(...next.requires);
   }
   return before;
-};
-
-const sameStamp = (
-  a: IAutoMovieDesignStamp,
-  b: IAutoMovieDesignStamp,
-): boolean =>
-  a.revision === b.revision &&
-  a.variant === b.variant &&
-  a.phase === b.phase &&
-  a.configuration === b.configuration;
-
-/** Length-prefix every field so no authored text can forge a separator. */
-const record = (...fields: readonly string[]): string =>
-  fields.map((field) => `${field.length}:${field}`).join("|");
-
-const collectIds = <T extends { id: string }>(
-  records: readonly T[],
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-): Set<string> => {
-  const ids = new Set<string>();
-  records.forEach((entry, index) => {
-    nonEmpty(entry.id, `${path}[${index}].id`, `${label} id`, collector);
-    if (ids.has(entry.id))
-      collector.push(
-        "type",
-        `${path}[${index}].id`,
-        `${label} id "${entry.id}" must be unique`,
-        entry.id,
-      );
-    ids.add(entry.id);
-  });
-  return ids;
-};
-
-const validateReferences = (
-  references: readonly string[],
-  targets: ReadonlySet<string>,
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-): void => {
-  const seen = new Set<string>();
-  references.forEach((reference, index) => {
-    if (!targets.has(reference))
-      collector.push(
-        "type",
-        `${path}[${index}]`,
-        `${label} "${reference}" does not resolve`,
-        reference,
-      );
-    if (seen.has(reference))
-      collector.push(
-        "type",
-        `${path}[${index}]`,
-        `${label} "${reference}" is duplicated`,
-        reference,
-      );
-    seen.add(reference);
-  });
-};
-
-const appendCycles = (
-  nodes: readonly { id: string; links: readonly string[]; path: string }[],
-  label: string,
-  collector: ViolationCollector,
-): void => {
-  const byId = new Map(nodes.map((node) => [node.id, node] as const));
-  const states = new Map<string, "visiting" | "visited">();
-  const visit = (node: {
-    id: string;
-    links: readonly string[];
-    path: string;
-  }): void => {
-    const state = states.get(node.id);
-    if (state === "visited") return;
-    if (state === "visiting") {
-      collector.push(
-        "type",
-        node.path,
-        `${label} graph must be acyclic`,
-        node.links,
-      );
-      return;
-    }
-    states.set(node.id, "visiting");
-    for (const link of node.links) {
-      const next = byId.get(link);
-      if (next !== undefined) visit(next);
-    }
-    states.set(node.id, "visited");
-  };
-  nodes.forEach(visit);
-};
-
-const nonEmpty = (
-  value: string,
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-): void => {
-  if (value.trim().length === 0)
-    collector.push("type", path, `${label} must be non-empty`, value);
 };

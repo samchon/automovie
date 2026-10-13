@@ -14,32 +14,49 @@ import {
  * every extreme, and every containment or separation answer taken from it errs
  * only towards refusing.
  *
- * A bulge is the DXF tangent-of-quarter-angle value, positive leaning left of
- * the edge direction; the half-turn premise holds because
- * `validateBuiltEnvironment` refuses a bulge outside [-1, 1]. Absent bulges
- * mean straight edges and return the outline's own points. The result is in
- * the profile's planar frame and may be non-convex wherever the outline is.
+ * A bulge's magnitude is the DXF `tan(theta / 4)` of the arc's included angle,
+ * so the sagitta is half the chord times the bulge, but its sign is mirrored
+ * from DXF: a positive bulge leans left of the edge direction. The half-turn
+ * premise holds because `validateBuiltEnvironment` refuses a bulge outside
+ * [-1, 1], and it also refuses repeated consecutive corners, whose zero chord
+ * would make a bulged edge's offset `NaN`. Absent or zero bulges mean straight
+ * edges and contribute only the outline's own points, as the same objects. The
+ * result is in the profile's planar frame, lists each corner followed by its
+ * edge's two far corners when that edge bulges, and may be non-convex wherever
+ * the outline is.
+ *
+ * @param profile Opening outline and optional per-edge bulges.
+ * @returns The bounding straight ring, in outline order.
+ *
+ * @evidence contracts/common.md#principled-implementation For a circular arc of included angle at most pi, the chord-frame extents are exactly the chord and the sagitta `c/2 * tan(theta/4)`, so the chord-and-sagitta rectangle contains the arc and touches it at its extremes; the premises of a half-turn limit and a non-zero chord are enforced by building validation before any caller reads the hull.
+ * @evidence contracts/common.md#clear-and-simple-design One arc-bounding rule shared by building validation, wall cutting, observation stations, opening extents and service validation, so every consumer measures an arched void the same way.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No opening shape is special-cased and arcs are bounded, not sampled; a straight edge is passed through unchanged rather than given a zero-width rectangle.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why the hull contains the arc, the bulge magnitude and its mirrored sign, the validation premises and the `NaN` they prevent, the straight-edge case, the frame, the point order and that the result may be concave.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the n edges, O(n) time, emitting at most 3n points; each arc needs only its chord length and one normal offset.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure transformation of one profile that coordinates no work across requests; building validation computes each hull once and passes it to the overlap and panel-fit checks.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned ring of at most 3n points, which the caller owns; nothing else outlives the call.
  */
 export const outlineHull = (
   profile: IAutoMovieOpeningProfile,
 ): IAutoMoviePlanarPoint[] => {
-  const points = profile.outline;
+  const points: IAutoMoviePlanarPoint[] = profile.outline;
   const hull: IAutoMoviePlanarPoint[] = [];
-  points.forEach((from, index) => {
-    const to = points[(index + 1) % points.length]!;
+  for (let index: number = 0; index < points.length; ++index) {
+    const from: IAutoMoviePlanarPoint = points[index]!;
+    const to: IAutoMoviePlanarPoint = points[(index + 1) % points.length]!;
     hull.push(from);
-    const bulge = profile.bulges?.[index] ?? 0;
-    if (bulge === 0) return;
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const chord = Math.hypot(dx, dy);
+    const bulge: number = profile.bulges?.[index] ?? 0;
+    if (bulge === 0) continue;
+    const dx: number = to.x - from.x;
+    const dy: number = to.y - from.y;
+    const chord: number = Math.hypot(dx, dy);
     // The sagitta of a bulged edge is half its chord times the bulge, and the
     // arc leans to the left of the edge's own direction for a positive bulge.
-    const sagitta = (chord / 2) * bulge;
-    const offsetX = (-dy / chord) * sagitta;
-    const offsetY = (dx / chord) * sagitta;
+    const sagitta: number = (chord / 2) * bulge;
+    const offsetX: number = (-dy / chord) * sagitta;
+    const offsetY: number = (dx / chord) * sagitta;
     hull.push({ x: from.x + offsetX, y: from.y + offsetY });
     hull.push({ x: to.x + offsetX, y: to.y + offsetY });
-  });
+  }
   return hull;
 };

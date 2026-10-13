@@ -34,7 +34,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
   const basis = createAutoMovieQuadraticConstraintBasis(rows, bounds, free, diagonal.length);
   const result: IAutoMovieQuadraticWorkingSetStep = {
     primal: null, origin: null, flatDirection: null, normalDual: null, dual: null,
-    basis, reducedRank: 0, refusal: basis.refusal,
+    basis, refusal: basis.refusal,
   };
   const fail = (reason: string): IAutoMovieQuadraticWorkingSetStep => {
     result.refusal = reason; return result;
@@ -107,7 +107,6 @@ export function solveAutoMovieQuadraticWorkingSetStep(
     const curvature = createAutoMovieQuadraticConstraintBasis(
       objectiveRows, objectiveRows.map(() => 0), objectiveRows.map(() => false), diagonal.length,
     );
-    result.reducedRank = curvature.rank;
     if (curvature.refusal !== null) return fail("working-reduced-curvature: " + curvature.refusal);
     const count = curvature.rank, coordinates = new Array<number>(count).fill(0);
     // B P D^-1 = Q R. Curved terms use Q' times the original LS target,

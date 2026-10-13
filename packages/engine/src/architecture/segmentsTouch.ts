@@ -23,8 +23,8 @@ import { segmentsCross } from "./segmentsCross";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No configuration or caller is special-cased; every contact is decided by the two shared predicates and their shared tolerance.
  * @evidence contracts/common.md#meaningful-documentation The documentation states what counts as touching, why the case split is complete, and each parameter's role.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time, at most four orientation tests and four point-on-segment tests, with no algorithm to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over four points; it coordinates no work across requests or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads four points and allocates nothing, so no state, handle or task outlives the call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure contact predicate over two segments, called per edge pair by the polygon predicates; it shares no work.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads two segments, delegates to allocation-free predicates, and retains nothing.
  */
 export const segmentsTouch = (
   a: IAutoMoviePlanarPoint,

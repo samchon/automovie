@@ -2,7 +2,7 @@ import { Quaternion, Vector3, lookRotation } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, qunit, vclose } from "../internal/predicates";
+import { nclose, qclose, qunit, vclose } from "../internal/predicates";
 
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -24,6 +24,8 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * 4. Straight down and straight up: the up-parallel degenerates, resolved against
  *    the +Z reference (roll is unconstrained there, so only the forward mapping
  *    is pinned).
+ * 5. A zero direction states no aim and answers the identity, the level rest
+ *    orientation, instead of a camera rolled upside down.
  */
 export const test_film_camera_look_rotation = (): void => {
   const level: IAutoMovieVector3[] = [
@@ -63,4 +65,9 @@ export const test_film_camera_look_rotation = (): void => {
       vclose(Quaternion.rotateVector(q, FORWARD), direction),
     );
   }
+
+  TestValidator.predicate(
+    "zero direction answers the identity",
+    qclose(lookRotation({ x: 0, y: 0, z: 0 }), { x: 0, y: 0, z: 0, w: 1 }),
+  );
 };

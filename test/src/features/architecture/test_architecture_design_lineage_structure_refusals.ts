@@ -5,6 +5,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  lineageDigest,
   refusesLineage as refuses,
   renovationLineage,
 } from "../internal/lineageFixtures";
@@ -31,7 +32,9 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 3. Subject identities must be unique, non-blank, graph-labelled, and carry
  *    either a well-formed digest or none at all.
  * 4. A lineage with no revision, a dangling revision parent, a malformed revision
- *    digest, a revision cycle, and a dangling head are all refused.
+ *    digest, a revision cycle, and a dangling head are all refused, while a
+ *    revision history twenty thousand ancestors deep validates without
+ *    exhausting the call stack.
  * 5. A phase requiring nothing that exists, requiring the same phase twice, or
  *    requiring itself around a cycle is refused.
  * 6. A lifecycle about an unknown subject, a second lifecycle for one subject, a
@@ -135,6 +138,21 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
           refuses((draft) => {
             draft.revisions[0]!.parent = "r2";
           }, "$input.revisions[0].parent"),
+      ],
+      [
+        "a revision history deeper than the call stack still validates",
+        () => {
+          const lineage = renovationLineage();
+          const depth = 20_000;
+          lineage.revisions[0]!.parent = "ancestor-0";
+          for (let index = 0; index < depth; ++index)
+            lineage.revisions.push({
+              id: `ancestor-${index}`,
+              parent: index + 1 === depth ? null : `ancestor-${index + 1}`,
+              digest: lineageDigest("ad"),
+            });
+          return validateDesignLineage({ lineage }).success;
+        },
       ],
       [
         "a head naming no recorded revision is refused",
@@ -246,6 +264,7 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       "a dangling revision parent is refused": true,
       "a malformed revision digest is refused": true,
       "a revision that supersedes its own successor is refused": true,
+      "a revision history deeper than the call stack still validates": true,
       "a head naming no recorded revision is refused": true,
       "a phase with no label is refused": true,
       "a prerequisite naming no phase is refused": true,

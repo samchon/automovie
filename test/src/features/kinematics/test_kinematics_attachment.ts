@@ -31,7 +31,8 @@ import {
  * Scenarios:
  *
  * 1. Rest parent, identity offset → child root lands exactly on the chest's world
- *    position, identity rotation, offset scale passed through.
+ *    position, identity rotation, offset scale passed through as a copy that
+ *    the caller can change without changing the attachment.
  * 2. A non-identity offset translation is placed in the bone's frame and added to
  *    the bone world position.
  * 3. Rotating the parent's root yaws the whole rig: the child inherits the bone's
@@ -72,6 +73,12 @@ export const test_kinematics_attachment = (): void => {
     nclose(r1.rotation.w, 1),
   );
   TestValidator.predicate("offset scale passed through", nclose(r1.scale.x, 2));
+  r1.scale.x = 7;
+  TestValidator.equals(
+    "the returned scale is a copy, so changing it leaves the offset intact",
+    idOffset.scale,
+    { x: 2, y: 2, z: 2 },
+  );
 
   // 2. offset translation added in the (rest = world) frame
   const att2: IAutoMovieAttachment = {

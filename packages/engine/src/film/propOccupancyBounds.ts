@@ -1,149 +1,52 @@
 import {
-  IAutoMovieModel,
   IAutoMoviePropBox,
   IAutoMoviePropSpec,
   IAutoMovieStageSetPiece,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { tessellate } from "../geometry/tessellate";
-import { Matrix4 } from "../math/Matrix4";
-import { Quaternion } from "../math/Quaternion";
+import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
+import { transformedBoxBounds } from "../math/transformedBoxBounds";
+import { setPieceMatrix } from "./staging/setPieceMatrix";
+import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
 /**
  * The world-axis-aligned volume one staged prop occupies.
  *
- * A declared `footprint` wins because it is the prop's own statement of what it
- * takes up; otherwise the bound is derived from the prop's own parts, which is
- * the only honest answer a prop that says nothing can be given. Either way all
- * eight corners travel through the piece's full TRS (translation, unit
- * quaternion, per-axis scale) before the world bound is taken, so a rotated
- * prop widens rather than being silently re-fitted to its local box.
+ * A declared `placement.footprint` wins because it is the prop's own statement
+ * of what it takes up; otherwise the bound is derived from the prop's own
+ * model parts, each placed under its part transform and read through
+ * `tessellate` for a primitive. Either way the volume travels through the
+ * piece's full staged transform before the world bound is taken, so a rotated
+ * prop widens rather than being re-fitted to its local box.
  *
  * Those parts are the prop's geometry, not necessarily what a viewer draws. A
  * prop citing an external appearance (`IAutoMoviePropSpec.modelRef`) keeps its
  * parts as the deterministic proxy the builder registered, and that proxy is
- * what is measured here, because it is the only volume anybody stated: the
- * imported bytes are a file the engine never opens. So an author whose proxy is
- * cruder than the mesh it stands for declares a `footprint` for exactly the
- * reason a generated prop does, to state a use volume the geometry does not
- * show.
+ * measured here because it is the only volume anybody stated; the imported
+ * bytes are a file the engine never opens. An author whose proxy is cruder
+ * than the mesh it stands for declares a `footprint` to state the use volume.
+ * A prop whose parts carry no vertex at all collapses to the staged origin, so
+ * a caller never has to handle an empty bound.
  *
- * A prop whose parts carry no vertices at all collapses to the staged origin
- * rather than to an empty bound, so a caller never has to special-case it.
+ * @param props.prop The prop's registry entry.
+ * @param props.piece The set piece that stages it.
+ * @returns A new world box in metres.
+ *
+ * @evidence contracts/common.md#principled-implementation A declared footprint is bounded by its eight transformed corners, and the derived bound is the union of each part's exact transformed vertex box, so both are the exact axis-aligned bound of what they measure under the matrix staging draws the piece with.
+ * @evidence contracts/common.md#clear-and-simple-design Piece placement is `setPieceMatrix`, the footprint transform is `transformedBoxBounds` and the part measurement is `builtPlacedPartBoxes`, the same rules buildings, clearances and staging use; this file keeps only the footprint-over-geometry precedence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No prop or model kind is special-cased; the origin collapse for a vertex-less model is the shared stated rule, and an external appearance is measured by its registered proxy for every prop alike.
+ * @evidence contracts/common.md#meaningful-documentation States the footprint precedence and why, how parts are measured, that rotation widens the box, what is measured for an external appearance and the remedy when the proxy is crude, the origin collapse, and the frame and unit.
+ * @evidence contracts/performance.md#efficient-algorithms Constant time for a footprint; otherwise linear in the model's summed vertex count, folded per part without materializing a world point array.
+ * @evidence contracts/performance.md#reuse-equivalent-work The staged matrix is composed once per call and reused for every part; tessellation is not cached across calls because the prop record is the caller's mutable data.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps the per-part boxes only until they are unioned and retains nothing; the caller owns the returned box.
  */
 export const propOccupancyBounds = (props: {
   prop: IAutoMoviePropSpec;
   piece: IAutoMovieStageSetPiece;
 }): IAutoMoviePropBox => {
-  const matrix = stagedMatrix(props.piece);
-  const footprint = props.prop.placement?.footprint ?? null;
-  if (footprint !== null) return transformedBox(footprint, matrix);
-  return transformedModelBounds(props.prop.model, matrix);
-};
-
-const stagedMatrix = (piece: IAutoMovieStageSetPiece): number[] => {
-  const scale =
-    piece.scale === undefined
-      ? { x: 1, y: 1, z: 1 }
-      : typeof piece.scale === "number"
-        ? { x: piece.scale, y: piece.scale, z: piece.scale }
-        : piece.scale;
-  return Matrix4.compose(
-    piece.position,
-    piece.rotation ??
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, piece.facingDeg ?? 0),
-    scale,
-  );
-};
-
-const transformedModelBounds = (
-  model: IAutoMovieModel,
-  world: number[],
-): IAutoMoviePropBox => {
-  const points: IAutoMovieVector3[] = [];
-  for (const part of model.parts) {
-    const positions =
-      part.geometry.type === "primitive"
-        ? tessellate(part.geometry.shape).positions
-        : part.geometry.mesh.positions;
-    const matrix =
-      part.transform === null
-        ? world
-        : Matrix4.multiply(
-            world,
-            Matrix4.compose(
-              part.transform.translation,
-              part.transform.rotation,
-              part.transform.scale,
-            ),
-          );
-    for (let index = 0; index < positions.length; index += 3)
-      points.push(
-        transformPoint(
-          {
-            x: positions[index]!,
-            y: positions[index + 1]!,
-            z: positions[index + 2]!,
-          },
-          matrix,
-        ),
-      );
-  }
-  if (points.length === 0) {
-    const origin = Matrix4.position(world);
-    return { min: { ...origin }, max: { ...origin } };
-  }
-  return boundsOf(points);
-};
-
-const transformedBox = (
-  box: IAutoMoviePropBox,
-  matrix: number[],
-): IAutoMoviePropBox =>
-  boundsOf(boxCorners(box).map((point) => transformPoint(point, matrix)));
-
-const boxCorners = (box: IAutoMoviePropBox): IAutoMovieVector3[] =>
-  [box.min.x, box.max.x].flatMap((x) =>
-    [box.min.y, box.max.y].flatMap((y) =>
-      [box.min.z, box.max.z].map((z) => ({ x, y, z })),
-    ),
-  );
-
-const transformPoint = (
-  point: IAutoMovieVector3,
-  matrix: number[],
-): IAutoMovieVector3 => ({
-  x:
-    matrix[0]! * point.x +
-    matrix[4]! * point.y +
-    matrix[8]! * point.z +
-    matrix[12]!,
-  y:
-    matrix[1]! * point.x +
-    matrix[5]! * point.y +
-    matrix[9]! * point.z +
-    matrix[13]!,
-  z:
-    matrix[2]! * point.x +
-    matrix[6]! * point.y +
-    matrix[10]! * point.z +
-    matrix[14]!,
-});
-
-const boundsOf = (points: readonly IAutoMovieVector3[]): IAutoMoviePropBox => {
-  const first = points[0]!;
-  const bounds: IAutoMoviePropBox = {
-    min: { ...first },
-    max: { ...first },
-  };
-  for (const point of points.slice(1)) {
-    bounds.min.x = Math.min(bounds.min.x, point.x);
-    bounds.min.y = Math.min(bounds.min.y, point.y);
-    bounds.min.z = Math.min(bounds.min.z, point.z);
-    bounds.max.x = Math.max(bounds.max.x, point.x);
-    bounds.max.y = Math.max(bounds.max.y, point.y);
-    bounds.max.z = Math.max(bounds.max.z, point.z);
-  }
-  return bounds;
+  const matrix: number[] = setPieceMatrix(props.piece);
+  const footprint: IAutoMoviePropBox | null =
+    props.prop.placement?.footprint ?? null;
+  if (footprint !== null) return transformedBoxBounds(footprint, matrix);
+  return unionSubjectBoxes(builtPlacedPartBoxes(props.prop.model, matrix))!;
 };

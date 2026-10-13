@@ -11,6 +11,8 @@ import { createFile } from "mp4box";
  * 1. Admit a 312-sample priming trim and refuse duplicate edits.
  * 2. Refuse invalid identities/counts, fractional movie ticks and an absent real track.
  * 3. Remove mvhd from actual owned box data and verify the native missing-header refusal.
+ * 4. Refuse a movie duration whose floating-point product rounds onto a
+ *    whole number while the exact quotient is fractional.
  */
 export const test_production_audio_presentation_trim = (): void => {
   const editFile = createFile();
@@ -155,4 +157,30 @@ export const test_production_audio_presentation_trim = (): void => {
     ),
   );
 
+  // 3002399751580331 * 3 is 2^53 + 1, which a double rounds to 2^53, a
+  // multiple of 4; the exact product leaves remainder 1 over 4.
+  const rounded = createFile();
+  rounded.init({ brands: ["isom"], timescale: 3, duration: 1 });
+  const roundedTrack = rounded.addTrack({
+    type: "Opus",
+    hdlr: "soun",
+    timescale: 4,
+    media_duration: 1,
+    duration: 1,
+  });
+  TestValidator.predicate(
+    "a movie duration that is whole only after rounding is refused",
+    refused(
+      () =>
+        trimProductionAudioPresentation({
+          file: rounded,
+          track: roundedTrack,
+          mediaTimescale: 4,
+          movieTimescale: 3,
+          primingSamples: 0,
+          presentationSamples: 3_002_399_751_580_331,
+        }),
+      "does not land",
+    ) && rounded.getTrackById(roundedTrack).edts === undefined,
+  );
 };

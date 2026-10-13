@@ -1,64 +1,89 @@
 import {
+  IAutoMovieCamera,
   IAutoMovieCompiledContractRealization,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
   IAutoMovieCompiledPredicateResult,
-  IAutoMovieCompiledShotSource,
   IAutoMovieDiagnostic,
+  IAutoMovieFormationChunk,
   IAutoMovieFormationDesign,
-  IAutoMovieProductionDesign,
+  IAutoMovieSceneNode,
   IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
+  IAutoMovieShotParticipant,
   IAutoMovieShotPredicate,
-  IAutoMovieShotSourceOutput,
-  IAutoMovieShotSpatialSelector,
-  IAutoMovieSkeleton,
+  IAutoMovieSubjectBox,
   IAutoMovieTransform,
   IAutoMovieVector3,
-  IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { sampleMotion } from "../motion/sampleMotion";
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
-import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationPoint } from "../transformFormationPoint";
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
-import { computeModelRestExtent } from "./computeModelRestExtent";
-import { computeRestHeight } from "./computeRestHeight";
+import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
+import { IRealizeShotContractProps } from "./IRealizeShotContractProps";
+import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
+import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
 import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
-import { formationMemberExtent } from "./formationMemberExtent";
-import { formationSubjectBox } from "./formationSubjectBox";
+import { evaluateShotPredicate } from "./evaluateShotPredicate";
 import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
-import { nodeSubjectBox } from "./nodeSubjectBox";
-import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/** Derive and validate contract outcomes from actual compiled artifacts. */
-export const realizeShotContract = (props: {
-  contract: IAutoMovieShotContract;
-  /**
-   * Full production design for builder-materialized output. `null` marks the
-   * direct source-stage pass, before builder-owned formation heroes exist.
-   */
-  production: IAutoMovieProductionDesign | null;
-  /** Direct authoring raster when no production design object exists. */
-  frameFormat?: Pick<
-    IAutoMovieProductionDesign["frameFormat"],
-    "crop" | "width" | "height"
-  >;
-  world: IAutoMovieWorldDesign | null;
-  formations: ReadonlyMap<string, IAutoMovieFormationDesign>;
-  compiled: IAutoMovieShotSourceOutput &
-    Partial<
-      Pick<IAutoMovieCompiledShotSource, "models" | "formations" | "effects">
-    >;
-  /** Direct authoring rig lookup when builder-owned models are not attached. */
-  skeleton?: (node: string) => IAutoMovieSkeleton | null;
-  collisions: readonly string[];
-}): {
+/** One graded camera sample of the realization record. */
+type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
+
+/** One graded opening or closing state of the realization record. */
+type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
+
+/** Largest absolute component difference two transforms may differ by. */
+const TRANSFORM_TOLERANCE: number = 1e-9;
+
+/**
+ * Grade a shot contract against the compiled artifacts that claim to realize
+ * it, measuring every outcome from the compiled scene, motions, camera and
+ * event samples rather than from the contract's own prose.
+ *
+ * Opening states are graded at second 0 and closing states at
+ * `durationSeconds`. Each event is graded at its source sample's time and
+ * passes only when every declared subject resolves, its sample exists and is
+ * finite inside its window, and its predicates pass; the sample list itself
+ * must name every contract event exactly once. The camera is sampled at 0,
+ * every review frame and `durationSeconds`, deduplicated and ascending, and a
+ * sample passes only when every required subject resolves, its box intersects
+ * the clipped view frustum of the cropped raster, and the box's depth range
+ * satisfies the camera's depth-precision constraint. A formation participant
+ * must materialize its designed count in contiguous chunks, and, once a
+ * production is supplied, every promoted hero node exactly; an actor
+ * participant must be a performed scene node; every builder-reported slot
+ * collision fails.
+ *
+ * A reference that cannot be resolved, such as an absent node, rig, bone,
+ * motion, landmark or formation, makes the predicate or camera subject that
+ * named it fail; nothing is substituted for it. A camera sample at a
+ * non-finite review time is therefore graded and fails instead of being
+ * dropped.
+ *
+ * @param props The contract, the compiled artifacts, and the design context.
+ * @returns The realization record, and one `contract-realization-failed`
+ *   diagnostic per slot collision, failing state, mismatched sample list,
+ *   failing event, camera sample, formation and actor, in that order; an empty
+ *   list means the contract is realized.
+ *
+ * @evidence contracts/common.md#principled-implementation Every outcome is a measurement of the compiled artifacts through one subject reader: predicates compare the measured scalar with the declared operator and tolerance, the camera grade tests the eight corners of each subject box against the same `intersectsPerspectiveFrustumBox` and `projectToNdc` the render raster uses and derives depth precision from the measured depth range, and the formation grade recomputes chunk starts as a running sum and compares hero transforms within `1e-9`, treating `q` and `-q` as one rotation. An unresolvable reference is caught where it is graded and recorded as failing, which is the stated meaning of "not realized" rather than a recovery.
+ * @evidence contracts/common.md#clear-and-simple-design The function owns the grading decisions and the diagnostic wording; where subjects stand is delegated to `createShotContractSubjectReader` and each predicate's measurement to `evaluateShotPredicate`, which the state and event grades share; the camera and formation grades stay private because nothing else grades them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The failure message tells the author to correct the scene, motion, camera or sample because echoed ids and contract prose are never accepted as evidence; no shot, subject or fixture is special-cased, and the source-stage exemption from hero materialization is the documented `production: null` contract, because heroes are added by the builder after this pass.
+ * @evidence contracts/common.md#meaningful-documentation States the instants each part is graded at, every condition a state, event, camera sample, formation and actor must meet, how unresolvable references grade, and the order and meaning of the returned diagnostics.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the contract's predicates, events, camera samples times required subjects, formation chunks and heroes, plus the sampling each of those reads; the subject reader turns every id lookup into a map read, the camera times are deduplicated with a set before sorting, and chunk starts are checked against one running sum, linear in the chunk count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Builds one subject reader per call and shares it across every predicate, event, camera sample and participant check, so object-motion sampling and subject extents computed for one grade are reused by the others; nothing is shared across calls, because each call grades different artifacts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The reader and its caches are owned by this call and released on return; the returned record holds fresh outcome objects plus references to the contract's predicates and copies of resolved camera placements, sized by the contract.
+ */
+export const realizeShotContract = (
+  props: IRealizeShotContractProps,
+): {
   realization: IAutoMovieCompiledContractRealization;
   diagnostics: IAutoMovieDiagnostic[];
 } => {
+  const reader: IShotContractSubjectReader =
+    createShotContractSubjectReader(props);
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail = (field: string, expectation: string): void => {
     diagnostics.push({
@@ -76,71 +101,108 @@ export const realizeShotContract = (props: {
       "collides with a coding-agent scene node; ordinary formation slots are builder-owned",
     );
 
-  const opening = props.contract.opening.map((state) => {
-    const predicates = state.predicates.map((predicate) =>
-      evaluatePredicate(props, predicate, 0),
+  const gradeState = (
+    state: IAutoMovieShotContract["opening"][number],
+    time: number,
+    field: string,
+    expectation: string,
+  ): IStateOutcome => {
+    const predicates: IAutoMovieCompiledPredicateResult[] =
+      state.predicates.map(
+        (predicate: IAutoMovieShotPredicate): IAutoMovieCompiledPredicateResult =>
+          evaluateShotPredicate(reader, predicate, time),
+      );
+    const passed: boolean = predicates.every(
+      (predicate: IAutoMovieCompiledPredicateResult): boolean =>
+        predicate.passed,
     );
-    const passed = predicates.every((predicate) => predicate.passed);
-    if (passed === false)
-      fail(
-        `opening state "${state.id}"`,
+    if (passed === false) fail(`${field} "${state.id}"`, expectation);
+    return { id: state.id, predicates, passed };
+  };
+  const opening: IStateOutcome[] = props.contract.opening.map(
+    (state: IAutoMovieShotContract["opening"][number]): IStateOutcome =>
+      gradeState(
+        state,
+        0,
+        "opening state",
         "must satisfy every typed predicate at time 0",
-      );
-    return { id: state.id, predicates, passed };
-  });
-  const closing = props.contract.closing.map((state) => {
-    const predicates = state.predicates.map((predicate) =>
-      evaluatePredicate(props, predicate, props.contract.durationSeconds),
-    );
-    const passed = predicates.every((predicate) => predicate.passed);
-    if (passed === false)
-      fail(
-        `closing state "${state.id}"`,
+      ),
+  );
+  const closing: IStateOutcome[] = props.contract.closing.map(
+    (state: IAutoMovieShotContract["closing"][number]): IStateOutcome =>
+      gradeState(
+        state,
+        props.contract.durationSeconds,
+        "closing state",
         `must satisfy every typed predicate at ${props.contract.durationSeconds}s`,
-      );
-    return { id: state.id, predicates, passed };
-  });
+      ),
+  );
 
-  const samples = new Map(
-    props.compiled.eventSamples.map((sample) => [sample.id, sample]),
+  const samples: Map<string, { id: string; time: number }> = new Map(
+    props.compiled.eventSamples.map(
+      (sample: { id: string; time: number }): [
+        string,
+        { id: string; time: number },
+      ] => [sample.id, sample],
+    ),
   );
   if (
     samples.size !== props.compiled.eventSamples.length ||
     samples.size !== props.contract.events.length
   )
     fail("eventSamples", "must name every authoritative event exactly once");
-  const events = props.contract.events.map((event) => {
-    const sample = samples.get(event.id);
-    const time = sample?.time ?? event.window.from;
-    const subjectsResolved = event.subjects.every((subject) =>
-      eventSubjectResolves(props, subject),
+  const events: IAutoMovieCompiledContractRealization["events"] =
+    props.contract.events.map(
+      (
+        event: IAutoMovieShotEventContract,
+      ): IAutoMovieCompiledContractRealization["events"][number] => {
+        const sample: { id: string; time: number } | undefined = samples.get(
+          event.id,
+        );
+        const time: number = sample?.time ?? event.window.from;
+        const predicates: IAutoMovieCompiledPredicateResult[] =
+          event.predicates.map(
+            (
+              predicate: IAutoMovieShotPredicate,
+            ): IAutoMovieCompiledPredicateResult =>
+              evaluateShotPredicate(reader, predicate, time),
+          );
+        const passed: boolean =
+          sample !== undefined &&
+          event.subjects.every(
+            (subject: string): boolean =>
+              reader.node(subject) !== undefined ||
+              reader.formation(subject) !== undefined,
+          ) &&
+          Number.isFinite(time) &&
+          time >= event.window.from &&
+          time <= event.window.to &&
+          predicates.every(
+            (predicate: IAutoMovieCompiledPredicateResult): boolean =>
+              predicate.passed,
+          );
+        if (passed === false)
+          fail(
+            `event "${event.id}"`,
+            `must resolve every declared subject and have one finite source sample inside ${event.window.from}..${event.window.to}s whose typed predicates all pass`,
+          );
+        return { id: event.id, time, predicates, passed };
+      },
     );
-    const predicates = event.predicates.map((predicate) =>
-      evaluatePredicate(props, predicate, time),
-    );
-    const passed =
-      sample !== undefined &&
-      subjectsResolved &&
-      Number.isFinite(time) &&
-      time >= event.window.from &&
-      time <= event.window.to &&
-      predicates.every((predicate) => predicate.passed);
-    if (passed === false)
-      fail(
-        `event "${event.id}"`,
-        `must resolve every declared subject and have one finite source sample inside ${event.window.from}..${event.window.to}s whose typed predicates all pass`,
-      );
-    return { id: event.id, time, predicates, passed };
-  });
 
-  const cameraTimes = [
-    0,
-    ...props.contract.reviewFrames.map((frame) => frame.time),
-    props.contract.durationSeconds,
-  ]
-    .filter((time, index, values) => values.indexOf(time) === index)
-    .sort((left, right) => left - right);
-  const camera = cameraTimes.map((time) => cameraOutcome(props, time));
+  const cameraTimes: number[] = [
+    ...new Set<number>([
+      0,
+      ...props.contract.reviewFrames.map(
+        (frame: IAutoMovieShotContract["reviewFrames"][number]): number =>
+          frame.time,
+      ),
+      props.contract.durationSeconds,
+    ]),
+  ].sort((left: number, right: number): number => left - right);
+  const camera: ICameraOutcome[] = cameraTimes.map(
+    (time: number): ICameraOutcome => cameraOutcome(props, reader, time),
+  );
   for (const outcome of camera)
     if (outcome.passed === false)
       fail(
@@ -148,87 +210,53 @@ export const realizeShotContract = (props: {
         "must resolve every required subject bound inside the current camera frame and clipping range with the declared depth precision",
       );
 
-  const formations = props.contract.participants.flatMap((participant) => {
-    if (participant.kind !== "formation") return [];
-    const design = props.formations.get(participant.id);
-    const formation = (props.compiled.formations ?? []).find(
-      (candidate) => candidate.id === participant.id,
-    );
-    const nodes = new Map(
-      props.compiled.scene.nodes.map((node) => [node.id, node]),
-    );
-    const heroes =
-      formation?.heroes.flatMap((hero) => {
-        const node = nodes.get(hero.actor);
-        return node === undefined ? [] : [{ hero, node }];
-      }) ?? [];
-    const compactPassed =
-      design !== undefined &&
-      formation !== undefined &&
-      formation.count === design.count &&
-      formation.anonymousCount + formation.heroes.length === design.count &&
-      formation.chunks.reduce((sum, chunk) => sum + chunk.count, 0) ===
-        design.count &&
-      formation.chunks.every(
-        (chunk, index) =>
-          chunk.index === index &&
-          chunk.start ===
-            formation.chunks
-              .slice(0, index)
-              .reduce((sum, previous) => sum + previous.count, 0),
-      );
-    // Shot source owns choreography but not promoted hero nodes. The builder
-    // builder adds or corrects those nodes only after compileDefinedShot has
-    // returned its source, then invokes this realization again with the full
-    // production. Requiring heroes during the direct/source pass makes that
-    // materialization unreachable for every formation with an override.
-    const materializedHeroesPassed =
-      props.production === null ||
-      (design !== undefined &&
-        formation !== undefined &&
-        heroes.length === formation.heroes.length &&
-        heroes.every(({ hero, node }) => {
-          return (
-            vectorClose(
-              node.transform.translation,
-              hero.transform.translation,
-            ) &&
-            quaternionClose(node.transform.rotation, hero.transform.rotation) &&
-            vectorClose(node.transform.scale, hero.transform.scale) &&
-            node.model === productionRuntimeModelId(design.modelRecipe)
+  const formations: IAutoMovieCompiledContractRealization["formations"] =
+    props.contract.participants.flatMap(
+      (
+        participant: IAutoMovieShotParticipant,
+      ): IAutoMovieCompiledContractRealization["formations"] => {
+        if (participant.kind !== "formation") return [];
+        const design: IAutoMovieFormationDesign | undefined =
+          props.formations.get(participant.id);
+        const formation: IAutoMovieCompiledFormation | undefined =
+          reader.formation(participant.id);
+        const passed: boolean =
+          design !== undefined &&
+          formation !== undefined &&
+          compactFormationPasses(design, formation) &&
+          // The source pass runs before the builder adds or corrects promoted
+          // hero nodes, then the builder grades again with the production;
+          // requiring heroes here would make that materialization unreachable
+          // for every formation with an override.
+          (props.production === null ||
+            heroesMaterialized(reader, design, formation));
+        if (passed === false)
+          fail(
+            `formation "${participant.id}"`,
+            `must materialize one compact ${design?.count ?? 0}-slot runtime with contiguous chunks, designed bounds, and exact promoted hero nodes`,
           );
-        }));
-    const passed = compactPassed && materializedHeroesPassed;
-    if (passed === false)
-      fail(
-        `formation "${participant.id}"`,
-        `must materialize one compact ${design?.count ?? 0}-slot runtime with contiguous chunks, designed bounds, and exact promoted hero nodes`,
-      );
-    return [
-      {
-        id: participant.id,
-        count: formation?.count ?? 0,
-        min: formation?.bounds.min ?? { x: 0, y: 0, z: 0 },
-        max: formation?.bounds.max ?? { x: 0, y: 0, z: 0 },
-        passed,
+        return [
+          {
+            id: participant.id,
+            count: formation?.count ?? 0,
+            min: formation?.bounds.min ?? { x: 0, y: 0, z: 0 },
+            max: formation?.bounds.max ?? { x: 0, y: 0, z: 0 },
+            passed,
+          },
+        ];
       },
-    ];
-  });
+    );
 
   for (const participant of props.contract.participants)
-    if (participant.kind === "actor") {
-      const node = props.compiled.scene.nodes.find(
-        (candidate) => candidate.id === participant.id,
+    if (
+      participant.kind === "actor" &&
+      (reader.node(participant.id) === undefined ||
+        reader.performance(participant.id) === undefined)
+    )
+      fail(
+        `actor "${participant.id}"`,
+        "must be a current performed scene node",
       );
-      const performance = props.compiled.shot.performances.find(
-        (candidate) => candidate.node === participant.id,
-      );
-      if (node === undefined || performance === undefined)
-        fail(
-          `actor "${participant.id}"`,
-          "must be a current performed scene node",
-        );
-    }
 
   return {
     realization: {
@@ -244,225 +272,66 @@ export const realizeShotContract = (props: {
   };
 };
 
-const eventSubjectResolves = (
-  props: Parameters<typeof realizeShotContract>[0],
-  subject: string,
+/**
+ * Whether a compiled formation is the one compact runtime its design asks
+ * for: the designed count, split between anonymous slots and heroes, and
+ * chunks indexed in order that tile `[0, count)` without gaps.
+ */
+const compactFormationPasses = (
+  design: IAutoMovieFormationDesign,
+  formation: IAutoMovieCompiledFormation,
 ): boolean => {
-  if (props.compiled.scene.nodes.some((candidate) => candidate.id === subject))
-    return true;
   if (
-    (props.compiled.formations ?? []).some(
-      (formation) => formation.id === subject,
-    )
+    formation.count !== design.count ||
+    formation.anonymousCount + formation.heroes.length !== design.count
   )
-    return true;
-  return false;
-};
-
-const evaluatePredicate = (
-  props: Parameters<typeof realizeShotContract>[0],
-  predicate: IAutoMovieShotPredicate,
-  time: number,
-): IAutoMovieCompiledPredicateResult => {
-  let actual: number | null = null;
-  try {
-    if (predicate.kind === "joint-angle") {
-      const node = props.compiled.scene.nodes.find(
-        (candidate) => candidate.id === predicate.actor,
-      );
-      if (node === undefined)
-        throw new Error(`node "${predicate.actor}" is absent`);
-      const skeleton = skeletonOf(props, node);
-      if (
-        skeleton === null ||
-        skeleton.bones.some((bone) => bone.bone === predicate.bone) === false
-      )
-        throw new Error(
-          `node "${predicate.actor}" has no bone "${predicate.bone}"`,
-        );
-      const pose = actorPoseAt(props, node, time);
-      const joint = pose.joints.find((item) => item.bone === predicate.bone);
-      actual = joint?.[predicate.axis] ?? 0;
-    } else if (predicate.kind === "position")
-      actual = resolveSpatial(props, predicate.subject, time)[predicate.axis];
-    else {
-      const from = resolveSpatial(props, predicate.from, time);
-      const to = resolveSpatial(props, predicate.to, time);
-      actual = Math.hypot(from.x - to.x, from.y - to.y, from.z - to.z);
-    }
-  } catch {
-    actual = null;
+    return false;
+  let start: number = 0;
+  for (let index: number = 0; index < formation.chunks.length; ++index) {
+    const chunk: IAutoMovieFormationChunk = formation.chunks[index]!;
+    if (chunk.index !== index || chunk.start !== start) return false;
+    start += chunk.count;
   }
-  return {
-    predicate,
-    actual,
-    passed:
-      actual !== null &&
-      scalarPass(
-        actual,
-        predicate.operator,
-        predicate.value,
-        predicate.tolerance,
-      ),
-  };
+  return start === design.count;
 };
 
-const scalarPass = (
-  actual: number,
-  operator: "<=" | ">=" | "==",
-  expected: number,
-  tolerance: number,
+/**
+ * Whether every promoted hero has a scene node at exactly the hero's
+ * transform, built from the design's model recipe.
+ */
+const heroesMaterialized = (
+  reader: IShotContractSubjectReader,
+  design: IAutoMovieFormationDesign,
+  formation: IAutoMovieCompiledFormation,
 ): boolean =>
-  operator === "=="
-    ? Math.abs(actual - expected) <= tolerance
-    : operator === "<="
-      ? actual <= expected + tolerance
-      : actual >= expected - tolerance;
-
-const resolveSpatial = (
-  props: Parameters<typeof realizeShotContract>[0],
-  selector: IAutoMovieShotSpatialSelector,
-  time: number,
-): IAutoMovieVector3 => {
-  if (selector.kind === "point") return selector.position;
-  if (selector.kind === "landmark") {
-    const landmark = props.world?.landmarks.find(
-      (candidate) => candidate.id === selector.id,
+  formation.heroes.every((hero: IAutoMovieCompiledFormationHero): boolean => {
+    const node: IAutoMovieSceneNode | undefined = reader.node(hero.actor);
+    return (
+      node !== undefined &&
+      vectorClose(node.transform.translation, hero.transform.translation) &&
+      quaternionClose(node.transform.rotation, hero.transform.rotation) &&
+      vectorClose(node.transform.scale, hero.transform.scale) &&
+      node.model === productionRuntimeModelId(design.modelRecipe)
     );
-    if (landmark === undefined)
-      throw new Error(`landmark "${selector.id}" is absent`);
-    return landmark.position;
-  }
-  if (selector.kind === "node")
-    return actorTransformAt(props, selector.id, time).translation;
-  const formation = (props.compiled.formations ?? []).find(
-    (candidate) => candidate.id === selector.id,
-  );
-  if (formation === undefined)
-    throw new Error(`formation "${selector.id}" has no slots`);
-  return transformFormationPoint(
-    formation.centroid,
-    formation.anchor,
-    sampleFormationMotion(
-      props.compiled.formationMotions ?? [],
-      formation.id,
-      time,
-    ),
-    formation.facingDeg,
-  );
-};
+  });
 
 /**
- * The model-space box the camera solve assumed for a required NODE subject, so
- * the readability test and the framing that produced the shot share one
- * subject.
- *
- * `performShot`'s `nodeExtent` builds each `IAutoMovieFramedSubject` from the
- * same read through the same {@link nodeSubjectExtent}: a node is measured from
- * the geometry its model draws, its rig's joint span stands in when no model
- * was supplied, and a rig too small to measure takes `DEFAULT_SUBJECT_HEIGHT`.
- * Reading it back the same way is what makes the check honest. Measuring here
- * while the solve assumed a default would frame one subject and grade another.
- *
- * **The floor is part of that reading, not a detail of it.** A model's rest
- * extent is measured in MODEL space, so `min` states where the geometry starts
- * relative to the node's own origin, and it is only zero for a figure that
- * stands on its origin. The solve raises the framed base by it — a canopy whose
- * deck is authored 8 m above its element origin is framed at 8 m — so a grade
- * that placed the same span at the origin would test a segment 8 m below
- * everything the camera was aimed at. That is not a stricter check but an
- * unsatisfiable one: on the fixture `test_film_camera_node_subject_floor` pins,
- * `full`, `medium` and `close` all put the deck squarely in frame while the
- * origin-based segment fell outside it, and no camera the author could write
- * would have passed, because moving down to catch the segment moves the deck
- * out.
- *
- * **So is the width.** The same measurement states what the subject fills
- * horizontally, and the solve aims at the middle of that and stands back for
- * it, so the grade reads the same box: a 60 m facade authored outward from its
- * element origin is tested on `x 0…60, z −1…1` about its own centre rather than
- * as a pole 30 m away from it.
- *
- * A formation does not come through here. Its extent is its own transformed
- * bounds ({@link formationSubjectBox}), measured from where its members stand
- * rather than from one model's rest geometry.
+ * Grade the live camera at one shot-local second against the contract's
+ * required subjects. Without a live camera or a raster the sample fails with
+ * a not-a-number depth report.
  */
-const framedSubjectExtent = (
-  props: Parameters<typeof realizeShotContract>[0],
-  subject: string,
-): IAutoMovieSubjectBox => {
-  const node = props.compiled.scene.nodes.find(
-    (candidate) => candidate.id === subject,
-  );
-  const model =
-    node === undefined
-      ? undefined
-      : (props.compiled.models ?? []).find(
-          (candidate) => candidate.id === node.model,
-        );
-  const extent = model === undefined ? null : computeModelRestExtent(model);
-  const rig = node === undefined ? null : skeletonOf(props, node);
-  // A rig span and the stand-in are both measured from the placement itself:
-  // neither states a floor or a width, so neither may invent one.
-  return nodeSubjectExtent(
-    extent,
-    rig === null ? null : computeRestHeight(rig),
-  );
-};
-
-/**
- * The world box a required subject occupies at `time`, given the placement it
- * already resolved to.
- *
- * The two kinds of subject are measured the way the camera solve measured them.
- * A node is its drawn model-space box ({@link framedSubjectExtent}) carried out
- * through its resolved placement by {@link nodeSubjectBox} — the same function,
- * on the same extent, that `performShot` framed it from. A formation is its
- * whole transformed footprint, widened by a member's radius and raised by a
- * member's height, so a unit reads when the frame holds any part of it — its
- * flank, its front rank, or one wing of a line the frame cannot possibly
- * contain whole.
- *
- * **A node's horizontal span is what the solve assumed, not an independent
- * opinion about the subject.** The two sides move together on purpose: grading
- * a 60 m facade on its true box while the solve still aimed at its element
- * origin would refuse shots no authored camera could satisfy, and framing it on
- * that box while the grade still tested a pole would report a passing shot the
- * frame does not hold. Both now read the drawn box, so a `frame` action on a
- * building element aims at the middle of the mass and stands back for its
- * width, and this check tests the mass it aimed at. A node with nothing to
- * measure keeps the horizontally degenerate segment it always had, because a
- * rig span and the stand-in height state no width.
- */
-const framedSubjectBox = (
-  props: Parameters<typeof realizeShotContract>[0],
-  subject: string,
-  placement: IAutoMovieTransform,
-  time: number,
-): IAutoMovieSubjectBox => {
-  const formation = props.formations.has(subject)
-    ? (props.compiled.formations ?? []).find(
-        (candidate) => candidate.id === subject,
-      )
-    : undefined;
-  return formation === undefined
-    ? nodeSubjectBox(placement, framedSubjectExtent(props, subject))
-    : formationSubjectBox({
-        formation,
-        motions: props.compiled.formationMotions ?? [],
-        member: formationMemberExtent(formation, props.compiled.models),
-        seconds: time,
-      });
-};
-
 const cameraOutcome = (
-  props: Parameters<typeof realizeShotContract>[0],
+  props: IRealizeShotContractProps,
+  reader: IShotContractSubjectReader,
   time: number,
-): IAutoMovieCompiledContractRealization["camera"][number] => {
-  const camera = props.compiled.scene.cameras.find(
-    (candidate) => candidate.id === props.compiled.shot.camera,
+): ICameraOutcome => {
+  const required: readonly string[] = props.contract.camera.requiredSubjects;
+  const camera: IAutoMovieCamera | undefined = props.compiled.scene.cameras.find(
+    (candidate: IAutoMovieCamera): boolean =>
+      candidate.id === props.compiled.shot.camera,
   );
-  const frameFormat = props.production?.frameFormat ?? props.frameFormat;
+  const frameFormat: IRealizeShotContractProps["frameFormat"] =
+    props.production?.frameFormat ?? props.frameFormat;
   if (camera === undefined || frameFormat === undefined)
     return {
       time,
@@ -478,48 +347,40 @@ const cameraOutcome = (
           maximumStepMeters: Number.NaN,
         },
       }),
-      requiredSubjects: props.contract.camera.requiredSubjects.length,
+      requiredSubjects: required.length,
       resolvedSubjects: 0,
       readableSubjects: 0,
       passed: false,
     };
-  const resolvedCamera = resolveCameraAt(
+  const resolved: IAutoMovieResolvedCamera = resolveCameraAt(
     camera.transform,
     props.compiled.shot.cameraMotion,
     camera.id,
     time,
   );
-  const halfY = Math.tan((camera.fovY * Math.PI) / 360);
-  const aspect = frameFormat.width / frameFormat.height;
-  let resolvedSubjects = 0;
-  let readableSubjects = 0;
-  let requiredNear = Number.POSITIVE_INFINITY;
-  let requiredFar = Number.NEGATIVE_INFINITY;
-  for (const subject of props.contract.camera.requiredSubjects)
+  const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
+  const aspect: number = frameFormat.width / frameFormat.height;
+  let resolvedSubjects: number = 0;
+  let readableSubjects: number = 0;
+  let requiredNear: number = Number.POSITIVE_INFINITY;
+  let requiredFar: number = Number.NEGATIVE_INFINITY;
+  for (const subject of required)
     try {
-      // A node subject carries its orientation as well as its root: a yawed
-      // element fills a different world box than the same geometry facing down
-      // an axis, and the solve framed it from the same placement. A formation
-      // resolves to a point and states its own transformed bounds, so it needs
-      // no placement of its own; the identity here is never read.
-      const placement: IAutoMovieTransform = props.formations.has(subject)
-        ? {
-            translation: resolveSpatial(
-              props,
-              { kind: "formation", id: subject },
-              time,
-            ),
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            scale: { x: 1, y: 1, z: 1 },
-          }
-        : actorTransformAt(props, subject, time);
+      // A node subject is boxed through its orientation as well as its root,
+      // because a yawed element fills a different world box than the same
+      // geometry facing down an axis, and the solve framed it the same way.
+      const placement: IAutoMovieTransform = reader.placementAt(subject, time);
       ++resolvedSubjects;
-      const box = framedSubjectBox(props, subject, placement, time);
+      const box: IAutoMovieSubjectBox = reader.subjectBox(
+        subject,
+        placement,
+        time,
+      );
       for (const x of [box.min.x, box.max.x])
         for (const y of [box.min.y, box.max.y])
           for (const z of [box.min.z, box.max.z]) {
-            const depth = projectToNdc(
-              resolvedCamera,
+            const depth: number = projectToNdc(
+              resolved,
               { x, y, z },
               halfY,
               aspect,
@@ -530,7 +391,7 @@ const cameraOutcome = (
           }
       if (
         intersectsPerspectiveFrustumBox({
-          camera: resolvedCamera,
+          camera: resolved,
           min: box.min,
           max: box.max,
           near: camera.near,
@@ -541,169 +402,58 @@ const cameraOutcome = (
         })
       )
         ++readableSubjects;
-    } catch {}
-  const depthPrecision = evaluateAutoMovieCameraDepthPrecision({
-    camera: camera.id,
-    time,
-    near: camera.near,
-    far: camera.far,
-    requiredNear: resolvedSubjects === 0 ? Number.NaN : requiredNear,
-    requiredFar: resolvedSubjects === 0 ? Number.NaN : requiredFar,
-    constraint: camera.depthPrecision,
-  });
+    } catch {
+      // An unplaceable subject stays unresolved, which fails the sample.
+    }
+  const depthPrecision: ICameraOutcome["depthPrecision"] =
+    evaluateAutoMovieCameraDepthPrecision({
+      camera: camera.id,
+      time,
+      near: camera.near,
+      far: camera.far,
+      requiredNear: resolvedSubjects === 0 ? Number.NaN : requiredNear,
+      requiredFar: resolvedSubjects === 0 ? Number.NaN : requiredFar,
+      constraint: camera.depthPrecision,
+    });
   return {
     time,
-    // State the camera this sample actually measured whenever a compiled move
-    // means the staged transform is no longer it. `compileCameraMove` keeps the
-    // staged bearing and solves the distance from the framing, so a camera
-    // staged for a wide exterior can be pulled to a few metres from its subject
-    // while every static fact in the artifact still reads as authored. A shot
-    // with no `frame` action compiles no move, so its record keeps exactly the
-    // bytes it always had.
+    // A compiled move keeps the staged bearing but solves the distance from
+    // the framing, so the staged transform no longer states the measured
+    // camera; the sample then records the placement it measured, copied so
+    // it never aliases the staged vectors. A shot with no move records none.
     ...(props.compiled.shot.cameraMotion === null
       ? {}
       : {
           placement: {
-            // Copy rather than alias. `resolveCameraAt` hands back the staged
-            // transform's own vectors component-wise when a track is absent,
-            // and this record exists to be a fact separate from that transform.
-            position: { ...resolvedCamera.position },
-            rotation: { ...resolvedCamera.rotation },
+            position: { ...resolved.position },
+            rotation: { ...resolved.rotation },
           },
         }),
     depthPrecision,
-    requiredSubjects: props.contract.camera.requiredSubjects.length,
+    requiredSubjects: required.length,
     resolvedSubjects,
     readableSubjects,
     passed:
-      resolvedSubjects === props.contract.camera.requiredSubjects.length &&
-      readableSubjects === props.contract.camera.requiredSubjects.length &&
+      resolvedSubjects === required.length &&
+      readableSubjects === required.length &&
       depthPrecision.passed,
   };
 };
 
-const actorPoseAt = (
-  props: Parameters<typeof realizeShotContract>[0],
-  node: IAutoMovieShotSourceOutput["scene"]["nodes"][number],
-  time: number,
-): ReturnType<typeof sampleMotion>["pose"] => {
-  const compiled = props.compiled;
-  const performance = compiled.shot.performances.find(
-    (candidate) => candidate.node === node.id,
-  );
-  const skeleton = skeletonOf(props, node);
-  if (skeleton === null) throw new Error(`node "${node.id}" has no skeleton`);
-  const motionId = performance === undefined ? node.motion : performance.motion;
-  if (motionId === null)
-    return (
-      node.pose ?? {
-        skeleton: skeleton.id,
-        root: null,
-        joints: [],
-      }
-    );
-  const motion = compiled.motions.find(
-    (candidate) => candidate.id === motionId,
-  );
-  if (motion === undefined) throw new Error(`motion "${motionId}" is absent`);
-  return sampleMotion(
-    motion,
-    performance === undefined
-      ? time
-      : Math.max(0, time - performance.startOffset),
-  ).pose;
-};
-
-const actorTransformAt = (
-  props: Parameters<typeof realizeShotContract>[0],
-  actor: string,
-  time: number,
-): IAutoMovieTransform => {
-  const compiled = props.compiled;
-  const node = compiled.scene.nodes.find((candidate) => candidate.id === actor);
-  if (node === undefined) throw new Error(`node "${actor}" is absent`);
-  const skeleton = skeletonOf(props, node);
-  const pose = skeleton === null ? null : actorPoseAt(props, node, time);
-  const sampled = sampleClipSequence(compiled.shot.objectMotions, time);
-  const translation = sampled.get(`node:${actor}:translation`)?.value;
-  const rotation = sampled.get(`node:${actor}:rotation`)?.value;
-  const scale = sampled.get(`node:${actor}:scale`)?.value;
-  const nodeTransform: IAutoMovieTransform = {
-    translation:
-      translation === undefined
-        ? node.transform.translation
-        : {
-            x: translation[0]!,
-            y: translation[1]!,
-            z: translation[2]!,
-          },
-    rotation:
-      rotation === undefined
-        ? node.transform.rotation
-        : {
-            x: rotation[0]!,
-            y: rotation[1]!,
-            z: rotation[2]!,
-            w: rotation[3]!,
-          },
-    scale:
-      scale === undefined
-        ? node.transform.scale
-        : { x: scale[0]!, y: scale[1]!, z: scale[2]! },
-  };
-  return pose?.root === null || pose === null
-    ? nodeTransform
-    : composeTransforms(nodeTransform, {
-        ...pose.root,
-        // Engine FK and the viewer both treat pose-root scale as identity.
-        scale: { x: 1, y: 1, z: 1 },
-      });
-};
-
-const skeletonOf = (
-  props: Parameters<typeof realizeShotContract>[0],
-  node: IAutoMovieShotSourceOutput["scene"]["nodes"][number],
-): IAutoMovieSkeleton | null => {
-  const model = (props.compiled.models ?? []).find(
-    (candidate) => candidate.id === node.model,
-  );
-  return model === undefined
-    ? (props.skeleton?.(node.id) ?? null)
-    : model.skeleton;
-};
-
-const composeTransforms = (
-  parent: IAutoMovieTransform,
-  child: IAutoMovieTransform,
-): IAutoMovieTransform => {
-  const rotated = Quaternion.rotateVector(parent.rotation, {
-    x: child.translation.x * parent.scale.x,
-    y: child.translation.y * parent.scale.y,
-    z: child.translation.z * parent.scale.z,
-  });
-  return {
-    translation: {
-      x: parent.translation.x + rotated.x,
-      y: parent.translation.y + rotated.y,
-      z: parent.translation.z + rotated.z,
-    },
-    rotation: Quaternion.multiply(parent.rotation, child.rotation),
-    scale: {
-      x: parent.scale.x * child.scale.x,
-      y: parent.scale.y * child.scale.y,
-      z: parent.scale.z * child.scale.z,
-    },
-  };
-};
-
+/** Whether two vectors agree on every component within the tolerance. */
 const vectorClose = (
   left: IAutoMovieVector3,
   right: IAutoMovieVector3,
 ): boolean =>
-  Math.abs(left.x - right.x) <= 1e-9 &&
-  Math.abs(left.y - right.y) <= 1e-9 &&
-  Math.abs(left.z - right.z) <= 1e-9;
+  Math.abs(left.x - right.x) <= TRANSFORM_TOLERANCE &&
+  Math.abs(left.y - right.y) <= TRANSFORM_TOLERANCE &&
+  Math.abs(left.z - right.z) <= TRANSFORM_TOLERANCE;
 
+/**
+ * Whether two unit quaternions name the same rotation within the tolerance;
+ * `q` and `-q` are the same rotation, so the absolute dot product is compared
+ * with one.
+ */
 const quaternionClose = (
   left: IAutoMovieTransform["rotation"],
   right: IAutoMovieTransform["rotation"],
@@ -712,4 +462,4 @@ const quaternionClose = (
     Math.abs(
       left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w,
     ) - 1,
-  ) <= 1e-9;
+  ) <= TRANSFORM_TOLERANCE;

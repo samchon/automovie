@@ -4,9 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-
-/** A plain SHA-256 content digest as this project writes it. */
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
  * Validate the generation identity recorded for bytes nothing served.
@@ -28,6 +26,18 @@ const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
  * paths and nothing throws; the irreproducible-seed case is a warning, so it
  * leaves the validation successful. Input asset paths are checked for
  * blankness only, not resolved.
+ *
+ * @param props.acquisition Generation identity recorded for one set of bytes.
+ * @param props.digest Digest the bytes must still have, or null when replaced.
+ * @returns Success, possibly with the seed warning, or every violation found.
+ *
+ * @evidence contracts/common.md#principled-implementation Each claim is checked against what would back it: `Number.isSafeInteger` is the exact set of integers a JSON number carries without rounding, the digest form is one lowercase spelling so equal bytes compare equal as strings, and the reproducibility rules are evaluated only after the seed is known to be a real draw.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the acquisition record's honesty rules, using the collector's blank-string rule and the shared digest pattern instead of private copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No provider or model is special-cased; an irreproducible seed is a warning by contract because it is not a defect in the bytes, and nothing is normalized to pass.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why each rule exists, the seed domain and its precedence, every field rule, the null-digest meaning, the path root, which finding is a warning, and that inputs are not resolved.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the input path count, with constant work for every other field.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one generation record per call; each acquisition is validated once by its caller and nothing is shared.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
 export const validateGeneratedAcquisition = (props: {
   /** Generation identity recorded for one set of returned bytes. */
@@ -40,10 +50,10 @@ export const validateGeneratedAcquisition = (props: {
   digest: string | null;
 }): IAutoMovieValidation => {
   const { acquisition } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
-  nonEmpty(acquisition.provider, `${root}.provider`, "generator provider", out);
-  nonEmpty(acquisition.model, `${root}.model`, "generator model", out);
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
+  out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");
+  out.nonEmpty(`${root}.model`, acquisition.model, "generator model");
   if (acquisition.request !== null && acquisition.request.trim() === "")
     out.push(
       "type",
@@ -59,19 +69,18 @@ export const validateGeneratedAcquisition = (props: {
       acquisition.prompt,
     );
   for (const key of ["promptDigest", "outputDigest"] as const)
-    if (!DIGEST_PATTERN.test(acquisition[key]))
+    if (!SHA256_DIGEST_PATTERN.test(acquisition[key]))
       out.push(
         "type",
         `${root}.${key}`,
         `${key} must be a lowercase "sha256:" hex digest, but was ${String(acquisition[key])}`,
         acquisition[key],
       );
-  acquisition.inputs.forEach((input, index) =>
-    nonEmpty(
-      input,
+  acquisition.inputs.forEach((input: string, index: number): void =>
+    out.nonEmpty(
       `${root}.inputs[${index}]`,
+      input,
       "generator input asset path",
-      out,
     ),
   );
   if (props.digest !== null && acquisition.outputDigest !== props.digest)
@@ -103,14 +112,4 @@ export const validateGeneratedAcquisition = (props: {
       acquisition.seed,
     );
   return out.toValidation();
-};
-
-const nonEmpty = (
-  value: string,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  if (value.trim().length === 0)
-    out.push("type", path, `${label} must be non-empty`, value);
 };

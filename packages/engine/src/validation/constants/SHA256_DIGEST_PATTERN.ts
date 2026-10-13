@@ -4,7 +4,7 @@
  *
  * Uppercase hex and other algorithms are refused rather than normalized, so
  * one set of bytes has exactly one spelling and two records of it compare equal
- * as strings. The design-reference, lineage and generated-acquisition
- * validators all test digests against this one pattern.
+ * as strings. Engine validators that check a recorded digest test it against
+ * this one pattern instead of keeping their own copy.
  */
 export const SHA256_DIGEST_PATTERN: RegExp = /^sha256:[0-9a-f]{64}$/;

@@ -13,56 +13,48 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
+import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
 
-const ROOT_PARENT = "__root__";
-
 /**
- * Resolve a {@link IAutoMoviePose} against its {@link IAutoMovieSkeleton} into
- * per-bone transforms (forward kinematics).
+ * Forward kinematics: resolve a pose against its skeleton into one transform
+ * per bone.
  *
- * For each bone it composes the rest-pose local rotation with the pose's
- * articulation ({@link jointToQuaternion}), then walks the parent hierarchy to
- * accumulate world positions. The result feeds two consumers:
+ * Each bone's local rotation is its rest rotation composed with the pose's
+ * articulation ({@link jointToQuaternion}); its world rotation is the parent's
+ * world rotation times that, and its world position is the parent's position
+ * plus the rest translation turned by the parent's world rotation. Rest scale
+ * is not applied. The walk starts at the pose's `root` transform, or the
+ * origin with identity rotation when it is `null`, and visits parents before
+ * children, so the result lists bones in that order. The renderer uses
+ * `localRotation`; validators and solvers use the world fields.
  *
- * - The **renderer**, which sets each bone's `localRotation` and lets the scene
- *   graph compute world transforms (so `worldPosition` is informational
- *   there);
- * - **physics-style validators**, which need world positions (e.g. foot-ground
- *   contact, centre of mass).
+ * Only bones reachable from a null-parent root are resolved. A bone with an
+ * undeclared parent, in a detached subtree or in a parent cycle is omitted,
+ * and a skeleton without a root resolves to an empty array; callers that need
+ * a bone gate on {@link reachableBoneNames}, which reports the same set. A
+ * joint for an undeclared or unreachable bone is ignored, and a bone named by
+ * two joints takes the later one.
  *
- * Bones are processed parent-before-child via a topological walk from the root,
- * so a parent's world transform is always available when a child is resolved.
+ * @param pose Joint angles and root transform to resolve.
+ * @param skeleton Rig the pose articulates.
+ * @param jointAxes Per-bone clinical axes, such as `HUMANOID_JOINT_AXES`; an
+ *   absent bone uses the default basis.
+ * @param restFrames Per-bone rest frames that read the joint angles as
+ *   clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles
+ *   as rest-relative.
+ * @param topology Index of the same, unchanged skeleton from
+ *   {@link indexSkeletonTopology}, reused across poses; omitted, one is built
+ *   for this call.
  *
- * **Contract: only root-reachable bones are resolved.** The walk starts from
- * null-parent roots and follows the parent links, so a bone with an orphaned
- * parent reference, a detached sub-tree, or a cyclic parent chain (every member
- * has a non-null parent, so none is entered from a root: no infinite recursion
- * results, since a bone is reached only through its single parent) is **omitted
- * from the result**, and a skeleton with no root at all resolves to an empty
- * array. This is load-bearing: {@link reachableBoneNames} derives the reachable
- * set from the same walk, and graceful consumers (a physics validator gating a
- * bone, `retargetHumanoidMotion` measuring rest height) rely on the partial
- * return to report a malformed rig instead of crashing. A consumer that needs
- * every declared bone present must gate on {@link reachableBoneNames} first: the
- * total, non-throwing "which bones will resolve" query.
- *
- * `jointAxes` optionally remaps the clinical axes per bone (e.g.
- * `HUMANOID_JOINT_AXES`, so a T-pose arm's flexion swings it sagittally); a
- * bone absent from it uses the default clinical basis, so omitting it preserves
- * the baseline behavior exactly.
- *
- * `restFrames` optionally reads each joint's angles as **clinical** and maps
- * them into that bone's rest-relative space (e.g. `HUMANOID_REST_FRAME`, so
- * `+abduction` raises either arm despite the shared axis); a bone absent from
- * it, or an omitted table, is the identity. The angles are taken as the rig's
- * own.
- *
- * `topology` optionally reuses a pose-independent hierarchy index built by
- * {@link indexSkeletonTopology}. Omit it for one-off calls, especially if the
- * skeleton object may have been mutated since a prior resolve.
- *
+ * @evidence contracts/common.md#principled-implementation Standard forward kinematics over a rooted tree, composing quaternion rotations and rotating each rest offset by the parent's world rotation; a parent-first depth-first walk guarantees the parent frame exists when a child is reached, and it premises unit rotations, no rest scale, and a topology built from this unchanged skeleton.
+ * @evidence contracts/common.md#clear-and-simple-design Articulation is delegated to `jointToQuaternion` and the hierarchy to the shared topology index, so this function only composes; the root sentinel is the shared `SKELETON_ROOT_PARENT`, and the walk receives bone objects so no name lookup happens during descent.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreachable bones are omitted by the stated contract instead of being attached to a root or thrown on, and no bone or rig is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the composition for rotation and position, that rest scale is ignored, the root default, the output order, which bones are omitted and how to gate on them, how stray and repeated joints are read, and each optional parameter's default.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in joints plus reachable bones: one articulation per joint, then one composition per bone; building the topology when none is passed is also linear in the bone count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses a caller-supplied topology across poses of one skeleton instead of rebuilding it; equivalence is the unchanged skeleton object, which the caller owns, and omitting the topology always rebuilds.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the articulation map is local to the call and the returned bones, one per reachable bone, are owned by the caller.
  * @author Samchon
  */
 export const resolvePose = (
@@ -72,7 +64,8 @@ export const resolvePose = (
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
 ): IAutoMovieResolvedBone[] => {
-  const articulation = new Map<AutoMovieHumanoidBone, IAutoMovieQuaternion>();
+  const articulation: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> =
+    new Map();
   for (const j of pose.joints)
     articulation.set(
       j.bone,
@@ -88,11 +81,18 @@ export const resolvePose = (
     parentWorldRot: IAutoMovieQuaternion,
     parentWorldPos: IAutoMovieVector3,
   ): void => {
-    const art = articulation.get(bone.bone) ?? Quaternion.identity();
-    const localRotation = Quaternion.multiply(bone.rest.rotation, art);
+    const art: IAutoMovieQuaternion =
+      articulation.get(bone.bone) ?? Quaternion.identity();
+    const localRotation: IAutoMovieQuaternion = Quaternion.multiply(
+      bone.rest.rotation,
+      art,
+    );
 
-    const worldRot = Quaternion.multiply(parentWorldRot, localRotation);
-    const worldPos = Vector3.add(
+    const worldRot: IAutoMovieQuaternion = Quaternion.multiply(
+      parentWorldRot,
+      localRotation,
+    );
+    const worldPos: IAutoMovieVector3 = Vector3.add(
       parentWorldPos,
       Quaternion.rotateVector(parentWorldRot, bone.rest.translation),
     );
@@ -108,9 +108,11 @@ export const resolvePose = (
       walk(child, worldRot, worldPos);
   };
 
-  const rootTranslation = pose.root?.translation ?? Vector3.create(0, 0, 0);
-  const rootRotation = pose.root?.rotation ?? Quaternion.identity();
-  for (const root of topology.childrenByParent.get(ROOT_PARENT) ?? [])
+  const rootTranslation: IAutoMovieVector3 =
+    pose.root?.translation ?? Vector3.create(0, 0, 0);
+  const rootRotation: IAutoMovieQuaternion =
+    pose.root?.rotation ?? Quaternion.identity();
+  for (const root of topology.childrenByParent.get(SKELETON_ROOT_PARENT) ?? [])
     walk(root, rootRotation, rootTranslation);
 
   return resolved;

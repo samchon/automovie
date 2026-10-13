@@ -331,7 +331,8 @@ const refusalPaths = (
  *    cite two competing readings at once, and are refused when they dangle,
  *    repeat, or carry no reason.
  * 10. Every malformed observation, including a rival or an issue subject listed
- *     twice, is refused at its own path.
+ *     twice and a primitive kind spelled like an inherited object property, is
+ *     refused at its own path.
  * 11. The untouched fixture produces no violation path at all.
  */
 export const test_architecture_design_reference = (): void => {
@@ -763,6 +764,13 @@ export const test_architecture_design_reference = (): void => {
       (value) =>
         (value.primitives[0]!.kind =
           "spline" as IAutoMovieDesignReference["primitives"][number]["kind"]),
+      "$input.primitives[0].kind",
+    ],
+    [
+      "primitive kind spelled like an inherited object property",
+      (value) =>
+        (value.primitives[0]!.kind =
+          "toString" as IAutoMovieDesignReference["primitives"][number]["kind"]),
       "$input.primitives[0].kind",
     ],
     [

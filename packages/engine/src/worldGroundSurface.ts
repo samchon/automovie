@@ -1,5 +1,7 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 
+import { worldSurfaceContains } from "./worldSurfaceContains";
+
 /**
  * The world terrain under an XZ point, or `null` where the world has none.
  *
@@ -18,65 +20,4 @@ export const worldGroundSurface = (
   surfaces: readonly IAutoMovieWorldSurface[],
   point: { x: number; z: number },
 ): IAutoMovieWorldSurface | null =>
-  surfaces.find((surface) => insideOrOnPolygon(point, surface.polygon)) ?? null;
-
-const insidePolygon = (
-  point: { x: number; z: number },
-  polygon: IAutoMovieWorldSurface["polygon"],
-): boolean => {
-  let inside = false;
-  for (
-    let index = 0, previous = polygon.length - 1;
-    index < polygon.length;
-    previous = index++
-  ) {
-    const current = polygon[index]!;
-    const prior = polygon[previous]!;
-    if (
-      current.z > point.z !== prior.z > point.z &&
-      point.x <
-        ((prior.x - current.x) * (point.z - current.z)) /
-          (prior.z - current.z) +
-          current.x
-    )
-      inside = !inside;
-  }
-  return inside;
-};
-
-const insideOrOnPolygon = (
-  point: { x: number; z: number },
-  polygon: IAutoMovieWorldSurface["polygon"],
-): boolean =>
-  polygon.some(
-    (current, index) =>
-      pointSegmentDistance(
-        point,
-        current,
-        polygon[(index + 1) % polygon.length]!,
-      ) <= 1e-9,
-  ) || insidePolygon(point, polygon);
-
-const pointSegmentDistance = (
-  point: { x: number; z: number },
-  from: { x: number; z: number },
-  to: { x: number; z: number },
-): number => {
-  const dx = to.x - from.x;
-  const dz = to.z - from.z;
-  const lengthSquared = dx * dx + dz * dz;
-  const ratio =
-    lengthSquared === 0
-      ? 0
-      : Math.max(
-          0,
-          Math.min(
-            1,
-            ((point.x - from.x) * dx + (point.z - from.z) * dz) / lengthSquared,
-          ),
-        );
-  return Math.hypot(
-    point.x - (from.x + dx * ratio),
-    point.z - (from.z + dz * ratio),
-  );
-};
+  surfaces.find((surface) => worldSurfaceContains(surface, point)) ?? null;

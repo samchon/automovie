@@ -2,7 +2,7 @@ import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
- * Admits a material slot's UV0, colour-space, transform and sampler relations without fetching resources.
+ * Admits a material slot's UV0, colour-space, coordinate-source, transform and sampler relations without fetching resources.
  */
 export const validateTextureBinding = (
   binding: unknown,
@@ -44,6 +44,16 @@ export const validateTextureBinding = (
       `${path}.colorSpace`,
       `this texture slot requires ${expectedColorSpace} color space`,
       texture.colorSpace,
+    );
+  // An unknown source would otherwise pass as no claim at all, because
+  // `validateTextureScale` measures only the two sources it can decide.
+  if (texture.coordinateSource !== undefined)
+    enumValue(
+      texture.coordinateSource,
+      ["surface-metres", "normalized", "source-uv"],
+      `${path}.coordinateSource`,
+      "coordinateSource",
+      collector,
     );
   const transform = texture.transform;
   if (transform !== undefined) {

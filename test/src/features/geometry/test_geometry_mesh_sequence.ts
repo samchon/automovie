@@ -9,7 +9,8 @@ import { throwsError } from "../internal/predicates";
  * 1. Planes at depths 0,-1,1 and gap 0.2 finish at -0.6,-0.4,1.6 on each axis.
  *    Shapes, normals and input buffers remain unchanged apart from translation.
  * 2. A disjoint middle plane cannot hide the first/last constraint. Already
- *    separated, empty and single-member sequences need no travel.
+ *    separated, empty and single-member sequences need no travel, including a
+ *    finite member whose projected area would overflow if it were measured.
  * 3. Invalid axes, clearances, single-mesh buffers, accumulated travel and final
  *    position overflow refuse rather than returning a partially placed group.
  */
@@ -84,6 +85,15 @@ export const test_geometry_mesh_sequence = (): void => {
     [clear[0]],
   );
   TestValidator.equals("empty", separateAutoMovieMeshSequence([], "z"), []);
+  const vast = {
+    ...plane(5),
+    positions: [-1e200, -1e200, 5, 1e200, -1e200, 5, 0, 1e200, 5],
+  };
+  TestValidator.equals(
+    "a finite member already clear needs no projected-area arithmetic",
+    separateAutoMovieMeshSequence([plane(0), vast], "z"),
+    [plane(0), vast],
+  );
   for (const gap of [-1, Infinity, NaN])
     TestValidator.predicate(
       "invalid gap",

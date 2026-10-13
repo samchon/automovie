@@ -47,7 +47,9 @@ const launch = (
  *    sightline, so the reaction still has a well-formed `from`.
  * 8. With `targetAt`, the aim **leads a moving target**: against a foe sliding
  *    downrange, the baked flight lands where the target will be (past its start
- *    point), and the react is still timed to the computed contact.
+ *    point), and the react is still timed to the computed contact. `targetAt`
+ *    reads shot time, so a launch loosed at 0.5 s meets the foe where it stands
+ *    at `0.5 + hitTime`, not where it stood `hitTime` after the shot began.
  */
 export const test_film_launch = (): void => {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
@@ -360,9 +362,10 @@ export const test_film_launch = (): void => {
   );
 
   // 8. leading a MOVING target: with `targetAt` sampling a foe sliding downrange
-  // (+x at 4 m/s from x = 10), the aim leads it: the baked flight lands where
-  // the target WILL be (targetAt(hitTime)), past its start point, and the react
-  // is still timed to the computed contact.
+  // (+x at 4 m/s from x = 10 at shot time 0), the aim leads it: the baked
+  // flight lands where the target WILL be when the arrow arrives, shot time
+  // `start + hitTime`, past its start point, and the react is still timed to
+  // the computed contact.
   const startAt: IAutoMovieVector3 = { x: 10, y: 1.4, z: 0 };
   const slide = (t: number): IAutoMovieVector3 => ({
     x: startAt.x + 4 * t,
@@ -378,7 +381,7 @@ export const test_film_launch = (): void => {
   })!;
   TestValidator.predicate(
     "the led flight lands where the moving target will be",
-    vclose(led.hitPoint, slide(led.hitTime), 2e-3),
+    vclose(led.hitPoint, slide(0.5 + led.hitTime), 2e-3),
   );
   TestValidator.predicate(
     "leading a +x mover aims past its start point",

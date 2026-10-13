@@ -1,3 +1,4 @@
+import { positive } from "../geometry/positive";
 import { IAutoMovieAssemblyReveal } from "./IAutoMovieAssemblyReveal";
 import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
@@ -80,10 +81,4 @@ export const autoMovieAssemblyOpeningReveal = (props: {
       ...layers.slice(layers.length - tail),
     ].map((layer: IAutoMovieResolvedLayer): string => layer.id),
   };
-};
-
-/** Refuse a dimension that is not a finite number above zero. */
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };

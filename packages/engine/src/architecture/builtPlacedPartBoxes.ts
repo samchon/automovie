@@ -43,11 +43,7 @@ export const builtPlacedPartBoxes = (
     if (box !== null) boxes.push(box);
   }
   if (boxes.length !== 0) return boxes;
-  const origin: IAutoMovieVector3 = {
-    x: world[12]!,
-    y: world[13]!,
-    z: world[14]!,
-  };
+  const origin: IAutoMovieVector3 = Matrix4.position(world);
   return [{ min: { ...origin }, max: { ...origin } }];
 };
 

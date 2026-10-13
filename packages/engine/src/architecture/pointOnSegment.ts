@@ -21,8 +21,8 @@ import { planarSide } from "./planarSide";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate or caller is special-cased; the slack is the shared `PLANAR_EPSILON` constant.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the two conditions, the box slack, the zero-length case, and each parameter's frame.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time, one orientation test and four comparisons, with no algorithm to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over three points; it coordinates no work across requests or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads three points and allocates nothing, so no state, handle or task outlives the call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure point-on-segment predicate that each polygon test calls per edge; nothing is coordinated across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads one point and one segment and allocates nothing, so nothing outlives the call.
  */
 export const pointOnSegment = (
   point: IAutoMoviePlanarPoint,

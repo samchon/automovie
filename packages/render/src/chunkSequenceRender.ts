@@ -6,7 +6,9 @@ import {
   normalizeGuidePasses,
   planGuidePassOutputs,
 } from "./guidePasses";
-import { ffmpegArgs, frameName, framePattern } from "./plan";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { frameName } from "./frameName";
+import { framePattern } from "./framePattern";
 import {
   IAutoMovieSequenceRenderFrame,
   IAutoMovieSequenceRenderPlan,

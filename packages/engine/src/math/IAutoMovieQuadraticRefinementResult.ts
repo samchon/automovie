@@ -2,50 +2,66 @@ import type { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadra
 import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
 
 /**
- * Original-variable QP candidate with independently measured original KKT data.
- * A failed polishing candidate retains the preceding original primal and dual,
- * the unchanged native status and separate attempt diagnostics. Only
- * the caller's original residual threshold and Solved status decide admission.
+ * The solution `refineAutoMovieQuadraticProgram` returns for a diagonal
+ * quadratic program, with its residuals measured on every original row.
  *
+ * `primal` and `dual` are the native solution unless polishing produced a
+ * finite candidate that passed the caller's threshold on every original row;
+ * then they are that candidate. `status` is always the native status, so an
+ * unsuccessful solve is never promoted. The caller admits the solution only
+ * when `status` is 1 and the three residuals are within its tolerance. All
+ * arrays are new and owned by the caller.
+ *
+ * @evidence contracts/common.md#principled-implementation Reports the KKT residuals of the original program at the returned point, primal feasibility, stationarity of `H·x + q + Aᵀ·y` and complementarity, so admission reads the actual conditions rather than the solver's normalized measures or status alone.
+ * @evidence contracts/common.md#clear-and-simple-design The solution, the three admission residuals and the diagnostics a failed solve's error message prints, the native report, row groups and the polishing attempt, in one record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Polishing can replace the solution only through full-row admission and never changes `status`, so no residual or status is massaged into success.
+ * @evidence contracts/common.md#meaningful-documentation States when the solution is the native one or the polished candidate, that the status is never promoted, the caller's admission rule, ownership, and each residual's formula and unit.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the cost is answered on `refineAutoMovieQuadraticProgram`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller: vectors of the variable and row counts, one ordinal per row in `rowGroups`, and the optional polishing traces bounded by the budget.
  * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementResult {
-  /** Owned leading variables of the original problem, excluding numerical slacks. */
+  /** Returned primal, one value per program variable. */
   primal: number[];
 
-  /** Signed multipliers in original row order, including fixed and dependent rows. */
+  /**
+   * Returned multipliers in original row order, positive on an active upper
+   * endpoint and negative on an active lower endpoint.
+   */
   dual: number[];
 
-  /** Original native status; polishing never promotes an unsuccessful solve. */
+  /** Native status, unchanged by polishing; 1 is Solved. */
   status: number;
 
-  /** Largest original interval violation, in the caller's row units. */
+  /** Largest endpoint violation over all original rows, in row units. */
   maximumViolation: number;
 
-  /** Infinity norm of original H*x+q+A'*y. */
+  /** Infinity norm of `H·x + q + Aᵀ·y`, with every original row in `A`. */
   stationarityResidual: number;
 
-  /** Largest signed original multiplier times its endpoint gap. */
+  /**
+   * Largest `|y · (a·x − endpoint)|` over the rows, using the endpoint the
+   * multiplier's sign selects, `|y|` when that endpoint is unbounded, and 0
+   * for an equality row.
+   */
   complementarityResidual: number;
 
-  /** Actual original-coordinate correction iterations after the native solve. */
+  /** Polishing steps taken; 0 when polishing did not run. */
   refinements: number;
 
-  /** Initial original primal, retained as historical context rather than a later correction frame. */
+  /** Copy of the native primal, kept even when a polished one is returned. */
   reference: number[];
 
-  /** Complete original input row population, retained in admission. */
-  originalRows: number;
-
-  /** Exact coefficient-group metadata count; original admission keeps all rows. */
-  presolvedRows: number;
-
-  /** Original row ordinals of every exact interval group. */
+  /** Original row numbers of each group of identical coefficient rows. */
   rowGroups: number[][];
 
-  /** The actual initial native solve; polishing adds no native call. */
+  /** The single native solve the refinement started from. */
   nativeCalls: IAutoMovieQuadraticRefinementNativeCall[];
 
-  /** Original-coordinate polishing attempt; acceptance is independent of native status. */
+  /**
+   * The polishing attempt; absent when the native status is not 1, the budget
+   * is 0, or the native solution already passed admission.
+   */
   polishing?: IAutoMovieQuadraticPolishingResult;
 }

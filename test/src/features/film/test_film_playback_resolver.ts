@@ -74,7 +74,8 @@ const SEQUENCE: IAutoMovieSequence = {
  *    outgoing entry 1 tail at local 0.5 + 1.7 = 2.2, incoming weight 0.2 / 0.5
  *    = 0.4.
  * 5. T = 4.99…+0.5 = 5.1 (past the dissolve) → entry 2 alone, no blend.
- * 6. T = −1 and T = 7.5 (the exclusive end) → null; T = 0 → entry 0 at 0.
+ * 6. T = −1, T = 7.5 (the exclusive end) and T = NaN → null; T = 0 → entry 0
+ *    at 0.
  * 7. Event windows are half-open at a trim seam: one shot split into contiguous
  *    trims [0,1] + [1,2] emits an event at shot-time 1.0 exactly once (from the
  *    entry that starts there), while a shot-final event at 2.0 is still emitted
@@ -142,6 +143,7 @@ export const test_film_playback_resolver = (): void => {
 
   TestValidator.equals("before the film", at(-1), null);
   TestValidator.equals("at the exclusive end", at(7.5), null);
+  TestValidator.equals("at a non-finite instant", at(Number.NaN), null);
   const t0 = at(0)!;
   TestValidator.equals(
     "first frame",

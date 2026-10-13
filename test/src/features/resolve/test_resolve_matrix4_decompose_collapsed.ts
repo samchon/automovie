@@ -1,8 +1,8 @@
-import { Matrix4 } from "@automovie/engine";
+import { Matrix4, Quaternion } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose, qclose, qunit } from "../internal/predicates";
 
 const finiteVec = (v: IAutoMovieVector3): boolean =>
   Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
@@ -13,21 +13,25 @@ const finiteQuat = (q: IAutoMovieQuaternion): boolean =>
   Number.isFinite(q.w);
 
 /**
- * `Matrix4.decompose` stays total on a **collapsed axis** (scale 0: a hidden
- * part, a folded joint): its normalizer is floored to `Number.EPSILON` so the
- * zero basis column reads `0 / EPSILON = 0` instead of `0 / 0 = NaN`, which
- * would otherwise spread through the quaternion and every descendant world
- * matrix (#719). The recovered rotation of a collapsed axis is indeterminate,
- * but the contract is finiteness, not meaning.
+ * `Matrix4.decompose` on a **collapsed axis** (scale 0: a hidden part, a
+ * folded joint) completes the missing basis direction from the surviving
+ * columns instead of dividing `0 / 0 = NaN` into the quaternion and every
+ * descendant world matrix (#719), so the rotation is a finite unit quaternion
+ * and composing the result again rebuilds every surviving column under any
+ * rotation, not only the identity.
  *
  * Scenarios:
  *
  * 1. Each axis collapsed in turn (identity rotation, other scales nonzero):
- *    rotation and scale are finite, the collapsed scale is exactly 0 (raw, not
- *    the floor), and the surviving scales are recovered exactly.
+ *    rotation and scale are finite, the collapsed scale is exactly 0, and the
+ *    surviving scales are recovered exactly.
  * 2. All three axes collapsed (zero matrix rotation block): still finite.
- * 3. Regression: a genuine near-zero-but-nonzero scale (1e-3) round-trips exactly
- *    (the floor never perturbs a real scale).
+ * 3. A genuine small nonzero scale (1e-3) round-trips exactly.
+ * 4. Under a generic rotation, each single collapsed axis and each pair of
+ *    collapsed axes decompose to a unit rotation whose recomposition equals
+ *    the original matrix.
+ * 5. A nonzero scale far below `Number.EPSILON` (1e-20) under the same
+ *    rotation recovers that rotation and scale.
  */
 export const test_resolve_matrix4_decompose_collapsed = (): void => {
   const t = { x: 1, y: 2, z: 3 };
@@ -68,8 +72,7 @@ export const test_resolve_matrix4_decompose_collapsed = (): void => {
     z: 0,
   });
 
-  // 3. Regression: a real tiny scale (1e-3, far above EPSILON ~2.2e-16)
-  //    round-trips exactly: the floor is a no-op for genuine scales.
+  // 3. A real small scale round-trips exactly.
   const tiny = { x: 1e-3, y: 1e-3, z: 1e-3 };
   const rt = Matrix4.decompose(Matrix4.compose(t, identity, tiny));
   TestValidator.predicate("tiny scale x", nclose(rt.scale.x, 1e-3, 1e-9));
@@ -78,5 +81,43 @@ export const test_resolve_matrix4_decompose_collapsed = (): void => {
   TestValidator.predicate(
     "tiny scale rotation is identity",
     nclose(rt.rotation.w, 1, 1e-9),
+  );
+
+  // 4. Collapsed axes under a generic rotation rebuild the original matrix.
+  const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 2, z: 3 },
+    70,
+  );
+  const scales: Array<[string, IAutoMovieVector3]> = [
+    ["rotated x collapsed", { x: 0, y: 2, z: 3 }],
+    ["rotated y collapsed", { x: 2, y: 0, z: 3 }],
+    ["rotated z collapsed", { x: 2, y: 3, z: 0 }],
+    ["rotated x only", { x: 2, y: 0, z: 0 }],
+    ["rotated y only", { x: 0, y: 2, z: 0 }],
+    ["rotated z only", { x: 0, y: 0, z: 2 }],
+  ];
+  for (const [title, scale] of scales) {
+    const original: number[] = Matrix4.compose(t, turned, scale);
+    const d = Matrix4.decompose(original);
+    TestValidator.predicate(`${title}: unit rotation`, qunit(d.rotation, 1e-12));
+    const rebuilt: number[] = Matrix4.compose(d.position, d.rotation, d.scale);
+    TestValidator.predicate(
+      `${title}: recomposition matches`,
+      rebuilt.every((value: number, at: number): boolean =>
+        nclose(value, original[at]!, 1e-12),
+      ),
+    );
+  }
+
+  // 5. A scale far below Number.EPSILON is still a direction, not a collapse.
+  const minute: IAutoMovieVector3 = { x: 1e-20, y: 1e-20, z: 1e-20 };
+  const small = Matrix4.decompose(Matrix4.compose(t, turned, minute));
+  TestValidator.predicate(
+    "minute scale rotation is recovered",
+    qclose(small.rotation, turned, 1e-12),
+  );
+  TestValidator.predicate(
+    "minute scale is recovered",
+    nclose(small.scale.x / 1e-20, 1, 1e-12),
   );
 };

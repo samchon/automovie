@@ -72,10 +72,11 @@ const validateMaterial = (patch: Record<string, unknown>) => {
  *    `MeshPhysicalMaterial`, and the legacy shapes beside it (a bare asset id,
  *    an unresolvable binding, no resolver at all, omitted `alphaMode`, omitted
  *    cutoff) keep the output they had before textures existed.
- * 2. Every malformed binding, sampler value, UV set, transform component and
- *    contradictory alpha/transmission pairing is refused by `validateModel` at
- *    the authored path, while the one-away twins that must NOT fire (a negative
- *    normal scale, opaque transmission, legacy opacity blending) stay valid.
+ * 2. Every malformed binding, sampler value, UV set, coordinate source,
+ *    transform component and contradictory alpha/transmission pairing is
+ *    refused by `validateModel` at the authored path, while the one-away twins
+ *    that must NOT fire (a negative normal scale, opaque transmission, legacy
+ *    opacity blending) stay valid.
  * 3. Generated geometry uploads exactly one UV set, the only set a binding's
  *    `texCoord` may address.
  * 4. Image lighting mounts as both environment and background, decodes on the

@@ -2,9 +2,9 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 /** Closest point to `point` on segment `start`–`end`, on the XZ plane (y=0). */
 export const closestPointOnSegmentXZ = (
-  point: IAutoMovieVector3,
-  start: IAutoMovieVector3,
-  end: IAutoMovieVector3,
+  point: Pick<IAutoMovieVector3, "x" | "z">,
+  start: Pick<IAutoMovieVector3, "x" | "z">,
+  end: Pick<IAutoMovieVector3, "x" | "z">,
 ): IAutoMovieVector3 => {
   const dx = end.x - start.x;
   const dz = end.z - start.z;

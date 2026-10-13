@@ -161,6 +161,8 @@ const stoneAt = (
  *    to the flight, so it is the later START that wins, not the later entry.
  * 9. A transform authority that starts exactly at beat end has no preceding sample
  *    window, so its derived velocity is honestly zero.
+ * 10. A clip that also writes the node's scale reports that scale at beat end,
+ *    the value playback draws, instead of a unit scale.
  */
 export const test_film_beat_end_launched_prop = (): void => {
   // 1. the contradiction, resolved: the shot's clip decides.
@@ -248,5 +250,33 @@ export const test_film_beat_end_launched_prop = (): void => {
       ],
     ]),
     { velocityReported: true, velocityZero: true },
+  );
+
+  // 10. an authored scale track is the scale the beat ends with.
+  const grown: IAutoMovieClip = {
+    ...FLIGHT,
+    id: "grow:stone",
+    tracks: [
+      ...FLIGHT.tracks,
+      {
+        channel: { kind: "node", node: "stone", path: "scale" },
+        times: [RELEASE, CONTACT],
+        values: [1, 1, 1, 2, 3, 4],
+        interpolation: "linear",
+      },
+    ],
+  };
+  TestValidator.predicate(
+    "an authored scale reaches the beat end",
+    vclose(
+      resolveBeatEnd({
+        beat: "beat-1",
+        scene,
+        shot: shotOf(5, [grown]),
+        motions: [],
+      }).actors.find((actor) => actor.node === "stone")!.transform.scale,
+      { x: 2, y: 3, z: 4 },
+      1e-9,
+    ),
   );
 };

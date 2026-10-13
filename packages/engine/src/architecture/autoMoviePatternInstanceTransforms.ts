@@ -3,6 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
@@ -196,10 +197,4 @@ const unitAxis = (
 const finiteVector = (value: IAutoMovieVector3, label: string): void => {
   if (![value.x, value.y, value.z].every(Number.isFinite))
     throw new Error(`${label} must be finite`);
-};
-
-/** Refuse a value that is not a finite number above zero. */
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };

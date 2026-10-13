@@ -1,7 +1,7 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
 import { pointInPolygon } from "./pointInPolygon";
+import { segmentsTouch } from "./segmentsTouch";
 
 /**
  * Whether two polygons share any point at all, contact included.
@@ -10,15 +10,30 @@ import { pointInPolygon } from "./pointInPolygon";
  * written twice, and the wall between them has nothing left to be.
  *
  * Both polygons are non-empty simple closed rings in one planar frame. True
- * when any edge of one touches any edge of the other within the scale-relative
- * `PLANAR_EPSILON` tolerance, or when one lies wholly inside the other.
+ * when any edge of one touches any edge of the other by {@link segmentsTouch},
+ * within the scale-relative `PLANAR_EPSILON` tolerance, or when one lies wholly
+ * inside the other, which is tested with one corner of each by
+ * {@link pointInPolygon}. An empty ring breaks that premise: paired with a
+ * non-empty ring, its missing corner throws a `TypeError`.
+ *
+ * @param left One closed ring.
+ * @param right The other closed ring, in the same frame.
+ * @returns True when the closed regions share any point.
+ *
+ * @evidence contracts/common.md#principled-implementation Two simple polygons intersect exactly when their boundaries meet or one contains the other, and with disjoint boundaries containment of one corner implies containment of the whole ring, so one corner test per side completes the answer.
+ * @evidence contracts/common.md#clear-and-simple-design Composes the shared `segmentsTouch` and `pointInPolygon` predicates, so opening overlap and support-surface overlap use the same contact rule as containment.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No void, jamb or caller is special-cased; contact counts as overlap by the stated design reason, through the predicate's own tolerance.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why contact counts, the simple non-empty premise and the `TypeError` an empty ring raises, the two ways the answer becomes true, and each parameter's role.
+ * @evidence contracts/performance.md#efficient-algorithms O(n·m) edge-pair tests plus O(n + m) for the two corner tests, O(1) space, returning on the first contact; authored voids carry tens of corners, so no sweep structure is built.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure overlap answer for one pair of rings; opening and support validation ask once per pair on one boundary.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the edge-pair counters and allocates nothing, so no object outlives the overlap test.
  */
 export const polygonsOverlap = (
   left: readonly IAutoMoviePlanarPoint[],
   right: readonly IAutoMoviePlanarPoint[],
 ): boolean => {
-  for (let index = 0; index < left.length; ++index)
-    for (let other = 0; other < right.length; ++other)
+  for (let index: number = 0; index < left.length; ++index)
+    for (let other: number = 0; other < right.length; ++other)
       if (
         segmentsTouch(
           left[index]!,
@@ -33,66 +48,3 @@ export const polygonsOverlap = (
     pointInPolygon(right[0]!, left) === true
   );
 };
-
-/** Whether two segments meet at a point interior to both. */
-const segmentsCross = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean => {
-  const first = side(c, d, a);
-  const second = side(c, d, b);
-  const third = side(a, b, c);
-  const fourth = side(a, b, d);
-  return (
-    first !== 0 &&
-    second !== 0 &&
-    third !== 0 &&
-    fourth !== 0 &&
-    first !== second &&
-    third !== fourth
-  );
-};
-
-/** Whether two segments share any point, endpoints and overlap included. */
-const segmentsTouch = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean =>
-  segmentsCross(a, b, c, d) ||
-  pointOnSegment(a, c, d) ||
-  pointOnSegment(b, c, d) ||
-  pointOnSegment(c, a, b) ||
-  pointOnSegment(d, a, b);
-
-/** Which side of the directed line `from -> to` a point falls on. */
-const side = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  point: IAutoMoviePlanarPoint,
-): number => {
-  const cross =
-    (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
-  const scale = Math.max(
-    1,
-    Math.abs(to.x - from.x) + Math.abs(to.y - from.y),
-    Math.abs(point.x - from.x) + Math.abs(point.y - from.y),
-  );
-  if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
-  return cross > 0 ? 1 : -1;
-};
-
-/** Whether a point lies on a segment, its endpoints included. */
-const pointOnSegment = (
-  point: IAutoMoviePlanarPoint,
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-): boolean =>
-  side(from, to, point) === 0 &&
-  point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
-  point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
-  point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
-  point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON;

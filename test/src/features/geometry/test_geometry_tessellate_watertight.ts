@@ -83,7 +83,9 @@ const signedVolume = (t: {
  * 1. Box, sphere, cylinder, cone, and capsule are 2-manifold: every welded
  *    non-degenerate edge is shared by exactly two triangles.
  * 2. Closed signed volumes match the analytic n-gon solids exactly: prism `A·h`
- *    (cylinder), pyramid `A·h/3` (cone), bounding prism `A·(h+2r)` (capsule).
+ *    (cylinder), pyramid `A·h/3` (cone), and the same-radius sphere lattice plus
+ *    the prism `A·h` (capsule), whose every vertex lies on the swept sphere of
+ *    its radius around the body axis, so its ends are hemispheres.
  * 3. Every emitted normal is unit length, and the cone's side normals carry the
  *    slant's exact y-component `(0 − r)/√(h² + r²)`, not 0.
  * 4. Negative twin: the plane stays a degenerate zero-volume solid, exempt from
@@ -120,12 +122,26 @@ export const test_geometry_tessellate_watertight = (): void => {
     ),
   );
   TestValidator.predicate(
-    "capsule volume equals its closed bounding n-gon prism",
+    "capsule volume is the same-radius sphere lattice plus its n-gon body prism",
     nclose(
       signedVolume(tessellate({ type: "capsule", radius: 0.2, height: 1 })),
-      ngonArea(0.2) * (1 + 2 * 0.2),
+      signedVolume(tessellate({ type: "sphere", radius: 0.2 })) +
+        ngonArea(0.2) * 1,
       1e-12,
     ),
+  );
+  TestValidator.predicate(
+    "capsule ends are hemispheres: every vertex lies on the swept sphere",
+    (() => {
+      const p = tessellate({ type: "capsule", radius: 0.2, height: 1 }).positions;
+      return Array.from({ length: p.length / 3 }, (_, i) =>
+        Math.hypot(
+          p[i * 3]!,
+          Math.max(0, Math.abs(p[i * 3 + 1]!) - 0.5),
+          p[i * 3 + 2]!,
+        ),
+      ).every((distance) => nclose(distance, 0.2, 1e-12));
+    })(),
   );
 
   for (const shape of solids) {

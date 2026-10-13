@@ -1,6 +1,7 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import { frameName, framePattern } from "./plan";
+import { frameName } from "./frameName";
+import { framePattern } from "./framePattern";
 
 /**
  * Every member of the closed `AutoMovieGuidePass` union, in declaration order,

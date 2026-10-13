@@ -27,7 +27,7 @@ import { parseProductionRenditionClip } from "./parseProductionRenditionClip";
  * @evidence contracts/common.md#clear-and-simple-design Splice admissibility is `parseProductionRenditionClip`, the container profile is `assertProductionVideoProfile`, and this function adds only the shot's own contract, judged before the generic profile so a drift is attributed to the named shot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is rounded, rescaled or tolerated; a clip that misses any field is refused, and no shot or adapter is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states each requirement, how the frame rate is resolved, the exact runtime comparison and its consequence for fractional-frame shots, and the refusals in the order they are raised.
- * @evidence contracts/performance.md#efficient-algorithms Cost is the clip parser's two parses and its pass over the S samples, plus constant-time comparisons here, so time is linear in the clip's bytes and samples.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is the clip parser's one parse and its pass over the S samples, plus constant-time comparisons here, so time is linear in the clip's bytes and samples.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one clip for one admission or revalidation and returns nothing to share; the production callers probe the same bytes separately because they need the probe record, which this assertion does not return.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed clip and its sample table are released on return, and the function opens no handle or task.
  */

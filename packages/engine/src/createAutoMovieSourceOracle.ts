@@ -1,6 +1,8 @@
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledInstanceSet,
+  IAutoMovieFormationSlot,
+  IAutoMovieInstanceSlot,
   IAutoMovieSourceOracle,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
@@ -21,12 +23,26 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * which already counts the default once. Distance is Euclidean in metres, and
  * ground height is the first world surface under the point or zero over none.
  *
- * An id with no compiled record refuses with a range error naming it, including
- * an id that only an inherited object property would otherwise answer.
+ * An id with no compiled record refuses with a `RangeError` naming it,
+ * including an id that only an inherited object property would otherwise
+ * answer.
  *
  * The oracle keeps references to the three props, not copies, so it answers
  * from whatever those records hold when each method is called. Slot indices
  * are passed through to the slot regenerators, which own their range checks.
+ *
+ * @param props.world World whose surfaces answer ground height.
+ * @param props.formationRuntime Compiled formations by id.
+ * @param props.instanceSetRuntime Compiled instance sets by id.
+ * @returns The oracle a shot source's build context exposes.
+ *
+ * @evidence contracts/common.md#principled-implementation Every answer is computed by the same function the compiled runtime uses, `compiledFormationSlot`, `instanceSlot` and `worldGroundHeight`, so a source's question and the runtime's answer cannot diverge; ids are tested with `Object.hasOwn`, which excludes inherited properties such as `toString`.
+ * @evidence contracts/common.md#clear-and-simple-design A thin adapter from the compiled records to the interface's oracle contract that owns only the id lookup and the zero-ground default the contract names; regeneration and range checks stay with their owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No formation, set or surface is special-cased; the zero ground height over no surface is the interface's documented answer, not a fallback for one caller.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why answers come from compiled records, the distance and ground rules, the refusal and its error type, that props are held by reference, and who checks slot ranges.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Construction is constant time; each method is one own-property lookup and one delegated regeneration, with no algorithm chosen here.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers are regenerated per question by design, because a compact slot is cheaper to recompute than to store and the records may change between calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned oracle retains references to the three props for as long as the caller holds it and copies nothing; it allocates only per-answer results, which the caller owns.
  */
 export const createAutoMovieSourceOracle = (props: {
   /** World whose surfaces answer ground height. */
@@ -38,15 +54,18 @@ export const createAutoMovieSourceOracle = (props: {
   /** Compiled instance-set runtimes keyed by set id. */
   instanceSetRuntime: Readonly<Record<string, IAutoMovieCompiledInstanceSet>>;
 }): IAutoMovieSourceOracle => ({
-  distance: (left, right) =>
-    Math.hypot(left.x - right.x, left.y - right.y, left.z - right.z),
-  groundHeight: (point) => worldGroundHeight(props.world.surfaces, point) ?? 0,
-  formationSlot: (id, slot) => {
+  distance: (
+    left: { x: number; y: number; z: number },
+    right: { x: number; y: number; z: number },
+  ): number => Math.hypot(left.x - right.x, left.y - right.y, left.z - right.z),
+  groundHeight: (point: { x: number; z: number }): number =>
+    worldGroundHeight(props.world.surfaces, point) ?? 0,
+  formationSlot: (id: string, slot: number): IAutoMovieFormationSlot => {
     if (Object.hasOwn(props.formationRuntime, id) === false)
       throw new RangeError(`Formation "${id}" is unavailable.`);
     return compiledFormationSlot(props.formationRuntime[id]!, slot);
   },
-  instanceSlot: (id, slot) => {
+  instanceSlot: (id: string, slot: number): IAutoMovieInstanceSlot => {
     if (Object.hasOwn(props.instanceSetRuntime, id) === false)
       throw new RangeError(`Instance set "${id}" is unavailable.`);
     return instanceSlot(props.instanceSetRuntime[id]!, slot);

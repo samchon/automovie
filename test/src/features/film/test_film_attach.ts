@@ -64,6 +64,9 @@ const posAt = (
  * 4. A clinical-space parent motion uses the same rest-frame table as the
  *    renderer/player, so a prop follows the visible hand rather than raw
  *    rig-space FK.
+ * 5. A zero-span coupling throws before baking duplicate key times.
+ * 6. A sample rate that is zero, negative, NaN or infinite throws instead of
+ *    baking a clip with no keys or an endless loop.
  */
 export const test_film_attach = (): void => {
   // 1. a resting parent → a static child at the hand's world point
@@ -226,4 +229,25 @@ export const test_film_attach = (): void => {
     "a zero-span attach throws",
     throwsError(zeroSpanAttach),
   );
+
+  // 6. a sample rate that is not finite and positive throws instead of
+  // baking a clip with no keys.
+  for (const fps of [0, -30, Number.NaN, Number.POSITIVE_INFINITY])
+    TestValidator.predicate(
+      `an attach sampled at ${fps} fps throws`,
+      throwsError(
+        () =>
+          compileAttach({
+            child: "sword",
+            bone: "leftHand",
+            parentTransform,
+            parentSkeleton: createSkeleton(),
+            start: 0,
+            duration: 1,
+            shotDuration: 2,
+            fps,
+          }),
+        "fps",
+      ),
+    );
 };

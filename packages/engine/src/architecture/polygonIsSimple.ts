@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
+import { segmentsTouch } from "./segmentsTouch";
 
 /**
  * Whether a closed polygon never crosses or touches itself away from a shared
@@ -10,18 +10,30 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * is inside it would answer arbitrarily. Adjacent edges are skipped because
  * they legitimately meet at the corner they share.
  *
- * Contact uses the same scale-relative `PLANAR_EPSILON` tolerance as the other
- * planar predicates, so a vertex lying on a non-adjacent edge counts as
- * touching. The point count is not checked: a two-point ring is reported
- * simple, and callers test area or point count separately.
+ * Contact uses {@link segmentsTouch} and so the same scale-relative
+ * `PLANAR_EPSILON` tolerance as the other planar predicates, which means a
+ * vertex lying on a non-adjacent edge counts as touching. The point count is
+ * not checked: a ring of two or three points is reported simple, and callers
+ * test area or point count separately.
+ *
+ * @param polygon Closed ring of corners, the last joined back to the first.
+ * @returns True when no two non-adjacent edges share a point.
+ *
+ * @evidence contracts/common.md#principled-implementation A ring is simple exactly when no two non-adjacent edges intersect, so the function tests every such pair with the shared closed-segment contact predicate; adjacency includes the closing pair of the first and last edge.
+ * @evidence contracts/common.md#clear-and-simple-design Delegates contact to the shared `segmentsTouch`, so building validation and support-surface validation refuse self-contact under the same tolerance as the containment and overlap predicates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No figure or caller is special-cased; the only skipped pairs are the adjacent ones whose shared corner is not a defect, and degenerate point counts are left to the callers that own them, as documented.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why simplicity matters, which pairs are skipped, the tolerance and its consequence for a vertex on an edge, and that point count is not judged.
+ * @evidence contracts/performance.md#efficient-algorithms O(n²) time and O(1) space over the n(n-3)/2 non-adjacent edge pairs with an early return on the first contact; a Shamos-Hoey sweep would be O(n log n), but faces and void hulls carry tens of corners, so the pairwise scan is kept and no sweep structure is built.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure simplicity test of one outline; building and support validation each ask once per outline and share nothing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two edge indices of the pair scan and allocates nothing, so no state survives the scan.
  */
 export const polygonIsSimple = (
   polygon: readonly IAutoMoviePlanarPoint[],
 ): boolean => {
-  const count = polygon.length;
-  for (let left = 0; left < count; ++left)
-    for (let right = left + 1; right < count; ++right) {
-      const adjacent =
+  const count: number = polygon.length;
+  for (let left: number = 0; left < count; ++left)
+    for (let right: number = left + 1; right < count; ++right) {
+      const adjacent: boolean =
         right === left + 1 || (left === 0 && right === count - 1);
       if (adjacent) continue;
       if (
@@ -36,66 +48,3 @@ export const polygonIsSimple = (
     }
   return true;
 };
-
-/** Whether two segments meet at a point interior to both. */
-const segmentsCross = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean => {
-  const first = side(c, d, a);
-  const second = side(c, d, b);
-  const third = side(a, b, c);
-  const fourth = side(a, b, d);
-  return (
-    first !== 0 &&
-    second !== 0 &&
-    third !== 0 &&
-    fourth !== 0 &&
-    first !== second &&
-    third !== fourth
-  );
-};
-
-/** Whether two segments share any point, endpoints and overlap included. */
-const segmentsTouch = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean =>
-  segmentsCross(a, b, c, d) ||
-  pointOnSegment(a, c, d) ||
-  pointOnSegment(b, c, d) ||
-  pointOnSegment(c, a, b) ||
-  pointOnSegment(d, a, b);
-
-/** Which side of the directed line `from -> to` a point falls on. */
-const side = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  point: IAutoMoviePlanarPoint,
-): number => {
-  const cross =
-    (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
-  const scale = Math.max(
-    1,
-    Math.abs(to.x - from.x) + Math.abs(to.y - from.y),
-    Math.abs(point.x - from.x) + Math.abs(point.y - from.y),
-  );
-  if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
-  return cross > 0 ? 1 : -1;
-};
-
-/** Whether a point lies on a segment, its endpoints included. */
-const pointOnSegment = (
-  point: IAutoMoviePlanarPoint,
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-): boolean =>
-  side(from, to, point) === 0 &&
-  point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
-  point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
-  point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
-  point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON;

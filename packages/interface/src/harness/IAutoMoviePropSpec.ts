@@ -3,31 +3,36 @@ import { IAutoMoviePropArticulation } from "./IAutoMoviePropArticulation";
 import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
 
 /**
- * One authored prop, a crude primitive proxy with rich meaning: the geometry
- * stays simple boxes and cylinders, while the physics body
- * ({@link IAutoMovieModel.body}), the contact semantics
- * ({@link IAutoMovieModel.affordances}), and the self-declared articulation
- * carry everything the engine validates and simulates.
+ * One authored prop: a primitive proxy whose meaning is stated as data. The
+ * geometry stays simple parts, while the physics body
+ * ({@link IAutoMovieModel.body}), the contact points
+ * ({@link IAutoMovieModel.affordances}), the articulation and the placement
+ * carry what the engine validates and simulates.
  *
- * The spec is what the FORGE stage's object side (`forgeProp`) gates: the model
- * must be a skeleton-less prop whose id equals `node` (the staged scene joins
- * on it, exactly as a forged cast member does), generated unless
- * {@link modelRef} names the registration its imported bytes came from, and the
- * articulation, when present, must bind its profile onto the declared nodes
- * without a dangling reference.
+ * `forgeProp` gates one spec and returns every violation at once: `node` is
+ * non-blank and equals `model.id`, because the staged scene joins on it; the
+ * model is skeleton-less, because a rigged performer goes through `forgeCast`;
+ * `origin` is `"generated"` unless {@link modelRef} is stated; `validateModel`
+ * passes; and an articulation binds its profile onto declared nodes without a
+ * dangling reference or cycle. `validatePropPlacements` forges every prop of a
+ * shot, requires exactly one staged set piece drawing the prop's model, and
+ * then judges its placement.
  *
+ * @evidence contracts/common.md#principled-implementation The model id doubles as the staging join key, so `forgeProp` requires `model.id === node` and `validatePropPlacements` requires one set piece with that node drawing that model; every geometric judgment reads the model's parts, so an imported appearance changes the pixels and never the measured proxy.
+ * @evidence contracts/common.md#clear-and-simple-design Four concerns, each in its own member: the model with body and contact points, the articulation, the optional placement, and the optional external-appearance reference; the gates live in `forgeProp` and `validatePropPlacements`, not in this record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A rigged model is refused instead of being treated as a prop, an imported appearance must carry a sealed closure the engine can check, and nothing about a mesh is inferred from its bytes; registry resolution and on-disk digests are left to the production layer, which holds the registry and the files.
+ * @evidence contracts/common.md#meaningful-documentation States what carries the prop's meaning, every `forgeProp` rule with its reason, the staging requirement, and what omitting `placement` or `modelRef` means.
  * @author Samchon
  */
 export interface IAutoMoviePropSpec {
-  /** The scene node this prop will occupy (the staging join key). */
+  /** Scene node this prop occupies; non-blank and equal to `model.id`. */
   node: string;
 
   /**
-   * The prop model: `skeleton: null` (a riggable actor goes through `forgeCast`
-   * instead), primitive parts, optional body and affordances. `origin` is
-   * `"generated"` for a prop drawn from those parts and `"imported"` for one
-   * drawing a registered external appearance, which {@link modelRef} names and
-   * gates.
+   * The prop model, with `skeleton: null`, parts that serve as the measured
+   * proxy, and an optional body and affordances. `origin` is `"generated"` for
+   * a prop drawn from its parts and `"imported"` for one drawing the external
+   * appearance {@link modelRef} names.
    */
   model: IAutoMovieModel;
 
@@ -35,61 +40,38 @@ export interface IAutoMoviePropSpec {
   articulation: IAutoMoviePropArticulation | null;
 
   /**
-   * Optional semantic placement constraints checked beside the staged node.
-   * Omission preserves the original prop contract: the prop is forged and
-   * staged without claiming a building relation or a keep-out volume.
+   * Building relations, footprint and clearances checked against the staged
+   * piece. Omitted, the prop claims no relation, is cited by none, and takes
+   * part in no containment, overlap or passage judgment of its own.
    */
   placement?: IAutoMoviePropPlacement;
 
   /**
-   * The builder-owned model registration whose imported bytes draw this prop,
-   * or absent / `null` for a prop drawn from its own generated parts.
+   * Registered external appearance drawing this prop, or absent or `null` for
+   * a prop drawn from its own generated parts.
    *
-   * This is the escape hatch to an external asset, and it deliberately buys the
-   * appearance alone. A manufacturer's chair arrives as a mesh with no mass, no
-   * seat face, no hinge and no keep-out volume, so a prop that cited one and
-   * nothing else would be a picture standing where furniture should be. Stating
-   * the reference therefore moves no meaning out of this spec: {@link model}'s
-   * parts stay the deterministic proxy every geometric judgment is made against
-   * (occupancy, bearing on a support, clearance, containment, passage
-   * intrusion), its `body` and `affordances` stay the contact semantics, and
-   * {@link articulation} and {@link placement} stay the prop's own. That is the
-   * same split the builder already makes when it materializes a registered
-   * external appearance: the visible primitives become one registered collision
-   * proxy and the imported bytes are kept for the viewer.
+   * The reference buys the appearance only. {@link model}'s parts remain the
+   * proxy every geometric judgment reads (occupancy, bearing, clearance,
+   * containment and passage intrusion), and its body, affordances, the
+   * {@link articulation} and the {@link placement} remain this spec's own,
+   * because an imported mesh carries no mass, seat face, hinge or keep-out
+   * volume.
    *
-   * So this does not repeal "crude primitive proxy, rich meaning" (D011). That
-   * principle never said the pixels have to be ours; it said the meaning has to
-   * be in the record rather than inferred from a mesh, which is exactly why the
-   * proxy survives the reference instead of being replaced by it. What the
-   * reference does repeal is the accident that the one category where free-form
-   * geometry actually lives, furniture and fixtures and ironmongery, was also
-   * the only category forbidden to bring any in.
+   * The value names a model recipe id or runtime model id the production
+   * registry owns, as a built environment's `modelReferences` entries do. It
+   * means "forge me as an imported appearance", unlike a cast member's
+   * `modelRef`, which skips forging because an imported rig carries the bones
+   * a performer is driven through.
    *
-   * The reference is itself the classification the hatch demands, in the sense
-   * Revit's DirectShape demands a category: free geometry is admitted, but only
-   * under a registration it can be found and filtered by, so a blank reference
-   * is refused. No second label rides along, because a per-prop category
-   * nothing in this repository schedules or filters on would be decoration, and
-   * the meaning a prop is classified by is already the affordances, body, and
-   * relations it declares.
-   *
-   * The value names a registration the builder owns, a model recipe id or the
-   * runtime model id it materializes, exactly as a built environment's
-   * `modelReferences` entries do. It is not the spelling a cast member's
-   * `modelRef` uses. There, a reference means "do not forge me", because an
-   * imported rig carries the bones a performer is driven through; here it means
-   * "forge me as an imported appearance", because nothing a prop means can be
-   * imported at all.
-   *
-   * Stating it is what opens `forgeProp`'s origin gate, and it opens it exactly
-   * as far as the record can be checked: `origin` must be `"imported"`, `asset`
-   * must name the bytes, and the builder-sealed `imported` closure must be a
-   * rigid `gltf-static-v1` appearance whose hero LOD binds those bytes under a
-   * well-formed digest its own ledger covers. A humanoid appearance is a
-   * performer and goes through `forgeCast`. Whether those digests match bytes
-   * on disk, and whether the reference resolves to a registration at all, are
-   * the builder's own gates, where the registry and the files are.
+   * Stating it makes `forgeProp` require a non-blank value, `origin:
+   * "imported"`, a non-null `asset`, and a sealed `imported` closure: unique
+   * asset paths with `sha256:` digests of 64 lowercase hex digits, the rigid
+   * `gltf-static-v1` profile on the closure and every LOD with no humanoid
+   * bones, unique LOD levels whose asset and digest match the ledger, and a
+   * `hero` LOD binding `asset`. The production shot runtime then refuses a
+   * reference that does not resolve to a registered glTF, GLB or VRM
+   * appearance, a closure other than the one it sealed, and an `asset` other
+   * than the registered one.
    */
   modelRef?: string | null;
 }

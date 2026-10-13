@@ -77,7 +77,7 @@ export function polishAutoMovieQuadraticProgram(
   fixedPrimalEligible: boolean,
 ): IAutoMovieQuadraticPolishingResult {
   let primal = native.primal.slice(), dual = native.dual.slice();
-  const activeRows: number[][] = [], regularizations: number[] = [];
+  const activeRows: number[][] = [];
   const stepSizes: number[] = [], merits: number[] = [];
   const dualUpdates: number[] = [];
   const linearResiduals: number[] = [], jointMerits: number[] = [];
@@ -86,10 +86,9 @@ export function polishAutoMovieQuadraticProgram(
   const method = fixedPrimalEligible ? "fixed-primal-dual" : "interval-joint";
   let reason = "The original native solve is not Solved.";
   let iterations = 0, dualPasses = 0;
-  const dampingEvaluations = 0;
   const result = (): IAutoMovieQuadraticPolishingResult => ({
-    accepted: false, primal, dual, iterations, activeRows, regularizations,
-    stepSizes, merits, dampingEvaluations, method, dualPasses, dualUpdates,
+    accepted: false, primal, dual, iterations, activeRows,
+    stepSizes, merits, method, dualPasses, dualUpdates,
     linearResiduals, jointMerits, workingRanks, workingChanges,
     trialPrimal: trialStarted ? trialPrimal.slice() : undefined,
     trialDual: trialStarted ? trialDual.slice() : undefined, reason,
@@ -245,7 +244,7 @@ export function polishAutoMovieQuadraticProgram(
   trialPrimal = native.primal.slice(); trialDual = native.dual.slice(); trialStarted = true;
   reason = "The original working-set correction budget was exhausted.";
   while (iterations < options.maximumRefinements) {
-    activeRows.push(owners.slice()); regularizations.push(0); iterations++;
+    activeRows.push(owners.slice()); iterations++;
     const solved = solveAutoMovieQuadraticWorkingSetStep(
       input.diagonal, input.linear, owners.map((at) => input.rows[at]), bounds, free, trialPrimal,
     );

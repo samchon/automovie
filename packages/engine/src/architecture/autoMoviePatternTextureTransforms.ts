@@ -1,3 +1,4 @@
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { AutoMoviePatternTextureSheet } from "./AutoMoviePatternTextureSheet";
 import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
@@ -160,10 +161,4 @@ const sheetPoint = (
 const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
-};
-
-/** Refuse a value that is not a finite number above zero. */
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };

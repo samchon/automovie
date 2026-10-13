@@ -288,6 +288,22 @@ export const assertViewerPbrDeclarationRefusals = (
           ),
       ],
       [
+        "coordinateSource",
+        () =>
+          materialRefusedAt(
+            {
+              baseColorTexture: {
+                asset: "base.png",
+                texCoord: 0,
+                colorSpace: "srgb",
+                coordinateSource: "metres",
+              },
+            },
+            "type",
+            ".baseColorTexture.coordinateSource",
+          ),
+      ],
+      [
         "normalFinite",
         () =>
           materialRefusedAt({ normalScale: Infinity }, "range", ".normalScale"),
@@ -376,6 +392,7 @@ export const assertViewerPbrDeclarationRefusals = (
       wrapT: true,
       minFilter: true,
       magFilter: true,
+      coordinateSource: true,
       normalFinite: true,
       occlusion: true,
       transmission: true,

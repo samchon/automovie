@@ -1,4 +1,8 @@
-import { performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMoviePerformedShot,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
@@ -49,6 +53,9 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *     `$input.draft[0].actor`.
  * 18. Malformed non-frame actor shapes yield `type` violations instead of raw
  *     iteration failures.
+ * 19. A staged `react` whose blow comes from a relative target yields `type` on
+ *     `$input.draft[0].from`, and one from an unstaged node does too, instead
+ *     of a recoil snapped back from an invented front.
  */
 export const test_film_perform_shot_bad_refs = (): void => {
   const staged = stageScene(makeScriptWrite(), makeStagingWrite());
@@ -488,4 +495,40 @@ export const test_film_perform_shot_bad_refs = (): void => {
   );
 
   assertFilmNonFrameActorShapes(staged);
+
+  for (const [label, from] of [
+    ["relative react source rejected", { kind: "direction", headingDeg: 90 }],
+    ["unstaged react source rejected", { kind: "node", node: "ghost" }],
+  ] as const) {
+    const unresolvedReact: IAutoMoviePerformedShot = performShot({
+      script: makeScriptWrite(),
+      staged,
+      performance: makePerformanceWrite({
+        draft: [
+          {
+            verb: "react",
+            actor: "knightA",
+            start: 0,
+            duration: 1,
+            from,
+            force: 0.5,
+          },
+        ],
+        revise: { review: "unchanged.", final: null },
+      }),
+      synthesize: validSynthesizer,
+      skeleton: () => createSkeleton(),
+    });
+    TestValidator.equals(
+      label,
+      namedFacts([
+        ["refused", () => unresolvedReact.success === false],
+        [
+          "violated",
+          () => hasViolation(unresolvedReact, "type", "$input.draft[0].from"),
+        ],
+      ]),
+      { refused: true, violated: true },
+    );
+  }
 };

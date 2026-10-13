@@ -1,29 +1,59 @@
-import { IAutoMovieEditPlan, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieEditEntry,
+  IAutoMovieEditPlan,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieCut } from "./IAutoMovieCut";
 
+/** A built shot with the index it was first supplied at. */
+interface IBuiltShot {
+  /** The first shot supplied under the id. */
+  shot: IAutoMovieShot;
+
+  /** Its index in `shots`, for duplicate and duration reports. */
+  index: number;
+}
+
 /**
  * The ASSEMBLE consumer: fold the editor's cut-list into an
- * {@link IAutoMovieSequence} over the shots the pipeline actually built. The
- * gates are editorial physics: every entry must name a built shot, a trim must
- * select a positive span that lies inside its shot, a transition must not
- * outlast the incoming shot's played span, and the film must play at a positive
- * frame rate. Pacing and continuity stay prose. They have no cheap
- * deterministic verifier, so the schema carries the rationale instead.
+ * {@link IAutoMovieSequence} over the shots the pipeline actually built, or
+ * return every violation at once.
  *
- * `runtime` sums each entry's played span (its trim's duration, else the whole
- * shot); transitions overlap the previous entry's tail, so each transition
- * subtracts its duration from the straight sum.
+ * The gates are editorial arithmetic. Built shot ids are unique; the sequence
+ * id and each entry's shot id are non-blank; the frame rate is finite and
+ * positive; there is at least one entry; every entry names a built shot whose
+ * duration is finite and positive; a trim has a finite positive duration and a
+ * finite start, and lies inside `[0, shot.duration]`; the first entry has no
+ * transition; and a transition is finite and positive, no longer than either
+ * neighbour's played span, and does not overlap the previous entry's own
+ * incoming transition inside that entry. Pacing and continuity stay prose,
+ * because they have no deterministic verifier.
+ *
+ * `runtime` is in seconds: the sum of each entry's played span (its trim's
+ * duration, else the whole shot) minus each transition's duration, since a
+ * transition overlaps the previous entry's tail. The sequence copies the plan's
+ * id, name, frame rate and entries in order, sharing each trim and transition
+ * object by reference.
+ *
+ * @evidence contracts/common.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
+ * @evidence contracts/common.md#clear-and-simple-design Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
+ * @evidence contracts/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
  */
 export const cutSequence = (
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
 ): IAutoMovieCut => {
-  const out = new ViolationCollector();
-  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
-  shots.forEach((shot, index) => {
-    const existing = byId.get(shot.id);
+  const out: ViolationCollector = new ViolationCollector();
+  const byId: Map<string, IBuiltShot> = new Map();
+  shots.forEach((shot: IAutoMovieShot, index: number): void => {
+    const existing: IBuiltShot | undefined = byId.get(shot.id);
     if (existing !== undefined) {
       out.push(
         "type",
@@ -62,12 +92,12 @@ export const cutSequence = (
       assemble.entries,
     );
 
-  let runtime = 0;
+  let runtime: number = 0;
   let previousPlayed: number | null = null;
-  let previousIncomingTransition = 0;
-  assemble.entries.forEach((entry, i) => {
+  let previousIncomingTransition: number = 0;
+  assemble.entries.forEach((entry: IAutoMovieEditEntry, i: number): void => {
     validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
-    const found = byId.get(entry.shot);
+    const found: IBuiltShot | undefined = byId.get(entry.shot);
     if (found === undefined) {
       out.push(
         "type",
@@ -79,8 +109,9 @@ export const cutSequence = (
       previousIncomingTransition = 0;
       return;
     }
-    const { shot, index: shotIndex } = found;
-    const validShotDuration =
+    const shot: IAutoMovieShot = found.shot;
+    const shotIndex: number = found.index;
+    const validShotDuration: boolean =
       Number.isFinite(shot.duration) && shot.duration > 0;
     if (!validShotDuration)
       out.push(
@@ -89,11 +120,12 @@ export const cutSequence = (
         `referenced shot "${shot.id}" duration must be a finite number > 0 seconds, but was ${shot.duration}`,
         shot.duration,
       );
-    let played = shot.duration;
-    let validPlayedSpan = validShotDuration;
-    let incomingTransition = 0;
+    let played: number = shot.duration;
+    let validPlayedSpan: boolean = validShotDuration;
+    let incomingTransition: number = 0;
     if (entry.trim !== null) {
-      const { start, duration } = entry.trim;
+      const start: number = entry.trim.start;
+      const duration: number = entry.trim.duration;
       if (!Number.isFinite(duration) || !(duration > 0)) {
         validPlayedSpan = false;
         out.push(
@@ -191,11 +223,13 @@ export const cutSequence = (
     sequence: {
       id: assemble.sequence.id,
       name: assemble.sequence.name,
-      shots: assemble.entries.map((entry) => ({
-        shot: entry.shot,
-        trim: entry.trim,
-        transition: entry.transition,
-      })),
+      shots: assemble.entries.map(
+        (entry: IAutoMovieEditEntry): IAutoMovieSequenceEntry => ({
+          shot: entry.shot,
+          trim: entry.trim,
+          transition: entry.transition,
+        }),
+      ),
       fps: assemble.fps,
     },
     runtime,

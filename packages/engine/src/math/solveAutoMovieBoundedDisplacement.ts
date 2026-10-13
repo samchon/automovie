@@ -7,7 +7,7 @@
  * Geometry and physical units belong to the caller; no tissue model is inferred.
  */
 import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
+import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
@@ -67,7 +67,7 @@ export function solveAutoMovieBoundedDisplacement(input: {
     initial: input.upper,
   };
   // Use the same admission as the full QP, including currently clear rows.
-  assembleAutoMovieQuadraticProgram(problem);
+  admitAutoMovieQuadraticProgram(problem);
   const selected = new Set<number>();
   let travel = input.mass.map(() => 0),
     status: number | null = null;

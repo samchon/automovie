@@ -8,7 +8,7 @@
  * The objective selects geometric travel, not a tissue constitutive law.
  */
 import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
+import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
@@ -57,7 +57,7 @@ export function solveAutoMovieAbsoluteDisplacement(input: {
     );
   // Admit the original domain before eliminating any coordinate or constant.
   // The diagonal here only validates weights; the actual L1 Hessian is zero.
-  assembleAutoMovieQuadraticProgram({
+  admitAutoMovieQuadraticProgram({
     diagonal: input.weights,
     linear: input.weights.map(() => 0),
     rows: input.rows,

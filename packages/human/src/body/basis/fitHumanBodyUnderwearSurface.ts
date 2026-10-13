@@ -1,4 +1,4 @@
-import { assembleAutoMovieQuadraticProgram, solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
+import { admitAutoMovieQuadraticProgram, solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
 
 import { HumanMeshNormalDomainError } from "../../common/mesh/HumanMeshNormalDomainError";
 import { createHumanBodyUnderwearFittingLinearizer } from "./createHumanBodyUnderwearFittingLinearizer";
@@ -265,7 +265,7 @@ export function fitHumanBodyUnderwearSurface(
       const linearAt = (at: number): number =>
         at >= variables ? 1 : coefficient === undefined ? 0 : -coefficient * centre[at];
       // Every full coefficient and expanded objective is admitted before restriction.
-      assembleAutoMovieQuadraticProgram({
+      admitAutoMovieQuadraticProgram({
         diagonal: Array.from({ length: fullDimension }, (_, at) => diagonalAt(at)),
         linear: Array.from({ length: fullDimension }, (_, at) => linearAt(at)),
         rows: fullRows,

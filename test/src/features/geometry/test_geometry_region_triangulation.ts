@@ -105,8 +105,9 @@ const inner = [
  *    covering exactly its own area, which the convex kernel refuses outright.
  * 2. A square holding a square hole bridges into one ring of ten corners, resolves
  *    to eight triangles, and covers the outer ring less the hole.
- * 3. Two holes bridge independently, and a hole inside a concave outer ring
- *    bridges against a contour that is not convex.
+ * 3. Two holes bridge independently, a hole inside a concave outer ring
+ *    bridges against a contour that is not convex, and a hole that sees no
+ *    outer corner from inside another hole's cavity bridges after that hole.
  * 4. Winding is canonicalized, not demanded: a clockwise outer ring and a
  *    counter-clockwise hole come back counter-clockwise and clockwise, and the
  *    triangles are identical to the ones the canonical authoring produces.
@@ -215,6 +216,49 @@ export const test_geometry_region_triangulation = (): void => {
       notched: true,
       notchedTriangles: true,
     },
+  );
+
+  // The triangle hole sits in the cavity of a C-shaped hole whose slot faces
+  // the middle of the outer ring's right side, so no outer corner is visible
+  // from it: it can only bridge once the C has joined the ring, although it is
+  // declared first.
+  const sheltered = triangulateAutoMovieRegion({
+    outer: [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+      { x: 0, y: 10 },
+    ],
+    holes: [
+      [
+        { x: 4.5, y: 4.5 },
+        { x: 5.5, y: 4.5 },
+        { x: 5, y: 5.5 },
+      ],
+      [
+        { x: 7, y: 5.2 },
+        { x: 7, y: 7 },
+        { x: 3, y: 7 },
+        { x: 3, y: 3 },
+        { x: 7, y: 3 },
+        { x: 7, y: 4.8 },
+        { x: 6.5, y: 4.8 },
+        { x: 6.5, y: 3.5 },
+        { x: 3.5, y: 3.5 },
+        { x: 3.5, y: 6.5 },
+        { x: 6.5, y: 6.5 },
+        { x: 6.5, y: 5.2 },
+      ],
+    ],
+  });
+  TestValidator.equals(
+    "a hole sheltered in another hole's cavity bridges after the hole it can see",
+    namedFacts([
+      // 19 corners and two bridges that each repeat two: 23, so 21 triangles.
+      ["triangles", () => sheltered.triangles.length === 21 * 3],
+      ["covers", () => coversExactly(sheltered, 100 - 6.8 - 0.5)],
+    ]),
+    { triangles: true, covers: true },
   );
 
   const reversed = triangulateAutoMovieRegion({

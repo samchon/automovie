@@ -78,6 +78,12 @@ const gammaChunk = (value: number): Buffer => {
   data.writeUInt32BE(value);
   return chunk("gAMA", data);
 };
+/** A cHRM chunk of white point then red, green and blue x/y terms, times 100000. */
+const chromaticityChunk = (terms: number[]): Buffer => {
+  const data = Buffer.alloc(32);
+  terms.forEach((term, index) => data.writeUInt32BE(term, index * 4));
+  return chunk("cHRM", data);
+};
 const physicalChunk = (x: number, y: number, unit: number): Buffer => {
   const data = Buffer.alloc(9);
   data.writeUInt32BE(x, 0);
@@ -105,10 +111,12 @@ const message = (task: () => unknown): string => {
  * 3. Invalid role rasters, malformed bytes, and fieldwise profile substitutions
  *    fail without being hidden by a matching filename or digest.
  * 4. Color, aspect, and orientation chunks are read as facts: sRGB, iCCP, the
- *    canonical gAMA, an explicit pHYs, an eXIf marker, and Adam7 interlace
- *    each surface in the picture, while a malformed sRGB, gAMA, iCCP, or
- *    pHYs chunk, contradictory color declarations, a repeated chunk, and every
- *    datastream framing defect are refused by name.
+ *    canonical gAMA alone or with sRGB cHRM primaries, the canonical gAMA
+ *    with other cHRM primaries as plain gamma, an explicit pHYs, an eXIf
+ *    marker, and Adam7 interlace each surface in the picture, while a
+ *    malformed sRGB, gAMA, cHRM, iCCP, or pHYs chunk, contradictory color
+ *    declarations, a repeated chunk, a chunk type with high-bit bytes, and
+ *    every datastream framing defect are refused by name.
  */
 export const test_production_png_picture_probe = (): void => {
   const rgba = probeProductionPngPicture(picture({ gamma: 0.45455 }));
@@ -276,6 +284,22 @@ export const test_production_png_picture_probe = (): void => {
       ),
       icc: facts(withChunks(chunk("iCCP", Buffer.from("name\0\0x", "latin1")))),
       canonicalGamma: facts(withChunks(gammaChunk(45_455))),
+      canonicalGammaSrgbPrimaries: facts(
+        withChunks(
+          gammaChunk(45_455),
+          chromaticityChunk([
+            31_270, 32_900, 64_000, 33_000, 30_000, 60_000, 15_000, 6_000,
+          ]),
+        ),
+      ),
+      canonicalGammaWidePrimaries: facts(
+        withChunks(
+          gammaChunk(45_455),
+          chromaticityChunk([
+            31_270, 32_900, 68_000, 32_000, 26_500, 69_000, 15_000, 6_000,
+          ]),
+        ),
+      ),
       aspect: facts(withChunks(physicalChunk(300, 200, 1))),
       exif: facts(withChunks(chunk("eXIf", [1, 2]))),
       adam7: facts(adam7),
@@ -301,6 +325,18 @@ export const test_production_png_picture_probe = (): void => {
       },
       canonicalGamma: {
         colorSpace: "srgb",
+        interlace: "none",
+        pixelAspect: { kind: "square" },
+        orientation: "upright",
+      },
+      canonicalGammaSrgbPrimaries: {
+        colorSpace: "srgb",
+        interlace: "none",
+        pixelAspect: { kind: "square" },
+        orientation: "upright",
+      },
+      canonicalGammaWidePrimaries: {
+        colorSpace: "gamma",
         interlace: "none",
         pixelAspect: { kind: "square" },
         orientation: "upright",
@@ -400,6 +436,18 @@ export const test_production_png_picture_probe = (): void => {
           ]),
         ),
       ),
+      highBitType: message(() =>
+        probeProductionPngPicture(
+          Buffer.concat([
+            base.subarray(0, 33),
+            chunk("\u00e1\u00e2\u00e3\u00e4", [0]),
+            base.subarray(33),
+          ]),
+        ),
+      ),
+      chromaticityLength: message(() =>
+        probeProductionPngPicture(withChunks(chunk("cHRM", [0, 0, 0, 1]))),
+      ),
       trailingBytes: message(() =>
         probeProductionPngPicture(Buffer.concat([base, Buffer.from([1])])),
       ),
@@ -426,6 +474,10 @@ export const test_production_png_picture_probe = (): void => {
       headerCut: "PNG datastream ends inside a chunk header.",
       payloadCut: "PNG datastream ends inside a declared chunk payload.",
       typeLetters: 'PNG chunk type "ID4T" is not four ASCII letters.',
+      highBitType:
+        'PNG chunk type "\u00e1\u00e2\u00e3\u00e4" is not four ASCII letters.',
+      chromaticityLength:
+        "PNG cHRM chunk must contain eight chromaticity integers.",
       trailingBytes: "PNG datastream does not end at one terminal IEND chunk.",
       missingIend: "PNG datastream does not end at one terminal IEND chunk.",
     },

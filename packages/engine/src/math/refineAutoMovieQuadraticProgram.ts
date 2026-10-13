@@ -1,4 +1,4 @@
-import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
+import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 import type { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
 import type { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
@@ -40,7 +40,7 @@ export function refineAutoMovieQuadraticProgram(
   initial: Native,
   options: IAutoMovieQuadraticRefinementOptions,
 ): IAutoMovieQuadraticRefinementResult {
-  assembleAutoMovieQuadraticProgram(input);
+  admitAutoMovieQuadraticProgram(input);
   const count = input.diagonal.length;
   if (!(options.tolerance > 0) || !Number.isFinite(options.tolerance) ||
       !Number.isSafeInteger(options.maximumRefinements) || options.maximumRefinements < 0 ||
@@ -61,17 +61,15 @@ export function refineAutoMovieQuadraticProgram(
   const nativeCalls: IAutoMovieQuadraticRefinementNativeCall[] = [{
     status: initial.status, iterations: initial.iterations,
     primalResidual: initial.primalResidual, dualResidual: initial.dualResidual,
-    scale: 1, objective: initial.objective, dualObjective: initial.dualObjective,
+    objective: initial.objective, dualObjective: initial.dualObjective,
     gap: Math.abs(initial.objective - initial.dualObjective),
-    originalGap: Math.abs(initial.objective - initial.dualObjective),
-    rows: initial.dual.length, coordinates: "original",
+    rows: initial.dual.length,
     primal: initial.status === 1 ? undefined : primal.slice(),
     dual: initial.status === 1 ? undefined : dual.slice(),
   }];
   const base: IAutoMovieQuadraticRefinementResult = {
     primal, dual, status: initial.status, ...first,
-    refinements: 0, reference: primal.slice(), originalRows: input.rows.length,
-    presolvedRows: groups.length,
+    refinements: 0, reference: primal.slice(),
     rowGroups: groups.map((group) => group.originals.slice()), nativeCalls,
   };
   const admits = (reading: ReturnType<typeof residuals>): boolean =>

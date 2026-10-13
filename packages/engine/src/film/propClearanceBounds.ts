@@ -1,94 +1,45 @@
 import {
-  IAutoMoviePropBox,
+  IAutoMovieClearanceBox,
   IAutoMoviePropSpec,
   IAutoMovieStageSetPiece,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../math/Matrix4";
-import { Quaternion } from "../math/Quaternion";
+import { transformedBoxBounds } from "../math/transformedBoxBounds";
 import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";
+import { setPieceMatrix } from "./staging/setPieceMatrix";
 
 /**
- * The world-axis-aligned keep-out volumes one staged prop declares.
+ * The world-axis-aligned keep-out volumes one staged prop declares, one per
+ * `placement.clearance` entry in declaration order, each keeping its id.
  *
- * Every declared box is transformed, including one whose bounds the validator
- * rejects: filtering here would hide a malformed volume from a source-side
- * search instead of letting the validator name it.
+ * Each model-local box goes through the piece's full staged transform, so a
+ * rotated prop's keep-out widens rather than being re-fitted. Every declared
+ * box is transformed, including one whose bounds the validator rejects:
+ * filtering here would hide a malformed volume from a source-side search
+ * instead of letting `validatePropPlacements` name it. A prop with no placement
+ * or no clearance answers an empty list.
+ *
+ * @param props.prop The prop's registry entry.
+ * @param props.piece The set piece that stages it.
+ * @returns New world boxes in metres, one per declared clearance.
+ *
+ * @evidence contracts/common.md#principled-implementation The staged matrix is composed once and every clearance box is carried through it by its eight corners, which bounds the rotated box exactly; it relies on the matrix being the one staging draws the piece with, which `setPieceMatrix` shares.
+ * @evidence contracts/common.md#clear-and-simple-design Placement and the box transform are the shared `setPieceMatrix` and `transformedBoxBounds`, so occupancy and clearance are measured under one rule and this file only pairs each box with its id.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No prop or clearance kind is special-cased, and a malformed box is transformed like any other so the validator, not this query, decides its fate.
+ * @evidence contracts/common.md#meaningful-documentation States the order and the id carried, that rotation widens the box, why malformed boxes are kept, the empty answer, and the frame and unit of the result.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the declared clearance count, with one matrix composition for the piece and a constant eight-corner fold per box.
+ * @evidence contracts/performance.md#reuse-equivalent-work The staged matrix is composed once and reused for every clearance box of the prop instead of once per box.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned boxes, one per declared clearance.
  */
 export const propClearanceBounds = (props: {
   prop: IAutoMoviePropSpec;
   piece: IAutoMovieStageSetPiece;
 }): IAutoMoviePropClearanceBounds[] => {
-  const matrix = stagedMatrix(props.piece);
-  return (props.prop.placement?.clearance ?? []).map((clearance) => ({
-    id: clearance.id,
-    ...transformedBox(clearance, matrix),
-  }));
-};
-
-const stagedMatrix = (piece: IAutoMovieStageSetPiece): number[] => {
-  const scale =
-    piece.scale === undefined
-      ? { x: 1, y: 1, z: 1 }
-      : typeof piece.scale === "number"
-        ? { x: piece.scale, y: piece.scale, z: piece.scale }
-        : piece.scale;
-  return Matrix4.compose(
-    piece.position,
-    piece.rotation ??
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, piece.facingDeg ?? 0),
-    scale,
+  const matrix: number[] = setPieceMatrix(props.piece);
+  return (props.prop.placement?.clearance ?? []).map(
+    (clearance: IAutoMovieClearanceBox): IAutoMoviePropClearanceBounds => ({
+      id: clearance.id,
+      ...transformedBoxBounds(clearance, matrix),
+    }),
   );
-};
-
-const transformedBox = (
-  box: IAutoMoviePropBox,
-  matrix: number[],
-): IAutoMoviePropBox =>
-  boundsOf(boxCorners(box).map((point) => transformPoint(point, matrix)));
-
-const boxCorners = (box: IAutoMoviePropBox): IAutoMovieVector3[] =>
-  [box.min.x, box.max.x].flatMap((x) =>
-    [box.min.y, box.max.y].flatMap((y) =>
-      [box.min.z, box.max.z].map((z) => ({ x, y, z })),
-    ),
-  );
-
-const transformPoint = (
-  point: IAutoMovieVector3,
-  matrix: number[],
-): IAutoMovieVector3 => ({
-  x:
-    matrix[0]! * point.x +
-    matrix[4]! * point.y +
-    matrix[8]! * point.z +
-    matrix[12]!,
-  y:
-    matrix[1]! * point.x +
-    matrix[5]! * point.y +
-    matrix[9]! * point.z +
-    matrix[13]!,
-  z:
-    matrix[2]! * point.x +
-    matrix[6]! * point.y +
-    matrix[10]! * point.z +
-    matrix[14]!,
-});
-
-const boundsOf = (points: readonly IAutoMovieVector3[]): IAutoMoviePropBox => {
-  const first = points[0]!;
-  const bounds: IAutoMoviePropBox = {
-    min: { ...first },
-    max: { ...first },
-  };
-  for (const point of points.slice(1)) {
-    bounds.min.x = Math.min(bounds.min.x, point.x);
-    bounds.min.y = Math.min(bounds.min.y, point.y);
-    bounds.min.z = Math.min(bounds.min.z, point.z);
-    bounds.max.x = Math.max(bounds.max.x, point.x);
-    bounds.max.y = Math.max(bounds.max.y, point.y);
-    bounds.max.z = Math.max(bounds.max.z, point.z);
-  }
-  return bounds;
 };

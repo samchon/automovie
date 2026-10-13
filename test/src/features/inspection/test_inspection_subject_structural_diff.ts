@@ -23,9 +23,11 @@ import {
  * 2. A translated element is moved and its reshaped prototype and prototype
  *    part are each reported once; an untouched model, part, and element are
  *    summarized as unchanged.
- * 3. One compact set changed in both anchor and layout appears in both moved
+ * 3. A model that only a built environment carries is compared like a
+ *    compiled one, so its reshaped prototype and part are reported.
+ * 4. One compact set changed in both anchor and layout appears in both moved
  *    and reshaped categories.
- * 4. Invalid negative and non-finite tolerances are rejected.
+ * 5. Invalid negative and non-finite tolerances are rejected.
  */
 export const test_inspection_subject_structural_diff = (): void => {
   const chairBefore = box("chair", 1);
@@ -89,6 +91,23 @@ export const test_inspection_subject_structural_diff = (): void => {
         omitted: 0,
       },
     },
+  );
+
+  const environmentOwned = (model: IAutoMovieModel) => {
+    const artifact = subjectInspectionArtifact({ models: [model] });
+    return {
+      ...artifact,
+      compiled: { ...artifact.compiled, models: [] },
+    };
+  };
+  const owned = diffAutoMovieSubjects(
+    environmentOwned(box("chair", 1)),
+    environmentOwned(box("chair", 2)),
+  );
+  TestValidator.equals(
+    "a reshaped model owned only by a built environment is reported reshaped",
+    owned.reshaped.map((change) => change.id),
+    ["prototype-part:chair/body", "prototype:chair"],
   );
 
   const setBefore = compactSet("both", 0, 1);

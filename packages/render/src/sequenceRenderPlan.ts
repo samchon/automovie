@@ -11,13 +11,11 @@ import {
   IAutoMovieTrim,
 } from "@automovie/interface";
 
-import {
-  ffmpegArgs,
-  frameName,
-  framePattern,
-  frameTimes,
-  renderPathStem,
-} from "./plan";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { frameName } from "./frameName";
+import { framePattern } from "./framePattern";
+import { frameTimes } from "./frameTimes";
+import { renderPathStem } from "./renderPathStem";
 
 /**
  * A shot entry resolved onto the sequence output clock.

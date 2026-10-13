@@ -6,6 +6,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { Matrix4 } from "../math/Matrix4";
 import { IAutoMovieResolveInput } from "./IAutoMovieResolveInput";
 import { IAutoMovieResolveOutput } from "./IAutoMovieResolveOutput";
 import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
@@ -125,7 +126,7 @@ export const resolveFrame = (
     const spheres: IAutoMovieSpringSphere[] = (
       input.springs.colliders ?? []
     ).map((c) => ({
-      center: positionOf(readWorld(world, c.node, "spring collider")),
+      center: Matrix4.position(readWorld(world, c.node, "spring collider")),
       radius: c.radius,
     }));
     deferredDrivers = [];
@@ -177,9 +178,6 @@ interface ILimitEntry {
   limit: IAutoMovieChannelLimit;
   profile: string | null;
 }
-
-/** Translation column of a column-major world matrix. */
-const positionOf = (m: number[]) => ({ x: m[12]!, y: m[13]!, z: m[14]! });
 
 const toVec3 = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]! });
 

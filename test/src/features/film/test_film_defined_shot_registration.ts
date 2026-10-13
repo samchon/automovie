@@ -68,6 +68,9 @@ const paths = (compiled: IAutoMovieCompiledDefinedShot): string[] =>
  *    rather than escaping to the author.
  * 3. A builder that throws is reported as `builder-failed` against `$shot.build`,
  *    with the thrown text carried into the fact.
+ * 4. Re-registering a defined shot under another id addresses the new id, so a
+ *    blank new id is reported even though the definition still carries a valid
+ *    one.
  */
 export const test_film_defined_shot_registration = (): void => {
   const thrown = compile(
@@ -130,6 +133,16 @@ export const test_film_defined_shot_registration = (): void => {
           thrown.success === false &&
           thrown.diagnostics[0]!.fact.includes("opening source failure"),
       ],
+      [
+        "theRegistrationIdOutranksTheDefinitionId",
+        () => defineShot<null>("renamed", registered()).id === "renamed",
+      ],
+      [
+        "aBlankReregisteredIdIsRegistrationInvalid",
+        () =>
+          paths(compile(defineShot<null>(" ", registered()))).join(",") ===
+          "$shot.id",
+      ],
     ]),
     {
       blankIdIsRegistrationInvalid: true,
@@ -139,6 +152,8 @@ export const test_film_defined_shot_registration = (): void => {
       aThrowingBoundaryBecomesPipelineFailed: true,
       aThrowingBuilderBecomesBuilderFailed: true,
       theBuilderFailureCarriesItsText: true,
+      theRegistrationIdOutranksTheDefinitionId: true,
+      aBlankReregisteredIdIsRegistrationInvalid: true,
     },
   );
 };

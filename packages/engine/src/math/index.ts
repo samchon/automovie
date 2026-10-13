@@ -6,6 +6,7 @@ export * from "./IAutoMovieQuadraticRow";
 export * from "./Matrix4";
 export * from "./Quaternion";
 export * from "./Vector3";
+export * from "./admitAutoMovieQuadraticProgram";
 export * from "./assembleAutoMovieQuadraticProgram";
 export * from "./closestPointOnSegmentXZ";
 export * from "./closestPointsBetweenSegments";

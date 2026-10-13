@@ -1,3 +1,4 @@
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { seededValue } from "../math/seededValue";
 import { IAutoMoviePatternCandidate } from "./IAutoMoviePatternCandidate";
@@ -469,11 +470,6 @@ const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
 
 const nonBlank = (value: string, label: string): void => {
   if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
-};
-
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };
 
 const atLeast = (value: number, limit: number, label: string): void => {

@@ -6,147 +6,140 @@ import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
 import { aimRotation } from "./aimRotation";
 
-const RAD2DEG = 180 / Math.PI;
+const RAD2DEG: number = 180 / Math.PI;
 
 /**
  * Swivel resolution of the candidate sweep, in degrees.
  *
- * The sweep is a **bounded, deterministic enumeration**, not solver iteration:
- * every candidate lands the effector exactly on the target (see
- * {@link hingedArmArticulation}), so the step decides only which of the equally
- * exact poses is chosen, never how close the hand gets. One degree over the
- * circle is 360 candidates per bend branch, each a decompose plus a per-axis
- * ROM read and no forward kinematics, and the solve runs once per authored
- * action rather than per frame.
+ * Every candidate lands the effector on the same point, so the step decides
+ * only which of the equally exact poses is chosen, never how close the hand
+ * gets. One degree gives 360 candidates per bend branch, and the solve runs
+ * once per authored action rather than per frame.
  */
-const SWIVEL_STEP = 1;
+const SWIVEL_STEP: number = 1;
 
 /** Below this the mid joint cannot change the chain's span at all. */
-const SPAN_EPSILON = 1e-9;
+const SPAN_EPSILON: number = 1e-9;
 
 /**
- * Analytic two-bone arm IK that **respects the mid joint's hinge**.
+ * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
+ * the chain root's free swivel spent on the rig's range of motion.
  *
- * The predecessor ({@link twoBoneChainArticulation}) solves the mid joint as a
- * free swing, `aimRotation(localFore, localGoal)`, which generically decomposes
- * into abduction and twist. An elbow declares those axes immobile, so the pose
- * was illegal by construction, and the bend plane came from a world-down pole
- * that is right for a knee and bends an elbow backwards. On the canonical
- * humanoid under the engine's own default ROM table that combination produced a
- * ROM-violating pose for essentially every target, including targets where
- * valid poses provably exist (#1345).
- *
- * This solve inverts the split. The mid joint rotates **only** about its own
- * flexion axis, so its abduction and twist are zero by construction and the
- * bend plane is the hinge's own plane rather than a pole's guess. The interior
- * bend follows in closed form: writing the chain-root-to-effector span as a
- * function of the hinge angle `θ` gives
+ * The elbow rotates by `θ` about `hinge` alone, so its abduction and twist
+ * decompose to zero, which is what an elbow's immobile axes require, and the
+ * bend plane is the hinge's own plane. Splitting the far segment into the part
+ * along the hinge and the part it swings gives the root-to-effector span
  *
  *     |m(θ)|² = k + α·cos θ + β·sin θ
  *
- * So `|m(θ)| = distance` is `R·cos(θ − φ) = distance² − k`, an arccos with the
- * chain's two bend branches as its two roots, and a target outside the span
- * clamps to the fully extended or fully folded end exactly as the
- * law-of-cosines solve did.
+ * so the span equals the target distance where `R·cos(θ − φ) = distance² − k`,
+ * with `R = hypot(α, β)` and `φ = atan2(β, α)`: an arccos whose two roots are
+ * the chain's two bend branches. A target outside the reachable span takes the
+ * fully extended or fully folded root, so the effector stops on the reachable
+ * shell along the line to the target.
  *
- * The chain-root joint keeps the residual freedom, and that freedom is
- * **exact**: any extra rotation about `m(θ)` leaves the effector where it is,
- * so the whole swivel circle reaches the target. Spending it costs no accuracy,
- * which is why the candidates are scored on the rig's own ROM rather than on
- * residual. Among candidates the choice is lexicographic: legality first, then
- * the least articulation from the **anatomical neutral**. The angles are
- * clinical, so all-zero is "standing, arms at the sides", the same origin
- * `DEFAULT_HUMANOID_ROM` is written about, which makes a quadratic in those
- * degrees a least-effort posture prior stated in the convention's own terms
- * rather than an appeal to how a render looks.
+ * The root joint first aims `m(θ)` at the target, then any extra rotation
+ * about `m(θ)` leaves the effector where it is. The function sweeps that swivel
+ * in `SWIVEL_STEP` increments on each branch and keeps the candidate with the
+ * least `overshoot`, compared exactly, then the least `deviation`, both from
+ * `score`. The caller owns the decomposition and the rig's ROM, so the
+ * geometry here holds no rig policy.
  *
- * `R ≈ 0` means the hinge cannot change the span at all (it is parallel to the
- * far segment), the degeneracy {@link armChainFault} names; the solve returns
- * `null` rather than inventing a pose for a rig that has no reach shell.
+ * Returns `null` for a degenerate chain: a mid or end offset shorter than
+ * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
+ * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
+ * change the span ({@link armChainFault} reports that rig).
  *
- * Returns `null` for a degenerate chain: a zero-length segment, a target
- * coincident with the chain root, or a hinge that cannot articulate the span.
- *
+ * @evidence contracts/common.md#principled-implementation The span is an exact sinusoid in the hinge angle because a rotation about `hinge` leaves the along-hinge part of the far segment fixed and turns the rest in a circle, so its two arccos roots are the only hinge angles reaching the target distance; the swivel about `m(θ)` is an exact null space of the effector position, which is why scoring candidates on ROM costs no accuracy; legality is compared exactly because a tolerance band once let a candidate 1e-12 degrees past a limit tie a legal one and win on deviation.
+ * @evidence contracts/common.md#clear-and-simple-design Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
+ * @evidence contracts/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
+ * @evidence contracts/performance.md#efficient-algorithms At most two branches times 360 swivel steps, each one quaternion product plus one `score` call, so cost is constant per solve and dominated by `score`; the step is a resolution choice among equally exact poses, and the solve runs once per authored arm action.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one chain and target that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the current best candidate during the sweep and retains nothing after it; the caller owns the returned rotations.
  * @author Samchon
  */
 export const hingedArmArticulation = (props: {
-  /** Resolved chain-root bone (the shoulder) under the rig's rest FK. */
+  /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
 
   /** Mid bone's rest offset from the chain root, in the root's bone frame. */
   midOffset: IAutoMovieVector3;
 
-  /** Mid bone's rest rotation. */
+  /** Mid bone's rest rotation relative to the chain root. */
   midRest: IAutoMovieQuaternion;
 
   /** Effector's rest offset from the mid joint, in the mid bone's frame. */
   endOffset: IAutoMovieVector3;
 
-  /** The mid joint's flexion axis, in the mid bone's frame. */
+  /** The mid joint's flexion axis in the mid bone's frame; any length. */
   hinge: IAutoMovieVector3;
 
   /** World target the effector should land on. */
   target: IAutoMovieVector3;
 
   /**
-   * Score one candidate's clinical angles, returning the total ROM overshoot in
-   * degrees. The caller owns the decomposition convention (axes and rest
-   * frames) and the rig's constraints, so this stays the geometry and never the
-   * rig policy.
+   * Score one candidate's bone-local root and mid rotations: `overshoot` is
+   * the total ROM overshoot in degrees, compared first, and `deviation` the
+   * effort tie-break, compared second. The caller owns the decomposition
+   * convention and the rig's constraints.
    */
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ) => { overshoot: number; deviation: number };
 }): IAutoMovieHingedArticulation | null => {
-  const root = props.upper.worldPosition;
-  const midOffset = props.midOffset;
-  const endOffset = props.endOffset;
+  const root: IAutoMovieVector3 = props.upper.worldPosition;
+  const midOffset: IAutoMovieVector3 = props.midOffset;
+  const endOffset: IAutoMovieVector3 = props.endOffset;
   if (Vector3.length(midOffset) < 1e-6 || Vector3.length(endOffset) < 1e-6)
     return null;
 
-  const reach = Vector3.subtract(props.target, root);
-  const distance = Vector3.length(reach);
+  const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
+  const distance: number = Vector3.length(reach);
   if (distance < 1e-6) return null;
 
-  const hingeLength = Vector3.length(props.hinge);
+  const hingeLength: number = Vector3.length(props.hinge);
   if (hingeLength < 1e-6) return null;
-  const hinge = Vector3.scale(props.hinge, 1 / hingeLength);
+  const hinge: IAutoMovieVector3 = Vector3.scale(props.hinge, 1 / hingeLength);
 
   // |m(θ)|² = k + α cos θ + β sin θ, with the far segment split into the part
   // the hinge cannot move (along the hinge) and the part it swings.
-  const along = Vector3.dot(hinge, endOffset);
-  const swung = Vector3.subtract(endOffset, Vector3.scale(hinge, along));
-  const radius = Vector3.length(swung);
+  const along: number = Vector3.dot(hinge, endOffset);
+  const swung: IAutoMovieVector3 = Vector3.subtract(
+    endOffset,
+    Vector3.scale(hinge, along),
+  );
+  const radius: number = Vector3.length(swung);
   const rotated = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
     Quaternion.rotateVector(props.midRest, vector);
-  const k =
+  const k: number =
     Vector3.dot(midOffset, midOffset) +
     Vector3.dot(endOffset, endOffset) +
     2 * along * Vector3.dot(midOffset, rotated(hinge));
-  let alpha = 0;
-  let beta = 0;
-  if (radius >= 1e-9) {
-    const unit = Vector3.scale(swung, 1 / radius);
+  let alpha: number = 0;
+  let beta: number = 0;
+  if (radius >= SPAN_EPSILON) {
+    const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
     alpha = 2 * radius * Vector3.dot(midOffset, rotated(unit));
     beta =
       2 * radius * Vector3.dot(midOffset, rotated(Vector3.cross(hinge, unit)));
   }
-  const span = Math.hypot(alpha, beta);
+  const span: number = Math.hypot(alpha, beta);
   if (span < SPAN_EPSILON) return null;
 
-  const phase = Math.atan2(beta, alpha);
-  const ratio = (distance * distance - k) / span;
+  const phase: number = Math.atan2(beta, alpha);
+  const ratio: number = (distance * distance - k) / span;
   // Outside the span the chain clamps to its extreme, so the effector stops on
   // the reachable shell pointing at the target rather than failing.
-  const branches =
+  const branches: number[] =
     ratio >= 1
       ? [phase]
       : ratio <= -1
         ? [phase + Math.PI]
         : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
 
-  const goal = Quaternion.rotateVector(
+  const goal: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(props.upper.worldRotation),
     reach,
   );
@@ -154,19 +147,23 @@ export const hingedArmArticulation = (props: {
   let best: (IAutoMovieHingedArticulation & { deviation: number }) | null =
     null;
   for (const theta of branches) {
-    const lower = Quaternion.fromAxisAngle(hinge, theta * RAD2DEG);
-    const mid = Vector3.add(
+    const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      hinge,
+      theta * RAD2DEG,
+    );
+    const mid: IAutoMovieVector3 = Vector3.add(
       midOffset,
       rotated(Quaternion.rotateVector(lower, endOffset)),
     );
-    const aim = aimRotation(mid, goal);
-    const swivelAxis = Vector3.normalize(mid);
-    for (let step = 0; step * SWIVEL_STEP < 360; ++step) {
-      const upper = Quaternion.multiply(
+    const aim: IAutoMovieQuaternion = aimRotation(mid, goal);
+    const swivelAxis: IAutoMovieVector3 = Vector3.normalize(mid);
+    for (let step: number = 0; step * SWIVEL_STEP < 360; ++step) {
+      const upper: IAutoMovieQuaternion = Quaternion.multiply(
         aim,
         Quaternion.fromAxisAngle(swivelAxis, step * SWIVEL_STEP),
       );
-      const { overshoot, deviation } = props.score(upper, lower);
+      const { overshoot, deviation }: { overshoot: number; deviation: number } =
+        props.score(upper, lower);
       // Legality is compared EXACTLY, with no tolerance band. A band let a
       // candidate sitting one part in 1e12 outside a limit count as tied with a
       // strictly legal one and then win on deviation, so the solve returned a
@@ -183,9 +180,8 @@ export const hingedArmArticulation = (props: {
     }
   }
   // `branches` is never empty and the sweep always scores at least one
-  // candidate, so `best` is assigned by here. Asserted rather than branched on:
-  // a `null` arm would be dead code the coverage gate could never reach.
-  const chosen = best!;
+  // candidate, so `best` is assigned by here.
+  const chosen: IAutoMovieHingedArticulation & { deviation: number } = best!;
   return {
     upper: chosen.upper,
     lower: chosen.lower,

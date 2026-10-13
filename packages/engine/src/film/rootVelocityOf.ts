@@ -5,57 +5,41 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { positiveModulo } from "../math/positiveModulo";
 import { sampleMotion } from "../motion/sampleMotion";
 import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
 /**
- * Wrap a non-negative time onto `[0, duration)`, matching the sampler's loop
- * handling. Callers guarantee `seconds >= 0` (a shot's local clock never runs
- * backwards), so no negative-modulo correction is needed.
- */
-const wrapTime = (seconds: number, duration: number): number =>
-  seconds % duration;
-
-/** The clip's root at `t`, folded through the node's staged placement. */
-const worldRootAt = (
-  node: IAutoMovieSceneNode,
-  clip: IAutoMovieMotion,
-  t: number,
-): IAutoMovieVector3 => {
-  const root = sampleMotion(clip, t).pose.root;
-  return foldRoot(node.transform, root).translation;
-};
-
-/**
- * Finite-difference world root velocity of `clip` over `[t0, t1]`, folded
- * through the node's staged placement; zero for an empty window.
- */
-const velocityOver = (
-  node: IAutoMovieSceneNode,
-  clip: IAutoMovieMotion,
-  t0: number,
-  t1: number,
-): IAutoMovieVector3 => {
-  const span = t1 - t0;
-  if (span <= 0) return { x: 0, y: 0, z: 0 };
-  const p0 = worldRootAt(node, clip, t0);
-  const p1 = worldRootAt(node, clip, t1);
-  return Vector3.scale(Vector3.subtract(p1, p0), 1 / span);
-};
-
-/**
- * World root velocity at `localTime`, finite-differenced over the clip's last
- * instants and folded through the node's staged placement.
+ * World root velocity of a node playing `clip` at clip-local `localTime`, in
+ * metres per second, from a backward difference of the clip's root folded
+ * through the node's staged placement.
  *
- * A looping clip's root teleports back at the seam, so the window never spans
- * it: within a cycle the window is the trailing {@link VELOCITY_DT}; in the
- * cycle's opening instants it shrinks to `[0, phase]`; and exactly on the seam
- * the cycle's closing stretch is measured with the clip clamped (un-looped) so
- * sampling `duration` does not wrap to the cycle start. A non-looping clip
- * sampled exactly at its end uses that same incoming left-hand window for the
- * cut; only a sample after the clip has ended holds its last pose at zero
- * velocity.
+ * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A
+ * looping clip's root jumps back at the seam, so the window never crosses it:
+ * within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first instants
+ * it shrinks to `[0, phase]`, and exactly on the seam it measures the cycle's
+ * closing stretch with the clip sampled unlooped, so reading `duration` does
+ * not wrap to the cycle start. A one-shot clip sampled at or before its end
+ * uses the same trailing window clamped at zero, and a sample after its end
+ * answers zero because the pose is held. A window of zero length, such as a
+ * one-shot at time zero, answers zero.
+ *
+ * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the
+ * momentum the next beat continues.
+ *
+ * @param node Scene node whose staged transform the root is folded through.
+ * @param clip Motion the node plays.
+ * @param localTime Clip-local seconds the velocity is measured at.
+ * @returns World velocity in metres per second.
+ *
+ * @evidence contracts/common.md#principled-implementation A first-order backward difference of the folded world root, the estimate that reads only the past of the instant, which is what a beat that continues from this one inherits; the loop seam is excluded from the window because the root's jump there is a wrap, not motion, and `positiveModulo` keeps the phase in `[0, duration)` for any finite time.
+ * @evidence contracts/common.md#clear-and-simple-design One exported rule with two private steps, sampling the folded root and differencing a window, so the seam and end cases choose a window and share the arithmetic.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No clip or gait is special-cased; the unlooped copy at the seam is the clip's own data sampled without wrapping, not a substituted value.
+ * @evidence contracts/common.md#meaningful-documentation States the unit, the window in every case including the seam and the held tail, the zero-length answer, which caller stores it, and each parameter's role.
+ * @evidence contracts/performance.md#efficient-algorithms Two `sampleMotion` calls and two transform folds per answer, constant in the number of beats; the cost grows only with the clip's per-sample cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one node and one instant, and coordinates no work across calls; the snapshot that calls it asks once per actor.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the unlooped clip copy at the seam is shallow and released on return.
  */
 export const rootVelocityOf = (
   node: IAutoMovieSceneNode,
@@ -63,16 +47,42 @@ export const rootVelocityOf = (
   localTime: number,
 ): IAutoMovieVector3 => {
   if (clip.loop && clip.duration > 0) {
-    const phase = wrapTime(localTime, clip.duration);
+    const phase: number = positiveModulo(localTime, clip.duration);
     if (phase >= VELOCITY_DT)
       return velocityOver(node, clip, phase - VELOCITY_DT, phase);
     if (phase > 0) return velocityOver(node, clip, 0, phase);
-    const clamped: IAutoMovieMotion = { ...clip, loop: false };
-    const start = Math.max(0, clip.duration - VELOCITY_DT);
-    return velocityOver(node, clamped, start, clip.duration);
+    const unlooped: IAutoMovieMotion = { ...clip, loop: false };
+    return velocityOver(
+      node,
+      unlooped,
+      Math.max(0, clip.duration - VELOCITY_DT),
+      clip.duration,
+    );
   }
-
   if (localTime > clip.duration) return { x: 0, y: 0, z: 0 };
-  const t1 = Math.min(Math.max(localTime, 0), clip.duration);
+  const t1: number = Math.min(Math.max(localTime, 0), clip.duration);
   return velocityOver(node, clip, Math.max(0, t1 - VELOCITY_DT), t1);
+};
+
+/** The clip's root at `t`, folded through the node's staged placement. */
+const worldRootAt = (
+  node: IAutoMovieSceneNode,
+  clip: IAutoMovieMotion,
+  t: number,
+): IAutoMovieVector3 =>
+  foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation;
+
+/** Difference of the world root over `[t0, t1]`; zero for an empty window. */
+const velocityOver = (
+  node: IAutoMovieSceneNode,
+  clip: IAutoMovieMotion,
+  t0: number,
+  t1: number,
+): IAutoMovieVector3 => {
+  const span: number = t1 - t0;
+  if (span <= 0) return { x: 0, y: 0, z: 0 };
+  return Vector3.scale(
+    Vector3.subtract(worldRootAt(node, clip, t1), worldRootAt(node, clip, t0)),
+    1 / span,
+  );
 };

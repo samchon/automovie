@@ -125,6 +125,10 @@ const SWEEP = [0, 15, 30, 60, 90, 150];
  * 7. Boundary, an ill-posed question: a zero-length forearm has no direction to be
  *    parallel to, and an axis table that names no elbow hinge (or names a
  *    zero-length one) states no convention to break. None is a fault.
+ * 8. Boundary, a broken chain: a hand parented to the upper arm instead of the
+ *    lower arm has a rest offset outside the elbow's frame, so the arms-down rig
+ *    is not diagnosed as an elbow fault and `reachPose` refuses even the T-pose
+ *    rig rather than solving offsets that are not one chain.
  */
 export const test_kinematics_arm_chain_fault = (): void => {
   const down = armRig("down");
@@ -267,6 +271,25 @@ export const test_kinematics_arm_chain_fault = (): void => {
         twist: { x: 1, y: 0, z: 0 },
       },
     }),
+    null,
+  );
+
+  // 8. BOUNDARY: a hand that does not hang from the lower arm breaks the chain
+  // both functions read, so neither may treat its offset as the forearm.
+  const misparented = (rig: IAutoMovieSkeleton): IAutoMovieSkeleton => ({
+    ...rig,
+    bones: rig.bones.map((b) =>
+      b.bone === "rightHand" ? { ...b, parent: "rightUpperArm" } : b,
+    ),
+  });
+  TestValidator.equals(
+    "a hand outside the elbow's frame is not an elbow fault",
+    armChainFault(misparented(down), "right"),
+    null,
+  );
+  TestValidator.equals(
+    "and reachPose refuses offsets that are not one chain",
+    reachPose(misparented(out), "right", { x: -0.35, y: 1.1, z: 0.3 }),
     null,
   );
 };

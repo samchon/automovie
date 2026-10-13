@@ -1,8 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieModel,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -10,123 +9,76 @@ import { tessellate } from "../geometry/tessellate";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";
-
-/** One bone's rest-pose placement in model space. */
-interface IRestFrame {
-  pos: IAutoMovieVector3;
-  rot: IAutoMovieQuaternion;
-}
+import { skeletonRestFrames } from "./skeletonRestFrames";
 
 /**
- * Every bone's rest-pose model-space frame, composed down the parent chain.
- * Rigs keep unit scale, so translation and rotation are the whole transform.
- */
-const restWorldFrames = (
-  skeleton: IAutoMovieSkeleton,
-): ReadonlyMap<AutoMovieHumanoidBone, IRestFrame> => {
-  const byName = new Map<
-    AutoMovieHumanoidBone,
-    { bone: (typeof skeleton.bones)[number]; index: number }
-  >();
-  skeleton.bones.forEach((bone, index) => {
-    const existing = byName.get(bone.bone);
-    if (existing !== undefined)
-      throw new Error(
-        `skeleton "${skeleton.id}" bone "${bone.bone}" is duplicated at bones[${index}].bone; first declared at bones[${existing.index}].bone`,
-      );
-    byName.set(bone.bone, { bone, index });
-  });
-  const world = new Map<AutoMovieHumanoidBone, IRestFrame>();
-  const resolving = new Set<AutoMovieHumanoidBone>();
-  const resolve = (name: AutoMovieHumanoidBone): IRestFrame => {
-    const cached = world.get(name);
-    if (cached !== undefined) return cached;
-    if (resolving.has(name))
-      throw new Error(
-        `skeleton "${skeleton.id}" bone parent cycle includes "${name}"`,
-      );
-    const entry = byName.get(name);
-    if (entry === undefined)
-      throw new Error(
-        `skeleton "${skeleton.id}" bone "${name}" was not provided`,
-      );
-    resolving.add(name);
-    try {
-      const bone = entry.bone;
-      const frame =
-        bone.parent === null
-          ? { pos: bone.rest.translation, rot: bone.rest.rotation }
-          : (() => {
-              const parent = resolve(bone.parent);
-              return {
-                pos: Vector3.add(
-                  parent.pos,
-                  Quaternion.rotateVector(parent.rot, bone.rest.translation),
-                ),
-                rot: Quaternion.multiply(parent.rot, bone.rest.rotation),
-              };
-            })();
-      world.set(name, frame);
-      return frame;
-    } finally {
-      resolving.delete(name);
-    }
-  };
-  for (const bone of skeleton.bones) resolve(bone.bone);
-  return world;
-};
-
-/**
- * A model's rest-pose box in model space: the axis-aligned range of the geometry
- * a renderer would actually draw, on all three axes.
+ * A model's rest-pose box in model space: the axis-aligned range, in metres, of
+ * the geometry a renderer draws, on all three axes.
  *
- * {@link computeModelRestExtentY} is this measurement read on one axis, and the
- * two are the same traversal for the reason the vertical one gives: every part
- * is placed the way the renderer places it, and primitives are measured through
- * {@link tessellate}, the code that produces the vertices, so the extent cannot
- * drift from the picture.
+ * Every vertex is placed the way the renderer places it: by its part's own
+ * transform through {@link placeTransformedPoint}, then by the rest frame of
+ * the bone the part rides, or left in model space when it rides none.
+ * Primitives are measured through {@link tessellate}, the code that produces
+ * their vertices, so the extent cannot drift from the picture. A trailing
+ * partial `x, y, z` triple in a mesh is ignored.
  *
- * The horizontal half is what a subject wider than it is tall is framed and
- * graded from. A figure is taller than it is wide at every shot size, so its
- * width never decides its distance; a building element is the opposite, and a
- * 60 m facade authored outward from its element origin has a drawn box of
- * `x 0…60, y 0…24, z −1…1` where the vertical read alone reports only
- * `y 0…24`. Returns null when a model has nothing to measure, leaving the
- * caller's own fallback in charge rather than inventing an extent.
+ * {@link computeModelRestExtentY} is this box read on the vertical axis. The
+ * horizontal half is what a subject wider than it is tall is framed and graded
+ * from: a 60 m facade authored outward from its element origin has a drawn box
+ * of `x 0…60, y 0…24, z −1…1`, where the vertical read alone reports `y 0…24`.
+ *
+ * Returns null when no part has a vertex, leaving the caller's own fallback in
+ * charge rather than inventing an extent. Throws, through
+ * {@link skeletonRestFrames}, when the model's skeleton is malformed.
+ *
+ * @evidence contracts/common.md#principled-implementation A running axis-aligned min and max over every vertex after the renderer's placement, part TRS then the bone's composed rest frame at unit scale; it relies on model validation having bound every `attachedBone` to a bone of the model's own skeleton, so a part found on no frame is one that rides no bone.
+ * @evidence contracts/common.md#clear-and-simple-design Composes the shared pieces, `tessellate` for primitives, `placeTransformedPoint` for the part transform that `nodeSubjectBox` also applies, and `skeletonRestFrames` for the bone frames `computeRestHeight` reads, and owns only the bound accumulation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No model, part kind or bone is special-cased; an empty model answers null by the stated rule instead of a stand-in box, and the subject-height default belongs to the callers.
+ * @evidence contracts/common.md#meaningful-documentation States the frame and unit, the per-vertex placement order and its sources, the partial-triple rule, the vertical reading, why the horizontal extent matters, the null case and the throwing case.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the drawn vertex count V plus one O(B) rest-frame walk for B bones and one tessellation per primitive part; the bounds stream in constant extra space rather than collecting placed points.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement of one model that coordinates nothing across calls; a pass that frames the same model for many subjects owns any memoization.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; each tessellation and the rest-frame map are dropped as the call proceeds, and the caller owns the two returned vectors.
  */
 export const computeModelRestExtent = (
   model: IAutoMovieModel,
 ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null => {
-  const frames =
-    model.skeleton === null ? null : restWorldFrames(model.skeleton);
+  const frames: ReadonlyMap<
+    AutoMovieHumanoidBone,
+    Pick<IAutoMovieTransform, "translation" | "rotation">
+  > | null = model.skeleton === null ? null : skeletonRestFrames(model.skeleton);
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const part of model.parts) {
-    const positions =
+    const positions: readonly number[] =
       part.geometry.type === "primitive"
         ? tessellate(part.geometry.shape).positions
         : part.geometry.mesh.positions;
-    const local = part.transform;
-    const frame =
+    const local: IAutoMovieTransform | null = part.transform;
+    const frame:
+      | Pick<IAutoMovieTransform, "translation" | "rotation">
+      | undefined =
       part.attachedBone === null ? undefined : frames?.get(part.attachedBone);
-    for (let index = 0; index + 2 < positions.length; index += 3) {
+    for (let index: number = 0; index + 2 < positions.length; index += 3) {
       const point: IAutoMovieVector3 = {
         x: positions[index]!,
         y: positions[index + 1]!,
         z: positions[index + 2]!,
       };
-      const placed =
+      const placed: IAutoMovieVector3 =
         local === null ? point : placeTransformedPoint(local, point);
-      const world =
+      const drawn: IAutoMovieVector3 =
         frame === undefined
           ? placed
-          : Vector3.add(frame.pos, Quaternion.rotateVector(frame.rot, placed));
-      if (world.x < min.x) min.x = world.x;
-      if (world.y < min.y) min.y = world.y;
-      if (world.z < min.z) min.z = world.z;
-      if (world.x > max.x) max.x = world.x;
-      if (world.y > max.y) max.y = world.y;
-      if (world.z > max.z) max.z = world.z;
+          : Vector3.add(
+              frame.translation,
+              Quaternion.rotateVector(frame.rotation, placed),
+            );
+      if (drawn.x < min.x) min.x = drawn.x;
+      if (drawn.y < min.y) min.y = drawn.y;
+      if (drawn.z < min.z) min.z = drawn.z;
+      if (drawn.x > max.x) max.x = drawn.x;
+      if (drawn.y > max.y) max.y = drawn.y;
+      if (drawn.z > max.z) max.z = drawn.z;
     }
   }
   return min.y === Infinity ? null : { min, max };

@@ -80,6 +80,7 @@ const realize = (
     camera?: boolean;
     frameFormat?: boolean;
     requiredSubjects?: string[];
+    reviewTimes?: number[];
   } = {},
 ) =>
   realizeShotContract({
@@ -90,6 +91,14 @@ const realize = (
         requiredSubjects:
           options.requiredSubjects ?? contract.camera.requiredSubjects,
       },
+      reviewFrames:
+        options.reviewTimes === undefined
+          ? contract.reviewFrames
+          : options.reviewTimes.map((time, index) => ({
+              id: `frame-${index}`,
+              time,
+              passes: ["beauty" as const],
+            })),
     },
     production: null,
     ...(options.frameFormat === false
@@ -259,5 +268,17 @@ export const test_film_camera_depth_precision_realization = (): void => {
       ],
     ]),
     { camera: true, raster: true, subject: true },
+  );
+
+  // A review frame at a time no clock can reach is graded and fails, rather
+  // than being dropped from the camera samples while the shot passes.
+  const unreachable = realize(camera(), { reviewTimes: [Number.NaN] });
+  TestValidator.predicate(
+    "a non-finite review frame is a failing camera sample, not a skipped one",
+    unreachable.realization.camera.length === 3 &&
+      unreachable.realization.camera.some(
+        (sample) => Number.isNaN(sample.time) && sample.passed === false,
+      ) &&
+      unreachable.diagnostics.length === 1,
   );
 };

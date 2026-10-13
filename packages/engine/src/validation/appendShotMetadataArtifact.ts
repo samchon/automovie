@@ -1,5 +1,7 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
+import { CAMERA_FRAMINGS } from "../film/constants/CAMERA_FRAMINGS";
+import { CAMERA_MOVES } from "../film/constants/CAMERA_MOVES";
 import { sampleTimes } from "../motion/sampleTimes";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
@@ -38,18 +40,11 @@ const EVENT_SOURCES = new Set([
   "impactOutput",
 ]);
 
-/** The closed framing union, the same set `performShot` gates a frame action by. */
-const CAMERA_FRAMINGS = new Set(["wide", "full", "medium", "close"]);
+/** The closed framing union, read as strings for an unvalidated artifact. */
+const FRAMINGS: ReadonlySet<string> = CAMERA_FRAMINGS;
 
-/** The closed move union, the same set `performShot` gates a frame action by. */
-const CAMERA_MOVES = new Set([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);
+/** The closed move union, read as strings for an unvalidated artifact. */
+const MOVES: ReadonlySet<string> = CAMERA_MOVES;
 
 /**
  * The shot metadata fields validators used to pass ungated: `events`,
@@ -440,21 +435,21 @@ const appendCameraIntentArtifact = (
     );
     if (
       typeof intent.framing !== "string" ||
-      !CAMERA_FRAMINGS.has(intent.framing)
+      !FRAMINGS.has(intent.framing)
     )
       pushViolation(
         violations,
         "type",
         `${intentPath}.framing`,
-        `camera intent framing must be one of ${[...CAMERA_FRAMINGS].join(", ")}, but was "${String(intent.framing)}"`,
+        `camera intent framing must be one of ${[...FRAMINGS].join(", ")}, but was "${String(intent.framing)}"`,
         intent.framing,
       );
-    if (typeof intent.move !== "string" || !CAMERA_MOVES.has(intent.move))
+    if (typeof intent.move !== "string" || !MOVES.has(intent.move))
       pushViolation(
         violations,
         "type",
         `${intentPath}.move`,
-        `camera intent move must be one of ${[...CAMERA_MOVES].join(", ")}, but was "${String(intent.move)}"`,
+        `camera intent move must be one of ${[...MOVES].join(", ")}, but was "${String(intent.move)}"`,
         intent.move,
       );
     if (intent.focus !== null)

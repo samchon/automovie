@@ -160,6 +160,9 @@ const DESK: IAutoMovieVector3 = { x: 0, y: EYE_HEIGHT - 1.1, z: 1 };
  *    such an actor either.
  * 8. A rig that declares no `neck` bone also keeps the single-bone aim: naming a
  *    bone the skeleton does not carry would trade one violation for another.
+ * 9. A rig whose head does not hang from its declared neck also keeps the
+ *    single-bone aim: rotating a neck the head does not hang from would not
+ *    move the head, so the split would lose the aim.
  */
 export const test_perform_look_at_gaze_chain = (): void => {
   // 1. the reproduction: the chain absorbs what the head alone could not.
@@ -368,5 +371,23 @@ export const test_perform_look_at_gaze_chain = (): void => {
       ["nclosePosedJoints2", () => nclose(posed.joints[0]!.twist!, 0)],
     ]),
     { nclosePosedJoints: true, nclosePosedJoints2: true },
+  );
+
+  // 9. a neck the head does not hang from carries nothing.
+  const detached: IAutoMovieSkeleton = {
+    ...rig,
+    bones: rig.bones.map((bone) =>
+      bone.bone === "head" ? { ...bone, parent: "chest" } : bone,
+    ),
+  };
+  const sideways = aim(detached, DESK);
+  TestValidator.equals(
+    "a head beside the neck poses one bone",
+    sideways.joints.map((entry) => entry.bone),
+    ["head"],
+  );
+  TestValidator.predicate(
+    "and keeps the whole aim on that bone",
+    nclose(sideways.joints[0]!.flexion!, required),
   );
 };

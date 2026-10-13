@@ -167,6 +167,10 @@ const composed = (
  *    the gate covers both coupling sources.
  * 6. A chained coupling whose intermediate parent has no rig still reports the
  *    existing mount-rig violation: the chain does not mask it.
+ * 7. A parent whose own coupling starts mid-shot is read the way playback draws
+ *    it: before its follow clip starts, the sword rides the rider's staged
+ *    placement, not the clamped first key of the later coupling; after it, the
+ *    sword rides the rider's baked path.
  */
 export const test_film_perform_shot_coupling_chain = (): void => {
   const staged = stageScene(scriptOf(), stagingOf());
@@ -413,4 +417,85 @@ export const test_film_perform_shot_coupling_chain = (): void => {
       "the chain does not mask the mount-rig violation",
       riglessLink.violations.some((v) => v.path === "$staged.mounts"),
     );
+
+  // 7. a parent coupled only from t = 1 stands staged before it.
+  const late = performShot({
+    script: scriptOf(),
+    staged,
+    performance: makePerformanceWrite({
+      beat: "beat-1",
+      draft: [
+        {
+          verb: "gesture",
+          actor: "dragon",
+          start: 0,
+          duration: 2,
+          kind: "bow",
+        },
+        {
+          verb: "attachTo",
+          actor: "rider",
+          parent: "horse",
+          bone: "spine",
+          start: 1,
+          duration: 1,
+        },
+        {
+          verb: "attachTo",
+          actor: "sword",
+          parent: "rider",
+          bone: "leftHand",
+          start: 0,
+          duration: 2,
+        },
+      ],
+      revise: { review: "the knight mounts mid-stride.", final: null },
+      duration: 2,
+    }),
+    synthesize: synth,
+    skeleton: (node) => (node === "sword" ? null : skeleton),
+  });
+  TestValidator.equals("the late coupling performs", late.success, true);
+  if (late.success !== true) return;
+  const riderStaged: IAutoMovieTransform = staged.scene.nodes.find(
+    (n) => n.id === "rider",
+  )!.transform;
+  const lateSword: IAutoMovieClip = late.shot.objectMotions.find(
+    (c) => c.id === "attach:sword",
+  )!;
+  const handAt = (parent: {
+    translation: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+  }): IAutoMovieVector3 =>
+    composed(
+      parent,
+      resolveAttachment(
+        rest,
+        skeleton,
+        { parentBone: "leftHand", offset: IDENTITY_TRANSFORM },
+        HUMANOID_JOINT_AXES,
+      ),
+    ).translation;
+  TestValidator.predicate(
+    "before the rider's coupling starts the sword rides its staged placement",
+    vclose(posAt(lateSword, "sword", 0.5), handAt(riderStaged), 1e-9),
+  );
+  const riderClip: IAutoMovieClip = late.shot.objectMotions.find(
+    (c) => c.id === "attach:rider",
+  )!;
+  const riderAt = (t: number): IAutoMovieTransform => {
+    const p: number[] = sampleClip(riderClip, t).get("node:rider:translation")!
+      .value;
+    const q: number[] = sampleClip(riderClip, t).get("node:rider:rotation")!
+      .value;
+    return {
+      translation: { x: p[0]!, y: p[1]!, z: p[2]! },
+      rotation: { x: q[0]!, y: q[1]!, z: q[2]!, w: q[3]! },
+      scale: { x: 1, y: 1, z: 1 },
+    };
+  };
+  TestValidator.predicate(
+    "after the rider's coupling starts the sword rides its baked path",
+    vclose(posAt(lateSword, "sword", 1.5), handAt(riderAt(1.5)), 1e-9),
+  );
 };

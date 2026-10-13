@@ -1,6 +1,7 @@
 import { IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
 
 import { seededValue } from "../math/seededValue";
+import { instancePrototypeChoices } from "./instancePrototypeChoices";
 
 /**
  * The prototype one instance slot draws, or the explicit one it names.
@@ -42,9 +43,7 @@ export const selectInstancePrototype = <
   const choices: readonly (
     | Choice
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight">
-  )[] = instanceSet.prototypes ?? [
-    { id: "default", modelRecipe: instanceSet.modelRecipe, weight: 1 },
-  ];
+  )[] = instancePrototypeChoices(instanceSet);
   if (explicit !== undefined) {
     const selected = choices.find((choice) => choice.id === explicit);
     if (selected === undefined)

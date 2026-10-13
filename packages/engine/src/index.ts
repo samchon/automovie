@@ -94,6 +94,7 @@ export { closestPointOnSegmentXZ } from "./math/closestPointOnSegmentXZ";
 export { segmentIndex } from "./math/segmentIndex";
 export type { IAutoMovieQuadraticRow } from "./math/IAutoMovieQuadraticRow";
 export { solveAutoMovieQuadraticProgram } from "./math/solveAutoMovieQuadraticProgram";
+export { admitAutoMovieQuadraticProgram } from "./math/admitAutoMovieQuadraticProgram";
 export { assembleAutoMovieQuadraticProgram } from "./math/assembleAutoMovieQuadraticProgram";
 export { solveAutoMovieBoundedDisplacement } from "./math/solveAutoMovieBoundedDisplacement";
 export { solveAutoMovieAbsoluteDisplacement } from "./math/solveAutoMovieAbsoluteDisplacement";

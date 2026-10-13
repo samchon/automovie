@@ -1,6 +1,8 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieSkeleton,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -10,40 +12,47 @@ import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 
 /**
  * Sine of the angle below which a hinge counts as parallel to the segment it
- * drives. The engine's other geometric degeneracy guards (zero-length segment,
- * target on the chain root, bend-plane fallback) all use `1e-6`, and this is
- * the same kind of question asked about an angle rather than a length. A rig
- * whose elbow is merely CLOSE to parallel still solves: it can bend, just
- * weakly, and refusing it would be the engine deciding how much articulation is
- * worth having.
+ * drives. It is the same `1e-6` the engine's other degeneracy guards use for a
+ * length, asked of an angle. A hinge merely close to parallel still bends the
+ * arm, weakly, so it is not refused.
  */
-const PARALLEL_SINE = 1e-6;
+const PARALLEL_SINE: number = 1e-6;
 
 /**
- * Whether an arm chain can be articulated at all by the analytic arm IK,
- * decided from the rig rather than from a convention's name.
+ * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
+ * `null` when it can.
  *
- * `HUMANOID_JOINT_AXES` maps the arm's `flexion` onto local **+Y** because the
- * canonical humanoid rests in the VRM T-pose, arms out along local ±X. That
- * table is applied unconditionally by every arm computation on the surface, and
- * on a rig that rests otherwise it can name an axis the bone cannot use: when
- * the elbow's flexion axis lies along the forearm's own rest direction, elbow
- * flexion is a **roll**, so the hand does not move at all and the arm is a
- * rigid stick. The chain then has one reachable radius instead of a shell, and
- * every downstream answer about it is wrong while every validator stays green
- * (#1346).
+ * `HUMANOID_JOINT_AXES` puts the arm's flexion on local +Y because the
+ * canonical humanoid rests in the VRM T-pose with its arms along local ±X. On a
+ * rig whose forearm rests along that flexion axis, such as arms hanging along
+ * −Y, elbow flexion only rolls the forearm about its own length: the hand never
+ * moves, the chain has one reachable radius instead of a shell, and no reach
+ * can be solved. This function reports that rig, naming the lower arm and both
+ * directions in `reason`.
  *
- * The test is first-principles rather than a T-pose sniff, which matters
- * because the humanoid bone enum is the only vocabulary the surface has: a
- * retargeted quadruped's FRONT legs ride the arm chains and legitimately rest
- * along −Y. Such a rig is refused only where an arm-IK question is actually
- * asked of it, never at authoring time, so a quadruped that never reaches stays
- * free.
+ * The test reads the rig, not a pose name, because a retargeted quadruped's
+ * front legs ride the arm chains and may legitimately rest along −Y. Callers
+ * therefore ask it only where an arm verb is performed: the perform-shot gate
+ * refuses the verb with this reason, and {@link reachPose} returns `null`.
  *
- * Returns `null` when the chain is solvable, and `null` for a chain whose bones
- * are missing entirely (that is {@link reachPose}'s own "no measurable arm"
- * answer, a different fact from a rig whose elbow cannot bend).
+ * `null` also answers every case that is not this fault: a missing hand, a
+ * hand not parented to the lower arm (its rest offset is then not in the
+ * elbow's frame), a zero-length forearm, and an axis table with no or a
+ * zero-length elbow flexion axis. {@link reachPose} reports the structural
+ * cases itself as a chain it cannot measure.
  *
+ * @param skeleton Rig whose arm chain is read; only rest offsets are used.
+ * @param side Which arm to test.
+ * @param jointAxes Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
+ *   the table every arm computation applies.
+ *
+ * @evidence contracts/common.md#principled-implementation The elbow's articulation rotates the hand's rest offset in the lower arm's own frame, so the elbow can move the hand exactly when the flexion axis is not parallel to that offset; the test is the cross-product sine of the two unit vectors against `PARALLEL_SINE`, which holds because the function first requires the hand to be the lower arm's child and both vectors to have nonzero length.
+ * @evidence contracts/common.md#clear-and-simple-design One rig diagnosis shared by `reachPose` and the perform-shot gate's arm-verb refusal, so the solver and the gate cannot disagree about which rigs can reach; the message formatting lives in two private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads geometry rather than a convention name or a rig id; the parallel threshold is the engine's shared degeneracy scale applied to every rig alike, and nothing about a quadruped or T-pose is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the fault it detects and why it breaks reach, why the test is geometric, where callers ask it, every `null` case including the parent requirement, and what each parameter supplies.
+ * @evidence contracts/performance.md#efficient-algorithms One linear search of the skeleton's bones for the hand, then constant vector arithmetic; the message is built only for a faulted rig.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rig and side that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned fault.
  * @author Samchon
  */
 export const armChainFault = (
@@ -58,22 +67,24 @@ export const armChainFault = (
   const handName: AutoMovieHumanoidBone =
     side === "left" ? "leftHand" : "rightHand";
 
-  const hand = skeleton.bones.find((bone) => bone.bone === handName);
+  const hand: IAutoMovieBone | undefined = skeleton.bones.find(
+    (bone: IAutoMovieBone): boolean => bone.bone === handName,
+  );
   if (hand === undefined) return null;
 
   // The mid joint's articulation is applied INSIDE the bone's rest rotation
   // (`worldRot = parentWorld · rest · articulation`), so it rotates the hand's
   // rest offset directly: both vectors are read in that one bone-local frame.
-  const fore = hand.rest.translation;
-  const foreLength = Vector3.length(fore);
+  const fore: IAutoMovieVector3 = hand.rest.translation;
+  const foreLength: number = Vector3.length(fore);
   if (foreLength < 1e-6) return null;
 
-  const flexion = jointAxes[lowerName]?.flexion;
+  const flexion: IAutoMovieVector3 | undefined = jointAxes[lowerName]?.flexion;
   if (flexion === undefined) return null;
-  const hingeLength = Vector3.length(flexion);
+  const hingeLength: number = Vector3.length(flexion);
   if (hingeLength < 1e-6) return null;
 
-  const sine = Vector3.length(
+  const sine: number = Vector3.length(
     Vector3.cross(
       Vector3.scale(flexion, 1 / hingeLength),
       Vector3.scale(fore, 1 / foreLength),
@@ -93,7 +104,7 @@ export const armChainFault = (
   };
 };
 
-const axisText = (axis: { x: number; y: number; z: number }): string =>
+const axisText = (axis: IAutoMovieVector3): string =>
   `${trim(axis.x)}, ${trim(axis.y)}, ${trim(axis.z)}`;
 
 /** Six significant digits, trailing zeros dropped: a readable, stable number. */

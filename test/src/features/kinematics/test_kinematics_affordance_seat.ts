@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { qclose, vclose } from "../internal/predicates";
+import { namedFacts, qclose, vclose } from "../internal/predicates";
 
 const IDENTITY = { x: 0, y: 0, z: 0, w: 1 };
 const UNIT = { x: 1, y: 1, z: 1 };
@@ -45,6 +45,8 @@ const frameAt = (
  * 3. A rotated handle/hand pair (parent frame yawed, child frame pitched): the
  *    composed child world still lands its hand frame exactly on the handle
  *    frame: coincidence assertions on position and rotation.
+ * 4. Each seat owns its unit scale: after the caller changes the scale of the
+ *    first two seats, the same seats resolved again still have unit scale.
  */
 export const test_kinematics_affordance_seat = (): void => {
   const yaw90 = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
@@ -125,5 +127,38 @@ export const test_kinematics_affordance_seat = (): void => {
   TestValidator.predicate(
     "hand frame position aligns onto the handle frame",
     vclose(handWorldPosition, handle.frame.translation),
+  );
+
+  // 4. every seat owns its unit scale, so changing one leaves the next intact
+  originSeat.scale.x = 5;
+  socketSeat.scale.y = 5;
+  TestValidator.equals(
+    "a later seat still has unit scale after earlier seats were changed",
+    namedFacts([
+      [
+        "originAgain",
+        () =>
+          vclose(
+            resolveAffordanceSeat({
+              parentWorld,
+              parentAffordance: offCenterTop,
+            }).scale,
+            UNIT,
+          ),
+      ],
+      [
+        "socketAgain",
+        () =>
+          vclose(
+            resolveAffordanceSeat({
+              parentWorld,
+              parentAffordance: centeredTop,
+              childAffordance: socket,
+            }).scale,
+            UNIT,
+          ),
+      ],
+    ]),
+    { originAgain: true, socketAgain: true },
   );
 };

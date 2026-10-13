@@ -172,6 +172,17 @@ export const test_world_kit = (): void => {
     routes: [route],
     landmarks: [routeLandmark],
   });
+  // The edge of a floor is still floor: a landmark exactly on the walkable
+  // ground's outer edge is reachable without any route, as the ground oracle
+  // already answers for a point on that edge.
+  assertWorldPlacements({
+    blocks: [],
+    surfaces: [ground],
+    routes: [],
+    landmarks: [
+      { ...landmark, id: "edge", radius: 0, position: { x: 20, y: 0, z: 0 } },
+    ],
+  });
 
   const rejected = [
     () =>
