@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import type { IHumanBuildFileReplacement } from "../../../../packages/human/build/IHumanBuildFileReplacement";
-import type { replaceHumanBuildFile as Replace } from "../../../../packages/human/build/replaceHumanBuildFile.mjs";
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { replaceHumanBuildFile } from "../../../../packages/human/build/replaceHumanBuildFile";
 
 /**
  * A file replacement owns disposal only after its exclusive reservation
@@ -17,9 +15,6 @@ import { loadSourceModule } from "../internal/loadSourceModule";
  * 4. Disposal failure propagates alone or alongside the original failure.
  */
 export function test_package_build_file_replacement(): void {
-  const replace = loadSourceModule<{ replaceHumanBuildFile: typeof Replace }>(
-    path.resolve(__dirname, "../../../../packages/human/build/replaceHumanBuildFile.mjs"),
-  ).replaceHumanBuildFile;
   for (const scenario of [
     { fail: [], steps: ["reserve", "release", "copy", "publish", "discard"] },
     { fail: ["reserve"], steps: ["reserve"] },
@@ -41,7 +36,7 @@ export function test_package_build_file_replacement(): void {
       copy: () => effect("copy"), publish: () => effect("publish"), discard: () => effect("discard"),
     };
     let caught: unknown;
-    try { replace(host); } catch (error) { caught = error; }
+    try { replaceHumanBuildFile(host); } catch (error) { caught = error; }
     const failures: unknown[] = caught instanceof AggregateError ? caught.errors : caught === undefined ? [] : [caught];
     TestValidator.equals("replacement effect order", observed, scenario.steps);
     TestValidator.equals("replacement failure count", failures.length, scenario.fail.length);

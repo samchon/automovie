@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import type { IHumanBuildFileHost } from "../../../../packages/human/build/IHumanBuildFileHost";
-import type { synchronizeHumanBuild as Synchronize } from "../../../../packages/human/build/synchronizeHumanBuild.mjs";
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { synchronizeHumanBuild } from "../../../../packages/human/build/synchronizeHumanBuild";
 
 /**
  * Complete staged files replace changed bytes before obsolete membership is
@@ -16,9 +14,6 @@ import { loadSourceModule } from "../internal/loadSourceModule";
  * 3. Removal and inventory failures propagate; absent-source rollback clears membership.
  */
 export function test_package_build_file_publication(): void {
-  const synchronize = loadSourceModule<{ synchronizeHumanBuild: typeof Synchronize }>(
-    path.resolve(__dirname, "../../../../packages/human/build/synchronizeHumanBuild.mjs"),
-  ).synchronizeHumanBuild;
   const old = [{ file: "same.js", digest: "equal" }, { file: "changed.js", digest: "old" }, { file: "obsolete.js", digest: "unused" }];
   const next = [{ file: "same.js", digest: "equal" }, { file: "changed.js", digest: "new" }, { file: "added.js", digest: "addition" }];
   for (const scenario of [
@@ -52,7 +47,7 @@ export function test_package_build_file_publication(): void {
       },
     };
     let caught: unknown;
-    try { synchronize(host, scenario.source, "published"); } catch (error) { caught = error; }
+    try { synchronizeHumanBuild(host, scenario.source, "published"); } catch (error) { caught = error; }
     TestValidator.equals("file effect order", observed, scenario.expected);
     TestValidator.predicate("original effect failure", scenario.fail ? caught === failure : caught === undefined);
   }

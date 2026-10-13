@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import type { IHumanBuildHost } from "../../../../packages/human/build/IHumanBuildHost";
-import type { runHumanBuild as RunHumanBuild } from "../../../../packages/human/build/runHumanBuild.mjs";
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { runHumanBuild } from "../../../../packages/human/build/runHumanBuild";
 
 /**
  * A package build publishes both compiled variants together and preserves the
@@ -18,9 +16,6 @@ import { loadSourceModule } from "../internal/loadSourceModule";
  * 4. Backup disposal and stage disposal failures remain observable, including concurrent failures.
  */
 export async function test_package_build_publication(): Promise<void> {
-  const run = loadSourceModule<{ runHumanBuild: typeof RunHumanBuild }>(
-    path.resolve(__dirname, "../../../../packages/human/build/runHumanBuild.mjs"),
-  ).runHumanBuild;
   const scenarios: {
     previous: boolean;
     failures: string[];
@@ -65,7 +60,7 @@ export async function test_package_build_publication(): Promise<void> {
       discardStage: (stage) => useStage(stage, "discard"),
     };
     let failure: unknown;
-    try { await run(host); } catch (error) { failure = error; }
+    try { await runHumanBuild(host); } catch (error) { failure = error; }
     const errors = failure instanceof AggregateError ? failure.errors : failure === undefined ? [] : [failure];
     TestValidator.equals("build effect order", observed, scenario.steps);
     TestValidator.equals("reported build failure count", errors.length, scenario.errors.length);

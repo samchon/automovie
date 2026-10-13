@@ -30,7 +30,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "node build.mjs",
+    "build": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P build/tsconfig.json build/main.ts",
     "prepack": "pnpm run build",
     "evidence": "evidence && pnpm run evidence:guards",
     "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
@@ -43,7 +43,6 @@
     "url": "https://github.com/samchon/automovie"
   },
   "files": [
-    "build.mjs",
     "build",
     "lib",
     "src",
