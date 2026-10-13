@@ -32,8 +32,7 @@
   "scripts": {
     "build": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P build/tsconfig.json build/main.ts",
     "prepack": "pnpm run build",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence"
   },
   "keywords": [],
   "author": "Samchon",

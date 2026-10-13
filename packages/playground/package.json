@@ -18,8 +18,7 @@
     "preview": "vite preview --port 4173 --strictPort",
     "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.cts --",
     "observe:person": "ttsx --no-plugins scripts/observe-connected-person.cts --",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json",
+    "evidence": "evidence",
     "human:viewer": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P src/human/inspection/tsconfig.json src/human/inspection/human-shot.mts",
     "human:viewer:control": "node src/human/inspection/human-viewer-control.mts"
   },

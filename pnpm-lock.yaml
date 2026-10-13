@@ -162,6 +162,9 @@ importers:
 
   config:
     devDependencies:
+      '@ttsc/evidence':
+        specifier: catalog:samchon
+        version: 0.30.4(@ttsc/lint@0.30.4)
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.30.4

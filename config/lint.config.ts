@@ -1,18 +1,13 @@
+import { evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
 /**
- * Shared `@ttsc/lint` configuration for the automovie workspace. Each package's
- * `lint.config.ts` re-exports this default; `ttsc` (and `ttsc --noEmit`)
- * discovers it per package and applies the rules during the type-aware build.
- *
- * Formatting stays owned by prettier (`pnpm run format`), so `format.severity`
- * is `off` here: the block only documents the house style the sort/format would
- * use, it never fails a build. The `rules` are a deliberately
- * **correctness-oriented** set (runtime traps, type-aware bugs, async-error
- * swallowing, misleading regex/security sinks), not a style dragnet: every rule
- * flags a real defect, which is why each is `error`.
+ * Shared correctness and evidence declaration guards, inherited by each
+ * package's lint configuration and checked during its normal type-aware build.
+ * Prettier owns formatting; its settings here do not emit diagnostics.
  */
-const config = {
+const config: ITtscLintConfig = {
+  plugins: { evidence },
   format: {
     // Formatting is prettier's job; keep this aligned but non-blocking.
     severity: "off",
@@ -32,6 +27,13 @@ const config = {
     jsDoc: true,
   },
   rules: {
+    "evidence/documented": [
+      "error",
+      { symbol: ["type", "function", "property"] },
+    ],
+    "evidence/singular": "error",
+    "evidence/todo": "error",
+
     // ESLint core: runtime correctness and low-noise modern JavaScript.
     "default-param-last": "error",
     eqeqeq: "error",

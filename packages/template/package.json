@@ -13,8 +13,7 @@
     "build:instructions": "ttsx --no-plugins build/syncScaffoldInstructions.ts",
     "build": "pnpm run build:versions && pnpm run build:instructions && rimraf lib && ttsc",
     "prepack": "pnpm run build",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence"
   },
   "keywords": [
     "automovie",

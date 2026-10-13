@@ -1,9 +1,12 @@
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-/** General source correctness lint; evidence runs through its own command. */
+import shared from "../../config/lint.config";
+
+/** Shared correctness and evidence declaration guards. */
 export default {
-  extends: "../../config/lint.config.ts",
+  ...shared,
   rules: {
+    ...shared.rules,
     // Dependencies run face -> common <- body, and `human` composes both.
     // `common` imports neither anatomy, the two anatomies never import each
     // other, and neither imports the composition.
