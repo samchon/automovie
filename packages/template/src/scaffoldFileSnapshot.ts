@@ -1,162 +1,90 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { combineScaffoldFailures } from "./combineScaffoldFailures";
 import { publishNativeScaffoldFile } from "./nativeScaffoldPublication";
+import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 import type { ScaffoldFilePublicationOutcome } from "./scaffoldPublication";
 
 /**
- * Closed input passed to a platform adapter for one parent-bound new slot.
+ * One ordinary directory captured by physical identity, so later steps can
+ * prove they still operate on the same directory rather than on whatever its
+ * path names now.
  *
- * The adapter must open the parent without following a link, prove
- * `expectedParentIdentity`, create `childName` relative to that held native
- * handle with exclusive/no-follow semantics, and own descriptor write, sync,
- * readback, one-link and held-parent-relative resident-identity verification,
- * final-status, and close reporting. It must never retry through `parentPath`,
- * reopen through a mutable absolute child pathname, or delete a reported
- * partial slot.
- *
+ * @evidence contracts/common.md#principled-implementation A path can be renamed, replaced, or redirected through a link between two calls, so the capture pairs the lexical path with the device-and-inode identity read from an opened descriptor and with the native real path; a later capture that differs in either value proves the directory changed.
+ * @evidence contracts/common.md#clear-and-simple-design Three strings are the whole state the ownership checks compare, and the record has no methods, so capturing and revalidating stay in the functions that own them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record carries no flag that skips a revalidation or trusts a directory without its identity.
+ * @evidence contracts/common.md#meaningful-documentation The comment states why identity is captured with the path, and each member states its source and the comparison it serves.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record of three strings chooses no algorithm; capture cost belongs to the functions that build it.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is the reused value itself; `ensureScaffoldFileDirectory` decides when a cached one may be reused.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The record holds three strings and no descriptor; the descriptor that produced the identity is closed before the record exists.
  * @author Samchon
  */
-export interface IScaffoldParentPublicationRequest {
-  /** Exact bytes the held descriptor must write and read back. */
-  bytes: readonly number[];
-  /** Single child segment created relative to the held parent handle. */
-  childName: string;
-  /** Physical identity the opened parent handle must prove before creation. */
-  expectedParentIdentity: string;
-  /**
-   * Path used only to acquire the parent handle whose identity is then proved.
-   */
-  parentPath: string;
-}
-
-/**
- * Platform boundary for a parent-handle-relative exclusive file publication.
- *
- * A supported adapter returns `refused` only when it knows no slot was
- * created. Once a descriptor is secured, every failure is `partial`, with the
- * exact bound parent identity and byte count; only verified write/readback,
- * one-link and held-parent-relative resident identity, final status, and close
- * may return `completed`.
- *
- * @author Samchon
- */
-export interface IScaffoldParentPublicationCapability {
-  /**
-   * Execute one native parent-bound publication and return its truthful effect.
-   */
-  publish(
-    request: IScaffoldParentPublicationRequest,
-  ): ScaffoldFilePublicationOutcome;
-}
-
-/** Captured physical identity of one ordinary scaffold directory generation. */
 export interface IScaffoldPhysicalDirectory {
-  /** Device-and-inode identity of the captured directory. */
+  /**
+   * `<device>:<inode>` read through a descriptor opened on the directory,
+   * which on Windows reports the volume serial number that a path-based stat
+   * may report as 0.
+   */
   identity: string;
-  /** Absolute lexical path selected for the directory. */
+
+  /** Absolute lexical path of the directory. */
   path: string;
-  /** Native real path used to reject linked escapes. */
+
+  /**
+   * Native real path, compared against the scaffold root's to refuse a
+   * directory that a link or junction places outside it.
+   */
   real: string;
 }
 
-/** Captured pathname generation that authorizes a later read or replacement. */
-export interface IScaffoldFileSnapshot {
-  /** Physical file identity reported by pathname metadata. */
+/** Captured pathname generation of one existing ordinary single-link file. */
+interface IScaffoldFileSnapshot {
+  /**
+   * `<device>:<inode>` from a pathname stat. It is compared only with other
+   * pathname stats, because a Windows pathname stat and a handle stat can
+   * report different device numbers.
+   */
   identity: string;
+
   /** Absolute pathname whose resident was captured. */
   path: string;
-  /** Size and timestamp generation together with the physical identity. */
+
+  /** `written` plus the change time. */
   version: string;
+
+  /** Identity, size, and modification time: what a writer of the file moves. */
+  written: string;
 }
 
-interface IScaffoldDescriptorFailure {
-  error: unknown;
-}
-
-class ScaffoldDescriptorCleanupError extends AggregateError {}
-
 /**
- * Publish one new scaffold file through an explicit parent-bound capability.
+ * Create or capture the scaffold root directory without following a linked
+ * ancestor into it.
  *
- * This pure boundary closes and freezes the exact parent identity, child
- * segment, and bytes before entering the platform adapter. It accepts a
- * completed or partial result only when the adapter names that same parent
- * generation, and accepts a refusal only with one of the three pre-create
- * reasons. It performs no pathname retry and authorizes no cleanup.
+ * The nearest existing ancestor of `directory` is captured first; each
+ * missing level is then created with a plain `mkdir`, after revalidating the
+ * level above it, and captured as a new, empty, ordinary directory.
  *
- * @author Samchon
- */
-export const publishScaffoldFileToCapturedParent = (props: {
-  bytes: readonly number[];
-  capability: IScaffoldParentPublicationCapability;
-  parent: IScaffoldPhysicalDirectory;
-  target: string;
-}): ScaffoldFilePublicationOutcome => {
-  const target = path.resolve(props.target);
-  if (path.dirname(target) !== props.parent.path)
-    throw new Error(`scaffold file changed declared parent: ${target}`);
-  if (props.parent.identity.length === 0)
-    throw new Error(`scaffold parent omitted physical identity: ${target}`);
-  if (
-    props.bytes.some(
-      (byte) => Number.isSafeInteger(byte) === false || byte < 0 || byte > 0xff,
-    )
-  )
-    throw new Error(`scaffold file contains invalid byte values: ${target}`);
-
-  const request = Object.freeze({
-    bytes: Object.freeze([...props.bytes]),
-    childName: path.basename(target),
-    expectedParentIdentity: props.parent.identity,
-    parentPath: props.parent.path,
-  });
-  const outcome = props.capability.publish(request);
-  if (outcome.status === "refused") {
-    if (
-      outcome.reason !== "create-failed" &&
-      outcome.reason !== "parent-changed" &&
-      outcome.reason !== "target-competitor"
-    )
-      throw new Error(
-        `scaffold parent capability returned an invalid refusal: ${target}`,
-      );
-    return Object.freeze({ ...outcome });
-  }
-  if (outcome.status === "completed") {
-    if (outcome.parentIdentity !== props.parent.identity)
-      throw new Error(
-        `completed scaffold publication changed parent identity: ${target}`,
-      );
-    return Object.freeze({ ...outcome });
-  }
-  if (outcome.status === "partial") {
-    if (
-      outcome.parentIdentity !== props.parent.identity ||
-      Number.isSafeInteger(outcome.bytesWritten) === false ||
-      outcome.bytesWritten < 0 ||
-      outcome.bytesWritten > request.bytes.length
-    )
-      throw new Error(
-        `partial scaffold publication has invalid bound state: ${target}`,
-      );
-    return Object.freeze({ ...outcome });
-  }
-  throw new Error(
-    `scaffold parent capability returned an unknown outcome: ${target}`,
-  );
-};
-
-/**
- * Create or capture one ordinary scaffold base without following a linked
- * parent.
+ * @param directory Root path, resolved against the working directory.
+ * @returns The captured root.
+ * @throws When an existing level is a link or not a directory, when a captured
+ *   level changes during creation, when a level created here is not empty,
+ *   or when an ancestor cannot be read for a reason other than being missing.
+ *
+ * @evidence contracts/common.md#principled-implementation The walk climbs with `path.dirname` until a level exists, which ends at the file-system root, then creates downward with non-recursive `mkdirSync`, so every created level has a captured parent; a level created by someone else between the climb and the `mkdir` makes `mkdir` throw `EEXIST` instead of being adopted.
+ * @evidence contracts/common.md#clear-and-simple-design This function owns only the root and its missing ancestors; descendants of the root belong to `ensureScaffoldFileDirectory`, which checks containment against this capture.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only `ENOENT` and `ENOTDIR` are treated as missing levels; any other capture error propagates, and an unexpected entry in a level created here is refused rather than tolerated.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the climb, the create-and-capture order, every refusal, and how the path is resolved.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the number of path levels, with a constant number of stats, opens, and real-path reads per level; `missing.unshift` is quadratic only in that depth, which is a handful of levels.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call captures the current file-system state that the caller is about to rely on, so an earlier capture is not equivalent; `publishFiles` calls this once per publication.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Every descriptor opened to read an identity is closed inside `physicalDirectoryIdentity` before the capture returns; the function keeps only the list of missing levels for the duration of the call.
  */
 export const ensureScaffoldBaseDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
-  const absolute = path.resolve(directory);
+  const absolute: string = path.resolve(directory);
   const missing: string[] = [];
-  let cursor = absolute;
+  let cursor: string = absolute;
   let ownership: IScaffoldPhysicalDirectory;
   while (true) {
     try {
@@ -165,7 +93,7 @@ export const ensureScaffoldBaseDirectory = (
     } catch (error) {
       if (missingPath(error) === false) throw error;
       missing.unshift(cursor);
-      const parent = path.dirname(cursor);
+      const parent: string = path.dirname(cursor);
       if (parent === cursor) throw error;
       cursor = parent;
     }
@@ -179,15 +107,12 @@ export const ensureScaffoldBaseDirectory = (
   return ownership;
 };
 
-/**
- * Capture one ordinary physical directory without accepting symlinks or
- * junctions.
- */
-export const captureScaffoldPhysicalDirectory = (
+/** Capture one ordinary directory, refusing a symbolic link or junction. */
+const captureScaffoldPhysicalDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
-  const absolute = path.resolve(directory);
-  const status = fs.lstatSync(absolute, { bigint: true });
+  const absolute: string = path.resolve(directory);
+  const status: fs.BigIntStats = fs.lstatSync(absolute, { bigint: true });
   if (status.isSymbolicLink() || status.isDirectory() === false)
     throw new Error(
       `scaffold directory is not one ordinary directory: ${absolute}`,
@@ -202,36 +127,51 @@ export const captureScaffoldPhysicalDirectory = (
 /**
  * Derive a directory's physical identity from an opened descriptor.
  *
- * A path-based stat is not a reliable device source everywhere: Node 22 on
- * Windows reports device 0 for a directory reached by path while `fstat` on
+ * A path-based stat is not a reliable device source everywhere: Node on
+ * Windows can report device 0 for a directory reached by path while `fstat` on
  * the opened directory reports the volume serial, which is also what the
- * native parent handle reports at publication. Deriving the identity from the
- * descriptor keeps the captured identity and the held-handle identity on one
- * basis, and the inode equality check pins the descriptor to the very
- * directory the caller just inspected.
+ * native parent handle reports at publication. The inode equality check pins
+ * the descriptor to the directory the caller just inspected.
  */
 const physicalDirectoryIdentity = (
   absolute: string,
   status: fs.BigIntStats,
 ): string => {
-  const descriptor = fs.openSync(absolute, fs.constants.O_RDONLY);
+  const descriptor: number = fs.openSync(absolute, fs.constants.O_RDONLY);
   try {
-    const opened = fs.fstatSync(descriptor, { bigint: true });
+    const opened: fs.BigIntStats = fs.fstatSync(descriptor, { bigint: true });
     if (opened.isDirectory() === false || opened.ino !== status.ino)
       throw new Error(
         `scaffold directory changed while its identity was captured: ${absolute}`,
       );
-    return physicalIdentity(opened);
+    return scaffoldPhysicalIdentity(opened);
   } finally {
     fs.closeSync(descriptor);
   }
 };
 
-/** Revalidate one captured scaffold directory generation. */
+/**
+ * Require that a captured directory's path still names the same ordinary
+ * directory with the same real path.
+ *
+ * @param ownership The earlier capture.
+ * @throws When the path is now missing, a link, not a directory, or a
+ *   different directory, or when its real path moved.
+ *
+ * @evidence contracts/common.md#principled-implementation Revalidation recaptures the path and compares identity and real path, the two values that change when a directory is replaced or redirected, while a rename of an unrelated sibling leaves both intact.
+ * @evidence contracts/common.md#clear-and-simple-design The check reuses the capture function instead of a second stat routine, so capture and revalidation cannot disagree on what identity means.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A mismatch always throws; there is no tolerance for a changed identity and no retry.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the two compared values and every condition that throws.
+ * @evidence contracts/performance.md#efficient-algorithms One `lstat`, one open with `fstat` and close, and one native real-path read per call, constant in the directory's contents.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function exists to observe the file system again, so a cached answer would remove the check it performs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The descriptor opened by the capture is closed in `finally` before the comparison; nothing is retained after the call.
+ */
 export const assertScaffoldPhysicalDirectory = (
   ownership: IScaffoldPhysicalDirectory,
 ): void => {
-  const current = captureScaffoldPhysicalDirectory(ownership.path);
+  const current: IScaffoldPhysicalDirectory = captureScaffoldPhysicalDirectory(
+    ownership.path,
+  );
   if (
     current.identity !== ownership.identity ||
     current.real !== ownership.real
@@ -239,15 +179,17 @@ export const assertScaffoldPhysicalDirectory = (
     throw new Error(`scaffold directory changed generation: ${ownership.path}`);
 };
 
+/** Capture a directory this module just created and require it to be empty. */
 const captureEmptyScaffoldPhysicalDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
-  const ownership = captureScaffoldPhysicalDirectory(directory);
-  const before = fs.lstatSync(ownership.path, { bigint: true });
+  const ownership: IScaffoldPhysicalDirectory =
+    captureScaffoldPhysicalDirectory(directory);
+  const before: fs.BigIntStats = fs.lstatSync(ownership.path, { bigint: true });
   if (physicalDirectoryIdentity(ownership.path, before) !== ownership.identity)
     throw new Error(`scaffold directory changed generation: ${ownership.path}`);
-  const entries = fs.readdirSync(ownership.path);
-  const after = fs.lstatSync(ownership.path, { bigint: true });
+  const entries: string[] = fs.readdirSync(ownership.path);
+  const after: fs.BigIntStats = fs.lstatSync(ownership.path, { bigint: true });
   if (
     physicalDirectoryIdentity(ownership.path, after) !== ownership.identity ||
     physicalVersion(after) !== physicalVersion(before)
@@ -264,28 +206,51 @@ const captureEmptyScaffoldPhysicalDirectory = (
 };
 
 /**
- * Resolve and retain every physical descendant directory needed by one file.
+ * Resolve, creating where missing, every directory between the captured root
+ * and `directory`, and return the capture of `directory`.
+ *
+ * Each level is checked against the root and the level above it before it is
+ * read, created, or reused. A level created here must be empty. A level whose
+ * real path leaves the root's real path is refused, which catches a junction
+ * or symbolic link at any depth.
+ *
+ * @param props.base Captured scaffold root.
+ * @param props.cache Captures of levels already resolved in this publication,
+ *   keyed by absolute path. The function adds every level it captures; a hit
+ *   is revalidated before use.
+ * @param props.directory Directory to resolve, inside the root.
+ * @returns The capture of `directory`, or `base` when they are the same.
+ * @throws When `directory` is outside the root lexically or physically, or any
+ *   level fails revalidation.
+ *
+ * @evidence contracts/common.md#principled-implementation Containment is decided twice: lexically with `path.relative`, which rejects `..` and absolute results, and physically by comparing native real paths, because a link can make a lexically contained path resolve elsewhere; creation uses non-recursive `mkdirSync` after revalidating the parent so only a captured parent receives a new level.
+ * @evidence contracts/common.md#clear-and-simple-design The function owns descendant levels and their per-publication cache, while the caller owns the cache's lifetime and the root capture.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached level is still revalidated before reuse, and only a missing level is created; any other capture failure propagates.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the per-level checks, the cache's key and ownership, the return for the root itself, and each refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the depth of `directory` below the root, with a constant number of captures per level; a cache hit replaces the capture and creation of a level with one revalidation.
+ * @evidence contracts/performance.md#reuse-equivalent-work A level captured for an earlier file of the same publication is reused from `props.cache` when its absolute path matches, and equivalence is proved by revalidating its identity and real path before use; a changed level throws rather than being recaptured.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns `props.cache`, which grows by one capture per distinct directory in the publication and holds no descriptor; every descriptor opened during capture is closed before the capture returns.
  */
 export const ensureScaffoldFileDirectory = (props: {
   base: IScaffoldPhysicalDirectory;
   cache: Map<string, IScaffoldPhysicalDirectory>;
   directory: string;
 }): IScaffoldPhysicalDirectory => {
-  const absolute = path.resolve(props.directory);
-  const relative = path.relative(props.base.path, absolute);
+  const absolute: string = path.resolve(props.directory);
+  const relative: string = path.relative(props.base.path, absolute);
   if (
     relative === ".." ||
     relative.startsWith(`..${path.sep}`) ||
     path.isAbsolute(relative)
   )
     throw new Error(`scaffold directory escapes its base: ${absolute}`);
-  let current = props.base;
+  let current: IScaffoldPhysicalDirectory = props.base;
   if (relative.length === 0) return current;
   for (const segment of relative.split(path.sep)) {
-    const target = path.join(current.path, segment);
+    const target: string = path.join(current.path, segment);
     assertScaffoldPhysicalDirectory(props.base);
     assertScaffoldPhysicalDirectory(current);
-    let child = props.cache.get(target);
+    let child: IScaffoldPhysicalDirectory | undefined = props.cache.get(target);
     if (child === undefined) {
       try {
         child = captureScaffoldPhysicalDirectory(target);
@@ -310,74 +275,93 @@ export const ensureScaffoldFileDirectory = (props: {
 };
 
 /**
- * Create or explicitly overwrite one exact final file through its bound
- * descriptor.
+ * Write one scaffold file into a captured parent directory and report the
+ * effect.
+ *
+ * A missing file is created through {@link publishNativeScaffoldFile},
+ * relative to a handle on `parent`. With `force`, an existing file is instead
+ * rewritten in place, and only when it is one ordinary file that exactly one
+ * directory entry names: the descriptor that truncates it must stay the file
+ * the pathname names before the truncation, after the write, and after the
+ * final readback. Without `force`, an existing file meets the exclusive
+ * create and is refused as `target-competitor`.
+ *
+ * An in-place rewrite reports `refused` (`create-failed`) for any failure
+ * before truncation and `partial` with the bytes written for any failure
+ * after it. A link to the file created between the descriptor's link-count
+ * check and the truncation is not seen, and the rewrite then reaches it.
+ *
+ * @param props.base Captured scaffold root; `parent` must lie inside it.
+ * @param props.bytes Exact file content.
+ * @param props.force Rewrite an existing file instead of refusing it.
+ * @param props.parent Captured directory that must be `target`'s parent.
+ * @param props.target Path of the file.
+ * @returns The frozen outcome.
+ * @throws Before any write, when `target` is not directly inside `parent`,
+ *   when `base` or `parent` fails revalidation, or, with `force`, when an
+ *   existing `target` is a link, not a file, or has more than one link.
+ *
+ * @evidence contracts/common.md#principled-implementation A new file uses the native exclusive create relative to the parent handle, which cannot follow a link or replace an entry; an existing file is rewritten through `ftruncate` and positioned writes on one descriptor, and every check compares that descriptor's identity, size, and modification time with a fresh pathname capture, leaving the change time out because Windows moves it when this module's own verification opens the file; the link race named in the comment is the unresolved limitation.
+ * @evidence contracts/common.md#clear-and-simple-design This function owns the choice between creating and rewriting and the ownership checks against `base`; the native adapter owns handle-relative creation, and the private rewrite helper owns the descriptor sequence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed rewrite is never cleaned up or retried; it is reported as `refused` or `partial` from whether truncation happened, and a multiply linked file is refused because rewriting its inode would change every other name for it.
+ * @evidence contracts/common.md#meaningful-documentation The comment states both paths, the admission for a rewrite, the refusal without `force`, how failures map to outcomes, the remaining race, each parameter, and what throws before any write.
+ * @evidence contracts/performance.md#efficient-algorithms A create costs what `publishNativeScaffoldFile` costs; a rewrite is one write pass and one readback pass over the file plus a constant number of stats and pathname opens, linear in its size.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call writes one file and re-observes it, which is an effect that must not be shared; directory captures it receives are reused by the caller's cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A rewrite owns its file descriptor and each pathname descriptor opened for a resident check, and closes every one in all paths before returning, combining a close failure with the earlier failure; a create delegates its handles to the native adapter, which closes them.
  */
 export const writeScaffoldFile = (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
-  expected?: IScaffoldFileSnapshot | null;
-  capability?: IScaffoldParentPublicationCapability;
   force: boolean;
   parent: IScaffoldPhysicalDirectory;
   target: string;
 }): ScaffoldFilePublicationOutcome => {
-  const absolute = path.resolve(props.target);
-  if (path.dirname(absolute) !== props.parent.path)
-    throw new Error(`scaffold file changed declared parent: ${absolute}`);
+  const target: string = path.resolve(props.target);
+  if (path.dirname(target) !== props.parent.path)
+    throw new Error(`scaffold file changed declared parent: ${target}`);
   assertScaffoldOwnership(props.base, props.parent);
-  if (props.expected !== undefined && props.expected !== null) {
-    if (!props.force || props.expected.path !== absolute)
-      throw new Error(
-        `scaffold replacement lacks exact captured authority: ${absolute}`,
-      );
-    assertScaffoldFileSnapshot(props.expected);
-    return overwriteScaffoldFile({ ...props, existing: props.expected });
-  }
-  if (props.force && props.expected === undefined) {
+  if (props.force) {
     let existing: IScaffoldFileSnapshot | null;
     try {
-      existing = captureScaffoldFile(absolute);
+      existing = captureScaffoldFile(target);
     } catch (error) {
       if (missingPath(error) === false) throw error;
       existing = null;
     }
-    if (existing !== null) {
-      return overwriteScaffoldFile({ ...props, existing });
-    }
+    if (existing !== null)
+      return overwriteScaffoldFile({
+        base: props.base,
+        bytes: props.bytes,
+        existing,
+        parent: props.parent,
+      });
   }
-  return publishScaffoldFileToCapturedParent({
-    bytes: Array.from(props.bytes),
-    capability: props.capability ?? { publish: publishNativeScaffoldFile },
-    parent: props.parent,
-    target: absolute,
+  return publishNativeScaffoldFile({
+    bytes: props.bytes,
+    childName: path.basename(target),
+    expectedParentIdentity: props.parent.identity,
+    parentPath: props.parent.path,
   });
 };
 
 /**
  * Replace one existing ordinary single-link scaffold file in place.
  *
- * The entry count is read from the descriptor this operation writes through
- * rather than from a pathname stat, so the decision and the write cannot be
- * looking at different files. Rewriting the resident inode is admissible only
- * while exactly one entry names it, because that write is precisely what every
- * other pathname naming it would observe. Another entry causes refusal.
- *
- * A window remains between this stat and the truncation on the in-place branch:
- * a link created inside it is not seen, and the rewrite would then reach the new
- * peer. That window exists today, and this branch neither widens nor narrows it.
+ * The link count is read from the descriptor this operation writes through
+ * rather than from a pathname stat, so the decision and the write look at the
+ * same file. Rewriting the inode is admissible only while exactly one entry
+ * names it, because every other name would observe the write.
  */
 const overwriteScaffoldFile = (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
-  capability?: IScaffoldParentPublicationCapability;
   existing: IScaffoldFileSnapshot;
   parent: IScaffoldPhysicalDirectory;
-  target: string;
 }): ScaffoldFilePublicationOutcome => {
+  const target: string = props.existing.path;
   let descriptor: number;
   try {
-    descriptor = fs.openSync(props.target, "r+");
+    descriptor = fs.openSync(target, "r+");
   } catch (error) {
     return Object.freeze({
       error,
@@ -385,48 +369,47 @@ const overwriteScaffoldFile = (props: {
       status: "refused" as const,
     });
   }
-  const progress = { bytesWritten: 0 };
+  const progress: { bytesWritten: number } = { bytesWritten: 0 };
   let failure: unknown = undefined;
-  let mutated = false;
+  let mutated: boolean = false;
   let completedIdentity: string | undefined;
-  let completedSnapshot: IScaffoldFileSnapshot | null = null;
+  let completedSnapshot: IScaffoldFileSnapshot | undefined;
   try {
-    const opened = fs.fstatSync(descriptor, { bigint: true });
-    assertOrdinarySingleLinkFile(opened, props.target);
+    const opened: fs.BigIntStats = fs.fstatSync(descriptor, { bigint: true });
+    assertOrdinarySingleLinkFile(opened, target);
     assertScaffoldFileDescriptor(
       props.existing,
       descriptor,
-      physicalVersion(opened),
-      assertOrdinarySingleLinkFile,
+      writtenVersion(opened),
     );
     assertScaffoldOwnership(props.base, props.parent);
     fs.ftruncateSync(descriptor, 0);
     mutated = true;
-    writeScaffoldDescriptor(descriptor, props.target, props.bytes, progress);
-    const completed = fs.fstatSync(descriptor, { bigint: true });
-    completedIdentity = physicalIdentity(completed);
+    writeScaffoldDescriptor(descriptor, target, props.bytes, progress);
+    const completed: fs.BigIntStats = fs.fstatSync(descriptor, {
+      bigint: true,
+    });
+    completedIdentity = scaffoldPhysicalIdentity(completed);
     if (completed.size !== BigInt(props.bytes.byteLength))
-      throw new Error(`scaffold file changed final size: ${props.target}`);
+      throw new Error(`scaffold file changed final size: ${target}`);
     assertScaffoldFileDescriptor(
-      captureScaffoldFile(props.target),
+      captureScaffoldFile(target),
       descriptor,
-      physicalVersion(completed),
-      assertOrdinarySingleLinkFile,
+      writtenVersion(completed),
     );
-    assertScaffoldDescriptorBytes(descriptor, props.target, props.bytes);
-    const finalStatus = fs.fstatSync(descriptor, { bigint: true });
+    assertScaffoldDescriptorBytes(descriptor, target, props.bytes);
+    const finalStatus: fs.BigIntStats = fs.fstatSync(descriptor, {
+      bigint: true,
+    });
     if (writtenVersion(finalStatus) !== writtenVersion(completed))
-      throw new Error(
-        `scaffold file changed after final readback: ${props.target}`,
-      );
-    completedSnapshot = captureScaffoldFile(props.target);
+      throw new Error(`scaffold file changed after final readback: ${target}`);
+    const resident: IScaffoldFileSnapshot = captureScaffoldFile(target);
     assertScaffoldFileDescriptor(
-      completedSnapshot,
+      resident,
       descriptor,
-      physicalVersion(finalStatus),
-      assertOrdinarySingleLinkFile,
+      writtenVersion(finalStatus),
     );
-    completedSnapshot = assertOpenedScaffoldFileSnapshot(completedSnapshot);
+    completedSnapshot = assertOpenedScaffoldFileSnapshot(resident);
     assertScaffoldOwnership(props.base, props.parent);
   } catch (error) {
     failure = error;
@@ -437,7 +420,7 @@ const overwriteScaffoldFile = (props: {
     failure = combineScaffoldFailures(
       failure,
       closeError,
-      "overwritten scaffold file",
+      "overwritten scaffold file close",
     );
   }
   if (failure === undefined)
@@ -457,116 +440,92 @@ const overwriteScaffoldFile = (props: {
     ? Object.freeze({
         fileIdentity: completedIdentity!,
         parentIdentity: props.parent.identity,
-        status: "completed",
+        status: "completed" as const,
       })
     : Object.freeze({
         bytesWritten: progress.bytesWritten,
         error: failure,
         parentIdentity: props.parent.identity,
-        status: "partial",
+        status: "partial" as const,
       });
 };
 
-/**
- * Capture one ordinary file before its bytes authorize an operation.
- *
- * Capturing observes a pathname and changes nothing, so it admits a file that
- * more than one directory entry names. The documented script runner mirrors
- * every root-direct file of a generated project into its own cache for the
- * duration of a command, which made a link count here refuse ordinary inputs
- * such as the project's reference-client configuration. A symbolic link stays
- * refused, and the writer that truncates in place keeps its stricter admission.
- */
-export const captureScaffoldFile = (file: string): IScaffoldFileSnapshot =>
-  captureAdmittedScaffoldFile(file, assertOrdinaryScaffoldFile);
-
-/**
- * Capture one ordinary file that exactly one directory entry names.
- *
- * A caller whose own contract refuses an aliased work target uses this instead
- * of {@link captureScaffoldFile}. The repository's experiment launcher is that
- * caller: it promises not to adopt a linked manifest as a work target, and its
- * only enforcement of that promise is the admission it captures through. The
- * relaxed capture exists for a generated project, whose root-direct inputs the
- * documented script runner mirrors while a command runs, and that reason does
- * not transfer to a launcher choosing what to operate on.
- */
-export const captureSingleLinkScaffoldFile = (
-  file: string,
-): IScaffoldFileSnapshot =>
-  captureAdmittedScaffoldFile(file, assertOrdinarySingleLinkFile);
-
-const captureAdmittedScaffoldFile = (
-  file: string,
-  admission: (status: fs.BigIntStats, file: string) => void,
-): IScaffoldFileSnapshot => {
-  const absolute = path.resolve(file);
-  const status = fs.lstatSync(absolute, { bigint: true });
-  admission(status, absolute);
+/** Capture one existing ordinary single-link file through its pathname. */
+const captureScaffoldFile = (file: string): IScaffoldFileSnapshot => {
+  const absolute: string = path.resolve(file);
+  const status: fs.BigIntStats = fs.lstatSync(absolute, { bigint: true });
+  assertOrdinarySingleLinkFile(status, absolute);
   return {
-    identity: physicalIdentity(status),
+    identity: scaffoldPhysicalIdentity(status),
     path: absolute,
     version: physicalVersion(status),
+    written: writtenVersion(status),
   };
 };
 
 /**
- * Verify a held descriptor against its captured pathname generation.
- *
- * The caller supplies the admission because the two callers own different
- * promises: the in-place writer requires the single entry its truncation
- * depends on, while a read requires only an ordinary file.
+ * Verify a held descriptor against its captured pathname generation: the
+ * pathname still names the snapshot's file, the descriptor still shows
+ * `expectedWritten`, and a fresh pathname open shows the same written state.
  */
 const assertScaffoldFileDescriptor = (
   snapshot: IScaffoldFileSnapshot,
   descriptor: number,
-  expectedDescriptorVersion: string,
-  admission: (status: fs.BigIntStats, file: string) => void,
+  expectedWritten: string,
 ): void => {
   assertOpenedScaffoldFileSnapshot(snapshot);
-  const opened = fs.fstatSync(descriptor, { bigint: true });
-  admission(opened, snapshot.path);
-  if (
-    withoutChangeTime(physicalVersion(opened)) !==
-    withoutChangeTime(expectedDescriptorVersion)
-  )
+  const opened: fs.BigIntStats = fs.fstatSync(descriptor, { bigint: true });
+  assertOrdinarySingleLinkFile(opened, snapshot.path);
+  if (writtenVersion(opened) !== expectedWritten)
     throw new Error(
       `scaffold file descriptor changed generation: ${snapshot.path}`,
     );
-  const residentDescriptor = fs.openSync(snapshot.path, "r");
-  let failure: IScaffoldDescriptorFailure | undefined;
+  const residentDescriptor: number = fs.openSync(snapshot.path, "r");
+  let failure: unknown = undefined;
   try {
-    const resident = fs.fstatSync(residentDescriptor, { bigint: true });
-    admission(resident, snapshot.path);
+    const resident: fs.BigIntStats = fs.fstatSync(residentDescriptor, {
+      bigint: true,
+    });
+    assertOrdinarySingleLinkFile(resident, snapshot.path);
     if (writtenVersion(resident) !== writtenVersion(opened))
       throw new Error(
         `scaffold file descriptor changed resident generation: ${snapshot.path}`,
       );
     assertOpenedScaffoldFileSnapshot(snapshot);
   } catch (error) {
-    failure = { error };
-    throw error;
-  } finally {
-    closeScaffoldDescriptor(
-      residentDescriptor,
+    failure = error;
+  }
+  try {
+    fs.closeSync(residentDescriptor);
+  } catch (closeError) {
+    failure = combineScaffoldFailures(
       failure,
-      "resident scaffold file",
+      closeError,
+      "resident scaffold file close",
     );
   }
+  if (failure !== undefined)
+    throw failure instanceof Error
+      ? failure
+      : new Error(`scaffold file verification failed: ${snapshot.path}`, {
+          cause: failure,
+        });
 };
 
-// Only while this operation holds/reopens a descriptor: our own Windows opens
-// can move ctime. Physical identity, size and mtime still cannot change. The
-// public snapshot assertion keeps ctime for later, separately admitted work.
-const withoutChangeTime = (version: string): string =>
-  version.split(":").slice(0, -1).join(":");
+/**
+ * Recapture a snapshot's pathname while this operation holds descriptors on
+ * it and require the same file and written state. The change time is left
+ * out: Windows advances it whenever any handle opens the path, including this
+ * module's own verification opens, while identity, size, and modification time
+ * still move only on a real change.
+ */
 const assertOpenedScaffoldFileSnapshot = (
   snapshot: IScaffoldFileSnapshot,
 ): IScaffoldFileSnapshot => {
-  const current = captureScaffoldFile(snapshot.path);
+  const current: IScaffoldFileSnapshot = captureScaffoldFile(snapshot.path);
   if (
     current.identity !== snapshot.identity ||
-    withoutChangeTime(current.version) !== withoutChangeTime(snapshot.version)
+    current.written !== snapshot.written
   )
     throw new Error(
       `scaffold file changed while its descriptor was open: ${snapshot.path}`,
@@ -574,11 +533,12 @@ const assertOpenedScaffoldFileSnapshot = (
   return current;
 };
 
-/** Refuse a pathname whose physical file or content generation has changed. */
-export const assertScaffoldFileSnapshot = (
-  snapshot: IScaffoldFileSnapshot,
-): void => {
-  const current = captureScaffoldFile(snapshot.path);
+/**
+ * Require the exact captured generation, change time included, after every
+ * descriptor of this operation has closed.
+ */
+const assertScaffoldFileSnapshot = (snapshot: IScaffoldFileSnapshot): void => {
+  const current: IScaffoldFileSnapshot = captureScaffoldFile(snapshot.path);
   if (
     current.identity !== snapshot.identity ||
     current.version !== snapshot.version
@@ -589,100 +549,19 @@ export const assertScaffoldFileSnapshot = (
 };
 
 /**
- * Read the descriptor that proves a captured pathname generation. Descriptor
- * identity is separate because Windows path and handle device ids can differ.
- */
-export const readScaffoldFileSnapshot = (
-  file: string,
-): {
-  snapshot: IScaffoldFileSnapshot;
-  bytes: Buffer;
-  identity: string;
-  version: string;
-} => readAdmittedScaffoldFileSnapshot(file, assertOrdinaryScaffoldFile);
-
-/**
- * Read one ordinary file that exactly one directory entry names.
- *
- * The caller that refuses an aliased work target reads through this instead of
- * {@link readScaffoldFileSnapshot}, so its manifest is refused at admission
- * rather than adopted. Admission is where that promise lives: a second entry
- * appearing after this read leaves the inode identity unchanged, so the
- * generation checks that follow are not the place to look for it.
- */
-export const readSingleLinkScaffoldFileSnapshot = (
-  file: string,
-): {
-  snapshot: IScaffoldFileSnapshot;
-  bytes: Buffer;
-  identity: string;
-  version: string;
-} => readAdmittedScaffoldFileSnapshot(file, assertOrdinarySingleLinkFile);
-
-const readAdmittedScaffoldFileSnapshot = (
-  file: string,
-  admission: (status: fs.BigIntStats, file: string) => void,
-): {
-  snapshot: IScaffoldFileSnapshot;
-  bytes: Buffer;
-  identity: string;
-  version: string;
-} => {
-  const snapshot = captureAdmittedScaffoldFile(file, admission);
-  const descriptor = fs.openSync(snapshot.path, "r");
-  let failure: IScaffoldDescriptorFailure | undefined;
-  let result: {
-    snapshot: IScaffoldFileSnapshot;
-    bytes: Buffer;
-    identity: string;
-    version: string;
-  };
-  try {
-    const opened = fs.fstatSync(descriptor, { bigint: true });
-    const version = physicalVersion(opened);
-    assertScaffoldFileDescriptor(snapshot, descriptor, version, admission);
-    const bytes = fs.readFileSync(descriptor);
-    assertScaffoldFileDescriptor(snapshot, descriptor, version, admission);
-    result = { snapshot, bytes, identity: physicalIdentity(opened), version };
-  } catch (error) {
-    failure = { error };
-    throw error;
-  } finally {
-    closeScaffoldDescriptor(descriptor, failure, "read scaffold file");
-  }
-  // Capture after our final close, not before our own resident reopen.
-  const completed = assertOpenedScaffoldFileSnapshot(snapshot);
-  assertScaffoldFileSnapshot(completed);
-  return { ...result, snapshot: completed };
-};
-
-/**
- * Admission for an operation that only observes: a regular file that is not a
- * symbolic link. It asks nothing about directory entries, because reading bytes
- * cannot change what a second entry naming the same inode shows.
- */
-const assertOrdinaryScaffoldFile = (
-  status: fs.BigIntStats,
-  file: string,
-): void => {
-  if (status.isSymbolicLink() || status.isFile() === false)
-    throw new Error(`scaffold file is not one ordinary file: ${file}`);
-};
-
-/**
- * Admission for the writer that truncates and rewrites the resident inode.
- *
- * Exactly one directory entry is load-bearing here and nowhere else: this write
- * changes the bytes of the inode itself, so every other pathname naming it would
- * observe the change. Anything that replaces the directory entry instead keeps
- * the peer pointed at the old inode and uses the ordinary admission above.
+ * Admission for the in-place rewrite: a regular file, not a symbolic link,
+ * that exactly one directory entry names, because the rewrite changes the
+ * inode every other name would show.
  */
 const assertOrdinarySingleLinkFile = (
   status: fs.BigIntStats,
   file: string,
 ): void => {
-  assertOrdinaryScaffoldFile(status, file);
-  if (status.nlink !== 1n)
+  if (
+    status.isSymbolicLink() ||
+    status.isFile() === false ||
+    status.nlink !== 1n
+  )
     throw new Error(
       `scaffold file is not one ordinary single-link file: ${file}`,
     );
@@ -700,53 +579,40 @@ const assertScaffoldOwnership = (
     );
 };
 
+/** Write `bytes` from offset 0 through `descriptor`, then flush it. */
 const writeScaffoldDescriptor = (
   descriptor: number,
   target: string,
   bytes: Uint8Array,
-  progress?: { bytesWritten: number },
+  progress: { bytesWritten: number },
 ): void => {
-  const source = Buffer.from(bytes);
-  let offset = 0;
-  while (offset < source.length) {
-    const written = fs.writeSync(
+  let offset: number = 0;
+  while (offset < bytes.byteLength) {
+    const written: number = fs.writeSync(
       descriptor,
-      source,
+      bytes,
       offset,
-      source.length - offset,
+      bytes.byteLength - offset,
       offset,
     );
     if (written === 0)
       throw new Error(`scaffold file stopped while written: ${target}`);
     offset += written;
-    if (progress !== undefined) progress.bytesWritten = offset;
+    progress.bytesWritten = offset;
   }
   fs.fsyncSync(descriptor);
-  assertScaffoldDescriptorBytes(descriptor, target, source);
 };
 
-const combineScaffoldFailures = (
-  first: unknown,
-  second: unknown,
-  resource: string,
-): unknown =>
-  first === undefined
-    ? second
-    : new AggregateError(
-        [first, second],
-        `${resource} close failed after publication failure`,
-      );
-
+/** Read the whole file back through `descriptor` and require `bytes` exactly. */
 const assertScaffoldDescriptorBytes = (
   descriptor: number,
   target: string,
   bytes: Uint8Array,
 ): void => {
-  const source = Buffer.from(bytes);
-  const readback = Buffer.alloc(source.length);
-  let offset = 0;
+  const readback: Buffer = Buffer.alloc(bytes.byteLength);
+  let offset: number = 0;
   while (offset < readback.length) {
-    const read = fs.readSync(
+    const read: number = fs.readSync(
       descriptor,
       readback,
       offset,
@@ -757,61 +623,20 @@ const assertScaffoldDescriptorBytes = (
       throw new Error(`scaffold file stopped during readback: ${target}`);
     offset += read;
   }
-  if (readback.equals(source) === false)
+  if (readback.equals(bytes) === false)
     throw new Error(`scaffold file changed during readback: ${target}`);
 };
 
-const closeScaffoldDescriptor = (
-  descriptor: number,
-  failure: IScaffoldDescriptorFailure | undefined,
-  resource: string,
-): void => {
-  try {
-    fs.closeSync(descriptor);
-  } catch (closeFailure) {
-    if (failure === undefined) throw closeFailure;
-    throw new ScaffoldDescriptorCleanupError(
-      [
-        ...(failure.error instanceof ScaffoldDescriptorCleanupError
-          ? failure.error.errors
-          : [failure.error]),
-        closeFailure,
-      ],
-      `Scaffold descriptor cleanup failed after the operation failed: ${resource}.`,
-    );
-  }
-};
-
-const physicalIdentity = (status: fs.BigIntStats): string =>
-  `${status.dev}:${status.ino}`;
-
-const physicalVersion = (status: fs.BigIntStats): string =>
-  `${physicalIdentity(status)}:${status.size}:${status.mtimeNs}:${status.ctimeNs}`;
-
-/**
- * The part of a file's identity a writer owns, for comparing two stats of one
- * held descriptor across this module's own verification reads.
- *
- * `ctimeNs` is absent across this operation's own held-descriptor observations. Windows advances a
- * file's change time when _any_ handle opens the path, including the read-only
- * handle `captureScaffoldFile` takes to verify the write, so the check's own
- * probe moved the value the check then compared: measured 20 of 20 with the
- * probe and 0 of 20 without it, `size` and `mtimeNs` steady throughout. That
- * made every scaffold write on such a machine report tampering, which is a
- * false refusal a virus scanner or an indexer can trigger at will.
- *
- * Nothing is given up. A substituted file no longer shares the descriptor's
- * physical identity, a rewrite changes the size or the modification time, and
- * `assertScaffoldDescriptorBytes` has already read the bytes back through the
- * descriptor that never let go. Every other comparison keeps
- * {@link physicalVersion}, including the directory-ownership checks where a
- * rename's `ctime` move is the signal.
- */
+/** Identity, size, and modification time: the part of a stat a writer moves. */
 const writtenVersion = (status: fs.BigIntStats): string =>
-  `${physicalIdentity(status)}:${status.size}:${status.mtimeNs}`;
+  `${scaffoldPhysicalIdentity(status)}:${status.size}:${status.mtimeNs}`;
+
+/** `writtenVersion` plus the change time, which a rename also moves. */
+const physicalVersion = (status: fs.BigIntStats): string =>
+  `${writtenVersion(status)}:${status.ctimeNs}`;
 
 const inside = (root: string, target: string): boolean => {
-  const relative = path.relative(root, target);
+  const relative: string = path.relative(root, target);
   return (
     relative.length === 0 ||
     (relative !== ".." &&

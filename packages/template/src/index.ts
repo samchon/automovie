@@ -6,6 +6,7 @@ export * from "./scaffoldAssetDirectory";
 export * from "./renderTemplate";
 export * from "./resolveAutoMovieCatalogVersion";
 export { publishNativeScaffoldFile } from "./nativeScaffoldPublication";
+export * from "./IScaffoldParentPublicationRequest";
 export * from "./scaffoldFileSnapshot";
 export * from "./scaffoldPublication";
 export * from "./templateVersions";
