@@ -12,6 +12,7 @@ Before editing, group every known symptom by cause, then trace each cause, and y
 ## Code
 
 - Review every new import and dependency against the [package boundaries](../project/SKILL.md#packages); nothing else enforces them.
+- Annotate the type of every variable and parameter and the return type of every function; leave a type to inference only where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
 - `interface` is pure types with no runtime dependency: plain `string` and `number`, no wrapper aliases or `typia` tags, units and ranges in JSDoc enforced by `engine` validators, and closed `AutoMovie*` unions as the only structural constraint.
 - A source file has at most 500 lines and exports one symbol named after it, barrels excepted. Split by responsibility, never by compressing code or moving logic into data; an existing oversized file is a violation, not a precedent.
 - A public producer lands with its consumer, a README or shipped-skill entry, or `@publicUnconsumed <planned consumer>: <reason>`; test-only reach is not wiring.
@@ -23,7 +24,7 @@ Before editing, group every known symptom by cause, then trace each cause, and y
 
 | Kind | Location |
 | --- | --- |
-| Unit | `test/src/features/<domain>/test_<name>.ts` exporting `test_<name>`, run by `@nestia/e2e`'s `DynamicExecutor` |
+| Unit | `test/src/features/<domain>/test_<name>.ts` declaring `export function test_<name>(): void` or `export async function test_<name>(): Promise<void>`, never an arrow function, run by `@nestia/e2e`'s `DynamicExecutor` |
 | Shared helper | `test/src/features/internal/` |
 
 - A test calls the source with typed in-memory inputs and finishes in under 500 ms. It never installs a generated project, launches a CLI, child process, browser, or GPU host, or reads repository files; a branch reachable only through a whole project belongs to a function not yet separated out.
