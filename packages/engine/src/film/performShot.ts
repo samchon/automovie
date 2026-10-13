@@ -21,6 +21,7 @@ import {
   IAutoMovieShot,
   IAutoMovieShotCoverage,
   IAutoMovieSkeleton,
+  IAutoMovieSubjectBox,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -50,13 +51,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
+import { IAttachJob } from "./IAttachJob";
 import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
 import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
 import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
 import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
@@ -748,10 +749,7 @@ export const performShot = (props: {
   }[] = [];
   // Attach jobs, the parent must be a staged, rigged node carrying the target
   // bone; the child's follow-clip is baked after the parent's pose compiles.
-  const attachments: {
-    action: IAutoMovieActionCall & { verb: "attachTo" };
-    index: number;
-  }[] = [];
+  const attachments: IAttachJob[] = [];
   actions.forEach((action, i) => {
     const actors = actionActors(action);
     if (typeof action.actor === "string")

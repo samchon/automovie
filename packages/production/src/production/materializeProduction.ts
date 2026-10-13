@@ -120,8 +120,8 @@ export const materializeCompiledShot = (props: {
   instanceSetRuntime?: Readonly<Record<string, IAutoMovieCompiledInstanceSet>>;
   modelRecipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
   runtimeModels: ReadonlyMap<string, IAutoMovieModel>;
-  world?: IAutoMovieWorldDesign;
-  fps?: number;
+  world: IAutoMovieWorldDesign;
+  fps: number;
   source: IAutoMovieShotSourceOutput;
   /** Member radius in metres keyed by recipe id, for a formation compiled here. */
   projectionRadii?: ReadonlyMap<string, number>;
@@ -133,7 +133,7 @@ export const materializeCompiledShot = (props: {
   const effects = materializeCompiledEffects({
     contract: props.contract,
     world: props.world,
-    fps: props.fps,
+    fixedStepSeconds: 1 / props.fps,
     cues: source.effectCues ?? [],
   });
   const nodes = new Map(source.scene.nodes.map((node) => [node.id, node]));
@@ -151,7 +151,7 @@ export const materializeCompiledShot = (props: {
         projectionRadii: props.projectionRadii,
         // The terrain a member stands on, so a unit compiled here rather than
         // taken from the shared inventory is the same unit either way.
-        surfaces: props.world?.surfaces,
+        surfaces: props.world.surfaces,
       });
     const runtimeModel = props.runtimeModels.get(formation.modelRecipe);
     if (runtimeModel === undefined) continue;

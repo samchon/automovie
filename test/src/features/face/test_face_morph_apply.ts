@@ -1,4 +1,5 @@
-import { IAutoMovieFaceTemplate, morphFace } from "@automovie/engine";
+import { morphFace } from "@automovie/engine";
+import { IAutoMovieFaceTemplate } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeFace } from "../internal/fixtures";

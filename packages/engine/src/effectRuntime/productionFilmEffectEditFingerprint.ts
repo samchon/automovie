@@ -9,10 +9,22 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 /**
  * Identify the normalized edit state shared by planning and film effects.
  *
- * The digest is SHA-256 over the UTF-8 bytes of the protocol-tagged canonical
- * JSON v2 edit. The engine computes it without a Node built-in, and the bytes
- * and digest equal what the Node builder path produces for the same edit, so a
+ * The digest is SHA-256 over the UTF-8 bytes of the canonical JSON v2 of a
+ * record tagged `automovie.production-render-edit.v2` that carries the
+ * timeline's id, `fps`, `frameRate`, `totalFrames`, segments, omissions and
+ * tracks. Builder provenance (`version`, `builder`, `inputFingerprint`,
+ * `sourceDigest`) is left out, so recompiling an unchanged edit keeps its edit
+ * identity. The engine computes it without a Node built-in, and the bytes and
+ * digest equal what the Node builder path produces for the same edit, so a
  * browser viewer and the render planner compare one identity.
+ *
+ * @evidence contracts/common.md#principled-implementation A content address: canonical JSON orders members by code unit and refuses non-finite numbers and lone surrogates, so equal edits serialize to equal bytes on every runtime and the FIPS 180-4 SHA-256 in `autoMovieRenderDigest` maps them to one digest; an absent `frameRate` is omitted by the canonicalizer, so a legacy integer timeline keeps its prior identity.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the protocol tag and the field selection, and the film-effect writer's caller, the population verifier and the render planner all call it, so no consumer can hash a different subset of the timeline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The digest is recomputed from the timeline on every call rather than read from any persisted field, and the provenance fields are excluded by an explicit allow-list rather than by deleting keys from a copy.
+ * @evidence contracts/common.md#meaningful-documentation States the protocol tag, exactly which timeline fields enter the digest and which are left out and why, the byte encoding and hash, and that the browser and Node paths agree.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the serialized size of the segments, omissions and tracks: one canonicalization pass building the string and one SHA-256 pass over its UTF-8 bytes, with no copy of the timeline beyond the shallow tagged record.
+ * @evidence contracts/performance.md#reuse-equivalent-work Not memoized: the timeline is a plain mutable record with no version token, so a cached digest keyed by object identity could survive an in-place edit; each caller computes it once per operation and passes the result on, as the population verifier and render planner do.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The canonical string and its byte array are released when the call returns; only the 71-character digest string is retained by the caller.
  */
 export const productionFilmEffectEditFingerprint = (
   timeline: IAutoMovieFilmTimeline,

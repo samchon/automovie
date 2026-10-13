@@ -40,7 +40,8 @@ import {
  *    stale.
  * 5. A runtime with an unsupported version, owner, clock or interval, a
  *    non-rational or unreduced rate, a malformed inner effect, a tampered
- *    effect or runtime digest, or an inner clock that disagrees with its frames
+ *    effect or runtime digest, an inner clock that disagrees with its frames,
+ *    or a value canonical JSON cannot encode (a lone surrogate or a NaN bound)
  *    is refused as invalid, while an unchanged reseal is accepted.
  */
 export const test_film_effect_runtime_sampling = (): void => {
@@ -217,6 +218,25 @@ export const test_film_effect_runtime_sampling = (): void => {
     resealFilmEffect(mist, (draft) => {
       draft.effect.fixedStepSeconds = 0.05;
     }),
+    // Canonical JSON refuses these values, so neither can be resealed; the
+    // validator must still classify them under its own refusal code.
+    {
+      ...mist,
+      effect: {
+        ...mist.effect,
+        recipe: { ...mist.effect.recipe, id: "\ud800" },
+      },
+    },
+    {
+      ...mist,
+      effect: {
+        ...mist.effect,
+        bounds: {
+          ...mist.effect.bounds,
+          min: { ...mist.effect.bounds.min, x: Number.NaN },
+        },
+      },
+    },
   ];
   TestValidator.equals(
     "a runtime the builder would not write is refused as invalid",

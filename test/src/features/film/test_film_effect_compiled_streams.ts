@@ -24,16 +24,15 @@ import {
  *
  * Scenarios:
  *
- * 1. Without a world nothing is materialized.
- * 2. Under a shot contract, cues are ordered by code unit, cues on a missing
+ * 1. Under a shot contract, cues are ordered by code unit, cues on a missing
  *    zone or on a zone whose recipe is missing are dropped, an authored event
- *    is carried and an absent one is omitted, the step follows `fps`, and the
- *    seed and digest are the shot stream protocol through `node:crypto`.
- * 3. The emitted bounds, recipe and intensity are copies of the authored data.
- * 4. Under a production and film owner the seed follows the film seed
- *    protocol, an explicit fixed step wins over `fps`, and with neither the
- *    step is one twenty-fourth of a second.
- * 5. The same cue under the shot owner and the film owner receives different
+ *    is carried and an absent one is omitted, the step is the supplied
+ *    `fixedStepSeconds`, and the seed and digest are the shot stream protocol
+ *    through `node:crypto`.
+ * 2. The emitted bounds, recipe and intensity are copies of the authored data.
+ * 3. Under a production and film owner the seed follows the film seed
+ *    protocol and the stream carries the supplied step.
+ * 4. The same cue under the shot owner and the film owner receives different
  *    seeds.
  */
 export const test_film_effect_compiled_streams = (): void => {
@@ -72,13 +71,12 @@ export const test_film_effect_compiled_streams = (): void => {
     },
   ];
 
-  TestValidator.equals(
-    "no world materializes nothing",
-    materializeCompiledEffects({ contract, cues }),
-    [],
-  );
-
-  const shot = materializeCompiledEffects({ world, contract, fps: 30, cues });
+  const shot = materializeCompiledEffects({
+    world,
+    contract,
+    fixedStepSeconds: 1 / 30,
+    cues,
+  });
   TestValidator.equals(
     "shot streams are ordered, filtered, and carry their event",
     shot.map((stream) => ({
@@ -144,12 +142,11 @@ export const test_film_effect_compiled_streams = (): void => {
   const film = materializeCompiledEffects({
     world,
     seedOwner: owner,
-    fps: 30,
     fixedStepSeconds: 0.125,
     cues: [cues[1]!],
   })[0]!;
   TestValidator.equals(
-    "film streams follow the film seed protocol and the explicit step",
+    "film streams follow the film seed protocol and the supplied step",
     [film.seed, film.fixedStepSeconds, film.digest],
     [
       Number.parseInt(
@@ -167,15 +164,8 @@ export const test_film_effect_compiled_streams = (): void => {
     ],
   );
   TestValidator.equals(
-    "the default step is one twenty-fourth and owners separate seeds",
-    [
-      materializeCompiledEffects({
-        world,
-        seedOwner: owner,
-        cues: [cues[1]!],
-      })[0]!.fixedStepSeconds,
-      film.seed === shot[0]!.seed,
-    ],
-    [1 / 24, false],
+    "owners separate seeds",
+    film.seed === shot[0]!.seed,
+    false,
   );
 };

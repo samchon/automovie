@@ -56,6 +56,8 @@ import {
  *    frames, while overlap on different zones is accepted.
  * 9. A film cue overlapping a shot interval on its zone is refused, while shot
  *    intervals that touch or miss it are accepted.
+ * 10. An identity object carrying an extra member persists only the four
+ *     identity fields, so the runtime keys are exactly the format's keys.
  */
 export const test_film_effect_materialization = (): void => {
   const timeline = filmEffectTimeline([
@@ -352,5 +354,33 @@ export const test_film_effect_materialization = (): void => {
       ),
     },
     { overlapping: true, touching: ["accepted", "accepted", "accepted"] },
+  );
+
+  TestValidator.equals(
+    "only the four identity fields reach the persisted runtime",
+    Object.keys(
+      materialize({
+        identity: {
+          ...identity,
+          note: "not an identity field",
+        } as typeof identity,
+      })[0]!,
+    ).sort((left: string, right: string): number =>
+      left < right ? -1 : left > right ? 1 : 0,
+    ),
+    [
+      "clock",
+      "compileFingerprint",
+      "digest",
+      "editFingerprint",
+      "effect",
+      "endFrame",
+      "film",
+      "frameRate",
+      "owner",
+      "production",
+      "startFrame",
+      "version",
+    ],
   );
 };
