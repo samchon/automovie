@@ -158,11 +158,11 @@ export const test_soft_body_curtain_states = (): void => {
     namedFacts([
       [
         "closedSag",
-        () => closed.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1] < -0.9,
+        () => -0.9 > closed.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1],
       ],
       [
         "openSag",
-        () => open.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1] < -0.9,
+        () => -0.9 > open.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1],
       ],
       ["strainReported", () => closed.maxStrain > 0 && closed.maxStrain < 0.1],
     ]),
@@ -200,7 +200,7 @@ export const test_soft_body_curtain_states = (): void => {
         "withoutFloorItDrops",
         () =>
           simulateSoftBody({ ...domain, colliders: [] }, 256).positions.some(
-            (value, index) => index % 3 === 1 && value < -0.9375,
+            (value, index) => index % 3 === 1 && -0.9375 > value,
           ),
       ],
     ]),

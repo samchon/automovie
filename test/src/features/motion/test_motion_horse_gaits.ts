@@ -182,7 +182,7 @@ export const test_motion_horse_gaits = (): void => {
     namedFacts([
       [
         "minimumFlexionHORSE_GAITSRear",
-        () => minimumFlexion(HORSE_GAITS.rear, "leftUpperArm") < -70,
+        () => -70 > minimumFlexion(HORSE_GAITS.rear, "leftUpperArm"),
       ],
       [
         "minimumFlexionHORSE_GAITSRear2",

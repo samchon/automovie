@@ -187,7 +187,7 @@ export const test_perform_react_synthesis = (): void => {
   };
   TestValidator.predicate(
     "a blow from the actor's left leans the head away (toward −X)",
-    headWorldX("leftSource") < -0.01,
+    -0.01 > headWorldX("leftSource"),
   );
   TestValidator.predicate(
     "the mirrored blow from the right leans the head toward +X",
