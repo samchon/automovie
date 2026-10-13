@@ -1,13 +1,15 @@
 /**
  * The two inner faces of a body skin and what limited them.
  *
- * Both faces keep the skin's vertex order and triangles. A vertex is counted
- * as beyond the normal-ray proxy when combined thickness is at least half
- * its positive opposite-sheet travel. This is not true surface reach or a
- * collision proof for unequal opposite offsets. Missing positive travel and
- * orientation failures on both sheets are separate observations. No count
- * repairs the output or certifies global embedding or clinical thickness.
+ * Both faces keep the skin's vertex order and triangles. A vertex is counted as beyond the normal-ray proxy when combined thickness is at least half its positive opposite-sheet travel. This is not true surface reach or a collision proof for unequal opposite offsets. Missing positive travel and orientation failures on both sheets are separate observations. No count repairs the output or certifies global embedding or clinical thickness.
  *
+ * @evidence contracts/common.md#principled-implementation Shared vertex order/triangles produce dermal/fascial offsets with separate half-positive-ray-travel and orientation observations, retaining native witness ordinals.
+ * @evidence contracts/common.md#clear-and-simple-design Coordinates, counts, worst proxy location and qualification group the two derived faces under one evaluated skin owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Normal-ray ratios certify neither true reach nor unequal-offset collision safety, and no failed count repairs geometry.
+ * @evidence contracts/common.md#meaningful-documentation Members explain metre offsets, missing-positive-travel state, null worst ratio, both sheet inversions and witness identity.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Layer surface output typing computes no normals, offsets or ray intersections.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared output ordering describes correspondence without repeated construction memoization.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Derived coordinate/ordinal arrays belong to construction and the type owns no ray-caster lifetime.
  * @author Samchon
  */
 export interface IHumanBodyLayerSurfaces {

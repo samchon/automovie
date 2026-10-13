@@ -6,84 +6,33 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/
 import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./IAutoMovieHumanBodyAnatomicalAssembly";
 import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
+import type { IAutoMovieHumanBodySourcePartSurface } from "./IAutoMovieHumanBodySourcePartSurface";
+import type { IAutoMovieHumanBodySourceShapeField } from "./IAutoMovieHumanBodySourceShapeField";
+import type { IAutoMovieHumanBodySourceSurfaceShapeField } from "./IAutoMovieHumanBodySourceSurfaceShapeField";
 import type { IHumanBodySourceQuantityReading } from "./IHumanBodySourceQuantityReading";
 import type { IHumanBodySourceShapeResult } from "./IHumanBodySourceShapeResult";
 import { assertHumanBodySourceSurfaceShapeField } from "./assertHumanBodySourceSurfaceShapeField";
 import { createHumanBodySourceResidentMesh } from "./createHumanBodySourceResidentMesh";
+import { humanBodySourceVolumePolynomial } from "./humanBodySourceVolumePolynomial";
 import { readHumanBodySourceBoundaryVolume } from "./readHumanBodySourceBoundaryVolume";
 
-/** Exact cubic coefficients of one linear source field's tetrahedral volume; topology is admitted separately. */
-function volumePolynomial(
-  mesh: IAutoMovieMesh,
-  delta: readonly number[],
-): [number, number, number, number] {
-  const indices = mesh.indices!;
-  const origin = indices[0];
-  const determinant = (
-    a: readonly number[],
-    b: readonly number[],
-    c: readonly number[],
-  ): number =>
-    a[0] * (b[1] * c[2] - b[2] * c[1]) +
-    a[1] * (b[2] * c[0] - b[0] * c[2]) +
-    a[2] * (b[0] * c[1] - b[1] * c[0]);
-  const coefficients: [number, number, number, number] = [0, 0, 0, 0];
-  const corrections = [0, 0, 0, 0];
-  for (let at = 0; at < indices.length; at += 3) {
-    const vertices = indices.slice(at, at + 3);
-    const [a, b, c] = vertices.map((vertex) =>
-      [0, 1, 2].map(
-        (axis) =>
-          mesh.positions[3 * vertex + axis] - mesh.positions[3 * origin + axis],
-      ),
-    );
-    const [da, db, dc] = vertices.map((vertex) =>
-      [0, 1, 2].map(
-        (axis) => delta[3 * vertex + axis] - delta[3 * origin + axis],
-      ),
-    );
-    const terms = [
-      determinant(a, b, c),
-      determinant(da, b, c) + determinant(a, db, c) + determinant(a, b, dc),
-      determinant(da, db, c) + determinant(da, b, dc) + determinant(a, db, dc),
-      determinant(da, db, dc),
-    ];
-    for (let degree = 0; degree < 4; degree++) {
-      const adjusted = terms[degree] / 6 - corrections[degree],
-        next = coefficients[degree] + adjusted;
-      corrections[degree] = next - coefficients[degree] - adjusted;
-      coefficients[degree] = next;
-    }
-  }
-  if (!coefficients.every(Number.isFinite))
-    throw new Error("Source boundary-volume polynomial is not finite.");
-  return coefficients;
-}
+type SourceFieldMember = {
+  surface: IAutoMovieHumanBodySourcePartSurface;
+  delta: IAutoMovieHumanBodySourceSurfaceShapeField;
+};
 
 /**
- * Solve registered anatomical volume targets on actual source-owned fields.
- * Paths address the existing anatomical record directly; no tissue catalogue
- * or personal mesh is introduced. A producer's supported coefficient domain,
- * actual closed compartment members and held source attachment vertices are
- * required. Anatomical observations remain owned raw acquisition records and
- * are never promoted to target geometry. Their comparison remains unavailable
- * without separately registered acquisition correspondence.
+ * Solve registered anatomical volume targets on actual source-owned fields. Paths address the existing anatomical record directly; no tissue catalogue or personal mesh is introduced. A producer's supported coefficient domain, actual closed compartment members and held source attachment vertices are required. Anatomical observations remain owned raw acquisition records and are never promoted to target geometry. Their comparison remains unavailable without separately registered acquisition correspondence.
  *
- * Each bound field is a one-dimensional source freedom. Its tetrahedral volume
- * is an exact cubic in the linear source coefficient. The derivative quadratic
- * proves monotonicity over the complete producer interval before bisection,
- * avoiding dozens of cloned mesh/topology passes. The consumer then
- * rereads the achieved Float64 metric and separately the Float32 source
- * boundary volume. Conversion guards keep every resident face; the reported
- * Float32 value preserves its actual rounding difference from the target.
- * Multiple independent fields
- * on one part are not accepted until their coupled source solve is registered;
- * several requests on the same field must agree on the achieved coefficient.
- * Source rig/site/skin updates belong to a source profile extension, not a
- * silent relaxation of the existing assembly's exact shape registration.
- * Original source arrays, rights, compiled digests and bindings remain intact;
- * returned shape meshes are owned and consumed before the same rig poses them.
+ * Each bound field is a one-dimensional source freedom. Its tetrahedral volume is an exact cubic in the linear source coefficient. The derivative quadratic proves monotonicity over the complete producer interval before bisection, avoiding dozens of cloned mesh/topology passes. The consumer then rereads the achieved Float64 metric and separately the Float32 source boundary volume. Conversion guards keep every resident face; the reported Float32 value preserves its actual rounding difference from the target. Multiple independent fields on one part are not accepted until their coupled source solve is registered; several requests on the same field must agree on the achieved coefficient. Source rig/site/skin updates belong to a source profile extension, not a silent relaxation of the existing assembly's exact shape registration. Original source arrays, rights, compiled digests and bindings remain intact; returned shape meshes are owned and consumed before the same rig poses them.
  *
+ * @evidence contracts/common.md#principled-implementation Linear fields yield cubic boundary volume; derivative endpoints/extremum admit monotonicity before bounded bisection, then actual Float64/Float32 geometry is reread.
+ * @evidence contracts/common.md#clear-and-simple-design Target/compartment admission stays here; field admission, polynomial expansion, integration and export precision use shared owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Observations remain raw and unshaped; unsupported multi-boundary/coupled targets refuse, and Float32 rounding never rewrites caller targets.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives mL targets, producer domains, monotonicity, same-field conflicts, clinical limits and owned derivative meshes.
+ * @evidence contracts/performance.md#efficient-algorithms Per-binding vertex/triangle passes dominate at most eighty scalar cubic evaluations; coefficient reuse removes topology rebuilds during bisection, with actual final metric scans.
+ * @evidence contracts/performance.md#reuse-equivalent-work Four coefficients serve derivative/search evaluation; separate bindings are re-admitted and observers remain effectful, without cross-call source caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Partial maps/readings/meshes die on refusal; returned derivatives are owned, and observer exceptions propagate without rolling back prior effects.
  * @author Samchon
  */
 export function dataSourceShapes(
@@ -94,13 +43,13 @@ export function dataSourceShapes(
     path: string,
   ) => void,
 ): IHumanBodySourceShapeResult {
-  const meshes = new Map<
+  const meshes: Map<IAutoMovieHumanBodySourcePart["id"], ReadonlyMap<string, IAutoMovieMesh>> = new Map<
     IAutoMovieHumanBodySourcePart["id"],
     ReadonlyMap<string, IAutoMovieMesh>
   >();
   const readings: IHumanBodySourceQuantityReading[] = [];
   if (anatomy === undefined) return { meshes, readings };
-  const record = (
+  const record: (path: string) => IAutoMovieHumanBodyAnatomicalVolume | undefined = (
     path: string,
   ): IAutoMovieHumanBodyAnatomicalVolume | undefined => {
     if (
@@ -108,7 +57,7 @@ export function dataSourceShapes(
       path
         .split(".")
         .some(
-          (key) =>
+          (key: string): boolean =>
             key === "" ||
             ["__proto__", "prototype", "constructor"].includes(key),
         )
@@ -145,9 +94,9 @@ export function dataSourceShapes(
     // The existing anatomical admission owns the observed acquisition schema.
     return node as IAutoMovieHumanBodyAnatomicalVolume;
   };
-  const paths = new Set<string>();
+  const paths: Set<string> = new Set<string>();
   for (const part of assembly.parts) {
-    const owned = new Map<string, IAutoMovieMesh>();
+    const owned: Map<string, IAutoMovieMesh> = new Map<string, IAutoMovieMesh>();
     let solvedField: string | undefined;
     let solvedCoefficient: number | undefined;
     for (const binding of part.quantityBindings ?? []) {
@@ -157,7 +106,7 @@ export function dataSourceShapes(
             binding.path,
         );
       paths.add(binding.path);
-      const input = record(binding.path);
+      const input: IAutoMovieHumanBodyAnatomicalVolume | undefined = record(binding.path);
       if (input === undefined) continue;
       if (
         binding.sourceProtocol.trim() === "" ||
@@ -186,8 +135,8 @@ export function dataSourceShapes(
           "Source compartment needs registered union/cavity membership before a multi-boundary volume target can be solved: " +
             binding.path,
         );
-      const field = part.shapeFields?.find(
-        (candidate) => candidate.id === binding.field,
+      const field: IAutoMovieHumanBodySourceShapeField | undefined = part.shapeFields?.find(
+        (candidate: IAutoMovieHumanBodySourceShapeField): boolean => candidate.id === binding.field,
       );
       if (
         field === undefined ||
@@ -208,12 +157,12 @@ export function dataSourceShapes(
           "Source part needs a registered coupled solve for independent quantity fields: " +
             part.id,
         );
-      const selected = binding.members.map((member) => {
-        const surface = part.surfaces.find(
-          (candidate) => candidate.id === member,
+      const selected: SourceFieldMember[] = binding.members.map((member: string): SourceFieldMember => {
+        const surface: IAutoMovieHumanBodySourcePartSurface | undefined = part.surfaces.find(
+          (candidate: IAutoMovieHumanBodySourcePartSurface): boolean => candidate.id === member,
         );
-        const delta = field.surfaces.find(
-          (candidate) => candidate.member === member,
+        const delta: IAutoMovieHumanBodySourceSurfaceShapeField | undefined = field.surfaces.find(
+          (candidate: IAutoMovieHumanBodySourceSurfaceShapeField): boolean => candidate.member === member,
         );
         if (surface === undefined || delta === undefined)
           throw new Error(
@@ -229,24 +178,24 @@ export function dataSourceShapes(
         return { surface, delta };
       });
       if (
-        new Set(field.surfaces.map((member) => member.member)).size !==
+        new Set(field.surfaces.map((member: IAutoMovieHumanBodySourceSurfaceShapeField): string => member.member)).size !==
           field.surfaces.length ||
         field.surfaces.some(
-          (member) => !binding.members.includes(member.member),
+          (member: IAutoMovieHumanBodySourceSurfaceShapeField): boolean => !binding.members.includes(member.member),
         )
       )
         throw new Error(
           "Source volume field must declare every affected member in its compartment scope: " +
             binding.path,
         );
-      const shape = (coefficient: number): Map<string, IAutoMovieMesh> =>
+      const shape: (coefficient: number) => Map<string, IAutoMovieMesh> = (coefficient: number): Map<string, IAutoMovieMesh> =>
         new Map(
-          selected.map(({ surface, delta }) => [
+          selected.map(({ surface, delta }: SourceFieldMember): [string, IAutoMovieMesh] => [
             surface.id,
             {
               ...structuredClone(surface.mesh),
               positions: surface.mesh.positions.map(
-                (value, at) => value + coefficient * delta.displacements[at],
+                (value: number, at: number): number => value + coefficient * delta.displacements[at],
               ),
             },
           ]),
@@ -254,23 +203,23 @@ export function dataSourceShapes(
       const polynomial: [number, number, number, number] = [0, 0, 0, 0];
       for (const { surface, delta } of selected) {
         readHumanBodySourceBoundaryVolume(surface.mesh);
-        const coefficients = volumePolynomial(
+        const coefficients: [number, number, number, number] = humanBodySourceVolumePolynomial(
           surface.mesh,
           delta.displacements,
         );
-        for (let degree = 0; degree < 4; degree++)
+        for (let degree: number = 0; degree < 4; degree++)
           polynomial[degree] += coefficients[degree];
       }
-      const volume = (coefficient: number): number =>
+      const volume: (coefficient: number) => number = (coefficient: number): number =>
         ((polynomial[3] * coefficient + polynomial[2]) * coefficient +
           polynomial[1]) *
           coefficient +
         polynomial[0];
-      let low = field.minimumCoefficient,
-        high = field.maximumCoefficient;
-      const lowVolume = volume(low),
-        highVolume = volume(high),
-        target = input.millilitres * 1e-6;
+      let low: number = field.minimumCoefficient;
+      let high: number = field.maximumCoefficient;
+      const lowVolume: number = volume(low);
+      const highVolume: number = volume(high);
+      const target: number = input.millilitres * 1e-6;
       if (
         ![lowVolume, highVolume, target].every(Number.isFinite) ||
         lowVolume <= 0 ||
@@ -283,13 +232,13 @@ export function dataSourceShapes(
           "Anatomical volume target is outside the actual source field's boundary-volume reach: " +
             binding.path,
         );
-      const increasing = highVolume > lowVolume;
-      const derivative = (coefficient: number): number =>
+      const increasing: boolean = highVolume > lowVolume;
+      const derivative: (coefficient: number) => number = (coefficient: number): number =>
         (3 * polynomial[3] * coefficient + 2 * polynomial[2]) * coefficient +
         polynomial[1];
-      const critical =
+      const critical: number | undefined =
         polynomial[3] === 0 ? undefined : -polynomial[2] / (3 * polynomial[3]);
-      const derivativeSamples = [
+      const derivativeSamples: number[] = [
         derivative(low),
         derivative(high),
         ...(critical !== undefined && critical > low && critical < high
@@ -298,7 +247,7 @@ export function dataSourceShapes(
       ];
       if (
         derivativeSamples.some(
-          (value) =>
+          (value: number): boolean =>
             !Number.isFinite(value) || (increasing ? value <= 0 : value >= 0),
         )
       )
@@ -306,21 +255,21 @@ export function dataSourceShapes(
           "Source boundary-volume field is not strictly monotone throughout its supported interval: " +
             binding.path,
         );
-      for (let step = 0; step < 80; step++) {
-        const middle = low / 2 + high / 2;
+      for (let step: number = 0; step < 80; step++) {
+        const middle: number = low / 2 + high / 2;
         if (middle === low || middle === high) break;
-        const measured = volume(middle);
+        const measured: number = volume(middle);
         if (measured < target === increasing) low = middle;
         else high = middle;
       }
-      const coefficient = low / 2 + high / 2;
-      const result = shape(coefficient);
-      let measured = 0;
-      let measuredFloat32 = 0;
+      const coefficient: number = low / 2 + high / 2;
+      const result: Map<string, IAutoMovieMesh> = shape(coefficient);
+      let measured: number = 0;
+      let measuredFloat32: number = 0;
       for (const [member, mesh] of result) {
         mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
-        const resident = createHumanBodySourceResidentMesh(mesh).mesh;
-        const float32 = float32MeshBuffers(
+        const resident: IAutoMovieMesh = createHumanBodySourceResidentMesh(mesh).mesh;
+        const float32: ReturnType<typeof float32MeshBuffers> = float32MeshBuffers(
           resident,
           "source-volume:" + binding.path + "/" + member,
         );
@@ -332,11 +281,11 @@ export function dataSourceShapes(
         });
         owned.set(member, mesh);
       }
-      const arithmeticBound =
+      const arithmeticBound: number =
         Number.EPSILON *
         Math.max(target, measured) *
         selected.reduce(
-          (sum, entry) => sum + entry.surface.mesh.indices!.length,
+          (sum: number, entry: SourceFieldMember): number => sum + entry.surface.mesh.indices!.length,
           0,
         );
       if (Math.abs(measured - target) > arithmeticBound)

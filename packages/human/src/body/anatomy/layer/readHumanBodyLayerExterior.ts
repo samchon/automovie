@@ -1,4 +1,5 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
+import type { IAutoMovieMeshPhysicalSource, IAutoMovieMeshPhysicalVertices } from "@automovie/interface";
 
 import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 import type { IHumanBodyLayerExteriorInput } from "./IHumanBodyLayerExteriorInput";
@@ -6,14 +7,15 @@ import type { IHumanBodyLayerExteriorInput } from "./IHumanBodyLayerExteriorInpu
 /**
  * Recover one query exterior from the skin parts' actual physical samples.
  *
- * UV and material duplicates read one canonical sample. Every occurrence must
- * have the identical performed coordinates: this stricter requirement is
- * appropriate for a person assembled from one source sample value, and no
- * coordinate average alters that value. All native body samples must occur.
- * The returned mesh and origin map are owned; source meshes remain untouched.
- * The anatomical assembly compiler consumes this final exterior for its
- * whole-person layer normal and ray domain. This only recovers geometry and incidence. Triangle topology, embedding and
- * the inward-ray interpretation remain the consuming owners' responsibilities.
+ * UV and material duplicates read one canonical sample. Every occurrence must have the identical performed coordinates: this stricter requirement is appropriate for a person assembled from one source sample value, and no coordinate average alters that value. All native body samples must occur. The returned mesh and origin map are owned; source meshes remain untouched. The anatomical assembly compiler consumes this final exterior for its whole-person layer normal and ray domain. This only recovers geometry and incidence. Triangle topology, embedding and the inward-ray interpretation remain the consuming owners' responsibilities.
+ *
+ * @evidence contracts/common.md#principled-implementation Physical domain/sample identity merges only exact performed aliases, preserving first sample coordinates and mapping every required native origin into one common-frame indexed exterior.
+ * @evidence contracts/common.md#clear-and-simple-design The reader owns canonical geometry/incidence recovery while caller selection/frame and downstream topology/embedding remain separate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Disagreeing aliases or missing native samples refuse; no coordinate average or proximity weld manufactures source correspondence.
+ * @evidence contracts/common.md#meaningful-documentation The prose states identity-based recovery, exact alias equality, owned outputs and unproved topology/embedding interpretation.
+ * @evidence contracts/performance.md#efficient-algorithms For V input vertices, T indices and S native samples, source validation/canonical maps scan O(V+T+S) with output and ordinal storage proportional to actual populations.
+ * @evidence contracts/performance.md#reuse-equivalent-work One physical-ID slot map serves all skin parts and requested origins, while shared physical-source resolution uses the existing engine owner.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned exterior arrays/origin map are owned; per-input ordinal maps are temporary and source meshes remain untouched.
  */
 export function readHumanBodyLayerExterior(
   input: IHumanBodyLayerExteriorInput,
@@ -22,17 +24,17 @@ export function readHumanBodyLayerExterior(
     input.domain.trim().length === 0 ||
     input.meshes.length === 0 ||
     input.samples.length === 0 ||
-    input.samples.some((sample) => !Number.isSafeInteger(sample) || sample < 0)
+    input.samples.some((sample: number): boolean => !Number.isSafeInteger(sample) || sample < 0)
   )
     throw new Error(
       "Layer exterior needs actual skin meshes, one physical domain and native body sample IDs.",
     );
-  const slots = new Map<number, number>();
+  const slots: Map<number, number> = new Map<number, number>();
   const positions: number[] = [];
   const indices: number[] = [];
   for (const mesh of input.meshes) {
     resolveAutoMovieMeshPhysicalVertices(mesh);
-    const physical = mesh.physicalVertices;
+    const physical: IAutoMovieMeshPhysicalVertices | undefined = mesh.physicalVertices;
     if (
       physical === undefined ||
       mesh.indices === null ||
@@ -42,21 +44,21 @@ export function readHumanBodyLayerExterior(
       throw new Error(
         "Layer exterior needs indexed skin parts with actual physical registration.",
       );
-    const vertices = physical.vertices.map((reference, vertex) => {
-      const source =
+    const vertices: number[] = physical.vertices.map((reference: number | null, vertex: number): number => {
+      const source: IAutoMovieMeshPhysicalSource | undefined =
         reference === null ? undefined : physical.sources[reference];
       if (source === undefined || source.domain !== input.domain)
         throw new Error(
           "Layer exterior skin samples must belong to the selected physical domain.",
         );
-      let slot = slots.get(source.id);
+      let slot: number | undefined = slots.get(source.id);
       if (slot === undefined) {
         slot = positions.length / 3;
         slots.set(source.id, slot);
         positions.push(...mesh.positions.slice(vertex * 3, vertex * 3 + 3));
       } else if (
         [0, 1, 2].some(
-          (axis) =>
+          (axis: number): boolean =>
             positions[slot! * 3 + axis] !== mesh.positions[vertex * 3 + axis],
         )
       )
@@ -77,8 +79,8 @@ export function readHumanBodyLayerExterior(
       indices.push(vertices[vertex]);
     }
   }
-  const originVertices = input.samples.map((sample) => {
-    const slot = slots.get(sample);
+  const originVertices: number[] = input.samples.map((sample: number): number => {
+    const slot: number | undefined = slots.get(sample);
     if (slot === undefined)
       throw new Error(
         "Layer exterior omits native body sample " + sample + ".",

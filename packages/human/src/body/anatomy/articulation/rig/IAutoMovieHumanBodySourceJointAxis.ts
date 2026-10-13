@@ -4,7 +4,18 @@ import type { AutoMovieHumanBodySourceAxis } from "./AutoMovieHumanBodySourceAxi
 import type { AutoMovieHumanBodySourceDriver } from "./AutoMovieHumanBodySourceDriver";
 import type { IAutoMovieHumanBodySourceMotionKnot } from "./IAutoMovieHumanBodySourceMotionKnot";
 
-/** One ordered source joint coordinate with its own direction, admission and driver. */
+/**
+ * One ordered source joint coordinate with its own direction, admission and driver.
+ *
+ * @evidence contracts/common.md#principled-implementation A named coordinate pairs rotation or translation with a unit direction, optional local pivot, supported interval and sole registered driver.
+ * @evidence contracts/common.md#clear-and-simple-design One axis record owns motion representation, bounds and profile provenance so ordered joints consume the same coordinate definition.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source account and qualification distinguish supported authored intervals from clinical validation; profile omission does not invent extrapolated motion.
+ * @evidence contracts/common.md#meaningful-documentation Comments specify degrees versus metres, joint-local frame, origin omission, neutral, inclusive range and piecewise profile coverage.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Axis data describes mapping and admission requirements while profile readers choose the interpolation strategy.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A profile array is source input rather than an owned cache of evaluated driver coordinates.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Direction, pivot and knot references create no live articulation or resource-release duty in the type declaration.
+ * @author Samchon
+ */
 export interface IAutoMovieHumanBodySourceJointAxis {
   /** Named physiological/source motion coordinate on this anatomical bone. */
   id: AutoMovieHumanBodySourceAxis;

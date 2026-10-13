@@ -16,12 +16,15 @@ type ToeBoneId<Side extends AutoMovieHumanBodySide> =
 /**
  * Closed skeletal identity for a generated body bone, never a vertex label.
  *
- * Midline bones occur once, paired bones carry the person's anatomical side,
- * and thumb/hallux IDs cannot name a nonexistent middle phalanx. Repeated
- * digits can share generator code while owning separate generated solids.
- * The cranial skeleton retains its constituent bones instead of one skull
- * owner; the mandible and hyoid remain separate from that fixed assembly.
+ * Midline bones occur once, paired bones carry the person's anatomical side, and thumb/hallux IDs cannot name a nonexistent middle phalanx. Repeated digits can share generator code while owning separate generated solids. The cranial skeleton retains its constituent bones instead of one skull owner; the mandible and hyoid remain separate from that fixed assembly.
  *
+ * @evidence contracts/common.md#principled-implementation Closed midline/paired/template-literal families name supported source bones, with normal thumb/hallux families excluding nonexistent middle phalanges.
+ * @evidence contracts/common.md#clear-and-simple-design Repeated digits share naming structure while each anatomical bone retains independent generated-part ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Bone identity is never a vertex label, and cranial constituents are not collapsed into an anonymous skull owner.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes side/midline ownership, digit families and separate mandible/hyoid identity.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Skeletal name unions construct no bone geometry or kinematic transform algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Template-literal identity reuse is compile-time naming rather than cached anatomy generation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Closed bone labels allocate no skeletal graph or retained mesh population.
  * @author Samchon
  */
 export type AutoMovieHumanBodyBoneId =

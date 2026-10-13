@@ -12,6 +12,13 @@
  * - `geometry-not-validated`: no generator with held-out surface validation exists for the part.
  * - `contact-not-validated`: the part's contact with its neighbours is not validated.
  *
+ * @evidence contracts/common.md#principled-implementation A closed vocabulary separates missing quantities/representation, acquisition registration, observed domain, posture and geometry/contact validation failures.
+ * @evidence contracts/common.md#clear-and-simple-design All anatomical owners share explicit causes instead of resolved-looking placeholder parts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable geometry/acquisitions remain named failures without population means or substituted body surfaces.
+ * @evidence contracts/common.md#meaningful-documentation The bullet list defines each cause, including extrapolation and independent geometry/contact validity.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Failure literals classify reports without running acquisition or surface validation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reason vocabulary stores no completed generation or shared retry state.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Failure labels allocate no missing-part geometry or retained validation task.
  * @author Samchon
  */
 export type AutoMovieHumanBodyAnatomicalUnavailableReason =
