@@ -20,6 +20,13 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * are not orthogonalized: two non-perpendicular axes give a parallelogram grid.
  * A grid may hold at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` cells.
  *
+ * @evidence contracts/common.md#principled-implementation A parametric grid `origin + u * axisU + v * axisV` sampled at cell centres, with the measured face fixed by the right-handed cross product of the normalized axes, so a 1x1 grid measures the middle and the face is a declaration, not an inference.
+ * @evidence contracts/common.md#clear-and-simple-design Origin, two axes, two sizes and two counts describe any planar grid, horizontal, tilted or vertical, with no separate shape per orientation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The measured face is never chosen by which answer is brighter, and non-perpendicular axes give a parallelogram rather than being silently orthogonalized.
+ * @evidence contracts/common.md#meaningful-documentation States the cell-centre sampling, the measured face rule and how swapping axes flips it, normalization without orthogonalization, the metre unit, the count and size ranges, and the sample cap.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the grid is walked once in `analyzeAutoMovieDaylight`, whose cost per cell is answered there.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sky directions shared across the grid are built by the analyzer, not this type, and no grid point is cached across studies.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three vectors and four numbers owned by the request; the cells it describes are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisWorkplane {

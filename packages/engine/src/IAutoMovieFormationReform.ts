@@ -14,6 +14,13 @@ import { IAutoMovieFormationDesign } from "@automovie/interface";
  * at 1, and later cues that declare no layout carry it unchanged, so a unit
  * stays re-formed until another cue names a layout.
  *
+ * @evidence contracts/common.md#principled-implementation Pairs the cue's target layout with the cue's own eased progress, and `formationSlotPosition` blends the designed and target slot points by it in the unit's local frame before heading and terrain apply.
+ * @evidence contracts/common.md#clear-and-simple-design Kept beside the sampled motion state rather than inside the cue's `from` and `to` states, because a re-form belongs to the cue while both ends describe one unit in two places.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Holding progress at 1 after the cue is the sampler's documented retention rule so a re-formed unit does not snap back, not a correction aimed at any consumer.
+ * @evidence contracts/common.md#meaningful-documentation States why the reform sits beside the state, that progress follows the author's easing between 0 and 1, and that it is held at 1 and carried by later layout-free cues.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Two fields with no behavior; blending costs one extra local slot evaluation per member inside `formationSlotPosition`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Rebuilt each time motion is sampled, and the record carries no identity a later sample could reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the cue's layout object and holds one number; the cue list owns that layout.
  * @author Samchon
  */
 export interface IAutoMovieFormationReform {

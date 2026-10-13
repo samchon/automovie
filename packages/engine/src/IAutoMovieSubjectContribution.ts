@@ -43,10 +43,17 @@ import type {
  * rather than into per-member nodes.
  *
  * `mergeAutoMovieSubjectContributions` concatenates each field across subjects
- * in the order given and drops empty arrays. It walks its own hand-written list
- * of these field names, so a field added here must also be added there or the
- * merge silently leaves it out.
+ * in the order given and drops empty arrays. Its field list is typed as a
+ * complete record of these keys, so a field added here fails to compile until
+ * the merge names it too.
  *
+ * @evidence contracts/common.md#principled-implementation A partial record of optional arrays forms a monoid under per-field concatenation, which is what lets any number of subjects merge in a stable order into one shot without knowing about each other.
+ * @evidence contracts/common.md#clear-and-simple-design One flat optional field per kind of shot content, each typed by the interface record the builder already validates, so the shot reads a merged contribution with no subject-specific adapter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The merge's field list is a `Record` over this interface's keys, so a new field cannot be silently dropped; no subject kind gets a field of its own and duplicates pass through to the builder's checks.
+ * @evidence contracts/common.md#meaningful-documentation States why each subject returns only its own part, why every field is optional, how a formation contributes compact cues, how the merge concatenates and drops empties, and what each field carries.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; merging costs one pass over every contributed element, answered on `mergeAutoMovieSubjectContributions`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A contribution is produced per render call for one shot context and no operation on this type keys or shares it across shots.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Read-only arrays owned by the subject that returned them; their size is whatever the subject authored, with no bound of its own, and the merge copies element references out.
  * @author Samchon
  */
 export interface IAutoMovieSubjectContribution {
