@@ -6,12 +6,18 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 
-/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
-const unitPlane = (plane: {
+/** A half-space `dot(normal, point) <= offset`. */
+interface IPlane {
+  /** Outward normal; unit length once read through {@link unitPlane}. */
   normal: IAutoMovieVector3;
+
+  /** Offset along the normal, scaled with it. */
   offset: number;
-}): { normal: IAutoMovieVector3; offset: number } | null => {
-  const length = Vector3.length(plane.normal);
+}
+
+/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
+const unitPlane = (plane: IPlane): IPlane | null => {
+  const length: number = Vector3.length(plane.normal);
   if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
   return {
     normal: Vector3.scale(plane.normal, 1 / length),
@@ -30,28 +36,39 @@ const unitPlane = (plane: {
  * for a half-space that closes nothing.
  *
  * Planes are normalized first, a plane whose normal is shorter than
- * `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, and corners closer than that
- * tolerance are merged. Points are world-space and unordered.
+ * `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, a triple whose normals'
+ * determinant is within that tolerance of zero yields no point, a point
+ * outside any plane by more than it is dropped, and corners closer than it are
+ * merged. Points are world-space in metres, in the order their first plane
+ * triple was found.
+ *
+ * @evidence contracts/common.md#principled-implementation Solves each plane triple by Cramer's rule in its cross-product form, `(b×c·d₁ + c×a·d₂ + a×b·d₃) / a·(b×c)`, and keeps the point only when every half-space admits it; normalizing first makes the determinant and the admission test comparable to one metre-scaled tolerance, and near-parallel triples are skipped rather than divided by a tiny determinant.
+ * @evidence contracts/common.md#clear-and-simple-design One vertex enumeration that the observation stations and the space volume bounds read, returning bare points so each caller decides whether it needs a centroid, bounds or hull.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no cell or space; an unbounded or empty cell answers fewer or no points by the same rules rather than an invented box, and the tolerance is the shared observation constant.
+ * @evidence contracts/common.md#meaningful-documentation States why cells are solved, the triple and admission rules, every tolerance use, the unbounded case, and the frame, unit and order of the points.
+ * @evidence contracts/performance.md#efficient-algorithms Cubic in the plane count for the triples, each tested against every plane and every kept vertex, so quartic in the worst case; cells state a handful of planes, where this brute force is cheaper than building a dual hull.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one cell that coordinates no work across calls; a caller reading one cell repeatedly owns any reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned points, at most one per plane triple.
  */
 export const builtConvexCellVertices = (
   cell: IAutoMovieConvexSpaceCell,
 ): IAutoMovieVector3[] => {
-  const planes = cell.planes
-    .map(unitPlane)
-    .filter((plane): plane is { normal: IAutoMovieVector3; offset: number } =>
-      Boolean(plane),
-    );
+  const planes: IPlane[] = [];
+  for (const plane of cell.planes) {
+    const unit: IPlane | null = unitPlane(plane);
+    if (unit !== null) planes.push(unit);
+  }
   const vertices: IAutoMovieVector3[] = [];
-  for (let i = 0; i < planes.length; i++)
-    for (let j = i + 1; j < planes.length; j++)
-      for (let k = j + 1; k < planes.length; k++) {
-        const a = planes[i]!;
-        const b = planes[j]!;
-        const c = planes[k]!;
-        const bc = Vector3.cross(b.normal, c.normal);
-        const determinant = Vector3.dot(a.normal, bc);
+  for (let i: number = 0; i < planes.length; i++)
+    for (let j: number = i + 1; j < planes.length; j++)
+      for (let k: number = j + 1; k < planes.length; k++) {
+        const a: IPlane = planes[i]!;
+        const b: IPlane = planes[j]!;
+        const c: IPlane = planes[k]!;
+        const bc: IAutoMovieVector3 = Vector3.cross(b.normal, c.normal);
+        const determinant: number = Vector3.dot(a.normal, bc);
         if (Math.abs(determinant) <= AUTOMOVIE_OBSERVATION_EPSILON) continue;
-        const point = Vector3.scale(
+        const point: IAutoMovieVector3 = Vector3.scale(
           Vector3.add(
             Vector3.add(
               Vector3.scale(bc, a.offset),
@@ -63,7 +80,7 @@ export const builtConvexCellVertices = (
         );
         if (
           planes.some(
-            (plane) =>
+            (plane: IPlane): boolean =>
               Vector3.dot(plane.normal, point) >
               plane.offset + AUTOMOVIE_OBSERVATION_EPSILON,
           )
@@ -71,7 +88,7 @@ export const builtConvexCellVertices = (
           continue;
         if (
           vertices.some(
-            (known) =>
+            (known: IAutoMovieVector3): boolean =>
               Vector3.length(Vector3.subtract(known, point)) <=
               AUTOMOVIE_OBSERVATION_EPSILON,
           )
