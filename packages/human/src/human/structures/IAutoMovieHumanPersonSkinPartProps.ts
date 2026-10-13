@@ -1,9 +1,15 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
- * Inputs of `placeHumanPersonSkinPart`: one skin render part of a partition,
- * the evaluated skin it takes positions and normals from, and the source
- * domains its correspondence moves between.
+ * Inputs of `placeHumanPersonSkinPart`: one skin render part of a partition, the evaluated skin it takes positions and normals from, and the source domains its correspondence moves between.
+ *
+ * @evidence contracts/common.md#principled-implementation Render vertices address partition skin sources while the normal offset selects that partition in the one shared field; domain conversion preserves physical source identities.
+ * @evidence contracts/common.md#clear-and-simple-design One placement operand record groups geometry, source correspondence and physical-domain names needed to scatter final positions and normals.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit sources and domain names replace positional vertex matching or fixture-specific seam welding.
+ * @evidence contracts/common.md#meaningful-documentation Documentation distinguishes render order, skin-source order, normal offset in vertices and origin versus person physical domains.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The render-part scattering correspondence and field references are a type-level representation; their runtime producer owns traversal and allocation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work No request coordinator is implemented by the render-part scattering correspondence and field references; equivalence and invalidation belong to consuming operations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Declaring render-part scattering correspondence and field references acquires no handles or running tasks; the object owner controls ordinary data lifetime.
  *
  * @author Samchon
  */
