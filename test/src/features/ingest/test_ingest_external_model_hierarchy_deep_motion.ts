@@ -4,7 +4,7 @@ import {
   createExternalModelHierarchyChain,
   inspectExternalModelHierarchyFixture,
 } from "../internal/externalModelHierarchyFixture";
-import { throwsError } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * Motion normalization consumes the common forest's parent map without a
@@ -14,7 +14,8 @@ import { throwsError } from "../internal/predicates";
  *
  * 1. A 16,384-node chain returns the source parent of its animated first node
  *    and null for its final root, preserving the complete inventory.
- * 2. One closing edge is refused as a parent cycle before motion is normalized.
+ * 2. The resident two-key rotation remains attached to its original first node,
+ *    with exact channel arity and its authored unit-quaternion values.
  */
 export const test_ingest_external_model_hierarchy_deep_motion = (): void => {
   const fixture = createExternalModelHierarchyChain(16_384);
@@ -37,13 +38,22 @@ export const test_ingest_external_model_hierarchy_deep_motion = (): void => {
     inspected.motion?.nodes[16_383]?.parent,
     null,
   );
-  fixture.document.nodes[0]!.children = [16_383];
-  fixture.document.scenes = undefined;
+  const take = inspected.motion!.takes[0]!;
+  const track = take.tracks[0]!;
+  TestValidator.equals("deep motion keeps the authored two-key rotation channel", {
+    takes: inspected.motion!.takes.length,
+    tracks: take.tracks.length,
+    channel: track.channel,
+    times: track.times.length,
+    values: track.values.length,
+  }, {
+    takes: 1, tracks: 1,
+    channel: { kind: "node", node: "node_0", path: "rotation" },
+    times: 2, values: 8,
+  });
   TestValidator.predicate(
-    "deep motion cycle retains its cause",
-    throwsError(
-      () => inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
-      "nodes[0] belongs to a parent cycle.",
-    ),
+    "deep motion preserves the resident zero/one times and identity rotations",
+    nclose(track.times[0]!, 0, 1e-12) && nclose(track.times[1]!, 1, 1e-12) &&
+      track.values.every((value, index) => nclose(value, index % 4 === 3 ? 1 : 0, 1e-12)),
   );
 };

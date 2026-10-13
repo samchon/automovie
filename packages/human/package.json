@@ -27,10 +27,11 @@
       "browser": "./lib/browser/human/*.js",
       "default": "./src/human/*.ts"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./assets/*": "./assets/*"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && ttsc --module esnext --moduleResolution bundler --outDir lib/browser",
+    "build": "node build.mjs",
     "prepack": "pnpm run build",
     "evidence": "evidence && pnpm run evidence:guards",
     "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
@@ -43,8 +44,11 @@
     "url": "https://github.com/samchon/automovie"
   },
   "files": [
+    "build.mjs",
+    "build",
     "lib",
     "src",
+    "assets",
     "package.json",
     "LICENSE",
     "README.md"
@@ -79,7 +83,8 @@
         "browser": "./lib/browser/human/*.js",
         "default": "./lib/human/*.js"
       },
-      "./package.json": "./package.json"
+      "./package.json": "./package.json",
+      "./assets/*": "./assets/*"
     }
   },
   "devDependencies": {

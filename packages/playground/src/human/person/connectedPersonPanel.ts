@@ -5,6 +5,7 @@ import type {
 } from "@automovie/human";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 
@@ -16,11 +17,13 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
 import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
 import { createConnectedPersonSession } from "./createConnectedPersonSession";
+import { createConnectedPersonHistoryBuild } from "./createConnectedPersonHistoryBuild";
 import { describeConnectedPersonAdmission } from "./describeConnectedPersonAdmission";
 import { describeConnectedPersonStatus } from "./describeConnectedPersonStatus";
 import { exportConnectedPersonAsset } from "./exportConnectedPersonAsset";
 import { mountConnectedPersonAdmissionReport } from "./mountConnectedPersonAdmissionReport";
 import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
+import { mountConnectedPersonHistoryControls } from "./mountConnectedPersonHistoryControls";
 import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
 
 /**
@@ -68,7 +71,11 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Routes simple values read on the current person's rest skin through the same shape transaction, keeping its current pose.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The person editor offers no underwear selection.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The person editor exports a whole-person file, not the body file this unit defines.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The panel evaluates no face endpoint; the person builder replays the head view.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Sends the complete face subtree and its head-view basis identity through the whole-person worker transaction, retaining the displayed pair when its original builder refuses.
+ * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements This whole-person editing screen consumes facial authoring; it does not own the domain's independent face extraction, static exchange or person-specific review.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps The person screen offers no surface-map generation option and its worker builds without an ambient-occlusion request.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-provenance The panel loads a numerical person document and selects no representative photo or photographic provenance record.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-review This editor's construction report and displayed state establish neither a reference-photo inventory nor an independent likeness review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-export The person editor exports a whole-person file, not the face file this unit defines.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The person panel owns its editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no body basis evaluation.
@@ -76,7 +83,10 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Sends projection and expansion to the resident measurement worker with the complete current-person document and retains refusals.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The person editor evaluates no underwear region.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The person editor serializes no body file.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis The panel compiles no face basis; the person generation does.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Uses the published head view in the shared person transaction, leaving endpoint evaluation and its refusal to the resident generation builder.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications This panel owns the whole-person editing transaction, not the facial domain's basis preparation, face-file exchange and independent review system.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance No photo source record is created or resolved by this numerical person editing transaction.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Accepted history and construction admission are editor state, not the independent source, capture-completeness and likeness judgments this review record defines.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Reuses per-eye linear pigment controls through the whole-person transaction and keeps iris omission as the source texture.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre The person editor offers no fibre-card pigment or density control.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion The person editor bakes no ambient occlusion.
@@ -107,31 +117,24 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     | undefined;
   // the document the controls edit: the displayed person's, or the standard one before any is displayed
   let working = structuredClone(props.initial);
-  let handoff: Model | undefined;
   let framed = false;
   let measured: string | undefined;
   const reason = (error: unknown): string =>
     error instanceof Error ? error.message : String(error);
   // the history's builder: a model just constructed for this edit, or a fresh
   // construction that must still be accepted when a history entry is restored
-  const accept = async (
-    document: IAutoMovieHumanPersonDocument,
-  ): Promise<Model> => {
-    const prepared = handoff;
-    handoff = undefined;
-    if (prepared !== undefined) return prepared;
-    const result = await viewport.construct(document);
-    if (!result.admission.accepted) {
-      viewport.dispose(result.model);
+  const historyBuild = createConnectedPersonHistoryBuild({
+    viewport, admissions,
+  });
+  const settle = async (): Promise<void> => {
+    try {
+      await viewport.settleRetirements();
+    } catch (cause) {
       throw new Error(
-        "This history entry is no longer accepted: " +
-          result.admission.failures
-            .map((failure) => failure.owner + ": " + failure.cause)
-            .join("; "),
+        "Resource cleanup failed; the displayed person is retained: " + reason(cause),
+        { cause },
       );
     }
-    admissions.set(result.model, result.admission);
-    return result.model;
   };
   const show = (): void => {
     const state = session.snapshot();
@@ -223,7 +226,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     try {
       const result = await viewport.construct(next);
       if (!intents.isCurrent(ticket)) {
-        viewport.dispose(result.model);
+        await createAutoMovieResourceRetirement([
+          () => viewport.dispose(result.model),
+          () => settle(),
+        ])();
         return false;
       }
       admissions.set(result.model, result.admission);
@@ -239,7 +245,7 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
           const initialEditor = createHumanFaceEditor({
             document: next,
             model: result.model,
-            build: accept,
+            build: historyBuild.build,
             dispose: (model) => viewport.dispose(model),
             publish: (model) => {
               viewport.publish(model);
@@ -250,14 +256,18 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
           editor = initialEditor;
           session.settle(null);
         } else {
-          handoff = result.model;
+          historyBuild.handoff(result.model);
           const success = await editor.edit(next);
-          if (!intents.isCurrent(ticket)) return false;
+          if (!intents.isCurrent(ticket)) {
+            await settle();
+            return false;
+          }
           if (!success) {
             const error = editor.snapshot().error;
             if (error !== null) session.refuse(error);
             else session.rest();
             refresh();
+            await settle();
             return false;
           }
         }
@@ -265,6 +275,7 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       if (!framed) viewport.fitView();
       framed = true;
       refresh();
+      await settle();
       return true;
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
@@ -323,41 +334,11 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
-  for (const action of ["undo", "redo", "reset"] as const)
-    element("person-" + action).onclick = async () => {
-      const history = editor;
-      if (history === undefined) return;
-      const ticket = withdraw();
-      busy("Restoring the selected person…");
-      const success = await history[action]();
-      if (!intents.isCurrent(ticket)) return;
-      const restored = history.snapshot();
-      if (!success) {
-        if (restored.error !== null) session.refuse(restored.error);
-        else session.rest();
-      }
-      refresh();
-    };
-  // Leaving a draft rebuilds the committed document/model pair without an
-  // undo entry, because the draft replaced its resident frame.
-  element("person-discard").onclick = async () => {
-    const history = editor;
-    if (history === undefined || session.snapshot().draft === null) return;
-    const ticket = withdraw();
-    busy("Returning to the accepted person…");
-    try {
-      const success = await history.restore();
-      if (!intents.isCurrent(ticket)) return;
-      const restored = history.snapshot();
-      if (!success) {
-        if (restored.error !== null) session.refuse(restored.error);
-        else session.rest();
-      }
-      refresh();
-    } catch (error) {
-      if (intents.isCurrent(ticket)) refuse(error);
-    }
-  };
+  mountConnectedPersonHistoryControls({
+    app, history: () => editor, session, withdraw,
+    isCurrent: intents.isCurrent, busy, refresh, refuse,
+    settleRetirements: settle,
+  });
   renderBodyPosePresets({
     dom,
     container: element("pose-presets"),
@@ -427,7 +408,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       const crossings = posed.crossings ?? null;
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
       const ground = bodyGroundReading(posed.groundSupport);
-      viewport.dispose(posed);
+      await createAutoMovieResourceRetirement([
+        () => viewport.dispose(posed),
+        () => settle(),
+      ])();
       if (!intents.isCurrent(ticket)) return;
       if (crossings === null)
         session.refuse("This build does not supply a crossing reading.");
@@ -471,6 +455,7 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     ready,
     snapshot: () => editor?.snapshot(),
     session: () => session.snapshot(),
+    load: (text: string) => applyText(text),
     change: (document: IAutoMovieHumanPersonDocument) => change(document),
   };
 }

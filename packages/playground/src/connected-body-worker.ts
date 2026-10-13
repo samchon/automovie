@@ -10,7 +10,7 @@
 import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
 import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { createConnectedBodyGenerationRuntime } from "./human/body/createConnectedBodyGenerationRuntime";
+import { createConnectedBodyGenerationRuntime } from "@automovie/human/human/runtime/createConnectedBodyGenerationRuntime";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";

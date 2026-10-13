@@ -1,13 +1,18 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
 /** The anatomical editors are separate application surfaces; every other new module remains a prototype carrier. */
-const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
+const prototypeSources = [
+  "src/**/*.ts",
+  "src/**/*.mts",
+  "!src/human/**/*.ts",
+  "!src/human/**/*.mts",
+];
 /**
  * The body editor's own adapters, which answer for the body contract and not
  * the face's: every module under `src/human/body`. Derived by folder so a new
  * body adapter answers for the body contract from the moment it exists.
  */
-const bodySources = ["src/human/body/**/*.ts"];
+const bodySources = ["src/human/body/**/*.ts", "src/human/body/**/*.mts"];
 /**
  * The person editor and the body-reach helpers it shares with the body editor.
  * A person is the one-skin assembly of a face and a body, and the product
@@ -15,9 +20,15 @@ const bodySources = ["src/human/body/**/*.ts"];
  * documents, so these sources answer for both families. The person folder is
  * derived by folder; the shared reach helpers are named because they live in
  * the common folder beside face-only helpers.
+ * The shared viewer editor binding contributes the original validated document
+ * loader and view reflection to the face, body and person application owners.
  */
 const personSources = [
   "src/human/person/**/*.ts",
+  "src/human/person/**/*.mts",
+  "src/human/inspection/**/*.ts",
+  "src/human/inspection/**/*.mts",
+  "src/human/examples/*People.ts",
   "src/human/common/connectedBodyReach.ts",
   "src/human/common/IConnectedBodyReach.ts",
   "src/human/common/annotateConnectedBodyReach.ts",
@@ -31,10 +42,13 @@ const personSources = [
   "src/human/common/renderConnectedBodyHeldMotions.ts",
   "src/human/common/readConnectedBodyAnatomyTarget.ts",
   "src/human/common/writeConnectedBodyAnatomyTarget.ts",
+  "src/viewer/registerPlaygroundEditor.ts",
 ];
 const faceSources = [
   "src/human/**/*.ts",
+  "src/human/**/*.mts",
   "!src/human/body/**/*.ts",
+  "!src/human/body/**/*.mts",
   ...personSources.map((pattern) => "!" + pattern),
 ];
 const authoring = (layer: "requirements" | "specifications") => {
@@ -70,9 +84,15 @@ const authoring = (layer: "requirements" | "specifications") => {
 /**
  * The private playground still carries a real deterministic-prototype contract.
  *
- * Every source module is selected. The film demonstration pays the executable
+ * Every public source carrier is selected. The film demonstration pays the executable
  * prototype units this application actually renders and explicitly declines
  * the downstream-fidelity units that remain outside a local viewer demo.
+ * Each TypeScript population ends by excluding dependency and runtime files
+ * under node_modules, including caches nested beneath application sources.
+ * The two process entries do not publish library contracts: viewer/page.ts
+ * installs the browser Window binding, and human/inspection/vite.config.mts
+ * supplies the default Vite configuration to createHumanViewerViteServer.
+ * Both remain included in ordinary TypeScript and native documentation checks.
  *
  * Native evidence lint evaluates the two declared relationships. Self-Review
  * follows the repository evidence-graph skill to compare each changed public
@@ -83,23 +103,80 @@ const authoring = (layer: "requirements" | "specifications") => {
 const graph: IEvidenceConfig = {
   claims: [
     {
+      name: "viewer application bindings and authored film examples answer common implementation principles",
+      type: "typescript",
+      files: [
+        "src/viewer/**/*.ts",
+        "src/viewer/**/*.mts",
+        "src/film/**/*.ts",
+        "src/film/**/*.mts",
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
+      symbol: ["type", "function"],
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/common.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
+      name: "inspection application answers common implementation principles",
+      type: "typescript",
+      files: [
+        "src/human/inspection/**/*.ts",
+        "src/human/inspection/**/*.mts",
+        "src/human/examples/**/*.ts",
+        "src/human/examples/**/*.mts",
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
+      symbol: ["type", "function"],
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/common.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
       name: "person application implements face and body editor requirements",
       type: "typescript",
-      files: personSources,
+      files: [
+        ...personSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: authoring("requirements"),
     },
     {
       name: "person application implements face and body editor specifications",
       type: "typescript",
-      files: personSources,
+      files: [
+        ...personSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: authoring("specifications"),
     },
     {
       name: "face application implements anatomical editor requirements",
       type: "typescript",
-      files: faceSources,
+      files: [
+        ...faceSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -122,7 +199,12 @@ const graph: IEvidenceConfig = {
     {
       name: "face application implements anatomical editor specifications",
       type: "typescript",
-      files: faceSources,
+      files: [
+        ...faceSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -147,7 +229,12 @@ const graph: IEvidenceConfig = {
     {
       name: "body application implements body editor requirements",
       type: "typescript",
-      files: bodySources,
+      files: [
+        ...bodySources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -170,7 +257,12 @@ const graph: IEvidenceConfig = {
     {
       name: "body application implements body editor specifications",
       type: "typescript",
-      files: bodySources,
+      files: [
+        ...bodySources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: [
         {
@@ -195,7 +287,12 @@ const graph: IEvidenceConfig = {
     {
       name: "playground demonstrations realize prototype requirements",
       type: "typescript",
-      files: prototypeSources,
+      files: [
+        ...prototypeSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: {
         type: "markdown",
@@ -207,7 +304,12 @@ const graph: IEvidenceConfig = {
     {
       name: "playground demonstrations realize prototype specifications",
       type: "typescript",
-      files: prototypeSources,
+      files: [
+        ...prototypeSources,
+        "!src/viewer/page.ts",
+        "!src/human/inspection/vite.config.mts",
+        "!**/node_modules/**",
+      ],
       symbol: ["type", "function", "property"],
       reference: {
         type: "markdown",

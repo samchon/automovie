@@ -18,9 +18,13 @@ Start, center 또는 end alignment, duration, sample positions와 curve evaluati
 
 ### Overlap Composition {#editorial-overlap-composition}
 
+Beauty fade and dissolve combine independently captured display-byte pictures with their sampled complementary weights. A fade combines one picture with opaque black. Structural classifications and geometric guide fields select the dominant source, with incoming winning an equal-weight tie, and never interpolate beauty colors or geometric labels.
+
 Overlap 동안 어느 source가 활성화되고 picture alpha, matte, audio gain과 metadata가 어떻게 결합되는지 관찰할 수 있어야 한다. 세 개 이상의 source가 겹치면 pairwise transition의 적용 순서와 stack order가 하나의 결과를 결정해야 한다.
 
 ### Boundary Samples {#editorial-transition-boundary-samples}
+
+The full source contribution reproduces its direct display picture, zero fade contribution is opaque black, and an identical-source dissolve retains the same picture for every admitted weight. Byte outputs use nearest-integer rounding of the weighted result, independently of seek direction or previous samples.
 
 Transition 시작 직전, 시작, 종료 직전과 종료 sample에서 incoming과 outgoing 기여의 포함 규칙을 명시해야 한다. Zero-duration transition은 cut과 동일하게 처리하거나 거절해야 하며 별도의 모호한 상태를 만들면 안 된다.
 

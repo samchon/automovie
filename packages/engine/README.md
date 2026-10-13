@@ -1,8 +1,12 @@
 # `@automovie/engine`
 
-Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieEngineEvidenceExclusions.ts` retains actor and asset boundaries. `lint.config.ts` selects these declarations from the complete source population. Each exclusion records an intentional package boundary; implementation evidence remains on the actual computation or validation export. These declarations contain no runtime gate or rendering logic.
+Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/AutoMovieEngineEvidenceExclusions.ts` retains actor and asset boundaries. `evidence.config.ts` selects these declarations from the complete source population. Each exclusion records an intentional package boundary; implementation evidence remains on the actual computation or validation export. These declarations contain no runtime gate or rendering logic.
 
 `polygonIsSimple` exposes the shared metre-space planar self-intersection predicate. Facial fold admission uses it for transverse tissue curves, closed by an auxiliary edge below the curve. A simple section does not certify collision-free three-dimensional skin after attachment and subdivision.
+
+`measureAutoMovieRenderTextureClosure` bounds uncompressed GPU texels from capture-host upload facts. Matching Source and upload state share raw storage; sampler, color decoding and fixed upload flags can split it. Environment output follows Texture identity, and PMREM scratch, PBR lookup and active film display copies are charged once per context owner. `IAutoMovieRenderTextureResident` and `IAutoMovieRenderTextureResidency` describe other live shots and retained context resources; they are capture facts, never authored material byte estimates. `autoMovieRenderTextureDigest` seals upload facts and stable sharing groups without random object tokens. Invalid, unsupported or unsafe combined storage remains an absent bound for preflight refusal.
+
+`IAutoMovieRenderTextureTarget` and `measureAutoMovieRenderTextureTarget` bound independently allocated framebuffer attachments: resolved color mip levels, multisampled color and depth, and actual custom depth textures. The capture host supplies actual target facts or the Viewer-owned native transmission factory profile. Image Source sharing does not merge framebuffer objects. A transmissive material whose live scope lacks target facts remains unbounded, and removing the material leaves retained target storage present until its owning context releases it.
 
 ## Deterministic film grammar
 
@@ -183,7 +187,7 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 - `validateMotion`/`validatePose`/`clampPose` + ROM: 결정론적 오라클. 무엇을 만들든 물리 진실은 엔진이 심판한다.
 - `sampleMotion`/`sampleClip`: 재생 계약. 저작한 클립을 프레임으로 샘플링한다.
 
-[`@automovie/production`](../production)은 이 엔진의 두 번째 저작 API가 아니다. generated project가 자기 스크립트로 돌리는 결정론적 실행 계층(컴파일러, 추적되는 프로젝트 저장소, 캡쳐, 검사, 렌더 잡)일 뿐이다. 저작 하니스는 `npx create-automovie <dir> --language korean`으로 만든다. 언어는 `chinese`, `english`, `japanese`, `korean` 중 하나를 명시한다. 생성된 `AGENTS.md`를 따라 저작 선행 조건을 갖추면 generated project의 compile/lint/render/verify 명령이 같은 엔진을 호출한다.
+[`@automovie/production`](../production)은 이 엔진의 두 번째 저작 API가 아니다. generated project가 자기 스크립트로 돌리는 결정론적 실행 계층(컴파일러, 추적되는 프로젝트 저장소, 캡쳐, 검사, 렌더 잡)일 뿐이다. 저작 하니스는 `npx create-automovie <dir> --language korean`으로 만든다. 언어는 `chinese`, `english`, `japanese`, `korean` 중 하나를 명시한다. The generated harness supplies `lint` and `evidence` commands. Authors write the execution and viewing commands they need in project-owned source using public package APIs.
 
 ## 모듈
 
@@ -293,3 +297,5 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 ## Development checks
 
 `pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+
+`sumAutoMovieRenderTextureAllocations` supplies the inventory count boundary: omitted legacy counts mean one, while unknown or unsafe cardinality remains null. Uncertified `IAutoMovieRenderTextureSource.allocationStateKnown` propagates null bytes and allocation population; the closure preserves source and runtime users without claiming that one candidate row is one GPU object.

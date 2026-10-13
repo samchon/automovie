@@ -18,6 +18,7 @@ import type {
   IAutoMovieRenderInventory,
   IAutoMovieRenderModelCost,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderTargetSettings,
   IAutoMovieRenderTextureCost,
   IAutoMovieRenderTotals,
   IAutoMovieSemanticMask,
@@ -25,12 +26,13 @@ import type {
 
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
+import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextureAllocations";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_TEXEL_BYTES } from "./constants/AUTOMOVIE_TEXEL_BYTES";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
 import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
-import { texturesOf } from "./texturesOf";
+import { resolveAutoMovieShadowProfile } from "./resolveAutoMovieShadowProfile";
+import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTextureClosure";
 
 /**
  * Measure what one frame of a subject commits the renderer to.
@@ -38,13 +40,17 @@ import { texturesOf } from "./texturesOf";
  * Everything here is exact or an explicit upper bound, and the difference is
  * stated per metric rather than left to a reader:
  *
- * - Counts of nodes, lights, slots, chunks, materials and textures are exact;
+ * - Counts of nodes, lights, slots, chunks and materials are exact;
+ * - Texture allocations use the conservative union of sampler, environment
+ *   and shadow consumers. Uncertified identities/profiles or unsafe counts
+ *   remain null rather than an invented exact native allocation population;
  * - Triangles, vertices and draw calls for instanced sets are UPPER BOUNDS, taken
  *   over the most expensive level of detail and the most expensive prototype a
  *   slot could select, because level-of-detail selection and frustum culling
  *   are camera facts and a budget must hold for every camera;
- * - Texture bytes are estimated from decoded dimensions, and are absent rather
- *   than invented when a bound asset's dimensions were not supplied.
+ * - Texture bytes are conservative uncompressed-storage estimates from decoded
+ *   facts and required target profiles. Unresolved dimensions, representation
+ *   or residency facts remain null rather than invented storage.
  *
  * The upper-bound direction is the only safe one. A budget checked against an
  * average would pass a production that stutters whenever the camera turns
@@ -64,7 +70,7 @@ import { texturesOf } from "./texturesOf";
  * their own carry a `material:`, `texture:` or `light:` identity instead.
  *
  * A row that is one further whole-frame pass over geometry the other rows
- * already counted, such as a shadow map's depth pass or the outline guide pass,
+ * already counted, such as a shadow view's depth pass or the outline guide pass,
  * is marked `pass` rather than `own`. The pass belongs in the conservative
  * one-frame peak and its own identity is worth keeping, but its cost is the sum
  * of every drawable that preceded it rather than the owner's own complexity, so
@@ -91,6 +97,8 @@ export const measureAutoMovieRenderInventory = (props: {
   subject: IAutoMovieRenderSubject;
   /** Semantic palette derived from the same subject. */
   mask: IAutoMovieSemanticMask;
+  /** Renderer fallback when the scene declares no environment. */
+  settings?: IAutoMovieRenderTargetSettings;
 }): IAutoMovieRenderInventory => {
   const { subject, mask } = props;
   const nodeIndex = autoMovieSemanticMaskNodeIndex(mask);
@@ -194,60 +202,63 @@ export const measureAutoMovieRenderInventory = (props: {
   } = simulation;
 
   // --- materials and textures ----------------------------------------------
-  for (const id of drawnModels)
-    for (const material of byId.get(id)!.materials)
-      if (!materials.has(material.id)) materials.set(material.id, material);
-  const textureMaterials = new Map<string, Set<string>>();
-  for (const material of materials.values()) {
-    add(
-      `material:${material.id}`,
-      `models[].materials["${material.id}"]`,
-      "materials",
-      1,
-    );
-    for (const asset of texturesOf(material)) {
-      const bucket = textureMaterials.get(asset);
-      if (bucket === undefined)
-        textureMaterials.set(asset, new Set([material.id]));
-      else bucket.add(material.id);
+  const shadowProfile = resolveAutoMovieShadowProfile({
+    lights: subject.scene.lights,
+    shadows: subject.scene.environment?.shadows ?? (props.settings === undefined ? undefined : {
+      enabled: props.settings.shadows,
+      type: props.settings.shadowType === "none" ? "pcf" : props.settings.shadowType,
+    }),
+  });
+  if (!shadowProfile.success)
+    throw new Error("Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations));
+  const casters = shadowProfile.casters;
+  for (const id of drawnModels) {
+    const definition = byId.get(id)!;
+    for (const part of definition.parts) {
+      if (part.material === null) continue;
+      const material = definition.materials.find((candidate) => candidate.id === part.material);
+      if (material !== undefined && !materials.has(material.id)) materials.set(material.id, material);
     }
   }
-  const sizes = new Map(
-    (subject.textures ?? []).map((texture) => [texture.asset, texture]),
-  );
-  const missing: string[] = [];
-  const textures: IAutoMovieRenderTextureCost[] = [...textureMaterials.keys()]
-    .sort(compareAutoMovieRenderIds)
-    .map((asset) => {
-      const size = sizes.get(asset);
-      if (size === undefined) missing.push(asset);
-      const bytes =
-        size === undefined
-          ? null
-          : Math.round(
-              size.width *
-                size.height *
-                AUTOMOVIE_TEXEL_BYTES *
-                (size.mipmapped ? 4 / 3 : 1),
-            );
-      if (bytes !== null)
-        add(`texture:${asset}`, `assets["${asset}"]`, "textureBytes", bytes);
-      add(`texture:${asset}`, `assets["${asset}"]`, "textures", 1);
-      return {
-        asset,
-        materials: [...textureMaterials.get(asset)!].sort(
-          compareAutoMovieRenderIds,
-        ),
-        bytes,
-      };
-    });
+  for (const material of materials.values())
+    add(`material:${material.id}`, `models[].materials["${material.id}"]`, "materials", 1);
+  const textures = measureAutoMovieRenderTextureClosure({
+    materials: materials.values(), sources: subject.textures ?? [],
+    environment: subject.scene.environment?.image ?? null,
+    defaultPbr: defaultMaterials > (subject.effects ?? []).length ||
+      [...drawnModels].some((id) => byId.get(id)!.parts.length !== 0),
+    residency: subject.textureResidency,
+    shadowCasters: casters,
+    areaLights: subject.scene.lights.some((light) => light.type === "area"),
+  });
+  const missing = textures.filter((texture) => texture.bytes === null);
+  const textureBytes = sumBytes(textures);
+  const textureAllocations = sumAutoMovieRenderTextureAllocations(textures);
+  for (const texture of textures) {
+    const owner = texture.asset === null ? texture.runtime === "data-texture" ?
+      `runtime-texture:${JSON.stringify(texture.runtimeOwners)}` : `renderer:${texture.runtime}` : `texture:${texture.asset}`;
+    const path = texture.asset === null ? texture.runtime === "data-texture" ?
+      `renderer.runtimeTextures[${JSON.stringify(texture.runtimeOwners)}]` : `renderer.${texture.runtime}` : `assets["${texture.asset}"]`;
+    if (texture.bytes !== null)
+      add(owner, path, "textureBytes", texture.bytes, texture.asset === null ? "runtime" : "own");
+    if (texture.allocations !== null)
+      add(owner, path, "textures", texture.allocations ?? 1, texture.asset === null ? "runtime" : "own");
+  }
   if (missing.length !== 0)
     gaps.push({
-      metric: "textureBytes",
-      status: "not-run",
-      reason: `${missing.length} bound texture asset(s) have no supplied dimensions, starting with "${missing.sort(compareAutoMovieRenderIds)[0]!}"`,
-      remedy:
-        "pass every bound asset's decoded width, height and mipmap policy in the subject's textures list",
+      metric: "textureBytes", status: "not-run",
+      reason: `${missing.length} resident texture representation(s) have no safe decoded upload bound, starting with "${textureDiagnosticName(missing[0]!)}"`,
+      remedy: "pass every resident source's decoded dimensions, upload format, sampling/mipmap facts and retained context extents from the capture host",
+    });
+  else if (textureBytes === null)
+    gaps.push({ metric: "textureBytes", status: "not-run",
+      reason: "the combined resident texture representations exceed safe integer storage",
+      remedy: "reduce resident upload dimensions or representation count before measuring the budget",
+    });
+  if (textureAllocations === null)
+    gaps.push({ metric: "textures", status: "not-run",
+      reason: `the resident allocation population is uncertified or unsafe for ${textures.map(textureDiagnosticName).join(", ")}`,
+      remedy: "supply actual host allocation authority and safe aggregate counts; current manual-mip properties cannot certify native sharing",
     });
 
   // --- geometry memory ------------------------------------------------------
@@ -293,19 +304,11 @@ export const measureAutoMovieRenderInventory = (props: {
   }
 
   // --- lights and shadow maps ----------------------------------------------
-  const shadowsEnabled = subject.scene.environment?.shadows.enabled ?? true;
-  const casters: string[] = [];
   for (const light of subject.scene.lights) {
     add(`light:${light.id}`, `scene.lights["${light.id}"]`, "lights", 1);
-    // A rectangular area source is analytically integrated and rasterizes no
-    // shadow camera, so it can never add a map however it is flagged.
-    if (light.type === "area" || light.castShadow !== true || !shadowsEnabled)
-      continue;
-    casters.push(light.id);
-    add(`light:${light.id}`, `scene.lights["${light.id}"]`, "shadowMaps", 1);
   }
-  // Each shadow map is one further depth pass over every opaque draw already
-  // counted, and the environment background costs one full-screen draw. A pass
+  // Depth faces repeat the conservative geometry closure; each VSM filtering
+  // draw submits one fullscreen triangle. One light still owns one map. A pass
   // row is marked as one: its cost is by construction the sum of every drawable
   // before it, so the report has to keep it in the total and state the caster
   // separately without ranking that aggregate as the owner's own complexity.
@@ -313,20 +316,23 @@ export const measureAutoMovieRenderInventory = (props: {
   const opaqueDraws = drawCalls;
   const opaqueTriangles = triangles;
   for (const caster of casters) {
-    drawCalls += opaqueDraws;
-    triangles += opaqueTriangles;
+    const shadowDraws = opaqueDraws * caster.depthFaces + caster.filterDraws;
+    const shadowTriangles = opaqueTriangles * caster.depthFaces + caster.filterDraws;
+    drawCalls += shadowDraws;
+    triangles += shadowTriangles;
+    add(`light:${caster.light}`, `scene.lights["${caster.light}"]`, "shadowMaps", 1);
     add(
-      `light:${caster}`,
-      `scene.lights["${caster}"]`,
+      `light:${caster.light}`,
+      `scene.lights["${caster.light}"]`,
       "drawCalls",
-      opaqueDraws,
+      shadowDraws,
       "pass",
     );
     add(
-      `light:${caster}`,
-      `scene.lights["${caster}"]`,
+      `light:${caster.light}`,
+      `scene.lights["${caster.light}"]`,
       "triangles",
-      opaqueTriangles,
+      shadowTriangles,
       "pass",
     );
   }
@@ -370,8 +376,8 @@ export const measureAutoMovieRenderInventory = (props: {
     vertices: partial ? null : vertices,
     drawCalls,
     materials: materials.size + defaultMaterials,
-    textures: textures.length,
-    textureBytes: missing.length !== 0 ? null : sumBytes(textures),
+    textures: textureAllocations,
+    textureBytes,
     geometryBytes: partial ? null : geometryBytes,
     lights: subject.scene.lights.length,
     shadowMaps,
@@ -414,5 +420,16 @@ export const measureAutoMovieRenderInventory = (props: {
     gaps,
   };
 };
-const sumBytes = (textures: readonly IAutoMovieRenderTextureCost[]): number =>
-  textures.reduce((sum, texture) => sum + texture.bytes!, 0);
+const sumBytes = (textures: readonly IAutoMovieRenderTextureCost[]): number | null => {
+  let sum = 0;
+  for (const texture of textures) {
+    if (texture.bytes === null) return null;
+    sum += texture.bytes;
+    if (!Number.isSafeInteger(sum)) return null;
+  }
+  return sum;
+};
+
+/** A source or generating runtime stays named even when its cost is unknown. */
+const textureDiagnosticName = (texture: IAutoMovieRenderTextureCost): string | undefined =>
+  texture.asset ?? texture.runtimeOwners?.join(", ") ?? texture.variant;

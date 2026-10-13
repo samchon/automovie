@@ -4,11 +4,11 @@ import * as THREE from "three";
 
 import { createHumanWorker } from "../common/createHumanWorker";
 import { createHumanResidentPort } from "../common/residentPort";
-import { createHumanResidentWorker } from "../common/residentWorker";
-import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import { createHumanResidentWorker } from "@automovie/viewer/human/common/createHumanResidentWorker";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 import type { IConnectedBodyHeadSeatProps } from "./IConnectedBodyHeadSeatProps";
-import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+import { createConnectedBodyRenderer } from "@automovie/viewer/human/body/createConnectedBodyRenderer";
 
 /**
  * Seat the person generation's head on the edited body. The head is the head
@@ -40,6 +40,7 @@ export function createConnectedBodyHeadSeat(
   let shown = false;
   return (model, body) => {
     const mine = ++sequence;
+    let published = false;
     if (model === null) {
       props.viewport().companion.show(undefined);
       props.status(
@@ -63,18 +64,21 @@ export function createConnectedBodyHeadSeat(
         const frame = await renderer.prepare(result.model);
         if (mine !== sequence) {
           renderer.dispose(frame);
+          await renderer.settleRetirements();
           return;
         }
         props.viewport().companion.show(renderer.publish(frame));
         props.viewport().companion.place(new THREE.Matrix4());
+        published = true;
         shown = true;
         props.preparing?.(false);
+        await renderer.settleRetirements();
       })
       .catch((error: unknown) => {
         if (mine !== sequence) return;
         props.preparing?.(false);
         props.status(
-          "Head unavailable: " +
+          (published ? "The displayed head is retained; resource cleanup failed: " : "Head unavailable: ") +
             (error instanceof Error ? error.message : String(error)),
         );
       });

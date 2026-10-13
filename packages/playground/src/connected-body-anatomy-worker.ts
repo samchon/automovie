@@ -7,12 +7,12 @@
  * quantities (`createConnectedBodyAnatomyRuntime`). Whole-person readings use
  * that same loaded body view and its admitted companion head.
  */
-import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "./human/body/ConnectedBodyResult";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { createConnectedBodyAnatomyRuntime } from "./human/body/createConnectedBodyAnatomyRuntime";
-import { createConnectedBodySimpleWhole } from "./human/body/createConnectedBodySimpleWhole";
+import { createConnectedBodyAnatomyRuntime } from "@automovie/human/body/runtime/createConnectedBodyAnatomyRuntime";
+import { createConnectedBodySimpleWhole } from "@automovie/human/human/runtime/createConnectedBodySimpleWhole";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";

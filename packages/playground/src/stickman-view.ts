@@ -17,6 +17,7 @@ import {
   mountViewer,
 } from "@automovie/viewer";
 import * as THREE from "three";
+import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 import { DEFAULT_CAT, buildCat } from "./cat";
 import { CAT_CLIPS } from "./cat-motion";
@@ -283,6 +284,7 @@ if (capMode)
     Number(params.get("w")),
     Number(params.get("h")),
   );
+let observedPass: AutoMovieGuidePass = "beauty";
 const handle = mountViewer(
   canvas,
   scene,
@@ -292,13 +294,15 @@ const handle = mountViewer(
   },
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
   // guide passes read back crisp and byte-stable across hosts.
-  capMode ? { antialias: false, pixelRatio: 1 } : undefined,
+  { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
+    completedFrame: () => ({ scene, camera, pass: observedPass }) },
 );
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => {
   frame(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 // `__afPass` switches the guide pass a capturer screenshots (#1165): restore
 // whatever pass was live, apply the requested one over the already-seeked
@@ -309,26 +313,34 @@ let passHandle: IAutoMovieRenderModeHandle | null = null;
 ).__afPass = (pass: AutoMovieGuidePass): void => {
   passHandle?.restore();
   passHandle = applyRenderMode(scene, pass);
+  observedPass = pass;
   handle.renderer.render(scene, camera);
+  handle.completeFrame();
 };
 
 // ── clip selector (live switching) ──────────────────────────────────────────
 const bar = document.querySelector<HTMLDivElement>("#clips");
+let activeClip = clipName;
+const selectClip = (name: string): void => {
+  activeClip = name;
+  player.setMotion(clips[name]!);
+  if (bar !== null) for (const el of bar.children) el.className = el.textContent === name ? "on" : "";
+};
 if (bar !== null) {
-  let active = clipName;
   for (const name of Object.keys(clips)) {
     const b = document.createElement("button");
     b.textContent = name;
-    b.className = name === active ? "on" : "";
+    b.className = name === activeClip ? "on" : "";
     b.addEventListener("click", () => {
-      active = name;
-      player.setMotion(clips[name]!);
-      for (const el of bar.children)
-        el.className = el.textContent === name ? "on" : "";
+      selectClip(name);
     });
     bar.appendChild(b);
   }
 }
+registerViewerSelection({ names: Object.keys(clips), read: () => activeClip, select: selectClip,
+  pass: { read: () => observedPass, restore: (pass) => {
+    passHandle?.restore(); passHandle = applyRenderMode(scene, pass); observedPass = pass;
+  } } });
 
 // expose for headless verification (the screenshot harness reads this)
 (window as unknown as { __automovie: unknown }).__automovie = {

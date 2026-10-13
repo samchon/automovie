@@ -1,6 +1,5 @@
-import type { IHumanPendingResult } from "../common/IHumanPendingResult";
-import type { IHumanWorkerClock } from "../common/IHumanWorkerClock";
-import { humanWorkerErrorMessage } from "../common/humanWorkerErrorMessage";
+import type { IHumanPendingResult } from "@automovie/viewer/human/common/IHumanPendingResult";
+import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 import type { IBodySimpleReply } from "./IBodySimpleReply";
 import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
@@ -8,22 +7,11 @@ import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
  * Correlate the connected body editor's simple-tier expansion and projection
  * requests with replies from one browser worker. A worker failure retires that
  * connection and rejects every request it owns; the next request allocates a
- * new worker. A silence deadline also catches silent loss, since terminating a
- * browser Worker does not dispatch an exit event. Silence is measured on the
- * one request the worker is answering: a request leaves only after the reply
- * to the one before it, so waiting behind an earlier evaluation is never
- * counted, and a stage signal (`IConnectedBodyProgress`) restarts it. A
- * deadline counted from the moment of asking retired a healthy worker whenever
- * several evaluations were asked at once, and the replacement worker then
- * loaded its whole source again. Request IDs never repeat, and callbacks from
+ * new worker. A request leaves only after the preceding reply. Elapsed time
+ * never retires a valid evaluation. Request IDs never repeat, and callbacks from
  * retired workers cannot affect the new connection.
  *
- * `silenceMs` bounds one uninterrupted stage of the worker. A worker shared
- * with another protocol passes that protocol's bound, because a request here
- * can wait behind one of its stages.
- *
- * The page supplies the native worker factory. The optional clock lets the
- * unit test advance a lost worker without waiting for real time. A numerical
+ * The page supplies the native worker factory. A numerical
  * error reply belongs to one request and leaves the worker available.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Ensures a failed simple-tier edit reports a reason while the panel retains the last committed body.
@@ -34,42 +22,20 @@ export function createBodySimpleWorkerTransport(
     Worker,
     "onmessage" | "onerror" | "onmessageerror" | "postMessage" | "terminate"
   >,
-  clock: IHumanWorkerClock = {
-    schedule: (callback, delayMs) => setTimeout(callback, delayMs),
-    cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
-  },
-  silenceMs: number = 30_000,
 ) {
   let sequence = 0;
   let worker: ReturnType<typeof factory> | undefined;
   let flight: number | undefined;
-  let timer: unknown;
   const pending = new Map<number, IHumanPendingResult<never>>();
   const waiting = new Map<number, object>();
-  const quiet = (): void => {
-    if (timer !== undefined) clock.cancel(timer);
-    timer = undefined;
-  };
   const retire = (error: Error): void => {
     const previous = worker;
     worker = undefined;
     flight = undefined;
-    quiet();
     waiting.clear();
     for (const request of pending.values()) request.reject(error);
     pending.clear();
     previous?.terminate();
-  };
-  const listen = (current: ReturnType<typeof factory>): void => {
-    quiet();
-    timer = clock.schedule(() => {
-      if (worker === current && flight !== undefined)
-        retire(
-          new Error(
-            `The body simple worker sent no reply or stage signal for ${silenceMs / 1000} seconds.`,
-          ),
-        );
-    }, silenceMs);
   };
   // one request in flight; the next leaves only after its reply
   const advance = (): void => {
@@ -80,7 +46,6 @@ export function createBodySimpleWorkerTransport(
     const [id, request] = next.value;
     waiting.delete(id);
     flight = id;
-    listen(current);
     try {
       current.postMessage({ id, ...request });
     } catch (error) {
@@ -97,12 +62,8 @@ export function createBodySimpleWorkerTransport(
     ) => {
       if (worker !== current) return;
       const data = event.data;
-      if ("progress" in data) {
-        if (flight !== undefined) listen(current);
-        return;
-      }
+      if ("progress" in data) return;
       if (data.id === flight) {
-        quiet();
         flight = undefined;
       }
       const request = pending.get(data.id);

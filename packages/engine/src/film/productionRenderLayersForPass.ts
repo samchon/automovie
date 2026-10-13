@@ -1,8 +1,5 @@
 import { AutoMovieGuidePass } from "@automovie/interface";
 
-import { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
-import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLayer";
-
 /**
  * Resolve pass-specific transition inputs.
  *
@@ -15,11 +12,11 @@ import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLay
  * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Composites weighted layers only for beauty and gives every structural pass one unblended dominant layer so beauty blending never contaminates structural truth.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Keeps the beauty appearance input and a structural product's declared fact separate at a transition.
  */
-export const productionRenderLayersForPass = (
-  frame: IAutoMovieProductionRenderFrame,
+export const productionRenderLayersForPass = <Layer extends { weight: number }>(
+  frame: { layers: readonly Layer[] },
   pass: AutoMovieGuidePass,
-): IAutoMovieProductionRenderLayer[] => {
-  if (pass === "beauty") return structuredClone(frame.layers);
+): Array<Omit<Layer, "weight"> & { weight: number }> => {
+  if (pass === "beauty") return [...structuredClone(frame.layers)];
   const selected = frame.layers.reduce((selected, candidate) =>
     candidate.weight >= selected.weight ? candidate : selected,
   );

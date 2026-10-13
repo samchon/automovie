@@ -1,7 +1,7 @@
 /**
  * Browser entry for the connected body editor. The body edited here is the
  * body partition view of the published person generation
- * (`erased-data`); editing, history,
+ * (the Human package's person body asset); editing, history,
  * numerical admission and rendering delegate to the same package/viewport
  * owners as the connected face page. The head shown on the neck is that
  * generation's head view with the default face, evaluated with each body
@@ -21,6 +21,7 @@ import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBo
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
+import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
   const basis = (await readConnectedBodyView()).body;
@@ -60,9 +61,13 @@ async function main(): Promise<void> {
       download: downloadConnectedFile,
     },
   );
+  registerPlaygroundEditor({ ready: panel.ready,
+    document: () => panel.snapshot()?.document,
+    load: panel.load, controls: document });
   await panel.ready;
 }
 void main().catch((error: unknown) => {
+  window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLDivElement>("#app")!.textContent =
     error instanceof Error ? error.message : String(error);
 });

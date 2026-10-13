@@ -59,6 +59,11 @@ const torso = { center: v(0, 1.28, 0), radius: 0.34 };
 const bodyMass = 72;
 const recoilChain: AutoMovieHumanoidBone[] = ["spine", "chest", "neck", "head"];
 
+/**
+ * One timed projectile strike and its displayed physics inputs.
+ *
+ * @author Samchon
+ */
 interface Shot {
   t0: number;
   label: string;
@@ -110,6 +115,11 @@ const SHOTS: Shot[] = [
 const DUR = 9;
 
 // resolve each strike once (deterministic): time of contact + the impact result
+/**
+ * One strike's precomputed contact time, point and impact response.
+ *
+ * @author Samchon
+ */
 interface Resolved {
   shot: Shot;
   hitT: number; // absolute time of contact
@@ -283,6 +293,7 @@ const handle = mountViewer(canvas, scene, camera, (elapsed) => {
 ): void => {
   step(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 
 (window as unknown as { __automovie: unknown }).__automovie = {

@@ -1,11 +1,8 @@
 import {
   type AutoMovieProductionLanguage,
   type IAutoMovieEvidenceConfigProps,
-  createAutoMovieEvidenceConfig,
-  createAutoMovieStandaloneEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
 } from "@automovie/evidence";
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -29,9 +26,8 @@ import { fileURLToPath } from "node:url";
  * Never create a branch merely because the scaffold names it.
  *
  * Naturalness revises dialogue, narration, and audience-read language only;
- * mechanically exact physical descriptions are copied unchanged. Follow
- * `.agents/skills/production-lifecycle/naturalness.md` for the revision scope
- * and upstream-repair procedure. Film and brief also require completed
+ * mechanically exact physical descriptions are copied unchanged.
+ * Film and brief also require completed
  * productionSources as the parallel typed assembly input to filmSources.
  */
 export const productionEvidence = {
@@ -40,11 +36,3 @@ export const productionEvidence = {
     "{{language}}" as AutoMovieProductionLanguage,
   ),
 } satisfies IAutoMovieEvidenceConfigProps;
-
-const graph = createAutoMovieEvidenceConfig(productionEvidence);
-
-/** Standalone evidence evaluation consumes the sole production declaration. */
-export default createAutoMovieStandaloneEvidenceConfig(
-  graph,
-  productionEvidence.location,
-) satisfies IEvidenceConfig;

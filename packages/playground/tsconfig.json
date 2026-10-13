@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "lib",
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "rewriteRelativeImportExtensions": true,
     "resolveJsonModule": true,
     "strict": true,
     "skipLibCheck": true,

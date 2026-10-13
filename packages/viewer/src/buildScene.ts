@@ -1,14 +1,14 @@
 import type { IAutoMovieCamera, IAutoMovieScene } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
-import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject";
-import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation";
-import { applySceneFog } from "./applySceneFog";
-import { applyTransform } from "./applyTransform";
-import { buildLight } from "./buildLight";
-import { buildSpaceObject } from "./buildSpace";
-import { applySceneEnvironment } from "./sceneEnvironment";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
+import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
+import { applySceneFog } from "./applySceneFog.js";
+import { applyTransform } from "./applyTransform.js";
+import { buildLight } from "./buildLight.js";
+import { buildSpaceObject } from "./buildSpace.js";
+import { applySceneEnvironment } from "./applySceneEnvironment.js";
 
 /**
  * Build a `three.js` scene from an {@link IAutoMovieScene}.
@@ -40,10 +40,15 @@ import { applySceneEnvironment } from "./sceneEnvironment";
  * that reason, and so the whole ground reads as one mask colour rather than one
  * per surface.
  *
+ * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
+ *
  * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Materializes this surface from the resolved scene state only.
  * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps semantic support out of beauty while retaining it for structural products.
  * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the boundary from resolved staging state to the viewer scene.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the scene's support patch as structural-only render geometry.
+ *
+ * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-refusal Refuses unsupported shadow profiles and unresolved node models before returning the scene, preserving node/model identity instead of dropping or replacing that subject.
+ *
  * @author Samchon
  */
 export const buildScene = (
@@ -51,6 +56,11 @@ export const buildScene = (
   getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
   environmentTexture?: THREE.Texture,
 ): IAutoMovieSceneObject => {
+  const shadowProfile = resolveAutoMovieShadowProfile({
+    lights: scene.lights, shadows: scene.environment?.shadows,
+  });
+  if (!shadowProfile.success)
+    throw new Error("Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations));
   const root = new THREE.Scene();
 
   for (const node of scene.nodes) {
@@ -106,3 +116,4 @@ const buildCamera = (cam: IAutoMovieCamera): THREE.PerspectiveCamera => {
   applyTransform(camera, cam.transform);
   return camera;
 };
+import { resolveAutoMovieShadowProfile } from "@automovie/engine";

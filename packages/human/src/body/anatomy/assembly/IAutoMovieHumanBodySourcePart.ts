@@ -2,7 +2,7 @@ import type { IAutoMovieHumanBodyGeneratedPart } from "../generated/IAutoMovieHu
 import type { IAutoMovieHumanBodySourcePartPayload } from "./IAutoMovieHumanBodySourcePartPayload";
 
 type SourcePart<Part extends IAutoMovieHumanBodyGeneratedPart> =
-  Part extends IAutoMovieHumanBodyGeneratedPart
+  Part extends unknown
     ? Pick<Part, "id" | "tissue"> & IAutoMovieHumanBodySourcePartPayload
     : never;
 

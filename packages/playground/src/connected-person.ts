@@ -15,15 +15,16 @@ import type {
   IAutoMovieHumanPersonDocument,
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
+import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
+import { humanPersonBodyReach } from "@automovie/human/human/measure/humanPersonBodyReach";
+import { createConnectedBodyViewport } from "@automovie/viewer/human/body/createConnectedBodyViewport";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import { CONNECTED_BODY_STAGE_SILENCE_MS } from "./human/body/CONNECTED_BODY_STAGE_SILENCE_MS";
 import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
 import { createBodySimpleWorkerTransport } from "./human/body/bodySimpleWorkerTransport";
 import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
-import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanWorker } from "./human/common/createHumanWorker";
@@ -39,6 +40,7 @@ import { connectedPersonStandardDocument } from "./human/person/connectedPersonS
 import { createConnectedPersonWorkerShare } from "./human/person/createConnectedPersonWorkerShare";
 import { mountConnectedPersonSourceSelection } from "./human/person/mountConnectedPersonSourceSelection";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
+import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
   const source = readConnectedPersonSourceUrls(location.search, location.href);
@@ -52,12 +54,8 @@ async function main(): Promise<void> {
   const share = createConnectedPersonWorkerShare(() =>
     createHumanWorker(connectedPersonSourceWorkerName(source)),
   );
-  // a measurement can wait behind one preview stage of the shared worker
-  const { ask } = createBodySimpleWorkerTransport(
-    () => share.measure(),
-    undefined,
-    CONNECTED_BODY_STAGE_SILENCE_MS,
-  );
+  // A measurement can wait behind a preview without an elapsed-time deadline.
+  const { ask } = createBodySimpleWorkerTransport(() => share.measure());
   const panel = mountConnectedPersonPanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
@@ -65,6 +63,7 @@ async function main(): Promise<void> {
       aliases: head.aliases ?? [],
       headShapeSource: head.headShapeSource,
       body: body.body,
+      bodyReach: humanPersonBodyReach(joinHumanPersonGeneration(head, body)),
       initial,
       projectSimple: (person) =>
         ask<IAutoMovieHumanBodySimpleShape>({
@@ -169,9 +168,15 @@ async function main(): Promise<void> {
       download: downloadConnectedFile,
     },
   );
+  registerPlaygroundEditor({ ready: panel.ready,
+    document: () => panel.session().draft?.document ?? panel.snapshot()?.document,
+    facts: () => ({ qualification: panel.session().draft === null ? "accepted" : "construction draft",
+      admission: panel.session().draft?.admission }),
+    load: panel.load, controls: document });
   await panel.ready;
 }
 void main().catch((error: unknown) => {
+  window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLDivElement>("#app")!.textContent =
     error instanceof Error ? error.message : String(error);
 });

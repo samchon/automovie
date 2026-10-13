@@ -7,21 +7,17 @@
  * by content, because a server may hand over the gzip bytes or, with a
  * `Content-Encoding` header, bytes the browser has already inflated.
  */
-import type { ConnectedFaceRequest } from "./human/common/ConnectedFaceRequest";
-import type { IHumanResidentRequest } from "./human/common/IHumanResidentRequest";
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
-import { createConnectedFaceRuntime } from "./human/common/connectedRuntime";
+import type { ConnectedFaceRequest } from "@automovie/human/face/runtime/ConnectedFaceRequest";
+import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
+import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
+import { createConnectedFaceRuntime } from "@automovie/human/face/runtime/createConnectedFaceRuntime";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
+import faceBasisUrl from "erased-data";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const prepared = readConnectedFaceAsset({
   read: () =>
-    fetch(
-      new URL(
-        "erased-data",
-        import.meta.url,
-      ),
-    ),
+    fetch(faceBasisUrl),
 }).then((basis) => createConnectedFaceRuntime({ basis }));
 const handle = createHumanResidentHandler({
   prepare: prepared,

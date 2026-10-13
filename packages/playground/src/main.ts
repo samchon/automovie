@@ -16,10 +16,16 @@ import {
 import * as THREE from "three";
 
 import { DEFAULT_PARAMS, IHumanoidParams, buildHumanoid } from "./humanoid";
+import { registerPlaygroundViewerApplication } from "./viewer/registerPlaygroundViewerApplication";
 
 // ── editor state ──────────────────────────────────────────────────────────
 const params: IHumanoidParams = { ...DEFAULT_PARAMS };
 
+/**
+ * Clinical joint angles retained by the humanoid editor's pose state.
+ *
+ * @author Samchon
+ */
 interface JointState {
   flexion: number;
   abduction: number;
@@ -131,6 +137,11 @@ const rebuild = (): void => {
 };
 
 // ── editor UI ───────────────────────────────────────────────────────────────
+/**
+ * One numerical editor slider and its original value read/write ports.
+ *
+ * @author Samchon
+ */
 interface SliderSpec {
   label: string;
   min: number;
@@ -285,6 +296,39 @@ rebuild();
 const canvas = document.querySelector<HTMLCanvasElement>("#view")!;
 mountViewer(canvas, scene, camera, (elapsed) => {
   if (playing && player !== null) player.update(elapsed);
+});
+registerPlaygroundViewerApplication({
+  ready: Promise.resolve(), capture: () => ({ params: { ...params }, pose: structuredClone(pose), playing }),
+  restore: async (state) => {
+    if (state === null || typeof state !== "object") throw new Error("Humanoid transfer has no editor state.");
+    const values: unknown = Reflect.get(state, "params"), joints: unknown = Reflect.get(state, "pose");
+    const playback: unknown = Reflect.get(state, "playing");
+    if (values === null || typeof values !== "object" || joints === null || typeof joints !== "object" || typeof playback !== "boolean")
+      throw new Error("Humanoid transfer has invalid parameters/pose/playback.");
+    const next = { ...DEFAULT_PARAMS };
+    for (const key of Object.keys(DEFAULT_PARAMS)) {
+      const value: unknown = Reflect.get(values, key);
+      if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) throw new Error("Humanoid transfer has invalid " + key + ".");
+      Reflect.set(next, key, value);
+    }
+    const nextPose: Partial<Record<AutoMovieHumanoidBone, JointState>> = {};
+    for (const [name, angles] of Object.entries(joints)) {
+      const bone = skeleton.bones.find((part) => part.bone === name)?.bone;
+      if (bone === undefined || angles === null || typeof angles !== "object") throw new Error("Humanoid transfer has an unknown joint.");
+      const flexion: unknown = Reflect.get(angles, "flexion"), abduction: unknown = Reflect.get(angles, "abduction"), twist: unknown = Reflect.get(angles, "twist");
+      if (typeof flexion !== "number" || typeof abduction !== "number" || typeof twist !== "number" ||
+          ![flexion, abduction, twist].every(Number.isFinite)) throw new Error("Humanoid transfer has non-finite joint angles.");
+      nextPose[bone] = { flexion, abduction, twist };
+    }
+    Object.assign(params, next);
+    for (const key of Object.keys(pose)) Reflect.deleteProperty(pose, key);
+    Object.assign(pose, nextPose); playing = playback; rebuild();
+    playBtn.textContent = playing ? "Pause" : "Play wave";
+    for (const [selector, specs] of [["#proportions", proportionSliders], ["#poses", poseSliders]] as const) {
+      const host = document.querySelector<HTMLElement>(selector)!;
+      host.replaceChildren(); mountSliders(host, specs);
+    }
+  },
 });
 
 // expose for headless verification (screenshot harness reads this)

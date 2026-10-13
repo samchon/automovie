@@ -6,7 +6,7 @@ import {
   buildScene,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
-import * as THREE from "three";
+import type * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
@@ -101,7 +101,8 @@ const meshesUnder = (root: THREE.Object3D): THREE.Mesh[] => {
  *    captures. Running it twice changes nothing, and running it on a graph
  *    built elsewhere reaches the meshes added after `buildScene` returned.
  */
-export const test_viewer_shadow_participation = (): void => {
+export const test_viewer_shadow_participation = async (): Promise<void> => {
+  const THREE = await import("three");
   const scene = sceneOf();
   const ground = scene.getObjectByName(SPACE_GROUP_NAME)!;
   const groundMeshes = meshesUnder(ground);

@@ -2,8 +2,7 @@
 
 ## Development
 
-- Ground anatomical claims under the contracts skill's [Anatomical Source](../contracts/anatomy.md#anatomical-source) chapter, and keep the provenance and rights of every reference.
-- Author the geometry in this package. Its construction (surfaces, cross-sections, topology, blending) is design work: mark it authored and accept it by measurement and rendering against references. External models, atlases and scans are measurement references and never a geometry source, because meshes from different subjects disagree in pose, proportion and correspondence. A missing source is no reason to import geometry.
+- Ground anatomical claims under the contracts skill's [Anatomical Source](../contracts/anatomy.md#anatomical-source) chapter, and cite the source of every reference.
 - Keep units, coordinates and shared boundaries consistent. Regenerate affected derivatives when their source changes.
 - Develop anatomy as connected parts.
 - Generate skin and interior tissue from one shared skeleton and rest frame so their correspondence holds by construction. Do not reconcile independently sourced geometry through registration or optimization.
@@ -12,13 +11,15 @@
 
 ## Visual debugging
 
-Follow [3D modeling](../3d-modeling/SKILL.md) for measurement and [viewer verification](../viewer-verification/SKILL.md) for rendered observation.
+Follow [3D modeling's visual debugging procedure](../3d-modeling/SKILL.md#visual-debugging), including viewer recovery priority, the restriction on dependent work during failure, measurement and current hardware observation. Inspect the final Human consumer and its connected parts under that procedure.
 
-- Inspect the current final geometry through its actual consumer with a hardware renderer. Enlarge the affected region and inspect it at use distance.
-- Inspect opposing views and assembled neighbors in the required states.
-- Measure landmarks, distances and angles on the same geometry that renders. State units, coordinate frames and measurement uncertainty; validate quantitative readings.
-- Compare the render with the engine's resolved geometry to distinguish viewer faults from engine or data faults.
-- Compare before and after under matching conditions. After each correction, render again and read the output directly. Accept demonstrated effects and record unobserved results separately.
+## Visual debugging files
+
+Keep `.shots` limited to the current task's required inputs, references, working artifacts and viewer runtime files. Delete unrelated and superseded folders and files after identifying their actual use.
+
+Save completed viewer displays automatically to `.shots/output`. Keep only images needed for the current visual judgment, including the active before/after comparison, and remove every other file from that directory. Replace superseded images instead of accumulating capture histories. Store required metadata and logs outside `.shots/output`.
+
+Resolve cleanup targets inside this checkout's `.shots` before deleting them. Keep the viewer available while cleaning its files, and preserve the inputs and runtime files it still needs.
 
 ## Supervision
 
@@ -35,4 +36,4 @@ Audit every 30 minutes.
 
 Keep the viewer available between audits.
 
-If the viewer fails, pause dependent visual work, prioritize owner recovery and protect other owners' processes. Independent numerical work may continue within its resource limits.
+[Visual debugging](#visual-debugging) owns the work restrictions during viewer failure. Protect other owners' processes while restoring the viewer.

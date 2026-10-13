@@ -45,6 +45,12 @@ const CONVERGENCE = 1e-5;
  * the channel's envelope, never row by row, because the projection reads an
  * identity back as the first row's inverse of the weight less the other rows,
  * which is only the sum's inverse.
+ * A whole reader may publish its paired endpoint reach. Solves use that
+ * copied domain, while the original basis keeps its own authoring envelopes.
+ * An identity term outside the paired support refuses rather than silently
+ * changing requested sex, age or muscle. Regional term saturation and the
+ * documented measured/detailed residue projection retain their existing
+ * meaning within the evaluator's support.
  * The measured values are then solved in turn, each with the weights so far
  * worn: the height channel is inverted against the whole person's actual
  * stature (`whole.stature`, floor to the top of the head) through the same
@@ -86,6 +92,14 @@ export function expandHumanBodySimpleShape(
   over?: Record<string, number>,
   anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements,
 ): Record<string, number> {
+  const wholeBasis = whole.bodyReach;
+  if (wholeBasis !== undefined) {
+    if (wholeBasis.id !== basis.id)
+      throw new Error(
+        "A simple body solve needs the whole reader's same body source.",
+      );
+    basis = wholeBasis;
+  }
   if (anatomy !== undefined) {
     admitHumanBodyDocumentAnatomy(
       anatomy,
@@ -148,6 +162,14 @@ export function expandHumanBodySimpleShape(
   const shape: Record<string, number> = {};
   for (const [id, sum] of sums) {
     const channel = channels.get(id)!;
+    if (
+      wholeBasis !== undefined &&
+      Object.values(table.identity).includes(id) &&
+      (sum < channel.minimum || sum > channel.maximum)
+    )
+      throw new Error(
+        `The simple body requests ${id}=${sum} outside its whole-person source support [${channel.minimum}, ${channel.maximum}].`,
+      );
     shape[id] = Math.min(channel.maximum, Math.max(channel.minimum, sum));
   }
   const solve = (

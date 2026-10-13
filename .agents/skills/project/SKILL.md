@@ -21,7 +21,7 @@ This is a long-haul mission. `interia`, the sibling interior-spaces project, sha
 
 These are decided exclusions, not backlog. Each carries the condition that reopens it and belongs in the contract JSDoc of the type that comes closest, the way `IAutoMovieEnvironmentInstant` states that sun direction is an input and `IAutoMovieCameraIntent` states that depth of field belongs to the repaint lane. An unwritten decision is rediscovered as a gap every few months.
 
-- **Detailed appearance.** The [product scope](../../../docs/requirements/product/scope-and-exclusions.md#product-detailed-likeness-exclusion) owns the boundary, including its numerical face, brow and surface-based hair exception. Read the 3D modeling skill before changing or judging geometry. A constructed face is not an accepted likeness.
+- **Detailed appearance.** The [product scope](../../../docs/requirements/product/scope-and-exclusions.md#product-detailed-likeness-exclusion) owns the boundary, including its numerical face, body, brow and surface-based hair exception. Read the 3D modeling skill before changing or judging geometry. A constructed face is not an accepted likeness.
 - **Ornate decoration.** Mouldings, cornices, carved ornament and decorative catalogues are content. The repository may owe the general geometry a customer needs to author one: non-convex profiles, sweeps, booleans and an external-model escape hatch.
 - **Cutaways as delivered frames.** A section plane that removes a roof or wall so a floor can be read is an inspection control and never a field of an authored camera. Nothing fills the exposed cut.
   - A frame taken after a wall was removed is a diagram about the production and not evidence about the delivered image. Admitting the plane into the delivery camera would also make acceptance depend on it, since a required subject sliced in half could no longer count as read, and would force `outline`, `mask` and `depth` to agree on one section.
@@ -42,13 +42,13 @@ A logic example belongs in a pure unit test, a shipped archetype in `packages/ar
 The [root package map](../../../README.md#packages) and each package README own API inventories. Preserve these boundaries when choosing an owner:
 
 - `interface` is the pure-type authoring AST; `engine` owns deterministic computation and runtime admission. The [engine README](../../../packages/engine/README.md#constrained-surface-displacement) owns its pinned numerical WebAssembly kernel and rebuilding boundary.
-- `viewer` is the only library package importing `three.js`; `playground` mounts it. `production` orchestrates the engine, evidence and render libraries without a network authoring surface. `mcp` provides read-only Markdown navigation and never authors, executes or judges evidence.
-- `human` owns numerical human capability and participates in implementation contracts outside the repository triangle. Read [human.md](human.md) for Human development and 30-minute supervision. Its [README](../../../packages/human/README.md) owns supported use. Named people and photograph-derived documents belong in test studies.
+- `viewer` is the only library package importing `three.js`; it owns GPU display, capture and reusable inspection transport. `playground` mounts it and owns the Human inspection application's controls and example parameter sets. Their READMEs own application entry points and runtime ownership. `production` orchestrates the engine, evidence and render libraries without a network authoring surface. `mcp` provides read-only Markdown navigation and never authors, executes or judges evidence.
+- `human` owns numerical human capability and reusable basis assets, and participates in implementation contracts outside the repository triangle. Read [human.md](human.md) for Human development and 30-minute supervision. Its [README](../../../packages/human/README.md) owns supported use. Human example documents belong in Playground; task-specific reference photographs and observation records follow [Human visual debugging files](human.md#visual-debugging-files).
 - `archetypes` owns the shipped figure/prop catalogue behind the registry the builder is handed. Customer-authored content stays in its own production.
 - `template/scaffold` owns the generated authoring harness under the [scaffold skill](../scaffold/SKILL.md); `cli` and `create-automovie` install it. `evidence` turns a production's typed declaration into its separate contract graph.
 - `docs` owns repository requirements/specifications; `config` owns shared TypeScript/lint policy; `test` owns the pure-unit suite under the [development skill](../development/SKILL.md#testing).
 - The four retained architectural productions under `experimental/` feed the public website and are not disposable sandboxes. The [website README](../../../website/README.md) owns that handoff and deployment.
-- `.wiki/` is ignored working knowledge under the [documentation skill](../documentation/wiki.md); `.references/` holds ignored downloaded research materials.
+- `.references/` holds ignored downloaded research materials.
 
 ## Commands
 

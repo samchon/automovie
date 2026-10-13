@@ -94,6 +94,7 @@ const handle = mountViewer(canvas, scene, camera, (elapsed) => {
 ): void => {
   step(t);
   handle.renderer.render(scene, camera);
+  handle.completeFrame(t);
 };
 
 (window as unknown as { __automovie: unknown }).__automovie = {

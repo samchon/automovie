@@ -20,7 +20,7 @@ import type {
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
 
-import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
 import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
@@ -29,7 +29,7 @@ import { createHumanResidentHandler } from "./human/common/residentHandler";
 import type { IConnectedPersonMeasureMessage } from "./human/person/IConnectedPersonMeasureMessage";
 import type { IConnectedPersonWorkerMessage } from "./human/person/IConnectedPersonWorkerMessage";
 import { createConnectedPersonMeasureRuntime } from "./human/person/createConnectedPersonMeasureRuntime";
-import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
+import { createConnectedPersonRuntime } from "@automovie/human/human/runtime/createConnectedPersonRuntime";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;

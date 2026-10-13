@@ -6,7 +6,6 @@ import { renderBodyMeasuredControls } from "../body/bodyMeasuredControls";
 import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { mountBodyJointControls } from "../body/mountBodyJointControls";
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
-import { connectedBodyReach } from "../common/connectedBodyReach";
 import { renderConnectedBodyExteriorGaps } from "../common/renderConnectedBodyExteriorGaps";
 import { renderConnectedBodyExteriorTargets } from "../common/renderConnectedBodyExteriorTargets";
 import { renderConnectedBodyHeldMotions } from "../common/renderConnectedBodyHeldMotions";
@@ -44,7 +43,7 @@ export function mountConnectedPersonBodyControls(
   props: IConnectedPersonBodyControlsProps,
 ) {
   const { dom } = props;
-  const reach = connectedBodyReach(props.body);
+  const reach = props.reach;
   const unavailable = new Set(props.body.unavailableTargets ?? []);
   const scales = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(

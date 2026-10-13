@@ -2,6 +2,7 @@ import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/pars
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human/body/structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel";
 import type { IBodyAnatomicalRequestPanelProps } from "./IBodyAnatomicalRequestPanelProps";
@@ -102,8 +103,10 @@ export function mountBodyAnatomicalRequestPanel<
     // The history owner withdraws publication, but only this viewport adapter
     // can release a prepared frame that finished after a newer user intent.
     if (!intents.isCurrent(ticket)) {
-      props.viewport.dispose(model);
-      throw new Error("Superseded numerical inspection build.");
+      return createAutoMovieResourceRetirement(
+        [() => props.viewport.dispose(model), () => props.viewport.settleRetirements()],
+        { error: new Error("Superseded numerical inspection build.") },
+      )();
     }
     const articular = model.anatomicalRequest;
     const exterior = model.exteriorCandidate;
@@ -124,10 +127,22 @@ export function mountBodyAnatomicalRequestPanel<
           "The worker supplied no matching unique numerical candidate qualification.",
         );
     } catch (error) {
-      props.viewport.dispose(model);
-      throw error;
+      return createAutoMovieResourceRetirement(
+        [() => props.viewport.dispose(model), () => props.viewport.settleRetirements()], { error },
+      )();
     }
     return model;
+  };
+  const settle = async (): Promise<void> => {
+    try {
+      await props.viewport.settleRetirements();
+    } catch (cause) {
+      throw new Error(
+        "Resource cleanup failed; the displayed inspection is retained: " +
+          (cause instanceof Error ? cause.message : String(cause)),
+        { cause },
+      );
+    }
   };
   const apply = async (value: string, ticket = withdraw()) => {
     try {
@@ -137,19 +152,27 @@ export function mountBodyAnatomicalRequestPanel<
       if (editor === undefined) {
         const model = await build(document);
         if (!intents.isCurrent(ticket)) {
-          props.viewport.dispose(model);
+          await createAutoMovieResourceRetirement([
+            () => props.viewport.dispose(model),
+            () => settle(),
+          ])();
           return false;
         }
-        editor = createHumanFaceEditor({ document, model, build });
+        editor = createHumanFaceEditor({
+          document, model, build,
+          publish: props.viewport.publish,
+          dispose: props.viewport.dispose,
+        });
         props.viewport.publish(model);
         props.viewport.fitView();
         refresh(true);
+        await settle();
         return true;
       }
       const success = await editor.edit(document);
+      if (intents.isCurrent(ticket)) refresh(success);
+      await settle();
       if (!intents.isCurrent(ticket)) return false;
-      if (success) props.viewport.publish(editor.snapshot().model);
-      refresh(success);
       return success;
     } catch (error) {
       if (intents.isCurrent(ticket)) {
@@ -196,10 +219,13 @@ export function mountBodyAnatomicalRequestPanel<
     element<HTMLButtonElement>("request-" + direction).onclick = async () => {
       if (editor === undefined) return;
       const ticket = withdraw();
-      const success = await editor[direction]();
-      if (intents.isCurrent(ticket)) {
-        if (success) props.viewport.publish(editor.snapshot().model);
-        refresh(success);
+      try {
+        const success = await editor[direction]();
+        if (intents.isCurrent(ticket)) refresh(success);
+        await settle();
+      } catch (error) {
+        if (intents.isCurrent(ticket))
+          status(error instanceof Error ? error.message : String(error), "error");
       }
     };
   const file = element<HTMLInputElement>("request-file");

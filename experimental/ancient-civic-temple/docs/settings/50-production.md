@@ -60,7 +60,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation GPU 경로·RENDERER·현재 source와 reference 직접 비교를 포함하고 빈 화면도 결함으로 센다.
 @evidence principles/core/common.md#substantive-completion Playwright channel chromium/WebGL와 실제 RENDERER 보고를 관찰 조건으로 확정한다.
-@evidence principles/core/common.md#declared-basis 캡처 경로와 소프트웨어 프레임의 제외는 사용자 지시 및 지정 viewer-verification 절차를 따른다.
+@evidence principles/core/common.md#declared-basis 캡처 경로와 소프트웨어 프레임의 제외는 사용자 지시 및 3d-modeling의 Visual debugging 절차를 따른다.
 @evidence principles/core/settings.md#fact-status 현재 GPU·RENDERER·시각 일치는 unverified로 남아 있고 이후 얻을 캡처를 이미 관측했다고 하지 않는다.
 @evidence principles/core/settings.md#source-support 하드웨어 관찰 요구는 사용자 지정 GPU skill에 귀속하며 장치명이나 RENDERER 값을 발명하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 기본 headless software rasterizer의 프레임은 GPU 증거로 사용할 수 없고 다른 계측으로 대체하지 않는다.
@@ -71,7 +71,7 @@
 <!--
 -->
 
-사용자 지시: 저장소 viewer-verification skill의 Playwright channel chromium과 WebGL 경로로 캡처하고 실제 RENDERER 문자열을 보고한다. 기본 headless software rasterizer의 프레임은 GPU 관찰로 세지 않는다. 빈 캔버스·오류 배너·건물을 가리는 라벨은 결함이다. reviewer는 현재 source에 대응하는 프레임을 직접 열어 reference와 대조한다. geometry 구현 전 현재 GPU·RENDERER·시각 일치는 unverified이며 다른 계측으로 대체하지 않는다.
+사용자 지시: 저장소 3d-modeling skill의 Visual debugging 절차에 따라 Playwright channel chromium과 WebGL 경로로 캡처하고 실제 RENDERER 문자열을 보고한다. 기본 headless software rasterizer의 프레임은 GPU 관찰로 세지 않는다. 빈 캔버스·오류 배너·건물을 가리는 라벨은 결함이다. reviewer는 현재 source에 대응하는 프레임을 직접 열어 reference와 대조한다. geometry 구현 전 현재 GPU·RENDERER·시각 일치는 unverified이며 다른 계측으로 대체하지 않는다.
 
 ## 작업과 실행의 권한 {#execution-authority}
 

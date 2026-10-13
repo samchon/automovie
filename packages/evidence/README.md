@@ -10,7 +10,7 @@ Construction owns meaning, canon, content, identity, timing, mechanically exact 
 
 Upstream references ask each inheriting authored or source unit what it learned by exercising its actual parents. They permit a concrete exclusion when those parents proved sufficient. Settings and research have no upstream authored parents. Discovery instead uses flat `docs/contracts/*.md` file hosts, with one claim for each active authored layer. Retained rules live in their own contract files; only `contracts/index.md` may record a truthful population-wide no-result exclusion. Discovery begins in draft; authored evidence claims activate and complete in evidence without companion review rows. Compatible review declarations use the same structural policy.
 
-The graph's structural and freshness checks do not decide prose truth. The author performs the shipped evidence-graph and review-verification procedures' literal relationship inspection, whole-population comparison, and actual-output judgment. Repeated legacy review frames and pasted target questions remain semantic-review alarms.
+The graph's structural and freshness checks do not decide prose truth. The author inspects actual relationships, contributor populations and current output. Repeated legacy review frames and pasted target questions remain semantic-review alarms.
 
 ## Rendered realization severity
 
@@ -45,7 +45,7 @@ Disabled and draft claims remain declared but inactive. Evidence completion requ
 
 The manifest exposes eligible owners in `localBindings[].host`, contract `targets`, authored `population`, the explicit construction or naturalness `pass`, and the `distributed-coverage` relationship. Pilot-only inapplicable declarations appear in `localAudits`. Local obligations remain construction-only; a local naturalness principle must select the screenplay layer, the final screenplay host, and the naturalness stage. `readAutoMovieContractRules` reads structured metadata from contract H2s.
 
-For an existing production, reread the obligation at its actual contributors and retain valid evidence there. Remove retired contract citations and superseded account-to-population annotations. Review and commit changed relationships with their declaration and any affected project instructions. The [staging procedure](../template/scaffold/.agents/skills/evidence-graph/staging.md#production-specific-claims) owns migration.
+For an existing production, reread the obligation at its actual contributors and retain valid evidence there. Remove retired contract citations and superseded account-to-population annotations. Review and commit changed relationships with their declaration and affected project instructions.
 
 ## Public surface
 
@@ -70,6 +70,6 @@ The factory and production readers consume the same exported declaration. Additi
 
 ## Independent checks
 
-`pnpm run build` compiles the library with correctness lint. `pnpm run evidence` runs the standalone repository graph, then its native documentation and todo guards. Generated productions run `npm run lint` for TypeScript and `npm run evidence` for their authored graph and source todo guard. Their sole production declaration remains `lint.config.ts`; the CLI selects it explicitly.
+`pnpm run build` compiles the library with correctness lint. `pnpm run evidence` runs the standalone repository graph, then its native documentation and todo guards. Generated productions run `npm run lint` for TypeScript and `npm run evidence` for their authored graph and source todo guard. Their sole production declaration remains `lint.config.ts`; `evidence.config.ts` derives the standalone graph from that same exported object, and the normal evidence command selects the derived entry explicitly.
 
 The standalone evaluator accepts named severity levels. `createAutoMovieStandaloneEvidenceConfig` converts numeric levels and `warn` and resolves roots from the explicit production location without changing claim or reference policy. TypeScript references use explicit `root` and `files`; compiler-only package populations must be authored in that standalone form.

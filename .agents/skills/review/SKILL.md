@@ -20,7 +20,7 @@ A complete round satisfies all four rules:
 
 ## Review records belong to the procedure
 
-AutoMovie has no repository review service, finding ledger, approval state or waiver store. The record is the Git and pull-request chronology this skill produces. A generated production follows its shipped [production review procedure](../../../packages/template/scaffold/.agents/skills/review-verification/review.md), and neither workflow invents a second ledger.
+AutoMovie has no repository review service, finding ledger, approval state or waiver store. The record is the Git and pull-request chronology this skill produces. A generated production records its current observations with its authored owners.
 
 Declare the branch, base and head, working-tree state, artifact revision, and the file or rendered-output population the round reads. A conclusion applies only to that surface: a clean check, an empty finding set, elapsed time or a judgment over one file never implies wider approval.
 
@@ -39,7 +39,7 @@ Preserve history through commits and formal pull-request reviews. A later correc
 Self-Review and an unqualified review request use this workflow:
 
 1. Declare the review boundary. An intermediate coherent-result review includes that result's complete changes and consequence surface. Final integration and an unqualified Self-Review include the entire pull-request base-to-head diff and all uncommitted changes.
-2. Perform one complete round under the Non-Negotiable Review Law over that surface. Apply the [evidence graph skill](../evidence-graph/SKILL.md) for a changed requirement, specification, public citation or graph configuration, the [contracts skill](../contracts/SKILL.md) for a declaration enrolled in a contracts claim, and the [viewer-verification skill](../viewer-verification/SKILL.md) for visual behavior. A checker establishes that an answer exists; this review judges its truth and actual consequence.
+2. Perform one complete round under the Non-Negotiable Review Law over that surface. Apply the [evidence graph skill](../evidence-graph/SKILL.md) for a changed requirement, specification, public citation or graph configuration, the [contracts skill](../contracts/SKILL.md) for a declaration enrolled in a contracts claim, and [3D modeling's visual debugging procedure](../3d-modeling/SKILL.md#visual-debugging) for visual behavior. A checker establishes that an answer exists; this review judges its truth and actual consequence.
 3. Reproduce every suspected defect before accepting it.
 4. Apply every sound improvement and run the narrowest verification the owning workflow authorizes.
 5. If anything changed, restart at step 1 as a fresh full round.
@@ -49,7 +49,7 @@ Self-Review does not authorize creating, pushing, updating or merging a pull req
 
 ## "It is missing" is a claim that needs its own evidence
 
-A failed name search does not establish a missing capability or an unintended omission. Before accepting that claim, inspect the owning contract and type JSDoc, related fields and any declared exclusion or reopening condition; the checked-in implementation and reachable consumer, through the actual exported identity rather than only a filename or generated artifact; and the relevant guide and closed decision. When generated-production authoring reachability is in question, follow the [scaffold skill](../scaffold/SKILL.md#authoring-procedures-live-with-the-production) to the applicable shipped route and search in the author's vocabulary.
+A failed name search does not establish a missing capability or an unintended omission. Before accepting that claim, inspect the owning contract and type JSDoc, related fields and any declared exclusion or reopening condition; the checked-in implementation and reachable consumer, through the actual exported identity rather than only a filename or generated artifact; and the relevant guide and closed decision. When generated-production authoring reachability is in question, follow the [scaffold skill](../scaffold/SKILL.md) to the applicable shipped route and search in the author's vocabulary.
 
 When this inspection turns up a declared position, the finding becomes "this was deferred, and here is what now lets it be done deliberately within stated bounds", which carries a different burden of proof.
 
@@ -64,4 +64,4 @@ Choose evidence for the claim. A numerical check, source trace and rendered obse
 - A mechanically specified acceptance predicate requires its actual validator result. Citation counts and passing compilation do not establish anatomical validity or clinical qualification.
 - Whether a silhouette reads, a performance is credible or a cut lands is settled by frames alone.
 
-For generated-production predicates and actual-output evidence, follow the shipped [production review procedure](../../../packages/template/scaffold/.agents/skills/review-verification/review.md). When a finding repeats, inspect the existing refusal before adding a diagnostic at the actual owner. Do not add a source-text approximation beside the parser or validator that already owns that rule.
+When a finding repeats, inspect the existing refusal before adding a diagnostic at the actual owner. Do not add a source-text approximation beside the parser or validator that already owns that rule.

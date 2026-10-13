@@ -1,10 +1,7 @@
-import {
-  AutoMovieContentDigest,
-  AutoMovieDesignReferenceMedia,
-} from "@automovie/interface";
+import type { IAutoMovieInspectedDesignReference } from "./IAutoMovieInspectedDesignReference";
 
 import { digestAutoMovieBytes } from "./contentIdentity";
-import { inspectAutoMovieDesignReferenceContainer } from "./designReferenceContainer";
+import { inspectAutoMovieDesignReferenceContainer } from "./designReference/inspectAutoMovieDesignReferenceContainer";
 
 /**
  * Every container this inspector recognizes, named in each refusal so a
@@ -12,49 +9,6 @@ import { inspectAutoMovieDesignReferenceContainer } from "./designReferenceConta
  */
 const SUPPORTED_DESIGN_REFERENCES =
   'Supported design references are PNG ("image/png"), JPEG ("image/jpeg"), SVG ("image/svg+xml"), PDF ("application/pdf") and DXF ("image/vnd.dxf") bytes.';
-
-/**
- * The source-space extent of one design reference, or an honest statement that
- * this host cannot measure it.
- *
- * A PDF page box needs a page-content parser and a DXF extent needs an entity
- * sweep; this host ships neither. Reporting `unsupported` keeps the frame the
- * author declared unverified rather than silently blessed, which is the
- * opposite of returning a plausible-looking guess.
- */
-export type IAutoMovieDesignReferenceBounds =
-  | {
-      /** The container states its own extent and this host read it. */
-      status: "measured";
-      /** Extent along the source x axis, in the container's own units. */
-      width: number;
-      /** Extent along the source y axis, in the container's own units. */
-      height: number;
-    }
-  | {
-      /** This host cannot derive the extent from these bytes. */
-      status: "unsupported";
-      /** What is missing, stated rather than approximated. */
-      reason: string;
-    };
-
-/**
- * What one design-reference asset's bytes actually are.
- */
-export interface IAutoMovieInspectedDesignReference {
-  /**
-   * Container family confirmed by its own parser, never by a name.
-   */
-  media: AutoMovieDesignReferenceMedia;
-  /**
-   * SHA-256 of the exact inspected bytes.
-   */
-  digest: AutoMovieContentDigest;
-  /**
-   * Source-space extent, or the reason this host cannot measure it.
-   */
-  bounds: IAutoMovieDesignReferenceBounds;
-}
 
 /**
  * Read one registered design-reference asset's own container facts.
@@ -89,6 +43,7 @@ export interface IAutoMovieInspectedDesignReference {
  *
  * The whole function is a pure function of `bytes`: no filesystem, no clock, no
  * locale, so the same asset inspects identically on every machine.
+ *
  * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-image-video Reads the family, extent and digest of a design reference image out of its bytes, never out of its filename extension.
  * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-image-video-inspection Produces the decoded extent and container facts of a design reference image from its parsed bytes.
  * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-design-drawing-inspection Identifies the registered drawing family from the bytes and measures its source-space extent without claiming map adoption or placement.
@@ -96,6 +51,7 @@ export interface IAutoMovieInspectedDesignReference {
 export const inspectDesignReferenceAsset = (props: {
   /** Project-relative declared asset path, named in every refusal. */
   path: string;
+
   /** Exact current bytes of that asset. */
   bytes: Uint8Array;
 }): IAutoMovieInspectedDesignReference => {

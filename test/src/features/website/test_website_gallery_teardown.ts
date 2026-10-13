@@ -1,66 +1,37 @@
-import { mountGallery } from "@automovie/website/gallery";
 import { TestValidator } from "@nestia/e2e";
 
-import { websiteGalleryFixture } from "../internal/websiteGalleryFixture";
+import { GalleryUnit } from "../internal/GalleryUnit";
+import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
 
 /**
- * Disposal releases both open and unopened enhancements. Their original
- * links survive, and former controls cannot mutate the gallery afterward.
+ * Disposal releases an opening once and invalidates its policy callbacks.
+ * A never-opened gallery releases contents without inventing an opener focus.
  *
  * Scenarios:
- * 1. Dispose an open gallery twice: it unlocks the document and restores focus.
- * 2. Activate the former link and controls: no modal or content update occurs.
- * 3. Dispose before opening: the document's existing focus stays unchanged.
+ * 1. Dispose an opening: lock and original focus restore, every late action is inert.
+ * 2. Dispose before opening: existing focus remains and contents still release.
  */
 export const test_website_gallery_teardown = (): void => {
-  const f = websiteGalleryFixture();
-  const dispose = mountGallery(f.document);
-  f.openers[0].click();
-  const oldView = f.element<HTMLButtonElement>(
-    "#gallery-views button:nth-child(2)",
-  );
-  const oldImage = f.element<HTMLImageElement>("#gallery-picture img");
-  dispose();
-  dispose();
-  TestValidator.predicate(
-    "disposal closes and restores focus",
-    !f.dialog.open &&
-      !f.document.documentElement.classList.contains("gallery-open") &&
-      f.document.activeElement === f.openers[0],
-  );
-  let intercepted = true;
-  f.openers[1].addEventListener("click", (event) => {
-    intercepted = event.defaultPrevented;
-    event.preventDefault();
-  });
-  f.openers[1].click();
-  f.element<HTMLButtonElement>("#gallery-next").click();
-  f.dialog.dispatchEvent(
-    new f.dom.window.KeyboardEvent("keydown", { key: "ArrowRight" }),
-  );
-  oldView.click();
-  oldImage.dispatchEvent(new f.dom.window.Event("error"));
-  TestValidator.predicate(
-    "disposed link preserves its default",
-    !intercepted && !f.dialog.open,
-  );
-  TestValidator.equals(
-    "disposed controls cannot mutate",
-    f.element("#gallery-title").textContent,
-    "Place 1",
-  );
-  TestValidator.predicate(
-    "dynamic listeners also detach",
-    f.element("#gallery-picture img") === oldImage &&
-      f.element("#gallery-caption").textContent === "Exterior",
-  );
-  f.dom.window.close();
-  const unopened = websiteGalleryFixture();
-  unopened.openers[1].focus();
-  mountGallery(unopened.document)();
-  TestValidator.predicate(
-    "unopened teardown preserves focus",
-    unopened.document.activeElement === unopened.openers[1],
-  );
-  unopened.dom.window.close();
+  const { host, facts } = createGalleryHostFacts();
+  const controller = new GalleryUnit.Controller(host, [3, 2]);
+  const click = { button: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false };
+  controller.open(0, "original", click, () => {});
+  controller.selectView(1);
+  controller.dispose();
+  TestValidator.equals("opening disposed", [facts.open, facts.locked, facts.focused], [false, false, "original"]);
+  const before = facts.effects.length;
+  let intercepted = false;
+  controller.dispose();
+  controller.close();
+  controller.closed();
+  controller.moveBuilding(1);
+  controller.selectView(2);
+  controller.backdrop({ dialogTarget: true, x: -1, y: -1, bounds: { left: 0, right: 1, top: 0, bottom: 1 } });
+  TestValidator.equals("late open refused", controller.open(1, "late", click, () => { intercepted = true; }), false);
+  TestValidator.equals("late key refused", controller.key({ ...click, key: "ArrowRight" }, () => { intercepted = true; }), false);
+  TestValidator.equals("late actions produce no state effects", [facts.effects.length, intercepted, facts.building, facts.view], [before, false, 0, 1]);
+  const unopened = createGalleryHostFacts();
+  unopened.facts.focused = "existing-page-focus";
+  new GalleryUnit.Controller(unopened.host, [1]).dispose();
+  TestValidator.equals("unopened disposal preserves focus", [unopened.facts.focused, unopened.facts.effects.at(-1)], ["existing-page-focus", "dispose"]);
 };

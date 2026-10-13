@@ -7,14 +7,18 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject";
-import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats";
-import type { IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceSetProps";
-import { readAutoMovieDeliveryCrop } from "./deliveryCrop";
-import { flattenInstancedModel, flattenInstancedObject } from "./formation";
-import { regenerateInstanceSlot } from "./regenerateInstanceSlot";
+import type { IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject.js";
+import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats.js";
+import type { IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceSetProps.js";
+import { readAutoMovieDeliveryCrop } from "./deliveryCrop.js";
+import { flattenInstancedModel, flattenInstancedObject } from "./formation/index.js";
+import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
 
-/** One chunk's prototype tier meshes and the hysteretic tier selected by its last update. */
+/**
+ * One chunk's prototype tier meshes and the hysteretic tier selected by its last update.
+ *
+ * @author Samchon
+ */
 interface IInstancePrototypeChunkObject {
   /** Conservative world radius of one unscaled prototype instance. */
   projectionRadius: number;
@@ -32,7 +36,11 @@ interface IInstancePrototypeChunkObject {
   selected: IAutoMovieCompiledFormationLod["tier"] | null;
 }
 
-/** One flattened prototype tier ready to be cloned into a chunk batch. */
+/**
+ * One flattened prototype tier ready to be cloned into a chunk batch.
+ *
+ * @author Samchon
+ */
 interface IInstanceRepresentation {
   /** Flattened rest geometry cloned separately for each chunk batch. */
   geometry: THREE.BufferGeometry;
@@ -41,7 +49,11 @@ interface IInstanceRepresentation {
   materials: THREE.Material[];
 }
 
-/** One compiled chunk and its persistent prototype visibility state. */
+/**
+ * One compiled chunk and its persistent prototype visibility state.
+ *
+ * @author Samchon
+ */
 interface IInstanceChunkObject {
   /** Immutable compiled member span, bounds and centroid. */
   runtime: IAutoMovieCompiledInstanceSet["chunks"][number];

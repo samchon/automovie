@@ -5,7 +5,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createHumanWorker } from "../common/createHumanWorker";
 import { createConnectedBodyPort } from "./connectedBodyPort";
-import { createConnectedBodyViewport } from "./connectedBodyViewport";
+import { createConnectedBodyViewport } from "@automovie/viewer/human/body/createConnectedBodyViewport";
 
 /**
  * A body page's viewport on its canvas: a WebGL renderer that keeps its

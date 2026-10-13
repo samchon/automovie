@@ -1,0 +1,205 @@
+/**
+ * Keep one admitted basis evaluator and contact partition in a worker.
+ * A preview packs transferable geometry and measurements; export runs only
+ * on an explicit request. The last evaluated document may be reused for
+ * export, while a different committed document is evaluated independently
+ * of an in-flight draft.
+ */
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodySimpleWhole,
+} from "../../index";
+import { createHumanBodyBasisBuilder } from "../basis/createHumanBodyBasisBuilder";
+import { parseHumanBodyBasisDocument } from "../document/parseHumanBodyBasisDocument";
+import { createHumanBodyAssemblyExportQualification } from "../export/createHumanBodyAssemblyExportQualification";
+import { createHumanBodyAtlasExportQualification } from "../export/createHumanBodyAtlasExportQualification";
+import { exportHumanBody } from "../export/exportHumanBody";
+import { createHumanBodySegmenter } from "../measure/createHumanBodySegmenter";
+import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
+import { stepHumanBodyArmsDown } from "../measure/stepHumanBodyArmsDown";
+import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieModel } from "@automovie/interface";
+
+import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
+import type { IConnectedBodyRuntimeCachedBuild } from "./IConnectedBodyRuntimeCachedBuild";
+import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
+import { packConnectedBodyModel } from "./packConnectedBodyModel";
+import { describeConnectedBodyConstructionProgress } from "./describeConnectedBodyConstructionProgress";
+import { readConnectedBodyContacts } from "./readConnectedBodyContacts";
+import { readConnectedBodyFemoralHeads } from "./readConnectedBodyFemoralHeads";
+import { readConnectedBodyHumeralHeads } from "./readConnectedBodyHumeralHeads";
+import { readConnectedBodyRigReading } from "./readConnectedBodyRigReading";
+
+/** Compile the basis once and evaluate all later body requests against it.
+ *
+ * A contact reading takes a couple of seconds and the worker runs one thing
+ * at a time, so a preview asked for while it ran used to wait behind it. The
+ * reading is therefore taken one segment and one segment pair at a time
+ * (the same entries in the same order as one `measureAutoMovieModelCrossings`
+ * call), handing the thread back every `sliceMs`; a request that arrives in
+ * the meantime is evaluated in that gap, and the reading it supersedes is
+ * abandoned at its next slice and answers with no reading. An arms-down
+ * solve is driven the same way, a build and crossing read at a time
+ * (`stepHumanBodyArmsDown`), and refuses as superseded when a later request
+ * arrives. The humeral-head estimate reads age, sex and stature through the
+ * simple projection, whose stature is the whole person's (`whole`).
+ *
+ */
+export function createConnectedBodyRuntime(
+  basis: IAutoMovieHumanBodyBasis,
+  whole: IAutoMovieHumanBodySimpleWhole,
+  options: IConnectedBodyRuntimeOptions = {},
+) {
+  const evaluate = createHumanBodyBasisBuilder(
+    basis,
+    options.progress === undefined
+      ? options.builderOptions
+      : {
+          ...options.builderOptions,
+          observeProgress: (progress) => {
+            options.builderOptions?.observeProgress?.(progress);
+            options.progress!(
+              describeConnectedBodyConstructionProgress(progress),
+            );
+          },
+        },
+  );
+  const segment = createHumanBodySegmenter(basis);
+  const sliceMs = options.sliceMs ?? 25;
+  const yieldThread =
+    options.yieldThread ??
+    ((): Promise<undefined> =>
+      new Promise((resolve) => {
+        setTimeout(() => resolve(undefined), 0);
+      }));
+  /** Requests received so far; a reading is superseded by any later one. */
+  let received = 0;
+  const readContacts = (model: IAutoMovieModel, superseded: () => boolean) =>
+    readConnectedBodyContacts({ model, sliceMs, yieldThread, superseded });
+  let last: IConnectedBodyRuntimeCachedBuild | undefined;
+  return async (
+    request: ConnectedBodyRequest,
+  ): Promise<ConnectedBodyResult> => {
+    const mine = ++received;
+    if (request.operation === "exportConstruction")
+      throw new Error(
+        "Construction asset export belongs to the person generation runtime.",
+      );
+    assertTextSize(request.document);
+    // Canonical parsing is required even when the text matches the cache: a
+    // caller cannot bypass document admission by reusing a previous string.
+    const document = parseHumanBodyBasisDocument(
+      request.document,
+      basis.anatomicalAssembly,
+    );
+    if (request.operation === "construct") {
+      // Construction retains the layer owner's refusal, while the normal
+      // callable below still admits preview/export. This result never writes
+      // their accepted-build cache, even when its limited layer checks pass.
+      const constructed = evaluate.construct(document);
+      if (constructed.layerAdmission === undefined)
+        throw new Error(
+          "Body construction inspection needs the registered layer admission report.",
+        );
+      return {
+        operation: "construct",
+        model: packConnectedBodyModel(constructed.model),
+        admission: constructed.layerAdmission,
+        crossings: null,
+        anatomy: null,
+        femoralHeads: null,
+        groundSupport: null,
+        extras: { bones: constructed.bones, landmarks: constructed.landmarks },
+        rigReading: readConnectedBodyRigReading(constructed),
+      };
+    }
+    if (request.operation === "armsDown") {
+      // the same slicing as a contact reading: a step at a time, abandoned
+      // when a later request supersedes it
+      const steps = stepHumanBodyArmsDown(basis, evaluate, document, segment);
+      let since = Date.now();
+      let next = steps.next();
+      while (next.done !== true) {
+        if (Date.now() - since >= sliceMs) {
+          await yieldThread();
+          since = Date.now();
+        }
+        if (received !== mine)
+          throw new Error(
+            "The arms-down solve was superseded by a later request.",
+          );
+        next = steps.next();
+      }
+      const solved = next.value;
+      return {
+        operation: "armsDown",
+        pose: solved.pose ?? [],
+        shoulders: solved.shoulders ?? [],
+      };
+    }
+    const built =
+      last?.document === request.document ? last.built : evaluate(document);
+    last = { document: request.document, built };
+    if (request.operation === "export") {
+      const { glb } = await exportHumanBody(
+        built.model,
+        undefined,
+        undefined,
+        await createHumanBodyAtlasExportQualification(
+          basis,
+          built.evaluatedDocument,
+        ),
+        await createHumanBodyAssemblyExportQualification(
+          basis,
+          built.evaluatedDocument,
+          "",
+          built.layerObservations,
+        ),
+      );
+      return { operation: "export", glb };
+    }
+    const model = packConnectedBodyModel(built.model);
+    const crossings =
+      request.measure || request.anatomy
+        ? await readContacts(segment(built).model, () => received !== mine)
+        : null;
+    let anatomy: IConnectedBodyPreviewResult["anatomy"] = null;
+    if (request.anatomy && crossings !== null)
+      anatomy = readConnectedBodyHumeralHeads({
+        basis,
+        whole,
+        document,
+        built,
+        crossings,
+      });
+    const femoralHeads =
+      request.anatomy && crossings !== null
+        ? readConnectedBodyFemoralHeads({
+            basis,
+            whole,
+            document,
+            built,
+            crossings,
+          })
+        : null;
+    const groundSupport = request.anatomy
+      ? measureHumanBodyGroundSupport(
+          basis,
+          built.posedSurfaces.map((surface) => surface.positions),
+          built.landmarks,
+          built.groundPlaneHeightMetres,
+        )
+      : null;
+    return {
+      operation: "preview",
+      model,
+      crossings: request.measure ? crossings : null,
+      anatomy,
+      femoralHeads,
+      groundSupport,
+      extras: { bones: built.bones, landmarks: built.landmarks },
+    };
+  };
+}

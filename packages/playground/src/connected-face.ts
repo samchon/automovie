@@ -10,24 +10,21 @@ import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/pars
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import simpleControls from "erased-data";
-import studyDocuments from "erased-data";
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import faceBasisUrl from "erased-data";
+import simpleControls from "./human/examples/face-controls.json";
+import studyDocuments from "./human/examples/faces.json";
+import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import { createHumanWorker } from "./human/common/createHumanWorker";
 import { createHumanResidentPort } from "./human/common/residentPort";
 import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
 import { mountConnectedFacePanel } from "./human/face/connectedPanel";
-import { createConnectedFaceViewport } from "./human/face/connectedViewport";
+import { createConnectedFaceViewport } from "@automovie/viewer/human/face/createConnectedFaceViewport";
+import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset({
     read: () =>
-      fetch(
-        new URL(
-          "erased-data",
-          import.meta.url,
-        ),
-      ),
+      fetch(faceBasisUrl),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
     id: "connected-reference",
@@ -86,9 +83,13 @@ async function main(): Promise<void> {
       },
     },
   );
+  registerPlaygroundEditor({ ready: panel.ready,
+    document: () => panel.snapshot()?.document,
+    load: panel.load, controls: document });
   await panel.ready;
 }
 void main().catch((error: unknown) => {
+  window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLDivElement>("#app")!.textContent =
     error instanceof Error ? error.message : String(error);
 });

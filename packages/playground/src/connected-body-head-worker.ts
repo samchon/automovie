@@ -9,15 +9,15 @@
  * evaluates it with the product person runtime and returns only the head
  * (`face:`) parts.
  */
-import type { ConnectedBodyRequest } from "./human/body/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "./human/body/ConnectedBodyResult";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
 import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { createConnectedBodyHeadPerson } from "./human/body/createConnectedBodyHeadPerson";
+import { createConnectedBodyHeadPerson } from "@automovie/human/human/runtime/createConnectedBodyHeadPerson";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
-import { createConnectedPersonRuntime } from "./human/person/createConnectedPersonRuntime";
+import { createConnectedPersonRuntime } from "@automovie/human/human/runtime/createConnectedPersonRuntime";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const prepared = Promise.all([

@@ -2,9 +2,12 @@ import { tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { passageClearance } from "./passage-clearance";
+import { passageClearance } from "./passage-clearance.mjs";
 import { stairCylinderPath } from "./stair-cylinder-path";
 
+/**
+ * Check the authored stair route against raised support and obstruction geometry in an owned in-memory environment. These assertions distinguish a cylinder's stepped path from an unraised passage through the same solid; they supply no rendered or production-wide clearance verdict.
+ */
 export function verifyStairCylinderPath(): void {
   const v = (x: number, y: number, z: number) => ({ x, y, z });
   const rectangle = (x0: number, x1: number, z0: number, z1: number) => [

@@ -1,8 +1,8 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget";
-import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame";
+import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js";
+import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 
 /** Host-owned map or partial slot record; null and missing nodes are omitted during normalization. */
 type BoneMapInput =

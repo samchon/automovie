@@ -1,4 +1,4 @@
-import { inSpace, propEnvironment } from "../film/propPlacementFixtures";
+import { inSpace, propEnvironment } from "./propPlacementFixtures";
 import type { IFilmPropPlacementCaseInputs } from "./IFilmPropPlacementCaseInputs";
 import type { namedFacts } from "./predicates";
 

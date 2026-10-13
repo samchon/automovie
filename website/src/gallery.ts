@@ -15,11 +15,15 @@
  * showModal keep the original image-link behavior.
  */
 
+import { GalleryController } from "./gallery/GalleryController";
+import { GalleryImageLifecycle } from "./gallery/GalleryImageLifecycle";
+import { deriveGallerySelection } from "./gallery/deriveGallerySelection";
+import { requireGalleryValue } from "./gallery/requireGalleryValue";
+import { readGalleryBuildings } from "./gallery/readGalleryBuildings";
+
 /** Required authored markup is a precondition; fail before attaching events. */
 const required = <T extends Element>(root: ParentNode, selector: string): T => {
-  const element = root.querySelector<T>(selector);
-  if (element === null) throw new Error(`Missing gallery element: ${selector}`);
-  return element;
+  return requireGalleryValue(root.querySelector<T>(selector), selector);
 };
 
 /** Read content first, then attach the enhancement as one disposable unit. */
@@ -39,35 +43,13 @@ export const mountGallery = (document: Document): (() => void) => {
   const close = required<HTMLButtonElement>(dialog, "#gallery-close");
   const previous = required<HTMLButtonElement>(dialog, "#gallery-previous");
   const next = required<HTMLButtonElement>(dialog, "#gallery-next");
-  const buildings = Array.from(
-    document.querySelectorAll<HTMLElement>(".building"),
-    (article) => {
-      const opener = required<HTMLAnchorElement>(article, "[data-gallery]");
-      const exterior = required<HTMLImageElement>(article, "img");
-      const template = required<HTMLTemplateElement>(
-        article,
-        ".building-views",
-      );
-      return {
-        opener,
-        title: required<HTMLElement>(article, "h3").textContent,
-        era: required<HTMLElement>(article, ".era").textContent,
-        description: required<HTMLElement>(article, ".building-description")
-          .textContent,
-        source: required<HTMLAnchorElement>(article, ".source-link").href,
-        tour: article.querySelector<HTMLAnchorElement>(".tour-link"),
-        images: [
-          exterior,
-          ...template.content.querySelectorAll<HTMLImageElement>("img"),
-        ],
-      };
-    },
-  );
-  if (buildings.length === 0) throw new Error("The gallery needs a building.");
-  let buildingIndex = 0;
-  let viewIndex = 0;
-  let opener: HTMLAnchorElement | null = null;
-  let unbindImage = (): void => {};
+  const buildings = readGalleryBuildings(document);
+  const imageLifecycle = new GalleryImageLifecycle();
+  const content = buildings.map((building) => ({
+    title: building.title, era: building.era, description: building.description,
+    source: building.source, tour: building.tour?.href ?? null,
+    images: building.images.map((image) => ({ src: image.src, alt: image.alt, label: image.dataset.label })),
+  }));
   let unbindViews: (() => void)[] = [];
   const removeListeners: (() => void)[] = [];
   const listen = (
@@ -79,25 +61,27 @@ export const mountGallery = (document: Document): (() => void) => {
     removeListeners.push(() => node.removeEventListener(type, callback));
   };
 
-  const showView = (index: number): void => {
-    unbindImage();
-    viewIndex = index;
+  const showView = (buildingIndex: number, index: number): void => {
     const image = buildings[buildingIndex].images[index];
-    const copy = image.cloneNode(true) as HTMLImageElement;
-    copy.loading = "eager";
-    copy.removeAttribute("fetchpriority");
-    picture.replaceChildren(copy);
-    const failImage = (): void => {
-      const message = document.createElement("p");
-      message.className = "gallery-error";
-      message.textContent =
-        "This image could not load. Use “Open full image” to try it directly.";
-      copy.replaceWith(message);
-    };
-    copy.addEventListener("error", failImage, { once: true });
-    unbindImage = () => copy.removeEventListener("error", failImage);
-    caption.textContent = index === 0 ? "Exterior" : image.dataset.label!;
-    original.href = image.src;
+    imageLifecycle.replace((whenCurrent) => {
+      const copy = image.cloneNode(true) as HTMLImageElement;
+      copy.loading = "eager";
+      copy.removeAttribute("fetchpriority");
+      picture.replaceChildren(copy);
+      const failImage = (): void => {
+        whenCurrent(() => {
+          const message = document.createElement("p");
+          message.className = "gallery-error";
+          message.textContent = "This image could not load. Use “Open full image” to try it directly.";
+          copy.replaceWith(message);
+        });
+      };
+      copy.addEventListener("error", failImage, { once: true });
+      return () => copy.removeEventListener("error", failImage);
+    });
+    const selection = deriveGallerySelection(content, buildingIndex, index);
+    caption.textContent = selection.caption!;
+    original.href = selection.image.src;
     Array.from(views.children).forEach((button, position) => {
       button.setAttribute("aria-pressed", String(position === index));
     });
@@ -106,91 +90,68 @@ export const mountGallery = (document: Document): (() => void) => {
   const showBuilding = (index: number): void => {
     unbindViews.forEach((remove) => remove());
     unbindViews = [];
-    buildingIndex = index;
     const building = buildings[index];
-    title.textContent = building.title;
-    era.textContent = building.era;
-    description.textContent = building.description;
-    source.href = building.source;
-    tour.hidden = building.tour === null;
-    if (building.tour === null) tour.removeAttribute("href");
-    else tour.href = building.tour.href;
-    count.textContent = `${index + 1} / ${buildings.length}`;
+    const selection = deriveGallerySelection(content, index, 0);
+    title.textContent = selection.title;
+    era.textContent = selection.era;
+    description.textContent = selection.description;
+    source.href = selection.source;
+    tour.hidden = selection.tour === null;
+    if (selection.tour === null) tour.removeAttribute("href");
+    else tour.href = selection.tour;
+    count.textContent = selection.count;
     views.replaceChildren(
       ...building.images.map((image, position) => {
         const button = document.createElement("button");
         button.type = "button";
         button.textContent = position === 0 ? "Exterior" : image.dataset.label!;
-        const select = (): void => showView(position);
+        const select = (): void => controller.selectView(position);
         button.addEventListener("click", select);
         unbindViews.push(() => button.removeEventListener("click", select));
         return button;
       }),
     );
-    showView(0);
   };
+
+  const controller = new GalleryController<HTMLAnchorElement>({
+    supportsModal: true,
+    isOpen: () => dialog.open,
+    renderBuilding: showBuilding,
+    renderView: showView,
+    showModal: () => dialog.showModal(),
+    closeModal: () => dialog.close(),
+    setLocked: (locked) => document.documentElement.classList.toggle("gallery-open", locked),
+    focus: (element) => element.focus(),
+    disposeContents: () => {
+      imageLifecycle.dispose();
+      unbindViews.forEach((remove) => remove());
+      removeListeners.forEach((remove) => remove());
+    },
+  }, buildings.map((building) => building.images.length));
 
   buildings.forEach((building, index) =>
     listen(building.opener, "click", (event) => {
       const click = event as MouseEvent;
-      if (
-        click.button !== 0 ||
-        click.ctrlKey ||
-        click.metaKey ||
-        click.shiftKey ||
-        click.altKey
-      )
-        return;
-      event.preventDefault();
-      opener = building.opener;
-      showBuilding(index);
-      dialog.showModal();
-      document.documentElement.classList.add("gallery-open");
+      controller.open(index, building.opener, click, () => event.preventDefault());
     }),
   );
-  const finishClose = (): void => {
-    if (dialog.open) return;
-    document.documentElement.classList.remove("gallery-open");
-    opener?.focus();
-  };
-  const closeGallery = (): void => {
-    dialog.close();
-    finishClose();
-  };
+  const finishClose = (): void => controller.closed();
+  const closeGallery = (): void => controller.close();
   listen(close, "click", closeGallery);
   listen(dialog, "close", finishClose);
-  listen(previous, "click", () =>
-    showBuilding((buildingIndex + buildings.length - 1) % buildings.length),
-  );
-  listen(next, "click", () =>
-    showBuilding((buildingIndex + 1) % buildings.length),
-  );
+  listen(previous, "click", () => controller.moveBuilding(-1));
+  listen(next, "click", () => controller.moveBuilding(1));
   listen(dialog, "keydown", (event) => {
     const key = event as KeyboardEvent;
-    if (key.key !== "ArrowLeft" && key.key !== "ArrowRight") return;
-    if (key.ctrlKey || key.metaKey || key.altKey || key.shiftKey) return;
-    event.preventDefault();
-    const length = buildings[buildingIndex].images.length;
-    showView(
-      (viewIndex + length + (key.key === "ArrowRight" ? 1 : -1)) % length,
-    );
+    controller.key(key, () => event.preventDefault());
   });
   listen(dialog, "click", (event) => {
     if (event.target !== dialog) return;
     const click = event as MouseEvent;
     const bounds = dialog.getBoundingClientRect();
-    if (
-      click.clientX < bounds.left ||
-      click.clientX > bounds.right ||
-      click.clientY < bounds.top ||
-      click.clientY > bounds.bottom
-    )
-      closeGallery();
+    controller.backdrop({ dialogTarget: true, x: click.clientX, y: click.clientY, bounds });
   });
   return () => {
-    closeGallery();
-    unbindImage();
-    unbindViews.forEach((remove) => remove());
-    removeListeners.forEach((remove) => remove());
+    controller.dispose();
   };
 };

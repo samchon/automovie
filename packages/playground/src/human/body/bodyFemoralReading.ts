@@ -1,4 +1,4 @@
-import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
+import type { IConnectedBodyFemoralHeads } from "@automovie/human/body/runtime/IConnectedBodyFemoralHeads";
 
 /**
  * Describe the femoral head targets an explicit body check read, or null

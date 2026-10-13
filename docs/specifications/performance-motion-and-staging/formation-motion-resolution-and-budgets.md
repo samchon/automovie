@@ -89,6 +89,10 @@ Motion validator는 cue와 sparse slot exception의 identity, 대상 formation·
 
 ### Determinism, status와 호환성 {#performance-formation-determinism-status-compatibility}
 
+<!-- @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-time-sampling Formation beauty and shadow projections resolve the same caster state at the fixed sample. -->
+
+Beauty, supported structural overrides and shadow depth/distance projections read the selected tier's same cycle uniform cells and member attributes. Direct seek, gait changes, phase offsets, radius-scaled turn and interpolation across the last-to-first sample preserve that shared state. Camera-driven tier selection and chunk visibility apply to the same resident mesh across those projections; shader deformation does not enable rest-geometry frustum rejection on an admitted instance batch.
+
 <!-- @evidence requirements/formations/budgets-and-validation.md#formation-determinism 같은 design과 seed에서 slot, variation, motion과 LOD 결과를 재현한다. -->
 <!-- @evidence requirements/formations/budgets-and-validation.md#formation-failure-status failure, unsupported, not-run과 stale을 통과와 구분한다. -->
 <!-- @evidence requirements/formations/heroes-variation-and-state.md#formation-deterministic-population seed와 identity의 deterministic population을 요구한다. -->

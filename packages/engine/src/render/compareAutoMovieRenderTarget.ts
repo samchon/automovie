@@ -40,6 +40,8 @@ export const compareAutoMovieRenderTarget = (props: {
     if (String(left) !== String(right))
       drift.push({ field, reported: String(left), current: String(right) });
   };
+  compare("protocol", reported.protocol, current.protocol);
+  compare("textureDigest", reported.textureDigest ?? "absent", current.textureDigest ?? "absent");
   compare("renderer.api", reported.renderer.api, current.renderer.api);
   compare("renderer.vendor", reported.renderer.vendor, current.renderer.vendor);
   compare("renderer.device", reported.renderer.device, current.renderer.device);

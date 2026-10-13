@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanPersonHeadView } from "@automovie/human";
+import headViewUrl from "erased-data";
 
-import { readConnectedFaceAsset } from "../common/connectedAsset";
+import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 
 /**
  * Read the head partition view of the published person generation, the head
@@ -18,11 +19,7 @@ export function readConnectedHeadView(
   return readConnectedFaceAsset<IAutoMovieHumanPersonHeadView>({
     read: () =>
       fetch(
-        source ??
-          new URL(
-            "erased-data",
-            import.meta.url,
-          ),
+        source ?? headViewUrl,
       ),
   });
 }

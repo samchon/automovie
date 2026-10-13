@@ -1,4 +1,4 @@
-import type { ConnectedBodyRequest } from "../body/ConnectedBodyRequest";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
 
 /**
  * One request the person editor posts to its resident person worker: the

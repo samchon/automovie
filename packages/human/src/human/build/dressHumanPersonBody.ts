@@ -4,8 +4,8 @@ import type { IHumanPersonDressedBody } from "../structures/IHumanPersonDressedB
 /**
  * Register fabric material while retaining the body's original skin regions.
  * The Person consumer places or stitches those source corners first, completes
- * any anatomical layer readings on the original skin, and only then partitions
- * the actual final render regions with the prepared rest coverage. No before-
+ * any anatomical layer readings on the original skin, and only then cuts and
+ * lifts fabric from final render regions with prepared rest coverage. No before-
  * join clothing geometry is carried into the joined person.
  */
 export function dressHumanPersonBody(

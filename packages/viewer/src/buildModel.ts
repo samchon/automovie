@@ -4,13 +4,14 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject";
-import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver";
-import { applyTransform } from "./applyTransform";
-import { buildGeometry } from "./buildGeometry";
-import { buildMaterial } from "./buildMaterial";
-import { defaultMaterial } from "./defaultMaterial";
-import { applyReliefWeights } from "./reliefWeightShading";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
+import { applyTransform } from "./applyTransform.js";
+import { buildGeometry } from "./buildGeometry.js";
+import { buildMaterial } from "./buildMaterial.js";
+import { defaultMaterial } from "./defaultMaterial.js";
+import { applyReliefWeights } from "./reliefWeightShading/index.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /**
  * Build a renderable `three.js` object from an {@link IAutoMovieModel}.
@@ -36,6 +37,11 @@ import { applyReliefWeights } from "./reliefWeightShading";
  * with a texture object PER BINDING, because {@link buildMaterial} writes that
  * binding's color space, UV transform and sampler onto whatever it is given,
  * and two slots sharing one object would fight over one repeat.
+ * Every returned geometry and material is registered as soon as it is acquired,
+ * before a later part, binding or attachment can fail. Failure independently
+ * retires those owned objects, including objects not yet attached to the group;
+ * successful return transfers them to the caller. Texture wrappers stay with
+ * the resolver's owner. A nested producer retires its own failed allocation.
  *
  * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Keeps this model surface in the compiled transform hierarchy.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes the same hierarchy for render visibility and culling.
@@ -47,6 +53,7 @@ export const buildModel = (
   model: IAutoMovieModel,
   resolveTexture?: IAutoMovieTextureResolver,
 ): IAutoMovieModelObject => {
+  return constructAutoMovieOwnedResources((own) => {
   const group = new THREE.Group();
   group.name = model.name ?? model.id;
 
@@ -86,7 +93,7 @@ export const buildModel = (
   const materials = new Map<string, Map<string, THREE.MeshStandardMaterial>>();
   const parts = new Map<string, THREE.Object3D>();
   for (const part of model.parts) {
-    const geo = buildGeometry(part.geometry);
+    const geo = own(buildGeometry(part.geometry));
     const colored = geo.hasAttribute("color");
     // a mesh with relief weights takes its own variant, whose normal map's
     // slopes they scale; one without keeps the material as authored
@@ -95,7 +102,7 @@ export const buildModel = (
       part.material === null ? undefined : definitions.get(part.material);
     let mat: THREE.MeshStandardMaterial;
     if (definition === undefined) {
-      mat = defaultMaterial();
+      mat = own(defaultMaterial());
       mat.vertexColors = colored;
     } else {
       let variants = materials.get(definition.id);
@@ -106,7 +113,7 @@ export const buildModel = (
       const key = `${colored}:${weighted}`;
       const cached = variants.get(key);
       if (cached === undefined) {
-        mat = buildMaterial(definition, resolveTexture);
+        mat = own(buildMaterial(definition, resolveTexture));
         mat.vertexColors = colored;
         if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
         variants.set(key, mat);
@@ -135,7 +142,7 @@ export const buildModel = (
       });
       group.add(mesh);
       group.updateMatrixWorld(true);
-      mesh.bind(new THREE.Skeleton(jointBones));
+      mesh.bind(own(new THREE.Skeleton(jointBones)));
       mesh.normalizeSkinWeights();
     } else if (part.attachedBone !== null) {
       // An unknown attachedBone must throw like the skin path above (#1106):
@@ -154,4 +161,5 @@ export const buildModel = (
   }
 
   return { object: group, bones, parts };
+  });
 };

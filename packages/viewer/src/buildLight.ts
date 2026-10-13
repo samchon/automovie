@@ -2,7 +2,7 @@ import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 
-import { applyLightState } from "./applyLightState";
+import { applyLightState } from "./applyLightState.js";
 
 /**
  * Build the `three.js` light one staged light plays on, aimed the way the

@@ -3,9 +3,10 @@
  * GLB export. The worker owns the compiled basis and source model; transferred
  * arrays belong to one reply and the page may retain only the displayed frame.
  */
-import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 
 /** Transfer exactly the buffers owned by this reply, never basis memory.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Delivers preview geometry without copying the compiled basis.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Delivers requested GLB bytes without encoding during preview.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Transfers each preview's numerical buffers to its transaction.

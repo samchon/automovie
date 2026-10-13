@@ -6,6 +6,7 @@ import { mountBodyAnatomicalRequestPanel } from "./human/body/mountBodyAnatomica
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { createHumanWorker } from "./human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
+import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 /** Browser IO for the anatomy inspector; body/worker/viewport owners perform admission and rendering. */
 async function main() {
@@ -19,14 +20,19 @@ async function main() {
         serializeHumanBodyBasisDocument(bodyDocument, basis.anatomicalAssembly),
       () => createHumanWorker("worker=body-anatomy"),
     );
-  mountBodyAnatomicalRequestPanel(app, {
+  const panel = mountBodyAnatomicalRequestPanel(app, {
     basis: basis.id,
     source: basis.anatomicalAssembly,
     viewport,
     download: downloadConnectedFile,
   });
+  registerPlaygroundEditor({ ready: Promise.resolve(), empty: true,
+    document: () => panel.snapshot()?.document,
+    load: async (text) => { if (!await panel.apply(text)) throw new Error("The anatomy request transfer was refused."); },
+    controls: document });
 }
 void main().catch((error: unknown) => {
+  window.__playgroundViewerPage?.fail(error);
   document.querySelector<HTMLElement>("#request-status")!.textContent =
     error instanceof Error ? error.message : String(error);
 });

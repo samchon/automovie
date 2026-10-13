@@ -1,5 +1,7 @@
 # `@automovie/render`
 
+Render budget hosts supply decoded `textures` from Viewer cache objects to `assessAutoMovieRenderBudget`. A reused context also supplies `textureResidency` with other live shots, actual environment clone facts and retained runtime storage. The target's version-two fingerprint includes the required upload-fact closure and source/clone sharing relation, independently of encoded asset bytes. `autoMovieRenderBudgetRefusal` refuses required unknown texture storage as well as declared over-limit evidence; it preserves each source and shot diagnostic instead of treating an absent bound as zero. See the [Viewer texture host boundary](../viewer/README.md) for factual source and lifetime ownership.
+
 `@automovie/render`는 AutoMovie 결과물을 프레임과 비디오 산출물로 보내기 위한 결정론적 렌더 계획 패키지다.
 
 이 패키지는 직접 브라우저나 ffmpeg를 소유하지 않는다. 프레임 시간표, 파일명, ffmpeg 인자, model export, host가 주입하는 capture/encode adapter만 다룬다. 실제 WebGL 캡처는 playground나 외부 host가 맡고, 이 패키지는 같은 입력이 같은 frame schedule을 만들도록 고정한다.
@@ -12,7 +14,7 @@
 - `renderSequenceVideo` / `renderSequenceAndSee`: sequence manifest를 프레임별 capture adapter와 encode adapter에 태운다. capture host는 frame index뿐 아니라 live shot local time과 outgoing blend tail을 받는다.
 - `renderAndSee`: `renderVideo` 결과에 spec, duration, frame path, sample time, ffmpeg args를 붙여 agent가 그대로 읽을 수 있는 JSON 산출물로 돌려준다.
 - `createHeadlessCaptureAdapter`: Playwright-like page를 `renderVideo`의 `captureFrame` adapter로 감싼다. route miss, seek hook miss, screenshot failure, empty frame을 구조화된 오류 코드로 구분한다.
-- 렌더 예산 프리플라이트(`assessAutoMovieRenderBudget`, `autoMovieRenderBudgetEvidence`, `autoMovieRenderBudgetRefusal`, `autoMovieRenderTargetRendererOfGraphics`, `autoMovieRenderTargetSettingsOfShot`, `selectAutoMovieRenderBudget`): 렌더 잡이 그리기 직전에 자기 artifact를 자기 tier의 declared budget과 대조한다. capture host의 WebGL probe를 render target renderer identity로 읽고, compiled shot이 실제로 그려질 renderer 설정을 유도해 target을 봉인하고, shot별 verdict를 하나의 evidence 문서로 접는다. `over`만 렌더를 거부하며 `incomplete`와 `not-run`은 그대로 보고한다. probe가 없으면 verdict 자체를 만들지 않는다.
+- 렌더 예산 프리플라이트(`assessAutoMovieRenderBudget`, `autoMovieRenderBudgetEvidence`, `autoMovieRenderBudgetRefusal`, `autoMovieRenderTargetRendererOfGraphics`, `autoMovieRenderTargetSettingsOfShot`, `selectAutoMovieRenderBudget`): 렌더 잡이 그리기 직전에 자기 artifact를 자기 tier의 declared budget과 대조한다. capture host의 WebGL probe를 render target renderer identity로 읽고, compiled shot이 실제로 그려질 renderer 설정을 유도해 target을 봉인하고, shot별 verdict를 하나의 evidence 문서로 접는다. `over`와 안전한 상한이 없는 required resident texture는 렌더를 거부한다. 다른 `incomplete`와 `not-run`은 해당 측정 계약에 따라 보고하며, probe가 없으면 verdict 자체를 만들지 않는다.
 - 렌더 관찰 감사(`auditAutoMovieRenderObservation`): capture pass가 같은 프레임에서 얻은 viewer 관찰값을 프리플라이트의 보수적 측정 bound와 대조한다. 초과는 breach, 관찰할 수 없는 metric은 unchecked로 남기며 둘 다 없을 때만 `agrees`가 참이다. 관찰은 설계 budget이나 프리플라이트 결과를 다시 쓰지 않는다.
 - `planChunkedSequenceRender`(+ `IAutoMovieRenderChunk`, `IAutoMovieRenderPassManifest`, `IAutoMovieRenderReassembly`, `IAutoMovieRenderChunkPlan`): 긴 시퀀스를 청크와 패스로 쪼개고 재조립 계획을 낸다.
 - 자막(`planCaptionSidecar`, `renderCaptionSidecar`, `sliceCaptionSidecar`, `IAutoMovieCaptionEntry`, `IAutoMovieCaptionSidecar`): 비트 캡션을 사이드카로 계획·직렬화하고 청크 경계로 자른다.
@@ -33,3 +35,5 @@ package root은 브라우저 번들이 그대로 가져갈 수 있다. Node 전�
 ## Development checks
 
 `pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+
+Required texture byte or allocation-count uncertainty refuses preflight, including unbudgeted jobs. An over-limit recovery and an independent unknown texture diagnostic are reported together; neither condition suppresses the other.

@@ -1,5 +1,5 @@
-import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake";
-import type { IAutoMovieFormationCycleUniforms } from "./IAutoMovieFormationCycleUniforms";
+import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieFormationCycleUniforms } from "./IAutoMovieFormationCycleUniforms.js";
 
 /**
  * One figure's repertoire, baked once and replayed by every member that wears

@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createImportedPropSpec } from "../internal/createImportedPropSpec";
 import { createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
-import { inSpace, propEnvironment } from "./propPlacementFixtures";
+import { inSpace, propEnvironment } from "../internal/propPlacementFixtures";
 
 const CHAIR = 0;
 const LAMP = 1;

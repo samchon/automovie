@@ -1,0 +1,43 @@
+import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js";
+
+/**
+ * Answer `/rescan` once every sidecar read, generation view read and page
+ * admission it starts has finished, so a new candidate is decided rather than
+ * "still being read"; waiting admissions are asked again first, only
+ * documents no viewer frame could judge stay pending, and the answer marks
+ * those `pending`, with the reason, apart from refusals. The
+ * settled catalogue is published to the host before the answer. Returns
+ * whether the path was `/rescan`.
+ *
+ * @evidence contracts/common.md#principled-implementation Answers with decided inputs, keeping pending and refused apart.
+ * @evidence contracts/common.md#clear-and-simple-design Settling belongs to the host; this route publishes and answers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes actual settled sidecar and admission outcomes, retaining undecided entries instead of coercing them to success or silently dropping refusals.
+ * @evidence contracts/common.md#meaningful-documentation States when it answers and what the answer holds.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Answers with decided inputs, keeping pending and refused apart.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Settling belongs to the host; this route publishes and answers.
+ */
+export function serveHumanViewerRescan(
+  props: IServeHumanViewerDataProps,
+): boolean {
+  if (props.url.pathname !== "/rescan") return false;
+  void props
+    .settleInputs()
+    .then((settled) => {
+      props.publish(settled);
+      props.json({
+        documents: settled.documents
+          .filter((entry) => entry.id.startsWith("file:"))
+          .map((entry) => entry.id),
+        rejected: settled.rejected,
+      });
+    })
+    .catch((error: unknown) => {
+      props.response.statusCode = 500;
+      props.json({
+        error:
+          "Rescan failed: " +
+          (error instanceof Error ? error.message : String(error)),
+      });
+    });
+  return true;
+}

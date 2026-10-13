@@ -1,4 +1,4 @@
-import type { ConnectedBodyResult } from "./ConnectedBodyResult";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 
 type Reading = Extract<
   ConnectedBodyResult,

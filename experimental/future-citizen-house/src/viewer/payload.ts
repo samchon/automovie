@@ -19,7 +19,7 @@ import { buildHouse } from "../house/build";
 import type { auditCanopy } from "../house/canopy-audit";
 import { pvCellTexture } from "../house/canopy-finish";
 import { observations } from "../house/observations";
-import { passageClearance } from "../house/passage-clearance";
+import { passageClearance } from "../house/passage-clearance.mjs";
 import { materialFrameQuestions } from "../materials/007-observation";
 import { makeTextureAssets } from "../materials/generate-textures.cjs";
 import type { MaterialTextureScaleAudit } from "../materials/observation";

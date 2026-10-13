@@ -1,11 +1,11 @@
 import { autoMovieModelGaits, gaitMotion } from "@automovie/engine";
 import * as THREE from "three";
 
-import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "./AUTOMOVIE_FORMATION_CYCLE_SAMPLES";
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle";
-import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps";
-import { applyPose } from "./applyPose";
-import { formationCycleStride } from "./formationCycleStride";
+import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "./AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
+import { applyPose } from "./applyPose.js";
+import { formationCycleStride } from "./formationCycleStride.js";
 
 /**
  * Bake one runtime model's whole repertoire into rigid part-matrix tables.

@@ -2,7 +2,7 @@ import { decodeProductionAudioAsset } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
-import { productionWav } from "./productionMediaFixtures";
+import { productionWav } from "../internal/productionMedia/productionWav";
 
 const ASSET = "public/audio/bed.wav";
 

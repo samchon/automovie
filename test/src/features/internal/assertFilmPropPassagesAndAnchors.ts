@@ -1,7 +1,7 @@
 import { propAnchorFrame, propBlockedPassages } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { propRegistry, propSet } from "../film/propPlacementFixtures";
+import { propRegistry, propSet } from "./propPlacementFixtures";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
 import { namedFacts, vclose } from "./predicates";
 

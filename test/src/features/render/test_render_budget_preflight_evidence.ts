@@ -14,18 +14,18 @@ import {
   RENDER_BUDGET_ASSETS,
   compiledShotFixture,
   renderBudgetFixture,
+  sceneEnvironmentFixture,
 } from "../internal/renderBudgetFixtures";
 import { BOX_TRIANGLES } from "../internal/renderFixtures";
+import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture";
 
 /**
  * The render job publishes one verdict per tier, and never dresses an
  * unmeasured cost as a cleared one.
  *
- * The evidence exists to be acted on: a job refuses on `over` and publishes
- * `incomplete` and `not-run` exactly as they are. Getting that precedence wrong
- * in either direction is a real failure — a job that refused on `incomplete`
- * would make the honest report the one nobody dares emit, and a job that passed
- * on it would clear a cost nobody measured.
+ * Evidence preserves every incomplete and not-run measurement. Over-limit
+ * evidence and required texture storage without a safe bound refuse admission;
+ * another concern's incomplete measurement keeps its owning contract's status.
  *
  * Scenarios:
  *
@@ -36,8 +36,8 @@ import { BOX_TRIANGLES } from "../internal/renderFixtures";
  * 3. Five staged boxes measured against a triangle limit they fit inside clear the
  *    tier; the same shot one triangle under its own cost goes `over` and names
  *    the owner to edit.
- * 4. Withholding the texture dimensions of a bound asset makes the tier
- *    `incomplete`, and `incomplete` does not refuse the render.
+ * 4. Withholding decoded upload facts of a bound asset makes the tier
+ *    incomplete and refuses unknown required resident storage.
  * 5. The worst outcome wins: `over` beats `not-run` beats `incomplete` beats
  *    `within`, whichever order the shots arrive in, and a document over no
  *    shots at all is `not-run` rather than a verdict over an empty set.
@@ -85,7 +85,10 @@ export const test_render_budget_preflight_evidence = (): void => {
     textures?: boolean;
   }): IAutoMovieRenderBudgetAssessment => {
     const compiled = compiledShotFixture();
+    compiled.scene = { ...compiled.scene, environment: sceneEnvironmentFixture() };
     return assessAutoMovieRenderBudget({
+      textureResidency: { owner: "current", residents: [], dfgRetained: false, pmremRetained: null,
+        renderTargets: [renderShadowTargetFixture()] },
       compiled,
       shot: props.shot ?? "opening",
       budget: props.budget,
@@ -100,7 +103,7 @@ export const test_render_budget_preflight_evidence = (): void => {
       assets: RENDER_BUDGET_ASSETS,
       textures: props.textures
         ? [
-            {
+            { format: "rgba8" as const,
               asset: "textures/stone.png",
               width: 512,
               height: 512,
@@ -185,7 +188,7 @@ export const test_render_budget_preflight_evidence = (): void => {
     }),
   });
   TestValidator.equals(
-    "an unmeasured texture cost is `incomplete`, and `incomplete` does not refuse",
+    "an unmeasured texture cost is incomplete and refuses unsafe admission",
     {
       status: unmeasured.status,
       textureBytes: unmeasured.report!.findings.find(
@@ -197,9 +200,9 @@ export const test_render_budget_preflight_evidence = (): void => {
           budgets: [review],
           assessments: [unmeasured],
         }),
-      ),
+      )?.includes("resident texture"),
     },
-    { status: "incomplete", textureBytes: "not-run", refusal: null },
+    { status: "incomplete", textureBytes: "not-run", refusal: true },
   );
 
   const shot = (

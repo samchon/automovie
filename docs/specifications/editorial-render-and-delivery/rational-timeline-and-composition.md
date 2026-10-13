@@ -57,6 +57,8 @@ Clip resolution은 film instant를 source instant와 sample selection으로 연�
 Boundary report는 requested·available·used source range, destination range, transform, handles, first·last selected sample와 out-of-range cause를 제공한다. Missing required source, insufficient handle, zero 또는 non-finite rate, unsupported reverse, duration mismatch와 ambiguous source origin은 거절한다. 이미 유효한 clip은 partial edit에서 유지할 수 있으나 missing clip의 film interval과 downstream 금지 목적을 명시한다.
 
 ### Transition와 overlap evaluation {#spec-editorial-transition-overlap}
+
+The beauty operator consumes independently display-resolved source pictures and nearest-integer display-byte weighting as defined by the material/color pipeline. Source-local view and exposure transforms occur before this operator and are never reconstructed from the renderer's restored host state. Structural products consume one unblended dominant layer, with the incoming layer selected at an exact tie. Runtime source and declared color-product identity participate in capture lineage, so a changed compositor cannot reuse an old resolved picture as current.
 <!-- @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transitions-overlaps Transition과 overlap의 합성 경계를 정밀화한다. -->
 <!-- @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-handles Transition handle 소비를 정밀화한다. -->
 <!-- @evidence requirements/editorial/transitions-and-overlaps.md#editorial-picture-sound-transition Picture와 sound transition의 독립성을 정밀화한다. -->

@@ -3,7 +3,9 @@ import { isDeepStrictEqual } from "node:util";
 import type * as Toml from "smol-toml" with { "resolution-mode": "import" };
 import { z } from "zod";
 
-import { digest } from "./internal/parseReference";
+import { digest } from "./internal/digest";
+import type { IAutoMovieReferenceClientConfigurationRequest } from "./structures/IAutoMovieReferenceClientConfigurationRequest";
+import type { IAutoMovieReferenceClientConfigurationPlan } from "./structures/IAutoMovieReferenceClientConfigurationPlan";
 import { fail } from "./internal/referenceError";
 
 // The package publishes a CommonJS require entry with the same public declarations.
@@ -23,45 +25,7 @@ const claudeServer = z
   .strict();
 const codexServer = z.object({ ...command, cwd: z.string() }).strict();
 
-/**
- * Existing client configuration bytes and the installed production's launch identity.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Makes local registration an explicit candidate over user-owned configuration.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Binds both client commands to the installed package and one absolute root.
- * @author Samchon
- */
-export interface IAutoMovieReferenceClientConfigurationRequest {
-  /** Normalized absolute production root that the installed reference binary will bind. */
-  root: string;
-  /** Normalized absolute Node executable recorded as the launch command, not an ownership key. */
-  nodeExecutable: string;
-  /** Existing .mcp.json bytes decoded as text, or undefined when absent. */
-  claude?: string;
-  /** Existing .codex/config.toml text whose unrelated bytes must be preserved. */
-  codex?: string;
-}
 
-/**
- * Two complete configuration candidates; publication remains the caller's operation.
- * @evidence requirements/agent-authoring/reference-navigation.md#agent-reference-transports Preserves the caller's ability to review and publish local registration separately from reference reads.
- * @evidence specifications/authoring-and-authority/reference-navigation.md#spec-reference-transports Names only the two project-local client configuration outputs.
- * @author Samchon
- */
-export interface IAutoMovieReferenceClientConfigurationPlan {
-  /** Scoped Claude registration candidate; the caller decides whether to publish it. */
-  claude: {
-    /** Project-relative Claude configuration target. */
-    path: ".mcp.json";
-    /** Complete JSON candidate preserving all unrelated user configuration values. */
-    content: string;
-  };
-  /** Scoped Codex registration candidate with an independently owned managed table. */
-  codex: {
-    /** Project-relative Codex configuration target. */
-    path: ".codex/config.toml";
-    /** Complete TOML candidate preserving bytes outside the owned registration span. */
-    content: string;
-  };
-}
 
 /**
  * Plan scoped Claude and Codex registration without writing files or installing tools.

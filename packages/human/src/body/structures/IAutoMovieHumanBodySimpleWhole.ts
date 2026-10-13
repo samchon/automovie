@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanBodyBasis } from "./IAutoMovieHumanBodyBasis";
+
 /**
  * What the simple tier reads on the whole person a body shape belongs to.
  *
@@ -10,6 +12,15 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleWhole {
+  /**
+   * Solve-only body domain of this whole evaluator, when narrower than the
+   * body's independent authoring domain. The same body id and source views
+   * supply both; expansion consumes these actual dependencies. A reader may
+   * derive this support lazily so projection of a held valid shape does not
+   * need an independent inverse-domain representation.
+   */
+  bodyReach?: IAutoMovieHumanBodyBasis;
+
   /**
    * The whole person's standing floor-to-vertex stature for a body shape, metres.
    */

@@ -1,5 +1,5 @@
-import type { HumanResidentPort } from "./HumanResidentPort";
-import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage";
+import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
+import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 
 /**
  * Adapt native worker callbacks to the typed resident request transport.

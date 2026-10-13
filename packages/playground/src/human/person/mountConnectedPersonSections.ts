@@ -47,6 +47,19 @@ import { renderConnectedPersonAliasedChannels } from "./renderConnectedPersonAli
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Mounts the face shape, expression and anatomical controls over the person's face subtree.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Routes every section through the panel's one transaction and intent order.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Routes every face section through the same transaction owner.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Takes facial channels and appearance descriptors from the published head view and routes their face subtree through the complete-person transaction.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Routes expression and eye inputs together in the complete face subtree; the resident person builder owns jaw, eye and attachment articulation.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Sends the facial channel document to the original worker evaluator instead of applying a second joint transform in the editor.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Sends oral and expression edits through the same whole-person transaction, so the original facial owner admits their combined contacts rather than separate section previews.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Keeps the full face subtree when an oral or channel control changes, leaving coupled closure, tongue passage and tissue refusals to the resident facial evaluator.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Mounts independent resting nasolabial and regional skin-relief controls over the face document, retaining other face inputs through the shared transaction.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Routes the named skin-relief inputs and current expression together to the original builder; this section neither generates wrinkle fields nor duplicates subdivision.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Mounts owner-described named skin-appearance inputs alongside material inputs, editing numerical appearance separately from geometry and lighting.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Obtains skin-region appearance descriptors from the head view and sends their face.skinAppearance paths through the shared transaction; the facial builder carries the resulting colour on tissue.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Mounts owner-described hairTraits for existing populations and names new scalpHair populations as document-only inputs; it infers no guide coordinates or missing population.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Clones the current person and replaces only the edited face subtree, retaining body authoring and the other facial fields handled by each section.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Routes shape, expression, eye and oral sections through one current face document instead of independently posed component previews.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Publishes no independently fitted section geometry: all face edits reach the original whole-person builder that owns the shared facial boundaries and internal attachments.
  * @author Samchon
  */
 export function mountConnectedPersonSections<
@@ -184,6 +197,7 @@ export function mountConnectedPersonSections<
     dom,
     section: bodySection,
     body: panel.body,
+    reach: panel.bodyReach,
     current: () => shared.current().body,
     reserve: shared.reserve,
     isCurrent: shared.isCurrent,

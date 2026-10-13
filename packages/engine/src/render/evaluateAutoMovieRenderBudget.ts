@@ -223,7 +223,7 @@ const evaluate = (props: {
  * cost is their sum and it can never lose a cost-descending ranking: leaving it
  * in makes the first line of the table a constant, and for the outline pass it
  * makes that line a name no production declares and no author can open. So the
- * ranking is over `own` rows alone, while the passes stay in the omitted count
+ * ranking is over `own` rows alone, while passes and shared runtime storage stay in the omitted count
  * and the omitted cost. Nothing is dropped: the contributors plus the omitted
  * cost still add up to everything the inventory attributed, and the totals the
  * report checks against a limit are the inventory's own, untouched.
@@ -244,9 +244,10 @@ const rank = (
 } => {
   const totals = new Map<string, IAutoMovieRenderContributor>();
   const passes = new Map<string, IAutoMovieRenderContributor>();
+  const runtime = new Map<string, IAutoMovieRenderContributor>();
   for (const entry of inventory.owners) {
     if (entry.metric !== metric) continue;
-    const into = entry.kind === "pass" ? passes : totals;
+    const into = entry.kind === "pass" ? passes : entry.kind === "runtime" ? runtime : totals;
     const current = into.get(entry.owner);
     if (current === undefined)
       into.set(entry.owner, {
@@ -265,11 +266,12 @@ const rank = (
   const ordered = [...totals.values()].sort(order);
   const orderedPasses = [...passes.values()].sort(order);
   const passCost = orderedPasses.reduce((sum, entry) => sum + entry.cost, 0);
+  const runtimeCost = [...runtime.values()].reduce((sum, entry) => sum + entry.cost, 0);
   const omitted = ordered.slice(limit);
   return {
     contributors: ordered.slice(0, limit),
-    omittedContributors: omitted.length + orderedPasses.length,
-    omittedCost: omitted.reduce((sum, entry) => sum + entry.cost, 0) + passCost,
+    omittedContributors: omitted.length + orderedPasses.length + runtime.size,
+    omittedCost: omitted.reduce((sum, entry) => sum + entry.cost, 0) + passCost + runtimeCost,
     // A pass that costs nothing is a pass over an empty frame, and naming it
     // would answer a question nobody asked.
     passes:

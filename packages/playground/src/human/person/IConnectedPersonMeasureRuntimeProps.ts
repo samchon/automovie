@@ -19,6 +19,6 @@ export interface IConnectedPersonMeasureRuntimeProps {
   /** The body partition view, read once by the worker. */
   body: Promise<IAutoMovieHumanPersonBodyView>;
 
-  /** Report a finished stage to the page transport's silence deadline. */
+  /** Report a finished stage to the page's progress display. */
   signal: (stage: string) => void;
 }

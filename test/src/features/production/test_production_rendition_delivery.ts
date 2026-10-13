@@ -2,7 +2,7 @@ import { assertProductionRenditionClipDelivery } from "@automovie/render/node";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
-import { productionH264Mp4 } from "./productionMediaFixtures";
+import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
 
 /**
  * A repaint clip is delivered only when it matches its contract exactly.
@@ -11,8 +11,8 @@ import { productionH264Mp4 } from "./productionMediaFixtures";
  * trusted: its raster, its rational frame clock, its frame count and its
  * runtime must all equal what the production declared, or the cut would splice
  * a clip that plays at a different size or speed than the timeline believes.
- * The refusal had no test -- every caller passed a clip it had just built to
- * the contract it was checking against.
+ * The in-memory sample containers establish delivery admission and transport;
+ * actual codec interoperability is observed through the real producer.
  *
  * Scenarios:
  *
@@ -21,13 +21,13 @@ import { productionH264Mp4 } from "./productionMediaFixtures";
  * 2. Each of width, height, frame count, fps and runtime is refused on its own,
  *    with the shot named in the refusal so a multi-shot cut says which one.
  */
-export const test_production_rendition_delivery = async (): Promise<void> => {
+export const test_production_rendition_delivery = (): void => {
   const width = 16;
   const height = 16;
   const fps = 24;
   const frameCount = 4;
   const runtimeSeconds = frameCount / fps;
-  const bytes = await productionH264Mp4({ width, height, fps, frameCount });
+  const bytes = productionSampleMp4({ width, height, fps, frameCount });
   const contract = {
     bytes,
     shot: "opening",

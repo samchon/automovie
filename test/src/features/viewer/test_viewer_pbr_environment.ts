@@ -9,6 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { assertViewerEnvironmentState } from "../internal/assertViewerEnvironmentState";
+import { assertViewerEnvironmentTextureOwnership } from "../internal/assertViewerEnvironmentTextureOwnership";
 import { assertViewerPbrDeclarationRefusals } from "../internal/assertViewerPbrDeclarationRefusals";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
@@ -89,7 +90,7 @@ const validateMaterial = (patch: Record<string, unknown>) => {
  * 6. A light's shadow settings reach its shadow camera and map, and a light that
  *    declares none stays at the legacy no-shadow default.
  */
-export const test_viewer_pbr_environment = (): void => {
+export const test_viewer_pbr_environment = async (): Promise<void> => {
   const base = createModel().materials[0]!;
   const material: IAutoMovieMaterial = {
     ...base,
@@ -310,4 +311,5 @@ export const test_viewer_pbr_environment = (): void => {
   );
 
   assertViewerEnvironmentState(ENVIRONMENT);
+  await assertViewerEnvironmentTextureOwnership();
 };

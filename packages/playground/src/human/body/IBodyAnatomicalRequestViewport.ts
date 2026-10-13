@@ -6,7 +6,8 @@ import type { IBodyAnatomicalRequestModel } from "./IBodyAnatomicalRequestModel"
  * The viewport a numerical request panel drives.
  *
  * `build` evaluates a request into a frame, `publish` shows an admitted frame
- * and `dispose` releases one; `cancel` withdraws the pending build. `export`
+ * and `dispose` requests owned retirement; `settleRetirements` observes its
+ * completion and failures. `cancel` withdraws the pending build. `export`
  * encodes the candidate-only model, never a whole-body save. The view methods
  * change only the camera and the clay display.
  *
@@ -23,8 +24,11 @@ export interface IBodyAnatomicalRequestViewport<
   /** Show an admitted frame. */
   publish: (model: Model) => void;
 
-  /** Release a frame's resources. */
+  /** Request retirement of a frame's owned resources. */
   dispose: (model: Model) => void;
+
+  /** Await requested owned retirement and preserve its actual failures. */
+  settleRetirements: () => Promise<void>;
 
   /** Withdraw the pending build. */
   cancel: () => void;
