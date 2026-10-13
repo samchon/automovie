@@ -18,7 +18,6 @@ export default {
         files: [
           "contracts/common.md",
           "contracts/performance.md",
-          "contracts/portability.md",
         ],
         symbol: "h2",
         checklist: true,

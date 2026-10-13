@@ -20,4 +20,5 @@ Use a list for parallel items and ordered steps, prose for an argument whose con
 
 ## Code Documentation
 
-JSDoc follows [Meaningful documentation](../contracts/common.md#meaningful-documentation), and interface types close with `@author Samchon`. A README serves the package's user: what it is, when to use it, and its public surface, with examples taken from code that runs.
+- JSDoc follows [Meaningful documentation](../contracts/common.md#meaningful-documentation), and interface types close with `@author Samchon`.
+- A README serves the package's user: what it is, when to use it, and its public surface, with examples taken from code that runs.

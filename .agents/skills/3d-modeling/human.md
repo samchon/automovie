@@ -1,10 +1,14 @@
 # Human
 
-Human is outside evidence until it is complete (#2774); [modeling.md](../contracts/modeling.md) and [anatomy.md](../contracts/anatomy.md) still govern it as development rules.
+Human is outside evidence until it is complete (#2774); these rules govern it meanwhile.
 
-## Development
+## Anatomy
 
-- Ground every anatomical value under [Anatomical Source](../contracts/anatomy.md#anatomical-source).
+- Ground each anatomical value in a primary measurement, a dissection study, or an established physiological account, with its quantity, protocol, population, and conditions, and mark it measured, derived, population-fitted, or conventional. Cite only a source you read.
+- Extending a value beyond the population, site, direction, or state it was measured at is a new inference that needs its own grounds and a geometry check. Photographs and generated images guide shape comparison but supply no hidden-tissue measurement.
+- Keep raw observations, normalized indices, and authored targets separate; clinical motion capacity and requested performance are distinct quantities.
+- Admit only values and combinations a living body can take, deriving each dependent bound from the structure that limits it. Reject an impossible state with its cause and leave the caller's values unchanged.
+- A public input is a named measurement, a named physiological motion, or a closed-set choice, never a vertex, curve, strand, or patch, and each conversion between simple and detailed inputs is deterministic.
 - Generate skin and interior tissue from one shared skeleton and rest frame; never reconcile independently sourced geometry by registration or optimization.
 - Keep numerical, clinical, and visual judgments distinct, and preserve the last valid state when an operation fails.
 

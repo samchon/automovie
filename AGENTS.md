@@ -44,4 +44,3 @@ Read the skill whose trigger applies.
 - [review](.agents/skills/review/SKILL.md): any review or self-review.
 - [issue-campaign](.agents/skills/issue-campaign/SKILL.md): a broad audit or repeated issue-to-pull-request work.
 - [pull-request](.agents/skills/pull-request/SKILL.md): shipping a topic, or when asked to push, open, update, or merge.
-- [mission-supervision](.agents/skills/mission-supervision/SKILL.md): only when the user invokes it by name.

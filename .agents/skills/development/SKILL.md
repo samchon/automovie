@@ -26,7 +26,7 @@ Before editing, group every known symptom by cause, then trace each cause, and y
 | Unit | `test/src/features/<domain>/test_<name>.ts` exporting `test_<name>`, run by `@nestia/e2e`'s `DynamicExecutor` |
 | Shared helper | `test/src/features/internal/` |
 
-- There is no E2E layer; [testing.md](../contracts/testing.md) owns what a test may run.
+- A test calls the source with typed in-memory inputs and finishes in under 500 ms. It never installs a generated project, launches a CLI, child process, browser, or GPU host, or reads repository files; a branch reachable only through a whole project belongs to a function not yet separated out.
 - Compare floats with `TestValidator.predicate` over `nclose`, `vclose`, or `qclose`, never deep equality.
 - A test's JSDoc states what it pins, then a numbered `Scenarios:` list, then its checklist answers.
 - Every executable position on a line a change writes is exercised by a test. No coverage tool checks this; the reviewer reads the diff beside its tests.
