@@ -145,4 +145,3 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
 ...vrmFacts()
   ];
 }
-

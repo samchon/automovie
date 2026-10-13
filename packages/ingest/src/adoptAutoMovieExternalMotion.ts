@@ -319,7 +319,6 @@ const cloneClip: (clip: IAutoMovieClip) => IAutoMovieClip = (clip: IAutoMovieCli
     }),
   ),
 });
-
 const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (skeleton: IAutoMovieSkeleton): IAutoMovieSkeleton => ({
   id: skeleton.id,
   bones: skeleton.bones.map(
