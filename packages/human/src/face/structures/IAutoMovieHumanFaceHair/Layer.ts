@@ -18,9 +18,17 @@ import type { Region } from "./Region";
  * one root, so its width is the side of the scalp that root is responsible
  * for, which the population measures from its own local density. Thinner
  * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
- * ribbon. Optional terminalShaftDiameter instead selects individual calibrated
+ * ribbon. Optional terminalShaftDiameter instead selects individual specified-calibre
  * shafts; contact adds their radius to the centreline gap and the mesh keeps
  * that calibre. This separate geometry meaning leaves legacy ribbon fields unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation Neutral shared-domain roots, six-axis metric lengths and seeded numerical fields drive the existing integrator; optional terminal calibre selects individual shafts instead of the legacy density-coverage ribbon meaning.
+ * @evidence contracts/common.md#clear-and-simple-design Population identity, root mask, direction fields, integration controls and procedural finish remain separate members with canonical records for compound fields.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts assertHumanFaceHair checks finite numerical fields, ranges, step/wavelength relations and a one-million-step budget; resident growth-domain admission belongs to the basis consumer, and authored emergence/coverage are not follicle measurements or collision certificates.
+ * @evidence contracts/common.md#meaningful-documentation Each unit and omitted-field convention is explicit, including full-length transitions, guide versus gathered integration and painted fibres distinct from roots.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The layer schema specifies budgets and fields but implements neither deterministic root sampling nor curve integration.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Seeded root identity is data supplied to the sampling owner, not a cache implemented by this interface.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This caller-owned record creates no queries, ribbons, pixels or retained renderer state.
  *
  * @author Samchon
  */
@@ -162,16 +170,15 @@ export interface Layer {
    * fibres are integral in [1,32], coverage in [0.1,1], normal/shade in [0,1].
    * This generates shared-formula pixels and stores no personal bitmap.
    *
-   * `color` is the pigmented fibre's own colour. Greying is a follicle's own
-   * switch, so a greying head is an admixture of white and pigmented fibres
-   * rather than one faded colour: `grey` is the proportion of the painted
+   * `color` is the pigmented painted fibre's colour. The procedural texture
+   * mixes unpigmented and pigmented fibres rather than fading one colour:
+   * `grey` is the proportion of the painted
    * fibres left unpigmented, in [0,1], and each painted fibre takes one side
    * of that switch by its own deterministic coordinate. Absent or zero
    * paints every fibre pigmented, which is the population before this field
-   * existed. Greying runs temples first, then frontal, vertex and parietal,
-   * with the occipital region last, so a head that is grey only at the
-   * temples is a layer of its own with its own `rootRegion` and proportion,
-   * not a field invented here.
+   * existed. A temple-local mixture can be a separate layer with its own
+   * `rootRegion` and proportion. This authored appearance rule establishes
+   * no biological progression of greying across scalp regions.
    */
   finish: IAutoMovieHumanFaceHairFinish;
 }
