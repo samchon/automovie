@@ -1,5 +1,5 @@
 import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
-import { IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieDriver, IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -9,10 +9,10 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const W = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const ccd = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
+const ccd: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
   type: "ik",
   chain: ["r", "m", "t"],
   goal: "g",
@@ -24,7 +24,7 @@ const ccd = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
 });
 
 /** A bent two-segment chain (lengths 1, 1) plus the goal, ready to solve. */
-const bentWorld = (goal: IAutoMovieVector3): Map<string, number[]> =>
+const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (goal: IAutoMovieVector3): Map<string, number[]> =>
   new Map([
     ["r", W({ x: 0, y: 0, z: 0 })],
     ["m", W({ x: 1, y: 0, z: 0 })],
@@ -32,10 +32,10 @@ const bentWorld = (goal: IAutoMovieVector3): Map<string, number[]> =>
     ["g", W(goal)],
   ]);
 
-const at = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
   Matrix4.position(world.get(id)!);
 
-const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /**
@@ -61,12 +61,20 @@ const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
  *    shorter than 2 nodes rejects; a zero-length segment rejects; missing chain
  *    or goal nodes reject; out-of-range influence rejects.
  * 8. A single-segment chain (the 2-node minimum) whose goal sits exactly behind it
- *    takes the antiparallel 180° flip, via both deterministic-perpendicular
+ *    takes the antiparallel 180-degree flip, via both deterministic-perpendicular
  *    selections (an X-aligned and a Y-aligned segment).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs resolveWorldDrivers on actual CCD chains and checks reach residual, segment lengths, replay, influence, early-out and malformed-input refusal, including unsafe iteration budgets before an already-satisfied solve.
+ * @evidence contracts/testing.md#independent-expectations Unit segments and hand-set goals establish reach/length/shell oracles; half influence uses a metamorphic fully-solved control, so that case does not independently prove the solver's optimality.
+ * @evidence contracts/testing.md#distinguishing-cases Covers reachable/unreachable, unchanged goal, null/default, fractional/zero/NaN/unsafe budgets, missing/zero-length chains, invalid influence and antiparallel X/Y cases. FABRIK and ROM admission have separate owning tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_resolve_ccd_ik calls portable engine numerics and owns these cases directly without processes, native builds, a renderer or dynamic registration.
  */
-export const test_resolve_ccd_ik = (): void => {
+export function test_resolve_ccd_ik(): void {
+  TestValidator.predicate("unsafe iteration count rejects before an already-satisfied solve", throwsError(() : IAutoMovieDriver[] => resolveWorldDrivers([
+    ccd({ iterations: Number.MAX_SAFE_INTEGER + 1 }),
+  ], bentWorld({ x: 1, y: 1, z: 0 }), new Map(), new Map()), "safe-integer range"));
   // 1. reachable goal converges, lengths preserved
-  const w1 = bentWorld({ x: 1.2, y: 0.5, z: 0 });
+  const w1: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({})], w1, new Map(), new Map());
   TestValidator.predicate(
     "tip converges onto the goal",
@@ -82,7 +90,7 @@ export const test_resolve_ccd_ik = (): void => {
   );
 
   // 2. determinism
-  const w2 = bentWorld({ x: 1.2, y: 0.5, z: 0 });
+  const w2: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({})], w2, new Map(), new Map());
   TestValidator.predicate(
     "deterministic mid",
@@ -94,7 +102,7 @@ export const test_resolve_ccd_ik = (): void => {
   );
 
   // 3. unreachable goal → full extension toward it
-  const w3 = bentWorld({ x: 0, y: 5, z: 0 });
+  const w3: Map<string, number[]> = bentWorld({ x: 0, y: 5, z: 0 });
   resolveWorldDrivers([ccd({})], w3, new Map(), new Map());
   TestValidator.predicate(
     "unreachable goal fully extends the chain",
@@ -103,16 +111,16 @@ export const test_resolve_ccd_ik = (): void => {
   TestValidator.equals(
     "extension keeps segment lengths",
     namedFacts([
-      ["ncloseDistAt", () => nclose(dist(at(w3, "r"), at(w3, "m")), 1, 1e-9)],
-      ["ncloseDistAt2", () => nclose(dist(at(w3, "m"), at(w3, "t")), 1, 1e-9)],
+      ["ncloseDistAt", () : boolean => nclose(dist(at(w3, "r"), at(w3, "m")), 1, 1e-9)],
+      ["ncloseDistAt2", () : boolean => nclose(dist(at(w3, "m"), at(w3, "t")), 1, 1e-9)],
     ]),
     { ncloseDistAt: true, ncloseDistAt2: true },
   );
 
   // 4. influence 0.5 = halfway between original and solved tip
-  const w4 = bentWorld({ x: 1.2, y: 0.5, z: 0 });
+  const w4: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({ influence: 0.5 })], w4, new Map(), new Map());
-  const solvedTip = at(w1, "t");
+  const solvedTip: IAutoMovieVector3 = at(w1, "t");
   TestValidator.predicate(
     "half influence blends the tip linearly",
     vclose(
@@ -127,7 +135,7 @@ export const test_resolve_ccd_ik = (): void => {
   );
 
   // 5. null iterations → default budget still converges
-  const w5 = bentWorld({ x: 1.2, y: 0.5, z: 0 });
+  const w5: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({ iterations: null })], w5, new Map(), new Map());
   TestValidator.predicate(
     "default budget converges on an easy goal",
@@ -135,19 +143,19 @@ export const test_resolve_ccd_ik = (): void => {
   );
 
   // 6. goal on the tip → early-out, nothing moves
-  const w6 = bentWorld({ x: 1, y: 1, z: 0 });
+  const w6: Map<string, number[]> = bentWorld({ x: 1, y: 1, z: 0 });
   resolveWorldDrivers([ccd({})], w6, new Map(), new Map());
   TestValidator.equals(
     "converged input early-outs unchanged",
     namedFacts([
-      ["vcloseAtW6", () => vclose(at(w6, "m"), { x: 1, y: 0, z: 0 }, 0)],
-      ["vcloseAtW62", () => vclose(at(w6, "t"), { x: 1, y: 1, z: 0 }, 0)],
+      ["vcloseAtW6", () : boolean => vclose(at(w6, "m"), { x: 1, y: 0, z: 0 }, 0)],
+      ["vcloseAtW62", () : boolean => vclose(at(w6, "t"), { x: 1, y: 1, z: 0 }, 0)],
     ]),
     { vcloseAtW6: true, vcloseAtW62: true },
   );
 
   // 7. guards
-  const guard = (
+  const guard: (title: string, over: Partial<IAutoMovieIKDriver>, world: Map<string, number[]>, expected: string | string[]) => void = (
     title: string,
     over: Partial<IAutoMovieIKDriver>,
     world: Map<string, number[]>,
@@ -156,7 +164,7 @@ export const test_resolve_ccd_ik = (): void => {
     TestValidator.predicate(
       title,
       throwsError(
-        () => resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
+        () : IAutoMovieDriver[] => resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
         expected,
       ),
     );
@@ -215,7 +223,7 @@ export const test_resolve_ccd_ik = (): void => {
   );
 
   // 8. antiparallel 180° flip on a single-segment chain, both perp branches
-  const w8x = new Map([
+  const w8x: Map<string, number[]> = new Map([
     ["r", W({ x: 0, y: 0, z: 0 })],
     ["t", W({ x: 1, y: 0, z: 0 })],
     ["g", W({ x: -2, y: 0, z: 0 })],
@@ -225,7 +233,7 @@ export const test_resolve_ccd_ik = (): void => {
     "X-aligned segment flips behind (unreachable shell)",
     vclose(at(w8x, "t"), { x: -1, y: 0, z: 0 }, 1e-9),
   );
-  const w8y = new Map([
+  const w8y: Map<string, number[]> = new Map([
     ["r", W({ x: 0, y: 0, z: 0 })],
     ["t", W({ x: 0, y: 1, z: 0 })],
     ["g", W({ x: 0, y: -2, z: 0 })],
@@ -235,4 +243,4 @@ export const test_resolve_ccd_ik = (): void => {
     "Y-aligned segment flips behind (other perpendicular branch)",
     vclose(at(w8y, "t"), { x: 0, y: -1, z: 0 }, 1e-9),
   );
-};
+}

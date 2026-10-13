@@ -1,29 +1,32 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Cross-frame state for the spring driver: each chain joint's world position on
- * the previous step, which the Verlet integrator differences against the
- * current position to recover velocity. The caller owns one of these per scene
- * and threads it through {@link stepSpring}, either directly, or by handing it
- * to {@link "./resolveFrame".resolveFrame} via its `springs` input, which then
- * steps every spring driver inside the frame pass (S2). Without a state and a
- * `dt` the per-frame resolve has no memory, so springs defer.
+ * Caller-owned cross-frame Verlet and reseeding history. Joint maps use physical node ids, while translation-centre history uses an opaque centre/ordered-chain tuple. Removed driver history remains until the caller resets/discards state.
  *
+ * @evidence contracts/common.md#principled-implementation Retain previous and post-spring joint positions for Verlet stepping plus previous centre translations keyed by the centre/ordered-chain tuple, so distinct chains sharing a centre compensate independently.
+ * @evidence contracts/common.md#clear-and-simple-design Three explicit maps distinguish integrator history, centre translation transport and reseeding a freshly composed frame from prior spring output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Centre transport is translation-only; state is not a full rigid-body history and shared physical joints still share joint-position entries.
+ * @evidence contracts/common.md#meaningful-documentation Members document opaque chain keys, initially empty maps and in-place ownership; no automatic driver-removal eviction is promised.
+ * @evidence contracts/performance.md#efficient-algorithms Storage grows with visited joint ids and centre/chain tuples; map lookup is expected O(1), with key creation proportional to chain-id text.
+ * @evidence contracts/performance.md#reuse-equivalent-work resolveFrame reuses post-spring positions across freshly composed frames and stepSpring reuses prior history; changed scene/driver identity requires caller-controlled reset.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The scene caller owns the maps and discards/replaces them when finished; removed chains remain retained until that reset, with no intrinsic population bound or host handle.
  * @author Samchon
  */
 export interface IAutoMovieSpringState {
-  /** Joint id → its world position last step (empty on the first step). */
-  prev: Map<string, IAutoMovieVector3>;
   /**
-   * Center node id -> its world position last step for center-relative inertia.
+   * Joint id to previous world position, empty before the first step; stepSpring advances the map in place.
+   */
+  prev: Map<string, IAutoMovieVector3>;
+
+  /**
+   * Internal JSON tuple [center node id, ordered chain ids] to that chain's
+   * center position on its previous step. Distinct chains sharing a center
+   * retain independent translation compensation; callers leave keys opaque.
    */
   centers: Map<string, IAutoMovieVector3>;
+
   /**
-   * Joint id → its **post-spring** world position last step, what a host loop
-   * would have left in its carried world map. {@link resolveFrame} composes the
-   * scene fresh every frame, so it seeds each chain joint from here before
-   * stepping; that is what lets the in-frame spring accumulate sag across
-   * frames exactly like the host-loop harness.
+   * Joint id to post-spring position. resolveFrame reseeds newly composed frames from these records so history survives frame composition.
    */
   sprung: Map<string, IAutoMovieVector3>;
 }

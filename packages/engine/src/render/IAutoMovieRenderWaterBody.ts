@@ -1,6 +1,15 @@
 import { IAutoMovieFluidDomain } from "@automovie/interface";
 
-/** One declared water body and whatever a solver has proved about it. */
+/** One declared water body and whatever a solver has proved about it.
+ *
+ * @evidence contracts/common.md#principled-implementation A bound fluid domain authoritatively determines grid cells, particle cap and drawn surface; external solver counts apply only without a domain, and wholly unproved facts remain unsupported.
+ * @evidence contracts/common.md#clear-and-simple-design One water-body row joins semantic/material ownership and simulation geometry without charging both domain surface and ordinary scene nodes for the same water.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null counts mean no solver proof, not zero; domain-derived quantities override hand counts rather than accepting contradictory estimates.
+ * @evidence contracts/common.md#meaningful-documentation Members document domain precedence, node double-count avoidance, semantic ownership and material use only for a domain-drawn surface.
+ * @evidence contracts/performance.md#efficient-algorithms Grid-derived counts use dimensions/emitter caps without running the solver; record storage is proportional to named staged nodes rather than grid cells.
+ * @evidence contracts/performance.md#reuse-equivalent-work Mask and inventory reuse the same domain/binding row; topology counts survive changing water heights, while altered grid/emitter laws require remeasurement.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The holder owns the domain record and external facts; no solver state, water mesh or native resource is allocated by this type.
+ */
 export interface IAutoMovieRenderWaterBody {
   /** Stable water-body id. */
   id: string;

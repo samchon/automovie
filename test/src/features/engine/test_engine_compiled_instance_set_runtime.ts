@@ -2,7 +2,7 @@ import {
   AUTOMOVIE_INSTANCE_CHUNK_SIZE,
   materializeCompiledInstanceSet,
 } from "@automovie/engine";
-import {
+import { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceChunk, IAutoMovieCompiledFormationLod, IAutoMovieCompiledInstancePrototype,
   IAutoMovieInstanceSetDesign,
   IAutoMovieModelRecipe,
   IAutoMovieWorldRoute,
@@ -14,9 +14,10 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
+import { summarizeCompiledSlotChunks } from "../../../../packages/engine/src/populationRuntime/summarizeCompiledSlotChunks";
 
 /** One chunk plus one member in a single row, one metre apart along x. */
-const row = (
+const row: (overrides?: Partial<IAutoMovieInstanceSetDesign>) => IAutoMovieInstanceSetDesign = (
   overrides: Partial<IAutoMovieInstanceSetDesign> = {},
 ): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
@@ -45,7 +46,7 @@ const lane: IAutoMovieWorldRoute = {
 };
 
 /** A tree declaring a hero tier and a near tier of itself. */
-const recipes = new Map<string, IAutoMovieModelRecipe>([
+const recipes: Map<string, IAutoMovieModelRecipe> = new Map<string, IAutoMovieModelRecipe>([
   [
     "tree",
     {
@@ -64,7 +65,7 @@ const recipes = new Map<string, IAutoMovieModelRecipe>([
   ],
 ]);
 
-const nodeDigest = (value: unknown): string =>
+const nodeDigest: (value: unknown) => string = (value: unknown): string =>
   digestAutoMovieBytes(canonicalAutoMovieJsonBytes(value));
 
 /**
@@ -90,36 +91,42 @@ const nodeDigest = (value: unknown): string =>
  * 6. The digest is the Node digest of every other field, repeatable, and
  *    different for another seed; omitted recipes and radii compile one near tier
  *    of the base recipe at half a metre.
+ * 7. A five-point population is visited once in ascending order while yielding three correct chunks and a correct whole summary.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledInstanceSet and the actual shared chunk/global summary seam; asserts compact laws, geometry, prototype/radius policy, refusal and canonical digest, while a callback visit log rejects duplicated slot regeneration.
+ * @evidence contracts/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Node SHA over canonical bytes independently checks hashing, not physical radius fallback enclosure.
+ * @evidence contracts/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime is a synchronous portable unit; Node crypto is an independent byte oracle, no consumer or graphics host is started, and the callback is supplied through the helper's actual seam without replacing foreign methods.
  */
-export const test_engine_compiled_instance_set_runtime = (): void => {
+export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.
-  const compiled = materializeCompiledInstanceSet({
+  const compiled: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: row(),
     world: { routes: [] },
     recipes,
     projectionRadii: new Map([["tree", 1.5]]),
   });
-  const [first, last] = compiled.chunks;
+  const [first, last]: IAutoMovieInstanceChunk[] = compiled.chunks;
   TestValidator.equals(
     "one member past a chunk compiles to two exact chunks",
     namedFacts([
-      ["two", () => compiled.chunks.length === 2],
-      ["firstRange", () => first!.start === 0 && first!.count === 1_024],
+      ["two", () : boolean => compiled.chunks.length === 2],
+      ["firstRange", () : boolean => first!.start === 0 && first!.count === 1_024],
       [
         "firstBounds",
-        () =>
+        () : boolean =>
           vclose(first!.bounds.min, { x: -512, y: 0, z: 0 }, 0) &&
           vclose(first!.bounds.max, { x: 511, y: 0, z: 0 }, 0),
       ],
       [
         "firstCentroid",
-        () => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
+        () : boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
       ],
-      ["lastRange", () => last!.start === 1_024 && last!.count === 1],
-      ["lastCentroid", () => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
+      ["lastRange", () : boolean => last!.start === 1_024 && last!.count === 1],
+      ["lastCentroid", () : boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
       [
         "totalCentroid",
-        () => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
+        () : boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
     ]),
     {
@@ -137,18 +144,18 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
   TestValidator.equals(
     "a set without a table keeps the base recipe's tiers and radius",
     namedFacts([
-      ["noTable", () => Object.hasOwn(compiled, "prototypes") === false],
+      ["noTable", () : boolean => Object.hasOwn(compiled, "prototypes") === false],
       [
         "tiers",
-        () => compiled.lod.map((item) => item.tier).join(",") === "hero,near",
+        () : boolean => compiled.lod.map((item: IAutoMovieCompiledFormationLod) : "hero" | "near" | "far" => item.tier).join(",") === "hero,near",
       ],
-      ["radius", () => compiled.projectionRadius === 1.5],
+      ["radius", () : boolean => compiled.projectionRadius === 1.5],
     ]),
     { noTable: true, tiers: true, radius: true },
   );
 
   // 3. Table.
-  const tabled = materializeCompiledInstanceSet({
+  const tabled: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: row({
       prototypes: [
         { id: "tall", modelRecipe: "tall-tree", weight: 2 },
@@ -163,46 +170,46 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
       ["shrub", 0.25],
     ]),
   });
-  const [base, tall, short] = tabled.prototypes!;
+  const [base, tall, short]: IAutoMovieCompiledInstancePrototype[] = tabled.prototypes!;
   TestValidator.equals(
     "a declared table compiles with the default first at weight one",
     namedFacts([
       [
         "order",
-        () =>
-          tabled.prototypes!.map((prototype) => prototype.id).join(",") ===
+        () : boolean =>
+          tabled.prototypes!.map((prototype: IAutoMovieCompiledInstancePrototype) : string => prototype.id).join(",") ===
           "default,tall,short",
       ],
       [
         "weights",
-        () => base!.weight === 1 && tall!.weight === 2 && short!.weight === 1,
+        () : boolean => base!.weight === 1 && tall!.weight === 2 && short!.weight === 1,
       ],
       [
         "recipes",
-        () =>
+        () : boolean =>
           base!.modelRecipe === "tree" &&
           tall!.modelRecipe === "tall-tree" &&
           short!.modelRecipe === "shrub",
       ],
       [
         "undeclaredDrawsNear",
-        () =>
+        () : boolean =>
           tall!.lod.length === 1 &&
           tall!.lod[0]!.tier === "near" &&
           tall!.lod[0]!.recipe === "tall-tree",
       ],
       [
         "ownRadii",
-        () =>
+        () : boolean =>
           base!.projectionRadius === 1.5 &&
           tall!.projectionRadius === 3 &&
           short!.projectionRadius === 0.25,
       ],
-      ["largest", () => tabled.projectionRadius === 3],
+      ["largest", () : boolean => tabled.projectionRadius === 3],
       [
         "baseTiers",
-        () =>
-          tabled.lod.map((item) => item.recipe).join(",") === "tree-hero,tree",
+        () : boolean =>
+          tabled.lod.map((item: IAutoMovieCompiledFormationLod) : string => item.recipe).join(",") === "tree-hero,tree",
       ],
     ]),
     {
@@ -217,11 +224,11 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
   );
 
   // 4. Route snapshot and copied laws.
-  const alongDesign = row({
+  const alongDesign: IAutoMovieInstanceSetDesign = row({
     count: 4,
     layout: { kind: "along-route", route: "lane", lateralJitter: 0.5 },
   });
-  const along = materializeCompiledInstanceSet({
+  const along: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: alongDesign,
     world: { routes: [lane] },
   });
@@ -230,22 +237,22 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
     namedFacts([
       [
         "snapshot",
-        () =>
+        () : boolean =>
           along.route !== null &&
           along.route !== lane &&
           along.route.waypoints.length === 2 &&
           along.route.id === "lane",
       ],
-      ["localRecordsNone", () => compiled.route === null],
+      ["localRecordsNone", () : boolean => compiled.route === null],
       [
         "layoutCopied",
-        () =>
+        () : boolean =>
           along.layout !== alongDesign.layout &&
           along.layout.kind === "along-route",
       ],
       [
         "variationCopied",
-        () =>
+        () : boolean =>
           along.variation !== alongDesign.variation &&
           along.variation.palette[0] === "#2f6f2f",
       ],
@@ -264,9 +271,9 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
     namedFacts([
       [
         "unavailable",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : IAutoMovieCompiledInstanceSet =>
               materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: { routes: [] },
@@ -276,9 +283,9 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
       ],
       [
         "zeroLength",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : IAutoMovieCompiledInstanceSet =>
               materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: {
@@ -301,18 +308,18 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
   );
 
   // 6. Digest and defaults.
-  const { digest, ...core } = compiled;
-  const bare = materializeCompiledInstanceSet({
+  const { digest, ...core }: IAutoMovieCompiledInstanceSet = compiled;
+  const bare: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: row(),
     world: { routes: [] },
   });
   TestValidator.equals(
     "the digest is the Node digest of the record and defaults compile a bare record",
     namedFacts([
-      ["node", () => digest === nodeDigest(core)],
+      ["node", () : boolean => digest === nodeDigest(core)],
       [
         "repeatable",
-        () =>
+        () : boolean =>
           materializeCompiledInstanceSet({
             instanceSet: row(),
             world: { routes: [] },
@@ -322,7 +329,7 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
       ],
       [
         "seed",
-        () =>
+        () : boolean =>
           materializeCompiledInstanceSet({
             instanceSet: row({ seed: 4 }),
             world: { routes: [] },
@@ -332,12 +339,12 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
       ],
       [
         "bareTier",
-        () =>
+        () : boolean =>
           bare.lod.length === 1 &&
           bare.lod[0]!.tier === "near" &&
           bare.lod[0]!.recipe === "tree",
       ],
-      ["bareRadius", () => bare.projectionRadius === 0.5],
+      ["bareRadius", () : boolean => bare.projectionRadius === 0.5],
     ]),
     {
       node: true,
@@ -347,4 +354,19 @@ export const test_engine_compiled_instance_set_runtime = (): void => {
       bareRadius: true,
     },
   );
-};
+  const visits: number[] = [];
+  const folded: ReturnType<typeof summarizeCompiledSlotChunks> = summarizeCompiledSlotChunks(5, 2, (slot: number): { x: number; y: number; z: number } => {
+    visits.push(slot);
+    return { x: slot, y: 2 * slot, z: -slot };
+  });
+  TestValidator.equals("one actual position evaluation per slot in order", visits, [0, 1, 2, 3, 4]);
+  TestValidator.predicate("whole placement-point summary", () : boolean =>
+    vclose(folded.summary.bounds.min, { x: 0, y: 0, z: -4 }, 0) &&
+    vclose(folded.summary.bounds.max, { x: 4, y: 8, z: 0 }, 0) &&
+    vclose(folded.summary.centroid, { x: 2, y: 4, z: -2 }, 1e-12));
+  TestValidator.predicate("partial final chunk and independent chunk means", () : boolean =>
+    folded.chunks.length === 3 && folded.chunks[2]!.start === 4 && folded.chunks[2]!.count === 1 &&
+    vclose(folded.chunks[0]!.centroid, { x: 0.5, y: 1, z: -0.5 }, 1e-12) &&
+    vclose(folded.chunks[1]!.centroid, { x: 2.5, y: 5, z: -2.5 }, 1e-12) &&
+    vclose(folded.chunks[2]!.centroid, { x: 4, y: 8, z: -4 }, 1e-12));
+}

@@ -23,6 +23,14 @@ import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * drawable, and the report's owner ids would stop resolving in the mask without
  * anything going red.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Use one drawable-world record for both semantic ownership and inventory cost, including compact populations and simulated drawables not represented by ordinary scene nodes.
+ * @evidence contracts/common.md#clear-and-simple-design Scene/models and optional population/simulation/texture facts remain explicit fields, letting the compiled-shot adapter supply canonical ownership without renderer imports.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing texture facts produce not-run, unsupported water facts remain unknown, and planting geometry stays host-reported; omitted facts are not certified zero allocation.
+ * @evidence contracts/common.md#meaningful-documentation Members explain heroes already in nodes, anonymous compact formations, domain-derived geometry, missing measurements and fresh-context meaning of omitted residency.
+ * @evidence contracts/performance.md#efficient-algorithms The subject references existing populations/laws rather than expanding anonymous members; measurement costs scale with drawables, tiers, topology and texture closure separately.
+ * @evidence contracts/performance.md#reuse-equivalent-work Mask and inventory reuse the same canonical subject conversion; mutable scene, domains and host residency facts prevent an identity-only report cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the subject and its borrowed records; native textures and context resources remain owned by the capture host rather than this interface.
  * @author Samchon
  */
 export interface IAutoMovieRenderSubject {

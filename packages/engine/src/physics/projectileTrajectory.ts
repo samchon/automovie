@@ -1,4 +1,6 @@
-import { IAutoMovieClip, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieClip, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
+
 
 import { aimRotation } from "../kinematics/aimRotation";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
@@ -19,12 +21,20 @@ const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * key lands exactly on `duration`.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Sample constant-acceleration states at i*duration/round(duration*fps), including both endpoints; aimRotation aligns +Z to velocity. Requested fps is approximate after rounding, and linear clip interpolation approximates the continuous parabola.
+ * @evidence contracts/common.md#clear-and-simple-design The producer writes clip buffers directly and delegates state and facing mathematics to their existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The minimum one interval is an explicit sampling rule; no expected impact time is inserted. Very large finite duration*fps still requires a representable, allocatable frame count from callers.
+ * @evidence contracts/common.md#meaningful-documentation Docs give seconds/fps inputs, position and quaternion tracks, endpoint inclusion and invalid-quantity throws; consumers own the returned clip buffers.
+ * @evidence contracts/performance.md#efficient-algorithms F intervals require O(F) state/facing work and O(F) time, translation and rotation output storage; no constant-memory claim applies to the clip.
+ * @evidence contracts/performance.md#reuse-equivalent-work The sampled state serves both translation and facing at each frame; no result is cached across mutable projectile or sample-clock inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Allocated clip arrays transfer to the caller on success; no native handle or background sampler survives failure or completion.
  */
-export const projectileTrajectory = (
+export const projectileTrajectory: (node: string, p: IAutoMovieProjectile, duration: number, fps?: number) => IAutoMovieClip = (
   node: string,
   p: IAutoMovieProjectile,
   duration: number,
-  fps = 30,
+  fps: number = 30,
 ): IAutoMovieClip => {
   if (!Number.isFinite(duration))
     throw new RangeError(
@@ -43,16 +53,16 @@ export const projectileTrajectory = (
       `projectile trajectory fps must be > 0, but was ${fps}`,
     );
 
-  const count = Math.max(1, Math.round(duration * fps));
+  const count: number = Math.max(1, Math.round(duration * fps));
   const times: number[] = [];
   const pos: number[] = [];
   const rot: number[] = [];
-  for (let i = 0; i <= count; ++i) {
-    const t = (i / count) * duration;
-    const { position, velocity } = projectileAt(p, t);
+  for (let i: number = 0; i <= count; ++i) {
+    const t: number = (i / count) * duration;
+    const { position, velocity }: IAutoMovieProjectileState = projectileAt(p, t);
     times.push(t);
     pos.push(position.x, position.y, position.z);
-    const q = aimRotation(PROJECTILE_FORWARD, velocity);
+    const q: IAutoMovieQuaternion = aimRotation(PROJECTILE_FORWARD, velocity);
     rot.push(q.x, q.y, q.z, q.w);
   }
   return {

@@ -2,19 +2,19 @@ import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 
-const indexNodes = (
+const indexNodes: (nodes: readonly IAutoMovieNode[]) => Map<string, { node: IAutoMovieNode; index: number; }> = (
   nodes: readonly IAutoMovieNode[],
 ): Map<string, { node: IAutoMovieNode; index: number }> => {
-  const byId = new Map<string, { node: IAutoMovieNode; index: number }>();
-  nodes.forEach((node, index) => {
-    const existing = byId.get(node.id);
+  const byId: Map<string, { node: IAutoMovieNode; index: number; }> = new Map<string, { node: IAutoMovieNode; index: number }>();
+  nodes.forEach((node: IAutoMovieNode, index: number) : void => {
+    const existing: { node: IAutoMovieNode; index: number; } | undefined = byId.get(node.id);
     if (existing !== undefined)
       throw new Error(
         `node id "${node.id}" is duplicated at nodes[${index}].id; first declared at nodes[${existing.index}].id`,
       );
     byId.set(node.id, { node, index });
   });
-  nodes.forEach((node, index) => {
+  nodes.forEach((node: IAutoMovieNode, index: number) : void => {
     if (node.parent !== null && !byId.has(node.parent))
       throw new Error(
         `node "${node.id}" references missing parent "${node.parent}" at nodes[${index}].parent`,
@@ -38,25 +38,33 @@ const indexNodes = (
  * correctly instead of approximately.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Admit unique ids and existing parents, recursively resolve parent-first matrices with cycle detection and memoization, and multiply full matrices so nonuniform-scale shear survives composition.
+ * @evidence contracts/common.md#clear-and-simple-design An id index owns graph admission and one resolver closure owns rest/override local composition independent of input ordering.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing parents, duplicate ids and cycles throw; arbitrary deep acyclic graphs can still exceed recursion depth, and numerical transform validity remains caller admission.
+ * @evidence contracts/common.md#meaningful-documentation Docs state parent-local transforms, override absence retaining rest pose, arbitrary node order and column-major full-matrix output.
+ * @evidence contracts/performance.md#efficient-algorithms N nodes require O(N) fixed-size matrix work and O(N) maps/results, with recursion stack O(H) for hierarchy depth H.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each node's completed world matrix is reused for all children within this call; changed graph/local overrides require a fresh composition.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned matrices/map; admission indices and active-path set are released on return/failure, with no native scene graph or task retained.
  */
-export const composeScene = (
+export const composeScene: (nodes: IAutoMovieNode[], localOverrides?: Map<string, IAutoMovieTransform>) => Map<string, number[]> = (
   nodes: IAutoMovieNode[],
   localOverrides?: Map<string, IAutoMovieTransform>,
 ): Map<string, number[]> => {
-  const byId = indexNodes(nodes);
-  const world = new Map<string, number[]>();
-  const resolving = new Set<string>();
+  const byId: Map<string, { node: IAutoMovieNode; index: number; }> = indexNodes(nodes);
+  const world: Map<string, number[]> = new Map<string, number[]>();
+  const resolving: Set<string> = new Set<string>();
 
-  const resolve = (id: string): number[] => {
-    const cached = world.get(id);
+  const resolve: (id: string) => number[] = (id: string): number[] => {
+    const cached: number[] | undefined = world.get(id);
     if (cached !== undefined) return cached;
     if (resolving.has(id))
       throw new Error(`node parent cycle includes "${id}"`);
     resolving.add(id);
-    const node = byId.get(id)!.node;
-    const t = localOverrides?.get(id) ?? node.transform;
-    const local = Matrix4.compose(t.translation, t.rotation, t.scale);
-    const m =
+    const node: IAutoMovieNode = byId.get(id)!.node;
+    const t: IAutoMovieTransform = localOverrides?.get(id) ?? node.transform;
+    const local: number[] = Matrix4.compose(t.translation, t.rotation, t.scale);
+    const m: number[] =
       node.parent === null
         ? local
         : Matrix4.multiply(resolve(node.parent), local);

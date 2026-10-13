@@ -4,13 +4,13 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
-const finiteVector = (v: IAutoMovieVector3): boolean => {
+const finiteVector: (v: IAutoMovieVector3) => boolean = (v: IAutoMovieVector3): boolean => {
   if (!Number.isFinite(v.x)) return false;
   if (!Number.isFinite(v.y)) return false;
   return Number.isFinite(v.z);
 };
 
-const validArc = (arc: string): arc is "direct" | "high" =>
+const validArc: (arc: string) => arc is "direct" | "high" = (arc: string): arc is "direct" | "high" =>
   arc === "direct" || arc === "high";
 
 /**
@@ -30,14 +30,22 @@ const validArc = (arc: string): arc is "direct" | "high" =>
  * non-positive).
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Iterate targetAt(t), solve a ballistic launch and replace t with its flight time, returning the closest visited residual unless it falls below 1e-6 seconds. Finite iteration is a fixed-point heuristic, not a guaranteed intercept or global optimum.
+ * @evidence contracts/common.md#clear-and-simple-design This owner coordinates the target callback and solveBallisticLaunch without embedding trajectory integration or modifying the target.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Default eight iterations and residual tolerance define exposed heuristic policy; an unreachable current iterate returns null even if an earlier candidate existed, and callback exceptions propagate.
+ * @evidence contracts/common.md#meaningful-documentation Docs give callback time/position units, positive integer iteration limit, invalid-input null and approximate convergence scope.
+ * @evidence contracts/performance.md#efficient-algorithms I iterations make at most I analytic solves and callback evaluations after the initial estimate; only the best candidate and current time are retained.
+ * @evidence contracts/performance.md#reuse-equivalent-work The best visited candidate is retained within the call; target callbacks may be effectful, so evaluations and results are never memoized across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Iteration ends on convergence, exhaustion or failure; no callback reference, task or native resource is retained afterwards.
  */
-export const solveMovingLaunch = (
+export const solveMovingLaunch: (origin: IAutoMovieVector3, targetAt: ( t : number ) => IAutoMovieVector3, speed: number, gravity?: IAutoMovieVector3, arc?: "direct" | "high", iterations?: number) => IAutoMovieBallisticSolution | null = (
   origin: IAutoMovieVector3,
   targetAt: (t: number) => IAutoMovieVector3,
   speed: number,
   gravity: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 },
   arc: "direct" | "high" = "direct",
-  iterations = 8,
+  iterations: number = 8,
 ): IAutoMovieBallisticSolution | null => {
   if (!Number.isFinite(speed)) return null;
   if (!(speed > 0)) return null;
@@ -47,7 +55,7 @@ export const solveMovingLaunch = (
   if (!Number.isInteger(iterations)) return null;
   if (iterations < 1) return null;
 
-  const initialTarget = targetAt(0);
+  const initialTarget: IAutoMovieVector3 = targetAt(0);
   if (!finiteVector(initialTarget)) return null;
 
   // Track the closest solve by fixed-point residual |hitTime − t|, not just the
@@ -55,11 +63,11 @@ export const solveMovingLaunch = (
   // oscillate rather than settle, and the final guess need not be the nearest
   // one visited. Converged shots hit the `settled` early-out, where the last
   // iterate IS the minimum, so tracking only changes the un-settled tail.
-  let t = Vector3.length(Vector3.subtract(initialTarget, origin)) / speed;
+  let t: number = Vector3.length(Vector3.subtract(initialTarget, origin)) / speed;
   let best: IAutoMovieBallisticSolution | null = null;
-  let bestResidual = Infinity;
-  for (let i = 0; i < iterations; ++i) {
-    const solution = solveBallisticLaunch(
+  let bestResidual: number = Infinity;
+  for (let i: number = 0; i < iterations; ++i) {
+    const solution: IAutoMovieBallisticSolution | null = solveBallisticLaunch(
       origin,
       targetAt(t),
       speed,
@@ -67,7 +75,7 @@ export const solveMovingLaunch = (
       arc,
     );
     if (solution === null) return null; // out of range at this iterate
-    const residual = Math.abs(solution.hitTime - t);
+    const residual: number = Math.abs(solution.hitTime - t);
     if (residual < bestResidual) {
       bestResidual = residual;
       best = solution;

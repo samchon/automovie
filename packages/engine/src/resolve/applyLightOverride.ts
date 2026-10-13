@@ -1,25 +1,23 @@
-import { IAutoMovieLight, IAutoMovieTransform } from "@automovie/interface";
+import { IAutoMovieLightShadow, IAutoMovieColor, IAutoMovieLight, IAutoMovieTransform } from "@automovie/interface";
 
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**
- * Fold the accumulated overrides back onto a light, rebuilding it kind by kind.
+ * Reconstruct an admitted light kind from staged fields and present overrides, preserving optional shadow policy and area extents. Unanimated nested values remain borrowed; the direct helper returns a new light record while shot resolution bypasses untouched lights.
  *
- * Written as a total switch rather than a spread so each kind keeps exactly the
- * parameters its discriminator promises: a `range` recorded against a light
- * that later reads as directional cannot leak a field the type does not carry.
- *
- * Every kind is its own `case` and there is no `default`. A `default` arm would
- * silently build a spot for a kind added later, and it would hide that omission
- * from the exhaustiveness check: the switch is what makes adding an
- * `IAutoMovieLight` arm a compile error here rather than a wrong light at
- * runtime.
+ * @evidence contracts/common.md#principled-implementation Reconstruct each admitted light kind from staged fields plus present overrides, preserving optional shadow policy spelling and the kind's own range/cone/area extent fields.
+ * @evidence contracts/common.md#clear-and-simple-design An exhaustive discriminator switch owns light shape, while the local transform helper borrows unchanged transform/scale references.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent fields preserve staged values rather than zero defaults; directional lights do not gain range and area dimensions remain staged rather than fictional animation axes.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify whole-record reconstruction, untouched-transform identity and supported animated fields; scalar/channel validity is established by sampling and light admission.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed set of light fields requires O(1) work/storage; only animated placement causes an additional transform wrapper.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unanimated nested values and optional shadow records are borrowed; the shot resolver bypasses this function entirely for untouched lights.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new light/optional transform wrapper and the source owns borrowed fields; no native light, texture or task is acquired.
  */
-export const applyLightOverride = (
+export const applyLightOverride: (light: IAutoMovieLight, override: IAutoMovieLightOverride) => IAutoMovieLight = (
   light: IAutoMovieLight,
   override: IAutoMovieLightOverride,
 ): IAutoMovieLight => {
-  const base = {
+  const base: { shadow?: IAutoMovieLightShadow | undefined; castShadow?: boolean | undefined; id: string; transform: IAutoMovieTransform; color: IAutoMovieColor; intensity: number; } = {
     id: light.id,
     transform: applyLightTransformOverride(light.transform, override),
     color: override.color ?? light.color,
@@ -72,7 +70,7 @@ export const applyLightOverride = (
  * without moving it leaves the very transform object the scene staged, so
  * nothing downstream can mistake a re-boxed copy for a move.
  */
-const applyLightTransformOverride = (
+const applyLightTransformOverride: (transform: IAutoMovieTransform, override: IAutoMovieLightOverride) => IAutoMovieTransform = (
   transform: IAutoMovieTransform,
   override: IAutoMovieLightOverride,
 ): IAutoMovieTransform =>

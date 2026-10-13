@@ -3,8 +3,15 @@ import { IAutoMovieDriver } from "@automovie/interface";
 import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
 
 /**
- * The resolved frame: world matrices, morph weights, and any clamps fired.
+ * Caller-owned numerical frame maps and diagnostic arrays. World matrices are column-major; unexecuted drivers remain explicit rather than disappearing from resolution.
  *
+ * @evidence contracts/common.md#principled-implementation Return world matrices, animated morph weights, channel-addressed clamp violations and drivers explicitly deferred by the world pass.
+ * @evidence contracts/common.md#clear-and-simple-design Separate maps and diagnostic arrays let rendering consume numerical output while correction callers retain the actual failure provenance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Deferred springs without state and malformed two-bone chains remain visible; an empty violation list proves no applied bound crossed, not arbitrary scene validity.
+ * @evidence contracts/common.md#meaningful-documentation Members identify column-major world matrices, animated-only weights, violation order and the current defer conditions.
+ * @evidence contracts/performance.md#efficient-algorithms Output grows with N composed nodes, sampled weights, crossed components and deferred drivers; matrix storage is sixteen numbers per node.
+ * @evidence contracts/performance.md#reuse-equivalent-work Completed frame maps are returned directly; a changed time, graph, policy or spring state requires new resolution rather than identity-only reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns result maps/arrays for its frame lifetime; no native buffer, GPU node or asynchronous task is retained by the type.
  * @author Samchon
  */
 export interface IAutoMovieResolveOutput {
@@ -20,10 +27,7 @@ export interface IAutoMovieResolveOutput {
   violations: IAutoMovieResolveViolation[];
 
   /**
-   * Drivers this pass could not resolve: surfaced, never dropped. After S2 only
-   * two things can appear here: springs when no
-   * {@link IAutoMovieResolveInput.springs} input was given (stateful: nothing to
-   * step them with), and malformed two-bone chains (length ≠ 3).
+   * Drivers not advanced by this pass: springs without state/dt and malformed two-bone chains. The returned array keeps their borrowed descriptors visible.
    */
   deferredDrivers: IAutoMovieDriver[];
 }

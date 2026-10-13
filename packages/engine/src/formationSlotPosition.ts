@@ -22,7 +22,8 @@ import { seededValue } from "./math/seededValue";
  * The slot is laid out in the unit's own frame by its layout and dressing,
  * rotated by `facingDeg` about the anchor, and raised by
  * {@link formationGroundRelief}: the ground under the member, not the ground
- * under the group. With a `reform`, the designed and target local points are
+ * under the group. With a `reform`, the previous completed layout's point
+ * (or the designed point when fromLayout is absent) and target local point are
  * blended by its progress before heading and terrain apply, and the target
  * point takes the target layout's own dressing, so a finished re-form stands
  * exactly where a unit designed in the target layout would.
@@ -30,15 +31,15 @@ import { seededValue } from "./math/seededValue";
  * Throws a `RangeError` for a slot that is not a safe integer in
  * `[0, count)`.
  *
- * @evidence contracts/common.md#principled-implementation Closed-form per-slot layout arithmetic (row and file from integer division, wedge rows from the integer square root, arc angle from the slot ratio, scatter from a square-root radius for uniform area density) plus a seeded dressing offset, then a yaw rotation about the anchor; blending happens in the local frame because a world-space blend of a turning unit would sweep members along arcs no layout describes.
- * @evidence contracts/common.md#clear-and-simple-design One public entry with private helpers for the local layout point and its dressing; the dressing now reads the layout being placed, so the reform target needs no second dressing rule and the design and target share one path.
+ * @evidence contracts/common.md#principled-implementation Closed-form row/file, square-root wedge row, arc angle or uniform-area scatter placement plus seeded dressing supplies each local point; optional previous/default design and target points blend before rest yaw and terrain relief. Unit cue translation/heading composes later through placeFormationSlot; fixed affine yaw itself does not distinguish local from equivalent world-point interpolation.
+ * @evidence contracts/common.md#clear-and-simple-design One public entry shares local layout/dressing helpers for the optional previous arrangement, default design and target; sequential reform changes its origin without adding another placement or dressing formula.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No layout or consumer is special-cased; scatter has no dressing because its layout declares none, and a missing reform is the designed arrangement rather than a fallback.
- * @evidence contracts/common.md#meaningful-documentation States the frame order, the relief rule, how a reform blends and which dressing the target takes, the consumers that share it, and the range error.
+ * @evidence contracts/common.md#meaningful-documentation States frame order, relief, fromLayout/design origin, target dressing, shared consumers and invalid-slot RangeError; omitted fromLayout preserves the existing design-to-target call convention.
  * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic per slot plus `formationGroundRelief`, which costs one ground lookup over the formation's terrain snapshot for the member and one cached lookup per record for the anchor; a full placement pass is linear in the member count and nothing is materialized per member.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coordinates no work across requests itself; the anchor ground datum is reused per record inside `formationGroundRelief`, which answers that reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; each call returns a fresh vector the caller owns.
  */
-export const formationSlotPosition = (
+export const formationSlotPosition: (formation: IAutoMovieFormationPlacement, slot: number, reform?: IAutoMovieFormationReform | null) => IAutoMovieVector3 = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   reform: IAutoMovieFormationReform | null = null,
@@ -51,16 +52,16 @@ export const formationSlotPosition = (
     throw new RangeError(
       `Formation "${formation.id}" slot ${slot} is outside 0..${formation.count - 1}.`,
     );
-  const designed: ILocalPoint = localFormationPoint(
+  const origin: ILocalPoint = localFormationPoint(
     formation,
     slot,
-    formation.layout,
+    reform?.fromLayout ?? formation.layout,
   );
   const point: ILocalPoint =
     reform === null
-      ? designed
+      ? origin
       : blendLocalPoints(
-          designed,
+          origin,
           localFormationPoint(formation, slot, reform.layout),
           reform.progress,
         );
@@ -82,7 +83,7 @@ interface ILocalPoint {
   z: number;
 }
 
-const blendLocalPoints = (
+const blendLocalPoints: (from: ILocalPoint, to: ILocalPoint, progress: number) => ILocalPoint = (
   from: ILocalPoint,
   to: ILocalPoint,
   progress: number,
@@ -102,7 +103,7 @@ const blendLocalPoints = (
  * regenerates the same crowd on every machine and every run. A layout without
  * `dressing`, or with both tolerances at zero, returns the exact point.
  */
-const dressedFormationPoint = (
+const dressedFormationPoint: (formation: IAutoMovieFormationPlacement, slot: number, layout: Exclude<IAutoMovieFormationLayout, { kind: "scatter"; }>, point: ILocalPoint) => ILocalPoint = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   layout: Exclude<IAutoMovieFormationLayout, { kind: "scatter" }>,
@@ -111,7 +112,7 @@ const dressedFormationPoint = (
   const dressing: { lateral: number; depth: number } | undefined =
     layout.dressing;
   if (dressing === undefined) return point;
-  const deviation = (salt: number, bound: number): number =>
+  const deviation: (salt: number, bound: number) => number = (salt: number, bound: number): number =>
     bound === 0 ? 0 : (seededValue(formation.seed, slot, salt) * 2 - 1) * bound;
   return {
     x: point.x + deviation(0x64726573, dressing.lateral),
@@ -120,7 +121,7 @@ const dressedFormationPoint = (
 };
 
 /** One slot's point in the unit's own frame under the given layout. */
-const localFormationPoint = (
+const localFormationPoint: (formation: IAutoMovieFormationPlacement, slot: number, layout: IAutoMovieFormationLayout) => ILocalPoint = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   layout: IAutoMovieFormationLayout,

@@ -6,6 +6,14 @@ import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSou
  * conservatively bound hardware-clamped multisampling; resolved color mips and
  * single-sample depth remain separate from multisample attachments.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Describe host-owned framebuffer attachment storage separately from decoded Source sharing, including faces, resolved mips, requested multisamples and depth texture/renderbuffer distinctions.
+ * @evidence contracts/common.md#clear-and-simple-design One attachment profile lets closure count independent targets and connect actual transmission/shadow ownership without importing graphics objects.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested sample count bounds hardware-clamped allocation; absent format or null depth storage stays unknown rather than using an assumed byte width.
+ * @evidence contracts/common.md#meaningful-documentation Members document pixel extents, face population, resolved color formats, sample/depth ownership and live scope associations.
+ * @evidence contracts/performance.md#efficient-algorithms The profile is proportional to attachment count; target measurement uses mip extent arithmetic and separate multisample/depth terms, not per-pixel buffers.
+ * @evidence contracts/performance.md#reuse-equivalent-work Targets allocate independently of source identity; the same stable target owner denotes a retained allocation only while host facts and context ownership remain valid.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The capture host removes actually retired target rows and releases native scene/camera caches; this interface neither disposes nor retains the framebuffer itself.
  * @author Samchon
  */
 export interface IAutoMovieRenderTextureTarget {

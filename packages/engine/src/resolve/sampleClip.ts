@@ -1,4 +1,5 @@
-import { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+import type { IAutoMovieClipShapeFault } from "./../validation/IAutoMovieClipShapeFault";
+import { IAutoMovieQuaternion, IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
@@ -11,31 +12,25 @@ import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 
 /**
- * The SAMPLE pass: evaluate every track of a clip at time `seconds`, returning
- * the sampled value of each channel keyed by {@link channelKey}.
+ * Sample every admitted track at finite clip-local seconds, clamped or duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp where declared, and cubic Hermite scales tangents by segment duration and normalizes interpolated rotations. Before/after-key endpoints copy authored values verbatim.
  *
- * This is the engine's bridge from the sparse keyframes an LLM (or an imported
- * glTF) emits to the dense per-frame channel values the rest of the pipeline
- * (constrain → compose) consumes, the universal generalization of the
- * humanoid-only {@link sampleMotion}: a track may drive a node's TRS, morph
- * weights, a camera FOV, or any pointer-addressed property, and they all sample
- * identically.
- *
- * Time is normalized to the clip: clamped to `[0, duration]`, or wrapped modulo
- * `duration` when the clip `loop`s. A track with a single keyframe (or sampled
- * before its first / after its last key) yields that key's value verbatim.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Validate finite query time and canonical clip/track shape, normalize loop/clamp time, then evaluate STEP, linear quaternion/vector or glTF cubic Hermite tracks by channelKey.
+ * @evidence contracts/common.md#clear-and-simple-design Shared faults own admission, segmentIndex owns binary search and quaternion/Hermite helpers own interpolation; this owner assembles samples.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicates/malformed tracks throw and exact STEP keys use the new value; endpoints preserve authored payloads and unsupported extreme arithmetic can still overflow.
+ * @evidence contracts/common.md#meaningful-documentation Docs state seconds, wrapping/clamping, tangent stride and quaternion interpolation/renormalization with endpoint ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Full key/value validation costs O(sum(K*W)) per sample; each track adds O(log K) search and O(W) returned vector storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Staging/playback share validators/interpolators; mutable clip contents are revalidated without an identity-only track cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh vectors/map and borrows channels; temporary arrays release with the call and no animation host or task is held.
  */
-export const sampleClip = (
+export const sampleClip: (clip: IAutoMovieClip, seconds: number) => Map<string, IAutoMovieSampledChannel> = (
   clip: IAutoMovieClip,
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
   validateSampleTime(seconds, clip.duration, clip.loop);
-  const time = normalizeTime(seconds, clip.duration, clip.loop);
-  const out = new Map<string, IAutoMovieSampledChannel>();
+  const time: number = normalizeTime(seconds, clip.duration, clip.loop);
+  const out: Map<string, IAutoMovieSampledChannel> = new Map<string, IAutoMovieSampledChannel>();
   for (const track of clip.tracks) {
-    const key = channelKey(track.channel);
+    const key: string = channelKey(track.channel);
     if (out.has(key)) throw new Error(`duplicate track channel "${key}"`);
     out.set(key, {
       channel: track.channel,
@@ -51,36 +46,36 @@ export const sampleClip = (
  * `cubicspline` evaluates the glTF cubic Hermite spline from the keyframes'
  * tangents.
  */
-const sampleTrack = (
+const sampleTrack: (track: IAutoMovieTrack, time: number, duration: number) => number[] = (
   track: IAutoMovieTrack,
   time: number,
   duration: number,
 ): number[] => {
-  const { times, values, interpolation, channel } = track;
-  const key = channelKey(channel);
+  const { times, values, interpolation, channel }: IAutoMovieTrack = track;
+  const key: string = channelKey(channel);
   validateTrackShape(track, key, duration);
 
-  const cubic = interpolation === "cubicspline";
+  const cubic: boolean = interpolation === "cubicspline";
   // Stored stride per keyframe; cubicspline stores in-tangent/value/out-tangent.
-  const stride = values.length / times.length;
-  const width = cubic ? stride / 3 : stride;
+  const stride: number = values.length / times.length;
+  const width: number = cubic ? stride / 3 : stride;
 
   // For cubicspline the value sits between the two tangents, offset by `width`.
-  const valueAt = (i: number): number[] => {
-    const base = i * stride + (cubic ? width : 0);
+  const valueAt: (i: number) => number[] = (i: number): number[] => {
+    const base: number = i * stride + (cubic ? width : 0);
     return values.slice(base, base + width);
   };
 
   if (time <= times[0]!) return valueAt(0);
-  const lastIdx = times.length - 1;
+  const lastIdx: number = times.length - 1;
   if (time >= times[lastIdx]!) return valueAt(lastIdx);
 
   // Strictly increasing times (validateTrackShape) let the binary search land on
   // the straddling segment; its tie rule matches the old linear scan exactly.
-  const lo = segmentIndex(times.length, (i) => times[i]!, time);
-  const hi = lo + 1;
-  const span = times[hi]! - times[lo]!;
-  const localT = (time - times[lo]!) / span;
+  const lo: number = segmentIndex(times.length, (i: number) : number => times[i]!, time);
+  const hi: number = lo + 1;
+  const span: number = times[hi]! - times[lo]!;
+  const localT: number = (time - times[lo]!) / span;
 
   // glTF STEP holds v_k for t_k <= t < t_{k+1}: an EXACT hit on the right key
   // (the bisect tie resolves it into the segment ENDING there, localT = 1)
@@ -101,7 +96,7 @@ const sampleTrack = (
  * results are renormalized (interpolated quaternions drift off the unit
  * sphere).
  */
-const cubicHermite = (
+const cubicHermite: (track: IAutoMovieTrack, lo: number, hi: number, span: number, t: number, width: number, stride: number) => number[] = (
   track: IAutoMovieTrack,
   lo: number,
   hi: number,
@@ -110,23 +105,23 @@ const cubicHermite = (
   width: number,
   stride: number,
 ): number[] => {
-  const { values, channel } = track;
-  const out = new Array<number>(width);
-  for (let c = 0; c < width; ++c) {
-    const vLo = values[lo * stride + width + c]!;
-    const bLo = values[lo * stride + 2 * width + c]!;
-    const vHi = values[hi * stride + width + c]!;
-    const aHi = values[hi * stride + c]!;
+  const { values, channel }: IAutoMovieTrack = track;
+  const out: number[] = new Array<number>(width);
+  for (let c: number = 0; c < width; ++c) {
+    const vLo: number = values[lo * stride + width + c]!;
+    const bLo: number = values[lo * stride + 2 * width + c]!;
+    const vHi: number = values[hi * stride + width + c]!;
+    const aHi: number = values[hi * stride + c]!;
     out[c] = cubicHermiteValue(vLo, bLo, vHi, aHi, span, t);
   }
   return channelIsRotation(channel) ? normalizeQuatArray(out) : out;
 };
 
-const lerpArray = (a: number[], b: number[], t: number): number[] =>
-  a.map((v, i) => v + (b[i]! - v) * t);
+const lerpArray: (a: number[], b: number[], t: number) => number[] = (a: number[], b: number[], t: number): number[] =>
+  a.map((v: number, i: number) : number => v + (b[i]! - v) * t);
 
-const slerpArray = (a: number[], b: number[], t: number): number[] => {
-  const q = Quaternion.slerp(
+const slerpArray: (a: number[], b: number[], t: number) => number[] = (a: number[], b: number[], t: number): number[] => {
+  const q: IAutoMovieQuaternion = Quaternion.slerp(
     { x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! },
     { x: b[0]!, y: b[1]!, z: b[2]!, w: b[3]! },
     t,
@@ -134,8 +129,8 @@ const slerpArray = (a: number[], b: number[], t: number): number[] => {
   return [q.x, q.y, q.z, q.w];
 };
 
-const normalizeQuatArray = (q: number[]): number[] => {
-  const n = Quaternion.normalize({ x: q[0]!, y: q[1]!, z: q[2]!, w: q[3]! });
+const normalizeQuatArray: (q: number[]) => number[] = (q: number[]): number[] => {
+  const n: IAutoMovieQuaternion = Quaternion.normalize({ x: q[0]!, y: q[1]!, z: q[2]!, w: q[3]! });
   return [n.x, n.y, n.z, n.w];
 };
 
@@ -145,14 +140,14 @@ const normalizeQuatArray = (q: number[]): number[] => {
  * artifact gate that exists to spare a consumer this throw refuses exactly what
  * would reach it (#1353).
  */
-const validateSampleTime = (
+const validateSampleTime: (seconds: number, duration: number, loop: boolean) => void = (
   seconds: number,
   duration: number,
   loop: boolean,
 ): void => {
   if (!Number.isFinite(seconds))
     throw new Error(`sampleClip seconds must be finite, but was ${seconds}`);
-  const fault = clipDurationFault(duration) ?? clipLoopFault(loop);
+  const fault: IAutoMovieClipShapeFault | null = clipDurationFault(duration) ?? clipLoopFault(loop);
   if (fault !== null) throw new Error(`sampleClip clip ${fault.message}`);
 };
 
@@ -162,24 +157,24 @@ const validateSampleTime = (
  * front of this one let it through, which is an engine defect rather than an
  * authoring one, and one sentence is what a stack trace can carry (#1353).
  */
-const validateTrackShape = (
+const validateTrackShape: (track: IAutoMovieTrack, key: string, duration: number) => void = (
   track: IAutoMovieTrack,
   key: string,
   duration: number,
 ): void => {
-  const fault = clipTrackShapeFaults(track, duration)[0];
+  const fault: IAutoMovieClipShapeFault = clipTrackShapeFaults(track, duration)[0];
   if (fault !== undefined) throw new Error(`track "${key}" ${fault.message}`);
 };
 
 /** Clamp (or wrap, when looping) a query time into the clip's duration. */
-const normalizeTime = (
+const normalizeTime: (seconds: number, duration: number, loop: boolean) => number = (
   seconds: number,
   duration: number,
   loop: boolean,
 ): number => {
   if (duration <= 0) return 0;
   if (loop) {
-    const m = seconds % duration;
+    const m: number = seconds % duration;
     return m < 0 ? m + duration : m;
   }
   return Math.min(duration, Math.max(0, seconds));

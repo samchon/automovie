@@ -1,9 +1,10 @@
+import type { IAutoMovieSampledFormationMotion } from "./../../../../packages/engine/src/IAutoMovieSampledFormationMotion";
 import {
   IAutoMovieFormationPlacement,
   formationSlotPosition,
   sampleFormationMotion,
 } from "@automovie/engine";
-import {
+import { IAutoMovieVector3,
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
 } from "@automovie/interface";
@@ -11,12 +12,12 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-const FILES = 4;
-const RANKS = 3;
-const COUNT = FILES * RANKS;
+const FILES: number = 4;
+const RANKS: number = 3;
+const COUNT: number = FILES * RANKS;
 
 /** Three ranks of four, the arrangement the unit is designed in. */
-const line: IAutoMovieFormationDesign["layout"] = {
+const line: Extract<IAutoMovieFormationDesign["layout"], { kind: "line" }> = {
   kind: "line",
   ranks: RANKS,
   files: FILES,
@@ -31,14 +32,14 @@ const line: IAutoMovieFormationDesign["layout"] = {
  * same arrangement at another spacing, which is what makes the midpoints below
  * readings of the blend rather than of a scale.
  */
-const column: IAutoMovieFormationDesign["layout"] = {
+const column: Extract<IAutoMovieFormationDesign["layout"], { kind: "column" }> = {
   kind: "column",
   ranks: FILES,
   files: RANKS,
   spacing: { lateral: 2, depth: 3 },
 };
 
-const unit = (facingDeg = 0): IAutoMovieFormationPlacement => ({
+const unit: (facingDeg?: number) => IAutoMovieFormationPlacement = (facingDeg: number = 0): IAutoMovieFormationPlacement => ({
   id: "block",
   count: COUNT,
   layout: line,
@@ -48,10 +49,10 @@ const unit = (facingDeg = 0): IAutoMovieFormationPlacement => ({
 });
 
 /** One cue re-forming the unit across its whole window. */
-const reform = (
+const reform: (layout: IAutoMovieFormationDesign["layout"]) => IAutoMovieFormationMotion = (
   layout: IAutoMovieFormationDesign["layout"],
 ): IAutoMovieFormationMotion => {
-  const still = {
+  const still: { translation: { x: number; y: number; z: number; }; facingOffsetDeg: number; spacingScale: { lateral: number; depth: number; }; } = {
     translation: { x: 0, y: 0, z: 0 },
     facingOffsetDeg: 0,
     spacingScale: { lateral: 1, depth: 1 },
@@ -72,17 +73,9 @@ const reform = (
 /**
  * A crowd can change the arrangement it stands in, not only its spacing.
  *
- * A unit's `layout` is a design constant, so the only arrangement channel a cue
- * had was `spacingScale`: a unit could open and close and never re-form. That
- * is the wrong vocabulary for a film whose scenes turn on a mass changing
- * shape, and the limitation was in the grammar rather than in the engine --
- * every layout already knows where its own members stand.
- *
- * A cue now names the arrangement it ends in and each member travels from its
- * designed place to its place there. The blend is over PLACES and not over
- * layout parameters, which is why any two arrangements re-form into one another
- * whatever their kinds, and why no layout algorithm needs to know that another
- * exists.
+ * Layout cues blend member positions rather than layout parameters. The first
+ * starts at the design and later cues start at the previous completed layout;
+ * target dressing participates in the same local point law.
  *
  * Scenarios:
  *
@@ -94,31 +87,37 @@ const reform = (
  * 3. At the end, every member stands exactly where the target arrangement puts it,
  *    and it stays there after the cue closes rather than snapping back.
  * 4. The blend happens in the unit's own frame: the same re-form under a turned
- *    unit puts each member at the turned image of the untuned midpoint, which a
- *    blend of world points would not.
+ *    unit puts each member at the turned image of the unturned midpoint. This
+ *    consistency case does not distinguish equivalent fixed-heading blends.
  * 5. A target arrangement that declares its own dressing ends each member on its
  *    dressed place in that arrangement, not on the exact lattice and not with
  *    the designed layout's tolerance, so a finished re-form matches a unit
  *    designed in the target layout.
+ * 6. A second layout cue starts from the previous completed arrangement, holds it in the gap and carries its new arrangement through a later layout-free cue.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples real formation cues and places actual slots through formationSlotPosition; asserts endpoint/retention, interpolation, heading consistency and target dressing, then rejects sequential cues that restart at the original design.
+ * @evidence contracts/testing.md#independent-expectations Sequential slot 6 has line coordinates (1,3), column coordinates (0,6), and the final line at doubled lateral/one-metre depth has (2,1); the second midpoint must be (1,3.5). Existing endpoint consistency calls cover blending/dressing only and do not independently validate every layout formula or distinguish equivalent fixed-yaw world/local interpolation.
+ * @evidence contracts/testing.md#distinguishing-cases Covers before/start/midpoint/end/after, every final slot, turned-unit consistency, dressed target, gap before second cue, second-cue start/midpoint/end and later layout-free retention. Ground-admission consequences belong to production reform-ground tests.
+ * @evidence contracts/testing.md#execution-ownership The exported portable test_world_formation_reform owns synchronous numerical layout sampling/placement cases, with no Human assets, renderer, browser or dynamic case registration; visual crowd-motion quality is not asserted.
  */
-export const test_world_formation_reform = (): void => {
-  const cues = [reform(column)];
-  const at = (time: number) => sampleFormationMotion(cues, "block", time);
-  const placed = (
+export function test_world_formation_reform(): void {
+  const cues: IAutoMovieFormationMotion[] = [reform(column)];
+  const at: (time: number) => IAutoMovieSampledFormationMotion = (time: number) : IAutoMovieSampledFormationMotion => sampleFormationMotion(cues, "block", time);
+  const placed: (formation: IAutoMovieFormationPlacement, slot: number, time: number) => IAutoMovieVector3 = (
     formation: IAutoMovieFormationPlacement,
     slot: number,
     time: number,
-  ) => formationSlotPosition(formation, slot, at(time).reform);
+  ) : IAutoMovieVector3 => formationSlotPosition(formation, slot, at(time).reform);
 
-  const straight = unit();
-  const designed = (slot: number) => formationSlotPosition(straight, slot);
-  const target = (slot: number) =>
+  const straight: IAutoMovieFormationPlacement = unit();
+  const designed: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 => formationSlotPosition(straight, slot);
+  const target: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 =>
     formationSlotPosition({ ...straight, layout: column }, slot);
 
   // A member whose two places differ in both axes, so neither a lateral nor a
   // depth blend alone can produce the midpoint below.
-  const SLOT = 6;
-  const midpoint = {
+  const SLOT: number = 6;
+  const midpoint: { x: number; y: number; z: number; } = {
     x: (designed(SLOT).x + target(SLOT).x) / 2,
     y: (designed(SLOT).y + target(SLOT).y) / 2,
     z: (designed(SLOT).z + target(SLOT).z) / 2,
@@ -129,34 +128,34 @@ export const test_world_formation_reform = (): void => {
     namedFacts([
       [
         "theTwoArrangementsPutItSomewhereElse",
-        () =>
+        () : boolean =>
           nclose(designed(SLOT).x, target(SLOT).x) === false &&
           nclose(designed(SLOT).z, target(SLOT).z) === false,
       ],
       [
         "beforeTheCueItStandsWhereItWasDesigned",
-        () => vclose(placed(straight, SLOT, 0.5), designed(SLOT)),
+        () : boolean => vclose(placed(straight, SLOT, 0.5), designed(SLOT)),
       ],
       [
         "halfwayItStandsAtTheMidpointOfItsTwoPlaces",
-        () => vclose(placed(straight, SLOT, 2), midpoint),
+        () : boolean => vclose(placed(straight, SLOT, 2), midpoint),
       ],
       [
         "atTheEndItStandsWhereTheTargetPutsIt",
-        () => vclose(placed(straight, SLOT, 3), target(SLOT)),
+        () : boolean => vclose(placed(straight, SLOT, 3), target(SLOT)),
       ],
       // Held rather than released: a unit that re-formed has re-formed, and a
       // cue closing is not the unit walking back to its design.
       [
         "afterTheCueItStaysThere",
-        () => vclose(placed(straight, SLOT, 9), target(SLOT)),
+        () : boolean => vclose(placed(straight, SLOT, 9), target(SLOT)),
       ],
       // Every member, not the one read above: a blend that moved one member and
       // left the rest is not a re-form.
       [
         "everyMemberArrivesInTheTargetArrangement",
-        () =>
-          Array.from({ length: COUNT }, (_, slot) => slot).every((slot) =>
+        () : boolean =>
+          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).every((slot: number) : boolean =>
             vclose(placed(straight, slot, 3), target(slot)),
           ),
       ],
@@ -177,8 +176,8 @@ export const test_world_formation_reform = (): void => {
   // the re-form does not quietly pick a different frame for a turned unit. The
   // reading that separates the two frames needs a cue that turns the unit as it
   // re-forms, which is applied a layer up in `placeFormationSlot`.
-  const turned = unit(90);
-  const turnedMidpoint = {
+  const turned: IAutoMovieFormationPlacement = unit(90);
+  const turnedMidpoint: { x: number; y: number; z: number; } = {
     x: midpoint.z,
     y: midpoint.y,
     z: -midpoint.x,
@@ -188,11 +187,11 @@ export const test_world_formation_reform = (): void => {
     namedFacts([
       [
         "aTurnedUnitReFormsAboutItsOwnAxes",
-        () => vclose(placed(turned, SLOT, 2), turnedMidpoint),
+        () : boolean => vclose(placed(turned, SLOT, 2), turnedMidpoint),
       ],
       [
         "andItsEndsAreTheTurnedArrangement",
-        () =>
+        () : boolean =>
           vclose(
             placed(turned, SLOT, 3),
             formationSlotPosition({ ...turned, layout: column }, SLOT),
@@ -213,7 +212,7 @@ export const test_world_formation_reform = (): void => {
     dressing: { lateral: 0.4, depth: 0.6 },
   };
   const dressedCues: IAutoMovieFormationMotion[] = [reform(dressedColumn)];
-  const dressedEnd = (slot: number) =>
+  const dressedEnd: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 =>
     formationSlotPosition(
       straight,
       slot,
@@ -224,8 +223,8 @@ export const test_world_formation_reform = (): void => {
     namedFacts([
       [
         "everyMemberEndsOnItsDressedTargetPlace",
-        () =>
-          Array.from({ length: COUNT }, (_, slot) => slot).every((slot) =>
+        () : boolean =>
+          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).every((slot: number) : boolean =>
             vclose(
               dressedEnd(slot),
               formationSlotPosition(
@@ -237,9 +236,9 @@ export const test_world_formation_reform = (): void => {
       ],
       [
         "theDressingMovesMembersOffTheExactTarget",
-        () =>
-          Array.from({ length: COUNT }, (_, slot) => slot).some(
-            (slot) => vclose(dressedEnd(slot), target(slot)) === false,
+        () : boolean =>
+          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).some(
+            (slot: number) : boolean => vclose(dressedEnd(slot), target(slot)) === false,
           ),
       ],
     ]),
@@ -248,4 +247,14 @@ export const test_world_formation_reform = (): void => {
       theDressingMovesMembersOffTheExactTarget: true,
     },
   );
-};
+  const finalLayout: IAutoMovieFormationDesign["layout"] = { ...line, spacing: { lateral: 4, depth: 1 } };
+  const secondCue: IAutoMovieFormationMotion = { ...reform(finalLayout), id: "second", start: 4, end: 6 };
+  const holdCue: IAutoMovieFormationMotion = { ...reform(column), id: "hold-after", start: 7, end: 8 };
+  delete holdCue.layout;
+  const sequential: IAutoMovieFormationMotion[] = [reform(column), secondCue, holdCue];
+  const sequentialPosition: (time: number) => { x: number; y: number; z: number } = (time: number): { x: number; y: number; z: number } =>
+    formationSlotPosition(straight, 6, sampleFormationMotion(sequential, "block", time).reform);
+  for (const time of [3.5, 4]) TestValidator.predicate("gap and second-cue start hold the completed column", vclose(sequentialPosition(time), { x: 0, y: 0, z: 6 }, 1e-12));
+  TestValidator.predicate("second cue interpolates from the completed layout", vclose(sequentialPosition(5), { x: 1, y: 0, z: 3.5 }, 1e-12));
+  for (const time of [6, 7.5, 9]) TestValidator.predicate("second target survives completion and layout-free cues", vclose(sequentialPosition(time), { x: 2, y: 0, z: 1 }, 1e-12));
+}

@@ -3,6 +3,14 @@ import type { IAutoMovieTextureReference } from "@automovie/interface";
 /**
  * One texture asset's decoded upload facts, supplied by its capture host.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Keep decoded extents, component format, sampling/upload flags and opaque Source/Texture equality tokens as host facts; those facts determine storage/sharing and distinguish environment conversion from the original cache texture.
+ * @evidence contracts/common.md#clear-and-simple-design Source facts separate native allocation authority from prospective mutable properties, preserving unknown state after SDK mutation or unobserved retirement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts AllocationStateKnown false or unsupported sampler/format remains unknown; dimensions and author parameters cannot manufacture cached native keys or enclosure of driver overhead.
+ * @evidence contracts/common.md#meaningful-documentation Members explain pixels, actual format, mip generation, clone identity, environment factory sampling and the limited legacy fresh-context defaults.
+ * @evidence contracts/performance.md#efficient-algorithms One source record stores fixed upload facts plus token strings; storage measurement folds integer-halved mip extents rather than allocating texels.
+ * @evidence contracts/performance.md#reuse-equivalent-work Opaque tokens establish equality only during the host observation lifetime; equivalent upload keys share allocation, while UV transformations are shader state and do not allocate new source storage.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns decoded textures and native release; records carry no disposal handle, and changed/retired conversion observations must invalidate allocation authority.
  * @author Samchon
  */
 export interface IAutoMovieRenderTextureSource {

@@ -22,19 +22,27 @@ import { primitiveVolume } from "./primitiveVolume";
  * that `centerOfMass` must be declared explicitly.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Sum each supported primitive's volume-weighted centroid after part scale, rotation and translation, using positive scale product as the volume Jacobian. Density is uniform; articulated bone placement and overflowing weighted sums remain limitations.
+ * @evidence contracts/common.md#clear-and-simple-design The part scan delegates formulas to primitiveVolume and primitiveCentroid, keeping aggregate weighting in this function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported mesh/plane and nonpositive volumes are omitted by the declared approximation; no consumer or expected center receives a special answer.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents model-local metres, uniform density, part TRS, ignored geometry and null when no positive mass proxy exists.
+ * @evidence contracts/performance.md#efficient-algorithms P parts require O(P) arithmetic and O(1) aggregate state; each supported part needs one centroid transform, not sampled surface geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work Primitive formulas are shared canonical helpers; no aggregate cache survives mutable part geometry or transform changes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary vectors are call-owned and the resulting centroid transfers to the caller; no part history or handle is retained.
  */
-export const deriveCenterOfMass = (
+export const deriveCenterOfMass: (model: IAutoMovieModel) => IAutoMovieVector3 | null = (
   model: IAutoMovieModel,
 ): IAutoMovieVector3 | null => {
-  let total = 0;
+  let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;
-    const transform = part.transform ?? IDENTITY;
-    const volume =
+    const transform: IAutoMovieTransform = part.transform ?? IDENTITY;
+    const volume: number =
       primitiveVolume(part.geometry.shape) * scaleVolume(transform);
     if (volume <= 0) continue;
-    const centroid = applyTransform(
+    const centroid: IAutoMovieVector3 = applyTransform(
       transform,
       primitiveCentroid(part.geometry.shape),
     );
@@ -51,11 +59,11 @@ const IDENTITY: IAutoMovieTransform = {
 };
 
 /** How much a transform's scale multiplies a solid's volume. */
-const scaleVolume = (t: IAutoMovieTransform): number =>
+const scaleVolume: (t: IAutoMovieTransform) => number = (t: IAutoMovieTransform): number =>
   t.scale.x * t.scale.y * t.scale.z;
 
 /** Apply a full TRS transform to a local point. */
-const applyTransform = (
+const applyTransform: (t: IAutoMovieTransform, p: IAutoMovieVector3) => IAutoMovieVector3 = (
   t: IAutoMovieTransform,
   p: IAutoMovieVector3,
 ): IAutoMovieVector3 =>

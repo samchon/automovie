@@ -5,17 +5,17 @@ import { AutoMovieImpactKind } from "./AutoMovieImpactKind";
 import { IAutoMovieImpact } from "./IAutoMovieImpact";
 import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
 
-const EMBED_SPEED = 6; // m/s above which a penetrable body is pierced, not bounced
+const EMBED_SPEED: number = 6 as const; // m/s above which a penetrable body is pierced, not bounced
 
-const THROUGH_SPEED = 14; // m/s above which a very soft body is passed clean through
+const THROUGH_SPEED: number = 14 as const; // m/s above which a very soft body is passed clean through
 
-const THROUGH_TRANSFER = 0.3; // fraction of momentum a pass-through still imparts
+const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-through still imparts
 
 type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
 
-const VECTOR_AXES = ["x", "y", "z"] as const;
+const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
-const assertImpactVector = (
+const assertImpactVector: (label: "a" | "b", name: "velocity", vector: IAutoMovieVector3) => void = (
   label: "a" | "b",
   name: "velocity",
   vector: IAutoMovieVector3,
@@ -27,7 +27,7 @@ const assertImpactVector = (
       );
 };
 
-const assertImpactMass = (label: "a" | "b", mass: number): void => {
+const assertImpactMass: (label: "a" | "b", mass: number) => void = (label: "a" | "b", mass: number): void => {
   if (!Number.isFinite(mass))
     throw new RangeError(
       `impact body ${label} mass must be finite, but was ${mass}`,
@@ -38,7 +38,7 @@ const assertImpactMass = (label: "a" | "b", mass: number): void => {
     );
 };
 
-const assertImpactCoefficient = (
+const assertImpactCoefficient: (label: "a" | "b", name: ImpactCoefficient, value: number) => void = (
   label: "a" | "b",
   name: ImpactCoefficient,
   value: number,
@@ -53,7 +53,7 @@ const assertImpactCoefficient = (
     );
 };
 
-const assertImpactBody = (
+const assertImpactBody: (label: "a" | "b", body: IAutoMovieImpactBody) => void = (
   label: "a" | "b",
   body: IAutoMovieImpactBody,
 ): void => {
@@ -77,8 +77,16 @@ const assertImpactBody = (
  * Bodies already separating yield a pure `deflect` with no impulse.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Normalize the supplied normal and apply a two-mass normal impulse using product restitution; penetration/speed thresholds choose through, embed, bounce or deflect. This heuristic omits friction and angular response, and extreme finite arithmetic can overflow.
+ * @evidence contracts/common.md#clear-and-simple-design One collision response owner admits masses, velocities and material coefficients, then returns impulse and both post-impact velocities for pose consumers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Penetration 0.6/0.85, speed 6/14 and through transfer 0.3 are the documented existing response policy; no consumer, fixture or actor identity changes those decisions.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify kilogram masses, metre-per-second velocities, coefficient ranges, normal orientation, no-closing deflection and thrown invalid input.
+ * @evidence contracts/performance.md#efficient-algorithms All branches use O(1) scalar/vector work and fixed-size output; no contact manifold or mesh traversal is performed.
+ * @evidence contracts/performance.md#reuse-equivalent-work The no-closing branch borrows unchanged input velocities; active response creates new vectors. No cached collision result survives changed inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned response survives; no body history, iterative solver state or resource is held after the call.
  */
-export const resolveImpact = (
+export const resolveImpact: (a: IAutoMovieImpactBody, b: IAutoMovieImpactBody, normal: IAutoMovieVector3) => IAutoMovieImpact = (
   a: IAutoMovieImpactBody,
   b: IAutoMovieImpactBody,
   normal: IAutoMovieVector3,
@@ -86,7 +94,7 @@ export const resolveImpact = (
   assertImpactBody("a", a);
   assertImpactBody("b", b);
 
-  const normalLengthSq = Vector3.dot(normal, normal);
+  const normalLengthSq: number = Vector3.dot(normal, normal);
   if (!Number.isFinite(normalLengthSq))
     throw new RangeError(
       `impact normal must be finite, but was (${normal.x}, ${normal.y}, ${normal.z})`,
@@ -94,10 +102,10 @@ export const resolveImpact = (
   if (normalLengthSq === 0)
     throw new RangeError("impact normal must be non-zero");
 
-  const n = Vector3.normalize(normal);
-  const vRel = Vector3.subtract(b.velocity, a.velocity); // b relative to a
-  const vRelN = Vector3.dot(vRel, n);
-  const closing = -vRelN; // > 0 when approaching
+  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const vRel: IAutoMovieVector3 = Vector3.subtract(b.velocity, a.velocity); // b relative to a
+  const vRelN: number = Vector3.dot(vRel, n);
+  const closing: number = -vRelN; // > 0 when approaching
 
   if (closing <= 0)
     return {
@@ -109,7 +117,7 @@ export const resolveImpact = (
       kind: "deflect",
     };
 
-  const e = a.restitution * b.restitution;
+  const e: number = a.restitution * b.restitution;
   let kind: AutoMovieImpactKind;
   if (b.penetrability >= 0.6 && closing >= EMBED_SPEED)
     kind =
@@ -118,12 +126,12 @@ export const resolveImpact = (
   else kind = "deflect";
 
   // effective restitution + how much of the impulse actually lands
-  const eEff = kind === "bounce" ? e : 0;
-  const transfer = kind === "through" ? THROUGH_TRANSFER : 1;
+  const eEff: number = kind === "bounce" ? e : 0;
+  const transfer: number = kind === "through" ? THROUGH_TRANSFER : 1;
 
-  const invSum = 1 / a.mass + 1 / b.mass;
-  const jn = (transfer * (1 + eEff) * closing) / invSum;
-  const impulse = Vector3.scale(n, jn);
+  const invSum: number = 1 / a.mass + 1 / b.mass;
+  const jn: number = (transfer * (1 + eEff) * closing) / invSum;
+  const impulse: IAutoMovieVector3 = Vector3.scale(n, jn);
 
   return {
     normal: n,

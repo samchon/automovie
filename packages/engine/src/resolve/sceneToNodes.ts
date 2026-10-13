@@ -1,4 +1,4 @@
-import {
+import { AutoMovieNodeKind, IAutoMovieTransform,
   IAutoMovieModel,
   IAutoMovieNode,
   IAutoMoviePropArticulation,
@@ -10,42 +10,17 @@ import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
 import { placementNodePrefix } from "./placementNodePrefix";
 
 /**
- * Lower the specialized {@link IAutoMovieScene} onto the general
- * {@link IAutoMovieNode} graph, slice S3 of the core wiring: the same scene the
- * film pipeline stages becomes the flat node list {@link composeScene} composes,
- * so scene placement, cameras, lights, and (when models are supplied) every
- * actor's bone hierarchy all live in ONE graph the general Clip path can
- * animate.
+ * Lower scene rest placements, cameras/lights and registered skeleton/prop-articulation subtrees into general nodes. Supplied registries must resolve each required model and may not conflict; explicit partial-model callers retain placements while omitting unregistered subtrees. composeScene separately rejects duplicate ids, missing parents and cycles.
  *
- * **Structure, not state.** The bridge lowers the scene's REST structure: each
- * scene node becomes a `group` node at its world placement, each camera/light a
- * `camera`/`light` node carrying its id as the payload ref. What a node is
- * _doing_ (a running motion, a held pose) arrives as `composeScene` overrides,
- * exactly how the general pipeline animates everything else: bake the motion
- * (or a constant-pose motion) through `motionToClip` with `nodePrefix:
- * "<placementId>/"` and feed the clip to `resolveFrame` over these nodes.
- *
- * **Naming.** A placed model's subtree is prefixed `${sceneNode.id}/` (root
- * `${id}/root`, bones `${id}/${bone}`), so two actors sharing bone names stay
- * distinct in the one graph, the same prefix the actor's clip channels must
- * carry ({@link motionToClip}'s `nodePrefix`). A placed prop's articulation
- * lowers the same way (`${id}/hinge`), and its profile binds with the same
- * prefix (`bindProfile`'s `nodePrefix`).
- *
- * **Guards.** When either registry is supplied, every placed `model` ref must
- * resolve in their union: a lossless bridge refuses silent drops; omit both for
- * a placements-only lowering (no subtrees). A prop-frame caller may explicitly
- * set `allowPartialModels` to omit unrelated actor/set subtrees while retaining
- * the full placement graph. An id present in BOTH registries throws: the
- * registries contradict, and a forged prop already carries its own model, so it
- * never needs a `models` entry. A skeleton-less model lowers no subtree; a
- * rigid prop (`articulation: null`) lowers none either. Duplicate node ids and
- * dangling parents are rejected downstream by `composeScene`'s index guard.
- * This bridge does not duplicate that gate.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Lower scene placements/cameras/lights and registered skeleton/articulation subtrees into rest nodes, requiring registry resolution unless explicit partial-model policy applies.
+ * @evidence contracts/common.md#clear-and-simple-design Skeleton lowering/prefix helpers own shared representation and composeScene owns graph uniqueness/parent/cycle admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry conflicts/missing required models throw; placements-only, rigid and partial modes are current caller policies, not fixture omissions.
+ * @evidence contracts/common.md#meaningful-documentation Props identify registry keys, partial semantics and borrowed transforms; skeleton roots are fresh while scene/articulation nested data remains borrowed.
+ * @evidence contracts/performance.md#efficient-algorithms P placements, C cameras, L lights and B/J lowered bones/joints require proportional node wrappers/id text, without geometry or population expansion.
+ * @evidence contracts/performance.md#reuse-equivalent-work All lowering uses shared naming; mutable scene/model records prevent retaining a graph solely by scene id.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns node wrappers/array and source transforms remain borrowed; partial arrays release on failure without native graph handles or tasks.
  */
-export const sceneToNodes = (props: {
+export const sceneToNodes: (props: { scene: IAutoMovieScene; models?: Record<string, IAutoMovieModel>; props?: Record<string, IAutoMoviePropSpec>; allowPartialModels?: boolean; }) => IAutoMovieNode[] = (props: {
   /** The staged scene to lower. */
   scene: IAutoMovieScene;
   /** Placed models by model id; omit for a placements-only lowering. */
@@ -63,7 +38,7 @@ export const sceneToNodes = (props: {
    */
   allowPartialModels?: boolean;
 }): IAutoMovieNode[] => {
-  const { scene, models, props: propSpecs, allowPartialModels = false } = props;
+  const { scene, models, props: propSpecs, allowPartialModels = false }: { scene: IAutoMovieScene; models?: Record<string, IAutoMovieModel>; props?: Record<string, IAutoMoviePropSpec>; allowPartialModels?: boolean; } = props;
   const nodes: IAutoMovieNode[] = [];
 
   for (const placement of scene.nodes) {
@@ -79,8 +54,8 @@ export const sceneToNodes = (props: {
       skin: null,
     });
     if (models === undefined && propSpecs === undefined) continue;
-    const spec = propSpecs?.[placement.model];
-    const model = models?.[placement.model];
+    const spec: IAutoMoviePropSpec | undefined = propSpecs?.[placement.model];
+    const model: IAutoMovieModel | undefined = models?.[placement.model];
     if (spec !== undefined && model !== undefined)
       throw new Error(
         `sceneToNodes scene "${scene.id}" resolves model "${placement.model}" at node "${placement.id}" in BOTH the props and models registries: the registries contradict (a forged prop carries its own model)`,
@@ -147,12 +122,12 @@ export const sceneToNodes = (props: {
  * the skeleton lowering), and every other node field (kind, transform, payload
  * refs) carries verbatim (`forgeProp` already gated well-formedness).
  */
-const lowerArticulationNodes = (
+const lowerArticulationNodes: (articulation: IAutoMoviePropArticulation, prefix: string, rootParent: string) => IAutoMovieNode[] = (
   articulation: IAutoMoviePropArticulation,
   prefix: string,
   rootParent: string,
 ): IAutoMovieNode[] =>
-  articulation.nodes.map((node) => ({
+  articulation.nodes.map((node: IAutoMovieNode) : { id: string; parent: string; name: string | null; kind: AutoMovieNodeKind; transform: IAutoMovieTransform; mesh: string | null; camera: string | null; light: string | null; skin: string | null; } => ({
     ...node,
     id: `${prefix}${node.id}`,
     parent: node.parent === null ? rootParent : `${prefix}${node.parent}`,

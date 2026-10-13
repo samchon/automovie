@@ -32,6 +32,14 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * 32-bit depth face attachment. Raw channel/internal format does not own them.
  * DFG is a 16-by-16 RG half-float texture, with no mip chain. Driver overhead
  * and encoded/CPU source bytes are outside these uncompressed storage bounds.
+ *
+ * @evidence contracts/common.md#principled-implementation Group raw uploads by actual Source/effective upload state, environment derivatives by Texture identity, and context-owned lookup/scratch/targets separately; count conservative environment factory sampler unions and exact mip extents. Missing multi-scope authority remains null.
+ * @evidence contracts/common.md#clear-and-simple-design One closure joins current/live/retained consumer facts and delegates storage/target byte formulas to shared owners, keeping host observation distinct from author material declarations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts DFG/PMREM profiles follow the supported renderer's factory policy; missing implicit lookup, shadow, transmission or allocation facts add unknown rows rather than invented storage. Driver overhead and encoded/CPU bytes are outside the bound.
+ * @evidence contracts/common.md#meaningful-documentation Docs state actual identity keys, fresh-context defaults, context versus source disposal, environment atlas/cube policy and sampling-union upper-bound meaning.
+ * @evidence contracts/performance.md#efficient-algorithms Scan material slots, source/runtime rows and target consumers into maps/sets, then sort canonical attribution rows; cost grows with those declarations plus logarithmic mip loops, not texture pixel buffers. Environment derivative asset/resident merges still allocate proportional lists.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equivalent actual Source/upload keys share one raw allocation and equivalent environment Texture objects share derivatives; renderer DFG/scratch are counted once. Asset spelling alone cannot establish equivalence across live scopes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned costs are facts, not native owners; grouping storage is temporary and the host must remove disposed scopes/targets and release retained scratch on real context release, with no disposer or task held here.
  */
 export function measureAutoMovieRenderTextureClosure(props: {
   materials: Iterable<IAutoMovieMaterial>;
@@ -54,49 +62,49 @@ export function measureAutoMovieRenderTextureClosure(props: {
     shadowCasters: props.shadowCasters ?? [],
     areaLights: props.areaLights ?? false,
   }, ...(props.residency?.residents ?? [])];
-  const owners = new Set<string>();
+  const owners: Set<string> = new Set<string>();
   for (const scope of scopes) {
     if (scope.owner.trim().length === 0 || owners.has(scope.owner))
       throw new Error(`Texture resident owner "${scope.owner}" must be nonblank and unique.`);
     owners.add(scope.owner);
   }
-  const multi = scopes.length > 1;
-  const variants = new Map<string, {
+  const multi: boolean = scopes.length > 1;
+  const variants: Map<string, { assets: Set<string>; variant: string; materials: Set<string>; residents: Set<string>; bytes: number | null; allocations: number | null; runtimeOwners: Set<string>; }> = new Map<string, {
     assets: Set<string>; variant: string; materials: Set<string>;
     residents: Set<string>; bytes: number | null; allocations: number | null; runtimeOwners: Set<string>;
   }>();
-  const derivatives = new Map<string, IAutoMovieRenderTextureCost[]>();
-  const pbrMaterials = new Set<string>();
-  const pbrOwners = new Set<string>();
-  let dfg = props.residency?.dfgRetained ?? false;
+  const derivatives: Map<string, IAutoMovieRenderTextureCost[]> = new Map<string, IAutoMovieRenderTextureCost[]>();
+  const pbrMaterials: Set<string> = new Set<string>();
+  const pbrOwners: Set<string> = new Set<string>();
+  let dfg: boolean = props.residency?.dfgRetained ?? false;
   let blurBytes: number | null = props.residency?.pmremRetained === null ||
     props.residency?.pmremRetained === undefined ? 0 : measureAutoMovieTextureStorage({
       ...props.residency.pmremRetained, bytesPerTexel: 8, mipmapped: false,
     });
-  let blur = props.residency?.pmremRetained !== null && props.residency?.pmremRetained !== undefined;
-  const blurOwners = new Set<string>();
+  let blur: boolean = props.residency?.pmremRetained !== null && props.residency?.pmremRetained !== undefined;
+  const blurOwners: Set<string> = new Set<string>();
   for (const scope of scopes) {
-    const sources = new Map<string, IAutoMovieRenderTextureSource>();
+    const sources: Map<string, IAutoMovieRenderTextureSource> = new Map<string, IAutoMovieRenderTextureSource>();
     for (const source of scope.sources) {
-      const previous = sources.get(source.asset);
+      const previous: IAutoMovieRenderTextureSource | undefined = sources.get(source.asset);
       if (previous !== undefined && previous !== source)
         throw new Error(`Texture resident "${scope.owner}" repeats source asset "${source.asset}".`);
       sources.set(source.asset, source);
     }
-    const bind = (asset: string, variant: string, source: IAutoMovieRenderTextureSource | undefined,
-      material?: string, explicitSampler = false): void => {
-      const mipmapped = source?.generateMipmaps === undefined ? source?.mipmapped ?? false :
+    const bind: (asset: string, variant: string, source: IAutoMovieRenderTextureSource | undefined, material?: string, explicitSampler?: boolean) => void = (asset: string, variant: string, source: IAutoMovieRenderTextureSource | undefined,
+      material?: string, explicitSampler: boolean = false): void => {
+      const mipmapped: boolean = source?.generateMipmaps === undefined ? source?.mipmapped ?? false :
         source.explicitMipmaps === true || source.generateMipmaps;
-      const allocationKnown = source !== undefined && source.allocationStateKnown !== false &&
+      const allocationKnown: boolean = source !== undefined && source.allocationStateKnown !== false &&
         (source.samplerState !== null || explicitSampler) &&
         (!multi || (source.sourceIdentity !== undefined && source.uploadState !== undefined));
-      const bytes = !allocationKnown ? null :
+      const bytes: number | null = !allocationKnown || source === undefined ? null :
         measureAutoMovieTextureStorage({ width: source.width, height: source.height,
           mipmapped, bytesPerTexel: autoMovieTextureFormatBytes(source.format),
         });
-      const key = JSON.stringify([source?.sourceIdentity ?? [scope.owner, asset],
+      const key: string = JSON.stringify([source?.sourceIdentity ?? [scope.owner, asset],
         variant, source?.uploadState ?? null, source?.format ?? null]);
-      let entry = variants.get(key);
+      let entry: { assets: Set<string>; variant: string; materials: Set<string>; residents: Set<string>; bytes: number | null; allocations: number | null; runtimeOwners: Set<string>; } | undefined = variants.get(key);
       if (entry === undefined) {
         entry = { assets: new Set(), variant, materials: new Set(), residents: new Set(), bytes, allocations: allocationKnown ? 1 : null, runtimeOwners: new Set() };
         variants.set(key, entry);
@@ -112,37 +120,37 @@ export function measureAutoMovieRenderTextureClosure(props: {
     };
     for (const material of scope.materials)
       for (const slot of materialTextureSlots(material)) {
-        const asset = typeof slot.binding === "string" ? slot.binding : slot.binding.asset;
-        const source = sources.get(asset);
+        const asset: string = typeof slot.binding === "string" ? slot.binding : slot.binding.asset;
+        const source: IAutoMovieRenderTextureSource | undefined = sources.get(asset);
         bind(asset, autoMovieTextureBindingStateKey(slot.binding, slot.colorSpace, source?.sampler, source?.samplerState),
           source, material.id,
           typeof slot.binding !== "string" && slot.binding.sampler !== undefined);
       }
-    const pbr = scope.materials.length !== 0 || scope.defaultPbr === true;
+    const pbr: boolean = scope.materials.length !== 0 || scope.defaultPbr === true;
     if (pbr) {
       dfg = true;
       pbrOwners.add(scope.owner);
       for (const material of scope.materials) pbrMaterials.add(material.id);
     }
     if (scope.environment === null) continue;
-    const source = scope.environmentTexture ?? sources.get(scope.environment);
+    const source: IAutoMovieRenderTextureSource | undefined = scope.environmentTexture ?? sources.get(scope.environment);
     if (source !== undefined && source.asset !== scope.environment)
       throw new Error(`Texture resident "${scope.owner}" has environment facts for a different asset.`);
-    const environmentColorSpace = source?.environmentColorSpace ?? (source?.format === "rgba8" ? "srgb" : "linear-environment");
-    const factoryReported = source?.environmentSampler !== undefined || source?.environmentSamplerState !== undefined;
-    const factoryRequired = source?.sampler === undefined || source.sampler.minFilter === "linearMipmapLinear";
-    const factoryKnown = source?.environmentSamplerState !== null && (factoryReported || !factoryRequired);
-    const bounded = source === undefined || factoryKnown ? source : { ...source, allocationStateKnown: false };
+    const environmentColorSpace: "srgb" | "linear-environment" = source?.environmentColorSpace ?? (source?.format === "rgba8" ? "srgb" : "linear-environment");
+    const factoryReported: boolean = source?.environmentSampler !== undefined || source?.environmentSamplerState !== undefined;
+    const factoryRequired: boolean = source?.sampler === undefined || source.sampler.minFilter === "linearMipmapLinear";
+    const factoryKnown: boolean = source?.environmentSamplerState !== null && (factoryReported || !factoryRequired);
+    const bounded: IAutoMovieRenderTextureSource | undefined = source === undefined || factoryKnown ? source : { ...source, allocationStateKnown: false };
     bind(scope.environment, autoMovieTextureBindingStateKey(scope.environment,
       environmentColorSpace, source?.sampler, source?.samplerState), bounded);
     if (factoryReported)
       bind(scope.environment, autoMovieTextureBindingStateKey(scope.environment,
         environmentColorSpace, source?.environmentSampler, source?.environmentSamplerState), bounded);
-    const knownIdentity = !multi || (scope.environmentTexture !== undefined && source?.textureIdentity !== undefined);
-    const derivativeKey = source?.textureIdentity !== undefined && knownIdentity ? source.textureIdentity : scope.owner;
-    let rows = derivatives.get(derivativeKey);
-    const atlasBytes = knownIdentity && source?.allocationStateKnown !== false ? pmremBytes(source) : null;
-    const cubeBytes = knownIdentity && source?.allocationStateKnown !== false ? backgroundBytes(source) : null;
+    const knownIdentity: boolean = !multi || (scope.environmentTexture !== undefined && source?.textureIdentity !== undefined);
+    const derivativeKey: string = source?.textureIdentity !== undefined && knownIdentity ? source.textureIdentity : scope.owner;
+    let rows: IAutoMovieRenderTextureCost[] | undefined = derivatives.get(derivativeKey);
+    const atlasBytes: number | null = knownIdentity && source?.allocationStateKnown !== false ? pmremBytes(source) : null;
+    const cubeBytes: number | null = knownIdentity && source?.allocationStateKnown !== false ? backgroundBytes(source) : null;
     if (rows === undefined) {
       rows = [{ asset: scope.environment, variant: "environment-background-cube", materials: [],
         residents: [], bytes: cubeBytes, ...(!knownIdentity ? { allocations: null } : {}) }];
@@ -153,12 +161,12 @@ export function measureAutoMovieRenderTextureClosure(props: {
       if (cubeBytes === null) rows[0]!.bytes = null;
       if (!knownIdentity) rows[0]!.allocations = null;
     }
-    const background = rows[0]!;
+    const background: IAutoMovieRenderTextureCost = rows[0]!;
     background.residents!.push(scope.owner);
     background.assets = [...new Set([...(background.assets ?? [background.asset!]), scope.environment])].sort(compareAutoMovieRenderIds);
     background.asset = background.assets[0]!;
     if (pbr) {
-      let output = rows.find((row) => row.variant === "environment-cubeuv");
+      let output: IAutoMovieRenderTextureCost | undefined = rows.find((row: IAutoMovieRenderTextureCost) : boolean => row.variant === "environment-cubeuv");
       if (output === undefined) {
         output = { asset: scope.environment, assets: [], variant: "environment-cubeuv", materials: [],
           residents: [], bytes: atlasBytes, ...(!knownIdentity ? { allocations: null } : {}) };
@@ -177,22 +185,22 @@ export function measureAutoMovieRenderTextureClosure(props: {
       blurBytes = blurBytes === null || atlasBytes === null ? null : Math.max(blurBytes, atlasBytes);
     }
   }
-  const runtimeOwners = new Set<string>();
-  const builtinUses = new Set<string>();
+  const runtimeOwners: Set<string> = new Set<string>();
+  const builtinUses: Set<string> = new Set<string>();
   for (const runtime of props.residency?.runtimeTextures ?? []) {
     if (runtime.owner.trim().length === 0 || runtimeOwners.has(runtime.owner))
       throw new Error(`Runtime texture owner "${runtime.owner}" must be nonblank and unique.`);
     runtimeOwners.add(runtime.owner);
-    const source = runtime.texture;
-    const variant = source.colorSpace === undefined ? JSON.stringify(["unknown-runtime", source.sampler ?? null]) :
+    const source: Omit<IAutoMovieRenderTextureSource, "asset"> = runtime.texture;
+    const variant: string = source.colorSpace === undefined ? JSON.stringify(["unknown-runtime", source.sampler ?? null]) :
       autoMovieTextureBindingStateKey(runtime.owner, source.colorSpace, source.sampler, source.samplerState);
-    const key = JSON.stringify([source.sourceIdentity ?? ["runtime", runtime.owner],
+    const key: string = JSON.stringify([source.sourceIdentity ?? ["runtime", runtime.owner],
       variant, source.uploadState ?? null, source.format ?? null]);
-    const allocationKnown = source.allocationStateKnown !== false && source.samplerState !== null &&
+    const allocationKnown: boolean = source.allocationStateKnown !== false && source.samplerState !== null &&
       source.colorSpace !== undefined && source.sourceIdentity !== undefined && source.uploadState !== undefined;
-    const bytes = !allocationKnown ? null :
+    const bytes: number | null = !allocationKnown ? null :
       measureAutoMovieTextureStorage({ width: source.width, height: source.height, bytesPerTexel: autoMovieTextureFormatBytes(source.format), mipmapped: source.mipmapped });
-    let entry = variants.get(key);
+    let entry: { assets: Set<string>; variant: string; materials: Set<string>; residents: Set<string>; bytes: number | null; allocations: number | null; runtimeOwners: Set<string>; } | undefined = variants.get(key);
     if (entry === undefined) {
       entry = { assets: new Set(), variant, materials: new Set(), residents: new Set(), bytes, allocations: allocationKnown ? 1 : null, runtimeOwners: new Set() };
       variants.set(key, entry);
@@ -208,7 +216,7 @@ export function measureAutoMovieRenderTextureClosure(props: {
       if (runtime.purpose !== undefined) builtinUses.add(JSON.stringify([resident, runtime.purpose]));
     }
   }
-  const rows: IAutoMovieRenderTextureCost[] = [...variants.values()].map((entry) => ({
+  const rows: IAutoMovieRenderTextureCost[] = [...variants.values()].map((entry: { assets: Set<string>; variant: string; materials: Set<string>; residents: Set<string>; bytes: number | null; allocations: number | null; runtimeOwners: Set<string>; }) : { runtimeOwners: string[]; allocations?: null | undefined; assets: string[]; materials: string[]; residents: string[]; bytes: number | null; runtime?: "data-texture" | undefined; asset: string; variant: string; } => ({
     asset: [...entry.assets].sort(compareAutoMovieRenderIds)[0] ?? null, variant: entry.variant,
     ...(entry.assets.size === 0 ? { runtime: "data-texture" as const } : {}),
     assets: [...entry.assets].sort(compareAutoMovieRenderIds),
@@ -217,9 +225,9 @@ export function measureAutoMovieRenderTextureClosure(props: {
     ...(entry.allocations === null ? { allocations: null } : {}),
     runtimeOwners: [...entry.runtimeOwners].sort(compareAutoMovieRenderIds),
   }));
-  const targetOwners = new Set<string>();
-  const transmissionScopes = new Set<string>();
-  const shadowRoles = new Set<string>();
+  const targetOwners: Set<string> = new Set<string>();
+  const transmissionScopes: Set<string> = new Set<string>();
+  const shadowRoles: Set<string> = new Set<string>();
   for (const target of props.residency?.renderTargets ?? []) {
     if (target.owner.trim().length === 0 || targetOwners.has(target.owner))
       throw new Error(`Render target owner "${target.owner}" must be nonblank and unique.`);
@@ -256,9 +264,9 @@ export function measureAutoMovieRenderTextureClosure(props: {
           });
   }
   for (const scope of scopes)
-    if (scope.materials.some((material) => (material.transmission ?? 0) > 0) && !transmissionScopes.has(scope.owner))
+    if (scope.materials.some((material: IAutoMovieMaterial) : boolean => (material.transmission ?? 0) > 0) && !transmissionScopes.has(scope.owner))
       rows.push({ asset: null, runtime: "transmission-target", variant: `transmission-target:${scope.owner}`,
-        materials: scope.materials.filter((material) => (material.transmission ?? 0) > 0).map((material) => material.id).sort(compareAutoMovieRenderIds),
+        materials: scope.materials.filter((material: IAutoMovieMaterial) : boolean => (material.transmission ?? 0) > 0).map((material: IAutoMovieMaterial) : string => material.id).sort(compareAutoMovieRenderIds),
         residents: [scope.owner], bytes: null, allocations: null,
       });
   rows.push(...[...derivatives.values()].flat());
@@ -269,41 +277,41 @@ export function measureAutoMovieRenderTextureClosure(props: {
   if (blur) rows.push({ asset: null, runtime: "pmrem-blur", variant: "renderer-pmrem-blur",
     materials: [], residents: [...blurOwners].sort(compareAutoMovieRenderIds), bytes: blurBytes,
   });
-  const compositors = new Set<string>();
+  const compositors: Set<string> = new Set<string>();
   for (const compositor of props.residency?.displayCompositors ?? []) {
     if (compositor.owner.trim().length === 0 || compositors.has(compositor.owner))
       throw new Error(`Display compositor owner "${compositor.owner}" must be nonblank and unique.`);
     compositors.add(compositor.owner);
-    const copyBytes = measureAutoMovieTextureStorage({ ...compositor, bytesPerTexel: 4, mipmapped: false });
+    const copyBytes: number | null = measureAutoMovieTextureStorage({ ...compositor, bytesPerTexel: 4, mipmapped: false });
     for (const role of ["incoming", "outgoing", "completed"])
       rows.push({ asset: null, runtime: "display-compositor", variant: `display-compositor:${compositor.owner}:${role}`,
         materials: [], residents: [], bytes: copyBytes,
       });
   }
   for (const row of rows) row.residents = [...new Set(row.residents)].sort(compareAutoMovieRenderIds);
-  return rows.sort((a, b) => compareAutoMovieRenderIds(a.asset ?? "", b.asset ?? "") ||
+  return rows.sort((a: IAutoMovieRenderTextureCost, b: IAutoMovieRenderTextureCost) : number => compareAutoMovieRenderIds(a.asset ?? "", b.asset ?? "") ||
     compareAutoMovieRenderIds(a.variant ?? "", b.variant ?? "") ||
     compareAutoMovieRenderIds(JSON.stringify(a.residents), JSON.stringify(b.residents)) ||
     compareAutoMovieRenderIds(JSON.stringify(a.runtimeOwners ?? []), JSON.stringify(b.runtimeOwners ?? [])));
 }
 
 /** r186 equirectangular conversion produces a two-dimensional half-float atlas. */
-const pmremBytes = (source: IAutoMovieRenderTextureSource | undefined): number | null => {
+const pmremBytes: (source: IAutoMovieRenderTextureSource | undefined) => number | null = (source: IAutoMovieRenderTextureSource | undefined): number | null => {
   if (source === undefined || !Number.isSafeInteger(source.width) || source.width <= 0 ||
       !Number.isSafeInteger(source.height) || source.height <= 0) return null;
-  const cubeSize = Math.max(1, 2 ** Math.floor(Math.log2(source.width / 4)));
+  const cubeSize: number = Math.max(1, 2 ** Math.floor(Math.log2(source.width / 4)));
   return measureAutoMovieTextureStorage({ width: 3 * Math.max(cubeSize, 112),
     height: 4 * cubeSize, bytesPerTexel: 8, mipmapped: false });
 };
 
 /** Sharp-background conversion retains six color faces and depth attachments. */
-const backgroundBytes = (source: IAutoMovieRenderTextureSource | undefined): number | null => {
+const backgroundBytes: (source: IAutoMovieRenderTextureSource | undefined) => number | null = (source: IAutoMovieRenderTextureSource | undefined): number | null => {
   if (source === undefined) return null;
-  const color = measureAutoMovieTextureStorage({ width: source.height, height: source.height,
+  const color: number | null = measureAutoMovieTextureStorage({ width: source.height, height: source.height,
     bytesPerTexel: autoMovieTextureFormatBytes(source.environmentBackgroundFormat), mipmapped: source.generateMipmaps ?? source.mipmapped,
   });
-  const depth = measureAutoMovieTextureStorage({ width: source.height, height: source.height,
+  const depth: number | null = measureAutoMovieTextureStorage({ width: source.height, height: source.height,
     bytesPerTexel: 4, mipmapped: false });
-  const bytes = color === null || depth === null ? null : 6 * (color + depth);
+  const bytes: number | null = color === null || depth === null ? null : 6 * (color + depth);
   return bytes !== null && Number.isSafeInteger(bytes) ? bytes : null;
 };

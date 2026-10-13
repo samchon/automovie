@@ -1,31 +1,17 @@
 import { swingConeAngle } from "./swingConeAngle";
 
 /**
- * The largest blend `t` in `[0, 1]` along the segment from `(anchorFlexion,
- * anchorAbduction)` to `(flexion, abduction)` whose combined
- * {@link swingConeAngle} still fits within `swingDeg`: `1` when the pose already
- * fits, `0` when only the anchor does.
+ * Bisect forty times from a feasible anchor toward an outside endpoint and return the retained feasible lower parameter. The largest-boundary interpretation requires monotonic swing on that segment, a premise current admission does not prove for unrestricted multi-turn overrides. An already admitted endpoint returns one.
  *
- * Pulling toward `(0, 0)` (the anchor a box that brackets neutral yields) is
- * right only when the joint can actually reach neutral. For a per-bone override
- * whose flexion/abduction box EXCLUDES neutral (a limb that cannot fully
- * extend), shrinking toward the origin drops the axis below its own `min`, and
- * the clamped pose then fails {@link validateJointRom}'s box check (#1245).
- * Pulling toward a point the box contains keeps the result inside the box (the
- * segment between two box points stays in the box, which is convex) while the
- * bisection puts it inside the cone.
- *
- * The combined swing is monotonic along that segment but not linear, so there
- * is no closed form; this bisects and returns the lower bound, which always
- * sits INSIDE the cone rather than grazing its strict boundary.
- *
- * The caller must pass an anchor that is itself inside the cone;
- * `validateModel` rejects a constraint whose box and cone do not intersect,
- * which is exactly the condition that no such anchor exists.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation For an outside endpoint, bisect forty times from an inside-cone anchor and return the retained feasible lower parameter; largest-boundary meaning requires monotonic swing along that segment.
+ * @evidence contracts/common.md#clear-and-simple-design A box-nearest-neutral anchor preserves convex axis intervals while this owner supplies scalar cone search.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Forty iterations are numerical precision policy; unrestricted multi-turn overrides can violate monotonicity, which current admission does not generally prove, leaving global largest-t behavior unsupported.
+ * @evidence contracts/common.md#meaningful-documentation Docs state anchor feasibility, monotonic-segment premise, lower-bound return and fixed precision without universal cone/box optimality.
+ * @evidence contracts/performance.md#efficient-algorithms At most forty angular evaluations take constant work/space and about 2^-40 parameter resolution under the stated premise.
+ * @evidence contracts/performance.md#reuse-equivalent-work Endpoint acceptance reuses its metric; changed angles/anchor/cone require a fresh search without mutable-constraint caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes; closure/temporaries release with the call and no pose population, solver handle or task is held.
  */
-export const swingConeBlend = (
+export const swingConeBlend: (flexion: number, abduction: number, anchorFlexion: number, anchorAbduction: number, swingDeg: number) => number = (
   flexion: number,
   abduction: number,
   anchorFlexion: number,
@@ -33,18 +19,17 @@ export const swingConeBlend = (
   swingDeg: number,
 ): number => {
   if (swingConeAngle(flexion, abduction) <= swingDeg) return 1;
-  const at = (t: number): number =>
+  const at: (t: number) => number = (t: number): number =>
     swingConeAngle(
       anchorFlexion + (flexion - anchorFlexion) * t,
       anchorAbduction + (abduction - anchorAbduction) * t,
     );
-  let lo = 0;
-  let hi = 1;
-  // A fixed iteration count, so the result is deterministic and replayable. The
-  // lower bound always sits INSIDE the cone, so a clamped pose passes the cone
-  // check rather than grazing its strict boundary.
-  for (let i = 0; i < 40; ++i) {
-    const mid = (lo + hi) / 2;
+  let lo: number = 0;
+  let hi: number = 1;
+  // Fixed bisection precision. Under a feasible anchor and monotonic segment,
+  // retaining the lower side preserves an admitted cone value.
+  for (let i: number = 0; i < 40; ++i) {
+    const mid: number = (lo + hi) / 2;
     if (at(mid) > swingDeg) hi = mid;
     else lo = mid;
   }

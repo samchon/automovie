@@ -1,4 +1,4 @@
-import {
+import { IAutoMovieRenderAnalysisGap,
   AutoMovieRenderMetric,
   IAutoMovieRenderBudget,
   IAutoMovieRenderContributor,
@@ -46,8 +46,16 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * pass no production declares.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Evaluate every fixed metric against an admitted nonnegative safe integer limit or explicit gap, preserving within/over/unbudgeted/unsupported/not-run and ranking own costs separately from passes/runtime. Aggregate over takes precedence over incomplete.
+ * @evidence contracts/common.md#clear-and-simple-design Metric evaluation owns verdict/recovery, rank owns bounded editable attribution, and the report binds mask/target digests without measuring the scene again.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No unknown metric total is treated as zero or a pass; absent gap explanations become not-run. Pass/runtime costs remain omitted-accounting values rather than dominating editable-owner ranking.
+ * @evidence contracts/common.md#meaningful-documentation Docs distinguish all statuses, safe integer limits, positive caller-selected contributor bound and recovery attribution. Explicit-position JSON seals every finding field including contributor source and recovery, plus mask/target identity; finite measured inventory numbers are a premise.
+ * @evidence contracts/performance.md#efficient-algorithms For fixed M metrics and O owner rows, each ranking scans O and sorts distinct owners, giving O(M*O log O) work and bounded returned top-K contributors; temporary ranking populations remain proportional to owners.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each metric's one rank supplies contributors, omitted totals and pass recovery together; the mutable inventory/budget prevents identity-only report caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the report/findings and borrowed target; rank maps/text are call-local, with no retained scene, resource handle or evaluation task.
  */
-export const evaluateAutoMovieRenderBudget = (props: {
+export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; mask: IAutoMovieSemanticMask; target: IAutoMovieRenderTarget; maxContributors?: number; }) => IAutoMovieRenderReport = (props: {
   /** Measured cost of the artifact. */
   inventory: IAutoMovieRenderInventory;
   /** Declared limits, or `null` for a production that declares none. */
@@ -59,8 +67,8 @@ export const evaluateAutoMovieRenderBudget = (props: {
   /** Dominant-owner bound; defaults to the exported maximum. */
   maxContributors?: number;
 }): IAutoMovieRenderReport => {
-  const { inventory, budget, mask, target } = props;
-  const limit =
+  const { inventory, budget, mask, target }: { inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; mask: IAutoMovieSemanticMask; target: IAutoMovieRenderTarget; maxContributors?: number; } = props;
+  const limit: number =
     props.maxContributors ?? AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS;
   if (!Number.isSafeInteger(limit) || limit < 1)
     throw new Error(
@@ -72,14 +80,14 @@ export const evaluateAutoMovieRenderBudget = (props: {
         `render budget limit for "${metric}" must be a safe integer at or above zero, but was ${value}`,
       );
 
-  const gaps = new Map(inventory.gaps.map((gap) => [gap.metric, gap]));
-  const findings = AUTOMOVIE_RENDER_METRICS.map((metric) =>
+  const gaps: Map<AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap> = new Map(inventory.gaps.map((gap: IAutoMovieRenderAnalysisGap) : [AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap] => [gap.metric, gap]));
+  const findings: IAutoMovieRenderFinding[] = AUTOMOVIE_RENDER_METRICS.map((metric: "triangles" | "vertices" | "drawCalls" | "materials" | "textures" | "textureBytes" | "geometryBytes" | "lights" | "shadowMaps" | "nodes" | "instanceSets" | "instanceSlots" | "instanceChunks" | "fluidCells" | "fluidParticles") : IAutoMovieRenderFinding =>
     evaluate({ metric, inventory, budget, gap: gaps.get(metric), limit }),
   );
-  const status = findings.some((finding) => finding.status === "over")
+  const status: "within" | "over" | "incomplete" = findings.some((finding: IAutoMovieRenderFinding) : boolean => finding.status === "over")
     ? "over"
     : findings.some(
-          (finding) =>
+          (finding: IAutoMovieRenderFinding) : boolean =>
             finding.status === "unsupported" || finding.status === "not-run",
         )
       ? "incomplete"
@@ -93,42 +101,43 @@ export const evaluateAutoMovieRenderBudget = (props: {
     mask: mask.digest,
     target,
     digest: autoMovieRenderDigest(
-      [
+      JSON.stringify([
         "automovie.render-report.v1",
         budget === null ? "unbudgeted" : budget.tier,
         status,
-        ...findings.map((finding) =>
+        findings.map((finding: IAutoMovieRenderFinding): unknown[] =>
           [
             finding.metric,
             finding.status,
-            String(finding.measured),
-            String(finding.limit),
-            String(finding.excess),
-            ...finding.contributors.map(
-              (contributor) => `${contributor.owner}=${contributor.cost}`,
+            finding.measured,
+            finding.limit,
+            finding.excess,
+            finding.contributors.map(
+              (contributor: IAutoMovieRenderContributor): [string, string, number] => [contributor.owner, contributor.source, contributor.cost],
             ),
-            String(finding.omittedContributors),
-            String(finding.omittedCost),
-          ].join("|"),
+            finding.omittedContributors,
+            finding.omittedCost,
+            finding.recovery,
+          ],
         ),
         mask.digest,
         target.digest,
-      ].join("\n"),
+      ]),
     ),
   };
 };
 
-const evaluate = (props: {
+const evaluate: (props: { metric: AutoMovieRenderMetric; inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; gap: IAutoMovieRenderInventory["gaps"][number] | undefined; limit: number; }) => IAutoMovieRenderFinding = (props: {
   metric: AutoMovieRenderMetric;
   inventory: IAutoMovieRenderInventory;
   budget: IAutoMovieRenderBudget | null;
   gap: IAutoMovieRenderInventory["gaps"][number] | undefined;
   limit: number;
 }): IAutoMovieRenderFinding => {
-  const { metric, inventory, budget, gap } = props;
-  const measured = inventory.totals[metric];
-  const declared = budget?.limits[metric] ?? null;
-  const { passes, ...ranked } = rank(inventory, metric, props.limit);
+  const { metric, inventory, budget, gap }: { metric: AutoMovieRenderMetric; inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; gap: IAutoMovieRenderInventory["gaps"][number] | undefined; limit: number; } = props;
+  const measured: number | null = inventory.totals[metric];
+  const declared: number | null = budget?.limits[metric] ?? null;
+  const { passes, ...ranked }: { contributors: IAutoMovieRenderContributor[]; omittedContributors: number; omittedCost: number; passes: { cost: number; dominant: IAutoMovieRenderContributor; } | null; } = rank(inventory, metric, props.limit);
 
   if (gap !== undefined)
     return {
@@ -172,13 +181,13 @@ const evaluate = (props: {
       ...ranked,
       recovery: null,
     };
-  const dominant = ranked.contributors[0];
+  const dominant: IAutoMovieRenderContributor = ranked.contributors[0];
   // What the frame passes add is stated beside the owners rather than among
   // them. Without it the listed costs come up short of the measurement for no
   // reason a reader can see, and the one shadow caster doubling the frame,
   // often the cheapest edit on the page, would go unmentioned once it stopped
   // being ranked as an owner.
-  const passed =
+  const passed: string =
     passes === null
       ? ""
       : `; a further ${passes.cost} of that total is frame passes redrawing the opaque owners, the largest "${passes.dominant.owner}" at ${passes.dominant.cost}`;
@@ -219,7 +228,7 @@ const evaluate = (props: {
  * not change: a resident cost is allocated once and reused by every pass, so no
  * pass row exists to outrank the drawable that owns it.
  */
-const rank = (
+const rank: (inventory: IAutoMovieRenderInventory, metric: AutoMovieRenderMetric, limit: number) => { contributors: IAutoMovieRenderContributor[]; omittedContributors: number; omittedCost: number; passes: { cost: number; dominant: IAutoMovieRenderContributor; } | null; } = (
   inventory: IAutoMovieRenderInventory,
   metric: AutoMovieRenderMetric,
   limit: number,
@@ -229,13 +238,13 @@ const rank = (
   omittedCost: number;
   passes: { cost: number; dominant: IAutoMovieRenderContributor } | null;
 } => {
-  const totals = new Map<string, IAutoMovieRenderContributor>();
-  const passes = new Map<string, IAutoMovieRenderContributor>();
-  const runtime = new Map<string, IAutoMovieRenderContributor>();
+  const totals: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
+  const passes: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
+  const runtime: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
   for (const entry of inventory.owners) {
     if (entry.metric !== metric) continue;
-    const into = entry.kind === "pass" ? passes : entry.kind === "runtime" ? runtime : totals;
-    const current = into.get(entry.owner);
+    const into: Map<string, IAutoMovieRenderContributor> = entry.kind === "pass" ? passes : entry.kind === "runtime" ? runtime : totals;
+    const current: IAutoMovieRenderContributor | undefined = into.get(entry.owner);
     if (current === undefined)
       into.set(entry.owner, {
         owner: entry.owner,
@@ -244,21 +253,21 @@ const rank = (
       });
     else current.cost += entry.cost;
   }
-  const order = (
+  const order: (left: IAutoMovieRenderContributor, right: IAutoMovieRenderContributor) => number = (
     left: IAutoMovieRenderContributor,
     right: IAutoMovieRenderContributor,
   ): number =>
     right.cost - left.cost ||
     compareAutoMovieRenderIds(left.owner, right.owner);
-  const ordered = [...totals.values()].sort(order);
-  const orderedPasses = [...passes.values()].sort(order);
-  const passCost = orderedPasses.reduce((sum, entry) => sum + entry.cost, 0);
-  const runtimeCost = [...runtime.values()].reduce((sum, entry) => sum + entry.cost, 0);
-  const omitted = ordered.slice(limit);
+  const ordered: IAutoMovieRenderContributor[] = [...totals.values()].sort(order);
+  const orderedPasses: IAutoMovieRenderContributor[] = [...passes.values()].sort(order);
+  const passCost: number = orderedPasses.reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0);
+  const runtimeCost: number = [...runtime.values()].reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0);
+  const omitted: IAutoMovieRenderContributor[] = ordered.slice(limit);
   return {
     contributors: ordered.slice(0, limit),
     omittedContributors: omitted.length + orderedPasses.length + runtime.size,
-    omittedCost: omitted.reduce((sum, entry) => sum + entry.cost, 0) + passCost + runtimeCost,
+    omittedCost: omitted.reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0) + passCost + runtimeCost,
     // A pass that costs nothing is a pass over an empty frame, and naming it
     // would answer a question nobody asked.
     passes:

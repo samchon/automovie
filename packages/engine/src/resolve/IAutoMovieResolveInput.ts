@@ -9,8 +9,15 @@ import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
 import { IAutoMovieResolveSprings } from "./IAutoMovieResolveSprings";
 
 /**
- * Everything needed to resolve one instant of a scene.
+ * Borrowed inputs for one numerical scene frame, with explicit optional cross-frame spring state. Profiles bind before direct policy; the caller owns input lifetime and resets spring history when scene identity changes.
  *
+ * @evidence contracts/common.md#principled-implementation Supply parent-local nodes, optional clip sequence, ordered channel limits/drivers, profile applications and explicit cross-frame spring state for one finite-time frame resolution.
+ * @evidence contracts/common.md#clear-and-simple-design Inputs expose the sample, clamp, compose and world-driver responsibilities without embedding host objects or hiding stateful springs behind a pure-looking call.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent clips select rest pose and absent spring state defers springs; unsupported graph/channels are refused by their owning helpers rather than silently synthesized.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish borrowed node/clip arrays, profile-before-direct policy order, seconds and in-place spring advancement.
+ * @evidence contracts/performance.md#efficient-algorithms Input storage references N nodes, tracks, L limits and D drivers; resolver scans and matrix/channel allocations are owned by resolveFrame, not bounded by this wrapper.
+ * @evidence contracts/performance.md#reuse-equivalent-work Profiles and scene data may be reused while contents stay equivalent; the clip/time/state combination determines new sampled and spring results.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns borrowed inputs and spring maps across frames; the input declaration creates no resource handles or independent running work.
  * @author Samchon
  */
 export interface IAutoMovieResolveInput {
@@ -41,13 +48,7 @@ export interface IAutoMovieResolveInput {
   springs?: IAutoMovieResolveSprings;
 
   /**
-   * Profiles applied to this scene ({@link bindProfile} per entry). Their bound
-   * limits and drivers merge **before** the directly-passed `limits`/`drivers`:
-   * a profile is the rig's standard baseline, the direct inputs are the
-   * caller's per-scene word, so a direct limit clamps last (its bound is the
-   * final one) and direct world-space drivers apply after profile-bound ones.
-   * Omit for none; absent, behavior is byte-identical to before profiles
-   * existed.
+   * Borrowed profile applications bind and merge before direct limits/drivers. Direct limits clamp last and direct world drivers apply afterward; omit for none.
    */
   profiles?: IAutoMovieProfileApplication[];
 

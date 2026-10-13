@@ -1,4 +1,7 @@
-import {
+import type { IAutoMovieSpringCollider } from "./IAutoMovieSpringCollider";
+import type { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
+import type { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
+import { IAutoMovieVector3,
   IAutoMovieChannelLimit,
   IAutoMovieClip,
   IAutoMovieDriver,
@@ -26,22 +29,17 @@ import { sampleClipSequence } from "./sampleClipSequence";
 import { stepSpring } from "./stepSpring";
 
 /**
- * Resolve one frame of a scene: SAMPLE the clip, DRIVE the channel-space
- * drivers, CONSTRAIN the values to their channel limits, COMPOSE the node
- * hierarchy into world matrices, then run the world-space DRIVE pass
- * (aim/parent/two-bone and iterative ccd/fabrik IK) and, when the caller
- * threads `springs` state, STEP every spring driver.
+ * Resolve a numerical frame by sampling, profile binding, value driving, ordered clamping, matrix composition and world driving. Optional explicit spring state advances afterward; otherwise springs remain deferred. Results and state ownership are explicit, and a later failure is not rollback of earlier world/state effects.
  *
- * This is the engine's per-frame entry point and the deterministic core of
- * automovie: given the same scene, clip, limits, drivers, time (and spring
- * state) it always yields the same matrices, the property that makes the
- * renderer a reproducible diffusion alternative. Every solver runs on a fixed
- * budget, so nothing here is host-dependent; springs without a `springs` input
- * are the one thing still surfaced in `deferredDrivers`.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Sample clips, bind profile policy, evaluate value drivers, clamp ordered components, compose matrices, run world drivers and optionally advance explicit spring history.
+ * @evidence contracts/common.md#clear-and-simple-design The frame joins existing address/numerical/graph owners without embedding renderer objects or a hidden spring clock.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing channels/graphs throw and absent spring input exposes deferred descriptors; late failures can follow prior mutation and no universal convergence/rollback is promised.
+ * @evidence contracts/common.md#meaningful-documentation Docs state phase/profile order, rest fallback, output ownership and spring state effects rather than visual appearance guarantees.
+ * @evidence contracts/performance.md#efficient-algorithms N nodes, track payloads, L limits and D drivers dominate; delegated graph, IK, spring and repeated subtree costs remain part of the frame.
+ * @evidence contracts/performance.md#reuse-equivalent-work One node/local/child index serves the frame and prior sprung positions reseed fresh composition; other maps rebuild for changed inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned maps and persistent spring state; temporary binding/sample indices release with the call, with no renderer handle or task.
  */
-export const resolveFrame = (
+export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveOutput = (
   input: IAutoMovieResolveInput,
 ): IAutoMovieResolveOutput => {
   const sampled: Map<string, IAutoMovieSampledChannel> =
@@ -57,7 +55,7 @@ export const resolveFrame = (
   const limitEntries: ILimitEntry[] = [];
   const drivers: IAutoMovieDriver[] = [];
   for (const application of input.profiles ?? []) {
-    const bound = bindProfile(application);
+    const bound: IAutoMovieBoundProfile = bindProfile(application);
     for (const limit of bound.limits)
       limitEntries.push({ limit, profile: application.profile.id });
     drivers.push(...bound.drivers);
@@ -67,18 +65,18 @@ export const resolveFrame = (
 
   // DRIVE (channel-space): resolve copy/driven into the sampled map; collect the
   // world-space drivers the post-compose pass owns.
-  const nodesById = new Map(input.nodes.map((n) => [n.id, n]));
-  const worldSpaceDrivers =
+  const nodesById: Map<string, IAutoMovieNode> = new Map(input.nodes.map((n: IAutoMovieNode) : [string, IAutoMovieNode] => [n.id, n]));
+  const worldSpaceDrivers: IAutoMovieDriver[] =
     drivers.length > 0 ? resolveDrivers(drivers, sampled, nodesById) : [];
   validateSampledNodeChannels(sampled, nodesById);
 
   // CONSTRAIN: clamp each sampled channel that carries a limit, in place.
   const violations: IAutoMovieResolveViolation[] = [];
   for (const entry of limitEntries) {
-    const key = channelKey(entry.limit.channel);
-    const hit = sampled.get(key);
+    const key: string = channelKey(entry.limit.channel);
+    const hit: IAutoMovieSampledChannel | undefined = sampled.get(key);
     if (hit === undefined) continue;
-    const outcome = applyChannelLimit(hit.value, entry.limit);
+    const outcome: IAutoMovieClampOutcome = applyChannelLimit(hit.value, entry.limit);
     hit.value = outcome.value;
     for (const v of outcome.violations)
       violations.push(
@@ -89,30 +87,30 @@ export const resolveFrame = (
   }
 
   // Fold node-targeting samples into per-node transform overrides + weights.
-  const overrides = new Map<string, IAutoMovieTransform>();
-  const weights = new Map<string, number[]>();
+  const overrides: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>();
+  const weights: Map<string, number[]> = new Map<string, number[]>();
   for (const node of input.nodes) {
-    const t = sampled.get(`node:${node.id}:translation`);
-    const r = sampled.get(`node:${node.id}:rotation`);
-    const s = sampled.get(`node:${node.id}:scale`);
+    const t: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:translation`);
+    const r: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:rotation`);
+    const s: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:scale`);
     if (t !== undefined || r !== undefined || s !== undefined)
       overrides.set(node.id, {
         translation: t ? toVec3(t.value) : node.transform.translation,
         rotation: r ? toQuat(r.value) : node.transform.rotation,
         scale: s ? toVec3(s.value) : node.transform.scale,
       });
-    const w = sampled.get(`node:${node.id}:weights`);
+    const w: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:weights`);
     if (w !== undefined) weights.set(node.id, w.value);
   }
 
   // COMPOSE, then the WORLD-SPACE DRIVE pass (aim/parent/analytic + iterative
   // IK) over the composed hierarchy; springs step afterward when state+dt are
   // threaded, and defer otherwise.
-  const world = composeScene(input.nodes, overrides);
-  const localById = new Map<string, IAutoMovieTransform>();
+  const world: Map<string, number[]> = composeScene(input.nodes, overrides);
+  const localById: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>();
   for (const node of input.nodes)
     localById.set(node.id, overrides.get(node.id) ?? node.transform);
-  const afterWorldPass = resolveWorldDrivers(
+  const afterWorldPass: IAutoMovieDriver[] = resolveWorldDrivers(
     worldSpaceDrivers,
     world,
     localById,
@@ -121,11 +119,11 @@ export const resolveFrame = (
 
   // STEP springs (the one stateful driver) inside the frame when the caller
   // provides the cross-frame state; colliders ride their nodes' world matrices.
-  let deferredDrivers = afterWorldPass;
+  let deferredDrivers: IAutoMovieDriver[] = afterWorldPass;
   if (input.springs !== undefined) {
     const spheres: IAutoMovieSpringSphere[] = (
       input.springs.colliders ?? []
-    ).map((c) => ({
+    ).map((c: IAutoMovieSpringCollider) : { center: IAutoMovieVector3; radius: number; } => ({
       center: Matrix4.position(readWorld(world, c.node, "spring collider")),
       radius: c.radius,
     }));
@@ -155,17 +153,17 @@ export const resolveFrame = (
  * never accumulate sag. Rotation/scale stay animated: spring only owns the
  * position, exactly like {@link stepSpring}'s own write.
  */
-const seedSprungPositions = (
+const seedSprungPositions: (chain: readonly string[], world: Map<string, number[]>, state: IAutoMovieSpringState) => void = (
   chain: readonly string[],
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
 ): void => {
-  for (let i = 1; i < chain.length; ++i) {
-    const id = chain[i]!;
-    const carried = state.sprung.get(id);
+  for (let i: number = 1; i < chain.length; ++i) {
+    const id: string = chain[i]!;
+    const carried: IAutoMovieVector3 | undefined = state.sprung.get(id);
     if (carried === undefined) continue;
-    const m = readWorld(world, id, "spring chain");
-    const next = [...m];
+    const m: number[] = readWorld(world, id, "spring chain");
+    const next: number[] = [...m];
     next[12] = carried.x;
     next[13] = carried.y;
     next[14] = carried.z;
@@ -179,11 +177,11 @@ interface ILimitEntry {
   profile: string | null;
 }
 
-const toVec3 = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]! });
+const toVec3: (a: number[]) => { x: number; y: number; z: number; } = (a: number[]) : { x: number; y: number; z: number; } => ({ x: a[0]!, y: a[1]!, z: a[2]! });
 
-const toQuat = (a: number[]) => ({ x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! });
+const toQuat: (a: number[]) => { x: number; y: number; z: number; w: number; } = (a: number[]) : { x: number; y: number; z: number; w: number; } => ({ x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! });
 
-const validateSampledNodeChannels = (
+const validateSampledNodeChannels: (sampled: Map<string, IAutoMovieSampledChannel>, nodesById: Map<string, IAutoMovieNode>) => void = (
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): void => {
