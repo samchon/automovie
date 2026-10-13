@@ -1,11 +1,9 @@
 ---
 name: 3d-modeling
-description: Defines modeling rules and the visual debugging procedure, with Human-specific rules in human.md. Use before changing geometry, rigs, assets, viewer behavior, materials, lighting, motion, or anything in the human package, and before claiming a visual change works.
+description: Defines modeling rules and the visual debugging procedure. Use before changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
 ---
 
 # 3D Modeling
-
-Work on `packages/human`, its viewer and playground surfaces, or a human figure also reads [human.md](human.md).
 
 ## Modeling
 

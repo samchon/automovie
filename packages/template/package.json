@@ -8,9 +8,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "prepare": "pnpm run build:versions",
+    "prepare": "pnpm run build:versions && pnpm run build:instructions",
     "build:versions": "ttsx --no-plugins build/resolveTemplateVersions.ts",
-    "build": "pnpm run build:versions && rimraf lib && ttsc",
+    "build:instructions": "ttsx --no-plugins build/syncScaffoldInstructions.ts",
+    "build": "pnpm run build:versions && pnpm run build:instructions && rimraf lib && ttsc",
     "prepack": "pnpm run build",
     "evidence": "evidence && pnpm run evidence:guards",
     "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"

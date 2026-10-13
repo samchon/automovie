@@ -1,6 +1,11 @@
+---
+name: human
+description: Defines the anatomy rules, visual debugging files, and supervision for automovie's human package and its viewer and playground surfaces. Use with the 3d-modeling skill before working on packages/human, a human figure, or the Human inspection application.
+---
+
 # Human
 
-Human is outside evidence until it is complete (#2774); these rules govern it meanwhile.
+Human is outside evidence until it is complete (#2774); these rules govern it meanwhile, beside the [3d-modeling skill](../3d-modeling/SKILL.md).
 
 ## Anatomy
 

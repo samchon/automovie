@@ -37,7 +37,8 @@ Read the skill whose trigger applies.
 - [project](.agents/skills/project/SKILL.md): judging product scope, choosing a package owner, or choosing a command.
 - [development](.agents/skills/development/SKILL.md): changing source, tests, workflows, or package wiring.
 - [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing maintained source or tests, for their `@evidence` checklists.
-- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, motion, or anything in `human`, and before claiming a visual change works.
+- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
+- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human inspection application.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
 - [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 - [documentation](.agents/skills/documentation/SKILL.md): writing any document.
