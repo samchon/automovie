@@ -58,8 +58,6 @@ One file is limited to 8 MiB. A layer is limited to 10,000 files, 32 MiB total s
 
 The CommonMark AST and HTML tokenizer are trusted dependencies. This package selects original source intervals from their syntax, without reproducing Markdown, evidence or MCP protocol parsers. Node 22.23.2 or later is required. Its NodeNext compilation preserves the CommonJS package surface while the provider loads its real synchronous ESM Markdown dependency through Node's supported CommonJS interoperability. Syntax is parsed from each current bounded read; no parsed fixture or preliminary parse is required. Synchronous client planning uses the TOML package's published CommonJS entry with its public declaration types.
 
-See the [product requirements](../../docs/requirements/agent-authoring/reference-navigation.md) and [system contract](../../docs/specifications/authoring-and-authority/reference-navigation.md) for the authoritative promises and source, budget, refusal and transport semantics.
-
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.

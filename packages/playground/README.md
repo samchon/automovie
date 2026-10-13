@@ -70,4 +70,4 @@ Locomotion migration prioritizes humanoid walk/run/stroll/sprint, horse walk/tro
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.

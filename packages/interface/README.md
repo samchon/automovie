@@ -4,7 +4,7 @@ Contract exclusions are grouped by semantic domain in `src/evidence/`; `src/Auto
 
 `IAutoMovieMesh.colors` optionally carries one linear RGB multiplier per vertex, with finite components in `[0,1]`. Omission preserves the material's base colour without allocating a colour buffer. RGB multiplies material and texture colour; it does not change alpha.
 
-`IAutoMovieMesh.physicalVertices` optionally carries `{ sources: { domain: string; id: number }[]; vertices: (number | null)[] }`. A render vertex references a source row or uses `null` for current-position welding. Equal source pairs mean one actual point duplicated for attributes; independent contact points have different pairs even at equal coordinates. Domains name physical instances, not normal islands or biological sources. IDs are nonnegative safe integers; aliases must agree on the engine's topology grid. Ordinary production TypeScript generators can emit this correspondence with their reviewed source incidence. Merge preserves original pairs and keeps legacy entries dynamic. The field does not certify triangle area, orientation or intersections. See [geometry inputs](../../docs/specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs).
+`IAutoMovieMesh.physicalVertices` optionally carries `{ sources: { domain: string; id: number }[]; vertices: (number | null)[] }`. A render vertex references a source row or uses `null` for current-position welding. Equal source pairs mean one actual point duplicated for attributes; independent contact points have different pairs even at equal coordinates. Domains name physical instances, not normal islands or biological sources. IDs are nonnegative safe integers; aliases must agree on the engine's topology grid. Ordinary production TypeScript generators can emit this correspondence with their reviewed source incidence. Merge preserves original pairs and keeps legacy entries dynamic. The field does not certify triangle area, orientation or intersections.
 
 ## 필름 전역 효과 런타임
 
@@ -89,4 +89,4 @@ automovie는 **glTF / VRM 규약**을 따른다.
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.

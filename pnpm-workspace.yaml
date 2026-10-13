@@ -1,6 +1,5 @@
 packages:
   - config
-  - docs
   - experimental/*
   - packages/*
   - test

@@ -1,38 +1,28 @@
 ---
 name: contracts
-description: Defines the implementation acknowledgments that maintained source declarations answer with @evidence tags, in three layers of checklist chapters: common engineering principles, modeling principles and anatomical principles for human forms. Use when implementing or reviewing maintained source, when enrolling source in a contracts claim, or when writing or revising a checklist chapter. Product requirements and system specifications belong to the evidence-graph skill. A generated production's selected project-owned contract documents and typed declaration own its contract; installed @automovie/evidence documentation describes graph mechanics.
+description: Defines the @evidence checklists every maintained automovie declaration and test answers, and their evidence.config.ts wiring. Use when writing or reviewing maintained source or tests, or changing evidence selection.
 ---
 
-# Implementation Contracts
+# Contracts
 
-A declaration answers each chapter its package's `evidence.config.ts` selects with `@evidence contracts/<file>.md#<chapter> <reason>` in JSDoc. The [review skill](../review/SKILL.md) judges whether the answers are true. Changing the selection requires a separately verified configuration change.
+Each checklist H2 is a question every selected declaration answers in its doc comment. `pnpm run evidence` checks that answers exist; review checks that they are true.
 
-Product promises and system contracts belong to the [evidence graph skill](../evidence-graph/SKILL.md). A generated production's selected contract documents and declaration own its contract.
+| Checklist | Asks about | Selected by |
+| --- | --- | --- |
+| [common.md](common.md) | Method, design, shortcuts, and documentation | Every enrolled package |
+| [performance.md](performance.md) | Computation cost, reuse, and resource lifetime | Every enrolled package except `interface` |
+| [portability.md](portability.md) | Native filesystem, path, and process boundaries | `cli`, `evidence`, `mcp`, `playground`, `production`, `template`, `viewer` |
+| [testing.md](testing.md) | Behavior, expectations, cases, and execution of tests | `test` |
+| [modeling.md](modeling.md), [anatomy.md](anatomy.md) | Forms and human anatomy | `human`, once re-enrolled (#2774) |
 
-## Answering a chapter
+## Answering
 
-- State why the approach fits, its assumptions and any unresolved departure, specific to the declaration's responsibility. Do not certify outputs or claim that tests passed.
-- Answer only finished work. An open chapter stays unanswered as the todo, and open defects go to the issue or worklog, because a status comment in source goes stale.
-- Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations).
-- Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter. Excluding a whole file bypasses every chapter in it.
-- Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another.
-- Assign part, parameter, range, conversion, boundary and assembly claims to their actual owners. Transports and helpers preserve the owner's meaning and repeat no research or whole-render judgment they do not perform. Review private helpers with their owner.
+- Write `@evidence contracts/<file>.md#<anchor> <reason>` for each selected H2 after a blank comment line, and `@evidenceExclude` the same way for a single chapter that does not apply, never a whole file.
+- Say why the approach fits and what it assumes or leaves unresolved, specific to the declaration. Do not certify results; a test answer names the cases it owns.
+- Fix a defect before answering it; one outside the change's scope is stated honestly in the answer and filed as an issue. Never pass the check with a generic answer, a narrower selector, or a lower severity.
 
-## [Common Implementation Principles](common.md)
+## Selection
 
-Every maintained declaration.
-
-## [Modeling Principles](modeling.md)
-
-Declarations that define, build or measure a form: parts, channels, emitted geometry, frames, boundaries and rendered observation.
-
-## [Anatomical Principles](anatomy.md)
-
-Declarations that stand for a living human body: sources, ranges and public inputs.
-
-## Maintaining the checklists
-
-- Give each question one chapter owner across the three files, and extend that chapter instead of adding a second.
-- Keep each chapter an H2 with a stable anchor, because the H2 is the checklist item the configuration selects. Modeling and anatomy chapters open with an `Apply to` sentence.
-- Keep links out of the checklist files so each reads on its own.
-- Write and review a changed checklist under the documentation skill's [instructions document](../documentation/instructions.md).
+- A package selects its exported types and functions under `src`, minus `index.ts` barrels, and keeps the native guards (`evidence/documented`, `evidence/singular`, `evidence/todo`). `pnpm exec evidence list` and `pnpm exec evidence inspect '<target>'` show what a selector reaches.
+- Exclude only generated, copied, or vendored material with verified provenance.
+- Renaming or removing a checklist H2 migrates every answer citing it. Keep one chapter per question and no links inside a checklist.

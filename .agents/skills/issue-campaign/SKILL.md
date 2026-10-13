@@ -1,88 +1,30 @@
 ---
 name: issue-campaign
-description: Defines the repository-wide issue campaign for automovie: exhaustive discovery, candidate adjudication, vetted issue publication, then implementation of every accepted issue in dependency order in one checkout and one branch, closed by one integration Self-Review and CI on a single cycle pull request. Use for broad audits, many issue candidates, or repeated issue-to-pull-request campaigns; do not use for one already-defined issue or an ordinary pull request.
+description: Runs automovie's issue campaign, repeating full discovery rounds until one finds nothing new, publishing the issues, and landing them in one pull request per cycle. Use for a broad audit or repeated issue-to-pull-request work, not for one defined issue.
 ---
 
 # Issue Campaign
 
-A campaign repeats one cycle: exhaustive discovery, issue publication, one unified implementation pull request, and renewed discovery. You do all of it yourself, in one checkout on one branch.
+A cycle audits the target branch until a discovery round finds nothing new, then lands every accepted issue in one pull request whose merge starts the next cycle. Stay within the phases the user authorized; an audit-only request publishes and pushes nothing. Discover and fix only within the campaign's named topic, and say so at once if the work must reach beyond it.
 
-## Completion
+## Discovery
 
-The campaign is complete only when all of these hold:
+1. Run a complete round under the [review law](../review/SKILL.md) over the declared scope, including rendered output, real workflows, related issues and pull requests, and the [contracts](../contracts/SKILL.md) even where tests pass. A hardcoded, monkey-patched, test-only, or workaround implementation is a candidate even when it predates the campaign and passes every test.
+2. Check each candidate's owner, history, and duplicates, reproduce it, then accept, merge, split, or reject it with the evidence, so a later round does not rediscover a rejected premise.
+3. Repeat complete rounds on the same baseline until one finds nothing meaningful. That freezes the accepted set; a target-branch change restarts discovery.
 
-- one complete fresh full-scope discovery round produces no meaningful candidate after fact-checking;
-- no accepted or published campaign issue remains unresolved;
-- no campaign pull request, branch, process or temporary asset remains;
-- the target checkout is clean and synchronized.
+## Issues
 
-An external blocker that makes these impossible means the campaign is reported as blocked and not as complete.
+With publication authority, write each accepted issue so a fresh agent can start from it alone: the problem, reproduction and root cause, consequence surface and case matrix, the invariant to restore, acceptance cases with commands, and dependencies. Name every layer the topic crosses, or why it does not: the owning package, the sandbox engine surface an authoring source calls, the shipped scaffold skill that tells an authoring agent the capability exists, and the tests with their negative twin, so the capability does not land unreachable.
 
-## Authority
+## Pull Request
 
-The user's requested phase boundary controls how far to proceed. An audit-only request does not permit publishing issues, pushing branches, opening pull requests or merging. A standing autonomous mandate (see the [pull-request skill](../pull-request/SKILL.md)) authorizes only the remote actions it names.
+1. Branch from the baseline, push an empty commit (`git commit --allow-empty`), and open one draft pull request listing every cycle issue, with no closing keywords.
+2. Implement every issue in dependency order with its tests. Drop an issue only as a duplicate, invalid, out of scope, or externally blocked, and say so on the issue.
+3. End each resolving commit with `Close #n: <title>` per issue. A revert must drop that line, and a squash still carries the reverted commit's line.
+4. After each pushed commit, run Individual Self-Review and record it as a `COMMENT` review.
+5. On the integrated head, run Overall Self-Review while CI runs. Fix every failed check, pre-existing ones included, and repeat on the new head.
+6. Merge with authority once one head is green and review-clean, under the [pull-request skill](../pull-request/SKILL.md). First read `git log origin/master..HEAD` to confirm each closed issue keeps its fix, and reopen any that does not.
+7. After merge, `git pull --ff-only` on `master`, delete the topic branch, remove only the temporary paths the campaign created, and start the next cycle.
 
-A campaign's scale and duration demand stronger evidence and deeper consequence analysis and never justify admitting an unverified candidate or accepting a weaker standard, as AGENTS.md's [principled-course rule](../../../AGENTS.md#attitude) requires of every decision.
-
-Read the project, development and review skills first.
-
-## Campaign record
-
-Keep the current scope, raw candidates, evidence, dependencies and dispositions in the task's working notes while adjudicating. Publish the accepted scope and evidence in self-contained issue bodies. When implementation is authorized, record the issue DAG, verification, blockers and cleanup in the cycle pull-request chronology. No separate local knowledge-base directory is required.
-
-## Discover, adjudicate and publish
-
-Each discovery round follows the [review skill's law](../review/SKILL.md#non-negotiable-review-law) over the entire declared scope:
-
-1. Audit the whole declared scope and its consequence surface: source, tests, documentation, CI, packaging, consumers and open and closed decisions. For affected visual output, use 3D modeling's visual debugging procedure; for a generated consumer, run its actual scripts; for platform or upstream-source claims, inspect that behavior and provenance. Source reading alone cannot settle those applicable claims.
-2. Audit the current implementation and its history against the development skill's [Forbidden](../development/SKILL.md#forbidden) section as a retrospective contract and not only a rule for future changes. A violation is a meaningful candidate even when it predates the campaign or passes every test at 100% coverage, and resemblance or stylistic preference proves nothing.
-3. Record every raw candidate with its evidence in the task's working notes before adjudication, and discard no suspicion because it looks duplicative or inconvenient.
-4. Adjudicate each candidate: reopen its evidence and reproduce the behavior, verify ownership, provenance and any claimed **Forbidden** classification from purpose, control flow, consequence and history, trace the full consequence surface, and compare open and closed issues and pull requests. Record accept, partial acceptance, rewrite, combine, split, reject or defer with the supporting evidence, so later rounds do not rediscover a rejected premise as new.
-5. If any meaningful candidate survived, run another complete round over the entire scope at the same repository state. A change to the target branch before that empty round is claimed makes the round stale, so rerun it against the new baseline. Adjudicate what it produced, re-audit, and repeat until one round adds no meaningful candidate. Only that empty round closes discovery.
-6. Publish only the adjudicated form, covering the whole accumulated pool, and only with user authorization or under a standing autonomous mandate.
-7. After a merged cycle, begin again at step 1 against the integrated repository with no round limit. Report the campaign complete only from a round that actually came up empty.
-
-A round audits the current integrated state again in full. A merged cycle changes the state every earlier conclusion rested on, so what an earlier round read is not coverage for this one. Stopping at the first productive round only defers the issues a second round would have found to a later cycle, where they sit on top of the edits the first cycle landed and their fix must account for work that did not exist when it was written.
-
-### Self-contained issue body
-
-Write enough context for a fresh AI agent to implement from the issue alone, without private working notes, the discovery conversation or unstated repository knowledge. Cover these sections when they apply; **Scope** is always present:
-
-- **Problem:** current and expected behavior, impact and affected users.
-- **Evidence:** exact reproduction, outputs or renders, stable symbols, verified root cause, ownership and provenance. For a **Forbidden** violation, prove the classification from behavior, control flow and history instead of naming the prohibition. Line numbers are navigation and not proof.
-- **Consequence surface:** affected consumers, states, platforms, compatibility and failure paths, plus the complete case matrix for the cause.
-- **Approach:** the invariant and architectural owner, without prescribing an unverified implementation.
-- **Scope:** every layer this topic crosses, each answered, as [An issue stands vertically](#an-issue-stands-vertically) requires.
-- **Acceptance and verification:** positive, negative, boundary and regression outcomes with narrow and broader proving commands.
-- **Coordination:** dependencies, exclusions, migration concerns, blockers and related open, closed, accepted or rejected work.
-
-Use tables for repeated case mappings. Read the rendered issue back and keep its body as the current operative handoff, with comments only for chronology.
-
-### An issue stands vertically
-
-An issue is one topic, not one package. Walk the topic down the contract before publishing and answer every layer in the body, because an issue that claims one layer and calls the rest separate hands its implementer a package-shaped fragment.
-
-| Layer | What the body answers |
-| --- | --- |
-| `docs/requirements` | Which requirement promises the capability, or why the active package contract is outside the repository triangle |
-| `docs/specifications` | Which specification makes that promise precise, when the triangle applies |
-| `packages/*` | The logic owner and its active requirement/specification or implementation-checklist responsibilities |
-| Sandbox engine surface | Whether authoring source has to call it, and through which surface entry and bridge |
-| `packages/template/scaffold/.agents/skills` | How an authoring agent comes to know the capability is there |
-| Tests | Reachability and the negative twin, not the logic alone |
-
-The table is the floor. A topic that also crosses the scaffold, the viewer, CI, the evidence configuration or a skill lists that layer beside the six. "Not applicable" is an answer and silence is not: write the layer down with the reason, because a layer the body never mentions is a layer nobody decided about.
-
-Point at the owner of each layer's obligation and copy none of it. The [evidence graph skill](../evidence-graph/SKILL.md) owns the two document layers and public citations, the [scaffold skill](../scaffold/SKILL.md) owns generated-project material, and the development skill's [producer-lands-with-its-consumer rule](../development/SKILL.md#work-rules) owns reachability inside one change.
-
-The failure this prevents is a capability that exists and cannot be reached. Published, documented and reachable are three different states, so the guide layer answers how an author arrives at the capability and not whether its name appears somewhere.
-
-### Read the upper layer first
-
-Answer the layers downward, from `docs/requirements` toward the tests. Starting at the code and back-filling documents turns a requirement into a description of what was already built and points the evidence graph the wrong way. Reading the requirements first also changes what the issue is: a capability that looks new is often an unmet promise, which carries different acceptance and a different fix. The review skill's ["It is missing" rule](../review/SKILL.md#it-is-missing-is-a-claim-that-needs-its-own-evidence) settles which.
-
-## Develop and repeat
-
-When the user authorizes implementation pull requests, or a standing autonomous mandate covers them, read [development.md](development.md) in full. It owns the one-PR cycle, the empty claim, dependency order, implementation, validation, red-CI repair, merge, cleanup and the return to discovery.
-
-An audit-only or publication-only campaign does not load that procedure and changes no repository or GitHub state beyond the authorized publications.
+The campaign is complete when a round on the latest baseline finds nothing, no accepted issue is open, and no campaign branch, pull request, or temporary asset remains.

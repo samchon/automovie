@@ -1,20 +1,23 @@
 ---
 name: documentation
-description: Defines package README, code JSDoc, source-file context, prose form, and agent-instruction conventions for automovie. Use before writing or modifying docs, AGENTS.md, or a SKILL.md.
+description: Owns automovie's writing rules for READMEs, JSDoc, and every Markdown file. Use before writing or changing any document, and with prompting before changing AGENTS.md or a skill.
 ---
 
 # Documentation
 
-Read the document that matches the surface you are writing. Every document here follows [prose form](prose.md).
+## Writing
 
-## [Package READMEs and code documentation](source-docs.md)
+- Write only what the reader needs and would not otherwise know. Cut padding, repetition, preamble, filler, and closing summaries.
+- One point, one sentence, one place. Give the reason when it is not obvious, and link to a fact's owner instead of restating it.
+- Say what to do rather than what to avoid; when a prohibition is needed, name the concrete pattern.
+- Plain English with one term per concept, and no emphasis capitals, em-dashes, emoji in prose, promotional adjectives, stock AI phrasing, or hedging.
 
-README content, JSDoc voice, and the context every authored source file carries. Read before writing or changing a README, a JSDoc block or a source-file header.
+## Paragraphs And Lists
 
-## [Agent instructions](instructions.md)
+A paragraph is one topic, written on one source line. Start a new one when the topic changes; merging topics and splitting every sentence are both failures.
 
-How harnesses load `AGENTS.md` and skills, skill layout, writing rules, canonical ownership, and the instruction review gate. Read before editing `AGENTS.md` or any `SKILL.md`.
+Use a list for parallel items and ordered steps, prose for an argument whose conditions and exceptions depend on each other, a table for repeated mappings, and a code block for exact commands.
 
-## [Prose form](prose.md)
+## Code Documentation
 
-Line breaks and voice for every Markdown file, README and comment.
+JSDoc follows [Meaningful documentation](../contracts/common.md#meaningful-documentation), and interface types close with `@author Samchon`. A README serves the package's user: what it is, when to use it, and its public surface, with examples taken from code that runs.

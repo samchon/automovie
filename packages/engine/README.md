@@ -296,6 +296,6 @@ Individual numerical modules are also available under `@automovie/engine/math/*`
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
 
 `sumAutoMovieRenderTextureAllocations` supplies the inventory count boundary: omitted legacy counts mean one, while unknown or unsafe cardinality remains null. Uncertified `IAutoMovieRenderTextureSource.allocationStateKnown` propagates null bytes and allocation population; the closure preserves source and runtime users without claiming that one candidate row is one GPU object.

@@ -32,6 +32,6 @@ The scaffold supplies no production content, viewer stub, template variant, or p
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
 
 `resolveAutoMovieTemplateDependencyVersions` interprets supplied workspace version ranges and catalog text without filesystem access. The build script acquires those inputs and emits the scaffold's version placeholders, including the standalone evidence CLI and native source guards.

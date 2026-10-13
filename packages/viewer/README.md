@@ -134,7 +134,7 @@ Playground owns the Human editor pages and the resident inspection application's
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
 
 `requiredAutoMovieMaterialTexturePurposes` in Engine identifies implicit SSS, overlay normal fallback and rectangular-light lookup consumers. After building the actual scene, call `readAutoMovieMaterialTextureSources({scope, renderer, scene, retained})` and pass its rows into `textureResidency.runtimeTextures`. The shader factories publish the actual Texture they bind; LTC selection follows the host float-linear extension. Each row follows one actual Texture wrapper, while Engine shares equivalent Source/upload-key storage. Reobserving that wrapper updates its current state rather than retaining a native key released after upload. For an upload-transition peak, separately include the observed previous phase as an explicitly conservative union until its native release. Retain removed wrappers from this same renderer and prune them only after actual texture/context release. Current consumer labels are refreshed independently of retained storage facts. Other live scopes supply observed `areaLights` and shared-policy `shadowCasters`; omission cannot certify their required lookup or shadow closure.
 

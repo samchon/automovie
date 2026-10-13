@@ -1,26 +1,24 @@
 ---
 name: 3d-modeling
-description: Defines modeling boundaries and visual debugging. Use before modeling, changing geometry, rigs, assets, viewer behavior, materials, lighting or motion, and before claiming a visual change works.
+description: Defines modeling rules and the visual debugging procedure, with Human-specific rules in human.md. Use before changing geometry, rigs, assets, viewer behavior, materials, lighting, motion, or anything in the human package, and before claiming a visual change works.
 ---
 
 # 3D Modeling
 
-Check [project scope](../project/SKILL.md#out-of-scope) before modeling or increasing fidelity.
+Work on `packages/human`, its viewer and playground surfaces, or a human figure also reads [human.md](human.md).
 
 ## Modeling
 
-- Keep part identities, parameter meanings, units, frames and shared boundaries consistent under the [modeling contracts](../contracts/modeling.md).
-- Compute and measure from the same geometry. Identify each derivative's basis and regenerate affected derivatives when it changes.
+- Keep part identities, parameter meanings, units, frames, and shared boundaries consistent under the [modeling checklist](../contracts/modeling.md).
+- Compute and measure from the same geometry, and regenerate each derivative when its basis changes.
 - Repair an unsound representation at its foundation instead of accumulating corrections.
 
-## Visual debugging
+## Visual Debugging
 
-If the viewer is broken, restoring it is the highest priority. Until it works again, do no work that requires visual debugging. Confirm recovery through an actual displayed model and working controls. Preserve the last valid display and protect other owners' processes.
+A broken viewer comes first: do no work that needs visual judgment until a displayed model and working controls confirm recovery, and protect other owners' processes meanwhile.
 
-- Inspect the actual consumer with current source and a hardware renderer. Record source, input, renderer and viewing conditions; readiness or numerical success alone proves no appearance.
-- Enlarge the affected parts and inspect opposing views, assembled neighbors and use distance. Observe the states required by [Rendered Observation](../contracts/modeling.md#rendered-observation), including intermediate motion.
-- Judge materials and lighting in beauty and use structural passes only for their documented quantities.
-- Compare the render with the engine result to distinguish calculation from display faults. Compare before and after under matching conditions while preserving the user's working-tree changes.
-- After every correction, render again and inspect it yourself. Report observed results, remaining defects and missing observations; stale, blank or unobserved output stays unverified.
-
-Human captures and cleanup follow [Visual debugging files](../project/human.md#visual-debugging-files).
+- Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view. Readiness or numerical success proves no appearance.
+- Enlarge the affected parts and inspect opposing views, assembled neighbors, and use distance, through the states [Rendered Observation](../contracts/modeling.md#rendered-observation) names.
+- Judge materials and lighting in beauty; use structural passes only for the quantities they document.
+- Compare the render with the engine result to separate calculation from display faults, and compare before and after under matching conditions.
+- After every correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.

@@ -34,6 +34,6 @@ package root은 브라우저 번들이 그대로 가져갈 수 있다. Node 전�
 
 ## Development checks
 
-`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the configured contract graph with `@wrtnlabs/evidence`, then runs the existing native source evidence guards.
+`pnpm run build` compiles with source correctness lint. `pnpm run evidence` independently checks the declarations' engineering-principle checklist answers with `@wrtnlabs/evidence`, then runs the native source evidence guards.
 
 Required texture byte or allocation-count uncertainty refuses preflight, including unbudgeted jobs. An over-limit recovery and an independent unknown texture diagnostic are reported together; neither condition suppresses the other.
