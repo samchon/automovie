@@ -5,75 +5,72 @@ import { IAutoMovieProfileControl } from "./IAutoMovieProfileControl";
 import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 
 /**
- * A profile (= USD applied schema): a declarative capability layered onto a
- * subtree of the node graph that gives it a domain semantics: a named set of
- * controls, the standard drivers that resolve them, and the constraints that
- * bound them. The humanoid profile is the first instance (a bone-name → control
- * map plus anatomical ROM, eye look-at, finger curl); a door profile is a
- * one-DOF hinge; a costume profile is a cloth/spring rig.
+ * A profile (a USD applied schema): a declarative capability layered onto a
+ * subtree of the node graph, giving it named controls, the drivers that
+ * resolve them, the limits that bound them, typed traits and gaits.
  *
- * Profiles are **data, not code**: a new rig kind (or a community mod: a new
- * preset, hair pack, ethnicity) ships as a profile descriptor, registered at
- * runtime, never a release. This is the mechanism that keeps automovie additive
- * and mod-friendly, and the reason the model is expressed as interfaces rather
- * than classes. Adding a control with a default is a non-breaking change (old
- * data still resolves), so profiles version only on removals/type changes.
+ * Profiles are data, not code. A model or model recipe lists its profiles, and
+ * an application pairs one with an {@link IAutoMovieProfileBinding}, so a new
+ * rig kind ships as a record rather than an engine release. The shipped
+ * humanoid, horse and cat profiles carry only gaits; a forged prop's
+ * articulation profile carries hinge limits and drivers.
  *
  * Node references inside `limits` and `drivers` are semantic keys, not node
- * ids: `bindProfile` maps each through an {@link IAutoMovieProfileBinding}'s
- * `boneMap`, prepends the placement prefix, and throws on an unmapped or blank
- * key, while pointer channels pass through unchanged. No engine pass reads or
- * binds `controls` today.
+ * ids: `bindProfile` maps each through the binding's `boneMap`, prepends the
+ * placement prefix, and throws on an unmapped or blank key, while pointer
+ * channels pass through unchanged. A violation of a bound limit is reported
+ * with this profile's id. No engine pass reads or binds `controls`, and no
+ * engine verb consults `traits` yet.
  *
+ * @evidence contracts/common.md#principled-implementation `bindProfile` rewrites every node reference in limits and drivers through one total mapping and fails on any gap, `bindProfileGaits` synthesises each named gait into a clip for the bound skeleton, and `validateProfileCapabilities` requires a non-blank id and name unique among a model's profiles and at most one trait of each kind.
+ * @evidence contracts/common.md#clear-and-simple-design One record groups everything a capability contributes so a single binding applies it, with each member typed by the pass that owns it; the `gaits` field is the one `core` to `motion` reference, kept because moving gaits into `core` would pull skeleton and easing types after it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Profiles are matched by id and capabilities by typed trait, never by model or profile name; `controls` is unread and documented as such rather than given a placeholder consumer, which remains an open gap in this core type.
+ * @evidence contracts/common.md#meaningful-documentation States where profiles live, which shipped profiles fill which members, that node references are semantic keys and how they are bound and fail, which members no pass reads, and the validation rules on id, name, traits and gait names.
  * @author Samchon
  */
 export interface IAutoMovieProfile {
-  /** Stable id. */
+  /**
+   * Id a binding's `profile` must equal; non-blank and unique among one
+   * model's profiles, and attached to every violation of a bound limit.
+   */
   id: string;
 
-  /** Profile name (e.g. `"humanoid"`, `"hinge"`). */
+  /** Non-blank profile name, such as `"humanoid"` or `"hinge"`. */
   name: string;
 
-  /** The named controls this profile exposes; no engine pass reads them yet. */
+  /** The named controls this profile exposes; no engine pass reads them. */
   controls: IAutoMovieProfileControl[];
 
   /**
-   * Standard drivers that resolve the controls (eye look-at, finger curl,
-   * springs), with node fields written as semantic keys.
+   * Drivers the profile contributes, with node fields written as semantic
+   * keys. Bound drivers run before the caller's own drivers in the same frame.
    */
   drivers: IAutoMovieDriver[];
 
   /**
-   * Standard value constraints (the profile's default ROM / limits), with node
-   * channels written as semantic keys. A violation of one is reported with this
-   * profile's id.
+   * Value limits the profile contributes (its default range of motion), with
+   * node channels written as semantic keys. Bound limits clamp before the
+   * caller's own limits, so a caller's limit has the final word.
    */
   limits: IAutoMovieChannelLimit[];
 
   /**
-   * Typed semantic capabilities this profile proves.
+   * Typed semantic capabilities this profile declares, at most one of each
+   * kind; omitted is an empty list.
    *
-   * Omitted is equivalent to an empty list. An engine verb must find the
-   * matching trait here; model names and free-form capability labels never
-   * grant permission. Locomotion remains the existing `gaits` capability and is
-   * not duplicated as a second trait marker. Today only
-   * `validateProfileCapabilities` and the production design lint read traits.
+   * `validateProfileCapabilities` and the production design lint validate
+   * them, and no engine verb consults them yet. Model names and free-form
+   * labels are never a substitute. Locomotion is the `gaits` field, not a
+   * trait.
    */
   traits?: IAutoMovieProfileTrait[];
 
   /**
-   * The characteristic gaits this profile's body performs
-   * ({@link IAutoMovieGait}): a horse profile's walk/trot/canter/gallop, a
-   * humanoid's walk/run. The engine binds them onto a concrete skeleton to
-   * synthesise locomotion, so the same abstract "move" resolves to each body's
-   * own gait. Omitted/empty for a profile that does not locomote (a door, a
-   * prop).
-   *
-   * This field is core's one upward reference (`core → motion`), kept
-   * deliberately: a gait names humanoid bones and easing curves, so moving it
-   * into core would drag `core → skeleton` and a second `core → motion` edge
-   * along, replacing one documented type-only reference on an optional field
-   * with two worse ones. The dependency is acyclic and confined to this field.
+   * The characteristic gaits this profile's body performs, such as a horse's
+   * walk, trot, canter and gallop. `bindProfileGaits` synthesises each one into
+   * a clip for a concrete skeleton, so one gait set drives many bodies, and
+   * throws on a repeated gait name. Omitted or empty for a profile that does
+   * not locomote, such as a door.
    */
   gaits?: IAutoMovieGait[];
 }

@@ -6,15 +6,20 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  *
  * Its target is re-resolved against the design on every derivation: a resolved
  * note sits at the projected point of its target feature, and a stale one keeps
- * its id and text with no position.
+ * its id and text with no position. A drawing with any resolved note also
+ * declares the `note-text-extent` gap, because the glyphs are never measured.
  *
+ * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawing` resolves the spec's target with `resolveAutoMovieDrawingFeature`, projects a resolved world point onto the frame and rounds it to six decimals, and copies a stale resolution's reason verbatim.
+ * @evidence contracts/common.md#clear-and-simple-design The resolved note mirrors its spec's id and text and adds only the outcome, so a reader reconciles sheet and view by id without consulting the view.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale note keeps its text but loses its position instead of staying at the last known point, and the text extent is declared as a gap rather than estimated.
+ * @evidence contracts/common.md#meaningful-documentation States when each member is null, the page units of the anchor, that the text extent is not measured, and where the reason comes from.
  * @author Samchon
  */
 export interface IAutoMovieDrawingAnnotation {
-  /** Annotation identity, as authored. */
+  /** Annotation id, copied from the view. */
   id: string;
 
-  /** Note text, as authored. */
+  /** Note text, copied from the view. */
   text: string;
 
   /** Whether the target resolved. */

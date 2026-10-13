@@ -13,40 +13,43 @@ import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
  * One drawing, derived from one design at one revision.
  *
  * Every line, region, opening mark, dimension and note below was computed from
- * the built environment the view was applied to. Nothing was drafted, and
- * nothing may be edited back into the design: the arrow points one way, from
- * design to drawing, so a sheet cannot become a second source of truth for the
- * building it depicts.
+ * the built environment the view was applied to, which `deriveAutoMovieDrawing`
+ * validates first and refuses when invalid. Nothing was drafted, and nothing
+ * may be edited back into the design: a sheet cannot become a second source of
+ * truth for the building it depicts.
  *
- * The record is deterministic by construction. Page coordinates are world
- * metres along the frame's axes, rounded to six decimals; `scale` is applied
- * only when a serializer prints the sheet. Every array is in a canonical order
- * that does not depend on the order the design happened to declare things in,
- * so the same design and the same view produce byte-identical output on every
- * machine and every run, which is what makes a drawing usable as evidence at
- * all.
+ * Page coordinates are world metres along the frame's axes, rounded to six
+ * decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the
+ * sheet. Lines, regions, openings and gaps are sorted into a canonical order
+ * independent of the order the design declares things in, and dimensions and
+ * notes keep the view's authored order, so the same design and view produce
+ * the same record on every run.
  *
  * The digest is a SHA-256 over a canonical text of the record. That text omits
  * `version` and every dimension's `from` and `to` points, and it joins fields
  * with unescaped `|` and newline separators, so authored text containing them
  * can make two different records hash alike.
  *
+ * @evidence contracts/common.md#principled-implementation The record is a pure function of design and view: geometry is projected through the resolved frame, every page scalar passes through `roundAutoMovieDrawingScalar` at six decimals with negative zero folded to zero, identical strokes are merged by key, and arrays are sorted with `compareAutoMovieRenderIds` before the digest is taken.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record per sheet with each kind of content in its own typed array, and the view's identity fields copied in, so the serializer and any checker read the drawing without the view except for its pen.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts What the derivation cannot compute is listed in `gaps` instead of being omitted, and the digest's blind spots for `version`, dimension endpoints and separator characters in authored text are stated here as an open weakness rather than implied away.
+ * @evidence contracts/common.md#meaningful-documentation States the provenance and one-way direction, the page units and rounding, where scale is applied, the ordering of every array, what the extent contains, why openings ignore the kind filter, and exactly what the digest covers.
  * @author Samchon
  */
 export interface IAutoMovieDrawing {
-  /** Drawing format. */
+  /** Record format version; not covered by the digest. */
   version: 1;
 
-  /** Versioned drawing protocol. */
+  /** Versioned drawing protocol, the first line of the digested text. */
   protocol: "automovie.drawing.v1";
 
-  /** View this drawing answers for. */
+  /** Id of the view this drawing answers for. */
   view: string;
 
   /** Cut and projection convention the view declared. */
   projection: AutoMovieDrawingProjection;
 
-  /** Discipline the view declared. */
+  /** Open discipline label the view declared. */
   discipline: string;
 
   /**
@@ -55,24 +58,22 @@ export interface IAutoMovieDrawing {
    */
   scale: number;
 
-  /** Built environment this drawing was derived from. */
+  /** Id of the built environment this drawing was derived from. */
   environment: string;
 
-  /** Page basis the view resolved to. */
+  /** Page basis the view resolved to, rounded to six decimals. */
   frame: IAutoMovieDrawingFrame;
 
   /**
    * Page bounding box of everything the sheet draws, or `null` when it draws
    * nothing.
    *
-   * Linework, region outlines, opening voids and every dimension and note that
-   * resolved. The annotation is inside the box on purpose: a dimension string
-   * sits beside the plan rather than across it, and a page sized from the
-   * geometry alone would put the sheet's own annotation off the paper.
-   *
-   * A note contributes the point its text is set from rather than the glyphs it
-   * sets, which the derivation cannot measure without font metrics and declares
-   * as a gap instead of pretending to.
+   * It holds linework, region outlines, opening voids and every dimension and
+   * note that resolved, because a dimension string sits beside the plan rather
+   * than across it and a box sized from the geometry alone would put the
+   * sheet's own annotation off the paper. A note contributes the point its text
+   * is set from rather than the glyphs it sets, which the derivation cannot
+   * measure without font metrics and declares as the `note-text-extent` gap.
    */
   extent: IAutoMovieDrawingExtent | null;
 
@@ -83,19 +84,19 @@ export interface IAutoMovieDrawing {
   lines: IAutoMovieDrawingLine[];
 
   /**
-   * Logical volume cross-sections, in canonical order; empty for an elevation.
+   * Cross-sections of cell-stated logical spaces, sorted by space and cell;
+   * empty for an elevation, and a shell-stated space contributes none.
    */
   regions: IAutoMovieDrawingRegion[];
 
   /**
-   * Every opening whose host boundary reaches a space this view covers, in
-   * canonical order.
+   * Every opening whose host boundary reaches a space this view covers, sorted
+   * by opening id.
    *
-   * The view's element-kind filter deliberately does not reach these. A mark is
-   * how a sheet and the design are reconciled by id, so a lighting plan of a
-   * room still answers for the room's doors rather than reporting a room with
-   * none; what the kind filter decides is which linework is drafted, not which
-   * openings exist.
+   * The view's element-kind filter does not reach these. A mark is how a sheet
+   * and the design are reconciled by id, so a lighting plan of a room still
+   * answers for the room's doors; the kind filter decides which linework is
+   * drafted, not which openings exist.
    */
   openings: IAutoMovieDrawingOpeningMark[];
 
