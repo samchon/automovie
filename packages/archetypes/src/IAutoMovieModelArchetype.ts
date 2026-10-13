@@ -1,122 +1,10 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+import { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { AutoMovieArchetypeParameters } from "./parameterValues";
-
-/**
- * One archetype parameter's accepted value kind and inclusive bounds.
- *
- * The design gate compares `kind` with the value's `typeof`, refuses any
- * non-finite number, and applies the bounds only to a `number` parameter, in
- * the unit the archetype documents (the shipped catalogue measures in meters).
- *
- * @author Samchon
- */
-export interface IAutoMovieArchetypeParameter {
-  /** JavaScript `typeof` name the value must have. */
-  kind: "number" | "string" | "boolean";
-
-  /** Inclusive minimum of a `number` parameter; absent leaves no lower bound. */
-  minimum?: number;
-
-  /** Inclusive maximum of a `number` parameter; absent leaves no upper bound. */
-  maximum?: number;
-}
-
-/**
- * One archetype-owned refusal raised while planning a parameter map.
- *
- * The design gate turns each refusal into one diagnostic on the recipe; the
- * archetype supplies its identity and wording.
- *
- * @author Samchon
- */
-export interface IAutoMovieArchetypeRefusal {
-  /**
-   * Diagnostic code, reported verbatim when it is a registered AutoMovie
-   * diagnostic code; any other string is reported as `model-parameter-invalid`
-   * with this code named before the message.
-   */
-  code: string;
-
-  /** Complete operator-facing sentence, including the correction. */
-  message: string;
-}
-
-/**
- * The exact keys one parameter map must carry and may carry.
- *
- * A plan is computed from the parameters themselves because an archetype may
- * take a discriminating parameter whose value decides which other keys are
- * meaningful. The design gate owns the diagnostics; the archetype owns only the
- * facts they are derived from.
- *
- * The gate reports every `required` key the map lacks, every refusal, and every
- * present key that is outside the archetype's `parameters` schema or, when
- * `accepted` is a list, outside that list.
- *
- * @author Samchon
- */
-export interface IAutoMovieArchetypeParameterPlan {
-  /** Keys that must be present. */
-  required: readonly string[];
-
-  /** Keys accepted at all, or null when every declared schema key is. */
-  accepted: readonly string[] | null;
-
-  /** Archetype-owned refusals, such as an unsupported discriminating value. */
-  refusals: readonly IAutoMovieArchetypeRefusal[];
-}
-
-/**
- * Everything a geometry builder needs beyond the recipe's own parameters.
- *
- * The materializer supplies it once per generated recipe, after the design gate
- * has accepted the parameter map.
- *
- * @author Samchon
- */
-export interface IAutoMovieArchetypeBuildInput {
-  /** Id of the recipe being materialized; the shipped builders do not read it. */
-  recipe: string;
-
-  /** Exact recipe parameter map, already accepted by the design gate. */
-  parameters: AutoMovieArchetypeParameters;
-
-  /**
-   * Compiler-owned id of the model's only material, named after the recipe
-   * palette's first swatch in code-unit order; every generated part references
-   * it.
-   */
-  material: string;
-
-  /**
-   * Compiler-owned skeleton id for this recipe; an articulated builder uses it
-   * as its skeleton id, and a builder returning no skeleton ignores it.
-   */
-  skeleton: string;
-}
-
-/**
- * Deterministic geometry one archetype builds for one recipe.
- *
- * The materializer stores both fields in the compiled model without copying,
- * so a builder returns objects created for this call rather than shared
- * constants. For a recipe backed by an external model the materializer keeps
- * the skeleton and replaces the parts with a collision proxy.
- *
- * @author Samchon
- */
-export interface IAutoMovieArchetypeGeometry {
-  /** Builder-owned skeleton, or null for an archetype whose `bones` is empty. */
-  skeleton: IAutoMovieModel["skeleton"];
-
-  /** Visible parts in deterministic order, each referencing the input material. */
-  parts: IAutoMovieModelPart[];
-}
+import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
+import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
+import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
+import { IAutoMovieArchetypeParameter } from "./IAutoMovieArchetypeParameter";
+import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
 
 /**
  * One registered model archetype: its parameter contract and its builder.
@@ -130,6 +18,13 @@ export interface IAutoMovieArchetypeGeometry {
  * must always plan the same keys, measure the same radius, and build the same
  * geometry, on every host and in every process.
  *
+ * @evidence contracts/common.md#principled-implementation An archetype is a strategy object, static schema data plus three pure functions, which lets the gate, the radius table and the materializer stay ignorant of every catalogue member while remaining deterministic across hosts.
+ * @evidence contracts/common.md#clear-and-simple-design Each member serves one consumer: `capabilities`, `bones`, `parameters` and `plan` the design gate, `bones` also the asset inventory, `projectionRadius` the radius table, and `build` the materializer; there is no lifecycle or option beyond those.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The interface names no catalogue member, and an empty `bones` list is the documented contract for a skeletonless builder rather than a check against a particular id.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives the registry seam and the determinism obligation; the members give the id matching rule, what an empty bone list refuses and binds, and each function's caller, input trust and failure behavior.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The interface declares no runtime code; the algorithmic cost of its function members is answered on `plan`, `projectionRadius` and `build`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A definition is shared by reference through a registry and coordinates no work itself; whether a consumer reuses a member's result is that consumer's decision.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Shipped definitions are module constants and a host's registry holds them by reference; the interface acquires no state, handle or task of its own.
  * @author Samchon
  */
 export interface IAutoMovieModelArchetype {
@@ -160,19 +55,36 @@ export interface IAutoMovieModelArchetype {
    * The design gate calls this before it checks kinds and bounds, so the map
    * may lack keys or hold wrongly typed values; a plan reads them defensively
    * and reports a problem as a refusal rather than a throw.
+   *
+   * @evidence contracts/common.md#principled-implementation A plan is a pure function of the raw map that tolerates missing or mistyped values because the gate calls it before any kind check; primitive-prop reads `shape` through a `typeof` guard for that reason.
+   * @evidence contracts/common.md#clear-and-simple-design The function returns facts and leaves the wording of missing and unsupported keys to the gate, so an archetype implements only the discrimination it alone knows.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusing through the returned list instead of throwing keeps one malformed recipe from hiding the gate's other diagnostics, and the contract special-cases no recipe or archetype id.
+   * @evidence contracts/common.md#meaningful-documentation The comment says when the gate calls the plan, what state the map may be in, and that a problem becomes a refusal rather than a throw.
+   * @evidence contracts/performance.md#efficient-algorithms The gate calls a plan once per model recipe per validation, and the shipped plans do one `typeof` read and a table lookup, then copy key lists no longer than the archetype's schema, so time and space are linear in that schema size.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges a distinct recipe's map, and the gate runs once per build, so there is no repeated equivalent plan to cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A plan returns fresh short lists the gate discards after one recipe, and the shipped plans hold no state between calls.
    */
   plan: (
     parameters: AutoMovieArchetypeParameters,
   ) => IAutoMovieArchetypeParameterPlan;
 
   /**
-   * Conservative projection radius in meters for one accepted parameter map.
+   * Conservative projection radius in meters for one parameter map.
    *
-   * The production builder tabulates it per recipe for population members,
-   * whose framing boxes and render bounds read it before any geometry exists,
-   * so it answers for a malformed map with a finite number rather than a throw.
-   * For a map the design gate will refuse, that number is a placeholder, not a
-   * bound.
+   * The production builder tabulates it per recipe, after the design gate
+   * accepted the graph, for population members whose framing boxes and render
+   * bounds need a radius before any geometry exists. The production package
+   * also exports that table to scripts that may run without the gate, so the
+   * function answers a malformed map with a finite number rather than a throw;
+   * for a map the gate would refuse, that number is a placeholder, not a bound.
+   *
+   * @evidence contracts/common.md#principled-implementation The radius is a closed-form bound over the parameters, half the stickman height or half a box diagonal for example, read through `numberOf` so a missing or non-finite value yields zero instead of `NaN`.
+   * @evidence contracts/common.md#clear-and-simple-design Measurement lives on the archetype that knows its own proportions, so the radius table and the engine population kernels never restate a catalogue member's shape math.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The finite placeholder serves the exported radius table that a script can call without the gate, which still refuses that map; it is a documented totality contract, not a fallback hiding a refusal.
+   * @evidence contracts/common.md#meaningful-documentation The comment gives the unit, who reads the radius and when, why a malformed map must still yield a number, and that such a number is a placeholder rather than a bound.
+   * @evidence contracts/performance.md#efficient-algorithms Each shipped radius is constant-time arithmetic over at most three parameters with no allocation besides primitive-prop's local reader closure, computed once per recipe when the radius table is filled.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The production radius table already computes every recipe's radius once and hands that table to every consumer, so the function itself has nothing further to share.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a number and keeps no reference to the parameter map, so it owns no retained state.
    */
   projectionRadius: (parameters: AutoMovieArchetypeParameters) => number;
 
@@ -182,6 +94,14 @@ export interface IAutoMovieModelArchetype {
    * The materializer calls this once per generated recipe after the design gate
    * accepted the map. Shipped builders read values through unchecked casts, so a
    * map that skipped the gate yields unchecked geometry rather than an error.
+   *
+   * @evidence contracts/common.md#principled-implementation Building is a pure function from the accepted map and compiler-owned ids to fresh skeleton and part objects, so the same recipe compiles to identical geometry on every host.
+   * @evidence contracts/common.md#clear-and-simple-design The builder takes one input record and returns only geometry; validation stays in the gate and model assembly in the materializer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The unchecked casts rest on the builder materializing only after every design diagnostic clears, and the comment states that a map which skipped the gate yields unchecked geometry instead of claiming a guarantee.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the caller, the precondition that the gate accepted the map, and the consequence of breaking that precondition.
+   * @evidence contracts/performance.md#efficient-algorithms Cost is one allocation per part and bone, linear in the archetype's fixed part count, one primitive for primitive-prop and thirteen parts on thirteen bones for stickman, paid once per generated recipe.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The materializer must give each compiled model its own unshared geometry, so the result of one build cannot be reused for another recipe even when the parameters match.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned skeleton and parts transfer to the compiled model at return, the builder retains nothing, and the population grows by one geometry per generated recipe in the build.
    */
   build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeometry;
 }

@@ -1,16 +1,12 @@
 import { IAutoMovieModelPart } from "@automovie/interface";
 
-import {
-  IAutoMovieArchetypeBuildInput,
-  IAutoMovieArchetypeGeometry,
-  IAutoMovieModelArchetype,
-} from "./IAutoMovieModelArchetype";
-import {
-  AutoMovieArchetypeParameters,
-  numberOf,
-  numberParameter,
-  stringParameter,
-} from "./parameterValues";
+import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
+import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
+import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
+import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
+import { numberOf } from "./numberOf";
+import { numberParameter } from "./numberParameter";
+import { stringParameter } from "./stringParameter";
 
 /** Dimension keys each supported shape consumes, and no others. */
 const DIMENSIONS: Readonly<Record<string, readonly string[]>> = {

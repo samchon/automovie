@@ -19,7 +19,6 @@ const built = (parameters: {
   limbRadius: number;
 }) =>
   STICKMAN_ARCHETYPE.build({
-    recipe: "figure",
     parameters,
     material: "body",
     skeleton: "figure-rig",

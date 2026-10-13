@@ -11,12 +11,21 @@
  * which bones swing, at which phases, with which amplitudes is data about one
  * kind of body, so it belongs to the catalogue a host chooses.
  */
+export * from "./AutoMovieArchetypeParameters";
+export * from "./AutoMovieModelArchetypeRegistry";
+export * from "./IAutoMovieArchetypeBuildInput";
+export * from "./IAutoMovieArchetypeGeometry";
+export * from "./IAutoMovieArchetypeParameter";
+export * from "./IAutoMovieArchetypeParameterPlan";
+export * from "./IAutoMovieArchetypeRefusal";
 export * from "./IAutoMovieModelArchetype";
-export * from "./archetypeRegistry";
 export * from "./catGaits";
+export * from "./createAutoMovieArchetypeRegistry";
 export * from "./horseGaits";
 export * from "./humanoidGaits";
-export * from "./parameterValues";
+export * from "./numberOf";
+export * from "./numberParameter";
 export * from "./primitiveArchetypes";
 export * from "./primitivePropArchetype";
 export * from "./stickmanArchetype";
+export * from "./stringParameter";

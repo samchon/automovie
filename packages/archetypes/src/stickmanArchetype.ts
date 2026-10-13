@@ -5,12 +5,11 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import {
-  IAutoMovieArchetypeBuildInput,
-  IAutoMovieArchetypeGeometry,
-  IAutoMovieModelArchetype,
-} from "./IAutoMovieModelArchetype";
-import { numberOf, numberParameter } from "./parameterValues";
+import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
+import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
+import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
+import { numberOf } from "./numberOf";
+import { numberParameter } from "./numberParameter";
 
 /**
  * The catalogue's articulated figure: one height-driven primitive rig.

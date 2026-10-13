@@ -16,7 +16,6 @@ const shapeOf = (
   parameters: IParameters,
 ): Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"] => {
   const geometry = PRIMITIVE_PROP_ARCHETYPE.build({
-    recipe: "prop",
     parameters,
     material: "body",
     skeleton: "rig",
@@ -219,7 +218,6 @@ export const test_archetypes_primitive_prop_geometry = (): void => {
   );
 
   const built = PRIMITIVE_PROP_ARCHETYPE.build({
-    recipe: "prop",
     parameters: { shape: "box", ...BOX },
     material: "body",
     skeleton: "rig",

@@ -578,7 +578,6 @@ const materializeGeneratedModel = (
     );
   const material = materialOf(recipe);
   const geometry = archetype.build({
-    recipe: recipe.id,
     parameters: recipe.parameters,
     material: material.id,
     skeleton: productionRuntimeSkeletonId(recipe.id),
