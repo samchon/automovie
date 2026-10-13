@@ -12,6 +12,15 @@ const clock = loadSourceModule<{
   ),
 );
 
+const rational = loadSourceModule<{
+  equalRational: (
+    leftNumerator: number,
+    leftDenominator: number,
+    rightNumerator: number,
+    rightDenominator: number,
+  ) => boolean;
+}>(path.resolve(__dirname, "../../../../packages/render/src/node/equalRational.ts"));
+
 /**
  * Two MP4 tracks are compared by an exact cross-product, never by division.
  *
@@ -33,6 +42,10 @@ const clock = loadSourceModule<{
  *    times three differs from the double a `number` multiplication would give.
  * 3. Zero, negative, fractional and non-finite terms are refused on either side
  *    with the shared message, and the largest safe integer is still admitted.
+ * 4. The boolean rational equality used for clock ratios matches equal ratios
+ *    on different timescales, separates ratios a double cannot tell apart, and
+ *    reports a zero or negative denominator or an unsafe term as unequal,
+ *    so `1/0` never equals `2/0`.
  */
 export const test_render_mp4_clock_product = (): void => {
   // 90 minutes of picture on a 24 fps, 12288-tick media clock beside the same
@@ -116,6 +129,35 @@ export const test_render_mp4_clock_product = (): void => {
       infiniteRight: true,
       notANumber: true,
       maximumSafeAdmitted: true,
+    },
+  );
+
+  TestValidator.equals(
+    "rational clock equality is exact and needs positive denominators",
+    {
+      equalOnDifferentTimescales: rational.equalRational(
+        videoDuration,
+        videoTimescale,
+        audioDuration,
+        audioTimescale,
+      ),
+      // (2^53 - 3) / 3 and (2^53 - 4) / 3 divide to the same double.
+      unequalBeyondDoublePrecision: rational.equalRational(
+        Number.MAX_SAFE_INTEGER - 2,
+        3,
+        Number.MAX_SAFE_INTEGER - 3,
+        3,
+      ),
+      zeroDenominators: rational.equalRational(1, 0, 2, 0),
+      negativeDenominator: rational.equalRational(1, -2, -1, 2),
+      unsafeTerm: rational.equalRational(1.5, 3, 1, 2),
+    },
+    {
+      equalOnDifferentTimescales: true,
+      unequalBeyondDoublePrecision: false,
+      zeroDenominators: false,
+      negativeDenominator: false,
+      unsafeTerm: false,
     },
   );
 };

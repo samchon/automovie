@@ -1,4 +1,4 @@
-import { type Box, type BoxKind, createFile } from "mp4box";
+import { type Box, type BoxKind, type Sample, createFile } from "mp4box";
 import { parseProductionMp4 } from "./parseProductionMp4";
 
 /** Reserialize a parsed input through the public MP4Box writer with explicitly authored header or child-box changes. Samples retain their source bytes. */
@@ -8,6 +8,8 @@ export const rewriteProductionH264Mp4 = (
     movie?: { timescale: number; duration: number };
     descriptionBoxes?: (boxes: Box[]) => Box[];
     mutate?: (file: ReturnType<typeof createFile>, track: number) => void;
+    /** Authored decode and presentation ticks per sample; the source's by default. */
+    retime?: (sample: Sample, index: number) => { dts: number; cts: number };
   } = {},
 ): Uint8Array => {
   const { file, movie } = parseProductionMp4(bytes);
@@ -39,7 +41,7 @@ export const rewriteProductionH264Mp4 = (
       description.boxes,
     ) as unknown as BoxKind[],
   });
-  for (const sample of samples)
+  for (const [index, sample] of samples.entries())
     output.addSample(
       outputTrack,
       Uint8Array.from(
@@ -47,8 +49,10 @@ export const rewriteProductionH264Mp4 = (
       ),
       {
         duration: sample.duration,
-        dts: sample.dts,
-        cts: sample.cts,
+        ...(props.retime?.(sample, index) ?? {
+          dts: sample.dts,
+          cts: sample.cts,
+        }),
         is_sync: sample.is_sync,
       },
     );

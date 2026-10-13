@@ -50,6 +50,11 @@ const model = (over: Partial<IAutoMovieModel>): IAutoMovieModel => ({
  *    degenerate normalize).
  * 3. Negative twin: a non-indexed soup still omits NORMAL; glTF's mandated flat
  *    shading equals what the viewer computes for a soup.
+ * 4. Alpha mode, cutoff and sidedness follow the viewer's material rule: an
+ *    authored `mask` exports MASK with its cutoff, or 0.5 when omitted, an
+ *    authored `opaque` stays OPAQUE below full opacity, the legacy derivation
+ *    still gives BLEND below full opacity, and `doubleSided: true` exports a
+ *    double-sided material while the default stays single-sided.
  */
 export const test_render_export_viewer_fidelity = async (): Promise<void> => {
   // 1. opacity folds into the one alpha glTF has
@@ -159,5 +164,52 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
       .listPrimitives()[0]!
       .getAttribute("NORMAL"),
     null,
+  );
+
+  // 4. alpha mode, cutoff and sidedness follow the viewer
+  const surfaces = await new NodeIO().readBinary(
+    await exportModelToGLB(
+      model({
+        materials: [
+          { ...material("cutout", 1, null), alphaMode: "mask", alphaCutoff: 0.3 },
+          { ...material("defaultCutout", 1, null), alphaMode: "mask" },
+          { ...material("forcedOpaque", 0.5, null), alphaMode: "opaque" },
+          material("legacyBlend", 0.5, null),
+          { ...material("twoSided", 1, null), doubleSided: true },
+          material("oneSided", 1, null),
+        ],
+      }),
+    ),
+  );
+  const exported = new Map(
+    surfaces
+      .getRoot()
+      .listMaterials()
+      .map((m) => [m.getName(), m]),
+  );
+  TestValidator.equals(
+    "alpha mode and sidedness match the viewer's material rule",
+    Object.fromEntries(
+      [...exported].map(([name, m]) => [
+        name,
+        { alphaMode: m.getAlphaMode(), doubleSided: m.getDoubleSided() },
+      ]),
+    ),
+    {
+      cutout: { alphaMode: "MASK", doubleSided: false },
+      defaultCutout: { alphaMode: "MASK", doubleSided: false },
+      forcedOpaque: { alphaMode: "OPAQUE", doubleSided: false },
+      legacyBlend: { alphaMode: "BLEND", doubleSided: false },
+      twoSided: { alphaMode: "OPAQUE", doubleSided: true },
+      oneSided: { alphaMode: "OPAQUE", doubleSided: false },
+    },
+  );
+  TestValidator.predicate(
+    "an authored mask cutoff is exported",
+    nclose(exported.get("cutout")!.getAlphaCutoff(), 0.3),
+  );
+  TestValidator.predicate(
+    "an omitted mask cutoff exports the viewer's 0.5",
+    nclose(exported.get("defaultCutout")!.getAlphaCutoff(), 0.5),
   );
 };

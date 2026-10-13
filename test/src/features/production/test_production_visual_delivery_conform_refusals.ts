@@ -8,9 +8,11 @@ import {
   conformProductionVisualDeliveryVideoMp4,
 } from "@automovie/render/node";
 import { TestValidator } from "@nestia/e2e";
+import { BoxParser } from "mp4box";
 
 import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
 import { productionInterframeH264Mp4 } from "../internal/productionMedia/productionInterframeH264Mp4";
+import { rewriteProductionH264Mp4 } from "../internal/productionMedia/rewriteProductionH264Mp4";
 
 const WIDTH = 16;
 const HEIGHT = 16;
@@ -86,7 +88,12 @@ const conform = (film: IAutoMovieFilmTimeline, lanes: Lane[]): Uint8Array =>
  *    begin at a sync sample after a repainted lane; a repainted lane must
  *    supply exactly its full shot on the shared presentation contract.
  * 3. A film whose declared frame count exceeds its occurrences is refused
- *    after every occurrence was placed.
+ *    before any sample is written.
+ * 4. Occurrences that overlap are refused by index instead of duplicating one
+ *    frame and dropping another.
+ * 5. A deterministic range of a frame-reordered feature must present exactly
+ *    its own frames: a decode-order range that would show a later segment's
+ *    frame is refused, while a range closed under reordering is admitted.
  */
 export const test_production_visual_delivery_conform_refusals =
   (): void => {
@@ -179,6 +186,64 @@ export const test_production_visual_delivery_conform_refusals =
         changedContract:
           "Visual delivery occurrence 1 changes the exact video presentation contract.",
         uncovered: "Visual delivery sources do not cover the current film.",
+      },
+    );
+
+    // Frames 1 and 2 are decoded in swapped order, as a B-frame stream does:
+    // presentation is delayed one tick so no sample presents before it decodes,
+    // and one edit starting at that tick keeps the presentation untransformed.
+    const reorderedFrames = [0, 2, 1, 3];
+    const reordered = rewriteProductionH264Mp4(sampleInput(4), {
+      retime: (_sample, index) => ({
+        dts: index,
+        cts: reorderedFrames[index]! + 1,
+      }),
+      mutate: (file, track) => {
+        const edit = file.getTrackById(track).addBox(new BoxParser.box.edts());
+        edit.addBox(new BoxParser.box.elst()).entries = [
+          {
+            segment_duration: 4,
+            media_time: 1,
+            media_rate_integer: 1,
+            media_rate_fraction: 0,
+          },
+        ];
+      },
+    });
+    const sixFrames = sampleInput(6);
+    const sixFilm = timeline([3, 3]);
+    const overlapping: IAutoMovieFilmTimeline = {
+      ...sixFilm,
+      segments: sixFilm.segments.map(
+        (segment, index): IAutoMovieFilmTimeline["segments"][number] =>
+          index === 1 ? { ...segment, startFrame: 2, endFrame: 5 } : segment,
+      ),
+    };
+    TestValidator.equals(
+      "occurrences must be contiguous and deterministic ranges closed",
+      {
+        overlapping: refusal(() =>
+          conform(overlapping, [
+            deterministic(sixFrames),
+            deterministic(sixFrames),
+          ]),
+        ),
+        openRange: refusal(() =>
+          conform(timeline([2, 2]), [deterministic(reordered), repainted(two)]),
+        ),
+        closedRange: refusal(() =>
+          conform(timeline([1, 3]), [
+            deterministic(reordered),
+            deterministic(reordered),
+          ]),
+        ),
+      },
+      {
+        overlapping:
+          "Visual delivery occurrence 1 does not occupy the next continuous film frames.",
+        openRange:
+          "Deterministic occurrence 0 does not present exactly its own frames in decode order.",
+        closedRange: null,
       },
     );
   };

@@ -99,6 +99,9 @@ const codeOf = async (task: () => Promise<unknown>): Promise<string | null> => {
  * 4. Guide passes without a page `__afPass` fail with the `pass-hook` code; a hook
  *    that throws mid-capture also reports `pass-hook`; an empty pass list is
  *    refused at creation.
+ * 5. A repeated pass folds to its first position: `["depth", "beauty", "depth"]`
+ *    switches and writes each distinct pass once per frame instead of capturing
+ *    and overwriting the depth file twice.
  */
 export const test_render_headless_capture_passes = async (): Promise<void> => {
   // 1. multi-pass: one seek, ordered pass switches, tagged writes.
@@ -216,4 +219,36 @@ export const test_render_headless_capture_passes = async (): Promise<void> => {
     await codeOf(() => open(new FakePage(), { passes: [] }, [])),
     "pass-hook",
   );
+
+  // 5. repeated passes fold to their first position.
+  {
+    const writes: string[] = [];
+    const passes: string[] = [];
+    await withHooks(
+      {
+        __afSeek: () => undefined,
+        __afPass: (pass: string) => passes.push(pass),
+      },
+      async () => {
+        const session = await open(
+          new FakePage(),
+          { passes: ["depth", "beauty", "depth"] },
+          writes,
+        );
+        TestValidator.equals(
+          "a folded list still returns the beauty path",
+          await session.captureFrame(0, 1, "out"),
+          "out/frame_00001.png",
+        );
+      },
+    );
+    TestValidator.equals("each distinct pass is switched once", passes, [
+      "depth",
+      "beauty",
+    ]);
+    TestValidator.equals("each distinct pass is written once", writes, [
+      "out/frame_00001.depth.png",
+      "out/frame_00001.png",
+    ]);
+  }
 };
