@@ -10,18 +10,26 @@ import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
  * impact-traced without this record gaining a field. Registering an identity
  * here is the whole act of opting a graph into lineage.
  *
- * When the production builds, every subject id must be one its buildings,
- * models, or asset-use consumers publish.
+ * When the production builds, every subject id must be one it publishes: the
+ * id of a building, element, logical space, boundary, opening, or connector of
+ * a compiled built environment, of a staged model, or of an asset use's
+ * consumer in this production. A graph whose ids the builder does not publish
+ * yet, such as a material layer, cannot bind until it does.
  *
+ * @evidence contracts/common.md#principled-implementation `validateDesignLineage` requires a unique non-blank id, a non-blank graph name, and a null or lowercase `sha256:` digest; `validateDesignLineageBinding` then checks the id exactly against the set the production builder collects from compiled buildings, models, and asset uses.
+ * @evidence contracts/common.md#clear-and-simple-design An id plus an open graph name is the whole coupling, so a new graph opts into lineage by publishing ids rather than by widening this type or importing the lineage module.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unpublished ids are refused at build rather than ignored; the remaining gap is that an imported subject's digest is authored and not compared with the asset manifest, which the `digest` documentation states.
+ * @evidence contracts/common.md#meaningful-documentation States why the record is graph-agnostic, exactly which published ids a subject may bind to, when a digest is required and when it must be null, and that the digest is unverified against the manifest.
  * @author Samchon
  */
 export interface IAutoMovieDesignSubject {
-  /** Stable id of one record in some other graph. */
+  /** Stable id of one record in some other graph, unique within the lineage. */
   id: string;
 
   /**
-   * Open name of the graph the id belongs to, such as `element`, `space`,
-   * `opening`, `material-layer`, `service-port`, `instance-slot`, or `asset`.
+   * Non-blank open name of the graph the id belongs to, such as `element`,
+   * `space`, `opening`, `material-layer`, `service-port`, `instance-slot`, or
+   * `asset`.
    */
   graph: string;
 

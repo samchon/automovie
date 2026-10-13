@@ -11,24 +11,35 @@
  * issue that names this candidate without being listed here, does not block
  * it.
  *
+ * At most one `observed` analysis may claim a candidate, and that analysis
+ * must have read the frame every one of the candidate's primitives lies on.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateDesignReference` requires a non-blank semantic, at least one resolving distinct primitive, a confidence in `[0, 1]`, resolving distinct alternatives other than itself, resolving distinct issues, and a single producing analysis whose frame matches the primitives' frames.
+ * @evidence contracts/common.md#clear-and-simple-design The candidate carries its own blocking links, so promotion decides from one record without scanning other candidates or issues, and the semantic label stays an open string the building source interprets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Promotion withholds any candidate that lists a rival instead of choosing the more confident reading, and a candidate assembled from marks on another sheet is refused rather than given the claiming analysis's scale.
+ * @evidence contracts/common.md#meaningful-documentation States that the record is a proposal, that only its own lists block it and neither link must be mutual, the uniqueness and resolution of each list, the confidence range, and the single-analysis, single-frame rule.
  * @author Samchon
  */
 export interface IAutoMovieObservedCandidate {
-  /** Stable candidate identity within the document. */
+  /** Stable, non-blank candidate identity, unique within the document. */
   id: string;
 
   /**
-   * Open semantic label such as `wall-centerline`, `opening`, `storey-datum`.
+   * Non-blank open semantic label such as `wall-centerline`, `opening`, or
+   * `storey-datum`.
    */
   semantic: string;
 
-  /** Primitive ids this reading is built from; at least one. */
+  /** Primitive ids this reading is built from; at least one, distinct. */
   primitives: string[];
 
   /** Inclusive `[0, 1]` confidence in this reading. */
   confidence: number;
 
-  /** Competing candidate ids reading the same marks differently; distinct. */
+  /**
+   * Competing candidate ids reading the same marks differently; distinct and
+   * never this candidate's own id. Any entry withholds this candidate.
+   */
   alternatives: string[];
 
   /** Issue ids that block promotion while open; distinct. */

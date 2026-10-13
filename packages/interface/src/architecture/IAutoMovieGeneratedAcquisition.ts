@@ -14,19 +14,31 @@ import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
  * type. Nothing compares {@link promptDigest} with the hash of a recorded
  * {@link prompt}.
  *
+ * @evidence contracts/common.md#principled-implementation `validateGeneratedAcquisition` requires a non-blank provider and model, a null or non-blank request and prompt, lowercase `sha256:` digests, non-blank input paths, an output digest equal to the current bytes when given, and a safe-integer seed, then ties the seed to `reproducible`.
+ * @evidence contracts/common.md#clear-and-simple-design The record holds only facts a generator returns or a caller sends, with the prompt text optional beside its always-present digest, so a private prompt is still identified without being published.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No URL or seed is invented for sampled output; the remaining gaps are that no production gate calls the validator and nothing hashes a recorded prompt against its digest, both stated in the documentation.
+ * @evidence contracts/common.md#meaningful-documentation States why no URL exists, when each nullable member is null, the input order, the seed's representable range, how `reproducible` and `seed` constrain each other, and that the validator is not wired into a gate.
  * @author Samchon
  */
 export interface IAutoMovieGeneratedAcquisition {
-  /** Service or tool identity that produced the bytes. */
+  /** Non-blank service or tool identity that produced the bytes. */
   provider: string;
 
-  /** Exact model identity, including a version when it changes output. */
+  /**
+   * Non-blank exact model identity, including a version when it changes output.
+   */
   model: string;
 
-  /** Provider-side request identity, or null when the provider issues none. */
+  /**
+   * Non-blank provider-side request identity, or null when the provider issues
+   * none.
+   */
   request: string | null;
 
-  /** Verbatim instruction, or null when only its digest may be published. */
+  /**
+   * Non-blank verbatim instruction, or null when only its digest may be
+   * published.
+   */
   prompt: string | null;
 
   /** SHA-256 of the exact instruction bytes, always recorded. */
@@ -34,7 +46,8 @@ export interface IAutoMovieGeneratedAcquisition {
 
   /**
    * Manifest asset paths this request was conditioned on, in request order.
-   * Empty for a text-only request.
+   * Empty for a text-only request. Each must be non-blank; none is resolved
+   * against the manifest.
    */
   inputs: string[];
 
@@ -45,6 +58,9 @@ export interface IAutoMovieGeneratedAcquisition {
    * Whether replaying provider, model, prompt and inputs reproduces
    * {@link outputDigest}. `false` is the honest answer for sampled image
    * generation and is never repaired by inventing a replay handle.
+   *
+   * `true` requires a recorded {@link seed}; `false` with a seed is a warning,
+   * because that seed does not replay the bytes.
    */
   reproducible: boolean;
 

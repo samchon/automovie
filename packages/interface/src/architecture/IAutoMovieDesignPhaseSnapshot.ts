@@ -11,6 +11,10 @@ import { IAutoMovieDesignPhaseState } from "./IAutoMovieDesignPhaseState";
  * engine's own phase filter and view digest and by the test suite, and no
  * compiled artifact is derived from it.
  *
+ * @evidence contracts/common.md#principled-implementation `designLineagePhaseSnapshot` validates the lineage, maps each lifecycle to one state against the asked phase plus its transitive prerequisites, and sorts the states with `compareCodeUnits`, so the output depends on the plan and not on array order.
+ * @evidence contracts/common.md#clear-and-simple-design The snapshot is the asked phase plus one flat state list; the role and presence rules live in their own union types, and filtering records is left to `designLineageProject` rather than embedded here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent subjects are listed with their presence rather than dropped, and the documentation says plainly that no scene, drawing, schedule, or render consumes the snapshot yet instead of implying they agree.
+ * @evidence contracts/common.md#meaningful-documentation States that every declared subject appears once in code-unit order, who calls the producer today and who does not, and what a null phase means.
  * @author Samchon
  */
 export interface IAutoMovieDesignPhaseSnapshot {
@@ -23,6 +27,6 @@ export interface IAutoMovieDesignPhaseSnapshot {
    */
   phase: string | null;
 
-  /** Every declared subject, in ascending id order. */
+  /** Every declared subject, in ascending code-unit id order. */
   states: IAutoMovieDesignPhaseState[];
 }

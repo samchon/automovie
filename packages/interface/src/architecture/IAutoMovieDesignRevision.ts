@@ -8,13 +8,20 @@ import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
  * and a revision names at most one parent, so a merge of two revisions is not
  * representable.
  *
+ * @evidence contracts/common.md#principled-implementation `validateDesignLineage` requires unique non-blank ids, a parent that resolves, a lowercase `sha256:` hex digest, and an acyclic parent chain found by depth-first search; staleness compares a derived artifact's stamp with the lineage head by id.
+ * @evidence contracts/common.md#clear-and-simple-design A revision is an id, one optional parent, and a digest, enough to name a state and its predecessor without carrying the source text or a version-control model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The digest is not recomputed from source the engine cannot see, and the documentation states that gap and the inability to record a merge instead of implying either is handled.
+ * @evidence contracts/common.md#meaningful-documentation States that the digest is authored and unverified, that several roots are allowed, that merges are unrepresentable, and what a null parent means.
  * @author Samchon
  */
 export interface IAutoMovieDesignRevision {
-  /** Stable revision identity within the lineage. */
+  /** Stable, non-blank revision identity, unique within the lineage. */
   id: string;
 
-  /** Revision this one supersedes, or null for the first. */
+  /**
+   * Revision this one supersedes, or null for a first one; the parent chain
+   * must not loop.
+   */
   parent: string | null;
 
   /** SHA-256 over the authored source this revision names. */

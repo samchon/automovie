@@ -20,14 +20,18 @@ import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
  * subjects are bound to the ids the production publishes when the production
  * builds. A stale derived artifact is a refusal, not a warning.
  *
+ * @evidence contracts/common.md#principled-implementation Coherence is checked by `validateDesignLineage` in the shot runtime (unique ids, acyclic revision, phase and derivation graphs, a resolving head, total lifecycles, head-stamped derived artifacts) and binding by `validateDesignLineageBinding` in the production builder against the ids the compiled buildings, models, and asset uses publish.
+ * @evidence contracts/common.md#clear-and-simple-design One record holds the seven lists a lineage answers from, each owned by its own member type, and points at foreign graphs only through subject ids, so no building type gains a phase or variant field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Staleness is refused rather than warned and no default lifecycle is invented; the remaining gap is that two different lineages sharing one id are not refused, and the builder binds the last one it reads, which the `id` documentation states.
+ * @evidence contracts/common.md#meaningful-documentation States that the record annotates foreign ids, what its absence means, when coherence and binding are checked, the head every artifact must stamp, the minimum revision count, and the unrefused id reuse.
  * @author Samchon
  */
 export interface IAutoMovieDesignLineage {
-  /** Schema version. */
+  /** Schema version; validation accepts only `1`. */
   version: 1;
 
   /**
-   * Stable lineage identity within the production.
+   * Stable, non-blank lineage identity within the production.
    *
    * Reuse is not refused: when two shots declare different lineages under one
    * id, the production build binds only the one it reads last.
@@ -43,7 +47,7 @@ export interface IAutoMovieDesignLineage {
   /** Every recorded state of the authored source; at least one. */
   revisions: IAutoMovieDesignRevision[];
 
-  /** The construction plan, as a graph of prerequisites. */
+  /** The construction plan, as an acyclic graph of prerequisites. */
   phases: IAutoMovieDesignPhase[];
 
   /** Exactly one entry per declared subject. */

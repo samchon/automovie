@@ -13,19 +13,23 @@ import { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate
  *
  * A source point `(x, y)` maps to `origin + unit(axisX) * (x - anchor.x) * s`
  * plus `unit(axisY) * (y - anchor.y) * s` for the settled metres per unit `s`,
- * and the sum then passes through {@link transform}. The two
- * axes must not be parallel but need not be perpendicular, so skewed axes
- * shear the mapping. {@link up}, {@link north}, {@link level}, and {@link view}
- * are validated but never read by the mapping or by promotion.
+ * and the sum then passes through {@link transform}. The two axes must not be
+ * parallel but need not be perpendicular, so skewed axes shear the mapping.
+ * {@link up}, {@link north}, {@link level}, and {@link view} are validated but
+ * never read by the mapping or by promotion.
  *
+ * @evidence contracts/common.md#principled-implementation `designReferenceWorldPoint` is an affine map: normalized axes scaled by the settled metres per unit about the anchor, then the optional transform as per-axis scale, normalized rotation, and translation; `validateDesignReference` refuses zero-length or parallel axes, out-of-sheet anchors, and a `scale` naming no candidate.
+ * @evidence contracts/common.md#clear-and-simple-design The frame owns every placement fact for its sheet and primitives own none, so correcting a scale, axis, or north is one edit here and never a rewrite of observed points.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Axes are normalized but not orthogonalized, so a skewed frame maps as authored instead of being silently squared, and an unknown scale stays null instead of defaulting to one metre per unit.
+ * @evidence contracts/common.md#meaningful-documentation States the exact mapping formula and its order, that axes may be skewed, which members the mapping ignores, the units and ranges of the extent and anchor, the page rule for single-page containers, and the measured-sheet limit.
  * @author Samchon
  */
 export interface IAutoMovieDesignSourceFrame {
-  /** Stable frame identity within the document. */
+  /** Stable, non-blank frame identity, unique within the document. */
   id: string;
 
   /**
-   * One-based page or image index inside the asset; a PNG, JPEG, or SVG
+   * One-based whole page or image index inside the asset; a PNG, JPEG, or SVG
    * reference carries exactly one page, so only `1` is accepted there.
    */
   page: number;
@@ -33,15 +37,20 @@ export interface IAutoMovieDesignSourceFrame {
   /** Drawing family this frame shows. */
   view: "plan" | "section" | "elevation" | "detail" | "perspective";
 
-  /** Storey or datum label this frame belongs to, or null. */
+  /** Non-blank storey or datum label this frame belongs to, or null. */
   level: string | null;
 
-  /** Source-space extent: pixels for raster, user units for vector. */
+  /**
+   * Source-space extent: pixels for raster, user units for vector.
+   *
+   * When the production gate can measure the sheet, neither side may exceed
+   * the measured one; a PDF page or a DXF drawing is left unmeasured.
+   */
   bounds: {
-    /** Strictly positive width in source units. */
+    /** Finite, strictly positive width in source units. */
     width: number;
 
-    /** Strictly positive height in source units. */
+    /** Finite, strictly positive height in source units. */
     height: number;
   };
 
@@ -66,10 +75,13 @@ export interface IAutoMovieDesignSourceFrame {
   /** World direction the frame's own +x axis points along; non-zero. */
   axisX: IAutoMovieVector3;
 
-  /** World direction the frame's own +y axis points along; non-zero. */
+  /**
+   * World direction the frame's own +y axis points along; non-zero and not
+   * parallel to {@link axisX}.
+   */
   axisY: IAutoMovieVector3;
 
-  /** World position of {@link anchor}, in metres. */
+  /** Finite world position of {@link anchor}, in metres. */
   origin: IAutoMovieVector3;
 
   /** World direction the drawing calls up; non-zero. */

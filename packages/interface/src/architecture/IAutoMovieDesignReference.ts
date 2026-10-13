@@ -19,14 +19,18 @@ import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
  * no longer hash to {@link digest}, whose bytes are a different container than
  * {@link media}, or whose asset carries no `design-reference` use naming it.
  *
+ * @evidence contracts/common.md#principled-implementation `validateDesignReference` checks the document as a self-consistent observation (unique ids, resolving links, point counts, in-frame points, settled scales that name a candidate), and `designReferenceDiagnostics` rehashes the asset bytes with SHA-256, sniffs the container, and checks frames against the measured sheet.
+ * @evidence contracts/common.md#clear-and-simple-design Frames, primitives, analyses, candidates, and issues are five separate lists so seeing, reading, proposing, and doubting stay distinct layers, and only `promoteDesignObservations` turns any of them into metres.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading is promoted by the gate and no scale is invented; the remaining gap is that a second, different document under an existing id is kept last-read-wins by the production builder instead of being refused, which the `id` documentation states.
+ * @evidence contracts/common.md#meaningful-documentation States that the record is evidence only and how the building cites it, every production refusal on the bytes, the at-least-one-frame rule, that analyses include empty ones, and the unrefused id collision.
  * @author Samchon
  */
 export interface IAutoMovieDesignReference {
-  /** Schema version. */
+  /** Schema version; validation accepts only `1`. */
   version: 1;
 
   /**
-   * Stable document identity within the production.
+   * Stable, non-blank document identity within the production.
    *
    * Two shots may stage the same document. A different document under the
    * same id is not refused today: the production build keeps the one it reads

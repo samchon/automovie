@@ -4,9 +4,14 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One reading settled enough to become authored metric geometry.
  *
  * Only candidates built entirely from `line`, `polyline`, and `region` marks
- * reach this record; an `arc` is withheld rather than sampled. It is a
- * proposal the building source may accept, reject, or contradict.
+ * reach this record; an `arc`, `text`, or `level-marker` mark is withheld
+ * rather than sampled. It is a proposal the building source may accept,
+ * reject, or contradict.
  *
+ * @evidence contracts/common.md#principled-implementation `promoteDesignObservations` maps each source point of each primitive through `designReferenceWorldPoint`, which applies the frame's settled metres per unit along its normalized axes and then its optional transform, preserving primitive and point order.
+ * @evidence contracts/common.md#clear-and-simple-design The record carries only the candidate id, its label, and one outline per primitive; it is output of a query and never feeds back into the building source automatically.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Arcs are withheld instead of approximated by chords, disjoint marks are not stitched into one run, and a region is not closed by a repeated point the observer never recorded.
+ * @evidence contracts/common.md#meaningful-documentation States which mark families can reach the record, that it is a proposal rather than design, the units and frame of the outlines, their ordering, and why they stay separate and unclosed.
  * @author Samchon
  */
 export interface IAutoMovieDesignPromotedReading {

@@ -22,6 +22,10 @@ import { IAutoMovieOperationState } from "./IAutoMovieOperationState";
  * to in {@link IAutoMovieBuiltOpening.fill}: a moving leaf that fills nothing is
  * a leaf nobody can point at.
  *
+ * @evidence contracts/common.md#principled-implementation `validateBuiltEnvironment` requires a fill, at least one panel and one state, unique panel, state, and hardware ids, and a current state that resolves; `lowerBuiltEnvironment` composes each panel's axis-angle or translation delta after its element's rest transform so the travel rides down the element hierarchy.
+ * @evidence contracts/common.md#clear-and-simple-design Panels own the degrees of freedom, states own the values, and the current state picks one, so adding a vocabulary term is a new state record and swing, slide, and fold reuse one panel type with the element hierarchy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No state name has built-in meaning and no `open` keyword is special-cased; an operation without a fill is refused instead of being attached to an inferred element.
+ * @evidence contracts/common.md#meaningful-documentation States why states replace a word, how swing, slide, and fold map onto panels, the fill requirement, the minimum counts, what the current state must name, and that lowering stages it.
  * @author Samchon
  */
 export interface IAutoMovieOpeningOperation {
