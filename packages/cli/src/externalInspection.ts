@@ -25,42 +25,64 @@ const isCanonicalProjectPath = (value: string): boolean =>
 /**
  * One sidecar the inspection opened, identified by exact resident bytes.
  *
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Binds one glTF buffer or image dependency to the digest and length of the bytes the inspector actually read.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Carries the canonical locator, every declared URI that reached it, its byte length, and its content digest as one closure member.
+ * One record exists per canonical path, however many declared URIs reached it;
+ * the bytes themselves are not part of the record.
+ *
+ * @evidence contracts/common.md#principled-implementation Identifies a sidecar by its canonical project path plus the SHA-256 digest and length of its resident bytes, while `declaredUris` keeps every URI spelling that reached it.
+ * @evidence contracts/common.md#clear-and-simple-design Four printable fields; the resident buffer used during inspection is stripped before the record is returned.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Records every declared spelling instead of picking one, and no field exists for a particular consumer.
+ * @evidence contracts/common.md#meaningful-documentation States the one-record-per-path rule, the byte unit, the digest algorithm, the URI order, and that bytes are not retained.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A printed record; the read and digest it reports were computed once by the inspection.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record reports the inspection's sharing through `declaredUris` and computes nothing itself.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a count, a digest string, a path and one string per distinct declared URI, never the bytes.
+ * @evidence contracts/portability.md#os-neutral-implementation `path` is the `/`-spelled canonical project key and `declaredUris` the document's URL spelling, kept apart so a percent-encoded or `./` URI never stands in for a filesystem path.
  * @author Samchon
  */
 export interface IAutoMovieExternalProjectResource {
   /** Resident byte length of the sidecar. */
   bytes: number;
-  /** Every URI the document declared that resolved to this path, in first-use order. */
+
+  /** Every distinct URI the document declared that resolved to this path, in first-use order. */
   declaredUris: string[];
-  /** SHA-256 digest of the resident sidecar bytes. */
+
+  /** `sha256:` digest of the resident sidecar bytes. */
   digest: AutoMovieContentDigest;
-  /** Canonical project-relative sidecar path. */
+
+  /** Canonical `/`-separated project-relative sidecar path. */
   path: string;
 }
 
 /**
- * Deterministic inspection envelope the generated `external:inspect` command
- * prints: the primary source identity, the sidecar closure it opened, and the
+ * Deterministic inspection envelope that `automovie inspect-external` prints as
+ * JSON: the primary source identity, the sidecar closure it opened, and the
  * inspector's structural facts.
  *
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Seals the inspected result to the exact primary and sidecar bytes it was computed from.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Publishes the finite closure the parser reached beside the facts derived from it.
+ * @evidence contracts/common.md#principled-implementation Pairs content identities (SHA-256 and length) of the exact source and sidecar bytes with the inspector's facts; resource order is the order the inspector first reached each sidecar, which is fixed for identical bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Three fields: source identity, sidecar closure, and the inspector result passed through unchanged.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Copies the inspector result as returned and adds no semantic mapping or adoption decision.
+ * @evidence contracts/common.md#meaningful-documentation States which command prints it, the resource order, and each identity's unit and digest.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A result record; its cost belongs to `inspectAutoMovieExternalProjectBytes`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One envelope per inspected source, printed once by the command.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds metadata and the inspector facts; no byte buffer survives into it.
+ * @evidence contracts/portability.md#os-neutral-implementation `source.path` is the `/` relative path that `run` derives from the native relative path, so the printed JSON is the same on Windows and POSIX for the same project.
  * @author Samchon
  */
 export interface IAutoMovieExternalProjectInspection {
   /** Structural facts returned by the ingest inspector under the fixed profile. */
   inspection: IAutoMovieExternalModelInspection;
+
   /** Sidecars opened during inspection, in the order the parser first reached them. */
   resources: IAutoMovieExternalProjectResource[];
+
   /** Primary source identity. */
   source: {
     /** Resident byte length of the primary source. */
     bytes: number;
-    /** SHA-256 digest of the primary source bytes. */
+
+    /** `sha256:` digest of the primary source bytes. */
     digest: AutoMovieContentDigest;
-    /** Canonical project-relative source path. */
+
+    /** Canonical `/`-separated project-relative source path. */
     path: string;
   };
 }
@@ -73,9 +95,20 @@ export interface IAutoMovieExternalProjectInspection {
  * escape is refused before decoding is trusted, and the decoded relative path
  * must land inside the project namespace as one canonical spelling.
  *
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-location-boundary Decides whether each declared locator stays inside the project asset root and refuses every escaping or host-switching form.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-locator-redirect-fence Computes the canonical target only inside the authorized project root and treats an undeclared protocol, network authority, or escape as a resolution error.
- * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-source-authority-separation Keeps a document-declared URI an opaque schema field that cannot name a filesystem path outside the project.
+ * The URI resolves against the source's directory, so `../` that stays inside
+ * the project is accepted and one that leaves it throws. Canonical means
+ * code-unit exact: a case variant and a `name:stream` suffix after the first
+ * segment are not refused, so on Windows two accepted spellings can reach one
+ * file, and a stream suffix reads an alternate data stream. Every refusal throws an `Error` naming the URI.
+ *
+ * @evidence contracts/common.md#principled-implementation Treats the URI as a relative reference: refuses query, fragment, scheme and network-path forms before decoding, decodes with `decodeURIComponent` (a malformed escape refuses), re-tests the decoded text, joins it to the source's POSIX directory, and requires the result to be a canonical project path.
+ * @evidence contracts/common.md#clear-and-simple-design A pure function kept apart from inspection so the path policy is checkable alone; it re-validates `source` because it is exported and callable without the inspector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a disallowed spelling instead of rewriting it, and names no asset; decoding before joining turns `%2F` into a separator, which this function accepts as a subdirectory.
+ * @evidence contracts/common.md#meaningful-documentation States the resolution base, the `../` rule, the code-unit meaning of canonical with its Windows case and stream gaps, and the throw.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in URI length: a few regular-expression tests, one decode, one join and one normalize.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work `inspectAutoMovieExternalProjectBytes` calls it once per resolve request and keys its read cache on the result; the resolution is cheap string work with nothing worth caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one normalized path string and keeps no state between calls, so nothing outlives the call.
+ * @evidence contracts/portability.md#os-neutral-implementation Uses `path.posix` throughout, so the URL spelling and the canonical key are identical on every OS, and refuses backslashes and drive prefixes; it does not refuse a `:` after the first segment or a case variant, so on Windows `t/a.png:s` reads an alternate data stream of `t/a.png`, and `t/A.png` reads the same file under a second key.
  */
 export const resolveAutoMovieExternalProjectResourcePath = (props: {
   /** Canonical project-relative model or motion path. */
@@ -130,10 +163,18 @@ export const resolveAutoMovieExternalProjectResourcePath = (props: {
  * the envelope records the primary and sidecar digests beside the inspector's
  * facts. The function performs no semantic mapping and no adoption decision.
  *
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies Identifies every buffer and image dependency the inspection read and binds each to its digest.
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-location-boundary Resolves each declared sidecar through the canonical project-path law before the reader is asked for bytes.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction Returns the closure the parser-declared dependency edges reached, each member with locator, declared URIs, length, and digest.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-locator-redirect-fence Reads only inside the project namespace the reader exposes and never reopens a remote locator.
+ * A non-canonical `source`, a refused sidecar URI, or an inspector failure
+ * throws. A `null` from `readResource` is handed to the inspector, which owns
+ * that refusal, and is not remembered.
+ *
+ * @evidence contracts/common.md#principled-implementation Delegates structure to `inspectAutoMovieExternalModelBytes` with a resolver that canonicalizes each URI, reads each canonical path once and digests its resident bytes with SHA-256, so the envelope's identities describe the exact bytes the inspector parsed.
+ * @evidence contracts/common.md#clear-and-simple-design Reading is injected through `readResource`, so containment and native paths stay with `run`; parsing stays with the ingest inspector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplies no placeholder bytes for an absent sidecar, and the inspector's facts pass through unaltered.
+ * @evidence contracts/common.md#meaningful-documentation States the read-once rule, the digests recorded, what throws, and how an absent sidecar is handled.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is the inspector's parse plus one read and one SHA-256 per distinct sidecar and one for the source, linear in total bytes; `declaredUris.includes` is linear in the URIs already recorded for that path.
+ * @evidence contracts/performance.md#reuse-equivalent-work A map keyed by canonical path lets two URIs naming one file share one read, digest and buffer; equivalence is canonical-path equality within one call, which assumes the file does not change during it, and an absent result is not cached, so a repeated absent path is read again.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains every sidecar buffer in the local map until the call returns, growing with the distinct sidecars' total bytes with no cap; the returned records drop the buffers.
+ * @evidence contracts/portability.md#os-neutral-implementation Handles only canonical `/` project paths and opens nothing itself; `run`'s `readResource` maps each canonical path back to native segments.
  */
 export const inspectAutoMovieExternalProjectBytes = (props: {
   /** Canonical project-relative source path. */

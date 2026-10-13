@@ -81,8 +81,22 @@ const startArguments = (
  * Resolve one complete CLI request into a closed command-specific operation
  * plan before scaffold publication or source inspection begins.
  *
- * @evidence requirements/operations-and-recovery/scope-job-identity-and-state.md#operations-requested-effective-work Refuses ambiguous or unconsumed command input before work starts.
- * @evidence specifications/execution-and-recovery/state-machine-and-admission.md#execution-admission-decision Produces the typed admission plan that is the only input to dispatch.
+ * `args` excludes the node executable and script positions. No arguments, or a
+ * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version; either
+ * flag beside other tokens is refused by the named command's own admission.
+ * Options take their value as the next token (`--language korean`), a repeated
+ * option is refused rather than last-wins, and there is no `--` terminator, so
+ * a directory or source path beginning with `-` must be spelled `./-name`. Every refusal throws an `Error`
+ * whose message names the correction.
+ *
+ * @evidence contracts/common.md#principled-implementation A single left-to-right token scan per command that builds a discriminated union, with the language, ingest-profile and production-kind vocabularies decided by type guards their owning packages export.
+ * @evidence contracts/common.md#clear-and-simple-design One reader owns every command's admission, with `start` split into `startArguments` because it alone combines a flag, a valued option and a positional; run receives only the closed union.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Restates no vocabulary (supported languages, profiles and kinds come from `@automovie/evidence`, `@automovie/ingest` and `@automovie/template`), and duplicate or unknown options are refused instead of ignored.
+ * @evidence contracts/common.md#meaningful-documentation States the expected argv slice, the standalone-flag rule, the next-token value form, duplicate refusal, the missing `--` terminator and the throw behavior.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the tokens, plus `toc`'s `some` and `includes` checks over at most a few tokens, so cost is linear in argument count.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A process parses its own argv once, so there is no second request whose parse could be shared.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one positional array and the small result object, which the caller owns; no handle is acquired.
+ * @evidence contracts/portability.md#os-neutral-implementation Receives Node's already split argv strings and never joins or re-splits them, so shell quoting differences between cmd, PowerShell and POSIX shells are settled before this function; directory and source tokens stay opaque until run resolves them with `node:path`.
  */
 export const readAutoMovieCommandArguments = (
   args: readonly string[],
@@ -148,8 +162,17 @@ export const readAutoMovieCommandArguments = (
  * Invoke a dispatcher only after the complete command request has been
  * admitted, leaving invalid input with no opportunity to perform side effects.
  *
- * @evidence requirements/operations-and-recovery/scope-job-identity-and-state.md#operations-requested-effective-work Prevents rejected argv from reaching a stateful successor.
- * @evidence specifications/execution-and-recovery/state-machine-and-admission.md#execution-admission-decision Makes successful parsing the predecessor of every dispatched operation.
+ * A parse failure throws before `dispatch` runs; whatever `dispatch` returns or
+ * throws passes through unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation Plain function composition: `readAutoMovieCommandArguments` completes, or throws, before `dispatch` is called, so admission strictly precedes every effect.
+ * @evidence contracts/common.md#clear-and-simple-design A one-expression seam whose generic `Output` carries run's numeric exit code through; it holds the admit-then-act ordering and nothing else.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no catch, default command or retry; exceptions from either side propagate untouched to run's single handler.
+ * @evidence contracts/common.md#meaningful-documentation States the ordering guarantee and that results and exceptions pass through unchanged.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Adds one function call around the parse and chooses no algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call parses the argv it was given exactly once and calls `dispatch` once.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps the parsed command only for the duration of the `dispatch` call it is passed to.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Forwards the token array to the reader and owns no filesystem, path or process effect; run performs those inside `dispatch`.
  */
 export const dispatchAutoMovieCommandArguments = <Output>(
   args: readonly string[],

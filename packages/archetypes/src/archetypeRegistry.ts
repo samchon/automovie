@@ -7,19 +7,18 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * and reports the recipe when nothing answers, while a host decides what it
  * registered.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Keeps reusable archetype definitions distinct from the recipe occurrences that reference them.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Provides the shared prototype lookup without storing placement or instance state.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-logical-group The archetype registry indexes definitions; authored group membership belongs to production instances.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality The registry neither stores nor renders repeated instances, so compression identity belongs downstream.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-instance-override-provenance Recipe and instance overrides are production facts, not archetype registration facts.
- * @evidenceExclude requirements/asset-authoring/identity-and-instances.md#asset-variant-inheritance Archetype registration is a flat id map and does not define asset variant inheritance.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-variant-inheritance Registered archetypes do not carry variant parents, revisions, or override graphs.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-instance-override-resolution The registry resolves a prototype id only; instance override precedence belongs to the production model.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality The registry has no group or member population to preserve.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-deterministic-instance-generation Archetype builders create one requested model and do not assign seeded instance identities.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-external-adoption-alternatives External scene adoption modes are handled before a native archetype is registered.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-alternative-selection-output This registry performs exact id lookup, not shot-purpose representation selection.
- * @evidenceExclude specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-alternative-failure-compatibility Replacement compatibility belongs to asset selection, while this registry only rejects blank or duplicate ids.
+ * Keys are exact, case-sensitive ids. Any `Map` satisfies this type, so the
+ * blank-id and duplicate refusals, and the rule that each key is its
+ * definition's own `id`, hold only for a registry built by
+ * `createAutoMovieArchetypeRegistry`.
+ *
+ * @evidence contracts/common.md#principled-implementation A `ReadonlyMap` keyed by the exact id string gives constant-time lookup under SameValueZero key equality, so no case folding or trimming can make two ids collide.
+ * @evidence contracts/common.md#clear-and-simple-design A type alias over the standard map interface with no wrapper class; lookup, key listing for diagnostics and iteration use the built-in API.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Defines no fallback archetype: the gate reports `model-archetype-unregistered`, the materializer throws, and the radius table answers null; a hand-built map whose key differs from its definition's `id` would still satisfy the type.
+ * @evidence contracts/common.md#meaningful-documentation States the lookup-and-report split, the exact key semantics, and that the factory's invariants are not implied by the type alone.
+ * @evidence contracts/performance.md#efficient-algorithms Each recipe costs one hash lookup in the gate, the materializer and the radius table; the only full pass is the sorted key list the gate prints when an archetype is unregistered.
+ * @evidence contracts/performance.md#reuse-equivalent-work `AUTOMOVIE_REGISTERED_ARCHETYPES` is built once at module load and is the default registry of the gate, the materializer, the radius table and the production project, so registration is not repeated per call; the map object's identity decides sharing, and its entries never change after registration.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains a strong reference to every registered definition for as long as its holder keeps the map, which for the shipped registry is the process lifetime; size is the catalogue length (two shipped definitions), and no handle is held.
  * @author Samchon
  */
 export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
@@ -34,8 +33,18 @@ export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
  * the map answers one definition per id and nobody can tell which of two
  * builders a recipe reached.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Registers one unambiguous shared definition for recipe occurrences to reference.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Refuses ambiguous prototype registration before an occurrence can bind to it.
+ * The iterable is consumed once, in order, and the first whitespace-only or
+ * repeated id throws an `Error` naming the correction, so a catalogue with
+ * several faults reports them one at a time. An id with surrounding whitespace
+ * is stored exactly as written.
+ *
+ * @evidence contracts/common.md#principled-implementation One pass that tests `id.trim()` for emptiness and `Map.has` before each `set`, so uniqueness is decided by the map's own exact key equality.
+ * @evidence contracts/common.md#clear-and-simple-design Validation sits at the single place a registry is constructed, and the result is returned as the plain read-only map type rather than a registry class.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a duplicate instead of resolving it first-wins or last-wins, and trims only to test blankness without rewriting the stored id.
+ * @evidence contracts/common.md#meaningful-documentation States why registration is the failure point, the single in-order consumption of the iterable, the fail-fast reporting, and the untrimmed storage.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in catalogue length with one `trim` and one hash probe per definition, and no sort or second pass.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call registers its caller's catalogue into a new map that caller keeps; the server registry calls it once at module load, so no registration is repeated.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned map retains one reference per definition and nothing else; a throw partway leaves the partial map unreachable to any caller.
  * @author Samchon
  */
 export const createAutoMovieArchetypeRegistry = (

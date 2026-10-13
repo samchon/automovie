@@ -1,8 +1,19 @@
 /**
  * Explain the authoring work between a blank harness and a runnable production.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Names the installed commands and project-owned decisions a new checkout must supply.
- * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-state Keeps available tooling distinct from a production whose content is still unselected.
+ * `directory` is printed as given (run passes the absolute target). The text
+ * starts with a blank line because run appends it to the written-file list, and
+ * it names scaffold files (`README.md`, `AGENTS.md`, `docs/README.md`,
+ * `lint.config.ts`) and the scaffold's `lint` and `evidence` scripts.
+ *
+ * @evidence contracts/common.md#principled-implementation A template literal of ordered steps whose file and script names match `packages/template/scaffold` at the time of writing: its root documents, `lint.config.ts`, and the `lint` and `evidence` package scripts.
+ * @evidence contracts/common.md#clear-and-simple-design A pure string function kept apart from `run` so the guidance text lives in one place; nothing ties its file and script names to the scaffold mechanically, so renaming a scaffold file or script would leave this text stale.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no particular production, language or kind; the caller's directory is the only varying input.
+ * @evidence contracts/common.md#meaningful-documentation States how the directory is printed, why the text opens with a blank line, and which scaffold files and scripts the steps depend on.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Concatenates fixed text around one directory string; there is no algorithm or structure to choose.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work `start` calls it once after a completed publication, so there is no repeated rendering to share.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one string of fixed length plus the directory's length and keeps no reference to it.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Prints the directory for display only and opens, compares or spawns nothing; the printed `npm` commands read the same in cmd, PowerShell and POSIX shells.
  */
 export const renderAutoMovieScaffoldNextSteps = (directory: string): string =>
   `\n\nNext (from ${directory}):\n` +

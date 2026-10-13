@@ -13,18 +13,85 @@ import * as path from "node:path";
  * Physical observations supplied to maintenance without granting mutation.
  * Every read returns the descriptor-verified generation beside its bytes.
  *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Requires ordinary physical directories and exact file observations below the selected project root.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Supplies the physical observations from which the current delivery index is planned.
+ * Production binds `@automovie/template`'s snapshot functions; the only other
+ * implementations are the race fakes in the CLI tests. A missing directory or
+ * file is reported by an error whose `code` is `ENOENT`, which observation
+ * treats as absence; any other error is a refusal.
+ *
+ * @evidence contracts/common.md#principled-implementation A port of four synchronous operations whose identity is `dev:ino` and whose generation is `dev:ino:size:mtimeNs:ctimeNs`, so a swapped or edited entry changes a compared string; it has no create, write or delete member.
+ * @evidence contracts/common.md#clear-and-simple-design Exactly the four calls observation and its revalidation make; listing lives in `IAutoMovieMaintenanceDirectoryIO` because only the Markdown walker enumerates entries.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Production always binds the template functions; the injectable seam lets tests reproduce generation races and changes no production behavior.
+ * @evidence contracts/common.md#meaningful-documentation States the read-only grant, the default binding, the `ENOENT` absence convention, and that any other error refuses.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The port fixes call shapes, not an algorithm; each member states its own per-call cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port shares nothing itself; `observeAutoMovieMaintenanceFiles` decides which captures to cache by path.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Every member returns without holding a descriptor: the default binding opens at most one per call and closes it in `finally`, so only returned values outlive a call.
+ * @evidence contracts/portability.md#os-neutral-implementation Members take native absolute paths and return native `path` and `real` spellings; directory identity comes from descriptor `fstat` because on Windows a path stat reports device 0 for a directory while the handle reports the volume serial.
  * @author Samchon
  */
 export interface IAutoMovieMaintenanceObservationIO {
-  /** Capture one ordinary directory or throw, including on a linked leaf. */
+  /**
+   * Capture one ordinary directory at a native absolute path, or throw: an
+   * `ENOENT` error when it is missing, which observation treats as an absent
+   * ancestor, and any other error for a link, junction or non-directory.
+   *
+   * @evidence contracts/common.md#principled-implementation The default `captureScaffoldPhysicalDirectory` refuses a link or non-directory by `lstat`, takes identity from `fstat` on a descriptor whose inode must match the `lstat` inode, and records `realpathSync.native` as `real`.
+   * @evidence contracts/common.md#clear-and-simple-design One capture answers both "is this an ordinary directory" and "which generation is it", and observation caches the answer by lexical path.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws instead of following a link; only observation decides that `ENOENT` makes every path below this ancestor absent.
+   * @evidence contracts/common.md#meaningful-documentation States the native absolute input, the `ENOENT` meaning for observation, and that links and junctions throw.
+   * @evidence contracts/performance.md#efficient-algorithms A constant number of native calls per capture (`lstat`, open, `fstat`, close, native realpath), made once per distinct ancestor in one observation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A capture is a fresh native observation by design; reuse across paths is the observation's directory map, not this member's.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The default binding opens one read-only directory descriptor to `fstat` it and closes it in `finally` before returning three strings.
+   * @evidence contracts/portability.md#os-neutral-implementation `lstat` reports a Windows junction as a symbolic link, so junctions refuse like POSIX symlinks; `real` is the native final path, which on Windows also expands 8.3 short names and resolves `subst` drives.
+   */
   directory(target: string): IScaffoldPhysicalDirectory;
-  /** Revalidate the physical directory after the file descriptor read. */
+
+  /**
+   * Throw unless a captured directory still has its identity and native real
+   * path. A missing directory throws its native error, which observation
+   * propagates instead of treating as absence.
+   *
+   * @evidence contracts/common.md#principled-implementation The default `assertScaffoldPhysicalDirectory` re-captures the lexical path and compares `identity` and `real`, so a replaced directory or a newly linked ancestor fails while the spelling stays the same.
+   * @evidence contracts/common.md#clear-and-simple-design Kept apart from capture so callers state where a generation must still hold: around each ancestor step and after each file read.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Compares and never re-adopts a changed generation; disappearance here is a refusal even though disappearance before capture is absence.
+   * @evidence contracts/common.md#meaningful-documentation States what is compared and that a missing directory refuses here.
+   * @evidence contracts/performance.md#efficient-algorithms One full capture per call; observation calls it for every captured directory after each file, so these calls dominate an observation's native call count.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call must observe the filesystem again, because its purpose is detecting change since the cached capture.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Like capture, the default binding opens and closes one directory descriptor within the call and retains nothing.
+   * @evidence contracts/portability.md#os-neutral-implementation Compares `real` strings from the native realpath and identity strings from descriptor `fstat` exactly, with no case folding.
+   */
   assertDirectory(directory: IScaffoldPhysicalDirectory): void;
-  /** Check the admitted pathname generation before our own descriptor opens. */
+
+  /**
+   * Throw unless `lstat` of `snapshot.path` still matches its identity and full
+   * version, including `ctimeNs`. Call it before reopening the file, because on
+   * Windows the reopen itself advances `ctimeNs`.
+   *
+   * @evidence contracts/common.md#principled-implementation The default `assertScaffoldFileSnapshot` compares a fresh `lstat` identity and `dev:ino:size:mtimeNs:ctimeNs` with the snapshot, which is exact only while this operation has not opened the file again.
+   * @evidence contracts/common.md#clear-and-simple-design A pathname-only check separate from `file`, so revalidation confirms a generation without reading content.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies no tolerance: the ctime exemption exists only in the later generation comparison of this operation's own reread.
+   * @evidence contracts/common.md#meaningful-documentation States the full-version comparison and why the call must precede the reopen.
+   * @evidence contracts/performance.md#efficient-algorithms One `lstat` per call and no content read.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The check exists to observe the file again after planning, so a cached answer would defeat it.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources `lstat` opens no descriptor, and the call keeps nothing.
+   * @evidence contracts/portability.md#os-neutral-implementation Uses the BigInt nanosecond stat fields Node exposes on every platform; calling it before the reopen compensates for Windows advancing `ctimeNs` whenever a handle opens the path.
+   */
   assertFile(snapshot: IScaffoldFileSnapshot): void;
-  /** Read one ordinary file through its captured descriptor. */
+
+  /**
+   * Read one ordinary, unlinked file completely through one descriptor. Returns
+   * its bytes, the pathname snapshot captured after the descriptor closed, and
+   * the identity and version the descriptor itself reported. A missing file
+   * throws an `ENOENT` error.
+   *
+   * @evidence contracts/common.md#principled-implementation The default `readScaffoldFileSnapshot` admits the path by `lstat`, checks the opened descriptor against that snapshot before and after `readFileSync(descriptor)`, closes it, then re-captures the pathname, so the bytes belong to one generation.
+   * @evidence contracts/common.md#clear-and-simple-design One member returns bytes and both identities because observation records pathname and descriptor generations separately.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps descriptor identity beside the pathname snapshot instead of equating them, because Windows path and handle device ids can differ; no default bytes stand in for a failed read.
+   * @evidence contracts/common.md#meaningful-documentation States the single-descriptor read, the three returned facts and when each was captured, and the `ENOENT` signal.
+   * @evidence contracts/performance.md#efficient-algorithms One full read of the file plus a constant number of stats, so cost is linear in file size.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Observation reads each path once per observation; the revalidation's second read is deliberate and compared, not shared.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one descriptor during the call and closes it in `finally`, aggregating a close failure with a read failure; the returned bytes grow with file size, with no cap.
+   * @evidence contracts/portability.md#os-neutral-implementation Takes a native absolute path and reports descriptor identity separately from pathname identity, which is the platform difference between Windows path stats and handle stats.
+   */
   file(target: string): {
     bytes: Uint8Array;
     snapshot: IScaffoldFileSnapshot;
@@ -34,24 +101,42 @@ export interface IAutoMovieMaintenanceObservationIO {
 }
 
 /**
- * Plan-bound physical inventory, including absent targets and every existing
- * ancestor of a rename source even when the plan has no target writes.
+ * Plan-bound physical inventory of a closed set of project-relative paths:
+ * each path's file generation or null when absent, every existing ancestor
+ * directory even when the path itself is absent, and the decoded sources.
  *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Retains the exact physical root, parent generations and bytes that planning admitted.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Keeps portable paths associated with their observed physical identities.
+ * Record keys are the requested `/`-separated paths; directory and snapshot
+ * paths are native absolute spellings. The record and its maps are frozen, and
+ * the maps have no prototype, so a key such as `__proto__` is ordinary.
+ *
+ * @evidence contracts/common.md#principled-implementation Records pathname snapshots, descriptor identities and fatally decoded UTF-8 sources per path, so revalidation can compare each against a fresh read; absence is an explicit null rather than a missing key.
+ * @evidence contracts/common.md#clear-and-simple-design Five views keyed consistently by the same paths; `files` and `descriptors` stay separate because pathname and handle generations are compared separately.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses null-prototype maps instead of special-casing reserved key names, and supplies no default source for an absent file.
+ * @evidence contracts/common.md#meaningful-documentation States the key spelling, the null and omission meanings, directory order, the decoding rule, and the frozen ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A frozen result record linear in requested paths and directories; the observation that fills it owns the cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work The TOC writer reuses its directory captures as write parents and its file snapshots as replacement authority instead of capturing them again; that is valid only after `assertAutoMovieMaintenanceObservation` found every identity unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds every decoded source for the life of one command, growing with the requested paths and their bytes with no cap, and holds no descriptor.
+ * @evidence contracts/portability.md#os-neutral-implementation Keys use `/` independent of the host separator while `path` and `real` stay native; descriptor identity is recorded apart from pathname identity because Windows path and handle device ids can differ.
  * @author Samchon
  */
 export interface IAutoMovieMaintenanceObservation {
-  /** Ordinary root and descendant directory generations. */
+  /** Root first, then each existing ancestor directory in capture order. */
   directories: readonly IScaffoldPhysicalDirectory[];
-  /** Descriptor-verified file identity, or null for an absent target. */
+
+  /** Pathname generation of each requested path, or null for an absent one. */
   files: Readonly<Record<string, IScaffoldFileSnapshot | null>>;
+
   /** Held-descriptor identity and generation, separately from pathname metadata. */
   descriptors: Readonly<
     Record<string, Pick<IScaffoldFileSnapshot, "identity" | "version"> | null>
   >;
-  /** Exact UTF-8 sources, with absent targets omitted. */
+
+  /**
+   * Exact sources, with absent targets omitted; invalid UTF-8 throws during
+   * observation, and a leading byte-order mark is kept.
+   */
   sources: Readonly<Record<string, string>>;
+
   /** Physical project root used throughout this operation. */
   root: IScaffoldPhysicalDirectory;
 }
@@ -83,8 +168,19 @@ const inside = (root: string, target: string): boolean => {
  * Missing targets are observations, while links, changed parents and read
  * failures are refusals. No directory is created during planning.
  *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Rejects physical escapes and retains absent destination slots without following a linked ancestor.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Reads each selected source only under the same captured project root and ordinary directory generations.
+ * Paths are `/`-separated and project-relative; a backslash, NUL, colon, or
+ * empty, `.` or `..` segment throws. The root must be reached without a link,
+ * tested as its lexical path equalling its native real path, so on Windows an
+ * 8.3 short-name or `subst` spelling of an unlinked root is refused as well.
+ *
+ * @evidence contracts/common.md#principled-implementation Walks each path's ancestors from the captured root, capturing each directory once and refusing one whose real path leaves the root's real path or differs from its own lexical path, then reads the file through a descriptor-verified snapshot and decodes it with a fatal UTF-8 decoder; treating "lexical path equals native real path" as "no link" is the premise that also refuses a short-name or `subst` root.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns traversal, the capture cache and the frozen result, while the IO port owns every native call; it creates nothing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Turns only `ENOENT` into absence and propagates every other error; paths are deduplicated and sorted by code unit so caller order cannot change the result; the short-name and `subst` refusal is a false refusal left uncompensated.
+ * @evidence contracts/common.md#meaningful-documentation States the path grammar, absence versus refusal, the no-create rule, and the root test with its Windows consequence.
+ * @evidence contracts/performance.md#efficient-algorithms Each ancestor is captured once, but after every path the loop re-asserts every directory captured so far, so native calls grow with paths times directories although only that path's own ancestor chain bears on its read, and the final root check and `assertAutoMovieMaintenanceObservation` re-check all directories anyway; each present file is read once and the path list is sorted once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Paths sharing an ancestor reuse its capture through the `directories` map keyed by lexical path; the map lives for one call, and a cached capture is re-asserted by identity and real path before it authorizes another read.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds at most one file descriptor at a time, inside `io.file`, which the default port closes before returning; retained memory is the captures and decoded sources in the returned record, linear in paths and bytes with no cap.
+ * @evidence contracts/portability.md#os-neutral-implementation Splits `/` paths into segments joined natively by `path.resolve` and `path.join`, and refuses `\` and `:` so a drive or alternate-data-stream spelling cannot enter; containment compares native real paths with `path.relative`, which is case-insensitive on Windows and case-sensitive elsewhere; the remaining assumption is the root's lexical-equals-real test.
  */
 export const observeAutoMovieMaintenanceFiles = (props: {
   root: string | IScaffoldPhysicalDirectory;
@@ -189,8 +285,20 @@ export const observeAutoMovieMaintenanceFiles = (props: {
  * The returned fresh read is useful for publication planning, but only after
  * all original file and ancestor identities have remained equal.
  *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Carries the planner's exact predecessor identities across the final observation instead of approving new resident bytes.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Rejects file, parent and root replacement before Markdown publication acquires mutation authority.
+ * Every captured directory and every present file's pathname generation is
+ * asserted before anything is reopened; the same paths are then observed again
+ * from the captured root and compared by `assertAutoMovieMaintenanceGeneration`.
+ * A newly added path is not detected here; the Markdown inventory recheck
+ * covers that.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks pathname generations, ctime included, before its own reopen (Windows advances ctime on open), then re-reads and compares identity, ctime-free version and exact text, so any change between planning and publication throws.
+ * @evidence contracts/common.md#clear-and-simple-design Composes the port's per-entry checks, one observation and the pure comparison, adding no comparison rule of its own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses on any difference rather than adopting the newer generation; the ctime tolerance it relies on is stated, with its basis, on the comparison.
+ * @evidence contracts/common.md#meaningful-documentation States the order of checks, the re-observation from the captured root, the returned fresh read, and what it does not detect.
+ * @evidence contracts/performance.md#efficient-algorithms One capture per directory and one `lstat` per present file, then a full observation that reads every present file again, then a comparison linear in paths plus total source length.
+ * @evidence contracts/performance.md#reuse-equivalent-work Returns the fresh observation so `run` plans publication from it instead of reading a third time; the first observation cannot stand in for the re-read because an independent read is the point.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the expected and the fresh record at once, so peak memory is two copies of every source; descriptors are opened one at a time and closed by the port.
+ * @evidence contracts/portability.md#os-neutral-implementation Re-observes from the captured root record rather than a path string, so the root cannot be re-resolved through a different spelling; the ctime handling is the platform difference it carries.
  */
 export const assertAutoMovieMaintenanceObservation = (
   expected: IAutoMovieMaintenanceObservation,
@@ -214,8 +322,16 @@ export const assertAutoMovieMaintenanceObservation = (
  * still be represented. This pure subset comparison ignores only own-open
  * ctime drift; it does not replace the full snapshot admission before IO.
  *
- * @evidence requirements/story/delivery-index.md#story-delivery-index Retains original metadata authority while a later physical observation extends the planning population.
- * @evidence specifications/narrative-and-intent/delivery-index.md#narrative-intent-delivery-index Compares exact bytes and stable pathname and descriptor generations after separately admitted reads without accepting a changed ancestor.
+ * Throws an `Error` naming the first changed root, ancestor or path.
+ *
+ * @evidence contracts/common.md#principled-implementation Compares the root's identity, path and real path exactly, each expected directory by identity and real path through a map of current directories, and each expected path by consistent presence across snapshot, descriptor and source, then by identity, version without its last field, and exact text.
+ * @evidence contracts/common.md#clear-and-simple-design A pure function over two records, kept apart from IO so the comparison rule lives in one place and is checkable without a filesystem.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Drops the trailing `ctimeNs` field of pathname and descriptor versions because Windows advances ctime whenever a handle opens the path; the tolerance applies on every OS, so a change that moves only ctime, such as a POSIX `chmod`, passes while identity, size, mtime and text must still match.
+ * @evidence contracts/common.md#meaningful-documentation States the subset semantics, the ctime exemption, that it does not replace pre-IO admission, and the thrown error.
+ * @evidence contracts/performance.md#efficient-algorithms Linear: one map over current directories, one lookup per expected directory, and constant work per expected path plus text comparison proportional to source length.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure comparison of two records it is handed; it computes nothing a later caller could share.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one map of current directories for the call and retains nothing after returning.
+ * @evidence contracts/portability.md#os-neutral-implementation Compares native `path` and `real` strings and `dev:ino` identities exactly, with no case folding; the ctime tolerance is the one platform difference it carries, applied uniformly.
  */
 export const assertAutoMovieMaintenanceGeneration = (
   expected: IAutoMovieMaintenanceObservation,
