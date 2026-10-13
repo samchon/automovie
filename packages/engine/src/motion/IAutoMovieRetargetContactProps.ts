@@ -1,16 +1,21 @@
 import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 
 /**
- * Contact policy input for {@link retargetHumanoidMotion}. Every field is
- * optional: the pass runs with humanoid legs and no declared hand contact
- * unless the caller says otherwise.
+ * Configure source-contact preservation during humanoid retargeting; omitted fields enable the pass with source-rest-floor stance detection and no declared hand contacts.
+ *
+ * @evidence contracts/common.md#principled-implementation Distinguishes geometric foot stance against a scalar or sampled source ground from declared hand windows; tolerance is in source model units and scales with rootScale for target residual warnings.
+ * @evidence contracts/common.md#clear-and-simple-design One optional policy input groups pass enablement, ground, tolerance and hand contacts; required source/target rigs and motion stay in the retarget operation's own input.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Default ground comes from the source rig's resolved rest floor rather than an assumed zero plane; hand contact is declared rather than guessed from hand position.
+ * @evidence contracts/common.md#meaningful-documentation Gives enabled and tolerance defaults, source-ground units, residual-budget scaling and the empty hand-contact meaning.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This structural policy does not run stance detection; preserveRetargetContacts owns keyframe FK and per-chain contact work.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ground callback and hand records are borrowed policy inputs, not cached results; the pass samples ground at current source effector positions.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The policy holds at most the caller's callback and declared hand list and acquires no resource; the retarget call retains neither after completion.
  *
  * @author Samchon
  */
 export interface IAutoMovieRetargetContactProps {
   /**
-   * Run the contact-preserving pass. Defaults to `true`; `false` restores v1's
-   * verbatim angle copy.
+   * Run contact correction. Defaults to true; false keeps copied clinical angles and scaled root motion.
    */
   enabled?: boolean;
 

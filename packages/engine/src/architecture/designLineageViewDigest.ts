@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieDesignChange,
   IAutoMovieDesignLineage,
   IAutoMovieDesignPhaseSnapshot,
@@ -43,10 +42,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Digests one view per call from the caller's mutable record; a cached digest could not prove the lineage or subject bytes unchanged.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the snapshot, index and lines only for the call and returns one digest string.
  */
-export const designLineageViewDigest = (
+export const designLineageViewDigest: (lineage: IAutoMovieDesignLineage, view: { variant : string | null ; phase : string | null }) => string = (
   lineage: IAutoMovieDesignLineage,
   view: { variant: string | null; phase: string | null },
-): AutoMovieContentDigest => {
+): string => {
   const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
     lineage,
     view.phase,

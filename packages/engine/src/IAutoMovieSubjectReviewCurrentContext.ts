@@ -1,7 +1,4 @@
-import {
-  AutoMovieContentDigest,
-  IAutoMovieSubjectReviewTarget,
-} from "@automovie/interface";
+import { IAutoMovieSubjectReviewTarget } from "@automovie/interface";
 
 /**
  * Exact current context against which verified subject observations are folded.
@@ -37,10 +34,10 @@ export interface IAutoMovieSubjectReviewCurrentContext {
   revision: string;
 
   /** Current source compile identity, a `sha256:` hex digest. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /** Canonical ordered whole-plan identity, a `sha256:` hex digest. */
-  planIdentity: AutoMovieContentDigest;
+  planIdentity: string;
 
   /** Canonical complete capture-runtime identity JSON; non-blank. */
   captureRuntimeIdentity: string;

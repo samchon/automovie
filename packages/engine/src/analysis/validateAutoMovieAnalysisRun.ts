@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieAnalysisRun,
   IAutoMovieValidation,
 } from "@automovie/interface";
@@ -37,7 +36,7 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and the recomputed digest string are call-local; the returned validation, owned by the caller, holds the violations, which may reference fragments of the run.
  * @author Samchon
  */
-export const validateAutoMovieAnalysisRun = (props: {
+export const validateAutoMovieAnalysisRun: (props: { /** Run to check; it must already have the declared shape. */ run : IAutoMovieAnalysisRun ; /** Current design revision, when staleness is being checked. */ revision ? : string ; }) => IAutoMovieValidation = (props: {
   /** Run to check; it must already have the declared shape. */
   run: IAutoMovieAnalysisRun;
 
@@ -54,7 +53,7 @@ export const validateAutoMovieAnalysisRun = (props: {
       `analysis run digest must be a lowercase "sha256:" hex digest, but was ${String(run.digest)}`,
       run.digest,
     );
-  const expected: AutoMovieContentDigest = autoMovieAnalysisRunDigest(run);
+  const expected: string = autoMovieAnalysisRunDigest(run);
   if (run.digest !== expected)
     out.push(
       "type",

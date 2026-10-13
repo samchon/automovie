@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieDerivedArtifact,
   IAutoMovieDesignChange,
   IAutoMovieDesignDecision,
@@ -43,9 +42,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Digests the record it is handed each call; a cached digest could not prove the caller's mutable record unchanged.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the sorted copies and serialized lines only for the call and returns one digest string.
  */
-export const designLineageDigest = (
+export const designLineageDigest: (lineage: IAutoMovieDesignLineage) => string = (
   lineage: IAutoMovieDesignLineage,
-): AutoMovieContentDigest => {
+): string => {
   requireValidDesignLineage(lineage);
   const lines: string[] = [
     designLineageRecord(
@@ -160,7 +159,7 @@ export const designLineageDigest = (
 };
 
 /** A code-unit-sorted copy of one collection, keyed by one string field. */
-const sortedBy = <T,>(items: readonly T[], key: (item: T) => string): T[] =>
+const sortedBy: <T>(items: readonly T [ ], key: ( item : T ) => string) => T [ ] = <T,>(items: readonly T[], key: (item: T) => string): T[] =>
   [...items].sort((left: T, right: T): number =>
     compareCodeUnits(key(left), key(right)),
   );
