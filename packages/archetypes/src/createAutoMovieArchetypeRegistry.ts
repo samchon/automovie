@@ -1,6 +1,5 @@
 import { AutoMovieModelArchetypeRegistry } from "./AutoMovieModelArchetypeRegistry";
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
-
 /**
  * Register one closed catalogue of archetypes for a host to build from.
  *
@@ -25,7 +24,7 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The map is acquired here and transferred to the caller at return, holding only references to the given definitions, bounded by the catalogue size; a thrown refusal drops the partial map, so nothing outlives a failure.
  * @author Samchon
  */
-export const createAutoMovieArchetypeRegistry = (
+export const createAutoMovieArchetypeRegistry: (archetypes: Iterable<IAutoMovieModelArchetype>) => AutoMovieModelArchetypeRegistry = (
   archetypes: Iterable<IAutoMovieModelArchetype>,
 ): AutoMovieModelArchetypeRegistry => {
   const registry: Map<string, IAutoMovieModelArchetype> = new Map<

@@ -1,5 +1,4 @@
 import { IAutoMovieArchetypeRefusal } from "./IAutoMovieArchetypeRefusal";
-
 /**
  * The exact keys one parameter map must carry and may carry.
  *

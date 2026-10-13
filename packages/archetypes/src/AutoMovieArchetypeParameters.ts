@@ -1,5 +1,4 @@
 import { IAutoMovieModelRecipe } from "@automovie/interface";
-
 /**
  * One recipe's exact parameter map, keyed by parameter name.
  *

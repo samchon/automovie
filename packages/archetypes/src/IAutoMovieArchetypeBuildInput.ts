@@ -1,5 +1,4 @@
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
-
 /**
  * Everything a geometry builder needs beyond the recipe's own parameters.
  *

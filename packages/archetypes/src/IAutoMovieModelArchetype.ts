@@ -1,11 +1,9 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
 import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
 import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
 import { IAutoMovieArchetypeParameter } from "./IAutoMovieArchetypeParameter";
 import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
-
 /**
  * One registered model archetype: its parameter contract and its builder.
  *
@@ -69,20 +67,22 @@ export interface IAutoMovieModelArchetype {
   ) => IAutoMovieArchetypeParameterPlan;
 
   /**
-   * Conservative projection radius in meters for one parameter map.
+   * Conservative model-root projection radius in metres for accepted parameters.
    *
    * The production builder tabulates it per recipe, after the design gate
    * accepted the graph, for population members whose framing boxes and render
    * bounds need a radius before any geometry exists. The production package
    * also exports that table to scripts that may run without the gate, so the
-   * function answers a malformed map with a finite number rather than a throw;
-   * for a map the gate would refuse, that number is a placeholder, not a bound.
+   * shipped readers substitute zero for missing or nonfinite dimensions.
+   * A malformed map's result is a placeholder, not a bound, and large finite
+   * out-of-range dimensions can overflow arithmetic. Generated geometry must
+   * stay within this model-root sphere under its supported bone rotations.
    *
-   * @evidence contracts/common.md#principled-implementation The radius is a closed-form bound over the parameters, half the stickman height or half a box diagonal for example, read through `numberOf` so a missing or non-finite value yields zero instead of `NaN`.
+   * @evidence contracts/common.md#principled-implementation Primitive-prop uses its selected shape's enclosing-radius formula; stickman measures the same generated parts using ancestral rest-offset lengths plus part offsets and enclosing radii, bounding all unit bone rotations around the model root. Ungated finite extremes can still overflow later arithmetic.
    * @evidence contracts/common.md#clear-and-simple-design Measurement lives on the archetype that knows its own proportions, so the radius table and the engine population kernels never restate a catalogue member's shape math.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The finite placeholder serves the exported radius table that a script can call without the gate, which still refuses that map; it is a documented totality contract, not a fallback hiding a refusal.
-   * @evidence contracts/common.md#meaningful-documentation The comment gives the unit, who reads the radius and when, why a malformed map must still yield a number, and that such a number is a placeholder rather than a bound.
-   * @evidence contracts/performance.md#efficient-algorithms Each shipped radius is constant-time arithmetic over at most three parameters with no allocation besides primitive-prop's local reader closure, computed once per recipe when the radius table is filled.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Ungated zero substitution remains a placeholder and never admits a recipe; accepted geometry uses the actual build owner's primitive dimensions instead of a height-only radius that ignores independent head and limb parameters.
+   * @evidence contracts/common.md#meaningful-documentation States metre units, model-root centre and supported bone-rotation enclosure, population-table consumers and the limits of ungated placeholder arithmetic.
+   * @evidence contracts/performance.md#efficient-algorithms Primitive-prop evaluates fixed arithmetic over at most three dimensions; stickman creates its fixed thirteen-bone/part geometry and performs two linear scans over those records, computed once per recipe in the population radius table without a persistent cache.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The production radius table already computes every recipe's radius once and hands that table to every consumer, so the function itself has nothing further to share.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a number and keeps no reference to the parameter map, so it owns no retained state.
    */

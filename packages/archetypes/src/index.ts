@@ -1,3 +1,4 @@
+
 /**
  * A catalogue of primitive model archetypes, behind one registration seam.
  *
@@ -19,13 +20,16 @@ export * from "./IAutoMovieArchetypeParameter";
 export * from "./IAutoMovieArchetypeParameterPlan";
 export * from "./IAutoMovieArchetypeRefusal";
 export * from "./IAutoMovieModelArchetype";
-export * from "./catGaits";
+export * from "./CAT_GAITS";
+export * from "./CAT_PROFILE";
 export * from "./createAutoMovieArchetypeRegistry";
-export * from "./horseGaits";
-export * from "./humanoidGaits";
+export * from "./HORSE_GAITS";
+export * from "./HORSE_PROFILE";
+export * from "./HUMANOID_GAITS";
+export * from "./HUMANOID_PROFILE";
 export * from "./numberOf";
 export * from "./numberParameter";
-export * from "./primitiveArchetypes";
-export * from "./primitivePropArchetype";
-export * from "./stickmanArchetype";
+export * from "./AUTOMOVIE_PRIMITIVE_ARCHETYPES";
+export * from "./PRIMITIVE_PROP_ARCHETYPE";
+export * from "./STICKMAN_ARCHETYPE";
 export * from "./stringParameter";

@@ -1,13 +1,12 @@
 import { IAutoMovieModelPart } from "@automovie/interface";
-
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
 import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
 import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
+import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
 import { numberOf } from "./numberOf";
 import { numberParameter } from "./numberParameter";
 import { stringParameter } from "./stringParameter";
-
 /** Dimension keys each supported shape consumes, and no others. */
 const DIMENSIONS: Readonly<Record<string, readonly string[]>> = {
   box: ["width", "height", "depth"],
@@ -25,6 +24,11 @@ const DIMENSIONS: Readonly<Record<string, readonly string[]>> = {
  * required and the accepted keys to the ones that shape actually consumes. A
  * dimension the selected shape ignores is refused rather than stored, because a
  * stored value nothing reads is a claim the render never honours.
+ * Metre dimensions are admitted by the production design gate before build;
+ * planning treats inherited object keys as unsupported shape names. Radius
+ * queries do fixed arithmetic over at most three dimensions, while build
+ * allocates one part and shape. The module-owned schema and definition are
+ * shared through registries; each plan and geometry result is newly allocated.
  *
  * @author Samchon
  */
@@ -39,10 +43,11 @@ export const PRIMITIVE_PROP_ARCHETYPE: IAutoMovieModelArchetype = {
     depth: { kind: "number", minimum: 0.001, maximum: 100 },
     radius: { kind: "number", minimum: 0.001, maximum: 50 },
   },
-  plan: (parameters) => {
-    const shape =
+  plan: (parameters: AutoMovieArchetypeParameters): IAutoMovieArchetypeParameterPlan => {
+    const shape: string | null =
       typeof parameters.shape === "string" ? parameters.shape : null;
-    const dimensions = shape === null ? undefined : DIMENSIONS[shape];
+    const dimensions: readonly string[] | undefined =
+      shape !== null && Object.hasOwn(DIMENSIONS, shape) ? DIMENSIONS[shape] : undefined;
     return {
       required: ["shape", ...(dimensions ?? [])],
       accepted: dimensions === undefined ? null : ["shape", ...dimensions],
@@ -57,13 +62,16 @@ export const PRIMITIVE_PROP_ARCHETYPE: IAutoMovieModelArchetype = {
           : [],
     };
   },
-  projectionRadius: (parameters) => projectionRadius(parameters),
-  build: (input) => build(input),
+  projectionRadius: (parameters: AutoMovieArchetypeParameters): number => projectionRadius(parameters),
+  build: (input: IAutoMovieArchetypeBuildInput): IAutoMovieArchetypeGeometry => build(input),
 };
 
-const projectionRadius = (parameters: AutoMovieArchetypeParameters): number => {
-  const shape = parameters.shape;
-  const number = (key: string): number => numberOf(parameters, key);
+/**
+ * Measure the accepted primitive's enclosing radius in metres without building a part. Ungated missing/nonfinite dimensions read as zero through numberOf, so their answer is a placeholder; very large finite malformed dimensions may still overflow a radius sum. Three dimension reads and fixed arithmetic allocate only one call-local reader closure.
+ */
+const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (parameters: AutoMovieArchetypeParameters): number => {
+  const shape: AutoMovieArchetypeParameters[string] = parameters.shape;
+  const number: (key: string) => number = (key: string): number => numberOf(parameters, key);
   if (shape === "sphere") return number("radius");
   if (shape === "capsule") return number("radius") + number("height") / 2;
   if (shape === "cylinder" || shape === "cone")
@@ -73,7 +81,8 @@ const projectionRadius = (parameters: AutoMovieArchetypeParameters): number => {
   return Math.hypot(number("width"), number("height"), number("depth")) / 2;
 };
 
-const build = (
+/** Build one fresh unskinned part with the accepted shape dimensions and compiler-owned material id; the skeleton id is unused because this catalogue member has no bones. */
+const build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeometry = (
   input: IAutoMovieArchetypeBuildInput,
 ): IAutoMovieArchetypeGeometry => ({
   skeleton: null,
@@ -95,7 +104,8 @@ const build = (
   ],
 });
 
-const shapeOf = (
+/** Copy only the selected shape's dimensions from a gated map; the final plane branch relies on plan having refused unsupported shape names. Returned shape records are fresh and retain no parameter-map reference. */
+const shapeOf: (parameters: AutoMovieArchetypeParameters, shape: string) => Extract<IAutoMovieModelPart["geometry"], { type: "primitive"; }>["shape"] = (
   parameters: AutoMovieArchetypeParameters,
   shape: string,
 ): Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"] => {

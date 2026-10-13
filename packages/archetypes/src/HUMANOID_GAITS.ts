@@ -1,5 +1,4 @@
-import { IAutoMovieGait, IAutoMovieProfile } from "@automovie/interface";
-
+import { IAutoMovieGait } from "@automovie/interface";
 /**
  * The five canonical humanoid gaits, the locomotion the `locomote` verb's
  * `gait` enum names (`walk`/`run`/`sprint`/`sneak`/`march`), as ready
@@ -16,13 +15,19 @@ import { IAutoMovieGait, IAutoMovieProfile } from "@automovie/interface";
  * all reach and little contact (low `duty`).
  *
  * Left/right limbs are a half-cycle out of phase, and each arm leads the
- * opposite leg for contralateral counter-swing. Feet are left to the future
- * ground-IK pass, so these drive hips, knees, and upper arms.
+ * opposite leg for contralateral counter-swing. These rows drive hips, knees
+ * and upper arms; performShot's later stance stage owns ground-contact IK.
  *
  * `locomote` carries the authored gait as `fullBody`. Layer safety is decided
  * from the root/bones/expression the synthesized clips actually carry after
  * masking, not from the broad region names: this counter-swing can layer with a
  * head-only look, but correctly conflicts with a simultaneous arm gesture.
+ *
+ * Periods are seconds, phases are turns and angular channels are degrees.
+ * These are conventional schematic performance targets rather than measured
+ * anatomical motion capacities. Module-owned rows are shared by profile and
+ * playground contexts; the engine validates and samples them. Fixed table
+ * construction happens once and retains no per-frame task or host resource.
  *
  * @author Samchon
  */
@@ -186,20 +191,4 @@ export const HUMANOID_GAITS: Record<
       { bone: "rightUpperArm", phase: 0, duty: 0.5, amplitude: 30 },
     ],
   },
-};
-
-/**
- * The canonical humanoid profile fixture: the same locomotion vocabulary as
- * {@link HUMANOID_GAITS}, packaged as reusable profile data so a host can bind
- * it onto any humanoid skeleton without hand-authored TypeScript clips.
- *
- * @author Samchon
- */
-export const HUMANOID_PROFILE: IAutoMovieProfile = {
-  id: "humanoid",
-  name: "humanoid",
-  controls: [],
-  drivers: [],
-  limits: [],
-  gaits: Object.values(HUMANOID_GAITS),
 };

@@ -1,7 +1,6 @@
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
-import { PRIMITIVE_PROP_ARCHETYPE } from "./primitivePropArchetype";
-import { STICKMAN_ARCHETYPE } from "./stickmanArchetype";
-
+import { PRIMITIVE_PROP_ARCHETYPE } from "./PRIMITIVE_PROP_ARCHETYPE";
+import { STICKMAN_ARCHETYPE } from "./STICKMAN_ARCHETYPE";
 /**
  * The primitive archetypes this package ships, in registration order.
  *
@@ -15,6 +14,9 @@ import { STICKMAN_ARCHETYPE } from "./stickmanArchetype";
  * the server's registration point and the two scripts a scaffolded production
  * owns. A pre-registered lookup beside this list would be a second spelling of
  * the same catalogue that none of them can use without giving that seam up.
+ * The two-reference array is allocated once at module load and retained for
+ * the module lifetime. Readonly prevents typed array edits; the definitions
+ * themselves remain shared mutable records, so consumers must not modify them.
  *
  * @author Samchon
  */

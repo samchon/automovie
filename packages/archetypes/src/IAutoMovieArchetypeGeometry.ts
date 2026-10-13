@@ -1,5 +1,4 @@
 import { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
-
 /**
  * Deterministic geometry one archetype builds for one recipe.
  *

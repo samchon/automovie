@@ -1,5 +1,4 @@
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
-
 /**
  * Read one parameter as the number the design gate already accepted.
  *
@@ -20,7 +19,7 @@ import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reader returns a primitive and keeps no reference to the map or key.
  * @author Samchon
  */
-export const numberParameter = (
+export const numberParameter: (parameters: Readonly<Record<string, string | number | boolean>>, key: string) => number = (
   parameters: AutoMovieArchetypeParameters,
   key: string,
 ): number => parameters[key] as number;
