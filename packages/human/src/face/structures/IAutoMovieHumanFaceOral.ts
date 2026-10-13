@@ -12,6 +12,14 @@ import type { IAutoMovieHumanFaceOralTooth } from "./IAutoMovieHumanFaceOralToot
  * remain separate, with unknown acquisition and tissue properties preserved.
  * Omission retains the historical source replay without generating a new layer.
  *
+ * @evidence contracts/common.md#principled-implementation Actual source crowns and cervical ports drive independent crown/arch identity and one common lining assembly, while tongue identity/performance modify the existing source tongue before ordinary rigid articulation.
+ * @evidence contracts/common.md#clear-and-simple-design Permanent crown records, separate arches, enclosure, tongue identity and tip performance have distinct owners; lip/commissure/jaw channels remain existing source controls.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied oral generation requires qualified native source registration and ordinary geometry/contact admission; source-local extents and crown presence do not reconstruct clinical eruption, CEJ, CBCT residual volume or muscular mechanics.
+ * @evidence contracts/common.md#meaningful-documentation Omission, unlisted crown retention and identity versus performance are explicit, with clinical observations remaining separate.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The schema performs no crown transformation or lining triangulation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Common source ports are an ownership relation; compilation/pose reuse belongs to the oral builders.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Optional caller records create no dental mesh, enclosure query or renderer materials.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceOral {

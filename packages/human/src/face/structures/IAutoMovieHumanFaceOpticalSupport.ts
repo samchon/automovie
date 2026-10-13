@@ -18,6 +18,14 @@ import type { IAutoMovieHumanFaceOpticalSupportTarget } from "./IAutoMovieHumanF
  * Axis and reference fix a geometric convention in the source head frame;
  * the articulation's existing centre landmark remains the rotation pivot.
  *
+ * @evidence contracts/common.md#principled-implementation resolveHumanFaceOpticalFrame compares exact resident neutral XYZ, oriented incidence, per-corner UVs, weight-one attachment and rigid configuration, then transports the registered barycentric source-axis hit on shaped geometry.
+ * @evidence contracts/common.md#clear-and-simple-design One eye support groups provenance, component/chart and endpoint witnesses while canonical Rigid/Anterior/Target records own their separate domains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Relevant active nonzero eye/pivot endpoints require exact producer witnesses; stale rows, off-axis hits or parallel reference refuse. SHA provenance and the source axis establish neither clinical optics nor a healthy render.
+ * @evidence contracts/common.md#meaningful-documentation Native triangle corners versus UV seam rows, metre axis origin versus dimensionless directions and source chart versus clinical apex/pivot are distinguished.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This source record performs no correspondence validation or frame resolution.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Immutable witnesses are reuse premises; evaluated optics caches belong to the assembly.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The producer owns witness arrays; no native asset stream or mesh query is acquired by the declaration.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceOpticalSupport {
