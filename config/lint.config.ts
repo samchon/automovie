@@ -5,7 +5,7 @@ import type { ITtscLintConfig } from "@ttsc/lint";
  * Shared correctness and evidence declaration guards, inherited by each package's lint configuration and checked during its normal type-aware build.
  * Prettier owns formatting; its settings here do not emit diagnostics.
  */
-const config: ITtscLintConfig = {
+export default {
   plugins: { evidence },
   format: {
     // Formatting is prettier's job; keep this aligned but non-blocking.
@@ -190,5 +190,3 @@ const config: ITtscLintConfig = {
     "unicorn/prefer-node-protocol": "error",
   },
 } satisfies ITtscLintConfig;
-
-export default config;
