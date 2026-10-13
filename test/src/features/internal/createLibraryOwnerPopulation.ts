@@ -16,7 +16,6 @@ export const createLibraryOwnerPopulation = (): {
       exportName: string;
       owner: string;
       sourceDigest: string;
-      reviewed: boolean;
     }[];
     sources: { path: string; digest: null }[];
     problems: string[];
@@ -75,7 +74,6 @@ export const createLibraryOwnerPopulation = (): {
           exportName: "delivery",
           owner: "docs/settings/delivery.md#delivery",
           sourceDigest: "sha256:delivery",
-          reviewed: false,
         },
         {
           branch: "spaceSources",
@@ -83,7 +81,6 @@ export const createLibraryOwnerPopulation = (): {
           exportName: "hall",
           owner: "docs/spaces/z.md#z",
           sourceDigest: "sha256:hall",
-          reviewed: false,
         },
       ],
       sources: [],

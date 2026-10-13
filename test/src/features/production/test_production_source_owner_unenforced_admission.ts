@@ -16,7 +16,7 @@ export const test_production_source_owner_unenforced_admission = (): void => {
     TestValidator.equals(
       `unenforced ${stage} cannot complete`,
       inspectSourceOwnerCompletion(
-        libraryCompletionBinding({ stage, enforced: false, reviewed: true }),
+        libraryCompletionBinding({ stage, enforced: false, }),
       ),
       { complete: false, admission: false, sourceDiagnosis: true },
     );

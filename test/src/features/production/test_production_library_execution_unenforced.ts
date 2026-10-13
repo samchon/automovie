@@ -16,7 +16,7 @@ import {
 export const test_production_library_execution_unenforced = (): void => {
   for (const stage of ["evidence", "review"]) {
     const snapshot = createLibraryCompletionSnapshot(
-      libraryCompletionBinding({ stage, enforced: false, reviewed: true }),
+      libraryCompletionBinding({ stage, enforced: false, }),
     );
     const refused = planLibraryCompletion(snapshot);
     TestValidator.equals(

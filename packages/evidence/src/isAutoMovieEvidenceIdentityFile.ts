@@ -1,6 +1,8 @@
 interface IAutoMovieEvidenceIdentityFile {
+
   /** Whether lstat classified the entry as a regular file. */
   isFile(): boolean;
+
   /** Whether lstat classified the entry as a symbolic link. */
   isSymbolicLink(): boolean;
 }
@@ -19,7 +21,16 @@ interface IAutoMovieEvidenceIdentityFile {
  * own single-link requirement.
  *
  * @author Samchon
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation One fixed-path lstat observation must be a regular nonsymlink file; unlike population ownership, its hardlink count is not used.
+ * @evidence contracts/common.md#clear-and-simple-design Manifest identity is independent from a directory walk that could expose one inode under multiple owner names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Links and nonfiles refuse, while a same-byte hardlink does not fabricate a second graph owner at this fixed path.
+ * @evidence contracts/common.md#meaningful-documentation The comment states fixed-path semantics and separate population single-link admission.
+ * @evidence contracts/performance.md#efficient-algorithms Two scalar checks use O(1) work without enumerating a directory.
+ * @evidence contracts/performance.md#reuse-equivalent-work Only the current supplied stat is used; no quiet-path cache stands in for identity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The predicate acquires and retains no file resource or source bytes.
  */
-export const isAutoMovieEvidenceIdentityFile = (
+export const isAutoMovieEvidenceIdentityFile: (entry: IAutoMovieEvidenceIdentityFile) => boolean = (
   entry: IAutoMovieEvidenceIdentityFile,
 ): boolean => entry.isFile() && entry.isSymbolicLink() === false;

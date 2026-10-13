@@ -15,7 +15,7 @@ export const test_production_library_publication_unenforced = (): void => {
     TestValidator.equals(
       `unenforced ${stage} remains refused`,
       inspectLibraryCompletionPublication([
-        libraryCompletionBinding({ stage, enforced: false, reviewed: true }),
+        libraryCompletionBinding({ stage, enforced: false, }),
       ]),
       ["library-owner-mismatch"],
     );

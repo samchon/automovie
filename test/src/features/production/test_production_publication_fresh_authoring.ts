@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
   IAutoMovieDiagnostic,
 } from "@automovie/interface";
@@ -21,7 +20,7 @@ const runtime = loadSourceModule<{
       IAutoMovieBuildProjectOutput,
       "success" | "builder" | "diagnostics"
     >;
-  }) => AutoMovieContentDigest;
+  }) => string;
 }>(
   path.resolve(
     __dirname,
@@ -30,39 +29,48 @@ const runtime = loadSourceModule<{
 );
 
 /**
- * Terminal snapshots reopen reviewed authoring even when source bytes stay fixed.
+ * Terminal snapshots reopen current authoring even when source bytes stay fixed.
  *
  * Scenarios:
  *
- * 1. Repeated reads of unchanged source and reviewed owners have equal identity.
- * 2. A target-only edit returns a stale reviewed owner from the injected reader
- *    and changes the publication identity without replacing source bytes.
+ * 1. Repeated reads of unchanged source and exact owner addresses have equal identity.
+ * 2. A target-only edit changes the owner address returned by the injected reader
+ *    and changes publication identity without replacing source bytes.
  * 3. A source edit independently changes identity; source failure retains its
  *    diagnostic instead of producing a success-shaped fingerprint.
  * 4. An omitted reader remains omitted at the timed compile seam, while a
  *    throwing reader prevents compilation and preserves the actual error.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Publication identity reopens the supplied current authoring reader and compiles with its current owner address; identity inequality and forwarded observations catch a retained stale authoring snapshot.
+ * @evidence contracts/testing.md#independent-expectations Independently named hall and annex owner paths distinguish changed authored identity while the source byte string stays fixed; repeated identical inputs must keep equal identity. The test compares identity changes rather than verifying the digest algorithm independently.
+ * @evidence contracts/testing.md#distinguishing-cases Fixed inputs, target-only and source-only edits, source refusal, absent reader and thrown reader failures separate freshness from compile and error boundaries; physical acquisition belongs to source-snapshot tests.
+ * @evidence contracts/testing.md#execution-ownership This portable unit uses the publication helper's existing reader and compile ports without opening files, launching processes or installing a consumer; the function owns each scenario directly.
  */
-export const test_production_publication_fresh_authoring = (): void => {
-  let source = "unchanged source bytes";
-  let reviewed = true;
-  let compiled = 0;
-  let fail = false;
-  const seen: Array<boolean | undefined> = [];
+export function test_production_publication_fresh_authoring(): void {
+  let source: string = "unchanged source bytes";
+  let targetPath: string = "docs/spaces/hall.md";
+  let compiled: number = 0;
+  let fail: boolean = false;
+  const seen: Array<string | undefined> = [];
   const diagnostic: IAutoMovieDiagnostic = {
     code: "source-owner-mismatch",
     category: "error",
     phase: "source",
     target: "shot",
     path: "src/shot.ts",
-    message: "The current target review is stale.",
+    message: "The current owner address does not match the executed source.",
   };
-  const currentAuthoringEvidence = () => ({ sourceOwners: [{ reviewed }] });
-  const compile = (
+  const currentAuthoringEvidence: () => {
+    sourceOwners: {
+        targetPath: string;
+    }[];
+} = (): {sourceOwners:{targetPath:string}[]} => ({ sourceOwners: [{ targetPath }] });
+  const compile: (authoring: ReturnType<typeof currentAuthoringEvidence> | undefined, current: typeof currentAuthoringEvidence | undefined) => IAutoMovieBuildProjectOutput = (
     authoring: ReturnType<typeof currentAuthoringEvidence> | undefined,
     current: typeof currentAuthoringEvidence | undefined,
   ): IAutoMovieBuildProjectOutput => {
     compiled += 1;
-    seen.push(authoring?.sourceOwners[0]?.reviewed);
+    seen.push(authoring?.sourceOwners[0]?.targetPath);
     TestValidator.equals(
       "live reader forwarding is exact",
       current ===
@@ -82,27 +90,27 @@ export const test_production_publication_fresh_authoring = (): void => {
       materialized: [],
     };
   };
-  const read = () =>
+  const read: () => string = (): string =>
     runtime.readProductionPublicationInputFingerprint({
       snapshot: { generated: "same compiled bytes" },
       currentAuthoringEvidence,
       compile,
     });
-  const initial = read();
+  const initial: string = read();
   TestValidator.equals("unchanged publication identity", read(), initial);
-  reviewed = false;
-  const changedTarget = read();
+  targetPath = "docs/spaces/annex.md";
+  const changedTarget: string = read();
   TestValidator.equals(
-    "fresh target review changes identity",
+    "fresh owner address changes identity",
     changedTarget !== initial,
     true,
   );
-  TestValidator.equals("builder sees current reviewed state", seen, [
-    true,
-    true,
-    false,
+  TestValidator.equals("builder sees current owner address", seen, [
+    "docs/spaces/hall.md",
+    "docs/spaces/hall.md",
+    "docs/spaces/annex.md",
   ]);
-  reviewed = true;
+  targetPath = "docs/spaces/hall.md";
   source = "changed source bytes";
   TestValidator.equals(
     "source edit changes identity separately",
@@ -122,14 +130,14 @@ export const test_production_publication_fresh_authoring = (): void => {
     seen.at(-1),
     undefined,
   );
-  const before = compiled;
+  const before: number = compiled;
   TestValidator.equals(
     "reader failure propagates",
     throwsError(
       () =>
         runtime.readProductionPublicationInputFingerprint({
           snapshot: {},
-          currentAuthoringEvidence: () => {
+          currentAuthoringEvidence: (): never => {
             throw new Error("target unavailable");
           },
           compile,
@@ -139,4 +147,4 @@ export const test_production_publication_fresh_authoring = (): void => {
     true,
   );
   TestValidator.equals("reader failure prevents a compile", compiled, before);
-};
+}

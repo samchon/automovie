@@ -28,7 +28,6 @@ export const test_production_source_owner_binding = (): void => {
       "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     targetPath: "docs/spaces/hall.md",
     targetAnchor: "hall",
-    reviewed: true,
   };
   const resolve = (
     overrides: Partial<
@@ -93,7 +92,7 @@ export const test_production_source_owner_binding = (): void => {
         "evidenceStageCompletesWithoutCompanionReview",
         () =>
           resolve({
-            bindings: [{ ...binding, reviewed: false, stage: "evidence" }],
+            bindings: [{ ...binding, stage: "evidence" }],
           }).success,
       ],
       [

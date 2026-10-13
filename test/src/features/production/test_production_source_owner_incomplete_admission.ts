@@ -16,7 +16,7 @@ export const test_production_source_owner_incomplete_admission = (): void => {
     TestValidator.equals(
       `incomplete ${stage} remains outside execution`,
       inspectSourceOwnerCompletion(
-        libraryCompletionBinding({ stage, reviewed: true }),
+        libraryCompletionBinding({ stage, }),
       ),
       { complete: false, admission: false, sourceDiagnosis: true },
     );

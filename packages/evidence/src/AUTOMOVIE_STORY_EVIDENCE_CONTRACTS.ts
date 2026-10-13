@@ -1,0 +1,165 @@
+import type { IAutoMovieSharedContractReference } from "./IAutoMovieSharedContractReference";
+
+/** Bundled story contract routes, retaining their inventory order. */
+export const AUTOMOVIE_STORY_EVIDENCE_CONTRACTS: readonly IAutoMovieSharedContractReference[] = [
+{
+    domain: "story",
+    file: "discovery/story/films.md",
+    anchors: ["work-specific-film-requirements"],
+  },
+{
+    domain: "story",
+    file: "discovery/story/scripts.md",
+    anchors: ["work-specific-script-requirements"],
+  },
+{
+    domain: "story",
+    file: "discovery/story/screenplays.md",
+    anchors: ["work-specific-screenplay-requirements"],
+  },
+{
+    domain: "story",
+    file: "discovery/story/treatments.md",
+    anchors: ["work-specific-treatment-requirements"],
+  },
+{
+    domain: "story",
+    file: "obligations/story/narratives.md",
+    anchors: [
+      "unit-addressability",
+      "unit-contribution-distribution",
+      "sequence-connection",
+      "state-continuity-distribution",
+      "character-continuity-distribution",
+      "temporal-gear-distribution",
+      "speech-distribution",
+      "voice-frame-distribution",
+      "pacing-arrangement",
+    ],
+  },
+{
+    domain: "story",
+    file: "obligations/story/scripts.md",
+    anchors: ["release-partition", "script-boundary"],
+  },
+{
+    domain: "story",
+    file: "obligations/story/screenplays.md",
+    anchors: [
+      "realization-ready-contract",
+      "screenplay-format-scene-completeness",
+      "screenplay-revision-realization-handoff",
+    ],
+  },
+{
+    domain: "story",
+    file: "obligations/story/subjects.md",
+    anchors: [
+      "situated-conditions",
+      "drives-and-pressures",
+      "knowledge-and-perception",
+      "expression-and-behavior",
+      "bidirectional-relationships",
+      "change-boundaries",
+    ],
+  },
+{
+    domain: "story",
+    file: "obligations/story/treatments.md",
+    anchors: [
+      "opening-condition",
+      "terminal-condition",
+      "audience-route",
+      "resolution-aftermath",
+      "thematic-development",
+      "treatment-boundary",
+      "sustained-middle",
+    ],
+  },
+{
+    domain: "story",
+    file: "principles/story/narratives.md",
+    anchors: [
+      "unit-function",
+      "unit-connection",
+      "horizontal-state-continuity",
+      "narrated-time",
+      "audience-investment",
+      "character-continuity",
+      "information-entry",
+      "specificity",
+      "closing-line-contribution",
+      "parent-differentiation",
+      "drive-to-turn",
+      "unit-identity",
+      "state-continuity",
+      "observable-inheritance",
+    ],
+  },
+{
+    domain: "story",
+    file: "principles/story/scripts.md",
+    anchors: [
+      "staging-blocks",
+      "scene-entry-state",
+      "scene-exit-state",
+      "executable-progression",
+      "dialogue-action",
+      "knowledge-state",
+    ],
+  },
+{
+    domain: "story",
+    file: "principles/story/screenplays.md",
+    anchors: [
+      "screenplay-blocks",
+      "filmable-expression",
+      "mechanical-audiovisual-description",
+      "audiovisual-voice",
+      "block-continuity",
+      "audience-access",
+      "pacing-rhythm",
+      "audience-orientation",
+      "dialogue-sound-voice",
+      "emotional-grounding",
+      "audiovisual-selection",
+      "timing-allocation",
+      "master-scene-shooting-boundary",
+      "screenplay-scene-completion",
+      "screenplay-heading-identity",
+    ],
+  },
+{
+    domain: "story",
+    file: "principles/story/treatments.md",
+    anchors: [
+      "treatment-paragraphs",
+      "causal-turn",
+      "audience-change",
+      "information-design",
+    ],
+  },
+{
+    domain: "story",
+    file: "upstream/story/screenplays.md",
+    anchors: ["script-and-canon-revision-from-screenplay-work"],
+  },
+{
+    domain: "story",
+    file: "upstream/story/scripts.md",
+    anchors: ["treatment-and-settings-revision-from-script-work"],
+  },
+{
+    domain: "story",
+    file: "upstream/story/treatments.md",
+    anchors: ["settings-revision-from-treatment-work"],
+  },
+{
+    domain: "story",
+    file: "naturalness/story/screenplays.md",
+    anchors: [
+      "naturalness-scene-pressure",
+      "naturalness-spoken-narrated-yield",
+    ],
+  }
+];

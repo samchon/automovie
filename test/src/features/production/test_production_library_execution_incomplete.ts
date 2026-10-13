@@ -16,7 +16,7 @@ import {
 export const test_production_library_execution_incomplete = (): void => {
   for (const stage of ["draft", "disabled", "source"]) {
     const snapshot = createLibraryCompletionSnapshot(
-      libraryCompletionBinding({ stage, reviewed: true }),
+      libraryCompletionBinding({ stage, }),
     );
     const refused = planLibraryCompletion(snapshot);
     TestValidator.equals(

@@ -11,7 +11,7 @@ const projection = loadSourceModule<{
 }>(
   path.resolve(
     __dirname,
-    "../../../../packages/evidence/src/projectAutoMovieNativeClaims.ts",
+    "../../../../packages/evidence/src/projectAutoMovieNativeReferences.ts",
   ),
 );
 

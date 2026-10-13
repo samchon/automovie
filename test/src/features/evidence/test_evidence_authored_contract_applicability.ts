@@ -1,11 +1,10 @@
-import {
-  AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS,
-  createAutoMovieAuthoredDiscoveryReferences,
-  createAutoMovieAuthoredPrincipleReferences,
-  createAutoMovieScreenplayNaturalnessReferences,
-  selectAutoMovieAuthoredContractFiles,
-  selectAutoMovieScreenplayNaturalnessContractFiles,
-} from "@automovie/evidence";
+import type { ITtscEvidenceGraphMarkdownReference } from "@ttsc/evidence";
+import { AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS } from "../../../../packages/evidence/src/AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS";
+import { createAutoMovieAuthoredDiscoveryReferences } from "../../../../packages/evidence/src/createAutoMovieAuthoredDiscoveryReferences";
+import { createAutoMovieAuthoredPrincipleReferences } from "../../../../packages/evidence/src/createAutoMovieAuthoredPrincipleReferences";
+import { createAutoMovieScreenplayNaturalnessReferences } from "../../../../packages/evidence/src/createAutoMovieScreenplayNaturalnessReferences";
+import { selectAutoMovieAuthoredContractFiles } from "../../../../packages/evidence/src/selectAutoMovieAuthoredContractFiles";
+import { selectAutoMovieScreenplayNaturalnessContractFiles } from "../../../../packages/evidence/src/selectAutoMovieScreenplayNaturalnessContractFiles";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,10 +18,15 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Research has source principles and common obligations; derived technical
  *    layers also answer inherited-unit principles.
  * 5. Independent calls return independent selections in deterministic order.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the canonical applicability selectors and reference builders for each production kind and authored layer; wrong family routing or policy flags changes observable output.
+ * @evidence contracts/testing.md#independent-expectations Literal domain routes and narrative membership define expected duties independently of selection output; mapped reference-shape assertions complement rather than replace literal route assertions.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts narrative, design, research, settings and brief roles; checks independent revision families, deterministic ordering and caller-owned array mutation without influencing a repeated selection.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported function owns all loop-generated unit cases and directly imports source; no installation, browser, native evaluator or real production host is started.
  */
-export const test_evidence_authored_contract_applicability = (): void => {
-  const narrativeLayers = new Set(["treatments", "scripts", "screenplays"]);
-  const specialistDiscovery = {
+export function test_evidence_authored_contract_applicability(): void {
+  const narrativeLayers: Set<string> = new Set(["treatments", "scripts", "screenplays"]);
+  const specialistDiscovery: { settings: string[]; research: never[]; maps: string[]; models: string[]; spaces: string[]; materials: string[]; instances: string[]; motions: string[]; systems: string[]; treatments: string[]; scripts: string[]; screenplays: string[]; briefs: string[]; } = {
     settings: ["core/settings.md"],
     research: [],
     maps: ["design/designs.md", "design/maps.md"],
@@ -39,8 +43,8 @@ export const test_evidence_authored_contract_applicability = (): void => {
   };
   for (const kind of [null, "film", "brief", "library"] as const)
     for (const layer of AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS) {
-      const selected = selectAutoMovieAuthoredContractFiles(kind, layer);
-      const narrative = narrativeLayers.has(layer);
+      const selected: ReturnType<typeof selectAutoMovieAuthoredContractFiles> = selectAutoMovieAuthoredContractFiles(kind, layer);
+      const narrative: boolean = narrativeLayers.has(layer);
       for (const family of ["principles", "obligations"] as const) {
         TestValidator.predicate(
           `${kind}/${layer} common ${family}`,
@@ -65,12 +69,12 @@ export const test_evidence_authored_contract_applicability = (): void => {
       TestValidator.predicate(
         `${kind}/${layer} has no construction naturalness rule`,
         selected.principles.every(
-          (file) =>
+          (file: string) : boolean =>
             !file.startsWith("naturalness/") &&
             !file.startsWith("language/naturalness/"),
         ),
       );
-      const domain =
+      const domain: "core" | "story" | "delivery" | "design" =
         layer === "settings" || layer === "research"
           ? "core"
           : narrative
@@ -83,7 +87,7 @@ export const test_evidence_authored_contract_applicability = (): void => {
         selected.discovery,
         [
           "discovery/core/common.md",
-          ...specialistDiscovery[layer].map((file) => `discovery/${file}`),
+          ...specialistDiscovery[layer].map((file: string) : string => `discovery/${file}`),
           ...(narrative ? ["language/discovery/signals.md"] : []),
         ],
       );
@@ -106,18 +110,16 @@ export const test_evidence_authored_contract_applicability = (): void => {
         selected.principles.includes("principles/core/inherited-units.md"),
         !["settings", "research"].includes(layer) && !narrative,
       );
-      const repeated = selectAutoMovieAuthoredContractFiles(kind, layer);
+      const repeated: ReturnType<typeof selectAutoMovieAuthoredContractFiles> = selectAutoMovieAuthoredContractFiles(kind, layer);
       TestValidator.equals("deterministic selection", repeated, selected);
-      for (const review of [false, true]) {
-        const discovery = createAutoMovieAuthoredDiscoveryReferences(
+        const discovery: ReturnType<typeof createAutoMovieAuthoredDiscoveryReferences> = createAutoMovieAuthoredDiscoveryReferences(
           kind,
           layer,
-          review,
         );
         TestValidator.equals(
           "selected discovery reaches native coverage",
           discovery,
-          selected.discovery.map((file) => ({
+          selected.discovery.map((file: string) : { type: "markdown"; root: string; files: string[]; symbol: "h2"; requireReview: false; } => ({
             type: "markdown",
             root: "docs",
             files: [file],
@@ -125,14 +127,13 @@ export const test_evidence_authored_contract_applicability = (): void => {
             requireReview: false,
           })),
         );
-        const references = createAutoMovieAuthoredPrincipleReferences(
+        const references: ReturnType<typeof createAutoMovieAuthoredPrincipleReferences> = createAutoMovieAuthoredPrincipleReferences(
           kind,
           layer,
-          review,
         );
         TestValidator.equals(
           "selected files reach native references",
-          references.map((reference) => reference.files[0]),
+          references.map((reference: ITtscEvidenceGraphMarkdownReference) : string => reference.files[0]),
           selected.principles,
         );
         for (const reference of references)
@@ -153,7 +154,6 @@ export const test_evidence_authored_contract_applicability = (): void => {
               requireReview: false,
             },
           );
-      }
       selected.principles.length = 0;
       selected.obligations.length = 0;
       selected.discovery.length = 0;
@@ -165,12 +165,11 @@ export const test_evidence_authored_contract_applicability = (): void => {
       );
     }
 
-  const naturalness = selectAutoMovieScreenplayNaturalnessContractFiles();
-  for (const review of [false, true])
+  const naturalness: ReturnType<typeof selectAutoMovieScreenplayNaturalnessContractFiles> = selectAutoMovieScreenplayNaturalnessContractFiles();
     TestValidator.equals(
       "naturalness reference policy",
-      createAutoMovieScreenplayNaturalnessReferences(review),
-      naturalness.map((file) => ({
+      createAutoMovieScreenplayNaturalnessReferences(),
+      naturalness.map((file: string) : { type: "markdown"; root: string; files: string[]; symbol: "h2"; checklist: true; noEvidenceExclude: true; requireReview: false; } => ({
         type: "markdown",
         root: "docs",
         files: [file],
@@ -180,4 +179,4 @@ export const test_evidence_authored_contract_applicability = (): void => {
         requireReview: false,
       })),
     );
-};
+}

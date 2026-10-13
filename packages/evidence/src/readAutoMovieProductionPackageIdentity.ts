@@ -15,20 +15,35 @@ import { isAutoMovieEvidenceIdentityFile } from "./isAutoMovieEvidenceIdentityFi
  * reaching them would require a generated installation to exist.
  *
  * @author Samchon
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation One fixed package.json lstat must describe a regular nonsymlink file before supplied text is parsed; a nonempty name is required and description is trimmed or empty.
+ * @evidence contracts/common.md#clear-and-simple-design Manifest identity uses a fixed-path admission judgment distinct from independently enumerated graph hosts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing descriptions are not invented and parse/stat failures propagate; the host port supplies observations without replacing native methods.
+ * @evidence contracts/common.md#meaningful-documentation The public comment and required I/O port state fixed-path reads and refusal ownership; returned fields identify package name and optional description.
+ * @evidence contracts/performance.md#efficient-algorithms One stat, one full read and O(M) JSON parse for M manifest characters occur, with no directory enumeration or declared manifest byte cap.
+ * @evidence contracts/performance.md#reuse-equivalent-work The manifest is read once per call; no cache equates a quiet path with unchanged package identity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The injected host owns filesystem resources; only two strings escape and the manifest object remains local.
  */
-export const readAutoMovieProductionPackageIdentity = (
+export const readAutoMovieProductionPackageIdentity: (root: string, io: {
+    read: (file: string) => string;
+    stat: (file: string) => Pick<fs.Stats, "isFile" | "isSymbolicLink">;
+}) => {
+    packageName: string;
+    description: string;
+} = (
   root: string,
   io: {
     read: (file: string) => string;
     stat: (file: string) => Pick<fs.Stats, "isFile" | "isSymbolicLink">;
   },
 ): { packageName: string; description: string } => {
-  const location = path.join(root, "package.json");
+  const location: string = path.join(root, "package.json");
   if (!isAutoMovieEvidenceIdentityFile(io.stat(location)))
     throw new Error(
       `${location}: package identity must be one regular, non-symlink file.`,
     );
-  const manifest = JSON.parse(io.read(location)) as {
+  const manifest: { name?: unknown; description?: unknown; } = JSON.parse(io.read(location)) as {
     name?: unknown;
     description?: unknown;
   };

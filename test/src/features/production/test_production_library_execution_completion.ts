@@ -24,7 +24,6 @@ export const test_production_library_execution_completion = (): void => {
         exportName: binding.exportName,
         owner: "docs/settings/delivery.md#delivery",
         sourceDigest: binding.sourceDigest,
-        reviewed: false,
       },
     ];
     const ordinary = planLibraryCompletion(snapshot);

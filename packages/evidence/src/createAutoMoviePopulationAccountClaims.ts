@@ -1,34 +1,18 @@
-import type {
-  ITtscEvidenceGraphClaim,
-  ITtscEvidenceGraphMarkdownReference,
-} from "@ttsc/evidence";
-
-/**
- * Input for one authored layer's distributed obligation coverage.
- *
- * @author Samchon
- */
-export interface IAutoMoviePopulationAccountClaimsProps {
-  /** Authored branch whose H2 population collectively fulfills obligations. */
-  layer: string;
-  /** Project-relative authored files selected for that branch. */
-  populationFiles: readonly string[];
-  /** Shared obligation documents answered by relevant H2 owners. */
-  obligationFiles: readonly string[];
-  /** Whether the branch currently enforces evidence. */
-  enabled: boolean;
-  /** Compatibility input; native companions are never required. */
-  requireReview: boolean;
-}
+import type { IAutoMoviePopulationAccountClaimsProps } from "./IAutoMoviePopulationAccountClaimsProps";
+import { createAutoMoviePopulationAccountClaim } from "./createAutoMoviePopulationAccountClaim";
 
 /**
  * Creates distributed coverage for each selected obligation family.
  *
- * Authored H2s and the family's optional aggregate account are equally valid
- * owners. Their evidence collectively covers the obligation targets. The
- * item's substantive scope determines how many contributors it needs.
+ * Authored H2s and the family's optional aggregate account are equally valid owners. Their evidence collectively covers the obligation targets. The item's substantive scope determines how many contributors it needs.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Validate the layer and distinct host or obligation paths before creating distributed coverage for each selected obligation.
+ * @evidence contracts/common.md#clear-and-simple-design Family routing and account naming stay together so every obligation has one deterministic aggregate address.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate paths and cross-layer selectors are rejected; collective coverage does not weaken no-exclusion target duties.
+ * @evidence contracts/common.md#meaningful-documentation Inputs are docs-relative selectors, and errors name the offending layer or obligation before any result is returned.
+ * @evidence contracts/performance.md#efficient-algorithms Sets make duplicate admission linear in host and obligation counts; constructing each obligation copies the host selector population.
+ * @evidence contracts/performance.md#reuse-equivalent-work The host set is shared across obligation validation within the call; results are rebuilt for changed selector inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary sets are call-local and returned claims are caller-owned; retained output grows with obligations times host selectors.
  */
 export function createAutoMoviePopulationAccountClaims(
   props: IAutoMoviePopulationAccountClaimsProps,
@@ -41,7 +25,7 @@ export function createAutoMoviePopulationAccountClaims(
     throw new Error(
       `${props.layer} population accounts require authored H2 files.`,
     );
-  const population = new Set<string>();
+  const population: Set<string> = new Set<string>();
   for (const file of props.populationFiles) {
     if (!file.startsWith(`${props.layer}/`))
       throw new Error(
@@ -51,8 +35,8 @@ export function createAutoMoviePopulationAccountClaims(
       throw new Error(`${props.layer} repeats population file ${file}.`);
     population.add(file);
   }
-  const seen = new Set<string>();
-  return props.obligationFiles.map((file) => {
+  const seen: Set<string> = new Set<string>();
+  return props.obligationFiles.map((file: string): ReturnType<typeof createAutoMoviePopulationAccountClaim> => {
     if (
       !/^(?:obligations\/(?:core|delivery|design|story)|language\/obligations)\/[a-z0-9-]+\.md$/u.test(
         file,
@@ -71,45 +55,6 @@ export function createAutoMoviePopulationAccountClaims(
       documentRoot: "docs",
       populationFiles: props.populationFiles,
       enabled: props.enabled,
-      requireReview: props.requireReview,
     });
   });
-}
-
-/**
- * Builds ordinary obligation coverage over authored and aggregate owners.
- *
- * Callers validate the shared or production-local path declaration. Each
- * target needs positive evidence from a relevant host in the selected layer.
- * The aggregate account is an available host for a population-wide conclusion.
- */
-export function createAutoMoviePopulationAccountClaim(props: {
-  name: string;
-  account: string;
-  document: string;
-  documentRoot: string;
-  populationFiles: readonly string[];
-  enabled: boolean;
-  requireReview: boolean;
-}): Extract<ITtscEvidenceGraphClaim, { type: "markdown" }> & {
-  reference: [ITtscEvidenceGraphMarkdownReference];
-} {
-  const obligation: ITtscEvidenceGraphMarkdownReference = {
-    type: "markdown",
-    severity: "error",
-    root: props.documentRoot,
-    files: [props.document],
-    symbol: "h2",
-    noEvidenceExclude: true,
-    requireReview: false,
-  };
-  return {
-    name: props.name,
-    type: "markdown",
-    root: "docs",
-    files: [props.account, ...props.populationFiles],
-    symbol: "h2",
-    disabled: !props.enabled,
-    reference: [obligation],
-  };
 }

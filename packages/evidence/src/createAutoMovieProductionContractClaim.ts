@@ -1,207 +1,26 @@
-import type {
-  ITtscEvidenceGraphClaim,
-  ITtscEvidenceGraphReference,
-} from "@ttsc/evidence";
-
-import {
-  AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS,
-  type AutoMovieAuthoredDocumentLayer,
-} from "./AutoMovieAuthoredDocumentLayer";
-import type { AutoMoviePopulationScope } from "./AutoMoviePopulationScope";
-import { createAutoMovieAuthoredPopulationFiles } from "./createAutoMovieAuthoredPopulationFiles";
-import type { AutoMovieEvidenceStage } from "./createAutoMovieEvidenceConfig";
-import { createAutoMoviePopulationAccountClaim } from "./createAutoMoviePopulationAccountClaims";
-
-type MarkdownClaim = Extract<ITtscEvidenceGraphClaim, { type: "markdown" }>;
-type MarkdownSymbol = Extract<
-  ITtscEvidenceGraphReference,
-  { type: "markdown" }
->["symbol"];
-
-/** Authored Markdown layer that may answer a production-local contract. */
-export type AutoMovieProductionContractLayer = AutoMovieAuthoredDocumentLayer;
-
-/** Authored pass whose units answer a production-local contract. */
-export type AutoMovieProductionContractPass = "construction" | "naturalness";
-
-/** Additive graph claim retaining its project-specific binding identity. */
-export type AutoMovieProductionContractClaim = MarkdownClaim & {
-  /** AutoMovie identity validated and removed before native graph evaluation. */
-  autoMovieBinding: {
-    /** Authored layer that owns the host population. */
-    layer: AutoMovieProductionContractLayer;
-    /**
-     * Construction hosts or audience-language final screenplay hosts.
-     *
-     */
-    pass: AutoMovieProductionContractPass;
-    /** Exact population in which this declaration was made. */
-    populationScope: AutoMoviePopulationScope;
-    /** Exact owning layer stage in which this declaration was made. */
-    stage: AutoMovieEvidenceStage;
-    /** Positive binding or explicit pilot-only negative audit entry. */
-    disposition: "binding" | "inapplicable";
-    /** Reserved aggregate host for an authored obligation, relative to docs. */
-    account?: string;
-  };
-};
+import type { AutoMovieProductionContractClaim } from "./AutoMovieProductionContractClaim";
+import type { AutoMovieProductionContractPass } from "./AutoMovieProductionContractPass";
+import type { IAutoMovieProductionContractClaimProps } from "./IAutoMovieProductionContractClaimProps";
+import { AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS } from "./AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS";
+import { requirePositivePopulation } from "./requirePositivePopulation";
+import { validateAutoMovieProductionContractHosts } from "./validateAutoMovieProductionContractHosts";
 
 /**
- * Inputs for a production-local per-unit principle claim.
+ * Builds one validated local Markdown claim in its selected cardinality.
  *
- * A production keeps adopted rules in its flat `docs/contracts` inventory,
- * while this declaration says which authored Markdown population answers
- * those rules. The host stage is explicit so the local claim follows the same
- * `draft -> evidence -> review` lifecycle as the shared graph rather than
- * becoming an independently enabled side graph.
+ * @evidence contracts/common.md#principled-implementation Validate stage, authored pass, scoped host selectors and flat contract paths before constructing a local native Markdown claim.
+ * @evidence contracts/common.md#clear-and-simple-design Principles and obligations share this constructor while their public entry points retain distinct coverage cardinality.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Inapplicable is restricted to first-pilot declarations; exclusions cannot discharge target duties and no review receipt is fabricated.
+ * @evidence contracts/common.md#meaningful-documentation The binding records layer, pass, stage and scope for later admission; draft or disabled claims remain declared but inactive.
+ * @evidence contracts/performance.md#efficient-algorithms Host and document validation is linear in selector lengths; one reference is allocated per contract document.
+ * @evidence contracts/performance.md#reuse-equivalent-work The admitted files and binding metadata are reused in the returned record; changed declarations are validated anew.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned claim records and arrays escape; no file reads or retained graph cache are owned here.
  */
-export interface IAutoMovieProductionContractClaimProps {
-  /** Diagnostic identity stating what the selected hosts must establish. */
-  name: string;
-
-  /**
-   * Production-local contract paths as hosts cite them.
-   *
-   * Several paths become several independent references, so every document
-   * retains its own complete H2 coverage obligation.
-   */
-  document: string | readonly string[];
-
-  /**
-   * Directory the contract paths resolve against.
-   *
-   * @default "docs"
-   */
-  documentRoot?: string;
-
-  /** Markdown files whose selected units answer the contract. */
-  files: readonly string[];
-
-  /** Authored layer that owns every selected host file. */
-  layer: AutoMovieProductionContractLayer;
-
-  /** Stage of the authored layer that owns {@link files}. */
-  stage: AutoMovieEvidenceStage;
-
-  /**
-   * Pass whose units answer this rule.
-   *
-   * Naturalness is valid only for screenplay hosts under
-   * `final/screenplays`; every other claim defaults to construction.
-   *
-   * @default "construction"
-   */
-  pass?: AutoMovieProductionContractPass;
-
-  /** Exact production population to which this local relationship applies. */
-  populationScope: AutoMoviePopulationScope;
-
-  /**
-   * Authored H2/H3/H4 units that answer the principle for themselves.
-   */
-  symbol: MarkdownSymbol;
-
-  /**
-   * Turns the claim off for a reason other than the host stage.
-   *
-   * Use this only when the contract itself is inapplicable to the declared
-   * production scope. A duty every realized host owes stays active regardless
-   * of how small that population is.
-   *
-   * @default false
-   */
-  inapplicable?: boolean;
-}
-
-/**
- * One local obligation document and its reserved aggregate host address.
- *
- * The eligible authored H2 population is derived from layer and scope. Relevant
- * authored units or an aggregate account collectively fulfill the obligation.
- *
- * @author Samchon
- */
-export interface IAutoMovieProductionObligationClaimProps extends Omit<
-  IAutoMovieProductionContractClaimProps,
-  "document" | "files" | "symbol"
-> {
-  /** One flat contract document, resolved against documentRoot. */
-  document: string;
-  /** Reserved accounts/<layer>/<name>.md address for an aggregate owner. */
-  account: string;
-}
-
-/**
- * Creates one production-local principle claim.
- *
- * Every selected host answers every H2 item for itself. An exclusion cannot
- * discharge an answer, and completed-stage answers retain their actual citations without
- * companion rows or fingerprints. Draft and disabled hosts carry no evidence tags, so their local
- * contract claim remains declared but disabled alongside the shared graph.
- */
-export function createAutoMovieProductionPrincipleClaim(
-  props: IAutoMovieProductionContractClaimProps,
-): AutoMovieProductionContractClaim {
-  requireSymbol(props.symbol);
-  return createClaim(props, true);
-}
-
-/**
- * Creates one production-local obligation claim.
- *
- * The owning layer's H2s and a reserved aggregate account collectively cover
- * the contract's H2 targets. Each cited target keeps its structural coverage duty.
- * The binding retains the full eligible population and aggregate host address.
- */
-export function createAutoMovieProductionObligationClaim(
-  props: IAutoMovieProductionObligationClaimProps,
-): AutoMovieProductionContractClaim {
-  if (props.pass === "naturalness")
-    throw new Error(
-      "Production-local obligations belong to construction populations; naturalness accepts per-unit principles only.",
-    );
-  if (typeof props.document !== "string")
-    throw new Error(
-      "A production-local obligation account requires one contract document.",
-    );
-  if (
-    typeof props.account !== "string" ||
-    !props.account.startsWith(`accounts/${props.layer}/`) ||
-    !/^accounts\/[a-zA-Z]+\/[A-Za-z0-9][A-Za-z0-9._-]*\.md$/u.test(
-      props.account,
-    )
-  )
-    throw new Error(
-      `A production-local obligation requires one normalized accounts/${props.layer}/<name>.md aggregate host address.`,
-    );
-  const populationFiles = createAutoMovieAuthoredPopulationFiles(
-    props.layer,
-    props.populationScope,
-  );
-  const base = createClaim(
-    { ...props, files: populationFiles, symbol: "h2" },
-    false,
-  );
-  return {
-    ...createAutoMoviePopulationAccountClaim({
-      name: base.name!,
-      account: props.account,
-      document: props.document,
-      documentRoot: props.documentRoot ?? "docs",
-      populationFiles,
-      enabled: base.disabled !== true,
-      requireReview: false,
-    }),
-    autoMovieBinding: { ...base.autoMovieBinding, account: props.account },
-  };
-}
-
-/** Builds one validated local Markdown claim in its selected cardinality. */
-function createClaim(
+export function createAutoMovieProductionContractClaim(
   props: IAutoMovieProductionContractClaimProps,
   checklist: boolean,
 ): AutoMovieProductionContractClaim {
-  const pass = props.pass ?? "construction";
+  const pass: AutoMovieProductionContractPass = props.pass ?? "construction";
   const name: string = props.name.trim();
   if (name.length === 0)
     throw new Error("A production-local contract claim requires a name.");
@@ -266,59 +85,16 @@ function createClaim(
       stage: props.stage,
       disposition: props.inapplicable === true ? "inapplicable" : "binding",
     },
-    reference: documents.map((document) => ({
-      type: "markdown" as const,
+    reference: documents.map((document: string): { noEvidenceExclude: true; requireReview: false; checklist?: true | undefined; type: "markdown"; root: string; files: string[]; symbol: "h2"; } => ({
+      type: "markdown",
       root: props.documentRoot ?? "docs",
       files: [document],
-      symbol: "h2" as const,
-      ...(checklist ? { checklist: true as const } : {}),
+      symbol: "h2",
+      ...(checklist ? { checklist: true } : {}),
       noEvidenceExclude: true,
       requireReview: false,
     })),
   };
-}
-
-/**
- * Admit native host selectors against their declared local authored pass.
- *
- * Constructors and binding admission share this boundary so an edited native
- * claim cannot retain final metadata while selecting construction hosts.
- */
-export function validateAutoMovieProductionContractHosts(props: {
-  root: string | undefined;
-  files: readonly string[];
-  layer: AutoMovieProductionContractLayer;
-  pass: AutoMovieProductionContractPass;
-}): void {
-  if (props.root !== "docs")
-    throw new Error(
-      "An AutoMovie-bound local principle requires the docs host root.",
-    );
-  requirePositivePopulation(props.files, "host");
-  for (const file of props.files)
-    validateHostPattern(props.layer, props.pass, file);
-}
-
-/** Keep one host glob normalized and confined to its declared authored layer. */
-function validateHostPattern(
-  layer: AutoMovieProductionContractLayer,
-  pass: AutoMovieProductionContractPass,
-  pattern: string,
-): void {
-  const file = pattern.replace(/^!/u, "");
-  const prefix = pass === "naturalness" ? "final/screenplays/" : `${layer}/`;
-  if (
-    file.includes("\\") ||
-    file.startsWith("/") ||
-    /^[A-Za-z]:/u.test(file) ||
-    file
-      .split("/")
-      .some((part) => part === "" || part === "." || part === "..") ||
-    !file.startsWith(prefix)
-  )
-    throw new Error(
-      `A production-local contract claim for ${pass} ${layer} contains a host outside ${prefix}.`,
-    );
 }
 
 /** Refuse local contract selectors that do not name one flat target document. */
@@ -326,56 +102,19 @@ function validateContractPath(
   root: string | undefined,
   document: string,
 ): void {
-  const raw = `${root ?? "docs"}/${document}`;
-  const resolved = raw.replaceAll("\\", "/");
+  const raw: string = `${root ?? "docs"}/${document}`;
+  const resolved: string = raw.replaceAll("\\", "/");
   if (
     resolved !== raw ||
     resolved.startsWith("/") ||
     /^[A-Za-z]:/u.test(resolved) ||
     resolved
       .split("/")
-      .some((part) => part === "" || part === "." || part === "..") ||
+      .some((part: string): boolean => part === "" || part === "." || part === "..") ||
     !/^docs\/contracts\/[A-Za-z0-9][A-Za-z0-9._-]*\.md$/u.test(resolved) ||
     resolved.endsWith("/index.md")
   )
     throw new Error(
       `A production-local contract claim requires one flat docs/contracts/*.md target, not ${JSON.stringify(resolved)}.`,
-    );
-}
-
-/** Refuse a layer/symbol combination that changes claim cardinality. */
-function requireSymbol(symbol: MarkdownSymbol): void {
-  const symbols = Array.isArray(symbol) ? [...symbol] : [symbol];
-  const accepted = ["h2", "h3", "h4"];
-  if (
-    symbols.length === 0 ||
-    symbols.some((candidate) => !accepted.includes(candidate as string))
-  )
-    throw new Error(
-      "A production-local principle claim selects only H2, H3, or H4 authored units.",
-    );
-}
-
-/** Refuses an empty or purely subtractive glob population at the API boundary. */
-function requirePositivePopulation(
-  patterns: readonly string[],
-  role: "contract" | "host",
-): void {
-  if (
-    patterns.length === 0 ||
-    !patterns.some(
-      (pattern) => pattern.trim().length !== 0 && !pattern.startsWith("!"),
-    )
-  )
-    throw new Error(
-      `A production-local contract claim requires a positive ${role} population.`,
-    );
-  if (patterns.some((pattern) => pattern.trim().length === 0))
-    throw new Error(
-      `A production-local contract claim ${role} population contains a blank pattern.`,
-    );
-  if (new Set(patterns).size !== patterns.length)
-    throw new Error(
-      `A production-local contract claim ${role} population contains a duplicate pattern.`,
     );
 }

@@ -3,7 +3,6 @@ import {
   createBlankAutoMovieProductionEvidence,
 } from "@automovie/evidence";
 import type {
-  AutoMovieContentDigest,
   IAutoMovieGeneratedManifest,
 } from "@automovie/interface";
 import {
@@ -24,9 +23,9 @@ import { namedFacts, throwsError } from "../internal/predicates";
 /** The resident snapshot fields this scenario reads; the rest stays opaque. */
 interface ISnapshot {
   root: string;
-  digest: AutoMovieContentDigest;
+  digest: string;
   configuration: { location: string };
-  sources: readonly { path: string; digest: AutoMovieContentDigest | null }[];
+  sources: readonly { path: string; digest: string | null }[];
 }
 
 /** A portable projection, compared only through its canonical encoding. */
@@ -60,7 +59,7 @@ const { libraryBuildInputFingerprint } = loadSourceModule<{
     production: string;
     snapshot: ISnapshot;
     derivedFields: readonly IAutoMovieFingerprintField[];
-  }): AutoMovieContentDigest;
+  }): string;
 }>(productionModule("libraryBuildInputFingerprint.ts"));
 const { contentFingerprintFields } = loadSourceModule<{
   contentFingerprintFields(
@@ -186,12 +185,10 @@ const evidenceOf = (variant: IVariant): IAutoMovieProductionEvidence => {
         sourceDigest: digestAutoMovieBytes(Buffer.from(variant.hall, "utf8")),
         targetPath: "docs/spaces/hall.md",
         targetAnchor: variant.anchor,
-        reviewed: true,
       },
     ],
     contracts: [],
     contractRules: [],
-    reviewAlarms: { alarms: [], questionPasteChecked: false },
   };
 };
 
@@ -212,7 +209,7 @@ const capture = (
 const fingerprint = (
   variant: IVariant,
   snapshot: ISnapshot = capture(variant),
-): AutoMovieContentDigest =>
+): string =>
   libraryBuildInputFingerprint({
     production: variant.production,
     snapshot,
@@ -232,7 +229,7 @@ const fingerprint = (
 
 const publish = (
   production: string,
-  inputFingerprint: AutoMovieContentDigest,
+  inputFingerprint: string,
 ) => {
   const publication = materializeAutoMovieLibraryFiles({
     production,

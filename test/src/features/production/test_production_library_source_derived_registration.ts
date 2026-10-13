@@ -1,6 +1,5 @@
 import type { IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
 import type {
-  AutoMovieContentDigest,
   IAutoMovieDerivedArtifactSource,
   IAutoMovieLibraryBuildContext,
 } from "@automovie/interface";
@@ -19,7 +18,7 @@ interface IOwner {
 }
 
 const SOURCE = "src/libraries/lantern.ts";
-const SOURCE_DIGEST: AutoMovieContentDigest = `sha256:${"0".repeat(64)}`;
+const SOURCE_DIGEST: string = `sha256:${"0".repeat(64)}`;
 const ARTIFACT = "automovie/derived/lantern-contribution.json";
 const NOTES = "automovie/derived/lantern-notes.txt";
 const SETTINGS: IOwner = {
@@ -55,7 +54,6 @@ const binding = (
   sourceDigest: SOURCE_DIGEST,
   targetPath: owner.document,
   targetAnchor: owner.anchor,
-  reviewed: false,
 });
 
 const collect = (

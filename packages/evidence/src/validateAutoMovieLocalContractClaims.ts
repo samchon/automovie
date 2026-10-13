@@ -1,16 +1,11 @@
-import type {
-  ITtscEvidenceGraphClaim,
-  ITtscEvidenceGraphMarkdownReference,
-} from "@ttsc/evidence";
+import type { ITtscEvidenceGraphReference } from "@ttsc/evidence";
 import { isDeepStrictEqual } from "node:util";
+import { AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS } from "./AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS";
+import type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
+import type { AutoMovieProductionContractClaim } from "./AutoMovieProductionContractClaim";
+import { createAutoMovieProductionObligationClaim } from "./createAutoMovieProductionObligationClaim";
+import { createAutoMovieProductionPrincipleClaim } from "./createAutoMovieProductionPrincipleClaim";
 
-import { AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS } from "./AutoMovieAuthoredDocumentLayer";
-import type { IAutoMovieEvidenceConfigProps } from "./createAutoMovieEvidenceConfig";
-import {
-  type AutoMovieProductionContractClaim,
-  createAutoMovieProductionObligationClaim,
-  createAutoMovieProductionPrincipleClaim,
-} from "./createAutoMovieProductionContractClaim";
 
 /**
  * Refuses a local binding whose native claim disagrees with its typed owner.
@@ -19,14 +14,23 @@ import {
  * so a caller cannot retain admission metadata while narrowing or disabling its
  * duty, including through native claim-level severity.
  * Native claims with no AutoMovie binding remain additive native claims.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Binding layer, stage, pass, scope and disposition must agree with the graph, then canonical factories reconstruct principle or obligation references for exact structural comparison.
+ * @evidence contracts/common.md#clear-and-simple-design Typed AutoMovie ownership is validated before native projection; unbound additive native claims remain outside this product-specific policy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A caller cannot retain admission metadata while weakening severity, targets or host population; malformed bound declarations refuse rather than being rewritten.
+ * @evidence contracts/common.md#meaningful-documentation The comment states canonical reconstruction and native severity protection; all refusal messages name the conflicting declaration.
+ * @evidence contracts/performance.md#efficient-algorithms For C claims and R references, traversal and structural equality scan their complete fields, with one small canonical factory result per bound claim.
+ * @evidence contracts/performance.md#reuse-equivalent-work Public factories serve both authoring and validation, reusing policy rather than a separate expected-field implementation; declarations are revalidated every call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary reconstructed records and comparisons are retained; the caller keeps its graph unchanged and no filesystem resource is acquired.
  */
 export function validateAutoMovieLocalContractClaims(
   graph: IAutoMovieEvidenceConfigProps,
 ): void {
   for (const raw of graph.claims ?? []) {
-    const claim = raw as Partial<AutoMovieProductionContractClaim>;
+    const claim: Partial<AutoMovieProductionContractClaim> = raw as Partial<AutoMovieProductionContractClaim>;
     if (claim.autoMovieBinding === undefined) continue;
-    const binding = claim.autoMovieBinding;
+    const binding: AutoMovieProductionContractClaim["autoMovieBinding"] = claim.autoMovieBinding;
     if (
       raw.type !== "markdown" ||
       binding === null ||
@@ -53,23 +57,23 @@ export function validateAutoMovieLocalContractClaims(
       throw new Error(
         `Production-local claim ${JSON.stringify(raw.name)} does not match its declared layer, stage, population scope, or disposition.`,
       );
-    const references = Array.isArray(raw.reference)
+    const references: ITtscEvidenceGraphReference[] = Array.isArray(raw.reference)
       ? raw.reference
       : [raw.reference];
     if (binding.account === undefined) {
-      const first = references[0];
+      const first: ITtscEvidenceGraphReference = references[0];
       if (first?.type !== "markdown")
         throw new Error(
           `Production-local principle ${JSON.stringify(raw.name)} requires a nonempty Markdown contract reference inventory.`,
         );
-      const documents = references.map((reference) => {
+      const documents: string[] = references.map((reference: ITtscEvidenceGraphReference) : string => {
         if (reference.type !== "markdown" || reference.files.length !== 1)
           throw new Error(
             `Production-local principle ${JSON.stringify(raw.name)} requires one contract document per Markdown reference.`,
           );
         return reference.files[0]!;
       });
-      const expected = createAutoMovieProductionPrincipleClaim({
+      const expected: AutoMovieProductionContractClaim = createAutoMovieProductionPrincipleClaim({
         name: raw.name ?? "",
         document: documents,
         documentRoot: first.root,
@@ -91,12 +95,12 @@ export function validateAutoMovieLocalContractClaims(
         );
       continue;
     }
-    const obligation = references[0];
+    const obligation: ITtscEvidenceGraphReference = references[0];
     if (obligation?.type !== "markdown" || obligation.files.length !== 1)
       throw new Error(
         `Production-local account ${binding.account} requires one obligation document reference.`,
       );
-    const expected = createAutoMovieProductionObligationClaim({
+    const expected: AutoMovieProductionContractClaim = createAutoMovieProductionObligationClaim({
       name: raw.name ?? "",
       account: binding.account,
       document: obligation.files[0]!,
@@ -129,120 +133,4 @@ export function validateAutoMovieLocalContractClaims(
         `Production-local account ${binding.account} must retain its canonical claim severity, obligation reference, and complete authored H2 host population.`,
       );
   }
-}
-
-/** Projects local contract targets and their eligible authored population. */
-export function projectAutoMovieLocalContractClaims(
-  claims: readonly ITtscEvidenceGraphClaim[],
-): {
-  localBindings: IAutoMovieLocalContractProjection[];
-  localAudits: IAutoMovieLocalContractProjection[];
-} {
-  const localBindings: IAutoMovieLocalContractProjection[] = [];
-  const localAudits: IAutoMovieLocalContractProjection[] = [];
-  for (const raw of claims) {
-    const claim = raw as Partial<AutoMovieProductionContractClaim>;
-    if (claim.autoMovieBinding === undefined) continue;
-    const binding = claim.autoMovieBinding;
-    const references = (
-      Array.isArray(raw.reference) ? raw.reference : [raw.reference]
-    ).filter(
-      (reference): reference is ITtscEvidenceGraphMarkdownReference =>
-        reference.type === "markdown",
-    );
-    const population =
-      binding.account === undefined
-        ? undefined
-        : {
-            root: claim.root ?? ".",
-            files: raw.files.slice(1),
-            symbols: symbols(raw.symbol),
-          };
-    const projection: IAutoMovieLocalContractProjection = {
-      claim: raw.name ?? "",
-      layer: binding.layer,
-      pass: binding.pass,
-      stage: binding.stage,
-      enforced: raw.disabled !== true,
-      populationScope: binding.populationScope,
-      relationship:
-        binding.account === undefined ? "checklist" : "distributed-coverage",
-      host: {
-        root: claim.root ?? ".",
-        files: [...raw.files],
-        symbols: symbols(raw.symbol),
-      },
-      targets: references.map(projectReference),
-      ...(population === undefined ? {} : { population }),
-    };
-    (binding.disposition === "binding" ? localBindings : localAudits).push(
-      projection,
-    );
-  }
-  return { localBindings, localAudits };
-}
-
-/**
- * Manifest identity of one local relationship after declaration validation.
- *
- * @author Samchon
- */
-export interface IAutoMovieLocalContractProjection {
-  /** Native claim's diagnostic name, or an empty string when it is unnamed. */
-  claim: string;
-  /** Authored branch whose declared stage and population govern this binding. */
-  layer: AutoMovieProductionContractClaim["autoMovieBinding"]["layer"];
-  /** Construction or final-screenplay naturalness host pass. */
-  pass: AutoMovieProductionContractClaim["autoMovieBinding"]["pass"];
-  /** Owning branch's current lifecycle stage, including inactive declarations. */
-  stage: AutoMovieProductionContractClaim["autoMovieBinding"]["stage"];
-  /** Whether the claim is not explicitly disabled, not an evidence verdict. */
-  enforced: boolean;
-  /** Exact pilot, complete-production, or reset scope retained from the binding. */
-  populationScope: AutoMovieProductionContractClaim["autoMovieBinding"]["populationScope"];
-  /** Distinguishes per-unit principles from collective obligation coverage. */
-  relationship: "checklist" | "distributed-coverage";
-  /**
-   * Native host root, file selectors, and symbols for the accountable units.
-   * An omitted root becomes "." and an omitted symbol selector becomes [].
-   */
-  host: { root: string; files: readonly string[]; symbols: readonly string[] };
-  /**
-   * Markdown contract references.
-   * Roots and symbols use the same omitted-value normalization as the host.
-   */
-  targets: readonly {
-    root: string;
-    files: readonly string[];
-    symbols: readonly string[];
-  }[];
-  /**
-   * Complete authored H2 population eligible to fulfill the obligation.
-   * Checklist bindings answer independently through their host population.
-   */
-  population?: {
-    root: string;
-    files: readonly string[];
-    symbols: readonly string[];
-  };
-}
-
-/** Retain the native omitted-selector meaning rather than inventing units. */
-function symbols(value: unknown): string[] {
-  return value === undefined
-    ? []
-    : Array.isArray(value)
-      ? [...value]
-      : [value as string];
-}
-
-/** Project one native reference without changing its paths or selector. */
-function projectReference(
-  reference: ITtscEvidenceGraphMarkdownReference,
-): IAutoMovieLocalContractProjection["host"] {
-  return {
-    root: reference.root ?? ".",
-    files: [...reference.files],
-    symbols: symbols(reference.symbol),
-  };
 }

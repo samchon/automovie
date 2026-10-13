@@ -4,7 +4,6 @@ import {
   createBlankAutoMovieProductionEvidence,
 } from "@automovie/evidence";
 import type {
-  AutoMovieContentDigest,
   IAutoMovieGeneratedManifest,
   IAutoMovieShotContract,
 } from "@automovie/interface";
@@ -44,21 +43,21 @@ const identity = loadSourceModule<{
     graph: IAutoMovieProductionDesignGraph,
     sourceFields: readonly IAutoMovieFingerprintField[],
     contentFields: readonly IAutoMovieFingerprintField[],
-  ): AutoMovieContentDigest;
+  ): string;
 }>(productionModule("productionBuildIdentity.ts"));
 const { captureAutoMovieLibraryAuthoringSnapshot } = loadSourceModule<{
   captureAutoMovieLibraryAuthoringSnapshot(props: {
     root: string;
     evidence: IAutoMovieProductionEvidence;
     readSource: (path: string) => Uint8Array;
-  }): { digest: AutoMovieContentDigest };
+  }): { digest: string };
 }>(productionModule("libraryAuthoringSnapshot.ts"));
 const { libraryBuildInputFingerprint } = loadSourceModule<{
   libraryBuildInputFingerprint(props: {
     production: string;
-    snapshot: { digest: AutoMovieContentDigest };
+    snapshot: { digest: string };
     derivedFields: readonly IAutoMovieFingerprintField[];
-  }): AutoMovieContentDigest;
+  }): string;
 }>(productionModule("libraryBuildInputFingerprint.ts"));
 const { canonicalizeAutoMovieJson } = loadSourceModule<{
   canonicalizeAutoMovieJson(value: unknown): string;
@@ -147,7 +146,6 @@ const sourceOwner = (props: {
   sourceDigest: textDigest(props.text),
   targetPath: props.targetPath,
   targetAnchor: props.exportName,
-  reviewed: true,
 });
 
 const filmEvidenceOf = (): IAutoMovieProductionEvidence => ({
@@ -186,7 +184,6 @@ const filmEvidenceOf = (): IAutoMovieProductionEvidence => ({
   ],
   contracts: [],
   contractRules: [],
-  reviewAlarms: { alarms: [], questionPasteChecked: false },
 });
 
 const libraryEvidenceOf = (root: string): IAutoMovieProductionEvidence => {
@@ -252,7 +249,6 @@ const libraryEvidenceOf = (root: string): IAutoMovieProductionEvidence => {
     ],
     contracts: [],
     contractRules: [],
-    reviewAlarms: { alarms: [], questionPasteChecked: false },
   };
 };
 

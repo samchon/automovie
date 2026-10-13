@@ -15,7 +15,7 @@ export const test_production_library_publication_incomplete = (): void => {
     TestValidator.equals(
       `incomplete ${stage} cannot authenticate an indexed export`,
       inspectLibraryCompletionPublication([
-        libraryCompletionBinding({ stage, reviewed: true }),
+        libraryCompletionBinding({ stage, }),
       ]),
       ["library-owner-mismatch"],
     );

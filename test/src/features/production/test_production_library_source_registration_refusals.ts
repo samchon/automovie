@@ -1,6 +1,5 @@
 import type { IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
 import type {
-  AutoMovieContentDigest,
   IAutoMovieLibraryBuildContext,
 } from "@automovie/interface";
 import {
@@ -12,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
 const SOURCE = "src/libraries/lantern.ts";
-const SOURCE_DIGEST: AutoMovieContentDigest = `sha256:${"0".repeat(64)}`;
+const SOURCE_DIGEST: string = `sha256:${"0".repeat(64)}`;
 const DOCUMENT = "docs/settings/delivery.md";
 const DESIGN = `${DOCUMENT}#delivery`;
 const EMPTY = { environments: [], models: [] };
@@ -46,7 +45,6 @@ const binding = (
   sourceDigest: SOURCE_DIGEST,
   targetPath: DOCUMENT,
   targetAnchor: "delivery",
-  reviewed: false,
 });
 
 const admitWith =

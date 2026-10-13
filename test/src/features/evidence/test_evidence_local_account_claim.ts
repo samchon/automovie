@@ -1,14 +1,16 @@
-import {
-  type AutoMoviePopulationScope,
-  type AutoMovieProductionContractClaim,
-  type IAutoMovieProductionObligationClaimProps,
-  createAutoMovieAuthoredPopulationFiles,
-  createAutoMoviePopulationAccountClaims,
-  createAutoMovieProductionObligationClaim,
-  createAutoMovieProductionPrincipleClaim,
-  createBlankAutoMovieProductionEvidence,
-  validateAutoMovieLocalContractClaims,
-} from "@automovie/evidence";
+import type { IAutoMovieEvidenceConfigProps } from "../../../../packages/evidence/src/IAutoMovieEvidenceConfigProps";
+import type { IAutoMoviePopulationAccountClaimsProps } from "../../../../packages/evidence/src/IAutoMoviePopulationAccountClaimsProps";
+import type { ITtscEvidenceGraphMarkdownClaim } from "@ttsc/evidence";
+import type { TtscLintSeverity } from "@ttsc/lint";
+import type { AutoMoviePopulationScope } from "../../../../packages/evidence/src/AutoMoviePopulationScope";
+import type { AutoMovieProductionContractClaim } from "../../../../packages/evidence/src/AutoMovieProductionContractClaim";
+import type { IAutoMovieProductionObligationClaimProps } from "../../../../packages/evidence/src/IAutoMovieProductionObligationClaimProps";
+import { createAutoMovieAuthoredPopulationFiles } from "../../../../packages/evidence/src/createAutoMovieAuthoredPopulationFiles";
+import { createAutoMoviePopulationAccountClaims } from "../../../../packages/evidence/src/createAutoMoviePopulationAccountClaims";
+import { createAutoMovieProductionObligationClaim } from "../../../../packages/evidence/src/createAutoMovieProductionObligationClaim";
+import { createAutoMovieProductionPrincipleClaim } from "../../../../packages/evidence/src/createAutoMovieProductionPrincipleClaim";
+import { createBlankAutoMovieProductionEvidence } from "../../../../packages/evidence/src/createBlankAutoMovieProductionEvidence";
+import { validateAutoMovieLocalContractClaims } from "../../../../packages/evidence/src/validateAutoMovieLocalContractClaims";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -25,7 +27,7 @@ type ITtscEvidenceGraphMarkdownReference = Extract<
  *
  * Scenarios:
  * 1. An obligation emits ordinary coverage over authored and aggregate owners.
- * 2. Every stage controls activation and review, including a pilot exclusion.
+ * 2. Every stage controls activation while native review stays false, including a pilot exclusion.
  * 3. Film pilot, complete scope, reset, and other authored layers use their
  *    actual canonical file populations rather than caller-selected subsets.
  * 4. Missing, cross-layer, non-normalized, plural, and legacy account inputs
@@ -33,8 +35,13 @@ type ITtscEvidenceGraphMarkdownReference = Extract<
  * 5. Shared accounts retain family order, ownership, and their input failures.
  * 6. The obligation reference is an explicit error, and canonical admission
  *    refuses claim-level overrides or a weakened target reference.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual obligation, principle and shared account constructors plus local admission; output and rejection assertions catch weakened cardinality, scope or policy.
+ * @evidence contracts/testing.md#independent-expectations Expected selector strings, aggregate addresses, stage activation and error-level no-exclusion references follow the declared authored contract, not factory snapshots; native evaluation is outside this unit.
+ * @evidence contracts/testing.md#distinguishing-cases Covers lifecycle values, film pilot and reset scopes, cross-layer or malformed paths, inapplicable audits, empty or duplicate shared populations and local policy overrides.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported function is a portable synchronous unit using direct source imports; it starts no consumer, evaluator process or native host.
  */
-export const test_evidence_local_account_claim = (): void => {
+export function test_evidence_local_account_claim(): void {
   const props: IAutoMovieProductionObligationClaimProps = {
     name: "  model population answers its local obligation  ",
     document: "contracts/obligations-models.md",
@@ -43,7 +50,7 @@ export const test_evidence_local_account_claim = (): void => {
     stage: "evidence",
     populationScope: { mode: "complete-production" },
   };
-  const claim = createAutoMovieProductionObligationClaim(props);
+  const claim: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim(props);
   TestValidator.equals("eligible owners", claim.files, [
     props.account,
     "models/**/*.md",
@@ -61,7 +68,7 @@ export const test_evidence_local_account_claim = (): void => {
       requireReview: false,
     },
   ]);
-  const accountGraph = {
+  const accountGraph: IAutoMovieEvidenceConfigProps = {
     ...createBlankAutoMovieProductionEvidence("/production", "english"),
     models: props.stage,
     claims: [claim],
@@ -74,23 +81,23 @@ export const test_evidence_local_account_claim = (): void => {
   for (const severity of ["off", 0, "warning", "error", 2] as const)
     TestValidator.predicate(
       "canonical claim severity cannot be overridden",
-      throwsError(() =>
+      throwsError(() : void =>
         validateAutoMovieLocalContractClaims({
           ...accountGraph,
           claims: [{ ...claim, severity }],
         }),
       ),
     );
-  const accountReferences =
+  const accountReferences: ITtscEvidenceGraphMarkdownReference[] =
     claim.reference as ITtscEvidenceGraphMarkdownReference[];
   TestValidator.equals(
     "account reference levels are explicit",
-    accountReferences.map((reference) => reference.severity),
+    accountReferences.map((reference: ITtscEvidenceGraphMarkdownReference) : TtscLintSeverity | undefined => reference.severity),
     ["error"],
   );
   TestValidator.predicate(
     "canonical obligation reference cannot be weakened",
-    throwsError(() =>
+    throwsError(() : void =>
       validateAutoMovieLocalContractClaims({
         ...accountGraph,
         claims: [
@@ -103,7 +110,7 @@ export const test_evidence_local_account_claim = (): void => {
     ),
   );
   for (const stage of ["disabled", "draft", "evidence", "review"] as const) {
-    const staged = createAutoMovieProductionObligationClaim({
+    const staged: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim({
       ...props,
       stage,
     });
@@ -115,7 +122,7 @@ export const test_evidence_local_account_claim = (): void => {
     TestValidator.equals(
       `${stage} review`,
       (staged.reference as ITtscEvidenceGraphMarkdownReference[]).map(
-        (reference) => reference.requireReview,
+        (reference: ITtscEvidenceGraphMarkdownReference) : boolean | undefined => reference.requireReview,
       ),
       [false],
     );
@@ -124,7 +131,7 @@ export const test_evidence_local_account_claim = (): void => {
     mode: "first-pilot",
     partitionGroup: "001-opening",
   };
-  const script = createAutoMovieProductionObligationClaim({
+  const script: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim({
     ...props,
     layer: "scripts",
     account: "accounts/scripts/local.md",
@@ -185,7 +192,7 @@ export const test_evidence_local_account_claim = (): void => {
     createAutoMovieAuthoredPopulationFiles("models", { mode: "first-pilot" }),
     ["models/**/*.md"],
   );
-  const alternate = createAutoMovieProductionObligationClaim({
+  const alternate: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim({
     ...props,
     documentRoot: "docs/contracts",
     document: "obligations-models.md",
@@ -195,7 +202,7 @@ export const test_evidence_local_account_claim = (): void => {
     (alternate.reference as ITtscEvidenceGraphMarkdownReference[])[0]!.root,
     "docs/contracts",
   );
-  const resetClaim = createAutoMovieProductionObligationClaim({
+  const resetClaim: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim({
     ...props,
     stage: "draft",
     populationScope: reset,
@@ -228,14 +235,14 @@ export const test_evidence_local_account_claim = (): void => {
   ])
     TestValidator.predicate(
       "invalid local account declaration",
-      throwsError(() =>
+      throwsError(() : AutoMovieProductionContractClaim =>
         createAutoMovieProductionObligationClaim({
           ...props,
           ...invalid,
         } as IAutoMovieProductionObligationClaimProps),
       ),
     );
-  const principle = createAutoMovieProductionPrincipleClaim({
+  const principle: ReturnType<typeof createAutoMovieProductionPrincipleClaim> = createAutoMovieProductionPrincipleClaim({
     ...props,
     files: ["models/**/*.md", "!models/unused.md"],
     symbol: ["h2", "h3", "h4"],
@@ -249,7 +256,7 @@ export const test_evidence_local_account_claim = (): void => {
   TestValidator.equals(
     "principles stay independent checklists",
     (principle.reference as ITtscEvidenceGraphMarkdownReference[]).map(
-      (reference) => [
+      (reference: ITtscEvidenceGraphMarkdownReference) : (boolean | undefined)[] => [
         reference.checklist,
         reference.noEvidenceExclude,
         reference.requireReview,
@@ -268,7 +275,7 @@ export const test_evidence_local_account_claim = (): void => {
   for (const symbol of [[], ["h1"], "file"])
     TestValidator.predicate(
       "principle excludes ungoverned symbols",
-      throwsError(() =>
+      throwsError(() : AutoMovieProductionContractClaim =>
         createAutoMovieProductionPrincipleClaim({
           ...props,
           files: ["models/a.md"],
@@ -276,7 +283,7 @@ export const test_evidence_local_account_claim = (): void => {
         }),
       ),
     );
-  const sharedProps = {
+  const sharedProps: IAutoMoviePopulationAccountClaimsProps = {
     layer: "models",
     populationFiles: ["models/**/*.md"],
     obligationFiles: [
@@ -284,12 +291,11 @@ export const test_evidence_local_account_claim = (): void => {
       "language/obligations/common.md",
     ],
     enabled: true,
-    requireReview: true,
   };
-  const shared = createAutoMoviePopulationAccountClaims(sharedProps);
+  const shared: ReturnType<typeof createAutoMoviePopulationAccountClaims> = createAutoMoviePopulationAccountClaims(sharedProps);
   TestValidator.equals(
     "shared family identity and order",
-    shared.map((value) => value.files),
+    shared.map((value: ITtscEvidenceGraphMarkdownClaim & { reference: [ITtscEvidenceGraphMarkdownReference]; }) : string[] => value.files),
     [
       ["accounts/models/core-common.md", "models/**/*.md"],
       ["accounts/models/language-obligations-common.md", "models/**/*.md"],
@@ -318,8 +324,8 @@ export const test_evidence_local_account_claim = (): void => {
   ])
     TestValidator.predicate(
       "invalid shared account inputs",
-      throwsError(() =>
+      throwsError(() : (ITtscEvidenceGraphMarkdownClaim & { reference: [ITtscEvidenceGraphMarkdownReference]; })[] =>
         createAutoMoviePopulationAccountClaims({ ...sharedProps, ...invalid }),
       ),
     );
-};
+}

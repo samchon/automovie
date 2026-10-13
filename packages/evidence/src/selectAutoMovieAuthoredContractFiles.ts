@@ -1,12 +1,6 @@
-import type {
-  ITtscEvidenceGraphClaim,
-  ITtscEvidenceGraphMarkdownReference,
-  ITtscEvidenceGraphReference,
-} from "@ttsc/evidence";
-
 import type { AutoMovieAuthoredDocumentLayer } from "./AutoMovieAuthoredDocumentLayer";
-import type { AutoMovieProductionKind } from "./createAutoMovieEvidenceConfig";
-import { projectAutoMovieNativeReferences } from "./projectAutoMovieNativeClaims";
+import type { AutoMovieProductionKind } from "./AutoMovieProductionKind";
+
 
 /**
  * Selects shared contracts by the work an authored layer actually produces.
@@ -16,14 +10,23 @@ import { projectAutoMovieNativeReferences } from "./projectAutoMovieNativeClaims
  * naturalness. Research, settings, and design select their technical contracts
  * in every production shape. The complete inventory still ships with every
  * production.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Layer role selects core, story, delivery or design discovery, principle and obligation paths, with film settings receiving the subject obligation.
+ * @evidence contracts/common.md#clear-and-simple-design One selector owns the concrete shipped contract inventory by authored work type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Narrative audience-language naturalness is deferred to final screenplay rules; no private fixture path changes selection.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies narrative and technical branch policy while the return separates discovery, principles and obligations.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed layer tests and small path arrays require O(1) work relative to production file population.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reference producers reuse this selector rather than maintain independent contract matrices; no filesystem cache is involved.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned path arrays escape, retaining no authored source or external resource.
  */
 export function selectAutoMovieAuthoredContractFiles(
   kind: AutoMovieProductionKind | null,
   layer: AutoMovieAuthoredDocumentLayer,
 ): { discovery: string[]; principles: string[]; obligations: string[] } {
-  const narrative = ["treatments", "scripts", "screenplays"].includes(layer);
-  const foundation = layer === "settings" || layer === "research";
-  const domain = foundation
+  const narrative: boolean = ["treatments", "scripts", "screenplays"].includes(layer);
+  const foundation: boolean = layer === "settings" || layer === "research";
+  const domain: "core" | "delivery" | "design" | "story" = foundation
     ? "core"
     : narrative
       ? "story"
@@ -61,94 +64,4 @@ export function selectAutoMovieAuthoredContractFiles(
         : []),
     ],
   };
-}
-
-/** Selects audience-language contracts for final screenplay revision. */
-export function selectAutoMovieScreenplayNaturalnessContractFiles(): string[] {
-  return [
-    "naturalness/core/common.md",
-    "naturalness/story/screenplays.md",
-    "language/naturalness/screenplays.md",
-  ];
-}
-
-/** Binds every final screenplay unit to every selected naturalness target. */
-export function createAutoMovieScreenplayNaturalnessReferences(
-  _review: boolean,
-): ITtscEvidenceGraphMarkdownReference[] {
-  return selectAutoMovieScreenplayNaturalnessContractFiles().map((file) => ({
-    type: "markdown",
-    root: "docs",
-    files: [file],
-    symbol: "h2",
-    checklist: true,
-    noEvidenceExclude: true,
-    requireReview: false,
-  }));
-}
-
-/** Binds a layer's open searches to its work-specific contract hosts. */
-export function createAutoMovieAuthoredDiscoveryReferences(
-  kind: AutoMovieProductionKind | null,
-  layer: AutoMovieAuthoredDocumentLayer,
-  _review: boolean,
-): ITtscEvidenceGraphMarkdownReference[] {
-  return selectAutoMovieAuthoredContractFiles(kind, layer).discovery.map(
-    (file) => ({
-      type: "markdown",
-      root: "docs",
-      files: [file],
-      symbol: "h2",
-      requireReview: false,
-    }),
-  );
-}
-
-/** Binds each applicable principle to every selected authored unit. */
-export function createAutoMovieAuthoredPrincipleReferences(
-  kind: AutoMovieProductionKind | null,
-  layer: AutoMovieAuthoredDocumentLayer,
-  _review: boolean,
-): ITtscEvidenceGraphMarkdownReference[] {
-  return selectAutoMovieAuthoredContractFiles(kind, layer).principles.map(
-    (file) => ({
-      type: "markdown",
-      root: "docs",
-      files: [file],
-      symbol: "h2",
-      checklist: true,
-      noEvidenceExclude: true,
-      requireReview: false,
-    }),
-  );
-}
-
-/**
- * Binds whole narrative and delivery documents to their inherited parents.
- *
- * Technical design relationships belong to their consuming H2 units. A second
- * file host would duplicate the same foundation coverage without another owner.
- */
-export function createAutoMovieAuthoredFileClaims(
-  layer: AutoMovieAuthoredDocumentLayer,
-  populationFiles: string[],
-  references: ITtscEvidenceGraphReference[],
-  enabled: boolean,
-): ITtscEvidenceGraphClaim[] {
-  if (
-    !["treatments", "scripts", "screenplays", "briefs"].includes(layer) ||
-    references.length === 0
-  )
-    return [];
-  return [
-    {
-      name: `${layer} files account for inherited settings, designs, and parent files`,
-      type: "markdown",
-      root: "docs",
-      files: populationFiles,
-      symbol: "file",
-      disabled: !enabled,
-      reference: projectAutoMovieNativeReferences(references),
-    },
-  ];
 }

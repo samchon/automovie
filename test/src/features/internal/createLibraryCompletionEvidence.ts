@@ -53,7 +53,6 @@ export const createLibraryCompletionEvidence = (
     sourceOwners,
     contracts: [],
     contractRules: [],
-    reviewAlarms: { alarms: [], questionPasteChecked: false },
   };
 };
 
@@ -71,6 +70,5 @@ export const libraryCompletionBinding = (
   sourceDigest: `sha256:${"1".repeat(64)}`,
   targetPath: "docs/settings/delivery.md",
   targetAnchor: "delivery",
-  reviewed: false,
   ...overrides,
 });

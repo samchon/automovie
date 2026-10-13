@@ -2,7 +2,6 @@ import {
   type IAutoMovieProductionEvidence,
   createBlankAutoMovieProductionEvidence,
 } from "@automovie/evidence";
-import type { AutoMovieContentDigest } from "@automovie/interface";
 import {
   type IAutoMovieFingerprintField,
   type IAutoMovieProductionContentInput,
@@ -27,7 +26,7 @@ const identity = loadSourceModule<{
     graph: IAutoMovieProductionDesignGraph,
     sourceFields: readonly IAutoMovieFingerprintField[],
     contentFields: readonly IAutoMovieFingerprintField[],
-  ): AutoMovieContentDigest;
+  ): string;
 }>(
   path.resolve(
     __dirname,
@@ -88,12 +87,10 @@ const evidenceAt = (
       sourceDigest: digestAutoMovieBytes(Buffer.from(OPENING, "utf8")),
       targetPath: "docs/screenplays/001-harbor/001-opening.md",
       targetAnchor: anchor,
-      reviewed: true,
     },
   ],
   contracts: [],
   contractRules: [],
-  reviewAlarms: { alarms: [], questionPasteChecked: false },
 });
 
 const fingerprint = (props: {
@@ -101,7 +98,7 @@ const fingerprint = (props: {
   root: string;
   anchor?: string;
   crlf?: boolean;
-}): AutoMovieContentDigest =>
+}): string =>
   identity.productionBuildInputFingerprint(
     props.production,
     graph,

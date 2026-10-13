@@ -23,7 +23,7 @@ export const test_production_shot_acceptance_source_refusals = (): void => {
       value: materializedShotAttributionInput(),
       entry,
       bindings: [
-        { ...sibling, stage: "draft", reviewed: true },
+        { ...sibling, stage: "draft", },
         { ...sibling, enforced: false },
         { ...sibling, branch: "modelSources" },
         {

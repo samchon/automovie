@@ -2,7 +2,6 @@ import type {
   IAutoMovieProductionEvidence,
   IAutoMovieProductionEvidenceSourceOwnerBinding,
 } from "@automovie/evidence";
-import type { AutoMovieContentDigest } from "@automovie/interface";
 import path from "node:path";
 
 import { createLibraryCompletionEvidence } from "./createLibraryCompletionEvidence";
@@ -22,8 +21,8 @@ type ICompletionSnapshot = Pick<
   version: 1;
   protocol: "automovie.library-authoring-snapshot.v1";
   kind: "library";
-  sources: readonly { path: string; digest: AutoMovieContentDigest | null }[];
-  digest: AutoMovieContentDigest;
+  sources: readonly { path: string; digest: string | null }[];
+  digest: string;
 };
 
 export const {
@@ -35,7 +34,7 @@ export const {
   ) => {
     entries: readonly (Pick<
       IAutoMovieProductionEvidenceSourceOwnerBinding,
-      "branch" | "sourcePath" | "exportName" | "sourceDigest" | "reviewed"
+      "branch" | "sourcePath" | "exportName" | "sourceDigest"
     > & { owner: string })[];
     sources: ICompletionSnapshot["sources"];
     problems: readonly string[];
