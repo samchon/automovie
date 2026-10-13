@@ -25,22 +25,21 @@ import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
  * notes keep the view's authored order, so the same design and view produce
  * the same record on every run.
  *
- * The digest is a SHA-256 over a canonical text of the record. That text omits
- * `version` and every dimension's `from` and `to` points, and it joins fields
- * with unescaped `|` and newline separators, so authored text containing them
- * can make two different records hash alike.
+ * The digest is a SHA-256 over the canonical JSON of every other field, so two
+ * records share a digest only when they are equal field by field, whatever
+ * characters their authored text contains.
  *
- * @evidence contracts/common.md#principled-implementation The record is a pure function of design and view: geometry is projected through the resolved frame, every page scalar passes through `roundAutoMovieDrawingScalar` at six decimals with negative zero folded to zero, identical strokes are merged by key, and arrays are sorted with `compareAutoMovieRenderIds` before the digest is taken.
+ * @evidence contracts/common.md#principled-implementation The record is a pure function of design and view: geometry is projected through the resolved frame, every page scalar passes through `roundAutoMovieDrawingScalar` at six decimals with negative zero folded to zero, identical strokes are merged by key, and arrays are sorted with `compareAutoMovieRenderIds` before the digest is taken over the record's canonical JSON.
  * @evidence contracts/common.md#clear-and-simple-design One flat record per sheet with each kind of content in its own typed array, and the view's identity fields copied in, so the serializer and any checker read the drawing without the view except for its pen.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts What the derivation cannot compute is listed in `gaps` instead of being omitted, and the digest's blind spots for `version`, dimension endpoints and separator characters in authored text are stated here as an open weakness rather than implied away.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts What the derivation cannot compute is listed in `gaps` instead of being omitted, and the digest covers every field through canonical JSON, so no field or authored character escapes it.
  * @evidence contracts/common.md#meaningful-documentation States the provenance and one-way direction, the page units and rounding, where scale is applied, the ordering of every array, what the extent contains, why openings ignore the kind filter, and exactly what the digest covers.
  * @author Samchon
  */
 export interface IAutoMovieDrawing {
-  /** Record format version; not covered by the digest. */
+  /** Record format version. */
   version: 1;
 
-  /** Versioned drawing protocol, the first line of the digested text. */
+  /** Versioned drawing protocol. */
   protocol: "automovie.drawing.v1";
 
   /** Id of the view this drawing answers for. */
@@ -109,6 +108,6 @@ export interface IAutoMovieDrawing {
   /** Derivations this drawing could not perform, sorted by subject. */
   gaps: IAutoMovieDrawingGap[];
 
-  /** SHA-256 digest over the canonical text described above. */
+  /** SHA-256 digest over the canonical JSON of every other field. */
   digest: AutoMovieContentDigest;
 }

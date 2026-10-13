@@ -3,43 +3,57 @@ import {
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";
 
+import { IAutoMovieOpeningArc } from "./IAutoMovieOpeningArc";
+import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { AUTOMOVIE_DRAWING_ARC_STEP } from "./constants/AUTOMOVIE_DRAWING_ARC_STEP";
-
-/** Below this the bulge is a straight edge, not an arc anybody can see. */
-const BULGE_EPSILON = 1e-12;
 
 /**
  * Flatten a profile outline into the points a drawing drafts it through.
  *
- * Straight edges contribute their own endpoint; a bulged edge contributes its
- * endpoint and then the chord points along its arc, so the returned ring is a
- * closed polyline ready to project. The density is fixed rather than adaptive
- * because an adaptive one would make a drawing's linework depend on the size of
- * the thing drawn, and two derivations of one revision could then differ.
+ * Each edge contributes its start point, and a bulged edge then contributes
+ * the interior chord points of its arc at a fixed angular step of
+ * {@link AUTOMOVIE_DRAWING_ARC_STEP}, so the returned ring is an implicitly
+ * closed polyline in the profile's planar frame. The density is fixed rather
+ * than adaptive so a drawing's linework, and its digest, depend on the design
+ * and not on the size of the arc.
  *
- * This is drafting, not measurement. Nothing that reports a dimension reads
- * these chords: {@link autoMovieOpeningExtent} answers from the engine's own
- * bounding hull instead, so the size a schedule prints is the size the wall
- * kernel cuts.
+ * This is drafting, not measurement: the schedule reads the hull through
+ * `autoMovieOpeningExtent` and the take-off reads the exact area through
+ * `autoMovieOpeningArea`, and neither reads these chords.
  *
+ * @param profile Opening profile with its outline and optional bulges.
+ * @returns The drafted ring, in profile-frame metres.
+ *
+ * @evidence contracts/common.md#principled-implementation Uniform angular subdivision of each arc from `autoMovieOpeningArc`, which places every chord point exactly on the circle; the stated limitation is that the chords cut inside the arc by at most `r (1 - cos(step / 2))`.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the drafted ring of a profile and delegates the circle to the shared arc conversion, keeping measurement out of drafting.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No opening is special-cased; the step is a named contract constant chosen for determinism rather than tuned per arc.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what each edge contributes, the closing convention, the frame, why the density is fixed, and which consumers measure instead of reading the chords.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the edge count plus the emitted chord points, at most sixteen per half-turn arc, so output size bounds the work.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per drawn opening per derivation; nothing equivalent repeats.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The drafted ring is handed to the caller, which projects and rounds it at once; the arc records made per edge die with the loop iteration.
  * @author Samchon
  */
 export const autoMovieOpeningOutlinePoints = (
   profile: IAutoMovieOpeningProfile,
 ): IAutoMoviePlanarPoint[] => {
   const points: IAutoMoviePlanarPoint[] = [];
-  for (let index = 0; index < profile.outline.length; ++index) {
-    const from = profile.outline[index]!;
-    const to = profile.outline[(index + 1) % profile.outline.length]!;
+  for (let index: number = 0; index < profile.outline.length; ++index) {
+    const from: IAutoMoviePlanarPoint = profile.outline[index]!;
+    const to: IAutoMoviePlanarPoint =
+      profile.outline[(index + 1) % profile.outline.length]!;
     points.push(from);
-    const arc = arcOf(from, to, profile.bulges?.[index] ?? 0);
+    const arc: IAutoMovieOpeningArc | null = autoMovieOpeningArc(
+      from,
+      to,
+      profile.bulges?.[index] ?? 0,
+    );
     if (arc === null) continue;
-    const steps = Math.max(
+    const steps: number = Math.max(
       1,
       Math.ceil(Math.abs(arc.sweep) / AUTOMOVIE_DRAWING_ARC_STEP),
     );
-    for (let step = 1; step < steps; ++step) {
-      const angle = arc.start + (arc.sweep * step) / steps;
+    for (let step: number = 1; step < steps; ++step) {
+      const angle: number = arc.start + (arc.sweep * step) / steps;
       points.push({
         x: arc.center.x + arc.radius * Math.cos(angle),
         y: arc.center.y + arc.radius * Math.sin(angle),
@@ -47,43 +61,4 @@ export const autoMovieOpeningOutlinePoints = (
     }
   }
   return points;
-};
-
-/** The circle one bulged edge runs on. */
-interface IArc {
-  center: IAutoMoviePlanarPoint;
-  radius: number;
-  start: number;
-  sweep: number;
-}
-
-const arcOf = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  bulge: number,
-): IArc | null => {
-  if (Math.abs(bulge) <= BULGE_EPSILON) return null;
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const chord = Math.hypot(dx, dy);
-  if (chord <= BULGE_EPSILON) return null;
-  // The bulge is `tan(|sweep| / 4)` and, in this design's convention, a positive
-  // one bulges to the LEFT of the edge's own direction — the same convention
-  // `outlineHull` places its sagitta by, because two spellings of which way an
-  // arch curves is one spelling too many. The centre therefore sits on the
-  // opposite side of the chord from the bulge, at the signed distance below,
-  // which runs off to infinity exactly as the bulge goes to zero and the arc
-  // becomes the chord; and the sweep runs clockwise for a positive bulge, which
-  // is what puts the arc on the left.
-  const offset = (chord * (1 - bulge * bulge)) / (4 * bulge);
-  const center = {
-    x: (from.x + to.x) / 2 + (offset * dy) / chord,
-    y: (from.y + to.y) / 2 - (offset * dx) / chord,
-  };
-  return {
-    center,
-    radius: Math.hypot(chord / 2, offset),
-    start: Math.atan2(from.y - center.y, from.x - center.x),
-    sweep: -4 * Math.atan(bulge),
-  };
 };

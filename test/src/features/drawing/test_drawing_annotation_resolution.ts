@@ -13,7 +13,12 @@ import {
   drawingPlace,
   drawingView,
 } from "../internal/drawingFixtures";
-import { namedFacts, nclose, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * A dimension follows the wall it is pinned to, or says out loud that it no
@@ -54,6 +59,10 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
  * 8. A sheet carrying a resolved note declares that it sized the note's anchor and
  *    not the lettering; a sheet whose every note is stale declares nothing,
  *    because it set no text at all.
+ * 9. The digest tells apart two drawings that differ only in where a dimension
+ *    stands, or only in where an id ends and its note's text begins.
+ * 10. A view declaring one dimension id or one note id twice is refused by name,
+ *     while one id shared between a dimension and a note is allowed.
  */
 export const test_drawing_annotation_resolution = (): void => {
   const environment = drawingEnvironment();
@@ -498,6 +507,132 @@ export const test_drawing_annotation_resolution = (): void => {
       broken.gaps.some((gap) => gap.subject === "note-text-extent"),
     ],
     ["unsupported", false],
+  );
+
+  // 9. The digest covers every field, unambiguously. Both pairs below hash
+  // alike under any digest that leaves out a dimension's ends or joins fields
+  // with a separator the authored text may itself contain.
+  const facade = (
+    overrides: Partial<Parameters<typeof drawingView>[0]>,
+  ): ReturnType<typeof deriveAutoMovieDrawing> =>
+    deriveAutoMovieDrawing({
+      environment,
+      view: drawingView({
+        id: "facade",
+        projection: "elevation",
+        origin: { x: 0, y: 0, z: 0 },
+        direction: { x: 0, y: 0, z: 1 },
+        up: { x: 0, y: 1, z: 0 },
+        ...overrides,
+      }),
+    });
+  const footLength = facade({
+    dimensions: [
+      {
+        id: "run",
+        from: feature({ kind: "vertex", index: 0 }),
+        to: feature({ kind: "vertex", index: 4 }),
+        measure: "world",
+      },
+    ],
+  });
+  const headLength = facade({
+    dimensions: [
+      {
+        id: "run",
+        from: feature({ kind: "vertex", index: 2 }),
+        to: feature({ kind: "vertex", index: 6 }),
+        measure: "world",
+      },
+    ],
+  });
+  const splitBefore = facade({
+    annotations: [
+      { id: "a", text: "b|c", target: feature({ kind: "vertex", index: 0 }) },
+    ],
+  });
+  const splitAfter = facade({
+    annotations: [
+      { id: "a|b", text: "c", target: feature({ kind: "vertex", index: 0 }) },
+    ],
+  });
+  TestValidator.equals(
+    "two drawings that differ in one field never share a digest",
+    [
+      // The foot and the head of the wall are both 6 m long, so the two
+      // dimensions agree on id, measure, status and value and differ only in
+      // the page points they stand between.
+      footLength.dimensions[0]!.value,
+      headLength.dimensions[0]!.value,
+      footLength.dimensions[0]!.from!.y === headLength.dimensions[0]!.from!.y,
+      footLength.digest === headLength.digest,
+      splitBefore.digest === splitAfter.digest,
+    ],
+    [6, 6, false, false, false],
+  );
+
+  // 10. Ids address entries, so one view cannot spend an id twice.
+  const twice = (
+    overrides: Partial<Parameters<typeof drawingView>[0]>,
+  ): (() => unknown) => () =>
+    deriveAutoMovieDrawing({
+      environment,
+      view: drawingView({ id: "twice", ...overrides }),
+    });
+  const spec = {
+    from: feature({ kind: "vertex", index: 0 }),
+    to: feature({ kind: "vertex", index: 4 }),
+    measure: "world" as const,
+  };
+  const note = {
+    text: "repeated",
+    target: feature({ kind: "vertex", index: 0 }),
+  };
+  TestValidator.equals(
+    "a repeated dimension or note id is refused by name",
+    namedFacts([
+      [
+        "two dimensions with one id",
+        () =>
+          throwsError(
+            twice({
+              dimensions: [
+                { id: "span", ...spec },
+                { id: "span", ...spec },
+              ],
+            }),
+            'drawing view "twice" declares dimension "span" more than once',
+          ),
+      ],
+      [
+        "two notes with one id",
+        () =>
+          throwsError(
+            twice({
+              annotations: [
+                { id: "tag", ...note },
+                { id: "tag", ...note },
+              ],
+            }),
+            'drawing view "twice" declares annotation "tag" more than once',
+          ),
+      ],
+      [
+        "a dimension and a note may share an id",
+        () =>
+          !throwsError(
+            twice({
+              dimensions: [{ id: "shared", ...spec }],
+              annotations: [{ id: "shared", ...note }],
+            }),
+          ),
+      ],
+    ]),
+    {
+      "two dimensions with one id": true,
+      "two notes with one id": true,
+      "a dimension and a note may share an id": true,
+    },
   );
 };
 

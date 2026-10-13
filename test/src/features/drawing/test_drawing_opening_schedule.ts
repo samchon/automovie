@@ -43,7 +43,9 @@ import {
  *    element standing in for one is `fill` and is labelled as the leaf it is;
  *    neither present is `unmeasured` with `null` sizes and a declared gap.
  * 3. Type marks are assigned from the canonical order, per kind, and are stable
- *    across runs of the same design.
+ *    across runs of the same design; a type row whose members stand on
+ *    different boundaries is placed by its first member by id, whatever order
+ *    the design listed them in.
  * 4. A type with more occurrences than the bound names the bound's worth and
  *    counts the rest.
  * 5. Connectors are scheduled by the section that governs them: the stated
@@ -271,6 +273,37 @@ export const test_drawing_opening_schedule = (): void => {
       subject: "opening",
     }).digest,
     varied.digest,
+  );
+  // Two unmeasured vents are one type row whose members stand on different
+  // boundaries, so the row's place must come from its first member by id and
+  // not from whichever member the design happened to list first.
+  const spread: IAutoMovieBuiltEnvironment = {
+    ...environment,
+    openings: [
+      ...environment.openings,
+      { id: "vent-b", kind: "vent", boundary: "parapet", fill: null },
+    ],
+  };
+  const spreadVents = (openings: IAutoMovieBuiltEnvironment["openings"]) =>
+    deriveAutoMovieDrawingSchedule({
+      environment: { ...spread, openings },
+      subject: "opening",
+    });
+  TestValidator.equals(
+    "a type row stands where its first member by id stands, in any authored order",
+    [spread.openings, [...spread.openings].reverse()].map((openings) => {
+      const scheduled = spreadVents(openings);
+      const vents = scheduled.rows.find((row) => row.kind === "vent")!;
+      return [
+        vents.members,
+        vents.place?.kind === "opening" ? vents.place.boundary : null,
+        scheduled.digest === spreadVents(spread.openings).digest,
+      ];
+    }),
+    [
+      [["vent", "vent-b"], "north", true],
+      [["vent", "vent-b"], "north", true],
+    ],
   );
   TestValidator.equals(
     "the same design schedules the same bytes twice",

@@ -32,7 +32,6 @@ export * from "./describeAutoMovieSubject";
 export * from "./describeAutoMovieSubjects";
 export * from "./diffAutoMovieSubjects";
 export * from "./drawing";
-export * from "./easingProgress";
 export * from "./face";
 export * from "./fluid";
 export * from "./foldAutoMovieSubjectReviewCoverage";

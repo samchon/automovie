@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 
 import { IDENTITY_FORMATION_SLOT_STATE } from "./constants/IDENTITY_FORMATION_SLOT_STATE";
-import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";
+import { ease } from "./motion/ease";
 
 /**
  * Sample what one named member of a unit is doing differently at one time.
@@ -45,7 +45,7 @@ export const sampleFormationSlotMotion = (
   for (const cue of cues) {
     if (time < cue.start) return retained;
     if (time < cue.end) {
-      const progress = easingProgress(
+      const progress = ease(
         cue.easing,
         Math.max(0, Math.min(1, (time - cue.start) / (cue.end - cue.start))),
       );

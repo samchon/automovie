@@ -43,6 +43,9 @@ const crossing = [
  *    another hole is refused, while a redundant straight point and two disjoint
  *    holes are accepted.
  * 5. Drawing keeps its own short-ring diagnostic ahead of the shared boundary.
+ * 6. A concave L-shaped ring triangulates into counter-clockwise triangles that
+ *    tile exactly its 12 m2 whether it is authored counter-clockwise or
+ *    clockwise.
  */
 export const test_engine_canonical_planar_region = (): void => {
   const holed = triangulateAutoMovieRegion({
@@ -229,5 +232,39 @@ export const test_engine_canonical_planar_region = (): void => {
       "needs at least 3 corners to triangulate",
     ),
     true,
+  );
+
+  // An L of 4 x 4 less its 2 x 2 upper-right quarter has area 12. A clipper
+  // that took the clockwise ring's convex corners for reflex ones would clip
+  // the reflex corner as an ear, covering the missing quarter.
+  const ell = [
+    { x: 0, y: 0 },
+    { x: 4, y: 0 },
+    { x: 4, y: 2 },
+    { x: 2, y: 2 },
+    { x: 2, y: 4 },
+    { x: 0, y: 4 },
+  ];
+  const tiling = (ring: typeof ell) =>
+    triangulateAutoMoviePolygon(ring).map(([a, b, c]) => {
+      const p = ring[a]!;
+      const q = ring[b]!;
+      const r = ring[c]!;
+      return ((q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x)) / 2;
+    });
+  TestValidator.equals(
+    "either winding of a concave ring is tiled by counter-clockwise triangles",
+    [ell, [...ell].reverse()].map((ring) => {
+      const areas = tiling(ring);
+      return [
+        areas.length,
+        areas.every((area) => area > 0),
+        areas.reduce((sum, area) => sum + area, 0),
+      ];
+    }),
+    [
+      [4, true, 12],
+      [4, true, 12],
+    ],
   );
 };

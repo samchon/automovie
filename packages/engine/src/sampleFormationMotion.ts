@@ -1,8 +1,8 @@
 import { IAutoMovieFormationMotion } from "@automovie/interface";
 
 import { IAutoMovieSampledFormationMotion } from "./IAutoMovieSampledFormationMotion";
-import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";
+import { ease } from "./motion/ease";
 
 /** Sample one formation's compact source-authored cue sequence. */
 export const sampleFormationMotion = (
@@ -34,7 +34,7 @@ export const sampleFormationMotion = (
   for (const cue of cues) {
     if (time < cue.start) return retained;
     if (time < cue.end) {
-      const progress = easingProgress(
+      const progress = ease(
         cue.easing,
         Math.max(0, Math.min(1, (time - cue.start) / (cue.end - cue.start))),
       );

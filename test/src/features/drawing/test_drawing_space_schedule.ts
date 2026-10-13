@@ -3,6 +3,7 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
   IAutoMovieDrawingSpacePlace,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,8 +32,9 @@ import { namedFacts } from "../internal/predicates";
  *    declared gap, and its contents are still measured.
  * 4. Membership is bounded like any schedule sample, and the omitted count
  *    makes the full population reproducible.
- * 5. A shell-stated space is measured from its own vertices; a chamfered cell
- *    and an unclosed cell are refused rather than approximated.
+ * 5. A shell-stated space is measured from its own vertices, including a shell
+ *    with more vertices than one call's argument list can carry; a chamfered
+ *    cell and an unclosed cell are refused rather than approximated.
  * 6. Two identical rooms are two rows, marked in an order the authoring order
  *    cannot reach, and the same design schedules the same bytes twice.
  * 7. The schedule says out loud which subjects it does not yet carry.
@@ -198,6 +200,28 @@ export const test_drawing_space_schedule = (): void => {
         },
       ],
       [
+        "a shell of over 130,000 vertices is bounded like a small one",
+        () => {
+          const crowded = row(
+            deriveAutoMovieDrawingSchedule({
+              environment: withSpace(environment, crowdedVaultSpace()),
+              subject: "space",
+            }),
+            "vault",
+          );
+          return (
+            crowded.basis === "profile" &&
+            crowded.width === 1 &&
+            crowded.height === 1 &&
+            JSON.stringify(crowded.place?.declared) ===
+              JSON.stringify({
+                min: { x: 0, y: 0, z: 0 },
+                max: { x: 1, y: 1, z: 1 },
+              })
+          );
+        },
+      ],
+      [
         "a zone stated over two cells reports the box that holds both",
         () => {
           const twin = row(
@@ -331,6 +355,7 @@ export const test_drawing_space_schedule = (): void => {
     ]),
     {
       "a shelled zone is measured from its own vertices": true,
+      "a shell of over 130,000 vertices is bounded like a small one": true,
       "a zone stated over two cells reports the box that holds both": true,
       "a chamfered cell is refused rather than boxed off from a guess": true,
       "a cell left open on one side is refused for the same reason": true,
@@ -458,6 +483,29 @@ const tetrahedronSpace = (): IAutoMovieBuiltSpace => ({
     triangles: [0, 1, 2, 0, 2, 3, 0, 3, 1, 1, 3, 2],
   },
 });
+
+/**
+ * The tetrahedron vault carrying 130,000 more vertices at its interior point
+ * (0.25, 0.25, 0.25), which no triangle references and validation allows. The
+ * vertex count is past what `Math.min(...values)` can take as arguments, while
+ * the box stays the tetrahedron's own 0..1 on every axis.
+ */
+const crowdedVaultSpace = (): IAutoMovieBuiltSpace => {
+  const vault: IAutoMovieBuiltSpace = tetrahedronSpace();
+  return {
+    ...vault,
+    shell: {
+      vertices: [
+        ...vault.shell!.vertices,
+        ...Array.from(
+          { length: 130_000 },
+          (): IAutoMovieVector3 => ({ x: 0.25, y: 0.25, z: 0.25 }),
+        ),
+      ],
+      triangles: vault.shell!.triangles,
+    },
+  };
+};
 
 /** The same design with two rooms alike in every scheduled column. */
 const twinRooms = (
