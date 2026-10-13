@@ -50,6 +50,8 @@ const failsAt = (
  * 2. Profile identities are non-blank and unique, and trait kinds are unique.
  * 3. Each mountable and destructible scalar family is independently rejected at
  *    its exact path.
+ * 4. Impact hardness and penetrability above one are rejected, matching the
+ *    `[0, 1]` coefficients `resolveImpact` accepts.
  */
 export const test_validation_profile_capabilities = (): void => {
   const valid = profile();
@@ -153,5 +155,18 @@ export const test_validation_profile_capabilities = (): void => {
       else trait.impactBody.penetrability = 0;
       return failsAt([invalid], fragment);
     }),
+  );
+  TestValidator.predicate(
+    "impact hardness and penetrability stay within one",
+    ["impactBody.hardness", "impactBody.penetrability"].every(
+      (fragment: string, index: number): boolean => {
+        const invalid: IAutoMovieProfile = structuredClone(profile());
+        const trait = invalid.traits![1]!;
+        if (trait.kind !== "destructible") return false;
+        if (index === 0) trait.impactBody.hardness = 1.5;
+        else trait.impactBody.penetrability = 1.5;
+        return failsAt([invalid], fragment);
+      },
+    ),
   );
 };

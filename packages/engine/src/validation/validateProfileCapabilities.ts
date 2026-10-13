@@ -67,13 +67,13 @@ export const validateProfileCapabilities = (props: {
         "impact body restitution",
         collector,
       );
-      positive(
+      unitPositive(
         trait.impactBody.hardness,
         `${traitPath}.impactBody.hardness`,
         "impact body hardness",
         collector,
       );
-      positive(
+      unitPositive(
         trait.impactBody.penetrability,
         `${traitPath}.impactBody.penetrability`,
         "impact body penetrability",
@@ -117,6 +117,26 @@ const positive = (
       "range",
       path,
       `${label} must be finite and positive`,
+      value,
+    );
+};
+
+/**
+ * A material coefficient in `(0, 1]`: positive like every trait scalar, and no
+ * larger than one because `resolveImpact`, the response model these
+ * coefficients describe, refuses a coefficient above one.
+ */
+const unitPositive = (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void => {
+  if (Number.isFinite(value) === false || value <= 0 || value > 1)
+    collector.push(
+      "range",
+      path,
+      `${label} must be finite and within (0, 1]`,
       value,
     );
 };
