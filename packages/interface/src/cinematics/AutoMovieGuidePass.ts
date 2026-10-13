@@ -1,40 +1,48 @@
 /**
  * One diffusion-guide render pass over the same deterministic frame.
  *
- * An automovie render is not the final image; it is the stable performance a
- * generative video pass paints over. Each pass name selects what the viewer
- * draws for a frame so a diffusion workflow (ControlNet-style conditioning) can
+ * An automovie render is the stable performance a generative video pass paints
+ * over, not the final image. Each pass name selects what the viewer draws for
+ * a frame, so a diffusion workflow with ControlNet-style conditioning can
  * follow the structure automovie computed:
  *
- * - `beauty`: the ordinary shaded render (the default preview).
- * - `depth`: depth-to-grayscale on a scene-stable metric range, the depth hint.
- * - `mask`: per-scene-node flat silhouette colors, the segmentation hint.
- * - `normal`: the unlit surface-normal render, the normal-map hint (#1166).
- * - `outline`: real white silhouette edges on black (an inverted-hull contour),
- *   the line/edge hint (#1166); no host post-processing required.
- * - `pose`: the skeleton overlay: bone segments over a flat background, the pose
- *   hint.
+ * - `beauty`: the ordinary shaded render and the default preview.
+ * - `depth`: grays linear in camera-space distance over a scene-stable metric
+ *   range rather than the clip planes, with a black background for infinite
+ *   distance; the depth hint.
+ * - `mask`: flat unlit colours per semantic entity, or per top-level scene
+ *   child when the scene carries no semantic palette; the segmentation hint.
+ * - `normal`: the unlit surface-normal render; the normal-map hint.
+ * - `outline`: white inverted-hull silhouette contours on black, with no host
+ *   post-processing; the line hint.
+ * - `pose`: meshes hidden and every bone-to-child segment drawn over black;
+ *   the pose hint.
  *
- * Closed union so an invalid pass name is structurally impossible at the LLM
- * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list.
+ * The closed union makes an unknown pass name a type error at the authoring
+ * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list
+ * for untyped input.
  *
+ * @evidence contracts/common.md#principled-implementation Models the pass vocabulary as a closed string union mirrored by one runtime list, `AUTOMOVIE_GUIDE_PASSES`, and `applyRenderMode` maps each value to one material override that is reversed after the snapshot, so every pass renders the same deterministic frame.
+ * @evidence contracts/common.md#clear-and-simple-design A bare literal union with one member per pass is the whole vocabulary; how each pass is drawn belongs to the viewer and how its frames are named belongs to render, so the type carries only identity and meaning.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The union is the only structural constraint, with no wrapper alias or validator tag, and the runtime list lives in render because this package is pure types.
+ * @evidence contracts/common.md#meaningful-documentation States what every pass draws and which conditioning hint it serves, the depth normalization and mask palette fallback, and where the runtime list for untyped input lives.
  * @author Samchon
  */
 export type AutoMovieGuidePass =
   /** Ordinary shaded render. */
   | "beauty"
 
-  /** Depth-to-grayscale conditioning pass. */
+  /** Metric depth rendered as linear gray. */
   | "depth"
 
-  /** Per-node flat-color segmentation pass. */
+  /** Flat-colour segmentation by semantic entity. */
   | "mask"
 
-  /** Unlit surface-normal pass. */
+  /** Unlit surface-normal render. */
   | "normal"
 
-  /** Silhouette edge pass: white contour lines on black. */
+  /** White silhouette contours on black. */
   | "outline"
 
-  /** Skeleton-overlay pose pass. */
+  /** Bone segments over black with meshes hidden. */
   | "pose";
