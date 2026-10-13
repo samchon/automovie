@@ -12,11 +12,6 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * definition's own `id`, hold only for a registry built by
  * `createAutoMovieArchetypeRegistry`.
  *
- * @evidence contracts/common.md#principled-implementation The registry is the standard `ReadonlyMap` keyed by exact id, so lookup is the built-in hash lookup and the read-only view keeps the design gate, radius table and materializer from mutating a host's catalogue.
- * @evidence contracts/common.md#clear-and-simple-design An alias rather than a class keeps the seam to one lookup type every consumer already understands; the integrity rules live in the one factory instead of a wrapper type.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias admits any map, and the documentation states that blank-id, duplicate and key-equals-id guarantees therefore depend on the factory instead of claiming the type enforces them.
- * @evidence contracts/common.md#meaningful-documentation The prose names the consumers' lookup role, the exact-key rule, and which guarantees hold only for a factory-built registry.
- * @evidenceExclude contracts/performance.md#cost-and-resources This alias is a type with no runtime code; the map it describes is built and owned by `createAutoMovieArchetypeRegistry` or the host.
  * @author Samchon
  */
 export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
@@ -39,11 +34,6 @@ export type AutoMovieModelArchetypeRegistry = ReadonlyMap<
  * @param archetypes Definitions to register, consumed once in iteration order.
  * @returns A new map from each definition's own id to that definition.
  *
- * @evidence contracts/common.md#principled-implementation One pass inserts each definition under its own `id` after checking `trim()` for blankness and `Map.has` for a repeat, so the returned map's keys are exactly the definitions' ids and never a normalized variant.
- * @evidence contracts/common.md#clear-and-simple-design The function only validates and inserts; which definitions to register stays with the caller, such as the production server registering `AUTOMOVIE_PRIMITIVE_ARCHETYPES`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No id is special-cased: the two refusals apply to every definition, and throwing at the first fault is the documented fail-fast contract rather than a retry or recovery path.
- * @evidence contracts/common.md#meaningful-documentation The documentation states why registration owns the refusals, the consumption order, fail-at-first behavior, and that whitespace around an id is preserved.
- * @evidence contracts/performance.md#cost-and-resources Cost is one hash insertion and one `trim()` copy per definition, linear in catalogue size; the returned map is retained by the caller and holds only references to the given definitions.
  * @author Samchon
  */
 export const createAutoMovieArchetypeRegistry = (
