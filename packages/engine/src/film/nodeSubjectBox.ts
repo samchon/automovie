@@ -42,10 +42,10 @@ import { pointSubjectBox } from "./pointSubjectBox";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one placement and one extent; `performShot` memoizes the measured extent it is fed, and this constant-time placement is recomputed per instant because the placement moves.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The eight placed corners are discarded as they are folded; the caller owns the returned box, which shares no object with the placement or the extent.
  */
-export const nodeSubjectBox = (
+export function nodeSubjectBox (
   placement: IAutoMovieTransform,
   extent: IAutoMovieSubjectBox,
-): IAutoMovieSubjectBox => {
+): IAutoMovieSubjectBox {
   if (
     extent.min.x === 0 &&
     extent.max.x === 0 &&
@@ -74,4 +74,4 @@ export const nodeSubjectBox = (
         if (corner.z > max.z) max.z = corner.z;
       }
   return { min, max };
-};
+}

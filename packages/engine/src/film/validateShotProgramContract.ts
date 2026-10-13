@@ -32,17 +32,17 @@ type IEventSample = IAutoMovieShotProgram["eventSamples"][number];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure check over one program that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains only per-call sets, maps and diagnostics; the caller owns the returned diagnostics, bounded by five field checks plus one per actor, one per sample and one per contract event.
  */
-export const validateShotProgramContract = <Context>(
+export function validateShotProgramContract<Context>(
   shot: IAutoMovieDefinedShot<Context>,
   program: IAutoMovieShotProgram,
-): IAutoMovieAuthoringDiagnostic[] => {
+): IAutoMovieAuthoringDiagnostic[] {
   const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
-  const mismatch = (
+  function mismatch (
     path: string,
     actual: unknown,
     expected: unknown,
     correction: string,
-  ): void => {
+  ): void {
     if (actual === expected) return;
     diagnostics.push({
       code: "contract-mismatch",
@@ -53,7 +53,7 @@ export const validateShotProgramContract = <Context>(
         "The source program would self-certify a different artifact than the registered contract.",
       recovery: correction,
     });
-  };
+  }
   mismatch(
     "$program.stage.scene.id",
     program.stage.scene.id,
@@ -174,4 +174,4 @@ export const validateShotProgramContract = <Context>(
           "Remove the sample or add the intended measurable event to defineShot's contract.",
       });
   return diagnostics;
-};
+}

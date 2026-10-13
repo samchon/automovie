@@ -74,7 +74,7 @@ const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
  * @evidence contracts/performance.md#reuse-equivalent-work The camera placement and every performer root at each sample time are computed once and shared by the frame and silhouette metrics, so a root is sampled once per time rather than once per pair that includes it; the contact metric samples at event times, which are not on the grid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
-export const reviewVisualRead = (props: {
+export function reviewVisualRead (props: {
   /** Beat id the notes are filed against. */
   beat: string;
 
@@ -104,7 +104,7 @@ export const reviewVisualRead = (props: {
    * sequence analyzer and filed here before the visual-read notes.
    */
   grammarDiagnostics?: readonly IAutoMovieGrammarDiagnostic[];
-}): IAutoMovieReviewNote[] => {
+}): IAutoMovieReviewNote[] {
   const motionById: Map<string, IAutoMovieMotion> = new Map(
     props.motions.map(
       (motion: IAutoMovieMotion): [string, IAutoMovieMotion] => [
@@ -121,9 +121,9 @@ export const reviewVisualRead = (props: {
       ],
     ),
   );
-  const performerOf = (
+  function performerOf (
     performance: IAutoMovieShotPerformance,
-  ): IPerformer | null => {
+  ): IPerformer | null {
     const node: IAutoMovieSceneNode | undefined = nodeById.get(
       performance.node,
     );
@@ -139,7 +139,7 @@ export const reviewVisualRead = (props: {
           motion,
           offset: performance.startOffset,
         };
-  };
+  }
   const notes: IAutoMovieReviewNote[] = grammarDiagnosticsToReviewNotes({
     beat: props.beat,
     diagnostics: props.grammarDiagnostics ?? [],
@@ -203,7 +203,7 @@ export const reviewVisualRead = (props: {
       notes.push(missNote(props.beat, event, distance, contactRadius));
   }
   return notes;
-};
+}
 
 /** A performance whose node and motion both resolved. */
 interface IPerformer {
@@ -214,7 +214,7 @@ interface IPerformer {
 }
 
 /** The framing and silhouette notes, from one table of cameras and roots. */
-const cameraNotes = (props: {
+function cameraNotes (props: {
   beat: string;
   shot: IAutoMovieShot;
   camera: IAutoMovieCamera;
@@ -222,7 +222,7 @@ const cameraNotes = (props: {
   times: readonly number[];
   aspect: number;
   silhouetteRadius: number;
-}): IAutoMovieReviewNote[] => {
+}): IAutoMovieReviewNote[] {
   const notes: IAutoMovieReviewNote[] = [];
   const camera: IAutoMovieCamera = props.camera;
   const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
@@ -290,39 +290,38 @@ const cameraNotes = (props: {
       });
     }
   return notes;
-};
+}
 
 /** The note for a contact event that lands outside its target's body radius. */
-const missNote = (
+function missNote (
   beat: string,
   event: IAutoMovieInteractionEvent,
   distance: number,
   contactRadius: number,
-): IAutoMovieReviewNote => ({
+): IAutoMovieReviewNote { return ({
   beat,
   tier: "visual",
   issue: `the ${event.kind} at t=${roundToThousandths(event.time)}s lands ${roundToThousandths(distance)}m from "${event.target}", past the ${contactRadius}m body radius, it reads as a miss`,
   suggestion: `align the ${event.kind} with "${event.target}"'s body, retime the reaction or reposition the actor so the contact point meets it`,
-});
+}); }
 
 /**
  * A performer's world root at shot time `t`: its clip has advanced
  * `max(0, t - startOffset)`, the convention the beat snapshots use.
  */
-const worldRootAt = (performer: IPerformer, t: number): IAutoMovieVector3 =>
-  foldRoot(
+function worldRootAt (performer: IPerformer, t: number): IAutoMovieVector3 { return foldRoot(
     performer.node.transform,
     sampleMotion(performer.motion, Math.max(0, t - performer.offset)).pose.root,
-  ).translation;
+  ).translation; }
 
 /** Whether `point` is inside the camera's frustum, near and far included. */
-const inFrame = (
+function inFrame (
   resolved: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,
   camera: IAutoMovieCamera,
   halfY: number,
   aspect: number,
-): boolean => {
+): boolean {
   const projected: { ndcX: number; ndcY: number; depth: number } = projectToNdc(
     resolved,
     point,
@@ -332,5 +331,5 @@ const inFrame = (
   if (projected.depth < camera.near || projected.depth > camera.far)
     return false;
   return Math.abs(projected.ndcX) <= 1 && Math.abs(projected.ndcY) <= 1;
-};
+}
 

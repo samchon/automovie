@@ -15,4 +15,4 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure formatting of one number that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned string.
  */
-export const eventTimeKey = (time: number): string => time.toFixed(6);
+export function eventTimeKey (time: number): string { return time.toFixed(6); }

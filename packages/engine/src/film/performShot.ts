@@ -107,7 +107,7 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * @evidence contracts/performance.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
  */
-export const performShot = (props: IPerformShotProps): IAutoMoviePerformedShot => {
+export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot {
   const staged: IAutoMovieStagedSet.ISuccess = props.staged;
   const performance: IAutoMoviePerformance = props.performance;
   const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
@@ -383,16 +383,16 @@ export const performShot = (props: IPerformShotProps): IAutoMoviePerformedShot =
         .join("; ")}`,
     );
   return { success: true, shot, motions, plants };
-};
+}
 
 /**
  * Refuse duplicate script beat ids and answer the beat the performance names,
  * the first declaration of its id.
  */
-const gateScript = (
+function gateScript (
   context: IPerformShotGateContext,
   script: IAutoMovieScript,
-): IAutoMovieScript["beats"][number] | undefined => {
+): IAutoMovieScript["beats"][number] | undefined {
   const first: Map<string, number> = new Map();
   script.beats.forEach(
     (beat: IAutoMovieScript["beats"][number], index: number): void => {
@@ -409,16 +409,16 @@ const gateScript = (
   );
   const index: number | undefined = first.get(context.performance.beat);
   return index === undefined ? undefined : script.beats[index];
-};
+}
 
 /**
  * The synthesizer once per action object and actor, with the prior beat state
  * bound, so every stage that needs a clip shares one.
  */
-const memoizeSynthesis = (
+function memoizeSynthesis (
   synthesize: IAutoMovieActionSynthesizer,
   previous: IAutoMovieBeatEndState | null | undefined,
-): IAutoMovieActionSynthesizer => {
+): IAutoMovieActionSynthesizer {
   const cache: WeakMap<
     IAutoMovieActionCall,
     Map<string, IAutoMovieMotion | null>
@@ -438,12 +438,11 @@ const memoizeSynthesis = (
     byActor.set(actor, motion);
     return motion;
   };
-};
+}
 
 /** What a masked clip authored that its region drops, in words. */
-const maskedContent = (drop: IAutoMovieMaskedContent): string =>
-  [
+function maskedContent (drop: IAutoMovieMaskedContent): string { return [
     ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),
     ...(drop.root ? ["a root displacement"] : []),
     ...(drop.expression ? ["an expression"] : []),
-  ].join(" and ");
+  ].join(" and "); }

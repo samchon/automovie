@@ -69,10 +69,10 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/performance.md#reuse-equivalent-work The id indexes and the set of baked nodes are built once per call and shared by every node; nothing is reused across calls, because each call answers a different shot or instant and the inputs are plain values with no identity to key a cache on.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The indexes and the context live for one call and are released on return or throw; the returned state holds one fresh actor record per scene node and references the caller's pose, plant and mount objects without copying them.
  */
-export const resolveBeatSnapshot = (
+export function resolveBeatSnapshot (
   props: IResolveBeatProps,
   instant: number,
-): IAutoMovieBeatEndState => {
+): IAutoMovieBeatEndState {
   const motionById: Map<string, { motion: IAutoMovieMotion; index: number }> =
     new Map();
   props.motions.forEach((motion: IAutoMovieMotion, index: number): void => {
@@ -142,7 +142,7 @@ export const resolveBeatSnapshot = (
         actorAt(context, node),
     ),
   };
-};
+}
 
 /** A performance with its index in `shot.performances`, for duplicate reports. */
 interface IPerformanceEntry {
@@ -174,20 +174,20 @@ interface IWorldOverride {
 }
 
 /** Ids of every node an object-motion track translates. */
-const translatedNodes = (clips: readonly IAutoMovieClip[]): Set<string> => {
+function translatedNodes (clips: readonly IAutoMovieClip[]): Set<string> {
   const nodes: Set<string> = new Set();
   for (const clip of clips)
     for (const track of clip.tracks)
       if (track.channel.kind === "node" && track.channel.path === "translation")
         nodes.add(track.channel.node);
   return nodes;
-};
+}
 
 /** One scene actor's state: sampled when it plays a motion, held otherwise. */
-const actorAt = (
+function actorAt (
   context: IResolveContext,
   node: IAutoMovieSceneNode,
-): IAutoMovieBeatEndActorState => {
+): IAutoMovieBeatEndActorState {
   const performed: IPerformanceEntry | undefined =
     context.performanceByNode.get(node.id);
   const motionId: string | null =
@@ -231,7 +231,7 @@ const actorAt = (
     plants: context.plantsByNode.get(node.id),
     world,
   });
-};
+}
 
 /**
  * Trailing world velocity of the baked object-authority sequence at `t`,
@@ -239,11 +239,11 @@ const actorAt = (
  * the translation authority active there. Zero at `t <= 0`, or when the earlier
  * end has no translation sample because the authority has only just begun.
  */
-const bakedVelocity = (
+function bakedVelocity (
   clips: readonly IAutoMovieClip[],
   node: string,
   t: number,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   if (t <= 0) return ZERO;
   const key: string = channelKey({ kind: "node", node, path: "translation" });
   const t0: number = Math.max(0, t - VELOCITY_DT);
@@ -260,17 +260,17 @@ const bakedVelocity = (
     Vector3.subtract(vectorOf(p1.value), vectorOf(p0.value)),
     1 / (t - t0),
   );
-};
+}
 
 /** A sampled translation channel's value as a vector. */
-const vectorOf = (value: readonly number[]): IAutoMovieVector3 => ({
+function vectorOf (value: readonly number[]): IAutoMovieVector3 { return ({
   x: value[0]!,
   y: value[1]!,
   z: value[2]!,
-});
+}); }
 
 /** Assemble one actor's state from what {@link actorAt} resolved. */
-const actorState = (props: {
+function actorState (props: {
   node: IAutoMovieSceneNode;
   motion: { id: string; clip: IAutoMovieMotion } | null;
   localTime: number;
@@ -278,7 +278,7 @@ const actorState = (props: {
   mount: IAutoMovieMountBinding | null;
   plants: readonly IAutoMovieBeatEndFootPlant[] | undefined;
   world: IWorldOverride | null;
-}): IAutoMovieBeatEndActorState => {
+}): IAutoMovieBeatEndActorState {
   const transform: IAutoMovieTransform =
     props.world !== null
       ? props.world.transform
@@ -305,4 +305,4 @@ const actorState = (props: {
     footPlants: plantsAtEnd(props.plants, props.localTime),
     mount: props.mount,
   };
-};
+}

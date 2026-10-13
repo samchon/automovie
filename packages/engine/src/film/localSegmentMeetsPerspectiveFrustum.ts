@@ -29,7 +29,7 @@ import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one segment; the reuse of transformed corners across segments is the caller's, which is why the inputs are camera-local.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains and allocates nothing beyond a few scalars for the call.
  */
-export const localSegmentMeetsPerspectiveFrustum = (props: {
+export function localSegmentMeetsPerspectiveFrustum (props: {
   from: IAutoMovieVector3;
   to: IAutoMovieVector3;
   near: number;
@@ -37,7 +37,7 @@ export const localSegmentMeetsPerspectiveFrustum = (props: {
   halfX: number;
   halfY: number;
   crop: IAutoMovieDeliveryCropNdc;
-}): boolean => {
+}): boolean {
   let lower: number = 0;
   let upper: number = 1;
   for (let plane: number = 0; plane < 6; ++plane) {
@@ -56,13 +56,13 @@ export const localSegmentMeetsPerspectiveFrustum = (props: {
     if (lower > upper) return false;
   }
   return true;
-};
+}
 
 /**
  * One of the six frustum half-spaces at a camera-local point, written so the
  * inside is `<= 0`: near, far, right, left, top, bottom in that order.
  */
-const planeValue = (
+function planeValue (
   frustum: {
     near: number;
     far: number;
@@ -72,7 +72,7 @@ const planeValue = (
   },
   plane: number,
   point: IAutoMovieVector3,
-): number => {
+): number {
   switch (plane) {
     case 0:
       return frustum.near + point.z;
@@ -87,4 +87,4 @@ const planeValue = (
     default:
       return -point.y - frustum.crop.bottom * point.z * frustum.halfY;
   }
-};
+}

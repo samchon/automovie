@@ -1,5 +1,6 @@
-import { IAutoMovieStagedSet, stageScene } from "@automovie/engine";
-import { AutoMovieViolationKind, IAutoMovieFog } from "@automovie/interface";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieFog } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
@@ -11,21 +12,20 @@ const FOG: IAutoMovieFog = {
 };
 
 /** Stage the standard set with `fog` replaced by whatever a case submits. */
-const stagedWith = (fog: unknown): IAutoMovieStagedSet =>
-  stageScene(
+function stagedWith (fog: unknown): IAutoMovieStagedSet { return stageScene(
     makeScriptWrite(),
     makeStagingWrite({ fog: fog as IAutoMovieFog }),
-  );
+  ); }
 
 /** True when submitting `fog` is refused with a violation at `path`. */
-const refusedAt = (
+function refusedAt (
   fog: unknown,
   kind: AutoMovieViolationKind,
   path: string,
-): boolean => {
-  const staged = stagedWith(fog);
+): boolean {
+  const staged: IAutoMovieStagedSet = stagedWith(fog);
   return staged.success === false && hasViolation(staged, kind, path);
-};
+}
 
 /**
  * Staging may author the set's atmosphere, and the gate that accepts it is the
@@ -51,25 +51,31 @@ const refusedAt = (
  *    color that is not an object, and a color component outside `[0, 1]`.
  * 4. The negative twin: a zero density is a vacuum and an enormous one is a wall
  *    of cloud. Both are looks, and neither is refused.
+ * 5. Fog applies the canonical color gate: malformed alpha and contradictory
+ *    labels fail, while a matching uppercase endpoint label stages.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs stageScene with authored fog and checks preserved atmosphere, omission, density boundaries and canonical color refusals; detects fog bypassing alpha or label checks that material and background ingress require.
+ * @evidence contracts/testing.md#independent-expectations Nonnegative finite density and normalized linear channels define the scalar oracle; white has the exact sRGB endpoint FFFFFF while black's matching label is 000000, independent of the product encoder.
+ * @evidence contracts/testing.md#distinguishing-cases Covers omitted/present fog, malformed objects, negative/nonfinite/nonnumeric density, malformed and excess color components, zero/large valid density, alpha failure and valid/mismatched labels; fog transmittance arithmetic has its own render test.
+ * @evidence contracts/testing.md#execution-ownership The portable synchronous unit entry owns every stage/fog case and imports stageScene source directly; it uses no browser, GPU, process or native artifact.
  */
-export const test_film_stage_scene_fog = (): void => {
+export function test_film_stage_scene_fog (): void {
   // 1. lowered verbatim.
-  const staged = stagedWith(FOG);
+  const staged: IAutoMovieStagedSet = stagedWith(FOG);
   TestValidator.equals("staging with a fog succeeds", staged.success, true);
   if (staged.success !== true) return;
-  TestValidator.equals(
+  TestValidator.predicate(
     "the atmosphere is carried onto the scene",
-    staged.scene.fog,
-    FOG,
+    staged.scene.fog === FOG,
   );
 
   // 2. omitted is omitted, down to the key.
-  const bare = stageScene(makeScriptWrite(), makeStagingWrite());
+  const bare: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
   TestValidator.equals(
     "an omitted fog composes no fog key at all",
     namedFacts([
-      ["staged", () => bare.success === true],
-      ["keyAbsent", () => bare.success === true && !("fog" in bare.scene)],
+      ["staged", () : boolean => bare.success === true],
+      ["keyAbsent", () : boolean => bare.success === true && !("fog" in bare.scene)],
     ]),
     { staged: true, keyAbsent: true },
   );
@@ -78,15 +84,15 @@ export const test_film_stage_scene_fog = (): void => {
   TestValidator.equals(
     "each malformed atmosphere is refused where it was written",
     namedFacts([
-      ["notAnObject", () => refusedAt(null, "type", "$input.fog")],
+      ["notAnObject", () : boolean => refusedAt(null, "type", "$input.fog")],
       [
         "negativeDensity",
-        () =>
+        () : boolean =>
           refusedAt({ ...FOG, density: -0.01 }, "range", "$input.fog.density"),
       ],
       [
         "nonFiniteDensity",
-        () =>
+        () : boolean =>
           refusedAt(
             { ...FOG, density: Number.POSITIVE_INFINITY },
             "range",
@@ -95,7 +101,7 @@ export const test_film_stage_scene_fog = (): void => {
       ],
       [
         "densityNotANumber",
-        () =>
+        () : boolean =>
           refusedAt(
             { ...FOG, density: "thick" },
             "range",
@@ -104,11 +110,11 @@ export const test_film_stage_scene_fog = (): void => {
       ],
       [
         "colorNotAnObject",
-        () => refusedAt({ ...FOG, color: null }, "type", "$input.fog.color"),
+        () : boolean => refusedAt({ ...FOG, color: null }, "type", "$input.fog.color"),
       ],
       [
         "componentOutOfRange",
-        () =>
+        () : boolean =>
           refusedAt(
             { ...FOG, color: { ...FOG.color, g: 1.4 } },
             "range",
@@ -130,9 +136,13 @@ export const test_film_stage_scene_fog = (): void => {
   TestValidator.equals(
     "a vacuum and a wall of cloud both stage clean",
     namedFacts([
-      ["vacuum", () => stagedWith({ ...FOG, density: 0 }).success === true],
-      ["cloud", () => stagedWith({ ...FOG, density: 5 }).success === true],
+      ["vacuum", () : boolean => stagedWith({ ...FOG, density: 0 }).success === true],
+      ["cloud", () : boolean => stagedWith({ ...FOG, density: 5 }).success === true],
     ]),
     { vacuum: true, cloud: true },
   );
-};
+  TestValidator.predicate("fog alpha remains a normalized color channel", refusedAt({ ...FOG, color: { ...FOG.color, a: Number.NaN } }, "range", "$input.fog.color.a"));
+  TestValidator.equals("a matching uppercase fog swatch stages", stagedWith({ ...FOG, color: { r: 1, g: 1, b: 1, a: null, hex: "#FFFFFF" } }).success, true);
+  const mismatch: IAutoMovieStagedSet = stagedWith({ ...FOG, color: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } });
+  TestValidator.predicate("fog cannot label black as white", mismatch.success === false && mismatch.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.fog.color.hex" && item.expected.includes("encoded as #000000")));
+}

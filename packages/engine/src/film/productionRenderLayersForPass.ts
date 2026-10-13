@@ -24,10 +24,10 @@ import { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure selection for one frame and one pass that coordinates no work across calls; copies are deliberate so passes never share a mutable layer.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned copies, at most the frame's layer count.
  */
-export const productionRenderLayersForPass = <Layer extends { weight: number }>(
+export function productionRenderLayersForPass<Layer extends { weight: number }>(
   frame: { layers: readonly Layer[] },
   pass: AutoMovieGuidePass,
-): Array<Omit<Layer, "weight"> & { weight: number }> => {
+): Array<Omit<Layer, "weight"> & { weight: number }> {
   if (pass === "beauty")
     return frame.layers.map((layer: Layer): Layer => structuredClone(layer));
   const selected: Layer = frame.layers.reduce(
@@ -35,4 +35,4 @@ export const productionRenderLayersForPass = <Layer extends { weight: number }>(
       candidate.weight >= held.weight ? candidate : held,
   );
   return [{ ...structuredClone(selected), weight: 1 }];
-};
+}

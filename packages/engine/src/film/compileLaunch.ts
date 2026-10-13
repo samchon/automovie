@@ -23,8 +23,7 @@ const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 /** Below this landing speed in m/s the incoming direction is undefined. */
 const STILL_SPEED: number = 1e-9;
 
-const firstActor = (action: IAutoMovieLaunchAction): string | null =>
-  typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null);
+function firstActor (action: IAutoMovieLaunchAction): string | null { return typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null); }
 
 /**
  * Compose the `launch` verb's engine primitives into one result: the
@@ -47,19 +46,21 @@ const firstActor = (action: IAutoMovieLaunchAction): string | null =>
  * node is struck, and a `fall` when the react unbalances it; their
  * `actionIndex` is null for the caller to stamp.
  *
- * Returns null when the target is out of range at that speed.
+ * Returns null when the target is out of range at that speed. Throws
+ * `RangeError` when `onHit` has no non-blank `targetNode`, because no actor
+ * can perform that requested reaction.
  *
  * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Solves the closed-form ballistic aim, or its fixed-point lead against a moving target sampled at `action.start` plus flight time, samples the closed-form flight so there is no integration drift, and derives the recoil source one metre up the incoming velocity, falling back to the sightline when the projectile arrives still.
  * @evidence contracts/common.md#clear-and-simple-design Orchestrates the physics primitives and owns only what joins them into a verb: the react, the events and their ids; shifting the clip onto the shot clock and suffixing repeated flights stay with `performShot`, which owns the shot's object-motion list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no projectile or target; default gravity is Earth's along the world down axis the scene uses, and the stillness threshold only guards normalizing a zero vector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no projectile or target; Earth gravity follows world down, the stillness threshold guards a zero direction, and a requested recoil without a struck node is refused instead of silently omitted or assigned to an arbitrary group member.
  * @evidence contracts/common.md#meaningful-documentation States what is solved and baked, when a react is scheduled, the leading behaviour, the time base of every output including `targetAt`, the events emitted and their ids, the clip id, and the null case.
  * @evidence contracts/performance.md#efficient-algorithms Constant work for the static aim or a bounded fixed-point iteration for the lead, plus one flight sample per frame, O(hitTime × fps).
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
-export const compileLaunch = (props: {
+export function compileLaunch (props: {
   /** The launch to compile: its `projectile`, `speed`, `onHit` and `start`. */
   action: IAutoMovieLaunchAction;
 
@@ -71,8 +72,9 @@ export const compileLaunch = (props: {
 
   /**
    * The struck scene node, the emitted `react`'s actor, or null when the aim
-   * is a point or group with no single actor to recoil; the flight still bakes
-   * and only the reaction and `hit` event are withheld.
+   * is a point or group with no single actor to recoil. A null value supports
+   * flight and contact without `onHit`; requesting `onHit` without a
+   * non-blank target node throws.
    */
   targetNode: string | null;
 
@@ -91,8 +93,15 @@ export const compileLaunch = (props: {
 
   /** Samples per second of the baked flight clip; defaults to 30. */
   fps?: number;
-}): IAutoMovieLaunchResult | null => {
+}): IAutoMovieLaunchResult | null {
   const action: IAutoMovieLaunchAction = props.action;
+  if (
+    action.onHit !== undefined &&
+    (props.targetNode === null || props.targetNode.trim().length === 0)
+  )
+    throw new RangeError(
+      "A launch's onHit requires a non-blank targetNode identifying the struck actor; point and group aims identify no actor to recoil.",
+    );
   const gravity: IAutoMovieVector3 = props.gravity ?? DEFAULT_GRAVITY;
   const arc: "direct" | "high" = props.arc ?? "direct";
   const targetAt: ((t: number) => IAutoMovieVector3) | undefined =
@@ -211,4 +220,4 @@ export const compileLaunch = (props: {
     velocity: solution.velocity,
     events,
   };
-};
+}

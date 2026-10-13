@@ -40,14 +40,13 @@ const HANDOFF_KINDS: ReadonlyArray<
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constructor of one handoff's events that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the four returned events.
  */
-export const handoffEvents = (
+export function handoffEvents (
   child: string,
   parent: string,
   start: number,
   end: number,
   actionIndex: number,
-): IAutoMovieInteractionEvent[] =>
-  HANDOFF_KINDS.map(
+): IAutoMovieInteractionEvent[] { return HANDOFF_KINDS.map(
     ([kind, at]: readonly [
       IAutoMovieInteractionEvent["kind"],
       "start" | "end",
@@ -66,4 +65,4 @@ export const handoffEvents = (
         reaction: null,
       };
     },
-  );
+  ); }

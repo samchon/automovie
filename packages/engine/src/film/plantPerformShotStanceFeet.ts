@@ -55,7 +55,7 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
-export const plantPerformShotStanceFeet = (props: {
+export function plantPerformShotStanceFeet (props: {
   staged: IAutoMovieStagedSet.ISuccess;
   motions: Record<string, IAutoMovieMotion>;
   previous: IAutoMovieBeatEndState | null | undefined;
@@ -70,7 +70,7 @@ export const plantPerformShotStanceFeet = (props: {
         node: string,
       ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined)
     | undefined;
-}): IAutoMoviePerformedShot.ISuccess["plants"] => {
+}): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
   const previousByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     (props.previous?.actors ?? []).map(
@@ -95,18 +95,17 @@ export const plantPerformShotStanceFeet = (props: {
       (entry: IAutoMovieSceneNode): boolean => entry.id === actor,
     );
     if (rig === null || node === undefined) continue;
+    const translation: IAutoMovieVector3 = node.transform.translation;
     const rotation: IAutoMovieQuaternion = node.transform.rotation;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-    const toModel = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+    function toModel (point: IAutoMovieVector3): IAutoMovieVector3 { return Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, node.transform.translation),
-      );
-    const toWorld = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
-        node.transform.translation,
+        Vector3.subtract(point, translation),
+      ); }
+    function toWorld (point: IAutoMovieVector3): IAutoMovieVector3 { return Vector3.add(
+        translation,
         Quaternion.rotateVector(rotation, point),
-      );
+      ); }
     const modelGround: ((x: number, z: number) => number) | null =
       worldGround === null
         ? null
@@ -146,4 +145,4 @@ export const plantPerformShotStanceFeet = (props: {
     });
   }
   return plants;
-};
+}

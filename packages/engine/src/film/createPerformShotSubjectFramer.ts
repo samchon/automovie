@@ -75,7 +75,7 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @evidence contracts/performance.md#reuse-equivalent-work Measured model extents are memoized by node id for the life of the returned function, which is valid because the models and staged nodes are fixed for the shot; the staged node index is built once and shared by every subject.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains the extent memo, bounded by the staged node count, and the shot's clip tables until `performShot` drops it at the end of the call.
  */
-export const createPerformShotSubjectFramer = (
+export function createPerformShotSubjectFramer (
   context: IPerformShotGateContext,
   props: {
     models: readonly IAutoMovieModel[] | undefined;
@@ -84,7 +84,7 @@ export const createPerformShotSubjectFramer = (
     objectMotions: readonly IAutoMovieClip[];
     rotations: ReadonlyMap<string, IAutoMovieQuaternion>;
   },
-): ((on: IAutoMovieActionTarget) => IAutoMovieFramedSubject) => {
+): ((on: IAutoMovieActionTarget) => IAutoMovieFramedSubject) {
   const stagedNodes: Map<string, IAutoMovieSceneNode> = new Map(
     context.staged.scene.nodes.map(
       (entry: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
@@ -95,7 +95,7 @@ export const createPerformShotSubjectFramer = (
   );
   const extents: Map<string, IAutoMovieSubjectBox | null> = new Map();
   /** A staged node's framed extent in model space, measured once. */
-  const nodeExtent = (node: string): IAutoMovieSubjectBox => {
+  function nodeExtent (node: string): IAutoMovieSubjectBox {
     let extent: IAutoMovieSubjectBox | null | undefined = extents.get(node);
     if (extent === undefined) {
       const staffed: IAutoMovieSceneNode | undefined = stagedNodes.get(node);
@@ -111,12 +111,12 @@ export const createPerformShotSubjectFramer = (
     const rig: IAutoMovieSkeleton | null =
       extent === null ? context.skeleton(node) : null;
     return nodeSubjectExtent(extent, rig === null ? null : computeRestHeight(rig));
-  };
+  }
   /** The staged rotation and scale of a node, at a supplied translation. */
-  const placement = (
+  function placement (
     node: string | null,
     translation: IAutoMovieVector3,
-  ): IAutoMovieTransform => {
+  ): IAutoMovieTransform {
     const staffed: IAutoMovieSceneNode | undefined =
       node === null ? undefined : stagedNodes.get(node);
     return {
@@ -124,12 +124,12 @@ export const createPerformShotSubjectFramer = (
       rotation: staffed?.transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
       scale: staffed?.transform.scale ?? { x: 1, y: 1, z: 1 },
     };
-  };
+  }
   /** One box per group member that resolves, at a shot-local instant. */
-  const groupBoxes = (
+  function groupBoxes (
     on: IAutoMovieGroupTarget,
     seconds: number,
-  ): IAutoMovieSubjectBox[] => [
+  ): IAutoMovieSubjectBox[] { return [
     ...on.nodes.flatMap((node: string): IAutoMovieSubjectBox[] => {
       const at: IAutoMovieVector3 | undefined = context.nodePositions.get(node);
       return at === undefined
@@ -150,18 +150,18 @@ export const createPerformShotSubjectFramer = (
             }),
           ];
     }),
-  ];
+  ]; }
 
   return (on: IAutoMovieActionTarget): IAutoMovieFramedSubject => {
     if (on.kind === "group") {
+      const group: IAutoMovieGroupTarget = on;
       const opening: IAutoMovieSubjectBox | null = unionSubjectBoxes(
         groupBoxes(on, 0),
       );
       // Which members resolve depends on the shot's tables, not the instant,
       // so a group that measured something at 0 measures something always.
       if (opening !== null) {
-        const framedAt = (seconds: number): IAutoMovieFramedBox =>
-          framedBoxOf(unionSubjectBoxes(groupBoxes(on, seconds))!);
+        function framedAt (seconds: number): IAutoMovieFramedBox { return framedBoxOf(unionSubjectBoxes(groupBoxes(group, seconds))!); }
         const framed: IAutoMovieFramedBox = framedBoxOf(opening);
         const cued: boolean = (on.formations ?? []).some((id: string): boolean =>
           props.formationMotions.some(
@@ -213,10 +213,10 @@ export const createPerformShotSubjectFramer = (
             },
     };
   };
-};
+}
 
 /** How a point subject moves over shot time, or null when it holds still. */
-const movementOf = (
+function movementOf (
   context: IPerformShotGateContext,
   props: {
     motions: Readonly<Record<string, IAutoMovieMotion>>;
@@ -226,7 +226,7 @@ const movementOf = (
   on: IAutoMovieActionTarget,
   node: string | null,
   point: IAutoMovieVector3,
-): ((seconds: number) => IAutoMovieVector3) | null => {
+): ((seconds: number) => IAutoMovieVector3) | null {
   const targetAt: IPerformShotGateContext["targetAt"] = context.targetAt;
   if (on.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
@@ -250,4 +250,4 @@ const movementOf = (
   return (seconds: number): IAutoMovieVector3 =>
     bakedTransformFromClipsAt(props.objectMotions, node, seconds)
       ?.translation ?? point;
-};
+}

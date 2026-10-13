@@ -68,7 +68,7 @@ interface IAutoMovieCameraClearanceEvaluation {
 }
 
 /** Reject a non-finite coordinate or an inverted box. */
-const assertBox = (box: IBox, path: string): void => {
+function assertBox (box: IBox, path: string): void {
   const coordinates: number[] = [
     box.min.x,
     box.min.y,
@@ -81,10 +81,10 @@ const assertBox = (box: IBox, path: string): void => {
     throw new Error(`${path} must contain finite coordinates`);
   if (box.min.x > box.max.x || box.min.y > box.max.y || box.min.z > box.max.z)
     throw new Error(`${path} minimum must not exceed maximum`);
-};
+}
 
 /** The smallest box holding both endpoint boxes of one obstacle. */
-const unionBoxes = (first: IBox, second: IBox): IBox => ({
+function unionBoxes (first: IBox, second: IBox): IBox { return ({
   min: {
     x: Math.min(first.min.x, second.min.x),
     y: Math.min(first.min.y, second.min.y),
@@ -95,13 +95,13 @@ const unionBoxes = (first: IBox, second: IBox): IBox => ({
     y: Math.max(first.max.y, second.max.y),
     z: Math.max(first.max.z, second.max.z),
   },
-});
+}); }
 
 /**
  * Grow a box by a radius on every side, the box a sphere centre must enter to
  * touch it; this over-covers the rounded corners, which keeps it conservative.
  */
-const inflateBox = (box: IBox, radius: number): IBox => ({
+function inflateBox (box: IBox, radius: number): IBox { return ({
   min: {
     x: box.min.x - radius,
     y: box.min.y - radius,
@@ -112,17 +112,17 @@ const inflateBox = (box: IBox, radius: number): IBox => ({
     y: box.max.y + radius,
     z: box.max.z + radius,
   },
-});
+}); }
 
 /**
  * Inclusive segment/box slab test. Equality is collision: a camera body that
  * merely touches a wall or support has no physical clearance.
  */
-const segmentIntersectsBox = (
+function segmentIntersectsBox (
   start: IAutoMovieVector3,
   end: IAutoMovieVector3,
   box: IBox,
-): boolean => {
+): boolean {
   let lower: number = 0;
   let upper: number = 1;
   for (const axis of ["x", "y", "z"] as const) {
@@ -139,21 +139,20 @@ const segmentIntersectsBox = (
     if (lower > upper) return false;
   }
   return true;
-};
+}
 
 /** Camera-local sphere centre carried into one resolved camera state. */
-const sphereCenter = (
+function sphereCenter (
   transform: IAutoMovieTransform,
   center: IAutoMovieVector3,
-): IAutoMovieVector3 =>
-  Vector3.add(
+): IAutoMovieVector3 { return Vector3.add(
     transform.translation,
     Quaternion.rotateVector(transform.rotation, {
       x: center.x * transform.scale.x,
       y: center.y * transform.scale.y,
       z: center.z * transform.scale.z,
     }),
-  );
+  ); }
 
 /**
  * Extra radius covering the arc a rotated local centre sweeps between two
@@ -161,11 +160,11 @@ const sphereCenter = (
  * angle `θ`, which is the largest gap between a constant-speed arc point and
  * the chord point at the same interval fraction.
  */
-const rotationArcMargin = (
+function rotationArcMargin (
   first: IAutoMovieTransform,
   second: IAutoMovieTransform,
   center: IAutoMovieVector3,
-): number => {
+): number {
   const a: IAutoMovieQuaternion = Quaternion.normalize(first.rotation);
   const b: IAutoMovieQuaternion = Quaternion.normalize(second.rotation);
   const dot: number = Math.min(
@@ -186,13 +185,13 @@ const rotationArcMargin = (
     }),
   );
   return maximumOffset * (1 - Math.cos(angle / 2));
-};
+}
 
 /** Map a sample's obstacles by id, refusing a repeated id or a bad box. */
-const obstaclesByNode = (
+function obstaclesByNode (
   sample: IAutoMovieCameraClearanceSample,
   sampleIndex: number,
-): Map<string, IBox> => {
+): Map<string, IBox> {
   const result: Map<string, IBox> = new Map();
   sample.obstacles.forEach(
     (
@@ -211,7 +210,7 @@ const obstaclesByNode = (
     },
   );
   return result;
-};
+}
 
 /**
  * Sweep one camera take's body and optional parent-rig spheres over every

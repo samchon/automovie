@@ -23,18 +23,17 @@ import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure mapping of one list that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned notes, one per diagnostic.
  */
-export const grammarDiagnosticsToReviewNotes = (props: {
+export function grammarDiagnosticsToReviewNotes (props: {
   /** Narrative beat that owns the review backlog. */
   beat: string;
 
   /** Mechanical grammar findings to file, in the order to file them. */
   diagnostics: readonly IAutoMovieGrammarDiagnostic[];
-}): IAutoMovieReviewNote[] =>
-  props.diagnostics.map(
+}): IAutoMovieReviewNote[] { return props.diagnostics.map(
     (diagnostic: IAutoMovieGrammarDiagnostic): IAutoMovieReviewNote => ({
       beat: props.beat,
       tier: "visual",
       issue: `${diagnostic.code}: ${diagnostic.fact}; ${diagnostic.impact}`,
       suggestion: diagnostic.recovery,
     }),
-  );
+  ); }

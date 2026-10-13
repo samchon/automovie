@@ -22,9 +22,9 @@ import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure check over one runtime's advice list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains only the id map and diagnostics during the call; the caller owns the returned diagnostics, at most two per advice item.
  */
-export const validateShotPhysicsAdvice = (
+export function validateShotPhysicsAdvice (
   advice: readonly IAutoMovieShotPhysicsAdvice[],
-): IAutoMovieAuthoringDiagnostic[] => {
+): IAutoMovieAuthoringDiagnostic[] {
   const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
   const ids: Map<string, number> = new Map();
   advice.forEach((item: IAutoMovieShotPhysicsAdvice, index: number): void => {
@@ -75,10 +75,10 @@ export const validateShotPhysicsAdvice = (
       });
   });
   return diagnostics;
-};
+}
 
 /** Deep-copy response data with object keys in code-unit order. */
-const canonicalAdviceValue = (value: unknown): unknown => {
+function canonicalAdviceValue (value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalAdviceValue);
   if (typeof value !== "object" || value === null) return value;
   const record: Record<string, unknown> = value as Record<string, unknown>;
@@ -90,4 +90,4 @@ const canonicalAdviceValue = (value: unknown): unknown => {
         canonicalAdviceValue(record[key]),
       ]),
   );
-};
+}

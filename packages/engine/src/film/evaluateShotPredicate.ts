@@ -23,7 +23,10 @@ import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
  * A reference the reader cannot resolve, such as an absent node, a rig without
  * the named bone, an uncompiled motion, an absent landmark or an uncompiled
  * formation, records `actual: null` and fails, so an unmeasurable claim never
- * passes.
+ * passes. Any exception during measurement becomes that same failed null
+ * result; the reader's missing-reference errors are not distinguished from
+ * unexpected sampling errors here, so this record alone cannot diagnose the
+ * underlying exception.
  *
  * @param reader The subject reader of the grading call.
  * @param predicate The contract predicate to measure.
@@ -32,17 +35,17 @@ import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
  *
  * @evidence contracts/common.md#principled-implementation Each kind is measured directly from the reader's placements and poses, the distance with `Math.hypot`, and the comparison widens the declared value by the declared tolerance on the side the operator constrains; a bone the rig does not declare is refused before sampling, because a pose with no entry for a joint means rest only for a joint the rig has.
  * @evidence contracts/common.md#clear-and-simple-design One function per predicate is what the opening, closing and event grades of `realizeShotContract` share, and the reader supplies every lookup, so the measurement holds no index or props of its own.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The catch covers only the reader's documented refusals, turning them into the failing `null` measurement the record defines; no actor, bone, axis or selector is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States what each kind measures and in which unit, the pass rule for each operator, and that an unresolvable reference records `null` and fails.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor, bone, axis or selector is special-cased; every measurement exception becomes a failing null result. The broad catch does not classify exceptions, so an unexpected sampling defect is indistinguishable from a documented missing-reference refusal in this output, a diagnostic limitation rather than evidence that only expected failures were caught.
+ * @evidence contracts/common.md#meaningful-documentation States each measurement's unit, operator tolerance, null failure for unresolved references and the broader exception-to-null behavior whose output cannot recover the underlying cause.
  * @evidence contracts/performance.md#efficient-algorithms Constant work per predicate beyond the reader's sampling: one bone scan of the rig and one joint scan of the pose for a joint angle, linear in the rig's bone count, and at most two placements for a position or distance.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one predicate per call; sampling shared across predicates at the same instant is cached by the reader it is given.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned result references the caller's predicate and holds one number.
  */
-export const evaluateShotPredicate = (
+export function evaluateShotPredicate (
   reader: IShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
-): IAutoMovieCompiledPredicateResult => {
+): IAutoMovieCompiledPredicateResult {
   let actual: number | null = null;
   try {
     actual = measure(reader, predicate, time);
@@ -60,14 +63,14 @@ export const evaluateShotPredicate = (
           ? actual <= predicate.value + predicate.tolerance
           : actual >= predicate.value - predicate.tolerance),
   };
-};
+}
 
 /** The scalar a predicate compares; throws when a reference does not resolve. */
-const measure = (
+function measure (
   reader: IShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
-): number => {
+): number {
   if (predicate.kind === "position")
     return reader.spatialAt(predicate.subject, time)[predicate.axis];
   if (predicate.kind === "distance") {
@@ -92,4 +95,4 @@ const measure = (
       item.bone === predicate.bone,
   );
   return joint?.[predicate.axis] ?? 0;
-};
+}

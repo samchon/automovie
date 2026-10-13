@@ -28,13 +28,13 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one record per call; callers that sample many frames resolve it per frame, which is constant work on two integers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the returned pair only and retains nothing.
  */
-export const resolveProductionFrameRate = (props: {
+export function resolveProductionFrameRate (props: {
   /** Display frames per second; must equal the exact rate when one is given. */
   fps: number;
 
   /** Exact rate; omitted for an integer `fps`. */
   frameRate?: IAutoMovieProductionFrameRate;
-}): IAutoMovieProductionFrameRate => {
+}): IAutoMovieProductionFrameRate {
   const rate: IAutoMovieProductionFrameRate = canonicalProductionFrameRate(
     props.frameRate ?? props.fps,
   );
@@ -46,4 +46,4 @@ export const resolveProductionFrameRate = (props: {
       `Production fps ${props.fps} does not equal its exact ${rate.numerator}/${rate.denominator} frame-rate identity.`,
     );
   return rate;
-};
+}

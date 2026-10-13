@@ -28,41 +28,42 @@ import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per obstacle node per clearance compilation; nothing coordinates across calls, and the memo is local to one model's chain walk.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the bone index and chain memo are locals bounded by the model's bone count and dropped with the call.
  */
-export const cameraClearanceDeformationRadius = (
+export function cameraClearanceDeformationRadius (
   model: IAutoMovieModel,
   extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
-): number => {
+): number {
   const radius: number = originRadius(extent) + 2 * maximumRigReach(model);
   if (!Number.isFinite(radius))
     throw new Error(
       `camera clearance deformation radius for model "${model.id}" overflows`,
     );
   return radius;
-};
+}
 
 /** Farthest of the box's eight corners from the model origin. */
-const originRadius = (extent: {
+function originRadius (extent: {
   min: IAutoMovieVector3;
   max: IAutoMovieVector3;
-}): number => {
+}): number {
   let radius: number = 0;
   for (const x of [extent.min.x, extent.max.x])
     for (const y of [extent.min.y, extent.max.y])
       for (const z of [extent.min.z, extent.max.z])
         radius = Math.max(radius, Math.hypot(x, y, z));
   return radius;
-};
+}
 
 /** Longest root-to-bone translation sum over the bones geometry rides. */
-const maximumRigReach = (model: IAutoMovieModel): number => {
+function maximumRigReach (model: IAutoMovieModel): number {
   const skeleton: IAutoMovieModel["skeleton"] = model.skeleton;
   if (skeleton === null) return 0;
+  const skeletonId: string = skeleton.id;
   type Bone = (typeof skeleton.bones)[number];
   const bones: Map<Bone["bone"], Bone> = new Map(
     skeleton.bones.map((bone: Bone): [Bone["bone"], Bone] => [bone.bone, bone]),
   );
   const reaches: Map<Bone["bone"], number> = new Map();
-  const resolve = (name: Bone["bone"]): number => {
+  function resolve (name: Bone["bone"]): number {
     const cached: number | undefined = reaches.get(name);
     if (cached !== undefined) return cached;
     const bone: Bone = bones.get(name)!;
@@ -74,11 +75,11 @@ const maximumRigReach = (model: IAutoMovieModel): number => {
       ) + (bone.parent === null ? 0 : resolve(bone.parent));
     if (!Number.isFinite(reach))
       throw new Error(
-        `camera clearance rig "${skeleton.id}" chain to bone "${name}" overflows`,
+        `camera clearance rig "${skeletonId}" chain to bone "${name}" overflows`,
       );
     reaches.set(name, reach);
     return reach;
-  };
+  }
   let reach: number = 0;
   for (const part of model.parts) {
     if (part.attachedBone !== null)
@@ -88,4 +89,4 @@ const maximumRigReach = (model: IAutoMovieModel): number => {
         reach = Math.max(reach, resolve(joint));
   }
   return reach;
-};
+}

@@ -1,14 +1,16 @@
-import {
-  resolveSequencePlayback,
-  sequenceEventTimeline,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
+import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
+import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { IAutoMoviePlaybackEvent } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEvent";
+import { resolveSequencePlayback } from "../../../../packages/engine/src/film/resolveSequencePlayback";
+import { sequenceEventTimeline } from "../../../../packages/engine/src/film/sequenceEventTimeline";
+import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+function shot (id: string, duration: number): IAutoMovieShot { return ({
   id,
   name: null,
   scene: "scene-duel",
@@ -17,15 +19,15 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
   performances: [],
   objectMotions: [],
   duration,
-});
-const SHOTS = [shot("shot:beat-1", 3), shot("shot:beat-2", 4)];
+}); }
+const SHOTS: IAutoMovieShot[] = [shot("shot:beat-1", 3), shot("shot:beat-2", 4)];
 type Event = NonNullable<IAutoMovieShot["events"]>[number];
-const event = (
+function event (
   id: string,
   kind: Event["kind"],
   source: Event["source"],
   time: number,
-): Event => ({
+): Event { return ({
   id,
   kind,
   source,
@@ -36,7 +38,7 @@ const event = (
   point: null,
   actionIndex: null,
   reaction: null,
-});
+}); }
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq",
@@ -89,46 +91,50 @@ const SEQUENCE: IAutoMovieSequence = {
  *    start must not suppress it (they play at different global times). Both
  *    plays emit the hit at their own global instants (per-play semantics,
  *    #1080), while a genuinely contiguous seam (scenario 7) still emits once.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls source timeline, random-access playback and event placement, asserting independent entry clocks, trim offsets, blend weights, structural refusals and emitted event identities/times; a missing seam event or suppressed replay fails the owning scenario.
+ * @evidence contracts/testing.md#independent-expectations The authored spans give starts 0, 3 and 4.5 and runtime 7.5 by addition minus overlap; local clocks add trim offset and blend alpha divides elapsed overlap by 0.5. Event expectations follow half-open contiguous ranges, retained cut-away boundaries and distinct global plays, independently of the layout/index helper.
+ * @evidence contracts/testing.md#distinguishing-cases Covers hard cuts, trim offsets, inside/after dissolve, opening/exclusive end/nonfinite clocks, duplicate/missing shots, empty cut, first-entry transition, absent events, tied event ids, contiguous seam, cut-away hit and noncontiguous flashback replay; monotone-cursor equivalence belongs to its separate entry.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns its hand-authored shots, events and assertions and imports the portable numerical source functions; it needs no installed consumer, process, browser or GPU.
  */
-export const test_film_playback_resolver = (): void => {
-  const timeline = sequenceTimeline(SEQUENCE, SHOTS);
-  TestValidator.equals(
+export function test_film_playback_resolver (): void {
+  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(SEQUENCE, SHOTS);
+  TestValidator.predicate(
     "entry starts",
-    timeline.entries.map((e) => e.start),
-    [0, 3, 4.5],
+    timeline.entries.length === 3 && timeline.entries.every((entry: IAutoMoviePlaybackEntry, index: number): boolean => nclose(entry.start, [0, 3, 4.5][index]!)),
   );
   TestValidator.predicate("runtime", nclose(timeline.runtime, 7.5));
 
-  const at = (t: number) => resolveSequencePlayback(SEQUENCE, SHOTS, t);
+  const at: (t: number) => IAutoMoviePlaybackSample | null = (t: number) : IAutoMoviePlaybackSample | null => resolveSequencePlayback(SEQUENCE, SHOTS, t);
 
-  const t1 = at(1)!;
+  const t1: IAutoMoviePlaybackSample = at(1)!;
   TestValidator.equals("T=1 shot", t1.shot, "shot:beat-1");
   TestValidator.predicate("T=1 local", nclose(t1.time, 1));
   TestValidator.equals("T=1 hard cut", t1.blend, null);
 
-  const t32 = at(3.2)!;
+  const t32: IAutoMoviePlaybackSample = at(3.2)!;
   TestValidator.equals("T=3.2 shot", t32.shot, "shot:beat-2");
   TestValidator.predicate("T=3.2 trimmed local", nclose(t32.time, 0.7));
   TestValidator.equals("T=3.2 no blend", t32.blend, null);
 
-  const t47 = at(4.7)!;
+  const t47: IAutoMoviePlaybackSample = at(4.7)!;
   TestValidator.equals("T=4.7 live shot", t47.shot, "shot:beat-1");
   TestValidator.predicate("T=4.7 live local", nclose(t47.time, 0.2));
   TestValidator.equals(
     "T=4.7 outgoing tail",
     namedFacts([
-      ["t47Blend", () => t47.blend !== null],
+      ["t47Blend", () : boolean => t47.blend !== null],
       [
         "t47BlendShot",
-        () => t47.blend !== null && t47.blend.shot === "shot:beat-2",
+        () : boolean => t47.blend !== null && t47.blend.shot === "shot:beat-2",
       ],
       [
         "ncloseT47Blend",
-        () => t47.blend !== null && nclose(t47.blend.time, 2.2),
+        () : boolean => t47.blend !== null && nclose(t47.blend.time, 2.2),
       ],
       [
         "ncloseT47Blend2",
-        () => t47.blend !== null && nclose(t47.blend.alpha, 0.4),
+        () : boolean => t47.blend !== null && nclose(t47.blend.alpha, 0.4),
       ],
     ]),
     {
@@ -144,19 +150,19 @@ export const test_film_playback_resolver = (): void => {
   TestValidator.equals("before the film", at(-1), null);
   TestValidator.equals("at the exclusive end", at(7.5), null);
   TestValidator.equals("at a non-finite instant", at(Number.NaN), null);
-  const t0 = at(0)!;
+  const t0: IAutoMoviePlaybackSample = at(0)!;
   TestValidator.equals(
     "first frame",
     namedFacts([
-      ["opensOnTheFirstShot", () => t0.shot === "shot:beat-1"],
-      ["atLocalZero", () => nclose(t0.time, 0)],
+      ["opensOnTheFirstShot", () : boolean => t0.shot === "shot:beat-1"],
+      ["atLocalZero", () : boolean => nclose(t0.time, 0)],
     ]),
     { opensOnTheFirstShot: true, atLocalZero: true },
   );
   TestValidator.predicate(
     "duplicate playback shots reject ambiguous lookup",
     throwsError(
-      () =>
+      () : IAutoMoviePlaybackTimeline =>
         sequenceTimeline(SEQUENCE, [
           SHOTS[0]!,
           { ...SHOTS[0]!, duration: 9 },
@@ -168,7 +174,7 @@ export const test_film_playback_resolver = (): void => {
   TestValidator.predicate(
     "missing trimmed playback shot rejects bad sequence entry",
     throwsError(
-      () =>
+      () : IAutoMoviePlaybackTimeline =>
         sequenceTimeline(
           {
             ...SEQUENCE,
@@ -188,14 +194,14 @@ export const test_film_playback_resolver = (): void => {
   TestValidator.predicate(
     "empty playback sequence rejects before sampling",
     throwsError(
-      () => sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
+      () : IAutoMoviePlaybackTimeline => sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
       ['sequence "seq"', "at least one shot"],
     ),
   );
   TestValidator.predicate(
     "first playback transition rejects missing outgoing entry",
     throwsError(
-      () =>
+      () : IAutoMoviePlaybackSample | null =>
         resolveSequencePlayback(
           {
             ...SEQUENCE,
@@ -248,27 +254,27 @@ export const test_film_playback_resolver = (): void => {
       },
     ],
   };
-  const events = sequenceEventTimeline(eventSequence, eventShots);
+  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(eventSequence, eventShots);
   TestValidator.equals(
     "sequence events keep only events inside trims",
-    events.map((e) => e.id),
+    events.map((e: IAutoMoviePlaybackEvent) : string => e.id),
     ["a-in", "a-z", "b-in"],
   );
   TestValidator.equals(
     "shot-local events are placed on the global clock",
     namedFacts([
-      ["ncloseEventsShotTime", () => nclose(events[0]!.shotTime, 1.25)],
-      ["ncloseEventsGlobalTime", () => nclose(events[0]!.globalTime, 0.25)],
-      ["eventsEntry", () => events[0]!.entry === 0],
-      ["eventsShotShot", () => events[0]!.shot === "shot:beat-1"],
-      ["ncloseEventsShotTime2", () => nclose(events[1]!.shotTime, 1.25)],
-      ["ncloseEventsGlobalTime2", () => nclose(events[1]!.globalTime, 0.25)],
-      ["eventsEntry2", () => events[1]!.entry === 0],
-      ["eventsShotShot2", () => events[1]!.shot === "shot:beat-1"],
-      ["ncloseEventsShotTime3", () => nclose(events[2]!.shotTime, 1)],
-      ["ncloseEventsGlobalTime3", () => nclose(events[2]!.globalTime, 1.75)],
-      ["eventsEntry3", () => events[2]!.entry === 1],
-      ["eventsShotShot3", () => events[2]!.shot === "shot:beat-2"],
+      ["ncloseEventsShotTime", () : boolean => nclose(events[0]!.shotTime, 1.25)],
+      ["ncloseEventsGlobalTime", () : boolean => nclose(events[0]!.globalTime, 0.25)],
+      ["eventsEntry", () : boolean => events[0]!.entry === 0],
+      ["eventsShotShot", () : boolean => events[0]!.shot === "shot:beat-1"],
+      ["ncloseEventsShotTime2", () : boolean => nclose(events[1]!.shotTime, 1.25)],
+      ["ncloseEventsGlobalTime2", () : boolean => nclose(events[1]!.globalTime, 0.25)],
+      ["eventsEntry2", () : boolean => events[1]!.entry === 0],
+      ["eventsShotShot2", () : boolean => events[1]!.shot === "shot:beat-1"],
+      ["ncloseEventsShotTime3", () : boolean => nclose(events[2]!.shotTime, 1)],
+      ["ncloseEventsGlobalTime3", () : boolean => nclose(events[2]!.globalTime, 1.75)],
+      ["eventsEntry3", () : boolean => events[2]!.entry === 1],
+      ["eventsShotShot3", () : boolean => events[2]!.shot === "shot:beat-2"],
     ]),
     {
       ncloseEventsShotTime: true,
@@ -301,7 +307,7 @@ export const test_film_playback_resolver = (): void => {
       ],
     },
   ];
-  const seamEvents = sequenceEventTimeline(
+  const seamEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
     {
       id: "seq-seam",
       name: null,
@@ -323,7 +329,7 @@ export const test_film_playback_resolver = (): void => {
   );
   TestValidator.equals(
     "a seam event emits once and the shot-final event survives",
-    seamEvents.map((e) => [e.id, e.entry]),
+    seamEvents.map((e: IAutoMoviePlaybackEvent) : (string | number)[] => [e.id, e.entry]),
     [
       ["seam", 1],
       ["final", 1],
@@ -338,7 +344,7 @@ export const test_film_playback_resolver = (): void => {
     },
     shot("shot:beat-2", 1),
   ];
-  const cutEvents = sequenceEventTimeline(
+  const cutEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
     {
       id: "seq-cut",
       name: null,
@@ -354,10 +360,9 @@ export const test_film_playback_resolver = (): void => {
     },
     cutShots,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a hit exactly on a mid-shot cut-away survives at the cut",
-    cutEvents.map((e) => [e.id, e.entry, e.globalTime]),
-    [["hit", 0, 2]],
+    cutEvents.length === 1 && cutEvents[0]!.id === "hit" && cutEvents[0]!.entry === 0 && nclose(cutEvents[0]!.globalTime, 2),
   );
 
   // 9. a flashback's cut keeps its own hit: shot-local coincidence with a
@@ -368,7 +373,7 @@ export const test_film_playback_resolver = (): void => {
       events: [event("hit", "contact", "sampledProximity", 2)],
     },
   ];
-  const flashbackEvents = sequenceEventTimeline(
+  const flashbackEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
     {
       id: "seq-flashback",
       name: null,
@@ -388,12 +393,8 @@ export const test_film_playback_resolver = (): void => {
     },
     flashbackShots,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a flashback's cut emits the hit at its own global time (per play)",
-    flashbackEvents.map((e) => [e.id, e.entry, e.globalTime]),
-    [
-      ["hit", 0, 0],
-      ["hit", 1, 4],
-    ],
+    flashbackEvents.length === 2 && flashbackEvents.every((event: IAutoMoviePlaybackEvent, index: number): boolean => event.id === "hit" && event.entry === index && nclose(event.globalTime, index === 0 ? 0 : 4)),
   );
-};
+}

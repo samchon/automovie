@@ -31,9 +31,9 @@ const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates one small record per call; callers that read the crop per frame call it once per frame and the cost is constant.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one four-field copy owned by the caller and retains nothing.
  */
-export const resolveAutoMovieDeliveryCrop = (
+export function resolveAutoMovieDeliveryCrop (
   crop: IAutoMovieDeliveryCrop | undefined,
-): IAutoMovieDeliveryCrop => {
+): IAutoMovieDeliveryCrop {
   const resolved: IAutoMovieDeliveryCrop = crop ?? WHOLE_DELIVERY_CROP;
   if (
     [resolved.left, resolved.top, resolved.right, resolved.bottom].every(
@@ -47,4 +47,4 @@ export const resolveAutoMovieDeliveryCrop = (
       "Delivery crop edges must be finite, normalized to [0, 1], and ordered left < right and top < bottom.",
     );
   return { ...resolved };
-};
+}

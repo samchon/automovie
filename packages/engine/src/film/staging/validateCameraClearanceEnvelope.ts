@@ -25,11 +25,11 @@ import { isRecord } from "../../validation/isRecord";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Checks one camera's envelope per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; it appends at most four violations per call to `out`, a centre and a radius for each sphere, to the collector the caller owns.
  */
-export const validateCameraClearanceEnvelope = (
+export function validateCameraClearanceEnvelope (
   value: unknown,
   path: string,
   out: ViolationCollector,
-): void => {
+): void {
   if (!isRecord(value)) {
     out.push("type", path, "camera clearance must be an object", value);
     return;
@@ -44,14 +44,14 @@ export const validateCameraClearanceEnvelope = (
     );
   else if (value.parentRig !== null)
     validateSphere(value.parentRig, `${path}.parentRig`, out);
-};
+}
 
 /** One clearance sphere: a finite object centre and a positive radius. */
-const validateSphere = (
+function validateSphere (
   sphere: unknown,
   path: string,
   out: ViolationCollector,
-): void => {
+): void {
   if (!isRecord(sphere)) {
     out.push("type", path, "camera clearance sphere must be an object", sphere);
     return;
@@ -79,4 +79,4 @@ const validateSphere = (
       "camera clearance radius must be finite and greater than zero",
       radius,
     );
-};
+}

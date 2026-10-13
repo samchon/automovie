@@ -1,14 +1,16 @@
-import { forgeProp } from "@automovie/engine";
-import { IAutoMoviePropSpec } from "@automovie/interface";
+import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import type { IAutoMovieConstraintViolation, IAutoMovieModelPart, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
-import { createDoorPropSpec } from "./test_film_forge_prop";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 
-const broken = (
+function broken (
   mutate: (spec: IAutoMoviePropSpec) => IAutoMoviePropSpec,
-): ReturnType<typeof forgeProp> => forgeProp(mutate(createDoorPropSpec()));
+): ReturnType<typeof forgeProp> { return forgeProp(mutate(createDoorPropSpec())); }
 
 /**
  * ForgeProp's gates report every contract breach with a field-located path for
@@ -20,7 +22,7 @@ const broken = (
  * 1. An empty prop node id is a `type` violation on `$input.node`.
  * 2. A model id differing from the node breaks the staging join.
  * 3. An imported origin violates the generated-prop contract.
- * 4. A model WITH a skeleton is an actor, not a prop: rejected toward forgeCast.
+ * 4. A model with a skeleton is an actor, not a prop: rejected toward forgeCast.
  * 5. An invalid model (zero-extent part) surfaces validateModel's violation
  *    remapped under `$input.model`.
  * 6. Empty articulation nodes violate.
@@ -31,16 +33,21 @@ const broken = (
  * 11. A binding targeting a different profile id violates.
  * 12. A boneMap value naming an undeclared node violates; an empty value violates
  *     separately.
- * 13. BOTH unmapped profile keys are listed in one round (pivot and mirror).
+ * 13. Both unmapped profile keys are listed in one round (pivot and mirror).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Forges fresh single-defect door mutations and asserts located type/range violations for staging identity, model proxy, articulation hierarchy, binding and missing profile keys; exact two-key reporting catches fail-fast loss.
+ * @evidence contracts/testing.md#independent-expectations Paths follow the authored field positions, node/model equality joins staging, primitive widths must be positive, parents and bindings must name declared nodes, and both pivot/mirror profile keys require mappings. These authored contracts determine expected refusals without reading a generated error list.
+ * @evidence contracts/testing.md#distinguishing-cases Covers blank identities, wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent/blank mapped nodes and multiple unmapped keys. The unchanged valid articulated and rigid neighbour cases belong to test_film_forge_prop.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous entry owns thirteen mutation cases over in-memory data and directly calls portable forgeProp; shared fixtures and violation predicates install no consumer or process.
  */
-export const test_film_forge_prop_gates = (): void => {
-  const emptyNode = broken((s) => ({ ...s, node: "  " }));
+export function test_film_forge_prop_gates (): void {
+  const emptyNode: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({ ...s, node: "  " }));
   TestValidator.predicate(
     "empty node id violates",
     hasViolation(emptyNode, "type", "$input.node"),
   );
 
-  const wrongId = broken((s) => ({
+  const wrongId: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     model: { ...s.model, id: "other" },
   }));
@@ -49,7 +56,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(wrongId, "type", "$input.model.id"),
   );
 
-  const importedOrigin = broken((s) => ({
+  const importedOrigin: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     model: { ...s.model, origin: "imported" },
   }));
@@ -58,7 +65,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(importedOrigin, "type", "$input.model.origin"),
   );
 
-  const withSkeleton = broken((s) => ({
+  const withSkeleton: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     model: { ...s.model, skeleton: createSkeleton() },
   }));
@@ -67,11 +74,11 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(withSkeleton, "type", "$input.model.skeleton"),
   );
 
-  const badPart = broken((s) => ({
+  const badPart: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     model: {
       ...s.model,
-      parts: s.model.parts.map((p) => ({
+      parts: s.model.parts.map((p: IAutoMovieModelPart) : IAutoMovieModelPart => ({
         ...p,
         geometry: {
           type: "primitive" as const,
@@ -85,7 +92,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(badPart, "range", "$input.model.parts[0]"),
   );
 
-  const noNodes = broken((s) => ({
+  const noNodes: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: { ...s.articulation!, nodes: [] },
   }));
@@ -94,7 +101,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(noNodes, "type", "$input.articulation.nodes"),
   );
 
-  const dupNode = broken((s) => ({
+  const dupNode: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
@@ -106,11 +113,11 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(dupNode, "type", ".nodes[3].id"),
   );
 
-  const emptyId = broken((s) => ({
+  const emptyId: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
-      nodes: s.articulation!.nodes.map((n, i) =>
+      nodes: s.articulation!.nodes.map((n: IAutoMovieNode, i: number) : IAutoMovieNode =>
         i === 2 ? { ...n, id: " " } : n,
       ),
       binding: {
@@ -124,11 +131,11 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(emptyId, "type", ".nodes[2].id"),
   );
 
-  const badParent = broken((s) => ({
+  const badParent: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
-      nodes: s.articulation!.nodes.map((n, i) =>
+      nodes: s.articulation!.nodes.map((n: IAutoMovieNode, i: number) : IAutoMovieNode =>
         i === 1 ? { ...n, parent: "ghost" } : n,
       ),
     },
@@ -138,11 +145,11 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(badParent, "type", ".nodes[1].parent"),
   );
 
-  const cyclic = broken((s) => ({
+  const cyclic: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
-      nodes: s.articulation!.nodes.map((n, i) =>
+      nodes: s.articulation!.nodes.map((n: IAutoMovieNode, i: number) : IAutoMovieNode =>
         i === 0 ? { ...n, parent: "hinge" } : n,
       ),
     },
@@ -152,7 +159,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(cyclic, "type", ".parent"),
   );
 
-  const bindingMismatch = broken((s) => ({
+  const bindingMismatch: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
@@ -164,7 +171,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(bindingMismatch, "type", ".binding.profile"),
   );
 
-  const unknownMapped = broken((s) => ({
+  const unknownMapped: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
@@ -183,7 +190,7 @@ export const test_film_forge_prop_gates = (): void => {
     hasViolation(unknownMapped, "type", 'boneMap["mirror"]'),
   );
 
-  const unmapped = broken((s) => ({
+  const unmapped: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({
     ...s,
     articulation: {
       ...s.articulation!,
@@ -193,10 +200,10 @@ export const test_film_forge_prop_gates = (): void => {
   TestValidator.equals(
     "both unmapped profile keys listed at once",
     unmapped.success === false
-      ? unmapped.violations.filter((v) =>
+      ? unmapped.violations.filter((v: IAutoMovieConstraintViolation) : boolean =>
           v.expected.includes("does not map it"),
         ).length
       : 0,
     2,
   );
-};
+}

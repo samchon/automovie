@@ -10,6 +10,7 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { isRecord } from "../validation/isRecord";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
+import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
@@ -28,9 +29,11 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *    body for one point; checking membership first would hide that.
  * 2. The target must be a record; a `bone` target's actor must be a staged node
  *    with an actor context and a rig carrying that bone; a `group` must list
- *    its nodes as an array, and each formation it names must be one this shot
- *    compiled. Every id must be a non-blank string.
- * 3. The point comes from the live resolver at `seconds` when it answers, and
+ *    its nodes as an array with every member staged, and each formation it
+ *    names must be one this shot compiled. Every id must be a non-blank string.
+ * 3. Missing nodes, malformed point vectors, empty groups and non-positional
+ *    kinds are refused before invoking the live resolver.
+ * 4. The point comes from the live resolver at `seconds` when it answers, and
  *    otherwise from the staged placements and opening formation points; a
  *    missing or non-finite point is refused naming the id that failed.
  *
@@ -45,13 +48,13 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *
  * @evidence contracts/common.md#principled-implementation Structural checks on the untyped target precede resolution, so `resolveTargetPoint`, which trusts its input, only sees a well-formed target; the formation refusal runs before the id checks because it is the one fault the author can act on, and the live resolver is preferred because it reports where a moving target actually is.
  * @evidence contracts/common.md#clear-and-simple-design Resolution is the reference synthesizer's own `resolveTargetPoint` over the same placement table, so a target the gate accepts is a target the performer can aim at; the fault text is the shared `positionalTargetFault`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every target kind is checked by the same rules, cameras resolve as placements without becoming performers, and a group that names a formation is refused rather than silently aimed at its centroid.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Cameras resolve as placements without becoming performers; every named group member must exist so no centroid silently drops an authored member, and formation groups are accepted only by camera framing. Malformed or unsupported targets cannot be made valid by a permissive live callback.
  * @evidence contracts/common.md#meaningful-documentation States which targets reach it, the order of the checks and why the formation refusal is first, what each kind requires, where the point comes from, and the `null` answer after every violation.
  * @evidence contracts/performance.md#efficient-algorithms Constant work per target apart from a group's member list, which is walked once for its ids and once by the resolver, and a bone target's rig scan, linear in the rig's bone count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one target per call; the placement and formation tables it reads are built once per shot in the context and shared by every call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing; the returned point is a staged or resolved vector the caller only reads.
  */
-export const resolvePerformShotTarget = (
+export function resolvePerformShotTarget (
   context: IPerformShotGateContext,
   props: {
     target: unknown;
@@ -61,7 +64,7 @@ export const resolvePerformShotTarget = (
     seconds: number;
     formationsFramed: boolean;
   },
-): IAutoMovieVector3 | null => {
+): IAutoMovieVector3 | null {
   const target: unknown = props.target;
   const path: string = props.path;
   const subject: string = props.subject;
@@ -84,6 +87,15 @@ export const resolvePerformShotTarget = (
     }
   }
   if (!validateTargetIds(context, target, path, props.label)) return null;
+  if (
+    (target.kind === "node" && !context.nodePositions.has(target.node)) ||
+    (target.kind === "point" && !isFiniteStageVector3(target.point)) ||
+    (target.kind === "group" && target.nodes.length + (target.formations?.length ?? 0) === 0) ||
+    (target.kind !== "node" && target.kind !== "bone" && target.kind !== "point" && target.kind !== "group")
+  ) {
+    context.out.push("type", path, `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`, target);
+    return null;
+  }
   const point: IAutoMovieVector3 | null | undefined =
     context.targetAt?.(target, props.seconds) ??
     resolveTargetPoint(target, context.nodePositions, context.formationPoints);
@@ -103,26 +115,27 @@ export const resolvePerformShotTarget = (
     return null;
   }
   return point;
-};
+}
 
 /**
  * Check the ids an untyped target carries, answering whether it is a target
  * record resolution may read.
  */
-const validateTargetIds = (
+function validateTargetIds (
   context: IPerformShotGateContext,
   target: unknown,
   path: string,
   label: string,
-): target is IAutoMovieActionTarget => {
+): target is IAutoMovieActionTarget {
   const out: ViolationCollector = context.out;
+  const initial: number = out.items.length;
   if (!isRecord(target)) {
     out.push("type", path, `${label} must be an action target`, target);
     return false;
   }
   if (target.kind === "node") {
     validatePerformShotId(out, target.node, `${path}.node`, `${label} node id`);
-    return true;
+    return out.items.length === initial;
   }
   if (target.kind === "bone") {
     validatePerformShotId(
@@ -134,7 +147,7 @@ const validateTargetIds = (
     validatePerformShotId(out, target.bone, `${path}.bone`, `${label} bone id`);
     if (typeof target.node === "string" && typeof target.bone === "string")
       validateBoneTarget(context, target.node, target.bone, path);
-    return true;
+    return out.items.length === initial;
   }
   if (target.kind === "group") {
     if (!Array.isArray(target.nodes)) {
@@ -146,15 +159,26 @@ const validateTargetIds = (
       );
       return false;
     }
-    target.nodes.forEach((node: unknown, index: number): void =>
+    target.nodes.forEach((node: unknown, index: number): void => {
       validatePerformShotId(
         out,
         node,
         `${path}.nodes[${index}]`,
         `${label} group node id`,
-      ),
-    );
-    if (target.formations === undefined) return true;
+      );
+      if (
+        typeof node === "string" &&
+        node.trim().length > 0 &&
+        !context.nodePositions.has(node)
+      )
+        out.push(
+          "type",
+          `${path}.nodes[${index}]`,
+          `${label} group member "${node}" must name a staged placement; omitting an unplaced member would change the authored group centroid`,
+          node,
+        );
+    });
+    if (target.formations === undefined) return out.items.length === initial;
     if (!Array.isArray(target.formations)) {
       out.push(
         "type",
@@ -189,18 +213,18 @@ const validateTargetIds = (
           formation,
         );
     });
-    return true;
+    return out.items.length === initial;
   }
   return true;
-};
+}
 
 /** Check that a bone target names a rigged staged actor carrying the bone. */
-const validateBoneTarget = (
+function validateBoneTarget (
   context: IPerformShotGateContext,
   node: string,
   bone: string,
   path: string,
-): void => {
+): void {
   if (!context.nodeIds.has(node)) {
     context.out.push(
       "type",
@@ -239,4 +263,4 @@ const validateBoneTarget = (
       `bone "${bone}" is not carried by rigged staged actor "${node}"`,
       bone,
     );
-};
+}

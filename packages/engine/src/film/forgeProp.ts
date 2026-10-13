@@ -9,6 +9,7 @@ import {
 
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../validation/validateModel";
 import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 
@@ -72,7 +73,7 @@ interface IDeclaredNode {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one prop spec that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; success references the caller's spec, and failure owns a violation list bounded by a few violations per joint, asset, LOD level and mapped key plus the model's own.
  */
-export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
+export function forgeProp (spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
   const out: ViolationCollector = new ViolationCollector();
 
   if (spec.node.trim().length === 0)
@@ -122,10 +123,7 @@ export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
 
   if (out.items.length > 0) return { success: false, violations: out.items };
   return { success: true, prop: spec };
-};
-
-/** A builder-sealed digest: `sha256:` and 64 lowercase hexadecimal digits. */
-const SEALED_DIGEST = /^sha256:[0-9a-f]{64}$/;
+}
 
 /**
  * The escape hatch to an external asset, opened exactly as far as the record
@@ -154,11 +152,11 @@ const SEALED_DIGEST = /^sha256:[0-9a-f]{64}$/;
  * production's model registry nor its files, so it would have to guess, and the
  * builder answers both where the registry and the files actually are.
  */
-const gateImportedAppearance = (
+function gateImportedAppearance (
   model: IAutoMovieModel,
   modelRef: string,
   out: ViolationCollector,
-): void => {
+): void {
   const path: string = "$input.model";
   if (modelRef.trim().length === 0)
     out.push(
@@ -214,7 +212,7 @@ const gateImportedAppearance = (
     // The first entry wins, so a path sealed twice is reported once above
     // rather than turning every later reader of it into a second complaint.
     if (!known) ledger.set(entry.path, entry.digest);
-    if (!SEALED_DIGEST.test(entry.digest))
+    if (!SHA256_DIGEST_PATTERN.test(entry.digest))
       out.push(
         "type",
         `${ap}.digest`,
@@ -263,7 +261,7 @@ const gateImportedAppearance = (
         `a rigid prop's LOD "${entry.level}" maps no humanoid bones, but ${entry.humanoidBones.length} were sealed`,
         entry.humanoidBones.length,
       );
-    const wellFormed: boolean = SEALED_DIGEST.test(entry.digest);
+    const wellFormed: boolean = SHA256_DIGEST_PATTERN.test(entry.digest);
     if (!wellFormed)
       out.push(
         "type",
@@ -307,7 +305,7 @@ const gateImportedAppearance = (
       `the hero LOD binds "${hero.asset}" while the prop draws "${model.asset}"; one appearance is one set of bytes`,
       hero.asset,
     );
-};
+}
 
 /**
  * Gate the prop's declared joints, and what each of them carries.
@@ -321,11 +319,11 @@ const gateImportedAppearance = (
  * of the prop; two joints may not claim the same part, since a part rides one
  * frame.
  */
-const gateArticulation = (
+function gateArticulation (
   articulation: IAutoMoviePropArticulation,
   model: IAutoMovieModel,
   out: ViolationCollector,
-): void => {
+): void {
   const path: string = "$input.articulation";
   const parts: Set<string> = new Set(
     model.parts.map((part: IAutoMovieModelPart): string => part.id),
@@ -444,4 +442,4 @@ const gateArticulation = (
         `profile "${profile.id}" references "${key}" but the binding does not map it`,
         key,
       );
-};
+}

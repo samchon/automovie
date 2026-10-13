@@ -29,10 +29,10 @@ import { positiveModulo } from "../math/positiveModulo";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar of one clip and one instant that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing; it returns a number.
  */
-export const gaitPhaseOf = (
+export function gaitPhaseOf (
   clip: IAutoMovieMotion,
   localTime: number,
-): number | null => {
+): number | null {
   const cycle: IAutoMovieGaitCycle | null = clip.gaitCycle ?? null;
   if (cycle !== null) {
     if (!Number.isFinite(cycle.period) || cycle.period <= 0) return null;
@@ -41,4 +41,4 @@ export const gaitPhaseOf = (
   }
   if (!clip.loop || clip.duration <= 0) return null;
   return positiveModulo(localTime, clip.duration);
-};
+}

@@ -38,9 +38,9 @@ import { assertGrammarPositive } from "./assertGrammarPositive";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure transform of one observation; reuse of its output across the read's checks is answered on `readFilmGrammar`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one sorted subject array, one map with an entry per subject and one intent array, all owned by the returned record; nothing is retained after return.
  */
-export const normalizeGrammarShot = (
+export function normalizeGrammarShot (
   input: IAutoMovieGrammarShotObservation,
-): IAutoMovieNormalizedGrammarShot => {
+): IAutoMovieNormalizedGrammarShot {
   nonBlank(input.id, "shot.id");
   assertGrammarPositive(input.duration, `${input.id}.duration`);
   for (const boundary of ["start", "end"] as const) {
@@ -107,23 +107,23 @@ export const normalizeGrammarShot = (
   if (new Set(styleIntent).size !== styleIntent.length)
     throw new Error(`styleIntent in "${input.id}" must be unique.`);
   return { ...input, subjects, subjectById, actionAxis, styleIntent };
-};
+}
 
 /** Throws unless the string carries a non-whitespace character. */
-const nonBlank = (value: string, path: string): void => {
+function nonBlank (value: string, path: string): void {
   if (value.trim().length === 0) throw new Error(`${path} must be non-blank.`);
-};
+}
 
 /** Throws at the first of `x`, `y`, `z` that is missing or not finite. */
-const finiteVector = (value: IAutoMovieVector3, path: string): void => {
+function finiteVector (value: IAutoMovieVector3, path: string): void {
   for (const key of ["x", "y", "z"] as const)
     if (Number.isFinite(value[key]) === false)
       throw new Error(`${path}.${key} must be finite.`);
-};
+}
 
 /** Throws at the first of `x`, `y`, `z`, `w` that is missing or not finite. */
-const finiteQuaternion = (value: IAutoMovieQuaternion, path: string): void => {
+function finiteQuaternion (value: IAutoMovieQuaternion, path: string): void {
   for (const key of ["x", "y", "z", "w"] as const)
     if (Number.isFinite(value[key]) === false)
       throw new Error(`${path}.${key} must be finite.`);
-};
+}

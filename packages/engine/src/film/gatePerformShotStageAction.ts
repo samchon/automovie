@@ -26,8 +26,9 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *   not a walk.
  * - `launch`: a positive finite speed, an `onHit` force in `[0, 1]`, a staged
  *   projectile that is not one of the launching actors, an aim that resolves
- *   and is not the projectile itself, and no `onHit` aimed at a camera, because
- *   the injected recoil would name a camera as a performer.
+ *   and is not the projectile itself; `onHit` needs a node or bone aim naming
+ *   a staged scene node, because a point or group identifies no struck actor
+ *   and a camera cannot perform the injected recoil.
  * - `enact`: a non-blank clip id, since an empty one can never resolve.
  * - `react`: a force in `[0, 1]` and a blow source that resolves, because the
  *   reference synthesizer otherwise snaps the body back as if struck from the
@@ -59,13 +60,13 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one action per call; the staged tables are the shared context's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Appends at most one job to the caller's plan and retains nothing itself.
  */
-export const gatePerformShotStageAction = (
+export function gatePerformShotStageAction (
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   action: Exclude<IAutoMovieActionCall, { verb: "frame" }>,
   actors: readonly string[],
   index: number,
-): void => {
+): void {
   const path: string = `${context.base}[${index}]`;
   const out: ViolationCollector = context.out;
   switch (action.verb) {
@@ -161,6 +162,14 @@ export const gatePerformShotStageAction = (
         typeof action.at.node === "string"
           ? action.at.node
           : null;
+      // A recoil needs an identified struck actor, never a guessed group member.
+      if (action.onHit !== undefined && aimNode === null)
+        out.push(
+          "type",
+          `${path}.at`,
+          "a launch's onHit requires a node or bone target identifying one staged scene node to recoil; a point or group identifies no struck actor; drop onHit or name the struck actor",
+          action.at,
+        );
       // A camera is a place to aim at, never a performer, but `onHit` injects
       // a recoil naming the struck id past the actor gate above.
       if (
@@ -330,15 +339,15 @@ export const gatePerformShotStageAction = (
     case "hold":
       return;
   }
-};
+}
 
 /** Refuse an arm verb asked of a rig whose elbow cannot bend that arm. */
-const refuseUnbendableArm = (
+function refuseUnbendableArm (
   context: IPerformShotGateContext,
   side: "left" | "right",
   path: string,
   performers: readonly string[],
-): void => {
+): void {
   for (const performer of performers) {
     const rig: IAutoMovieSkeleton | null = context.skeleton(performer);
     if (rig === null) continue;
@@ -351,4 +360,4 @@ const refuseUnbendableArm = (
       side,
     );
   }
-};
+}

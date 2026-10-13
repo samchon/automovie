@@ -13,7 +13,8 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
  * dissolve and fade weights.
  *
  * The active segment is the last one whose `[startFrame, endFrame)` contains
- * the frame. Inside an incoming dissolve of `d` frames, at offset `k` into the
+ * the frame; the canonical builder orders segment starts without gaps. Inside
+ * an incoming dissolve of `d` frames, at offset `k` into the
  * segment, the outgoing segment's tail frame `sourceOutFrame - d + k` is
  * layered at weight `1 - k / d` under the incoming frame at `k / d`. Otherwise
  * the one layer is weighted by the smaller of an incoming fade's `k / d` and an
@@ -35,14 +36,14 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
  * @evidence contracts/common.md#clear-and-simple-design A pure function of the timeline and one frame, the seam the render planner calls per output frame, with the time stamp in one private step; dissolve and fade stay together because both are read from the same segment offsets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot or segment is special-cased; a missing segment or a dissolve without an outgoing segment throws instead of drawing black or a single layer.
  * @evidence contracts/common.md#meaningful-documentation States the active-segment rule, both weight formulas and what `remaining` counts, the time stamp, the determinism guarantee, and every throw.
- * @evidence contracts/performance.md#efficient-algorithms A backward scan over the N segments that stops at the first containing one, O(N) worst case with no allocation, then constant work; the planner calls it once per output frame, so a film costs O(F · N), which stays small for the tens of segments a film has.
+ * @evidence contracts/performance.md#efficient-algorithms Binary search selects the last segment start at or before the frame in O(log N) time for N canonically ordered segments, then the exclusive end check and at most two layer calculations take constant work; F independently sampled frames cost O(F log N) without retaining a cursor.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one frame per call and keeps no cursor, so any frame can be sampled in any order; the frame rate is re-reduced per call because it is constant work on two integers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the returned frame with at most two layers, owned by the caller, and retains nothing.
  */
-export const sampleProductionRenderFrame = (
+export function sampleProductionRenderFrame (
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,
-): IAutoMovieProductionRenderFrame => {
+): IAutoMovieProductionRenderFrame {
   if (
     Number.isSafeInteger(globalFrame) === false ||
     globalFrame < 0 ||
@@ -51,14 +52,15 @@ export const sampleProductionRenderFrame = (
     throw new Error(
       `Film-global frame ${globalFrame} is outside 0..${timeline.totalFrames - 1}.`,
     );
-  let index: number = timeline.segments.length - 1;
-  while (
-    index >= 0 &&
-    (timeline.segments[index]!.startFrame > globalFrame ||
-      globalFrame >= timeline.segments[index]!.endFrame)
-  )
-    --index;
-  if (index < 0)
+  let low: number = 0;
+  let high: number = timeline.segments.length;
+  while (low < high) {
+    const middle: number = Math.floor((low + high) / 2);
+    if (timeline.segments[middle]!.startFrame <= globalFrame) low = middle + 1;
+    else high = middle;
+  }
+  const index: number = low - 1;
+  if (index < 0 || globalFrame >= timeline.segments[index]!.endFrame)
     throw new Error(
       `Film-global frame ${globalFrame} has no builder-owned video segment.`,
     );
@@ -106,14 +108,14 @@ export const sampleProductionRenderFrame = (
   return frame(timeline, globalFrame, [
     { ...incoming, weight: Math.min(fadeIn, fadeOut) },
   ]);
-};
+}
 
 /** Stamp the resolved layers with the frame's exact rational film time. */
-const frame = (
+function frame (
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,
   layers: IAutoMovieProductionRenderLayer[],
-): IAutoMovieProductionRenderFrame => {
+): IAutoMovieProductionRenderFrame {
   const frameRate: IAutoMovieProductionFrameRate =
     resolveProductionFrameRate(timeline);
   return {
@@ -122,4 +124,4 @@ const frame = (
     timeSeconds: (globalFrame * frameRate.denominator) / frameRate.numerator,
     layers,
   };
-};
+}

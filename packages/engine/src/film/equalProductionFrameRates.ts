@@ -18,10 +18,10 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure comparison of two values that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the two reduced records are dropped on return.
  */
-export const equalProductionFrameRates = (
+export function equalProductionFrameRates (
   left: number | IAutoMovieProductionFrameRate,
   right: number | IAutoMovieProductionFrameRate,
-): boolean => {
+): boolean {
   const canonicalLeft: IAutoMovieProductionFrameRate =
     canonicalProductionFrameRate(left);
   const canonicalRight: IAutoMovieProductionFrameRate =
@@ -30,4 +30,4 @@ export const equalProductionFrameRates = (
     canonicalLeft.numerator === canonicalRight.numerator &&
     canonicalLeft.denominator === canonicalRight.denominator
   );
-};
+}

@@ -3,21 +3,15 @@ import type { IAutoMoviePropSpec } from "@automovie/interface";
 import { FILM_IMPORTED_PROP_BYTES } from "./FILM_IMPORTED_PROP_BYTES";
 import { filmImportedPropDigest as digest } from "./filmImportedPropDigest";
 
-const HERO_BYTES = FILM_IMPORTED_PROP_BYTES.hero;
-const SIDECAR_BYTES = FILM_IMPORTED_PROP_BYTES.sidecar;
+const HERO_BYTES: string = FILM_IMPORTED_PROP_BYTES.hero;
+const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
 
 /**
- * A chair whose pixels come from a registered glTF and whose meaning does not.
- *
- * The model is shaped exactly as the builder materializes a registered
- * external appearance: `imported` origin, the manifest-owned bytes in `asset`,
- * the sealed digest closure, and one registered collision proxy standing in for
- * the visible primitives. Everything the engine measures or simulates is
- * authored here on top of that: the seat's `stack-top` face, the body it
- * weighs, and (in the placement suite) the relations and keep-out volumes it
- * claims.
+ * Fresh imported chair metadata and its authored collision proxy, body and
+ * stack-top affordance. Symbolic asset paths and repeated-character digests
+ * exercise declared closure admission without loading or hashing actual assets.
  */
-export const createImportedPropSpec = (): IAutoMoviePropSpec => ({
+export function createImportedPropSpec (): IAutoMoviePropSpec { return ({
   node: "chair",
   modelRef: "chair-recipe",
   model: {
@@ -78,4 +72,4 @@ export const createImportedPropSpec = (): IAutoMoviePropSpec => ({
     },
   },
   articulation: null,
-});
+}); }

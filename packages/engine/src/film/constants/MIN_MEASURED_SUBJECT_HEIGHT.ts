@@ -6,4 +6,4 @@
  * framing solve substitutes {@link DEFAULT_SUBJECT_HEIGHT} while keeping any
  * measured width.
  */
-export const MIN_MEASURED_SUBJECT_HEIGHT = 0.1;
+export const MIN_MEASURED_SUBJECT_HEIGHT: number = 0.1;

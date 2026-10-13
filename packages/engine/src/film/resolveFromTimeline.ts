@@ -35,11 +35,11 @@ import { playbackSampleAt } from "./playbackSampleAt";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one instant against a timeline the caller built once and passes in; the timeline reuse is the caller's, and this resolver keeps nothing between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned sample is fresh and owned by the caller.
  */
-export const resolveFromTimeline = (
+export function resolveFromTimeline (
   sequence: IAutoMovieSequence,
   timeline: IAutoMoviePlaybackTimeline,
   seconds: number,
-): IAutoMoviePlaybackSample => {
+): IAutoMoviePlaybackSample {
   const entries: readonly IAutoMoviePlaybackEntry[] = timeline.entries;
   let low: number = 0;
   let high: number = entries.length - 1;
@@ -49,4 +49,4 @@ export const resolveFromTimeline = (
     else high = middle - 1;
   }
   return playbackSampleAt(sequence, entries, entries[low]!, seconds);
-};
+}

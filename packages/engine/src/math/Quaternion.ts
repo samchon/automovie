@@ -1,9 +1,5 @@
-import {
-  IAutoMovieEuler,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieEuler, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z,
  * w)` in glTF order.
@@ -18,8 +14,8 @@ import {
  * @evidence contracts/common.md#clear-and-simple-design A namespace of stateless functions over the interface's plain record instead of a quaternion class, so rotations stay JSON values and the module needs no renderer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No function special-cases a caller; the only branches are mathematical degeneracies, the zero quaternion, the zero axis and the nearly parallel interpolation, each stated on its function.
  * @evidence contracts/common.md#meaningful-documentation States the component order, where quaternions come from and go, the unit-length premise for rotation arguments, and that every function returns a new value.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A namespace with no body of its own; each member answers its own cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stateless functions that coordinate no work across calls.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Quaternion composition and interpolation are fixed-dimensional operations whose arithmetic is answered on their individual members.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The module keeps axis conventions, but quaternion results depend on current operands and are never shared as mutable rotation records.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace holds no state beyond two constants; each function retains nothing after it returns.
  */
 export namespace Quaternion {
@@ -30,11 +26,11 @@ export namespace Quaternion {
    * @evidence contracts/common.md#clear-and-simple-design A function rather than a shared constant, because callers build on the result and must never alias one global record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns the same exact value for every call with no cached or caller-specific record.
    * @evidence contracts/common.md#meaningful-documentation States the component values and that each call returns a new record, which a caller that mutates the result needs.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms One record literal with no algorithm to choose.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Four literal components construct the neutral Hamilton rotation in constant time.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record is the contract, so sharing one would be wrong rather than cheaper.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each neutral rotation owns its four components, so caller mutation cannot alter another identity result.
    */
-  export const identity = (): IAutoMovieQuaternion => ({
+  export const identity: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => ({
     x: 0,
     y: 0,
     z: 0,
@@ -66,9 +62,9 @@ export namespace Quaternion {
    * @evidence contracts/common.md#meaningful-documentation States the application order of the operands and how the result's length follows from the inputs'.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Sixteen multiplications and twelve additions in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two quaternions that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The Hamilton product owns four computed components and keeps no references to either operand quaternion.
    */
-  export const multiply = (
+  export const multiply: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion => ({
@@ -81,27 +77,31 @@ export namespace Quaternion {
   /**
    * A unit-length copy of `q`, or the identity when `q` has length zero.
    *
-   * The length is the square root of the summed squares, so components whose
-   * squares overflow or underflow binary64, beyond about `1e154` or below about
-   * `1e-154`, lose the direction; rotation quaternions sit near unit length,
-   * far inside that range. A non-finite component makes the result non-finite.
+   * Extreme finite components are rescaled by their largest magnitude before
+   * squaring, preserving direction even when the original norm is unrepresentable.
+   * Ordinary near-unit inputs keep the direct summed-square arithmetic.
+   * A non-finite component makes the result non-finite.
    *
    * @param q Quaternion of any finite length.
    * @returns A new unit quaternion representing the same rotation.
    *
-   * @evidence contracts/common.md#principled-implementation Divides every component by the Euclidean length, which maps a nonzero quaternion to the unit quaternion of the same rotation; the premise is a near-unit input, which holds for the products, interpolations and validated transforms the engine normalizes, and the zero length is the one input with no rotation to recover.
-   * @evidence contracts/common.md#clear-and-simple-design One reciprocal and four products rather than the extreme-magnitude rescaling `Vector3.normalize` does, because quaternions here never leave the near-unit range where squaring is exact enough.
+   * @evidence contracts/common.md#principled-implementation Positive uniform rescaling leaves quaternion direction unchanged, so dividing extreme finite components by their largest magnitude before the Euclidean norm prevents underflow and overflow; zero is the only finite input without a recoverable direction.
+   * @evidence contracts/common.md#clear-and-simple-design A private normalizationDivisor shares binary64 magnitude bounds with axis-angle construction, while ordinary near-unit quaternions retain their existing multiplication order.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The identity for a zero quaternion is the stated degenerate value, not a fallback for bad arithmetic; a non-finite input still yields a non-finite result instead of being replaced.
-   * @evidence contracts/common.md#meaningful-documentation States the zero-length result, the magnitude range where the length overflows or underflows and why it does not matter here, and what a non-finite component does.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms One square root, one division and eight multiplications in constant time, with no algorithm to choose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one quaternion that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidence contracts/common.md#meaningful-documentation States zero identity, finite extreme-component rescaling, preserved ordinary arithmetic and nonfinite propagation.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Four magnitude comparisons and one fixed-size norm take constant time, with four extra divisions only for extreme inputs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The largest magnitude supplies one common rescaling for all four components; normalization retains no rotation history between calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An extreme input adds one temporary scaled quaternion; the returned unit record belongs to the caller and no input is retained.
    */
-  export const normalize = (q: IAutoMovieQuaternion): IAutoMovieQuaternion => {
-    const len: number = Math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  export const normalize: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion): IAutoMovieQuaternion => {
+    const divisor: number = normalizationDivisor(q.x, q.y, q.z, q.w);
+    const value: IAutoMovieQuaternion = divisor === 1 ? q : {
+      x: q.x / divisor, y: q.y / divisor, z: q.z / divisor, w: q.w / divisor,
+    };
+    const len: number = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z + value.w * value.w);
     if (len === 0) return identity();
     const inv: number = 1 / len;
-    return { x: q.x * inv, y: q.y * inv, z: q.z * inv, w: q.w * inv };
+    return { x: value.x * inv, y: value.y * inv, z: value.z * inv, w: value.w * inv };
   };
 
   /**
@@ -123,7 +123,7 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one quaternion that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the conjugate and the returned record and retains nothing.
    */
-  export const inverse = (q: IAutoMovieQuaternion): IAutoMovieQuaternion =>
+  export const inverse: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion): IAutoMovieQuaternion =>
     normalize({ x: -q.x, y: -q.y, z: -q.z, w: q.w });
 
   /**
@@ -135,25 +135,36 @@ export namespace Quaternion {
    * @param angleDeg Angle in degrees.
    * @returns A new unit quaternion.
    *
-   * @evidence contracts/common.md#principled-implementation The axis-angle formula `(sin(θ/2)·n, cos(θ/2))` with `n` the unit axis; dividing the sine by the axis length normalizes the axis in the same multiplication.
+   * @evidence contracts/common.md#principled-implementation The axis-angle formula uses a unit axis and half-angle sine/cosine; extreme finite axes are positively rescaled before the norm, preserving direction without overflowing or losing a nonzero subnormal axis.
    * @evidence contracts/common.md#clear-and-simple-design Takes degrees because every authored angle in the interface is in degrees, so callers never convert, and accepts an unnormalized axis because cross products and authored directions arrive unnormalized.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The zero-axis identity is the one input with no defined axis, not a fallback for a failed computation; any other axis takes the same formula.
    * @evidence contracts/common.md#meaningful-documentation States the angle unit, the rotation sense, that the axis needs no normalization, and the zero-axis result.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms One square root, one sine and one cosine in constant time, with no algorithm to choose.
+   * @evidence contracts/performance.md#efficient-algorithms A fixed-size magnitude check precedes one square root, sine and cosine; only extreme finite axes require three rescaling divisions.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of an axis and an angle that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An extreme axis creates one temporary scaled direction, while the output owns four rotation components and keeps no axis reference.
    */
-  export const fromAxisAngle = (
+  export const fromAxisAngle: (axis: IAutoMovieVector3, angleDeg: number) => IAutoMovieQuaternion = (
     axis: IAutoMovieVector3,
     angleDeg: number,
   ): IAutoMovieQuaternion => {
+    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
+    const value: IAutoMovieVector3 = divisor === 1 ? axis : {
+      x: axis.x / divisor, y: axis.y / divisor, z: axis.z / divisor,
+    };
     const len: number = Math.sqrt(
-      axis.x * axis.x + axis.y * axis.y + axis.z * axis.z,
+      value.x * value.x + value.y * value.y + value.z * value.z,
     );
     if (len === 0) return identity();
     const half: number = (angleDeg * DEG2RAD) / 2;
     const s: number = Math.sin(half) / len;
-    return { x: axis.x * s, y: axis.y * s, z: axis.z * s, w: Math.cos(half) };
+    return { x: value.x * s, y: value.y * s, z: value.z * s, w: Math.cos(half) };
+  };
+
+  /** Scale only when up to four squared components may leave the normal binary64 range. */
+  const normalizationDivisor: (x: number, y: number, z: number, w?: number) => number = (x: number, y: number, z: number, w: number = 0): number => {
+    const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w));
+    return Number.isFinite(largest) && largest > 0 &&
+      (largest < 2 ** -511 || largest > 2 ** 510) ? largest : 1;
   };
 
   /**
@@ -172,7 +183,7 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one Euler record that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the factors and the returned record and retains nothing.
    */
-  export const fromEuler = (euler: IAutoMovieEuler): IAutoMovieQuaternion => {
+  export const fromEuler: (euler: IAutoMovieEuler) => IAutoMovieQuaternion = (euler: IAutoMovieEuler): IAutoMovieQuaternion => {
     let result: IAutoMovieQuaternion = identity();
     for (const letter of euler.order) {
       const angle: number =
@@ -200,7 +211,7 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rotation and one vector that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned vector and retains nothing.
    */
-  export const rotateVector = (
+  export const rotateVector: (q: IAutoMovieQuaternion, v: IAutoMovieVector3) => IAutoMovieVector3 = (
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
@@ -231,13 +242,13 @@ export namespace Quaternion {
    *
    * @evidence contracts/common.md#principled-implementation Shoemake's slerp, `sin((1 − t)θ)/sin θ · a + sin(tθ)/sin θ · b` with `θ` the angle between the operands, after negating `b` when `a · b < 0` so the path takes the shorter of the two arcs that represent the same rotation pair.
    * @evidence contracts/common.md#clear-and-simple-design One function with the near-parallel branch inside, because every caller, clip and motion sampling, driver blending and iterative IK, needs the same guarded interpolation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The `0.9995` threshold is the documented numerical switch for a vanishing `sin θ`, the same for every caller, not tuned to any clip or fixture.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The `0.9995` threshold, shared through QUATERNION_NLERP_DOT_THRESHOLD with component-extrema admission, is the documented numerical switch for a vanishing `sin θ`, the same for every caller, not tuned to any clip or fixture.
    * @evidence contracts/common.md#meaningful-documentation States the endpoints, the shorter-arc choice, the near-parallel threshold with its angle and why it exists, extrapolation outside `[0, 1]`, and when the result is unit length.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One dot product, one arccosine and three sines in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two rotations and a parameter that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record and retains nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The general spherical branch allocates one result; the near-parallel branch additionally creates a temporary linear quaternion for normalization, without retaining either endpoint.
    */
-  export const slerp = (
+  export const slerp: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
     t: number,
@@ -255,7 +266,7 @@ export namespace Quaternion {
       bz = -bz;
       bw = -bw;
     }
-    if (cos > 0.9995) {
+    if (cos > QUATERNION_NLERP_DOT_THRESHOLD) {
       // Nearly parallel: normalized linear interpolation.
       return normalize({
         x: a.x + (bx - a.x) * t,

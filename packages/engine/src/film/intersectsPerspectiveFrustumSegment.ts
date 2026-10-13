@@ -41,7 +41,7 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one segment and one camera that coordinates no work across calls; the box test reuses the clipping core directly rather than calling this per edge.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The two camera-local endpoints and the NDC crop live only for the call; nothing outlives it.
  */
-export const intersectsPerspectiveFrustumSegment = (props: {
+export function intersectsPerspectiveFrustumSegment (props: {
   camera: IAutoMovieResolvedCamera;
   from: IAutoMovieVector3;
   to: IAutoMovieVector3;
@@ -50,15 +50,14 @@ export const intersectsPerspectiveFrustumSegment = (props: {
   halfY: number;
   aspect: number;
   crop?: IAutoMovieDeliveryCrop;
-}): boolean => {
+}): boolean {
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(
     props.camera.rotation,
   );
-  const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+  function local (point: IAutoMovieVector3): IAutoMovieVector3 { return Quaternion.rotateVector(
       inverse,
       Vector3.subtract(point, props.camera.position),
-    );
+    ); }
   return localSegmentMeetsPerspectiveFrustum({
     from: local(props.from),
     to: local(props.to),
@@ -68,4 +67,4 @@ export const intersectsPerspectiveFrustumSegment = (props: {
     halfY: props.halfY,
     crop: deliveryCropNdc(props.crop),
   });
-};
+}

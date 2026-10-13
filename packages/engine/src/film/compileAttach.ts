@@ -66,7 +66,7 @@ const IDENTITY_OFFSET: IAutoMovieTransform = {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the clip's three arrays, 3 + 3 + 4 numbers per sample, belong to the caller.
  */
-export const compileAttach = (props: {
+export function compileAttach (props: {
   /** The coupled child's scene node: the clip's target. */
   child: string;
 
@@ -108,7 +108,7 @@ export const compileAttach = (props: {
 
   /** Per-rig clinical rest-frame remap for the parent's FK. */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): IAutoMovieClip => {
+}): IAutoMovieClip {
   const fps: number = props.fps ?? 30;
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other
@@ -127,14 +127,13 @@ export const compileAttach = (props: {
     parentBone: props.bone,
     offset: IDENTITY_OFFSET,
   };
-  const boneAt = (pose: IAutoMoviePose): IAutoMovieTransform =>
-    resolveAttachment(
+  function boneAt (pose: IAutoMoviePose): IAutoMovieTransform { return resolveAttachment(
       pose,
       props.parentSkeleton,
       attachment,
       props.jointAxes,
       props.restFrames,
-    );
+    ); }
   const parentMotion: IAutoMovieMotion | undefined = props.parentMotion;
   const restBone: IAutoMovieTransform | null =
     parentMotion === undefined
@@ -183,4 +182,4 @@ export const compileAttach = (props: {
       },
     ],
   };
-};
+}

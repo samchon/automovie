@@ -23,10 +23,10 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pass over one shot's frame moves; the sorted list itself is the result later stages reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reorders the caller's list and pushes violations into the shared collector; it allocates and keeps nothing else.
  */
-export const gatePerformShotFrameOverlaps = (
+export function gatePerformShotFrameOverlaps (
   context: IPerformShotGateContext,
   frames: IPerformShotFrameJob[],
-): void => {
+): void {
   frames.sort(
     (a: IPerformShotFrameJob, b: IPerformShotFrameJob): number =>
       a.action.start - b.action.start,
@@ -57,4 +57,4 @@ export const gatePerformShotFrameOverlaps = (
         next.action.start,
       );
   }
-};
+}

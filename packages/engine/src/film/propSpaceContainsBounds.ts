@@ -39,11 +39,11 @@ import { requireBuiltSpace } from "../architecture/requireBuiltSpace";
  * @evidence contracts/performance.md#reuse-equivalent-work The validated root, the subtree and its space list are resolved once per call and shared by all eight corner tests.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The subtree set and space list are dropped on return and nothing is retained.
  */
-export const propSpaceContainsBounds = (props: {
+export function propSpaceContainsBounds (props: {
   environment: IAutoMovieBuiltEnvironment;
   space: string;
   bounds: IAutoMoviePropBox;
-}): boolean => {
+}): boolean {
   requireBuiltSpace(props.environment, props.space);
   const included: Set<string> = builtSpaceSubtree(
     props.environment.spaces,
@@ -65,4 +65,4 @@ export const propSpaceContainsBounds = (props: {
         )
           return false;
   return true;
-};
+}

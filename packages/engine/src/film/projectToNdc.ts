@@ -37,13 +37,13 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure projection of one point that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing; the caller owns the returned record.
  */
-export const projectToNdc = (
+export function projectToNdc (
   camera: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,
   halfY: number,
   aspect: number,
   crop?: IAutoMovieDeliveryCrop,
-): { ndcX: number; ndcY: number; depth: number } => {
+): { ndcX: number; ndcY: number; depth: number } {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(camera.rotation),
     Vector3.subtract(point, camera.position),
@@ -58,4 +58,4 @@ export const projectToNdc = (
     ndcY: (ndcY - (gate.bottom + gate.top) / 2) / gate.height,
     depth,
   };
-};
+}

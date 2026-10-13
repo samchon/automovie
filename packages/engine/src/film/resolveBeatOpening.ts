@@ -31,6 +31,6 @@ import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computes one shot's opening state per call and caches nothing; `validateFilmContinuity` resolves each beat's opening once and pairs it with the previous beat's end, and `compileDefinedShot` stores its own copy on the compiled result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds nothing after returning; the opening states it hands back are owned as `resolveBeatSnapshot` describes.
  */
-export const resolveBeatOpening = (
+export function resolveBeatOpening (
   props: IResolveBeatProps,
-): IAutoMovieBeatEndState => resolveBeatSnapshot(props, 0);
+): IAutoMovieBeatEndState { return resolveBeatSnapshot(props, 0); }

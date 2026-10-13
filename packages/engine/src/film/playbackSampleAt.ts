@@ -31,12 +31,12 @@ import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constructor of one sample that coordinates no work; locating the live entry, the costly part, is the caller's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned sample.
  */
-export const playbackSampleAt = (
+export function playbackSampleAt (
   sequence: IAutoMovieSequence,
   entries: readonly IAutoMoviePlaybackEntry[],
   live: IAutoMoviePlaybackEntry,
   seconds: number,
-): IAutoMoviePlaybackSample => {
+): IAutoMoviePlaybackSample {
   const transition: IAutoMovieTransition | null =
     sequence.shots[live.entry]!.transition;
   const elapsed: number = seconds - live.start;
@@ -50,4 +50,4 @@ export const playbackSampleAt = (
     };
   }
   return { shot: live.shot, time: live.offset + elapsed, blend };
-};
+}

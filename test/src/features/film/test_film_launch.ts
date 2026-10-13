@@ -1,16 +1,17 @@
-import { compileLaunch, projectileAt } from "@automovie/engine";
-import {
-  IAutoMovieLaunchAction,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieInteractionEventKind, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieLaunchResult } from "../../../../packages/engine/src/film/IAutoMovieLaunchResult";
+
+import { compileLaunch } from "../../../../packages/engine/src/film/compileLaunch";
+import { projectileAt } from "../../../../packages/engine/src/physics/projectileAt";
+
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
 
 /** A launch action carrying the fields `compileLaunch` reads. */
-const launch = (
+function launch (
   over: Partial<IAutoMovieLaunchAction> = {},
-): IAutoMovieLaunchAction => ({
+): IAutoMovieLaunchAction { return ({
   verb: "launch",
   actor: "archer",
   projectile: "arrow",
@@ -19,7 +20,7 @@ const launch = (
   start: 0.5,
   duration: "auto",
   ...over,
-});
+}); }
 
 /**
  * `compileLaunch`: compose the `launch` verb's primitives into a projectile
@@ -50,12 +51,19 @@ const launch = (
  *    point), and the react is still timed to the computed contact. `targetAt`
  *    reads shot time, so a launch loosed at 0.5 s meets the foe where it stands
  *    at `0.5 + hitTime`, not where it stood `hitTime` after the shot began.
+ * 9. A nodeless aim without onHit keeps its flight/contact; requesting a recoil
+ *    with a null or blank targetNode is refused rather than silently omitted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises compileLaunch's flight, timed recoil, impact events and moving interception; assertions catch wrong speed or landing, reversed incoming recoil, missing onHit actors, and an event clock that omits the action start.
+ * @evidence contracts/testing.md#independent-expectations Requested speed and target coordinates define the static oracle; constant-velocity target motion defines the independent interception oracle, and the custom-gravity apex gives a zero-velocity sightline case. Timing compares the solved contact against the same result's reaction and events, so it checks clock consistency rather than the ballistic root alone.
+ * @evidence contracts/testing.md#distinguishing-cases Covers node and nodeless aims, reactions with and without unbalance, missing/blank struck actors, actor lists, direct and high arcs, unreachable targets, zero landing velocity and moving targets; full-shot admission and late-impact refusal belong to perform-shot launch tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous unit entry directly imports compileLaunch and projectileAt and executes its portable physics cases without a renderer, process or native artifact.
  */
-export const test_film_launch = (): void => {
+export function test_film_launch (): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.4, z: 0 };
 
-  const hit = compileLaunch({
+  const hit: IAutoMovieLaunchResult = compileLaunch({
     action: launch({ onHit: { force: 0.7, unbalance: true } }),
     origin,
     target,
@@ -68,7 +76,7 @@ export const test_film_launch = (): void => {
     hit.clip.id,
     "trajectory:arrow",
   );
-  const values = hit.clip.tracks[0]!.values;
+  const values: number[] = hit.clip.tracks[0]!.values;
   TestValidator.predicate(
     "the baked flight ends on the target",
     vclose(
@@ -96,7 +104,7 @@ export const test_film_launch = (): void => {
   TestValidator.predicate("a positive flight time", hit.hitTime > 0);
 
   // 2. the reaction is scheduled at the computed contact
-  const react = hit.react!;
+  const react: IAutoMovieReactAction = hit.react!;
   TestValidator.equals("the struck node reacts", react.actor, "foe");
   TestValidator.equals("react verb", react.verb, "react");
   TestValidator.predicate(
@@ -107,30 +115,30 @@ export const test_film_launch = (): void => {
   TestValidator.equals("unbalance carried through", react.unbalance, true);
   TestValidator.equals(
     "the launch emits contact, hit, and fall events",
-    hit.events.map((event) => event.kind),
+    hit.events.map((event: IAutoMovieInteractionEvent) : AutoMovieInteractionEventKind => event.kind),
     ["contact", "hit", "fall"],
   );
   TestValidator.equals(
     "the contact event is the collision-solver landing",
     namedFacts([
-      ["hitEventsSource", () => hit.events[0]!.source === "collisionSolver"],
-      ["hitEventsTarget", () => hit.events[0]!.target === "foe"],
-      ["hitEventsObject", () => hit.events[0]!.object === "arrow"],
-      ["hitEventsActionIndex", () => hit.events[0]!.actionIndex === null],
+      ["hitEventsSource", () : boolean => hit.events[0]!.source === "collisionSolver"],
+      ["hitEventsTarget", () : boolean => hit.events[0]!.target === "foe"],
+      ["hitEventsObject", () : boolean => hit.events[0]!.object === "arrow"],
+      ["hitEventsActionIndex", () : boolean => hit.events[0]!.actionIndex === null],
       [
         "ncloseHitEvents",
-        () =>
+        () : boolean =>
           hit.events[0]!.actionIndex === null &&
           nclose(hit.events[0]!.time, react.start),
       ],
       [
         "hitEventsPoint",
-        () =>
+        () : boolean =>
           hit.events[0]!.actionIndex === null && hit.events[0]!.point !== null,
       ],
       [
         "vcloseHitEvents",
-        () =>
+        () : boolean =>
           hit.events[0]!.actionIndex === null &&
           hit.events[0]!.point !== null &&
           vclose(hit.events[0]!.point, target, 2e-3),
@@ -149,29 +157,29 @@ export const test_film_launch = (): void => {
   TestValidator.equals(
     "the hit event names the downstream reaction",
     namedFacts([
-      ["hitEventsSource", () => hit.events[1]!.source === "impactOutput"],
-      ["hitEventsReaction", () => hit.events[1]!.reaction === "foe"],
-      ["ncloseHitEvents", () => nclose(hit.events[1]!.time, react.start)],
+      ["hitEventsSource", () : boolean => hit.events[1]!.source === "impactOutput"],
+      ["hitEventsReaction", () : boolean => hit.events[1]!.reaction === "foe"],
+      ["ncloseHitEvents", () : boolean => nclose(hit.events[1]!.time, react.start)],
     ]),
     { hitEventsSource: true, hitEventsReaction: true, ncloseHitEvents: true },
   );
   TestValidator.equals(
     "unbalance emits a fall event",
     namedFacts([
-      ["hitEventsKind", () => hit.events[2]!.kind === "fall"],
+      ["hitEventsKind", () : boolean => hit.events[2]!.kind === "fall"],
       [
         "hitEventsActor",
-        () => hit.events[2]!.kind === "fall" && hit.events[2]!.actor === "foe",
+        () : boolean => hit.events[2]!.kind === "fall" && hit.events[2]!.actor === "foe",
       ],
       [
         "hitEventsSource",
-        () =>
+        () : boolean =>
           hit.events[2]!.kind === "fall" &&
           hit.events[2]!.source === "impactOutput",
       ],
       [
         "hitEventsReaction",
-        () =>
+        () : boolean =>
           hit.events[2]!.kind === "fall" && hit.events[2]!.reaction === "foe",
       ],
     ]),
@@ -187,7 +195,7 @@ export const test_film_launch = (): void => {
   // way the arrow flew, not toward the shooter. `hitPoint − from` reconstructs
   // the incoming direction exactly (from = hitPoint − normalize(v(hit))), and
   // it runs downrange (+x, no lateral drift for this in-plane shot).
-  const from = react.from.kind === "point" ? react.from.point : null;
+  const from: IAutoMovieVector3 | null = react.from.kind === "point" ? react.from.point : null;
   TestValidator.predicate("react.from is a world point", from !== null);
   const knock: IAutoMovieVector3 = {
     x: hit.hitPoint.x - from!.x,
@@ -197,16 +205,16 @@ export const test_film_launch = (): void => {
   TestValidator.equals(
     "the recoil runs downrange (+x), no lateral drift",
     namedFacts([
-      ["downrange", () => knock.x > 0],
-      ["noLateralDrift", () => Math.abs(knock.z) < 1e-9],
+      ["downrange", () : boolean => knock.x > 0],
+      ["noLateralDrift", () : boolean => Math.abs(knock.z) < 1e-9],
     ]),
     { downrange: true, noLateralDrift: true },
   );
-  const vHit = projectileAt(
+  const vHit: IAutoMovieVector3 = projectileAt(
     { origin, velocity: hit.velocity, gravity: { x: 0, y: -9.81, z: 0 } },
     hit.hitTime,
   ).velocity;
-  const vLen = Math.hypot(vHit.x, vHit.y, vHit.z);
+  const vLen: number = Math.hypot(vHit.x, vHit.y, vHit.z);
   TestValidator.predicate(
     "the recoil direction is exactly the incoming velocity's",
     vclose(
@@ -221,7 +229,7 @@ export const test_film_launch = (): void => {
   );
 
   // 4. no onHit → no scheduled reaction
-  const quiet = compileLaunch({
+  const quiet: IAutoMovieLaunchResult = compileLaunch({
     action: launch(),
     origin,
     target,
@@ -231,7 +239,7 @@ export const test_film_launch = (): void => {
 
   TestValidator.equals(
     "a hit without onHit still records contact and hit",
-    quiet.events.map((event) => event.kind),
+    quiet.events.map((event: IAutoMovieInteractionEvent) : AutoMovieInteractionEventKind => event.kind),
     ["contact", "hit"],
   );
   TestValidator.equals(
@@ -239,7 +247,7 @@ export const test_film_launch = (): void => {
     quiet.events[1]!.reaction,
     null,
   );
-  const listedActor = compileLaunch({
+  const listedActor: IAutoMovieLaunchResult = compileLaunch({
     action: launch({ actor: ["archer", "spotter"] }),
     origin,
     target,
@@ -250,7 +258,7 @@ export const test_film_launch = (): void => {
     listedActor.events[0]!.actor,
     "archer",
   );
-  const emptyActor = compileLaunch({
+  const emptyActor: IAutoMovieLaunchResult = compileLaunch({
     action: launch({ actor: [] }),
     origin,
     target,
@@ -262,10 +270,9 @@ export const test_film_launch = (): void => {
     null,
   );
 
-  // 4b. an onHit aimed at a point (no single actor) still flies, but schedules
-  // no reaction: there is no node to recoil.
-  const pointed = compileLaunch({
-    action: launch({ onHit: { force: 0.9 } }),
+  // 4b. A literal aim without onHit still flies and records contact only.
+  const pointed: IAutoMovieLaunchResult = compileLaunch({
+    action: launch({ at: { kind: "point", point: target } }),
     origin,
     target,
     targetNode: null,
@@ -273,7 +280,7 @@ export const test_film_launch = (): void => {
   TestValidator.equals("a nodeless target → no react", pointed.react, null);
   TestValidator.equals(
     "a point target records contact but no node hit",
-    pointed.events.map((event) => event.kind),
+    pointed.events.map((event: IAutoMovieInteractionEvent) : AutoMovieInteractionEventKind => event.kind),
     ["contact"],
   );
   TestValidator.equals(
@@ -284,20 +291,33 @@ export const test_film_launch = (): void => {
   TestValidator.equals(
     "but the flight still bakes",
     namedFacts([
-      ["flightBaked", () => pointed.clip.id === "trajectory:arrow"],
-      ["landsOnTarget", () => vclose(pointed.hitPoint, target, 2e-3)],
+      ["flightBaked", () : boolean => pointed.clip.id === "trajectory:arrow"],
+      ["landsOnTarget", () : boolean => vclose(pointed.hitPoint, target, 2e-3)],
     ]),
     { flightBaked: true, landsOnTarget: true },
   );
+  for (const targetNode of [null, "", " "])
+    TestValidator.predicate(
+      "a requested reaction without an identified struck actor is refused",
+      throwsError(
+        (): unknown => compileLaunch({
+          action: launch({ onHit: { force: 0.9 } }),
+          origin,
+          target,
+          targetNode,
+        }),
+        ["onHit requires", "targetNode", "struck actor"],
+      ),
+    );
 
   // 5. the high arc flies longer than the direct arc to the same target
-  const direct = compileLaunch({
+  const direct: IAutoMovieLaunchResult = compileLaunch({
     action: launch(),
     origin,
     target,
     targetNode: "foe",
   })!;
-  const high = compileLaunch({
+  const high: IAutoMovieLaunchResult = compileLaunch({
     action: launch(),
     origin,
     target,
@@ -329,7 +349,7 @@ export const test_film_launch = (): void => {
   // g = 8 → apex 100/16 = 6.25 m (all exact in float), where the projectile
   // arrives with zero velocity. The incoming direction degenerates, so `from`
   // falls back to the sightline (straight up), one meter below the target.
-  const apex = compileLaunch({
+  const apex: IAutoMovieLaunchResult = compileLaunch({
     action: launch({ speed: 10, onHit: { force: 0.5 } }),
     origin: { x: 0, y: 0, z: 0 },
     target: { x: 0, y: 6.25, z: 0 },
@@ -343,12 +363,12 @@ export const test_film_launch = (): void => {
   TestValidator.equals(
     "the apex-lob react.from falls back to the sightline",
     namedFacts([
-      ["fromIsPoint", () => apex.react!.from.kind === "point"],
+      ["fromIsPoint", () : boolean => apex.react!.from.kind === "point"],
       [
         "sightlineFallback",
         // the `point` arm's discriminant is restated because the narrowing
         // from the previous fact does not reach into this closure.
-        () =>
+        () : boolean =>
           apex.react!.from.kind === "point" &&
           vclose(apex.react!.from.point, { x: 0, y: 5.25, z: 0 }, 1e-6),
       ],
@@ -367,12 +387,12 @@ export const test_film_launch = (): void => {
   // `start + hitTime`, past its start point, and the react is still timed to
   // the computed contact.
   const startAt: IAutoMovieVector3 = { x: 10, y: 1.4, z: 0 };
-  const slide = (t: number): IAutoMovieVector3 => ({
+  function slide (t: number): IAutoMovieVector3 { return ({
     x: startAt.x + 4 * t,
     y: startAt.y,
     z: startAt.z,
-  });
-  const led = compileLaunch({
+  }); }
+  const led: IAutoMovieLaunchResult = compileLaunch({
     action: launch({ speed: 24, onHit: { force: 0.6 } }),
     origin,
     target: startAt,
@@ -390,12 +410,12 @@ export const test_film_launch = (): void => {
   TestValidator.equals(
     "the moving-target react is timed to the computed contact",
     namedFacts([
-      ["reactScheduled", () => led.react !== null],
+      ["reactScheduled", () : boolean => led.react !== null],
       [
         "timedToContact",
         // the null guard is restated so `led.react.start` is reachable: the
         // narrowing from the previous fact does not reach into this closure.
-        () => led.react !== null && nclose(led.react.start, 0.5 + led.hitTime),
+        () : boolean => led.react !== null && nclose(led.react.start, 0.5 + led.hitTime),
       ],
     ]),
     { reactScheduled: true, timedToContact: true },
@@ -403,10 +423,10 @@ export const test_film_launch = (): void => {
   TestValidator.predicate(
     "the moving-target hit event follows the led contact time",
     led.events.some(
-      (event) =>
+      (event: IAutoMovieInteractionEvent) : boolean =>
         event.kind === "hit" &&
         event.target === "foe" &&
         nclose(event.time, 0.5 + led.hitTime),
     ),
   );
-};
+}

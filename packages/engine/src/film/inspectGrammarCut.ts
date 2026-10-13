@@ -50,7 +50,7 @@ type Sign = -1 | 0 | 1;
  * @evidence contracts/performance.md#reuse-equivalent-work Reads sizes through the caller's memo, so the incoming start size it shares with the shot-size check and the next cut's outgoing end size are measured once per read; subject lookups use the index `normalizeGrammarShot` built.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most six findings per call to the caller's list and retains nothing else; projected points and relation records are released on return.
  */
-export const inspectGrammarCut = (
+export function inspectGrammarCut (
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
@@ -59,7 +59,7 @@ export const inspectGrammarCut = (
     boundary: "start" | "end",
   ) => Framing,
   thresholds: { minimumCutAngleDegrees: number; reestablishDistance: number },
-): void => {
+): void {
   inspectAxis(diagnostics, previous, incoming);
   inspectEyeline(diagnostics, previous, incoming);
   const incomingSize: Framing = sizeOf(incoming, "start");
@@ -136,14 +136,14 @@ export const inspectGrammarCut = (
       "the audience has no wide spatial introduction for the newly visible subject",
     recovery: `introduce "${entrant.id}" in a wide or neutral establishing shot before "${incoming.id}", or mark tight-reestablish`,
   });
-};
+}
 
 /** Files an axis finding when an unseen cut puts the camera across the axis. */
-const inspectAxis = (
+function inspectAxis (
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
-): void => {
+): void {
   if (
     previous.actionAxis === null ||
     incoming.actionAxis === null ||
@@ -166,19 +166,19 @@ const inspectAxis = (
     fact: `cut "${previous.id}" -> "${incoming.id}" moves the camera from the ${halfPlane} to the ${halfPlane === "positive" ? "negative" : "positive"} half-plane of axis "${previous.actionAxis[0]}"-"${previous.actionAxis[1]}"`,
     impact:
       "the unseen axis crossing reverses established left-right geography",
-    recovery: `keep camera "${incoming.id}" on the ${halfPlane} half-plane, show the crossing on screen, or insert a neutral shot on the action axis`,
+    recovery: `keep camera "${incoming.id}" on the ${halfPlane} half-plane, show the crossing on screen, insert a neutral shot on the action axis, or mark axis-cross`,
   });
-};
+}
 
 /**
  * Files an eyeline finding when a reverse or a continuation of the outgoing
  * primary subject's gaze reads the wrong way on screen.
  */
-const inspectEyeline = (
+function inspectEyeline (
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
-): void => {
+): void {
   if (previous.primarySubject === null || incoming.primarySubject === null)
     return;
   const outgoing: IAutoMovieGrammarSubjectObservation =
@@ -205,10 +205,9 @@ const inspectEyeline = (
     incomingLooker.eyeline.start,
   );
   const expectedMultiplier: number = reverse ? -1 : 1;
-  const matches = (outgoingValue: Sign, incomingValue: Sign): boolean =>
-    outgoingValue === 0 ||
+  function matches (outgoingValue: Sign, incomingValue: Sign): boolean { return outgoingValue === 0 ||
     incomingValue === 0 ||
-    incomingValue === outgoingValue * expectedMultiplier;
+    incomingValue === outgoingValue * expectedMultiplier; }
   if (
     matches(outgoingSide.horizontal, incomingSide.horizontal) &&
     matches(outgoingSide.vertical, incomingSide.vertical)
@@ -224,16 +223,16 @@ const inspectEyeline = (
       "the reverse relative screen position breaks the established eyeline match",
     recovery: `place camera "${incoming.id}" on the prior eyeline half-plane, insert a neutral look shot, or mark eyeline-break`,
   });
-};
+}
 
 /** Files a finding when the shared subject's screen motion reverses at a cut. */
-const inspectScreenDirection = (
+function inspectScreenDirection (
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
   outgoing: IAutoMovieGrammarSubjectObservation,
   arriving: IAutoMovieGrammarSubjectObservation,
-): void => {
+): void {
   const outgoingDirection: Sign = screenMotionDirection(previous, outgoing);
   const incomingDirection: Sign = screenMotionDirection(incoming, arriving);
   if (
@@ -252,13 +251,13 @@ const inspectScreenDirection = (
       "the reversal can read as the subject turning around or changing destination",
     recovery: `keep "${outgoing.id}" moving screen-${outgoingDirection > 0 ? "right" : "left"}, cross the camera visibly, or insert a neutral head-on shot`,
   });
-};
+}
 
 /** Which ground-plane side of the action axis the camera stands on. */
-const actionAxisSide = (
+function actionAxisSide (
   shot: IAutoMovieNormalizedGrammarShot,
   boundary: "start" | "end",
-): Sign => {
+): Sign {
   const first: IAutoMovieGrammarSubjectObservation = shot.subjectById.get(
     shot.actionAxis![0],
   )!;
@@ -274,17 +273,17 @@ const actionAxisSide = (
     first[boundary],
   );
   return sign(axis.x * camera.z - axis.z * camera.x);
-};
+}
 
 /** Whether the camera visibly crosses the shot's own axis between boundaries. */
-const crossesActionAxisOnScreen = (
+function crossesActionAxisOnScreen (
   shot: IAutoMovieNormalizedGrammarShot,
-): boolean => {
+): boolean {
   if (shot.actionAxis === null) return false;
   const start: Sign = actionAxisSide(shot, "start");
   const end: Sign = actionAxisSide(shot, "end");
   return start !== 0 && end !== 0 && start !== end;
-};
+}
 
 /** Signed screen offset of a target from a subject, per axis. */
 interface IScreenRelation {
@@ -296,11 +295,11 @@ interface IScreenRelation {
 }
 
 /** Where `target` sits on screen relative to `subject`; neutral off-lens. */
-const relativeScreenDirection = (
+function relativeScreenDirection (
   camera: IAutoMovieGrammarCameraObservation,
   subject: IAutoMovieVector3,
   target: IAutoMovieVector3,
-): IScreenRelation => {
+): IScreenRelation {
   const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
   const from: ReturnType<typeof projectToNdc> = projectToNdc(
     camera,
@@ -320,13 +319,13 @@ const relativeScreenDirection = (
     horizontal: sign(to.ndcX - from.ndcX),
     vertical: sign(to.ndcY - from.ndcY),
   };
-};
+}
 
 /** Horizontal screen motion of a subject from its first to its last frame. */
-const screenMotionDirection = (
+function screenMotionDirection (
   shot: IAutoMovieNormalizedGrammarShot,
   subject: IAutoMovieGrammarSubjectObservation,
-): Sign => {
+): Sign {
   const startHalfY: number = Math.tan((shot.camera.start.fovY * Math.PI) / 360);
   const endHalfY: number = Math.tan((shot.camera.end.fovY * Math.PI) / 360);
   const start: ReturnType<typeof projectToNdc> = projectToNdc(
@@ -344,18 +343,18 @@ const screenMotionDirection = (
   if (start.depth <= GRAMMAR_EPSILON || end.depth <= GRAMMAR_EPSILON)
     return 0;
   return sign(end.ndcX - start.ndcX);
-};
+}
 
 /**
  * Degrees between the two camera bearings around the subject across a cut;
  * 180 when either camera stands on its subject.
  */
-const cameraBearingAngleDegrees = (
+function cameraBearingAngleDegrees (
   previousSubject: IAutoMovieVector3,
   incomingSubject: IAutoMovieVector3,
   previousCamera: IAutoMovieVector3,
   incomingCamera: IAutoMovieVector3,
-): number => {
+): number {
   const previous: IAutoMovieVector3 = Vector3.subtract(
     previousCamera,
     previousSubject,
@@ -371,15 +370,13 @@ const cameraBearingAngleDegrees = (
     Math.min(1, Vector3.dot(previous, incoming) / lengths),
   );
   return (Math.acos(cosine) * 180) / Math.PI;
-};
+}
 
 /** The sign of `value`, zero inside the `GRAMMAR_EPSILON` dead band. */
-const sign = (value: number): Sign =>
-  Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1;
+function sign (value: number): Sign { return Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1; }
 
 /** A screen relation in finding prose, such as `screen-left/above`. */
-const screenRelation = (direction: IScreenRelation): string =>
-  [
+function screenRelation (direction: IScreenRelation): string { return [
     direction.horizontal === 0
       ? "screen-center"
       : `screen-${direction.horizontal > 0 ? "right" : "left"}`,
@@ -388,4 +385,4 @@ const screenRelation = (direction: IScreenRelation): string =>
       : direction.vertical > 0
         ? "above"
         : "below",
-  ].join("/");
+  ].join("/"); }

@@ -28,15 +28,14 @@ import { resolveShotLighting } from "../resolve/resolveShotLighting";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one instant per call; `inheritProductionLighting` asks once per shot instant it lights, and the lighting record carries no identity to key a cache on.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; untouched sources are the declared objects by reference and touched ones are fresh copies owned by the caller.
  */
-export const resolveProductionLighting = (props: {
+export function resolveProductionLighting (props: {
   /** The production's declared sources and their story-clock motion. */
   lighting: IAutoMovieProductionLighting;
 
   /** The instant to evaluate, in story-clock seconds. */
   storySeconds: number;
-}): IAutoMovieLight[] =>
-  resolveShotLighting({
+}): IAutoMovieLight[] { return resolveShotLighting({
     lights: props.lighting.lights,
     clips: props.lighting.motions,
     seconds: props.storySeconds,
-  });
+  }); }

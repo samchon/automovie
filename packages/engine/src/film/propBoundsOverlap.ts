@@ -24,13 +24,12 @@ import { IAutoMoviePropBox } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over two boxes that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads six coordinates of each box by value; it allocates nothing and holds no reference past the call.
  */
-export const propBoundsOverlap = (
+export function propBoundsOverlap (
   left: IAutoMoviePropBox,
   right: IAutoMoviePropBox,
-): boolean =>
-  left.min.x < right.max.x &&
+): boolean { return left.min.x < right.max.x &&
   left.max.x > right.min.x &&
   left.min.y < right.max.y &&
   left.max.y > right.min.y &&
   left.min.z < right.max.z &&
-  left.max.z > right.min.z;
+  left.max.z > right.min.z; }

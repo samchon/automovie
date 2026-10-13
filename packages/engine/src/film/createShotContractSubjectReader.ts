@@ -51,22 +51,25 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
  * channels sampled at one shot-local second, shared by every node placed at
  * that second; a node subject's model-space extent, which walks its model's
  * rest geometry; and a formation's member extent.
+ * The caller must keep compiled artifacts, world landmarks and fallback rig
+ * lookup answers stable for this one grading call. This reader is not a live
+ * view across edits; changed inputs require a new reader.
  *
  * @param props The grading inputs; read, never mutated.
  * @returns A reader over `props` that holds its indexes and caches until the
  *   caller drops it.
  *
- * @evidence contracts/common.md#principled-implementation Placement composes the staged transform with the object-motion authority `sampleClipSequence` selects per channel, read by `channelKey` so the key cannot drift from the sampler's, and folds a rigged node's pose root through `foldRoot`, the matrix composition every other beat and review reader uses, with the root's scale held at identity as engine kinematics and the viewer treat it; a node's box is `nodeSubjectBox` over `nodeSubjectExtent`, the read `performShot` framed from, so the grade tests the subject the camera was solved for. The caches are sound because every cached value is a pure function of the cache key and of `props`, which the reader never mutates.
+ * @evidence contracts/common.md#principled-implementation Placement applies sampleClipSequence's per-channel authority through channelKey and folds the sampled pose root through foldRoot with identity root scale, matching engine kinematics and viewer placement. Node boxes share nodeSubjectExtent and nodeSubjectBox with camera framing. Cached values depend on their keys, artifact contents and fallback rig answers; validity requires the caller's documented stable-input premise during the synchronous grade, not merely that this reader avoids mutation.
  * @evidence contracts/common.md#clear-and-simple-design One factory owns the indexes, the caches and the placement rules, so the graders in `realizeShotContract` and `evaluateShotPredicate` receive one reader and hold no lookups of their own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No node, model, formation or landmark is special-cased; first-record indexing answers what a first-match `find` would, and an unresolvable reference throws for the grade to fail rather than being replaced by a default placement.
  * @evidence contracts/common.md#meaningful-documentation States what is indexed and the duplicate rule, what is cached and why each cache is valid, the ownership of `props`, and the reader's lifetime.
  * @evidence contracts/performance.md#efficient-algorithms Building the indexes is linear in nodes, models, formations, performances, motions and landmarks; afterwards every id lookup is a constant-time map read instead of a scan per predicate, subject and instant. The dominant per-query cost is sampling: one `sampleClipSequence` over every object-motion track per distinct instant, one `sampleMotion` per pose read, and one rest-geometry walk per distinct node subject.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares the object-motion sample across every node placed at the same shot-local second, keyed by that exact second, and the node and member extents across every camera sample, keyed by subject or formation id; each cached value depends only on its key and on the immutable `props`, so no invalidation is needed within the reader's single call.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares sampled object channels by exact shot-local second and geometry/member extents by node/formation id during one grade. The caller must keep artifact contents, world placements and fallback rig lookup answers unchanged; this scope has no live-edit invalidation, and a changed input requires a fresh reader.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The reader owns six index maps, sized by the compiled artifacts, and three caches grown by distinct grading instants, distinct required node subjects and distinct formation subjects, all named by the contract; nothing else is retained, and everything is released when `realizeShotContract` returns and drops the reader.
  */
-export const createShotContractSubjectReader = (
+export function createShotContractSubjectReader (
   props: IRealizeShotContractProps,
-): IShotContractSubjectReader => {
+): IShotContractSubjectReader {
   const compiled: IRealizeShotContractProps["compiled"] = props.compiled;
   const nodes: ReadonlyMap<string, IAutoMovieSceneNode> = indexFirst(
     compiled.scene.nodes,
@@ -99,9 +102,9 @@ export const createShotContractSubjectReader = (
     number,
     Map<string, IAutoMovieSampledChannel>
   > = new Map();
-  const objectChannelsAt = (
+  function objectChannelsAt (
     time: number,
-  ): Map<string, IAutoMovieSampledChannel> => {
+  ): Map<string, IAutoMovieSampledChannel> {
     const cached: Map<string, IAutoMovieSampledChannel> | undefined =
       objectChannels.get(time);
     if (cached !== undefined) return cached;
@@ -111,16 +114,16 @@ export const createShotContractSubjectReader = (
     );
     objectChannels.set(time, sampled);
     return sampled;
-  };
+  }
 
-  const skeleton = (node: IAutoMovieSceneNode): IAutoMovieSkeleton | null => {
+  function skeleton (node: IAutoMovieSceneNode): IAutoMovieSkeleton | null {
     const model: IAutoMovieModel | undefined = models.get(node.model);
     return model === undefined
       ? (props.skeleton?.(node.id) ?? null)
       : model.skeleton;
-  };
+  }
 
-  const poseAt = (node: IAutoMovieSceneNode, time: number): IAutoMoviePose => {
+  function poseAt (node: IAutoMovieSceneNode, time: number): IAutoMoviePose {
     const performance: IAutoMovieShotPerformance | undefined =
       performances.get(node.id);
     const rig: IAutoMovieSkeleton | null = skeleton(node);
@@ -137,19 +140,18 @@ export const createShotContractSubjectReader = (
         ? time
         : Math.max(0, time - performance.startOffset),
     ).pose;
-  };
+  }
 
-  const transformAt = (actor: string, time: number): IAutoMovieTransform => {
+  function transformAt (actor: string, time: number): IAutoMovieTransform {
     const node: IAutoMovieSceneNode | undefined = nodes.get(actor);
     if (node === undefined) throw new Error(`node "${actor}" is absent`);
     const pose: IAutoMoviePose | null =
       skeleton(node) === null ? null : poseAt(node, time);
     const sampled: Map<string, IAutoMovieSampledChannel> =
       objectChannelsAt(time);
-    const channel = (
+    function channel (
       path: "translation" | "rotation" | "scale",
-    ): number[] | undefined =>
-      sampled.get(channelKey({ kind: "node", node: actor, path }))?.value;
+    ): number[] | undefined { return sampled.get(channelKey({ kind: "node", node: actor, path }))?.value; }
     const translation: number[] | undefined = channel("translation");
     const rotation: number[] | undefined = channel("rotation");
     const scale: number[] | undefined = channel("scale");
@@ -175,12 +177,12 @@ export const createShotContractSubjectReader = (
     return pose === null || pose.root === null
       ? placed
       : foldRoot(placed, { ...pose.root, scale: IDENTITY_SCALE });
-  };
+  }
 
-  const spatialAt = (
+  function spatialAt (
     selector: IAutoMovieShotSpatialSelector,
     time: number,
-  ): IAutoMovieVector3 => {
+  ): IAutoMovieVector3 {
     if (selector.kind === "point") return selector.position;
     if (selector.kind === "landmark") {
       const landmark: IAutoMovieWorldLandmark | undefined = landmarks.get(
@@ -206,10 +208,10 @@ export const createShotContractSubjectReader = (
       ),
       formation.facingDeg,
     );
-  };
+  }
 
   const nodeExtents: Map<string, IAutoMovieSubjectBox> = new Map();
-  const nodeExtent = (subject: string): IAutoMovieSubjectBox => {
+  function nodeExtent (subject: string): IAutoMovieSubjectBox {
     const cached: IAutoMovieSubjectBox | undefined = nodeExtents.get(subject);
     if (cached !== undefined) return cached;
     const node: IAutoMovieSceneNode | undefined = nodes.get(subject);
@@ -226,12 +228,12 @@ export const createShotContractSubjectReader = (
     );
     nodeExtents.set(subject, extent);
     return extent;
-  };
+  }
 
   const memberExtents: Map<string, { min: number; max: number }> = new Map();
-  const memberExtent = (
+  function memberExtent (
     formation: IAutoMovieCompiledFormation,
-  ): { min: number; max: number } => {
+  ): { min: number; max: number } {
     const cached: { min: number; max: number } | undefined = memberExtents.get(
       formation.id,
     );
@@ -242,7 +244,7 @@ export const createShotContractSubjectReader = (
     );
     memberExtents.set(formation.id, extent);
     return extent;
-  };
+  }
 
   return {
     node: (id: string): IAutoMovieSceneNode | undefined => nodes.get(id),
@@ -278,17 +280,17 @@ export const createShotContractSubjectReader = (
           });
     },
   };
-};
+}
 
 /** Index records by key, keeping the first record of a repeated key. */
-const indexFirst = <T>(
+function indexFirst<T>(
   records: readonly T[],
   key: (record: T) => string,
-): Map<string, T> => {
+): Map<string, T> {
   const index: Map<string, T> = new Map();
   for (const record of records) {
     const id: string = key(record);
     if (index.has(id) === false) index.set(id, record);
   }
   return index;
-};
+}

@@ -59,7 +59,7 @@ type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each phase's accepted artifact is handed forward rather than recomputed, the prior-actor map is built once for all three resume merges, and one continuity input feeds both the opening and the closing snapshot; across calls nothing is reused, because the builder is author code whose result the engine cannot prove equal for the same context.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds phase artifacts only for the call; the success value owns the staged scene, motions, shot, continuity and realization plus deep clones of the event samples and advice, so no runtime capability or caller object is retained, and every exit path releases the rest.
  */
-export const compileDefinedShot = <Context>(props: {
+export function compileDefinedShot<Context>(props: {
   /** Registered source export, as {@link defineShot} returned it. */
   shot: IAutoMovieDefinedShot<Context>;
 
@@ -68,7 +68,7 @@ export const compileDefinedShot = <Context>(props: {
 
   /** Host motion, rig, scene and continuity capabilities the phases read. */
   runtime: IAutoMovieShotRuntime;
-}): IAutoMovieCompiledDefinedShot => {
+}): IAutoMovieCompiledDefinedShot {
   let registration: IAutoMovieAuthoringDiagnostic[];
   try {
     registration = validateRegistration(props.shot);
@@ -320,13 +320,13 @@ export const compileDefinedShot = <Context>(props: {
       ],
     };
   }
-};
+}
 
 /** Keep resumable simulation facts authoritative at the new opening instant. */
-const resumeOpeningSnapshot = (
+function resumeOpeningSnapshot (
   opening: IAutoMovieBeatEndState,
   prior: IPriorActors | null,
-): IAutoMovieBeatEndState => {
+): IAutoMovieBeatEndState {
   if (prior === null) return opening;
   return {
     ...opening,
@@ -347,13 +347,13 @@ const resumeOpeningSnapshot = (
       },
     ),
   };
-};
+}
 
 /** Resume root placement, facing, and persistent mounts before staging. */
-const resumeStage = (
+function resumeStage (
   stage: IAutoMovieStage,
   prior: IPriorActors,
-): IAutoMovieStage => ({
+): IAutoMovieStage { return ({
   ...stage,
   actors: stage.actors.map(
     (actor: IAutoMovieStageActor): IAutoMovieStageActor => {
@@ -372,13 +372,13 @@ const resumeStage = (
           };
     },
   ),
-});
+}); }
 
 /** Carry prior articulation onto the resumed scene's opening frame. */
-const resumePoses = (
+function resumePoses (
   staged: IAutoMovieStagedSet.ISuccess,
   prior: IPriorActors | null,
-): IAutoMovieStagedSet.ISuccess => {
+): IAutoMovieStagedSet.ISuccess {
   if (prior === null) return staged;
   return {
     ...staged,
@@ -396,12 +396,12 @@ const resumePoses = (
       ),
     },
   };
-};
+}
 
 /** Report every blank registration id against its exact field. */
-const validateRegistration = <Context>(
+function validateRegistration<Context>(
   shot: IAutoMovieDefinedShot<Context>,
-): IAutoMovieAuthoringDiagnostic[] => {
+): IAutoMovieAuthoringDiagnostic[] {
   const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
   for (const [path, value, label] of [
     ["$shot.id", shot.id, "shot id"],
@@ -419,15 +419,14 @@ const validateRegistration = <Context>(
         recovery: `Give ${path} one non-blank stable id and keep it identical across source and design references.`,
       });
   return diagnostics;
-};
+}
 
 /** Translate one gate's constraint violations into authoring diagnostics. */
-const fromViolations = (
+function fromViolations (
   phase: "stage" | "blocking" | "performance",
   code: "stage-invalid" | "blocking-invalid" | "performance-invalid",
   violations: readonly IAutoMovieConstraintViolation[],
-): IAutoMovieAuthoringDiagnostic[] =>
-  violations.map(
+): IAutoMovieAuthoringDiagnostic[] { return violations.map(
     (violation: IAutoMovieConstraintViolation): IAutoMovieAuthoringDiagnostic => ({
       code,
       phase,
@@ -437,8 +436,7 @@ const fromViolations = (
       recovery: `Correct ${violation.path} according to the stated bound, then compile the same registered export again.`,
       violation,
     }),
-  );
+  ); }
 
 /** Render a thrown value as `Name: message`, or its string form. */
-const errorText = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+function errorText (error: unknown): string { return error instanceof Error ? `${error.name}: ${error.message}` : String(error); }

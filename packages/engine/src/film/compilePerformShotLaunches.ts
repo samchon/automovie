@@ -57,12 +57,12 @@ import { performShotActors } from "./performShotActors";
  * @evidence contracts/performance.md#reuse-equivalent-work The probe compile goes through the shot's memoized synthesizer, so the target's clips it synthesizes are the ones the authoritative compile reuses; its masked report is dropped because that compile reports every drop once at the same paths.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The probe performances are dropped after each solve; the caller owns the returned clips and events, one flight per launch.
  */
-export const compilePerformShotLaunches = (
+export function compilePerformShotLaunches (
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   synthesize: IAutoMovieActionSynthesizer,
   rotations: ReadonlyMap<string, IAutoMovieQuaternion>,
-): { clips: IAutoMovieClip[]; events: IAutoMovieInteractionEvent[] } => {
+): { clips: IAutoMovieClip[]; events: IAutoMovieInteractionEvent[] } {
   const duration: number = context.performance.duration;
   const clips: IAutoMovieClip[] = [];
   const events: IAutoMovieInteractionEvent[] = [];
@@ -124,16 +124,16 @@ export const compilePerformShotLaunches = (
     }
   }
   return { clips, events };
-};
+}
 
 /** Where a launch's target is over time, or undefined for a static aim. */
-const leadOf = (
+function leadOf (
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   job: IPerformShotLaunchJob,
   synthesize: IAutoMovieActionSynthesizer,
   rotations: ReadonlyMap<string, IAutoMovieQuaternion>,
-): ((seconds: number) => IAutoMovieVector3) | undefined => {
+): ((seconds: number) => IAutoMovieVector3) | undefined {
   const targetAt: IPerformShotGateContext["targetAt"] = context.targetAt;
   if (job.action.at.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
@@ -151,4 +151,4 @@ const leadOf = (
     rotations.get(node)!,
     compilePerformance(own, synthesize).performances[node]!,
   );
-};
+}

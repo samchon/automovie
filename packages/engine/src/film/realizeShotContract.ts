@@ -76,16 +76,16 @@ const TRANSFORM_TOLERANCE: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Builds one subject reader per call and shares it across every predicate, event, camera sample and participant check, so object-motion sampling and subject extents computed for one grade are reused by the others; nothing is shared across calls, because each call grades different artifacts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The reader and its caches are owned by this call and released on return; the returned record holds fresh outcome objects plus references to the contract's predicates and copies of resolved camera placements, sized by the contract.
  */
-export const realizeShotContract = (
+export function realizeShotContract (
   props: IRealizeShotContractProps,
 ): {
   realization: IAutoMovieCompiledContractRealization;
   diagnostics: IAutoMovieDiagnostic[];
-} => {
+} {
   const reader: IShotContractSubjectReader =
     createShotContractSubjectReader(props);
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail = (field: string, expectation: string): void => {
+  function fail (field: string, expectation: string): void {
     diagnostics.push({
       code: "contract-realization-failed",
       category: "error",
@@ -94,19 +94,19 @@ export const realizeShotContract = (
       path: null,
       message: `${field} ${expectation}. Correct the actual scene, motion, camera, or source event sample; contract prose and echoed ids are not evidence.`,
     });
-  };
+  }
   for (const node of props.collisions)
     fail(
       `formation slot "${node}"`,
       "collides with a coding-agent scene node; ordinary formation slots are builder-owned",
     );
 
-  const gradeState = (
+  function gradeState (
     state: IAutoMovieShotContract["opening"][number],
     time: number,
     field: string,
     expectation: string,
-  ): IStateOutcome => {
+  ): IStateOutcome {
     const predicates: IAutoMovieCompiledPredicateResult[] =
       state.predicates.map(
         (predicate: IAutoMovieShotPredicate): IAutoMovieCompiledPredicateResult =>
@@ -118,7 +118,7 @@ export const realizeShotContract = (
     );
     if (passed === false) fail(`${field} "${state.id}"`, expectation);
     return { id: state.id, predicates, passed };
-  };
+  }
   const opening: IStateOutcome[] = props.contract.opening.map(
     (state: IAutoMovieShotContract["opening"][number]): IStateOutcome =>
       gradeState(
@@ -270,17 +270,17 @@ export const realizeShotContract = (
     },
     diagnostics,
   };
-};
+}
 
 /**
  * Whether a compiled formation is the one compact runtime its design asks
  * for: the designed count, split between anonymous slots and heroes, and
  * chunks indexed in order that tile `[0, count)` without gaps.
  */
-const compactFormationPasses = (
+function compactFormationPasses (
   design: IAutoMovieFormationDesign,
   formation: IAutoMovieCompiledFormation,
-): boolean => {
+): boolean {
   if (
     formation.count !== design.count ||
     formation.anonymousCount + formation.heroes.length !== design.count
@@ -293,18 +293,17 @@ const compactFormationPasses = (
     start += chunk.count;
   }
   return start === design.count;
-};
+}
 
 /**
  * Whether every promoted hero has a scene node at exactly the hero's
  * transform, built from the design's model recipe.
  */
-const heroesMaterialized = (
+function heroesMaterialized (
   reader: IShotContractSubjectReader,
   design: IAutoMovieFormationDesign,
   formation: IAutoMovieCompiledFormation,
-): boolean =>
-  formation.heroes.every((hero: IAutoMovieCompiledFormationHero): boolean => {
+): boolean { return formation.heroes.every((hero: IAutoMovieCompiledFormationHero): boolean => {
     const node: IAutoMovieSceneNode | undefined = reader.node(hero.actor);
     return (
       node !== undefined &&
@@ -313,18 +312,18 @@ const heroesMaterialized = (
       vectorClose(node.transform.scale, hero.transform.scale) &&
       node.model === productionRuntimeModelId(design.modelRecipe)
     );
-  });
+  }); }
 
 /**
  * Grade the live camera at one shot-local second against the contract's
  * required subjects. Without a live camera or a raster the sample fails with
  * a not-a-number depth report.
  */
-const cameraOutcome = (
+function cameraOutcome (
   props: IRealizeShotContractProps,
   reader: IShotContractSubjectReader,
   time: number,
-): ICameraOutcome => {
+): ICameraOutcome {
   const required: readonly string[] = props.contract.camera.requiredSubjects;
   const camera: IAutoMovieCamera | undefined = props.compiled.scene.cameras.find(
     (candidate: IAutoMovieCamera): boolean =>
@@ -438,28 +437,26 @@ const cameraOutcome = (
       readableSubjects === required.length &&
       depthPrecision.passed,
   };
-};
+}
 
 /** Whether two vectors agree on every component within the tolerance. */
-const vectorClose = (
+function vectorClose (
   left: IAutoMovieVector3,
   right: IAutoMovieVector3,
-): boolean =>
-  Math.abs(left.x - right.x) <= TRANSFORM_TOLERANCE &&
+): boolean { return Math.abs(left.x - right.x) <= TRANSFORM_TOLERANCE &&
   Math.abs(left.y - right.y) <= TRANSFORM_TOLERANCE &&
-  Math.abs(left.z - right.z) <= TRANSFORM_TOLERANCE;
+  Math.abs(left.z - right.z) <= TRANSFORM_TOLERANCE; }
 
 /**
  * Whether two unit quaternions name the same rotation within the tolerance;
  * `q` and `-q` are the same rotation, so the absolute dot product is compared
  * with one.
  */
-const quaternionClose = (
+function quaternionClose (
   left: IAutoMovieTransform["rotation"],
   right: IAutoMovieTransform["rotation"],
-): boolean =>
-  Math.abs(
+): boolean { return Math.abs(
     Math.abs(
       left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w,
     ) - 1,
-  ) <= TRANSFORM_TOLERANCE;
+  ) <= TRANSFORM_TOLERANCE; }

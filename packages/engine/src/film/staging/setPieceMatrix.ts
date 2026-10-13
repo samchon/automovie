@@ -27,11 +27,11 @@ import { setPieceTransform } from "./setPieceTransform";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one piece; each prop query composes it once per staged prop.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned matrix.
  */
-export const setPieceMatrix = (piece: IAutoMovieStageSetPiece): number[] => {
+export function setPieceMatrix (piece: IAutoMovieStageSetPiece): number[] {
   const transform: IAutoMovieTransform = setPieceTransform(piece);
   return Matrix4.compose(
     transform.translation,
     transform.rotation,
     transform.scale,
   );
-};
+}

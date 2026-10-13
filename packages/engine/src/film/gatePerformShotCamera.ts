@@ -45,14 +45,14 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one shot's cameras per call; the subject resolution reads the context's shared tables.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The covered-camera map is dropped on return; the caller owns the returned jobs, at most one per coverage intent.
  */
-export const gatePerformShotCamera = (
+export function gatePerformShotCamera (
   context: IPerformShotGateContext,
   props: {
     liveCamera: string | null;
     frames: readonly IPerformShotFrameJob[];
     coverage: readonly IAutoMovieBlockingCoverage[];
   },
-): { liveCamera: string | null; coverageJobs: IPerformShotCoverageJob[] } => {
+): { liveCamera: string | null; coverageJobs: IPerformShotCoverageJob[] } {
   const frames: readonly IPerformShotFrameJob[] = props.frames;
   let liveCamera: string | null = props.liveCamera;
   if (liveCamera === null) {
@@ -107,14 +107,14 @@ export const gatePerformShotCamera = (
     },
   );
   return { liveCamera, coverageJobs };
-};
+}
 
 /** Gate the blocking's coverage intents against the elected live camera. */
-const gateCoverage = (
+function gateCoverage (
   context: IPerformShotGateContext,
   liveCamera: string | null,
   coverage: readonly IAutoMovieBlockingCoverage[],
-): IPerformShotCoverageJob[] => {
+): IPerformShotCoverageJob[] {
   const jobs: IPerformShotCoverageJob[] = [];
   const covered: Map<string, number> = new Map();
   coverage.forEach((intent: IAutoMovieBlockingCoverage, index: number): void => {
@@ -177,15 +177,15 @@ const gateCoverage = (
       jobs.push({ intent, camera });
   });
   return jobs;
-};
+}
 
 /** Refuse a camera the framing solve cannot compile a move from. */
-const validateFramingCamera = (
+function validateFramingCamera (
   context: IPerformShotGateContext,
   camera: IAutoMovieCamera,
   path: string,
   readsRotation: boolean,
-): void => {
+): void {
   if (!(camera.fovY > 0 && camera.fovY < 180))
     context.out.push(
       "range",
@@ -212,4 +212,4 @@ const validateFramingCamera = (
       `a "whip" pans from the camera's staged orientation, so "${camera.id}" must carry a finite rotation`,
       rotation,
     );
-};
+}

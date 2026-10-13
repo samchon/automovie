@@ -1,36 +1,36 @@
-import { IAutoMovieClip, IAutoMoviePropSpec } from "@automovie/interface";
+import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
+import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
+import { IAutoMovieClip, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createDoorPropSpec as doorSpec } from "./test_film_forge_prop";
-import {
-  HINGE,
-  IDoorShotProps,
-  compileDoorShot,
-  swingClip,
-  yQuat,
-} from "./test_film_perform_shot_object_motions";
+import { createDoorPropSpec as doorSpec } from "../internal/createDoorPropSpec";
+import { HINGE } from "../internal/HINGE";
+import { IDoorShotProps } from "../internal/IDoorShotProps";
+import { compileDoorShot } from "../internal/compileDoorShot";
+import { swingClip } from "../internal/swingClip";
+import { yQuat } from "../internal/yQuat";
 
 /** Every diagnostic fact of a compile, or `"compiled"` when it succeeded. */
-const refusal = (props: IDoorShotProps): string => {
-  const compiled = compileDoorShot(props);
+function refusal (props: IDoorShotProps): string {
+  const compiled: IAutoMovieCompiledDefinedShot = compileDoorShot(props);
   return compiled.success === true
     ? "compiled"
     : compiled.diagnostics
-        .map((diagnostic) => `${diagnostic.path} ${diagnostic.fact}`)
+        .map((diagnostic: IAutoMovieAuthoringDiagnostic) : string => `${diagnostic.path} ${diagnostic.fact}`)
         .join(" | ");
-};
+}
 
 /** True when the compile was refused with a fact naming each fragment. */
-const refusedWith = (
+function refusedWith (
   clips: readonly IAutoMovieClip[],
   ...fragments: readonly string[]
-): boolean => {
-  const facts = refusal({ objectMotions: clips });
+): boolean {
+  const facts: string = refusal({ objectMotions: clips });
   return (
     facts !== "compiled" &&
-    fragments.every((fragment) => facts.includes(fragment))
+    fragments.every((fragment: string) : boolean => facts.includes(fragment))
   );
-};
+}
 
 /**
  * What a shot may NOT turn, and why each refusal is a defect caught rather than
@@ -76,8 +76,30 @@ const refusedWith = (
  * 13. A node path the pipeline never writes is refused by the transform-clip rule
  *     and compared against nothing, since an address with no canonical key
  *     cannot collide with one.
+ * 14. A quaternion component that exceeds its bound only between keys is
+ *     refused in both spherical and near-parallel normalized-linear branches;
+ *     an adjacent legal bound, step interpolation and a hidden violating track still compile.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Compiles authored object clips and asserts the admission reason for missing addresses, competing authority, artifact defects and profile breaches, including rotation violations absent from both endpoint keys; valid neighbouring angles and interpolation modes prove legal motion remains admitted.
+ * @evidence contracts/testing.md#independent-expectations Scene identities and profile component bounds are authored by the fixture. Symmetric Y rotations have w=cos(half-angle) at both keys and w=1 at their identity midpoint, so a maximum strictly between those values must refuse linear rotation; step holds the endpoint value and a maximum of one is legal without deriving expected values from the extrema helper.
+ * @evidence contracts/testing.md#distinguishing-cases Covers every gate's positive/negative neighbour, duplicate ids and addresses, empty registry, refused prop, wrong key clocks and track kind, bound crossings and exactly-once reporting. Wide-angle SLERP and one-degree near-angle normalized lerp pin the two internal-extrema branches, including short repeated curves, while later equal-start authority hides a violating curve instead of admitting its raw keys as an extra authority.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns its mutation cases and numerical compilation assertions; portable shared door fixtures call engine source without a renderer, process or dynamic scenario registration.
  */
-export const test_film_perform_shot_object_motion_gates = (): void => {
+export function test_film_perform_shot_object_motion_gates (): void {
+  for (const [degrees, bound] of [[90, 0.8], [1, 0.99999]] as const) {
+    const spec: IAutoMoviePropSpec = doorSpec();
+    if (spec.articulation === null) throw new Error("Door fixture must articulate");
+    spec.articulation.profile.drivers = [];
+    spec.articulation.profile.limits = [{ channel: { kind: "node", node: "pivot", path: "rotation" }, min: null, max: [null, null, null, bound] }];
+    const clip: IAutoMovieClip = swingClip(`symmetric-${degrees}`, HINGE, -degrees, { times: [0, 2], values: [...yQuat(-degrees), ...yQuat(degrees)] });
+    TestValidator.predicate(`linear rotation ${degrees} refuses its internal w peak`, refusal({ props: [spec], objectMotions: [clip] }).includes(`drives "node:${HINGE}:rotation" past the travel profile "door-profile"`));
+    TestValidator.predicate(`short repeated rotation ${degrees} retains the same internal refusal`, refusal({ props: [spec], objectMotions: [{ ...clip, duration: 0.001, loop: true, tracks: [{ ...clip.tracks[0]!, times: [0, 0.001] }] }] }).includes("past the travel profile"));
+    TestValidator.equals(`step rotation ${degrees} stays at legal endpoints`, refusal({ props: [spec], objectMotions: [{ ...clip, tracks: [{ ...clip.tracks[0]!, interpolation: "step" }] }] }), "compiled");
+    spec.articulation.profile.limits[0]!.max = [null, null, null, 1];
+    TestValidator.equals(`linear rotation ${degrees} permits the exact component boundary`, refusal({ props: [spec], objectMotions: [clip] }), "compiled");
+    spec.articulation.profile.limits[0]!.max = [null, null, null, bound];
+    TestValidator.equals(`later equal-start authority hides the rotation ${degrees} peak`, refusal({ props: [spec], objectMotions: [clip, swingClip(`cover-${degrees}`, HINGE, -degrees)] }), "compiled");
+  }
   TestValidator.predicate(
     "a node this shot never staged is refused",
     refusedWith(
@@ -263,13 +285,13 @@ export const test_film_perform_shot_object_motion_gates = (): void => {
 
   // A door whose hinge already stands a quarter turn the wrong way at rest,
   // which is outside the travel its own profile declares.
-  const restBreached = (): IAutoMoviePropSpec => {
-    const spec = doorSpec();
+  const restBreached: () => IAutoMoviePropSpec = (): IAutoMoviePropSpec => {
+    const spec: IAutoMoviePropSpec = doorSpec();
     return {
       ...spec,
       articulation: {
         ...spec.articulation!,
-        nodes: spec.articulation!.nodes.map((node) =>
+        nodes: spec.articulation!.nodes.map((node: IAutoMovieNode) : IAutoMovieNode =>
           node.id === "hinge"
             ? {
                 ...node,
@@ -334,4 +356,4 @@ export const test_film_perform_shot_object_motion_gates = (): void => {
       "clip track channel path must be one of",
     ),
   );
-};
+}

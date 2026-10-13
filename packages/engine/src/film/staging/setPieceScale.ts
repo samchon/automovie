@@ -20,10 +20,10 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads one value per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; a vector input is returned by reference, so the scene node shares it with the staging write, and the other spellings allocate a fresh vector.
  */
-export const setPieceScale = (
+export function setPieceScale (
   scale: number | IAutoMovieVector3 | undefined,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   if (scale === undefined) return { x: 1, y: 1, z: 1 };
   if (typeof scale === "number") return { x: scale, y: scale, z: scale };
   return scale;
-};
+}

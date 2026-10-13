@@ -1,267 +1,50 @@
-import {
-  IAutoMovieGrammarDiagnostic,
-  IAutoMovieGrammarInput,
-  IAutoMovieGrammarShotObservation,
-  classifyGrammarShotSize,
-  grammarDiagnosticsToReviewNotes,
-  lookRotation,
-  readFilmGrammar,
-} from "@automovie/engine";
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
+import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
+import type { IAutoMovieReviewNote } from "@automovie/interface";
+import { grammarDiagnosticsToReviewNotes } from "../../../../packages/engine/src/film/grammarDiagnosticsToReviewNotes";
 import { TestValidator } from "@nestia/e2e";
-
-import { namedFacts, throwsError } from "../internal/predicates";
-
-const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
-  x,
-  y,
-  z,
-});
-
-const cameraSample = (
-  position: IAutoMovieVector3,
-  focus: IAutoMovieVector3 = point(0, 0.9, 0),
-): IAutoMovieGrammarShotObservation["camera"]["start"] => ({
-  position,
-  rotation: lookRotation({
-    x: focus.x - position.x,
-    y: focus.y - position.y,
-    z: focus.z - position.z,
-  }),
-  fovY: 60,
-  aspect: 16 / 9,
-});
-
-const camera = (
-  position: IAutoMovieVector3,
-  focus: IAutoMovieVector3 = point(0, 0.9, 0),
-): IAutoMovieGrammarShotObservation["camera"] => {
-  const sample = cameraSample(position, focus);
-  return { start: sample, end: sample };
-};
-
-const subject = (
-  id: string,
-  start: IAutoMovieVector3,
-  end: IAutoMovieVector3 = start,
-  eyeline?: { target: string; point: IAutoMovieVector3 },
-): IAutoMovieGrammarShotObservation["subjects"][number] => ({
-  id,
-  start,
-  end,
-  height: 1.8,
-  // Stated as a point with a height: these observations are hand-built rather
-  // than measured, so they carry no horizontal extent to read a width from.
-  radius: 0,
-  eyeline:
-    eyeline === undefined
-      ? null
-      : {
-          target: eyeline.target,
-          start: eyeline.point,
-          end: eyeline.point,
-        },
-});
-
-const shot = (
-  id: string,
-  overrides: Partial<IAutoMovieGrammarShotObservation> = {},
-): IAutoMovieGrammarShotObservation => ({
-  id,
-  duration: 2,
-  camera: camera(point(0, 0.9, 3)),
-  subjects: [subject("hero", point(0, 0, 0))],
-  primarySubject: "hero",
-  declaredShotSize: null,
-  actionAxis: null,
-  ...overrides,
-});
-
-/** The findings no declared exception excepted, the list these cases assert on. */
-const reportedGrammar = (
-  input: IAutoMovieGrammarInput,
-): IAutoMovieGrammarDiagnostic[] => readFilmGrammar(input).reported;
-
-const codes = (shots: readonly IAutoMovieGrammarShotObservation[]): string[] =>
-  reportedGrammar({ shots }).map((diagnostic) => diagnostic.code);
+import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
+import { namedFacts } from "../internal/predicates";
 
 /**
- * Mechanical film grammar stays deterministic and keeps style suppression
- * one-to-one.
+ * Camera geometry and authored style intent jointly determine film findings.
  *
  * Scenarios:
+ * 1. Screen reversals and shallow same-size cuts report independently; jump-cut
+ *    intent suppresses only its mapped warning, and moving-camera reads agree.
+ * 2. Reverse, continuing, vertical and off-lens eyelines distinguish broken
+ *    screen relations from neutral or continuous views.
+ * 3. Measured size, displacement and entering subjects require their own
+ *    framing/re-establishing feedback without duplicate findings.
+ * 4. Pacing intent and review-note conversion preserve the analyzer's guidance.
  *
- * 1. A hidden camera crossing fires, while a neutral intermediary removes it.
- * 2. End-to-start axis boundaries and visible in-shot crossings remain legal.
- * 3. Reversing subject collection order cannot alter diagnostics.
- * 4. Moving cameras contribute to screen direction and three-dimensional cut angle
- *    measurements use each subject's own boundary position.
- * 5. Each B-group style marker suppresses only its mapped diagnostic.
- * 6. Primary-switch, continuation, vertical, and off-screen gaze geometry
- *    distinguish matched from broken eyelines.
- * 7. Measured shot size, displacement, entrant re-establishment, and pacing
- *    diagnostics expose fact, impact, and recovery through review notes.
- * 8. Empty, valid-boundary, and malformed observation inputs exercise every public
- *    validation family without relying on runtime schema coercion, and a
- *    missing vector or rotation component is refused like a non-finite one.
+ * @evidence contracts/testing.md#behavioral-verification Runs readFilmGrammar through shared source readers and grammarDiagnosticsToReviewNotes directly; assertions catch missed screen/eyeline/size/re-establishing findings, overbroad style suppression and lost diagnostic identity or recovery text.
+ * @evidence contracts/testing.md#independent-expectations Hand-authored subject paths and camera half-planes define the expected screen relations and crossing decisions; stated framing/threshold contracts define findings. Fixture camera rotations use the product lookRotation helper, so its own arithmetic is separately covered rather than treated as an independent renderer oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Covers positive and negative screen motion, moving cameras, reverse/continuing/vertical/off-lens gaze, matching/mismatching sizes, displaced/new subjects and selective style suppression; axis continuity and malformed observations have separate discoverable tests.
+ * @evidence contracts/testing.md#execution-ownership This portable synchronous unit entry owns its cases and calls source grammar functions through createFilmGrammarCase readers; the factory registers no hidden scenarios and starts no renderer or process.
  */
-export const test_film_grammar = (): void => {
-  const rejects = (
-    name: string,
-    mutate: (input: IAutoMovieGrammarShotObservation) => void,
-  ): void => {
-    TestValidator.predicate(
-      name,
-      throwsError(() => {
-        const input = structuredClone(shot(`invalid-${name}`));
-        mutate(input);
-        reportedGrammar({ shots: [input] });
-      }),
-    );
-  };
-  TestValidator.equals(
-    "empty edit has no pacing or grammar diagnostic",
-    reportedGrammar({ shots: [] }),
-    [],
-  );
-  const axisSubjects = [
-    subject("alpha", point(-1, 0, 0)),
-    subject("bravo", point(1, 0, 0)),
-  ];
-  const positive = shot("positive", {
-    camera: camera(point(0, 1, 5)),
-    subjects: axisSubjects,
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
-  const negative = shot("negative", {
-    camera: camera(point(0, 1, -5)),
-    subjects: [...axisSubjects].reverse(),
-    primarySubject: null,
-    actionAxis: ["bravo", "alpha"],
-  });
-  TestValidator.predicate(
-    "hidden action-axis crossing is diagnosed",
-    codes([positive, negative]).includes("grammar-axis-crossed"),
-  );
-  const neutral = shot("neutral", {
-    camera: camera(point(0, 5, 0)),
-    subjects: axisSubjects,
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
-  TestValidator.predicate(
-    "neutral intermediary removes the axis crossing",
-    codes([positive, neutral, negative]).includes("grammar-axis-crossed") ===
-      false,
-  );
-  const rotatingAxis = shot("rotating-axis", {
-    camera: camera(point(5, 1, 5)),
-    subjects: [
-      subject("alpha", point(-1, 0, 0), point(0, 0, -1)),
-      subject("bravo", point(1, 0, 0), point(0, 0, 1)),
-    ],
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
-  const afterRotation = shot("after-rotation", {
-    camera: camera(point(5, 1, 5)),
-    subjects: [
-      subject("alpha", point(0, 0, -1)),
-      subject("bravo", point(0, 0, 1)),
-    ],
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
-  TestValidator.predicate(
-    "outgoing end axis and incoming start axis define the cut boundary",
-    codes([rotatingAxis, afterRotation]).includes("grammar-axis-crossed") ===
-      false,
-  );
-  const visibleCrossing = shot("visible-crossing", {
-    camera: {
-      start: cameraSample(point(0, 1, 5)),
-      end: cameraSample(point(0, 1, -5)),
-    },
-    subjects: axisSubjects,
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
-  TestValidator.predicate(
-    "camera crossing the action axis inside a shot legalizes the next cut",
-    codes([visibleCrossing, positive]).includes("grammar-axis-crossed") ===
-      false,
-  );
-  TestValidator.predicate(
-    "same action-axis half-plane stays continuous",
-    codes([positive, { ...positive, id: "positive-again" }]).includes(
-      "grammar-axis-crossed",
-    ) === false,
-  );
-  const incomingCrossing = {
-    ...visibleCrossing,
-    id: "incoming-visible-crossing",
-    camera: {
-      start: cameraSample(point(0, 1, -5)),
-      end: cameraSample(point(0, 1, 5)),
-    },
-  };
-  TestValidator.predicate(
-    "incoming on-screen camera crossing legalizes its boundary",
-    codes([positive, incomingCrossing]).includes("grammar-axis-crossed") ===
-      false,
-  );
-  TestValidator.predicate(
-    "different action axes do not fabricate a crossing",
-    codes([
-      {
-        ...positive,
-        id: "axis-alpha-bravo",
-        subjects: [...axisSubjects, subject("charlie", point(0, 0, 1))],
-      },
-      {
-        ...negative,
-        id: "axis-alpha-charlie",
-        subjects: [...axisSubjects, subject("charlie", point(0, 0, 1))],
-        actionAxis: ["alpha", "charlie"],
-      },
-    ]).includes("grammar-axis-crossed") === false,
-  );
-  TestValidator.equals(
-    "subject and action-axis collection spelling normalize deterministically",
-    reportedGrammar({ shots: [positive, negative] }),
-    reportedGrammar({
-      shots: [
-        { ...positive, subjects: [...positive.subjects].reverse() },
-        {
-          ...negative,
-          subjects: [...negative.subjects].reverse(),
-          actionAxis: ["alpha", "bravo"],
-        },
-      ],
-    }),
-  );
-
-  const movingRight = shot("moving-right", {
+export function test_film_grammar(): void {
+  const { point, cameraSample, camera, subject, shot, reportedGrammar, codes }: ReturnType<typeof createFilmGrammarCase> = createFilmGrammarCase();
+  const movingRight: IAutoMovieGrammarShotObservation = shot("moving-right", {
     subjects: [subject("hero", point(-0.5, 0, 0), point(0.5, 0, 0))],
   });
-  const movingLeft = shot("moving-left", {
+  const movingLeft: IAutoMovieGrammarShotObservation = shot("moving-left", {
     camera: camera(point(0.2, 0.9, 3)),
     subjects: [subject("hero", point(0.5, 0, 0), point(-0.5, 0, 0))],
   });
-  const unsuppressed = codes([movingRight, movingLeft]);
+  const unsuppressed: string[] = codes([movingRight, movingLeft]);
   TestValidator.equals(
     "same-size shallow cut and screen reversal both report",
     namedFacts([
-      ["jumpCutReported", () => unsuppressed.includes("grammar-jump-cut")],
+      ["jumpCutReported", () : boolean => unsuppressed.includes("grammar-jump-cut")],
       [
         "screenDirectionReported",
-        () => unsuppressed.includes("grammar-screen-direction"),
+        () : boolean => unsuppressed.includes("grammar-screen-direction"),
       ],
     ]),
     { jumpCutReported: true, screenDirectionReported: true },
   );
-  const suppressed = codes([
+  const suppressed: string[] = codes([
     movingRight,
     { ...movingLeft, styleIntent: ["jump-cut"] },
   ]);
@@ -270,16 +53,16 @@ export const test_film_grammar = (): void => {
     namedFacts([
       [
         "jumpCutSuppressed",
-        () => suppressed.includes("grammar-jump-cut") === false,
+        () : boolean => suppressed.includes("grammar-jump-cut") === false,
       ],
       [
         "screenDirectionKept",
-        () => suppressed.includes("grammar-screen-direction"),
+        () : boolean => suppressed.includes("grammar-screen-direction"),
       ],
     ]),
     { jumpCutSuppressed: true, screenDirectionKept: true },
   );
-  const followedRight = shot("followed-right", {
+  const followedRight: IAutoMovieGrammarShotObservation = shot("followed-right", {
     camera: {
       start: cameraSample(point(0, 0.9, 3)),
       end: cameraSample(point(1, 0.9, 3), point(1, 0.9, 0)),
@@ -291,7 +74,7 @@ export const test_film_grammar = (): void => {
     codes([movingRight, followedRight]).includes("grammar-screen-direction") ===
       false,
   );
-  const truckLeft = shot("truck-left", {
+  const truckLeft: IAutoMovieGrammarShotObservation = shot("truck-left", {
     camera: {
       start: cameraSample(point(-1, 0.9, 3), point(-1, 0.9, 0)),
       end: cameraSample(point(1, 0.9, 3), point(1, 0.9, 0)),
@@ -302,17 +85,17 @@ export const test_film_grammar = (): void => {
     "moving camera contributes to screen-direction measurement",
     codes([movingRight, truckLeft]).includes("grammar-screen-direction"),
   );
-  const elevated = shot("elevated", {
+  const elevated: IAutoMovieGrammarShotObservation = shot("elevated", {
     camera: camera(point(0, 7.971, 7.071)),
   });
-  const levelWide = shot("level-wide", {
+  const levelWide: IAutoMovieGrammarShotObservation = shot("level-wide", {
     camera: camera(point(0, 0.9, 10)),
   });
   TestValidator.predicate(
     "three-dimensional camera angle accepts an elevation change above 30 degrees",
     codes([levelWide, elevated]).includes("grammar-jump-cut") === false,
   );
-  const relocatedSameBearing = shot("relocated-same-bearing", {
+  const relocatedSameBearing: IAutoMovieGrammarShotObservation = shot("relocated-same-bearing", {
     camera: camera(point(20, 0.9, 3), point(20, 0.9, 0)),
     subjects: [subject("hero", point(20, 0, 0))],
   });
@@ -323,7 +106,7 @@ export const test_film_grammar = (): void => {
     ),
   );
 
-  const looking = shot("looking", {
+  const looking: IAutoMovieGrammarShotObservation = shot("looking", {
     camera: camera(point(0, 0.9, 5)),
     subjects: [
       subject("hero", point(0, 0, 0), point(0, 0, 0), {
@@ -332,7 +115,7 @@ export const test_film_grammar = (): void => {
       }),
     ],
   });
-  const reverseEyeline = shot("reverse-eyeline", {
+  const reverseEyeline: IAutoMovieGrammarShotObservation = shot("reverse-eyeline", {
     camera: camera(point(0, 0.9, -5)),
     subjects: [
       subject("hero", point(0, 0, 0)),
@@ -354,7 +137,7 @@ export const test_film_grammar = (): void => {
       { ...reverseEyeline, styleIntent: ["eyeline-break"] },
     ]).includes("grammar-eyeline") === false,
   );
-  const verticalLook = shot("vertical-look", {
+  const verticalLook: IAutoMovieGrammarShotObservation = shot("vertical-look", {
     subjects: [
       subject("hero", point(0, 0, 0), point(0, 0, 0), {
         target: "target",
@@ -362,7 +145,7 @@ export const test_film_grammar = (): void => {
       }),
     ],
   });
-  const brokenVerticalLook = shot("broken-vertical-look", {
+  const brokenVerticalLook: IAutoMovieGrammarShotObservation = shot("broken-vertical-look", {
     subjects: [
       subject("hero", point(0, 0, 0), point(0, 0, 0), {
         target: "target",
@@ -375,7 +158,7 @@ export const test_film_grammar = (): void => {
     reportedGrammar({
       shots: [verticalLook, brokenVerticalLook],
     }).some(
-      (diagnostic) =>
+      (diagnostic: IAutoMovieGrammarDiagnostic) : boolean =>
         diagnostic.code === "grammar-eyeline" &&
         diagnostic.fact.includes("screen-center/above") &&
         diagnostic.fact.includes("screen-right/below"),
@@ -425,7 +208,7 @@ export const test_film_grammar = (): void => {
     ]).includes("grammar-eyeline") === false,
   );
 
-  const wrongSize = shot("wrong-size", {
+  const wrongSize: IAutoMovieGrammarShotObservation = shot("wrong-size", {
     camera: camera(point(0, 0.9, 5)),
     declaredShotSize: "close",
   });
@@ -433,7 +216,7 @@ export const test_film_grammar = (): void => {
     "measured subject scale diagnoses declared shot size",
     codes([wrongSize]).includes("grammar-shot-size"),
   );
-  const displaced = shot("displaced", {
+  const displaced: IAutoMovieGrammarShotObservation = shot("displaced", {
     camera: camera(point(20, 0.9, 3), point(20, 0.9, 0)),
     subjects: [subject("hero", point(20, 0, 0))],
   });
@@ -452,7 +235,7 @@ export const test_film_grammar = (): void => {
       },
     ]).includes("grammar-reestablish") === false,
   );
-  const entrant = shot("entrant", {
+  const entrant: IAutoMovieGrammarShotObservation = shot("entrant", {
     subjects: [
       subject("hero", point(0, 0, 0)),
       subject("newcomer", point(1, 0, 0)),
@@ -476,7 +259,7 @@ export const test_film_grammar = (): void => {
           ],
         },
       ],
-    }).filter((diagnostic) => diagnostic.code === "grammar-reestablish").length,
+    }).filter((diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code === "grammar-reestablish").length,
     1,
   );
   TestValidator.predicate(
@@ -487,7 +270,7 @@ export const test_film_grammar = (): void => {
     ]).includes("grammar-pacing") === false,
   );
 
-  const diagnostics = reportedGrammar({
+  const diagnostics: IAutoMovieGrammarDiagnostic[] = reportedGrammar({
     shots: [wrongSize, { ...displaced, duration: 3 }],
   });
   TestValidator.equals(
@@ -495,16 +278,16 @@ export const test_film_grammar = (): void => {
     namedFacts([
       [
         "pacingReported",
-        () =>
+        () : boolean =>
           diagnostics.some(
-            (diagnostic) => diagnostic.code === "grammar-pacing",
+            (diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code === "grammar-pacing",
           ),
       ],
       [
         "allCarryGuidance",
-        () =>
+        () : boolean =>
           diagnostics.every(
-            (diagnostic) =>
+            (diagnostic: IAutoMovieGrammarDiagnostic) : boolean =>
               diagnostic.fact.length !== 0 &&
               diagnostic.impact.length !== 0 &&
               diagnostic.recovery.length !== 0,
@@ -513,190 +296,19 @@ export const test_film_grammar = (): void => {
     ]),
     { pacingReported: true, allCarryGuidance: true },
   );
-  const notes = grammarDiagnosticsToReviewNotes({
+  const notes: IAutoMovieReviewNote[] = grammarDiagnosticsToReviewNotes({
     beat: "beat-grammar",
     diagnostics,
   });
   TestValidator.predicate(
     "review socket preserves diagnostic identity and recovery",
     notes.every(
-      (note, index) =>
+      (note: IAutoMovieReviewNote, index: number) : boolean =>
         note.tier === "visual" &&
         note.beat === "beat-grammar" &&
         note.issue.startsWith(`${diagnostics[index]!.code}: `) &&
         note.suggestion === diagnostics[index]!.recovery,
     ),
   );
-  TestValidator.equals(
-    "occupancy classification follows framing-height grammar",
-    classifyGrammarShotSize(1 / 4),
-    "wide",
-  );
-  TestValidator.equals(
-    "all framing-height classes are reachable",
-    namedFacts([
-      [
-        "classifyGrammarShotSizeFull",
-        () => classifyGrammarShotSize(1 / 1.15) === "full",
-      ],
-      [
-        "classifyGrammarShotSizeMedium",
-        () => classifyGrammarShotSize(1 / 0.62) === "medium",
-      ],
-      [
-        "classifyGrammarShotSizeClose",
-        () => classifyGrammarShotSize(1 / 0.28) === "close",
-      ],
-    ]),
-    {
-      classifyGrammarShotSizeFull: true,
-      classifyGrammarShotSizeMedium: true,
-      classifyGrammarShotSizeClose: true,
-    },
-  );
-  TestValidator.predicate(
-    "matching measured and declared framing stays silent",
-    codes([
-      {
-        ...shot("matching-size"),
-        declaredShotSize: "full",
-      },
-    ]).includes("grammar-shot-size") === false,
-  );
-  TestValidator.predicate(
-    "subject behind the camera has no fabricated shot-size diagnostic",
-    codes([
-      {
-        ...shot("behind-camera"),
-        camera: camera(point(0, 0.9, 0), point(0, 0.9, -1)),
-        subjects: [subject("hero", point(0, 0, 5))],
-        declaredShotSize: "close",
-      },
-    ]).includes("grammar-shot-size") === false,
-  );
-  TestValidator.predicate(
-    "zero occupancy is invalid",
-    throwsError(() => classifyGrammarShotSize(0)),
-  );
-  TestValidator.predicate(
-    "duplicate shot ids are invalid",
-    throwsError(() =>
-      reportedGrammar({ shots: [shot("duplicate"), shot("duplicate")] }),
-    ),
-  );
-  TestValidator.predicate(
-    "non-positive cut angle is invalid",
-    throwsError(() =>
-      reportedGrammar({
-        shots: [shot("valid")],
-        minimumCutAngleDegrees: 0,
-      }),
-    ),
-  );
-  TestValidator.predicate(
-    "non-positive re-establish distance is invalid",
-    throwsError(() =>
-      reportedGrammar({
-        shots: [shot("valid-distance")],
-        reestablishDistance: 0,
-      }),
-    ),
-  );
-  TestValidator.predicate(
-    "explicit positive thresholds are accepted",
-    reportedGrammar({
-      shots: [shot("explicit-thresholds")],
-      minimumCutAngleDegrees: 45,
-      reestablishDistance: 20,
-    }).length === 1,
-  );
-  rejects("blank shot id", (input) => {
-    input.id = " ";
-  });
-  rejects("non-finite duration", (input) => {
-    input.duration = Number.NaN;
-  });
-  rejects("zero duration", (input) => {
-    input.duration = 0;
-  });
-  rejects("zero camera fov", (input) => {
-    input.camera.start.fovY = 0;
-  });
-  rejects("camera fov at 180", (input) => {
-    input.camera.end.fovY = 180;
-  });
-  rejects("zero camera aspect", (input) => {
-    input.camera.start.aspect = 0;
-  });
-  rejects("non-finite camera position", (input) => {
-    input.camera.end.position.x = Number.NaN;
-  });
-  rejects("non-finite camera rotation", (input) => {
-    input.camera.start.rotation.w = Number.NaN;
-  });
-  // A component the producer left out is refused like a non-finite one,
-  // instead of passing because no key names it.
-  rejects("missing camera rotation component", (input) => {
-    delete (input.camera.start.rotation as Partial<IAutoMovieQuaternion>).w;
-  });
-  rejects("missing subject coordinate", (input) => {
-    delete (input.subjects[0]!.end as Partial<IAutoMovieVector3>).z;
-  });
-  rejects("blank subject id", (input) => {
-    input.subjects[0]!.id = "";
-  });
-  rejects("duplicate subject id", (input) => {
-    input.subjects.push(structuredClone(input.subjects[0]!));
-  });
-  rejects("non-finite subject start", (input) => {
-    input.subjects[0]!.start.x = Number.NaN;
-  });
-  rejects("non-finite subject end", (input) => {
-    input.subjects[0]!.end.z = Number.NaN;
-  });
-  rejects("zero subject height", (input) => {
-    input.subjects[0]!.height = 0;
-  });
-  rejects("negative subject radius", (input) => {
-    input.subjects[0]!.radius = -1;
-  });
-  rejects("non-finite subject radius", (input) => {
-    input.subjects[0]!.radius = Number.NaN;
-  });
-  rejects("blank eyeline target", (input) => {
-    input.subjects[0]!.eyeline = {
-      target: "",
-      start: point(1, 0, 0),
-      end: point(1, 0, 0),
-    };
-  });
-  rejects("non-finite eyeline start", (input) => {
-    input.subjects[0]!.eyeline = {
-      target: "target",
-      start: point(Number.NaN, 0, 0),
-      end: point(1, 0, 0),
-    };
-  });
-  rejects("non-finite eyeline end", (input) => {
-    input.subjects[0]!.eyeline = {
-      target: "target",
-      start: point(1, 0, 0),
-      end: point(1, Number.NaN, 0),
-    };
-  });
-  rejects("missing primary subject", (input) => {
-    input.primarySubject = "missing";
-  });
-  rejects("repeated action-axis subject", (input) => {
-    input.actionAxis = ["hero", "hero"];
-  });
-  rejects("missing first action-axis subject", (input) => {
-    input.actionAxis = ["missing", "hero"];
-  });
-  rejects("missing second action-axis subject", (input) => {
-    input.actionAxis = ["hero", "missing"];
-  });
-  rejects("duplicate style intent", (input) => {
-    input.styleIntent = ["jump-cut", "jump-cut"];
-  });
-};
+
+}

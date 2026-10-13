@@ -74,7 +74,7 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one box and one camera that coordinates no work across calls; the grader calls it once per sampled instant.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates sixteen corner vectors for the call and retains nothing.
  */
-export const intersectsPerspectiveFrustumBox = (props: {
+export function intersectsPerspectiveFrustumBox (props: {
   camera: IAutoMovieResolvedCamera;
   min: IAutoMovieVector3;
   max: IAutoMovieVector3;
@@ -83,7 +83,7 @@ export const intersectsPerspectiveFrustumBox = (props: {
   halfY: number;
   aspect: number;
   crop?: IAutoMovieDeliveryCrop;
-}): boolean => {
+}): boolean {
   const crop: IAutoMovieDeliveryCropNdc = deliveryCropNdc(props.crop);
   const halfX: number = props.halfY * props.aspect;
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(
@@ -114,21 +114,20 @@ export const intersectsPerspectiveFrustumBox = (props: {
     if (segmentMeetsBox(lens[from]!, lens[to]!, props.min, props.max))
       return true;
   return false;
-};
+}
 
 /** The eight corners of a box, indexed by the x, y, z choice bits. */
-const boxCorners = (
+function boxCorners (
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
-): IAutoMovieVector3[] =>
-  [min.x, max.x].flatMap((x: number): IAutoMovieVector3[] =>
+): IAutoMovieVector3[] { return [min.x, max.x].flatMap((x: number): IAutoMovieVector3[] =>
     [min.y, max.y].flatMap((y: number): IAutoMovieVector3[] =>
       [min.z, max.z].map((z: number): IAutoMovieVector3 => ({ x, y, z })),
     ),
-  );
+  ); }
 
 /** The eight world corners of a perspective frustum, near plane first. */
-const frustumCorners = (
+function frustumCorners (
   props: {
     camera: IAutoMovieResolvedCamera;
     near: number;
@@ -137,8 +136,7 @@ const frustumCorners = (
   },
   halfX: number,
   crop: IAutoMovieDeliveryCropNdc,
-): IAutoMovieVector3[] =>
-  [props.near, props.far].flatMap((depth: number): IAutoMovieVector3[] =>
+): IAutoMovieVector3[] { return [props.near, props.far].flatMap((depth: number): IAutoMovieVector3[] =>
     [crop.left, crop.right].flatMap((sx: number): IAutoMovieVector3[] =>
       [crop.bottom, crop.top].map(
         (sy: number): IAutoMovieVector3 =>
@@ -152,15 +150,15 @@ const frustumCorners = (
           ),
       ),
     ),
-  );
+  ); }
 
 /** Whether a world-space segment meets an axis-aligned box (slab clipping). */
-const segmentMeetsBox = (
+function segmentMeetsBox (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
-): boolean => {
+): boolean {
   let lower: number = 0;
   let upper: number = 1;
   for (const axis of ["x", "y", "z"] as const) {
@@ -179,4 +177,4 @@ const segmentMeetsBox = (
     if (lower > upper) return false;
   }
   return true;
-};
+}

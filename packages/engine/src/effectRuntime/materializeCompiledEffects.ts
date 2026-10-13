@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieCompiledEffect,
   IAutoMovieEffectRecipe,
   IAutoMovieShotContract,
@@ -21,7 +20,8 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * `automovie.effect-stream.v1` hashes the shot id with the recipe and zone
  * seeds, and the film protocol `automovie.film-effect-seed.v1` hashes the owner
  * pair with the whole recipe and zone records. The seed is the first 13 hex
- * digits of that SHA-256, a 52-bit safe integer.
+ * digits of that SHA-256, a 52-bit safe integer. Domain tags distinguish the
+ * serialized inputs; truncation still permits different inputs to share a seed.
  *
  * A cue whose zone or recipe is absent materializes nothing, because the
  * owner's validator reports that refusal. Streams are ordered by code-unit cue
@@ -30,7 +30,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * to the Node builder digest of the same stream. Bounds, recipe and intensity
  * are deep copies, so editing a stream never edits the world or the cue.
  *
- * @evidence contracts/common.md#principled-implementation Seeds come from SHA-256 over canonical JSON v2 of a protocol-tagged record, so two owners or two protocol versions can never collide on one seed, and the 13 hex digits after the `sha256:` prefix stay below `2^53` as `Number.parseInt` requires; the stream digest hashes the canonical JSON of every field but the digest itself, which `validateProductionFilmEffectRuntime` recomputes the same way.
+ * @evidence contracts/common.md#principled-implementation Seeds come from SHA-256 over canonical JSON v2 of a protocol-tagged owner record, so distinct owner fields and protocols have unambiguous serialized inputs; retaining 13 hexadecimal digits gives an exact 52-bit integer but permits output collisions. The full stream digest hashes every field except itself, matching validateProductionFilmEffectRuntime's recomputation.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the stream record for both owners, which differ only in the seed protocol chosen by the `contract` or `seedOwner` branch of the argument union; zone and recipe lookups are two maps built once per call.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The world and the step are required inputs, so no frame rate or empty-world answer is assumed for a caller that omits them, and a cue with a missing zone or recipe is skipped only because its owner's validator already refuses it with a named code.
  * @evidence contracts/common.md#meaningful-documentation States both owners and their seed protocols, how the seed is cut from the digest, the drop rule for unresolved cues and who reports it, the output order, the step source, digest equivalence with the Node builder, and that emitted records do not alias the inputs.
@@ -38,7 +38,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call materializes one owner's cues from scratch; the film writer calls it once for all of its cues, and no stream is cached across builds because the world, owner and step are all inputs of the digest.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The two lookup maps live only for the call; the returned streams own deep copies of each cue's zone bounds, recipe and intensity, so their retention is linear in the cue count and released with the caller's array.
  */
-export const materializeCompiledEffects = (
+export function materializeCompiledEffects (
   props: {
     world: IAutoMovieWorldDesign;
     fixedStepSeconds: number;
@@ -50,7 +50,7 @@ export const materializeCompiledEffects = (
         seedOwner: { production: string; film: string };
       }
   ),
-): IAutoMovieCompiledEffect[] => {
+): IAutoMovieCompiledEffect[] {
   const recipes: Map<string, IAutoMovieEffectRecipe> = new Map(
     props.world.effectRecipes.map(
       (recipe: IAutoMovieEffectRecipe): [string, IAutoMovieEffectRecipe] => [
@@ -68,7 +68,7 @@ export const materializeCompiledEffects = (
     ),
   );
   return [...props.cues]
-    .sort((left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue) =>
+    .sort((left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
       compareCodeUnits(left.id, right.id),
     )
     .flatMap((cue: IAutoMovieShotEffectCue): IAutoMovieCompiledEffect[] => {
@@ -76,7 +76,7 @@ export const materializeCompiledEffects = (
       const recipe: IAutoMovieEffectRecipe | undefined =
         zone === undefined ? undefined : recipes.get(zone.recipe);
       if (zone === undefined || recipe === undefined) return [];
-      const seedDigest: AutoMovieContentDigest = autoMovieRenderDigest(
+      const seedDigest: string = autoMovieRenderDigest(
         canonicalizeAutoMovieJson(
           props.seedOwner === undefined
             ? {
@@ -116,4 +116,4 @@ export const materializeCompiledEffects = (
         },
       ];
     });
-};
+}

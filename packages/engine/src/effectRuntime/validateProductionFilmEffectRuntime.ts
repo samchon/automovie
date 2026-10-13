@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieCompiledFilmEffect,
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
@@ -34,9 +33,9 @@ import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
  * @evidence contracts/performance.md#reuse-equivalent-work Not cached: callers hold mutable runtime records with no version token, so a previous verdict on the same object could be stale; the sampler and the verifier each validate once per entry per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two canonical strings only during the call and retains nothing.
  */
-export const validateProductionFilmEffectRuntime = (
+export function validateProductionFilmEffectRuntime (
   runtime: IAutoMovieCompiledFilmEffect,
-): void => {
+): void {
   if (
     runtime.version !== 1 ||
     runtime.owner !== "film" ||
@@ -69,11 +68,11 @@ export const validateProductionFilmEffectRuntime = (
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" has a noncanonical frame rate or malformed inner film effect.`,
     );
-  const expectedEffectDigest: AutoMovieContentDigest = recomputedDigest(
+  const expectedEffectDigest: string = recomputedDigest(
     runtime,
     { ...runtime.effect, digest: undefined },
   );
-  const expectedRuntimeDigest: AutoMovieContentDigest = recomputedDigest(
+  const expectedRuntimeDigest: string = recomputedDigest(
     runtime,
     { ...runtime, digest: undefined },
   );
@@ -97,13 +96,13 @@ export const validateProductionFilmEffectRuntime = (
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" differs from its content digest or exact frame clock.`,
     );
-};
+}
 
 /** Digest one record, refusing a value canonical JSON cannot encode. */
-const recomputedDigest = (
+function recomputedDigest (
   runtime: IAutoMovieCompiledFilmEffect,
   value: object,
-): AutoMovieContentDigest => {
+): string {
   try {
     return autoMovieRenderDigest(canonicalizeAutoMovieJson(value));
   } catch (error) {
@@ -114,4 +113,4 @@ const recomputedDigest = (
       );
     throw error;
   }
-};
+}

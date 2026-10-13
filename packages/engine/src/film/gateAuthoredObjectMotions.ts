@@ -23,6 +23,7 @@ import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
 import { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";
+import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 
 /**
@@ -56,26 +57,30 @@ import { forgeProp } from "./forgeProp";
  * path, since no frame can be resolved for it. Only a prop `forgeProp` accepts
  * contributes joints; its own refusals belong to `forgeProp` and the placement
  * gate. When all of that passes and a staged prop binds an articulation
- * profile, the clips resolve through {@link resolveFrame} at time `0` and at
- * every authored key, with each profile bound at its own placement prefix, and
+ * profile, the clips resolve through {@link resolveFrame} at time `0`, at every
+ * authored key, at analytical quaternion-component extrema and just inside
+ * key boundaries. Periodic direct curves share their first-cycle bound.
+ * Profiles bind at their placement prefix, and
  * a channel the clips drive past its declared travel is reported once, naming
  * the profile. A channel a clip does not drive is never blamed, even if its
  * rest pose breaches. An empty clip list answers no violations.
+ * The critical clock bounds directly interpolated components; it does not
+ * derive additional extrema for nonlinear channel-space driver combinations.
  *
  * @param gate The clips, the staged scene and what the shot already drives.
  * @returns The violations, empty when every clip is admitted.
  *
- * @evidence contracts/common.md#principled-implementation The travel bound is measured by the same CONSTRAIN stage the engine resolves frames with, sampled at every authored key and the opening; sampling the keys is sufficient because a `step` track holds a key's value and a `linear` track stays on the segment or arc between two keys, so neither can leave a componentwise bound both keys satisfy, and splines, which can, are refused.
+ * @evidence contracts/common.md#principled-implementation The same resolveFrame CONSTRAIN stage checks the opening, authored keys, one-sided boundaries and analytical rotation-component extrema supplied by authoredRotationCriticalTimes. Scalar linear/step interpolation stays within endpoint ranges; quaternion SLERP and normalized lerp can exceed endpoint component bounds, so their derivative roots are explicitly evaluated. The actual clip sequence decides authority at every clock, and floating clock rounding remains; nonlinear driver combinations have no additional stationary-point solver here.
  * @evidence contracts/common.md#clear-and-simple-design The artifact rule is `validateClipArtifact` with a shot-specific channel gate, channel identity is the sampler's own `channelKey`, the joint lowering is `sceneToNodes`, and the bound is `resolveFrame`, so this function only states which nodes and channels a shot admits.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No door, prop, joint or shot is special-cased; every refusal is a stated rule, the channel key is built from validated fields rather than cast from an unchecked record, and a breach on an undriven channel is left to the prop's own gate instead of being blamed here.
  * @evidence contracts/common.md#meaningful-documentation States the two promises the gate fulfils, every refusal with its reason, the duplicate-id refusal, which props contribute joints, when and how the travel bound is measured, the one-report-per-channel rule, the undriven-channel exemption, and the empty-list answer.
- * @evidence contracts/performance.md#efficient-algorithms Linear in clips, tracks and keys for the artifact checks, plus one `resolveFrame` over the lowered graph per distinct key time, run only when a staged prop binds a profile; every membership test uses a set built once.
+ * @evidence contracts/performance.md#efficient-algorithms Artifact checks are linear in clips, tracks and keys; profiled scenes add at most four rotation roots per segment and one-sided boundaries, then resolve the lowered graph once per distinct instant. Repeated direct loop curves share their first-cycle bound and sets deduplicate clocks and channel membership, without a fixed-rate sampling density.
  * @evidence contracts/performance.md#reuse-equivalent-work The lowered graph, the drivable set, the baked channel and id sets and the profile list are each built once per call and shared by every clip and every sampled instant, and distinct key times are deduplicated so one instant is resolved once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Every set, the lowered graph and the resolved frames are dropped on return; the caller owns the returned violations.
  */
-export const gateAuthoredObjectMotions = (
+export function gateAuthoredObjectMotions (
   gate: IAutoMovieObjectMotionGate,
-): IAutoMovieConstraintViolation[] => {
+): IAutoMovieConstraintViolation[] {
   const out: ViolationCollector = new ViolationCollector();
   if (gate.clips.length === 0) return out.items;
 
@@ -228,6 +233,7 @@ export const gateAuthoredObjectMotions = (
     },
   );
   if (profiles.length === 0) return out.items;
+  for (const time of authoredRotationCriticalTimes(gate.clips, gate.duration)) times.add(time);
   // Only the channels these clips drive: `resolveFrame` clamps every bound
   // profile, so a prop whose rest joint already sits outside its own travel
   // would breach here too, and that is its own gate's fault to report.
@@ -264,4 +270,4 @@ export const gateAuthoredObjectMotions = (
     }
   }
   return out.items;
-};
+}

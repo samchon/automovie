@@ -58,9 +58,9 @@ type ShotSizeOf = Parameters<typeof inspectGrammarCut>[3];
  * @evidence contracts/performance.md#reuse-equivalent-work A shot's measured size at each boundary is computed once and memoized for the call, keyed by the normalized shot object and the boundary, because the shot-size check, the jump-cut comparison and both re-establishing checks read the same pair; the inputs are immutable for the call, so no invalidation is needed, and nothing is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains, for one call, the normalized shots, a shot index, the size memo of at most two entries per shot, the finding list and the claim keys; all are released on return except the returned findings and claims, which the caller owns.
  */
-export const readFilmGrammar = (
+export function readFilmGrammar (
   props: IAutoMovieGrammarInput,
-): IAutoMovieGrammarReading => {
+): IAutoMovieGrammarReading {
   const minimumCutAngleDegrees: number =
     props.minimumCutAngleDegrees ?? DEFAULT_MINIMUM_CUT_ANGLE_DEGREES;
   const reestablishDistance: number =
@@ -68,7 +68,7 @@ export const readFilmGrammar = (
   assertGrammarPositive(minimumCutAngleDegrees, "minimumCutAngleDegrees");
   assertGrammarPositive(reestablishDistance, "reestablishDistance");
   const shots: IAutoMovieNormalizedGrammarShot[] = props.shots.map(
-    (shot: IAutoMovieGrammarInput["shots"][number]) =>
+    (shot: IAutoMovieGrammarInput["shots"][number]): IAutoMovieNormalizedGrammarShot =>
       normalizeGrammarShot(shot),
   );
   const shotById: Map<string, IAutoMovieNormalizedGrammarShot> = new Map();
@@ -156,7 +156,7 @@ export const readFilmGrammar = (
         exercised.has(claimKey(claim.shot, claim.intent)) === false,
     ),
   };
-};
+}
 
 /**
  * Shot and intent as one lookup key.
@@ -164,15 +164,14 @@ export const readFilmGrammar = (
  * Separated by a character no declared intent carries, so two distinct claims
  * cannot collide however a shot happens to be named.
  */
-const claimKey = (shot: string, intent: AutoMovieGrammarStyleIntent): string =>
-  `${shot}|${intent}`;
+function claimKey (shot: string, intent: AutoMovieGrammarStyleIntent): string { return `${shot}|${intent}`; }
 
 /**
  * A size reader that measures each shot boundary at most once per read; the
  * shot-size check, the jump-cut comparison and both re-establishing checks ask
  * for the same boundaries.
  */
-const memoizedShotSize = (): ShotSizeOf => {
+function memoizedShotSize (): ShotSizeOf {
   const sizes: Map<
     IAutoMovieNormalizedGrammarShot,
     Partial<Record<"start" | "end", Framing>>
@@ -193,14 +192,14 @@ const memoizedShotSize = (): ShotSizeOf => {
     known[boundary] = measured;
     return measured;
   };
-};
+}
 
 /** Files a shot-size finding when either boundary misses the declared size. */
-const inspectShotSize = (
+function inspectShotSize (
   diagnostics: IAutoMovieGrammarDiagnostic[],
   shot: IAutoMovieNormalizedGrammarShot,
   sizeOf: ShotSizeOf,
-): void => {
+): void {
   if (shot.primarySubject === null || shot.declaredShotSize === null) return;
   const start: Framing = sizeOf(shot, "start");
   const end: Framing = sizeOf(shot, "end");
@@ -226,4 +225,4 @@ const inspectShotSize = (
       "the rendered subject scale does not deliver the authored shot-size hierarchy",
     recovery: `move camera "${shot.id}" to measure as ${shot.declaredShotSize}, change its lens, or correct the declared framing`,
   });
-};
+}

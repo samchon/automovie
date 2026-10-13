@@ -1,5 +1,4 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
   IAutoMovieProductionFrameRate,
@@ -36,13 +35,13 @@ type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
  * @evidence contracts/performance.md#reuse-equivalent-work The rate, edit fingerprint and sorted cue list are computed once per call and shared by every entry; nothing is cached between calls because the timeline is a mutable caller-owned record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one sorted copy of the cue array and the per-entry canonical strings only during the call, and retains nothing afterwards.
  */
-export const verifyProductionFilmEffectPopulation = (props: {
+export function verifyProductionFilmEffectPopulation (props: {
   timeline: IAutoMovieFilmTimeline;
   effects: readonly IAutoMovieCompiledFilmEffect[];
-}): void => {
+}): void {
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectTimelineFrameRate(props.timeline);
-  const editFingerprint: AutoMovieContentDigest =
+  const editFingerprint: string =
     productionFilmEffectEditFingerprint(props.timeline);
   const cues: FilmEffectCue[] = sortProductionFilmEffectCues(
     props.timeline.tracks.effects,
@@ -75,4 +74,4 @@ export const verifyProductionFilmEffectPopulation = (props: {
         );
     },
   );
-};
+}

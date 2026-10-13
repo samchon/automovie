@@ -41,10 +41,10 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single pass over one action list; the staged tables it reads are the context's, built once per shot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned plan, bounded by the action count, is owned by `performShot` for the rest of its call; nothing else is retained.
  */
-export const gatePerformShotActions = (
+export function gatePerformShotActions (
   context: IPerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
-): IPerformShotActionPlan => {
+): IPerformShotActionPlan {
   const plan: IPerformShotActionPlan = {
     liveCamera: null,
     stageActions: [],
@@ -122,15 +122,15 @@ export const gatePerformShotActions = (
     if (subject !== null) plan.frames.push({ action, index });
   });
   return plan;
-};
+}
 
 /** Check an action's actor field and that every actor is staged. */
-const gateActors = (
+function gateActors (
   context: IPerformShotGateContext,
   action: IAutoMovieActionCall,
   actors: readonly string[],
   path: string,
-): void => {
+): void {
   if (typeof action.actor === "string")
     validatePerformShotId(
       context.out,
@@ -188,14 +188,14 @@ const gateActors = (
         actor,
       );
   }
-};
+}
 
 /** Check an action's start, duration, span and repeat against the shot. */
-const gateTiming = (
+function gateTiming (
   context: IPerformShotGateContext,
   action: IAutoMovieActionCall,
   path: string,
-): void => {
+): void {
   const duration: number = context.performance.duration;
   const finiteStart: boolean = Number.isFinite(action.start);
   if (!finiteStart || action.start < 0 || action.start > duration)
@@ -243,4 +243,4 @@ const gateTiming = (
       `action repeat must be a positive integer when present, but was ${action.repeat}`,
       action.repeat,
     );
-};
+}

@@ -23,12 +23,12 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call registers one export once at module evaluation; there is no repeated work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; the returned record references the caller's contract and builder for as long as the caller keeps the registration.
  */
-export const defineShot = <Context>(
+export function defineShot<Context>(
   id: string,
   definition: IAutoMovieShotDefinition<Context>,
-): IAutoMovieDefinedShot<Context> => ({
+): IAutoMovieDefinedShot<Context> { return ({
   id,
   scene: definition.scene,
   contract: definition.contract,
   build: definition.build,
-});
+}); }

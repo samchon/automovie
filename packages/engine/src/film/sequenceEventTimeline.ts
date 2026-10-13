@@ -7,8 +7,7 @@ import {
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
-import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
-import { sequenceTimeline } from "./sequenceTimeline";
+import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /** Seconds within which two clock values count as the same instant. */
 const TIME_EPSILON: number = 1e-9;
@@ -39,29 +38,18 @@ const TIME_EPSILON: number = 1e-9;
  * @returns Every emitted play of every event, in output order.
  *
  * @evidence contracts/common.md#principled-implementation Maps each event through the entry's affine clock map and decides membership with half-open trim ranges, the interval convention under which contiguous ranges partition time without double counting; seam ownership requires both a shot-local and a global coincidence because only a contiguous entry shows the same frame, and all comparisons use one `1e-9` second tolerance for the floating sums the timeline produces.
- * @evidence contracts/common.md#clear-and-simple-design Reads the layout from `sequenceTimeline` instead of recomputing it, so events and frames share one clock; the only extra structure is the per-shot entry list the seam rule needs.
+ * @evidence contracts/common.md#clear-and-simple-design Reads layout and the admitted shot index from preparePlaybackTimeline, the preparation sequenceTimeline also uses, so events and frames share one clock; the only additional index is the per-shot entry list the seam rule needs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No event kind, shot or entry is special-cased; the shot-end and seam rules apply to every entry by the same tests, and ties sort by code units rather than locale.
  * @evidence contracts/common.md#meaningful-documentation States the range rule and both closing cases with their reasons, the per-play semantics, the order and its tie-breaks, the added fields, and the inherited throws.
  * @evidence contracts/performance.md#efficient-algorithms O(S + E) to lay out and index, O(sum of events per played entry) to place, plus an O(Es) scan of the same shot's entries only for an event exactly on a trim end, and O(V log V) to sort the V emitted events; the sort is needed because entries overlap in transitions.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Builds the timeline it needs per call; its callers derive the event list once per film, and the sequence and shots carry no identity to key a cache on.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses preparePlaybackTimeline's shot index for every event lookup instead of indexing supplied shots twice; the layout and index refer to the same synchronous inputs. Callers derive events once per film; no cross-call cache exists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The timeline, shot index and per-shot entry lists are released on return; the result holds one fresh record per emitted play, which grows with plays times events and lives as long as the caller keeps it.
  */
-export const sequenceEventTimeline = (
+export function sequenceEventTimeline (
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
-): IAutoMoviePlaybackEvent[] => {
-  // The timeline has already refused duplicate shot ids and missing shots, so
-  // this index is unambiguous and every entry's shot is in it.
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
-    sequence,
-    shots,
-  );
-  const shotById: Map<string, IAutoMovieShot> = new Map(
-    shots.map((shot: IAutoMovieShot): [string, IAutoMovieShot] => [
-      shot.id,
-      shot,
-    ]),
-  );
+): IAutoMoviePlaybackEvent[] {
+  const { timeline, shotById }: ReturnType<typeof preparePlaybackTimeline> = preparePlaybackTimeline(sequence, shots);
   const entriesByShot: Map<string, IAutoMoviePlaybackEntry[]> = new Map();
   for (const entry of timeline.entries) {
     const list: IAutoMoviePlaybackEntry[] = entriesByShot.get(entry.shot) ?? [];
@@ -71,7 +59,7 @@ export const sequenceEventTimeline = (
 
   const events: IAutoMoviePlaybackEvent[] = [];
   for (const entry of timeline.entries) {
-    const shot: IAutoMovieShot = shotById.get(entry.shot)!;
+    const shot: IAutoMovieShot = shotById.get(entry.shot)!.shot;
     const from: number = entry.offset;
     const to: number = entry.offset + entry.played;
     const globalEnd: number = entry.start + entry.played;
@@ -79,14 +67,13 @@ export const sequenceEventTimeline = (
     // An event exactly on this entry's trim end belongs to the entry that
     // starts there only when that entry also starts at this entry's global
     // end, sharing the on-screen instant; otherwise this entry keeps it.
-    const ownedElsewhere = (time: number): boolean =>
-      entriesByShot
+    function ownedElsewhere (time: number): boolean { return entriesByShot
         .get(entry.shot)!
         .some(
           (other: IAutoMoviePlaybackEntry): boolean =>
             Math.abs(other.offset - time) <= TIME_EPSILON &&
             Math.abs(other.start - globalEnd) <= TIME_EPSILON,
-        );
+        ); }
     for (const event of shot.events ?? []) {
       if (event.time < from - TIME_EPSILON) continue;
       if (
@@ -106,16 +93,16 @@ export const sequenceEventTimeline = (
       a.entry - b.entry ||
       compareCodeUnits(a.id, b.id),
   );
-};
+}
 
 /** One play of `event` by `entry`, stamped with its output time. */
-const placed = (
+function placed (
   event: IAutoMovieInteractionEvent,
   entry: IAutoMoviePlaybackEntry,
-): IAutoMoviePlaybackEvent => ({
+): IAutoMoviePlaybackEvent { return ({
   ...event,
   entry: entry.entry,
   shot: entry.shot,
   shotTime: event.time,
   globalTime: entry.start + (event.time - entry.offset),
-});
+}); }

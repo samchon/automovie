@@ -1,5 +1,7 @@
-import { forgeProp } from "@automovie/engine";
-import { IAutoMoviePropSpec } from "@automovie/interface";
+import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import type { IAutoMovieConstraintViolation, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieSkeleton } from "@automovie/interface";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
@@ -8,34 +10,34 @@ import { createImportedPropSpec } from "../internal/createImportedPropSpec";
 import { filmImportedPropDigest as digest } from "../internal/filmImportedPropDigest";
 import { createSkeleton } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
-import { createDoorPropSpec } from "./test_film_forge_prop";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 
-const HERO_BYTES = FILM_IMPORTED_PROP_BYTES.hero;
-const SIDECAR_BYTES = FILM_IMPORTED_PROP_BYTES.sidecar;
+const HERO_BYTES: string = FILM_IMPORTED_PROP_BYTES.hero;
+const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
 
 /** Forge a fresh imported chair after one mutation, so cases never compound. */
-const refuses = (
+function refuses (
   mutate: (spec: IAutoMoviePropSpec) => void,
   path: string,
   message: string,
-): boolean => {
-  const spec = createImportedPropSpec();
+): boolean {
+  const spec: IAutoMoviePropSpec = createImportedPropSpec();
   mutate(spec);
-  const result = forgeProp(spec);
+  const result: IAutoMovieForgedProp = forgeProp(spec);
   return (
     result.success === false &&
     result.violations.some(
-      (item) => item.path === path && item.expected.includes(message),
+      (item: IAutoMovieConstraintViolation) : boolean => item.path === path && item.expected.includes(message),
     )
   );
-};
+}
 
 /** The same mutation, asserted to leave the prop forgeable. */
-const tolerated = (mutate: (spec: IAutoMoviePropSpec) => void): boolean => {
-  const spec = createImportedPropSpec();
+function tolerated (mutate: (spec: IAutoMoviePropSpec) => void): boolean {
+  const spec: IAutoMoviePropSpec = createImportedPropSpec();
   mutate(spec);
   return forgeProp(spec).success;
-};
+}
 
 /**
  * A prop may draw a registered external appearance, and stating that reference
@@ -76,9 +78,14 @@ const tolerated = (mutate: (spec: IAutoMoviePropSpec) => void): boolean => {
  *    `validateModel` still judges the deterministic proxy it left behind, and
  *    the door's own hinge articulation both rides on it and is still gated on
  *    it, so the reference buys the pixels and not an exemption.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Forges imported appearance declarations and asserts accepted staging/body/affordance fields plus located refusals for missing references, incompatible media, malformed byte ledgers, LOD closure and unchanged prop contracts; malformed fields do not suppress independent contract checks or cause duplicate diagnoses.
+ * @evidence contracts/testing.md#independent-expectations Fixture-authored chair identity, mass, affordance, media profile and ledger/LOD references define expected success and failures. Digest syntax and reference equality are admission contracts; repeated hexadecimal fixture digests prove neither actual byte hashing nor asset authenticity, and accepted appearance metadata proves no rendered pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps generated props and absent/null references equivalent, and covers blank, duplicate, short/uppercase digest, missing hero, disagreeing/uncovered LOD bytes, humanoid media, skeleton/id/proxy faults and articulated imported props. assertFilmImportedLodClosure owns the delegated LOD mutations, with every predicate still required by this entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers this synchronous unit entry and its direct portable forgeProp calls; the shared LOD assertion helper is invoked by this entry, while all paths and digests remain in-memory records without installing or reading external assets.
  */
-export const test_film_prop_imported_appearance = (): void => {
-  const forged = forgeProp(createImportedPropSpec());
+export function test_film_prop_imported_appearance (): void {
+  const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());
   TestValidator.equals(
     "an imported chair forges",
     forged.success === true
@@ -104,18 +111,18 @@ export const test_film_prop_imported_appearance = (): void => {
     namedFacts([
       [
         "generatedDoorStillForges",
-        () => forgeProp(createDoorPropSpec()).success,
+        () : boolean => forgeProp(createDoorPropSpec()).success,
       ],
       [
         "importedWithoutReferenceIsRefusedVerbatim",
-        () => {
-          const spec = createImportedPropSpec();
+        () : boolean => {
+          const spec: IAutoMoviePropSpec = createImportedPropSpec();
           delete spec.modelRef;
-          const result = forgeProp(spec);
+          const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.some(
-              (item) =>
+              (item: IAutoMovieConstraintViolation) : boolean =>
                 item.path === "$input.model.origin" &&
                 item.expected ===
                   'a forged prop\'s origin must be "generated", but was "imported"',
@@ -125,14 +132,14 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "anExplicitNullReferenceIsTheSameSilence",
-        () => {
-          const spec = createImportedPropSpec();
+        () : boolean => {
+          const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.modelRef = null;
-          const result = forgeProp(spec);
+          const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.some(
-              (item) =>
+              (item: IAutoMovieConstraintViolation) : boolean =>
                 item.path === "$input.model.origin" &&
                 item.expected ===
                   'a forged prop\'s origin must be "generated", but was "imported"',
@@ -142,9 +149,9 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "aGeneratedPropNamingNoReferenceIsNotJudgedAsImported",
-        () => {
-          const spec = createDoorPropSpec();
-          const result = forgeProp(spec);
+        () : boolean => {
+          const spec: IAutoMoviePropSpec = createDoorPropSpec();
+          const result: IAutoMovieForgedProp = forgeProp(spec);
           return result.success === true && (spec.modelRef ?? null) === null;
         },
       ],
@@ -162,50 +169,50 @@ export const test_film_prop_imported_appearance = (): void => {
     namedFacts([
       [
         "blankReference",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.modelRef = "   "),
+            (spec: IAutoMoviePropSpec) : string => (spec.modelRef = "   "),
             "$input.modelRef",
             "an empty reference classifies nothing",
           ),
       ],
       [
         "generatedModelCitingAReference",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.model.origin = "generated"),
+            (spec: IAutoMoviePropSpec) : string => (spec.model.origin = "generated"),
             "$input.model.origin",
             'its origin must be "imported", but was "generated"',
           ),
       ],
       [
         "nullAsset",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.model.asset = null),
+            (spec: IAutoMoviePropSpec) : null => (spec.model.asset = null),
             "$input.model.asset",
             "must name the binary payload",
           ),
       ],
       [
         "absentSealedClosure",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => delete spec.model.imported,
+            (spec: IAutoMoviePropSpec) : boolean => delete spec.model.imported,
             "$input.model.imported",
             "carries no builder-sealed ingest closure",
           ),
       ],
       [
         "anAbsentClosureStopsTheClosureGates",
-        () => {
-          const spec = createImportedPropSpec();
+        () : boolean => {
+          const spec: IAutoMoviePropSpec = createImportedPropSpec();
           delete spec.model.imported;
-          const result = forgeProp(spec);
+          const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
-              (item) => !item.path.startsWith("$input.model.imported."),
+              (item: IAutoMovieConstraintViolation) : boolean => !item.path.startsWith("$input.model.imported."),
             )
           );
         },
@@ -225,9 +232,9 @@ export const test_film_prop_imported_appearance = (): void => {
     namedFacts([
       [
         "humanoidProfileIsAPerformer",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => {
+            (spec: IAutoMoviePropSpec) : void => {
               spec.model.imported!.profile = "vrm-humanoid-v1";
               spec.model.imported!.lod[0]!.profile = "vrm-humanoid-v1";
             },
@@ -237,9 +244,9 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "appearanceMappingHumanoidBones",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : number =>
               spec.model.imported!.humanoidBones.push({
                 bone: "hips",
                 node: 3,
@@ -251,9 +258,9 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "levelMappingHumanoidBones",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : number =>
               spec.model.imported!.lod[0]!.humanoidBones.push({
                 bone: "hips",
                 node: 3,
@@ -265,18 +272,18 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "blankLedgerPath",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.model.imported!.assets[1]!.path = " "),
+            (spec: IAutoMoviePropSpec) : string => (spec.model.imported!.assets[1]!.path = " "),
             "$input.model.imported.assets[1].path",
             "non-empty project-relative path",
           ),
       ],
       [
         "duplicatedLedgerPath",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : number =>
               spec.model.imported!.assets.push({
                 path: HERO_BYTES,
                 digest: digest("c"),
@@ -287,24 +294,24 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "aBlankPathIsNotAlsoCalledADuplicate",
-        () => {
-          const spec = createImportedPropSpec();
+        () : boolean => {
+          const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.imported!.assets[0]!.path = "";
           spec.model.imported!.assets[1]!.path = "";
-          const result = forgeProp(spec);
+          const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
-              (item) => !item.expected.includes("is declared twice"),
+              (item: IAutoMovieConstraintViolation) : boolean => !item.expected.includes("is declared twice"),
             )
           );
         },
       ],
       [
         "shortLedgerDigest",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : string =>
               (spec.model.imported!.assets[1]!.digest = `sha256:${"b".repeat(63)}`),
             "$input.model.imported.assets[1].digest",
             "64 lowercase hexadecimal digits",
@@ -312,9 +319,9 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "uppercaseLedgerDigest",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : string =>
               (spec.model.imported!.assets[1]!.digest = `sha256:${"B".repeat(64)}`),
             "$input.model.imported.assets[1].digest",
             "64 lowercase hexadecimal digits",
@@ -346,27 +353,27 @@ export const test_film_prop_imported_appearance = (): void => {
     namedFacts([
       [
         "aSkeletonStillMakesItAnActor",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.model.skeleton = createSkeleton()),
+            (spec: IAutoMoviePropSpec) : IAutoMovieSkeleton => (spec.model.skeleton = createSkeleton()),
             "$input.model.skeleton",
             "riggable actors go through forgeCast",
           ),
       ],
       [
         "theModelIdStillHasToEqualTheNode",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => (spec.model.id = "chair-recipe"),
+            (spec: IAutoMoviePropSpec) : string => (spec.model.id = "chair-recipe"),
             "$input.model.id",
             "the staged scene joins on it",
           ),
       ],
       [
         "validateModelStillJudgesTheProxy",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) =>
+            (spec: IAutoMoviePropSpec) : { type: "primitive"; shape: { type: "box"; width: number; height: number; depth: number; }; } =>
               (spec.model.parts[0]!.geometry = {
                 type: "primitive",
                 shape: { type: "box", width: 0, height: 0.9, depth: 0.5 },
@@ -377,17 +384,17 @@ export const test_film_prop_imported_appearance = (): void => {
       ],
       [
         "anImportedPropMayStillArticulate",
-        () =>
+        () : boolean =>
           tolerated(
-            (spec) => (spec.articulation = createDoorPropSpec().articulation),
+            (spec: IAutoMoviePropSpec) : IAutoMoviePropArticulation | null => (spec.articulation = createDoorPropSpec().articulation),
           ),
       ],
       [
         "andItsArticulationIsStillGated",
-        () =>
+        () : boolean =>
           refuses(
-            (spec) => {
-              const articulation = createDoorPropSpec().articulation!;
+            (spec: IAutoMoviePropSpec) : void => {
+              const articulation: IAutoMoviePropArticulation = createDoorPropSpec().articulation!;
               articulation.binding.boneMap.pivot = "ghost";
               spec.articulation = articulation;
             },
@@ -404,4 +411,4 @@ export const test_film_prop_imported_appearance = (): void => {
       andItsArticulationIsStillGated: true,
     },
   );
-};
+}

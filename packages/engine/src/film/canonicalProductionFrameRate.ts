@@ -18,9 +18,9 @@ import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure reduction of one value that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned two-term record.
  */
-export const canonicalProductionFrameRate = (
+export function canonicalProductionFrameRate (
   input: number | IAutoMovieProductionFrameRate,
-): IAutoMovieProductionFrameRate => {
+): IAutoMovieProductionFrameRate {
   if (typeof input === "number") {
     if (Number.isSafeInteger(input) === false || input <= 0)
       throw new Error(
@@ -45,12 +45,12 @@ export const canonicalProductionFrameRate = (
     numerator: input.numerator / divisor,
     denominator: input.denominator / divisor,
   };
-};
+}
 
 /** Euclid's greatest common divisor of two positive integers. */
-const greatestCommonDivisor = (left: number, right: number): number => {
+function greatestCommonDivisor (left: number, right: number): number {
   let a: number = left;
   let b: number = right;
   while (b !== 0) [a, b] = [b, a % b];
   return a;
-};
+}

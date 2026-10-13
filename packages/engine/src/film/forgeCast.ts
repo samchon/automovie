@@ -47,10 +47,10 @@ interface IDeclaredMember {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one script and plan that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result references the caller's model objects and owns its violation list, bounded by a few violations per entry and member plus each model's own.
  */
-export const forgeCast = (
+export function forgeCast (
   script: IAutoMovieScript,
   forge: IAutoMovieForgePlan,
-): IAutoMovieForgedCast => {
+): IAutoMovieForgedCast {
   const out: ViolationCollector = new ViolationCollector();
   const cast: Map<string, IDeclaredMember> = new Map();
   script.cast.forEach((member: IAutoMovieCastMember, index: number): void => {
@@ -146,4 +146,4 @@ export const forgeCast = (
   const models: Record<string, IAutoMovieModel> = {};
   for (const entry of forge.entries) models[entry.node] = entry.model;
   return { success: true, models };
-};
+}

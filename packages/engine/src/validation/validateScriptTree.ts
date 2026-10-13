@@ -6,6 +6,12 @@ import {
 
 import { ViolationCollector } from "./ViolationCollector";
 
+/** The first declaration of a node id, preserving its diagnostic location. */
+interface IIndexedNode {
+  node: IAutoMovieScriptNode;
+  index: number;
+}
+
 /**
  * Which parent kinds each node kind may refine. The refinement tree is
  * deliberately permissive where the design is silent (a tiny film may go
@@ -42,28 +48,44 @@ const ALLOWED_PARENTS: Record<
  *   id, no two nodes claim one beat, and every beat is claimed: a tree that
  *   forgets a beat silently drops authored structure.
  * - Dialogue anchors are finite and `>= 0` when non-null.
+ * - Intent logline and theme are nonblank and exactly match the flat script
+ *   header, so screenplay rendering cannot silently replace authored metadata.
+ * - Group rationales are nonblank prose, rather than empty bracketed headings.
  *
  * The cross-edge semantics (feedback propagation up the refinement chain) are
  * consumed later; this validator only guarantees the graph is well-formed.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Indexes the first declaration of each node id, admits parent-kind pairs through the closed refinement table and joins beat ids one to one. Parent edges form a functional graph; iterative path coloring detects cycles and memoizes their first repeated node for each ancestor, preserving one diagnostic per cyclic chain without repeated walks. Intent metadata compares exact strings because renderScreenplay prints them verbatim.
+ * @evidence contracts/common.md#clear-and-simple-design Owns graph and payload consistency at the script commit seam; the private cycle pass shares the same id index and collector. Flat logline and theme are explicit inputs rather than inferred from the tree being checked, so the duplicate representation has an independent authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate nodes keep their first diagnostic location, every beat must join exactly one node, and dangling or cyclic references are reported rather than repaired. No payload is trimmed or rewritten; trim only decides whether text is blank, while differing nonblank headers still fail.
+ * @evidence contracts/common.md#meaningful-documentation Lists graph, beat, anchor and editorial payload gates, states the flat-header authority and the later ownership of cross-edge feedback. Inputs identify their source and all refusals are accumulated in the returned validation.
+ * @evidence contracts/performance.md#efficient-algorithms For N nodes, B beats, X cross edges and D dialogue lines, indexing, graph traversal and joins take O(N+B+X+D) operations plus inspected text lengths, with O(N+B) index space. Cycle paths are iterative and completed once, avoiding quadratic ancestor walks and a depth-dependent call stack.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares one first-declaration node index across roots, parent edges, cross references and cycles, and memoizes completed parent chains only during this synchronous validation; no result is reused after mutable script inputs can change.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns indexes, cycle paths and collector until return; transient state is bounded by node and beat counts, with violations growing by the failing authored fields. Only the validation and its violations transfer to the caller, with no retained cache or handles.
  */
-export const validateScriptTree = (props: {
+export function validateScriptTree(props: {
   /** The refinement tree to validate. */
   tree: IAutoMovieScriptNode[];
+
   /** The script's flat beats the beat-kind nodes must join. */
   beats: IAutoMovieBeat[];
-}): IAutoMovieValidation => {
-  const path = "$input.tree";
-  const out = new ViolationCollector();
-  const { tree, beats } = props;
 
-  const byId = new Map<string, { node: IAutoMovieScriptNode; index: number }>();
-  tree.forEach((node, i) => {
-    const np = `${path}[${i}]`;
+  /** Flat script logline the intent root must preserve verbatim. */
+  logline: string;
+
+  /** Flat script theme the intent root must preserve verbatim. */
+  theme: string;
+}): IAutoMovieValidation {
+  const path: string = "$input.tree";
+  const out: ViolationCollector = new ViolationCollector();
+  const { tree, beats }: typeof props = props;
+
+  const byId: Map<string, IIndexedNode> = new Map();
+  tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
+    const np: string = `${path}[${i}]`;
     if (node.id.trim().length === 0)
       out.push("type", `${np}.id`, "node id must be non-empty", node.id);
-    const existing = byId.get(node.id);
+    const existing: IIndexedNode | undefined = byId.get(node.id);
     if (existing !== undefined) {
       out.push(
         "type",
@@ -76,27 +98,35 @@ export const validateScriptTree = (props: {
     byId.set(node.id, { node, index: i });
   });
 
-  const roots = tree.filter((node) => node.parent === null);
+  const roots: IIndexedNode[] = tree.flatMap((node: IAutoMovieScriptNode, index: number): IIndexedNode[] => node.parent === null ? [{ node, index }] : []);
   if (roots.length !== 1)
     out.push(
       "type",
       path,
       `the refinement tree needs exactly one root (parent: null), but found ${roots.length}`,
-      roots.map((node) => node.id),
+      roots.map((entry: IIndexedNode): string => entry.node.id),
     );
-  for (const root of roots)
+  for (const { node: root, index } of roots)
     if (root.kind !== "intent")
       out.push(
         "type",
-        `${path}[${tree.indexOf(root)}].kind`,
+        `${path}[${index}].kind`,
         `the root must be the "intent" the tree refines, but "${root.id}" is a "${root.kind}"`,
         root.kind,
       );
 
-  tree.forEach((node, i) => {
-    const np = `${path}[${i}]`;
+  tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
+    const np: string = `${path}[${i}]`;
+    if (node.kind === "intent") {
+      for (const field of ["logline", "theme"] as const) {
+        out.nonEmpty(`${np}.payload.${field}`, node.payload[field], `intent ${field}`);
+        if (node.payload[field] !== props[field])
+          out.push("type", `${np}.payload.${field}`, `intent ${field} must exactly match the script's flat ${field}`, node.payload[field]);
+      }
+    } else if (node.kind === "group")
+      out.nonEmpty(`${np}.payload.rationale`, node.payload.rationale, "group rationale");
     if (node.parent !== null) {
-      const parent = byId.get(node.parent);
+      const parent: IIndexedNode | undefined = byId.get(node.parent);
       if (parent === undefined) {
         out.push(
           "type",
@@ -137,7 +167,7 @@ export const validateScriptTree = (props: {
           node.temporal,
         );
     }
-    node.interactsWith.forEach((other, j) => {
+    node.interactsWith.forEach((other: string, j: number): void => {
       if (other === node.id)
         out.push(
           "type",
@@ -155,29 +185,13 @@ export const validateScriptTree = (props: {
     });
   });
 
-  for (const [id, entry] of byId) {
-    const trail = new Set<string>([id]);
-    let parent = entry.node.parent;
-    while (parent !== null) {
-      if (trail.has(parent)) {
-        out.push(
-          "type",
-          `${path}[${entry.index}].parent`,
-          `refinement chain of "${id}" is cyclic at "${parent}"`,
-          parent,
-        );
-        break;
-      }
-      trail.add(parent);
-      parent = byId.get(parent)?.node.parent ?? null;
-    }
-  }
+  validateRefinementCycles(byId, out, path);
 
-  const beatIds = new Set(beats.map((beat) => beat.id));
-  const claimed = new Map<string, number>();
-  tree.forEach((node, i) => {
+  const beatIds: Set<string> = new Set(beats.map((beat: IAutoMovieBeat): string => beat.id));
+  const claimed: Map<string, number> = new Map();
+  tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
     if (node.kind !== "beat") return;
-    const np = `${path}[${i}].payload`;
+    const np: string = `${path}[${i}].payload`;
     if (!beatIds.has(node.payload.beat)) {
       out.push(
         "type",
@@ -186,7 +200,7 @@ export const validateScriptTree = (props: {
         node.payload.beat,
       );
     } else {
-      const first = claimed.get(node.payload.beat);
+      const first: number | undefined = claimed.get(node.payload.beat);
       if (first !== undefined)
         out.push(
           "type",
@@ -196,7 +210,7 @@ export const validateScriptTree = (props: {
         );
       else claimed.set(node.payload.beat, i);
     }
-    node.payload.dialogue.forEach((line, j) => {
+    node.payload.dialogue.forEach((line: typeof node.payload.dialogue[number], j: number): void => {
       if (
         line.anchor !== null &&
         (!Number.isFinite(line.anchor) || line.anchor < 0)
@@ -209,7 +223,7 @@ export const validateScriptTree = (props: {
         );
     });
   });
-  beats.forEach((beat, i) => {
+  beats.forEach((beat: IAutoMovieBeat, i: number): void => {
     if (!claimed.has(beat.id))
       out.push(
         "type",
@@ -220,4 +234,32 @@ export const validateScriptTree = (props: {
   });
 
   return out.toValidation();
-};
+}
+
+/** Memoize each parent chain's first repeated node, then report in authored id order. */
+function validateRefinementCycles(byId: ReadonlyMap<string, IIndexedNode>, out: ViolationCollector, path: string): void {
+  const completed: Set<string> = new Set();
+  const cycleAt: Map<string, string> = new Map();
+  for (const id of byId.keys()) {
+    if (completed.has(id)) continue;
+    const trail: string[] = [];
+    const active: Map<string, number> = new Map();
+    let cursor: string | null = id;
+    while (cursor !== null && byId.has(cursor) && !completed.has(cursor) && !active.has(cursor)) {
+      active.set(cursor, trail.length);
+      trail.push(cursor);
+      cursor = byId.get(cursor)!.node.parent;
+    }
+    const cycleStart: number | undefined = cursor === null ? undefined : active.get(cursor);
+    const repeated: string | undefined = cursor === null ? undefined : cycleStart === undefined ? cycleAt.get(cursor) : cursor;
+    trail.forEach((node: string, index: number): void => {
+      if (repeated !== undefined) cycleAt.set(node, cycleStart !== undefined && index >= cycleStart ? node : repeated);
+      completed.add(node);
+    });
+  }
+  for (const [id, entry] of byId) {
+    const repeated: string | undefined = cycleAt.get(id);
+    if (repeated !== undefined)
+      out.push("type", `${path}[${entry.index}].parent`, `refinement chain of "${id}" is cyclic at "${repeated}"`, repeated);
+  }
+}

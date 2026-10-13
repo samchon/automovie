@@ -48,7 +48,7 @@ const DEFAULT_ASPECT: number = 16 / 9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Projects one actor at one instant per call; the keypoint plan calls it per performing actor per frame, and the inputs carry no identity to key a cache on.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The bone index and node matrix are released on return; the returned keypoints are fresh records owned by the caller.
  */
-export const resolvePoseKeypoints = (props: {
+export function resolvePoseKeypoints (props: {
   /** The actor's pose at this instant. */
   pose: IAutoMoviePose;
 
@@ -75,7 +75,7 @@ export const resolvePoseKeypoints = (props: {
 
   /** Joints to emit. Defaults to the OpenPose body set. */
   joints?: readonly AutoMovieHumanoidBone[];
-}): IAutoMoviePoseKeypoint[] => {
+}): IAutoMoviePoseKeypoint[] {
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
     resolvePose(props.pose, props.skeleton).map(
       (
@@ -124,4 +124,4 @@ export const resolvePoseKeypoints = (props: {
     });
   }
   return keypoints;
-};
+}

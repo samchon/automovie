@@ -26,15 +26,14 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one transform and one point that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates two temporary vectors and retains nothing; the caller owns the returned point.
  */
-export const placeTransformedPoint = (
+export function placeTransformedPoint (
   transform: IAutoMovieTransform,
   point: IAutoMovieVector3,
-): IAutoMovieVector3 =>
-  Vector3.add(
+): IAutoMovieVector3 { return Vector3.add(
     transform.translation,
     Quaternion.rotateVector(transform.rotation, {
       x: point.x * transform.scale.x,
       y: point.y * transform.scale.y,
       z: point.z * transform.scale.z,
     }),
-  );
+  ); }

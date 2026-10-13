@@ -25,10 +25,10 @@ import { IAutoMovieScriptNode } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one node per call; the tree carries no identity or version to key a reusable index on.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The index and the visited set are released on return; the returned chain holds at most the tree's node count of ids.
  */
-export const scriptAncestors = (
+export function scriptAncestors (
   tree: readonly IAutoMovieScriptNode[],
   nodeId: string,
-): string[] => {
+): string[] {
   const byId: Map<string, IAutoMovieScriptNode> = new Map(
     tree.map(
       (node: IAutoMovieScriptNode): [string, IAutoMovieScriptNode] => [
@@ -61,4 +61,4 @@ export const scriptAncestors = (
     parent = node.parent;
   }
   return chain;
-};
+}

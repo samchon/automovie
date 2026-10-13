@@ -18,12 +18,12 @@ import { IAutoMovieScriptNode } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup over one tree that coordinates nothing across calls; a caller resolving many beats owns any index.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing; it returns an id string the tree already holds.
  */
-export const beatNodeOf = (
+export function beatNodeOf (
   tree: readonly IAutoMovieScriptNode[] | null | undefined,
   beatId: string,
-): string | null => {
+): string | null {
   if (tree === null || tree === undefined) return null;
   for (const node of tree)
     if (node.kind === "beat" && node.payload.beat === beatId) return node.id;
   return null;
-};
+}

@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "@automovie/interface";
 
 /**
  * Current identities a film-effect runtime is written under and sampled
@@ -29,11 +28,11 @@ export interface IAutoMovieFilmEffectCurrentIdentity {
   film: string;
 
   /** Aggregate builder input digest, the timeline's `inputFingerprint`. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /**
    * Normalized edit digest, as `productionFilmEffectEditFingerprint` derives it
    * from the current timeline.
    */
-  editFingerprint: AutoMovieContentDigest;
+  editFingerprint: string;
 }

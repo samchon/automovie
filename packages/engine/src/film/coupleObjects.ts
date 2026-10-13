@@ -56,8 +56,7 @@ interface ICoupleContext {
   keep: (child: string, clip: IAutoMovieClip) => void;
 }
 
-const childrenOf = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string" ? [action.actor] : action.actor;
+function childrenOf (action: IAutoMovieActionCall): string[] { return typeof action.actor === "string" ? [action.actor] : action.actor; }
 
 /**
  * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
@@ -92,11 +91,11 @@ const childrenOf = (action: IAutoMovieActionCall): string[] =>
  * @evidence contracts/common.md#clear-and-simple-design Owns the shot's coupling order, cycle refusal, mount validation and id uniqueness, and delegates each bake to `compileAttach` and each event set to `handoffEvents`; it lives apart from `performShot` because this is the region that function kept growing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No node, bone or clip id is special-cased; chain selection reads what a clip carries and when it starts rather than its id suffix, and a cycle or rig-less mount is refused instead of baked frozen.
  * @evidence contracts/common.md#meaningful-documentation States both coupling sources and their precedence, which source emits events, where mounts are validated, how a chained parent's frame is read including before and between its couplings, the cycle rule, and the order and ids of what it returns.
- * @evidence contracts/performance.md#efficient-algorithms Graph build, ordering and grouping are linear in couplings C plus nodes; each bake is O(S · B) for S samples over a parent rig of B bones, plus, for a chained parent, one channel-authority sample over that parent's own k clips per rider sample; the cycle walk copies its path stack, O(d²) for a chain d deep, which coupling chains keep to a few links.
+ * @evidence contracts/performance.md#efficient-algorithms Graph build, ordering and grouping visit couplings and nodes linearly, plus the length of emitted cycle descriptions; one mutable active path and an index map avoid copying each ancestor chain. Each bake costs O(S · B) over S samples and B rig bones, plus channel-authority sampling of a chained parent's own clips per rider sample; recursion still needs one call frame per coupling depth.
  * @evidence contracts/performance.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
-export const coupleObjects = (props: {
+export function coupleObjects (props: {
   /** Validated `attachTo` jobs of this shot. */
   attachments: readonly IAttachJob[];
 
@@ -128,7 +127,7 @@ export const coupleObjects = (props: {
   clips: IAutoMovieClip[];
   events: IAutoMovieInteractionEvent[];
   violations: IAutoMovieConstraintViolation[];
-} => {
+} {
   const out: ViolationCollector = new ViolationCollector();
   const claimed: Set<string> = new Set(
     props.attachments.flatMap((job: IAttachJob): string[] =>
@@ -142,11 +141,11 @@ export const coupleObjects = (props: {
   // The shot's coupling graph: coupled child -> the parents it rides. A
   // claimed child's mount was filtered above, so its edge is absent.
   const parentsOf: Map<string, Set<string>> = new Map();
-  const addEdge = (child: string, parent: string): void => {
+  function addEdge (child: string, parent: string): void {
     const set: Set<string> = parentsOf.get(child) ?? new Set<string>();
     set.add(parent);
     parentsOf.set(child, set);
-  };
+  }
   for (const job of props.attachments)
     for (const child of childrenOf(job.action))
       addEdge(child, job.action.parent);
@@ -158,10 +157,12 @@ export const coupleObjects = (props: {
   const order: string[] = [];
   const visited: Set<string> = new Set();
   const cyclic: Set<string> = new Set();
-  const visit = (node: string, stack: readonly string[]): void => {
+  const stack: string[] = [];
+  const active: Map<string, number> = new Map();
+  function visit (node: string): void {
     if (visited.has(node)) return;
-    const at: number = stack.indexOf(node);
-    if (at >= 0) {
+    const at: number | undefined = active.get(node);
+    if (at !== undefined) {
       const cycle: string[] = stack.slice(at);
       for (const member of cycle) cyclic.add(member);
       out.push(
@@ -175,12 +176,16 @@ export const coupleObjects = (props: {
     // `node` is always a graph key: the top-level loop iterates the keys and
     // the recursion is gated on `parentsOf.has(parent)`. A cycle return leaves
     // that frame's node unmarked, so the post-order add is unconditional.
+    active.set(node, stack.length);
+    stack.push(node);
     for (const parent of parentsOf.get(node)!)
-      if (parentsOf.has(parent)) visit(parent, [...stack, node]);
+      if (parentsOf.has(parent)) visit(parent);
+    stack.pop();
+    active.delete(node);
     visited.add(node);
     order.push(node);
-  };
-  for (const child of parentsOf.keys()) visit(child, []);
+  }
+  for (const child of parentsOf.keys()) visit(child);
 
   const nodes: Map<string, IAutoMovieSceneNode> = new Map(
     props.scene.nodes.map(
@@ -239,7 +244,7 @@ export const coupleObjects = (props: {
     else bakeMountFollow(mountByChild.get(child)!, context, out);
   }
   return { clips, events, violations: out.items };
-};
+}
 
 /**
  * Bake one child's per-beat `attachTo` follows and their handoff events. A
@@ -249,12 +254,12 @@ export const coupleObjects = (props: {
  * repeats suffixed (`attach:<child>:2`, ...), so the first keeps the stable
  * id; runtime authority follows track start and producer order, not the suffix.
  */
-const bakeAttachFollows = (
+function bakeAttachFollows (
   child: string,
   jobs: readonly IAttachJob[],
   context: ICoupleContext,
   events: IAutoMovieInteractionEvent[],
-): void => {
+): void {
   const ordered: IAttachJob[] = [...jobs].sort(
     (a: IAttachJob, b: IAttachJob): number => a.action.start - b.action.start,
   );
@@ -288,18 +293,18 @@ const bakeAttachFollows = (
         : { ...baked, id: `${baked.id}:${occurrence + 1}` },
     );
   });
-};
+}
 
 /**
  * Bake one persistent staged mount (#674): the rider descends through
  * {@link compileAttach} over the whole shot. Staging validated that the parent
  * is a placed actor; the parent's rig and the saddle bone are validated here.
  */
-const bakeMountFollow = (
+function bakeMountFollow (
   mount: IAutoMovieStagedSet.IMount,
   context: ICoupleContext,
   out: ViolationCollector,
-): void => {
+): void {
   const parent: string = mount.binding.parent;
   const parentRig: IAutoMovieSkeleton | null = context.skeleton(parent);
   if (parentRig === null) {
@@ -338,4 +343,4 @@ const bakeMountFollow = (
       restFrames: context.restFrames?.(parent),
     }),
   );
-};
+}

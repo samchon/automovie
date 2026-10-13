@@ -86,10 +86,10 @@ const LOOK_DISTANCE_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates and composes one staging write per call; the script and write change between correction rounds, so nothing is kept across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The indexes, id set and collector are released on return; a success holds one node per actor and set piece, one camera and one light per placement, and the authored space, fog and environment objects by reference, and a failure holds the violation list.
  */
-export const stageScene = (
+export function stageScene (
   script: IAutoMovieScript,
   staging: IAutoMovieStage,
-): IAutoMovieStagedSet => {
+): IAutoMovieStagedSet {
   const out: ViolationCollector = new ViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
   const cast: Map<string, IAutoMovieScript["cast"][number]> = new Map();
@@ -160,12 +160,12 @@ export const stageScene = (
   );
 
   const ids: Set<string> = new Set();
-  const claim = (id: string, path: string, label: string): void => {
+  function claim (id: string, path: string, label: string): void {
     collectNonEmptyId(id, path, label, out);
     if (ids.has(id))
       out.push("type", path, `id "${id}" must be unique in the scene`, id);
     ids.add(id);
-  };
+  }
 
   staging.actors.forEach((actor: IAutoMovieStageActor, i: number): void => {
     const path: string = `$input.actors[${i}]`;
@@ -477,13 +477,13 @@ export const stageScene = (
     },
     mounts,
   };
-};
+}
 
 /** A delegated validator's violation with its `$input` root moved to `root`. */
-const reRooted = (
+function reRooted (
   item: IAutoMovieConstraintViolation,
   root: string,
-): IAutoMovieConstraintViolation => ({
+): IAutoMovieConstraintViolation { return ({
   ...item,
   path: item.path.replace("$input", root),
-});
+}); }

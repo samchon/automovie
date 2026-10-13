@@ -29,13 +29,13 @@ import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGr
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure conversion of one interval; a caller tiling many intervals maps each shared boundary twice, two constant-time conversions that need no cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned pair.
  */
-export const productionFrameIntervalToGridTicks = (props: {
+export function productionFrameIntervalToGridTicks (props: {
   startFrame: number;
   endFrame: number;
   frameRate: IAutoMovieProductionFrameRate;
   ticksPerSecond: number;
   rounding: "nearest" | "floor" | "ceiling";
-}): { start: number; end: number } => {
+}): { start: number; end: number } {
   if (props.endFrame <= props.startFrame)
     throw new Error(
       `Production interval ${props.startFrame}..${props.endFrame} must have a positive frame duration.`,
@@ -57,4 +57,4 @@ export const productionFrameIntervalToGridTicks = (props: {
       `Production interval ${props.startFrame}..${props.endFrame} collapses to ${start}..${end} on the ${props.ticksPerSecond}-tick destination clock.`,
     );
   return { start, end };
-};
+}

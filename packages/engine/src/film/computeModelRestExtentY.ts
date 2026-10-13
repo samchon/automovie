@@ -3,7 +3,7 @@ import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 
 /**
- * A model's rest-pose vertical extent in model space, in metres: the world-Y
+ * A model's rest-pose vertical extent in model space, in metres: the model-Y
  * range of the geometry a renderer draws.
  *
  * This is the subject height the framing grammar needs, and the reason it is
@@ -24,10 +24,10 @@ import { computeModelRestExtent } from "./computeModelRestExtent";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure projection of one model's measurement that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the three-axis box is dropped on return and the caller owns the two numbers.
  */
-export const computeModelRestExtentY = (
+export function computeModelRestExtentY (
   model: IAutoMovieModel,
-): { min: number; max: number } | null => {
+): { min: number; max: number } | null {
   const extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null =
     computeModelRestExtent(model);
   return extent === null ? null : { min: extent.min.y, max: extent.max.y };
-};
+}

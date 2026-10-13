@@ -1,120 +1,36 @@
-import { validateScriptTree } from "@automovie/engine";
-import { IAutoMovieBeat, IAutoMovieScriptNode } from "@automovie/interface";
+import { IAutoMovieScriptNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-export const treeBeats = (): IAutoMovieBeat[] => [
-  {
-    id: "beat-1",
-    name: "the loose",
-    summary: "A looses the arrow",
-    durationHint: 3,
-  },
-  { id: "beat-2", name: "the hit", summary: "B is struck", durationHint: 2 },
-];
-
-/** A full five-kind refinement tree over {@link treeBeats}. */
-export const createScriptTree = (): IAutoMovieScriptNode[] => [
-  {
-    id: "root",
-    kind: "intent",
-    parent: null,
-    temporal: null,
-    interactsWith: [],
-    payload: { logline: "A hunter becomes the hunted.", theme: "reversal" },
-  },
-  {
-    id: "act1",
-    kind: "act",
-    parent: "root",
-    temporal: null,
-    interactsWith: [],
-    payload: { purpose: "the hunt turns" },
-  },
-  {
-    id: "scene1",
-    kind: "scene",
-    parent: "act1",
-    temporal: null,
-    interactsWith: [],
-    payload: {
-      interiorExterior: "EXT",
-      location: "forest clearing",
-      timeOfDay: "dawn",
-      description: null,
-    },
-  },
-  {
-    id: "grp",
-    kind: "group",
-    parent: "scene1",
-    temporal: null,
-    interactsWith: [],
-    payload: { rationale: "the exchange of arrows" },
-  },
-  {
-    id: "b1",
-    kind: "beat",
-    parent: "grp",
-    temporal: null,
-    interactsWith: ["b2"],
-    payload: {
-      beat: "beat-1",
-      direction: "A twists back in the saddle and looses.",
-      dialogue: [
-        { speaker: "A", text: "Now!", anchor: 0.5 },
-        { speaker: "B", text: "…", anchor: null },
-      ],
-      caption: "low sun, long shadows, the arrow leaves frame right",
-    },
-  },
-  {
-    id: "b2",
-    kind: "beat",
-    parent: "grp",
-    temporal: "b1",
-    interactsWith: ["b1"],
-    payload: {
-      beat: "beat-2",
-      direction: "B takes the arrow and falls.",
-      dialogue: [],
-      caption: null,
-    },
-  },
-];
+import { validateScriptTree } from "../../../../packages/engine/src/validation/validateScriptTree";
+import { createScriptTreeFixture } from "../internal/createScriptTreeFixture";
 
 /**
- * The screenplay refinement tree: a well-formed five-kind tree (one intent root
- * refined through act, scene, and group down to beat nodes that join the flat
- * beats 1:1, with dialogue anchors, a temporal chain, and a mutual interaction
- * edge) validates clean.
+ * Valid screenplay trees preserve the flat script and permit minimal structure.
  *
  * Scenarios:
+ * 1. A five-kind tree joins both flat beats with finite and null dialogue anchors.
+ * 2. A lone intent root joins an empty beat list.
+ * 3. A long alternating group/scene chain validates without recursive traversal.
  *
- * 1. The full tree over both beats validates with zero violations.
- * 2. Anchored and floating (null-anchor) dialogue lines both pass: the anchor rule
- *    only bounds non-null values.
- * 3. A minimal one-node tree (intent root alone) over zero beats validates: the
- *    smallest legal refinement is the intent itself.
+ * @evidence contracts/testing.md#behavioral-verification Calls source tree admission and requires zero violations for full, minimal and deep trees, catching accidental refusal of legal parent kinds, nullable anchors, empty beats or long acyclic chains.
+ * @evidence contracts/testing.md#independent-expectations Fixtures declare the supported parent table, one intent root, exact flat-header agreement and one node per flat beat; a chain alternating group and scene follows two permitted parent pairs independently of the traversal implementation.
+ * @evidence contracts/testing.md#distinguishing-cases Covers every node kind, mutual interaction edges, temporal reference, finite and null anchors, zero beats and a 10000-node acyclic chain; malformed graphs and editorial payloads belong to the gates entry.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns these portable fixtures and assertions and calls engine source directly; no process, renderer or dynamically registered case is required.
  */
-export const test_validation_script_tree = (): void => {
-  const full = validateScriptTree({
-    tree: createScriptTree(),
-    beats: treeBeats(),
-  });
+export function test_validation_script_tree(): void {
+  const full: ReturnType<typeof validateScriptTree> = validateScriptTree(createScriptTreeFixture());
   TestValidator.equals("full five-kind tree validates", full.success, true);
-
-  const minimal = validateScriptTree({
-    tree: [
-      {
-        id: "root",
-        kind: "intent",
-        parent: null,
-        temporal: null,
-        interactsWith: [],
-        payload: { logline: "x", theme: "y" },
-      },
-    ],
-    beats: [],
-  });
-  TestValidator.equals("intent-only tree validates", minimal.success, true);
-};
+  const root: IAutoMovieScriptNode = createScriptTreeFixture().tree[0]!;
+  const minimal: Parameters<typeof validateScriptTree>[0] = { ...createScriptTreeFixture(), tree: [root], beats: [] };
+  TestValidator.equals("intent-only tree validates", validateScriptTree(minimal).success, true);
+  const deep: IAutoMovieScriptNode[] = [root];
+  for (let index: number = 1; index < 10000; index++)
+    deep.push(index % 2 === 1 ? {
+      id: `deep-${index}`, kind: "group", parent: index === 1 ? "root" : `deep-${index-1}`,
+      temporal: null, interactsWith: [], payload: { rationale: "Nested editorial group" },
+    } : {
+      id: `deep-${index}`, kind: "scene", parent: `deep-${index-1}`,
+      temporal: null, interactsWith: [], payload: { interiorExterior: "EXT", location: "location", timeOfDay: "day", description: null },
+    });
+  TestValidator.equals("deep legal tree validates", validateScriptTree({ ...minimal, tree: deep }).success, true);
+}

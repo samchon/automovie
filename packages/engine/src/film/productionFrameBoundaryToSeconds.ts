@@ -25,10 +25,10 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call answers one boundary independently; the frame-ownership walk calls it per candidate frame, and caching those few doubles would cost more than recomputing them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the reduced rate record and retains nothing.
  */
-export const productionFrameBoundaryToSeconds = (props: {
+export function productionFrameBoundaryToSeconds (props: {
   frame: number;
   frameRate: IAutoMovieProductionFrameRate;
-}): number => {
+}): number {
   if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,
@@ -37,4 +37,4 @@ export const productionFrameBoundaryToSeconds = (props: {
     props.frameRate,
   );
   return (props.frame * rate.denominator) / rate.numerator;
-};
+}

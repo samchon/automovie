@@ -34,12 +34,12 @@ import { performShotActors } from "./performShotActors";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One comparison of one blocking with one performance per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing.
  */
-export const gatePerformShotBlocking = (
+export function gatePerformShotBlocking (
   context: IPerformShotGateContext,
   blocking: IAutoMovieBlocking,
   stageActions: readonly IAutoMovieActionCall[],
   frames: readonly IPerformShotFrameJob[],
-): void => {
+): void {
   const out: ViolationCollector = context.out;
   const performance: IAutoMoviePerformance = context.performance;
   const base: string = context.base;
@@ -102,4 +102,4 @@ export const gatePerformShotBlocking = (
       `the blocking moves the camera "${blocking.camera.move}", but the performance moves "${lead.action.move}"`,
       lead.action.move,
     );
-};
+}

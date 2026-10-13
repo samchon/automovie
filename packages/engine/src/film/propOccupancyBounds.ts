@@ -40,13 +40,13 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @evidence contracts/performance.md#reuse-equivalent-work The staged matrix is composed once per call and reused for every part; tessellation is not cached across calls because the prop record is the caller's mutable data.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps the per-part boxes only until they are unioned and retains nothing; the caller owns the returned box.
  */
-export const propOccupancyBounds = (props: {
+export function propOccupancyBounds (props: {
   prop: IAutoMoviePropSpec;
   piece: IAutoMovieStageSetPiece;
-}): IAutoMoviePropBox => {
+}): IAutoMoviePropBox {
   const matrix: number[] = setPieceMatrix(props.piece);
   const footprint: IAutoMoviePropBox | null =
     props.prop.placement?.footprint ?? null;
   if (footprint !== null) return transformedBoxBounds(footprint, matrix);
   return unionSubjectBoxes(builtPlacedPartBoxes(props.prop.model, matrix))!;
-};
+}

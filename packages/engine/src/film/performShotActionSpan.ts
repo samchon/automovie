@@ -19,12 +19,12 @@ import { IAutoMovieActionCall } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one action and one duration that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the two-element tuple.
  */
-export const performShotActionSpan = (
+export function performShotActionSpan (
   action: IAutoMovieActionCall,
   shotDuration: number,
-): [number, number] => [
+): [number, number] { return [
   action.start,
   action.duration === "auto"
     ? shotDuration
     : Math.min(action.start + action.duration, shotDuration),
-];
+]; }

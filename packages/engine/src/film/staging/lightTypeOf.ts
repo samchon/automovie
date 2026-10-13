@@ -24,10 +24,10 @@ import { isAutoMovieLightType } from "../../resolve/isAutoMovieLightType";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads one placement per call and coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing; it returns a string or `null`.
  */
-export const lightTypeOf = (
+export function lightTypeOf (
   light: IAutoMovieStageLight,
-): IAutoMovieLight["type"] | null => {
+): IAutoMovieLight["type"] | null {
   const type: unknown = light.type;
   if (type === undefined) return "directional";
   return isAutoMovieLightType(type) ? type : null;
-};
+}

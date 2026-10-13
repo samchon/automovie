@@ -39,9 +39,9 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement of one model that coordinates nothing across calls; a pass that frames the same model for many subjects owns any memoization.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; each tessellation and the rest-frame map are dropped as the call proceeds, and the caller owns the two returned vectors.
  */
-export const computeModelRestExtent = (
+export function computeModelRestExtent (
   model: IAutoMovieModel,
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null => {
+): { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null {
   const frames: ReadonlyMap<
     AutoMovieHumanoidBone,
     Pick<IAutoMovieTransform, "translation" | "rotation">
@@ -82,4 +82,4 @@ export const computeModelRestExtent = (
     }
   }
   return min.y === Infinity ? null : { min, max };
-};
+}

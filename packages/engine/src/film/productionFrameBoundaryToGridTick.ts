@@ -27,12 +27,12 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One boundary per call with no shared state; the interval form calls it twice per interval because each end is a separate boundary.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few `BigInt` temporaries and retains nothing.
  */
-export const productionFrameBoundaryToGridTick = (props: {
+export function productionFrameBoundaryToGridTick (props: {
   frame: number;
   frameRate: IAutoMovieProductionFrameRate;
   ticksPerSecond: number;
   rounding: "nearest" | "floor" | "ceiling";
-}): number => {
+}): number {
   if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,
@@ -65,4 +65,4 @@ export const productionFrameBoundaryToGridTick = (props: {
       `Production frame boundary ${props.frame} exceeds the safe ${props.ticksPerSecond}-tick destination clock.`,
     );
   return Number(tick);
-};
+}

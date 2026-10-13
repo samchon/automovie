@@ -22,8 +22,7 @@ import { isRecord } from "../../validation/isRecord";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate on one value that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads three fields and returns a boolean, allocating and retaining nothing.
  */
-export const isFiniteStageVector3 = (vector: unknown): boolean =>
-  isRecord(vector) &&
+export function isFiniteStageVector3 (vector: unknown): boolean { return isRecord(vector) &&
   Number.isFinite(vector.x) &&
   Number.isFinite(vector.y) &&
-  Number.isFinite(vector.z);
+  Number.isFinite(vector.z); }

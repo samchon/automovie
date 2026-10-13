@@ -28,11 +28,11 @@ import { beatNodeOf } from "./beatNodeOf";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure transformation of one list that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned list and its copies.
  */
-export const locateOnBeat = (
+export function locateOnBeat (
   violations: readonly IAutoMovieConstraintViolation[],
   tree: readonly IAutoMovieScriptNode[] | null | undefined,
   beatId: string,
-): IAutoMovieConstraintViolation[] => {
+): IAutoMovieConstraintViolation[] {
   const node: string | null = beatNodeOf(tree, beatId);
   if (node === null) return [...violations];
   return violations.map(
@@ -40,4 +40,4 @@ export const locateOnBeat = (
       violation: IAutoMovieConstraintViolation,
     ): IAutoMovieConstraintViolation => ({ ...violation, node }),
   );
-};
+}

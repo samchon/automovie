@@ -7,7 +7,7 @@ import {
 import { skeletonRestFrames } from "./skeletonRestFrames";
 
 /**
- * A skeleton's rest-pose joint span in metres: the world-Y distance between its
+ * A skeleton's rest-pose joint span in metres: the model-Y distance between its
  * lowest and highest joint once every bone's rest transform is composed down
  * the parent chain.
  *
@@ -31,7 +31,7 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement of one skeleton that coordinates nothing across calls; a caller framing one rig repeatedly owns any reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing past the call; the rest-frame map it builds is dropped on return and only a number leaves.
  */
-export const computeRestHeight = (skeleton: IAutoMovieSkeleton): number => {
+export function computeRestHeight (skeleton: IAutoMovieSkeleton): number {
   if (skeleton.bones.length === 0) return 0;
   const frames: ReadonlyMap<
     AutoMovieHumanoidBone,
@@ -45,4 +45,4 @@ export const computeRestHeight = (skeleton: IAutoMovieSkeleton): number => {
     if (y > max) max = y;
   }
   return max - min;
-};
+}

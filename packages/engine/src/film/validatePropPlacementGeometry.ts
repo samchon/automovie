@@ -16,7 +16,8 @@ import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";
 import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
-import { propBlockedPassages } from "./propBlockedPassages";
+import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
+import { createPropPassageBlocker } from "./createPropPassageBlocker";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
 import { propClearanceBounds } from "./propClearanceBounds";
@@ -56,10 +57,10 @@ const PLACEMENT_EPSILON: number = 1e-9;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsound props, unstateable faces, cell-less spaces and model-less fills are skipped as stated rules so one fault is reported once, and declared contact exempts only the overlap between the two props that declare it; no prop, kind or building is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States what "sound" means and why, which props are measured as occupants only, the overlap exemption, how the judged environment is chosen, how an opening is fitted, the filled-passage exemption, and the report order.
  * @evidence contracts/performance.md#efficient-algorithms Occupancy is computed once per sound prop and reused by every check; clearance and pairwise overlap are `O(S² + S·C)` box tests for `S` sound props and `C` clearances, which suits the tens of props one shot stages, and each support relation and fill-opening relation resolves its face or fill once.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares each prop's occupancy box across the clearance, overlap, support and occupancy checks of one call; `propBlockedPassages` re-derives every opening and connector box of an environment for each prop judged there, an unshared cost bounded by props times passages.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the occupancy map and the node lookup die with the call, and violations go to the caller's collector.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares each prop's occupancy across its checks and prepares each judged environment's passage bounds once through createPropPassageBlocker, keyed by that environment object during the synchronous validation. Inputs stay unchanged for the call; no closure is reused across later mutable environment revisions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns the sound-prop list and a lazy map of passage queries for at most the judged environments until return; each query retains that environment's measured passage boxes. All temporary lists, maps and queries are released after validation, while violations transfer to the caller's collector.
  */
-export const validatePropPlacementGeometry = (props: {
+export function validatePropPlacementGeometry (props: {
   /** Every registry entry in declaration order, with what the registry gate resolved for it. */
   entries: readonly {
     /** The registry's prop. */
@@ -86,7 +87,7 @@ export const validatePropPlacementGeometry = (props: {
 
   /** Collector the violations are appended to. */
   out: ViolationCollector;
-}): void => {
+}): void {
   const staged: IStagedProp[] = [];
   for (const entry of props.entries) {
     if (!entry.forged || !entry.unique || entry.piece === undefined) continue;
@@ -104,6 +105,7 @@ export const validatePropPlacementGeometry = (props: {
   validateClearances(staged, props.out);
   validateOverlaps(staged, props.out);
   validateSupports(staged, props.environments, props.out);
+  const passageQueries: Map<IAutoMovieBuiltEnvironment, (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[]> = new Map();
   for (const entry of staged) {
     if (entry.prop.placement === undefined) continue;
     const environment: IAutoMovieBuiltEnvironment | null = judgedEnvironment(
@@ -111,9 +113,16 @@ export const validatePropPlacementGeometry = (props: {
       entry.prop.placement.relations,
       props.environments,
     );
-    if (environment !== null) validateOccupancy(entry, environment, props.out);
+    if (environment !== null) {
+      let blocked: ((bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[]) | undefined = passageQueries.get(environment);
+      if (blocked === undefined) {
+        blocked = createPropPassageBlocker(environment);
+        passageQueries.set(environment, blocked);
+      }
+      validateOccupancy(entry, environment, props.out, blocked);
+    }
   }
-};
+}
 
 /** A sound prop with the one piece staging it and its world occupancy. */
 interface IStagedProp {
@@ -124,16 +133,15 @@ interface IStagedProp {
   occupancy: IAutoMoviePropBox;
 }
 
-const soundBox = (box: IAutoMoviePropBox): boolean =>
-  propBoxAxisIsSound(box, "x") &&
+function soundBox (box: IAutoMoviePropBox): boolean { return propBoxAxisIsSound(box, "x") &&
   propBoxAxisIsSound(box, "y") &&
-  propBoxAxisIsSound(box, "z");
+  propBoxAxisIsSound(box, "z"); }
 
 /** Refuse every declared keep-out volume another staged prop's occupancy enters. */
-const validateClearances = (
+function validateClearances (
   staged: readonly IStagedProp[],
   out: ViolationCollector,
-): void => {
+): void {
   for (const entry of staged) {
     const declared: readonly IAutoMovieClearanceBox[] | undefined =
       entry.prop.placement?.clearance;
@@ -155,13 +163,13 @@ const validateClearances = (
       },
     );
   }
-};
+}
 
 /** Refuse two placed props sharing interior volume without a declared contact. */
-const validateOverlaps = (
+function validateOverlaps (
   staged: readonly IStagedProp[],
   out: ViolationCollector,
-): void => {
+): void {
   const contacts: Set<string> = new Set<string>();
   for (const entry of staged)
     for (const relation of entry.prop.placement?.relations ?? [])
@@ -182,11 +190,10 @@ const validateOverlaps = (
         a.prop.node,
       );
     }
-};
+}
 
 /** The same key for a node pair in either order. */
-const pairKey = (left: string, right: string): string =>
-  left < right ? `${left}\0${right}` : `${right}\0${left}`;
+function pairKey (left: string, right: string): string { return left < right ? `${left}\0${right}` : `${right}\0${left}`; }
 
 /**
  * Judge every `on-support` relation whose face the record can state.
@@ -199,11 +206,11 @@ const pairKey = (left: string, right: string): string =>
  * prop citing itself, which the registry gate already refuses by name, are
  * passed over rather than measured twice or guessed at.
  */
-const validateSupports = (
+function validateSupports (
   staged: readonly IStagedProp[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
   out: ViolationCollector,
-): void => {
+): void {
   const hosts: Map<string, IStagedProp> = new Map(
     staged.map((entry: IStagedProp): [string, IStagedProp] => [
       entry.prop.node,
@@ -256,7 +263,7 @@ const validateSupports = (
           out.push("range", path, `staged occupancy floats above ${label}`, gap);
       },
     );
-};
+}
 
 /**
  * The environment a prop's geometry is judged against.
@@ -267,11 +274,11 @@ const validateSupports = (
  * refusing to measure it would let the strongest claim a prop can make, that
  * it fits a passage, go unchecked because a weaker one was left out.
  */
-const judgedEnvironment = (
+function judgedEnvironment (
   entry: IStagedProp,
   relations: readonly IAutoMoviePropRelation[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
-): IAutoMovieBuiltEnvironment | null => {
+): IAutoMovieBuiltEnvironment | null {
   if (entry.located !== null) return entry.located;
   const cited: Set<string> = new Set<string>();
   for (const relation of relations)
@@ -279,14 +286,15 @@ const judgedEnvironment = (
       cited.add(relation.target.environment);
   if (cited.size !== 1) return null;
   return environments.get([...cited][0]!) ?? null;
-};
+}
 
 /** Containment, opening fit, and passage intrusion for one located prop. */
-const validateOccupancy = (
+function validateOccupancy (
   entry: IStagedProp,
   environment: IAutoMovieBuiltEnvironment,
   out: ViolationCollector,
-): void => {
+  blocked: (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[],
+): void {
   const path: string = `$input.props[${entry.index}]`;
   const bounds: IAutoMoviePropBox = entry.occupancy;
   const filled: Set<string> = new Set<string>();
@@ -332,7 +340,7 @@ const validateOccupancy = (
         );
     },
   );
-  for (const blockage of propBlockedPassages({ environment, bounds })) {
+  for (const blockage of blocked(bounds)) {
     if (blockage.kind === "opening" && filled.has(blockage.id)) continue;
     out.push(
       "range",
@@ -341,7 +349,7 @@ const validateOccupancy = (
       blockage.id,
     );
   }
-};
+}
 
 /**
  * Rest-pose world bounds of the element filling an opening, or `null` when the
@@ -349,10 +357,10 @@ const validateOccupancy = (
  * fill's parent chain is missing or cyclic. First declarations win for
  * duplicate ids, as validation refuses the duplicate on its own path.
  */
-const openingFillBounds = (
+function openingFillBounds (
   environment: IAutoMovieBuiltEnvironment,
   id: string,
-): IAutoMoviePropBox | null => {
+): IAutoMoviePropBox | null {
   const opening: IAutoMovieBuiltOpening | undefined = environment.openings.find(
     (candidate: IAutoMovieBuiltOpening): boolean => candidate.id === id,
   );
@@ -373,14 +381,13 @@ const openingFillBounds = (
   return matrix === null
     ? null
     : unionSubjectBoxes(builtPlacedPartBoxes(model, matrix));
-};
+}
 
-const boxContains = (
+function boxContains (
   outer: IAutoMoviePropBox,
   inner: IAutoMoviePropBox,
-): boolean =>
-  (["x", "y", "z"] as const).every(
+): boolean { return (["x", "y", "z"] as const).every(
     (axis: "x" | "y" | "z"): boolean =>
       inner.min[axis] >= outer.min[axis] - PLACEMENT_EPSILON &&
       inner.max[axis] <= outer.max[axis] + PLACEMENT_EPSILON,
-  );
+  ); }

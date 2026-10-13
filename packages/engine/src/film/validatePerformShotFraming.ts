@@ -28,12 +28,12 @@ import { CAMERA_MOVES } from "./constants/CAMERA_MOVES";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One check per call with no shared mutable state; the vocabularies are module constants.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes at most two violations into the caller's collector and keeps nothing itself.
  */
-export const validatePerformShotFraming = (
+export function validatePerformShotFraming (
   out: ViolationCollector,
   path: string,
   framing: unknown,
   move: unknown,
-): { framed: boolean; moved: boolean } => {
+): { framed: boolean; moved: boolean } {
   const framed: boolean = CAMERA_FRAMINGS.has(
     framing as IAutoMovieCameraAction["framing"],
   );
@@ -55,4 +55,4 @@ export const validatePerformShotFraming = (
       move,
     );
   return { framed, moved };
-};
+}

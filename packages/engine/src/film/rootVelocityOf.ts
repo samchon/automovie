@@ -41,11 +41,11 @@ import { foldRoot } from "./foldRoot";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one node and one instant, and coordinates no work across calls; the snapshot that calls it asks once per actor.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the unlooped clip copy at the seam is shallow and released on return.
  */
-export const rootVelocityOf = (
+export function rootVelocityOf (
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   localTime: number,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   if (clip.loop && clip.duration > 0) {
     const phase: number = positiveModulo(localTime, clip.duration);
     if (phase >= VELOCITY_DT)
@@ -62,27 +62,26 @@ export const rootVelocityOf = (
   if (localTime > clip.duration) return { x: 0, y: 0, z: 0 };
   const t1: number = Math.min(Math.max(localTime, 0), clip.duration);
   return velocityOver(node, clip, Math.max(0, t1 - VELOCITY_DT), t1);
-};
+}
 
 /** The clip's root at `t`, folded through the node's staged placement. */
-const worldRootAt = (
+function worldRootAt (
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   t: number,
-): IAutoMovieVector3 =>
-  foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation;
+): IAutoMovieVector3 { return foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation; }
 
 /** Difference of the world root over `[t0, t1]`; zero for an empty window. */
-const velocityOver = (
+function velocityOver (
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   t0: number,
   t1: number,
-): IAutoMovieVector3 => {
+): IAutoMovieVector3 {
   const span: number = t1 - t0;
   if (span <= 0) return { x: 0, y: 0, z: 0 };
   return Vector3.scale(
     Vector3.subtract(worldRootAt(node, clip, t1), worldRootAt(node, clip, t0)),
     1 / span,
   );
-};
+}

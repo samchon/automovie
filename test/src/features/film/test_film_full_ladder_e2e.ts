@@ -1,73 +1,69 @@
-import {
-  blockBeat,
-  cutSequence,
-  forgeCast,
-  performShot,
-  playbackFrameSamples,
-  reviewShot,
-  stageScene,
-} from "@automovie/engine";
+import { IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
+import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
+import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  forgeEntry,
-  makeBlockingWrite,
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
+import { forgeEntry, makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
- * The whole stage ladder in one take. Every harness stage's payload flows
- * through its engine consumer with every gate passing: the script's stand-in is
- * forged, the world staged, the beat blocked, the performance realized against
- * that blocking, the shot reviewed and passed, the film cut, and the cut
- * resolved to render-ready frame samples. This is the pipeline the `agent`
- * package will drive with a real LLM; here the payloads are fixtures, which is
- * the point: everything below the model is deterministic.
+ * A source-authored take flows through forging, staging, blocking, performance,
+ * cutting and playback without losing its cast, camera or timing.
  *
  * Scenarios:
  *
- * 1. Forge → stage: knightB's stand-in validates and its id is what the staged
+ * 1. Forge to stage: knightB's stand-in validates and its id is what the staged
  *    scene node carries.
- * 2. Block → perform: the duel blocking validates and the performance realizes it
+ * 2. Block to perform: the duel blocking validates and the performance realizes it
  *    (anchor covered, camera intent honoured) into a shot with a compiled
  *    camera clip.
- * 3. Review: the shot passes with an empty backlog.
- * 4. Cut → playback: a 24 fps one-shot cut runs 2 s → exactly 48 frame samples,
+ * 3. Cut to playback: a 24 fps one-shot cut runs 2 seconds and has 48 frame samples,
  *    all on `shot:beat-1` starting at its first instant.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes the live numerical film stages and verifies each admission, the forged model join, compiled camera clip and final frame samples; a dropped or mismatched intermediate artifact fails its consuming stage or observable assertion.
+ * @evidence contracts/testing.md#independent-expectations The fixture authors one two-second shot at 24 fps, so the contract requires 48 samples beginning at local zero with no blend; authored node and shot identities independently determine the staged join and playback selection.
+ * @evidence contracts/testing.md#distinguishing-cases Owns one complete successful composition across film stages; rejection domains, repeated shots, trim seams and transitions belong to the focused stage and playback tests, without pretending this path covers those decisions.
+ * @evidence contracts/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the real numerical synthesizer fixture; it installs or starts no consumer, process, browser or GPU.
  */
-export const test_film_full_ladder_e2e = (): void => {
-  const script = makeScriptWrite();
+export function test_film_full_ladder_e2e (): void {
+  const script: IAutoMovieScript = makeScriptWrite();
 
-  const forged = forgeCast(script, {
+  const forged: IAutoMovieForgedCast = forgeCast(script, {
     entries: [forgeEntry("knightB")],
   });
   TestValidator.equals("forge", forged.success, true);
   if (forged.success !== true) return;
 
-  const staged = stageScene(script, makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
   TestValidator.equals("stage", staged.success, true);
   if (staged.success !== true) return;
   TestValidator.equals(
     "the stage wears the forged stand-in",
-    staged.scene.nodes.find((n) => n.id === "knightB")!.model,
+    staged.scene.nodes.find((n: IAutoMovieSceneNode) : boolean => n.id === "knightB")!.model,
     forged.models["knightB"]!.id,
   );
 
-  const blocked = blockBeat(script, staged, makeBlockingWrite());
+  const blocked: IAutoMovieBlockedBeat = blockBeat(script, staged, makeBlockingWrite());
   TestValidator.equals("block", blocked.success, true);
   if (blocked.success !== true) return;
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: () : IAutoMovieSkeleton => createSkeleton(),
     blocking: blocked.blocking,
   });
   TestValidator.equals("perform", performed.success, true);
@@ -77,32 +73,7 @@ export const test_film_full_ladder_e2e = (): void => {
     performed.shot.cameraMotion !== null,
   );
 
-  const reviewed = reviewShot(script, {
-    beat: "beat-1",
-    observations: "the strike lands on its anchor; the medium frame holds.",
-    verdict: "pass",
-    notes: [],
-  });
-  TestValidator.equals(
-    "review passes with an empty backlog",
-    namedFacts([
-      ["reviewedSuccess", () => reviewed.success === true],
-      [
-        "reviewedVerdictPass",
-        () => reviewed.success === true && reviewed.verdict === "pass",
-      ],
-      [
-        "reviewedNotes",
-        () =>
-          reviewed.success === true &&
-          reviewed.verdict === "pass" &&
-          reviewed.notes.length === 0,
-      ],
-    ]),
-    { reviewedSuccess: true, reviewedVerdictPass: true, reviewedNotes: true },
-  );
-
-  const cut = cutSequence(
+  const cut: IAutoMovieCut = cutSequence(
     {
       sequence: { id: "seq-duel", name: "duel at dawn" },
       fps: 24,
@@ -116,18 +87,18 @@ export const test_film_full_ladder_e2e = (): void => {
   if (cut.success !== true) return;
   TestValidator.predicate("runtime", nclose(cut.runtime, 2));
 
-  const samples = playbackFrameSamples(cut.sequence, [performed.shot]);
+  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(cut.sequence, [performed.shot]);
   TestValidator.equals("frame count", samples.length, 48);
   TestValidator.equals(
     "first frame opens the shot",
     namedFacts([
-      ["onTheOneShot", () => samples[0]!.shot === "shot:beat-1"],
-      ["atTheFirstInstant", () => nclose(samples[0]!.time, 0)],
+      ["onTheOneShot", () : boolean => samples[0]!.shot === "shot:beat-1"],
+      ["atTheFirstInstant", () : boolean => nclose(samples[0]!.time, 0)],
     ]),
     { onTheOneShot: true, atTheFirstInstant: true },
   );
   TestValidator.predicate(
     "every frame plays the one shot, hard-cut free",
-    samples.every((s) => s.shot === "shot:beat-1" && s.blend === null),
+    samples.every((s: IAutoMoviePlaybackSample) : boolean => s.shot === "shot:beat-1" && s.blend === null),
   );
-};
+}

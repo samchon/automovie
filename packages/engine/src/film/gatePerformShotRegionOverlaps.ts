@@ -50,11 +50,11 @@ interface ICarriedContent {
  * @evidence contracts/performance.md#reuse-equivalent-work Each action's synthesis comes from the shot's memoized synthesizer, so the clips made here are the clips the performance compile later reuses, and each action's masked content is cached per actor across all its pairs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The per-actor lists and content caches are dropped on return; synthesized clips stay in the caller's memo for the rest of the call.
  */
-export const gatePerformShotRegionOverlaps = (
+export function gatePerformShotRegionOverlaps (
   context: IPerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
   synthesize: IAutoMovieActionSynthesizer,
-): void => {
+): void {
   const duration: number = context.performance.duration;
   const byActor: Map<string, { action: IAutoMovieActionCall; index: number }[]> =
     new Map();
@@ -77,7 +77,7 @@ export const gatePerformShotRegionOverlaps = (
         ),
       ).size > 1;
     const carried: Map<IAutoMovieActionCall, ICarriedContent> = new Map();
-    const contentOf = (action: IAutoMovieActionCall): ICarriedContent => {
+    function contentOf (action: IAutoMovieActionCall): ICarriedContent {
       const cached: ICarriedContent | undefined = carried.get(action);
       if (cached !== undefined) return cached;
       const content: ICarriedContent = carriedContent(
@@ -87,7 +87,7 @@ export const gatePerformShotRegionOverlaps = (
       );
       carried.set(action, content);
       return content;
-    };
+    }
     const sorted: { action: IAutoMovieActionCall; index: number }[] = [
       ...list,
     ].sort(
@@ -132,14 +132,14 @@ export const gatePerformShotRegionOverlaps = (
       }
     }
   }
-};
+}
 
 /** The channels one clip carries after its region mask. */
-const carriedContent = (
+function carriedContent (
   motion: IAutoMovieMotion | null,
   region: AutoMovieBodyRegion,
   layered: boolean,
-): ICarriedContent => {
+): ICarriedContent {
   const allowed: Set<AutoMovieHumanoidBone> = new Set(bodyRegionBones(region));
   const content: ICarriedContent = {
     bones: new Set(),
@@ -159,4 +159,4 @@ const carriedContent = (
       content.expression = true;
   }
   return content;
-};
+}

@@ -19,9 +19,9 @@ import { IAutoMovieCameraClearanceEnvelope } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work `stageScene` lowers each accepted camera's envelope once while composing, and nothing is shared between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates the returned envelope with at most two spheres and two centres, owned by the scene camera, and retains nothing.
  */
-export const lowerCameraClearanceEnvelope = (
+export function lowerCameraClearanceEnvelope (
   envelope: IAutoMovieCameraClearanceEnvelope,
-): IAutoMovieCameraClearanceEnvelope => ({
+): IAutoMovieCameraClearanceEnvelope { return ({
   body: {
     center: { ...envelope.body.center },
     radius: envelope.body.radius,
@@ -33,4 +33,4 @@ export const lowerCameraClearanceEnvelope = (
           center: { ...envelope.parentRig.center },
           radius: envelope.parentRig.radius,
         },
-});
+}); }

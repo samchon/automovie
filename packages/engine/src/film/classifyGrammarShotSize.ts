@@ -25,9 +25,9 @@ import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure classification of one number that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; it returns one union member.
  */
-export const classifyGrammarShotSize = (
+export function classifyGrammarShotSize (
   frameOccupancy: number,
-): IAutoMovieCameraIntent["framing"] => {
+): IAutoMovieCameraIntent["framing"] {
   if (Number.isFinite(frameOccupancy) === false || frameOccupancy <= 0)
     throw new Error("frameOccupancy must be finite and positive.");
   const visibleSubjects: number = 1 / frameOccupancy;
@@ -45,4 +45,4 @@ export const classifyGrammarShotSize = (
     }
   }
   return best!;
-};
+}

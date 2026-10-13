@@ -41,7 +41,7 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure classification of one box that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; it allocates two corner vectors per plane and returns one state.
  */
-export const classifyAutoMovieSectionPlaneBox = (props: {
+export function classifyAutoMovieSectionPlaneBox (props: {
   /** Cutting planes; a point any of them removes is removed. */
   planes: readonly IAutoMovieSectionPlane[];
 
@@ -50,7 +50,7 @@ export const classifyAutoMovieSectionPlaneBox = (props: {
 
   /** Upper corner, world metres; finite. */
   max: IAutoMovieVector3;
-}): AutoMovieSectionPlaneState => {
+}): AutoMovieSectionPlaneState {
   for (const axis of AXES)
     if (
       Number.isFinite(props.min[axis]) === false ||
@@ -62,11 +62,11 @@ export const classifyAutoMovieSectionPlaneBox = (props: {
       );
   let crossed: boolean = false;
   for (const plane of props.planes) {
-    const corner = (removedSide: boolean): IAutoMovieVector3 => ({
+    function corner (removedSide: boolean): IAutoMovieVector3 { return ({
       x: plane.normal.x > 0 === removedSide ? props.max.x : props.min.x,
       y: plane.normal.y > 0 === removedSide ? props.max.y : props.min.y,
       z: plane.normal.z > 0 === removedSide ? props.max.z : props.min.z,
-    });
+    }); }
     // If even the extreme toward the removed side survives, the whole box does.
     if (autoMovieSectionPlaneDistance(plane, corner(true)) <= 0) continue;
     // If even the extreme toward the kept side is removed, the whole box is.
@@ -74,4 +74,4 @@ export const classifyAutoMovieSectionPlaneBox = (props: {
     crossed = true;
   }
   return crossed ? "crossed" : "kept";
-};
+}

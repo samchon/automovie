@@ -34,10 +34,10 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "./constants/MIN_MEASURED_SUBJECT_HE
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one formation and the model list; a pass framing one unit over many samples owns any reuse of the extent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned two numbers.
  */
-export const formationMemberExtent = (
+export function formationMemberExtent (
   formation: Pick<IAutoMovieCompiledFormation, "modelRecipe">,
   models: readonly IAutoMovieModel[] | undefined,
-): { min: number; max: number } => {
+): { min: number; max: number } {
   const id: string = productionRuntimeModelId(formation.modelRecipe);
   const model: IAutoMovieModel | undefined = (models ?? []).find(
     (candidate: IAutoMovieModel): boolean => candidate.id === id,
@@ -48,4 +48,4 @@ export const formationMemberExtent = (
     extent.max - extent.min < MIN_MEASURED_SUBJECT_HEIGHT
     ? { min: 0, max: DEFAULT_SUBJECT_HEIGHT }
     : extent;
-};
+}

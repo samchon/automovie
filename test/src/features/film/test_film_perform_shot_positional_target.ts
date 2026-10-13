@@ -1,31 +1,31 @@
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-} from "@automovie/interface";
+import type { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieConstraintViolation } from "@automovie/interface";
+
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
 import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
-import { namedFacts } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** True when the refusal at `path` states every fragment. */
-const says = (
+function says (
   result: IAutoMoviePerformedShot,
   path: string,
   ...fragments: string[]
-): boolean =>
-  result.success === false &&
+): boolean { return result.success === false &&
   result.violations.some(
-    (item) =>
+    (item: IAutoMovieConstraintViolation) : boolean =>
       item.path === path &&
-      fragments.every((fragment) => item.expected.includes(fragment)),
-  );
+      fragments.every((fragment: string) : boolean => item.expected.includes(fragment)),
+  ); }
 
 /** True when nothing was refused at `path` (the over-rejection counter-case). */
-const silentAt = (result: IAutoMoviePerformedShot, path: string): boolean =>
-  result.success === true ||
-  result.violations.every((item) => item.path !== path);
+function silentAt (result: IAutoMoviePerformedShot, path: string): boolean { return result.success === true ||
+  result.violations.every((item: IAutoMovieConstraintViolation) : boolean => item.path !== path); }
+
+/** Shared staged actor and one-second span; each case changes its target or verb. */
+const TIMING: { actor: string; start: number; duration: number } = { actor: "knightA", start: 0, duration: 1 };
 
 /** One unresolved-target probe per verb that routes through the helper. */
 const UNRESOLVED_BY_VERB: ReadonlyArray<
@@ -35,9 +35,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "locomote",
     {
       verb: "locomote",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       gait: "walk",
       to: { kind: "node", node: "ghost" },
     },
@@ -47,9 +45,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "lookAt",
     {
       verb: "lookAt",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       to: { kind: "node", node: "ghost" },
     },
     "$input.draft[0].to",
@@ -58,9 +54,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "reach",
     {
       verb: "reach",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       hand: "right",
       to: { kind: "node", node: "ghost" },
     },
@@ -70,9 +64,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "point gesture",
     {
       verb: "gesture",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       kind: "point",
       at: { kind: "node", node: "ghost" },
     },
@@ -82,9 +74,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "strike gesture",
     {
       verb: "gesture",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       kind: "strike",
       at: { kind: "node", node: "ghost" },
     },
@@ -94,9 +84,7 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
     "launch",
     {
       verb: "launch",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       projectile: "pebble",
       at: { kind: "node", node: "ghost" },
       speed: 20,
@@ -138,9 +126,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "locomote",
     {
       verb: "locomote",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       gait: "walk",
       to: { kind: "node", node: "cam-main" },
     },
@@ -149,9 +135,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "lookAt",
     {
       verb: "lookAt",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       to: { kind: "node", node: "cam-main" },
     },
   ],
@@ -159,9 +143,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "reach",
     {
       verb: "reach",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       hand: "right",
       to: { kind: "node", node: "cam-main" },
     },
@@ -170,9 +152,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "point gesture",
     {
       verb: "gesture",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       kind: "point",
       at: { kind: "node", node: "cam-main" },
     },
@@ -181,9 +161,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "strike gesture",
     {
       verb: "gesture",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       kind: "strike",
       at: { kind: "node", node: "cam-main" },
     },
@@ -192,9 +170,7 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
     "launch",
     {
       verb: "launch",
-      actor: "knightA",
-      start: 0,
-      duration: 1,
+      ...TIMING,
       projectile: "pebble",
       at: { kind: "node", node: "cam-main" },
       speed: 20,
@@ -228,45 +204,28 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
 ];
 
 /**
- * The positional-target seam of the PERFORMANCE consumer (#1294). Two rules
- * live here: a target resolves against every staged placement (actors, set
- * pieces, and cameras alike, so an actor may be directed to look down the
- * lens), and a target that fails names the id that failed rather than echoing a
- * discriminator the same sentence lists as valid.
+ * Performance targets resolve against staged placements without silently dropping members.
  *
  * Scenarios:
+ * 1. Positional verbs accept staged cameras, actors and set pieces.
+ * 2. Missing ids are refused by their identity at each verb's owning target path.
+ * 3. Empty/missing/mixed groups and malformed/relative targets receive located faults.
+ * 4. A camera may be a target but cannot perform a gesture.
+ * 5. Locomote distinguishes vertical-only, in-place, horizontal and relative goals.
+ * 6. Resumed origins and live bone targets use the authored world frame and action clock.
+ * 7. Every group member is admitted, and invalid targets never reach a live resolver.
  *
- * 1. Every verb routing through `resolvePositionalTarget` (lookAt, reach, the
- *    point and strike gesture aims, a launch aim, a frame subject, a frame
- *    focus) accepts a staged camera id: the reported repro, direct address,
- *    performs instead of being refused.
- * 2. The same verbs aimed at a genuinely unknown id are refused at their own path,
- *    and the refusal quotes that id and says it is not placed. It never reads
- *    `not "node"`, the discriminator the old message echoed while the same
- *    sentence listed `node` as legal.
- * 3. The adjacent cases one property away still pass: an actor target and a set
- *    piece target are not over-rejected by the wider table.
- * 4. A group target whose members are all unplaced names every member; an empty
- *    group says it names none.
- * 5. A `point` target carrying no point says exactly that (its kind was never the
- *    fault); a relative target (`direction`, `offscreen`) is refused as
- *    relative, the one case where the kind IS the fault; an unknown or
- *    malformed kind is refused by that kind.
- * 6. A `point` gesture with no `at` at all still refuses at `.at`, teaching the
- *    same target vocabulary.
- * 7. Camera-as-TARGET does not loosen camera-as-ACTOR: a gesture performed by a
- *    camera is still refused at `.actor`.
- * 8. Locomote refuses broken absolute node/group/bone/point destinations at `.to`,
- *    refuses vertical-only ground travel, resolves a live bone at
- *    `action.start`, and preserves the explicit relative direction/offscreen
- *    in-place fallback.
+ * @evidence contracts/testing.md#behavioral-verification Calls performShot through the shared positional-target performer for each applicable verb and asserts accepted placements, located target faults, actor-camera separation and locomote displacement checks; the delegated kind cases also detect a silently omitted group member.
+ * @evidence contracts/testing.md#independent-expectations Authored fixture positions and target ids determine placement and displacement outcomes; the live resolver records the supplied action clock independently, and refusal messages must name the actual missing data instead of merely echoing a legal discriminator.
+ * @evidence contracts/testing.md#distinguishing-cases Covers camera/actor/set subjects, missing nodes, malformed and relative targets, empty/all-missing/mixed groups, unstaged bones, non-finite points, vertical-only and in-place travel, epsilon-boundary displacement and resumed/live targets; launch-specific recoil admission has a separate test.
+ * @evidence contracts/testing.md#execution-ownership This portable unit entry owns the table-driven verb cases and invokes assertFilmPositionalTargetKinds for the delegated kind cases; both reach engine source without a browser, process or native build.
  */
-export const test_film_perform_shot_positional_target = (): void => {
-  const perform = createFilmPositionalTargetPerformer();
+export function test_film_perform_shot_positional_target (): void {
+  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer();
 
   // 1. every positional verb accepts a staged camera.
   for (const [label, action] of CAMERA_BY_VERB) {
-    const performed = perform([action]);
+    const performed: IAutoMoviePerformedShot = perform([action]);
     TestValidator.equals(
       `${label} at a staged camera performs`,
       performed.success,
@@ -276,13 +235,13 @@ export const test_film_perform_shot_positional_target = (): void => {
 
   // 2. an unknown id is named, per verb, at its own path.
   for (const [label, action, path] of UNRESOLVED_BY_VERB) {
-    const performed = perform([action]);
+    const performed: IAutoMoviePerformedShot = perform([action]);
     TestValidator.equals(
       `${label} names the unresolved id, not the discriminator`,
       namedFacts([
         [
           "namesTheUnplacedId",
-          () =>
+          () : boolean =>
             says(
               performed,
               path,
@@ -290,16 +249,16 @@ export const test_film_perform_shot_positional_target = (): void => {
               "is not placed in the staged scene",
             ),
         ],
-        ["refused", () => performed.success === false],
+        ["refused", () : boolean => performed.success === false],
         // the failure check is restated because the earlier fact's narrowing of
         // the result union does not reach inside this closure, and only the
         // failed arm carries `violations`.
         [
           "neverEchoesTheDiscriminator",
-          () =>
+          () : boolean =>
             performed.success === false &&
             performed.violations.every(
-              (item) => !item.expected.includes('not "node"'),
+              (item: IAutoMovieConstraintViolation) : boolean => !item.expected.includes('not "node"'),
             ),
         ],
       ]),
@@ -316,23 +275,24 @@ export const test_film_perform_shot_positional_target = (): void => {
   // 8. Locomote's in-place fallback belongs only to intentionally relative
   // targets. Broken absolute destinations are authored mistakes, not steps in
   // place that may be reported as a successful trip.
-  const locomote = (
+  function locomote (
     to: IAutoMovieActionTarget,
-    start = 0,
-  ): IAutoMovieActionCall => ({
+    start: number = 0,
+  ): IAutoMovieActionCall { return ({
     verb: "locomote",
     actor: "knightA",
     start,
     duration: 1,
     gait: "walk",
     to,
-  });
+  }); }
   TestValidator.predicate(
     "locomote refuses a group with no placed member",
     says(
       perform([locomote({ kind: "group", nodes: ["ghost"] })]),
-      "$input.draft[0].to",
-      "none of its group members are placed",
+      "$input.draft[0].to.nodes[0]",
+      '"ghost"',
+      "must name a staged placement",
     ),
   );
   TestValidator.predicate(
@@ -394,7 +354,7 @@ export const test_film_perform_shot_positional_target = (): void => {
     ]).success,
     true,
   );
-  const resumedPerform = createFilmPositionalTargetPerformer(
+  const resumedPerform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
     undefined,
     {
       beat: "beat-0",
@@ -445,7 +405,7 @@ export const test_film_perform_shot_positional_target = (): void => {
   );
   for (const [label, target] of [
     ["node", { kind: "node", node: "altar" }],
-    ["group", { kind: "group", nodes: ["altar", "ghost"] }],
+    ["group", { kind: "group", nodes: ["altar", "knightB"] }],
     ["point", { kind: "point", point: { x: 1, y: 0, z: 1 } }],
     ["direction", { kind: "direction", headingDeg: 90 }],
     ["offscreen", { kind: "offscreen", edge: "left" }],
@@ -456,9 +416,20 @@ export const test_film_perform_shot_positional_target = (): void => {
       true,
     );
 
+  TestValidator.predicate(
+    "locomote refuses a group whose missing member would change its centroid",
+    says(
+      perform([locomote({ kind: "group", nodes: ["altar", "ghost"] })]),
+      "$input.draft[0].to.nodes[1]",
+      '"ghost"',
+      "must name a staged placement",
+      "centroid",
+    ),
+  );
+
   const sampledAt: number[] = [];
-  const livePerform = createFilmPositionalTargetPerformer(
-    (_target, seconds) => {
+  const livePerform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
+    (_target: IAutoMovieActionTarget, seconds: number) : { x: number; y: number; z: number; } => {
       sampledAt.push(seconds);
       return { x: 1, y: 1.4, z: 1 };
     },
@@ -470,9 +441,20 @@ export const test_film_perform_shot_positional_target = (): void => {
     ]).success,
     true,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "the live resolver receives action.start",
-    sampledAt,
-    [0.5],
+    sampledAt.length === 1 && nclose(sampledAt[0]!, 0.5),
   );
-};
+  sampledAt.length = 0;
+  for (const target of [
+    { kind: "node", node: "ghost" },
+    { kind: "point" } as never,
+    { kind: "group", nodes: ["altar", "ghost"] },
+    { kind: "group", nodes: [] },
+    { kind: "bone", node: "ghost", bone: "leftHand" },
+    { kind: "direction", headingDeg: 90 },
+    { kind: "offscreen", edge: "left" },
+  ] satisfies IAutoMovieActionTarget[])
+    TestValidator.equals("a live resolver cannot admit a malformed or unstaged target", livePerform([{ verb: "lookAt", actor: "knightA", start: 0, duration: 1, to: target }]).success, false);
+  TestValidator.equals("invalid target payloads never reach the live resolver", sampledAt, []);
+}

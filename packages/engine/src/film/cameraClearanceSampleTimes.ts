@@ -35,7 +35,7 @@ import { sampleTimes } from "../motion/sampleTimes";
  * @evidence contracts/performance.md#reuse-equivalent-work The validated actor and object boundary set is built once per shot and copied into each take's set, since every take reads the same motions and only its camera clip differs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains the shared set, bounded by the fixed-clock samples plus all actor and object key instants in the shot, until the clearance compiler drops it at the end of the call; each take's array is owned by its caller.
  */
-export const cameraClearanceSampleTimes = (props: {
+export function cameraClearanceSampleTimes (props: {
   /** Shot length in seconds. */
   duration: number;
 
@@ -47,7 +47,7 @@ export const cameraClearanceSampleTimes = (props: {
 
   /** Object clips whose node channels move obstacles. */
   objectMotions: readonly IAutoMovieClip[];
-}): ((cameraMotion: IAutoMovieShot["cameraMotion"]) => number[]) => {
+}): ((cameraMotion: IAutoMovieShot["cameraMotion"]) => number[]) {
   for (const motion of Object.values(props.motions)) {
     if (motion.keyframes.some((keyframe: IAutoMovieMotion["keyframes"][number]): boolean =>
         keyframe.easing === "cubicBezier"))
@@ -83,7 +83,7 @@ export const cameraClearanceSampleTimes = (props: {
     }
     return [...result].sort((left: number, right: number): number => left - right);
   };
-};
+}
 
 /** One motion sequence whose key boundaries refine the fixed clock. */
 interface ISequence {
@@ -98,18 +98,18 @@ interface ISequence {
 }
 
 /** Every key time of every track of one clip. */
-const clipSequence = (clip: IAutoMovieClip): ISequence => ({
+function clipSequence (clip: IAutoMovieClip): ISequence { return ({
   duration: clip.duration,
   loop: clip.loop,
   times: clip.tracks.flatMap((track: IAutoMovieTrack): number[] => track.times),
-});
+}); }
 
 /** Refuse a clip whose interpolation or loop seam escapes its endpoint bound. */
-const assertClipBoundable = (
+function assertClipBoundable (
   clip: IAutoMovieClip,
   rotationMatters: boolean,
   seam: string,
-): void => {
+): void {
   if (clip.tracks.some(
       (track: IAutoMovieTrack): boolean => track.interpolation === "cubicspline",
     ))
@@ -120,14 +120,14 @@ const assertClipBoundable = (
     throw new Error(
       `camera clearance cannot conservatively bound clip "${clip.id}" across an open loop seam; close ${seam}`,
     );
-};
+}
 
 /** Add every key boundary inside the shot, repeating a looping sequence. */
-const addSequenceBoundaries = (
+function addSequenceBoundaries (
   result: Set<number>,
   shotDuration: number,
   sequence: ISequence,
-): void => {
+): void {
   if (!(Number.isFinite(sequence.duration) && sequence.duration > 0))
     throw new Error(
       "camera clearance cannot sample a motion sequence without a finite positive duration",
@@ -141,24 +141,22 @@ const addSequenceBoundaries = (
       if (Number.isFinite(absolute) && absolute > 0 && absolute < shotDuration)
         result.add(absolute);
     }
-};
+}
 
 /** Whether two component vectors are exactly identical. */
-const sameComponents = (
+function sameComponents (
   left: readonly number[],
   right: readonly number[],
-): boolean =>
-  left.length === right.length &&
+): boolean { return left.length === right.length &&
   left.every(
     (component: number, index: number): boolean => component === right[index],
-  );
+  ); }
 
 /** Largest absolute component of a scale, the factor a sphere grows by. */
-const maximumScale = (scale: { x: number; y: number; z: number }): number =>
-  Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
+function maximumScale (scale: { x: number; y: number; z: number }): number { return Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)); }
 
 /** Whether a looping actor returns its root translation and radius to the seam. */
-const actorLoopIsClosed = (motion: IAutoMovieMotion): boolean => {
+function actorLoopIsClosed (motion: IAutoMovieMotion): boolean {
   if (!motion.loop) return true;
   const first: IAutoMovieMotion["keyframes"][number]["pose"]["root"] | undefined =
     motion.keyframes[0]?.pose.root;
@@ -172,13 +170,13 @@ const actorLoopIsClosed = (motion: IAutoMovieMotion): boolean => {
       [last.translation.x, last.translation.y, last.translation.z],
     ) && maximumScale(first.scale) === maximumScale(last.scale)
   );
-};
+}
 
 /** Whether every node channel the bound reads returns to its loop seam. */
-const clipLoopIsClosed = (
+function clipLoopIsClosed (
   clip: IAutoMovieClip,
   rotationMatters: boolean,
-): boolean => {
+): boolean {
   if (!clip.loop) return true;
   return clip.tracks.every((track: IAutoMovieTrack): boolean => {
     if (
@@ -199,4 +197,4 @@ const clipLoopIsClosed = (
       )
     );
   });
-};
+}

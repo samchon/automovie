@@ -22,9 +22,9 @@ import { resolveAutoMovieDeliveryCrop } from "./resolveAutoMovieDeliveryCrop";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure conversion of one crop; callers that test many points against one crop convert it once per call and reuse the result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the resolved crop copy is dropped on return and the caller owns the result.
  */
-export const deliveryCropNdc = (
+export function deliveryCropNdc (
   crop: IAutoMovieDeliveryCrop | undefined,
-): IAutoMovieDeliveryCropNdc => {
+): IAutoMovieDeliveryCropNdc {
   const resolved: IAutoMovieDeliveryCrop = resolveAutoMovieDeliveryCrop(crop);
   return {
     left: 2 * resolved.left - 1,
@@ -39,4 +39,4 @@ export const deliveryCropNdc = (
       resolved.right === 1 &&
       resolved.bottom === 1,
   };
-};
+}

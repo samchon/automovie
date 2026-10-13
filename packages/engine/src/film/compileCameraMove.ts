@@ -114,14 +114,14 @@ interface IKey {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one camera's entries, called once per take; the hero and coverage takes have different cameras and entries, so nothing is shared between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the key list is a local bounded by the keys above, and the returned clip is a fresh value owned by the caller.
  */
-export const compileCameraMove = (props: {
+export function compileCameraMove (props: {
   clipId: string;
   camera: IAutoMovieCamera;
   entries: IAutoMovieCameraFrameEntry[];
   shotDuration: number;
   aspect?: number;
-}): IAutoMovieClip | null => {
-  const { clipId, camera, entries, shotDuration } = props;
+}): IAutoMovieClip | null {
+  const { clipId, camera, entries, shotDuration }: typeof props = props;
   if (entries.length === 0) return null;
   const halfY: number = Math.tan(((camera.fovY / 2) * Math.PI) / 180);
   const aspect: number =
@@ -133,20 +133,20 @@ export const compileCameraMove = (props: {
   const halfX: number = halfY * aspect;
 
   const keys: IKey[] = [];
-  const push = (
+  function push (
     t: number,
     pos: IAutoMovieVector3,
     rot: IAutoMovieQuaternion,
-  ): void => {
+  ): void {
     const last: IKey | undefined = keys[keys.length - 1];
     // A zero-width segment would divide the sampler's local time by zero.
     if (last !== undefined && t <= last.t + 1e-9)
       keys[keys.length - 1] = { t: last.t, pos, rot };
     else keys.push({ t, pos, rot });
-  };
+  }
 
   entries.forEach((entry: IAutoMovieCameraFrameEntry, i: number): void => {
-    const { action, subject } = entry;
+    const { action, subject }: IAutoMovieCameraFrameEntry = entry;
     const t0: number = action.start;
     const t1: number =
       action.duration === "auto"
@@ -162,12 +162,21 @@ export const compileCameraMove = (props: {
       throw new Error(`unknown camera framing "${String(action.framing)}"`);
     const aimOffset: number =
       subject.height * FRAMING_AIM_FRACTION[action.framing];
-    const aimOf = (base: IAutoMovieVector3): IAutoMovieVector3 => ({
+    function aimOf (base: IAutoMovieVector3): IAutoMovieVector3 { return ({
       x: base.x,
       y: base.y + aimOffset,
       z: base.z,
-    });
+    }); }
     const aim0: IAutoMovieVector3 = aimOf(subject.base);
+    if (action.move === "whip") {
+      push(t0, camera.transform.translation, camera.transform.rotation);
+      push(
+        Math.min(t0 + WHIP_SECONDS, t1),
+        camera.transform.translation,
+        lookRotation(Vector3.subtract(aim0, camera.transform.translation)),
+      );
+      return;
+    }
 
     // A figure binds on height and a mass on width; `radius` is absent or zero
     // for a single body, which leaves the vertical fit alone.
@@ -192,11 +201,11 @@ export const compileCameraMove = (props: {
         ? { x: -1, y: 0, z: 0 }
         : Vector3.normalize(side);
 
-    const framedAt = (base: IAutoMovieVector3, d: number): IKey => {
+    function framedAt (base: IAutoMovieVector3, d: number): IKey {
       const aim: IAutoMovieVector3 = aimOf(base);
       const pos: IAutoMovieVector3 = Vector3.add(aim, Vector3.scale(bearing, d));
       return { t: 0, pos, rot: lookRotation(Vector3.subtract(aim, pos)) };
-    };
+    }
 
     switch (action.move) {
       case "static": {
@@ -267,15 +276,6 @@ export const compileCameraMove = (props: {
         }
         break;
       }
-      case "whip": {
-        push(t0, camera.transform.translation, camera.transform.rotation);
-        push(
-          Math.min(t0 + WHIP_SECONDS, t1),
-          camera.transform.translation,
-          lookRotation(Vector3.subtract(aim0, camera.transform.translation)),
-        );
-        break;
-      }
       default:
         throw new Error(`unknown camera frame move "${String(action.move)}"`);
     }
@@ -307,4 +307,4 @@ export const compileCameraMove = (props: {
       },
     ],
   };
-};
+}

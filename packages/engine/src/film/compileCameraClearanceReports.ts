@@ -120,7 +120,7 @@ export function compileCameraClearanceReports(props: {
   out: ViolationCollector;
 }): IAutoMovieCameraClearanceReport[] | undefined {
   const baseline: number = props.out.items.length;
-  const refused = (): boolean => props.out.items.length > baseline;
+  function refused (): boolean { return props.out.items.length > baseline; }
   const cameraIndex: Map<string, number> = new Map(
     props.scene.cameras.map(
       (camera: IAutoMovieCamera, index: number): [string, number] => [
@@ -130,12 +130,12 @@ export function compileCameraClearanceReports(props: {
     ),
   );
   const takes: ITake[] = [];
-  const addTake = (
+  function addTake (
     id: string,
     path: string,
     motion: IAutoMovieShot["cameraMotion"],
     supplied?: IAutoMovieCamera,
-  ): void => {
+  ): void {
     const index: number | undefined = cameraIndex.get(id);
     if (index === undefined) {
       props.out.push(
@@ -149,7 +149,7 @@ export function compileCameraClearanceReports(props: {
     const camera: IAutoMovieCamera =
       supplied === undefined ? props.scene.cameras[index]! : supplied;
     if (camera.clearance !== undefined) takes.push({ camera, index, motion });
-  };
+  }
   addTake(
     props.hero.camera.id,
     "$input.hero.camera.id",
@@ -220,7 +220,7 @@ export function compileCameraClearanceReports(props: {
   }
 
   const states: Map<number, IObstacleState[]> = new Map();
-  const obstaclesAt = (time: number): IObstacleState[] => {
+  function obstaclesAt (time: number): IObstacleState[] {
     const cached: IObstacleState[] | undefined = states.get(time);
     if (cached !== undefined) return cached;
     const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
@@ -237,7 +237,7 @@ export function compileCameraClearanceReports(props: {
     );
     states.set(time, result);
     return result;
-  };
+  }
 
   const reports: IAutoMovieCameraClearanceReport[] = [];
   for (const take of takes) {
@@ -290,13 +290,13 @@ export function compileCameraClearanceReports(props: {
  * Validate and bound every staged node once, pushing a refusal for each node
  * whose model is absent, invalid, empty or unboundable.
  */
-const measureObstacles = (props: {
+function measureObstacles (props: {
   scene: IAutoMovieScene;
   motions: Readonly<Record<string, IAutoMovieMotion>>;
   objectMotions: readonly IAutoMovieClip[];
   models: readonly IAutoMovieModel[];
   out: ViolationCollector;
-}): IMeasuredObstacle[] => {
+}): IMeasuredObstacle[] {
   const models: Map<string, IAutoMovieModel> = new Map(
     props.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
       model.id,
@@ -366,18 +366,18 @@ const measureObstacles = (props: {
     },
   );
   return measured;
-};
+}
 
 /**
  * The box around a moving node's current root that holds its deformation
  * radius scaled by its largest absolute scale component.
  */
-const movingBounds = (
+function movingBounds (
   obstacle: IMeasuredObstacle,
   actorMotion: IAutoMovieMotion | undefined,
   sampled: Map<string, IAutoMovieSampledChannel>,
   seconds: number,
-): IAutoMovieSubjectBox => {
+): IAutoMovieSubjectBox {
   const node: IAutoMovieScene["nodes"][number] = obstacle.node;
   const base: IAutoMovieTransform =
     actorMotion === undefined
@@ -406,26 +406,25 @@ const movingBounds = (
     min: { x: center.x - radius, y: center.y - radius, z: center.z - radius },
     max: { x: center.x + radius, y: center.y + radius, z: center.z + radius },
   };
-};
+}
 
 /** Address a take whose clock or evaluation threw. */
-const refuseEvaluation = (
+function refuseEvaluation (
   out: ViolationCollector,
   take: ITake,
   error: unknown,
-): void =>
-  out.push(
+): void { return out.push(
     "range",
     `$staged.scene.cameras[${take.index}].clearance`,
     `camera clearance could not evaluate its fixed-clock input: ${safeThrownDescription(error)}`,
     take.camera.clearance,
-  );
+  ); }
 
 /** Describe a thrown value without letting a hostile coercion escape. */
-const safeThrownDescription = (error: unknown): string => {
+function safeThrownDescription (error: unknown): string {
   try {
     return String(error);
   } catch {
     return "an uninspectable thrown value";
   }
-};
+}

@@ -46,10 +46,10 @@ interface IBuiltShot {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
  */
-export const cutSequence = (
+export function cutSequence (
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
-): IAutoMovieCut => {
+): IAutoMovieCut {
   const out: ViolationCollector = new ViolationCollector();
   const byId: Map<string, IBuiltShot> = new Map();
   shots.forEach((shot: IAutoMovieShot, index: number): void => {
@@ -66,14 +66,14 @@ export const cutSequence = (
     byId.set(shot.id, { shot, index });
   });
 
-  const validateNonEmptyId = (
+  function validateNonEmptyId (
     id: string,
     path: string,
     label: string,
-  ): void => {
+  ): void {
     if (id.trim().length === 0)
       out.push("type", path, `${label} must be a non-empty id`, id);
-  };
+  }
 
   validateNonEmptyId(assemble.sequence.id, "$input.sequence.id", "sequence id");
 
@@ -234,4 +234,4 @@ export const cutSequence = (
     },
     runtime,
   };
-};
+}

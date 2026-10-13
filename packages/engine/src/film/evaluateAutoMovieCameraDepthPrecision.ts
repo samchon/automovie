@@ -4,8 +4,7 @@ import {
 } from "@automovie/interface";
 
 /** A number as the report carries it: itself when finite, else null. */
-const finiteOrNull = (value: number): number | null =>
-  Number.isFinite(value) ? value : null;
+function finiteOrNull (value: number): number | null { return Number.isFinite(value) ? value : null; }
 
 /**
  * Measure the largest gap between adjacent representable depths that a
@@ -39,7 +38,7 @@ const finiteOrNull = (value: number): number | null =>
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure function of its arguments; recomputing it per camera sample costs less than any cache lookup.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned report is a fresh record owned by the caller.
  */
-export const evaluateAutoMovieCameraDepthPrecision = (props: {
+export function evaluateAutoMovieCameraDepthPrecision (props: {
   /** Stable scene camera identity, non-blank. */
   camera: string;
 
@@ -60,7 +59,7 @@ export const evaluateAutoMovieCameraDepthPrecision = (props: {
 
   /** Authored depth-buffer bits and largest allowed adjacent step. */
   constraint: IAutoMovieCameraDepthPrecisionConstraint;
-}): IAutoMovieCameraDepthPrecisionReport => {
+}): IAutoMovieCameraDepthPrecisionReport {
   const base: Omit<
     IAutoMovieCameraDepthPrecisionReport,
     "lowerCode" | "upperCode" | "measuredStepMeters" | "status" | "passed"
@@ -76,16 +75,16 @@ export const evaluateAutoMovieCameraDepthPrecision = (props: {
     minimumDepthBits: finiteOrNull(props.constraint.minimumDepthBits),
     maximumStepMeters: finiteOrNull(props.constraint.maximumStepMeters),
   };
-  const unmeasured = (
+  function unmeasured (
     status: "invalid" | "outside-clipping-range",
-  ): IAutoMovieCameraDepthPrecisionReport => ({
+  ): IAutoMovieCameraDepthPrecisionReport { return ({
     ...base,
     lowerCode: null,
     upperCode: null,
     measuredStepMeters: null,
     status,
     passed: false,
-  });
+  }); }
   const levels: number = 2 ** props.constraint.minimumDepthBits - 1;
   if (
     props.camera.trim().length === 0 ||
@@ -115,8 +114,7 @@ export const evaluateAutoMovieCameraDepthPrecision = (props: {
     Math.min(1, Math.max(0, normalized)) * levels,
   );
   const lowerCode: number = Math.max(0, upperCode - 1);
-  const depthAtCode = (code: number): number =>
-    1 / (reciprocalNear - (code / levels) * reciprocalSpan);
+  function depthAtCode (code: number): number { return 1 / (reciprocalNear - (code / levels) * reciprocalSpan); }
   const measuredStepMeters: number =
     depthAtCode(upperCode) - depthAtCode(lowerCode);
   if (!Number.isFinite(measuredStepMeters) || measuredStepMeters < 0)
@@ -131,4 +129,4 @@ export const evaluateAutoMovieCameraDepthPrecision = (props: {
     status: passed ? "satisfied" : "insufficient-precision",
     passed,
   };
-};
+}

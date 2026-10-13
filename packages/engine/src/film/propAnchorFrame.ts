@@ -60,12 +60,12 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one target per call and coordinates no work across calls; a caller anchoring many props to one building may keep the returned frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The matrix lookup is dropped on return and nothing is retained; the caller owns the returned transform.
  */
-export const propAnchorFrame = (props: {
+export function propAnchorFrame (props: {
   target: IAutoMoviePropRelationTarget;
   environments: readonly IAutoMovieBuiltEnvironment[];
   props?: readonly IAutoMoviePropSpec[];
   set?: readonly IAutoMovieStageSetPiece[];
-}): IAutoMovieTransform | null => {
+}): IAutoMovieTransform | null {
   const target: IAutoMoviePropRelationTarget = props.target;
   if (target.kind === "prop-affordance") {
     const spec: IAutoMoviePropSpec | undefined = (props.props ?? []).find(
@@ -146,23 +146,23 @@ export const propAnchorFrame = (props: {
       };
     }
   }
-};
+}
 
 /** One element's rest-pose world transform, or `null` when it cannot be placed. */
-const elementFrame = (
+function elementFrame (
   environment: IAutoMovieBuiltEnvironment,
   id: string,
-): IAutoMovieTransform | null => {
+): IAutoMovieTransform | null {
   const matrix: number[] | null = builtElementRestMatrices(environment)(id);
   return matrix === null ? null : transformOf(matrix);
-};
+}
 
 /** Decompose a world matrix into a transform with a renormalized rotation. */
-const transformOf = (matrix: number[]): IAutoMovieTransform => {
+function transformOf (matrix: number[]): IAutoMovieTransform {
   const world: ReturnType<typeof Matrix4.decompose> = Matrix4.decompose(matrix);
   return {
     translation: world.position,
     rotation: Quaternion.normalize(world.rotation),
     scale: world.scale,
   };
-};
+}
