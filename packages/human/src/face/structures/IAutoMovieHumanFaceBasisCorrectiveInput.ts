@@ -3,11 +3,20 @@
  * endpoints the corrective answers for, and the optional in-between tent over
  * that driver's weight (`IAutoMovieHumanFaceBasis.correctives`).
  *
+ * @evidence contracts/common.md#principled-implementation A declared channel side and optional peak/span define the admitted piecewise-linear tent used by the corrective product. Omitted peak/span retain one and [0,1], with structural bounds established by basis admission.
+ * @evidence contracts/common.md#clear-and-simple-design One driver owns its sign and local in-between support rather than embedding a separate corrective geometry record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent side cannot silently contribute zero, a zero peak cannot authorize division, and broad overlapping tents are not guaranteed to preserve clear intermediate poses.
+ * @evidence contracts/common.md#meaningful-documentation Members state defaults, dimensionless driver weights, strict lower/peak/upper ordering and why neighbouring peaks can delimit in-between support.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This type computes no tent factor or corrective activation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Driver support identity defines no cached activation or repeated evaluation coordination.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record contains channel/side and scalar support only, acquiring no endpoints or solver resource.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisCorrectiveInput {
   /** The driving channel's id. */
   channel: string;
+
   /** Which endpoint of that channel this corrective answers for. */
   side: "positive" | "negative";
 

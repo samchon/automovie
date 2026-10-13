@@ -23,6 +23,14 @@ import type { IAutoMovieHumanFaceSkinRelief } from "./IAutoMovieHumanFaceSkinRel
  * their authored negative endpoint, not an extrapolated positive endpoint.
  * The document contains no photo, mesh cache, renderer or Blender dependency.
  *
+ * @evidence contracts/common.md#principled-implementation Exact basis revision, separate dimensionless shape/expression edits and numerical appearance/anatomy sections replay through one shared source owner. Channel/registration/measurement admission remains with the builder and supported clinical observations stay distinct from generated geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Stable document identity and named optional section owners compose persistent identity, transient performance, source-supported geometry and rendered finish without embedding a mesh cache.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Negative weights use their actual negative endpoint, clinical norms do not become morph envelopes, missing registration refuses, and the document performs no implicit basis migration or per-person asset resolution.
+ * @evidence contracts/common.md#meaningful-documentation Members state revision matching, neutral omission, field-specific null/sparse/default meanings, units, source support and the distinction between clinical record and numerical authoring.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This document type executes no replay, clinical inverse or material bake.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The compact edit record supplies cache inputs; actual equivalence and reuse remain with pose/appearance/hair producers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the saved records/arrays and no image, source stream or active task is acquired by the schema.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisDocument {
