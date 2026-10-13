@@ -18,7 +18,7 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure fold over the given list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the one returned box.
  */
-export const builtPointBounds = (
+export const builtPointBounds: (points: readonly IAutoMovieVector3[]) => IAutoMovieSubjectBox | null = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieSubjectBox | null => {
   const first: IAutoMovieVector3 | undefined = points[0];
