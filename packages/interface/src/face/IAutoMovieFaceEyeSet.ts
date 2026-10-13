@@ -1,4 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
 import { IAutoMovieFaceEye } from "./IAutoMovieFaceEye";
 
 /**
@@ -22,7 +21,7 @@ export interface IAutoMovieFaceEyeSet {
    * {@link IAutoMovieFaceEye.offset}, and the `[-2, 2]` range applies to that
    * sum per side.
    */
-  spacing?: AutoMovieFaceWeight;
+  spacing?: number;
 
   /** The subject's LEFT eye; applies to BOTH eyes when `right` is omitted. */
   left?: IAutoMovieFaceEye;

@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Nose traits of an {@link IAutoMovieHead}: signed weights in `[-2, 2]`,
  * omitted meaning unchanged. `bridge` is the East-Asian-defining radix-height
@@ -12,28 +10,28 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadNose {
   /** Alar/overall width: `+` wider, `-` narrower. */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** Length down the face: `+` longer, `-` shorter. */
-  length?: AutoMovieFaceWeight;
+  length?: number;
 
   /** Forward projection of the whole nose. */
-  projection?: AutoMovieFaceWeight;
+  projection?: number;
 
   /** Dorsal hump: `+` convex/humped, `-` scooped. */
-  hump?: AutoMovieFaceWeight;
+  hump?: number;
 
   /** Tip vertical angle: `+` upturned, `-` drooping. */
-  tipAngle?: AutoMovieFaceWeight;
+  tipAngle?: number;
 
   /** Nostril width. */
-  nostrilWidth?: AutoMovieFaceWeight;
+  nostrilWidth?: number;
 
   /** Nasal base height (sub-nasal). */
-  baseHeight?: AutoMovieFaceWeight;
+  baseHeight?: number;
 
   /**
    * Bridge/radix height: `+` higher straight bridge, `-` flatter (East-Asian).
    */
-  bridge?: AutoMovieFaceWeight;
+  bridge?: number;
 }

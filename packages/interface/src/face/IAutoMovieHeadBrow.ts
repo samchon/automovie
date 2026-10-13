@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Brow traits of an {@link IAutoMovieHead}: signed weights in `[-2, 2]`,
  * omitted meaning the template's brows unchanged. Both brows move together;
@@ -10,8 +8,8 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadBrow {
   /** Vertical brow position: `+` higher (feminine arch), `-` lower. */
-  height?: AutoMovieFaceWeight;
+  height?: number;
 
   /** Brow tilt: `+` arched up, `-` angled down. */
-  angle?: AutoMovieFaceWeight;
+  angle?: number;
 }

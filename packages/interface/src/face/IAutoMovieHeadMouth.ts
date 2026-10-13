@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Mouth and lip traits of an {@link IAutoMovieHead}: signed weights in
  * `[-2, 2]`, omitted meaning unchanged. `smile` is a resting identity shape,
@@ -12,26 +10,26 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadMouth {
   /** Mouth width: `+` wider, `-` narrower. */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** Lip fullness (both lips): `+` fuller (feminine), `-` thinner. */
-  lipFullness?: AutoMovieFaceWeight;
+  lipFullness?: number;
 
   /** Upper-lip vermilion height. */
-  upperLipHeight?: AutoMovieFaceWeight;
+  upperLipHeight?: number;
 
   /** Lower-lip vermilion height. */
-  lowerLipHeight?: AutoMovieFaceWeight;
+  lowerLipHeight?: number;
 
   /** Cupid's-bow definition. */
-  cupidsBow?: AutoMovieFaceWeight;
+  cupidsBow?: number;
 
   /** Philtrum volume. */
-  philtrum?: AutoMovieFaceWeight;
+  philtrum?: number;
 
   /** Vertical mouth position: `+` higher, `-` lower. */
-  height?: AutoMovieFaceWeight;
+  height?: number;
 
   /** Resting corner lift (slight smile): `+` up, `-` down. */
-  smile?: AutoMovieFaceWeight;
+  smile?: number;
 }

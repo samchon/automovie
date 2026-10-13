@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Eye traits of an {@link IAutoMovieHead}: signed weights in `[-2, 2]`,
  * omitted meaning unchanged. Every control is symmetric, so one value moves
@@ -13,23 +11,23 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadEyes {
   /** Overall eye size relative to the face: `+` larger (feminine/young). */
-  size?: AutoMovieFaceWeight;
+  size?: number;
 
   /** Lid aperture openness: `+` more open, `-` narrower. */
-  openness?: AutoMovieFaceWeight;
+  openness?: number;
 
   /** Inter-eye spacing: `+` wider-set (cute/neoteny), `-` closer. */
-  spacing?: AutoMovieFaceWeight;
+  spacing?: number;
 
   /** Outer-canthus tilt: `+` up (youthful), `-` down. */
-  tilt?: AutoMovieFaceWeight;
+  tilt?: number;
 
   /** Eyeball protrusion in the socket: `+` more prominent, `-` deeper-set. */
-  depth?: AutoMovieFaceWeight;
+  depth?: number;
 
   /** Epicanthic fold at the inner corner: `+` more (East-Asian), `-` open. */
-  epicanthus?: AutoMovieFaceWeight;
+  epicanthus?: number;
 
   /** Upper-lid fold: `+` hooded/mono-lid, `-` deeper double-lid crease. */
-  fold?: AutoMovieFaceWeight;
+  fold?: number;
 }

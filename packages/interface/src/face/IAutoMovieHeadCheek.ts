@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Cheek and cheekbone traits of an {@link IAutoMovieHead}: signed weights in
  * `[-2, 2]`, omitted meaning unchanged, applied to both sides at once.
@@ -10,8 +8,8 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadCheek {
   /** Soft cheek fullness: `+` fuller (youthful), `-` gaunt. */
-  fullness?: AutoMovieFaceWeight;
+  fullness?: number;
 
   /** Malar/cheekbone prominence: `+` higher/sharper (mature beauty). */
-  bones?: AutoMovieFaceWeight;
+  bones?: number;
 }

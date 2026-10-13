@@ -1,24 +1,28 @@
 /**
- * The closed set of **morph names** that {@link IAutoMovieHead} projects onto.
- * An authored head template owns its topology and supplies the target deltas.
+ * The closed set of morph names an {@link IAutoMovieHead} projects onto.
  *
- * These are the comprehensive identity/shape controls (not expression): head
- * silhouette and proportion, brow, eyes (incl. the East-Asian epicanthus and
- * eyelid-fold controls), nose (incl. bridge height), mouth/lips, cheek/malar,
- * and jaw/chin. Each name maps to one additive vertex-delta morph; a signed
- * weight deviates from the neutral average (`0`), the sign picking direction.
+ * These are identity and shape controls, not expression: head silhouette and
+ * proportion, brow, eyes (including epicanthic fold and eyelid fold), nose
+ * (including bridge height), mouth and lips, cheeks and cheekbones, and jaw and
+ * chin. Each name stands for one additive vertex-delta morph that an authored
+ * head template supplies with its own topology; a signed weight deviates from
+ * the neutral template at `0`, the sign picking the direction.
  *
- * Distinct from {@link AutoMovieFaceParameterName}, which is the legacy
- * facial vocabulary; this set includes full-head shape. Neither is the
- * anatomical component document interpreted by the separate human face editor.
+ * This set covers the whole head, unlike {@link AutoMovieFaceParameterName},
+ * and is unsided: one name drives both sides. Neither set is the anatomical
+ * component document of the separate human face editor.
  *
- * In this repository only the engine's `flattenHead` produces these names; no
- * engine function applies them to geometry.
+ * Only the engine's `flattenHead` produces these names, and no engine function
+ * applies them to geometry; applying them is the template consumer's job.
  *
+ * @evidence contracts/common.md#principled-implementation `flattenHead` maps every leaf of the seven anatomy groups of `IAutoMovieHead` to exactly one name here through a fixed table, so the union is the full target vocabulary of a head document.
+ * @evidence contracts/common.md#clear-and-simple-design A flat closed union matches a morph template's flat target list, while the grouping that helps a model read the schema stays on the document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No name is mapped to a canonical mesh or landmark set; the remaining gap is that nothing in this repository applies these names to geometry or checks a head document's ranges, which the documentation states.
+ * @evidence contracts/common.md#meaningful-documentation States which features the names cover, that each is one additive morph supplied by the template, the sign convention, how this set differs from the face vocabulary, and that no engine consumer applies it.
  * @author Samchon
  */
 export type AutoMovieHeadParameterName =
-  // head / cranium
+  // head and cranium
   | "faceWidth"
   | "faceLength"
   | "faceOval"
@@ -60,7 +64,7 @@ export type AutoMovieHeadParameterName =
   // cheek
   | "cheekFull"
   | "cheekBones"
-  // jaw / chin
+  // jaw and chin
   | "jawWidth"
   | "jawDrop"
   | "chinLength"

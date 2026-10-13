@@ -1,14 +1,16 @@
 /**
- * Where an opening is: the boundary hosting it and the regions that boundary
+ * Where an opening is: the boundary hosting it and the spaces that boundary
  * separates.
  *
- * An opening has no contents, no declared volume, no measured content bounds
- * and no fidelity, so it answered `null` while this record was a room's alone —
- * and the schedule filed a permanent gap saying its location had to be read
- * from the design instead. The design always held the answer: an opening names
- * its host `boundary`, and a boundary names the one region it encloses or the
- * two it separates.
+ * Every field is read from the design's own records: the opening names its
+ * host `boundary`, and that boundary names the one space it encloses or the
+ * two it separates. An opening schedule row carries the place of its first
+ * occurrence only, so other members of the row may stand elsewhere.
  *
+ * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawingSchedule` looks up the host boundary, copies and sorts its spaces with `compareAutoMovieRenderIds`, and resolves each with `builtEnvironmentBuildingOfSpace`, naming a unit only when every space resolves to the same one.
+ * @evidence contracts/common.md#clear-and-simple-design The `kind` discriminant lets the schedule place union narrow to this variant, and the variant holds only the two lookups an opening's location needs instead of the room fields that do not apply to a void.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A boundary straddling two building units yields `null` rather than the first unit, so the derivation never picks an owner it has no rule for.
+ * @evidence contracts/common.md#meaningful-documentation States where each field comes from and that a type row carries only its first occurrence's place; members give when `building` is `null`, the ascending order and the one-or-two count of `separates`.
  * @author Samchon
  */
 export interface IAutoMovieDrawingOpeningPlace {
@@ -16,9 +18,9 @@ export interface IAutoMovieDrawingOpeningPlace {
   kind: "opening";
 
   /**
-   * Building unit that owns the host boundary's regions, or `null` when they do
-   * not agree on one — a boundary between two units belongs to neither alone,
-   * and naming one of them would be a choice this derivation has no basis for.
+   * Building unit owning every space the host boundary separates, or `null`
+   * when those spaces belong to different units, since a boundary between two
+   * units belongs to neither alone.
    */
   building: string | null;
 
@@ -26,12 +28,11 @@ export interface IAutoMovieDrawingOpeningPlace {
   boundary: string;
 
   /**
-   * Regions the host boundary encloses or separates, ascending.
+   * Spaces the host boundary encloses or separates, ascending.
    *
-   * One entry where the boundary encloses a single region, two where it stands
-   * between a pair, and never none: validation refuses a boundary that cites no
-   * region, with *"a boundary must enclose one space or separate two, but cited
-   * 0"*, and this derivation runs after that check.
+   * One entry where the boundary encloses a single space and two where it
+   * stands between a pair; never empty, because the schedule validates the
+   * design first and validation refuses a boundary that cites no space.
    */
   separates: string[];
 }

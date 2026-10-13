@@ -3,26 +3,22 @@ import { IAutoMovieDrawingOpeningPlace } from "./IAutoMovieDrawingOpeningPlace";
 import { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
 
 /**
- * Where a scheduled occurrence stands, and what stands with it.
+ * Where a scheduled occurrence stands, discriminated by `kind` to match the
+ * schedule's subject.
  *
- * This is the part of a room schedule a door schedule never needed. A reviewer
- * asking "what zones exist, what is each one, what is in it" has to get the
- * membership answer from the declaration that owns it — an element and a
- * population each name the one space they occupy — because matching an id
- * prefix against a model answers a different question and answers it wrong: in
- * the `#1902` experiment that draft undercounted a hall of 312 staged things as
- * 204 and produced five consecutive false "this is missing" reports.
+ * Every variant reads its answer from the declarations that own it, never from
+ * the shape of an id: an element and a population each name the one space
+ * they occupy, an opening names its host boundary, and a connector names its
+ * stops.
  *
- * {@link declared} and {@link content} are deliberately two boxes. The first is
- * how far the zone reaches, the second is where its contents actually are, and
- * reading the first as the second is what put three of four review cameras of
- * `stair-ground` outside the stair tower they were aimed at.
+ * Review state is not part of a place. A schedule is a pure reading of one
+ * design revision, while whether somebody has looked at a zone is a fact about
+ * a review, which belongs to the review record and joins to this by id.
  *
- * Review state is **not** here. A schedule is a pure reading of one design
- * revision — the same environment schedules the same bytes twice — and whether
- * somebody has looked at a zone is a fact about a review, not about the
- * building. It belongs to the review record and joins to this by zone id.
- *
+ * @evidence contracts/common.md#principled-implementation A discriminated union on `kind` lets `deriveAutoMovieDrawingSchedule` build the variant its subject owns and lets a reader narrow with one comparison; each variant's fields come from `builtEnvironment*` queries or the record's own references.
+ * @evidence contracts/common.md#clear-and-simple-design Three variants keep fields that only mean something for one subject, such as a room's boxes or an opening's host boundary, off the other two, instead of one wide record of mostly `null` fields.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Membership and location come only from declared references; no variant matches id prefixes, and none carries review progress that would make the same design schedule to different bytes.
+ * @evidence contracts/common.md#meaningful-documentation States the discriminant and its tie to the subject, where each variant's answers come from, and why review state is excluded.
  * @author Samchon
  */
 export type IAutoMovieDrawingSchedulePlace =

@@ -1,4 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
 import { IAutoMovieFaceLips } from "./IAutoMovieFaceLips";
 
 /**
@@ -11,10 +10,10 @@ import { IAutoMovieFaceLips } from "./IAutoMovieFaceLips";
  */
 export interface IAutoMovieFaceMouth {
   /** Width of the mouth: `+` a wider smile line. */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** Vertical position of the whole mouth: `+` higher toward the nose. */
-  height?: AutoMovieFaceWeight;
+  height?: number;
 
   /** The lips themselves. See {@link IAutoMovieFaceLips}. */
   lips?: IAutoMovieFaceLips;

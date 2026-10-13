@@ -1,29 +1,32 @@
 /**
- * The closed set of **ARKit 52 facial blendshape** channels.
+ * The closed set of ARKit's 52 facial blendshape channels.
  *
- * ARKit's 52 coefficients are the de-facto industry standard for facial
- * expression: Apple face tracking, MetaHuman, Ready Player Me, and NVIDIA
- * Audio2Face all target them, each in `[0, 1]`. For automovie this is the ideal
- * structured-output target: a fixed, named, normalized, _low_-dimensional
- * vector. The model picks channels from this closed menu (so an invalid channel
- * name is impossible) and assigns weights documented to `[0, 1]` (the engine
- * clamps/validates the magnitude).
+ * Apple face tracking, MetaHuman, Ready Player Me and NVIDIA Audio2Face all
+ * target these coefficients, each a weight in `[0, 1]`, so a fixed, named,
+ * low-dimensional menu is a reliable structured-output target: the model picks
+ * names from this union and the engine's `validateExpression` refuses any other
+ * spelling and any weight outside `[0, 1]`.
  *
- * Naming follows Apple's `ARFaceAnchor.BlendShapeLocation` lowerCamelCase keys
- * verbatim, so an automovie expression maps 1:1 onto any ARKit-compatible
- * runtime.
+ * Names follow Apple's `ARFaceAnchor.BlendShapeLocation` keys verbatim, so an
+ * expression maps one to one onto any ARKit-compatible runtime. The viewer's
+ * `applyExpression` drives a morph target whose name matches exactly or
+ * case-insensitively, and does nothing on a model without one.
  *
- * The union is erased at runtime, so the engine's `validateExpression` and the
- * viewer's `applyExpression` each hold their own list of these 52 names; a
- * channel added here must be added to both.
+ * The union is erased at runtime, so `validateExpression` and `applyExpression`
+ * each hold their own list of these names; a channel added here must be added
+ * to both.
  *
  * Reference: Apple ARKit `ARFaceAnchor.blendShapes`
  * (https://developer.apple.com/documentation/arkit/arfaceanchor/blendshapes).
  *
+ * @evidence contracts/common.md#principled-implementation The union reproduces Apple's documented 52 blend shape locations, grouped by facial region in the source, and `validateExpression` checks each authored `channel` against a runtime `Set` of the same names because a type alone cannot reject a string at runtime.
+ * @evidence contracts/common.md#clear-and-simple-design A closed string union is the whole vocabulary with no wrapper or registry, and it is the only structural constraint on `IAutoMovieBlendshapeChannel.channel`, with magnitudes left to the validator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel is renamed or added for a particular avatar; the remaining weakness is that the engine and viewer name lists are type-checked only as subsets of the union, so nothing but review keeps them complete when a channel is added here.
+ * @evidence contracts/common.md#meaningful-documentation States the standard behind the names, the `[0, 1]` range and who enforces it, the exact or case-insensitive morph matching in the viewer, the duplicated runtime lists that must change together, and the upstream reference.
  * @author Samchon
  */
 export type AutoMovieArkitChannel =
-  // ── eyes (14) ──
+  // eyes (14)
   | "eyeBlinkLeft"
   | "eyeLookDownLeft"
   | "eyeLookInLeft"
@@ -38,12 +41,12 @@ export type AutoMovieArkitChannel =
   | "eyeLookUpRight"
   | "eyeSquintRight"
   | "eyeWideRight"
-  // ── jaw (4) ──
+  // jaw (4)
   | "jawForward"
   | "jawLeft"
   | "jawRight"
   | "jawOpen"
-  // ── mouth (23) ──
+  // mouth (23)
   | "mouthClose"
   | "mouthFunnel"
   | "mouthPucker"
@@ -67,18 +70,18 @@ export type AutoMovieArkitChannel =
   | "mouthLowerDownRight"
   | "mouthUpperUpLeft"
   | "mouthUpperUpRight"
-  // ── brows (5) ──
+  // brows (5)
   | "browDownLeft"
   | "browDownRight"
   | "browInnerUp"
   | "browOuterUpLeft"
   | "browOuterUpRight"
-  // ── cheeks (3) ──
+  // cheeks (3)
   | "cheekPuff"
   | "cheekSquintLeft"
   | "cheekSquintRight"
-  // ── nose (2) ──
+  // nose (2)
   | "noseSneerLeft"
   | "noseSneerRight"
-  // ── tongue (1) ──
+  // tongue (1)
   | "tongueOut";

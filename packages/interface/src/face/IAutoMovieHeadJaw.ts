@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Jaw and chin traits of an {@link IAutoMovieHead}: signed weights in
  * `[-2, 2]`, omitted meaning unchanged. The chin is flattened into this group
@@ -10,17 +8,17 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadJaw {
   /** Gonial/jaw width: `+` wider/squarer, `-` softer/tapered (feminine). */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** Jaw drop / lower-face length at the angle. */
-  drop?: AutoMovieFaceWeight;
+  drop?: number;
 
   /** Chin vertical length: `+` longer, `-` shorter (feminine/childlike). */
-  chinLength?: AutoMovieFaceWeight;
+  chinLength?: number;
 
   /** Chin width: `+` broader, `-` narrower/pointed. */
-  chinWidth?: AutoMovieFaceWeight;
+  chinWidth?: number;
 
   /** Chin forward projection: `+` prominent, `-` recessive (East-Asian). */
-  chinProjection?: AutoMovieFaceWeight;
+  chinProjection?: number;
 }

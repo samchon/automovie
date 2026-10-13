@@ -1,4 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
 import { IAutoMovieFaceChin } from "./IAutoMovieFaceChin";
 
 /**
@@ -14,7 +13,7 @@ export interface IAutoMovieFaceJaw {
    * Width of the jaw below the cheekbones: `+` square and strong, `-` a slim
    * V-line.
    */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** The chin at the jaw's tip. See {@link IAutoMovieFaceChin}. */
   chin?: IAutoMovieFaceChin;

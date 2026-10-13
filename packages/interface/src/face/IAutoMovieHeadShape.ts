@@ -1,5 +1,3 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
  * Cranium and overall head proportion of an {@link IAutoMovieHead}: the frame
  * the features sit in. Signed weights in `[-2, 2]`, omitted meaning unchanged.
@@ -11,29 +9,29 @@ import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
  */
 export interface IAutoMovieHeadShape {
   /** Lateral width of the whole face: `+` wider, `-` narrower. */
-  width?: AutoMovieFaceWeight;
+  width?: number;
 
   /** Vertical stretch about the eye line: `+` longer, `-` shorter/rounder. */
-  length?: AutoMovieFaceWeight;
+  length?: number;
 
   /** Toward an oval outline (`+`) vs a squarer one (`-`). */
-  oval?: AutoMovieFaceWeight;
+  oval?: number;
 
   /** Toward a round outline (`+`) vs a rectangular one (`-`). */
-  round?: AutoMovieFaceWeight;
+  round?: number;
 
   /** Forehead front slope: `+` forward/upright, `-` receding. */
-  foreheadSlope?: AutoMovieFaceWeight;
+  foreheadSlope?: number;
 
   /** Forehead vertical height: `+` taller (childlike), `-` shorter. */
-  foreheadHeight?: AutoMovieFaceWeight;
+  foreheadHeight?: number;
 
   /** Forehead/cranial bossing (Nubian curvature). */
-  foreheadBulge?: AutoMovieFaceWeight;
+  foreheadBulge?: number;
 
   /** Temple width at the side of the forehead. */
-  templeWidth?: AutoMovieFaceWeight;
+  templeWidth?: number;
 
   /** Occiput (back-of-skull) depth: `+` more projection in profile. */
-  occiputDepth?: AutoMovieFaceWeight;
+  occiputDepth?: number;
 }
