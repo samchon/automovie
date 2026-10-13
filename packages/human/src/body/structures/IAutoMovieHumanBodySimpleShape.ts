@@ -27,6 +27,14 @@
  * keeps the existing basis residue. These inferred channels do not assert an
  * individual's internal tissue volumes or the correctness of joint contact.
  *
+ * @evidence contracts/common.md#principled-implementation Named stature, mass and optional exterior measurements project onto a fixed legacy basis; sex and muscle remain appearance coordinates.
+ * @evidence contracts/common.md#clear-and-simple-design The simple tier exposes familiar scalar inputs while the detailed document remains canonical for replay.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy authored age and training responses are not individual tissue or joint-contact measurements.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes units, required inputs, optional measurement solving and unresolved anatomical limitations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The simple shape parameter contract declaration is erased by TypeScript and chooses no runtime algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The simple shape parameter contract schema coordinates no requests or cached computations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The simple shape parameter contract type acquires no handles, tasks or retained storage.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShape {

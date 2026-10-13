@@ -23,6 +23,14 @@ import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwea
  * names decides what every field means, and a basis mismatch is refused rather
  * than migrated.
  *
+ * @evidence contracts/common.md#principled-implementation An exact basis revision gives sparse canonical shape and articulation entries deterministic replay meaning; named measurements are resolved by their owners.
+ * @evidence contracts/common.md#clear-and-simple-design The document separates authoring identity, named anatomical targets, pose, appearance and costume choices.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy replay weights are not public sculpt controls; basis mismatches and conflicting measurement authority are refused.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents zero and omission, units, source-qualified inputs and optional-state behavior.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The body authoring document is a type declaration without executable processing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The body authoring document coordinates no cross-call computation or caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The body authoring document type itself acquires no retained runtime resources.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisDocument {

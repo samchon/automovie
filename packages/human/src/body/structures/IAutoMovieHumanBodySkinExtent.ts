@@ -12,6 +12,14 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * skin rather than fixed to vertices chosen on one shape, so a shape that
  * moves the heel's or a toe's farthest point is followed.
  *
+ * @evidence contracts/common.md#principled-implementation Dominant bone weights select a skin region whose extrema are projected along or across a horizontal landmark axis.
+ * @evidence contracts/common.md#clear-and-simple-design The instrument names region bones independently from its landmark direction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Extrema are found on the current shaped skin, without freezing witness vertices from one reference body.
+ * @evidence contracts/common.md#meaningful-documentation The prose specifies horizontal projection, dominant-weight membership and current-shape extremal reading.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The skin caliper extent rules definition supplies no executable processing strategy.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The skin caliper extent rules type neither schedules requests nor caches results.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The skin caliper extent rules declaration does not acquire or retain runtime resources.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinExtent {

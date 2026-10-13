@@ -19,6 +19,14 @@ import type { IAutoMovieHumanBodySimpleShapeTerm } from "./IAutoMovieHumanBodySi
  * inversions solve. The table is data so a relation is audited and tuned as
  * a row, never as code.
  *
+ * @evidence contracts/common.md#principled-implementation Limits, inverses, measurement bindings and term products represent the deterministic simple-tier model; duplicate channel rows add before saturation.
+ * @evidence contracts/common.md#clear-and-simple-design The schema groups the model's separately owned coefficients without embedding evaluation code.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored curves and legacy channels remain visible instead of being presented as individual clinical observations.
+ * @evidence contracts/common.md#meaningful-documentation The prose documents row arithmetic, endpoint holding and projection bindings; members identify each submodel.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The simple tier model schema definition supplies no executable processing strategy.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The simple tier model schema type neither schedules requests nor caches results.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The simple tier model schema declaration does not acquire or retain runtime resources.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShapeTable {

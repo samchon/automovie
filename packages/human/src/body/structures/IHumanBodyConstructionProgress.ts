@@ -15,6 +15,14 @@ import type { IHumanBodyUnderwearFitObservation } from "../basis/IHumanBodyUnder
  * reporting is batched at powers of two and the final processed count, without
  * sampling or skipping any geometric validation.
  *
+ * @evidence contracts/common.md#principled-implementation Named completed stages and scalar work packets report actual construction boundaries synchronously; observer exceptions abort the call.
+ * @evidence contracts/common.md#clear-and-simple-design One transport record carries optional stage-specific context without native coordinate buffers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Progress counts and solver status are observations, never feasibility, anatomical or visual acceptance verdicts.
+ * @evidence contracts/common.md#meaningful-documentation Members document stage meanings, zero-based ordinals, work limits, coefficient units and omitted context.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The construction progress transport declares data and signatures without implementing runtime algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The construction progress transport declaration shares no computations across consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The construction progress transport type has no runtime acquisition, retention or release operation.
+ *
  * @author Samchon
  */
 export interface IHumanBodyConstructionProgress {

@@ -9,6 +9,14 @@
  * a source partition's refinements address its parentTriangles, and a face
  * pose plan's samples address its nativeTriangles.
  *
+ * @evidence contracts/common.md#principled-implementation An ordered parent plus finite nonnegative u and v with u+v at most one defines an affine triangle preimage.
+ * @evidence contracts/common.md#clear-and-simple-design Two stored coordinates keep the third weight implicit and identify its enclosing parent table.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The chart is evaluated in canonical corner order rather than repairing a redundant weight triple.
+ * @evidence contracts/common.md#meaningful-documentation Members give parent-table scope, dimensionless units and the closed-triangle domain.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The ordered triangle chart point has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ordered triangle chart point schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The ordered triangle chart point declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBasisSourceChartPoint {

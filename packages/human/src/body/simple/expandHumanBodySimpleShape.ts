@@ -22,14 +22,14 @@ import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
  * millimetre for tapes, a tenth of a millimetre for stature and fifty grams
  * for mass. These budgets do not establish instrument or anatomical accuracy.
  */
-const TAPE_TOLERANCE_METRES = 1e-3;
-const STATURE_TOLERANCE_METRES = 1e-4;
-const MASS_TOLERANCE_KILOGRAMS = 0.05;
+const TAPE_TOLERANCE_METRES: number = 1e-3;
+const STATURE_TOLERANCE_METRES: number = 1e-4;
+const MASS_TOLERANCE_KILOGRAMS: number = 0.05;
 type Reader = ReturnType<typeof createHumanBodyMeasurementReader>;
 /** Warm-up passes before simultaneous inversion; failure resumes the original eight-pass budget. */
-const ROUNDS = 2;
-const PASSES = 8;
-const CONVERGENCE = 1e-5;
+const ROUNDS: number = 2;
+const PASSES: number = 8;
+const CONVERGENCE: number = 1e-5;
 
 /**
  * Expand the simple tier into the detailed one: channel weights of a body
@@ -37,9 +37,10 @@ const CONVERGENCE = 1e-5;
  * six optional exterior girths and an optional rig-shoulder-centre distance.
  *
  * The term table `HUMAN_BODY_SIMPLE_SHAPE` gives every channel its weight as
- * a sum of gains times products of curves over the parameters and the two
- * derived ones (Deurenberg's age-specific body fat from mass and stature, and
- * that fat less the sex's essential fat); a row naming a channel the basis
+ * a sum of gains times products of curves over the parameters and their
+ * derived body mass index, age-dependent developed muscle and visible excess fat
+ * (the age-specific regression less essential fat and the authored developed-muscle
+ * contribution, floored at one percentage point); a row naming a channel the basis
  * lacks is skipped, so an older revision without the individuality channels still
  * expands its macros, and the sum of a channel's rows is saturated once at
  * the channel's envelope, never row by row, because the projection reads an
@@ -84,6 +85,14 @@ const CONVERGENCE = 1e-5;
  * requested simple value again with the same numerical budgets. A simple
  * request incompatible with those targets refuses rather than deleting the
  * targets or storing their derived channels as personal authoring.
+ *
+ * @evidence contracts/common.md#principled-implementation Authored curve terms seed bounded channel weights, then physical stature, mass and requested tapes are inverted on shared trial geometry; simultaneous solving has strict sequential fallback and final absolute-budget assertions, without promising global reach for every combination.
+ * @evidence contracts/common.md#clear-and-simple-design This orchestration owns simple-to-detailed conversion and residue reconciliation; direction sampling, generic numerical solving, anatomical target resolution and whole-person readings remain separate canonical owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only intermediate warm-up passes saturate transient requests; final reach and combined readings refuse incompatibility, target-owned channels are omitted from saved authoring, and unrelated detailed channels pass through unchanged.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains legacy appearance inputs, whole-source support, metres and kilograms, optional tapes, detailed residue, target authority, fresh output and failure before any caller state changes.
+ * @evidence contracts/performance.md#efficient-algorithms Table initialization is linear in terms and channels; bounded warm-up, simultaneous and fallback solves dominate through repeated body evaluation and tape sections, while residue preservation performs one recursive canonical expansion without another over record.
+ * @evidence contracts/performance.md#reuse-equivalent-work One parameter and density calculation is shared across trials; each coupled trial shares its reader and the whole reader may reuse its own matching geometry, while changed shapes and anatomical resolutions are measured again.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh shape records, channel maps, unknown closures and solver work belong to the synchronous call; recursion adds one residue baseline level, and only the final raw record transfers with no retained tasks or handles.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
@@ -92,7 +101,7 @@ export function expandHumanBodySimpleShape(
   over?: Record<string, number>,
   anatomy?: IAutoMovieHumanBodyAnatomicalMeasurements,
 ): Record<string, number> {
-  const wholeBasis = whole.bodyReach;
+  const wholeBasis: IAutoMovieHumanBodyBasis | undefined = whole.bodyReach;
   if (wholeBasis !== undefined) {
     if (wholeBasis.id !== basis.id)
       throw new Error(
@@ -109,26 +118,26 @@ export function expandHumanBodySimpleShape(
     if (over !== undefined)
       over = resolveHumanBodyAnatomy(basis, over, anatomy);
   }
-  const targetChannels = new Set(
+  const targetChannels: Set<string> = new Set(
     collectHumanBodyExteriorRequests(anatomy).map(
-      (request) => request.binding.channel,
+      (request: ReturnType<typeof collectHumanBodyExteriorRequests>[number]): string => request.binding.channel,
     ),
   );
-  const effectiveTrial = (
+  const effectiveTrial: (trial: Record<string, number>) => Record<string, number> = (
     trial: Record<string, number>,
   ): Record<string, number> => {
     if (anatomy === undefined) return trial;
-    const raw = { ...trial };
+    const raw: Record<string, number> = { ...trial };
     for (const channel of targetChannels) delete raw[channel];
     return resolveHumanBodyAnatomy(basis, raw, anatomy);
   };
-  const table = HUMAN_BODY_SIMPLE_SHAPE;
+  const table: typeof HUMAN_BODY_SIMPLE_SHAPE = HUMAN_BODY_SIMPLE_SHAPE;
   for (const name of Object.keys(
     table.limits,
   ) as (keyof typeof table.limits)[]) {
-    const value = simple[name];
+    const value: number | undefined = simple[name];
     if (value === undefined) continue;
-    const [low, high] = table.limits[name];
+    const [low, high]: [number, number] = table.limits[name];
     if (!Number.isFinite(value) || value < low || value > high)
       throw new Error(
         `A simple body ${name} must lie in [${low}, ${high}]: ${value}`,
@@ -143,16 +152,16 @@ export function expandHumanBodySimpleShape(
   ] as const)
     if (simple[name] === undefined)
       throw new Error(`A simple body needs its ${name}.`);
-  const channels = new Map(
-    basis.channels.map((channel) => [channel.id, channel]),
+  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> = new Map(
+    basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [channel.id, channel]),
   );
-  const parameters = math.parameters(simple);
+  const parameters: ReturnType<typeof math.parameters> = math.parameters(simple);
   // the rows naming a channel are summed first and the sum saturated once:
   // saturating after each row would let a row past the envelope lose the
   // part a later row on the same channel takes back, and the projection
   // reads the muscle as the first row's inverse after the other rows are
   // subtracted from the weight, which is the sum's inverse
-  const sums = new Map<string, number>();
+  const sums: Map<string, number> = new Map<string, number>();
   for (const row of table.terms)
     if (channels.has(row.channel))
       sums.set(
@@ -161,7 +170,7 @@ export function expandHumanBodySimpleShape(
       );
   const shape: Record<string, number> = {};
   for (const [id, sum] of sums) {
-    const channel = channels.get(id)!;
+    const channel: IAutoMovieHumanBodyBasis["channels"][number] = channels.get(id)!;
     if (
       wholeBasis !== undefined &&
       Object.values(table.identity).includes(id) &&
@@ -172,26 +181,26 @@ export function expandHumanBodySimpleShape(
       );
     shape[id] = Math.min(channel.maximum, Math.max(channel.minimum, sum));
   }
-  const solve = (
+  const solve: (along: ReturnType<typeof direction.alone>, target: number, read: (trial: Record<string, number>) => number | null, what: string, saturate?: boolean) => void = (
     along: ReturnType<typeof direction.alone>,
     target: number,
     read: (trial: Record<string, number>) => number | null,
     what: string,
-    saturate = false,
+    saturate: boolean = false,
   ): void => {
     Object.assign(
       shape,
       direction.solve(basis, shape, along, target, read, what, saturate),
     );
   };
-  const stature = table.solved.stature;
-  const statureChannel = channels.get(stature);
+  const stature: string = table.solved.stature;
+  const statureChannel: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channels.get(stature);
   if (statureChannel === undefined)
     throw new Error("A simple body needs the stature channel " + stature + ".");
   // the stature channel inverted against the whole person's actual stature
-  const matchStature = (): void => {
-    const worn = (weight: number): Record<string, number> => {
-      const trial = { ...shape };
+  const matchStature: () => void = (): void => {
+    const worn: (weight: number) => Record<string, number> = (weight: number): Record<string, number> => {
+      const trial: Record<string, number> = { ...shape };
       if (weight === 0) delete trial[stature];
       else trial[stature] = weight;
       return trial;
@@ -200,29 +209,29 @@ export function expandHumanBodySimpleShape(
       range: [statureChannel.minimum, statureChannel.maximum],
       current: shape[stature] ?? 0,
       targetMetres: simple.statureMetres,
-      read: (weight) => whole.stature(effectiveTrial(worn(weight))),
+      read: (weight: number): number => whole.stature(effectiveTrial(worn(weight))),
       label: "stature",
     }).weight;
     if (shape[stature] === 0) delete shape[stature];
   };
   matchStature();
-  const density = math.density(
+  const density: number = math.density(
     math.fat(simple, parameters.bodyMassIndex).percent,
   );
   // Girths, mass and stature move one another. The intermediate pass may
   // saturate a target outside that transient body's reach; the pass after
   // convergence is strict, and the final stature reading is inverted on the
   // body after its mass and tape weights have settled.
-  const statureAlong = direction.alone(basis, stature);
-  const pass = (saturate: boolean): number => {
-    const before = { ...shape };
+  const statureAlong: ReturnType<typeof direction.alone> = direction.alone(basis, stature);
+  const pass: (saturate: boolean) => number = (saturate: boolean): number => {
+    const before: Record<string, number> = { ...shape };
     for (const entry of table.measurements) {
-      const target = simple[entry.parameter];
+      const target: number | undefined = simple[entry.parameter];
       if (target === undefined) continue;
       solve(
         direction.alone(basis, entry.channel),
         target,
-        (trial) => measure.channel(basis, effectiveTrial(trial), entry.channel),
+        (trial: Record<string, number>): number | null => measure.channel(basis, effectiveTrial(trial), entry.channel),
         entry.parameter,
         saturate,
       );
@@ -230,28 +239,28 @@ export function expandHumanBodySimpleShape(
     solve(
       direction.mass(basis, parameters),
       simple.massKilograms,
-      (trial) => measure.mass(whole.volume(effectiveTrial(trial)), density),
+      (trial: Record<string, number>): number => measure.mass(whole.volume(effectiveTrial(trial)), density),
       "mass",
       saturate,
     );
     solve(
       statureAlong,
       simple.statureMetres,
-      (trial) => whole.stature(effectiveTrial(trial)),
+      (trial: Record<string, number>): number => whole.stature(effectiveTrial(trial)),
       "stature",
       saturate,
     );
     return Math.max(
-      ...Object.keys(shape).map((id) =>
+      ...Object.keys(shape).map((id: string): number =>
         Math.abs(shape[id] - (before[id] ?? 0)),
       ),
     );
   };
-  let round = 0;
+  let round: number = 0;
   for (; round < ROUNDS; round++) if (pass(true) < CONVERGENCE) break;
   const unknowns: IHumanBodySimpleUnknown[] = [
-    ...table.measurements.flatMap((entry) => {
-      const target = simple[entry.parameter];
+    ...table.measurements.flatMap((entry: (typeof table.measurements)[number]): IHumanBodySimpleUnknown[] => {
+      const target: number | undefined = simple[entry.parameter];
       return target === undefined
         ? []
         : [
@@ -260,7 +269,7 @@ export function expandHumanBodySimpleShape(
               tolerance: TAPE_TOLERANCE_METRES,
               along: direction.alone(basis, entry.channel),
               target,
-              read: (reader: Reader, trial: Record<string, number>) =>
+              read: (reader: Reader, trial: Record<string, number>): number | null =>
                 anatomy === undefined
                   ? humanBodySimpleChannel(reader, entry.channel)
                   : measure.channel(
@@ -276,7 +285,7 @@ export function expandHumanBodySimpleShape(
       tolerance: MASS_TOLERANCE_KILOGRAMS,
       along: direction.mass(basis, parameters),
       target: simple.massKilograms,
-      read: (_reader: Reader, trial: Record<string, number>) =>
+      read: (_reader: Reader, trial: Record<string, number>): number =>
         measure.mass(whole.volume(effectiveTrial(trial)), density),
     },
     {
@@ -284,31 +293,31 @@ export function expandHumanBodySimpleShape(
       tolerance: STATURE_TOLERANCE_METRES,
       along: statureAlong,
       target: simple.statureMetres,
-      read: (_reader: Reader, trial: Record<string, number>) =>
+      read: (_reader: Reader, trial: Record<string, number>): number =>
         whole.stature(effectiveTrial(trial)),
     },
   ];
-  const together = solveHumanBodySimpleCoupling(basis, shape, unknowns);
+  const together: Record<string, number> | null = solveHumanBodySimpleCoupling(basis, shape, unknowns);
   if (together === null) {
     for (; round < PASSES; round++) if (pass(true) < CONVERGENCE) break;
     pass(false);
   } else Object.assign(shape, together);
   matchStature();
   assertHumanBodySimpleValues(basis, shape, unknowns);
-  const canonical = (
+  const canonical: (effective: Record<string, number>) => Record<string, number> = (
     effective: Record<string, number>,
   ): Record<string, number> => {
     if (anatomy === undefined) return effective;
-    const raw = { ...effective };
+    const raw: Record<string, number> = { ...effective };
     for (const channel of targetChannels) delete raw[channel];
-    const resolved = effectiveTrial(raw);
+    const resolved: Record<string, number> = effectiveTrial(raw);
     assertHumanBodySimpleValues(basis, resolved, unknowns);
     return raw;
   };
   if (over === undefined) return canonical(shape);
   // only the measurements this request names are read back, so an omitted
   // one leaves its channel exactly as the shape had it
-  const origin = expandHumanBodySimpleShape(
+  const origin: Record<string, number> = expandHumanBodySimpleShape(
     basis,
     whole,
     projectHumanBodySimpleShape(
@@ -316,14 +325,14 @@ export function expandHumanBodySimpleShape(
       whole,
       over,
       table.measurements
-        .map((entry) => entry.parameter)
-        .filter((parameter) => simple[parameter] !== undefined),
+        .map((entry: (typeof table.measurements)[number]): (typeof table.measurements)[number]["parameter"] => entry.parameter)
+        .filter((parameter: (typeof table.measurements)[number]["parameter"]): boolean => simple[parameter] !== undefined),
     ),
   );
   const result: Record<string, number> = { ...over };
   for (const id of new Set([...Object.keys(shape), ...Object.keys(origin)])) {
-    const channel = channels.get(id)!;
-    const value = Math.min(
+    const channel: IAutoMovieHumanBodyBasis["channels"][number] = channels.get(id)!;
+    const value: number = Math.min(
       channel.maximum,
       Math.max(
         channel.minimum,
@@ -340,7 +349,7 @@ export function expandHumanBodySimpleShape(
   // kept, a body already inside its budgets is returned unchanged, and a
   // request the residue makes unreachable is refused rather than answered
   // with a compromise.
-  const final = solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
+  const final: Record<string, number> = solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
   assertHumanBodySimpleValues(basis, final, unknowns);
   return canonical(final);
 }

@@ -27,6 +27,15 @@ import type { IAutoMovieHumanBodyVeinsOverlay } from "./IAutoMovieHumanBodyVeins
  * not displacements to infer from this skin array alone. The current
  * study records initial topology and skin-weight extraction in its extraction
  * receipt and subsequent bilateral weight changes in its symmetry receipt.
+ *
+ * @evidence contracts/common.md#principled-implementation Shared metre-valued vertices, source incidence, sparse endpoints and four-influence binding define one exterior before material projection.
+ * @evidence contracts/common.md#clear-and-simple-design The surface keeps geometric identity separate from region UV corners and optional appearance or deformation policies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An exterior sheet and skin weights cannot establish internal tissue boundaries, volume conservation or collision-free movement.
+ * @evidence contracts/common.md#meaningful-documentation The prose states common frame, array layouts, optional layer meanings and unresolved anatomical representation limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The connected body surface schema has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The connected body surface schema schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The connected body surface schema declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisSurface {

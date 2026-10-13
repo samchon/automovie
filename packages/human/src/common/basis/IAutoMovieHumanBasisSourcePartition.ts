@@ -20,6 +20,14 @@ import type { IAutoMovieHumanBasisSourceIntersection } from "./IAutoMovieHumanBa
  * performed cells. Changing connectivity or source bindings needs recompilation;
  * a single open partition cannot supply the other half's performed geometry.
  *
+ * @evidence contracts/common.md#principled-implementation Original topology, frozen cut preimages and explicit sample and parent identities describe one half of shared source incidence.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry provenance and optional normal-domain transport remain distinct within the partition.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Matching generation strings do not prove compatibility or coverage; changed connectivity requires recompilation.
+ * @evidence contracts/common.md#meaningful-documentation The prose documents virtual-id ordering, affine chart domains and invalidation responsibilities.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The source triangle partition schema has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The source triangle partition schema schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The source triangle partition schema declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBasisSourcePartition {

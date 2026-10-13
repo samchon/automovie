@@ -58,6 +58,15 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * is any coupling's source (so no chain and no cycle), and no output axis
  * driven twice. Correctives read the coupled angles, so a joint ramp on the
  * girdle fires on an automatic elevation exactly as on an authored one.
+ *
+ * @evidence contracts/common.md#principled-implementation An ordered degree-valued curve maps declared source elevation onto one output joint axis; admission excludes cycles and duplicate outputs.
+ * @evidence contracts/common.md#clear-and-simple-design The basis owns the driver relation while document pose stores no derived addition.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The existing girdle relation is a rig approximation and cannot create an absent scapular bone or independently moving skin attachment.
+ * @evidence contracts/common.md#meaningful-documentation The comment states curve interpolation, admission constraints and unresolved scapular representation limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The joint coupling schema declares data and signatures without implementing runtime algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The joint coupling schema declaration shares no computations across consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The joint coupling schema type has no runtime acquisition, retention or release operation.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisCoupling {

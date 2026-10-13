@@ -1,5 +1,7 @@
+import { HumanBinary64Arithmetic } from "../../common/measure/HumanBinary64Arithmetic";
+
 /** Smallest normal binary64 magnitude: 2^52 * 2^-1074 (ECMA-262 Number type). */
-const MINIMUM_NORMAL = 2 ** -1022;
+const MINIMUM_NORMAL: number = 2 ** -1022;
 
 /**
  * Advance the simple body's column-major Jacobian by Broyden's good update.
@@ -26,40 +28,48 @@ const MINIMUM_NORMAL = 2 ** -1022;
  * accurate matrix for every ill-conditioned input or unrepresentable update.
  * Units are dimensionless residual per scalar step.
  * This numerical update establishes no physiological admission or anatomy.
+ *
+ * @evidence contracts/common.md#principled-implementation Broyden's good rank-one update uses the entire old matrix; exceptional rows use exact integer multiples of 2^-1074 and the shared nearest-even rational conversion, with finite aligned inputs and a nonzero accepted step required.
+ * @evidence contracts/common.md#clear-and-simple-design The caller owns accepted steps; this owner computes only a fresh column-major matrix, and HumanBinary64Arithmetic owns decomposition and final binary64 rounding instead of duplicating those primitives.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Normal/subnormal boundaries follow Number representation rather than an accuracy epsilon; zero components preserve their original entries and no anatomical or consumer exceptions alter the equation.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives the secant equation, column layout, dimensionless units, input premises, zero-step refusal, exceptional arithmetic and limits of the precision claim.
+ * @evidence contracts/performance.md#efficient-algorithms For R residual rows and C columns, ordinary work and output cost O(R*C); exceptional rows perform O(C) BigInt operations whose bit widths grow with binary64 exponents, without repeating geometry evaluation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each row computes its old prediction once before any correction; exact decomposition is call-local and recomputed for exceptional rows because no cross-step matrix identity establishes equivalence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Row arrays and temporary BigInts are invocation-owned and bounded by matrix dimensions and finite binary64 widths; the new columns transfer to the caller, with no persistent buffers, handles or tasks.
  */
 export function updateHumanBodySimpleJacobian(
   columns: readonly (readonly number[])[],
   step: readonly number[],
   delta: readonly number[],
 ): number[][] {
-  const length = step.reduce((sum, value) => sum + value * value, 0);
-  const rescale = length < MINIMUM_NORMAL || !Number.isFinite(length);
+  const length: number = step.reduce((sum: number, value: number): number => sum + value * value, 0);
+  const rescale: boolean = length < MINIMUM_NORMAL || !Number.isFinite(length);
   if (rescale) {
-    const largest = step.reduce(
-      (maximum, value) => Math.max(maximum, Math.abs(value)),
+    const largest: number = step.reduce(
+      (maximum: number, value: number): number => Math.max(maximum, Math.abs(value)),
       0,
     );
     if (largest === 0)
       throw new Error("A Jacobian secant update needs a nonzero step.");
   }
-  const rows = delta.map((value, row) => {
-    const products = columns.map((column, index) => column[row] * step[index]);
-    const predicted = products.reduce((sum, product) => sum + product, 0);
-    const error = value - predicted;
-    const corrections = step.map((component) => (error * component) / length);
-    const exceptional =
+  const rows: number[][] = delta.map((value: number, row: number): number[] => {
+    const products: number[] = columns.map((column: readonly number[], index: number): number => column[row] * step[index]);
+    const predicted: number = products.reduce((sum: number, product: number): number => sum + product, 0);
+    const error: number = value - predicted;
+    const corrections: number[] = step.map((component: number): number => (error * component) / length);
+    const exceptional: boolean =
       rescale ||
       !Number.isFinite(error) ||
       (value !== 0 && error === -predicted) ||
       products.some(
-        (product, index) =>
+        (product: number, index: number): boolean =>
           !Number.isFinite(product) ||
           (columns[index][row] !== 0 &&
             step[index] !== 0 &&
             Math.abs(product) < MINIMUM_NORMAL),
       ) ||
       corrections.some(
-        (correction, index) =>
+        (correction: number, index: number): boolean =>
           !Number.isFinite(correction) ||
           (error !== 0 &&
             step[index] !== 0 &&
@@ -67,9 +77,9 @@ export function updateHumanBodySimpleJacobian(
       );
     return exceptional
       ? exactSecantRow(columns, step, value, row)
-      : columns.map((column, index) => column[row] + corrections[index]);
+      : columns.map((column: readonly number[], index: number): number => column[row] + corrections[index]);
   });
-  return columns.map((_column, index) => rows.map((row) => row[index]));
+  return columns.map((_column: readonly number[], index: number): number[] => rows.map((row: number[]): number => row[index]));
 }
 
 /**
@@ -85,57 +95,21 @@ function exactSecantRow(
   delta: number,
   row: number,
 ): number[] {
-  const direction = step.map(binaryInteger);
-  const norm = direction.reduce((sum, value) => sum + value * value, 0n);
-  const previous = columns.map((column) => binaryInteger(column[row]));
-  const error =
+  const direction: bigint[] = step.map(binaryInteger);
+  const norm: bigint = direction.reduce((sum: bigint, value: bigint): bigint => sum + value * value, 0n);
+  const previous: bigint[] = columns.map((column: readonly number[]): bigint => binaryInteger(column[row]));
+  const error: bigint =
     (binaryInteger(delta) << 1074n) -
-    previous.reduce((sum, value, index) => sum + value * direction[index], 0n);
-  return previous.map((value, index) =>
+    previous.reduce((sum: bigint, value: bigint, index: number): bigint => sum + value * direction[index], 0n);
+  return previous.map((value: bigint, index: number): number =>
     direction[index] === 0n
       ? columns[index][row]
-      : roundedBinaryRatio(value * norm + error * direction[index], norm),
+      : HumanBinary64Arithmetic.numberAt(value * norm + error * direction[index], norm, -1074),
   );
 }
 
 /** Read a finite binary64 value as its exact signed integer multiple of 2^-1074. */
 function binaryInteger(value: number): bigint {
-  const view = new DataView(new ArrayBuffer(8));
-  view.setFloat64(0, value);
-  const bits = view.getBigUint64(0);
-  const exponent = Number((bits >> 52n) & 2047n);
-  const fraction = bits & ((1n << 52n) - 1n);
-  const magnitude =
-    exponent === 0
-      ? fraction
-      : ((1n << 52n) | fraction) << BigInt(exponent - 1);
-  return value < 0 ? -magnitude : magnitude;
-}
-
-/**
- * Round (numerator/denominator)*2^-1074 to nearest binary64, ties to even.
- * A normal result keeps 53 significant bits; a subnormal rounds to a whole
- * multiple of 2^-1074. Integer remainder comparison owns the tie decision.
- * Multiplication by a power of two then encodes that already-rounded result,
- * including signed underflow zero and genuine overflow to infinity.
- */
-function roundedBinaryRatio(numerator: bigint, denominator: bigint): number {
-  const negative = numerator < 0n;
-  const magnitude = negative ? -numerator : numerator;
-  const quotient = magnitude / denominator;
-  const shift = Math.max(0, quotient.toString(2).length - 53);
-  const divisor = denominator << BigInt(shift);
-  const significand = magnitude / divisor;
-  const remainder = magnitude % divisor;
-  const rounded =
-    significand +
-    (2n * remainder > divisor ||
-    (2n * remainder === divisor && significand % 2n !== 0n)
-      ? 1n
-      : 0n);
-  const result =
-    shift < 52
-      ? Number(rounded) * Number.MIN_VALUE * 2 ** shift
-      : Number(rounded) * 2 ** (shift - 1074);
-  return negative ? -result : result;
+  const [mantissa, exponent]: [bigint, number] = HumanBinary64Arithmetic.dyadic(value);
+  return mantissa << BigInt(exponent + 1074);
 }
