@@ -29,7 +29,8 @@ import {
   ROOF_THICKNESS,
   mainRoof,
 } from "../roof/junctions";
-import { type IHousePart, part } from "../solid-records";
+import type { IHousePart } from "../IHousePart";
+import { part } from "../part";
 import { block, wallPanel } from "../solids";
 import { STOREYS } from "../storeys";
 import { EXTERIOR_PLINTH_TOP } from "./finish-boundary";

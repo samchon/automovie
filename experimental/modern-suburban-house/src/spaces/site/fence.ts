@@ -24,7 +24,8 @@ import { CHIMNEY_CAP_OVERHANG } from "../envelope/left";
 import { PALETTE } from "../palette";
 import { CHIMNEY_PLAN } from "../roof/junctions";
 import { block } from "../solids";
-import { part, type IHousePart } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
 import { SIDE_WALK } from "./side-walk";
 
 const OWNER = "site/fence.ts";

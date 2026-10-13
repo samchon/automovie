@@ -10,7 +10,9 @@
  * are shared with their neighbours. This helper emits no surface of its own.
  */
 import { slopedSlab } from "../solids";
-import { part, type IHousePart, type IPlanPoint } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
+import type { IPlanPoint } from "../IPlanPoint";
 import type {
   IAutoMovieHeightRule,
   IAutoMovieVector3,

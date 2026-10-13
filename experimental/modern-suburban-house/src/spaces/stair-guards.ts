@@ -12,7 +12,8 @@
  */
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
-import { type IHousePart, part } from "./solid-records";
+import type { IHousePart } from "./IHousePart";
+import { part } from "./part";
 import { bar, block, slab } from "./solids";
 import type { STAIR_OPENING, STAIR_STEPS } from "./stair";
 import { CEILING_FINISH, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";

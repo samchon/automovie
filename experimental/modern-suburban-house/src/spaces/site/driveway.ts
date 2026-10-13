@@ -12,7 +12,7 @@
 import { PALETTE } from "../palette";
 import { GARAGE_FRONT_DOOR } from "../envelope/front";
 import { GARAGE } from "../building";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
 import { DRIVE_DEPTH, seamRect } from "./paving";

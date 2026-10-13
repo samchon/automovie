@@ -9,7 +9,7 @@
  * low body crossings, and never moves a room-owned reservation. Changing a
  * zone or a room datum requires rebuilding the route and observation results.
  */
-import type { IPlanPoint } from "../solid-records";
+import type { IPlanPoint } from "../IPlanPoint";
 import { roomLevels, type IRoomSpace } from "./shared";
 
 /**

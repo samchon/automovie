@@ -54,7 +54,8 @@ import {
 } from "./stair";
 import { COAT_STORAGE } from "./rooms/entry";
 import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
-import type { IHousePart, IPlanPoint } from "./solid-records";
+import type { IHousePart } from "./IHousePart";
+import type { IPlanPoint } from "./IPlanPoint";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
 /** Axis-aligned box, world metres. */

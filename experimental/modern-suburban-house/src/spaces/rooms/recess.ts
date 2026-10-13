@@ -11,7 +11,7 @@
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IWallSolid } from "../solid-records";
+import type { IWallSolid } from "../IWallSolid";
 
 /**
  * Metric envelope and cavity intervals for the shower's blind wall niche.

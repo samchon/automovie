@@ -44,7 +44,8 @@
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
 import { block, straightWall } from "./solids";
-import { part, type IHousePart } from "./solid-records";
+import { part } from "./part";
+import type { IHousePart } from "./IHousePart";
 import { buildStairGuards } from "./stair-guards";
 import { GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 import type { COAT_STORAGE } from "./rooms/entry";

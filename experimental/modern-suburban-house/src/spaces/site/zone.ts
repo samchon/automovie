@@ -16,7 +16,8 @@ import type {
   IAutoMovieHeightRule,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHousePart, IPlanPoint } from "../solid-records";
+import type { IHousePart } from "../IHousePart";
+import type { IPlanPoint } from "../IPlanPoint";
 
 /** One outdoor zone of the site. */
 /**

@@ -36,7 +36,8 @@ import {
   rFront,
 } from "../roof/junctions";
 import { FRONT_DOOR } from "../rooms/entry";
-import { type IHousePart, part } from "../solid-records";
+import type { IHousePart } from "../IHousePart";
+import { part } from "../part";
 import { block, slopedSlab, wallPanel } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { EXTERIOR_PLINTH_TOP } from "./finish-boundary";

@@ -45,7 +45,7 @@ import {
 import type { IHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
 import { standingObservation } from "./observation-standing";
-import type { IPlanPoint } from "./solid-records";
+import type { IPlanPoint } from "./IPlanPoint";
 
 /** Eye height above a space's floor (settings frame-condition). */
 const EYE = 1.6;

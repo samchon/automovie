@@ -68,7 +68,7 @@ import { buildSite } from "./site";
 import { checkReservations } from "./rooms/reservations";
 import { type IRoomSpace, type IStorageSpace } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
-import type { IHousePart } from "./solid-records";
+import type { IHousePart } from "./IHousePart";
 import { buildStair } from "./stair";
 
 /** The house as the viewer, measurements and delivery consume it. */

@@ -34,13 +34,11 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import type {
-  IPlanPoint,
-  IWallFace,
-  IWallHole,
-  IWallPoint,
-  IWallSolid,
-} from "./solid-records";
+import type { IPlanPoint } from "./IPlanPoint";
+import type { IWallFace } from "./IWallFace";
+import type { IWallHole } from "./IWallHole";
+import type { IWallPoint } from "./IWallPoint";
+import type { IWallSolid } from "./IWallSolid";
 
 /**
  * Axis-aligned box between two world corners.

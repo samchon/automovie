@@ -18,7 +18,8 @@
 import { PALETTE } from "./palette";
 import { MAIN } from "./building";
 import { block, rect, slopedSlab } from "./solids";
-import { part, type IHousePart } from "./solid-records";
+import { part } from "./part";
+import type { IHousePart } from "./IHousePart";
 import { STOREYS } from "./storeys";
 import { FRONT_DOOR } from "./rooms/entry";
 import type { IExteriorZone, ISiteBuild } from "./site/zone";

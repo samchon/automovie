@@ -19,12 +19,10 @@
 import { PALETTE } from "../palette";
 import type { IRoomReservation } from "./reservations";
 import { slab, straightWall } from "../solids";
-import {
-  part,
-  type IHousePart,
-  type IPlanPoint,
-  type IWallHole,
-} from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
+import type { IPlanPoint } from "../IPlanPoint";
+import type { IWallHole } from "../IWallHole";
 import {
   CEILING_FINISH,
   ceilingOf,

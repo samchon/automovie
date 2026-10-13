@@ -15,7 +15,7 @@ import { MAIN } from "../building";
 import { partitionPlaneFace } from "../face-partition";
 import { PALETTE } from "../palette";
 import { block, rect, slab } from "../solids";
-import { part } from "../solid-records";
+import { part } from "../part";
 import {
   box,
   door,

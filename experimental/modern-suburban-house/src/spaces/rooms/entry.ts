@@ -26,7 +26,7 @@ import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
 import { MAIN } from "../building";
 import { block } from "../solids";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { floorOf, GROUND_LAYERS, STOREYS } from "../storeys";
 import { STAIR_OPENING, STAIR_STEPS } from "../stair";
 import {

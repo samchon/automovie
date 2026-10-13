@@ -7,7 +7,8 @@
  */
 import { PALETTE } from "../palette";
 import { rect, slopedSlab } from "../solids";
-import { part, type IHousePart } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
 import { roofFreeEdge } from "./edges";
 import {
   MAIN_RIDGE_Z,

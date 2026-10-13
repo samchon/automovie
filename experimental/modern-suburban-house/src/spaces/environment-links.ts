@@ -18,7 +18,7 @@ import { GARAGE } from "./building";
 import { clipOutline, segmentsOf } from "./boundaries";
 import { boundaryOrientation } from "./boundary-orientation";
 import type { IHouse } from "./house";
-import type { IHousePart } from "./solid-records";
+import type { IHousePart } from "./IHousePart";
 import { driveTop, DRIVEWAY } from "./site/driveway";
 import { FRONT_WALK } from "./site/front-walk";
 import { SIDE_WALK } from "./site/side-walk";

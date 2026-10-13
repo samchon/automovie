@@ -15,7 +15,8 @@
 import { MAIN } from "../building";
 import { partitionPlaneFace } from "../face-partition";
 import { PALETTE } from "../palette";
-import { part, type IHousePart } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
 import { rect, slab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";

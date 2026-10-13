@@ -16,7 +16,7 @@ import { GARAGE_FRONT_DOOR } from "../envelope/front";
 import { GARAGE } from "../building";
 import { garageFloorMesh } from "../garage";
 import { partitionPlaneFace } from "../face-partition";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { box, roomCeiling, type IRoomBuild, type IRoomSpace } from "./shared";
 
 const FLOOR = STOREYS.garageFloor;

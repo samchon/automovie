@@ -23,7 +23,8 @@
  */
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { part, type IHousePart } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../IHousePart";
 import { rect, slab } from "../solids";
 import {
   CEILING_FINISH,

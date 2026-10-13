@@ -10,7 +10,8 @@
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 
 import { clipOutline, segmentsOf } from "../spaces/boundaries";
-import type { IWallFace, IWallPoint } from "../spaces/solid-records";
+import type { IWallFace } from "../spaces/IWallFace";
+import type { IWallPoint } from "../spaces/IWallPoint";
 
 type Range = readonly [number, number];
 

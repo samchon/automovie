@@ -39,7 +39,9 @@ import {
   mainRoof,
   rightRoof,
 } from "../roof/junctions";
-import { type IHousePart, type IWallPoint, part } from "../solid-records";
+import type { IHousePart } from "../IHousePart";
+import type { IWallPoint } from "../IWallPoint";
+import { part } from "../part";
 import { wallPanel } from "../solids";
 import { EXTERIOR_PLINTH_TOP } from "./finish-boundary";
 

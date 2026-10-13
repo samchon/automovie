@@ -7,7 +7,7 @@
 import { linearColorToSrgbHex } from "@automovie/engine";
 
 import { buildingSpaceFinish } from "../materials/space-bindings";
-import type { HousePartRole } from "../spaces/solid-records";
+import type { HousePartRole } from "../spaces/HousePartRole";
 import { PALETTE } from "../spaces/palette";
 
 export interface HouseFinish {

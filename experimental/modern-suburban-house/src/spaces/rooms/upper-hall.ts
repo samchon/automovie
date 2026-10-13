@@ -20,7 +20,7 @@ import { DOOR_HALL_SHOWER_DOOR } from "./shower-bath";
 import { PALETTE } from "../palette";
 import { MAIN } from "../building";
 import { block } from "../solids";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { STOREYS } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 import {
