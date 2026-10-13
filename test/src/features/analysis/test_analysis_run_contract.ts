@@ -2,6 +2,7 @@ import {
   AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
   assertAutoMovieAnalysisTargets,
   autoMovieAnalysisMetric,
+  autoMovieAnalysisRunDigest,
   isAutoMovieAnalysisDomain,
   sealAutoMovieAnalysisRun,
   summarizeAutoMovieAnalysis,
@@ -65,6 +66,8 @@ import { hasViolation, namedFacts, throwsError } from "../internal/predicates";
  *     required domain each change that.
  * 11. The report bounds its gap list and counts the remainder, and refuses to exist
  *     over no required domain at all.
+ * 12. Run and report digests delimit every field, so moving a newline or `|`
+ *     from one field into the next changes the digest.
  */
 export const test_analysis_run_contract = (): void => {
   const digest = (fill: string): `sha256:${string}` =>
@@ -205,6 +208,30 @@ export const test_analysis_run_contract = (): void => {
       knownDomain: true,
       unknownDomain: false,
     },
+  );
+
+  // Each pair below holds the same characters in a different split between two
+  // adjacent fields, so only a canonical text that delimits every field keeps
+  // the two runs apart.
+  TestValidator.equals(
+    "moving a separator across a field boundary changes the run digest",
+    {
+      solver:
+        autoMovieAnalysisRunDigest(
+          draft({ solver: { id: "a|b", version: "1", model: "m" } }),
+        ) !==
+        autoMovieAnalysisRunDigest(
+          draft({ solver: { id: "a", version: "b|1", model: "m" } }),
+        ),
+      header:
+        autoMovieAnalysisRunDigest(
+          draft({ subject: "space:hall\nr7", inputRevision: "r8" }),
+        ) !==
+        autoMovieAnalysisRunDigest(
+          draft({ subject: "space:hall", inputRevision: "r7\nr8" }),
+        ),
+    },
+    { solver: true, header: true },
   );
 
   TestValidator.equals(
@@ -1220,6 +1247,20 @@ export const test_analysis_run_contract = (): void => {
       omitted: 3,
       status: "incomplete",
     },
+  );
+
+  const refusal = (reason: string, remedy: string): string =>
+    summarizeAutoMovieAnalysis({
+      runs: [
+        run("skip", { outcome: { status: "not-run", reason, remedy } }),
+      ],
+      revision: "r7",
+      required: ["acoustic"],
+    }).digest;
+  TestValidator.equals(
+    "moving a separator between a gap's reason and remedy changes the report digest",
+    refusal("no input|declare", "it") !== refusal("no input", "declare|it"),
+    true,
   );
 
   TestValidator.equals(

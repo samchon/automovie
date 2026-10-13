@@ -58,7 +58,9 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *    contaminant balance exactly, and reports air speed and stagnation as
  *    `unsupported`.
  * 8. A space with no supply flow, no occupants, or a supply flow of zero gaps the
- *    metric that needs it instead of dividing by it.
+ *    metric that needs it instead of dividing by it, and a zero flow's reason
+ *    says the concentration accumulates when occupants generate carbon dioxide
+ *    and is undetermined when nothing does.
  * 9. A target no run of the study reports is stated on every run of it, while a
  *    moisture-keyed target is matched by the moisture run rather than counted
  *    unmatched by the thermal one.
@@ -387,11 +389,30 @@ export const test_analysis_envelope_hygrothermal = (): void => {
         of(air({ supplyFlow: 0 }), "space.airChangeRate"),
         statusOf(air({ supplyFlow: 0 }), "space.carbonDioxide.steadyState"),
       ],
+      sealedReasons: [
+        air({ supplyFlow: 0 }),
+        air({ supplyFlow: 0, occupants: 0 }),
+        air({ supplyFlow: 0, occupantCarbonDioxide: 0 }),
+      ].map((run: IAutoMovieAnalysisRun): string =>
+        run.outcome.status === "solved"
+          ? (run.outcome.metrics.find(
+              (metric: IAutoMovieAnalysisMetric): boolean =>
+                metric.key === "space.carbonDioxide.steadyState",
+            )?.gap?.reason ?? "")
+          : "",
+      ).map((reason: string): string =>
+        reason.includes("rises without bound")
+          ? "accumulates"
+          : reason.includes("stays wherever it starts")
+            ? "undetermined"
+            : reason,
+      ),
     },
     {
       noFlow: ["not-run", "not-run", "not-run"],
       noOccupants: [1.8, "not-run", 400],
       sealed: [0, "not-run"],
+      sealedReasons: ["accumulates", "undetermined", "undetermined"],
     },
   );
 

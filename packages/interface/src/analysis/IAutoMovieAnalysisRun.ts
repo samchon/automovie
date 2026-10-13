@@ -13,9 +13,9 @@ import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
  * whose outcome was edited after sealing fails validation instead of passing as
  * a measurement.
  *
- * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text and the record, then runs `validateAutoMovieAnalysisRun` and throws on the first violation; the validator recomputes the digest, so the stored seal is checked against the same canonical text that produced it.
+ * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text, checks the record with the contents rules `validateAutoMovieAnalysisRun` also applies, throws on the first violation, and only then digests the record; the validator recomputes that digest, so the stored seal is checked against the same canonical text that produced it.
  * @evidence contracts/common.md#clear-and-simple-design The settings are stored only as a digest because a run must prove what it was configured with, not replay it; the solver and outcome stay nested records the digest reads in fixed order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical digest text joins header fields with unescaped newlines and solver fields with `|`, so moving either character across a field boundary keeps the digest; `autoMovieAnalysisRunDigest` documents this remaining limitation and validation does not forbid the characters.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical digest text writes every line as one JSON array, so a newline or `|` inside a field is escaped and cannot move across a field boundary without changing the digest; no character is forbidden to make the text unambiguous.
  * @evidence contracts/common.md#meaningful-documentation States why the input revision makes a result stale, what the digest seals and that validation recomputes it, the digest text form, and the id uniqueness a report enforces.
  * @author Samchon
  */

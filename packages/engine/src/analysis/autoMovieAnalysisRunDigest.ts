@@ -1,4 +1,9 @@
-import { IAutoMovieAnalysisRun } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+} from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 
@@ -9,41 +14,51 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * rule that produced it, and because a second implementation of the canonical
  * form would be a second answer to what a run says.
  *
- * The digest is a `sha256:` hex string over a newline-joined text. That text is
- * not injective: header fields are joined with newlines and solver fields with
- * `|`, neither escaped, so moving a newline or `|` across a field boundary in
- * `id`, `subject`, `inputRevision` or the solver strings yields the same
- * digest, and run validation does not forbid either character.
+ * The digest is a `sha256:` lowercase hex string over a canonical text with one
+ * JSON array per line: the header (protocol, version, id, domain, subject,
+ * input revision, the three solver fields, settings digest and outcome status),
+ * then one line per metric, sample and warning in their stored order, or one
+ * line holding a refused outcome's reason and remedy. JSON escapes every
+ * newline and separator inside a string, so two runs that differ in any covered
+ * field never share a text, provided their numbers are finite: JSON writes a
+ * non-finite number as `null`. Reordering metrics, samples or warnings changes the
+ * digest.
  *
+ * @param run Run contents; a `digest` field, if present, is not read.
+ * @returns The `sha256:` digest of the canonical text.
+ *
+ * @evidence contracts/common.md#principled-implementation SHA-256 over a fixed-order text in which every line is one `JSON.stringify` array, so field boundaries are delimited by JSON syntax and strings are escaped; the text is therefore injective over the covered fields for the finite numbers a valid run holds (JSON writes a non-finite number as `null`, and the validator refuses one), and JSON number formatting is the shortest round-trip form on every host.
+ * @evidence contracts/common.md#clear-and-simple-design One exported function owns the canonical form for the seal, the validator and test fixtures alike, with the text builder kept private because no caller needs the text itself.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every covered field is encoded the same way, with no run, domain or solver special-cased; the only fixed choice is the field order, which is the canonical form itself.
+ * @evidence contracts/common.md#meaningful-documentation The documentation lists the header fields and line order, why the text is injective, that order of entries matters, and that an existing `digest` field is ignored.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in metrics M, samples S (at most 4096 in a valid run) and warnings W to build the text, then one pure-TypeScript SHA-256 pass over its UTF-8 bytes, which dominates; no part of the run is traversed twice.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one run; reuse belongs to callers, and the seal now calls it once per run while a received run must be rehashed to be proven.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The line array, the joined text and the byte array exist only for the call, growing with M + S + W, and only the digest string is returned.
  * @author Samchon
  */
 export const autoMovieAnalysisRunDigest = (
   run: Omit<IAutoMovieAnalysisRun, "digest">,
 ): IAutoMovieAnalysisRun["digest"] => autoMovieRenderDigest(runDigestText(run));
 
-/**
- * The canonical text one run's digest is taken over.
- *
- * Every field that changes what the run claims appears exactly once, in a fixed
- * order, so the same run digests identically on every host. Metric, sample and
- * warning lines are JSON arrays and cannot run into each other, but the header
- * lines and the `|`-joined solver line are raw strings, so a field containing a
- * newline or `|` can make two different runs produce the same text.
- */
+/** The canonical text one run's digest is taken over. */
 const runDigestText = (run: Omit<IAutoMovieAnalysisRun, "digest">): string => {
-  const lines = [
-    run.protocol,
-    String(run.version),
-    run.id,
-    run.domain,
-    run.subject,
-    run.inputRevision,
-    [run.solver.id, run.solver.version, run.solver.model].join("|"),
-    run.settings,
-    run.outcome.status,
+  const lines: string[] = [
+    JSON.stringify([
+      run.protocol,
+      run.version,
+      run.id,
+      run.domain,
+      run.subject,
+      run.inputRevision,
+      run.solver.id,
+      run.solver.version,
+      run.solver.model,
+      run.settings,
+      run.outcome.status,
+    ]),
   ];
   if (run.outcome.status === "solved") {
-    for (const metric of run.outcome.metrics)
+    run.outcome.metrics.forEach((metric: IAutoMovieAnalysisMetric): void => {
       lines.push(
         JSON.stringify([
           metric.key,
@@ -56,7 +71,8 @@ const runDigestText = (run: Omit<IAutoMovieAnalysisRun, "digest">): string => {
           metric.gap?.remedy ?? null,
         ]),
       );
-    for (const sample of run.outcome.samples)
+    });
+    run.outcome.samples.forEach((sample: IAutoMovieAnalysisSample): void => {
       lines.push(
         JSON.stringify([
           sample.id,
@@ -67,10 +83,12 @@ const runDigestText = (run: Omit<IAutoMovieAnalysisRun, "digest">): string => {
           sample.value,
         ]),
       );
-    for (const warning of run.outcome.warnings)
+    });
+    run.outcome.warnings.forEach((warning: IAutoMovieAnalysisWarning): void => {
       lines.push(
         JSON.stringify([warning.code, warning.subject, warning.detail]),
       );
+    });
   } else lines.push(JSON.stringify([run.outcome.reason, run.outcome.remedy]));
   return lines.join("\n");
 };

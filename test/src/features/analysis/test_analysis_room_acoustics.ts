@@ -52,7 +52,10 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 7. A target naming a metric the study never reports is warned about, while a
  *    target on a reported-but-unsupported metric is left to that metric's gap.
  * 8. Every malformed room is refused at its own message, including a receiver
- *    standing on a source.
+ *    standing on a source and a partition with a negative sound reduction
+ *    index, which would transmit more energy than reaches it.
+ * 9. A source whose power overflows double precision gaps the level with a
+ *    reason naming the overflow rather than calling the room silent.
  */
 export const test_analysis_room_acoustics = (): void => {
   const request = (
@@ -268,6 +271,34 @@ export const test_analysis_room_acoustics = (): void => {
       samples: mute.outcome.status === "solved" ? mute.outcome.samples : null,
     },
     { level: "not-run", max: "not-run", reason: true, samples: [] },
+  );
+
+  const deafening: IAutoMovieAnalysisRun = study({
+    sources: [
+      {
+        id: "fan",
+        position: { x: 0, y: 0, z: 0 },
+        soundPower: 4000,
+        directivity: 1,
+      },
+    ],
+  });
+  TestValidator.equals(
+    "a source whose power overflows leaves a gap that names the overflow, not silence",
+    {
+      level: statusOf(deafening, "room.soundPressureLevel"),
+      reason: metrics(deafening)
+        .find(
+          (metric: IAutoMovieAnalysisMetric): boolean =>
+            metric.key === "room.soundPressureLevel",
+        )
+        ?.gap?.reason.includes("exceeds the range of double precision"),
+      samples:
+        deafening.outcome.status === "solved"
+          ? deafening.outcome.samples
+          : null,
+    },
+    { level: "not-run", reason: true, samples: [] },
   );
 
   const bare = study({ partitions: [] });
@@ -495,6 +526,17 @@ export const test_analysis_room_acoustics = (): void => {
           ),
       ],
       [
+        "negative transmission loss",
+        () =>
+          throwsError(
+            () =>
+              study({
+                partitions: [{ id: "p", area: 1, transmissionLoss: -3 }],
+              }),
+            "transmission loss must be at or above zero",
+          ),
+      ],
+      [
         "blank source id",
         () =>
           throwsError(
@@ -693,6 +735,7 @@ export const test_analysis_room_acoustics = (): void => {
       "duplicated partition": true,
       "non-positive partition area": true,
       "non-finite transmission loss": true,
+      "negative transmission loss": true,
       "blank source id": true,
       "duplicated source": true,
       "non-finite sound power": true,

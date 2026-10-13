@@ -57,10 +57,11 @@ import {
  *    throws on a blank id, a duplicate id and a malformed plane.
  * 6. The slab test answers hand geometry: inside, ahead, behind, parallel outside,
  *    parallel inside, beyond the ray's own length, and exactly tangent at the
- *    origin.
+ *    origin; a nearly parallel ray is judged by its slope against the unit
+ *    normal, so scaling a plane's normal does not change the verdict.
  * 7. Cosine-weighted hemisphere directions are unit length, strictly inside the
  *    hemisphere of their normal for both signs of its z, and refuse a
- *    fractional, zero or negative count and a zero normal.
+ *    fractional, zero or negative count, a zero normal and a non-finite one.
  */
 export const test_analysis_environment_context = (): void => {
   const context = analysisContext();
@@ -568,6 +569,31 @@ export const test_analysis_environment_context = (): void => {
       diagonalMiss: false,
     },
   );
+
+  // A slab from z = 1e-12 m upward, bounded to a 20 m box, whose floor plane is
+  // written once with a unit normal and once with the same normal scaled to
+  // 1e-6. A ray from the origin rising at a slope of 1e-9 crosses that floor
+  // 1 mm away, so both spellings of the same solid must block it.
+  const rising: IAutoMovieVector3 = { x: 1, y: 0, z: 1e-9 };
+  const slab = (scale: number): boolean =>
+    autoMovieSolidBlocks({
+      origin: { x: 0, y: 0, z: 0 },
+      direction: rising,
+      planes: [
+        { normal: { x: 0, y: 0, z: -scale }, offset: -scale * 1e-12 },
+        { normal: { x: 0, y: 0, z: 1 }, offset: 10 },
+        { normal: { x: 1, y: 0, z: 0 }, offset: 10 },
+        { normal: { x: -1, y: 0, z: 0 }, offset: 10 },
+        { normal: { x: 0, y: 1, z: 0 }, offset: 10 },
+        { normal: { x: 0, y: -1, z: 0 }, offset: 10 },
+      ],
+      maxDistance: Infinity,
+    });
+  TestValidator.equals(
+    "the parallel test reads the slope against the unit normal, not the authored length",
+    { unit: slab(1), short: slab(1e-6) },
+    { unit: true, short: true },
+  );
   TestValidator.equals(
     "a ray is obstructed when any one solid stops it",
     {
@@ -673,6 +699,18 @@ export const test_analysis_environment_context = (): void => {
             "non-zero normal",
           ),
       ],
+      [
+        "non-finite normal",
+        () =>
+          throwsError(
+            () =>
+              autoMovieHemisphereDirections({
+                normal: { x: Number.NaN, y: 1, z: 0 },
+                count: 4,
+              }),
+            "finite, non-zero normal",
+          ),
+      ],
     ]),
     {
       "positive z normal": true,
@@ -683,6 +721,7 @@ export const test_analysis_environment_context = (): void => {
       "fractional count": true,
       "zero count": true,
       "zero normal": true,
+      "non-finite normal": true,
     },
   );
 };
