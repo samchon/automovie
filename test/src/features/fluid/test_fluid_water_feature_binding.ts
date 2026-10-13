@@ -137,6 +137,9 @@ const placed = (props: { cell: number; x: number }) =>
  * 8. `lowerWaterFeature` gives a renderer the state, the surface and the spray in
  *    one frame; a `static` feature always reads step 0 while `flowing` and
  *    `simulated` read the fixed-step solve at that second.
+ * 9. `lowerWaterFeature` refuses a domain other than the one the feature binds,
+ *    because drawing another lattice's water under this feature's name is a
+ *    silent wrong frame.
  */
 export const test_fluid_water_feature_binding = (): void => {
   const environment = basinEnvironment();
@@ -469,5 +472,13 @@ export const test_fluid_water_feature_binding = (): void => {
       sprayLive: true,
       spraySameStep: true,
     },
+  );
+
+  TestValidator.error("a feature refuses a domain it does not bind", () =>
+    lowerWaterFeature({
+      feature: waterFeature({ domain: `${domain.id}-elsewhere` }),
+      domain,
+      time: 4,
+    }),
   );
 };

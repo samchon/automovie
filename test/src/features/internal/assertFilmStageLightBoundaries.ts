@@ -172,6 +172,47 @@ export function assertFilmStageLightBoundaries(
     { nullColorRefused: true, arrayColorRefused: true },
   );
   TestValidator.equals(
+    "a direction or position that is not an object reports instead of throwing",
+    namedFacts([
+      [
+        "nullDirectionRefused",
+        () =>
+          hasViolation(
+            failure(
+              stageLights([
+                {
+                  node: "sun",
+                  direction: null,
+                  intensity: 1,
+                } as unknown as IAutoMovieStageLight,
+              ]),
+            ),
+            "range",
+            "$input.lights[0].direction",
+          ),
+      ],
+      [
+        "arrayPositionRefused",
+        () =>
+          hasViolation(
+            failure(
+              stageLights([
+                {
+                  node: "flame",
+                  type: "point",
+                  position: [0, 1, 0],
+                  intensity: 1,
+                } as unknown as IAutoMovieStageLight,
+              ]),
+            ),
+            "range",
+            "$input.lights[0].position",
+          ),
+      ],
+    ]),
+    { nullDirectionRefused: true, arrayPositionRefused: true },
+  );
+  TestValidator.equals(
     "a light-slot alpha of null is the documented value, not a fault",
     stageLights([
       {

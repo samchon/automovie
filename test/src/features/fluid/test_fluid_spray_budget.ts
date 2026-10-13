@@ -88,6 +88,9 @@ const misted = (sprays: IAutoMovieFluidSpray[]): IAutoMovieFluidDomain =>
  *    particle, so the fountain would simply stop with nobody told. Their twins
  *    are this domain's own state and a merely enormous finite distance, which
  *    thins hard and still returns.
+ * 7. An emitter axis scaled by `1e200` or `1e-200`, whose squared length
+ *    overflows or underflows, launches exactly as the unit axis does instead
+ *    of producing non-finite particles.
  */
 export const test_fluid_spray_budget = (): void => {
   const domain = misted([JET]);
@@ -311,5 +314,38 @@ export const test_fluid_spray_budget = (): void => {
       infiniteDistance: true,
       heavyButFinite: true,
     },
+  );
+
+  // An axis whose squared length overflows or underflows is still a direction:
+  // the same jet scaled by 1e200 or 1e-200 launches exactly as the unit one.
+  const unit = sampleFluidSpray({ domain, state }).particles;
+  const scaled = (factor: number) =>
+    sampleFluidSpray({
+      domain: misted([
+        { ...JET, direction: { x: 0, y: factor, z: 0 } },
+      ]),
+      state: simulateFluidDomain(misted([JET]), 64),
+    }).particles;
+  TestValidator.equals(
+    "an extreme finite axis launches along its direction",
+    namedFacts([
+      [
+        "huge",
+        () =>
+          scaled(1e200).every(
+            (particle, at) =>
+              Number.isFinite(particle.position.y) &&
+              vclose(particle.position, unit[at]!.position),
+          ),
+      ],
+      [
+        "tiny",
+        () =>
+          scaled(1e-200).every((particle, at) =>
+            vclose(particle.position, unit[at]!.position),
+          ),
+      ],
+    ]),
+    { huge: true, tiny: true },
   );
 };

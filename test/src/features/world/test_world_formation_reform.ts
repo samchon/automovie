@@ -96,6 +96,10 @@ const reform = (
  * 4. The blend happens in the unit's own frame: the same re-form under a turned
  *    unit puts each member at the turned image of the untuned midpoint, which a
  *    blend of world points would not.
+ * 5. A target arrangement that declares its own dressing ends each member on its
+ *    dressed place in that arrangement, not on the exact lattice and not with
+ *    the designed layout's tolerance, so a finished re-form matches a unit
+ *    designed in the target layout.
  */
 export const test_world_formation_reform = (): void => {
   const cues = [reform(column)];
@@ -198,6 +202,50 @@ export const test_world_formation_reform = (): void => {
     {
       aTurnedUnitReFormsAboutItsOwnAxes: true,
       andItsEndsAreTheTurnedArrangement: true,
+    },
+  );
+
+  // The target column carries its own tolerance while the designed line has
+  // none, so a member ending on the exact column lattice read the wrong
+  // layout's dressing.
+  const dressedColumn: IAutoMovieFormationDesign["layout"] = {
+    ...column,
+    dressing: { lateral: 0.4, depth: 0.6 },
+  };
+  const dressedCues: IAutoMovieFormationMotion[] = [reform(dressedColumn)];
+  const dressedEnd = (slot: number) =>
+    formationSlotPosition(
+      straight,
+      slot,
+      sampleFormationMotion(dressedCues, "block", 3).reform,
+    );
+  TestValidator.equals(
+    "a re-form ends on the target arrangement's own dressing",
+    namedFacts([
+      [
+        "everyMemberEndsOnItsDressedTargetPlace",
+        () =>
+          Array.from({ length: COUNT }, (_, slot) => slot).every((slot) =>
+            vclose(
+              dressedEnd(slot),
+              formationSlotPosition(
+                { ...straight, layout: dressedColumn },
+                slot,
+              ),
+            ),
+          ),
+      ],
+      [
+        "theDressingMovesMembersOffTheExactTarget",
+        () =>
+          Array.from({ length: COUNT }, (_, slot) => slot).some(
+            (slot) => vclose(dressedEnd(slot), target(slot)) === false,
+          ),
+      ],
+    ]),
+    {
+      everyMemberEndsOnItsDressedTargetPlace: true,
+      theDressingMovesMembersOffTheExactTarget: true,
     },
   );
 };

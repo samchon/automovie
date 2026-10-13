@@ -88,7 +88,8 @@ const spray = (
  *    drag and dry depth; a step budget past `FLUID_MAX_STEPS`.
  * 5. Stability: a Courant number above one is refused with the overshoot, while a
  *    domain exactly on the limit is accepted; a non-finite Courant number is
- *    reported through its own fields rather than as a stability failure.
+ *    reported through its own fields rather than as a stability failure, while
+ *    one that overflows to infinity from legal finite inputs is unstable.
  * 6. State arrays: wrong lengths, a negative depth, a depth past the declared
  *    reference depth, a non-finite bed, water sitting in solid matter, and a
  *    solidity flag that is not a boolean beside a sibling flag that is.
@@ -99,7 +100,8 @@ const spray = (
  *    start.
  * 9. Spray: non-positive rate, lifetime, size and LOD distance; a negative speed;
  *    spread outside `[0, 1]`; a particle cap outside its budget; an unsafe
- *    seed; and a direction that is non-finite or zero.
+ *    seed; and a direction that is non-finite or zero, while a finite axis too
+ *    small to square is still accepted.
  */
 export const test_fluid_domain_validation = (): void => {
   const clean = validateFluidDomain({
@@ -336,6 +338,44 @@ export const test_fluid_domain_validation = (): void => {
       ],
     ]),
     { stable: true, unstable: true, nonFinite: true },
+  );
+
+  // Every input is a legal finite number, but g·H overflows: the Courant
+  // number is infinite, which is unstable rather than unmeasured.
+  const overflowingCourant = validateFluidDomain({
+    domain: basin({
+      solver: {
+        fixedStepSeconds: 0.015625,
+        gravity: 1e200,
+        drag: 0,
+        dryDepth: 0,
+        referenceDepth: 1e200,
+        maxSteps: 100,
+      },
+    }),
+  });
+  TestValidator.equals(
+    "a Courant number that overflows from legal inputs is refused as unstable",
+    namedFacts([
+      [
+        "refusedAtTheStep",
+        () =>
+          hasViolation(
+            overflowingCourant,
+            "range",
+            "$input.solver.fixedStepSeconds",
+          ),
+      ],
+      [
+        "inputsThemselvesAccepted",
+        () =>
+          hasViolation(overflowingCourant, "range", "$input.solver.gravity") ===
+            false &&
+          hasViolation(overflowingCourant, "range", "$input.solver.referenceDepth") ===
+            false,
+      ],
+    ]),
+    { refusedAtTheStep: true, inputsThemselvesAccepted: true },
   );
 
   const solid = new Array(16).fill(false);
@@ -603,5 +643,15 @@ export const test_fluid_domain_validation = (): void => {
       nanY: true,
       nanZ: true,
     },
+  );
+
+  TestValidator.equals(
+    "a tiny finite spray axis is still a direction",
+    validateFluidDomain({
+      domain: basin({
+        sprays: [spray({ direction: { x: 1e-200, y: 0, z: 0 } })],
+      }),
+    }).success,
+    true,
   );
 };

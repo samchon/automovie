@@ -1,22 +1,31 @@
 import { ViolationCollector } from "../../validation/ViolationCollector";
 import { isRecord } from "../../validation/isRecord";
-import { validateStageUnitColorComponent } from "./validateStageUnitColorComponent";
 
 /**
- * The staged atmosphere, held to the rule the scene gate applies downstream, so
- * a fog `stage` composes can never be one `commitScene` refuses.
+ * Validate the staged atmosphere, the only check a fog gets before `stageScene`
+ * lowers it verbatim into the scene and the renderer's fog law reads it.
  *
- * Two facts and no more, because {@link IAutoMovieFog} carries two: an
- * extinction coefficient that must be finite and non-negative (a negative one
- * has no supported extinction meaning, and a non-finite one cannot be sampled),
- * and a color whose components are unit-ranged like every other color the
- * engine accepts. Density has no upper bound on purpose: `1 /m` is a wall of
- * cloud, which is a look, not a mistake.
+ * {@link IAutoMovieFog} carries two facts and both are checked: an extinction
+ * density, per metre, that must be a finite number of at least zero, since a
+ * negative one has no extinction meaning and a non-finite one cannot be
+ * sampled; and a color whose `r`, `g` and `b` lie in `[0, 1]` like every other
+ * color the engine accepts. Density has no upper bound: a dense fog is a look,
+ * not a mistake. The value is read as `unknown`, because `stage` is reachable
+ * in-process without the transport's structural gate, so a `null` fog becomes
+ * a located violation rather than a later `TypeError`. Violations go to `out`
+ * at `<path>`, `<path>.density`, `<path>.color` and `<path>.color.<channel>`.
  *
- * Total over an untyped payload because `stage` is reachable in-process
- * without the transport's structural gate,
- * and a `null` fog must become a located violation rather than a `TypeError`
- * two rungs later.
+ * @param fog The authored fog, unchecked.
+ * @param path Violation path of the fog.
+ * @param out Collector the violations are appended to.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks exactly the two facts the fog law in `sceneFogTransmittance` and the renderer read, narrowing every level from `unknown` before comparing and checking each channel with the collector's `range`, which narrows an `unknown` channel itself; no later scene validator checks fog, so this gate is the one that keeps an unusable density out of the scene.
+ * @evidence contracts/common.md#clear-and-simple-design One validator for the staged fog field, delegating channel checks to `ViolationCollector.range`, which the light and model color validators also use, so colors are judged with one test and one message.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No density ceiling is imposed and nothing is clamped or defaulted; a refused value is reported as authored.
+ * @evidence contracts/common.md#meaningful-documentation States both facts with units and bounds and why each bound exists, the absent ceiling, why the value is unknown, and the reported paths.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A density test and three channel tests, constant work on one record with nothing to search or sort.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Checks one staged fog per call and coordinates no work across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; it appends at most four violations per call to the collector the caller owns, one for density and one per color channel.
  */
 export const validateFogPlacement = (
   fog: unknown,
@@ -27,31 +36,19 @@ export const validateFogPlacement = (
     out.push("type", path, "fog must be a JSON object", fog);
     return;
   }
-  if (
-    typeof fog.density !== "number" ||
-    !Number.isFinite(fog.density) ||
-    fog.density < 0
-  )
+  const density: unknown = fog.density;
+  if (typeof density !== "number" || !Number.isFinite(density) || density < 0)
     out.push(
       "range",
       `${path}.density`,
-      `fog density must be a finite number >= 0, but was ${String(fog.density)}`,
-      fog.density,
+      `fog density must be a finite number >= 0, but was ${String(density)}`,
+      density,
     );
-  if (!isRecord(fog.color)) {
-    out.push(
-      "type",
-      `${path}.color`,
-      "fog color must be a JSON object",
-      fog.color,
-    );
+  const color: unknown = fog.color;
+  if (!isRecord(color)) {
+    out.push("type", `${path}.color`, "fog color must be a JSON object", color);
     return;
   }
   for (const key of ["r", "g", "b"] as const)
-    validateStageUnitColorComponent(
-      fog.color[key],
-      `${path}.color.${key}`,
-      `fog color ${key}`,
-      out,
-    );
+    out.range(`${path}.color.${key}`, color[key], 0, 1, `fog color ${key}`);
 };

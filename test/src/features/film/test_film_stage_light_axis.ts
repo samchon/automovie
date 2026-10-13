@@ -80,7 +80,9 @@ const WARM = { r: 1, g: 0.72, b: 0.36, a: null, hex: null };
  *    has no transport gate under it), a light-slot `a: null` is the documented
  *    value, and an alpha outside `[0, 1]` is refused HERE rather than passing
  *    `stage` and being refused a rung later by `commitScene`'s color artifact
- *    check, which is the wrong-stage failure this cycle closes elsewhere.
+ *    check, which is the wrong-stage failure this cycle closes elsewhere. A
+ *    `null` direction or an array position is likewise reported at its own
+ *    path instead of throwing.
  * 9. An unknown runtime discriminator is refused at `type`; it cannot fall through
  *    to the directional default and enter a committed scene.
  */

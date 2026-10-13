@@ -2,6 +2,7 @@ import {
   IAutoMovieFluidDomain,
   IAutoMovieFluidState,
   IAutoMovieFluidSurface,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
@@ -26,74 +27,82 @@ import {
  * numerically exactly flat, which is the visual counterpart of the solver's
  * lake-at-rest property.
  *
- * {@link IAutoMovieFluidSurface.flow} is the cell-centred average of the four
- * surrounding face velocities. A renderer scrolls ripples along it and never
- * re-derives it.
+ * `IAutoMovieFluidSurface.flow` is, per cell, the average of its two x faces
+ * and of its two z faces. A renderer scrolls ripples along it and never
+ * re-derives it. `bounds` is the extent of the vertices the emitted triangles
+ * use, or `null` when no quad is drawn.
  *
  * Throws when the state was not solved from this domain. Two water features
  * over two lattices is the ordinary case, so handing the second one's state to
  * the first one's grid is the ordinary mistake, and a lattice reading depths
  * that were never indexed for it emits `NaN` positions a renderer draws as
- * nothing at all — a silent empty pond in place of a named refusal.
+ * nothing at all: a silent empty pond in place of a named refusal.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Reads the surface straight off the solved field: one centred vertex per cell at `bed + depth`, normals from central differences of that elevation (one-sided at the edge, flat on a single-cell axis), a quad only where all four corner cells are wet and not solid, and counter-clockwise winding whose cross product points up.
+ * @evidence contracts/common.md#clear-and-simple-design One pass emits per-vertex attributes in row-major cell order, a second pass emits the drawable quads, and a third measures their bounds, so vertex and cell indices coincide and no remapping table exists.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry quads are dropped by the solver's own `dryDepth`, not a renderer threshold, and a foreign state is refused instead of drawn; no lattice or domain is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the vertex placement and order, the wet-quad rule, the winding, the normal and flow derivations, what `bounds` measures, and the refusal with its reason.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in cells: one elevation pass, one attribute pass, one quad pass, and a bounds pass over the emitted indices, at most six per cell; the elevation array is computed once so each normal reads four neighbours without re-adding bed and depth.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One derivation per state per call; nothing is cached across frames.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned buffers are fresh and sized by the cell count, and the elevation scratch array dies with the call.
  */
 export const fluidSurfaceGeometry = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
 }): IAutoMovieFluidSurface => {
-  const { domain, state } = props;
+  const domain: IAutoMovieFluidDomain = props.domain;
+  const state: IAutoMovieFluidState = props.state;
   if (state.domain !== domain.id)
     throw new Error(
       `fluid domain "${domain.id}" cannot draw a surface from a state of "${state.domain}"`,
     );
-  const columns = domain.grid.columns;
-  const rows = domain.grid.rows;
-  const dx = domain.grid.cellX;
-  const dz = domain.grid.cellZ;
-  const origin = domain.grid.origin;
-  const dry = domain.solver.dryDepth;
+  const columns: number = domain.grid.columns;
+  const rows: number = domain.grid.rows;
+  const dx: number = domain.grid.cellX;
+  const dz: number = domain.grid.cellZ;
+  const origin: IAutoMovieVector3 = domain.grid.origin;
+  const dry: number = domain.solver.dryDepth;
 
-  const elevation = new Float64Array(columns * rows);
-  for (let cell = 0; cell < elevation.length; ++cell)
+  const elevation: Float64Array = new Float64Array(columns * rows);
+  for (let cell: number = 0; cell < elevation.length; ++cell)
     elevation[cell] = domain.bed[cell] + state.depth[cell];
 
   const positions: number[] = [];
   const normals: number[] = [];
   const uvs: number[] = [];
   const flow: number[] = [];
-  for (let row = 0; row < rows; ++row)
-    for (let column = 0; column < columns; ++column) {
-      const cell = row * columns + column;
+  for (let row: number = 0; row < rows; ++row)
+    for (let column: number = 0; column < columns; ++column) {
+      const cell: number = row * columns + column;
       positions.push(
         origin.x + (column + 0.5) * dx,
         origin.y + elevation[cell],
         origin.z + (row + 0.5) * dz,
       );
-      const west = column > 0 ? column - 1 : column;
-      const east = column < columns - 1 ? column + 1 : column;
-      const south = row > 0 ? row - 1 : row;
-      const north = row < rows - 1 ? row + 1 : row;
-      const slopeX =
+      const west: number = column > 0 ? column - 1 : column;
+      const east: number = column < columns - 1 ? column + 1 : column;
+      const south: number = row > 0 ? row - 1 : row;
+      const north: number = row < rows - 1 ? row + 1 : row;
+      const slopeX: number =
         east === west
           ? 0
           : (elevation[row * columns + east] -
               elevation[row * columns + west]) /
             ((east - west) * dx);
-      const slopeZ =
+      const slopeZ: number =
         north === south
           ? 0
           : (elevation[north * columns + column] -
               elevation[south * columns + column]) /
             ((north - south) * dz);
-      const length = Math.sqrt(slopeX * slopeX + 1 + slopeZ * slopeZ);
+      const length: number = Math.sqrt(slopeX * slopeX + 1 + slopeZ * slopeZ);
       normals.push(-slopeX / length, 1 / length, -slopeZ / length);
       uvs.push(
         columns > 1 ? column / (columns - 1) : 0,
         rows > 1 ? row / (rows - 1) : 0,
       );
-      const westFace = row * (columns + 1) + column;
-      const southFace = row * columns + column;
+      const westFace: number = row * (columns + 1) + column;
+      const southFace: number = row * columns + column;
       flow.push(
         (state.velocityX[westFace] + state.velocityX[westFace + 1]) / 2,
         (state.velocityZ[southFace] + state.velocityZ[southFace + columns]) / 2,
@@ -103,10 +112,10 @@ export const fluidSurfaceGeometry = (props: {
   const drawable = (cell: number): boolean =>
     domain.solid[cell] === false && state.depth[cell] > dry;
   const indices: number[] = [];
-  for (let row = 0; row + 1 < rows; ++row)
-    for (let column = 0; column + 1 < columns; ++column) {
-      const here = row * columns + column;
-      const ahead = here + columns;
+  for (let row: number = 0; row + 1 < rows; ++row)
+    for (let column: number = 0; column + 1 < columns; ++column) {
+      const here: number = row * columns + column;
+      const ahead: number = here + columns;
       if (
         drawable(here) === false ||
         drawable(here + 1) === false ||
@@ -117,12 +126,12 @@ export const fluidSurfaceGeometry = (props: {
       indices.push(here, ahead, here + 1, here + 1, ahead, ahead + 1);
     }
 
-  const low = { x: Infinity, y: Infinity, z: Infinity };
-  const high = { x: -Infinity, y: -Infinity, z: -Infinity };
+  const low: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
+  const high: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const index of indices) {
-    const x = positions[index * 3];
-    const y = positions[index * 3 + 1];
-    const z = positions[index * 3 + 2];
+    const x: number = positions[index * 3];
+    const y: number = positions[index * 3 + 1];
+    const z: number = positions[index * 3 + 2];
     low.x = Math.min(low.x, x);
     low.y = Math.min(low.y, y);
     low.z = Math.min(low.z, z);
