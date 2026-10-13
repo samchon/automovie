@@ -12,29 +12,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * value or a style control, and low-discrepancy scalp roots only approximate
  * this stochastic model.
  */
-const NEIGHBOURS = 4;
+const NEIGHBOURS: number = 4;
 
 /**
- * The scalp each generated root stands for, as the ribbon width that covers it.
+ * Estimate nominal ribbon coverage from the current roots' four-neighbour planar density. This is a local homogeneous Poisson approximation applied to low-discrepancy scalp roots and Euclidean distances, not a proof that the resulting ribbons tile the scalp without gaps or overlap. A population with at most four roots uses domain area divided by count. Inputs are head-frame metres and square metres; positive finite widths are returned in metres, and the mesh owner separately fits actual geometry to contact.
  *
- * A rendered ribbon is not one fibre. It is the whole population of one root's
- * neighbourhood, so the width that covers the head without gaps and without
- * overlap is the side of the scalp area that root is responsible for. That area
- * is the reciprocal of the local root density, which the population measures on
- * itself: with `d` the distance to a root's k-th neighbour, the density is
- * (k - 1) / (pi d^2) and the side of its area is `d sqrt(pi / (k - 1))`. Roots
- * thinned by a hairline or a root region therefore widen their ribbons exactly
- * as far as their thinning, with no separate coverage number to tune.
- *
- * A population too small to have k neighbours has no local density; it falls
- * back to the growth domain's own measured area over the population, which is
- * the same quantity read globally. The estimate is local, so the ribbon of a
- * root at a thinning boundary is wider than one in the middle of the crown.
- * Distances are the current shape's, so a larger head widens its ribbons.
- *
- * Search is the direct pairwise one within the admitted thousand-root layer.
- * This states coverage, not the fibre's own diameter, and nothing here keeps a
- * ribbon outside the skin; `buildHumanFaceHairMesh` owns that.
+ * @evidence contracts/common.md#principled-implementation Four-neighbour distances estimate local planar density and therefore a nominal coverage ribbon width.
+ * @evidence contracts/common.md#clear-and-simple-design Small populations instead use domain-area-per-root as the explicit global fallback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The Poisson neighbourhood estimate and Euclidean scalp distances do not prove seamless/nonoverlapping surface tiling or anatomical density.
+ * @evidence contracts/common.md#meaningful-documentation Current root metres and square-metre area produce nominal metre widths; degenerate/nonfinite widths refuse.
+ * @evidence contracts/performance.md#efficient-algorithms Pairwise root search is O(n squared), with four retained distances and constant-size sorting per comparison.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each root's four nearest distances are maintained incrementally instead of sorting all pair distances.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned widths scale with roots, nearest buffers are per-root temporaries and no cross-pose density cache persists.
  */
 export function humanFaceHairDensity(props: {
   roots: readonly IAutoMovieVector3[];
@@ -44,23 +33,23 @@ export function humanFaceHairDensity(props: {
     throw new Error("A hair population needs a finite positive growth area.");
   if (props.roots.length === 0) return [];
   if (props.roots.length <= NEIGHBOURS)
-    return props.roots.map(() => Math.sqrt(props.area / props.roots.length));
-  const widths = props.roots.map((root) => {
+    return props.roots.map((): number => Math.sqrt(props.area / props.roots.length));
+  const widths: number[] = props.roots.map((root: IAutoMovieVector3): number => {
     const nearest: number[] = [];
     for (const other of props.roots) {
       if (other === root) continue;
-      const distance = Vector3.length(Vector3.subtract(other, root));
+      const distance: number = Vector3.length(Vector3.subtract(other, root));
       if (nearest.length < NEIGHBOURS) {
         nearest.push(distance);
-        nearest.sort((a, b) => a - b);
+        nearest.sort((a: number, b: number): number => a - b);
       } else if (distance < nearest[NEIGHBOURS - 1]) {
         nearest[NEIGHBOURS - 1] = distance;
-        nearest.sort((a, b) => a - b);
+        nearest.sort((a: number, b: number): number => a - b);
       }
     }
     return nearest[NEIGHBOURS - 1] * Math.sqrt(Math.PI / (NEIGHBOURS - 1));
   });
-  if (!widths.every((width) => Number.isFinite(width) && width > 0))
+  if (!widths.every((width: number): boolean => Number.isFinite(width) && width > 0))
     throw new Error(
       "Hair roots must be distinct enough to measure their own density.",
     );

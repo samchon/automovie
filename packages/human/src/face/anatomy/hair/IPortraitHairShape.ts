@@ -1,10 +1,16 @@
 import { IPortraitHairCard } from "./IPortraitHairCard";
 
 /**
- * A bounded population of surface locks. Empty cards remove the hairstyle.
- * Sampling changes geometry cost without changing the guide population. The
- * material names a resident finish; construction supplies its procedural mask.
- * This is static groom authoring, not strand simulation or a hairstyle preset.
+ * A bounded population of surface locks. Empty cards remove the hairstyle. Sampling changes geometry cost without changing the guide population. The material names a resident finish; construction supplies its procedural mask. This is static groom authoring, not strand simulation or a hairstyle preset.
+ *
+ * @evidence contracts/common.md#principled-implementation A bounded legacy card population supplies strip resolution, taper and procedural finish controls in its millimetre frame.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry sampling changes resolution independently from card count while raster fibres supply detail without additional strand meshes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Guide-bearing legacy input and normalized curl appearance controls are not clinical hair measurements or strand dynamics.
+ * @evidence contracts/common.md#meaningful-documentation Members state population and sampling bounds, taper omission, raster alpha or normal behavior and normalized curl ranges.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Card tessellation and texture rasterization own allocation and computation; this schema performs neither.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Numerical hair output and legacy static profiles reuse the same lower-level strip and finish constructors.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns cards and finish controls; mesh and texture bytes transfer through their actual producers, not this type.
+ *
  * @author Samchon
  */
 export interface IPortraitHairShape {

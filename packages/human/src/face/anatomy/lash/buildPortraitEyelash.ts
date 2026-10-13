@@ -10,26 +10,17 @@ import { IPortraitEyelashProfile } from "./IPortraitEyelashProfile";
 import { assertPortraitEyelashProfile } from "./assertPortraitEyelashProfile";
 
 /**
- * Sweep one constant-curvature lash with a frame that stays defined for a
- * straight anterior strand. The arc integral uses sinc at zero, so straight
- * and arbitrarily shallow curls do not divide by a tiny turn angle.
- * Optional motion supplies observed and current globe-to-lid directions in
- * the same frame. Their shortest rotation acts about the current root, without
- * changing length or radius. Antipodal directions have no unique transport.
+ * Sweep one constant-curvature lash with a frame that stays defined for a straight anterior strand. The arc integral uses sinc at zero, so straight and arbitrarily shallow curls do not divide by a tiny turn angle. Optional motion supplies observed and current globe-to-lid directions in the same frame. Their shortest rotation acts about the current root, without changing length or radius. Antipodal directions have no unique transport.
  *
- * `origin` is the root in head millimetres (+X anatomical left, +Y superior,
- * +Z anterior) and the mesh is returned in the same millimetres, so the caller
- * converts to model metres once. `at` is the root's medial-to-lateral progress
- * along the lid in [0,1] for this eye's side, and `index` the strand's rank,
- * which seeds the deterministic length variation. A strand is 0.45 to 1 of the
- * profile length by `sin(pi at)^0.7`, longest at mid-lid and shortest at both
- * canthi, and is shortened by up to `variation` by `cos(2.4 index)^2`. Both
- * shapes are authoring conventions, not measured length distributions. The
- * emitted strand is a tube lattice of 8 columns by 12 rows whatever its length, so
- * the eye's lash population equals its strand count. A profile outside its
- * envelope, a non-finite root, an out-of-range progress or index, a radius not
- * below the centreline curvature radius and an antipodal transport all throw
- * before any geometry is returned.
+ * `origin` is the root in head millimetres (+X anatomical left, +Y superior, +Z anterior) and the mesh is returned in the same millimetres, so the caller converts to model metres once. `at` is the root's medial-to-lateral progress along the lid in [0,1] for this eye's side, and `index` the strand's rank, which seeds the deterministic length variation. A strand is 0.45 to 1 of the profile length by `sin(pi at)^0.7`, longest at mid-lid and shortest at both canthi, and is shortened by up to `variation` by `cos(2.4 index)^2`. Both shapes are authoring conventions, not measured length distributions. The emitted strand is a tube lattice of 8 columns by 12 rows whatever its length, so the eye's lash population equals its strand count. A profile outside its envelope, a non-finite root, an out-of-range progress or index, a radius not below the centreline curvature radius and an antipodal transport all throw before any geometry is returned.
+ *
+ * @evidence contracts/common.md#principled-implementation A sinc-stable constant-curvature arc and radial tube sweep emit one conventional upper shaft.
+ * @evidence contracts/common.md#clear-and-simple-design Optional shortest globe-relative rotation transports the whole strand around its current root without changing calibre.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Profile ranges, excessive radius and antipodal transport refuse; canthal length/variation conventions are not measured distributions.
+ * @evidence contracts/common.md#meaningful-documentation Root and mesh are head millimetres, side controls fan direction, and the lattice is fixed at eight columns by twelve rows.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed 117 vertices and 192 triangles make per-shaft mesh work constant, plus profile admission and normal construction.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shared lattice and quaternion/vector owners supply topology and rigid transport rather than a second numerical implementation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned mesh owns its buffers and all profile/motion vectors remain unchanged.
  */
 export function buildPortraitEyelash(
   origin: IAutoMovieVector3,
@@ -51,33 +42,33 @@ export function buildPortraitEyelash(
     throw new Error(
       "A lash needs a finite root, anatomical side, unit progress and nonnegative safe strand index.",
     );
-  const radians = Math.PI / 180;
-  const length =
+  const radians: number = Math.PI / 180;
+  const length: number =
     profile.length *
     (0.45 + 0.55 * Math.sin(Math.PI * at) ** 0.7) *
     (1 - profile.variation * Math.cos(index * 2.4) ** 2);
-  const initial = profile.elevation * radians;
-  const curl = profile.curl * radians;
+  const initial: number = profile.elevation * radians;
+  const curl: number = profile.curl * radians;
   if (profile.radius * Math.abs(curl) >= length)
     throw new Error(
       "A lash radius must stay below its centreline curvature radius.",
     );
-  const fan = (side === "left" ? 1 : -1) * (at - 0.45) * profile.fan * radians;
-  const sinFan = Math.sin(fan),
-    cosFan = Math.cos(fan);
+  const fan: number = (side === "left" ? 1 : -1) * (at - 0.45) * profile.fan * radians;
+  const sinFan: number = Math.sin(fan),
+    cosFan: number = Math.cos(fan);
   let rotation: IAutoMovieQuaternion | undefined;
   if (motion !== undefined) {
-    const directions = [motion.from, motion.to].map((value) => {
-      const size = Math.hypot(value.x, value.y, value.z);
+    const directions: { x: number; y: number; z: number; }[] = [motion.from, motion.to].map((value: IAutoMovieVector3): { x: number; y: number; z: number; } => {
+      const size: number = Math.hypot(value.x, value.y, value.z);
       if (!Number.isFinite(size) || size === 0)
         throw new Error(
           "Lash transport needs finite nonzero radial directions.",
         );
       return { x: value.x / size, y: value.y / size, z: value.z / size };
     });
-    const cross = Vector3.cross(directions[0], directions[1]);
-    const sine = Vector3.length(cross),
-      cosine = Vector3.dot(directions[0], directions[1]);
+    const cross: IAutoMovieVector3 = Vector3.cross(directions[0], directions[1]);
+    const sine: number = Vector3.length(cross),
+      cosine: number = Vector3.dot(directions[0], directions[1]);
     if (sine === 0 && cosine < 0)
       throw new Error("Antipodal lash directions have no unique transport.");
     if (sine !== 0)
@@ -87,16 +78,16 @@ export function buildPortraitEyelash(
       );
   }
   return triangulateSurfaceLattice(
-    (u, t) => {
-      const half = (curl * t) / 2;
-      const distance = length * t * (half === 0 ? 1 : Math.sin(half) / half);
-      const forward = distance * Math.cos(initial + half);
-      const upward = distance * Math.sin(initial + half);
-      const angle = initial + curl * t;
-      const radius = profile.radius * (1 - profile.taper * t);
-      const a = radius * Math.cos(2 * Math.PI * u);
-      const b = radius * Math.sin(2 * Math.PI * u);
-      const offset = {
+    (u: number, t: number): IAutoMovieVector3 => {
+      const half: number = (curl * t) / 2;
+      const distance: number = length * t * (half === 0 ? 1 : Math.sin(half) / half);
+      const forward: number = distance * Math.cos(initial + half);
+      const upward: number = distance * Math.sin(initial + half);
+      const angle: number = initial + curl * t;
+      const radius: number = profile.radius * (1 - profile.taper * t);
+      const a: number = radius * Math.cos(2 * Math.PI * u);
+      const b: number = radius * Math.sin(2 * Math.PI * u);
+      const offset: { x: number; y: number; z: number; } = {
         x: sinFan * forward + cosFan * a - sinFan * Math.sin(angle) * b,
         y: upward + Math.cos(angle) * b,
         z: cosFan * forward - sinFan * a - cosFan * Math.sin(angle) * b,

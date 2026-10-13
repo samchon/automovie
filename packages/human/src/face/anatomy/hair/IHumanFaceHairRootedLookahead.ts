@@ -7,14 +7,17 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
 
 /**
- * One rooted-stem station's look-ahead request to
- * `anticipateHumanFaceHairRootedStem`.
+ * One rooted-stem station's look-ahead request to `anticipateHumanFaceHairRootedStem`.
  *
- * Positions and lengths are current head-frame metres; directions are unit
- * vectors. `heading` is the turn-limited direction the station would take,
- * `before` the previous chord's direction and `normal` the station's outward
- * skin normal. The ray index and contact read the same closed collider, and
- * every look-ahead ray spends the shared lock budget.
+ * Positions and lengths are current head-frame metres; directions are unit vectors. `heading` is the turn-limited direction the station would take, `before` the previous chord's direction and `normal` the station's outward skin normal. The ray index and contact read the same closed collider, and every look-ahead ray spends the shared lock budget.
+ *
+ * @evidence contracts/common.md#principled-implementation A station, requested heading and same-collider contact or ray readers define a budgeted preview of continuation.
+ * @evidence contracts/common.md#clear-and-simple-design The request keeps geometry, turn input and shared query budget together for anticipateHumanFaceHairRootedStem.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Preview does not admit a real chord or substitute another collider; exterior interval checks still own actual progress.
+ * @evidence contracts/common.md#meaningful-documentation Positions and step use head metres, directions are unit vectors and every preview cast spends budget.remaining.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Curved continuation and deferred-plan ray loops are owned by anticipateHumanFaceHairRootedStem.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The request borrows the walk's already compiled ray and contact readers instead of rebuilding them.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The walk owns its readers and mutable budget; this erased request transfers no geometry handle ownership.
  *
  * @author Samchon
  */

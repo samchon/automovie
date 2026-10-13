@@ -1,13 +1,16 @@
+import type { IHumanFaceHairRootPopulation as ImportedIHumanFaceHairRootPopulation } from "./IHumanFaceHairRootPopulation";
+import type { IHumanFaceHairContactSurface as ImportedIHumanFaceHairContactSurface, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain, IHumanFaceHairGatherAnchor as ImportedIHumanFaceHairGatherAnchor, IAutoMovieHumanFaceHairCurve as ImportedIAutoMovieHumanFaceHairCurve, IAutoMovieHumanFaceHairRootedTransition as ImportedIAutoMovieHumanFaceHairRootedTransition } from "@automovie/human";
+import type { IHumanFaceHairLayerGuides as ImportedIHumanFaceHairLayerGuides } from "../../structures/IHumanFaceHairLayerGuides";
+import type { IHumanFaceHairRootSeat as ImportedIHumanFaceHairRootSeat } from "./IHumanFaceHairRootSeat";
+import type { IHumanFaceHairSampledRoot as ImportedIHumanFaceHairSampledRoot } from "./IHumanFaceHairSampledRoot";
+import type { IHumanFaceHairContact as ImportedIHumanFaceHairContact } from "./IHumanFaceHairContact";
 import {
   Vector3,
   createAutoMovieMeshRayCaster,
   createAutoMovieMeshSeparationQuery,
   createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
-import type {
-  IAutoMovieMaterial,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieModelPart, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
@@ -34,33 +37,23 @@ import { resolveHumanFaceHairGatherAnchor } from "./resolveHumanFaceHairGatherAn
 import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
 
 /**
- * Compile shared growth correspondence, then generate numerical hair on a face.
- * The connected basis builder supplies admitted neutral topology once and its
- * current complete surface positions on each edit, before UV/material splitting.
- * Root sampling and field coordinates belong to the neutral; barycentric roots
- * and closed contact queries belong to the current shape/performance. Domain and
- * closure metadata are shared, and every personal difference is in the layer.
- * No person name selects a generator, guide array, mesh cache or bitmap.
+ * Compile shared growth correspondence, then generate numerical hair on a face. The connected basis builder supplies admitted neutral topology once and its current complete surface positions on each edit, before UV/material splitting. Root sampling and field coordinates belong to the neutral; barycentric roots and closed contact queries belong to the current shape/performance. Domain and closure metadata are shared, and every personal difference is in the layer. No person name selects a generator, guide array, mesh cache or bitmap.
  *
- * Compilation owns the source arrays. Evaluation admits all layers first, then
- * resolves domains even for empty populations. Nonempty layers integrate metric
- * curves, mesh those same stations and generate one numerical fibre finish.
- * The caller composes these owned parts/materials and checks resident identity
- * collisions. Closed queries verify topology; embeddedness/outward orientation
- * remain the shared source and deformation's premises, not automatic anatomy.
+ * Compilation owns the source arrays. Evaluation admits all layers first, then resolves domains even for empty populations. Nonempty layers integrate metric curves, mesh those same stations and generate one numerical fibre finish. The caller composes these owned parts/materials and checks resident identity collisions. Closed queries verify topology; embeddedness/outward orientation remain the shared source and deformation's premises, not automatic anatomy.
  *
- * A ribbon's width is not authored: each root's seated neighbourhood measures
- * the scalp that root stands for (`humanFaceHairDensity`), against the share of
- * the domain its own sampler accepted taken on this face's own triangles, so a
- * thinned hairline widens its ribbons exactly as far as it thinned them and a
- * larger head widens them with it.
- * The optional observer receives actual completed guide, interpolation,
- * grown-strand, ribbon-buffer and whole-layer boundaries. It reads no model,
- * changes no geometry or budget and is never an elapsed-time heartbeat.
+ * A ribbon's width is not authored: each root's seated neighbourhood measures the scalp that root stands for (`humanFaceHairDensity`), against the share of the domain its own sampler accepted taken on this face's own triangles, so a thinned hairline widens its ribbons exactly as far as it thinned them and a larger head widens them with it. The optional observer receives actual completed guide, interpolation, grown-strand, ribbon-buffer and whole-layer boundaries. It reads no model, changes no geometry or budget and is never an elapsed-time heartbeat.
+ *
+ * @evidence contracts/common.md#principled-implementation Neutral domain sampling and current barycentric seating share registered topology before contact-query and curve/mesh construction.
+ * @evidence contracts/common.md#clear-and-simple-design One compiler separates stable neutral correspondence from per-evaluation current collider, locks and material output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing domains, empty guide selections or construction-budget exhaustion refuse; closure embeddedness remains an admitted source premise.
+ * @evidence contracts/common.md#meaningful-documentation Progress reports completed owner boundaries, not elapsed-time health or render quality; all geometry remains head-frame metres.
+ * @evidence contracts/performance.md#efficient-algorithms Compile cost follows source topology; evaluation follows sampled roots, integrated stations, density work and budgeted queries.
+ * @evidence contracts/performance.md#reuse-equivalent-work Domain samplers persist in the builder and each current surface shares one collider across its evaluated layers.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Compilation owns cloned required source fields; current queries and lock state are evaluation-local, while returned parts/materials/layouts are caller-owned.
  */
-export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
-  const sources = new Map(
-    input.surfaces.map((original) => {
+export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis): (hair: IAutoMovieHumanFaceHair, positions: ReadonlyMap<string, readonly number[]>, progress?: (owner: string) => void) => { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; } {
+  const sources: Map<string, { readonly surface: IHumanFaceHairSourceSurface; readonly domains: Map<string, { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; }>; readonly close: (current: readonly number[]) => ImportedIHumanFaceHairContactSurface; }> = new Map(
+    input.surfaces.map((original: ImportedIAutoMovieHumanFaceBasisSurface): readonly [string, { readonly surface: IHumanFaceHairSourceSurface; readonly domains: Map<string, { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; }>; readonly close: (current: readonly number[]) => ImportedIHumanFaceHairContactSurface; }] => {
       const surface: IHumanFaceHairSourceSurface = structuredClone({
         id: original.id,
         positions: original.positions,
@@ -68,16 +61,16 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         hairDomains: original.hairDomains,
         hairContactClosure: original.hairContactClosure,
       });
-      const ids = new Set<string>();
-      const domains = new Map(
-        (surface.hairDomains ?? []).map((domain) => {
+      const ids: Set<string> = new Set<string>();
+      const domains: Map<string, { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; }> = new Map(
+        (surface.hairDomains ?? []).map((domain: ImportedIAutoMovieHumanFaceHairDomain): readonly [string, { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; }] => {
           if (
             domain.id.trim() === "" ||
             ids.has(domain.id) ||
             !domain.origin.every(Number.isFinite) ||
             domain.triangles.length === 0 ||
             domain.triangles.some(
-              (triangle, at) =>
+              (triangle: number, at: number): boolean =>
                 !Number.isInteger(triangle) ||
                 triangle < 0 ||
                 triangle >= surface.indices.length / 3 ||
@@ -102,11 +95,11 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           ] as const;
         }),
       );
-      const closure = surface.hairContactClosure ?? [];
+      const closure: readonly number[] = surface.hairContactClosure ?? [];
       if (
         closure.length % 3 !== 0 ||
         closure.some(
-          (id) =>
+          (id: number): boolean =>
             !Number.isInteger(id) ||
             id < 0 ||
             id >= surface.positions.length / 3,
@@ -122,11 +115,11 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
       // from the current ring's centroid (`closeHumanFaceHairContact`),
       // keeping the authored edge orientation, which stays embedded while the
       // ring stays star-shaped about its centre.
-      const loops = humanFaceHairClosureLoops(closure);
-      const close = (current: readonly number[]) =>
+      const loops: [number, number][][] = humanFaceHairClosureLoops(closure);
+      const close: (current: readonly number[]) => ImportedIHumanFaceHairContactSurface = (current: readonly number[]): ImportedIHumanFaceHairContactSurface =>
         closeHumanFaceHairContact(current, surface.indices, loops);
       if (domains.size > 0) {
-        const closed = close(surface.positions);
+        const closed: ImportedIHumanFaceHairContactSurface = close(surface.positions);
         createAutoMovieSignedMeshQuery({
           positions: closed.positions,
           indices: closed.indices,
@@ -142,14 +135,14 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
     hair: IAutoMovieHumanFaceHair,
     positions: ReadonlyMap<string, readonly number[]>,
     progress?: (owner: string) => void,
-  ) => {
+  ): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; } => {
     assertHumanFaceHair(hair);
     const parts: IAutoMovieModelPart[] = [],
       materials: IAutoMovieMaterial[] = [];
-    const contactLayouts = new Map<string, IHumanFaceHairContactLayout>();
-    const queries = new Map<string, IHumanFaceHairHostQueries>();
-    let stations = 0;
-    const spend = (count: number): void => {
+    const contactLayouts: Map<string, IHumanFaceHairContactLayout> = new Map<string, IHumanFaceHairContactLayout>();
+    const queries: Map<string, IHumanFaceHairHostQueries> = new Map<string, IHumanFaceHairHostQueries>();
+    let stations: number = 0;
+    const spend: (count: number) => void = (count: number): void => {
       stations += count;
       if (stations > 1_000_000)
         throw new Error(
@@ -157,9 +150,9 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         );
     };
     for (const layer of hair.layers) {
-      const source = sources.get(layer.surface);
-      const domain = source?.domains.get(layer.domain);
-      const current = positions.get(layer.surface);
+      const source: { readonly surface: IHumanFaceHairSourceSurface; readonly domains: Map<string, { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; }>; readonly close: (current: readonly number[]) => ImportedIHumanFaceHairContactSurface; } | undefined = sources.get(layer.surface);
+      const domain: { readonly origin: ImportedIAutoMovieVector3; readonly triangles: number[]; readonly sample: (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => ImportedIHumanFaceHairRootPopulation; } | undefined = source?.domains.get(layer.domain);
+      const current: readonly number[] | undefined = positions.get(layer.surface);
       if (
         source === undefined ||
         domain === undefined ||
@@ -169,21 +162,21 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         throw new Error(
           "Numerical hair requires its declared resident surface and growth domain.",
         );
-      const { roots, share } = domain.sample(layer);
+      const { roots, share }: ImportedIHumanFaceHairRootPopulation = domain.sample(layer);
       if (roots.length === 0) continue;
       // The share is of the neutral domain the sampler measured; the area a
       // population grows on is that share of the same triangles as they stand
       // on this face, so a larger head grows on more of it.
-      const area = measureHumanFaceHairDomainArea({
+      const area: number = measureHumanFaceHairDomainArea({
         share,
         triangles: domain.triangles,
         indices: source.surface.indices,
         current,
       });
-      let collider = queries.get(layer.surface);
+      let collider: IHumanFaceHairHostQueries | undefined = queries.get(layer.surface);
       if (collider === undefined) {
-        const closed = source.close(current);
-        const mesh = {
+        const closed: ImportedIHumanFaceHairContactSurface = source.close(current);
+        const mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; } = {
           positions: closed.positions,
           indices: closed.indices,
           normals: null,
@@ -201,8 +194,8 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         };
         queries.set(layer.surface, collider);
       }
-      const { query, raycaster, boundary, separation } = collider;
-      const gatherAnchor =
+      const { query, raycaster, boundary, separation }: IHumanFaceHairHostQueries = collider;
+      const gatherAnchor: ImportedIHumanFaceHairGatherAnchor | undefined =
         layer.gather === undefined
           ? undefined
           : resolveHumanFaceHairGatherAnchor({
@@ -214,7 +207,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
               polar: layer.gather.anchor.polar,
               azimuth: layer.gather.anchor.azimuth,
             });
-      const gatherDirection =
+      const gatherDirection: ((point: ImportedIAutoMovieVector3) => ImportedIAutoMovieVector3) | undefined =
         gatherAnchor === undefined
           ? undefined
           : createHumanFaceHairGatherField({
@@ -223,23 +216,23 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
               triangles: domain.triangles,
               anchor: gatherAnchor,
             });
-      const guided = layer.guides;
-      const isGuide = (sequence: number): boolean =>
+      const guided: ImportedIHumanFaceHairLayerGuides | undefined = layer.guides;
+      const isGuide: (sequence: number) => boolean = (sequence: number): boolean =>
         guided === undefined ||
         humanFaceHairSequence(sequence, 17) < guided.fraction;
-      const seats = seatHumanFaceHairRoots({
+      const seats: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>[] = seatHumanFaceHairRoots({
         roots,
         indices: source.surface.indices,
         current,
       });
-      const budgets = seats.map(() => ({ remaining: 1_000_000 }));
-      const integrated = new Map<
+      const budgets: { remaining: number; }[] = seats.map((): { remaining: number; } => ({ remaining: 1_000_000 }));
+      const integrated: Map<number, ImportedIAutoMovieHumanFaceHairCurve> = new Map<
         number,
         ReturnType<typeof integrateHumanFaceHairCurve>
       >();
-      seats.forEach(({ root, seated, normal }, at) => {
+      seats.forEach(({ root, seated, normal }: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>, at: number): void => {
         if (!isGuide(root.sequence)) return;
-        const curve = integrateHumanFaceHairCurve({
+        const curve: ImportedIAutoMovieHumanFaceHairCurve = integrateHumanFaceHairCurve({
           layer,
           origin: domain.origin,
           reference: root.point,
@@ -264,44 +257,44 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
         throw new Error(
           "A guided hair layer selected no guide among its roots; raise the guide fraction or the count.",
         );
-      const strandIndices = seats
-        .map((_, at) => at)
-        .filter((at) => !integrated.has(at));
-      const strands = interpolateHumanFaceHairStrands({
+      const strandIndices: number[] = seats
+        .map((_: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>, at: number): number => at)
+        .filter((at: number): boolean => !integrated.has(at));
+      const strands: { points: ImportedIAutoMovieVector3[]; length: number; normal: ImportedIAutoMovieVector3; }[] = interpolateHumanFaceHairStrands({
         layer,
         origin: domain.origin,
-        guides: [...integrated].map(([at, curve]) => ({
+        guides: [...integrated].map(([at, curve]: [number, ImportedIAutoMovieHumanFaceHairCurve]): { root: ImportedIAutoMovieVector3; reference: ImportedIAutoMovieVector3; points: ImportedIAutoMovieVector3[]; } => ({
           root: seats[at].seated,
           reference: seats[at].root.point,
           points: curve.points,
         })),
-        strands: strandIndices.map((at) => ({
+        strands: strandIndices.map((at: number): { root: ImportedIAutoMovieVector3; reference: ImportedIAutoMovieVector3; sequence: number; normal: ImportedIAutoMovieVector3; } => ({
           root: seats[at].seated,
           reference: seats[at].root.point,
           sequence: seats[at].root.sequence,
           normal: seats[at].normal,
         })),
       });
-      spend(strands.reduce((total, strand) => total + strand.points.length, 0));
+      spend(strands.reduce((total: number, strand: { points: ImportedIAutoMovieVector3[]; length: number; normal: ImportedIAutoMovieVector3; }): number => total + strand.points.length, 0));
       progress?.("hair:" + layer.id + ":interpolated-strands");
       // Interpolated strands keep the clearance their guides were integrated
       // with, and a strand the projection cannot place is grown instead
       // (`growHumanFaceHairStrand`).
-      const strandOrdinal = new Map(
-        strandIndices.map((at, ordinal) => [at, ordinal]),
+      const strandOrdinal: Map<number, number> = new Map(
+        strandIndices.map((at: number, ordinal: number): [number, number] => [at, ordinal]),
       );
-      const curves = seats.map(({ root, seated, normal }, at) => {
-        const guide = integrated.get(at);
+      const curves: ImportedIAutoMovieHumanFaceHairCurve[] = seats.map(({ root, seated, normal }: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>, at: number): ImportedIAutoMovieHumanFaceHairCurve => {
+        const guide: ImportedIAutoMovieHumanFaceHairCurve | undefined = integrated.get(at);
         if (guide !== undefined) return guide;
-        const strand = strands[strandOrdinal.get(at)!];
-        const budget = budgets[at];
-        const contact = humanFaceHairContact({
+        const strand: { points: ImportedIAutoMovieVector3[]; length: number; normal: ImportedIAutoMovieVector3; } = strands[strandOrdinal.get(at)!];
+        const budget: { remaining: number; } = budgets[at];
+        const contact: ImportedIHumanFaceHairContact = humanFaceHairContact({
           layer,
           root: strand.points[0],
           length: strand.length,
           query,
         });
-        const grown = integrateHumanFaceHairCurve({
+        const grown: ImportedIAutoMovieHumanFaceHairCurve = integrateHumanFaceHairCurve({
           layer,
           origin: domain.origin,
           reference: root.point,
@@ -318,19 +311,19 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           gatherAnchor: gatherAnchor?.point,
           gatherDirection,
           metric: { length: strand.length, contact },
-          place: (rooted) =>
+          place: (rooted: ImportedIAutoMovieHumanFaceHairRootedTransition): ImportedIAutoMovieHumanFaceHairCurve | undefined =>
             growHumanFaceHairStrand({
               strand,
               contact,
               rooted,
-              integrate: () => undefined,
+              integrate: (): undefined => undefined,
             }),
         });
         spend(grown.points.length - strand.points.length);
         progress?.("hair:" + layer.id + ":strand:" + root.sequence);
         return grown;
       });
-      const id = "numerical-hair:" + layer.id;
+      const id: string = "numerical-hair:" + layer.id;
       const contactCurves: IHumanFaceHairContactCurve[] = [];
       const base: IAutoMovieMaterial = {
           id,
@@ -349,7 +342,7 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           baseColorTexture: null,
           doubleSided: true,
         };
-      const material = layer.terminalShaftDiameter === undefined ? createPortraitHairMaterial(
+      const material: IAutoMovieMaterial = layer.terminalShaftDiameter === undefined ? createPortraitHairMaterial(
         base, {
           seed: layer.seed,
           fibres: layer.finish.fibres,
@@ -370,20 +363,20 @@ export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
           type: "mesh",
           mesh: buildHumanFaceHairMesh(curves, layer, {
             widths: layer.terminalShaftDiameter === undefined ? humanFaceHairDensity({
-              roots: seats.map((seat) => seat.seated),
+              roots: seats.map((seat: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>): ImportedIAutoMovieVector3 => seat.seated),
               area,
-            }) : curves.map(() => layer.terminalShaftDiameter!),
+            }) : curves.map((): number => layer.terminalShaftDiameter!),
             query,
             separation,
             budgets,
-            attachments: seats.map(({ root }) => ({
+            attachments: seats.map(({ root }: ImportedIHumanFaceHairRootSeat<ImportedIHumanFaceHairSampledRoot>): { triangle: number; weights: [number, number, number]; supports: number[]; } => ({
               triangle: root.triangle,
               weights: root.weights,
               supports: boundary.resolve(root),
             })),
-            progress: progress === undefined ? undefined : (ordinal) =>
+            progress: progress === undefined ? undefined : (ordinal: number): void =>
               progress("hair:" + layer.id + ":ribbon:" + ordinal),
-            observeContactCurve: (curve) => { contactCurves.push(curve); },
+            observeContactCurve: (curve: IHumanFaceHairContactCurve): void => { contactCurves.push(curve); },
           }),
         },
       });

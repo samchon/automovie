@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRootedLookaheadDecision } from "./IHumanFaceHairRootedLookaheadDecision";
@@ -12,35 +12,34 @@ import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
 /**
  * Assemble the record of a rooted stem that refused, from the walk's state.
  *
- * Up to the last six stations are reported with their measured clearance,
- * nearest triangle, outward normal and arriving chord. Each earlier station's
- * look-ahead decision is recomputed by the same steer and look-ahead owners
- * from the inputs that station had: its arriving chord, its normal and its
- * nominal chord min(step, length - travelled). Those owners are deterministic
- * in their inputs, so the recomputed decision is the one the walk made. The
- * refusing station's decision and trials are passed as made.
+ * Up to the last six stations are reported with their measured clearance, nearest triangle, outward normal and arriving chord. Each earlier station's look-ahead decision is recomputed by the same steer and look-ahead owners from the inputs that station had: its arriving chord, its normal and its nominal chord min(step, length - travelled). Those owners are deterministic in their inputs, so the recomputed decision is the one the walk made. The refusing station's decision and trials are passed as made.
  *
- * Recomputation spends the shared budget like the original decisions did.
- * A station whose decision cannot be recomputed because that budget is
- * exhausted reports null instead of replacing the refusal with a budget error.
- * This runs only when a stem refuses, so admitted locks pay nothing for it.
+ * Recomputation spends the shared budget like the original decisions did. A station whose decision cannot be recomputed because that budget is exhausted reports null instead of replacing the refusal with a budget error. This runs only when a stem refuses, so admitted locks pay nothing for it.
+ *
+ * @evidence contracts/common.md#principled-implementation Recent measured stations and actual final trials reconstruct the refusing rooted step's numerical context.
+ * @evidence contracts/common.md#clear-and-simple-design At most six station records are failure-only output rather than always-retained walk history.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Earlier lookahead reconstruction spends remaining budget and may become null at exhaustion; it does not replace the original refusal.
+ * @evidence contracts/common.md#meaningful-documentation Metric clearance and triangle identity describe CPU query state, with no clinical or viewer-health claim.
+ * @evidence contracts/performance.md#efficient-algorithms Finding travelled prefix scans existing points; at most six reconstructions then pay shared query and preview costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work The actual last lookahead is reused, while earlier deterministic decisions are recomputed only when possible.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Station vectors are copied, trials are borrowed from the failure context, and no successful-lock diagnostic history is retained.
  */
 export function describeHumanFaceHairStemRefusal(
   props: IHumanFaceHairStemRefusalContext,
 ): IHumanFaceHairStemRefusal {
-  const { points, contact } = props;
-  const last = points.length - 1;
-  const first = Math.max(0, last - 5);
-  let travelled = 0;
-  for (let at = 1; at <= first; at++)
+  const { points, contact }: IHumanFaceHairStemRefusalContext = props;
+  const last: number = points.length - 1;
+  const first: number = Math.max(0, last - 5);
+  let travelled: number = 0;
+  for (let at: number = 1; at <= first; at++)
     travelled += Vector3.length(Vector3.subtract(points[at], points[at - 1]));
   const stations: IHumanFaceHairStemStation[] = [];
-  for (let at = first; at <= last; at++) {
+  for (let at: number = first; at <= last; at++) {
     if (at > first)
       travelled += Vector3.length(Vector3.subtract(points[at], points[at - 1]));
-    const point = points[at];
-    const hit = contact.sample(point);
-    const normal =
+    const point: IAutoMovieVector3 = points[at];
+    const hit: ImportedIAutoMovieSignedMeshQueryHit = contact.sample(point);
+    const normal: IAutoMovieVector3 =
       at === 0
         ? humanFaceHairFrame.direction(props.rootNormal)
         : contact.outward(point, hit);
@@ -51,7 +50,7 @@ export function describeHumanFaceHairStemRefusal(
     let lookahead: IHumanFaceHairRootedLookaheadDecision | null = null;
     if (at === last) lookahead = props.lookahead;
     else if (chord !== null) {
-      const step = Math.min(props.step, props.length - travelled);
+      const step: number = Math.min(props.step, props.length - travelled);
       try {
         lookahead = anticipateHumanFaceHairRootedStem({
           point,

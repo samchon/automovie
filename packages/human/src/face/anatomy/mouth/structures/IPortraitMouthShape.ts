@@ -4,9 +4,15 @@ import { IPortraitLipSection } from "./IPortraitLipSection";
 import { IPortraitOralChamber } from "./IPortraitOralChamber";
 
 /**
- * Mouth dimensions and an independently replaceable upper dental row. All
- * distances are millimetres; scales multiply the subject's measured socket.
- * The row contains its own crown dimensions rather than one repeated tooth.
+ * Mouth dimensions and an independently replaceable upper dental row. All distances are millimetres; scales multiply the subject's measured socket. The row contains its own crown dimensions rather than one repeated tooth.
+ *
+ * @evidence contracts/common.md#principled-implementation Named dimensions, thickness/section controls and authored individual crowns feed the existing oral component.
+ * @evidence contracts/common.md#clear-and-simple-design Aperture, band relief, refined-boundary policy and optional lining enclosure retain separate responsibilities.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy crown estimates and enclosure geometry are not acquired oral anatomy; moving performance requires separately owned maxillary dentition.
+ * @evidence contracts/common.md#meaningful-documentation Distances are millimetres, scales are dimensionless and cavityChamber requires explicit cavityWall.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Component fitting and native preparation own topology and mesh work, not this schema.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared band/section/lining owners supply the same controls across direct and component consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller owns profile/crown arrays and actual producer copying defines construction lifetime.
  *
  * @author Samchon
  */

@@ -1,7 +1,6 @@
-import {
-  type IAutoMovieProfilePoint,
-  triangulateAutoMovieRegion,
-} from "@automovie/engine";
+import type { IHumanFaceOralCrown as ImportedIHumanFaceOralCrown, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IHumanPhysicalSampleRegistration as ImportedIHumanPhysicalSampleRegistration, IHumanFaceOralArchFrame as ImportedIHumanFaceOralArchFrame, IHumanFaceOralLiningDimensions as ImportedIHumanFaceOralLiningDimensions, IHumanFaceOralLiningField as ImportedIHumanFaceOralLiningField, IHumanFaceOralToothStation as ImportedIHumanFaceOralToothStation, IAutoMovieHumanFaceOralSupport as ImportedIAutoMovieHumanFaceOralSupport } from "@automovie/human";
+import type { IAutoMovieMesh as ImportedIAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieProfilePoint, triangulateAutoMovieRegion, type IAutoMovieRegionTriangulation as ImportedIAutoMovieRegionTriangulation } from "@automovie/engine";
 
 import { createHumanBasisRegion } from "../../../common/basis/createHumanBasisRegion";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
@@ -18,31 +17,21 @@ import { resolveHumanFaceOralArchFrame } from "./resolveHumanFaceOralArchFrame";
 import { resolveHumanFaceOralLiningDimensions } from "./resolveHumanFaceOralLiningDimensions";
 
 /**
- * Author continuous gingiva, palate/floor and peripheral walls from the same
- * transformed cervical ports used by the resident source crowns.
+ * Author continuous gingiva, palate/floor and peripheral walls from the same transformed cervical ports used by the resident source crowns.
  *
- * Each arch is built in its own arch frame, the plane its cervical rings lie
- * about. The lining is one height field over that plane, the local cervical
- * height plus an apical rise, so the gingiva starts from every tooth's own
- * ring and the palate and floor are the same field's lingual vault. The
- * field owner states the formula and the dimension resolver the lengths.
+ * Each arch is built in its own arch frame, the plane its cervical rings lie about. The lining is one height field over that plane, the local cervical height plus an apical rise, so the gingiva starts from every tooth's own ring and the palate and floor are the same field's lingual vault. The field owner states the formula and the dimension resolver the lengths.
  *
- * The outline is the rings' convex envelope pushed out to the vestibular
- * fornix. It is an authored oral lining outline, not the lip closure boundary
- * and never a substitute for the resident lip contact owner. Exact crown
- * ports are holes in that lining; malformed or intersecting combinations
- * refuse through the common constrained polygon owner.
+ * The outline is the rings' convex envelope pushed out to the vestibular fornix. It is an authored oral lining outline, not the lip closure boundary and never a substitute for the resident lip contact owner. Exact crown ports are holes in that lining; malformed or intersecting combinations refuse through the common constrained polygon owner.
  *
- * The outline and the interior are sampled at the median spacing of the
- * cervical rings, by the refinement owner. Crown and wall boundary edges stay
- * exact and unsplit. The gingival region is the lining within one collar
- * thickness of a ring in the arch plane; it is a finish boundary and no
- * clinical mucogingival or hard/soft-palate boundary. Region separation
- * shares vertices and physical identities; no independent overlapping roof
- * or floor cap is layered over gingiva. The vestibular wall hangs from the
- * lining's rim back to the local cervical height under the same head/jaw
- * owner along the whole facial rim. Between the terminal crowns the rim has
- * no wall and a posterior opening is retained rather than labelled a reconstructed pharynx.
+ * The outline and the interior are sampled at the median spacing of the cervical rings, by the refinement owner. Crown and wall boundary edges stay exact and unsplit. The gingival region is the lining within one collar thickness of a ring in the arch plane; it is a finish boundary and no clinical mucogingival or hard/soft-palate boundary. Region separation shares vertices and physical identities; no independent overlapping roof or floor cap is layered over gingiva. The vestibular wall hangs from the lining's rim back to the local cervical height under the same head/jaw owner along the whole facial rim. Between the terminal crowns the rim has no wall and a posterior opening is retained rather than labelled a reconstructed pharynx.
+ *
+ * @evidence contracts/common.md#principled-implementation Registered source crowns and one arch height field produce shared gingiva, vault/floor and vestibular-wall surfaces with exact cervical ports.
+ * @evidence contracts/common.md#clear-and-simple-design Material regions share physical points and posterior opening remains separate from lip-port connection and rigid query assembly.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored envelopes are not reconstructed pharynx; malformed polygons, source/Float32 rank loss and nonfinite output refuse while unresolved sampling is reported for the builder's later gate.
+ * @evidence contracts/common.md#meaningful-documentation Head metres and ISO/native identities preserve absent-crown distinction from resident replacement population.
+ * @evidence contracts/performance.md#efficient-algorithms Source region extraction, hull sorting, polygon triangulation and at most 64 outer refinement/relax cycles dominate; field samples scan cervical rings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One frame/field and common normals serve each arch's finish regions; exact cervical points reuse original source coordinates.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owned generated buffers/ids and replacement sets scale with refined geometry, with no global byte cap implied by the pass caps; the returned assembly retains them.
  *
  * @author Samchon
  */
@@ -51,27 +40,27 @@ export function buildHumanFaceOralAssembly(
   rest: ReadonlyMap<string, readonly number[]>,
   oral: IAutoMovieHumanFaceOral,
 ): IHumanFaceOralAssembly {
-  const dental = rest.get("Human.teeth_base");
+  const dental: readonly number[] | undefined = rest.get("Human.teeth_base");
   if (dental === undefined)
     throw new Error("Oral lining needs its shaped dental source.");
-  const crowns = readHumanFaceOralCrowns(basis);
+  const crowns: ImportedIHumanFaceOralCrown[] = readHumanFaceOralCrowns(basis);
   assertHumanFaceOralSupport(basis, crowns);
-  const native = basis.surfaces.find(
-    (surface) => surface.id === "Human.teeth_base",
+  const native: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces.find(
+    (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === "Human.teeth_base",
   )!;
-  const dentalNormals = areaWeightedNormals([...dental], native.indices);
+  const dentalNormals: number[] = areaWeightedNormals([...dental], native.indices);
   const parts: IHumanFaceOralPart[] = [];
-  const absentDentalVertices = new Set<number>();
-  let unresolvedEdges = 0;
-  const cross = (
+  const absentDentalVertices: Set<number> = new Set<number>();
+  let unresolvedEdges: number = 0;
+  const cross: (a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint, c: IAutoMovieProfilePoint) => number = (
     a: IAutoMovieProfilePoint,
     b: IAutoMovieProfilePoint,
     c: IAutoMovieProfilePoint,
   ): number => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
   for (const mandibular of [false, true]) {
-    const members = crowns.filter((crown) => crown.mandibular === mandibular);
-    const prefix = mandibular ? "mandibular" : "maxillary";
-    const owner = mandibular ? "jaw" : "head";
+    const members: ImportedIHumanFaceOralCrown[] = crowns.filter((crown: ImportedIHumanFaceOralCrown): boolean => crown.mandibular === mandibular);
+    const prefix: "mandibular" | "maxillary" = mandibular ? "mandibular" : "maxillary";
+    const owner: "head" | "jaw" = mandibular ? "jaw" : "head";
     for (const crown of members) {
       if (
         oral.teeth?.[
@@ -79,30 +68,30 @@ export function buildHumanFaceOralAssembly(
         ]?.present === false
       )
         continue;
-      const allowed = new Set(crown.vertices);
+      const allowed: Set<number> = new Set(crown.vertices);
       for (const region of native.regions) {
         const indices: number[] = [],
           uvs: number[] | null = region.uvs === null ? null : [];
-        for (let at = 0; at < region.indices.length; at += 3) {
+        for (let at: number = 0; at < region.indices.length; at += 3) {
           if (
             !region.indices
               .slice(at, at + 3)
-              .every((vertex) => allowed.has(vertex))
+              .every((vertex: number): boolean => allowed.has(vertex))
           )
             continue;
           indices.push(...region.indices.slice(at, at + 3));
           if (uvs !== null) uvs.push(...region.uvs!.slice(2 * at, 2 * at + 6));
         }
         if (indices.length === 0) continue;
-        const gather = createHumanBasisRegion({ indices, uvs });
-        const mesh = gather([...dental], dentalNormals, undefined, {
+        const gather: (positions: readonly number[], normals: readonly number[], colors?: readonly number[], physical?: ImportedIHumanPhysicalSampleRegistration) => ImportedIAutoMovieMesh = createHumanBasisRegion({ indices, uvs });
+        const mesh: ImportedIAutoMovieMesh = gather([...dental], dentalNormals, undefined, {
           domain: "oral-native",
           samples: Array.from(
             { length: dental.length / 3 },
-            (_, vertex) => vertex,
+            (_: unknown, vertex: number): number => vertex,
           ),
         });
-        const physicalPoints = mesh.physicalVertices!.vertices.map((vertex) => {
+        const physicalPoints: string[] = mesh.physicalVertices!.vertices.map((vertex: number | null): string => {
           if (vertex === null)
             throw new Error(
               "Oral crown lost its native physical registration.",
@@ -118,47 +107,47 @@ export function buildHumanFaceOralAssembly(
         });
       }
     }
-    const frame = resolveHumanFaceOralArchFrame(members, dental, mandibular);
-    const dimensions = resolveHumanFaceOralLiningDimensions(oral, mandibular);
-    const field = createHumanFaceOralLiningField(frame, dimensions);
-    const world = (u: number, v: number, a: number): number[] =>
+    const frame: ImportedIHumanFaceOralArchFrame = resolveHumanFaceOralArchFrame(members, dental, mandibular);
+    const dimensions: ImportedIHumanFaceOralLiningDimensions = resolveHumanFaceOralLiningDimensions(oral, mandibular);
+    const field: ImportedIHumanFaceOralLiningField = createHumanFaceOralLiningField(frame, dimensions);
+    const world: (u: number, v: number, a: number) => number[] = (u: number, v: number, a: number): number[] =>
       frame.origin.map(
-        (value, axis) =>
+        (value: number, axis: number): number =>
           value +
           u * frame.lateral[axis] +
           v * frame.forward[axis] +
           a * frame.apical[axis],
       );
-    const rings = frame.stations.map((station) =>
+    const rings: IAutoMovieProfilePoint[][] = frame.stations.map((station: ImportedIHumanFaceOralToothStation): IAutoMovieProfilePoint[] =>
       station.vertices.map(
-        (_, k): IAutoMovieProfilePoint => ({
+        (_: number, k: number): IAutoMovieProfilePoint => ({
           x: station.cervical[3 * k],
           y: station.cervical[3 * k + 1],
         }),
       ),
     );
-    const ordinals = frame.stations.flatMap((station) => station.vertices);
-    const all = rings.flat();
+    const ordinals: number[] = frame.stations.flatMap((station: ImportedIHumanFaceOralToothStation): number[] => station.vertices);
+    const all: IAutoMovieProfilePoint[] = rings.flat();
     // The lining is sampled at the spacing of the cervical rings it joins.
-    const spacing = frame.stations
-      .flatMap((station) =>
-        station.vertices.map((_, k) => {
-          const next = (k + 1) % station.vertices.length;
+    const spacing: number[] = frame.stations
+      .flatMap((station: ImportedIHumanFaceOralToothStation): number[] =>
+        station.vertices.map((_: number, k: number): number => {
+          const next: number = (k + 1) % station.vertices.length;
           return Math.hypot(
             ...[0, 1, 2].map(
-              (axis) =>
+              (axis: number): number =>
                 station.cervical[3 * k + axis] -
                 station.cervical[3 * next + axis],
             ),
           );
         }),
       )
-      .sort((a, b) => a - b);
-    const edge = spacing[Math.floor(spacing.length / 2)];
-    const sorted = [...all]
-      .sort((a, b) => a.x - b.x || a.y - b.y)
+      .sort((a: number, b: number): number => a - b);
+    const edge: number = spacing[Math.floor(spacing.length / 2)];
+    const sorted: IAutoMovieProfilePoint[] = [...all]
+      .sort((a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint): number => a.x - b.x || a.y - b.y)
       .filter(
-        (p, k, rows) =>
+        (p: IAutoMovieProfilePoint, k: number, rows: IAutoMovieProfilePoint[]): boolean =>
           k === 0 || p.x !== rows[k - 1].x || p.y !== rows[k - 1].y,
       );
     const hull: IAutoMovieProfilePoint[] = [];
@@ -170,7 +159,7 @@ export function buildHumanFaceOralAssembly(
         hull.pop();
       hull.push(point);
     }
-    const lower = hull.length;
+    const lower: number = hull.length;
     for (const point of sorted.slice(0, -1).reverse()) {
       while (
         hull.length > lower &&
@@ -181,8 +170,8 @@ export function buildHumanFaceOralAssembly(
     }
     hull.pop();
     // The fornix outline: the rings' convex envelope pushed out from the arch origin.
-    const envelope = hull.map((p) => {
-      const radius = Math.hypot(p.x, p.y);
+    const envelope: { x: number; y: number; }[] = hull.map((p: IAutoMovieProfilePoint): { x: number; y: number; } => {
+      const radius: number = Math.hypot(p.x, p.y);
       if (radius === 0)
         throw new Error("Oral arch envelope has a degenerate radial point.");
       return {
@@ -197,41 +186,41 @@ export function buildHumanFaceOralAssembly(
       };
     });
     const outer: IAutoMovieProfilePoint[] = [];
-    envelope.forEach((a, k) => {
-      const b = envelope[(k + 1) % envelope.length];
-      const pieces = Math.max(
+    envelope.forEach((a: { x: number; y: number; }, k: number): void => {
+      const b: { x: number; y: number; } = envelope[(k + 1) % envelope.length];
+      const pieces: number = Math.max(
         1,
         Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / edge),
       );
-      for (let piece = 0; piece < pieces; piece++)
+      for (let piece: number = 0; piece < pieces; piece++)
         outer.push({
           x: a.x + ((b.x - a.x) * piece) / pieces,
           y: a.y + ((b.y - a.y) * piece) / pieces,
         });
     });
-    const inputPlanar = [...outer, ...all].map((p) => [p.x, p.y]);
-    const inputIds = [
-      ...outer.map((_, k) => prefix + ":rim:" + k),
-      ...ordinals.map((v) => "dental:" + v),
+    const inputPlanar: number[][] = [...outer, ...all].map((p: IAutoMovieProfilePoint): number[] => [p.x, p.y]);
+    const inputIds: string[] = [
+      ...outer.map((_: IAutoMovieProfilePoint, k: number): string => prefix + ":rim:" + k),
+      ...ordinals.map((v: number): string => "dental:" + v),
     ];
-    const triangulation = triangulateAutoMovieRegion({ outer, holes: rings });
-    const planar = triangulation.sourceIndices.map((v) => inputPlanar[v]);
-    const physicalPoints = triangulation.sourceIndices.map((v) => inputIds[v]);
-    const boundaryEdges = new Set<string>();
+    const triangulation: ImportedIAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer, holes: rings });
+    const planar: number[][] = triangulation.sourceIndices.map((v: number): number[] => inputPlanar[v]);
+    const physicalPoints: string[] = triangulation.sourceIndices.map((v: number): string => inputIds[v]);
+    const boundaryEdges: Set<string> = new Set<string>();
     for (const ring of triangulation.rings) {
-      for (let k = 0; k < ring.count; k++) {
-        const a = ring.start + k,
-          b = ring.start + ((k + 1) % ring.count);
+      for (let k: number = 0; k < ring.count; k++) {
+        const a: number = ring.start + k,
+          b: number = ring.start + ((k + 1) % ring.count);
         boundaryEdges.add(Math.min(a, b) + ":" + Math.max(a, b));
       }
     }
     const outerEdges: number[][] = [];
-    for (let at = 0; at < triangulation.triangles.length; at += 3)
-      for (let corner = 0; corner < 3; corner++) {
-        const a = triangulation.triangles[at + corner],
-          b = triangulation.triangles[at + ((corner + 1) % 3)];
-        const x = triangulation.sourceIndices[a],
-          y = triangulation.sourceIndices[b];
+    for (let at: number = 0; at < triangulation.triangles.length; at += 3)
+      for (let corner: number = 0; corner < 3; corner++) {
+        const a: number = triangulation.triangles[at + corner],
+          b: number = triangulation.triangles[at + ((corner + 1) % 3)];
+        const x: number = triangulation.sourceIndices[a],
+          y: number = triangulation.sourceIndices[b];
         if (
           x < outer.length &&
           y < outer.length &&
@@ -239,22 +228,22 @@ export function buildHumanFaceOralAssembly(
         )
           outerEdges.push(mandibular ? [y, x] : [x, y]);
       }
-    const cervicalPoints = new Set(
-      triangulation.sourceIndices.flatMap((source, at) =>
+    const cervicalPoints: Set<number> = new Set(
+      triangulation.sourceIndices.flatMap((source: number, at: number): number[] =>
         source < outer.length ? [] : [at],
       ),
     );
     // Alternate sampling and approximate diagonal quality. A quality flip can
     // create a collar-to-collar diagonal that needs its own field sample.
-    let indices = relaxHumanFaceOralLining(
+    let indices: number[] = relaxHumanFaceOralLining(
       planar,
       triangulation.triangles,
       boundaryEdges,
       cervicalPoints,
     );
-    for (let pass = 0; pass < 64; pass++) {
-      const priorPoints = planar.length;
-      const prior = indices;
+    for (let pass: number = 0; pass < 64; pass++) {
+      const priorPoints: number = planar.length;
+      const prior: number[] = indices;
       indices = refineHumanFaceOralLining(
         planar,
         indices,
@@ -271,14 +260,14 @@ export function buildHumanFaceOralAssembly(
       if (
         planar.length === priorPoints &&
         indices.length === prior.length &&
-        indices.every((vertex, at) => vertex === prior[at])
+        indices.every((vertex: number, at: number): boolean => vertex === prior[at])
       )
         break;
     }
-    for (let at = 0; at < indices.length; at += 3)
-      for (let corner = 0; corner < 3; corner++) {
-        const a = indices[at + corner],
-          b = indices[at + ((corner + 1) % 3)];
+    for (let at: number = 0; at < indices.length; at += 3)
+      for (let corner: number = 0; corner < 3; corner++) {
+        const a: number = indices[at + corner],
+          b: number = indices[at + ((corner + 1) % 3)];
         if (
           a < b &&
           !boundaryEdges.has(a + ":" + b) &&
@@ -290,19 +279,19 @@ export function buildHumanFaceOralAssembly(
         )
           unresolvedEdges++;
       }
-    for (let at = physicalPoints.length; at < planar.length; at++)
+    for (let at: number = physicalPoints.length; at < planar.length; at++)
       physicalPoints.push(
         prefix + ":lining:" + (at - triangulation.sourceIndices.length),
       );
     // Cervical points keep their exact native coordinates; every other point is a sample of the one lining field.
-    const points = planar.map((p, at) => {
-      const source =
+    const points: number[][] = planar.map((p: number[], at: number): number[] => {
+      const source: number =
         at < triangulation.sourceIndices.length
           ? triangulation.sourceIndices[at]
           : -1;
       if (source < outer.length)
         return world(p[0], p[1], field.apical(p[0], p[1]));
-      const vertex = ordinals[source - outer.length];
+      const vertex: number = ordinals[source - outer.length];
       return [
         dental[3 * vertex],
         dental[3 * vertex + 1],
@@ -312,17 +301,17 @@ export function buildHumanFaceOralAssembly(
     // Exact source-coincident corners carry no source face. Float32-created
     // coincidence is different: retain that source face for the emitted gate
     // to report its loss instead of discarding it from the checked population.
-    const sourceCoordinates = points.map((point) => point.join(","));
-    indices = indices.filter((_, at) => {
-      const start = at - (at % 3);
-      const [a, b, c] = [
+    const sourceCoordinates: string[] = points.map((point: number[]): string => point.join(","));
+    indices = indices.filter((_: number, at: number): boolean => {
+      const start: number = at - (at % 3);
+      const [a, b, c]: [string, string, string] = [
         sourceCoordinates[indices[start]],
         sourceCoordinates[indices[start + 1]],
         sourceCoordinates[indices[start + 2]],
       ];
-      const [ia, ib, ic] = indices
+      const [ia, ib, ic]: string[] = indices
         .slice(start, start + 3)
-        .map((vertex) => physicalPoints[vertex]);
+        .map((vertex: number): string => physicalPoints[vertex]);
       // Distinct native identities that meet geometrically are not aliases;
       // retain their face so the source rank gate reports that failure.
       return !(
@@ -333,13 +322,13 @@ export function buildHumanFaceOralAssembly(
     });
     const gingiva: number[] = [],
       enclosure: number[] = [];
-    for (let at = 0; at < indices.length; at += 3) {
-      const triangle = indices.slice(at, at + 3);
-      const u =
-        triangle.reduce((sum, vertex) => sum + planar[vertex][0], 0) / 3;
-      const v =
-        triangle.reduce((sum, vertex) => sum + planar[vertex][1], 0) / 3;
-      const target =
+    for (let at: number = 0; at < indices.length; at += 3) {
+      const triangle: number[] = indices.slice(at, at + 3);
+      const u: number =
+        triangle.reduce((sum: number, vertex: number): number => sum + planar[vertex][0], 0) / 3;
+      const v: number =
+        triangle.reduce((sum: number, vertex: number): number => sum + planar[vertex][1], 0) / 3;
+      const target: number[] =
         field.distance(u, v) <= dimensions.collarThicknessMetres
           ? gingiva
           : enclosure;
@@ -351,21 +340,21 @@ export function buildHumanFaceOralAssembly(
     // turn a source-collinear cell into a tiny Float32 sliver; that does not
     // supply the missing source face. Retain the whole invalid population.
     const invalidFaces: string[] = [];
-    for (let at = 0; at < indices.length; at += 3) {
+    for (let at: number = 0; at < indices.length; at += 3) {
       for (const precision of ["source-Binary64", "emitted-Float32"] as const) {
-        const [p, q, r] = indices
+        const [p, q, r]: number[][] = indices
           .slice(at, at + 3)
-          .map((vertex) =>
+          .map((vertex: number): number[] =>
             precision === "source-Binary64"
               ? points[vertex]
               : points[vertex].map(Math.fround),
           );
-        const ab = q.map((value, axis) => value - p[axis]),
-          ac = r.map((value, axis) => value - p[axis]);
-        const aa = ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2,
-          bb = ac[0] ** 2 + ac[1] ** 2 + ac[2] ** 2,
-          abac = ab[0] * ac[0] + ab[1] * ac[1] + ab[2] * ac[2];
-        const rank = aa * bb - abac * abac;
+        const ab: number[] = q.map((value: number, axis: number): number => value - p[axis]),
+          ac: number[] = r.map((value: number, axis: number): number => value - p[axis]);
+        const aa: number = ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2,
+          bb: number = ac[0] ** 2 + ac[1] ** 2 + ac[2] ** 2,
+          abac: number = ab[0] * ac[0] + ab[1] * ac[1] + ab[2] * ac[2];
+        const rank: number = aa * bb - abac * abac;
         if (!(rank > 0) || !Number.isFinite(rank))
           invalidFaces.push(
             prefix +
@@ -379,11 +368,11 @@ export function buildHumanFaceOralAssembly(
               indices
                 .slice(at, at + 3)
                 .map(
-                  (vertex) =>
+                  (vertex: number): string =>
                     physicalPoints[vertex] +
                     " (" +
                     planar[vertex]
-                      .map((value) => (value * 1000).toFixed(4))
+                      .map((value: number): string => (value * 1000).toFixed(4))
                       .join(", ") +
                     " mm)",
                 )
@@ -398,7 +387,7 @@ export function buildHumanFaceOralAssembly(
           " invalid triangle/precision relations: " +
           invalidFaces.join(" | "),
       );
-    const commonNormals = areaWeightedNormals(points.flat(), [
+    const commonNormals: number[] = areaWeightedNormals(points.flat(), [
       ...gingiva,
       ...enclosure,
     ]);
@@ -421,16 +410,16 @@ export function buildHumanFaceOralAssembly(
           physicalPoints: [...physicalPoints],
         });
     // The vestibular wall hangs from the fornix back to the local cervical height.
-    const fornix = outer.map((p) => field.apical(p.x, p.y));
-    const wallPoints = outer.map((p, k) => world(p.x, p.y, fornix[k]));
-    const wallIds = outer.map((_, k) => prefix + ":rim:" + k);
-    const n = wallPoints.length;
+    const fornix: number[] = outer.map((p: IAutoMovieProfilePoint): number => field.apical(p.x, p.y));
+    const wallPoints: number[][] = outer.map((p: IAutoMovieProfilePoint, k: number): number[] => world(p.x, p.y, fornix[k]));
+    const wallIds: string[] = outer.map((_: IAutoMovieProfilePoint, k: number): string => prefix + ":rim:" + k);
+    const n: number = wallPoints.length;
     wallPoints.push(
-      ...outer.map((p, k) =>
+      ...outer.map((p: IAutoMovieProfilePoint, k: number): number[] =>
         world(p.x, p.y, fornix[k] - dimensions.collarHeightMetres),
       ),
     );
-    wallIds.push(...outer.map((_, k) => prefix + ":vestibule:" + k));
+    wallIds.push(...outer.map((_: IAutoMovieProfilePoint, k: number): string => prefix + ":vestibule:" + k));
     const wallIndices: number[] = [];
     for (const [a, b] of outerEdges) {
       // The posterior opening between the terminal crowns is a declared source limitation; the facial rim keeps its wall all the way back.
@@ -465,15 +454,15 @@ export function buildHumanFaceOralAssembly(
   }
   if (
     parts.some(
-      (part) =>
+      (part: IHumanFaceOralPart): boolean =>
         !part.mesh.positions.every(
-          (value) =>
+          (value: number): boolean =>
             Number.isFinite(value) && Number.isFinite(Math.fround(value)),
         ),
     )
   )
     throw new Error("Oral lining exceeds finite Float32 coordinates.");
-  const support = basis.oralSupport;
+  const support: ImportedIAutoMovieHumanFaceOralSupport | undefined = basis.oralSupport;
   if (support === undefined || support.dentalSurface !== "Human.teeth_base")
     throw new Error(
       "Oral assembly needs its producer-qualified native dental registration.",
@@ -483,7 +472,7 @@ export function buildHumanFaceOralAssembly(
     dentalNativeSha256: support.dentalNativeSha256,
     dentalSurface: support.dentalSurface,
     replacedDentalVertices: new Set(
-      Array.from({ length: dental.length / 3 }, (_, vertex) => vertex),
+      Array.from({ length: dental.length / 3 }, (_: unknown, vertex: number): number => vertex),
     ),
     parts,
     absentDentalVertices,
