@@ -1,29 +1,29 @@
-# 공간 모집단의 공통 책임
+# Common responsibilities of the space population
 
-## 파일의 제작상 필요 {#purpose-fit}
+## Production need of the file {#purpose-fit}
 <!--
-@evidence obligations/core/common.md#purpose-fit 단일 공간 파일이 전체 본채의 방·개구부·생활 물품을 같은 좌표계의 배치 결정으로 전달하는 역할을 비교한다.
+@evidence obligations/core/common.md#purpose-fit Compares the role of the single space file in conveying the rooms, openings and household items of the whole main house as placement decisions in one coordinate system.
 -->
 
-선택된 파일은 [저택 공간 설계](../../spaces/001-manor.md#manor-space) 하나다. 본채 전체의 방·개구부·물품 배치를 같은 환경에서 정하며, 설정의 용도와 source의 기하 사이에 필요한 공간 결정을 소유한다.
+The selected file is the single [manor space design](../../spaces/001-manor.md#manor-space). It sets the placement of rooms, openings and items of the whole main house in one environment and owns the spatial decisions needed between the settings' uses and the source's geometry.
 
-## 설계 계층의 경계 {#layer-boundary}
+## Boundary of the design layer {#layer-boundary}
 <!--
-@evidence obligations/core/common.md#layer-boundary 전체 파일의 결정을 공간 구성과 설치 위치로 분류하고 부재 생성·재질 구현은 source의 책임으로 구별한다.
+@evidence obligations/core/common.md#layer-boundary Classifies the decisions of the whole file as spatial composition and installation positions, and distinguishes member generation and material implementation as the source's responsibility.
 -->
 
-전체 파일은 본채의 공간 구성과 물품 설치를 소유한다. 모델·재질 생성은 해당 source에 남기며 방의 위치와 시각 관찰의 관계를 설명한다. 사람의 물리 사용성은 이 공간 납품의 별도 역할로 추가하지 않는다.
+The whole file owns the spatial composition of the main house and the installation of items. Model and material generation stay in their sources, and the file explains the relationship between room positions and visual observation. Human physical usability is not added as a separate role of this spatial delivery.
 
-## 제작 언어 {#production-language}
+## Production language {#production-language}
 <!--
-@evidence obligations/core/common.md#production-language 한국어 배치 설명과 정확한 영문 source ID의 역할을 전체 파일에서 비교한다.
+@evidence obligations/core/common.md#production-language Compares, across the whole file, the role of the English placement descriptions and the exact source IDs.
 -->
 
-한국어 공간 설명과 source 식별자를 구별한다. hall·kitchen·pantry·ledger·service는 각각 홀·주방·식료실·장부실·저장·세척실이고 상층 ID도 해당 방의 한국어 설명과 연결한다. 실제 뷰어 메뉴의 언어 상태는 이 문서만으로 완료라고 주장하지 않는다.
+The English spatial descriptions are distinguished from source identifiers. hall, kitchen, pantry, ledger and service are respectively the family hall, kitchen, pantry, ledger room, and storage and washing room, and the upper-floor IDs are also linked to the English descriptions of their rooms. This document alone does not claim that the language state of the actual viewer menu is complete.
 
-## 규모에 맞는 설계 전개 {#proportionate-development}
+## Design development proportionate to scale {#proportionate-development}
 <!--
-@evidence obligations/core/common.md#proportionate-development 전체 본채의 층별 구성과 모든 방·정원의 설치 결정을 비교하고 홀의 상세 좌표가 다른 공간을 대신하지 않는지 판단한다.
+@evidence obligations/core/common.md#proportionate-development Compares the per-storey composition of the whole main house with the installation decisions for every room and the garden, and judges that the hall's detailed coordinates do not substitute for other spaces.
 -->
 
-현재 공간 모집단은 전체 본채 한 H2다. 층별 구성에서 각 실의 방향과 직접 연결을 정하고 모든 생활 구획의 가구·설비 배치를 전개한다. 홀의 상세 수치는 유지하되 인체 검사 설명으로 분량을 채우지 않으며 외관·정원·상층의 시각적 완성은 현재 렌더에서 별도로 확인한다.
+The current space population is one H2 for the whole main house. The per-storey composition sets each room's orientation and direct connection and develops the furniture and fixture placement of every household division. The hall's detailed figures are kept, but the length is not filled with human-inspection explanation, and the visual completion of the exterior, garden and upper floor is confirmed separately in the current render.

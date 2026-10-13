@@ -1,10 +1,10 @@
-# 한국어 탐색 신호
+# English discovery signals
 
-## 작품별 한국어 조건 {#korean-work-specific-conditions}
+## Work-specific English conditions {#english-work-specific-conditions}
 
 ```contract-rule
 {
-  "id": "korean-work-specific-conditions",
+  "id": "english-work-specific-conditions",
   "status": "active",
   "safeApplication": "observation-only",
   "timing": "before first-version authoring and whenever the audience-language basis changes",
@@ -12,8 +12,8 @@
 }
 ```
 
-이 작품이 요구하는 한국어 변이, 독자, 시대, 높임, 종결, 인물어, 전문어, 접근성 용어와 의도한 다언어 경계를 탐색한다. 표면 습관은 실제 문장을 비교할 출발점일 뿐 저자 판별이나 보편 금지 근거가 아니다.
+Discover the English variety, audience, period, registers, accessibility vocabulary, dialogue conventions, and any deliberate multilingual boundary this production requires. A surface habit is only a prompt to compare literal passages; it is never an authorship detector or a universal ban.
 
-검토 질문: 유창한 의도 독자가 이 작품을 이해하고 구별하고 경험하는 방식을 바꾸는 한국어 조건은 무엇인가?
+Review question: which English-language condition changes what a fluent intended reader can understand, distinguish, or experience in this production?
 
-출처: [W3C 언어 선언 안내](https://www.w3.org/International/questions/qa-html-language-declarations); [국립국어원 한국어기초사전](https://krdict.korean.go.kr/)
+Sources: [W3C Internationalization on declaring language](https://www.w3.org/International/questions/qa-html-language-declarations); [British National Corpus](https://www.english-corpora.org/bnc/)

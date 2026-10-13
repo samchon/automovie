@@ -1,36 +1,36 @@
-# 저택 공간의 설계 책임
+# Design responsibilities of the manor space
 
-## 공간 결정의 주소 {#addressable-spatial-decisions}
+## Addresses of spatial decisions {#addressable-spatial-decisions}
 <!--
-@evidence obligations/design/spaces.md#addressable-spatial-decisions 현재 활성 환경의 공간 결정을 manor-space 한 주소에 모으고 실제 방·개구부·물품의 source 식별자를 유지한다.
+@evidence obligations/design/spaces.md#addressable-spatial-decisions Gathers the spatial decisions of the currently active environment at the single manor-space address and keeps the source identifiers of actual rooms, openings and items.
 -->
 
-현재 선택은 [manor-space](../../spaces/001-manor.md#manor-space) 하나이며 한 source가 전체 본채를 실현한다. 방·개구부·계단·배치의 식별자는 같은 환경에서 유지한다. 독립 공간 소유자가 생기면 이 전체 환경 주소만으로 그 저술을 완료라고 할 수 없다.
+The current selection is the single [manor-space](../../spaces/001-manor.md#manor-space), and one source realizes the whole main house. The identifiers of rooms, openings, the stair and placement are kept in the same environment. If an independent space owner appears, this whole-environment address alone cannot call that writing complete.
 
-## 좌표와 연결 그래프 {#space-reference-topology}
+## Coordinates and connection graph {#space-reference-topology}
 <!--
-@evidence obligations/design/spaces.md#space-reference-topology 같은 세계 좌표계의 지면·두 층·각 방과 회랑·계단·복도 사이 포함과 직접 연결을 비교한다.
+@evidence obligations/design/spaces.md#space-reference-topology Compares containment and direct connection among the ground, the two storeys, each room, the galleries, the stair and the corridor in the same world coordinate system.
 -->
 
-세계 좌표와 두 층의 기준면을 공유한다. 지상층 필수실은 같은 회랑 또는 현관에, 상층 필수실은 같은 일자 복도에 직접 연결한다. 이름·경계·개구부를 같은 모델 원천에서 등록하여 서로 다른 건물의 연결을 섞지 않는다.
+The world coordinates and the datum levels of the two storeys are shared. Required ground-floor rooms connect directly to the same gallery or the entrance, and required upper-floor rooms to the same straight corridor. Names, boundaries and openings are registered from the same model source so that connections of different buildings are not mixed.
 
-## 외피와 실내의 접점 {#space-envelope-interface}
+## Interface of envelope and interior {#space-envelope-interface}
 <!--
-@evidence obligations/design/spaces.md#space-envelope-interface 본채 외벽·지붕·층·내부 방과 개구부가 같은 형상에서 나온다는 관계를 전체 공간에서 비교한다.
+@evidence obligations/design/spaces.md#space-envelope-interface Compares across the whole space the relationship in which the main house's outer walls, roof, storeys, interior rooms and openings come from the same geometry.
 -->
 
-외피와 실내는 같은 원천 벽과 개구부를 사용한다. 정상 외관과 층별 관찰에서 한 본채의 지붕·벽·창·층 구성이 읽히는지 판단하며 실건물 접합·지지의 수치 인증으로 확대하지 않는다.
+The envelope and the interior use the same source walls and openings. The normal exterior and per-storey observation judge whether the roof, walls, windows and storey composition of one main house read, without expanding into numerical certification of real-building joints or support.
 
-## 관찰 공간과 접근의 경계 {#space-access-circulation}
+## Boundary of observed space and access {#space-access-circulation}
 <!--
-@evidence obligations/design/spaces.md#space-access-circulation 본채의 출입문·회랑·계단·복도가 설정의 직접 연결을 표현하는지 공간 설계와 소스 정의를 대조한다.
+@evidence obligations/design/spaces.md#space-access-circulation Checks the space design and the source definition for whether the main house's entrance doors, galleries, stair and corridor express the settings' direct connections.
 -->
 
-본채의 현관·각 필수실의 문·회랑·복도·계단이 설정의 직접 연결을 표현한다. 각 층의 평면과 계단 절개, 실내 시점에서 그 구성을 읽고 가려진 대상에는 다른 시점이나 선언 상태를 사용한다.
+The main house's entrance, each required room's door, the galleries, the corridor and the stair express the settings' direct connections. That composition is read in each storey's plan, the stair cutaway and the interior viewpoints, and another viewpoint or a declared state is used for occluded subjects.
 
-## 공간 관찰의 구성 {#space-review-set}
+## Composition of spatial observation {#space-review-set}
 <!--
-@evidence obligations/design/spaces.md#space-review-set 현재 3D의 외관·층·방·물품을 읽는 관찰을 평면·절개·투시와 실제 배치의 필요한 역할로 구별한다.
+@evidence obligations/design/spaces.md#space-review-set Distinguishes observations reading the current 3D exterior, storeys, rooms and items by the required roles of plan, cutaway, perspective and actual placement.
 -->
 
-관찰 집합은 실제 활성 소유자와 원본 다섯 장의 시각 질문에서 정한다. 외관·층별 구성·모든 방과 물품·재료를 현재 렌더로 읽으며, 남은 가림과 연결 질문을 절개·근접·선언 상태에서 확인한다.
+The observation set is decided from the actual active owners and the visual questions of the five source images. The exterior, the per-storey composition, every room, the items and the materials are read in the current render, and remaining occlusion and connection questions are confirmed in cutaways, close views and declared states.

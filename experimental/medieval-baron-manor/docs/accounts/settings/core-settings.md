@@ -3,119 +3,119 @@
 ## Addressable canon {#addressable-canon}
 
 <!--
-@evidence obligations/core/settings.md#addressable-canon 현재33설정의 독립 소비자와 H2 소유 경계를 비교한다.
+@evidence obligations/core/settings.md#addressable-canon Compares the independent consumers and H2 ownership boundaries of the current 33 settings.
 -->
 
-현재 33개 H2는 제작·납품 16개, 가족·물품 11개, 공간 구성 6개로 나뉜다. reference-priority는 이미지의 권한, review-condition은 이미지 규격, observation-population은 필요한 관찰 대상, review-roles는 수행자, completion-condition은 종료를 각각 소유한다. 방별 물품과 고정 연결은 해당 생활·공간 주소에서 결정되며 그림 한 장의 주소나 검사 대리 형체로 대신하지 않는다.
+The current 33 H2s divide into 16 for production and delivery, 11 for family and items, and 6 for spatial composition. reference-priority owns the authority of the images, review-condition the image specification, observation-population the required observation subjects, review-roles the performers, and completion-condition completion. Per-room items and fixed connections are settled at their household and spatial addresses and are not replaced by the address of a single picture or an inspection proxy form.
 
 ## Delivery scope {#delivery-scope}
 
 <!--
-@evidence obligations/core/settings.md#delivery-scope 전체3D 본채와 한국어 설계·현재관찰의 납품 끝을 비교한다.
+@evidence obligations/core/settings.md#delivery-scope Compares the delivery end of the whole 3D main house with the English design and current observation.
 -->
 
-delivery-scope는 본채 한 채와 모든 방·생활 물품·정원·대지·접근 길을 실제 3D로 납품한다. 한국어 설계와 현재 렌더·관찰 영수증을 함께 제공하며 completion-condition이 현재성과 시각적 완성을 판단한다. 홀 우선 관찰은 전체 범위를 줄이지 않는다. 실건물 사용성·물리적 적합성 검사는 비요구이고 그 실패를 통과로 바꾸지 않으며, 해당 방이나 물품을 삭제하지 않는다.
+delivery-scope delivers one main house and every room, household item, the garden, the site and the approach path in actual 3D. It provides the English design together with the current render and observation receipts, and completion-condition judges currency and visual completion. Priority observation of the hall does not shrink the whole scope. Real-building usability and physical fitness inspections are not required, their failure is never turned into a pass, and no room or item is deleted on their account.
 
 ## Governing aim {#governing-aim}
 
 <!--
-@evidence obligations/core/settings.md#governing-aim 한 집에서 가족의 생활 관계를 읽는 목적을 다른 설정의 선택과 비교한다.
+@evidence obligations/core/settings.md#governing-aim Compares the aim of reading the family's living relationships in one house with the choices of the other settings.
 -->
 
-governing-aim은 한 집 안에서 먹고 일하고 씻고 잠드는 관계가 읽히는 구성을 우선한다. household와 각 방은 가족 배경·물품을, ground-access·upper-access는 필수실의 직접 연결을 정한다. 웅장함을 위해 계단을 늘리거나 방을 외부로 분리하는 선택은 이 목적을 위반한다. 이 관계는 실제 사람의 동작이나 편안함을 인증하는 조건이 아니다.
+governing-aim gives priority to a composition in which eating, working, washing and sleeping read as relationships within one house. household and each room set the family background and items, and ground-access and upper-access set the direct connections of the required rooms. Adding stairs or separating rooms to the outside for grandeur violates this aim. This relationship is not a condition certifying the movement or comfort of real people.
 
 ## Production visual grammar {#production-visual-grammar}
 
 <!--
-@evidence obligations/core/settings.md#production-visual-grammar 공통 목구조·벽·기초·지붕과 방별 생활 재료의 적용 범위를 비교한다.
+@evidence obligations/core/settings.md#production-visual-grammar Compares the application scope of the common timber frame, walls, foundation and roof and of the per-room household materials.
 -->
 
-visual-grammar의 짙은 갈색 목구조·따뜻한 회백색 충전벽·석재 기초·작은 갈색 지붕재·분할 창을 전체 본채에 적용한다. 주방의 그을음, 세척 도구, 깨끗한 직물과 침구는 방마다 다른 생활 표현이다. garden의 잎·열매는 같은 초가을 상태를 공유한다. reference-priority의 원본 관계가 이 문법의 시각 근거이고 관찰 조명이 새 재료를 정의하지 않는다.
+visual-grammar's dark brown timber frame, warm off-white infill walls, stone foundation, small brown roofing pieces and divided windows apply to the whole main house. The kitchen's soot, the washing tools, and the clean textiles and bedding are household expressions that differ by room. The garden's leaves and fruit share the same early-autumn state. The source relationships of reference-priority are the visual basis of this grammar, and observation lighting defines no new material.
 
 ## Production fidelity tier {#production-fidelity-tier}
 
 <!--
-@evidence obligations/core/settings.md#production-fidelity-tier 결정론적3D 납품의 관찰 가능 정보와 더 강한 추론의 경계를 비교한다.
+@evidence obligations/core/settings.md#production-fidelity-tier Compares the observable information of a deterministic 3D delivery with the boundary of stronger inference.
 -->
 
-fidelity는 결정론적 3D 형상·재질 자체를 납품하며 이미지 재생성을 사용하지 않는다. 주요 가구와 소품을 끝까지 단순 상자로 남기지 않고 실제 렌더에서 형체와 재료를 읽게 한다. 초기 낮은 세부 수준은 최종 미완성의 면제가 아니다. 완료 범위는 delivery-scope와 completion-condition이 정하므로 보이지 않는 접합·미세 겹침의 수치 증명이나 실물 안전 인증을 추가하지 않는다.
+fidelity delivers the deterministic 3D geometry and materials themselves and does not use image regeneration. Main furniture and props are never left as simple boxes at the end, and their form and material read in the actual render. The early low level of detail is not an exemption from final incompleteness. Because delivery-scope and completion-condition set the completion scope, no numerical proof of hidden joints or minute overlaps and no physical safety certification is added.
 
 ## Subject breakdown and production scope {#subject-breakdown-production-scope}
 
 <!--
-@evidence obligations/core/settings.md#subject-breakdown-production-scope 모든 건축·물품·정원 대상의 제작·배치 책임과 제외 대상을 비교한다.
+@evidence obligations/core/settings.md#subject-breakdown-production-scope Compares the production and placement responsibility of every architectural, item and garden subject and the excluded subjects.
 -->
 
-subject-inventory는 가상 거주 배경·운영과 검토 역할·건축·생활 물품·정원·원본 이미지를 구별한다. make-scope는 공간·원형·재료·배치의 책임을 나누며 각 방의 필수 물품 목록을 유지한다. 현재 활성 공간 가지가 실제 모델과 배치를 담은 환경을 소비하므로 비활성 가지를 편의상 켜거나 물품을 범위 밖으로 옮기지 않는다.
+subject-inventory distinguishes the fictional residential background, the operating and review roles, the architecture, the household items, the garden and the source images. make-scope divides the responsibilities of space, prototypes, materials and placement and keeps each room's required item list. Because the currently active space branch consumes an environment holding the actual models and placement, inactive branches are not switched on for convenience and items are not moved out of scope.
 
 ## Audience or operator access {#audience-operator-access}
 
 <!--
-@evidence obligations/core/settings.md#audience-operator-access 운영자가 읽고 제어할 현재3D와 관찰 도구의 범위를 비교한다.
+@evidence obligations/core/settings.md#audience-operator-access Compares the scope of the current 3D and observation tools the operator reads and controls.
 -->
 
-operator-access는 현재 외관·실내·개별 사물과 주소·치수·연결·선언 상태를 읽고 관찰할 수 있게 한다. 자유 카메라는 관찰 도구이며 실제 사람의 통행을 증명하지 않는다. 벽·지붕 숨김은 검사 상태이고 정상 외관은 전체 외피를 보여 준다. 임의 부재 편집기와 실시간 생활 시뮬레이터는 약속하지 않으며 실제 접근 가능한 화면은 제출물에서 확인한다.
+operator-access lets the current exterior, interior and individual objects and their addresses, dimensions, connections and declared states be read and observed. The free camera is an observation tool and proves no passage for real people. Hiding walls and roofs is an inspection state, and the normal exterior shows the whole envelope. No arbitrary member editor or real-time life simulator is promised, and the screens actually accessible are confirmed in the submission.
 
 ## Accessibility deliverable states {#accessibility-deliverable-states}
 
 <!--
-@evidence obligations/core/settings.md#accessibility-deliverable-states 한국어텍스트·음성트랙·대체조작의 필수·부재·미지원 상태를 비교한다.
+@evidence obligations/core/settings.md#accessibility-deliverable-states Compares the required, absent and unsupported states of English text, audio tracks and alternative controls.
 -->
 
-accessibility-products는 한국어 공간 목록·치수·연결·이미지별 텍스트와 안정된 주소를 필수로 둔다. 무시간 납품에는 자막·전사·음성해설 트랙이 의도적으로 없고 실시간 보조기기 UI 및 건물의 무장애 개조는 지원하지 않는다. 텍스트는 공간 관계를 제공하지만 시각적 동일성을 독립 판정할 근거까지 제공하지 않는다. 그 상태는 실제 건물 이동성에 관한 주장이 아니다.
+accessibility-products makes the English list of spaces, dimensions, connections, per-image text and stable addresses required. The timeless delivery intentionally has no caption, transcript or audio-description tracks, and real-time assistive-device UI and barrier-free alteration of the building are not supported. The text provides spatial relationships but not grounds to independently judge visual identity. That state is not a claim about mobility in a real building.
 
 ## Coordinate and unit convention {#coordinate-unit-convention}
 
 <!--
-@evidence obligations/core/settings.md#coordinate-unit-convention 공유 축·단위·층 기준과 그 값을 소비하는 설정을 비교한다.
+@evidence obligations/core/settings.md#coordinate-unit-convention Compares the shared axes, units and storey datum with the settings that consume those values.
 -->
 
-coordinate-datum이 오른손 Y-up, +X 동쪽·+Z 남쪽, m·㎡·초, 지면 원점을 소유한다. 1층 0.45와 2층 3.33의 차이 2.88m는 single-stair의 16×0.18m 구성과 일치한다. area-budget은 모델 규모, review-condition은 해당 마감면 위 관찰 눈높이를 소비한다. 설계는 같은 좌표를 쓰며 모델 치수를 통행·작업 여유의 합격 조건으로 바꾸지 않는다.
+coordinate-datum owns the right-handed Y-up system, +X east and +Z south, m, ㎡ and seconds, and the ground origin. The 2.88m difference between the ground floor at 0.45 and the upper floor at 3.33 agrees with the 16×0.18m composition of single-stair. area-budget consumes the model scale, and review-condition the observation eye height above the relevant finished floor. The designs use the same coordinates and never turn model dimensions into pass conditions for passage or work clearance.
 
 ## Delivery review condition {#delivery-review-condition}
 
 <!--
-@evidence obligations/core/settings.md#delivery-review-condition 중립 이미지 규격·전체 시각 대상·수행 역할·현재 종료를 비교한다.
+@evidence obligations/core/settings.md#delivery-review-condition Compares the neutral image specification, the whole visual subject, the performing roles and current completion.
 -->
 
-review-condition은 중립 주광·1536×1024·수평 60도·마감면 위 1.60m를 정한다. observation-population은 실제 활성 소유자와 이미지 다섯 장의 질문에서 전체 외관·각 층·모든 방·물품·재료를 읽을 시점을 정한다. review-roles는 직접 PNG 열람과 저작·관찰·독립 판정의 역할을 나누고 completion-condition은 현재 소스와 관찰에 묶인 종료를 소유한다. 기존 물리 시험용 뷰나 UI 항목 수는 자동 완료 분모가 아니다.
+review-condition sets neutral daylight, 1536×1024, 60 degrees horizontal and 1.60m above the finished floor. observation-population sets, from the actual active owners and the questions of the five images, the viewpoints that read the whole exterior, each storey, every room, the items and the materials. review-roles divides direct PNG viewing and the roles of authoring, observation and independent judgment, and completion-condition owns completion bound to the current source and observations. Existing views for physical tests and the number of UI items are not an automatic completion denominator.
 
 ## Settings coverage map {#settings-coverage-map}
 
 <!--
-@evidence obligations/core/settings.md#settings-coverage-map 현재 요구의 명시 소유자와 범위 밖 분류를 전체주소에 대조한다.
+@evidence obligations/core/settings.md#settings-coverage-map Checks the explicit owners of current requirements and the out-of-scope classification against every address.
 -->
 
-coverage-map은 자신을 제외한 현재 설정 32개 주소를 납품·언어·관찰·생활·공간 요구에 연결한다. subject-inventory는 같은 소유자를 실제 대상 분류에서 찾게 한다. 두 지도는 사실을 재정의하지 않으며 실건물 물리 시험을 새 요구로 만들지 않는다. 단일 본채의 전 실과 물품·정원이 지도에서 사라지면 납품 범위의 누락이다.
+coverage-map connects the current 32 settings addresses other than itself to delivery, language, observation, household and spatial requirements. subject-inventory lets the same owners be found from the actual subject classification. The two maps redefine no facts and do not create real-building physical tests as a new requirement. If any room, item or the garden of the single main house disappeared from the map, it would be an omission from the delivery scope.
 
 ## Operative subject inventory {#operative-subject-inventory}
 
 <!--
-@evidence obligations/core/settings.md#operative-subject-inventory 거주배경·운영자·독자·실제물품·원본의 서로 다른 참여 지위를 비교한다.
+@evidence obligations/core/settings.md#operative-subject-inventory Compares the different participation status of the residential background, operator, readers, actual items and sources.
 -->
 
-가족·지원자·방문자는 household의 가상 거주 배경이며 인물 자산·자율 행동은 납품하지 않는다. 운영자·저작자·관찰자·평가자는 operator-access와 review-roles가, 독자는 language-access와 accessibility-products가 소유한다. 방·가구·수목·도기·직물은 실제 제작 대상이다. 쟁반과 물통은 각각 홀과 주방·세척·침실의 물품으로 남으며 인체 검사 형체가 이들을 대신하지 않는다.
+The family, helper and visitors are household's fictional residential background, and no character assets or autonomous actions are delivered. operator-access and review-roles own the operator, author, observer and evaluator, and language-access and accessibility-products own the readers. Rooms, furniture, trees, pottery and textiles are actual production subjects. The tray and water buckets remain items of the hall and of the kitchen, washing room and bedrooms respectively, and no human inspection form replaces them.
 
 ## Design-dependent subject conditions {#design-dependent-subject-conditions}
 
 <!--
-@evidence obligations/core/settings.md#design-dependent-subject-conditions 현행 납품이 실제 의존하는 독자·관찰 조건만 비교한다.
+@evidence obligations/core/settings.md#design-dependent-subject-conditions Compares only the reader and observation conditions the current delivery actually depends on.
 -->
 
-현재 납품이 의존하는 사람 관련 조건은 한국어 문서를 읽는 제작자·검사자와 대체 텍스트가 필요한 독자의 정보 접근이다. language-access·accessibility-products가 이를 정하고 review-condition은 이미지를 비교할 시점을 정한다. delivery-scope가 실건물 사용성·물리적 적합성 검사를 요구하지 않으므로 인체 치수·짐·도달·착석·운반·작업폭을 추가 측정 조건으로 만들지 않는다. 여섯 식사 자리와 방별 물품은 표현할 구성으로 보존한다.
+The human conditions the current delivery depends on are information access for the producers and inspectors who read English documents and for readers who need alternative text. language-access and accessibility-products set these, and review-condition sets the viewpoints for comparing images. Because delivery-scope requires no real-building usability or physical fitness inspection, human dimensions, loads, reach, seating, carrying and work width are not made additional measurement conditions. The six dining places and the per-room items are preserved as compositions to express.
 
 ## Minimal departure {#minimal-departure}
 
 <!--
-@evidence obligations/core/settings.md#minimal-departure 정적표현의 통상 관행과 명시한 제작상 차이·비요구를 비교한다.
+@evidence obligations/core/settings.md#minimal-departure Compares the ordinary conventions of static expression with the stated production differences and non-requirements.
 -->
 
-이 제작은 실제 3D와 중립 렌더의 통상적인 표면·가림을 사용하며 자산에 자율 행동이나 초자연적 능력을 추가하지 않는다. 지역·연대·실존 가문은 정밀 역사 사실로 만들지 않는다. 정원 연못을 식수·오수 설비로 표현하지 않는 선택과 수동 자산·무시간 납품의 경계는 각각 소유자가 있다. 상속한 보통의 표현 관행을 실건물의 물리 적합성 검사로 확대하지 않는다.
+This production uses the ordinary surfaces and occlusion of actual 3D and neutral rendering and adds no autonomous action or supernatural capability to the assets. Region, period and real families are not made into precise historical fact. The choice not to present the garden pond as a drinking-water or waste-water utility and the boundary of passive assets and timeless delivery each have an owner. Inherited ordinary expression conventions are not expanded into physical fitness inspection of a real building.
 
 ## Internal coherence {#internal-coherence}
 
 <!--
-@evidence obligations/core/settings.md#internal-coherence 기준면·면적 예산·단일계단·실별연결과 납품·관찰 권한의 양립을 비교한다.
+@evidence obligations/core/settings.md#internal-coherence Compares the compatibility of the datum levels, area budget, single stair and per-room connections with delivery and observation authority.
 -->
 
-층간 2.88m와 16×0.18m, 면적 예산 135.8㎡×2−5.2㎡=266.4㎡는 같은 제작 기준에서 양립한다. 1층 연속 회랑과 2층 일자 복도의 직접 연결은 각 방의 문 구성과 일치하고 한 꺾임계단을 유지한다. 납품 전체·홀 우선 관찰·필수 시각 관찰·현재 종료는 서로 다른 책임으로 연결된다. 모델 치수의 보존과 물리 시험 비요구도 양립하며, 시각적 완성은 현재 렌더를 직접 읽은 뒤 별도로 판단한다.
+The 2.88m storey height and 16×0.18m, and the area budget 135.8㎡×2−5.2㎡=266.4㎡, are compatible under the same production standard. The direct connections of the continuous ground-floor gallery and the upper straight corridor agree with each room's door composition and keep one turning stair. The whole delivery, priority observation of the hall, required visual observation and current completion are connected as different responsibilities. Preserving model dimensions and not requiring physical tests are also compatible, and visual completion is judged separately after reading the current render directly.

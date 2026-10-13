@@ -1,402 +1,402 @@
-# 제작과 납품
+# Production and delivery
 
-## 완성 저택의 납품 범위 {#delivery-scope}
-
-<!--
-@evidence principles/core/common.md#declared-basis 사용자 확정 이미지 기반 납품을 전체 본채의 제작 경계로 적용한다.
-@evidence principles/core/common.md#scope-preservation 모든 방·설비·가구·소품·정원·대지·접근 길을 한 납품에 포함한다.
-@evidence principles/core/common.md#substantive-completion 정적 라이브러리의 대상·산출물·검사 경계·외부 확장 제외를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 정적 건물 자산과 검증 범위를 정하며 세계 안 인물의 행동 능력을 추가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 전체 본채·같은 좌표계·시각 판단·외부 확장 제외로 납품 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 제작 규모와 검증 범위를 채택한 결정으로 표시한다.
-@evidence principles/core/settings.md#observable-identity 원본의 외형·실내 구성·가구·재료를 가진 한 본채를 납품 정체성으로 둔다.
-@evidence principles/core/settings.md#source-support 원본 다섯 장은 시각 참조이며 면적과 검증 범위는 제작 결정이다.
--->
-
-**Status:** production invention, 이미지 기반 건축·자산 납품과 검증 범위는 사용자 확정.
-
-이 제작은 시간축이 없는 재사용 3D 건축 라이브러리다. 약 265㎡의 2층 목조 본채 한 채, 내부의 모든 구획과 생활 설비·가구·소품, 작은 중앙정원, 본채가 닿는 대지와 접근 길을 같은 좌표계로 납품한다.
-
-[원본 다섯 장](#reference-priority)에 따른 중세 남작 기사 집의 외형·실내 구성·가구·재료 표현을 실제 3D로 완성한다. 고정 공간 그래프와 모든 방·물품을 유지하며, 제공 이미지와 현재 렌더에서 그 형태와 공간 관계가 제대로 보이는지 판단한다. 최종 판단의 소유자는 [제출과 종료](#completion-condition)다.
-
-실존 건물의 인테리어·건축 사용성이나 물리적 적합성은 이 납품의 검사 대상이 아니다. 통로·방문·계단·작업대의 유효 치수, 인체 도달·착석·조작·운반, 불티 영역, 보이지 않는 접합·미세한 체적 겹침·지지와 가동의 수치 증명을 완료 조건으로 두지 않는다. 이들 검사의 미수행이나 실패를 통과로 바꾸지 않는다. 기존 제작 치수는 모델 값으로 보존하며 방·가구·용기·수납·철물·화구의 제작을 생략하지 않는다.
-
-마지막 산출물은 현재 소스로 컴파일한 건물·모델·배치, 이를 설명하는 한국어 설계, 전체 필수 관찰 PNG와 현재 관찰 영수증이다.
-
-탑·성벽·별채를 추가하지 않는다. 외부 원경 마을과 실내에 배치되지 않는 자산 카탈로그는 범위 밖이다.
-
-[우선 검사](#pilot-boundary)는 완성 범위를 줄이지 않으며, 전체 제작 완료 여부는 이 H2의 범위로 판정한다.
-
-## 거주의 우선 목적 {#governing-aim}
+## Delivery scope of the finished manor {#delivery-scope}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 지시의 제작상 해석으로 한 집 안의 가족 생활과 연결 동선을 설계 선택의 우선 근거로 삼는다.
-@evidence principles/core/common.md#scope-preservation 먹고 일하고 씻고 잠드는 가족 생활을 한 집의 외부·내부가 공유하는 구조와 연결 동선 안에 남긴다.
-@evidence principles/core/common.md#substantive-completion 가족의 거주 관계를 지킬 선택 기준과 그 기준이 거부할 계단·방 배치 변경을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 가족 생활의 읽힘을 설계 목적으로 정하며 먹기·세척 등의 자율 행동이나 설비의 가동 능력을 새로 허가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 가능한 설계안의 선택 기준과 외관을 위해 허용할 수 없는 변경을 정해 생활 연결을 희생한 확장을 거부한다.
-@evidence principles/core/settings.md#fact-status 거주 연결의 우선순위는 채택한 제작 해석이며 실제 가족의 생활 만족도나 완성 모델의 검증 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 거주용 본채는 식사·업무·세척·수면의 관계가 외부와 내부에서 같은 집의 구조로 읽혀야 한다.
-@evidence principles/core/settings.md#source-support 가족 생활을 보존하는 우선순위를 제작 결정으로 쓰며 역사적 남작 주거의 보편 규칙으로 주장하지 않는다.
+@evidence principles/core/common.md#declared-basis Applies the user-confirmed image-based delivery as the production boundary of the whole main house.
+@evidence principles/core/common.md#scope-preservation Includes every room, fixture, piece of furniture, prop, the garden, the site and the approach path in one delivery.
+@evidence principles/core/common.md#substantive-completion Settles the static library's subject, deliverables, inspection boundary and the exclusion of external extensions.
+@evidence principles/core/settings.md#capability-boundary Sets the static building asset and the verification scope without adding any in-world action capability for people.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains delivery choices by the whole main house, one shared coordinate system, visual judgment and the exclusion of external extensions.
+@evidence principles/core/settings.md#fact-status Marks the production scale and verification scope as adopted decisions.
+@evidence principles/core/settings.md#observable-identity Sets one main house with the source's exterior, interior arrangement, furniture and materials as the delivery identity.
+@evidence principles/core/settings.md#source-support The five source images are visual references; the area and the verification scope are production decisions.
 -->
 
-**Status:** production invention, 사용자 지시의 제작상 해석.
+**Status:** production invention, the image-based architecture and asset delivery and its verification scope are user-confirmed.
 
-가족이 같은 집 안에서 먹고 일하고 씻고 잠드는 관계가 외부와 내부의 동일한 구조에서 읽혀야 한다. 두 선택이 모두 가능한 경우, 작은 남작 기사 가족의 실생활과 연결 동선을 보존하는 쪽을 택한다. 외관을 웅장하게 만들기 위해 계단을 늘리거나 방을 외부에 떼어내는 선택은 허용하지 않는다.
+This production is a reusable 3D architectural library without a time axis. It delivers, in one coordinate system, a single two-storey timber main house of about 265㎡, every internal division with its household fixtures, furniture and props, a small central garden, and the site and approach path the main house touches.
 
-## 한국어 독자와 용어 {#language-access}
+It completes in actual 3D the exterior, interior arrangement, furniture and material expression of the medieval baron knight's house shown in [the five source images](#reference-priority). It keeps the fixed spatial graph and every room and item, and judges whether their forms and spatial relationships read correctly in the provided images and the current render. The owner of the final judgment is [submission and completion](#completion-condition).
+
+The interior or architectural usability and the physical fitness of a real building are not inspection subjects of this delivery. Effective clearances of passages, room doors, stairs and work surfaces; human reach, seating, operation and carrying; spark zones; and numerical proof of hidden joints, minute volume overlaps, support and movement are not completion conditions. A skipped or failed inspection of these kinds is never turned into a pass. Existing production dimensions are kept as model values, and no room, furniture, container, storage, ironwork or hearth is omitted from production.
+
+The final deliverables are the building, models and placement compiled from the current source, the English design that describes them, the complete set of required observation PNGs, and the current observation receipts.
+
+No tower, curtain wall or outbuilding is added. A distant village beyond the site and any asset catalogue not placed in the interior are out of scope.
+
+[The priority inspection](#pilot-boundary) does not shrink the completion scope; whether the whole production is complete is judged by the scope of this H2.
+
+## Governing aim of habitation {#governing-aim}
 
 <!--
-@evidence principles/core/common.md#declared-basis 한국어 제작은 사용자 확정으로 두고 평서체·프로젝트 용어·원문 식별자 보존은 이 문서의 사용 규칙으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 설정·설계·검토의 한국어 서술, 비전문 독자의 용어 접근, 기술 표기와 공간 주소의 보존을 함께 요구한다.
-@evidence principles/core/common.md#substantive-completion 사용할 문체와 독자 수준, 혼동할 용어의 뜻, 번역하지 않을 표기와 이름 변경 조건을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 서술·명명·검사 관찰의 의미를 정하며 공간의 자율 변형이나 거주자의 언어 능력을 허가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 한국어화할 서술과 보존할 기술 표기, 이름 변경 때 유지할 소유 주소를 구별해 후속 작성의 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 한국어 제작의 사용자 확정과 문체·용어·표기 규칙의 제작 선택을 명시하며 공간이나 독자의 실제 검증 결과와 구별한다.
-@evidence principles/core/settings.md#observable-identity 회랑과 복도를 층·정원 방향·지붕·실내·형태로 구별하고 절개를 외피를 숨긴 검사 관찰로 식별한다.
-@evidence principles/core/settings.md#source-support 회랑·복도·절개의 정의를 프로젝트 용례로 한정하고 외부 사전이나 역사적 언어의 보편 규칙으로 인용하지 않는다.
+@evidence principles/core/common.md#declared-basis As the production reading of the user instruction, makes family life and connecting circulation within one house the primary basis for design choices.
+@evidence principles/core/common.md#scope-preservation Keeps a family's eating, working, washing and sleeping within the structure and connecting circulation shared by the exterior and interior of one house.
+@evidence principles/core/common.md#substantive-completion Settles the selection criterion that protects the family's living relationships and the stair and room changes that criterion rejects.
+@evidence principles/core/settings.md#capability-boundary Sets the legibility of family life as a design aim without newly authorizing autonomous actions such as eating or washing, or the operation of fixtures.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the criterion for choosing between possible designs and the changes the exterior may not justify, rejecting expansions that sacrifice living connections.
+@evidence principles/core/settings.md#fact-status The priority of living connections is an adopted production reading, not the life satisfaction of a real family or a verification result of the finished model.
+@evidence principles/core/settings.md#observable-identity The dwelling must read, outside and inside, as one house structure relating dining, work, washing and sleeping.
+@evidence principles/core/settings.md#source-support Uses the priority that preserves family life as a production decision and does not claim it as a universal rule of historical baronial dwellings.
 -->
 
-**Status:** production invention, 한국어 제작은 사용자 확정.
+**Status:** production invention, the production reading of the user instruction.
 
-설정·설계·검토 서술은 현대 표준 한국어 평서체로 쓴다. 독자는 도면 전문교육을 전제로 하지 않는 제작자와 검사자다. 인물 대사나 시대 한국어를 창작하지 않는다.
+The relationship of a family eating, working, washing and sleeping in the same house must read from one identical structure outside and inside. When both of two choices are possible, choose the one that preserves the real life and connecting circulation of a small baron knight's family. Adding stairs or detaching rooms to the outside to make the exterior grander is not allowed.
 
-이 제작에서 회랑은 1층 정원을 향해 이어지는 지붕 아래 통로, 복도는 2층 실내의 짧은 일자 통로, 절개는 벽이나 지붕을 검사 목적에 한해 숨긴 관찰을 뜻한다.
-
-코드 식별자, 파일 경로, API 이름, 계약에서 정한 Status 표기는 정확한 원문을 유지한다. 용어를 바꿀 때에는 같은 공간이 다른 이름으로 중복되지 않도록 소유 주소를 유지한다.
-
-## 운영자의 접근과 조작 {#operator-access}
+## English readers and terminology {#language-access}
 
 <!--
-@evidence principles/core/common.md#declared-basis 관찰과 선언 상태 선택을 제작자가 채택한 운영 범위로 둔다.
-@evidence principles/core/common.md#scope-preservation 전체 외관·실내·개별 사물과 주소·선언 상태를 운영자가 읽게 한다.
-@evidence principles/core/common.md#substantive-completion 읽을 정보·숨김 상태·선언 상태 선택과 편집 기능의 경계를 정한다.
-@evidence principles/core/settings.md#capability-boundary 운영자의 화면 조작과 자산의 세계 안 능력을 구별한다.
-@evidence principles/core/settings.md#constraint-sufficiency 허용할 읽기·상태 선택과 납품하지 않는 임의 편집·생활 시뮬레이션을 정한다.
-@evidence principles/core/settings.md#fact-status 관찰 기능은 채택한 제작 결정이며 구현 완료 보고가 아니다.
-@evidence principles/core/settings.md#observable-identity 실제 위치의 본채와 중립 배경의 개별 사물을 각각 읽는 관찰을 둔다.
-@evidence principles/core/settings.md#source-support 소프트웨어의 제공 범위를 제작 결정으로 제시한다.
+@evidence principles/core/common.md#declared-basis Treats English production as user-confirmed and adopts the plain register, project terms and preservation of source identifiers as this document's usage rules.
+@evidence principles/core/common.md#scope-preservation Requires together English prose for settings, design and review, terminology access for non-specialist readers, and preservation of technical notation and space addresses.
+@evidence principles/core/common.md#substantive-completion Settles the register and reader level to use, the meaning of easily confused terms, the notation left untranslated and the conditions for renaming.
+@evidence principles/core/settings.md#capability-boundary Sets the meaning of prose, naming and inspection observations without authorizing autonomous transformation of spaces or occupants' language abilities.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains later writing by distinguishing prose to write in English, technical notation to preserve, and the owner addresses kept through a rename.
+@evidence principles/core/settings.md#fact-status States that English production is user-confirmed and that the register, terminology and notation rules are production choices, distinct from any actual verification of the spaces or readers.
+@evidence principles/core/settings.md#observable-identity Distinguishes the gallery from the corridor by storey, garden direction, roof, interior and form, and identifies a cutaway as an inspection observation that hides the envelope.
+@evidence principles/core/settings.md#source-support Limits the definitions of gallery, corridor and cutaway to project usage and does not cite them as universal rules of an external dictionary or historical language.
 -->
 
-**Status:** production invention, 건축 자산을 관찰하고 선언 상태를 선택하는 제작 결정.
+**Status:** production invention, English production is user-confirmed.
 
-운영자는 현행 건물의 전체 외부, 각 층·구획·사물의 주소와 치수, 연결과 소유, 개구부의 설정 상태, 검사 시점 및 영수증을 읽을 수 있다. 외관·실내를 실제 위치에서 관찰하고 개별 모델을 중립 배경에서 회전 관찰한다. 방의 경계를 통과하는 자유 카메라는 관찰 도구이며 통행 가능성의 증거가 아니다.
+Settings, design and review prose is written in modern standard English in a plain declarative register. The readers are producers and inspectors who are not assumed to have professional drawing training. Character dialogue and period English are not invented.
 
-벽·지붕 숨김은 검사 상태로만 사용한다. 정상 외관 납품은 모든 외피가 존재하는 상태다.
+In this production, a gallery is the roofed ground-floor passage that runs along the garden, a corridor is the short straight indoor passage on the upper floor, and a cutaway is an observation that hides a wall or roof for inspection purposes only.
 
-문·창·뚜껑의 선언 상태를 화면에서 선택하여 해당 상태의 3D 표현을 관찰한다. 이 조작은 모델을 보는 기능이며 실건물에서의 사용 가능성이나 가동 간섭의 수치 증명을 납품하지 않는다. 관찰 범위는 [전체 납품](#delivery-scope)을 따른다.
+Code identifiers, file paths, API names and the Status notation fixed by the contract keep their exact original form. When a term changes, the owner address is kept so that the same space is not duplicated under another name.
 
-본채의 부재를 임의 변형하는 편집 인터페이스나 실시간 생활 시뮬레이터를 납품한다고 약속하지 않는다.
-
-## 접근성 산출물의 상태 {#accessibility-products}
+## Operator access and control {#operator-access}
 
 <!--
-@evidence principles/core/common.md#declared-basis 한국어 텍스트 지원과 미지원 제품을 이 정적 납품의 제작 결정으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 필수 텍스트와 시각·조작 지원이 필요한 독자에게 제공할 정보 경계를 남긴다.
-@evidence principles/core/common.md#substantive-completion 필수·의도적 부재·미지원과 제공 정보의 한계를 구별한다.
-@evidence principles/core/settings.md#capability-boundary 대체 정보와 UI의 제공 상태는 건물이나 독자의 세계 안 능력 허가가 아니다.
-@evidence principles/core/settings.md#constraint-sufficiency 필수 설명과 제공하지 않는 트랙·UI·개조의 경계를 정한다.
-@evidence principles/core/settings.md#fact-status 접근성 제품의 지원 상태를 이 제작의 채택으로 표시한다.
-@evidence principles/core/settings.md#observable-identity 텍스트로 제공할 공간 관계와 시각적으로 판단할 재료·조명을 구별한다.
-@evidence principles/core/settings.md#source-support 제공 정보의 범위를 이 납품 안에서 한정한다.
+@evidence principles/core/common.md#declared-basis Treats observation and declared-state selection as the operating scope the producer adopted.
+@evidence principles/core/common.md#scope-preservation Lets the operator read the whole exterior, the interior, individual objects, and their addresses and declared states.
+@evidence principles/core/common.md#substantive-completion Sets the information to read, the hidden states, declared-state selection and the boundary of editing features.
+@evidence principles/core/settings.md#capability-boundary Distinguishes the operator's screen controls from the assets' in-world capabilities.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the reading and state selection allowed and the arbitrary editing and life simulation not delivered.
+@evidence principles/core/settings.md#fact-status The observation features are an adopted production decision, not a report of completed implementation.
+@evidence principles/core/settings.md#observable-identity Provides observation that reads the main house in its actual location and individual objects against a neutral background.
+@evidence principles/core/settings.md#source-support Presents the scope the software provides as a production decision.
 -->
 
-**Status:** production invention, 제작 결정.
+**Status:** production invention, a production decision to observe the architectural asset and select declared states.
 
-한국어 공간 목록, 치수·연결 설명, 이미지별 텍스트 관찰은 필수이며 설계 문서와 관찰 서술이 제공한다. 색만으로 소유를 구별하지 않고 안정된 주소를 함께 쓴다.
+The operator can read the whole exterior of the current building; the address and dimensions of each storey, division and object; connections and ownership; the set state of openings; and inspection viewpoints and receipts. The exterior and interior are observed in their actual location, and individual models are observed rotating against a neutral background. A free camera that passes through room boundaries is an observation tool, not evidence of passability.
 
-시간축 음성·영상이 없으므로 자막·전사·음성해설 트랙은 의도적으로 없다.
+Hiding walls and roofs is used only as an inspection state. The normal exterior delivery is the state in which every part of the envelope is present.
 
-이 산출물은 시각을 사용할 수 없는 독자에게 공간 관계와 발견 사항을 텍스트로 제공하지만, 재료와 조명의 시각적 동일성을 독립 판정할 근거까지 제공하지는 않는다.
+Declared states of doors, windows and lids are selected on screen to observe the 3D expression of that state. This control is a feature for viewing the model; it does not deliver usability in a real building or numerical proof of movement interference. The observation scope follows [the whole delivery](#delivery-scope).
 
-이 정적 라이브러리는 본채의 3D 표현과 문서·이미지를 납품하며, 대체 접근은 이 산출물을 설명하는 텍스트로 지원한다. 이에 따라 실시간 보조기기용 조작 UI와 건축물의 무장애 개조는 이 납품에서 지원하지 않으며, 그 조작 지원이 필요한 독자에게는 관찰 텍스트를 통한 정보 접근을 제공한다. 이 상태는 실제 건물의 이동성에 관한 주장이 아니다.
+No editing interface that arbitrarily transforms members of the main house and no real-time life simulator is promised for delivery.
 
-## 좌표와 기준 높이 {#coordinate-datum}
+## State of accessibility deliverables {#accessibility-products}
 
 <!--
-@evidence principles/core/common.md#declared-basis 축·단위·두 마감면은 채택하고 층간 2.88m는 그 차이에서 계산한다.
-@evidence principles/core/common.md#scope-preservation 본채·정원·설계가 공유할 원점과 방향·단위를 정한다.
-@evidence principles/core/common.md#substantive-completion 하위 설계가 좌표를 배정할 축·단위·기준면·seed 규약을 제공한다.
-@evidence principles/core/settings.md#capability-boundary 좌표는 정적 형상의 표현 기준이며 세계 안 상태 변화의 권한이 아니다.
-@evidence principles/core/settings.md#constraint-sufficiency 방향·원점·층 기준과 변형 재현 조건으로 설계의 좌표 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 채택한 두 높이와 그 차이의 derived 지위를 구별한다.
-@evidence principles/core/settings.md#observable-identity 남쪽으로 열린 ㄷ자와 두 층의 높이를 일관된 공간 기준에 놓는다.
-@evidence principles/core/settings.md#source-support 좌표와 치수를 제작 규약으로 제시하고 계산을 본문에 공개한다.
+@evidence principles/core/common.md#declared-basis Adopts English text support and the unsupported products as production decisions of this static delivery.
+@evidence principles/core/common.md#scope-preservation Keeps the required text and the information boundary offered to readers who need visual or control support.
+@evidence principles/core/common.md#substantive-completion Distinguishes required, intentionally absent and unsupported states and the limits of the information provided.
+@evidence principles/core/settings.md#capability-boundary The provision state of alternative information and UI does not authorize in-world capabilities for the building or the readers.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the boundary between the required descriptions and the tracks, UI and alterations not provided.
+@evidence principles/core/settings.md#fact-status Marks the support state of accessibility products as this production's adoption.
+@evidence principles/core/settings.md#observable-identity Distinguishes the spatial relationships provided as text from the materials and lighting judged visually.
+@evidence principles/core/settings.md#source-support Limits the scope of the information provided to this delivery.
 -->
 
-**Status:** production invention, 단위 규약과 제작 기준점의 채택. 층간 높이는 채택한 두 마감면에서 계산한 derived 값.
+**Status:** production invention, production decision.
 
-오른손 Y-up 좌표계를 사용하며 길이는 m, 면적은 ㎡, 시간은 초다. +X는 동쪽, +Z는 남쪽이며 집은 남쪽으로 열린 ㄷ자다.
+An English list of spaces, descriptions of dimensions and connections, and per-image text observations are required, and the design documents and observation prose provide them. Ownership is never distinguished by color alone; a stable address is given with it.
 
-원점은 후면 몸채와 중앙정원 사이 경계의 수평 중앙, Y=0은 대지의 기준 지면이다. 본채 1층 마감면은 Y=0.45, 2층 마감면은 Y=3.33으로 둔다. 층간 높이는 3.33−0.45=2.88m로 계산한다.
+Because there is no timed audio or video, caption, transcript and audio-description tracks are intentionally absent.
 
-설계는 이 기준을 사용하여 실제 벽과 바닥 두께를 정한다. 지면·층 높이를 카메라 위치에 맞춰 옮길 수 없으며, 계단과 기초의 모델 좌표도 같은 기준을 사용한다.
+These deliverables give readers who cannot use vision the spatial relationships and findings as text, but they do not provide grounds to independently judge the visual identity of materials and lighting.
 
-무작위 변형이 필요하면 명시한 정수 seed와 범위를 사용한다.
+This static library delivers the 3D expression of the main house together with documents and images, and supports alternative access through text that describes these deliverables. Accordingly, real-time control UI for assistive devices and barrier-free alteration of the building are not supported in this delivery, and readers who need that control support are given information access through the observation text. This state is not a claim about mobility in a real building.
 
-## 레퍼런스의 적용 순위 {#reference-priority}
+## Coordinates and datum heights {#coordinate-datum}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 확정의 다섯 이미지 적용 범위와 고정 그래프 우선순위에 따라 참조의 권한을 나눈다.
-@evidence principles/core/common.md#scope-preservation 외피·층 관계·정원·홀·사적층 다섯 참조를 모두 남기고 치수·그래프 충돌·실제 3D 소유의 경계를 정한다.
-@evidence principles/core/common.md#substantive-completion 원본 주소와 파일별 참조 질문, 이미지와 그래프의 우선순위, 충돌 처리 및 금지된 재현 방식을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 이미지의 절개·공간 표현과 저작 우선순위는 본채나 거주자에게 세계 안 상태 변화 능력을 부여하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 픽셀 치수 역산, 직선 계단으로의 변경, 이미지 붙이기 및 권한 밖 그래프 수정의 선택을 판정할 경계를 둔다.
-@evidence principles/core/settings.md#fact-status 다섯 이미지의 참조 용도와 적용 우선순위는 사용자 확정의 제작 선택이며 이미지의 실측·역사적 사실성을 주장하지 않는다.
-@evidence principles/core/settings.md#observable-identity ㄷ자 외피·반목조, 층별 생활, 회랑과 정원, 홀과 사적층의 관찰 관계로 참조 대상을 구별한다.
-@evidence principles/core/settings.md#source-support 현재 원본 경로와 다섯 파일을 직접 열 수 있게 지정하고 각 이미지가 뒷받침할 관찰 범위만 참조한다.
+@evidence principles/core/common.md#declared-basis Adopts the axes, units and two finished floor levels, and computes the 2.88m storey height from their difference.
+@evidence principles/core/common.md#scope-preservation Sets the origin, directions and units shared by the main house, the garden and the designs.
+@evidence principles/core/common.md#substantive-completion Provides the axis, unit, datum-level and seed conventions by which lower designs assign coordinates.
+@evidence principles/core/settings.md#capability-boundary Coordinates are the expression basis of static geometry, not authority for in-world state change.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains the designs' coordinate choices by direction, origin, storey datum and the condition for reproducing variation.
+@evidence principles/core/settings.md#fact-status Distinguishes the two adopted heights from the derived status of their difference.
+@evidence principles/core/settings.md#observable-identity Places the south-opening U shape and the heights of the two storeys on one consistent spatial datum.
+@evidence principles/core/settings.md#source-support Presents the coordinates and dimensions as production conventions and discloses the computation in the text.
 -->
 
-**Status:** production invention, 사용자 확정.
+**Status:** production invention, adoption of the unit convention and production datum. The storey height is a derived value computed from the two adopted finished floor levels.
 
-첨부 이미지 다섯 장에서 참조할 관계를 아래와 같이 정한다. 원본 경로는 `D:/github/samchon/AutoMovie/.references/1902-20260907/` 아래의 이 다섯 파일이다.
+A right-handed Y-up coordinate system is used, with length in m, area in ㎡ and time in seconds. +X is east and +Z is south, and the house is a U shape opening to the south.
 
-| 원본 파일 | 참조할 관계 |
+The origin is the horizontal centre of the boundary between the rear range and the central garden, and Y=0 is the datum ground level of the site. The ground-floor finished level of the main house is Y=0.45 and the upper-floor finished level is Y=3.33. The storey height is computed as 3.33−0.45=2.88m.
+
+The designs use this datum to set the actual wall and floor thicknesses. Ground and storey heights cannot be moved to suit a camera position, and the model coordinates of the stair and foundations use the same datum.
+
+When random variation is needed, an explicit integer seed and range are used.
+
+## Application priority of references {#reference-priority}
+
+<!--
+@evidence principles/core/common.md#declared-basis Divides the authority of the references according to the user-confirmed application scope of the five images and the priority of the fixed graph.
+@evidence principles/core/common.md#scope-preservation Keeps all five references for the envelope, storey relationships, garden, hall and private floor, and sets the boundary of dimensions, graph conflicts and ownership by actual 3D.
+@evidence principles/core/common.md#substantive-completion Settles the source address, the reference question per file, the priority between images and graph, conflict handling and the forbidden reproduction methods.
+@evidence principles/core/settings.md#capability-boundary The images' cutaway and spatial expression and the authoring priority give the main house or its occupants no capability for in-world state change.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the boundary for judging choices of back-computing dimensions from pixels, changing to a straight stair, pasting images and modifying the graph without authority.
+@evidence principles/core/settings.md#fact-status The reference use and application priority of the five images are user-confirmed production choices and claim neither measured nor historical accuracy for the images.
+@evidence principles/core/settings.md#observable-identity Distinguishes the reference subjects by the observed relationships of the U-shaped half-timbered envelope, life on each storey, the gallery and garden, and the hall and private floor.
+@evidence principles/core/settings.md#source-support Names the current source path and five files so they can be opened directly, and references only the observation scope each image supports.
+-->
+
+**Status:** production invention, user-confirmed.
+
+The relationships to reference from the five attached images are set as follows. The source path is these five files under `D:/github/samchon/AutoMovie/.references/1902-20260907/`.
+
+| Source file | Relationship to reference |
 | --- | --- |
-| `01-exterior.png` | ㄷ자 외피와 반목조 비례 |
-| `02-section-axonometric.png` | 생활 기능과 층의 관계 |
-| `03-central-garden-pond.png` | 회랑·나무·연못의 근접 관계 |
-| `04-family-hall.png` | 홀의 식사·난방·주방 접점 |
-| `05-upper-private-floor.png` | 계단참·침실·공동 세척의 사적 분위기 |
+| `01-exterior.png` | U-shaped envelope and half-timbered proportions |
+| `02-section-axonometric.png` | Relationship of household functions to storeys |
+| `03-central-garden-pond.png` | Close relationship of gallery, tree and pond |
+| `04-family-hall.png` | Dining, heating and kitchen contact in the hall |
+| `05-upper-private-floor.png` | Private atmosphere of the landing, bedrooms and shared washing |
 
-이미지는 치수 도면이 아니다. 픽셀에서 면적·길이를 역산하지 않는다.
+The images are not dimensioned drawings. Area and length are never back-computed from pixels.
 
-공간 연결과 볼륨은 사용자의 고정 그래프를 우선하며, 외피의 건축 언어와 용도·재료의 읽힘은 이미지를 따른다. 계단은 단일 꺾임계단으로 만들고 이미지의 직선 계단과 다르다는 이유로 수정하지 않는다. 다른 충돌이 고정 그래프의 변경을 요구하면 그 대상의 저작을 멈추고 사용자에게 정확한 충돌을 보고한다.
+Spatial connections and volumes give priority to the user's fixed graph, while the architectural language of the envelope and the legibility of use and material follow the images. The stair is built as a single turning stair and is not changed because it differs from the straight stair in the images. If any other conflict requires changing the fixed graph, authoring of that subject stops and the exact conflict is reported to the user.
 
-이미지를 배경·billboard·표면 텍스처로 붙이는 재현은 허용하지 않는다. 형상·재질·배치는 실제 3D 소스가 소유한다.
+Reproduction by pasting the images as backgrounds, billboards or surface textures is not allowed. Actual 3D source owns geometry, materials and placement.
 
-## 전체의 건축 언어 {#visual-grammar}
-
-<!--
-@evidence principles/core/common.md#declared-basis 제공 이미지에서 읽은 목구조·회벽·지붕·생활 물품의 언어와 전역 계절을 이 제작의 선택으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 집 전체의 외피·목재 표면·실내 생활 물품과 정원 계절을 같은 건축 언어로 적용한다.
-@evidence principles/core/common.md#substantive-completion 외피의 재료와 비례, 목재 사용 흔적, 실내 용도 읽힘 및 전역 계절을 후속 설계가 적용할 조건으로 결정한다.
-@evidence principles/core/settings.md#capability-boundary 재료의 인상·사용 흔적·초가을 상태는 표현할 정체성이며 건물의 붕괴나 계절 변화 능력을 승인하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 결 방향·마모와 붕괴 경계·실내 재료·계절 일치를 통해 건축 언어에서 벗어나는 선택을 판정한다.
-@evidence principles/core/settings.md#fact-status 이미지에서 채택한 색·재료·비례·초가을은 production invention이며 현재 렌더의 달성 결과나 역사적 건축 사실이 아니다.
-@evidence principles/core/settings.md#observable-identity 갈색 목구조와 회벽·작은 지붕재·깊은 처마·분할 창, 쓰임이 보이는 실내 물품과 잎이 남은 정원으로 집을 식별한다.
-@evidence principles/core/settings.md#source-support 지정 원본에서 읽은 건축·생활 단서를 제작에 채택하며 역사적 공법이나 재료 성능의 외부 권위를 덧붙이지 않는다.
--->
-
-**Status:** production invention, 제공 이미지의 건축 언어를 채택한 제작 결정.
-
-석재 기초 위의 짙은 갈색 목구조와 따뜻한 회백색 충전벽, 경사가 큰 지붕과 그 위의 작은 갈색 지붕재, 깊은 처마, 작은 분할 창, 손으로 짠 듯한 목제 가구가 집 전체를 연결한다.
-
-외피의 수직 기둥·수평 층보·대각 버팀은 짙은 갈색 선형 부재이고, 그 사이 회벽은 별개의 밝은 면으로 읽힌다. 석재는 지면과 목구조 사이 낮은 기단을 이루고 개별 돌의 경계가 수평 띠 안에서 구별된다. 양 날개의 남쪽 끝은 삼각 박공이며 후면 몸채와 지붕이 연결된 한 ㄷ자 지붕군이다. 처마 아래에는 두께 있는 끝단과 서까래·지지 관계가 있고, 지붕재는 처마와 나란한 여러 겹의 작은 판으로 겹친다. 정원 쪽 1층 회랑의 기둥 사이에는 벽 대신 실제 빈 공간이 남는다. 남측 정면뿐 아니라 후면·측면·높은 시점에서도 같은 골조·충전면·기단·지붕 경계를 유지한다.
-
-창은 세로가 긴 작은 개구부 안에서 어두운 창틀과 가는 분할선으로 나뉘며, 문은 세로 판재 면과 가로 또는 대각 보강재·어두운 철물을 구별한다. 문과 창의 닫힌 기준 상태에서는 고정 프레임과 가동 판의 경계가 남고, 열린 상태에서는 같은 판과 철물이 사라지거나 다른 재료로 바뀌지 않는다. 재료별 색 관계는 목구조가 회벽보다 어둡고, 지붕은 적갈색, 기단은 회갈색으로 고정한다. 광원의 색으로 이 구분을 대신하지 않는다. 본채 규모와 층 기준은 [면적 예산](003-spatial-basis.md#area-budget)과 [좌표 기준](#coordinate-datum)을 따르며 여기서 중복 수치를 정하지 않는다.
-
-나뭇결 방향은 실제 부재의 긴 방향을 따른다. 목재는 모서리 마모와 접합부가 보이되 썩어 붕괴하는 집으로 표현하지 않는다.
-
-실내는 낮은 목재 보와 따뜻한 회벽, 석재 화구, 직물과 도기로 구성한다. 목재의 사용 흔적과 직물·도기의 쓰임새가 드러나는 배치로 생활의 축적을 표현한다. 광택이 강한 현대 플라스틱, 공장식 넓은 유리창, 현대 배관기구가 용도 읽힘을 바꾸지 않도록 한다.
-
-정원은 잎이 남은 초가을 상태를 전역에서 공유하며 부분마다 계절을 달리하지 않는다.
-
-## 표현 수준과 사용 가능한 추론 {#fidelity}
+## Architectural language of the whole {#visual-grammar}
 
 <!--
-@evidence principles/core/common.md#declared-basis 결정론적 3D와 최종 표현 수준을 제작 결정 및 중립 관찰의 소유자에 연결한다.
-@evidence principles/core/common.md#scope-preservation 실제 형상·재질과 주요 가구·소품의 최종 완성을 유지한다.
-@evidence principles/core/common.md#substantive-completion 납품 형식과 최종 가구 표현, 초기 허용 및 추론 한계를 정한다.
-@evidence principles/core/settings.md#capability-boundary 렌더의 추론 한계는 대상의 세계 안 능력이 아니다.
-@evidence principles/core/settings.md#constraint-sufficiency 실제 3D·최종 가구 형태·초기와 최종 구분으로 표현 선택을 판정한다.
-@evidence principles/core/settings.md#fact-status 표현 수준은 채택한 제작 기준이며 현재 형상의 통과 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 가구·소품이 실제 시점과 회전 관찰에서 형체와 재료로 읽혀야 한다.
-@evidence principles/core/settings.md#source-support 원본 비교와 실물 측정 정확도 주장을 구별한다.
+@evidence principles/core/common.md#declared-basis Adopts as this production's choice the language of timber frame, plaster walls, roof and household items read from the provided images, and the global season.
+@evidence principles/core/common.md#scope-preservation Applies one architectural language to the envelope of the whole house, the timber surfaces, the interior household items and the garden season.
+@evidence principles/core/common.md#substantive-completion Settles the envelope's materials and proportions, the traces of use on timber, the legibility of interior use and the global season as conditions later designs apply.
+@evidence principles/core/settings.md#capability-boundary The impression of materials, traces of use and the early-autumn state are identity to express and do not approve collapse of the building or seasonal change.
+@evidence principles/core/settings.md#constraint-sufficiency Judges choices that leave the architectural language by grain direction, the boundary between wear and collapse, interior materials and seasonal agreement.
+@evidence principles/core/settings.md#fact-status The color, materials, proportions and early autumn adopted from the images are production invention, not an achieved result of the current render or historical architectural fact.
+@evidence principles/core/settings.md#observable-identity Identifies the house by brown timber framing and plaster walls, small roofing pieces, deep eaves, divided windows, interior items that show use, and a garden that still has leaves.
+@evidence principles/core/settings.md#source-support Adopts architectural and household cues read from the named sources for production and adds no external authority on historical construction or material performance.
 -->
 
-**Status:** production invention, 제작 결정.
+**Status:** production invention, a production decision adopting the architectural language of the provided images.
 
-납품 자체는 결정론적 3D 형상과 재질이다. 외부 이미지 생성으로 결과를 다시 그리는 단계는 사용하지 않는다.
+Dark brown timber framing on a stone foundation, warm off-white infill walls, steep roofs covered with small brown roofing pieces, deep eaves, small divided windows and furniture that looks hand-joined in wood tie the whole house together.
 
-레퍼런스와 비교할 때에는 [중립 관찰 규격](#review-condition)에 따라 목구조·개구부·처마·생활 가구의 입체 구조, 가림, 재질과 생활 관계를 실제 시점에서 읽는다. 주요 가구와 소품을 마지막까지 단순 상자로 남기지 않으며 회전하거나 실내에서 보았을 때에도 형체와 재료가 완성된 3D 자산으로 표현한다.
+The vertical posts, horizontal rails and diagonal braces of the envelope are dark brown linear members, and the plaster between them reads as separate light panels. Stone forms a low plinth between the ground and the timber frame, and the joints of individual stones are distinguishable within a horizontal band. The south ends of both wings are triangular gables, and the roofs join the rear range as one U-shaped roof group. Below the eaves there are edges with thickness and rafter and support relationships, and the roofing overlaps in many courses of small boards parallel to the eaves. Between the posts of the garden-side ground-floor gallery, actual open space remains instead of a wall. The same frame, infill panels, plinth and roof edges hold not only on the south front but also from the rear, the sides and high viewpoints.
 
-첫 구조 단계는 낮은 세부 수준을 허용하지만 공간 연결, 높이, 벽의 실질적 면과 개구부는 정확해야 한다. [우선 검사](#pilot-boundary)에서는 선택 구획의 마감까지 시험한다. 허용한 초기 표현 수준은 최종 미완성을 면제하지 않는다.
+Windows are divided by dark frames and thin glazing bars within small tall openings, and doors distinguish vertical board faces from horizontal or diagonal battens and dark ironwork. In the closed reference state of doors and windows the boundary between fixed frame and moving leaf remains, and in the open state the same leaf and ironwork neither disappear nor change to another material. The color relationship between materials is fixed: the timber frame is darker than the plaster, the roof is reddish brown and the plinth is greyish brown. Light color does not substitute for this distinction. The scale and storey datum of the main house follow [the area budget](003-spatial-basis.md#area-budget) and [the coordinate datum](#coordinate-datum), and no duplicate numbers are set here.
 
-관찰 결과로는 표현한 표면과 공간을 판단하며 실물 구조 안전 인증이나 레퍼런스 이미지의 측정 정확도를 주장하지 않는다.
+Wood grain runs along the long direction of the actual member. Timber shows edge wear and joints, but the house is not shown as rotting or collapsing.
 
-## 중립 관찰의 이미지 규격 {#review-condition}
+The interior consists of low timber beams, warm plaster walls, a stone hearth, textiles and pottery. The accumulation of life is expressed by an arrangement that reveals traces of use on the timber and the use of the textiles and pottery. Glossy modern plastic, wide factory glazing and modern plumbing fixtures must not change how the use reads.
+
+The garden shares an early-autumn state with leaves still on across the whole site and does not vary the season from part to part.
+
+## Level of expression and usable inference {#fidelity}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 같은 제작물을 비교할 주광·눈높이·화각·해상도를 정하고 좁은 실내와 외관·근접 관찰의 적용 방식을 남긴다.
-@evidence principles/core/common.md#substantive-completion 비교 이미지를 만들 때 적용할 투시·눈높이·래스터와 관찰 상태를 설정 산출물로 정한다.
-@evidence principles/core/common.md#declared-basis 이미지의 수치와 관찰 상태는 이 설정이 채택하고 실제 시점 위치와 전체 관찰 모집단은 별도 소유자가 정한다.
-@evidence principles/core/settings.md#fact-status 1.60m·60도·1536×1024는 이 제작이 선택한 비교 규격이며 실제 사람의 눈이나 레퍼런스 촬영 장비의 측정값이 아니다.
-@evidence principles/core/settings.md#source-support 중립 비교의 눈높이·화각·해상도에 인체 통계나 사진 촬영 정보의 외부 권위를 붙이지 않는다.
-@evidence principles/core/settings.md#capability-boundary 관찰 이미지의 조건을 거주자나 건물이 세계 안에서 바꿀 수 있는 상태의 정의로 취급하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 실내 높이는 각 마감면에서 재고 화각의 수평 방향을 명시하며 좁은 방과 외관의 프레이밍 조건을 정한다.
-@evidence principles/core/settings.md#observable-identity 이 이미지 규격은 이미 정한 건축과 생활 물품의 특성을 관찰할 조건이며 그 대상의 외형 정체성을 새로 정의하지 않는다.
+@evidence principles/core/common.md#declared-basis Connects deterministic 3D and the final level of expression to the production decision and the owner of neutral observation.
+@evidence principles/core/common.md#scope-preservation Keeps actual geometry and materials and the final completion of the main furniture and props.
+@evidence principles/core/common.md#substantive-completion Sets the delivery format, the final furniture expression, the early allowance and the limits of inference.
+@evidence principles/core/settings.md#capability-boundary The inference limits of a render are not in-world capabilities of the subject.
+@evidence principles/core/settings.md#constraint-sufficiency Judges expression choices by actual 3D, final furniture forms and the distinction between early and final.
+@evidence principles/core/settings.md#fact-status The level of expression is an adopted production standard, not a pass result of the current geometry.
+@evidence principles/core/settings.md#observable-identity Furniture and props must read by form and material from actual viewpoints and in rotating observation.
+@evidence principles/core/settings.md#source-support Distinguishes comparison with the sources from claims of measured physical accuracy.
 -->
 
-**Status:** production invention, 같은 대상의 공간과 표면을 비교하기 위한 중립 관찰 규격.
+**Status:** production invention, production decision.
 
-이 단위는 현재 제작물을 읽을 이미지의 주광·눈높이·화각·해상도를 소유한다. 실제 방별 시점 좌표는 공간 설계가 정하되 아래 규격을 소비한다. 무엇을 빠짐없이 캡처할지는 [필수 관찰 집합](#observation-population)이 정한다.
+The delivery itself is deterministic 3D geometry and materials. No step redraws the result with external image generation.
 
-검사는 중립 주광에서 불필요한 안개·심도 흐림 없이 형상과 재질을 보여 주는 렌더 이미지(beauty PNG)를 기본으로 한다. 실내 눈높이는 해당 마감면 위 1.60m, 비교용 투시 화각은 수평 60도, 기준 이미지 크기는 1536×1024픽셀로 채택한다.
+When comparing with the references, the three-dimensional structure, occlusion, materials and household relationships of the timber frame, openings, eaves and household furniture are read from actual viewpoints under [the neutral observation specification](#review-condition). Main furniture and props are never left as simple boxes at the end; rotated or seen from inside the rooms, their form and material are expressed as finished 3D assets.
 
-좁은 구획은 원래 눈높이를 유지하고 시점 수를 늘리며 렌즈 왜곡으로 넓게 보이게 하지 않는다.
+The first structural stage allows a low level of detail, but spatial connections, heights, the actual faces of walls and openings must be exact. [The priority inspection](#pilot-boundary) tests the finish of the selected division. The allowed early level of expression does not exempt the final result from being incomplete.
 
-외관은 대상 전체와 대지 접촉이 화면 안에 들어오는 거리에서 관찰한다. 명시한 근접 시점은 디테일을 읽기 위한 추가 관찰이다.
+Observation results judge the expressed surfaces and spaces and claim neither structural safety certification of a physical building nor measured accuracy of the reference images.
 
-## 필수 관찰 집합과 변경 후 재관찰 {#observation-population}
+## Image specification for neutral observation {#review-condition}
 
 <!--
-@evidence principles/core/common.md#declared-basis 전체 납품·중립 규격·수행 역할과 현재 활성 소유자에서 관찰 대상을 얻는다.
-@evidence principles/core/common.md#scope-preservation 전체 외관·각 층·모든 방과 배치 물품·재료의 관찰을 남긴다.
-@evidence principles/core/common.md#substantive-completion 관찰 모집단의 원천과 변경 시 다시 읽을 영향을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 관찰 대상의 선택과 재캡처는 제작 절차이며 세계 안 대상의 변화 능력이 아니다.
-@evidence principles/core/settings.md#constraint-sufficiency 현재 소유자·원본 질문·직접 열람·변경 영향으로 필요한 관찰을 판정한다.
-@evidence principles/core/settings.md#fact-status 관찰 집합을 정하는 채택 조건과 실제 관찰 실행을 구별한다.
-@evidence principles/core/settings.md#observable-identity 원본의 외피·절개·정원·홀·사적층과 모든 방·물품의 읽힘을 관찰 대상으로 둔다.
-@evidence principles/core/settings.md#source-support 시점 모집단을 현재 저작 소유자와 제공 이미지의 질문에서 도출한다.
+@evidence principles/core/common.md#scope-preservation Sets the daylight, eye height, field of view and resolution for comparing the same production, and keeps how they apply to narrow interiors, the exterior and close observation.
+@evidence principles/core/common.md#substantive-completion Sets as a settings deliverable the perspective, eye height, raster and observation state applied when making comparison images.
+@evidence principles/core/common.md#declared-basis This setting adopts the image numbers and observation state, while separate owners set the actual viewpoint positions and the whole observation population.
+@evidence principles/core/settings.md#fact-status 1.60m, 60 degrees and 1536×1024 are a comparison specification this production chose, not measurements of a real human eye or of the reference images' camera equipment.
+@evidence principles/core/settings.md#source-support Attaches no external authority of anthropometric statistics or photographic data to the eye height, field of view and resolution of neutral comparison.
+@evidence principles/core/settings.md#capability-boundary Does not treat the conditions of observation images as a definition of states that occupants or the building can change in the world.
+@evidence principles/core/settings.md#constraint-sufficiency Measures interior height from each finished floor, states that the field of view is horizontal, and sets the framing conditions for narrow rooms and the exterior.
+@evidence principles/core/settings.md#observable-identity This image specification is a condition for observing already settled architectural and household features and does not newly define the subjects' visual identity.
 -->
 
-**Status:** production invention, 전체 제작 범위와 변경 영향을 관찰 집합으로 추적하는 조건.
+**Status:** production invention, a neutral observation specification for comparing the spaces and surfaces of the same subject.
 
-이 단위는 [전체 납품 범위](#delivery-scope)의 현재 대상과 그 면·연결·소속 관계(토폴로지)에서 관찰해야 할 모집단과 수정 후 다시 읽을 범위를 소유한다. 관찰 이미지는 [중립 규격](#review-condition)을 따르고, [수행 역할](#review-roles)에 따라 직접 읽는다.
+This unit owns the daylight, eye height, field of view and resolution of the images used to read the current production. The space design sets the actual per-room viewpoint coordinates but consumes the specification below. [The required observation set](#observation-population) decides what must be captured without omission.
 
-사물·건물·층·구획의 생성 또는 수정 단위마다 현재 소스를 컴파일한 뒤 그 대상과 영향을 받은 배치·인접 구획의 전체 필수 시점을 캡처한다. 결함을 수정하면 같은 영향을 받은 전체 관찰 집합을 다시 캡처하여 읽는다.
+Inspection defaults to rendered images (beauty PNG) that show geometry and materials in neutral daylight without unnecessary fog or depth-of-field blur. The adopted interior eye height is 1.60m above the relevant finished floor, the comparison perspective field of view is 60 degrees horizontal, and the reference image size is 1536×1024 pixels.
 
-필수 집합은 현재 활성 저작 소유자와 [레퍼런스 다섯 장](#reference-priority)의 외피·절개·정원·홀·사적층 질문에서 정한다. 전체 외관과 각 층·모든 방의 구성, 배치된 가구·물품의 형태와 재료를 읽는 데 필요한 시점을 소유 주소와 연결한다. 회전 관찰과 근접 시점은 실제 배치에서 확인되지 않는 형체·재료를 읽을 때 추가한다. 뷰어의 항목 수나 물리 사용성 시험용 시점 목록을 자동으로 완료 모집단으로 삼지 않는다. 촬영한 이미지와 직접 읽은 범위를 구별하며 관찰하지 않은 방이나 물품을 완료로 간주하지 않는다.
+A narrow division keeps the original eye height and adds viewpoints instead of using lens distortion to make it look wider.
 
-## 저작·관찰·독립 판정의 역할 {#review-roles}
+The exterior is observed from a distance at which the whole subject and its ground contact fit in the frame. Explicit close viewpoints are additional observations for reading detail.
+
+## Required observation set and re-observation after change {#observation-population}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 저작·관찰·독립 판정의 책임과 직접 PNG 읽기, 별도 평가자 실행의 주체 및 내부 단계의 자체 검토를 보존한다.
-@evidence principles/core/common.md#substantive-completion 각 역할의 산출 행위와 직접 읽기 의무, 평가자 실행 권한 및 내부 단계의 진행 절차를 결정한다.
-@evidence principles/core/common.md#declared-basis 사용자 확정의 역할 분리를 상속하고 내부 단계의 자체 검토는 배포된 절차에 연결한다.
-@evidence principles/core/settings.md#fact-status 역할 배분은 사용자 확정 절차를 상속한 상태이며 각 역할이 실제 검토를 끝냈다는 결과와 구별한다.
-@evidence principles/core/settings.md#source-support 역할의 분리와 직접 열람을 사용자 절차로 제시하며 외부 인증이나 검토 정확도의 실증값으로 주장하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자·관찰자·평가자의 제작상 권한을 장원 안 대상의 행동 능력과 구별한다.
-@evidence principles/core/settings.md#constraint-sufficiency 평가 세션을 실행할 운영자, 이를 추가할 수 없는 저작자와 내부 문서 단계의 진행 조건을 고정한다.
-@evidence principles/core/settings.md#observable-identity 제작 참여자의 책임을 구분하며 저택에 나타날 인물의 외형이나 소리를 새로 정의하지 않는다.
+@evidence principles/core/common.md#declared-basis Derives the observation subjects from the whole delivery, the neutral specification, the performing roles and the currently active owners.
+@evidence principles/core/common.md#scope-preservation Keeps observation of the whole exterior, each storey, every room and its placed items, and the materials.
+@evidence principles/core/common.md#substantive-completion Settles the source of the observation population and the impact to re-read on change.
+@evidence principles/core/settings.md#capability-boundary Selecting and recapturing observation subjects is a production procedure, not a capability of in-world subjects to change.
+@evidence principles/core/settings.md#constraint-sufficiency Judges the required observations by current owners, source questions, direct viewing and change impact.
+@evidence principles/core/settings.md#fact-status Distinguishes the adopted conditions that set the observation set from the actual execution of observation.
+@evidence principles/core/settings.md#observable-identity Takes as observation subjects the legibility of the sources' envelope, cutaway, garden, hall and private floor, and of every room and item.
+@evidence principles/core/settings.md#source-support Derives the viewpoint population from the current authoring owners and the questions of the provided images.
 -->
 
-**Status:** inherited, 사용자 확정 절차의 저작·관찰·독립 판정 역할을 현재 제작에 적용.
+**Status:** production invention, a condition that tracks the whole production scope and the impact of changes as an observation set.
 
-이 단위는 누가 저작하고 관찰하고 판정하는지 소유한다. 저작자와 독립 평가자는 모두 PNG를 직접 연다. 구조 보고, 파일 존재, 코드나 다른 사람의 설명은 시각 검토를 대신할 수 없다.
+This unit owns the population to observe from the current subjects of [the whole delivery scope](#delivery-scope) and their face, connection and membership relationships (topology), and the scope to re-read after a modification. Observation images follow [the neutral specification](#review-condition) and are read directly according to [the performing roles](#review-roles).
 
-저작자는 저작·자체 검토, 관찰자는 계측·실행, 독립 평가자는 고정 기준과 현재 산출물에 대한 판정만 맡는다.
+For each unit of creation or modification of an object, building, storey or division, the current source is compiled and then every required viewpoint of that subject and of the affected placement and adjacent divisions is captured. When a defect is fixed, the whole observation set with the same impact is captured again and read.
 
-저작자는 별도 저작 sub-agent를 쓰지 않는다. 독립 평가자는 운영자가 별도 세션으로 실행하며, 저작자가 검토 sub-agent를 만들거나 재호출하지 않는다.
+The required set is decided from the currently active authoring owners and from the envelope, cutaway, garden, hall and private-floor questions of [the five references](#reference-priority). The viewpoints needed to read the whole exterior, the arrangement of each storey and every room, and the form and material of the placed furniture and items are linked to their owner addresses. Rotating observation and close viewpoints are added when a form or material that cannot be confirmed in the actual placement must be read. Neither the viewer's item count nor a viewpoint list for physical usability tests automatically becomes the completion population. Captured images are distinguished from the scope actually read, and an unobserved room or item is never treated as complete.
 
-내부 설정·설계 문서 단계마다 별도 외부 판정을 새 선행 조건으로 추가하지 않고 배포된 자체 검토와 증거 절차를 수행한다.
-
-## 현재 제출물과 최종 종료 {#completion-condition}
+## Roles of authoring, observation and independent judgment {#review-roles}
 
 <!--
-@evidence principles/core/common.md#declared-basis 전체 납품과 필수 관찰·수행 역할을 현재 제출과 종료의 근거로 소비한다.
-@evidence principles/core/common.md#scope-preservation 본채 전체의 현재 소스·관찰·영수증과 시각적 미완료 해소를 요구한다.
-@evidence principles/core/common.md#substantive-completion 제출 세대·평가 중 바이트·누락 보고·최종 종료 상태를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 완료 선언과 평가 중 작업은 제작자의 권한이며 자산의 세계 안 능력이 아니다.
-@evidence principles/core/settings.md#constraint-sufficiency 현재 관찰·실제 3D·시각적 결함 해소·현행 컴파일로 종료 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 종료 기준은 채택한 조건이며 현재 납품의 완료 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 외형·고정 공간·방별 가구와 물품·재료가 현재 렌더에서 읽혀야 한다.
-@evidence principles/core/settings.md#source-support 원본과 현재 렌더를 시각 판단의 근거로 두고 실건물 인증을 요구하지 않는다.
+@evidence principles/core/common.md#scope-preservation Keeps the responsibilities of authoring, observation and independent judgment, direct PNG reading, who runs a separate evaluator, and self-review at internal stages.
+@evidence principles/core/common.md#substantive-completion Settles each role's output, the duty to read directly, the authority to run evaluators and the procedure at internal stages.
+@evidence principles/core/common.md#declared-basis Inherits the user-confirmed role separation and connects self-review at internal stages to the distributed procedure.
+@evidence principles/core/settings.md#fact-status The role allocation inherits the user-confirmed procedure and is distinguished from any result that a role has actually finished its review.
+@evidence principles/core/settings.md#source-support Presents role separation and direct viewing as the user's procedure and does not claim them as external certification or a measured value of review accuracy.
+@evidence principles/core/settings.md#capability-boundary Distinguishes the production authority of authors, observers and evaluators from the action capabilities of subjects within the manor.
+@evidence principles/core/settings.md#constraint-sufficiency Fixes the operator who runs an evaluation session, the author who cannot add one, and the conditions for advancing internal document stages.
+@evidence principles/core/settings.md#observable-identity Divides the responsibilities of production participants and does not newly define the appearance or voice of people who would appear in the manor.
 -->
 
-**Status:** production invention, 사용자 확정 납품 범위의 현재성과 실제 미완료 해소를 묶는 종료 조건.
+**Status:** inherited, applying the authoring, observation and independent judgment roles of the user-confirmed procedure to the current production.
 
-이 단위는 [전체 납품](#delivery-scope)의 정식 제출에 포함할 현재 산출물과 제작을 끝낼 수 있는 상태를 소유한다. [필수 관찰 집합](#observation-population)과 [수행 역할](#review-roles)은 이 종료 판단의 선행 조건이다.
+This unit owns who authors, observes and judges. Both the author and the independent evaluator open the PNGs directly. Structural reports, file existence, code or someone else's description cannot substitute for visual review.
 
-생활 홀·회랑의 우선 관찰은 [우선 검사 범위](#pilot-boundary)를 따른다. 정식 제출은 현재 소유한 저작 소스(source)와 그 전체 면·연결·소속 관계(토폴로지)가 요구하는 관찰·영수증, 실제 3D와 원본 참조를 함께 제공한다. 본채 전체를 내보내는 소스를 홀만의 납품으로 부르지 않는다.
+The author takes only authoring and self-review, the observer measurement and execution, and the independent evaluator judgment of the current deliverables against fixed criteria.
 
-독립 평가 중에도 평가 대상의 바이트를 고정하고 다른 미완료 저술을 계속하며, 수정된 평가 대상은 새 관찰로 제출한다.
+The author does not use a separate authoring sub-agent. The operator runs the independent evaluator as a separate session, and the author does not create or re-invoke a review sub-agent.
 
-현재 캡처와 리뷰가 없는 대상·단계를 완료로 선언하지 않고 누락 주소와 열지 못한 파일을 보고한다.
+At each internal settings or design document stage, no separate external judgment is added as a new precondition; the distributed self-review and evidence procedure is performed.
 
-완료 판단은 제공 이미지와 현재 렌더에서 외형·고정 공간 구성·모든 방의 가구와 물품·재료 표현이 시각적으로 완성되어 있는지에 둔다. 형상 누락이나 렌더 실패처럼 이 결과를 확인하는 데 직접 영향을 주는 기술적 결함을 수정하고 현재 소스로 다시 관찰한다.
-
-실건물의 인테리어·건축 사용성과 물리적 적합성 검사는 [전체 납품 범위](#delivery-scope)에 요구되지 않는다. 해당 검사의 미수행과 실패는 통과가 아니며, 이를 통과시키기 위한 치수·접합·지지·가동 수정은 완료 의무가 아니다.
-
-최종 완료는 전체 필수 관찰을 수행하고, 납품 범위 안의 저작자 미완료 및 독립 발견 사항을 모두 해소하며, 현행 컴파일·검증을 통과한 상태다.
-
-## 전체 제작 안의 우선 검사 범위 {#pilot-boundary}
+## Current submission and final completion {#completion-condition}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 납품 범위 안에서 홀·회랑을 먼저 검사하는 순서를 채택하며 현재 본채 전체 source의 범위를 보존한다.
-@evidence principles/core/common.md#scope-preservation 먼저 보는 홀의 경계를 정하면서 본채 다른 방과 전체 source·공식 관찰을 납품 안에 유지한다.
-@evidence principles/core/common.md#substantive-completion 우선 구획, 검사 대상, 전체 branch 절차와 부모를 먼저 검토하는 순서를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 홀·회랑의 우선 관찰과 전체 제작 절차를 정하는 이 단위는 거주자나 건물의 능력을 정의하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 전체 환경 source와 분리 불가능한 홀의 관계를 근거로 실제 사용할 모집단·검토 순서·원형 보존 조건을 정한다.
-@evidence principles/core/settings.md#fact-status 홀·회랑의 우선순위는 사용자 범위 안의 제작 결정이며 전체 납품 완료를 보고하는 상태가 아니다.
-@evidence principles/core/settings.md#observable-identity 생활 홀과 정원 회랑 접점은 난로·식탁·벤치·식기와 문턱·창이 함께 보이는 실제 구획으로 식별한다.
-@evidence principles/core/settings.md#source-support 우선 구획 선택을 역사적 남작 주거의 통계나 외부 실증 규칙으로 주장하지 않는다.
+@evidence principles/core/common.md#declared-basis Consumes the whole delivery, the required observations and the performing roles as the basis of current submission and completion.
+@evidence principles/core/common.md#scope-preservation Requires the current source, observations and receipts of the whole main house and resolution of visual incompleteness.
+@evidence principles/core/common.md#substantive-completion Settles the submission generation, the bytes under evaluation, omission reports and the final completion state.
+@evidence principles/core/settings.md#capability-boundary Declaring completion and working during evaluation are the producer's authority, not in-world capabilities of the asset.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains the completion choice by current observation, actual 3D, resolution of visual defects and a current compile.
+@evidence principles/core/settings.md#fact-status The completion criterion is an adopted condition, not a completion result of the current delivery.
+@evidence principles/core/settings.md#observable-identity The exterior, fixed space, per-room furniture and items, and materials must read in the current render.
+@evidence principles/core/settings.md#source-support Uses the sources and the current render as the basis of visual judgment and does not require real-building certification.
 -->
 
-**Status:** production invention, 사용자 요청 안에서 저작자가 선택.
+**Status:** production invention, a completion condition binding the currency of the user-confirmed delivery scope to the resolution of actual incompleteness.
 
-이 단위는 [전체 납품](#delivery-scope) 안에서 먼저 검사할 구획과 그 우선순위의 적용 경계를 소유한다. 1층 서측 생활 홀과 정원을 향한 회랑 접점을 먼저 검사한다. 홀의 모든 면과 천장·바닥, 회랑 문턱 및 인접 한 베이, 창, 벽난로, 식탁과 벤치, 식기 배치를 함께 시험한다. 구조·개구부·가구 크기·접촉·재료가 같은 장소에서 만나는 구획이므로 먼저 관찰한다.
+This unit owns the current deliverables included in a formal submission of [the whole delivery](#delivery-scope) and the state in which production may end. [The required observation set](#observation-population) and [the performing roles](#review-roles) are preconditions of this completion judgment.
 
-이 우선순위는 본채의 다른 방을 관찰한 것으로 세거나 납품에서 빼는 권한을 주지 않는다. 현재 납품 모집단은 본채 전체를 선택한 complete-production이다. 공간 저작 소스(source)가 본채 전체를 하나의 환경으로 내보내므로 홀만 독립 선택하는 first-pilot이나 그 통과 후의 전체 제작 재개 전환(reset)으로 취급하지 않는다.
+Priority observation of the family hall and gallery follows [the priority inspection scope](#pilot-boundary). A formal submission provides together the currently owned authoring source, the observations and receipts its whole face, connection and membership relationships (topology) require, the actual 3D and the source references. A source that exports the whole main house is not called a hall-only delivery.
 
-전체 설정과 필요한 공간·모델·재질·배치의 설계 책임을 각각 검토한 뒤 그 자식 소스를 진행한다. 원형 자산과 안정된 주소를 유지하며 매스·공간 그래프, 외피, 외장 부재, 실내 설비·가구, 마감의 실제 미완료를 소유자 순서로 닫는다. 홀의 진단 PNG는 전체 소스 검토와 [공식 필수 관찰](#observation-population)을 대신하지 않는다.
+Even during independent evaluation, the bytes under evaluation are fixed while other incomplete writing continues, and a modified evaluation subject is submitted with new observations.
 
-## 설정 소유 지도 {#coverage-map}
+A subject or stage without current capture and review is never declared complete; missing addresses and files that could not be opened are reported.
+
+The completion judgment rests on whether the exterior, the fixed spatial arrangement, the furniture and items of every room and the material expression are visually complete in the provided images and the current render. Technical defects that directly affect confirming this result, such as missing geometry or render failures, are fixed and observed again from the current source.
+
+Inspections of the interior or architectural usability and physical fitness of a real building are not required by [the whole delivery scope](#delivery-scope). Skipping or failing such an inspection is not a pass, and dimension, joint, support or movement changes made to pass it are not a completion duty.
+
+Final completion is the state in which every required observation has been performed, every author-side incompleteness and independent finding within the delivery scope has been resolved, and the current compile and verification have passed.
+
+## Priority inspection scope within the whole production {#pilot-boundary}
 
 <!--
-@evidence principles/core/common.md#declared-basis 현재 설정 H2 주소를 분류한 derived 지도로 제시한다.
-@evidence principles/core/common.md#scope-preservation 납품·관찰·생활 물품·정원·고정 공간의 현재 소유자를 모두 연결한다.
-@evidence principles/core/common.md#substantive-completion 설정 요구를 실제 주소와 연결하고 설계 결정과 구별한다.
-@evidence principles/core/settings.md#capability-boundary 지도는 능력과 제작 권한을 새로 허가하지 않고 실제 소유자를 가리킨다.
-@evidence principles/core/settings.md#constraint-sufficiency 현재 주소와 설계 책임의 경계로 요구를 어디서 결정할지 판정하게 한다.
-@evidence principles/core/settings.md#fact-status 지도는 현재 모집단의 파생 분류이며 각 링크 대상의 사실 지위를 대신하지 않는다.
-@evidence principles/core/settings.md#observable-identity 건축·생활·정원 대상의 정체성을 실제 설정 주소에 연결한다.
-@evidence principles/core/settings.md#source-support 주소 분류의 근거는 현재 설정이며 역사적 정밀 수치를 주장하지 않는다.
+@evidence principles/core/common.md#declared-basis Adopts, within the user's delivery scope, the order of inspecting the hall and gallery first, and preserves the scope of the current whole-house source.
+@evidence principles/core/common.md#scope-preservation Sets the boundary of the hall viewed first while keeping the other rooms of the main house, the whole source and the official observations within the delivery.
+@evidence principles/core/common.md#substantive-completion Settles the priority division, the inspection subjects, the whole-branch procedure and the order of reviewing parents first.
+@evidence principles/core/settings.md#capability-boundary This unit, which sets priority observation of the hall and gallery and the whole production procedure, does not define capabilities of occupants or the building.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the population actually used, the review order and the prototype preservation condition on the grounds that the hall cannot be separated from the whole environment source.
+@evidence principles/core/settings.md#fact-status The priority of the hall and gallery is a production decision within the user's scope, not a state reporting completion of the whole delivery.
+@evidence principles/core/settings.md#observable-identity Identifies the family hall and its contact with the garden gallery as an actual division where the hearth, table, benches, tableware, threshold and windows are seen together.
+@evidence principles/core/settings.md#source-support Does not claim the choice of priority division as statistics or an externally proven rule of historical baronial dwellings.
 -->
 
-**Status:** derived, 이 설정 모집단의 주소를 분류한 결과.
+**Status:** production invention, chosen by the author within the user's request.
 
-이 지도는 전체 저택의 설정 요구를 현재 H2 소유자에 연결한다. 다음 표의 항목은 모두 명시한 설정이며, 각 사실의 내용과 권한은 연결된 본문에서 읽는다. 지도는 그 사실을 재정의하지 않는다.
+This unit owns, within [the whole delivery](#delivery-scope), the division to inspect first and the application boundary of that priority. The ground-floor west family hall and its contact with the gallery facing the garden are inspected first. All faces of the hall with its ceiling and floor, the gallery threshold and one adjacent bay, the windows, the fireplace, the table and benches and the tableware arrangement are tested together. It is observed first because structure, openings, furniture size, contact and material meet in the same place.
 
-| 설정 요구 | 현재 H2 소유자 |
+This priority grants no authority to count the other rooms of the main house as observed or to remove them from the delivery. The current delivery population is complete-production, which selects the whole main house. Because the space authoring source exports the whole main house as one environment, it is not treated as a first-pilot that selects the hall alone or as a transition (reset) that resumes whole production after that pilot passes.
+
+After the design responsibilities of the whole settings and of the required spaces, models, materials and placement are each reviewed, their child sources proceed. Keeping the prototype assets and stable addresses, the actual incompleteness of massing and spatial graph, envelope, exterior members, interior fixtures and furniture, and finishes is closed in owner order. The hall's diagnostic PNGs do not substitute for review of the whole source and [the official required observations](#observation-population).
+
+## Settings ownership map {#coverage-map}
+
+<!--
+@evidence principles/core/common.md#declared-basis Presents a derived map classifying the current settings H2 addresses.
+@evidence principles/core/common.md#scope-preservation Connects all current owners of delivery, observation, household items, garden and fixed space.
+@evidence principles/core/common.md#substantive-completion Connects settings requirements to actual addresses and distinguishes them from design decisions.
+@evidence principles/core/settings.md#capability-boundary The map grants no new capability or production authority and points to the actual owners.
+@evidence principles/core/settings.md#constraint-sufficiency Lets current addresses and the boundary of design responsibility decide where a requirement is settled.
+@evidence principles/core/settings.md#fact-status The map is a derived classification of the current population and does not replace the fact status of each link target.
+@evidence principles/core/settings.md#observable-identity Connects the identity of architectural, household and garden subjects to actual settings addresses.
+@evidence principles/core/settings.md#source-support The basis of the address classification is the current settings, and no precise historical figures are claimed.
+-->
+
+**Status:** derived, the result of classifying the addresses of this settings population.
+
+This map connects the settings requirements of the whole manor to their current H2 owners. Every item in the following table is an explicit setting, and the content and authority of each fact are read in the linked text. The map does not redefine those facts.
+
+| Settings requirement | Current H2 owner |
 | --- | --- |
-| 납품 경계와 판단 목적 | [납품 범위](#delivery-scope), [거주의 우선 목적](#governing-aim) |
-| 한국어 독자·운영·접근성 산출물 | [용어](#language-access), [조작](#operator-access), [접근성](#accessibility-products) |
-| 좌표·이미지 권한·공통 외관·표현 수준 | [기준점](#coordinate-datum), [참조 순위](#reference-priority), [건축 언어](#visual-grammar), [표현 수준](#fidelity) |
-| 관찰 이미지·필수 집합·수행 역할·종료·우선 검사 | [중립 관찰 규격](#review-condition), [필수 관찰 집합](#observation-population), [수행 역할](#review-roles), [제출과 종료](#completion-condition), [우선 검사 범위](#pilot-boundary) |
-| 주요 대상의 분류와 거주 배경 | [주요 대상 목록](#subject-inventory), [가족 구성](002-household.md#household) |
-| 공용 생활·조리·업무·젖은 서비스 | [홀](002-household.md#family-hall), [주방과 식료실](002-household.md#kitchen-pantry), [장부실](002-household.md#ledger-room), [저장·세척실](002-household.md#service-room) |
-| 사적 생활·위생·깨끗한 수납·물과 오수 | [침실](002-household.md#bedrooms), [공동 세척·측간](002-household.md#upper-washroom), [2층 수납](002-household.md#upper-storage), [물의 표현](002-household.md#water-and-waste) |
-| 정원 구성과 자산 제작 책임 | [정원](002-household.md#garden), [제작 대상](002-household.md#make-scope) |
-| 단일 ㄷ자·면적·직접 접근·수직 연결·완전한 면 | [본채](003-spatial-basis.md#single-house), [면적](003-spatial-basis.md#area-budget), [1층](003-spatial-basis.md#ground-access), [계단](003-spatial-basis.md#single-stair), [2층](003-spatial-basis.md#upper-access), [면의 책임](003-spatial-basis.md#surface-responsibility) |
+| Delivery boundary and judgment aim | [delivery scope](#delivery-scope), [governing aim of habitation](#governing-aim) |
+| English readers, operation and accessibility deliverables | [terminology](#language-access), [control](#operator-access), [accessibility](#accessibility-products) |
+| Coordinates, image authority, common exterior and level of expression | [datum](#coordinate-datum), [reference priority](#reference-priority), [architectural language](#visual-grammar), [level of expression](#fidelity) |
+| Observation images, required set, performing roles, completion and priority inspection | [neutral observation specification](#review-condition), [required observation set](#observation-population), [performing roles](#review-roles), [submission and completion](#completion-condition), [priority inspection scope](#pilot-boundary) |
+| Classification of main subjects and the residential background | [main subject inventory](#subject-inventory), [household composition](002-household.md#household) |
+| Shared living, cooking, work and wet service | [hall](002-household.md#family-hall), [kitchen and pantry](002-household.md#kitchen-pantry), [ledger room](002-household.md#ledger-room), [storage and washing room](002-household.md#service-room) |
+| Private living, hygiene, clean storage, water and waste water | [bedrooms](002-household.md#bedrooms), [shared washroom and privy](002-household.md#upper-washroom), [upper storage](002-household.md#upper-storage), [expression of water](002-household.md#water-and-waste) |
+| Garden composition and asset production responsibility | [garden](002-household.md#garden), [production subjects](002-household.md#make-scope) |
+| Single U shape, area, direct access, vertical connection and complete faces | [main house](003-spatial-basis.md#single-house), [area](003-spatial-basis.md#area-budget), [ground floor](003-spatial-basis.md#ground-access), [stair](003-spatial-basis.md#single-stair), [upper floor](003-spatial-basis.md#upper-access), [surface responsibility](003-spatial-basis.md#surface-responsibility) |
 
-지역·연대·실존 가문의 특정은 요구하지 않아 범위 밖에 두며 역사적 사실로 정밀 수치를 주장하지 않는다. 방의 좌표 분할, 벽 두께, 가구 메시와 재질 수치는 시각적 3D 결과를 만드는 각 설계가 소유한다. 이 지도는 실건물의 사용성이나 물리적 적합성 검사 의무를 추가하지 않는다.
+Identification of a region, period or real family is not required and stays out of scope, and no precise figures are claimed as historical fact. The coordinate division of rooms, wall thicknesses, furniture meshes and material values are owned by each design that produces the visual 3D result. This map adds no duty to inspect the usability or physical fitness of a real building.
 
-## 주요 대상과 상태의 목록 {#subject-inventory}
+## Inventory of main subjects and states {#subject-inventory}
 
 <!--
-@evidence principles/core/common.md#declared-basis 전체 납품과 방별 물품·역할 설정에서 대상 분류를 도출한다.
-@evidence principles/core/common.md#scope-preservation 가상 거주 배경·운영 역할·전 본채·모든 방의 물품·정원·원본을 남긴다.
-@evidence principles/core/common.md#substantive-completion 납품 대상과 참고·역할·범위 밖 상태를 실제 소유자에 배정한다.
-@evidence principles/core/settings.md#capability-boundary 수동 자산의 한계와 관찰·저작 역할의 실제 소유자를 연결한다.
-@evidence principles/core/settings.md#constraint-sufficiency 각 대상의 소유·분류와 제작 책임 연결로 납품 대상 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 대상 목록은 파생 분류이며 실현·관찰 완료의 보고가 아니다.
-@evidence principles/core/settings.md#observable-identity 본채·생활 가구·도기·직물·정원의 실제 볼 대상을 소유자에 연결한다.
-@evidence principles/core/settings.md#source-support 대상 분류는 현재 설정과 원본의 역할을 직접 인용한다.
+@evidence principles/core/common.md#declared-basis Derives the subject classification from the whole delivery and the per-room item and role settings.
+@evidence principles/core/common.md#scope-preservation Keeps the fictional residential background, operating roles, the whole main house, every room's items, the garden and the sources.
+@evidence principles/core/common.md#substantive-completion Assigns delivery subjects and reference, role and out-of-scope states to their actual owners.
+@evidence principles/core/settings.md#capability-boundary Connects the limits of passive assets and the actual owners of the observation and authoring roles.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains the choice of delivery subjects by each subject's ownership, classification and link to production responsibility.
+@evidence principles/core/settings.md#fact-status The subject inventory is a derived classification, not a report of realization or completed observation.
+@evidence principles/core/settings.md#observable-identity Connects the actual viewed subjects of the main house, household furniture, pottery, textiles and garden to their owners.
+@evidence principles/core/settings.md#source-support The subject classification cites the roles in the current settings and sources directly.
 -->
 
-**Status:** derived, 전체 납품과 생활 조건에서 추적한 대상 분류.
+**Status:** derived, a subject classification traced from the whole delivery and the living conditions.
 
-이 목록은 납품할 3D 대상과 관찰 역할을 해당 설정 소유자에 연결한다. 가족의 거주 배경과 각 방의 물품 구성을 이 주소로 확인한다. 구체적인 권한과 상태는 각 소유자의 본문을 따른다. 목록에 소유 주소가 있다는 사실은 현재 형상의 완성이나 관찰 완료를 뜻하지 않는다.
+This inventory connects the 3D subjects to deliver and the observation roles to their settings owners. The family's residential background and each room's item composition are confirmed at these addresses. The specific authority and state follow each owner's text. Having an owner address in this inventory does not mean the current geometry is finished or its observation complete.
 
-| 대상 또는 상태 | 소유자와 분류 |
+| Subject or state | Owner and classification |
 | --- | --- |
-| 남작 기사·배우자·자녀 둘·가사 지원자·방문자 | [가구 구성](002-household.md#household)의 설계상 사용자이며 인물 자산·자율 행동은 범위 밖이다. |
-| 운영자·문 상태 제어·저작자·관찰자·독립 평가자 | [조작](#operator-access)과 [수행 역할](#review-roles)에 권한과 역할을 명시한다. |
-| 도면 전문교육을 전제하지 않는 독자·시각을 사용할 수 없는 독자·조작 지원이 필요한 독자 | [한국어 독자](#language-access)와 [접근성 산출물](#accessibility-products)에 해당 독자에게 제공할 설명·대체 정보와 미지원 범위를 명시한다. |
-| 본채·층·현관·회랑·복도·실·계단·출입문·대지·접근 길 | [단일 본채](003-spatial-basis.md#single-house), [1층 연결](003-spatial-basis.md#ground-access), [계단](003-spatial-basis.md#single-stair), [2층 연결](003-spatial-basis.md#upper-access)의 건축 대상이다. |
-| 식탁·벤치·끝좌석·벽난로·수납함·식기·주전자·쟁반·깔개 | [홀](002-household.md#family-hall)의 식사·난방을 표현하는 제작 대상이다. |
-| 조리 화구·작업대·물통·솥·국자·칼·거치·선반·식료 자루·통·용기 | [주방과 식료실](002-household.md#kitchen-pantry)의 조리·식료 보관 대상이다. |
-| 책상·등받이 의자·장부 선반·잠금 수납함·필기구·장부 | [장부실](002-household.md#ledger-room)의 업무와 보관 대상이다. |
-| 세척대·대야·빈 통·건조 거치·빗자루 | [저장·세척실](002-household.md#service-room)의 젖은 작업과 청소 대상이다. |
-| 침대·매트리스·담요·베개·지지 프레임·의복 수납·탁자·좌석·야간 주전자 | [침실](002-household.md#bedrooms)의 사적 생활 대상이다. |
-| 공용 대야·주전자·수건 거치·빗장·오수 용기·칸막이 | [공동 세척·측간](002-household.md#upper-washroom)의 생활 물품과 사적인 공간 표현이다. |
-| 여벌 침구·깨끗한 수건·접은 직물·선반·보관함 | [2층 수납](002-household.md#upper-storage)의 건조 보관 대상이다. |
-| 깨끗한 물·오수·뚜껑 달린 용기 | [물의 표현](002-household.md#water-and-waste)에 해당 물품의 구성을 명시하며 수류 시뮬레이션은 범위 밖이다. |
-| 사과나무 한 그루·가지·잎·열매·연못·자연석·수면·바닥·약초·자갈길 | [정원](002-household.md#garden)의 제작 대상이다. 대지 접촉은 [기준점](#coordinate-datum)과 [단일 본채](003-spatial-basis.md#single-house)를 따른다. |
-| 목구조·충전벽·기초·지붕·처마·창·문짝·표면 마감 | [건축 언어](#visual-grammar), [면의 책임](003-spatial-basis.md#surface-responsibility), [제작 대상](002-household.md#make-scope)이 정체성·소유·제작 책임을 나누어 가진다. |
-| 주광·중립 관찰의 눈높이·화각·해상도·초가을 식생 상태 | [검토 조건](#review-condition)과 [건축 언어](#visual-grammar)의 고정 관찰 조건과 상태이며 자율 날씨·계절 변화는 범위 밖이다. |
-| 외피·절개·정원·홀·사적층의 원본 이미지 다섯 장 | [참조 적용 순위](#reference-priority)의 시각 근거이며 제작 공간에 붙이거나 배치하는 자산이 아니다. |
+| Baron knight, spouse, two children, household helper and visitors | Design users in [household composition](002-household.md#household); character assets and autonomous actions are out of scope. |
+| Operator, door-state control, author, observer and independent evaluator | Authority and roles are stated in [control](#operator-access) and [performing roles](#review-roles). |
+| Readers not assumed to have professional drawing training, readers who cannot use vision and readers who need control support | [English readers](#language-access) and [accessibility deliverables](#accessibility-products) state the descriptions and alternative information offered to these readers and the unsupported scope. |
+| Main house, storeys, entrance, galleries, corridor, rooms, stair, entrance doors, site and approach path | Architectural subjects of [single main house](003-spatial-basis.md#single-house), [ground-floor connections](003-spatial-basis.md#ground-access), [stair](003-spatial-basis.md#single-stair) and [upper-floor connections](003-spatial-basis.md#upper-access). |
+| Table, benches, end seats, fireplace, storage chest, tableware, jug, tray and rug | Production subjects expressing dining and heating in the [hall](002-household.md#family-hall). |
+| Cooking hearth, worktable, water bucket, cauldron, ladle, knife, rack, shelves, food sacks, barrels and containers | Cooking and food storage subjects of the [kitchen and pantry](002-household.md#kitchen-pantry). |
+| Desk, backed chair, ledger shelf, lockable chest, writing tools and ledger | Work and storage subjects of the [ledger room](002-household.md#ledger-room). |
+| Washing stand, basin, empty barrel, drying rack and broom | Wet work and cleaning subjects of the [storage and washing room](002-household.md#service-room). |
+| Beds, mattresses, blankets, pillows, support frames, clothing storage, tables, seats and night jug | Private living subjects of the [bedrooms](002-household.md#bedrooms). |
+| Shared basin, jug, towel rack, latch, waste-water container and screen | Household items and private spatial expression of the [shared washroom and privy](002-household.md#upper-washroom). |
+| Spare bedding, clean towels, folded textiles, shelves and storage box | Dry storage subjects of the [upper storage](002-household.md#upper-storage). |
+| Clean water, waste water and lidded containers | The composition of these items is stated in [expression of water](002-household.md#water-and-waste); water-flow simulation is out of scope. |
+| One apple tree, branches, leaves, fruit, pond, natural stones, water surface, bottom, herbs and gravel path | Production subjects of the [garden](002-household.md#garden). Ground contact follows the [datum](#coordinate-datum) and the [single main house](003-spatial-basis.md#single-house). |
+| Timber frame, infill walls, foundation, roof, eaves, windows, door leaves and surface finishes | [Architectural language](#visual-grammar), [surface responsibility](003-spatial-basis.md#surface-responsibility) and [production subjects](002-household.md#make-scope) share identity, ownership and production responsibility. |
+| Daylight, eye height, field of view and resolution of neutral observation, and early-autumn vegetation state | Fixed observation conditions and states of the [review condition](#review-condition) and [architectural language](#visual-grammar); autonomous weather and seasonal change are out of scope. |
+| The five source images of the envelope, cutaway, garden, hall and private floor | Visual basis of the [reference application priority](#reference-priority), not assets pasted or placed in the production space. |
 
-수동 자산의 한계는 [가구 구성](002-household.md#household)에 명시했다. 이 목록의 물품은 [제작 대상과 책임](002-household.md#make-scope)에 따라 자체 제작하고, 아직 소유하지 않은 외부 자산이나 자율 행위자를 배치로 추가하지 않는다.
+The limits of passive assets are stated in [household composition](002-household.md#household). The items in this inventory are produced in-house according to [production subjects and responsibility](002-household.md#make-scope), and external assets not yet owned or autonomous actors are not added through placement.

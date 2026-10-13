@@ -3,31 +3,31 @@
 ## Purpose fit {#purpose-fit}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 제작 규약·생활 물품·고정 공간의 세 파일이 시각적 본채 납품에 필요한 역할을 나누는지 비교한다.
+@evidence obligations/core/common.md#purpose-fit Compares whether the three files of production conventions, household items and fixed space divide the roles a visual main-house delivery needs.
 -->
 
-현재 설정은 제작·납품 16개, 가족·물품 11개, 공간 구성 6개의 총 33개 H2다. 이미지 기반 중세 남작 기사 집의 외형·실내 구성·가구·재료를 실제 3D로 납품하는 목적에 맞춰 첫 파일은 제작과 관찰 규약, 둘째는 방별 생활 물품, 셋째는 단일 본채의 고정 연결을 소유한다. 홀 우선 관찰은 모든 방과 정원을 가진 납품 범위를 줄이지 않는다.
+The current settings are 33 H2s in total: 16 for production and delivery, 11 for family and items, and 6 for spatial composition. To serve the purpose of delivering in actual 3D the exterior, interior arrangement, furniture and materials of an image-based medieval baron knight's house, the first file owns the production and observation conventions, the second the per-room household items, and the third the fixed connections of the single main house. Priority observation of the hall does not shrink the delivery scope, which holds every room and the garden.
 
 ## Layer boundary {#layer-boundary}
 
 <!--
-@evidence obligations/core/common.md#layer-boundary 세 설정 파일의 제작 규약·생활 구성·전역 공간 결정을 구현 설계와 구별한다.
+@evidence obligations/core/common.md#layer-boundary Distinguishes the production conventions, household composition and global spatial decisions of the three settings files from implementation design.
 -->
 
-001-production은 시각적 납품과 관찰 조건, 002-household는 가상 거주 배경과 모든 방의 물품, 003-spatial-basis는 ㄷ자 본채·층·회랑·계단·복도 구성을 정한다. 실제 polygon·벽 두께·가구 부재·재질과 배치는 하위 설계가 소유한다. 모델 치수는 제작 값이며 인테리어 사용성의 합격 보고가 아니다. 설정 검토와 현재 렌더의 시각적 완성도 구별한다.
+001-production sets the visual delivery and observation conditions, 002-household the fictional residential background and the items of every room, and 003-spatial-basis the composition of the U-shaped main house, storeys, galleries, stair and corridor. Actual polygons, wall thicknesses, furniture members, materials and placement are owned by lower designs. Model dimensions are production values, not a pass report on interior usability. Settings review is also distinguished from the visual completion of the current render.
 
 ## Production language {#production-language}
 
 <!--
-@evidence obligations/core/common.md#production-language 모든 설정의 한국어 설명과 원문 기술 표기를 선언한 독자 조건에 대조한다.
+@evidence obligations/core/common.md#production-language Checks the English descriptions and original technical notation of every setting against the declared reader conditions.
 -->
 
-33개 본문은 현대 표준 한국어로 제작 조건과 공간·물품 관계를 설명한다. Status, m·㎡, PNG·API와 정확한 source 식별자는 기술 식별을 위해 원문을 유지한다. 설정 문서의 한국어 설명은 뷰어 메뉴나 실제 이미지별 관찰 문서가 이미 완성됐다는 보고가 아니다.
+The 33 bodies describe production conditions and spatial and item relationships in modern standard English. Status, m and ㎡, PNG and API, and exact source identifiers keep their original form for technical identification. The English descriptions in the settings documents are not a report that the viewer menu or the actual per-image observation documents are already complete.
 
 ## Proportionate development {#proportionate-development}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 33개 설정의 분포와 본문을 전체 본채·물품·정원·시각 관찰의 책임에 비추어 비교한다.
+@evidence obligations/core/common.md#proportionate-development Compares the distribution and bodies of the 33 settings against the responsibilities of the whole main house, items, garden and visual observation.
 -->
 
-제작 규약 16개는 납품·언어·조작·접근성·좌표·참조·건축 언어·표현·관찰·역할·종료·우선순위·지도를 각각 소유한다. 생활 11개는 가족 배경과 각 방·물·정원·제작 책임을, 공간 6개는 본채·면적 예산·층별 연결·한 계단·표면 책임을 정한다. 두 지도는 이 구분을 대상과 주소로 연결하며 방의 목록을 상세 인체 검사로 확장하지 않는다. 한 홀의 상세 배치가 나머지 방의 제작 책임을 대신하지 않는다.
+The 16 production conventions each own delivery, language, control, accessibility, coordinates, references, architectural language, expression, observation, roles, completion, priority and the map. The 11 household settings set the family background and each room, water, the garden and production responsibility, and the 6 spatial settings set the main house, the area budget, per-storey connections, the one stair and surface responsibility. The two maps connect this division to subjects and addresses and do not expand the room list into detailed human inspection. The detailed placement of one hall does not substitute for the production responsibility of the remaining rooms.

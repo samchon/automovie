@@ -1,236 +1,236 @@
-# 가족의 생활과 제작 대상
+# Family life and production subjects
 
-## 거주 가구와 수동 자산의 경계 {#household}
-
-<!--
-@evidence principles/core/common.md#declared-basis 네 가족과 여섯 식사 자리를 가상 거주 배경의 제작 선택으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 가족·방문과 지원의 배경 및 수동 자산의 경계를 남긴다.
-@evidence principles/core/common.md#substantive-completion 거주 인원·방 배정·추가 숙직실 비요구·자율성 경계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 방·문·물품은 수동 자산 또는 선언 상태이며 자율적으로 변하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 거주 네 명·식사 여섯 자리·세 침실과 추가 숙직 공간의 비요구를 정한다.
-@evidence principles/core/settings.md#fact-status 가족 구성은 역사 자료가 아닌 가상 제작 조건이다.
-@evidence principles/core/settings.md#observable-identity 세 침실과 여섯 자리의 가구 구성이 가족 배경을 표현한다.
-@evidence principles/core/settings.md#source-support 가족 수와 생활 배경을 제작 선택으로 한정한다.
--->
-
-**Status:** production invention, 가족 구성은 저작자가 채택한 가상 조건.
-
-남작 기사와 배우자, 자녀 둘이 상시 거주한다. 주침실은 부부가, 작은 침실 둘은 자녀가 각각 사용한다.
-
-낮 시간 가사 지원 인원 한 사람이 주방·세척에 접근할 수 있으나 별도의 숙직동이나 하인 침실을 요구하지 않는다. 식사 좌석은 거주 네 명과 방문·지원 두 명까지 수용하는 여섯 자리로 정한다.
-
-사람 캐릭터나 자율 행동은 납품하지 않는다. 가족·지원자·방문자는 방과 생활 물품의 구성을 정하는 가상 거주 배경이다.
-
-방·문·설비·가구·수목·물과 조명은 수동 자산 또는 선언 상태다. 운영자의 시점·문 상태 조작은 [운영자의 접근과 조작](001-production.md#operator-access)의 범위에 한정되며 자산이 스스로 사용 상태를 바꾸지 않는다.
-
-## 생활 홀의 역할 {#family-hall}
+## Resident household and the boundary of passive assets {#household}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 요구와 이미지 04의 생활 관계를 홀의 가구·난방 구성으로 적용한다.
-@evidence principles/core/common.md#scope-preservation 여섯 자리와 홀의 모든 가구·화구·식기·쟁반·깔개·문·창을 남긴다.
-@evidence principles/core/common.md#substantive-completion 홀의 공용 성격·물품·정원 연결·주방 접점과 시각적 판단을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 식사·난방은 홀의 표현 용도이며 사람의 행동 성공을 허가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 여섯 자리·필수 물품·주방 별도 진입과 선택 배식구로 설계 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 생활 구성은 제작 적용이고 쟁반 치수는 모델 값이다.
-@evidence principles/core/settings.md#observable-identity 목제 식탁·벤치·석재 화구·직물·도기의 차이가 실제 렌더에서 읽혀야 한다.
-@evidence principles/core/settings.md#source-support 이미지 04의 관계와 제작상 쟁반 치수의 근거를 구별한다.
+@evidence principles/core/common.md#declared-basis Adopts a family of four and six dining places as the production choice of a fictional residential background.
+@evidence principles/core/common.md#scope-preservation Keeps the background of family, visitors and helpers and the boundary of passive assets.
+@evidence principles/core/common.md#substantive-completion Settles the number of residents, the room assignment, the non-requirement of extra staff quarters and the autonomy boundary.
+@evidence principles/core/settings.md#capability-boundary Rooms, doors and items are passive assets or declared states and do not change autonomously.
+@evidence principles/core/settings.md#constraint-sufficiency Sets four residents, six dining places, three bedrooms and the non-requirement of extra quarters.
+@evidence principles/core/settings.md#fact-status The family composition is a fictional production condition, not historical data.
+@evidence principles/core/settings.md#observable-identity The furniture of three bedrooms and six places expresses the family background.
+@evidence principles/core/settings.md#source-support Limits the family size and living background to production choices.
 -->
 
-**Status:** production invention, 사용자 요구와 이미지 04의 생활 관계를 건축 자산으로 적용.
+**Status:** production invention, the family composition is a fictional condition adopted by the author.
 
-생활 홀은 여섯 사람의 식사와 난방을 표현하는 1층 공용실이다. 긴 목제 식탁, 양쪽 긴 벤치와 필요 끝좌석, 석재 벽난로, 뚜껑 수납함, 도기 식기와 물주전자, 쟁반, 직물 바닥 깔개를 제작한다. 정원 회랑으로 나가는 문과 작은 분할 창이 실내의 밝기 방향과 출구를 읽히게 한다.
+The baron knight, the spouse and two children live in the house permanently. The couple uses the master bedroom, and the two children each use one of the two small bedrooms.
 
-주방은 같은 회랑에서 별도로 진입하며, 홀과 주방의 배식구는 선택 가능한 기능 접점이다. 배식구는 통행문으로 계산하지 않는다.
+One daytime household helper can reach the kitchen and washing areas, but no separate staff wing or servant bedroom is required. The dining seats are set at six places, accommodating the four residents and up to two visitors or helpers.
 
-이미지 04에 따라 식탁과 벤치, 석재 화구, 직물과 도기의 서로 다른 형태·재료 및 생활 관계를 실제 렌더에서 읽을 수 있게 구성한다. 여섯 자리의 가구 구성과 모든 소품을 유지한다. 쟁반의 제작상 평면 치수는 0.55×0.40m이며 물품의 모델 값으로 사용한다.
+No human characters or autonomous actions are delivered. The family, helper and visitors are a fictional residential background that determines the composition of rooms and household items.
 
-식탁의 기준 상판은 긴 방향 2.25m, 짧은 방향 0.80m의 직사각형이며 긴 판재 여러 장의 이음과 네 다리·하부 연결재를 구별한다. 양쪽 벤치는 각각 길이 2.12m, 폭 0.31m의 등받이 없는 좁은 판 좌석이고 식탁 긴 변과 평행하다. 정면에서는 다리 사이 빈 곳, 위에서는 판 이음과 여섯 식기 자리, 끝에서는 상판과 낮은 좌판의 높이 차이를 확인할 수 있어야 한다. 화구는 석재 양옆과 상부가 둘러싼 어두운 내부 빈 곳이며 불꽃 이미지를 붙인 막힌 상자로 대체하지 않는다. 식기는 위가 열린 얕은 접시·그릇과 컵·손잡이 주전자로 나뉘고, 깔개는 가구 아래의 얇은 직물 면으로 남는다. 이 치수는 이미지에서 잰 값이 아니라 현재 제작에서 채택한 물품 기준이다.
+Rooms, doors, fixtures, furniture, trees, water and lighting are passive assets or declared states. The operator's viewpoint and door-state controls are limited to the scope of [operator access and control](001-production.md#operator-access), and assets do not change their state of use by themselves.
 
-## 주방과 식료 보관 {#kitchen-pantry}
+## Role of the family hall {#family-hall}
 
 <!--
-@evidence principles/core/common.md#declared-basis 조리·식료 보관을 방별 생활 기능의 제작 결정으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 주방의 화구·작업대·물통·도구·선반과 식료실의 자루·통·용기를 남긴다.
-@evidence principles/core/common.md#substantive-completion 두 실의 기능·물품·직접 문·보조 연결과 시뮬레이션 경계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 조리와 보관은 정적 물품의 용도 표현이며 화학 상태의 시뮬레이션을 요구하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 각 실의 직접 문과 물품 구분으로 방 통합·경유 배치를 제한한다.
-@evidence principles/core/settings.md#fact-status 기능과 물품 구성을 production invention으로 제시한다.
-@evidence principles/core/settings.md#observable-identity 화구·도구가 있는 주방과 자루·뚜껑 용기가 있는 식료실을 구별한다.
-@evidence principles/core/settings.md#source-support 주방의 생활 표현을 제작 결정으로 한정한다.
+@evidence principles/core/common.md#declared-basis Applies the user requirement and the household relationships of image 04 to the hall's furniture and heating composition.
+@evidence principles/core/common.md#scope-preservation Keeps the six places and all the hall's furniture, hearth, tableware, tray, rug, doors and windows.
+@evidence principles/core/common.md#substantive-completion Settles the hall's shared character, its items, its garden connection, its kitchen contact and the visual judgment.
+@evidence principles/core/settings.md#capability-boundary Dining and heating are the hall's expressed uses and do not authorize the success of human actions.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains design choices by six places, the required items, separate kitchen entry and an optional serving hatch.
+@evidence principles/core/settings.md#fact-status The household composition is a production application, and the tray dimensions are model values.
+@evidence principles/core/settings.md#observable-identity The difference between the wooden table, benches, stone hearth, textiles and pottery must read in the actual render.
+@evidence principles/core/settings.md#source-support Distinguishes the relationships of image 04 from the basis of the production tray dimensions.
 -->
 
-**Status:** production invention, 생활 기능의 제작 결정.
+**Status:** production invention, applying the user requirement and the household relationships of image 04 as architectural assets.
 
-주방은 조리 화구, 작업대, 물통, 솥·국자·칼의 거치와 도기 선반을 갖는다. 인접 식료실은 곡물 자루·통, 식료 선반과 뚜껑 용기의 서늘한 저장을 표현한다. 조리대의 열·그을음 표현은 이 장소에 귀속하고 침실에 같은 오염을 복제하지 않는다.
+The family hall is a ground-floor common room expressing dining and heating for six people. A long wooden table, long benches on both sides with end seats as needed, a stone fireplace, a lidded storage chest, pottery tableware and a water jug, a tray and a textile floor rug are produced. A door leading out to the garden gallery and small divided windows make the direction of interior light and the exit legible.
 
-주방과 식료실은 같은 회랑에 각각 직접 문을 두어 식료실을 통과해야 주방에 도착하는 구조를 만들지 않는다. 내부의 보조 연결은 허용하되 필수 회랑 연결을 대신하지 않는다. 개별 용기의 내용물은 식용 화학 조성까지 시뮬레이션하지 않는다.
+The kitchen is entered separately from the same gallery, and a serving hatch between hall and kitchen is an optional functional contact. The serving hatch is not counted as a passage door.
 
-조리 작업대는 길이 2.50m, 깊이 0.65m의 좁고 긴 상부 작업면과 그 아래 지지·수납 공간을 구별한다. 솥은 어두운 금속 몸체와 열린 입구·매다는 지점을 가지며 화구 내부와 작업대 위 용기를 혼동하지 않는다. 국자는 긴 자루 끝의 오목한 머리, 칼은 손잡이와 납작한 날로 식별한다. 식료 선반은 높이 1.70m, 깊이 0.42m, 긴 방향 2.50m의 개방된 다단 구조를 기준으로 하며, 자루는 묶인 입구와 부푼 직물 몸체, 통은 원주형 몸체와 테두리, 도기는 좁은 목 또는 열린 입구로 구별한다. 위·앞·옆에서 선반의 빈 칸과 물품 윤곽이 남고 그을음은 조리 화구 주변 표면에 국한된다. 수치는 현재 제작에서 채택한 기준이다.
+Following image 04, the table and benches, the stone hearth, and the textiles and pottery are composed so that their different forms, materials and household relationships read in the actual render. The furniture composition of six places and every prop are kept. The production plan dimensions of the tray are 0.55×0.40m and are used as the item's model values.
 
-## 장부실의 사용과 접근 {#ledger-room}
+The reference tabletop is a rectangle 2.25m in the long direction and 0.80m in the short direction, distinguishing the joints of several long boards from the four legs and lower stretchers. The two benches are each narrow backless plank seats 2.12m long and 0.31m wide, parallel to the long sides of the table. From the front the gaps between the legs, from above the board joints and the six place settings, and from the end the height difference between the tabletop and the low seats must be visible. The hearth is a dark interior void enclosed by stone on both sides and above, and is not replaced by a closed box with a flame image pasted on it. The tableware divides into open shallow plates and bowls, cups and a handled jug, and the rug remains a thin textile surface under the furniture. These dimensions are not measured from the images but are the item standards adopted in the current production.
+
+## Kitchen and food storage {#kitchen-pantry}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 요구의 업무실에 문서·소액 물품의 제작 구성을 채택한다.
-@evidence principles/core/common.md#scope-preservation 업무실의 책상·의자·선반·함·필기구·펼친 장부와 직접 문을 남긴다.
-@evidence principles/core/common.md#substantive-completion 업무실의 물품과 책상 면의 구별 및 1층 직접 연결을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 문서 검토와 잠금은 물품의 표현이며 자율 업무 능력을 부여하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 직접 문과 책상 면 구별·기록 복사 금지로 설계 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 업무실과 장부 구성은 사용자 요구를 적용한 제작 결정이다.
-@evidence principles/core/settings.md#observable-identity 펼친 장부·필기 도구·등받이 의자·잠금 함으로 업무실을 식별한다.
-@evidence principles/core/settings.md#source-support 특정 역사 문서와 개인 기록을 근거 없는 소품 자료로 채택하지 않는다.
+@evidence principles/core/common.md#declared-basis Adopts cooking and food storage as production decisions of per-room household functions.
+@evidence principles/core/common.md#scope-preservation Keeps the kitchen's hearth, worktable, water bucket, tools and shelves and the pantry's sacks, barrels and containers.
+@evidence principles/core/common.md#substantive-completion Settles the two rooms' functions, items, direct doors, auxiliary connection and the simulation boundary.
+@evidence principles/core/settings.md#capability-boundary Cooking and storage express the use of static items and require no simulation of chemical state.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains merging rooms and pass-through layouts by each room's direct door and the separation of items.
+@evidence principles/core/settings.md#fact-status Presents the functions and item composition as production invention.
+@evidence principles/core/settings.md#observable-identity Distinguishes the kitchen with its hearth and tools from the pantry with its sacks and lidded containers.
+@evidence principles/core/settings.md#source-support Limits the kitchen's household expression to a production decision.
 -->
 
-**Status:** production invention, 사용자 요구의 공간 기능화.
+**Status:** production invention, a production decision on household functions.
 
-서재 겸 장부실은 문서 검토와 소액 물품 보관을 위한 업무실이다. 작업 책상·등받이 의자, 장부를 놓는 선반, 잠금 표현이 있는 수납함, 필기 도구와 펼친 장부를 둔다. 책상 위는 글을 읽는 면과 물품을 놓는 면이 구별되어야 한다.
+The kitchen has a cooking hearth, a worktable, a water bucket, racks for a cauldron, ladle and knife, and pottery shelves. The adjoining pantry expresses cool storage with grain sacks and barrels, food shelves and lidded containers. The expression of heat and soot from the cooking area belongs to this place, and the same soiling is not copied to the bedrooms.
 
-현관 또는 동일 회랑에서 직접 들어가며 침실 통과를 요구하지 않는다. 방문 업무는 1층에서 끝낼 수 있다. 장부의 문양과 선은 소품으로 제작하며 특정 역사 문서나 실제 개인 기록을 복사하지 않는다.
+The kitchen and pantry each have a direct door to the same gallery, so no layout requires passing through the pantry to reach the kitchen. An auxiliary internal connection is allowed but does not replace the required gallery connection. The contents of individual containers are not simulated down to their edible chemical composition.
 
-책상은 1.50×0.75m 직사각형 목제 상판과 네 다리, 좌석은 0.50×0.50m 좌판 위로 기둥·가로살·세로살이 이어지는 등받이로 식탁용 긴 벤치와 구별한다. 펼친 장부는 가운데 접힘을 사이에 둔 두 면과 바깥 표지·페이지 두께가 있고, 검은 잉크통과 밝은 깃털형 필기구는 그 옆에서 별도 윤곽을 갖는다. 수납함은 낮은 직육면체 판재 몸통·상부 뚜껑·앞 중앙 잠금부·뒷 경첩을 구별한다. 위에서는 문서 면과 여백, 앞에서는 잠금부와 등받이, 옆에서는 상판 아래 빈 곳을 확인한다. 수치는 현재 제작에서 채택한 기준이다.
+The cooking worktable distinguishes a narrow, long upper work surface 2.50m long and 0.65m deep from the support and storage space below it. The cauldron has a dark metal body, an open mouth and a hanging point, and the inside of the hearth is not confused with containers on the worktable. The ladle is identified by a concave head at the end of a long handle, and the knife by its handle and flat blade. The food shelving is based on an open multi-tier structure 1.70m high, 0.42m deep and 2.50m in the long direction; sacks are distinguished by a tied mouth and a bulging textile body, barrels by a cylindrical body and hoops, and pottery by a narrow neck or open mouth. From above, the front and the side, the empty bays of the shelves and the outlines of the items remain, and soot is confined to the surfaces around the cooking hearth. The figures are standards adopted in the current production.
 
-## 저장과 세척 작업 {#service-room}
+## Use and access of the ledger room {#ledger-room}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 요구의 저장·세척 구획을 생활 물품의 제작 조건으로 적용한다.
-@evidence principles/core/common.md#scope-preservation 1층 세척실과 모든 도구·통·대야·거치 및 같은 회랑의 문을 남긴다.
-@evidence principles/core/common.md#substantive-completion 세척실의 물품·바닥 표현·직접 문과 다른 기능의 경계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 세척 기능은 정적 배치의 표현이며 자율적인 세척·건조를 허가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 식료 혼합과 두 번째 계단을 거부하며 필요한 문·물품을 정한다.
-@evidence principles/core/settings.md#fact-status 생활 조건은 채택한 가상 집의 구성이다.
-@evidence principles/core/settings.md#observable-identity 석재 바닥·대야·빈 통·건조대·청소 도구로 세척실을 식별한다.
-@evidence principles/core/settings.md#source-support 세척실의 구성은 역사 일반화나 위생 기준 인증으로 주장하지 않는다.
+@evidence principles/core/common.md#declared-basis Adopts a production composition of documents and small goods for the work room of the user requirement.
+@evidence principles/core/common.md#scope-preservation Keeps the work room's desk, chair, shelf, chest, writing tools, open ledger and direct door.
+@evidence principles/core/common.md#substantive-completion Settles the work room's items, the distinction of desk surfaces and the direct ground-floor connection.
+@evidence principles/core/settings.md#capability-boundary Document review and locking are expressions of items and grant no autonomous work capability.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains design choices by the direct door, the distinction of desk surfaces and the prohibition on copying records.
+@evidence principles/core/settings.md#fact-status The work room and ledger composition are production decisions applying the user requirement.
+@evidence principles/core/settings.md#observable-identity Identifies the work room by the open ledger, writing tools, backed chair and lockable chest.
+@evidence principles/core/settings.md#source-support Does not adopt specific historical documents or personal records as unsupported prop material.
 -->
 
-**Status:** production invention, 사용자 요구의 생활 조건.
+**Status:** production invention, giving the user requirement a spatial function.
 
-1층 저장·세척실은 외부에서 들어온 흙 묻은 물품, 청소 도구, 빈 통과 세척 대야를 수용한다. 석재 바닥, 낮은 세척대, 통, 건조 거치대와 빗자루로 젖은 작업 장소를 표현하고 같은 회랑에 직접 문을 둔다.
+The study and ledger room is a work room for reviewing documents and storing small goods. It holds a work desk and backed chair, a shelf for ledgers, a storage chest with an expressed lock, writing tools and an open ledger. On the desk, the surface for reading and the surface for setting things down must be distinguishable.
 
-식료 보관과 더러운 세척물을 같은 용기나 선반에 혼합하지 않는다. 세척실에서 위층으로 이어지는 두 번째 계단은 두지 않는다.
+It is entered directly from the entrance or the same gallery and does not require passing through a bedroom. Visitor business can be finished on the ground floor. The patterns and lines of the ledger are produced as a prop, and no specific historical document or real personal record is copied.
 
-세척대의 목제 다리와 상부 받침 위에 둥근 열린 대야를 놓고, 대야의 안쪽 오목한 면·입구 두께·바깥 몸체를 구별한다. 빈 통은 내용물이 채워진 식료 자루와 달리 입구의 빈 곳과 손잡이가 보인다. 건조 거치는 수직 지지와 가로 막대 사이가 열린 구조이고 빗자루는 긴 자루 아래로 넓어지는 솔 묶음을 갖는다. 석재 바닥과 목재 가구, 밝은 직물, 도기·통의 표면 경계가 정면과 측면에서 유지되어야 하며 물기가 있다는 설명만으로 이 구성품을 대체하지 않는다.
+The desk has a 1.50×0.75m rectangular wooden top and four legs, and the seat is distinguished from the long dining benches by a backrest of posts, rails and slats rising above a 0.50×0.50m seat board. The open ledger has two pages on either side of a central fold with an outer cover and page thickness, and a black inkwell and a light quill-shaped pen beside it have separate outlines. The storage chest distinguishes a low cuboid plank body, a top lid, a front central lock and rear hinges. From above, the document surface and margins; from the front, the lock and the backrest; and from the side, the void under the top are confirmed. The figures are standards adopted in the current production.
 
-## 침실의 사적 생활 {#bedrooms}
+## Storage and washing work {#service-room}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 확정 세 침실에 가구 기능과 이미지 05의 분위기를 적용한다.
-@evidence principles/core/common.md#scope-preservation 부부용 주침실과 작은 침실 둘의 침구·의복·수납·탁자·좌석을 남긴다.
-@evidence principles/core/common.md#substantive-completion 세 침실의 물품 차이와 일자 복도에 직접 낸 문을 결정한다.
-@evidence principles/core/settings.md#capability-boundary 수면·의복 보관은 방의 표현 용도이며 인물의 행동 능력을 추가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 세 방의 가구 배분과 복도 직접 연결로 방 통합·경유를 제한한다.
-@evidence principles/core/settings.md#fact-status 실 구성은 사용자 확정, 가구와 분위기는 제작상 적용이다.
-@evidence principles/core/settings.md#observable-identity 목재 프레임과 침구·수납·물주전자로 세 침실을 식별한다.
-@evidence principles/core/settings.md#source-support 이미지 05를 분위기와 물품 관계의 근거로 사용한다.
+@evidence principles/core/common.md#declared-basis Applies the storage and washing division of the user requirement as a production condition of household items.
+@evidence principles/core/common.md#scope-preservation Keeps the ground-floor washing room, all its tools, barrels, basins and racks, and its door to the same gallery.
+@evidence principles/core/common.md#substantive-completion Settles the washing room's items, floor expression, direct door and its boundary with other functions.
+@evidence principles/core/settings.md#capability-boundary The washing function is an expression of static placement and does not authorize autonomous washing or drying.
+@evidence principles/core/settings.md#constraint-sufficiency Rejects mixing with food and a second stair, and sets the required door and items.
+@evidence principles/core/settings.md#fact-status The living conditions are the adopted composition of a fictional house.
+@evidence principles/core/settings.md#observable-identity Identifies the washing room by its stone floor, basin, empty barrel, drying rack and cleaning tools.
+@evidence principles/core/settings.md#source-support Does not claim the washing room's composition as a historical generalization or a certified hygiene standard.
 -->
 
-**Status:** production invention, 사용자 확정 실 구성에 가구 기능을 채택.
+**Status:** production invention, a living condition of the user requirement.
 
-주침실은 부부 침대, 두 사람의 의복 수납, 작은 앉을 자리와 야간 물주전자를 갖는다. 작은 침실 둘에는 각각 한 사람의 침대, 수납함, 작은 탁자와 의자를 둔다. 모든 침실은 2층 일자 복도에 직접 문을 내고 다른 침실을 통과하지 않는다.
+The ground-floor storage and washing room holds muddy items brought in from outside, cleaning tools, empty barrels and washing basins. A stone floor, a low washing stand, barrels, a drying rack and a broom express a wet work place, and it has a direct door to the same gallery.
 
-침대는 매트리스·담요·베개와 목제 프레임이 구별되어야 한다. 이미지 05의 목재 복도·방문·침구·물주전자 관계를 따라 사적층의 분위기를 표현한다.
+Food storage and dirty washing are never mixed in the same container or on the same shelf. No second stair leads upstairs from the washing room.
 
-채택한 침대 외곽은 모두 길이 2.05m이며 부부용 폭은 1.60m, 각 자녀용 폭은 0.95m다. 네 모서리 기둥·긴 측면대·가로 받침 위에 매트리스를 올리고, 머리 쪽 판과 기둥은 발 쪽보다 높다. 매트리스는 두께 있는 별도 덩어리, 시트는 그 위와 옆을 감싸는 얇은 층, 이불은 몸통 쪽을 덮는 별도 층이며 베개는 머리 쪽에서 부부용 두 개·자녀용 한 개가 볼록하게 솟는다. 주침실 이불은 녹슨 적갈색, 서측 작은 침실은 회녹색, 동측 작은 침실은 회갈색 계열로 구별한다. 위·옆·발 쪽 시점에서도 겹침 순서와 프레임 아래 빈 곳이 남고, 등받이 의자·판재 수납함·손잡이 주전자가 침구와 하나의 상자로 합쳐지지 않는다. 치수와 색 구분은 현재 제작에서 채택한 기준이며 실측 인체 적합성을 주장하지 않는다.
+A round open basin sits on the wooden legs and upper support of the washing stand, distinguishing the basin's concave inner face, rim thickness and outer body. Unlike a filled food sack, an empty barrel shows the void of its mouth and its handles. The drying rack is an open structure between vertical supports and horizontal bars, and the broom has a bundle of bristles widening below a long handle. The surface boundaries between the stone floor, wooden furniture, light textiles, and pottery and barrels must hold from the front and the side, and a statement that things are wet does not replace these components.
 
-## 공동 세척과 측간 {#upper-washroom}
+## Private life of the bedrooms {#bedrooms}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 요구 안에서 공동 세척·측간의 물품과 공간 표현을 채택한다.
-@evidence principles/core/common.md#scope-preservation 단일 공용실의 문·빗장·대야·주전자·수건·오수 용기·칸막이를 유지한다.
-@evidence principles/core/common.md#substantive-completion 공용실의 물품과 사적인 구성 및 현대 설비·외부 탑의 제외를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 문·빗장과 용기는 실제 물품의 표현이며 사람의 조작 능력을 승인하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 물품 목록·단일 공용실·현대 설비와 외부 탑의 제외로 설계 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 세척·측간 방식은 이 저택의 제작상 생활 표현이다.
-@evidence principles/core/settings.md#observable-identity 대야·주전자·수건·뚜껑 용기와 칸막이가 세척·측간실의 성격을 드러낸다.
-@evidence principles/core/settings.md#source-support 특정 역사 지역의 보편 관행을 주장하지 않는다.
+@evidence principles/core/common.md#declared-basis Applies furniture functions and the atmosphere of image 05 to the three user-confirmed bedrooms.
+@evidence principles/core/common.md#scope-preservation Keeps the bedding, clothing, storage, tables and seats of the couple's master bedroom and the two small bedrooms.
+@evidence principles/core/common.md#substantive-completion Settles the item differences among the three bedrooms and their doors opening directly onto the straight corridor.
+@evidence principles/core/settings.md#capability-boundary Sleeping and clothing storage are the rooms' expressed uses and add no action capability for characters.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains merging rooms and pass-through by the furniture allocation of the three rooms and the direct corridor connection.
+@evidence principles/core/settings.md#fact-status The room composition is user-confirmed; the furniture and atmosphere are production application.
+@evidence principles/core/settings.md#observable-identity Identifies the three bedrooms by timber frames, bedding, storage and water jugs.
+@evidence principles/core/settings.md#source-support Uses image 05 as the basis for the atmosphere and item relationships.
 -->
 
-**Status:** production invention, 사용자 요구 안의 가상 생활 관행.
+**Status:** production invention, adopting furniture functions for the user-confirmed room composition.
 
-2층 공동 세척·측간실은 가족이 함께 쓰는 단일 공용실로 표현한다. 문과 실내 빗장, 물대야·주전자·수건 거치와 뚜껑 있는 이동식 오수 용기를 갖는다. 내부 칸막이와 문은 씻는 장소의 사적인 성격을 나타낸다.
+The master bedroom has a double bed, clothing storage for two people, a small place to sit and a night water jug. The two small bedrooms each hold a single bed, a storage chest, a small table and a chair. Every bedroom has a door opening directly onto the upper straight corridor and does not pass through another bedroom.
 
-별도의 현대 수세식 변기나 수도꼭지, 외벽 밖으로 튀어나온 측간탑은 없다. 이 선택은 특정 역사 지역의 보편 관행이라는 주장이 아닌 본 저택의 제작상 생활 방식이다. 깨끗한 생활 직물의 별도 보관은 [2층 공용 수납](#upper-storage)이 소유한다.
+Each bed must distinguish the mattress, blanket and pillows from the wooden frame. The atmosphere of the private floor follows the relationships of the timber corridor, room doors, bedding and water jug in image 05.
 
-대야는 받침 위의 원형 입구와 오목한 내부, 주전자는 둥근 몸체에서 좁아지는 목과 옆 손잡이로 구별한다. 수건은 가로 거치봉을 넘어 앞뒤로 내려오는 두 직물 면이며 벽에 붙인 무두께 색 띠가 아니다. 측간 용기는 뚜껑이 있는 별도 수거 몸체이고, 칸막이는 그 앞·옆을 가리는 판재 면과 틈의 경계를 가진다. 닫힌 기준 상태와 열린 검사 상태에서 동일 뚜껑·경첩·문짝이 유지되어야 한다. 위에서 보는 입구와 옆에서 보는 깊이·차폐가 같은 물품을 설명한다.
+All adopted bed outlines are 2.05m long; the double is 1.60m wide and each child's bed 0.95m wide. The mattress rests on four corner posts, long side rails and cross supports, and the headboard and posts at the head are higher than at the foot. The mattress is a separate mass with thickness, the sheet a thin layer wrapping its top and sides, and the quilt a separate layer covering the body area; the pillows rise convexly at the head, two on the double bed and one on each child's bed. The quilts are distinguished as rusty reddish brown in the master bedroom, grey-green in the west small bedroom and greyish brown in the east small bedroom. From above, the side and the foot, the stacking order and the void under the frame remain, and the backed chair, plank storage chest and handled jug do not merge with the bedding into one box. The dimensions and color distinctions are standards adopted in the current production and claim no measured anthropometric fit.
 
-## 2층 공용 수납 {#upper-storage}
+## Shared washroom and privy {#upper-washroom}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 요구의 독립 수납 구획에 깨끗한 생활 직물의 용도를 채택한다.
-@evidence principles/core/common.md#scope-preservation 독립 구획·복도 문·목제 선반·보관함·여벌 침구와 수건을 남긴다.
-@evidence principles/core/common.md#substantive-completion 보관 용도·가구·내용물의 읽힘·직접 연결과 혼합 금지를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 선언 상태에서 보관물을 표현하며 인체 도달·꺼내기 능력을 허가하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 공용 건조 물품과 복도 직접 문·개인 수납 구별로 배치를 제한한다.
-@evidence principles/core/settings.md#fact-status 구획 용도와 물품은 제작 선택이며 도달 검증 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 목제 선반과 뚜껑 함 속 여벌 침구·수건·직물이 공용 수납을 식별한다.
-@evidence principles/core/settings.md#source-support 공용 직물 보관을 가상 집의 제작 용도로 제시한다.
+@evidence principles/core/common.md#declared-basis Adopts, within the user requirement, the items and spatial expression of the shared washroom and privy.
+@evidence principles/core/common.md#scope-preservation Keeps the single common room's door, latch, basin, jug, towels, waste-water container and screen.
+@evidence principles/core/common.md#substantive-completion Settles the common room's items and private composition and the exclusion of modern fixtures and an external tower.
+@evidence principles/core/settings.md#capability-boundary The door, latch and containers are expressions of actual items and do not approve any human ability to operate them.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains design choices by the item list, the single common room and the exclusion of modern fixtures and an external tower.
+@evidence principles/core/settings.md#fact-status The washing and privy arrangement is this manor's production expression of household life.
+@evidence principles/core/settings.md#observable-identity The basin, jug, towels, lidded container and screen reveal the character of the washroom and privy.
+@evidence principles/core/settings.md#source-support Does not claim the universal practice of any specific historical region.
 -->
 
-**Status:** production invention, 사용자 요구의 독립 수납 구획에 용도를 채택.
+**Status:** production invention, a fictional household practice within the user requirement.
 
-2층 수납은 여벌 침구·깨끗한 수건·접은 생활 직물을 보관하는 건조 구획이다. 같은 일자 복도에 직접 문을 두고 벽의 목제 선반과 뚜껑 달린 직물 보관함을 갖춘다. 열린 문과 수납의 선언 상태에서 보관물의 구성을 읽을 수 있게 표현한다. 각 침실의 개인 의복 수납과는 별도다.
+The upper shared washroom and privy is expressed as a single common room the family uses together. It has a door and an interior latch, a water basin, a jug, a towel rack and a lidded portable waste-water container. The internal screen and the door express the private character of a place for washing.
 
-세척·측간실을 지나야 접근하는 구조를 만들지 않으며 젖은 수건·오수 용기·조리 식료를 이곳에 혼합하지 않는다. 실제 구획과 부재 구성·배치는 아래 정체성 기준을 소비하는 공간·모델 설계가 정한다.
+There is no separate modern flush toilet or tap, and no privy tower projecting beyond the outer wall. This choice is this manor's production way of life, not a claim about the universal practice of a specific historical region. Separate storage of clean household textiles is owned by [upper shared storage](#upper-storage).
 
-수납 정체성의 기준은 높이 1.60m, 깊이 0.40m, 긴 방향 3.60m의 개방된 목제 선반과 낮은 뚜껑 보관함이다. 선반의 가로 판·세로 지지 사이에는 빈 칸이 남고, 접은 직물은 평평한 상면 아래 여러 접힘 가장자리가 보이는 낮은 묶음이다. 젖은 방의 늘어진 수건과 달리 건조한 침구·수건이 수평 적층된다. 정면과 비스듬한 시점에서 선반 깊이·접힌 층·빈 곳을 구별한다. 수치는 현재 제작에서 채택한 정체성 기준이고, 그 기준 안의 부재·메시·배치는 해당 설계가 소유한다.
+The basin is distinguished by a round mouth on a stand and a concave interior, and the jug by a neck narrowing from a round body and a side handle. The towel is two textile surfaces hanging down front and back over a horizontal rail, not a zero-thickness color strip stuck to the wall. The privy container is a separate collection body with a lid, and the screen has plank faces that hide its front and side and the boundaries of the gaps. The same lid, hinges and door leaf must remain in the closed reference state and the open inspection state. The mouth seen from above and the depth and screening seen from the side describe the same item.
 
-## 물과 오수의 표현 {#water-and-waste}
+## Upper shared storage {#upper-storage}
 
 <!--
-@evidence principles/core/common.md#declared-basis 역사 일반화 없이 각 방의 물 용기를 생활 표현으로 채택한다.
-@evidence principles/core/common.md#scope-preservation 주전자·뚜껑 통·대야와 별도 오수 용기의 물품 구성을 남긴다.
-@evidence principles/core/common.md#substantive-completion 깨끗한 물과 오수의 시각적 구별 및 연못·상하수도 표현의 경계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 물과 용기는 정적 생활 표현이며 수류·상하수도의 동작을 만들지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 용기의 방별 배치와 오수 구별, 연못의 비설비 상태를 정한다.
-@evidence principles/core/settings.md#fact-status 물품 표현은 production invention이며 운반·용량 검사의 결과가 아니다.
-@evidence principles/core/settings.md#observable-identity 주전자·대야·뚜껑과 손잡이 있는 오수 용기로 물의 생활 용도를 구별한다.
-@evidence principles/core/settings.md#source-support 용기와 연못의 역할을 이 가상 집의 제작 선택으로 한정한다.
+@evidence principles/core/common.md#declared-basis Adopts the use of clean household textiles for the independent storage division of the user requirement.
+@evidence principles/core/common.md#scope-preservation Keeps the independent division, corridor door, wooden shelves, storage box, spare bedding and towels.
+@evidence principles/core/common.md#substantive-completion Settles the storage use, furniture, legibility of contents, direct connection and the prohibition on mixing.
+@evidence principles/core/settings.md#capability-boundary Expresses stored goods in a declared state and does not authorize human reach or retrieval.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains placement by shared dry goods, the direct corridor door and the distinction from personal storage.
+@evidence principles/core/settings.md#fact-status The division's use and items are production choices, not a reach verification result.
+@evidence principles/core/settings.md#observable-identity Wooden shelves and spare bedding, towels and textiles in a lidded box identify the shared storage.
+@evidence principles/core/settings.md#source-support Presents shared textile storage as a production use of the fictional house.
 -->
 
-**Status:** production invention, 역사 일반화 없이 채택한 생활 물품의 표현.
+**Status:** production invention, adopting a use for the independent storage division of the user requirement.
 
-깨끗한 물은 주전자·뚜껑 달린 통과 각 방의 대야로 표현한다. 주방과 1층 세척실, 2층 공동 세척실 및 침실의 용기를 해당 방의 생활 물품으로 배치한다. 오수·측간 용기는 뚜껑과 손잡이를 갖춘 별도 물품으로 구별한다.
+Upper storage is a dry division that keeps spare bedding, clean towels and folded household textiles. It has a direct door to the same straight corridor and is furnished with wooden wall shelves and a lidded textile storage box. In the open-door and storage declared states, the composition of the stored goods is expressed so it can be read. It is separate from the personal clothing storage of each bedroom.
 
-정원 연못은 장식·생태 표현이며 식수원·세척수원·오수 배출구로 표현하지 않는다. 상하수도 연결이나 흐르는 물 시뮬레이션은 만들지 않는다.
+No layout requires passing through the washroom and privy to reach it, and wet towels, waste-water containers and cooking food are never mixed in here. The actual division and its member composition and placement are set by the space and model designs that consume the identity standard below.
 
-깨끗한 물과 오수의 차이는 방 소속·용기 종류·뚜껑 상태로 판별하며, 액체 색 하나로 위생 상태를 인증하지 않는다. 물이 드러난 대야에서는 수평 수면과 그 위 입구 테두리·바깥 용기 벽이 서로 다른 높이와 경계를 갖는다. 닫힌 오수 용기의 내용물은 보이지 않으며 뚜껑이 있는 물품을 열린 깨끗한 대야와 같은 모습으로 그리지 않는다.
+The standard for the storage identity is open wooden shelving 1.60m high, 0.40m deep and 3.60m in the long direction, and a low lidded storage box. Empty bays remain between the horizontal boards and vertical supports of the shelving, and folded textiles are low bundles showing several folded edges under a flat top. Unlike the hanging towels of the wet room, dry bedding and towels are stacked horizontally. From the front and an oblique viewpoint the shelf depth, the folded layers and the voids are distinguished. The figures are the identity standard adopted in the current production, and the members, meshes and placement within that standard are owned by the relevant design.
 
-## 사과나무와 정원 {#garden}
+## Expression of water and waste water {#water-and-waste}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자 확정 정원 구성에 나무·연못의 형체와 제작 값을 채택한다.
-@evidence principles/core/common.md#scope-preservation 한 사과나무·연못·약초밭·자갈길과 그 세부 표현을 유지한다.
-@evidence principles/core/common.md#substantive-completion 정원의 대상·형체·깊이 표현과 본채 사이 관계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 나무·물은 표현할 상태이며 성장·수류의 자율 변화를 정의하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency 수목 수·연못 규모·입체 식생과 본채 관계로 제작 선택을 제한한다.
-@evidence principles/core/settings.md#fact-status 정원은 제작 선택이고 수심은 모델 형상 값이다.
-@evidence principles/core/settings.md#observable-identity 다갈래 가지·잎의 빈틈·소량 사과와 자연석 연못의 층을 구별한다.
-@evidence principles/core/settings.md#source-support 크기와 식생 표현을 채택한 가상 정원의 값으로 제시한다.
+@evidence principles/core/common.md#declared-basis Adopts each room's water containers as household expression without historical generalization.
+@evidence principles/core/common.md#scope-preservation Keeps the item composition of jugs, lidded barrels, basins and separate waste-water containers.
+@evidence principles/core/common.md#substantive-completion Settles the visual distinction between clean water and waste water and the boundary of pond and plumbing expression.
+@evidence principles/core/settings.md#capability-boundary Water and containers are static household expression and create no behavior of water flow or plumbing.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the per-room placement of containers, the distinction of waste water and the non-utility state of the pond.
+@evidence principles/core/settings.md#fact-status The item expression is production invention, not a result of carrying or capacity inspection.
+@evidence principles/core/settings.md#observable-identity Distinguishes household uses of water by jugs, basins, and waste-water containers with lids and handles.
+@evidence principles/core/settings.md#source-support Limits the role of the containers and the pond to production choices of this fictional house.
 -->
 
-**Status:** production invention, 핵심 구성은 사용자 확정.
+**Status:** production invention, an expression of household items adopted without historical generalization.
 
-중앙정원에는 중간 크기 사과나무 한 그루, 지름 약 2.5m의 작은 자연석 연못, 약초밭, 자갈길을 둔다. 사과나무는 다갈래 가지와 잎의 빈틈, 소량의 열매가 읽혀야 하며 지붕을 뚫지 않도록 수관 범위를 설계한다. 연못은 불규칙한 자연석 테두리, 수면·얕은 가장자리·어두운 바닥의 깊이가 구별되어야 한다.
+Clean water is expressed by jugs, lidded barrels and each room's basins. The containers of the kitchen, the ground-floor washing room, the upper shared washroom and the bedrooms are placed as household items of their rooms. Waste-water and privy containers are distinguished as separate items with lids and handles.
 
-길은 회랑 문턱과 정원 관찰 지점을 잇는다. 연못은 약 0.35m 수심의 제작상 형상으로 채택하며 수영·어린이 안전시설을 약속하지 않는다. 나무 뿌리와 돌은 대지에 닿고 약초밭은 길과 회랑을 막지 않아야 한다. 잎과 풀을 카메라를 향한 한 장의 이미지로 대체하지 않는다.
+The garden pond is a decorative and ecological expression and is not presented as a source of drinking water, a source of washing water or a waste-water outlet. No water supply or drainage connection and no simulation of flowing water are made.
 
-나무는 뿌리 쪽에서 굵고 위로 좁아지는 굽은 주간에서 여러 높이·방향의 가지가 갈라지는 형상이다. 잎은 중간 녹색·회녹색의 납작한 개별 잎들이며 수관 사이로 배경이 보이는 틈을 남긴다. 작은 적갈색 열매는 가지·잎과 별도의 둥근 윤곽으로 드문드문 보인다. 연못은 낮은 불규칙 돌 테두리 안쪽의 수평 수면 아래로 얕은 가장자리와 더 어두운 바닥이 이어진다. 높은 시점에서는 돌·물·길의 경계, 낮은 시점에서는 물의 낮은 위치와 돌 두께, 반대쪽에서는 같은 가지 갈림과 수관의 빈 곳이 읽혀야 한다. 이들은 초가을의 고정 상태이며 관찰 카메라를 돌렸다고 가지나 잎이 재배열되지 않는다.
+The difference between clean water and waste water is judged by room membership, container type and lid state, and a single liquid color never certifies hygiene. In a basin with exposed water, the horizontal water surface, the rim above it and the outer container wall have different heights and boundaries. The contents of a closed waste-water container are not visible, and a lidded item is never drawn like an open clean basin.
 
-## 제작 대상과 책임 {#make-scope}
+## Apple tree and garden {#garden}
 
 <!--
-@evidence principles/core/common.md#declared-basis 제작 분해와 자체 형상 기본값을 저작자의 선택으로 선언한다.
-@evidence principles/core/common.md#scope-preservation 본채·부재·가구·설비·수목·정원 소품과 방별 필수 목록을 책임에 배정한다.
-@evidence principles/core/common.md#substantive-completion 제작 종류별 소유·외부 자산 채택 절차·유한 생성 경계를 결정한다.
-@evidence principles/core/settings.md#capability-boundary 제작 도구의 책임을 세계 안 대상의 자율 능력과 구별한다.
-@evidence principles/core/settings.md#constraint-sufficiency 필수 물품 우선·조건부 자산 채택·유한 생성과 비활성 가지의 경계를 정한다.
-@evidence principles/core/settings.md#fact-status 책임 배정은 제작 결정이며 외부 자산 없음은 현재 채택 상태다.
-@evidence principles/core/settings.md#observable-identity 건축·가구·정원 대상의 입체와 표면이 실제 배치까지 이어져야 한다.
-@evidence principles/core/settings.md#source-support 외부 자산의 근거 문서·확인일·원본 바이트를 실제 채택에 묶는다.
+@evidence principles/core/common.md#declared-basis Adopts the form and production values of the tree and pond for the user-confirmed garden composition.
+@evidence principles/core/common.md#scope-preservation Keeps one apple tree, the pond, the herb bed, the gravel path and their detailed expression.
+@evidence principles/core/common.md#substantive-completion Settles the garden's subjects, forms, depth expression and relationship to the main house.
+@evidence principles/core/settings.md#capability-boundary The tree and water are states to express and define no autonomous change of growth or water flow.
+@evidence principles/core/settings.md#constraint-sufficiency Constrains production choices by the number of trees, pond size, volumetric vegetation and the relationship to the main house.
+@evidence principles/core/settings.md#fact-status The garden is a production choice, and the water depth is a model geometry value.
+@evidence principles/core/settings.md#observable-identity Distinguishes the forking branches, gaps between leaves, a few apples and the layers of the natural-stone pond.
+@evidence principles/core/settings.md#source-support Presents the size and vegetation expression as values of an adopted fictional garden.
 -->
 
-**Status:** production invention, 저작자가 채택한 제작 분해.
+**Status:** production invention, the core composition is user-confirmed.
 
-본채의 공간·층·실·외피·개구부·계단·회랑과 경내 대지 접촉은 spaces가 저작한다. 부재·가구·설비·수목·정원 소품의 입체 원형은 models, 표면 마감과 광학 반응은 materials, 반복 부재·식기·잎·식재의 안정된 구성원과 배치는 instances가 담당한다. 실제 공간에 놓인 단일 사물도 건물의 소유·배치 관계로 추적한다. 각 방의 필수 물품은 위 기능 소유자의 목록이며, 그 목록 밖의 장식이 필수 제작을 밀어낼 수 없다.
+The central garden holds one medium-sized apple tree, a small natural-stone pond about 2.5m across, a herb bed and a gravel path. The apple tree must read with forking branches, gaps between the leaves and a little fruit, and its crown extent is designed so it does not pierce the roof. The pond must distinguish an irregular natural-stone rim and the depth of the water surface, the shallow margin and the dark bottom.
 
-전체를 자체 결정론적 형상으로 제작하는 것을 기본으로 한다. 외부 자산을 채택하는 경우 models 또는 materials 설계 전에 출처 URL, 이용 조건의 해당 문서와 확인일, 원본 바이트 해시, 변환과 실제 배치를 기록하고 관찰한다. 현재 채택한 외부 자산은 없으며 제공 이미지는 참조만 한다. 자격증명은 어떤 문서나 출력에도 남기지 않는다.
+The path links the gallery threshold to the garden observation point. The pond is adopted as a production form with a water depth of about 0.35m and promises no swimming or child-safety facilities. The tree roots and stones touch the ground, and the herb bed must not block the path or the gallery. Leaves and grass are never replaced by a single camera-facing image.
 
-샌드박스 build당 1초 제한 안에 들어가는 유한 생성만 사용하고, 무한 세부 증식 대신 필수 시점에서 읽히는 부재 단위로 제작한다. prototype과 배치 수량은 해당 design이 실제로 산정한다. 사용하지 않는 가지를 편의상 활성화하지 않으며, 광역 지도·시간 동작·자율 시스템은 현재 납품에 요구되지 않는다.
+The tree has a curved trunk, thick at the root and narrowing upward, from which branches split at several heights and in several directions. The leaves are flat individual leaves of medium green and grey-green, leaving gaps through which the background shows between the crown. Small reddish-brown fruits appear sparsely as round outlines separate from the branches and leaves. The pond continues from a horizontal water surface inside a low irregular stone rim down to a shallow margin and a darker bottom. From a high viewpoint the boundaries of stone, water and path, from a low viewpoint the low position of the water and the thickness of the stones, and from the opposite side the same branch forks and gaps in the crown must read. These are the fixed state of early autumn, and branches and leaves do not rearrange because the observation camera turned.
+
+## Production subjects and responsibility {#make-scope}
+
+<!--
+@evidence principles/core/common.md#declared-basis Declares the production decomposition and the in-house geometry default as the author's choice.
+@evidence principles/core/common.md#scope-preservation Assigns the main house, members, furniture, fixtures, trees, garden props and the per-room required lists to responsibilities.
+@evidence principles/core/common.md#substantive-completion Settles ownership by production kind, the procedure for adopting external assets and the bounded-generation boundary.
+@evidence principles/core/settings.md#capability-boundary Distinguishes the responsibility of production tools from autonomous capabilities of in-world subjects.
+@evidence principles/core/settings.md#constraint-sufficiency Sets the boundary of required-item priority, conditional asset adoption, bounded generation and inactive branches.
+@evidence principles/core/settings.md#fact-status The responsibility assignment is a production decision, and having no external assets is the currently adopted state.
+@evidence principles/core/settings.md#observable-identity The volumes and surfaces of architectural, furniture and garden subjects must carry through to actual placement.
+@evidence principles/core/settings.md#source-support Binds an external asset's basis document, check date and original bytes to its actual adoption.
+-->
+
+**Status:** production invention, the production decomposition adopted by the author.
+
+spaces authors the main house's spaces, storeys, rooms, envelope, openings, stair, galleries and ground contact within the grounds. models takes the volumetric prototypes of members, furniture, fixtures, trees and garden props; materials the surface finishes and optical response; and instances the stable members and placement of repeated members, tableware, leaves and plantings. Even a single object placed in an actual space is tracked through the building's ownership and placement relationships. Each room's required items are the list of the functional owner above, and decoration outside that list cannot displace required production.
+
+The default is to produce everything as in-house deterministic geometry. When an external asset is adopted, its source URL, the relevant document of its terms of use with its check date, the hash of its original bytes, its conversion and its actual placement are recorded and observed before the models or materials design. No external asset is currently adopted, and the provided images are references only. Credentials are never left in any document or output.
+
+Only bounded generation that fits within the 1-second limit per sandbox build is used, and instead of infinite detail proliferation, production works in member units that read at the required viewpoints. The prototype and placement counts are actually calculated by the relevant design. Unused branches are not activated for convenience, and wide-area maps, timed motion and autonomous systems are not required by the current delivery.
