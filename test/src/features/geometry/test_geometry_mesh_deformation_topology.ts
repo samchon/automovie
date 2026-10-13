@@ -4,8 +4,24 @@ import type {
   IAutoMovieMeshDeformationField,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import path from "node:path";
 
+import { loadSourceModule } from "../internal/loadSourceModule";
 import { nclose, throwsError } from "../internal/predicates";
+
+const { assertAutoMovieDeformedTriangles } = loadSourceModule<{
+  assertAutoMovieDeformedTriangles: (
+    source: readonly number[],
+    target: readonly number[],
+    indices: readonly number[],
+    cofactors: readonly (readonly number[])[],
+  ) => void;
+}>(
+  path.resolve(
+    __dirname,
+    "../../../../packages/engine/src/geometry/assertAutoMovieDeformedTriangles.ts",
+  ),
+);
 
 /**
  * Endpoint derivatives cannot certify the triangles connecting those endpoints.
@@ -22,6 +38,10 @@ import { nclose, throwsError } from "../internal/predicates";
  * 3. Empty triangle populations and a microscopic valid triangle are accepted.
  *    Malformed attributes/indices, degenerate source and overflowing face area
  *    refuse explicitly. The failed operation leaves input buffers untouched.
+ * 4. The triangle admission itself keeps a corner whose transported normal has
+ *    finite components but an overflowing norm, so three such corners still
+ *    admit an unchanged face, and names the vertex whose cofactor cannot
+ *    transport the normal at all instead of reporting an opposed face.
  */
 export const test_geometry_mesh_deformation_topology = (): void => {
   const mesh: IAutoMovieMesh = {
@@ -119,5 +139,33 @@ export const test_geometry_mesh_deformation_topology = (): void => {
   TestValidator.predicate(
     "finite vertices can still overflow the emitted area",
     throwsError(() => createAutoMovieMeshDeformer([field(1e308)])(mesh)),
+  );
+
+  // Source normal (1, 1, 0) / sqrt(2): each transported component is about
+  // 1.48e308, finite, while their Euclidean norm exceeds the binary64 range.
+  const slanted: number[] = [0, 0, 0, 0, 0, 1, 1, -1, 0];
+  const large: number[] = [1.5e308, 0.6e308, 0, 0.6e308, 1.5e308, 0, 0, 0, 1];
+  TestValidator.predicate(
+    "an overflowing transport norm keeps its corner's direction",
+    throwsError(() =>
+      assertAutoMovieDeformedTriangles(slanted, slanted, [0, 1, 2], [
+        large,
+        large,
+        large,
+      ]),
+    ) === false,
+  );
+  const identityCofactor: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  TestValidator.predicate(
+    "a non-finite cofactor names the vertex it cannot transport through",
+    throwsError(
+      () =>
+        assertAutoMovieDeformedTriangles(slanted, slanted, [0, 1, 2], [
+          [Infinity, 0, 0, 0, 1, 0, 0, 0, 1],
+          identityCofactor,
+          identityCofactor,
+        ]),
+      "triangle 0 cannot transport its source orientation through vertex 0",
+    ),
   );
 };

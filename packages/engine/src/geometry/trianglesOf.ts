@@ -2,86 +2,14 @@ import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
+import { planarCross } from "./planarCross";
+import { planarSegmentsMeet } from "./planarSegmentsMeet";
+import { pointInPlanarRing } from "./pointInPlanarRing";
 
 /** The triangles one already-validated region resolves to. */
 export const trianglesOf = (
   region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
 ): number[] => earClip(region.points, bridgeHoles(region.points, region.rings));
-
-/** Twice the signed area of the triangle `origin -> from -> to`. */
-const cross2 = (
-  origin: IAutoMovieProfilePoint,
-  from: IAutoMovieProfilePoint,
-  to: IAutoMovieProfilePoint,
-): number =>
-  (from.x - origin.x) * (to.y - origin.y) -
-  (from.y - origin.y) * (to.x - origin.x);
-
-/**
- * Do two segments share any point at all, touching included?
- *
- * Touching counts because a region whose rings meet at one point is not two
- * regions with a shared corner; it is a surface pinched to a line, the same
- * shape [buildAutoMovieWall](./proceduralWall.ts) refuses when two openings meet at a corner.
- */
-const segmentsMeet = (
-  fromA: IAutoMovieProfilePoint,
-  toA: IAutoMovieProfilePoint,
-  fromB: IAutoMovieProfilePoint,
-  toB: IAutoMovieProfilePoint,
-): boolean => {
-  if (
-    straddles(cross2(fromB, toB, fromA), cross2(fromB, toB, toA)) &&
-    straddles(cross2(fromA, toA, fromB), cross2(fromA, toA, toB))
-  )
-    return true;
-  const contacts: ReadonlyArray<
-    readonly [
-      IAutoMovieProfilePoint,
-      IAutoMovieProfilePoint,
-      IAutoMovieProfilePoint,
-    ]
-  > = [
-    [fromB, toB, fromA],
-    [fromB, toB, toA],
-    [fromA, toA, fromB],
-    [fromA, toA, toB],
-  ];
-  return contacts.some(([from, to, point]) => {
-    if (Math.abs(cross2(from, to, point)) > PLANAR_EPSILON) return false;
-    const spanX = to.x - from.x;
-    const spanY = to.y - from.y;
-    const along =
-      ((point.x - from.x) * spanX + (point.y - from.y) * spanY) /
-      (spanX * spanX + spanY * spanY);
-    return along >= -PLANAR_EPSILON && along <= 1 + PLANAR_EPSILON;
-  });
-};
-
-/** Are two points on strictly opposite sides of the same line? */
-const straddles = (left: number, right: number): boolean =>
-  Math.abs(left) > PLANAR_EPSILON &&
-  Math.abs(right) > PLANAR_EPSILON &&
-  left * right < 0;
-
-/** Even-odd ray cast along +X; the caller guarantees the point is off-ring. */
-const pointInRing = (
-  point: IAutoMovieProfilePoint,
-  ring: readonly IAutoMovieProfilePoint[],
-): boolean => {
-  let inside = false;
-  for (let index = 0; index < ring.length; ++index) {
-    const from = ring[index]!;
-    const to = ring[(index + 1) % ring.length]!;
-    if (
-      from.y > point.y !== to.y > point.y &&
-      point.x <
-        from.x + ((point.y - from.y) / (to.y - from.y)) * (to.x - from.x)
-    )
-      inside = !inside;
-  }
-  return inside;
-};
 
 /**
  * Fold every hole into the outer ring along a bridge nothing else crosses.
@@ -94,7 +22,7 @@ const pointInRing = (
  * A hole validated as strictly inside the region and meeting no other ring
  * always has a mutually visible vertex to bridge to, which is why the search is
  * read as total rather than guarded: the guard would answer a question
- * {@link refuseHolePlacement} and {@link refuseRingContacts} already settled.
+ * `autoMoviePlanarRegionFailure` already settled for the region.
  */
 const bridgeHoles = (
   points: readonly IAutoMovieProfilePoint[],
@@ -144,7 +72,7 @@ const bridgeIsClear = (
     if (
       edge !== candidate.at &&
       edge !== (candidate.at + size - 1) % size &&
-      segmentsMeet(
+      planarSegmentsMeet(
         start,
         end,
         points[ring[edge]!]!,
@@ -159,7 +87,7 @@ const bridgeIsClear = (
         (other !== hole ||
           (edge !== candidate.from &&
             edge !== (candidate.from + loop.length - 1) % loop.length)) &&
-        segmentsMeet(
+        planarSegmentsMeet(
           start,
           end,
           points[loop[edge]!]!,
@@ -173,9 +101,9 @@ const bridgeIsClear = (
     y: (start.y + end.y) / 2,
   };
   return (
-    pointInRing(middle, shapes[0]!) &&
+    pointInPlanarRing(middle, shapes[0]!) &&
     shapes.every(
-      (shape, at) => at === 0 || pointInRing(middle, shape) === false,
+      (shape, at) => at === 0 || pointInPlanarRing(middle, shape) === false,
     )
   );
 };
@@ -229,7 +157,7 @@ const isEar = (
   const previous = points[ring[previousAt]!]!;
   const corner = points[ring[at]!]!;
   const next = points[ring[nextAt]!]!;
-  if (cross2(previous, corner, next) <= PLANAR_EPSILON) return false;
+  if (planarCross(previous, corner, next) <= PLANAR_EPSILON) return false;
   return ring.every((vertex) => {
     if (
       vertex === ring[previousAt] ||
@@ -250,6 +178,6 @@ const insideOrOnTriangle = (
   c: IAutoMovieProfilePoint,
   point: IAutoMovieProfilePoint,
 ): boolean =>
-  cross2(a, b, point) >= -PLANAR_EPSILON &&
-  cross2(b, c, point) >= -PLANAR_EPSILON &&
-  cross2(c, a, point) >= -PLANAR_EPSILON;
+  planarCross(a, b, point) >= -PLANAR_EPSILON &&
+  planarCross(b, c, point) >= -PLANAR_EPSILON &&
+  planarCross(c, a, point) >= -PLANAR_EPSILON;
