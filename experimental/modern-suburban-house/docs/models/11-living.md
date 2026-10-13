@@ -1,166 +1,167 @@
-# 거실과 가족실의 가구 원형
+# Living and family-room furniture prototypes
 
-## 패브릭 소파 {#fabric-sofa}
+## Fabric sofa {#fabric-sofa}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실 소파 예약과 가족실 소파 예약 두 곳을 한 원형으로 받아 외곽 2.10 × 0.95 × 0.90 m, 부품, 재질 경계, 관찰, 소스 owner `src/models/furnishings/living.ts`를 모두 이 H2 안에서 정한다.
-@evidence principles/core/common.md#substantive-completion 받침 Y = [0.08, 0.30], 팔걸이 폭 0.15 m·높이 0.62 m, 등받이 깊이 0.20 m·상단 0.90 m, 쿠션 세 칸 0.596 m·깊이 0.75 m·상면 0.43 m, 쿠션 사이 틈 0.006 m와 뒤 하단 걸레받이 relief를 수치로 정한다.
-@evidence principles/core/common.md#declared-basis 외곽은 두 예약의 같은 길이·깊이·높이에서, 좌면 0.43 m는 거실 표에서 상속하며, 가족실 좌면도 0.43 m로 둔 것은 두 외곽이 같고 거실 설정의 회색/미색 패브릭 소파 정체성을 공유한다는 근거를 밝힌 이 층의 결정이라고 적는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 예약은 외곽과 거실 좌면 0.43 m만 주는데 이 H2는 팔걸이·등받이·세 쿠션의 분할과 0.43/0.62/0.90 m 세 단, 그리고 부모가 정하지 않은 가족실 좌면 높이 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 받침·좌석 쿠션 셋·등받이·팔걸이 둘과 네 모서리 0.08 m 다리로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 고정하며 쿠션 눌림·주름·솔기는 표현하지 않는다는 한계를 명시한다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 앉은 사람이 보는 정면으로 두고 거실 배치는 world -X, 가족실 배치는 world -Z를 향하며 외곽은 길이 2.10 m·깊이 0.95 m·높이 0.90 m다.
-@evidence principles/design/models.md#reviewable-structure 측면 정사영의 좌면 0.43 m·팔걸이 0.62 m·등받이 0.90 m 세 단, 위에서 본 세 쿠션과 두 팔걸이의 구분, 두 배치 외곽과 예약의 일치를 모델 리뷰 뷰의 고정 뷰로 반증하게 하고 관절이 없다고 밝힌다.
-@evidence principles/design/models.md#model-observable-style-basis 거실 설정의 '회색/미색 패브릭 소파' 표지를 0.006 m 틈 두 곳으로 읽히는 세 쿠션, 전체 깊이를 차지하는 팔걸이, 뒤쪽 등받이라는 구성으로 옮기고 패브릭 색은 materials가 두 배치별로 정하도록 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m 기준, 다리·받침·쿠션·등받이·팔걸이의 높이 층, 다섯 재질 경계, 표현하지 않는 눌림·주름·솔기, 세 가지 관찰이 함께 적혀 거실·가족실 두 배치의 블로킹 표현이 결정된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 소파 예약 X = -2.90 m~-1.95 m·Z = [-3.75, -1.65]·높이 0.90 m·좌면 0.43 m와 가족실 소파 예약 X = [3.25, 5.35]·Z = -7.15 m~-6.20 m·높이 0.90 m를 적힌 그대로 외곽으로 썼고, 가족실 좌면 미정은 이 층이 0.43 m로 채울 결정으로 다뤄 부모 수정이 필요하지 않았다.
-@evidence settings/10-house.md#living 거실 설정의 회색/미색 패브릭 소파 정체성을 근거로 거실·가족실 두 배치가 한 원형을 공유하게 하고, 패브릭 색은 materials의 배치별 결정으로 넘긴다.
-@evidence settings/10-house.md#common-room 공용부 설정의 '가족실에는 소파'를 거실과 같은 원형으로 채우되 이 설정이 좌면 높이를 정하지 않으므로 가족실 좌면 0.43 m가 이 층의 결정이라고 적는다.
-@evidence spaces/rooms/living.md#living-furniture-use 거실 소파 예약 X = -2.90 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-3.75, -1.65], 높이 0.90 m를 외곽으로, 거실 표의 좌면 0.43 m를 좌석 쿠션 상면으로 그대로 소비한다.
-@evidence spaces/rooms/common.md#common-family-reservation 가족실 소파 예약 X = [3.25, 5.35], Z = -7.15 m부터 공용부 앞쪽 안쪽 면 -6.20 m까지, 높이 0.90 m를 같은 원형의 외곽으로 쓰고 정면을 world -Z로 둔다.
-@evidence obligations/design/models.md#addressable-model-decisions 패브릭 소파의 외곽, 다리·받침·쿠션 셋·등받이·팔걸이 둘의 부품, 다섯 재질 경계 이름, 세 관찰을 {#fabric-sofa} 한 H2에 모아 거실·가족실 두 예약이 같은 원형 하나를 인용하게 한다.
-@evidence obligations/design/models.md#model-review-set 측면 정사영, 위에서 본 뷰, 두 배치 외곽과 예약의 비교를 모델 리뷰 뷰(00-model-frame.md#model-review-set)의 고정 뷰로 찍게 해 극적 구도와 무관하게 소파 구성을 판정하며 모든 관찰을 unverified로 둔다.
-@evidence obligations/design/models.md#reference-scale 거실 표의 좌면 0.43 m를 쿠션 상면으로 받아 거실·가족실 두 배치가 같은 높이를 쓰게 하고 팔걸이 0.62 m·등받이 0.90 m를 그 위 단으로 두며, 외곽 2.10 × 0.95 × 0.90 m는 두 예약 값과 같은지로 확인한다.
+@evidence principles/core/common.md#scope-preservation This H2 receives living/family sofa reservations as one prototype and owns envelope 2.10 × 0.95 × 0.90 m, parts, material boundaries, observations and source src/models/furnishings/living.ts.
+@evidence principles/core/common.md#substantive-completion Define base Y = [0.08, 0.30], arm width 0.15 m/height 0.62 m, back depth 0.20 m/top 0.90 m, three cushions width 0.596 m/depth 0.75 m/top 0.43 m, gaps 0.006 m and lower-rear baseboard relief.
+@evidence principles/core/common.md#declared-basis Equal reservation length/depth/height supply the envelope; living seat 0.43 m is inherited. Family seat 0.43 m is this layer's decision, grounded in equal envelopes/shared gray-off-white fabric-sofa identity.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Parents supply only envelope/living seat 0.43 m; add arms/back/three-cushion divisions, height tiers 0.43/0.62/0.90 m and the previously unspecified family seat height.
+@evidence principles/design/models.md#representation-contract Divide base/three cushions/back/two arms/four corner legs 0.08 m; fix leg/base/seat-cushion/back/arm boundaries and omit cushion compression/folds/seams.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z is seated front; living faces world -X/family -Z; envelope length 2.10 m/depth 0.95 m/height 0.90 m.
+@evidence principles/design/models.md#reviewable-structure Fixed model-review side orthographic compares seat 0.43/arms 0.62/back 0.90 m, top distinguishes three cushions/two arms and both placements compare reservation envelopes; no articulation.
+@evidence principles/design/models.md#model-observable-style-basis Translate gray/off-white fabric-sofa identity into three cushions read through two 0.006 m gaps, full-depth arms and rear back; materials chooses fabric colors per placement.
+@evidence principles/design/models.md#model-scale-layer-completion Seat reference 0.43 m, leg/base/cushion/back/arm layers, five material boundaries, compression/fold/seam omissions and three observations define both placements' blocking representation.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Use living X=-2.90 to -1.95 m/Z=[-3.75,-1.65]/height 0.90/seat 0.43 m and family X=[3.25,5.35]/Z=-7.15 to -6.20 m/height 0.90 m unchanged. Family seat 0.43 m fills a models decision rather than a parent defect.
+@evidence settings/10-house.md#living Shared gray/off-white fabric-sofa identity permits one prototype for living/family, with colors assigned per placement by materials.
+@evidence settings/10-house.md#common-room Realize the family sofa with the same prototype; settings specifies no seat height, so family seat 0.43 m is this layer's choice.
+@evidence spaces/rooms/living.md#living-furniture-use Consume living X=-2.90 to right inner face -1.95 m/Z=[-3.75,-1.65]/height 0.90 m as envelope and table seat 0.43 m as cushion top.
+@evidence spaces/rooms/common.md#common-family-reservation Use family X=[3.25,5.35]/Z=-7.15 to common front inner face -6.20 m/height 0.90 m for the shared envelope facing world -Z.
+@evidence obligations/design/models.md#addressable-model-decisions Gather envelope, legs/base/three cushions/back/two arms, five boundary names and three observations under fabric-sofa, giving both reservations one prototype address.
+@evidence obligations/design/models.md#model-review-set Fixed side/top/reservation-envelope comparisons in 00-model-frame.md#model-review-set judge structure independently of dramatic composition; all observations remain unverified.
+@evidence obligations/design/models.md#reference-scale Both placements use cushion top 0.43 m, arm top 0.62 m and back top 0.90 m measured from the floor; living supplies the seat reference and the shared envelope is 2.10 × 0.95 × 0.90 m.
 -->
 
-레퍼런스 04의 거실 밝은 소파와 03의 공용부 밝은 소파를 한 구조 원형의 두 배치로 채택한다. 보조 쿠션과 담요는 별도 소품 원형이다.
+Adopt reference 04's light living sofa and 03's light common-area sofa as two placements of one structural prototype. Auxiliary cushions/throws are separate prop prototypes.
 
-패브릭 소파는 [거실 소파 예약](../spaces/rooms/living.md#living-furniture-use)의 X = -2.90 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-3.75, -1.65], 높이 0.90 m와 [가족실 소파 예약](../spaces/rooms/common.md#common-family-reservation)의 X = [3.25, 5.35], Z = -7.15 m부터 공용부 앞쪽 안쪽 면 -6.20 m까지, 높이 0.90 m에 함께 쓰는 한 원형이다. 두 예약이 모두 길이 2.10 m, 깊이 0.95 m, 높이 0.90 m이므로 외곽을 그대로 그 값으로 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉은 사람이 보는 정면이며 거실에서는 world -X, 가족실에서는 world -Z를 향한다.
+One fabric-sofa prototype serves [living reservation](../spaces/rooms/living.md#living-furniture-use) X=-2.90 m to right inner face -1.95 m, Z=[-3.75,-1.65], height 0.90 m and [family reservation](../spaces/rooms/common.md#common-family-reservation) X=[3.25,5.35], Z=-7.15 m to common front inner face -6.20 m, height 0.90 m. Both give length 2.10 m/depth 0.95 m/height 0.90 m, retained as envelope. Follow [furniture-local coordinates](00-model-frame.md#model-furniture-local-frame): +Z is seated front, facing world -X in living/world -Z in family.
 
-부품은 받침, 좌석 쿠션 셋, 등받이, 팔걸이 둘이다. 받침은 Y = [0.08, 0.30]이고 네 모서리의 0.08 m 짧은 다리 위에 놓인다. 팔걸이는 각 폭 0.15 m, 높이 0.62 m로 전체 깊이를 차지한다. 등받이는 두 팔걸이 사이 뒤쪽 깊이 0.20 m, 상단 0.90 m다. 좌석 쿠션은 팔걸이 사이 1.80 m를 세 칸 0.596 m와 두 틈 0.006 m(3 × 0.596 + 2 × 0.006 = 1.800 m)로 나누고 깊이 0.75 m, 상면 0.43 m로 두어 [거실 표의 좌면 0.43 m](../spaces/rooms/living.md#living-furniture-use)와 같다. 가족실 예약과 [공용부 설정](../settings/10-house.md#common-room)은 좌면 높이를 정하지 않으므로 가족실 배치도 같은 0.43 m를 쓰는 것이 이 층의 결정이며, 근거는 두 예약의 외곽이 같고 [거실 설정](../settings/10-house.md#living)의 회색/미색 패브릭 소파 정체성을 한 원형으로 공유하는 것이다. 쿠션 사이 0.006 m 틈으로 세 칸이 읽히게 한다.
+Parts are base, three seat cushions, back and two arms. Base Y=[0.08,0.30] rests on four corner legs height 0.08 m. Each full-depth arm is width 0.15 m/top 0.62 m. Back between arms uses rear depth 0.20 m/top 0.90 m. Divide inner width 1.80 m into three 0.596 m cushions/two 0.006 m gaps (3 × 0.596 + 2 × 0.006 = 1.800 m), depth 0.75 m/top 0.43 m matching the [living seat](../spaces/rooms/living.md#living-furniture-use). Family reservation/[common settings](../settings/10-house.md#common-room) specify no seat height; using 0.43 m there is this layer's choice grounded in equal envelopes and the [living settings'](../settings/10-house.md#living) shared gray/off-white sofa identity. Gaps 0.006 m make three cushions readable.
 
-재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이며 패브릭 색은 materials가 두 배치별로 정할 수 있다. 관절은 없고 쿠션 눌림·주름·솔기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면 정사영에서 좌면 0.43 m·팔걸이 0.62 m·등받이 0.90 m의 세 단이 보이는지, 위에서 세 쿠션과 두 팔걸이가 구분되는지, 두 배치에서 외곽이 예약과 같은지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Boundaries are `leg`, `base`, `seat-cushion`, `back`, `arm`; materials can choose fabric colors per placement. No articulation or cushion compression/folds/seams. Source owner is `src/models/furnishings/living.ts`. Observe side-orthographic height tiers 0.43/0.62/0.90 m, top-view distinction of three cushions/two arms and envelope/reservation equality in both placements. Capture fixed [model-review views](00-model-frame.md#model-review-set), following [surface naming](00-model-frame.md#model-surface-partition-naming); all observations are unverified.
 
-두 소파 배치 모두 벽에 닿는 외곽 뒤 기준선은 유지한다. 네 발 중 뒤쪽 두 발의 뒤 경계를 국소 Z=0.015 m로 옮기고 앞쪽 발은 그대로 둔다. Y=[0.08,0.10] m의 `base` 뒤 하단은 Z=[0,0.015] m를 파내 걸레받이 앞면에 맞댄다. 등받이와 팔걸이는 바닥 위 0.10 m보다 높은 구간만 뒤 벽에 닿고, 앞 가장자리와 2.10×0.95×0.90 m 외곽은 유지한다. 이 relief가 없던 평평한 뒤 아래판은 만들지 않는다.
+Both placements retain their rear wall-contact reference. Move rear edges of two back feet to local Z=0.015 m, leaving front feet unchanged. Cut rear-lower `base` Z=[0,0.015] m at Y=[0.08,0.10] m to meet baseboard front. Back/arms contact the rear wall only above 0.10 m; retain front edges/full 2.10×0.95×0.90 m envelope. Do not create the previous flat lower-rear board lacking relief.
 
-국소 X 외곽은 [−1.05,1.05] m, Z 외곽은 [0,0.95] m다. 네 `leg`는 각각 단면 0.06×0.06 m·Y=[0,0.08] m이고 X=[−0.98,−0.92]·[0.92,0.98] m에 두 쌍으로 둔다. 뒤 다리의 깊이는 Z=[0.015,0.075] m, 앞 다리는 Z=[0.87,0.93] m다. `base`는 X=[−1.05,1.05]·Z=[0,0.95]·Y=[0.08,0.30] m에서 뒤 하단의 Z=[0,0.015]·Y=[0.08,0.10] m만 빼 닫는다. 두 `arm`의 국소 X는 [−1.05,−0.90]·[0.90,1.05] m, Z=[0,0.95] m, Y=[0.30,0.62] m다. `back`은 X=[−0.90,0.90]·Z=[0,0.20]·Y=[0.30,0.90] m다. 세 좌석 쿠션은 남은 X 폭 1.80 m의 세 구간과 Z=[0.20,0.95]·Y=[0.30,0.43] m를 차지한다. 그러므로 낮은 벽 접촉에서는 뒤 다리 0.015 m와 받침 홈이 걸레받이를 비우고, 팔걸이·등받이는 Y≥0.30 m에서만 뒤벽까지 닿는다.
+Local envelope X=[−1.05,1.05], Z=[0,0.95] m. Four `leg` sections 0.06×0.06 m/Y=[0,0.08] m form pairs X=[−0.98,−0.92]·[0.92,0.98] m, rear Z=[0.015,0.075]/front [0.87,0.93] m. `base` closes X=[−1.05,1.05]·Z=[0,0.95]·Y=[0.08,0.30] m except rear-lower cut Z=[0,0.015]·Y=[0.08,0.10]. `arm` X=[−1.05,−0.90]·[0.90,1.05], Z=[0,0.95], Y=[0.30,0.62] m; `back` X=[−0.90,0.90]·Z=[0,0.20]·Y=[0.30,0.90] m. Cushions fill three intervals of remaining X width 1.80 m/Z=[0.20,0.95]·Y=[0.30,0.43] m. Rear-foot inset/base cut clear low baseboards; arms/back reach the rear wall only at Y≥0.30 m.
 
-세 `seat-cushion`은 팔걸이 사이 X 폭 1.80 m를 각 0.596 m와 두 틈 0.006 m로 나눈 닫힌 패브릭 부재이고, 각 부재의 깊이는 Z=[0.20,0.95] m·높이는 Y=[0.30,0.43] m다. 부재는 받침 위에서 면으로 닿으며 팔걸이 `arm`이나 등받이 `back`의 부피를 공유하지 않는다.
+Three closed `seat-cushion` fabric members divide width 1.80 m into 0.596 m each/two gaps 0.006 m, depth Z=[0.20,0.95]/height Y=[0.30,0.43] m. They meet base at faces, sharing no arm/back volume.
 
-## 낮은 목재 테이블 {#low-table}
+## Low wooden table {#low-table}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실과 가족실의 낮은 테이블 두 예약을 길이 L·폭 W 매개변수 한 원형으로 받아 두 매개변수 쌍, 상판과 다리, 재질 경계, 관찰, 소스 owner를 이 H2에 모은다.
-@evidence principles/core/common.md#substantive-completion 상판 Y = [0.38, 0.42]의 두께 0.04 m, 모서리에서 0.05 m 안쪽의 0.05 m 각재 다리 넷, 에이프런·하부 선반 없음까지 정해 두 배치를 바로 구성할 수 있다.
-@evidence principles/core/common.md#declared-basis L = 1.30 m·W = 0.50 m와 L = 1.05 m·W = 0.55 m, 상면 0.42 m는 두 예약에서 상속하고, 원점을 바닥 평면 중심에 둔 것은 사방에서 쓰는 테이블이라는 이유를 밝힌 가구 국소 좌표의 예외다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 상면 0.42 m만 주고 이 H2는 L·W 매개변수화, 상판 두께 0.04 m, 다리 위치, 에이프런을 두지 않아 소파 앞 발 공간을 상판 아래로 잇는 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 상판 하나와 다리 넷의 부품 구성, 재질 경계 `top`·`leg`, 관절 없음, 에이프런·하부 선반이 없어 상판 아래가 비어 있는 음공간을 정한다. 보이지 않는 한계는 본문의 "나뭇결·모서리 모따기·다리 이음은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 긴 방향에 두며 거실 배치는 긴 방향이 world Z, 가족실 배치는 world X이고 두 곳 모두 상면이 0.42 m다.
-@evidence principles/design/models.md#reviewable-structure 두 매개변수 쌍의 외곽이 각 예약과 같은지, 측면에서 상면 0.42 m가 소파 좌면 0.43 m와 거의 같은 높이로 읽히는지를 모델 리뷰 뷰의 고정 뷰로 확인하게 한다.
-@evidence principles/design/models.md#model-observable-style-basis 거실과 가족실에 0.04 m 상판·0.05 m 각재 다리의 낮은 목재 테이블을 같은 원형으로 둔다. 레퍼런스 02의 TV 콘솔은 가족실 두 창의 채광·접근을 가리므로 채택하지 않는다고 본문에 근거를 적고, 목재 외관은 `top`·`leg` 경계만 materials에 넘긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 상면 0.42 m를 소파 좌면 0.43 m와 비교하는 높이 관계, 상판·다리 두 층, 두 재질 경계, 두 관찰이 적혀 있어 매개변수 한 쌍마다 블로킹 표현이 결정된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 테이블 예약 X = [-3.95, -3.45]·Z = [-3.30, -2.00]과 가족실 테이블 예약 X = [3.40, 4.45]·Z = [-8.35, -7.80], 두 곳의 상면 0.42 m를 적힌 그대로 L·W와 높이로 썼고 부모 값에 고칠 결함이 없었다.
-@evidence settings/10-house.md#living 제목의 '낮은 목재 테이블'은 거실 설정 정체성 항목을 그대로 원형 이름으로 삼은 것이고, 거실 배치 L = 1.30 m·W = 0.50 m로 소파 앞에 둔다.
-@evidence settings/10-house.md#common-room 공용부 설정의 '가족실에는 소파와 낮은 테이블'의 테이블을 같은 원형의 L = 1.05 m·W = 0.55 m 배치로 채운다.
-@evidence spaces/rooms/living.md#living-furniture-use 거실 테이블 예약 X = [-3.95, -3.45], Z = [-3.30, -2.00]을 L = 1.30 m, W = 0.50 m, 긴 방향 world Z, 상면 0.42 m로 소비한다.
-@evidence spaces/rooms/common.md#common-family-reservation 가족실 테이블 예약 X = [3.40, 4.45], Z = [-8.35, -7.80]을 L = 1.05 m, W = 0.55 m, 긴 방향 world X, 상면 0.42 m로 소비한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns one L/W prototype for two living/family reservations, both parameter pairs, top/legs, boundaries, observations and source owner.
+@evidence principles/core/common.md#substantive-completion Top Y=[0.38,0.42]/thickness 0.04 m, four square legs 0.05 m inset 0.05 m from corners, no apron/lower shelf make both placements constructible.
+@evidence principles/core/common.md#declared-basis Inherit L=1.30/W=0.50 and L=1.05/W=0.55 m/top 0.42 m from reservations. Floor-plan-center origin is a furniture-frame exception because the table is used from all sides.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Reservations provide envelope/top 0.42 m; add L/W parameters, top thickness 0.04 m, leg positions and no apron, connecting sofa-front foot space beneath the top.
+@evidence principles/design/models.md#representation-contract One top/four legs, top/leg boundaries, no articulation and empty space below without apron/lower shelf; omit grain/chamfers/leg joints.
+@evidence principles/design/models.md#spatial-convention Origin is floor-plan center/+X long axis; living long axis world Z/family world X, both top 0.42 m.
+@evidence principles/design/models.md#reviewable-structure Fixed views compare both parameter-pair envelopes to reservations and side top 0.42 m nearly matching sofa seat 0.43 m.
+@evidence principles/design/models.md#model-observable-style-basis Use shared low wooden top 0.04 m/square legs 0.05 m. Exclude reference 02's TV console because it blocks family window light/access; pass only top/leg boundaries to materials.
+@evidence principles/design/models.md#model-scale-layer-completion Top 0.42 m versus seat 0.43 m, top/leg layers, two boundaries/two observations define blocking per parameter pair.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Use living X=[-3.95,-3.45]·Z=[-3.30,-2.00], family X=[3.40,4.45]·Z=[-8.35,-7.80] and both tops 0.42 m unchanged as L/W/height; no parent defect requires repair.
+@evidence settings/10-house.md#living The low wooden table identity selects this prototype; its living dimensions come from the room reservation rather than the settings description.
+@evidence settings/10-house.md#common-room The family sofa/low-table identity selects the same structural prototype; the family reservation supplies its distinct length and width.
+@evidence spaces/rooms/living.md#living-furniture-use Consume X=[-3.95,-3.45]·Z=[-3.30,-2.00] as L=1.30/W=0.50 m/world-Z long axis/top 0.42 m.
+@evidence spaces/rooms/common.md#common-family-reservation Consume X=[3.40,4.45]·Z=[-8.35,-7.80] as L=1.05/W=0.55 m/world-X long axis/top 0.42 m.
 -->
 
-[거실 설정](../settings/10-house.md#living)의 낮은 목재 테이블과 [공용부 설정](../settings/10-house.md#common-room)의 가족실 낮은 테이블은 길이 L과 폭 W를 매개변수로 받는 한 원형이다. [거실 테이블 예약](../spaces/rooms/living.md#living-furniture-use) X = [-3.95, -3.45], Z = [-3.30, -2.00]은 L = 1.30 m, W = 0.50 m이고 긴 방향이 world Z다. [가족실 테이블 예약](../spaces/rooms/common.md#common-family-reservation) X = [3.40, 4.45], Z = [-8.35, -7.80]은 L = 1.05 m, W = 0.55 m이고 긴 방향이 world X다. 두 곳 모두 상면 0.42 m다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 사방에서 쓰므로 로컬 원점을 바닥 평면 중심에 두고 +X를 긴 방향으로 둔다.
+[Living settings'](../settings/10-house.md#living) low wooden table and [common settings'](../settings/10-house.md#common-room) family table share one L/W prototype. [Living reservation](../spaces/rooms/living.md#living-furniture-use) X=[-3.95,-3.45], Z=[-3.30,-2.00] gives L=1.30/W=0.50 m/world-Z long axis. [Family reservation](../spaces/rooms/common.md#common-family-reservation) X=[3.40,4.45], Z=[-8.35,-7.80] gives L=1.05/W=0.55 m/world-X long axis. Both top at 0.42 m. As a [furniture-frame](00-model-frame.md#model-furniture-local-frame) exception for all-sided use, origin is floor-plan center/+X long axis.
 
-부품은 상판과 다리 넷이다. 상판은 Y = [0.38, 0.42]의 0.04 m 두께이고, 다리는 0.05 m 각재로 각 모서리에서 0.05 m 안쪽에 세운다. 에이프런과 하부 선반은 두지 않아 소파 앞 발 공간이 상판 아래로 이어진다. 재질 경계는 `top`, `leg`이고 관절은 없다.
+Parts are top/four legs. Top Y=[0.38,0.42] is thickness 0.04 m; legs are square timber 0.05 m, placed 0.05 m inside corners. No apron/lower shelf: sofa-front foot space continues beneath top. Boundaries top/leg; no articulation.
 
-나뭇결·모서리 모따기·다리 이음은 표현하지 않는다. 레퍼런스 02의 가족실 TV 콘솔과 높은 화면은 이번 배치에서 채택하지 않는다. 가족실 소파가 향한 후면과 오른쪽 외벽은 두 창과 접근 통로이고, 뒤쪽 벽은 소파 등 뒤라 화면을 마주할 벽이 없다. 창 아래 낮은 콘솔만 두면 TV 화면을 창 앞에 세워야 하므로 두 창 접근·채광을 가린다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 두 매개변수 쌍의 외곽이 각 예약과 같은지, 측면에서 상면 0.42 m가 소파 좌면 0.43 m와 거의 같은 높이로 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Omit wood grain, corner chamfers and leg joints. Do not adopt reference 02's family TV console/tall screen: rear/right walls faced by the sofa contain two windows/access routes; the back wall lies behind sofa, leaving no facing screen wall. A low console beneath a window would force the TV ahead of it, blocking access/daylight. Source owner is `src/models/furnishings/living.ts`. Observe envelope/reservation equality for both pairs and side top 0.42 m nearly level with sofa seat 0.43 m. Use fixed [model-review views](00-model-frame.md#model-review-set)/[surface naming](00-model-frame.md#model-surface-partition-naming); all observations are unverified.
 
-## 독서 안락의자 {#reading-armchair}
+## Reading armchair {#reading-armchair}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실 안락의자 예약 하나를 외곽으로 받아 다리·받침·쿠션·등받이·팔걸이의 단면, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 다리 네 개의 단면·중심·높이와 받침·등받이·팔걸이·쿠션의 X·Z·Y 외곽을 본문에서 확정한다.
-@evidence principles/core/common.md#declared-basis 외곽 0.85 × 0.85 m·높이 0.90 m는 거실 예약에서 받고, 단면 높이는 소파와 좌면 0.43 m·등 상단 0.90 m만 공유하고 나머지 팔걸이·등 깊이는 한 사람용 0.85 m 외곽에 맞춰 따로 결정하며 좌석 폭 0.61 m는 한 사람 좌석임을 읽히게 하려는 이 층의 선택으로 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 높이 0.90 m만 주고 이 H2는 쿠션 하나의 한 사람 좌석, 팔걸이 0.12 m·등받이 0.18 m의 단면, 좌면 0.43 m를 더한다.
-@evidence principles/design/models.md#representation-contract 다리 넷·받침·좌석 쿠션 하나·등받이·팔걸이 둘로 부품을 나누고 재질 경계 `leg`·`base`·`seat-cushion`·`back`·`arm`을 두며 관절이 없다고 정한다. 보이지 않는 한계는 본문의 "쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 정면으로 두고 배치에서 world +Z를 향하며 외곽은 폭 0.85 m·깊이 0.85 m·높이 0.90 m다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 좌면·팔걸이·등받이 높이가 소파와 좌면·등 상단 높이만 공유하는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지를 고정 뷰로 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 벽난로 앞 안락의자를 채택한다. '독서 안락의자' 표지를 좌석 폭 0.61 m의 한 사람 좌석과 좌면 0.43 m와 등 상단 0.90 m만 공유하는 별도 단면 결정으로 옮기며 재질과 색은 정하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 좌면 0.43 m·팔걸이 0.60 m·등받이 0.90 m의 높이 층을 소파와 좌면·등 상단만 공유하는 별도 단면으로 정하고 다섯 재질 경계와 두 관찰을 함께 적어 예약 안의 표현이 결정된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = [-3.90, -3.05]·Z = [-5.65, -4.80]·높이 0.90 m와 의자 발 사용 범위 Z = [-4.80, -4.20]을 적힌 그대로 외곽과 관찰 한계로 썼고 부모 수정이 필요하지 않았다.
-@evidence settings/10-house.md#living 거실 설정 정체성의 '작은 안락의자'를 0.85 m 정사각 외곽의 한 사람 좌석으로 구체화한다.
-@evidence spaces/rooms/living.md#living-furniture-use 거실 예약 X = [-3.90, -3.05], Z = [-5.65, -4.80], 높이 0.90 m를 외곽으로, 의자 발 사용 범위 Z = [-4.80, -4.20]을 넘지 말아야 할 관찰 경계로 소비한다.
+@evidence principles/core/common.md#scope-preservation This H2 receives one living armchair envelope and owns leg/base/cushion/back/arm sections, boundaries, observations and source.
+@evidence principles/core/common.md#substantive-completion Define four leg sections/centers/heights and X/Z/Y envelopes of base/back/arms/cushion.
+@evidence principles/core/common.md#declared-basis Reservation supplies 0.85×0.85 m/height 0.90 m. Share only sofa seat 0.43/back top 0.90 m; decide arm/back depths separately for a one-person 0.85 m envelope and choose seat width 0.61 m to express that role.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Add one cushion/single-person seat, arm width 0.12/back depth 0.18/seat 0.43 m to reservation envelope/height 0.90 m.
+@evidence principles/design/models.md#representation-contract Four legs/base/one cushion/back/two arms, leg/base/seat-cushion/back/arm boundaries, no articulation; omit compression/seams/fabric folds.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z is front/world +Z in placement; envelope width/depth 0.85 m/height 0.90 m.
+@evidence principles/design/models.md#reviewable-structure Fixed side view verifies only seat/back-top heights shared with sofa; top view tests 0.85 m envelope against foot-use Z=[-4.80,-4.20].
+@evidence principles/design/models.md#model-observable-style-basis Adopt reference 04's fireplace armchair as one seat width 0.61 m, sharing only seat 0.43/back top 0.90 m through an independent section; choose no materials/colors.
+@evidence principles/design/models.md#model-scale-layer-completion Seat 0.43/arm 0.60/back 0.90 m tiers, independent section/five boundaries/two observations define reservation-fit expression.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Use living X=[-3.90,-3.05]·Z=[-5.65,-4.80]/height 0.90 m and foot-use Z=[-4.80,-4.20] unchanged as envelope/observation limit; no parent revision needed.
+@evidence settings/10-house.md#living The small reading-armchair identity selects one-person seating; the room reservation supplies the 0.85 m square envelope.
+@evidence spaces/rooms/living.md#living-furniture-use Consume X=[-3.90,-3.05]/Z=[-5.65,-4.80]/height 0.90 m as envelope and foot-use Z=[-4.80,-4.20] as observation boundary not to cross.
 -->
 
-레퍼런스 04 벽난로 앞 안락의자를 채택한다. 의자 옆 작은 탁자는 별도 예약이 없어 이 원형에 숨겨 넣지 않는다.
+Adopt reference 04's armchair ahead of the fireplace. Its neighboring small table has no separate reservation and is not hidden inside this prototype.
 
-[거실 설정](../settings/10-house.md#living)의 작은 독서 안락의자는 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 X = [-3.90, -3.05], Z = [-5.65, -4.80], 높이 0.90 m를 외곽으로 받아 폭 0.85 m, 깊이 0.85 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 정면이며 배치에서 world +Z를 향한다.
+[Living settings'](../settings/10-house.md#living) small reading armchair receives [reservation](../spaces/rooms/living.md#living-furniture-use) X=[-3.90,-3.05], Z=[-5.65,-4.80], height 0.90 m: width/depth 0.85 m. Follow [furniture-local coordinates](00-model-frame.md#model-furniture-local-frame), front +Z/world +Z.
 
-부품은 다리 넷, 받침, 좌석 쿠션 하나, 등받이, 팔걸이 둘이다. 국소 외곽은 X=[−0.425,0.425]·Z=[0,0.85]·Y=[0,0.90] m다. 다리 `leg`는 단면 0.06×0.06 m 네 각기둥이고 중심 X=±0.365·Z=0.08/0.77 m, Y=[0,0.08] m다. 받침 `base`는 X=[−0.425,0.425]·Z=[0,0.85]·Y=[0.08,0.30] m 판이다. 뒤 `back`은 X=[−0.425,0.425]·Z=[0,0.18]·Y=[0.30,0.90] m, 두 팔걸이 `arm`은 X=[−0.425,−0.305]·[0.305,0.425]·Z=[0.18,0.80]·Y=[0.30,0.60] m다. `seat-cushion`은 X=[−0.305,0.305]·Z=[0.18,0.80]·Y=[0.30,0.43] m다. 이 판들은 지정한 경계면에서만 접하고 내부 체적은 공유하지 않는다. 좌석 폭 0.61 m는 한 사람용 예약을 채운다. 재질 경계는 `leg`, `base`, `seat-cushion`, `back`, `arm`이고 관절은 없다.
+Parts: four legs/base/one seat cushion/back/two arms. Envelope X=[−0.425,0.425]·Z=[0,0.85]·Y=[0,0.90] m. Four leg prisms section 0.06×0.06 m center X=±0.365·Z=0.08/0.77 m/Y=[0,0.08]. Base X=[−0.425,0.425]·Z=[0,0.85]·Y=[0.08,0.30]. Back same X/Z=[0,0.18]·Y=[0.30,0.90]. Arms X=[−0.425,−0.305]·[0.305,0.425]·Z=[0.18,0.80]·Y=[0.30,0.60]. Seat-cushion X=[−0.305,0.305]·Z=[0.18,0.80]·Y=[0.30,0.43] m. Boards meet only specified faces, sharing no interior volume. Seat width 0.61 m fills the single-person reservation. Boundaries leg/base/seat-cushion/back/arm; no articulation.
 
-쿠션 눌림·솔기·패브릭 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 좌면·팔걸이·등받이 높이가 소파와 좌면·등 상단 높이만 공유하는지, 위에서 0.85 m 정사각 외곽이 의자 발 사용 범위 Z = [-4.80, -4.20]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Omit cushion compression/seams/fabric folds. Source owner is `src/models/furnishings/living.ts`. Side observations verify sofa-shared seat/back-top heights only; top verifies square 0.85 m envelope does not enter foot-use Z=[-4.80,-4.20] m. Use fixed [model-review views](00-model-frame.md#model-review-set)/[surface naming](00-model-frame.md#model-surface-partition-naming); all observations are unverified.
 
-## 짙은 책장과 책 {#dark-bookcase}
+## Dark bookcase and books {#dark-bookcase}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실 책장 예약을 외곽으로 받아 몸체 판재, 선반 다섯, 책 묶음, 재질 경계, 관찰, 소스 owner를 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 옆판·윗판 0.02 m, 뒤판 0.01 m, 책장 plinth 0.08 m와 벽 걸레받이용 뒤 하단 홈, 선반 상면 0.20·0.55·0.90·1.25·1.60 m, 25권씩의 시드 1952 책 두께·높이·깊이와 국소 깊이 Z=[0.12,0.32] m, 칸 폭 77.6–78.6 % 채움을 본문 식으로 정한다 책 깊이 Z=[0.12,0.32] m와 선반 앞끝 0.03 m 여유를 정한다.
-@evidence principles/core/common.md#declared-basis 외곽과 선반 산출 규칙(0.20 m부터 0.35 m 간격)은 방 문서에서 상속하고, 판 두께·책 치수 범위·고정 시드 산출은 부모 링크 없이 이 H2가 새로 정한 값으로 적는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 문서는 외곽과 선반 상면 산출 규칙을 주고 이 H2는 판재 구성, 선반 두께 0.02 m를 상면 아래로 두는 규칙, 고정 시드 책 묶음과 그 채움 비율을 더한다.
-@evidence principles/design/models.md#representation-contract 옆판 둘·뒤판·윗판·걸레받이·선반 다섯의 부품, 책장에 고정된 자식 부품인 책, 문 없는 열린 선반, 책이 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다는 점유 경계를 정한다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표를 따라 +Z를 책을 꺼내는 면으로 두고 배치에서 world -X를 향하며 외곽은 폭 1.00 m·깊이 0.35 m·높이 1.90 m다.
-@evidence principles/design/models.md#reviewable-structure 정면에서 다섯 선반 간격과 책 묶음이 읽히는지, 측면에서 책 앞면이 0.35 m 안에 드는지를 모델 리뷰 뷰의 고정 뷰로 반증하게 하고 관절이 없다고 밝힌다.
-@evidence principles/design/models.md#model-observable-style-basis '짙은 책장' 표지의 색은 이 H2가 정하지 않고 재질 경계만 넘기며, 기하로는 문 없는 열린 선반과 칸 폭 70–85 %를 채운 얇은 상자 책 묶음이 관찰 가능한 결정이다.
-@evidence principles/design/models.md#model-scale-layer-completion 몸체 1.00 × 0.35 × 1.90 m, 옆판·윗판 0.02 m·뒤판 0.01 m·걸레받이 0.08 m, 다섯 선반 상면 0.20–1.60 m와 책 묶음의 층, 표면 id `carcass`·`plinth`·`shelf`·`book`, 책등 글자·개별 표지 비표현 한계와 두 관찰이 함께 표현을 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 예약 X = -2.30 m~-1.95 m·Z = [-5.90, -4.90]·높이 1.90 m와 선반 상면을 0.20 m부터 0.35 m 간격으로 두는 산출 규칙을 적힌 그대로 썼고 부모 수정이 필요하지 않았다.
-@evidence settings/10-house.md#living 거실 설정 정체성의 '짙은 책장'을 문 없는 열린 선반과 책 묶음의 원형으로 구체화하며 짙은 색 자체는 이 H2에서 정하지 않는다.
-@evidence spaces/rooms/living.md#living-furniture-use 거실 책장 예약 X = -2.30 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-5.90, -4.90], 높이 1.90 m를 외곽으로, 방 문서의 산출 규칙을 선반 상면 0.20·0.55·0.90·1.25·1.60 m로 소비한다.
-@evidence obligations/design/models.md#representation-ceiling 책을 선반마다 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m의 얇은 상자 묶음으로만 두고 책등 글자·개별 표지는 표현하지 않아, 선반 간격과 책 묶음의 읽힘까지만 주장하고 개별 책 식별은 주장하지 않는다.
+@evidence principles/core/common.md#scope-preservation This H2 receives the living bookcase envelope and owns body boards/five shelves/book groups/boundaries/observations/source.
+@evidence principles/core/common.md#substantive-completion Define sides/top 0.02 m/back 0.01 m/plinth 0.08 m/rear-lower baseboard cut, tops 0.20·0.55·0.90·1.25·1.60 m, 25 books per level with seed 1952 dimensions, local depth Z=[0.12,0.32] m and width occupancy 77.6–78.6%, leaving front clearance 0.03 m.
+@evidence principles/core/common.md#declared-basis Inherit envelope/shelf law 0.35 m intervals from 0.20 m; board thickness/book ranges/fixed-seed derivation are this H2's new choices, without parent attribution.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Add board construction, shelf thickness 0.02 m below tops and seeded book groups/fill ratios to parent envelope/top law.
+@evidence principles/design/models.md#representation-contract Define two sides/back/top/plinth/five shelves, fixed child books and doorless open shelves; books stay within body depth rather than projecting beyond front.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z is book retrieval/world -X; envelope width 1.00/depth 0.35/height 1.90 m.
+@evidence principles/design/models.md#reviewable-structure Fixed front views falsify shelf/group readability; side views test books inside 0.35 m depth; no articulation.
+@evidence principles/design/models.md#model-observable-style-basis Materials owns dark color; observable geometry is doorless shelves/thin-box book groups occupying 70–85% inner width.
+@evidence principles/design/models.md#model-scale-layer-completion Envelope 1.00×0.35×1.90 m, sides/top 0.02/back 0.01/plinth 0.08 m, shelf tops 0.20–1.60 m/books, carcass/plinth/shelf/book ids, omitted spine text/covers and two observations define expression.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Use living X=-2.30 to -1.95 m/Z=[-5.90,-4.90]/height 1.90 m and shelf-top law unchanged; no parent revision needed.
+@evidence settings/10-house.md#living Specify dark bookcase identity as open shelves/book groups, without choosing dark color here.
+@evidence spaces/rooms/living.md#living-furniture-use Consume bookcase X=-2.30 to right inner -1.95 m/Z=[-5.90,-4.90]/height 1.90 m as envelope and parent top law as 0.20·0.55·0.90·1.25·1.60 m.
+@evidence obligations/design/models.md#representation-ceiling Books are thin boxes thickness 0.025–0.035/height 0.20–0.28/depth 0.20 m; omit spine text/individual covers, claiming shelf/group readability rather than individual book identity.
 -->
 
-레퍼런스 04의 벽난로 옆 어두운 책장과 책의 서로 다른 높이를 채택한다. 책등 글자는 만들지 않고 결정된 치수·순서로 채운다.
+Adopt reference 04's dark fireplace-side bookcase and differing book heights. Create no spine text; fill by defined dimensions/order.
 
-[거실 설정](../settings/10-house.md#living)의 짙은 책장은 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 X = -2.30 m부터 방 오른쪽 안쪽 면 -1.95 m까지, Z = [-5.90, -4.90], 높이 1.90 m를 외곽으로 받아 폭 1.00 m, 깊이 0.35 m, 높이 1.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 책을 꺼내는 면이며 배치에서 world -X를 향한다. 문 없는 열린 선반이다.
+[Living settings'](../settings/10-house.md#living) dark bookcase receives [reservation](../spaces/rooms/living.md#living-furniture-use) X=-2.30 to right inner -1.95 m, Z=[-5.90,-4.90], height 1.90 m: width 1.00/depth 0.35/height 1.90 m. Follow [furniture frame](00-model-frame.md#model-furniture-local-frame), retrieval +Z/world -X. Shelves are open without doors.
 
-부품은 옆판 둘, 뒤판, 윗판, 걸레받이, 선반 다섯이다. 옆판·윗판 두께는 0.02 m, 뒤판 0.01 m, 걸레받이 높이 0.08 m다. 다섯 선반 상면은 [방 문서의 산출 규칙](../spaces/rooms/living.md#living-furniture-use)대로 0.20 m부터 0.35 m 간격인 0.20, 0.55, 0.90, 1.25, 1.60 m이고 두께 0.02 m를 상면 아래로 둔다. 책은 선반마다 25권이며, 인덱스 s = 0…4(아래부터), i = 0…24(왼쪽부터), 정수 시드 1952를 쓴다. 책 i의 두께는 `0.025 + 0.001 × ((1952 + 17s + 7i) mod 11)` m, 높이는 `0.20 + 0.01 × ((1952 + 13s + 5i) mod 9)` m, 깊이는 0.20 m다. 이 식의 책 두께는 0.025–0.035 m, 높이는 0.20–0.28 m다. 다섯 단의 두께 합은 차례로 0.749, 0.745, 0.752, 0.748, 0.755 m로 선반 안쪽 폭 0.96 m의 77.6–78.6 %다. 각 묶음은 선반 왼쪽 안쪽에서 0.02 m 띄워 순서대로 쌓는다. 책은 몸체 깊이 안에 있어 전면 밖으로 나오지 않는다.
+Parts are two sides/back/top/plinth/five shelves. Side/top thickness 0.02 m, back 0.01 m, plinth height 0.08 m. Shelf tops follow [room law](../spaces/rooms/living.md#living-furniture-use): 0.20,0.55,0.90,1.25,1.60 m, thickness 0.02 m below. Each shelf has 25 books, s=0…4 bottom-up/i=0…24 left-right/integer seed 1952. Thickness `0.025 + 0.001 × ((1952 + 17s + 7i) mod 11)` m, height `0.20 + 0.01 × ((1952 + 13s + 5i) mod 9)` m, depth 0.20 m, giving thickness 0.025–0.035/height 0.20–0.28 m. Five thickness totals 0.749,0.745,0.752,0.748,0.755 m occupy 77.6–78.6% of inner width 0.96 m. Start each group 0.02 m from inner left, stacking in order within body depth without front projection.
 
-재질 경계는 `carcass`, `plinth`, `shelf`, `book`이다. 관절은 없고 책은 책장에 고정된 자식 부품이다. 책등 글자·개별 표지는 표현하지 않는다. 소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 정면에서 다섯 선반 간격과 책 묶음이 읽히는지, 측면에서 책 앞면이 0.35 m 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Boundaries carcass/plinth/shelf/book. Books are fixed children without articulation. Omit spine text/individual covers. Source owner is `src/models/furnishings/living.ts`. Observe five shelf intervals/book groups frontally and book front inside 0.35 m depth laterally, using fixed [model-review views](00-model-frame.md#model-review-set)/[surface naming](00-model-frame.md#model-surface-partition-naming); all observations are unverified.
 
-책장 외곽의 뒤 기준선은 벽에 두되 `carcass`의 뒤판은 Y=0.10 m에서 시작하고 두 옆판은 국소 Z=[0,0.015], Y=[0,0.10] m를 파낸다. 높이 0.08 m의 책장 `plinth`는 뒤 끝을 Z=0.015 m에 두어 벽 걸레받이와 나란히 맞대며, 앞면은 원래 0.35 m 깊이 끝에 남긴다. 선반·책은 움직이지 않고 외곽 1.00×0.35×1.90 m 및 다섯 선반 높이도 보존한다. 책장 자체 plinth와 벽 `wall-baseboard`는 다른 닫힌 부재다.
+Retain rear envelope reference at wall; carcass back starts Y=0.10 m and both sides cut local Z=[0,0.015]/Y=[0,0.10] m. Plinth height 0.08 m has rear Z=0.015 m, meeting the wall baseboard alongside; front retains depth end 0.35 m. Shelves/books/envelope 1.00×0.35×1.90 m/five tops stay fixed. Bookcase plinth and wall-baseboard are distinct closed members.
 
-각 `shelf`는 책장 안쪽 폭 0.96 m·깊이 0.34 m·두께 0.02 m의 닫힌 판이며 상면은 0.20+0.35s m(s=0…4)다. 각 `book`은 위의 인덱스 i와 시드 1952 식에서 나온 두께 0.025–0.035 m·높이 0.20–0.28 m·깊이 0.20 m의 개별 닫힌 상자다. 다섯 묶음 모두 선반 안쪽 X 시작에서 0.02 m 띄우고 국소 깊이 Z=[0.12,0.32] m로 놓아 뒤판 앞면 Z=0.01 m와 0.11 m 떨어지고 선반 앞끝 Z=0.35 m에서 0.03 m 물린다. 다섯 묶음의 책은 이 깊이에서 선반 윗면에 접한다.
+Each shelf is a closed inner-width 0.96 m/depth 0.34 m/thickness 0.02 m board, top 0.20+0.35s m(s=0…4). Each book is a separate closed box with preceding seed/index dimensions. All groups start 0.02 m from inner X and occupy Z=[0.12,0.32] m, clear of back front Z=0.01 m by 0.11 m and inset 0.03 m from shelf front Z=0.35 m. Books contact shelf tops at this depth.
 
-## 얇은 바닥 깔개 {#floor-covering}
+## Thin floor covering {#floor-covering}
 <!--
-@evidence principles/core/common.md#scope-preservation 거실 러그·가족실 러그·현관 매트와 침대 세 개의 host 유도 덮개를 L·W·T 한 원형으로 받아 여섯 매개변수 셋, 몸판과 가장자리 띠, 재질 경계, 가구 겹침 규칙, 관찰을 이 H2에서 정한다.
-@evidence principles/core/common.md#substantive-completion 거실 2.35×2.00×0.008 m, 가족실 1.70×1.55×0.008 m, 현관 0.90×0.65×0.006 m와 침대 셋의 길이·폭 유도식 및 발치 쪽 이동 규칙, 0.04 m 테두리·Y=0 밑면을 정한다. 가구가 Y=[0,T]에서 실제로 차지하는 발자국의 합집합을 0.001 m 넓혀 러그의 field/border에서 빼고 절단면도 같은 id로 닫는다.
-@evidence principles/core/common.md#declared-basis 외곽은 거실 러그 예약과 현관 매트 예약에서 받고 가족실 러그 외곽도 common-family-reservation에서 받으며, 두 덮개를 한 원형으로 묶고 원점 예외를 두는 근거를 '사람이 밟고 지나가는 얇은 바닥 덮개'라는 이유로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽만 주고 이 H2는 몸판과 둘레 0.04 m 띠의 면 분할, 띠의 높이를 올리지 않는 규칙, 바닥 접촉 가구의 발자국을 덮개에서 빼는 입력을 더한다.
-@evidence principles/design/models.md#representation-contract 몸판 하나와 같은 두께의 가장자리 띠 하나로 부품을 두고 재질 경계 `field`·`border`를 고정하며 무늬·털 높이·술 장식은 표현하지 않는다고 명시한다.
-@evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 L 방향에, 밑면을 Y = 0에 두며 러그는 L이 world Z, 매트는 L이 world X다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지를 고정 뷰로 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 러그와 매트 표지에서 이 H2가 기하로 정하는 것은 T = 0.008/0.006 m의 얇은 두께와 `field`·`border` 두 면 분할뿐이고 무늬·털 높이·술 장식은 표현하지 않는다고 밝힌다.
-@evidence principles/design/models.md#model-scale-layer-completion 여섯 배치의 T 0.008 m·0.006 m, 침대 발끝 방향 러그 이동 0.07·0.11·0.01 m, 몸판과 같은 두께의 띠 한 층, 가구 접촉 발자국 절개 규칙, 세 관찰을 함께 적는다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 거실과 현관 예약은 그대로 받았으나 가족실 러그의 world 위치가 부모에 없어서 spaces/rooms/common.md#common-family-reservation에 X·Z 예약을 올렸다. models는 그 폭·길이만 소비한다.
-@evidence settings/10-house.md#living 거실 설정의 '절제된 무늬 러그'를 T = 0.008 m의 거실 러그 배치로 받되 무늬는 기하로 표현하지 않고 `field`·`border` 면 분할만 둔다.
-@evidence settings/10-house.md#entry 현관 설정의 '얕은 매트'를 T = 0.006 m 매트로 받아 측면에서 문턱처럼 읽히지 않는지를 관찰하게 한다.
-@evidence spaces/rooms/living.md#living-furniture-use 거실 러그 예약 X = [-4.00, -2.00], Z = [-3.90, -1.55]를 L = 2.35 m(world Z), W = 2.00 m로 소비한다.
-@evidence spaces/rooms/common.md#common-family-reservation 가족실 러그 예약의 X 폭 1.55 m·Z 길이 1.70 m를 원형 인자로 받고 위치는 부모와 instances에 맡긴다.
-@evidence spaces/rooms/entry.md#entry-use-routes 현관 매트 예약 X = [0.45, 1.35], Z = [-1.95, -1.30]을 L = 0.90 m(world X), W = 0.65 m로 소비한다.
-@evidence obligations/design/models.md#model-representation-completion 이 H2는 덮개 원형의 몸판·띠 층, 여섯 배치의 L·W·T, 재질 경계 `field`·`border`, 표현하지 않는 무늬·털·술, 세 관찰을 모두 적되 모든 관찰이 unverified라 구조적 유효성과 의미적 완결성 판정은 아직 없다.
+@evidence principles/core/common.md#scope-preservation This H2 owns one L/W/T prototype for living/family rugs, entry mat and three bed-host-derived covers: six parameter sets, field/border, boundaries, furniture overlap rules and observations.
+@evidence principles/core/common.md#substantive-completion Define living 2.35×2.00×0.008/family 1.70×1.55×0.008/entry 0.90×0.65×0.006 m, three bed length/width laws/footward shifts, border 0.04 m/bottom Y=0. Expand furniture footprint union in Y=[0,T] by 0.001 m, subtract from field/border and close cuts with the same ids.
+@evidence principles/core/common.md#declared-basis Living/entry/family reservations supply envelopes; one prototype/origin exception are grounded in thin floor covers people walk across.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Add field/0.04 m border partition at equal height and furniture-contact footprint subtraction to reservation envelopes.
+@evidence principles/design/models.md#representation-contract Define field/border of equal thickness, ids field/border, omitting patterns/pile/tassels.
+@evidence principles/design/models.md#spatial-convention Origin floor-plan center/+X L/bottom Y=0; rug L world Z/mat L world X.
+@evidence principles/design/models.md#reviewable-structure Fixed sides test thickness ≤T without threshold appearance; top compares three room-reserved covers and three bed-derived draft envelopes, then tests floor separation without z-fighting. The bed-derived covers still need separate spatial reservations.
+@evidence principles/design/models.md#model-observable-style-basis Geometry owns only thin T=0.008/0.006 m and field/border partitions; omit pattern/pile/tassels.
+@evidence principles/design/models.md#model-scale-layer-completion Six thicknesses, bed-foot shifts 0.07/0.11/0.01 m, equal-height border, footprint-cut rule and three observations are specified together.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work Living/entry reservations were retained, but missing family-rug world position was added to spaces/rooms/common.md#common-family-reservation; models consumes only width/length.
+@evidence settings/10-house.md#living Consume restrained rug as living T=0.008 m; pattern is not geometry, only field/border.
+@evidence settings/10-house.md#entry Consume shallow mat as T=0.006 m, observed laterally for no threshold appearance.
+@evidence spaces/rooms/living.md#living-furniture-use Consume X=[-4.00,-2.00]/Z=[-3.90,-1.55] as L=2.35 m(world Z)/W=2.00 m.
+@evidence spaces/rooms/common.md#common-family-reservation Receive family X width 1.55/Z length 1.70 m as prototype parameters; parent/instances own position.
+@evidence spaces/rooms/entry.md#entry-use-routes Consume X=[0.45,1.35]/Z=[-1.95,-1.30] as L=0.90 m(world X)/W=0.65 m.
+@evidence obligations/design/models.md#model-representation-completion Define field/border layers, six L/W/T sets, boundaries, pattern/pile/tassel omissions and three observations. All remain unverified; structural validity/semantic completion is not established.
 -->
 
-러그와 현관 매트는 사람이 밟고 지나가는 얇은 바닥 덮개이므로 길이 L, 폭 W, 두께 T를 받는 한 원형으로 만든다. [거실 러그 예약](../spaces/rooms/living.md#living-furniture-use)은 X = [-4.00, -2.00], Z = [-3.90, -1.55]로 L = 2.35 m(world Z), W = 2.00 m, T = 0.008 m다. [가족실 러그 예약](../spaces/rooms/common.md#common-family-reservation)은 X 방향 폭 1.55 m, Z 방향 길이 1.70 m, 두께 0.008 m로 받는다. 배치 원점과 회전은 그 부모 예약을 소비하는 instances가 정한다. [현관 매트 예약](../spaces/rooms/entry.md#entry-use-routes)은 X = [0.45, 1.35], Z = [-1.95, -1.30]으로 L = 0.90 m(world X), W = 0.65 m, T = 0.006 m다. 레퍼런스 02의 침대 아래 얇은 러그도 채택한다. [침대 원형](13-bedrooms.md#headboard-bed)의 길이·폭에 각각 0.30 m를 더한 host 유도 변형으로 주침실은 2.45 × 1.90 × 0.008 m, 작은 침실 둘은 각각 2.45 × 1.45 × 0.008 m다. 침대 중심 기준 사방 0.15 m 노출을 시작값으로 삼되, 머리 쪽 러그 끝이 방 벽 마감과 0.02 m보다 가까우면 그 부족 거리만큼 러그 전체를 발끝 방향으로 옮긴다. 주침실은 머리 쪽 침범 0.05 m를 해소하려고 침대 국소 발끝 방향으로 0.07 m, 둘째 침실은 침범 0.09 m를 해소하려고 같은 방향으로 0.11 m, 셋째 침실은 벽과의 0.01 m 틈을 0.02 m로 늘리려고 같은 방향으로 0.01 m 옮긴다. 외곽 2.45 × 1.90/1.45 m와 두께 0.008 m는 유지하고 노출 폭의 비대칭은 위 세 결정값으로 고정한다. 별도 방이나 새 벽을 만들지 않고, 실제 배치가 문 회전·가구 다리와 맞는지는 instance 적합 검사의 대상이며 지금은 unverified다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 밟고 지나가는 덮개이므로 로컬 원점을 바닥 평면 중심에 두고 +X를 L 방향으로 두며 밑면이 Y = 0에 놓인다.
+Rugs/mats are thin covers people walk across, so share one L/W/T prototype. [Living rug](../spaces/rooms/living.md#living-furniture-use) X=[-4.00,-2.00], Z=[-3.90,-1.55] gives L=2.35 m(world Z)/W=2.00/T=0.008 m. [Family rug](../spaces/rooms/common.md#common-family-reservation) gives X width 1.55/Z length 1.70/thickness 0.008 m. Instances consumes that parent for origin/rotation. [Entry mat](../spaces/rooms/entry.md#entry-use-routes) X=[0.45,1.35], Z=[-1.95,-1.30] gives L=0.90 m(world X)/W=0.65/T=0.006 m. Also adopt reference 02's thin under-bed rugs, derived by adding 0.30 m to [bed](13-bedrooms.md#headboard-bed) length/width: primary 2.45×1.90×0.008 m, both small bedrooms 2.45×1.45×0.008 m. Start at bed center with 0.15 m exposure each side; if headward rug edge is less than 0.02 m from wall finish, shift the whole rug footward by the shortage. Primary shifts 0.07 m to resolve 0.05 m intrusion; bedroom two 0.11 m for 0.09 m intrusion; bedroom three 0.01 m to enlarge wall gap 0.01 to 0.02 m. Keep envelopes/thickness, fixing asymmetric exposures with these three decisions. Create no new room/wall; actual swing/furniture-foot fit belongs to instance review and is unverified. As a [furniture-frame](00-model-frame.md#model-furniture-local-frame) exception for walkable covers, origin is floor-plan center/+X L/bottom Y=0.
 
-부품은 몸판 하나와 가장자리 띠 하나다. 가장자리 띠는 몸판 둘레 0.04 m 폭의 같은 두께 영역으로 면만 나누고 높이를 올리지 않는다. 재질 경계는 `field`, `border`다. 무늬·털 높이·술 장식은 표현하지 않는다. 배치가 주는 바닥 접촉 발자국을 덮개의 평면에서 빼고 생긴 수직 절단면은 원래 영역의 `field` 또는 `border` id로 닫는다. 발자국은 가구의 모든 Y=[0,T] 고체를 덮개 국소 평면으로 변환해 얻은 합집합이며, 발이 없는 침대 머리판·바닥까지 내려온 협탁 몸통도 빠짐없이 포함한다. 발자국 가장자리는 0.001 m 바깥으로 넓혀 별도 원형의 면이 수치 오차로 교차하지 않게 한다. 덮개가 없는 곳의 가구 높이는 바꾸지 않고, 덮개가 가구를 들어 올리거나 같은 부피를 차지하지 않는다. 발자국 목록과 world 변환은 후속 instances가 배치한 실제 원형에서 계산하며 이 H2는 방별 가구 좌표를 복제하지 않는다.
+Parts are field and edge border. Border is width 0.04 m around field at the same thickness, partitioning faces without raising height. Boundaries field/border; omit pattern/pile/tassels. Subtract placement-provided floor-contact footprints and close resulting vertical cuts with original field/border ids. Footprints are the union of every furniture solid in Y=[0,T] transformed to covering-local plane, including legless bed headboards and floor-reaching nightstand bodies. Expand boundaries outward 0.001 m to prevent numerical intersection of distinct prototypes. Do not alter furniture height where covering is absent; coverings neither lift furniture nor share its volume. Later instances calculates footprint lists/world transforms from actual placed prototypes; this H2 duplicates no room-furniture coordinates.
 
-소스 owner는 `src/models/furnishings/living.ts`다. 관찰은 측면에서 두께가 T를 넘지 않아 문턱처럼 읽히지 않는지, 위에서 여섯 배치의 외곽이 각 예약과 같은지, 바닥면과 z-fighting 없이 구분되는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Source owner is `src/models/furnishings/living.ts`. Observe side thickness ≤T without threshold appearance, top-view equality with the three room reservations and three bed-derived draft envelopes, and floor separation without z-fighting, using fixed [model-review views](00-model-frame.md#model-review-set)/[surface naming](00-model-frame.md#model-surface-partition-naming). The three bed-derived covers have no separate spatial reservation yet; their draft dimensions and shifts do not close that handoff. All observations are unverified.
 
-## 벽난로의 검은 화구와 목재 선반 {#fireplace-insert-mantel}
+## Fireplace black firebox and wooden mantel {#fireplace-insert-mantel}
 <!--
-@evidence principles/core/common.md#scope-preservation spaces가 만든 벽돌 앞면과 굴뚝을 복제하지 않고 그 앞면의 실제 빈 화구 속과 상부 목재 선반만 맡는다.
-@evidence principles/core/common.md#substantive-completion 화구 폭 1.04 m·높이 0.64 m·깊이 0.55 m, 검은 안쪽 판 두께 0.025 m, 선반 1.60 × 0.55 × 0.10 m를 정한다 화구 전면 테의 X=[−0.52,0.52]·Y=[0.23,0.87]·Z=[−0.015,0] m와 속 빈 사각 테의 폭까지 정한다.
-@evidence principles/core/common.md#declared-basis settings/10-house.md#living의 검은 화구·벽돌 본체·목재 선반 구분과 spaces/envelope/left.md#chimney-roof-interface의 실내 앞면 예약에서 치수를 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 빈 벽돌 상자 대신 실제 화구 void 안의 검은 다섯 면과 바로 위 선반을 별도 원형으로 결정한다.
-@evidence principles/design/models.md#representation-contract 화구의 뒤·좌우·위·아래 다섯 닫힌 금속판은 `firebox`, 전면 얇은 테는 `firebox-trim`, 목재 선반의 모든 면은 `mantel`로 덮는다. 불꽃과 실제 연도는 만들지 않는다.
-@evidence principles/design/models.md#spatial-convention 원점은 화구 아래 가운데의 벽돌 앞면, 국소 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 배치는 굴뚝 면에서 산출한다.
-@evidence principles/design/models.md#reviewable-structure 정면에서 검은 빈 중심·벽돌 테·목재 상단의 세 겹, 측면에서 깊이와 선반의 경계, 45°에서 꺼진 화구를 검토한다.
-@evidence principles/design/models.md#model-observable-style-basis 04의 낮은 벽돌 벽난로는 검은 내부와 목재 선반의 별도 부피가 있을 때 읽히며 색·결은 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 화구·선반의 외곽, 판 두께, 접합 범위, 세 면 id, 미터 UV와 국소 프레임을 확정한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 벽돌 상자 앞면에 비어 있어야 할 화구를 확인해 spaces/envelope/left.md와 src/spaces/envelope/left.ts를 네 닫힌 벽돌 부재로 수정했다. 목재 선반의 Y = [1.30, 1.40] m를 별도 소유로 남긴다.
-@evidence settings/10-house.md#living 거실의 검은 화구·벽돌 본체·목재 선반을 세 표면으로 구분한다.
-@evidence spaces/envelope/left.md#chimney-roof-interface 거실 쪽 예약의 화구 빈 구간과 선반 높이를 그대로 채운다.
-@evidence obligations/design/models.md#addressable-model-decisions 벽돌 몸통과 다른 검은 화구·목재 선반의 원형을 독립 H2에서 정한다.
-@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 거실의 레퍼런스 04 뷰를 검사한다.
+@evidence principles/core/common.md#scope-preservation Own only the actual empty brick firebox insert and upper wooden mantel, without duplicating spaces brick front/chimney.
+@evidence principles/core/common.md#substantive-completion Define firebox width 1.04/height 0.64/depth 0.55 m, black plate thickness 0.025 m and mantel 1.60×0.55×0.10 m; front ring X=[−0.52,0.52]·Y=[0.23,0.87]·Z=[−0.015,0] m and hollow-ring width.
+@evidence principles/core/common.md#declared-basis Dimensions come from settings/10-house.md#living's black-firebox/brick/mantel distinction and spaces/envelope/left.md#chimney-roof-interface interior-front reservation.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Choose five black interior faces in the actual void and mantel above as separate prototype rather than an empty brick box alone.
+@evidence principles/design/models.md#representation-contract Five closed metal plates back/sides/top/bottom use firebox; front thin ring firebox-trim; all mantel faces mantel. Create no flames/actual flue.
+@evidence principles/design/models.md#spatial-convention Origin is brick front at lower firebox center; +Z livingward/+X width/+Y up. Derive placement from chimney face.
+@evidence principles/design/models.md#reviewable-structure Front compares black empty center/brick ring/wood top, side depth/mantel boundaries and 45° unlit firebox.
+@evidence principles/design/models.md#model-observable-style-basis Reference 04's low brick fireplace reads through separate black interior/wood mantel volumes; materials owns color/grain.
+@evidence principles/design/models.md#model-scale-layer-completion Fix firebox/mantel envelopes, thickness/contact ranges, three ids, meter UVs/local frame.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work Confirm the void required in brick front and revise spaces/envelope/left.md and src/spaces/envelope/left.ts into four closed brick members. Retain mantel Y=[1.30,1.40] m as separate ownership.
+@evidence settings/10-house.md#living Separate black firebox/brick/wood mantel as three surfaces.
+@evidence spaces/envelope/left.md#chimney-roof-interface Fill reserved interior-front firebox void/mantel heights unchanged.
+@evidence obligations/design/models.md#addressable-model-decisions Define black firebox/wood mantel prototype independently from brick body.
+@evidence obligations/design/models.md#model-review-set Inspect 00 front/side/45° views and living reference 04 view.
 -->
 
-건물 분류: 설비 — spaces가 비운 벽돌 화구에 삽입하는 화구와 그 위 선반이다.
+Building classification: fixture — insert into the spaces-cleared brick firebox and mantel above.
 
-[거실 조건](../settings/10-house.md#living)은 검은 화구·벽돌 본체·목재 선반을 구별한다. 벽돌 앞면과 굴뚝은 [왼쪽 입면 owner](../spaces/envelope/left.md#chimney-roof-interface)가 지었고, 화구 자리만 빈다. 이 원형의 국소 원점은 화구 아래 가운데의 벽돌 앞면이고 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 화구 void는 폭 1.04 m, 높이 0.64 m, 바닥 위 0.23–0.87 m, 깊이 0.55 m다. 뒤·좌우·위·아래에 각각 두께 0.025 m의 닫힌 검은 금속 판을 놓되 판의 외곽은 void를 넘지 않는다. 전면 테는 폭 0.025 m, 두께 0.015 m이며 벽돌 앞면 안으로 물려 거실 쪽으로 돌출하지 않는다. 내부에서 벽돌과 화구가 함께 보이게 하는 것이 목적이고 불꽃·연도·연소는 구현하지 않는다.
+[Living conditions](../settings/10-house.md#living) distinguish black firebox/brick/wood mantel. [Left elevation owner](../spaces/envelope/left.md#chimney-roof-interface) creates brick front/chimney, leaving only firebox empty. Local origin is brick front at lower firebox center, +Z livingward/+X width/+Y up. Void width 1.04/height 0.64 m, Y=0.23–0.87 m above floor/depth 0.55 m. Put closed black metal plates thickness 0.025 m at back/sides/top/bottom, bounded by the void. Front ring width 0.025/thickness 0.015 m recesses into brick front without livingward projection. Both brick/firebox remain visible; create no flames/flue/combustion.
 
-목재 선반은 벽돌 앞면 전체 폭 1.60 m, 깊이 0.55 m, 높이 0.10 m다. 바닥 위 Y = [1.30, 1.40] m를 채워 그 아래 벽돌 상단과 한 경계에서 만난다. 상면·아래면·네 옆면 모두 `mantel`, 금속 내부 판 모든 면은 `firebox`, 전면 테 모든 면은 `firebox-trim`이다. 목재 결을 위한 UV는 가로를 U·깊이를 V로, 검은 판은 각 판 국소 가로·세로를 미터로 투영한다. 위치와 크기는 [실내 앞면 예약](../spaces/envelope/left.md#chimney-roof-interface) 안이며 벽난로 앞 0.90 m 통로까지 늘어나지 않는다. 소스 owner는 `src/models/furnishings/living.ts`; [모델 고정 뷰](00-model-frame.md#model-review-set)와 레퍼런스 04의 거실 정면에서 검은 중심·벽돌·목재 세 재료를 대조한다. 실제 source와 렌더는 unverified다.
-`firebox-trim`은 화구 입구의 벽돌 앞면을 국소 Z=0으로 할 때 Z=[−0.015,0] m의 얇은 네 판 링이다. 바깥 X=[−0.52,0.52] m·Y=[0.23,0.87] m, 안쪽 X=[−0.495,0.495] m·Y=[0.255,0.845] m를 비워 폭 0.025 m를 만들고 네 판의 만나는 끝은 45° 맞댐으로 나눈다. 테의 뒤면은 내부 금속판 입구에 면으로 닿고 앞면은 벽돌 앞면 밖으로 돌출하지 않는다.
+Mantel spans full brick-front width 1.60/depth 0.55/height 0.10 m, Y=[1.30,1.40] m above floor, meeting brick top at one boundary. Top/bottom/four sides are mantel; all metal plates firebox/front ring firebox-trim. Wood UV uses width U/depth V; black plates project local horizontal/vertical meters. Position/size stay within [interior-front reservation](../spaces/envelope/left.md#chimney-roof-interface) without expanding into fireplace-front route 0.90 m. Source owner is `src/models/furnishings/living.ts`; compare black/brick/wood in [fixed model views](00-model-frame.md#model-review-set)/reference 04 front living view. Actual source/render realization is unverified here.
 
-화구 `firebox`의 뒤 금속판은 화구 중앙 기준 X=[−0.52,0.52]·Y=[0.23,0.87]·Z=[−0.55,−0.525] m이고 양쪽 판은 X=[−0.52,−0.495]·[0.495,0.52] m, Y=[0.255,0.845]·Z=[−0.525,−0.015] m다. 위·아래 `firebox` 판은 X=[−0.52,0.52]·Z=[−0.525,−0.015] m와 각각 Y=[0.845,0.87]·[0.23,0.255] m를 차지하므로 다섯 판은 서로 끝면에서만 만나고 벽돌의 빈 화구 X/Z/Y 범위 안에 든다. 목재 `mantel`은 같은 화구 중앙 기준 X=[−0.80,0.80]·Z=[−0.55,0]·Y=[1.30,1.40] m의 닫힌 판으로 왼쪽 입면 owner의 벽돌 앞면 예약 X=[−5.50,−4.95]·Z=[−3.00,−1.40] m와 같은 외곽을 채우며 벽돌 윗면 Y=1.30 m에 바닥면으로 닿는다.
+With brick opening front local Z=0, firebox-trim is a four-board thin ring Z=[−0.015,0] m, outer X=[−0.52,0.52]·Y=[0.23,0.87] m, inner void X=[−0.495,0.495]·Y=[0.255,0.845] m, width 0.025 m. Divide board end meetings into 45° miters. Back meets metal inlet at faces; front does not project beyond brick.
+
+Firebox rear plate X=[−0.52,0.52]·Y=[0.23,0.87]·Z=[−0.55,−0.525] m; side plates X=[−0.52,−0.495]·[0.495,0.52], Y=[0.255,0.845]·Z=[−0.525,−0.015] m. Top/bottom share X=[−0.52,0.52]·Z=[−0.525,−0.015] m and respectively Y=[0.845,0.87]·[0.23,0.255] m. Five plates meet only at ends within brick void. Mantel is closed X=[−0.80,0.80]·Z=[−0.55,0]·Y=[1.30,1.40] m about the same firebox center, matching left-owner brick-front reservation X=[−5.50,−4.95]·Z=[−3.00,−1.40] m and contacting brick top Y=1.30 m with its bottom.

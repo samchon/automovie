@@ -1,133 +1,135 @@
-# 실내 문짝과 문틀
+# Interior door leaves and frames
 
-## 실내 문의 부재 계층과 치수 {#interior-door-members}
+## Interior-door member hierarchy and dimensions {#interior-door-members}
 <!--
-@evidence principles/core/common.md#scope-preservation 실내 문 11개의 공유 원형, 문설주 0.03 m, 문짝 0.04 m, 문설주 깊이, casing, 패널, 손잡이, UV와 회전 반경을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 순폭 = 거친 폭-0.10으로 모든 목표와 같고, 문짝 높이 2.16 m, 회전 반경 0.89·0.94·0.99 m, 손잡이 0.95 m를 산출한다. 닫힌 문짝 Z=[−0.04,0]·경첩축 Z=0과 좌우 거울 회전 부호를 정해 열린 문짝 두께가 문설주 안쪽에 남는다.
-@evidence principles/core/common.md#declared-basis 목표는 각 room plan H2, 칸막이 0.15 m와 차고 공유 벽 0.25 m는 room owner와 spaces/00-building.md#attached-garage-extent, 패널문은 settings/10-house.md#openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation room owner들의 유효 폭 목표를 공통 차이 0.10 m를 채우는 문설주·문짝 두께 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract door→jamb·casing·hinge-pivot→leaf·handle 계층을 정한다.
-@evidence principles/design/models.md#spatial-convention 원점 면을 열림 쪽 벽면으로 두어 열림이 항상 국소 +Z라고 적는다.
-@evidence principles/design/models.md#reviewable-structure 문설주 면 단면에서 순폭을 재어 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 실내 문 11개는 한 원형을 공유하고 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰며 원점 면은 문짝이 열리는 쪽 벽면이다. 흰 패널문을 오목 패널 두 개와 casing 0.07 m로 구체화한다.
-@evidence principles/design/models.md#model-scale-layer-completion 문설주 깊이 층과 순폭 척도를 정한다.
-@evidence spaces/00-building.md#attached-garage-extent 차고 공유 벽 X = [5.50, 5.75] m를 laundry-garage-door 문설주 깊이 0.25 m로 소비한다.
-@evidence settings/10-house.md#openings 흰 실내 문선과 패널문을 casing 0.07 m와 오목 패널 두 개로 소비한다.
-@evidence contracts/reservation-fit.md#reservation-fit 거친 폭에서 문설주 2×0.03 m와 문짝 0.04 m를 빼 11개 문의 순폭이 각 목표와 같음을 산술로 보인다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/07-boundary-assembly.md#interior-boundary-junctions는 실내 문틀·문짝을 05의 방 owner가 생성한다고 적어 이 원형과 소유가 겹쳤다. 그 부모 H2를 벽 절단·바닥 전환은 spaces, 닫힌 문설주·문선·문짝·철물은 models/03으로 고쳤다. spaces/03-surface-owners.md#interior-surface-handoff의 방 면 owner도 reveal·마감 접면만 검사하고 모델 문짝·창호 메시를 만들지 않도록 명확히 고쳤다. 방별 개구부 좌표와 순폭 목표는 유지했다.
-@evidence spaces/03-surface-owners.md#interior-surface-handoff 방 owner의 reveal·마감 접면과 이 원형의 닫힌 문틀·문짝을 같은 void에 맞추고 같은 면을 복제하지 않는다.
-@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 방 사이 벽을 한 벽체로 두는 결정을 문설주 한 부재가 그 벽 두께 전체를 덮는 근거로 소비한다.
-@evidence spaces/07-boundary-assembly.md#interior-boundary-junctions 방 owner의 벽 절단과 바닥 전환을 입력으로 받고 닫힌 문설주·문선·문짝·경첩·손잡이만 모델 원형으로 생산한다.
-@evidence settings/10-house.md#upper-hall 레퍼런스 05의 흰 문선과 문짝을 상층 복도 문 다섯 개의 casing 0.07 m와 오목 패널 문짝으로 소비한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns the shared prototype for 11 interior doors, 0.03 m jambs, 0.04 m leaves, jamb depth, casing, panels, handles, UVs and swing radii.
+@evidence principles/core/common.md#substantive-completion Clear width = rough width−0.10 meets every target; leaf height is 2.16 m, radii 0.89·0.94·0.99 m and handle height 0.95 m. Closed leaf Z=[−0.04,0], hinge axis Z=0 and mirrored rotation signs keep open-leaf thickness inside the jamb.
+@evidence principles/core/common.md#declared-basis Targets come from each room-plan H2; 0.15 m partitions and the 0.25 m shared garage wall come from room owners and spaces/00-building.md#attached-garage-extent; panel doors come from settings/10-house.md#openings.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns room owners' effective-width targets into jamb/leaf thickness decisions consuming the common 0.10 m difference.
+@evidence principles/design/models.md#representation-contract It defines door→jamb·casing·hinge-pivot→leaf·handle hierarchy.
+@evidence principles/design/models.md#spatial-convention The opening-side wall face is the origin plane, making opening always local +Z.
+@evidence principles/design/models.md#reviewable-structure Measuring clear width at a jamb-face section can falsify it.
+@evidence principles/design/models.md#model-observable-style-basis All 11 interior doors share one prototype and the common local frame; the origin plane is the wall face toward which the leaf opens. Two recessed panels and 0.07 m casing specify the white panel-door appearance.
+@evidence principles/design/models.md#model-scale-layer-completion It defines the jamb-depth layer and clear-width scale.
+@evidence spaces/00-building.md#attached-garage-extent Shared garage wall X = [5.50, 5.75] m supplies laundry-garage-door jamb depth 0.25 m.
+@evidence settings/10-house.md#openings White interior casing and panel doors become 0.07 m casing and two recessed panels.
+@evidence contracts/reservation-fit.md#reservation-fit Subtracting jambs 2×0.03 m and leaf thickness 0.04 m from rough width arithmetically meets all 11 clear-width targets.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/07-boundary-assembly.md#interior-boundary-junctions assigned frames/leaves to 05 room owners, duplicating this prototype. The parent H2 was corrected to assign wall cuts/floor transitions to spaces and closed jambs/casing/leaves/hardware to models/03. spaces/03-surface-owners.md#interior-surface-handoff was clarified so room-face owners inspect only reveals/finish interfaces and do not create model door/window meshes. Room opening coordinates and clear-width targets were preserved.
+@evidence spaces/03-surface-owners.md#interior-surface-handoff Room-owner reveals/finish interfaces and this prototype's closed frame/leaf fit the same void without duplicating faces.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership A single wall between rooms supports one jamb member covering its full thickness.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-junctions Room-owner wall cuts/floor transitions are inputs; the model prototype produces only closed jambs/casing/leaves/hinges/handles.
+@evidence settings/10-house.md#upper-hall Reference 05's white casing/leaves become 0.07 m casing and recessed-panel leaves for five upper-hall doors.
 -->
 
-이 원형은 [실내 벽 접합](../spaces/07-boundary-assembly.md#interior-boundary-junctions)의 방 owner가 만든 벽 절단·reveal과 바닥 전환을 입력으로 받는다. 닫힌 문설주·문선·문짝·경첩·손잡이는 `src/models/interior-door.ts`만 만들며 두 방의 spaces source는 복제하지 않는다.
+This prototype takes wall cuts/reveals and floor transitions from room owners at [interior-wall junctions](../spaces/07-boundary-assembly.md#interior-boundary-junctions). Only `src/models/interior-door.ts` creates closed jambs, casing, leaves, hinges and handles; neither room's spaces source duplicates them.
 
-실내 문 11개는 한 원형을 공유하고 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰며 원점 면은 문짝이 열리는 쪽 벽면이다. 모든 거친 개구부 높이는 2.20 m이고 폭은 0.95–1.05 m이며, 각 room owner가 정한 유효 폭 목표는 모두 거친 폭보다 0.10 m 작다. 이 공통 차이를 모델 결정의 근거로 삼아 좌우 문설주의 개구부 쪽 면 폭을 0.03 m, 문짝 두께를 0.04 m로 택한다. 90° 열림에서 순폭은 거친 폭 - 2 × 0.03 - 0.04로 정확히 각 목표와 같다. 문짝 폭은 거친 폭 - 0.06 m, 문짝 높이는 거친 높이 - 0.03 m 머리 문설주 - 0.01 m 바닥 틈으로 2.16 m다. 문설주 깊이는 개구부를 소유한 벽의 두께다. 실내 칸막이의 문설주 깊이는 room owner가 제공하는 벽 두께 0.15 m이고, [세탁실–차고 문](../spaces/rooms/laundry.md#laundry-plan)만 [차고 공유 벽](../spaces/00-building.md#attached-garage-extent)의 두께 0.25 m를 쓴다. 각 문 world transform은 owner의 개구부 좌표에서 계산한다.
+All 11 interior doors share one prototype and the [common local frame](00-model-frame.md#model-local-frame), with origin plane at the wall face toward which the leaf opens. Every rough opening is 2.20 m high and 0.95–1.05 m wide; each room owner's effective-width target is 0.10 m below rough width. Use this common difference to choose 0.03 m opening-facing jamb width on each side and 0.04 m leaf thickness. At 90° opening, clear width is rough width − 2 × 0.03 − 0.04, exactly each target. Leaf width is rough width − 0.06 m; height is rough height − 0.03 m head jamb − 0.01 m floor clearance = 2.16 m. Jamb depth equals the opening-owning wall thickness: 0.15 m supplied by room owners for interior partitions; only the [laundry–garage door](../spaces/rooms/laundry.md#laundry-plan) uses the [shared garage wall's](../spaces/00-building.md#attached-garage-extent) 0.25 m. Calculate world transforms from owner opening coordinates.
 
-계층은 `door` 아래 `jamb`(좌·우·머리), 양쪽 벽면의 `casing`, 그리고 경첩 축 노드 `hinge-pivot` 아래 `leaf`, `handle`로 둔다. casing은 [settings 개구부](../settings/10-house.md#openings)의 흰 실내 문선을 위해 벽면에서 0.015 m 돌출하는 폭 0.07 m 띠로 택한다. 돌출은 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건에서, 폭은 [06의 외부 trim 상한 0.10 m](../spaces/06-openings.md#external-opening-interface)보다 좁게 두어 실내 문선이 외부 trim보다 가벼운 위계로 읽히게 하는 모델 결정이다. leaf는 [settings 개구부](../settings/10-house.md#openings)가 레퍼런스 03–05에서 채택한 흰 패널문을 위해 위아래 두 개의 오목 패널을 가지며 패널은 문짝 면에서 0.008 m 들어간다. 문짝 아래끝은 바닥 위 0.01 m, 두 패널의 로컬 높이 범위는 바닥 위 [0.18, 0.86]·[0.98, 1.98] m이고 양옆에서는 문짝 폭보다 0.12 m씩 좁혀 문짝 폭 W에 대해 패널 폭 W − 0.24 m로 정한다. 두 패널 사이 0.12 m 띠와 위 0.19 m 머리 띠가 남는다. 패널 바닥과 네 챌면의 id는 `leaf-panel`이며 앞뒤의 나머지 면과 네 두께 면은 `leaf`다. 패널 수 둘은 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 실내 threshold view(FOV 60°)에서 문짝이 평판이 아닌 패널문으로 읽히는 가장 단순한 분할로 택한 모델 결정이다. 문짝 면은 평면 법선과 문짝 국소 X·Y에 정렬한 미터 단위 UV를 가져 materials가 칠 마감이나 결을 같은 방향으로 바인딩할 수 있다. 열림 회전 반경은 문짝 폭과 같아 거친 폭 0.95·1.00·1.05 m 문에서 각각 0.89·0.94·0.99 m이고 손잡이는 문짝 가장자리 안쪽이라 반경을 늘리지 않는다. 기본형 일곱 문의 손잡이는 레퍼런스 05의 둥근 검은 손잡이를 채택한 지름 0.05 m 구형 knob 둘과 지름 0.065 m·두께 0.006 m 원형 받침 둘로, 바닥 위 0.95 m(사용 프로필 점유체 높이 1.90 m의 절반으로 성인과 자녀 모두의 손 높이 범위 안에 두는 모델 결정), 경첩 반대편 문짝 가장자리에서 0.07 m 안쪽에 두고 문짝 양면에서 각각 0.056 m 돌출한다. 경첩은 문짝 하단 위 0.20·1.05·1.90 m 중심의 지름 0.018 m·길이 0.08 m 원통 knuckle 셋이며 표면 id는 `hinge`다. 손잡이는 90° 열림에서 문짝의 자유단에 있어 문설주 면의 순폭 단면 안에 들어오지 않는다. 소스 owner는 `src/models/interior-door.ts`이며 순폭은 문설주 면 단면에서 측정한다.
+Under `door`, place `jamb` (left/right/head), `casing` on both wall faces and `hinge-pivot` containing `leaf` and `handle`. To realize the white interior casing in [settings openings](../settings/10-house.md#openings), choose 0.07 m wide strips projecting 0.015 m from the wall. Projection follows [common material/envelope appearance](../settings/20-verification.md#visual-grammar), where trim explains junctions through actual projection and shadow. Width is a model decision below [06's exterior-trim limit 0.10 m](../spaces/06-openings.md#external-opening-interface), making interior casing read as lighter than exterior trim. For the white panel doors adopted from references 03–05 in [settings openings](../settings/10-house.md#openings), each leaf has upper/lower panels recessed 0.008 m. Leaf bottom is 0.01 m above floor; panel local heights above floor are [0.18, 0.86]·[0.98, 1.98] m. With 0.12 m margins at both sides, panel width is W − 0.24 m for leaf width W. A 0.12 m strip remains between panels and a 0.19 m head strip above. Recess floors/four reveals are `leaf-panel`; remaining front/back and four thickness faces are `leaf`. Two panels are the simplest model subdivision reading as a panel door rather than a flat board in the interior threshold view (FOV 60°) of the [review frame condition](../settings/20-verification.md#frame-condition). Leaf faces use planar normals and meter-based UVs aligned to leaf-local X/Y so materials can bind paint or grain consistently. Swing radius equals leaf width: 0.89·0.94·0.99 m for rough widths 0.95·1.00·1.05 m. Handles lie inside the leaf edge and do not increase radius. The seven standard doors adopt reference 05's round black handles as two 0.05 m diameter spherical knobs and two circular roses, diameter 0.065 m/thickness 0.006 m. Centers are 0.95 m above floor (half the 1.90 m usage-profile occupant height, chosen within adult/child hand-height range) and 0.07 m inside the free leaf edge. Each projects 0.056 m from its leaf face. Hinges are three cylindrical knuckles, diameter 0.018 m/length 0.08 m, centered 0.20·1.05·1.90 m above leaf bottom, with surface id `hinge`. At 90° opening the handle is at the free end, outside the jamb-face clear-width section. The source owner is `src/models/interior-door.ts`; measure clear width at the jamb-face section.
 
-각 문에서 벽 두께 T=0.15 m, 세탁실–차고 문만 T=0.25 m로 두면 문설주 세로 몸통은 X=[0,0.03]·[W−0.03,W] m, Y=[0,2.17] m, Z=[−T,0] m이고 머리 몸통은 X=[0,W] m, Y=[2.17,2.20] m, Z=[−T,0] m다. 세로 몸통과 머리 몸통은 Y=2.17 m 면에서만 만나므로 같은 부피를 두 번 만들지 않는다. 열림 쪽 `jamb-a`는 두 세로 몸통 X=[0,0.03]·[W−0.03,W] m와 머리 몸통 X=[0,W]·Y=[2.17,2.20] m의 Z=0 m 바깥 면이다. 반대쪽 `jamb-b`는 같은 X/Y 구역에서 일반 벽의 Z=−0.15 m, 세탁실–차고 벽의 Z=−0.25 m 바깥 면이며 벽에 묻힌 부분은 노출 면으로 만들지 않는다. 개구부 안쪽 X=0.03·W−0.03 m의 두 챌면과 Y=2.17 m의 머리 밑면, 각 판의 남는 절단 끝은 `jamb-core`로 덮으며 이 면들의 깊이 범위는 Z=[−T,0] m다. 닫힌 문짝 폭 W−0.06 m는 문설주 두 안쪽 면 사이 X=[0.03,W−0.03] m에 놓이고 Y=[0.01,2.17] m이므로 옆·윗면에서만 문설주에 닿는다.
+The construction equations for jambs, casing, leaves, handles and hinge axes below use horizontal coordinate u=0 at the rough opening's left end and u=W at its right end. Their X=[a,b] notation means u=[a,b] unless explicitly identified as world X. The centered opening-local frame converts it to X=[a−W/2,b−W/2]; Y is height above the opening's lower-edge datum unless explicitly identified as world Y. These construction coordinates do not replace the common lower-center prototype origin.
 
-문선의 기본 위치는 11개 문의 개구부 국소 좌표로 결정하되, 아래 욕조 욕실 문 한 곳의 모서리 쪽 판만 벽 경계에서 잘라 낸다. 다음 문선 치수표에만 쓰는 가로 작도 좌표 u는 거친 개구부 왼쪽 아래를 u 값 0으로 두고 폭 W=0.95·1.00·1.05 m 중 해당 방의 값을 쓴다. 바로 뒤의 공통 세로·머리판 식에서 X=[a,b]는 u 범위 [a,b]를 뜻하며 [공통 국소 좌표](00-model-frame.md#model-local-frame)의 중앙 원점으로 배치할 때 X=[a−W/2,b−W/2]로 옮긴다. 이후 world X 표기는 실제 세계 좌표다. 열림 쪽 A와 반대쪽 B의 완성 벽면 각각에서 `casing-a`·`casing-b` 좌우 세로 판은 X=[−0.07,0]·[W,W+0.07] m, Y=[0,2.20] m이고 머리 판은 X=[−0.07,W+0.07] m, Y=[2.20,2.27] m다. 세 판의 뒷면은 각 방의 완성 벽면에 있고 앞면은 그 방으로 0.015 m 돌출한다. 세로 두 발은 각 방 완성 바닥에 닿고 문턱판은 개구부 폭 안에서만 공간 owner가 만든다. 머리 판은 세로 판 윗면에 직각으로 접하며 부피를 복제하지 않는다. 차고 공유 벽에서는 열림 쪽 세탁실 `casing-a`의 +Z 세로 판이 [laundry-garage-door](../spaces/rooms/laundry.md#laundry-plan)의 월드 X=[5.485,5.50], Z=[−3.35,−3.28], Y=[0,2.20] m를 차지한다. 반대쪽 차고 `casing-b`의 바닥 끝은 차고 완성 바닥 Y=−0.15 m이며 그 판만 높이 2.35 m로 연장해 문 머리 Y=2.20 m에서 끝난다. 세탁기·상판·상부장 홈은 세탁실 쪽 닫힌 체적을 비운다. 팬트리 선반은 별도 service-pantry-door 문선의 인접 원형이므로 그 선반의 절개는 팬트리 선반 H2가 정한다.
+For wall thickness T=0.15 m, or T=0.25 m only at the laundry–garage door, jamb vertical bodies occupy X=[0,0.03]·[W−0.03,W] m, Y=[0,2.17] m, Z=[−T,0] m. The head occupies X=[0,W] m, Y=[2.17,2.20] m, Z=[−T,0] m. Verticals meet the head only at Y=2.17 m, avoiding duplicate volume. Opening-side `jamb-a` is the Z=0 m outer face of both vertical bodies at X=[0,0.03]·[W−0.03,W] m and head X=[0,W]·Y=[2.17,2.20] m. Opposite `jamb-b` has the same X/Y regions at outer Z=−0.15 m for normal walls or Z=−0.25 m for the laundry–garage wall; buried parts are not exposed faces. Cover opening-inner side reveals X=0.03·W−0.03 m, head underside Y=2.17 m and remaining board cut ends with `jamb-core`, at depth Z=[−T,0] m. Closed leaf width W−0.06 m occupies X=[0.03,W−0.03] m between jamb inner faces and Y=[0.01,2.17] m, touching jambs only along sides/top.
 
-hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이의 시작 Z=−5.91 m까지 0.05 m만 비어 있다. 따라서 그 문의 복도 쪽 `casing-b` −Z 세로 판은 세계 Z=[−5.91,−5.86]·X=[3.055,3.07] m, 상층 바닥 위 Y=[0,2.20] m로 만들고 머리 판도 −Z 끝을 −5.91 m에서 닫는다. 반대 +Z 판은 공통 폭 0.07 m를 유지한다. 두 판의 새 −Z 절단면은 `casing-b`가 덮으며 샤워 칸막이 세계 Z≤−5.91 m와 면으로만 접한다.
+Casing positions use the 11 openings' local coordinates, except the corner-side board of the tub-bath door is clipped at the wall boundary below. The horizontal construction coordinate u used only in the following casing dimensions has zero at the rough opening's lower-left; W=0.95·1.00·1.05 m follows the room. In the common vertical/head equations immediately below, X=[a,b] means u=[a,b]; placement in the [common local frame](00-model-frame.md#model-local-frame) with centered origin converts it to X=[a−W/2,b−W/2]. Subsequent world X denotes actual world coordinates. At each finished wall face, opening side A and opposite B, `casing-a`/`casing-b` jamb boards occupy X=[−0.07,0]·[W,W+0.07] m, Y=[0,2.20] m; heads occupy X=[−0.07,W+0.07] m, Y=[2.20,2.27] m. Backs meet each room's finished wall and fronts project 0.015 m into that room. Both jamb feet reach each room's finished floor; the space owner creates the threshold plate only within opening width. Heads meet jamb tops at right angles without duplicate volume. At the shared garage wall, opening-side laundry `casing-a`'s +Z jamb occupies [laundry-garage-door](../spaces/rooms/laundry.md#laundry-plan) world X=[5.485,5.50], Z=[−3.35,−3.28], Y=[0,2.20] m. Opposite garage `casing-b` starts at garage finished floor Y=−0.15 m; only that board extends to height 2.35 m, ending at door head Y=2.20 m. Washer, counter and upper-cabinet recesses clear the closed laundry-side volume. Pantry shelves neighbor the separate service-pantry-door casing, so the pantry-shelf H2 defines their cuts.
 
-닫힌 문짝의 기본 둥근 `handle` 중심은 낮은 X 경첩이면 X=W−0.10 m, 높은 X 경첩이면 X=0.10 m이고 Y=0.95 m에 있으며, 두 0.065 m 받침 원판은 문짝 앞뒤 Z=0·−0.04 m 면에 각각 닿는다. 원판 두께 0.006 m, 구형 knob 지름 0.05 m의 각 조합은 해당 면 바깥쪽으로 총 0.056 m까지 나오며 닫힌 문짝 X=[0.03,W−0.03] m 범위 안에 머문다. 문짝에 붙는 세 `hinge` 원통의 축은 낮은 경첩 X=0.03 m 또는 높은 경첩 X=W−0.03 m와 열림 쪽 Z=0 m 교선에 있고, 문짝 아래끝 Y=0.01 m에서 0.20·1.05·1.90 m 위인 세계 Y=0.21·1.06·1.91 m를 중심으로 각각 지름 0.018 m·길이 0.08 m를 차지한다.
+At hall-tub-door, the corridor-side −Z corner leaves only 0.05 m to the next shower-bath partition start Z=−5.91 m. Its corridor `casing-b` −Z jamb therefore occupies world Z=[−5.91,−5.86]·X=[3.055,3.07] m, upper-floor-relative Y=[0,2.20] m; the head's −Z end also closes at −5.91 m. The opposite +Z board retains common width 0.07 m. New −Z cut faces are `casing-b`, meeting the shower partition world Z≤−5.91 m only at a face.
 
-팬트리 문 한 개는 [팬트리 작동 예약](../spaces/rooms/pantry.md#pantry-plan)의 문설주·문짝·손잡이 합계 0.08 m를 위해 돌출 손잡이 대신 문짝 양면에 파인 원형 잡이 홈을 쓴다. 지름 0.05 m·깊이 0.008 m의 홈 중심은 바닥 위 0.95 m이고 자유단에서 0.07 m 안쪽이다. 홈 안쪽과 둘레의 id는 `handle`이며 문짝의 외곽을 늘리지 않는다. 문설주 0.03 m + 문짝 두께 0.04 m = 0.07 m로 예약 안에 0.01 m가 남는다. [옷방 문](../spaces/rooms/wardrobe.md#primary-wardrobe-plan)의 양면 둥근 `handle`은 두께 0.004 m·지름 0.035 m 받침 원판과 지름 0.026 m 구형 knob를 조합해 각 문짝 넓은 면에서 0.004+0.026=0.030 m만 돌출시킨다. 중심은 공통 문처럼 자유단에서 0.07 m·바닥 위 0.95 m이고, 열린 문짝의 반대 면 손잡이 끝은 reviewed swing의 세계 Z=−10.20 m에 맞닿되 그 뒤로 넘지 않는다. service-laundry-door와 laundry-garage-door 두 개는 팬트리와 같은 지름 0.05 m·깊이 0.008 m의 파인 원형 잡이 홈을 사용해 기준 열림 때 손잡이가 [머드룸 횡단](../spaces/rooms/laundry.md#laundry-through-route) 안으로 나오지 않게 한다. 나머지 일곱 문은 0.056 m 돌출 둥근 손잡이를 쓴다. 열한 문의 높이·표면 id는 같다.
+For a low-X hinge, the closed standard round `handle` center is X=W−0.10 m; for a high-X hinge, X=0.10 m; Y=0.95 m. Its two 0.065 m roses meet leaf front/back Z=0·−0.04 m. Each combination of 0.006 m rose thickness and 0.05 m spherical knob projects a total 0.056 m beyond its face, remaining inside closed-leaf X=[0.03,W−0.03] m. Three leaf-attached `hinge` axes lie at low-hinge X=0.03 m or high-hinge X=W−0.03 m intersecting opening-side Z=0 m. Their centers are opening-floor-relative Y=0.21·1.06·1.91 m, 0.20·1.05·1.90 m above leaf bottom Y=0.01 m; add the opening's lower world Y once during placement. Each occupies diameter 0.018 m and length 0.08 m.
 
-닫힌 `leaf`의 깊이는 열림 쪽 A 완성 벽면을 국소 Z=0으로 두고 Z=[−0.04,0] m로 고정한다. 문짝 넓은 면은 벽 몸체 속이 아니라 거친 개구부 안에 있으며, 세로 경첩축은 경첩 쪽 문설주의 개구부 안쪽 X=0.03 또는 W−0.03 m와 Z=0의 교선이다. 낮은 X 경첩은 닫힌 문짝이 축에서 +X로 뻗으므로 국소 −π/2 회전으로 열고, 높은 X 경첩은 −X로 뻗으므로 +π/2 회전으로 연다. 두 거울 변형의 작동 스칼라는 모두 절댓값 0–π/2 rad다. 90° 열린 문짝은 경첩을 기준으로 개구부 안쪽 X 폭 0.04 m와 방 쪽 Z=[0,W−0.06] m만 차지하므로 반대쪽 문설주·벽판을 관통하지 않는다. `leaf-panel`의 오목 깊이 0.008 m는 이 문짝의 양쪽 넓은 면에서 안쪽으로 파며 바깥쪽으로 덧붙이지 않는다. 닫힌 문짝의 손잡이·패널과 열린 상태의 점유는 각 방 예약에 위 표대로 대조한다.
+The pantry door uses circular recessed grips on both leaf faces instead of projecting knobs, meeting the [pantry operating reservation's](../spaces/rooms/pantry.md#pantry-plan) 0.08 m total for jamb/leaf/handle. Recess diameter is 0.05 m, depth 0.008 m, center 0.95 m above floor and 0.07 m inside the free edge. Groove interiors/rims are `handle` without enlarging the leaf envelope. Jamb 0.03 m + leaf thickness 0.04 m = 0.07 m leaves 0.01 m within the reservation. The [wardrobe door's](../spaces/rooms/wardrobe.md#primary-wardrobe-plan) round `handle` on each side combines a 0.004 m thick, 0.035 m diameter rose and 0.026 m diameter spherical knob, projecting only 0.004+0.026=0.030 m from each broad leaf face. Centers match common doors at 0.07 m inside the free edge and 0.95 m above floor. The opposite-face handle tip on the open leaf meets reviewed-swing world Z=−10.20 m without passing beyond it. service-laundry-door and laundry-garage-door use the same 0.05 m diameter, 0.008 m deep circular recessed grips as the pantry, preventing handles from projecting into the [mudroom crossing](../spaces/rooms/laundry.md#laundry-through-route) at reference opening. The other seven doors use 0.056 m projecting round handles. All 11 share heights and surface ids.
 
-세 `hinge` 원통 각각의 중심 Y=0.21·1.06·1.91 m에서 ±0.04 m 높이에는 경첩축 X=0.03 또는 W−0.03 m·Z=0 주위 반지름 0.009 m 원판을 해당 `jamb` 세로 몸통과 `leaf` 몸통에서 각각 뺀다. 고정 문설주의 파인 원통 벽은 열림 쪽 `jamb-a`와 절단면 `jamb-core`, 회전 문짝의 파인 원통 벽은 `leaf`이며, 파낸 자리에 놓이는 원통의 겉면·양끝은 `hinge`다. 문짝 절개도 `hinge-pivot` 아래에서 문짝과 함께 회전한다. 그러므로 닫힌 상태에서 경첩·문설주·문짝의 닫힌 부피가 겹치지 않고, 기준 π/2 상태에서도 고정 경첩 원통이 문짝 안에 묻히지 않는다.
+Fix closed `leaf` depth at Z=[−0.04,0] m, with opening-side A finished wall as local Z=0. Broad leaf faces lie inside the rough opening rather than the wall body. The vertical hinge axis is the intersection of hinge-jamb opening-inner X=0.03 or W−0.03 m and Z=0. A low-X hinged closed leaf extends +X from its axis and opens by local −π/2 rotation; a high-X leaf extends −X and opens by +π/2. Both mirrored operating scalars have magnitude 0–π/2 rad. At 90°, the leaf occupies only opening-inner X thickness 0.04 m and roomward Z=[0,W−0.06] m relative to the hinge, penetrating neither opposite jamb nor wall. Recess `leaf-panel` depth 0.008 m inward from both broad faces, without adding it outward. Compare closed-leaf handles/panels and open occupancy with each room reservation as specified above.
 
-## 실내 문의 경첩 배정과 기준 상태 {#interior-door-hinges}
+At each `hinge` center Y=0.21·1.06·1.91 m, subtract a radius 0.009 m disk around hinge axis X=0.03 or W−0.03 m·Z=0 over height ±0.04 m from both the `jamb` vertical body and `leaf` body. Recessed cylindrical walls in the fixed jamb receive opening-side `jamb-a` and cut-face `jamb-core`; those in the rotating leaf receive `leaf`. The cylinder placed in the subtraction has outer/end faces `hinge`. Leaf cuts also rotate with the leaf under `hinge-pivot`. Thus hinge/jamb/leaf closed volumes do not overlap when closed, and at reference π/2 the fixed hinge cylinder is not buried in the leaf.
+
+## Interior-door hinge assignments and reference states {#interior-door-hinges}
 <!--
-@evidence principles/core/common.md#scope-preservation hinge-pivot 위치, 0~π/2 rad 범위, 기준 상태 π/2 열림, 11개 문의 경첩 쪽과 열림 방향, 좌우 거울 변형 두 가지를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 경첩 축을 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면의 수직선으로 정하고 11개 문 각각의 경첩 쪽을 열거한다.
-@evidence principles/core/common.md#declared-basis 경첩 쪽·열림 방향은 각 room plan H2, 기준 열림은 settings/10-house.md#openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 열린 문 기준 상태 요구를 H2의 각 문짝 π/2 rad 기준 회전과 양면 손잡이 점유로 구체화한다.
-@evidence principles/design/models.md#representation-contract 경첩 쪽을 국소 -X 또는 +X로 두는 거울 변형 두 가지로 계층을 한정한다.
-@evidence principles/design/models.md#spatial-convention 열림 방향을 항상 국소 +Z로 적는다.
-@evidence principles/design/models.md#reviewable-structure 각 방 threshold view에서 열린 문짝이 문 앞 비움 구역을 침범하는지 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 스타일 라벨 없이 경첩 배치라는 관찰 가능한 결정만 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 관절 인터페이스와 기준 상태를 모든 실내 문에 정한다.
-@evidence obligations/design/models.md#articulation-ownership 실내 문 hinge-pivot의 0~π/2 rad 회전을 유일한 motion 인터페이스로, 기준 상태를 π/2 열림으로 정한다.
-@evidence settings/10-house.md#openings 실내 문을 기준 상태에서 통행이 읽히게 연다는 조건을 π/2 rad 기준 상태로 소비한다.
-@evidence spaces/rooms/living.md#living-plan entry-living-door의 -Z 문설주, 거실 쪽 -X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/powder.md#powder-plan service-powder-door의 -Z 문설주, +X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/laundry.md#laundry-plan service-laundry-door와 laundry-garage-door의 -Z 문설주, 머드룸 안쪽 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/pantry.md#pantry-plan service-pantry-door의 +Z 문설주, +X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-plan hall-bedroom-two-door의 +X 문설주, +Z 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-plan hall-bedroom-three-door의 -Z 문설주, +X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/primary.md#primary-plan hall-primary-door의 -X 문설주, -Z 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/shower-bath.md#shower-bath-plan hall-shower-door의 -X 문설주, -Z 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/tub-bath.md#tub-bath-plan hall-tub-door의 +Z 문설주, +X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan primary-wardrobe-door의 -Z 문설주, -X 열림을 hinge-pivot 위치와 거울 변형으로 소비한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-living-door의 기준 열림 반경 0.94 m가 spaces/rooms/living.md#living-plan의 종전 0.90 m 예약을 0.04 m 넘어서 부모 예약을 X=[−2.89,−1.95] m로 고쳤다. 다른 열 실내 문의 경첩·열림은 각 room owner를 소비한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns hinge-pivot positions, range 0–π/2 rad, reference π/2 opening, hinge sides/opening directions for 11 doors and two mirrored variants.
+@evidence principles/core/common.md#substantive-completion It defines the hinge axis as the vertical line at the hinge-jamb inner corner/opening-side wall face and enumerates every hinge side.
+@evidence principles/core/common.md#declared-basis Hinge sides/opening directions come from room-plan H2s; reference opening comes from settings/10-house.md#openings.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It specifies the settings open-door requirement as each leaf's π/2 rad reference rotation and two-sided handle occupancy.
+@evidence principles/design/models.md#representation-contract It limits the hierarchy to two mirrored variants with hinge side local -X or +X.
+@evidence principles/design/models.md#spatial-convention Opening is always local +Z.
+@evidence principles/design/models.md#reviewable-structure Each room threshold view can falsify whether the open leaf invades the door-front clearance.
+@evidence principles/design/models.md#model-observable-style-basis Reference 05's open room door is adopted as a hinged member. It defines observable hinge placement without a style label.
+@evidence principles/design/models.md#model-scale-layer-completion It defines articulation interfaces/reference states for every interior door.
+@evidence obligations/design/models.md#articulation-ownership The sole interior-door motion interface is hinge-pivot rotation 0–π/2 rad with reference state π/2 open.
+@evidence settings/10-house.md#openings The requirement that open reference doors make circulation readable becomes π/2 rad reference opening.
+@evidence spaces/rooms/living.md#living-plan entry-living-door's -Z jamb and living-side -X opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/powder.md#powder-plan service-powder-door's -Z jamb/+X opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/laundry.md#laundry-plan service-laundry-door/laundry-garage-door's -Z jambs and mudroom-inward opening determine hinge-pivot placement and mirrored variants.
+@evidence spaces/rooms/pantry.md#pantry-plan service-pantry-door's +Z jamb/+X opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-plan hall-bedroom-two-door's +X jamb/+Z opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-plan hall-bedroom-three-door's -Z jamb/+X opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/primary.md#primary-plan hall-primary-door's -X jamb/-Z opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/shower-bath.md#shower-bath-plan hall-shower-door's -X jamb/-Z opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/tub-bath.md#tub-bath-plan hall-tub-door's +Z jamb/+X opening determine hinge-pivot placement and mirrored variant.
+@evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan primary-wardrobe-door's -Z jamb/-X opening determine hinge-pivot placement and mirrored variant.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-living-door's reference swing radius 0.94 m exceeded the former 0.90 m reservation in spaces/rooms/living.md#living-plan by 0.04 m, so the parent reservation was corrected to X=[−2.89,−1.95] m. The other ten doors consume their room owners' hinge/opening decisions.
 -->
 
-레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 어느 각도에서 멈췄는지는 사진에서 측정하지 않고 방별 회전 예약을 따른다.
+Adopt reference 05's open room door as a hinged member. Its stopping angle is not measured from the photograph; follow room-specific swing reservations.
 
-`hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이다. [settings 개구부](../settings/10-house.md#openings)는 기준 상태에서 열린 문을 요구하고, 이 모델은 그 각도를 π/2 rad로 정한다. motion 인터페이스는 닫힘 0에서 기준 열림 π/2 rad까지의 회전 하나다. 아래 표에서 low/high는 각 문의 개구부 좌표가 증가하는 축의 낮은/높은 끝이다. 열림 방향은 월드 평면축으로 적었으며 모두 [각 room owner](../spaces/05-route-network.md#room-route-network)가 정한 방향을 따른다. 열림 쪽 벽면을 국소 원점 면으로 두면 모델의 열림은 언제나 국소 +Z다.
+`hinge-pivot` is the vertical intersection of the hinge-jamb inner corner and opening-side wall face. [Settings openings](../settings/10-house.md#openings) require an open reference state; this model chooses π/2 rad. The motion interface is one rotation from closed 0 to reference-open π/2 rad. Below, low/high denote lower/higher ends along each opening's increasing coordinate axis. Opening directions are world planar axes, following [room owners](../spaces/05-route-network.md#room-route-network). With opening-side wall as local origin plane, opening is always local +Z.
 
-| 문 id | 경첩 끝 | 월드 열림 | 열린 면 손잡이 돌출 (m) | 공간 owner |
+| Door id | Hinge end | World opening | Open-face handle projection (m) | Space owner |
 |---|---|---|---|---|
-| `hall-bedroom-three-door` | low Z | +X | 0.056 | [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-plan) |
-| `hall-bedroom-two-door` | high X | +Z | 0.056 | [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-plan) |
-| `service-laundry-door` | low Z | +X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
-| `entry-living-door` | low Z | −X | 0.056 | [거실](../spaces/rooms/living.md#living-plan) |
-| `service-pantry-door` | high Z | +X | 0 | [팬트리](../spaces/rooms/pantry.md#pantry-plan) |
-| `service-powder-door` | low Z | +X | 0.056 | [파우더룸](../spaces/rooms/powder.md#powder-plan) |
-| `hall-primary-door` | low X | −Z | 0.056 | [주침실](../spaces/rooms/primary.md#primary-plan) |
-| `hall-shower-door` | low X | −Z | 0.056 | [샤워 욕실](../spaces/rooms/shower-bath.md#shower-bath-plan) |
-| `hall-tub-door` | high Z | +X | 0.056 | [욕조 욕실](../spaces/rooms/tub-bath.md#tub-bath-plan) |
-| `primary-wardrobe-door` | low Z | −X | 0.030 | [열림 쪽 주침실](../spaces/rooms/primary.md#primary-plan) |
-| `laundry-garage-door` | low Z | −X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
+| `hall-bedroom-three-door` | low Z | +X | 0.056 | [Bedroom three](../spaces/rooms/bedroom-three.md#bedroom-three-plan) |
+| `hall-bedroom-two-door` | high X | +Z | 0.056 | [Bedroom two](../spaces/rooms/bedroom-two.md#bedroom-two-plan) |
+| `service-laundry-door` | low Z | +X | 0 | [Laundry](../spaces/rooms/laundry.md#laundry-plan) |
+| `entry-living-door` | low Z | −X | 0.056 | [Living room](../spaces/rooms/living.md#living-plan) |
+| `service-pantry-door` | high Z | +X | 0 | [Pantry](../spaces/rooms/pantry.md#pantry-plan) |
+| `service-powder-door` | low Z | +X | 0.056 | [Powder room](../spaces/rooms/powder.md#powder-plan) |
+| `hall-primary-door` | low X | −Z | 0.056 | [Primary bedroom](../spaces/rooms/primary.md#primary-plan) |
+| `hall-shower-door` | low X | −Z | 0.056 | [Shower bathroom](../spaces/rooms/shower-bath.md#shower-bath-plan) |
+| `hall-tub-door` | high Z | +X | 0.056 | [Tub bathroom](../spaces/rooms/tub-bath.md#tub-bath-plan) |
+| `primary-wardrobe-door` | low Z | −X | 0.030 | [Opening-side primary bedroom](../spaces/rooms/primary.md#primary-plan) |
+| `laundry-garage-door` | low Z | −X | 0 | [Laundry](../spaces/rooms/laundry.md#laundry-plan) |
 
-모델은 경첩 쪽을 국소 -X 또는 +X 중 하나로 두는 좌우 거울 변형 두 가지만 가지며, 열림 쪽 벽면을 원점 면으로 두므로 열림 방향은 항상 국소 +Z다. 소스 owner는 `src/models/interior-door.ts`이며 각 방 threshold view에서 열린 문짝이 room owner의 문 앞 비움 구역을 침범하지 않는지 검사한다.
+The model has only two mirrored variants, hinge side local -X or +X. Opening-side wall as origin plane makes opening always local +Z. The source owner is `src/models/interior-door.ts`; inspect each room threshold view for open-leaf intrusion into the room owner's door-front clearance.
 
-## 실내 문의 표면 파티션 {#interior-door-surfaces}
+## Interior-door surface partitions {#interior-door-surfaces}
 <!--
-@evidence principles/core/common.md#scope-preservation 실내 문의 표면 id(`jamb-a/b/core`·`casing-a/b`·`leaf`·`leaf-panel`·`handle`·`hinge`)와 A/B 벽면별 문설주·문선 분리, 절단 끝의 UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문설주와 casing을 양쪽 방 마감 차이 때문에 나누고 leaf는 한 면으로 둔다고 적는다.
-@evidence principles/core/common.md#declared-basis jamb·casing·leaf·leaf-panel·handle·hinge id 규칙은 00-model-frame.md#model-surface-partition-naming에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 id 규칙을 실내 문 두 벽면의 분리로 바꾼다.
-@evidence principles/design/models.md#representation-contract 실내 문의 안정 표면 소유를 정한다.
-@evidence principles/design/models.md#spatial-convention jamb-a/-b와 casing-a/-b는 interior-door-members의 부재 노드에 붙고 새 좌표를 정하지 않는다.
-@evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 양쪽 casing 경계로 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04·05의 흰 문짝, 챌면, 검은 손잡이가 따로 읽히므로 그 면들을 분리한다. 흰 문선 색은 materials에 두고 경계만 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 실내 문 부재에 정한다.
-@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 한 벽체의 양쪽 방 접면을 받아 jamb-a·jamb-b와 casing-a·casing-b를 별도 모델 면으로 나눈다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 방 owner의 양쪽 마감 배정을 실내 문 -a/-b 분리에 그대로 소비했고 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation This H2 owns surface ids jamb-a/b/core·casing-a/b·leaf·leaf-panel·handle·hinge, separate jamb/casing faces for A/B walls and cut-end UVs.
+@evidence principles/core/common.md#substantive-completion It separates jamb/casing because room finishes differ on both sides, while retaining a shared leaf surface.
+@evidence principles/core/common.md#declared-basis jamb·casing·leaf·leaf-panel·handle·hinge id rules come from 00-model-frame.md#model-surface-partition-naming.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns common id rules into separation of the two interior-door wall faces.
+@evidence principles/design/models.md#representation-contract It defines stable interior-door surface ownership.
+@evidence principles/design/models.md#spatial-convention jamb-a/-b and casing-a/-b attach to interior-door-members nodes without new coordinates.
+@evidence principles/design/models.md#reviewable-structure Both casing boundaries in the material-binding view can falsify it.
+@evidence principles/design/models.md#model-observable-style-basis References 04·05 distinguish white leaves, reveals and black handles, so these faces are separated. Materials own white casing color; this H2 defines only boundaries.
+@evidence principles/design/models.md#model-scale-layer-completion It defines surface interfaces for every interior-door member.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership It consumes both room interfaces of one wall as separate model jamb-a·jamb-b and casing-a·casing-b faces.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work It directly consumed 00's naming rules and room-owner two-sided finish assignments for interior-door -a/-b separation; no parent revision was needed.
 -->
 
-레퍼런스 04·05의 흰 문짝, 챌면, 검은 손잡이가 따로 읽히므로 그 면들을 분리한다. 나무결 사진을 표면으로 붙이지 않는다.
+References 04·05 distinguish white leaves, reveals and black handles, so separate those faces. Do not paste wood-grain photographs onto surfaces.
 
-안정 표면 id는 [이름 규칙](00-model-frame.md#model-surface-partition-naming)의 `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`에서 파생한다. 문이 열리는 쪽 방을 A, 반대쪽을 B로 두고 양쪽 벽면에 각각 닿는 문설주 바깥 면은 `jamb-a`·`jamb-b`, 그 사이 개구부 안쪽 두 옆과 머리 챌면은 `jamb-core`다. A·B 쪽 별도 문선의 앞뒤·절단 끝 전체는 각각 `casing-a`·`casing-b`다. 문짝의 두 넓은 면과 위아래·양옆 두께 면은 모두 `leaf`, 오목 패널의 바닥과 네 챌면은 `leaf-panel`, 철물은 `handle`·`hinge`다. 한 완결 면에 id 둘을 겹치지 않는다. 문짝과 문선의 UV는 각 판 왼쪽 아래를 원점으로 국소 X 폭·Y 높이를 미터 단위로, 절단 끝은 길이 방향 U·두께 V로 새로 투영한다. 소스 owner는 `src/models/interior-door.ts`다.
+Stable ids derive from [naming rules](00-model-frame.md#model-surface-partition-naming): `jamb`, `casing`, `leaf`, `leaf-panel`, `handle`, `hinge`. Room A is the opening side and B the opposite side. Outer jamb faces meeting the two wall faces are `jamb-a`·`jamb-b`; opening-inner side/head reveals between them are `jamb-core`. All front/back/cut faces of separate A/B casing are `casing-a`·`casing-b`. Both broad leaf faces and top/bottom/side thickness faces are `leaf`; panel recess floors/four reveals are `leaf-panel`; hardware is `handle`·`hinge`. Do not overlap two ids on one complete face. Leaf/casing UV origins are each board's lower-left, with local X width/Y height in meters; reproject cut ends using longitudinal U/thickness V. The source owner is `src/models/interior-door.ts`.
 
-`jamb-a`·`jamb-b`·`jamb-core`는 해당 세로 문설주의 바닥 끝과 머리 문설주의 왼쪽 끝을 각각 원점으로 부재 길이 U·폭 V를 1 UV/m로 둔다. `casing-a`·`casing-b`도 각 방의 세로 판과 머리 판을 별도 길이 U로 투영한다. `hinge`의 knuckle과 `handle`의 판·막대는 각 부품의 국소 +Z 앞쪽 seam에서 실제 둘레 길이 U·축 길이 V를 시작하며 판에서 원통으로 넘어갈 때 이음을 끊는다. 모든 끝면·뒷면에도 공통 UV 규칙을 적용한다.
+For `jamb-a`·`jamb-b`·`jamb-core`, use each vertical jamb's bottom and head jamb's left end as origin, with member length U/width V at 1 UV/m. `casing-a`·`casing-b` likewise project each room's vertical/head boards with separate length U. `hinge` knuckles and `handle` plates/rods start actual circumference U/axial length V at each part's local +Z front seam; break seams at plate-to-cylinder transitions. Apply common UV rules to every end/back face.
 
-문설주·문짝에서 경첩을 위해 파낸 원통 벽도 앞 문단의 `jamb-a`·`jamb-core`·`leaf` 중 그 몸통의 id를 받는다. 이 벽의 U는 경첩과 같은 국소 +Z seam에서 시작하는 실제 호 길이, V는 해당 경첩 Y 아래끝부터의 높이이며 1 UV/m다. 경첩 원통의 위아래 끝판은 중심 기준 X/Z 미터 좌표로 투영하고 세 경첩 사이에서 이음을 끊는다.
+Cylindrical walls cut into jambs/leaves for hinges also receive their body id from `jamb-a`·`jamb-core`·`leaf`. Their U is actual arc length from the hinge's local +Z seam and V is height from that hinge's lower Y end, at 1 UV/m. Project hinge-cylinder top/bottom caps in center-relative X/Z meter coordinates; break seams between the three hinges.
 
-재료 결속 뷰에서는 열린 문을 양쪽 방에서 보아 `casing-a/b`, 문설주 앞면·챌면, 문짝과 패널, 철물의 경계를 따로 확인한다. 실제 모델 메시와 결속은 unverified다.
+In the material-binding view, observe an open door from both rooms and inspect separate boundaries of `casing-a/b`, jamb fronts/reveals, leaves/panels and hardware. Actual model meshes and bindings are unverified.
 
-## 실내 문의 표현 한계 {#interior-door-fidelity}
+## Interior-door representation limits {#interior-door-fidelity}
 <!--
-@evidence principles/core/common.md#scope-preservation 실내 문 부재 H2가 정한 경첩 knuckle 셋만 만들고 걸쇠·잠금·닫힘 장치와 실내 문턱을 만들지 않는 범위를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 차고 쪽 0.15 m 단차를 문턱이 아니라 세탁실 owner의 바닥 datum으로 해결한다고 적는다.
-@evidence principles/core/common.md#declared-basis 상한은 00-model-frame.md#model-representation-ceiling, 단차는 spaces/rooms/laundry.md#laundry-plan에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 실내 문의 기구 생략 목록으로 바꾼다.
-@evidence principles/design/models.md#representation-contract 실내 문 proxy가 지지하지 않는 관찰을 정한다.
-@evidence principles/design/models.md#spatial-convention 경첩 knuckle의 높이는 링크한 interior-door-members의 치수를 따르고 이 표현 한계 H2는 새 좌표를 정하지 않는다.
-@evidence principles/design/models.md#reviewable-structure threshold 관찰에서 문턱 유무와 경첩 표현을 반증한다.
-@evidence principles/design/models.md#model-observable-style-basis 기구 생략이라는 관찰 가능한 한계를 적는다.
-@evidence principles/design/models.md#model-scale-layer-completion 실내 문의 걸쇠·잠금·닫힘 장치와 문턱을 만들지 않는 층으로 명시한다.
-@evidence obligations/design/models.md#representation-ceiling 실내 문 계열의 걸쇠·잠금·닫힘 장치 생략을 적는다.
-@evidence spaces/rooms/laundry.md#laundry-plan 차고 쪽 바닥의 0.15 m 단차는 세탁실 바닥 datum으로 받고 모델 문턱을 따로 만들지 않는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work laundry의 문턱 datum을 그대로 소비했고 부모 수정이 없었다.
+@evidence principles/core/common.md#scope-preservation This H2 limits hinges to the three knuckles defined by the member H2 and excludes latches/locks/closers and interior thresholds.
+@evidence principles/core/common.md#substantive-completion The 0.15 m garage step is resolved by the laundry owner's floor datum rather than a threshold model.
+@evidence principles/core/common.md#declared-basis The ceiling comes from 00-model-frame.md#model-representation-ceiling; the step comes from spaces/rooms/laundry.md#laundry-plan.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation It turns the common ceiling into an interior-door mechanism omission list.
+@evidence principles/design/models.md#representation-contract It defines observations unsupported by the interior-door proxy.
+@evidence principles/design/models.md#spatial-convention Knuckle heights follow linked interior-door-members dimensions; this limit H2 introduces no coordinates.
+@evidence principles/design/models.md#reviewable-structure Threshold observation can falsify threshold presence and hinge representation.
+@evidence principles/design/models.md#model-observable-style-basis It states observable mechanism-omission limits.
+@evidence principles/design/models.md#model-scale-layer-completion It explicitly excludes interior latches/locks/closers and thresholds.
+@evidence obligations/design/models.md#representation-ceiling It specifies omissions of latches/locks/closers for interior doors.
+@evidence spaces/rooms/laundry.md#laundry-plan The 0.15 m garage-floor step is consumed as the laundry floor datum without a separate modeled threshold.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The laundry threshold datum was consumed unchanged; no parent revision was needed.
 -->
 
-레퍼런스 05의 문짝 패널과 손잡이까지만 형상 목표로 채택한다. 문 속 심재·힌지 나사·도어클로저는 보이는 기능을 늘리지 않아 제외한다.
+Adopt only the leaf panels and handles in reference 05 as geometry targets. Internal cores, hinge screws and door closers add no visible function and are excluded.
 
-[표현 상한](00-model-frame.md#model-representation-ceiling) 안에서 경첩은 [공유 실내 문 부재](#interior-door-members)가 정한 세 개의 원통 knuckle로만 만들고 걸쇠·잠금·문 닫힘 장치는 만들지 않는다. 문턱은 실내 문에 두지 않으며 차고 쪽 0.15 m 단차는 [세탁실 owner](../spaces/rooms/laundry.md#laundry-plan)가 받은 문턱 datum으로 바닥이 해결한다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)과 각 방 threshold 관찰이며 실제 렌더는 unverified다.
+Within the [representation ceiling](00-model-frame.md#model-representation-ceiling), create hinges only as the three cylindrical knuckles specified by [shared interior-door members](#interior-door-members); omit latches, locks and closers. Interior doors have no threshold; the floor resolves the 0.15 m garage step using the threshold datum received by the [laundry owner](../spaces/rooms/laundry.md#laundry-plan). Inspection addresses are the [model-review view list](00-model-frame.md#model-review-set) and each room's threshold observation. Actual renders are unverified.

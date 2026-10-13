@@ -1,95 +1,95 @@
-# 빛을 담는 기구 몸체 원형
+# Light-fixture body prototypes
 
-## 평판 천장등 {#flush-ceiling-fixture}
+## Flush ceiling fixture {#flush-ceiling-fixture}
 <!--
-@evidence principles/core/common.md#scope-preservation 1층·2층·차고 천장에 배치할 기구 몸체 한 원형과 차고 지름 변형만 맡고 광원 수·강도·위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 보통 지름 0.24 m, 차고 지름 0.40 m, 아래 돌출 0.05 m, 링 Y=[−0.05,−0.020] m와 연결판 Y=[−0.020,−0.015] m의 맞댐, 확산판 두께·면 id·UV를 정한다.
-@evidence principles/core/common.md#declared-basis systems/02-interior-fixtures.md#interior-ground-ceiling 등에서 형상을 models에 맡긴 18개 천장 기구 역할과 spaces 천장면을 확인한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 세대 주택의 납작한 실내 등과 더 큰 차고 등 지름을 나눠 같은 조립 규칙으로 만든다.
-@evidence principles/design/models.md#representation-contract 닫힌 16각 외장 링·안쪽 확산판·천장 접합판을 만들고 `fixture-housing`·`fixture-diffuser`로 모든 면을 덮는다. 빛과 전선 내부는 만들지 않는다.
-@evidence principles/design/models.md#spatial-convention 국소 원점은 천장 접촉면의 중앙, +Y는 위, +Z는 방 정면이다. 기구는 아래로만 돌출하며 world 배치는 instances가 정한다.
-@evidence principles/design/models.md#reviewable-structure 고정 측면에서 0.05 m 돌출과 두 지름을 보고, 실내·차고에 배치한 뒤 천장 접합과 헤드룸을 확인한다. 실제 프레임은 unverified다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 얇은 외장 링과 별도 확산판이 어두운 천장 구멍 대신 실제 기구로 읽히는 형상 근거다. 광학은 materials와 systems가 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 지름, 두께, 16각 세그먼트, 모든 면 id와 미터 UV, 원점, 단면 검사를 확정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 천장면과 조명 할당을 그대로 소비하며 기구 두께 때문에 천장이나 방 경계를 수정하지 않는다.
-@evidence settings/10-house.md#garage 빈 차고에도 실제 내부 천장을 완성한다는 설정을 받아 차고 천장에 붙일 지름 0.40 m 기구 변형을 둔다. 기구의 할당은 systems 인계를 따른다.
-@evidence obligations/design/models.md#addressable-model-decisions 평판 천장등을 매달린 등과 별도 원형으로 두어 크기와 면을 독립 수정한다.
-@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45° 고정 뷰에서 판 두께와 확산면을 본다.
+@evidence principles/core/common.md#scope-preservation Owns one body prototype and its garage-diameter variant for ground/upper/garage ceilings, leaving light count, intensity and positions to systems and instances.
+@evidence principles/core/common.md#substantive-completion Defines standard diameter 0.24 m, garage diameter 0.40 m, downward projection 0.05 m, abutment of ring Y=[−0.05,−0.020] m and connecting plate Y=[−0.020,−0.015] m, diffuser thickness, face ids and UVs.
+@evidence principles/core/common.md#declared-basis Checks the 18 ceiling-fixture roles whose geometry is assigned to models by systems/02-interior-fixtures.md#interior-ground-ceiling and related units, together with spaces ceiling faces.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Separates shallow residential interior lights and larger garage-light diameters under one assembly rule.
+@evidence principles/design/models.md#representation-contract Creates a closed 16-sided housing ring, inner diffuser and ceiling-contact plate, covering every face with `fixture-housing`/`fixture-diffuser`. Light and internal wiring are not made.
+@evidence principles/design/models.md#spatial-convention Local origin is the ceiling-contact center, +Y is up and +Z is room front. The fixture projects only downward; instances owns world placement.
+@evidence principles/design/models.md#reviewable-structure Fixed side view inspects 0.05 m projection and both diameters; placement in rooms/garage adds ceiling-contact and headroom checks. Actual frames remain unverified.
+@evidence principles/design/models.md#model-observable-style-basis Adopts shallow ceiling fixtures from reference 04's entry and 05's upper corridor. A thin housing ring and separate diffuser make an actual fixture rather than a dark ceiling hole; materials/systems owns optics.
+@evidence principles/design/models.md#model-scale-layer-completion Settles two diameters, thickness, 16-sided segmentation, every face id, metre UVs, origin and section inspection.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Consumes ceiling faces and lighting allocation unchanged without revising ceiling/room boundaries for fixture thickness.
+@evidence settings/10-house.md#garage Consumes completion of an actual interior ceiling even in an empty garage to provide a diameter 0.40 m ceiling-fixture variant. Fixture allocation follows the systems handoff.
+@evidence obligations/design/models.md#addressable-model-decisions Keeps flush ceiling fixtures separate from hanging lights so sizes/faces can change independently.
+@evidence obligations/design/models.md#model-review-set Inspects plate thickness and diffuser faces in 00's fixed front, side and 45° views.
 -->
 
-레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 방별 광량은 기구 몸체가 아닌 systems가 결정한다.
+Adopt shallow ceiling fixtures from reference 04's entry and 05's upper corridor. Systems determines per-room light output rather than fixture bodies.
 
-천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 +Y가 천장 위쪽이고 +Z는 방 정면이며 기구 전체는 Y = [-0.05, 0] m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m로 Y = [-0.008, 0] m에 두고, 외장 16각 링은 외경 D·내경 D − 0.04 m·높이 0.030 m로 Y = [-0.05, -0.020] m에 둔다. 링 윗면에 외경 D·두께 0.005 m의 16각 연결판 아랫면 Y = -0.020 m를 맞대고 판 윗면을 Y = -0.015 m에 둔다. 연결판과 접합판 사이에는 지름 0.70D의 16각 목을 Y = [-0.015, -0.008] m에 이어 모든 부재가 면에서 닿고 겹친 닫힌 부피는 없다. 확산판은 내경에 맞는 16각 원판·두께 0.012 m이고 Y = [-0.05, -0.038] m라 링 아래면과 같은 높이다. 접합판·목·링의 닫힌 모든 면은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
+The flush ceiling fixture is a prototype handed off by [interior-lighting allocation](../systems/02-interior-fixtures.md#interior-ground-ceiling). Subsequent placement owns population/position and systems owns light color/intensity. Standard rooms use diameter D = 0.24 m and the garage D = 0.40 m. Local origin is the ceiling-contact center, +Y points above the ceiling and +Z is room front; the entire fixture lies within Y = [-0.05, 0] m. The ceiling-contact plate has diameter 0.70D/thickness 0.008 m at Y = [-0.008, 0] m; the 16-sided housing ring has outer diameter D, inner diameter D − 0.04 m and height 0.030 m at Y = [-0.05, -0.020] m. A 16-sided connecting plate of outer diameter D/thickness 0.005 m abuts the ring top with its underside Y = -0.020 m and top Y = -0.015 m. A 16-sided neck of diameter 0.70D continues between connecting/contact plates at Y = [-0.015, -0.008] m, so all members meet at faces without overlapping closed volumes. The diffuser is a 16-sided disc matching the inner diameter, thickness 0.012 m at Y = [-0.05, -0.038] m, level with the ring underside. Every closed contact-plate, neck and ring face has `fixture-housing`; the diffuser has `fixture-diffuser`. Top/bottom UVs use local X/Z and vertical faces use circumference U/height V in metres. Systems places the light inside the fixture center; wiring and optical radiation are not claims of this mesh. The source owner is `src/models/lighting-fixtures.ts`. Side [fixed views](00-model-frame.md#model-review-set) and interior observations check plate/ceiling contact. Actual renders remain unverified.
 
-## 섬과 식탁의 매단 등 {#pendant-fixtures}
+## Island and dining pendants {#pendant-fixtures}
 <!--
-@evidence principles/core/common.md#scope-preservation 섬 두 개와 식탁 한 개의 서로 다른 갓 원형을 맡고 광원·배치·줄 반복은 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 섬 원형 외경 0.28 m·내림 0.80 m, 식탁 원형 외경 0.48 m·내림 1.20 m, 천장 접합판·줄·갓 치수를 정한다. 섬·식탁 확산판의 내경 0.264·0.464 m와 갓 입술에 맞댄 깊이를 정한다.
-@evidence principles/core/common.md#declared-basis spaces의 섬과 식탁 상판 및 systems/02-interior-fixtures.md#interior-common-pendants의 광원 역할과 갓 상한을 대조한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 섬은 작은 종형 두 개, 식탁은 넓은 원통형 한 개로 분리해 레퍼런스 03의 두 조명 구역을 형상으로 만든다.
-@evidence principles/design/models.md#representation-contract 16각 접합판·닫힌 매달림 줄·두께 있는 갓·안쪽 확산면을 제공하고 `fixture-canopy`·`fixture-stem`·`fixture-shade`·`fixture-diffuser`로 면을 나눈다.
-@evidence principles/design/models.md#spatial-convention 원점은 천장 접점 중심, +Y 위, +Z 사용 방향이다. 내림은 원점에서 아래로 재고 world 좌표를 저장하지 않는다.
-@evidence principles/design/models.md#reviewable-structure 고정 측면에서 종형·원통형의 갓 내림과 줄 접속을 보고, 배치 후 두 섬 등과 한 식탁 등의 수량과 상판 비간섭을 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 종형과 원통형 갓의 반지름 프로파일을 수치로 정하며 색과 투과는 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 두 변형의 모든 반지름·높이·단면·id·UV·원점·검사 주소를 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 상판 예약과 천장 높이를 소비하고 갓 지름을 각 사용 상판 안에 두므로 부모 공간 수정을 요구하지 않는다.
-@evidence settings/10-house.md#common-room 공용부의 주방과 식당을 조명기구 형상으로 구분한다.
-@evidence spaces/rooms/common.md#common-island-reservation 섬 갓 외경 0.28 m를 섬 폭 1.05 m 안에 둔다.
-@evidence spaces/rooms/common.md#common-dining-reservation 식탁 갓 외경 0.48 m를 상판 폭 0.90 m 안에 둔다.
-@evidence obligations/design/models.md#addressable-model-decisions 두 변형의 갓 프로파일을 평판 천장등과 다른 원형 H2에서 정한다.
-@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°에서 갓 깊이와 줄 접속을 본다.
+@evidence principles/core/common.md#scope-preservation Owns different shade prototypes for two island fixtures and one dining fixture, leaving lights, placement and cord repetition to systems/instances.
+@evidence principles/core/common.md#substantive-completion Defines island outer diameter 0.28 m/drop 0.80 m, dining outer diameter 0.48 m/drop 1.20 m, canopy/cord/shade dimensions, and diffuser inner diameters 0.264/0.464 m and depths abutting shade lips.
+@evidence principles/core/common.md#declared-basis Compares spaces' island/dining tops with systems/02-interior-fixtures.md#interior-common-pendants's light roles and shade bounds.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Separates two small island bells and one wide dining cylinder to give reference 03's two lighting zones distinct geometry.
+@evidence principles/design/models.md#representation-contract Provides 16-sided canopies, closed suspension cords, thick shades and inner diffusers, partitioning faces into `fixture-canopy`, `fixture-stem`, `fixture-shade` and `fixture-diffuser`.
+@evidence principles/design/models.md#spatial-convention Origin is the ceiling-contact center, +Y up and +Z use-facing. Drops measure downward from the origin without stored world coordinates.
+@evidence principles/design/models.md#reviewable-structure Fixed side views inspect bell/cylinder shade drops and cord connections; placed views check two island/one dining fixtures and tabletop noninterference.
+@evidence principles/design/models.md#model-observable-style-basis Defines numerical radius profiles for bell/cylindrical shades while leaving color/transmission to materials.
+@evidence principles/design/models.md#model-scale-layer-completion Defines every radius, height, section, id, UV, origin and inspection address for both variants.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Consumes countertop reservations/ceiling heights and keeps shade diameters within their respective tops, requiring no parent-space revision.
+@evidence settings/10-house.md#common-room Distinguishes common-area kitchen and dining through fixture geometry.
+@evidence spaces/rooms/common.md#common-island-reservation Keeps island shade outer diameter 0.28 m within island width 1.05 m.
+@evidence spaces/rooms/common.md#common-dining-reservation Keeps dining shade outer diameter 0.48 m within tabletop width 0.90 m.
+@evidence obligations/design/models.md#addressable-model-decisions Defines both shade profiles in a prototype H2 separate from flush ceiling fixtures.
+@evidence obligations/design/models.md#model-review-set Inspects shade depth and cord connections in 00's front, side and 45° views.
 -->
 
-[후면 공용부 설정](../settings/10-house.md#common-room)은 주방과 식사 기능을 조명으로 구분한다. 레퍼런스 03에서 섬 위의 작은 등 둘과 식탁 위의 넓은 등 하나를 채택하며, 이 H2는 그 두 기구 형상만 소유한다. 원점은 천장 접점 중심, +Y는 위다. 섬 종형은 천장에서 갓 아래까지 0.80 m, 외경 0.28 m다. 식탁 원통형은 내림 1.20 m, 외경 0.48 m다. 두 변형의 천장 접합판은 지름 0.10 m·두께 0.025 m, 줄은 지름 0.012 m의 닫힌 원통이다. 섬 갓은 아래에서 위로 반지름 0.14, 0.12, 0.055 m의 세 16각 링을 각각 갓 아래·위로 0.10·0.22 m에 둔 종형 껍질이며 두께 0.008 m다. 식탁 갓은 반지름 0.24 m·높이 0.20 m의 16각 원통 껍질이고 아래에 두께 0.008 m의 확산 원판이 있다. 갓 윗면·아랫면·두께 면도 닫고 `fixture-shade`, 접합판은 `fixture-canopy`, 줄은 `fixture-stem`, 확산판은 `fixture-diffuser`다. 면 UV는 평면 X·Z 또는 둘레 U·높이 V를 미터로 둔다. 식탁 갓 아래면은 식탁 상판 위 0.80 m, 섬 갓 아래면은 섬 상판 위 1.04 m로 두어 앉은 사람의 머리 공간과 분리한다. 배치와 광원은 instances와 systems가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 점유와 조명 프레임은 unverified다.
-섬 종형의 `fixture-diffuser`는 갓 아래 테 내경 0.264 m에 맞는 16각 원판으로 갓 아래 입술의 윗면에서 0.008 m 올라간 평면에 두고 두께 0.006 m를 갓 안쪽으로 둔다. 둘레 끝은 갓 안쪽 면과 면으로만 접하며 갓의 바닥 개구부를 남긴다. 식탁 변형의 확산 원판도 내경 0.464 m·두께 0.008 m로 갓 아래 테 안쪽에 맞댄다.
+[Rear common-area settings](../settings/10-house.md#common-room) distinguishes kitchen/dining functions through lighting. Adopt reference 03's two small island lights and one wide dining light; this H2 owns only those two fixture geometries. Origin is the ceiling-contact center, +Y up. The island bell drops 0.80 m from ceiling to shade bottom with outer diameter 0.28 m. The dining cylinder drops 1.20 m with outer diameter 0.48 m. Both canopies have diameter 0.10 m/thickness 0.025 m, and cords are closed diameter 0.012 m cylinders. The island shade is a bell shell with three 16-sided rings of radii 0.14, 0.12 and 0.055 m, respectively at its bottom and 0.10/0.22 m above it, thickness 0.008 m. The dining shade is a 16-sided cylindrical shell of radius 0.24 m/height 0.20 m with a thickness 0.008 m diffuser disc below. Shade tops, bottoms and thickness faces close under `fixture-shade`, canopies use `fixture-canopy`, cords `fixture-stem`, and diffusers `fixture-diffuser`. Face UVs use planar X/Z or circumference U/height V in metres. Dining shade bottom is 0.80 m above its tabletop and island shade bottom 1.04 m above its top, separated from seated headroom. Instances/systems owns placement/lights. The source owner is `src/models/lighting-fixtures.ts`; actual occupancy and lighting frames remain unverified.
+The island bell's `fixture-diffuser` is a 16-sided disc matching lower-rim inner diameter 0.264 m, placed on a plane 0.008 m above the lower lip's top, with thickness 0.006 m extending into the shade. Its perimeter meets the inner shade face only at a surface contact while retaining the shade's bottom opening. The dining diffuser similarly abuts the inside of its lower rim with inner diameter 0.464 m/thickness 0.008 m.
 
-접합판 아래면은 국소 Y=−0.025 m다. 섬 갓의 윗 테는 Y=−0.58 m, 식탁 갓의 윗 테는 Y=−1.00 m이므로 각 `fixture-stem`의 노출 축 구간은 Y=[−0.58,−0.025] m와 [−1.00,−0.025] m다. 줄 아래 끝은 갓 윗 테의 중앙 구멍에 면으로 맞대고, 갓 안쪽에서 별도의 줄 조각을 만들지 않는다. 갓 윗 테 안쪽의 지름 0.012 m 구멍 절단면은 `fixture-shade`가 덮는다.
+Canopy underside is local Y=−0.025 m. The island shade's upper rim is Y=−0.58 m and the dining shade's Y=−1.00 m, so exposed `fixture-stem` axial intervals are Y=[−0.58,−0.025] m and [−1.00,−0.025] m respectively. Cord bottoms abut the central hole in each shade's upper rim, without another cord piece inside the shade. `fixture-shade` covers the cut face of the diameter 0.012 m hole inside the upper rim.
 
-[모델 고정 뷰](00-model-frame.md#model-review-set)의 측면에서는 두 변형의 내림과 줄·갓 접합을 본다. 실제 공용부에 놓은 뒤 정면에서 섬 등 둘과 식탁 등 하나를 구별하고, 상판 외곽·사용 공간과 겹치지 않는지 확인한다. 실제 GPU 판정은 unverified다.
+Side [fixed model views](00-model-frame.md#model-review-set) inspect both drops and cord/shade joints. After common-area placement, front view distinguishes two island lights and one dining light and checks nonoverlap with tabletop outlines/use space. Actual GPU judgment remains unverified.
 
-## 세면 거울 위 벽등 {#vanity-wall-fixture}
+## Wall fixture above vanity mirrors {#vanity-wall-fixture}
 <!--
-@evidence principles/core/common.md#scope-preservation 세 위생실의 거울 위 벽등 몸체 한 원형만 맡고 광원과 방별 위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 폭 0.36 m·높이 0.06 m·벽 돌출 0.08 m와 받침·확산봉의 면 id를 정한다. 확산봉의 X=[−0.155,0.155] m·축 깊이 0.0575 m와 지름 0.045 m를 정한다.
-@evidence principles/core/common.md#declared-basis settings의 위생실 조명 요구와 spaces의 거울 위 빈 벽을 근거로 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 거울 위 짧은 가로 조명을 방별로 같은 원형으로 두어 침실 천장등이나 협탁등과 구별한다.
-@evidence principles/design/models.md#representation-contract 닫힌 벽판과 앞쪽 확산봉을 만들고 금속·확산면을 별도 id로 분리하며 광원 자체는 만들지 않는다.
-@evidence principles/design/models.md#spatial-convention 원점은 거울 위 벽 접점 중앙, +Z는 방 안쪽, +Y는 위이고 길이는 +X다.
-@evidence principles/design/models.md#reviewable-structure 고정 측면에서 0.08 m 돌출을 보고, 위생실에 배치한 뒤 거울 중앙 정렬과 면 비접촉을 대조한다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02·05의 욕실 거울 위 밝은 띠를 세면 벽등으로 채택한다. 얇은 가로 봉과 양끝 작은 금속 받침의 부피가 거울 위 조명으로 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 폭·높이·돌출·부품 분할·id·UV·원점·검사 뷰를 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거울 띠와 0.10 m 이내 돌출을 소비하고 위생실 벽·거울 위치를 바꾸지 않는다.
-@evidence settings/10-house.md#powder 파우더룸 거울 위 조명 몸체를 제공한다.
-@evidence settings/10-house.md#shower-bathroom 샤워 욕실의 세면등 몸체를 제공한다.
-@evidence settings/10-house.md#tub-bathroom 욕조 욕실의 세면등 몸체를 제공한다.
-@evidence obligations/design/models.md#addressable-model-decisions 거울 위 벽등의 돌출·면을 독립 H2로 정한다.
-@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 거울 위 방 뷰에서 대조한다.
+@evidence principles/core/common.md#scope-preservation Owns one wall-fixture body prototype above mirrors in three sanitary rooms, leaving light and per-room locations to systems/instances.
+@evidence principles/core/common.md#substantive-completion Defines width 0.36 m, height 0.06 m, wall projection 0.08 m, support/diffuser face ids, and diffuser X=[−0.155,0.155] m, axial depth 0.0575 m and diameter 0.045 m.
+@evidence principles/core/common.md#declared-basis Uses settings' sanitary-room lighting requirement and spaces' empty wall above mirrors as grounds.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Uses one short horizontal above-mirror prototype in each room, distinct from bedroom ceiling and bedside lights.
+@evidence principles/design/models.md#representation-contract Creates a closed wall plate and forward diffuser bar, partitioning metal/diffuser ids without creating the light itself.
+@evidence principles/design/models.md#spatial-convention Origin is the above-mirror wall-contact center, +Z roomward, +Y up and length along +X.
+@evidence principles/design/models.md#reviewable-structure Fixed side view inspects 0.08 m projection; sanitary-room placement checks mirror-center alignment and face noncontact.
+@evidence principles/design/models.md#model-observable-style-basis Adopts reference 02·05's bright bathroom mirror-top bands as vanity lights. A thin horizontal bar and small metal end supports read as above-mirror lighting.
+@evidence principles/design/models.md#model-scale-layer-completion Defines width, height, projection, part partition, ids, UVs, origin and inspection views.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Consumes mirror bands and projection within 0.10 m without changing sanitary-room walls or mirror positions.
+@evidence settings/10-house.md#powder Provides the powder-room mirror-top light body.
+@evidence settings/10-house.md#shower-bathroom Provides the shower-bathroom vanity light body.
+@evidence settings/10-house.md#tub-bathroom Provides the tub-bathroom vanity light body.
+@evidence obligations/design/models.md#addressable-model-decisions Defines above-mirror wall-light projection/faces in an independent H2.
+@evidence obligations/design/models.md#model-review-set Compares 00's front/side/45° views and above-mirror room views.
 -->
 
-레퍼런스 02·05의 욕실 거울 위 밝은 띠를 세면 벽등으로 채택한다. 사진의 빛 번짐을 기구 형상으로 복제하지 않는다.
+Adopt reference 02·05's bright bands above bathroom mirrors as vanity wall lights. Do not copy photographic light bloom into fixture geometry.
 
-세 위생실은 같은 벽등 원형을 거울 위에 쓴다. 원점은 벽 접점 중앙, +Y는 위이고 +Z는 방 안쪽이며 길이는 +X다. 뒤 받침판은 폭 0.36 m·높이 0.06 m·두께 0.015 m, 양끝 받침은 폭 0.025 m·높이 0.06 m·앞 돌출 0.08 m, 확산봉은 양끝 받침 사이 길이 0.31 m·지름 0.045 m다. 전체 벽 돌출은 0.08 m로 [실내 기구의 0.10 m 상한](../systems/02-interior-fixtures.md#interior-baths) 안이다. 금속 판과 받침 모든 면은 `fixture-housing`, 확산봉 모든 면은 `fixture-diffuser`다. 길이 U·둘레 V를 미터로 제공한다. 빛의 세기와 색은 systems, 위치는 instances가 정한다. [모델 고정 뷰](00-model-frame.md#model-review-set)의 정면에서는 받침과 확산봉의 좌우 대칭을, 측면에서는 0.08 m 돌출을 확인한다. 실제 욕실에 놓은 뒤 거울 중앙 정렬과 거울 면 비접촉을 검사한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 거울 간섭과 실제 프레임은 unverified다.
-거울 위 확산봉 `fixture-diffuser`의 축은 뒤판 중심에서 벽 법선 +Z=0.0575 m, 수평 X 방향 X=[−0.155,0.155] m다. 지름 0.045 m이므로 가장 앞점은 Z=0.080 m이고 두 끝은 받침의 안쪽 X 끝에 면으로 닿는다. 양끝 받침은 판 앞면 Z=0.015 m에서 축 깊이까지 이어지며 확산봉 안으로 끝을 밀어 넣지 않는다.
+Three sanitary rooms use the same above-mirror wall-fixture prototype. Origin is wall-contact center, +Y up, +Z roomward and length along +X. The rear plate measures width 0.36 m, height 0.06 m and thickness 0.015 m; both end supports have width 0.025 m, height 0.06 m and forward projection 0.08 m; the diffuser bar between them has length 0.31 m/diameter 0.045 m. Overall wall projection 0.08 m is within the [0.10 m interior-fixture ceiling](../systems/02-interior-fixtures.md#interior-baths). Every metal plate/support face has `fixture-housing`, every diffuser-bar face `fixture-diffuser`, with length U/circumference V in metres. Systems owns light intensity/color and instances owns location. Front [fixed model view](00-model-frame.md#model-review-set) inspects support/diffuser left-right symmetry, and side view 0.08 m projection. Actual bathroom placement checks mirror-center alignment and noncontact with the mirror face. The source owner is `src/models/lighting-fixtures.ts`; mirror interference and actual frames remain unverified.
+The above-mirror `fixture-diffuser` axis lies at wall-normal +Z=0.0575 m from the backplate center, along horizontal X=[−0.155,0.155] m. Diameter 0.045 m places its frontmost point at Z=0.080 m, with both ends meeting the supports' inner X ends at faces. End supports extend from plate front Z=0.015 m to axial depth without pushing their ends into the diffuser.
 
-## 포치 문 옆의 벽등 {#porch-wall-sconce}
+## Wall sconce beside the porch door {#porch-wall-sconce}
 <!--
-@evidence principles/core/common.md#scope-preservation 포치 현관문 옆 벽등 몸체만 맡고 광원의 낮 기준 상태·위치는 systems와 instances에 남긴다.
-@evidence principles/core/common.md#substantive-completion 벽판 0.10 × 0.18 m, 갓 위/아래 외경 0.10/0.14 m와 Y=[−0.16,0.04] m, Y=0.015 m 목 길이 0.045 m와 갓 안 접촉 0.010 m, 최전점 0.17 m, 세 표면 id를 정한다.
-@evidence principles/core/common.md#declared-basis settings/10-house.md#porch-entry와 systems/03-exterior-fixtures.md#exterior-porch-sconce의 문 옆 기구 인계를 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 천장이나 차고에 등을 늘리지 않고 문 옆 한 기구의 세로 벽판·투명 갓을 정한다.
-@evidence principles/design/models.md#representation-contract 닫힌 벽판·짧은 목·갓을 별도 부피로 만들며 `fixture-housing`·`fixture-stem`·`fixture-glass`로 모든 면을 덮는다.
-@evidence principles/design/models.md#spatial-convention 원점은 외벽 접점 중앙, +Z는 포치 바깥, +Y는 위이고 문짝 열림은 벽 안쪽이다.
-@evidence principles/design/models.md#reviewable-structure 고정 정면·측면에서 벽판·목·갓의 실루엣과 0.17 m 돌출을, 포치 배치 후 문틀 비접촉과 꺼진 낮 상태를 확인한다.
-@evidence principles/design/models.md#model-observable-style-basis 세로 금속판과 짧은 목에 매달린 8각 갓으로 레퍼런스 01의 작은 현관 벽등을 읽히게 한다.
-@evidence principles/design/models.md#model-scale-layer-completion 벽판·목·갓의 연직·법선 위치와 치수, 접촉량 0.01 m, id·UV·원점·검사 뷰를 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 포치 유효 깊이와 현관문 거친 개구부를 소비하고 벽등을 위해 포치나 문을 수정하지 않는다.
-@evidence settings/10-house.md#porch-entry 현관 옆의 한 벽등을 꺼진 낮 상태에도 보일 기구 몸체로 제공한다.
-@evidence obligations/design/models.md#addressable-model-decisions 포치 등은 세면등과 다른 갓 형상·유리 표면을 이 H2에서 정한다.
-@evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 현관문 옆 포치 뷰를 사용한다.
+@evidence principles/core/common.md#scope-preservation Owns only the wall-sconce body beside the porch entry door, leaving daytime light state/location to systems/instances.
+@evidence principles/core/common.md#substantive-completion Defines wall plate 0.10 × 0.18 m, shade upper/lower outer diameters 0.10/0.14 m and Y=[−0.16,0.04] m, neck length 0.045 m at Y=0.015 m with inner-shade engagement 0.010 m, frontmost point 0.17 m and three surface ids.
+@evidence principles/core/common.md#declared-basis Receives the door-side fixture handoff from settings/10-house.md#porch-entry and systems/03-exterior-fixtures.md#exterior-porch-sconce.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Defines one door-side fixture's vertical plate and transparent shade without adding porch-ceiling or garage lights.
+@evidence principles/design/models.md#representation-contract Creates distinct closed plate, short neck and shade volumes, covering all faces with `fixture-housing`, `fixture-stem` and `fixture-glass`.
+@evidence principles/design/models.md#spatial-convention Origin is exterior-wall contact center, +Z toward the porch exterior and +Y up, with the leaf opening inside the wall.
+@evidence principles/design/models.md#reviewable-structure Fixed front/side views inspect plate, neck and shade silhouettes and 0.17 m projection; porch placement checks door-frame noncontact and daytime off state.
+@evidence principles/design/models.md#model-observable-style-basis A vertical metal plate and short neck carrying an 8-sided shade make reference 01's small entry wall sconce readable.
+@evidence principles/design/models.md#model-scale-layer-completion Defines plate/neck/shade vertical and normal positions/dimensions, engagement 0.01 m, ids, UVs, origin and inspection views.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Consumes porch effective depth and entry rough opening without revising porch or door for the sconce.
+@evidence settings/10-house.md#porch-entry Provides one entry-side sconce body visible even with daytime light off.
+@evidence obligations/design/models.md#addressable-model-decisions Defines a porch-sconce shade/glass surface distinct from vanity lights in this H2.
+@evidence obligations/design/models.md#model-review-set Uses 00's front/side/45° views and porch views beside the entry door.
 -->
 
-레퍼런스 01의 현관문 왼쪽 작은 검은 벽등을 채택한다. 갓 안의 빛과 해 질 녘 밝기는 systems가 정하고 기구 원형은 실제 두께와 돌출만 정한다.
+Adopt reference 01's small black sconce to the left of the entry door. Systems owns light inside the shade and dusk brightness; the fixture prototype owns only actual thickness/projection.
 
-[포치 설정](../settings/10-house.md#porch-entry)의 문 옆 벽등은 낮에 광원이 꺼져도 기구 형상이 남는다. 국소 원점은 외벽 접점 중앙, +Y는 위이고 +Z는 포치 쪽이다. 벽판은 폭 0.10 m·높이 0.18 m·두께 0.015 m이고 Y=[−0.09,0.09], Z=[0,0.015] m다. 지름 0.025 m의 앞쪽 목은 축 Y=0.015 m에서 벽판 앞면 Z=0.015 m부터 갓 안쪽 Z=0.060 m까지 길이 0.045 m로 뻗는다. 8각 원뿔대 갓의 중심축은 Z=0.10 m, 위 테 Y=0.04 m·지름 0.10 m, 아래 테 Y=−0.16 m·지름 0.14 m다. 위 테 뒷점 Z=0.050 m이므로 목 끝은 갓 안으로 0.010 m 물리고, 목 위끝 Y=0.0275 m는 갓 위 테 Y=0.04 m보다 낮아 벽판과 갓 사이에 공중 틈이 없다. 아래 테 앞점은 Z=0.10+0.07=0.17 m이며 전체 최대 앞 돌출이다. 벽판 모든 면은 `fixture-housing`, 목은 `fixture-stem`, 갓은 `fixture-glass`이고 면 UV는 X·Y 또는 둘레 U·높이 V를 미터로 둔다. 문은 실내로 열려 기구와 겹치지 않는다. 광원 기준 상태와 위치는 systems·instances가 맡는다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 포치 캡처는 unverified다.
+The door-side sconce of [porch settings](../settings/10-house.md#porch-entry) retains its fixture geometry even with daytime light off. Local origin is exterior-wall contact center, +Y up and +Z toward the porch. The wall plate measures width 0.10 m, height 0.18 m and thickness 0.015 m at Y=[−0.09,0.09], Z=[0,0.015] m. The forward diameter 0.025 m neck has axis Y=0.015 m and extends length 0.045 m from plate front Z=0.015 m to shade interior Z=0.060 m. The 8-sided truncated-cone shade has center axis Z=0.10 m, upper rim Y=0.04 m/diameter 0.10 m and lower rim Y=−0.16 m/diameter 0.14 m. Upper-rim rear point Z=0.050 m gives neck engagement 0.010 m inside the shade; neck top Y=0.0275 m is below upper rim Y=0.04 m, leaving no suspended gap between plate and shade. Lower-rim front point Z=0.10+0.07=0.17 m is the overall maximum forward projection. Every plate face has `fixture-housing`, neck `fixture-stem` and shade `fixture-glass`, with planar X/Y or circumference U/height V UVs in metres. The door opens inside without overlapping the fixture. Systems/instances owns light reference state/location. The source owner is `src/models/lighting-fixtures.ts`; actual porch captures remain unverified.
 
-[모델 고정 뷰](00-model-frame.md#model-review-set)의 정면·측면에서 벽판·목·갓의 윤곽과 0.17 m 돌출을 본다. 실제 포치에 놓은 뒤 문틀 비접촉과 광원이 꺼진 낮 상태의 실루엣을 확인한다.
+Front/side [fixed model views](00-model-frame.md#model-review-set) inspect plate, neck and shade outlines and 0.17 m projection. After actual porch placement, check door-frame noncontact and silhouette with daytime light off.

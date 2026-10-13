@@ -1,159 +1,158 @@
-# 실내 기구
+# Interior fixtures
 
-## 공용부의 섬 pendant와 식탁등 {#interior-common-pendants}
+## Common-area island pendants and dining light {#interior-common-pendants}
 <!--
-@evidence models/17-light-fixtures.md#pendant-fixtures 섬과 식탁 갓의 지름 0.30·0.50 m 및 천장 접점은 그 두 기구 원형의 외곽이다. 이 H2는 갓 안쪽 광원점과 상판·통로 여유를 대조하고 줄기나 갓 형상을 다시 만들지 않는다.
-@evidence materials/03-furnishings.md#towel-curtain-textile pendant의 fixture-shade는 밝은 직물 표면을 받고 구조 금속과 분리된다. 갓 표면을 광원색으로 덮지 않고 warm point와 재료 응답을 각각 유지한다.
-@evidence principles/core/common.md#scope-preservation 공용부 섬 pendant 두 개와 식탁등 하나의 위치·갓 외곽 상한·색·강도·상태를 맡는다.
-@evidence principles/core/common.md#substantive-completion 섬 X = -3.125, Z = -8.10·-7.05, Y = 1.95 m, 식탁 X = 0.50, Z = -7.95, Y = 1.55 m, 갓 지름 상한 0.30·0.50 m, 2,700 K, 6·9 cd, range 4.0 m, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 기능을 조명으로 나누는 근거는 common-room, 좌표는 섬·식탁 예약에서 유도하고 강도는 이 branch의 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation common-room이 가구와 조명으로 기능을 나누라고만 한 데 비해 매달린 광원 세 개의 좌표·높이·갓 상한을 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 갓·줄 geometry는 models, 배치는 instances가 이 좌표를 소비한다.
-@evidence principles/design/systems.md#system-dependency-basis 좌표는 common-island-reservation·common-dining-reservation 중심에서, 비충돌은 스툴 점유와 common-clear-routes 대조에서 유도한다.
-@evidence principles/design/systems.md#system-verification-address 03 프레임의 두 빛 웅덩이와 갓 외곽이 섬·상판 밖이나 동선 예약과 겹치는지의 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work common-room과 섬·식탁·동선 예약을 매달린 갓 외곽에 대조했고 모두 몸체 안에 들어 부모 예약을 고칠 결함이 없었다.
-@evidence settings/10-house.md#common-room 가구와 조명으로 주방·식당·가족실을 나눈다는 결정을 섬 pendant와 식탁등으로 실현한다.
-@evidence spaces/rooms/common.md#common-room-plan kitchen-dining-family 방 id와 외곽을 광원 소속으로 쓴다.
-@evidence spaces/rooms/common.md#common-island-reservation 섬 X = [-3.65, -2.60], Z = [-8.70, -6.45]와 스툴 점유에서 pendant 좌표와 갓 상한을 유도한다.
-@evidence spaces/rooms/common.md#common-dining-reservation 식탁 X = [-0.35, 1.35], Z = [-8.40, -7.50] 중심에 식탁등을 둔다.
-@evidence spaces/rooms/common.md#common-clear-routes 식탁 오른쪽·뒤쪽 동선 위에 갓이 걸리지 않음을 대조한다.
-@evidence spaces/01-storeys.md#storey-datums 1층 천장 2.75 m 아래 매다는 높이를 정한다.
-@evidence obligations/core/common.md#purpose-fit 02-interior-fixtures.md는 방별 실내 기구의 좌표·상태 역할을 맡으며 이것이 없으면 17개 공간 중 16개 실내 공간의 켜진 따뜻한 실내등이 정해지지 않는다.
+@evidence models/17-light-fixtures.md#pendant-fixtures Island/dining shade diameter bounds 0.30/0.50 m and ceiling contacts constrain those two fixture prototypes. This H2 compares interior light points with countertop/route clearances without recreating stems or shade geometry.
+@evidence materials/03-furnishings.md#towel-curtain-textile Pendant fixture-shade receives a light textile surface separate from structural metal. Warm point lights and material response remain distinct rather than covering shade surfaces with light color.
+@evidence principles/core/common.md#scope-preservation Owns positions, shade-outline bounds, color, intensity and state for two island pendants and one dining light.
+@evidence principles/core/common.md#substantive-completion Defines island X = -3.125, Z = -8.10·-7.05, Y = 1.95 m, dining X = 0.50, Z = -7.95, Y = 1.55 m, shade-diameter bounds 0.30/0.50 m, 2,700 K, 6/9 cd, range 4.0 m and on state.
+@evidence principles/core/common.md#declared-basis Receives lighting-based functional separation from common-room and derives coordinates from island/dining reservations, identifying intensities as branch choices.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds three suspended lights' coordinates, heights and shade bounds beyond common-room's furniture/lighting functional separation.
+@evidence principles/design/systems.md#system-authority-confinement Writes only lights; models owns shade/cord geometry and instances consumes these coordinates for placement.
+@evidence principles/design/systems.md#system-dependency-basis Derives coordinates from common-island-reservation/common-dining-reservation centers and noncollision by comparing stool occupancy/common-clear-routes.
+@evidence principles/design/systems.md#system-verification-address Falsifying observations compare 03's two light pools and whether shade outlines extend outside island/tabletop or overlap route reservations.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared common-room and island/dining/route reservations against suspended shade bounds; all fit within their bodies without a defect requiring parent-reservation revision.
+@evidence settings/10-house.md#common-room Realizes the decision to separate kitchen, dining and family areas through furniture/lighting as island pendants and a dining light.
+@evidence spaces/rooms/common.md#common-room-plan Uses kitchen-dining-family room id and outline as light affiliation.
+@evidence spaces/rooms/common.md#common-island-reservation Derives pendant coordinates/shade bounds from island X = [-3.65, -2.60], Z = [-8.70, -6.45] and stool occupancy.
+@evidence spaces/rooms/common.md#common-dining-reservation Places the dining light at the center of tabletop X = [-0.35, 1.35], Z = [-8.40, -7.50].
+@evidence spaces/rooms/common.md#common-clear-routes Checks that shades do not hang over routes to the dining table's right/rear.
+@evidence spaces/01-storeys.md#storey-datums Defines hanging heights below ground-floor ceiling 2.75 m.
+@evidence obligations/core/common.md#purpose-fit 02-interior-fixtures.md owns per-room interior-fixture coordinates/states; without it, lit warm interior lights would be undecided in 16 interior spaces among the 17 spaces.
 -->
 
-[공용부](../spaces/rooms/common.md#common-room-plan)는 완전 높이 칸막이 없이 가구와 조명으로 기능을 나누므로 매달린 기구 두 종류가 주방과 식사 구역을 구분한다. 섬 pendant는 point 광원 `light:kitchen-dining-family:island-pendant-1`·`-2`이고 [섬 예약](../spaces/rooms/common.md#common-island-reservation) X = [-3.65, -2.60], Z = [-8.70, -6.45] m의 중심선 X = -3.125 m, Z = -8.10·-7.05 m, 발광점 Y = 1.95 m에 둔다. 식탁등은 `light:kitchen-dining-family:dining-pendant`이며 [식탁 상판](../spaces/rooms/common.md#common-dining-reservation) X = [-0.35, 1.35], Z = [-8.40, -7.50] m의 중심 X = 0.50 m, Z = -7.95 m, Y = 1.55 m에 둔다. 섬 갓의 평면 지름 상한 0.30 m는 X = [-3.275, -2.975] m로 섬 몸체 안에 들고, 스툴 사용 점유(섬 동쪽 끝부터 X = -1.65 m)와 서쪽 작업 통로(X < -3.65 m) 위에 걸리지 않는다. 식탁 갓의 지름 상한 0.50 m는 X = [0.25, 0.75], Z = [-8.20, -7.70] m로 상판 안이며 식탁 오른쪽·뒤쪽의 [공용 동선](../spaces/rooms/common.md#common-clear-routes)의 머리 공간을 침범하지 않는다. 세 광원 모두 약 2,700 K (1.00, 0.72, 0.45), `range` 4.0 m, `intensity` 섬 각 6 cd·식탁 9 cd이고 리뷰 프레임에서 켜짐이다. 강도는 [고정 노출](01-daylight.md#daylight-sky-fill) 아래에서 창 빛과 함께 따뜻한 웅덩이가 읽히도록 이 branch가 택한 값이다. 갓과 줄의 geometry는 models, 배치는 instances가 이 좌표를 소비한다.
+The [common area](../spaces/rooms/common.md#common-room-plan) separates functions through furniture/lighting without full-height partitions, so two suspended-fixture kinds distinguish kitchen/dining zones. Island pendants are point lights `light:kitchen-dining-family:island-pendant-1`/`-2`, placed on the centerline of [island reservation](../spaces/rooms/common.md#common-island-reservation) X = [-3.65, -2.60], Z = [-8.70, -6.45] m, at X = -3.125 m, Z = -8.10·-7.05 m and emission height Y = 1.95 m. Dining light `light:kitchen-dining-family:dining-pendant` lies at the center of [dining top](../spaces/rooms/common.md#common-dining-reservation) X = [-0.35, 1.35], Z = [-8.40, -7.50] m: X = 0.50 m, Z = -7.95 m, Y = 1.55 m. The island shade's plan-diameter bound 0.30 m occupies X = [-3.275, -2.975] m within the island body, without hanging over stool-use occupancy (from island east edge to X = -1.65 m) or the west work route (X < -3.65 m). Dining-shade diameter bound 0.50 m occupies X = [0.25, 0.75], Z = [-8.20, -7.70] m within the top, without intruding into headroom of [common routes](../spaces/rooms/common.md#common-clear-routes) to the right/rear. All three lights use approximately 2,700 K (1.00, 0.72, 0.45), `range` 4.0 m and `intensity` 6 cd per island light/9 cd for dining, on in review frames. Intensities are branch choices for readable warm pools alongside window light under [fixed exposure](01-daylight.md#daylight-sky-fill). Models owns shade/cord geometry; instances consumes these placement coordinates.
 
-source owner는 `src/systems/lighting.ts`다. 공용부 원본에서 섬의 두 원뿔 갓과 식사 구역의 원통 갓, 각각의 따뜻한 천장 영역이 구분된다. 식탁등 강도 0인 native 반증에서는 그 영역만 사라지고 섬등은 남았다. 실제 세 갓의 vertex 외곽은 위 섬·식탁 상판 예약 안이고 통행 예약을 침범하지 않는다. 식탁 몸체 자체는 미제작 사물이다.
+The source owner is `src/systems/lighting.ts`. Original common-area views distinguish two island cone shades, the dining cylinder shade and their respective warm ceiling regions. A native falsification with dining-light intensity 0 removed only its region while island lights remained. Actual vertex bounds of all three shades lie within the island/dining tabletop reservations above without intruding into passage reservations. The dining-table body itself is an unbuilt object.
 
-## 1층 방과 통로의 천장등 {#interior-ground-ceiling}
+## Ceiling lights in ground-floor rooms and passages {#interior-ground-ceiling}
 <!--
-@evidence models/17-light-fixtures.md#flush-ceiling-fixture 완성 천장에 붙는 평판의 아래 0.05 m 돌출은 기구 모델이 정한다. 천장 2.75 m와 발광점 2.70 m를 맞춰 body를 systems에서 복제하지 않는다.
-@evidence principles/core/common.md#scope-preservation 1층 방과 통로 여덟 광원(거실·가족실·현관·서비스 두 띠·파우더룸·세탁실·팬트리)을 맡는다.
-@evidence principles/core/common.md#substantive-completion 여덟 광원의 X·Z를 표로, Y = 2.70 m, 2,700 K, 7.5 cd, range 5.0 m, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 좌표는 각 방 owner 외곽 중심의 유도, 서비스실도 켜는 것은 lighting-state의 어두운 방 금지에서 온다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation lighting-state가 따뜻한 천장등만 요구한 데 비해 방별 좌표와 켜짐을 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 방 외곽과 천장 datum은 spaces owner에서 받는다.
-@evidence principles/design/systems.md#system-dependency-basis 각 좌표를 인용한 방 외곽 수치와 storey-datums의 2.75 m에서 계산한다.
-@evidence principles/design/systems.md#system-verification-address 각 좌표의 외곽 포함 대조와 04 프레임의 밝기 연속이 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work 여덟 방 외곽과 1층 천장 datum을 광원 좌표에 대조했고 모두 외곽 안이어서 부모 수정이 없었다.
-@evidence settings/20-verification.md#lighting-state 켜진 따뜻한 천장등과 어두운 방 금지를 여덟 광원의 켜짐으로 실현한다.
-@evidence spaces/01-storeys.md#storey-datums 1층 천장 Y = 2.75 m에서 발광점 Y = 2.70 m를 유도한다.
-@evidence spaces/rooms/living.md#living-plan living-room 외곽 중심 X = -3.725, Z = -3.15에 둔다.
-@evidence spaces/rooms/common.md#common-family-reservation 가족실 낮은 테이블과 소파 사이 X = 3.95, Z = -7.80에 둔다.
-@evidence spaces/rooms/entry.md#entry-plan front-entry L형의 X = [-0.50, 2.02] 부분 중심에 둔다.
-@evidence spaces/rooms/service.md#service-access-plan service-access 두 띠의 중심에 하나씩 둔다.
-@evidence spaces/rooms/powder.md#powder-plan powder-room 외곽 중심 X = 4.36, Z = -1.075에 둔다.
-@evidence spaces/rooms/laundry.md#laundry-plan laundry-mudroom 외곽 중심 X = 4.36, Z = -3.30에 둔다.
-@evidence spaces/rooms/pantry.md#pantry-plan pantry 외곽 중심 X = 4.36, Z = -5.375에 둔다.
+@evidence models/17-light-fixtures.md#flush-ceiling-fixture The fixture model owns the flush body's 0.05 m downward projection from finished ceiling. Ceiling 2.75 m and emission point 2.70 m align without systems duplicating the body.
+@evidence principles/core/common.md#scope-preservation Owns eight ground-floor room/passage lights: living room, family area, entry, two service strips, powder room, laundry and pantry.
+@evidence principles/core/common.md#substantive-completion Defines eight lights' X/Z in a table, Y = 2.70 m, 2,700 K, 7.5 cd, range 5.0 m and on state.
+@evidence principles/core/common.md#declared-basis Identifies coordinates as derived from room-owner outline centers and service-room on states as following lighting-state's prohibition on dark rooms.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds per-room coordinates/on states beyond lighting-state's requirement for warm ceiling lights.
+@evidence principles/design/systems.md#system-authority-confinement Writes only lights, receiving room outlines/ceiling datums from spaces owners.
+@evidence principles/design/systems.md#system-dependency-basis Calculates each coordinate from cited room-outline values and storey-datums' 2.75 m.
+@evidence principles/design/systems.md#system-verification-address Falsifying observations compare containment of each coordinate and brightness continuity in frame 04.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared eight room outlines and ground-floor ceiling datum with light coordinates; all lie within bounds without parent revision.
+@evidence settings/20-verification.md#lighting-state Realizes lit warm ceiling fixtures and the dark-room prohibition through eight on lights.
+@evidence spaces/01-storeys.md#storey-datums Derives emission Y = 2.70 m from ground-floor ceiling Y = 2.75 m.
+@evidence spaces/rooms/living.md#living-plan Places the light at living-room outline center X = -3.725, Z = -3.15.
+@evidence spaces/rooms/common.md#common-family-reservation Places it between the family area's low table and sofa at X = 3.95, Z = -7.80.
+@evidence spaces/rooms/entry.md#entry-plan Places it at the center of front-entry's L-shaped X = [-0.50, 2.02] section.
+@evidence spaces/rooms/service.md#service-access-plan Places one light at each of service-access's two strip centers.
+@evidence spaces/rooms/powder.md#powder-plan Places it at powder-room outline center X = 4.36, Z = -1.075.
+@evidence spaces/rooms/laundry.md#laundry-plan Places it at laundry-mudroom outline center X = 4.36, Z = -3.30.
+@evidence spaces/rooms/pantry.md#pantry-plan Places it at pantry outline center X = 4.36, Z = -5.375.
 -->
 
-1층 방은 [1층 완성 천장 Y = 2.75 m](../spaces/01-storeys.md#storey-datums)에 붙는 평판형 기구로 밝히며 발광점은 Y = 2.70 m다. 매달리지 않으므로 가구·동선 예약과의 머리 공간 충돌은 없다. 좌표는 각 방 owner의 마감 안쪽 외곽에서 산출한 평면 중심 또는 아래 기능 중심이다.
+Ground-floor rooms use flush fixtures at the [finished ground-floor ceiling Y = 2.75 m](../spaces/01-storeys.md#storey-datums), with emission point Y = 2.70 m. They are not suspended, avoiding headroom collision with furniture/route reservations. Coordinates are plan centers derived from each room owner's finished inner outline or the functional centers below.
 
-| 광원 id | 방 owner | X, Z (m) | 근거 |
+| Light id | Room owner | X, Z (m) | Basis |
 | --- | --- | --- | --- |
-| `light:living-room:ceiling` | [거실](../spaces/rooms/living.md#living-plan) | -3.725, -3.15 | X = [-5.50, -1.95], Z = [-6.05, -0.25]의 중심 |
-| `light:kitchen-dining-family:family-ceiling` | [가족실 예약](../spaces/rooms/common.md#common-family-reservation) | 3.95, -7.80 | 낮은 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80]과 소파 앞 사이 |
-| `light:front-entry:ceiling` | [현관](../spaces/rooms/entry.md#entry-plan) | 0.76, -1.83 | L형 중 X = [-0.50, 2.02], Z = [-3.41, -0.25] 부분의 중심, 계단 구멍 X = [-1.80, -0.65] 밖 |
-| `light:service-access:right-strip` | [서비스 통로](../spaces/rooms/service.md#service-access-plan) | 2.545, -3.15 | 오른쪽 띠 X = [2.02, 3.07], Z = [-6.05, -0.25]의 중심 |
-| `light:service-access:rear-strip` | 같은 owner | 0.11, -5.38 | 계단 뒤 띠 X = [-1.80, 2.02], Z = [-6.05, -4.71]의 중심 |
-| `light:powder-room:ceiling` | [파우더룸](../spaces/rooms/powder.md#powder-plan) | 4.36, -1.075 | X = [3.22, 5.50], Z = [-1.90, -0.25]의 중심 |
-| `light:laundry-mudroom:ceiling` | [세탁·머드룸](../spaces/rooms/laundry.md#laundry-plan) | 4.36, -3.30 | X = [3.22, 5.50], Z = [-4.55, -2.05]의 중심 |
-| `light:pantry:ceiling` | [팬트리](../spaces/rooms/pantry.md#pantry-plan) | 4.36, -5.375 | X = [3.22, 5.50], Z = [-6.05, -4.70]의 중심 |
+| `light:living-room:ceiling` | [Living room](../spaces/rooms/living.md#living-plan) | -3.725, -3.15 | Center of X = [-5.50, -1.95], Z = [-6.05, -0.25] |
+| `light:kitchen-dining-family:family-ceiling` | [Family-area reservation](../spaces/rooms/common.md#common-family-reservation) | 3.95, -7.80 | Authored functional point between low table X = [3.40, 4.45], Z = [-8.35, -7.80] and sofa front; not a recomputed table midpoint |
+| `light:front-entry:ceiling` | [Entry](../spaces/rooms/entry.md#entry-plan) | 0.76, -1.83 | Center of L-shaped section X = [-0.50, 2.02], Z = [-3.41, -0.25], outside stair opening X = [-1.80, -0.65] |
+| `light:service-access:right-strip` | [Service passage](../spaces/rooms/service.md#service-access-plan) | 2.545, -3.15 | Center of right strip X = [2.02, 3.07], Z = [-6.05, -0.25] |
+| `light:service-access:rear-strip` | Same owner | 0.11, -5.38 | Center of rear-stair strip X = [-1.80, 2.02], Z = [-6.05, -4.71] |
+| `light:powder-room:ceiling` | [Powder room](../spaces/rooms/powder.md#powder-plan) | 4.36, -1.075 | Center of X = [3.22, 5.50], Z = [-1.90, -0.25] |
+| `light:laundry-mudroom:ceiling` | [Laundry/mudroom](../spaces/rooms/laundry.md#laundry-plan) | 4.36, -3.30 | Center of X = [3.22, 5.50], Z = [-4.55, -2.05] |
+| `light:pantry:ceiling` | [Pantry](../spaces/rooms/pantry.md#pantry-plan) | 4.36, -5.375 | Center of X = [3.22, 5.50], Z = [-6.05, -4.70] |
 
-모두 point 광원, 약 2,700 K, `intensity` 7.5 cd, `range` 5.0 m이며 리뷰 프레임에서 켜짐이다. [빛과 기준 상태](../settings/20-verification.md#lighting-state)가 어두운 방을 view별 밝기로 숨기지 못하게 하므로 수납·서비스 공간도 끄지 않는다. 방 id는 각 방 owner가 정한 spaces id를 그대로 쓴다.
+All are point lights, approximately 2,700 K, `intensity` 7.5 cd, `range` 5.0 m, on in review frames. [Lighting and reference state](../settings/20-verification.md#lighting-state) prohibits hiding dark rooms through view-specific brightness, so storage/service spaces remain on. Room ids exactly match the spaces ids defined by their room owners.
 
-source owner는 `src/systems/lighting.ts`다. 위 여덟 광원의 실제 X/Z와 Y를 소속 방의 완성 외곽·높이에 대조해 벗어나는 좌표가 없었다. 전체 건물 원본에서 현관→거실→주방 연결부와 서비스 통로의 바닥·벽·문틀은 같은 노출에서 이어지고 평판 기구의 천장 접합이 읽힌다. 근접 벽만 보이는 방향은 다른 방향의 공간 화면으로 대조했으며 그 한 장을 방 전체 근거로 쓰지 않았다.
+The source owner is `src/systems/lighting.ts`. Actual X/Z/Y of the eight lights above were compared with their rooms' finished outlines/heights, with no out-of-bounds coordinates. Original whole-building views show continuous entry→living→kitchen connection and service-passage floors/walls/frames at the same exposure, with readable flush-fixture ceiling contacts. Directions showing only a close wall were compared with spatial views in other directions rather than using that single image as whole-room evidence.
 
-## 계단과 2층 복도의 천장등 {#interior-stair-hall}
+## Ceiling lights over the stair and upper corridor {#interior-stair-hall}
 <!--
-@evidence principles/core/common.md#scope-preservation 계단 중간참 위와 2층 복도 두 부분의 천장등을 맡는다.
-@evidence principles/core/common.md#substantive-completion 중간참 위 X = -1.225, Z = -3.985, 복도 X = -0.065, Z = -5.31과 X = 2.47, Z = -4.06, 모두 Y = 5.61 m, 7.5 cd, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 좌표는 stair-reservation과 upper-hall-plan 외곽의 중심, 높이는 2층 천장 5.66 m에서 유도한다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation stair·upper-hall 설정이 경로만 정한 데 비해 세 광원 좌표와 머리 공간 대조를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 계단 경로·복도 외곽은 spaces에서 받는다.
-@evidence principles/design/systems.md#system-dependency-basis 중간참 Y = 1.36 m와 천장 5.66 m에서 4.25 m 여유를 계산한다.
-@evidence principles/design/systems.md#system-verification-address 05 프레임의 계단참·복도 연속과 좌표의 외곽 포함 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work stair-reservation 중간참과 upper-hall 외곽, 2층 천장 datum을 대조했고 머리 공간 2.00 m를 지켜 부모 수정이 없었다.
-@evidence spaces/02-stair.md#stair-reservation 중간참 X = [-1.80, -0.65], Z = [-4.56, -3.41], Y = 1.36의 중심 위에 둔다.
-@evidence spaces/rooms/upper-hall.md#upper-hall-plan 복도 팔과 도착 부분 외곽의 중심에 하나씩 둔다.
-@evidence spaces/01-storeys.md#storey-datums 2층 천장 5.66 m와 머리 공간 2.00 m를 대조한다.
+@evidence principles/core/common.md#scope-preservation Owns ceiling lights above the intermediate stair landing and two upper-corridor sections.
+@evidence principles/core/common.md#substantive-completion Defines landing X = -1.225, Z = -3.985, corridor X = -0.065, Z = -5.31 and X = 2.47, Z = -4.06, all at Y = 5.61 m, 7.5 cd and on.
+@evidence principles/core/common.md#declared-basis Identifies coordinates as stair-reservation/upper-hall-plan outline centers, with heights derived from upper ceiling 5.66 m.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds three light coordinates and headroom comparisons beyond stair/upper-hall settings' route definitions.
+@evidence principles/design/systems.md#system-authority-confinement Writes only lights, receiving stair route/corridor outlines from spaces.
+@evidence principles/design/systems.md#system-dependency-basis Calculates clearance 4.25 m from intermediate landing Y = 1.36 m and ceiling 5.66 m.
+@evidence principles/design/systems.md#system-verification-address Falsifying observations compare landing/corridor continuity in frame 05 and containment of coordinates.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared stair-reservation's landing, upper-hall outline and upper-ceiling datum, preserving headroom 2.00 m without parent revision.
+@evidence spaces/02-stair.md#stair-reservation Places above landing center X = [-1.80, -0.65], Z = [-4.56, -3.41], Y = 1.36.
+@evidence spaces/rooms/upper-hall.md#upper-hall-plan Places one light at each center of corridor arm/arrival outlines.
+@evidence spaces/01-storeys.md#storey-datums Compares upper ceiling 5.66 m and headroom 2.00 m.
 -->
 
-계단은 [중간참](../spaces/02-stair.md#stair-reservation) X = [-1.80, -0.65], Z = [-4.56, -3.41] m(Y = 1.36 m) 위의 [2층 완성 천장 Y = 5.66 m](../spaces/01-storeys.md#storey-datums)에 평판형 `light:main-stair:landing-ceiling`을 X = -1.225 m, Z = -3.985 m, Y = 5.61 m에 둔다. 중간참에서 4.25 m 위이므로 [계단 머리 공간 2.00 m](../spaces/01-storeys.md#storey-datums)를 침범하지 않는다. [2층 복도](../spaces/rooms/upper-hall.md#upper-hall-plan)는 팔 X = [-3.20, 3.07], Z = [-5.91, -4.71] m의 중심 X = -0.065 m, Z = -5.31 m와 도착 부분 X = [1.87, 3.07], Z = [-4.71, -3.41] m의 중심 X = 2.47 m, Z = -4.06 m에 평판형 `light:upper-hall:arm-ceiling`·`light:upper-hall:arrival-ceiling`을 Y = 5.61 m로 둔다. 모두 point, 약 2,700 K, 7.5 cd, `range` 5.0 m, 켜짐이다.
+The stair has flush `light:main-stair:landing-ceiling` above [intermediate landing](../spaces/02-stair.md#stair-reservation) X = [-1.80, -0.65], Z = [-4.56, -3.41] m (Y = 1.36 m), at the [finished upper ceiling Y = 5.66 m](../spaces/01-storeys.md#storey-datums): X = -1.225 m, Z = -3.985 m, Y = 5.61 m. It lies 4.25 m above the landing without intruding into [stair headroom 2.00 m](../spaces/01-storeys.md#storey-datums). The [upper corridor](../spaces/rooms/upper-hall.md#upper-hall-plan) has flush `light:upper-hall:arm-ceiling`/`light:upper-hall:arrival-ceiling` at Y = 5.61 m, respectively at arm center X = -0.065 m, Z = -5.31 m for X = [-3.20, 3.07], Z = [-5.91, -4.71] m, and arrival center X = 2.47 m, Z = -4.06 m for X = [1.87, 3.07], Z = [-4.71, -3.41] m. All are point lights, approximately 2,700 K, 7.5 cd, `range` 5.0 m and on.
 
-source owner는 `src/systems/lighting.ts`다. 계단참 광원은 명시한 참 외곽 위이고 복도의 두 광원도 각 팔 외곽 안이다. 상층 원본에서 두 평판 기구·복도 문틀·계단 디딤과 참이 같은 노출로 이어진다. 상층 천장등을 0으로 한 native 반증에서 따뜻한 천장/벽 연속이 사라졌다. 난간 접합을 바꾼 현재 GPU 표적에서도 복도 두 팔과 디딤의 읽힘을 확인했다.
+The source owner is `src/systems/lighting.ts`. The landing light lies above its declared outline, and both corridor lights lie within their arm outlines. Original upper-floor views show two flush fixtures, corridor frames, treads and landing continuously at the same exposure. A native falsification setting upper ceiling lights to 0 removed warm ceiling/wall continuity. Current GPU targets after railing-junction revision also confirmed readability of both corridor arms and treads.
 
-## 침실과 옷방의 천장등과 협탁등 {#interior-bedrooms}
+## Bedroom and dressing-room ceiling and bedside lights {#interior-bedrooms}
 <!--
-@evidence models/13-bedrooms.md#nightstand-lamp 네 협탁등의 광원 높이는 이 가구 host가 선언한 갓과 spaces의 등 포함 높이를 소비한다. 정지 house 입력에는 휴대 등 몸체가 배치되지 않아 갓 외곽의 실제 대조는 미검증으로 남긴다.
-@evidence principles/core/common.md#scope-preservation 세 침실·옷방 천장등과 협탁등 네 개를 맡는다.
-@evidence principles/core/common.md#substantive-completion 천장등 네 좌표와 협탁등 X·Z·Y(3.96·4.01 m), 2,700 K 7.5 cd와 2,400 K 1.2 cd, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 협탁등은 primary-bedroom·bedroom-two·bedroom-three 설정의 등, 높이는 spaces 표의 등 포함 높이에서 0.15 m 내린 값이며 models/13-bedrooms.md#nightstand-lamp와 models/17-light-fixtures.md#flush-ceiling-fixture의 설계 원형이 생겼고 source 결속은 아직 unverified라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 침실 설정이 협탁과 조명의 존재만 정한 데 비해 광원 좌표·높이·색온도를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 등 갓과 몸체는 models, 협탁 배치는 instances가 소비한다.
-@evidence principles/design/systems.md#system-dependency-basis 좌표는 각 방 외곽과 협탁 예약 중심, 높이는 등 포함 높이에서 계산한다.
-@evidence principles/design/systems.md#system-verification-address 02·05 프레임의 협탁등 읽힘, models 갓과의 높이 대조, 외곽 포함 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work 침실 세 설정과 방·협탁 예약을 대조했고 모든 광원이 외곽과 협탁 위에 들어 부모 수정이 없었다.
-@evidence settings/10-house.md#primary-bedroom 양옆 협탁 조명을 두 협탁등으로 실현한다.
-@evidence settings/10-house.md#bedroom-two 협탁과 조명을 협탁등 하나로 실현한다.
-@evidence settings/10-house.md#bedroom-three 협탁/등을 협탁등 하나로 실현한다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-plan 외곽 중심 X = -3.725, Z = -2.405에 천장등을 둔다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 협탁 예약과 등 포함 1.05 m에서 Y = 3.96을 유도한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-plan 앞쪽 직사각 부분 중심 X = 2.50, Z = -1.38에 둔다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 협탁 예약 중심 X = 1.275, Z = -2.875에 둔다.
-@evidence spaces/rooms/primary.md#primary-plan 뒤쪽 본체 중심 X = -2.375, Z = -8.255에 둔다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 두 협탁 Z = -8.90·-6.80과 등 포함 1.10 m에서 Y = 4.01을 유도한다.
-@evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan 옷방 외곽 중심 X = 3.20, Z = -9.70에 둔다.
-@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 후면 옷걸이 깊이 Z = [-10.45, -9.90] 밖임을 대조한다.
+@evidence models/13-bedrooms.md#nightstand-lamp The four bedside-light heights consume this furniture host's declared shades and spaces' lamp-inclusive heights. Static house inputs contain no portable-lamp bodies, leaving actual shade-outline comparison unverified.
+@evidence principles/core/common.md#scope-preservation Owns ceiling lights for three bedrooms/dressing room and four bedside lights.
+@evidence principles/core/common.md#substantive-completion Defines four ceiling-light coordinates, bedside X/Z/Y (3.96/4.01 m), 2,700 K 7.5 cd and 2,400 K 1.2 cd, all on.
+@evidence principles/core/common.md#declared-basis Bedside lamps come from primary-bedroom/bedroom-two/bedroom-three settings; heights are 0.15 m below spaces' lamp-inclusive heights. Design prototypes exist at models/13-bedrooms.md#nightstand-lamp and models/17-light-fixtures.md#flush-ceiling-fixture, while source bindings remain unverified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds light coordinates, heights and color temperatures beyond bedroom settings' bedside-table/light existence.
+@evidence principles/design/systems.md#system-authority-confinement Writes only lights; models owns shades/bodies and instances consumes bedside placement.
+@evidence principles/design/systems.md#system-dependency-basis Calculates coordinates from room outlines/bedside-reservation centers and heights from lamp-inclusive heights.
+@evidence principles/design/systems.md#system-verification-address Falsifying observations include bedside-light readability in 02·05, height comparison with model shades and bounds containment.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared three bedroom settings and room/bedside reservations; every light lies within room bounds and above its bedside table without parent revision.
+@evidence settings/10-house.md#primary-bedroom Realizes both bedside lights as two lamps.
+@evidence settings/10-house.md#bedroom-two Realizes bedside table/light as one lamp.
+@evidence settings/10-house.md#bedroom-three Realizes bedside table/light as one lamp.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-plan Places a ceiling light at outline center X = -3.725, Z = -2.405.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Derives Y = 3.96 from bedside reservation and lamp-inclusive 1.05 m.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-plan Places it at front-rectangle center X = 2.50, Z = -1.38.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Places at bedside-reservation center X = 1.275, Z = -2.875.
+@evidence spaces/rooms/primary.md#primary-plan Places at rear-body center X = -2.375, Z = -8.255.
+@evidence spaces/rooms/primary.md#primary-furniture-use Derives Y = 4.01 from two bedsides Z = -8.90·-6.80 and lamp-inclusive 1.10 m.
+@evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan Places at dressing-room outline center X = 3.20, Z = -9.70.
+@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use Checks containment outside rear hanging depth Z = [-10.45, -9.90].
 -->
 
-세 침실과 옷방은 2층 천장 Y = 5.61 m의 평판형 천장등을 가진다. [올리브 침실](../spaces/rooms/bedroom-two.md#bedroom-two-plan)은 X = [-5.50, -1.95], Z = [-4.56, -0.25] m의 중심 X = -3.725 m, Z = -2.405 m, [청회색 침실](../spaces/rooms/bedroom-three.md#bedroom-three-plan)은 앞쪽 직사각 부분 X = [-0.50, 5.50], Z = [-2.51, -0.25] m의 중심 X = 2.50 m, Z = -1.38 m, [주침실](../spaces/rooms/primary.md#primary-plan)은 뒤쪽 본체 X = [-5.50, 0.75], Z = [-10.45, -6.06] m의 중심 X = -2.375 m, Z = -8.255 m, [옷방](../spaces/rooms/wardrobe.md#primary-wardrobe-plan)은 X = [0.90, 5.50], Z = [-10.45, -8.95] m의 중심 X = 3.20 m, Z = -9.70 m다. 옷방 좌표는 [후면 옷걸이](../spaces/rooms/wardrobe.md#wardrobe-storage-use) 깊이 Z = [-10.45, -9.90] m 밖이다. 천장등 id는 `light:bedroom-two:ceiling`, `light:bedroom-three:ceiling`, `light:primary-bedroom:ceiling`, `light:primary-wardrobe:ceiling`이다. 협탁등은 [주침실 설정](../settings/10-house.md#primary-bedroom)의 양옆 조명과 [올리브 침실](../settings/10-house.md#bedroom-two)·[청회색 침실](../settings/10-house.md#bedroom-three)의 협탁/등을 실현하는 point 광원이며 각 협탁 예약의 평면 중심, 방 표가 정한 등 포함 높이에서 0.15 m 내린 갓 안쪽에 둔다. [올리브 침실 협탁](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-3.95, -3.50], Z = [-4.50, -4.05] m(등 포함 1.05 m)의 `light:bedroom-two:nightstand-lamp`는 X = -3.725 m, Z = -4.275 m, Y = 3.96 m다. [청회색 침실 협탁](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.05, 1.50], Z = [-3.10, -2.65] m(등 포함 1.05 m)의 `light:bedroom-three:nightstand-lamp`는 X = 1.275 m, Z = -2.875 m, Y = 3.96 m다. [주침실의 두 협탁](../spaces/rooms/primary.md#primary-furniture-use) X = [0.15, 0.65], Z = [-9.15, -8.65]·[-7.05, -6.55] m(등 포함 1.10 m)의 `light:primary-bedroom:nightstand-lamp-rear`·`-front`는 X = 0.40 m, Z = -8.90·-6.80 m, Y = 4.01 m다. 등 갓과 몸체의 설계 owner는 [협탁등](../models/13-bedrooms.md#nightstand-lamp)과 [실내 천장등](../models/17-light-fixtures.md#flush-ceiling-fixture)이다. 광원 높이는 spaces 표의 등 포함 높이에서 0.15 m 내린 값이며, 실제 갓 중심과의 대조는 modelSources 구현 뒤 unverified로 남긴다. 천장등은 2,700 K·7.5 cd·`range` 5.0 m, 협탁등은 약 2,400 K (1.00, 0.66, 0.38)·1.2 cd·`range` 2.5 m이며 모두 켜짐이다. 모든 기구가 천장 평판이거나 협탁 위이므로 침대·책상 의자·옷장 사용 예약 위에 매달린 몸체가 없다.
+The three bedrooms and dressing room have flush upper-floor ceiling lights at Y = 5.61 m. The [olive bedroom](../spaces/rooms/bedroom-two.md#bedroom-two-plan) uses center X = -3.725 m, Z = -2.405 m of X = [-5.50, -1.95], Z = [-4.56, -0.25] m; the [blue-gray bedroom](../spaces/rooms/bedroom-three.md#bedroom-three-plan) uses front-rectangle center X = 2.50 m, Z = -1.38 m of X = [-0.50, 5.50], Z = [-2.51, -0.25] m; the [primary bedroom](../spaces/rooms/primary.md#primary-plan) uses rear-body center X = -2.375 m, Z = -8.255 m of X = [-5.50, 0.75], Z = [-10.45, -6.06] m; and the [dressing room](../spaces/rooms/wardrobe.md#primary-wardrobe-plan) uses center X = 3.20 m, Z = -9.70 m of X = [0.90, 5.50], Z = [-10.45, -8.95] m. The dressing-room coordinate lies outside [rear hanging](../spaces/rooms/wardrobe.md#wardrobe-storage-use) depth Z = [-10.45, -9.90] m. Ceiling-light ids are `light:bedroom-two:ceiling`, `light:bedroom-three:ceiling`, `light:primary-bedroom:ceiling` and `light:primary-wardrobe:ceiling`. Bedside lamps are point lights realizing both lights of [primary-bedroom settings](../settings/10-house.md#primary-bedroom) and bedside/light requirements of the [olive](../settings/10-house.md#bedroom-two)/[blue-gray](../settings/10-house.md#bedroom-three) bedrooms, placed at each bedside reservation's plan center and inside the shade 0.15 m below the room table's lamp-inclusive height. For [olive-bedroom bedside](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-3.95, -3.50], Z = [-4.50, -4.05] m (lamp-inclusive 1.05 m), `light:bedroom-two:nightstand-lamp` is X = -3.725 m, Z = -4.275 m, Y = 3.96 m. For [blue-gray-bedroom bedside](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.05, 1.50], Z = [-3.10, -2.65] m (lamp-inclusive 1.05 m), `light:bedroom-three:nightstand-lamp` is X = 1.275 m, Z = -2.875 m, Y = 3.96 m. For [primary-bedroom bedsides](../spaces/rooms/primary.md#primary-furniture-use) X = [0.15, 0.65], Z = [-9.15, -8.65]·[-7.05, -6.55] m (lamp-inclusive 1.10 m), `light:primary-bedroom:nightstand-lamp-rear`/`-front` are X = 0.40 m, Z = -8.90·-6.80 m, Y = 4.01 m. [Bedside lamps](../models/13-bedrooms.md#nightstand-lamp) and [interior ceiling fixtures](../models/17-light-fixtures.md#flush-ceiling-fixture) are the shade/body design owners. Light heights are 0.15 m below spaces' lamp-inclusive heights; comparison against actual shade centers remains unverified until modelSources implementation. Ceiling lights use 2,700 K/7.5 cd/`range` 5.0 m; bedside lights approximately 2,400 K (1.00, 0.66, 0.38)/1.2 cd/`range` 2.5 m; all are on. Every fixture is ceiling-flush or above a bedside table, with no suspended body over bed, desk-chair or wardrobe-use reservations.
 
-source owner는 `src/systems/lighting.ts`다. 네 천장등과 네 협탁 point의 실제 좌표는 소속 방 외곽·높이 안이다. 침실 내부 원본에서 평판 천장등·벽·창·열린 출입구가 읽히고, 상층 천장등 0 반증에서는 협탁 point의 국소 벽 빛만 남았다. 네 협탁등 몸체와 침대·협탁은 미제작 사물이므로 침대 옆 갓의 읽힘 및 갓 중심과 광원점의 맞댐은 unverified로 남긴다. 천장등 구현은 그 별도 사물의 완료를 뜻하지 않는다.
+The source owner is `src/systems/lighting.ts`. Actual coordinates of four ceiling lights/four bedside points lie within their rooms' outlines/heights. Original bedroom views show flush fixtures, walls, windows and open entrances; a falsification setting upper ceiling lights to 0 left only local bedside-point wall illumination. Four bedside-lamp bodies, beds and tables are unbuilt objects, so bedside-shade readability and alignment between shade centers/light points remain unverified. Ceiling-light implementation does not complete those separate objects.
 
-## 욕실과 파우더룸의 세면등 {#interior-baths}
+## Vanity lights in bathrooms and powder room {#interior-baths}
 <!--
-@evidence models/17-light-fixtures.md#vanity-wall-fixture 벽등 원형의 0.10 m 이하 돌출과 거울 위 body를 소비한다. 세 발광점은 완성 바닥 위 2.00 m에서 갓 안쪽에 맞추며 거울 geometry를 이 systems에 복제하지 않는다.
-@evidence principles/core/common.md#scope-preservation 파우더룸·두 욕실의 세면등 세 개와 욕실 천장등 두 개를 맡는다.
-@evidence principles/core/common.md#substantive-completion 세면등 좌표와 바닥 위 2.00 m, 돌출 0.10 m 이하, 3,000 K 3 cd, 천장등 2,700 K 7.5 cd, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 파우더룸 조명은 powder 설정, 세면 위치·거울 띠는 spaces 기구 사용 H2에서 받는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 위생실 설정이 조명의 존재만 정한 데 비해 세면등·천장등 좌표와 거울 띠 위 높이를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 거울·세면대는 spaces 예약과 models에 남긴다.
-@evidence principles/design/systems.md#system-dependency-basis 세면등 위치는 세면 예약과 벽면, 욕조 욕실은 거울 띠 Y = [4.16, 4.96] 위로 유도한다.
-@evidence principles/design/systems.md#system-verification-address 세면등이 거울 위에 있고 거울 면과 겹치지 않는지, 외곽 포함 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work powder 설정과 세 위생실 기구 예약을 대조했고 벽등이 거울 띠 위와 사용 바닥 머리 높이 밖에 들어 부모 수정이 없었다.
-@evidence settings/10-house.md#powder 파우더룸 조명을 세면등과 천장등으로 실현한다.
-@evidence spaces/rooms/powder.md#powder-fixture-use 세면대 X = [3.65, 4.25], Z = [-0.70, -0.25] 벽 쪽에 세면등을 둔다.
-@evidence spaces/rooms/shower-bath.md#shower-bath-plan 외곽 중심 X = 1.985, Z = -7.43에 천장등을 둔다.
-@evidence spaces/rooms/shower-bath.md#shower-fixture-use 세면장 X = 2.52–3.07, Z = [-6.80, -6.10]의 오른쪽 벽에 세면등을 둔다.
-@evidence spaces/rooms/tub-bath.md#tub-bath-plan 외곽 중심 X = 4.36, Z = -6.755에 천장등을 둔다.
-@evidence spaces/rooms/tub-bath.md#tub-fixture-use 세면대 Z = [-5.75, -4.90]와 거울 띠 위 Y = 5.06에 세면등을 둔다.
+@evidence models/17-light-fixtures.md#vanity-wall-fixture Consumes the wall-fixture prototype's projection at most 0.10 m and above-mirror body. Three emission points align inside shades 2.00 m above finished floors without systems duplicating mirror geometry.
+@evidence principles/core/common.md#scope-preservation Owns three vanity lights for powder/two bathrooms and two bathroom ceiling lights.
+@evidence principles/core/common.md#substantive-completion Defines vanity coordinates/height 2.00 m above floor, projection at most 0.10 m, 3,000 K 3 cd, ceiling 2,700 K 7.5 cd and on states.
+@evidence principles/core/common.md#declared-basis Receives powder-room lighting from powder settings and vanity positions/mirror bands from spaces fixture-use H2s.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds vanity/ceiling coordinates and heights above mirror bands beyond sanitary-room settings' lighting existence.
+@evidence principles/design/systems.md#system-authority-confinement Writes only lights, leaving mirrors/vanities with spaces reservations and models.
+@evidence principles/design/systems.md#system-dependency-basis Derives vanity positions from vanity reservations/wall faces, with the tub-bathroom light above mirror band Y = [4.16, 4.96].
+@evidence principles/design/systems.md#system-verification-address Falsifying observations compare lights above mirrors, nonoverlap with mirror faces and bounds containment.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared powder settings and three sanitary-room fixture reservations; wall lights lie above mirror bands and outside head heights above use floors without parent revision.
+@evidence settings/10-house.md#powder Realizes powder-room lighting through vanity/ceiling lights.
+@evidence spaces/rooms/powder.md#powder-fixture-use Places the vanity light wallward of basin X = [3.65, 4.25], Z = [-0.70, -0.25].
+@evidence spaces/rooms/shower-bath.md#shower-bath-plan Places ceiling light at outline center X = 1.985, Z = -7.43.
+@evidence spaces/rooms/shower-bath.md#shower-fixture-use Places vanity light on the right wall of vanity X = 2.52–3.07, Z = [-6.80, -6.10].
+@evidence spaces/rooms/tub-bath.md#tub-bath-plan Places ceiling light at outline center X = 4.36, Z = -6.755.
+@evidence spaces/rooms/tub-bath.md#tub-fixture-use Places vanity light at Y = 5.06 above basin Z = [-5.75, -4.90] and mirror band.
 -->
 
-위생실은 천장등과 세면 거울 위 벽등을 함께 둔다. [파우더룸 세면대](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.70, -0.25] m의 벽 쪽에 `light:powder-room:vanity`를 X = 3.95 m, Z = -0.33 m, Y = 2.00 m에 둔다. [샤워 욕실 세면장](../spaces/rooms/shower-bath.md#shower-fixture-use)은 X = 2.52 m부터 오른쪽 안쪽 면 X = 3.07 m까지, Z = [-6.80, -6.10] m이므로 `light:shower-bathroom:vanity`를 X = 2.99 m, Z = -6.45 m, Y = 5.06 m(2층 바닥 3.06 + 2.00)에 둔다. [욕조 욕실 세면대](../spaces/rooms/tub-bath.md#tub-fixture-use)는 X = 4.95 m부터 오른쪽 안쪽 면 X = 5.50 m까지, Z = [-5.75, -4.90] m이고 거울 띠는 2층 바닥 위 Y = [1.10, 1.90] m, 곧 Y = [4.16, 4.96] m이므로 `light:tub-bathroom:vanity`를 거울 위 X = 5.42 m, Z = -5.325 m, Y = 5.06 m에 둔다. 두 욕실의 천장등 `light:shower-bathroom:ceiling`·`light:tub-bathroom:ceiling`은 [샤워 욕실](../spaces/rooms/shower-bath.md#shower-bath-plan) X = [0.90, 3.07], Z = [-8.80, -6.06] m의 중심 X = 1.985 m, Z = -7.43 m와 [욕조 욕실](../spaces/rooms/tub-bath.md#tub-bath-plan) X = [3.22, 5.50], Z = [-8.80, -4.71] m의 중심 X = 4.36 m, Z = -6.755 m, Y = 5.61 m다. 세면등은 약 3,000 K (1.00, 0.78, 0.55)·3 cd·`range` 2.5 m, 천장등은 2,700 K·7.5 cd·`range` 5.0 m이며 모두 켜짐이다. 세 세면등의 벽 돌출은 0.10 m 이하이고 발광점은 바닥 위 2.00 m라 세면 앞 사용 바닥 위의 사람 머리와 거울 띠 위에 걸리지 않는다.
+Sanitary rooms have both ceiling fixtures and wall lights above vanity mirrors. Place `light:powder-room:vanity` wallward of the [powder-room basin](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.70, -0.25] m at X = 3.95 m, Z = -0.33 m, Y = 2.00 m. The [shower-bathroom vanity](../spaces/rooms/shower-bath.md#shower-fixture-use) spans X = 2.52 m to right inner face X = 3.07 m, Z = [-6.80, -6.10] m; place `light:shower-bathroom:vanity` at X = 2.99 m, Z = -6.45 m, Y = 5.06 m (upper floor 3.06 + 2.00). The [tub-bathroom basin](../spaces/rooms/tub-bath.md#tub-fixture-use) spans X = 4.95 m to right inner face X = 5.50 m, Z = [-5.75, -4.90] m; its mirror band is Y = [1.10, 1.90] m above the upper floor, or Y = [4.16, 4.96] m, so place `light:tub-bathroom:vanity` above it at X = 5.42 m, Z = -5.325 m, Y = 5.06 m. Bathroom ceiling lights `light:shower-bathroom:ceiling`/`light:tub-bathroom:ceiling` are at [shower-bathroom](../spaces/rooms/shower-bath.md#shower-bath-plan) center X = 1.985 m, Z = -7.43 m of X = [0.90, 3.07], Z = [-8.80, -6.06] m and [tub-bathroom](../spaces/rooms/tub-bath.md#tub-bath-plan) center X = 4.36 m, Z = -6.755 m of X = [3.22, 5.50], Z = [-8.80, -4.71] m, at Y = 5.61 m. Vanity lights use approximately 3,000 K (1.00, 0.78, 0.55)/3 cd/`range` 2.5 m; ceiling lights 2,700 K/7.5 cd/`range` 5.0 m; all are on. Three vanity lights project at most 0.10 m from walls, with emission points 2.00 m above floors, clear of heads above vanity-use floors and mirror bands.
 
-source owner는 `src/systems/lighting.ts`다. 파우더룸 및 두 욕실 원본에서 세면등의 수평 몸체는 거울 상부에 있고 거울 면을 가리지 않는다. 파우더룸의 수전·세면볼·거울과 반사된 현관문, 욕실의 타일·샤워/욕조·문틀이 고정 조명에서 구분된다. 세면 광원은 소속 방 외곽 안이며 상층 두 점의 Y=5.06m는 거울 상단4.96m보다 높다. 반사 화면은 실제 설치 거울의 별도 관찰로 확인했고 면 식별 색을 반사 재료 판정으로 대신하지 않았다.
+The source owner is `src/systems/lighting.ts`. Original powder/bathroom views show horizontal vanity bodies above mirrors without obscuring their faces. Powder-room faucet, basin, mirror and reflected entry door, and bathroom tile, shower/tub and frames are distinguishable under fixed lighting. Vanity lights lie within their room bounds; upper points Y=5.06 m exceed mirror top 4.96 m. Reflected displays were checked as separate observations of installed mirrors, without substituting face-identification colors for reflective-material judgment.
 
-## 차고 천장등 {#interior-garage}
+## Garage ceiling light {#interior-garage}
 <!--
-@evidence principles/core/common.md#scope-preservation 차고 천장등 하나의 위치·색·강도·상태와 차고문 가이드 회피를 맡는다.
-@evidence principles/core/common.md#substantive-completion X = 8.60, Z = -4.80, Y = 2.50 m, 4,000 K, 9 cd, range 6.0 m, 켜짐을 정한다.
-@evidence principles/core/common.md#declared-basis 높이는 차고 천장 2.55 m, 회피는 garage-ceiling-closure의 가이드 예약에서 유도한다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 공간 owner가 외곽과 가이드 예약만 정한 데 비해 광원 좌표와 1.40 m 회피 여유를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 광원만 쓰고 차고문·가이드·선반은 spaces·models에 남긴다.
-@evidence principles/design/systems.md#system-dependency-basis 가이드 예약 Z = [-3.40, -0.55]의 뒤쪽 끝과 광원 Z를 비교한다.
-@evidence principles/design/systems.md#system-verification-address 광원 Z가 가이드 예약 밖인지의 대조와 머드룸을 통한 차고 프레임이 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work 차고 외곽, 천장 datum, 가이드 예약을 대조했고 광원이 예약 밖에 들어 부모 수정이 없었다.
-@evidence spaces/00-building.md#attached-garage-extent 차고 안쪽 X = [5.75, 11.45], Z = [-6.45, -0.55] 안에 둔다.
-@evidence spaces/01-storeys.md#ground-threshold-datums 차고 천장 Y = 2.55 m에서 Y = 2.50 m를 유도한다.
-@evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure 가이드 예약 Z = [-3.40, -0.55]보다 1.40 m 뒤에 둔다.
-@evidence spaces/rooms/garage-interior.md#garage-interior-plan garage 방 id를 광원 소속으로 쓴다.
-@evidence spaces/rooms/garage-interior.md#garage-storage-use 후벽 선반·작업대 깊이와 겹치지 않음을 대조한다.
+@evidence principles/core/common.md#scope-preservation Owns one garage-ceiling light's position, color, intensity, state and garage-door guide avoidance.
+@evidence principles/core/common.md#substantive-completion Defines X = 8.60, Z = -4.80, Y = 2.50 m, 4,000 K, 9 cd, range 6.0 m and on.
+@evidence principles/core/common.md#declared-basis Derives height from garage ceiling 2.55 m and avoidance from garage-ceiling-closure's guide reservation.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Adds light coordinates and avoidance clearance 1.40 m beyond the garage-space owner's outline/guide reservation.
+@evidence principles/design/systems.md#system-authority-confinement Writes only the light, leaving garage door, guides and shelves with spaces/models.
+@evidence principles/design/systems.md#system-dependency-basis Compares guide-reservation rear end Z = [-3.40, -0.55] with light Z.
+@evidence principles/design/systems.md#system-verification-address Falsifying observations compare light Z outside guide reservation and garage frames through the mudroom.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work Compared garage outline, ceiling datum and guide reservation; the light lies outside the reservation without parent revision.
+@evidence spaces/00-building.md#attached-garage-extent Places within garage interior X = [5.75, 11.45], Z = [-6.45, -0.55].
+@evidence spaces/01-storeys.md#ground-threshold-datums Derives Y = 2.50 m from garage ceiling Y = 2.55 m.
+@evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure Places 1.40 m behind guide reservation Z = [-3.40, -0.55].
+@evidence spaces/rooms/garage-interior.md#garage-interior-plan Uses garage room id as light affiliation.
+@evidence spaces/rooms/garage-interior.md#garage-storage-use Checks nonoverlap with rear-wall shelf/workbench depth.
 -->
 
-[차고 내부](../spaces/rooms/garage-interior.md#garage-interior-plan)는 [차고 천장 Y = 2.55 m](../spaces/01-storeys.md#ground-threshold-datums)의 평판형 `light:garage:ceiling` 하나로 밝히며 [차고 외곽](../spaces/00-building.md#attached-garage-extent)의 안쪽 X = [5.75, 11.45], Z = [-6.45, -0.55] m 중 X = 8.60 m, Z = -4.80 m, Y = 2.50 m에 둔다. [차고문 이동 구역 위의 천장](../spaces/09-ceiling-assembly.md#garage-ceiling-closure)이 예약한 가이드·문짝 구역은 X = [6.00, 11.20], Y = [2.15, 2.50], Z = [-3.40, -0.55] m이다. 광원은 그 뒤쪽 끝 Z = -3.40 m보다 1.40 m 뒤에 있어 올라간 문짝과 레일 위에 놓이지 않고 문짝이 빛을 가리지 않는다. [후벽 선반과 작업대](../spaces/rooms/garage-interior.md#garage-storage-use)는 후벽 깊이에만 있으므로 천장 평판과 겹치지 않는다. 약 4,000 K (1.00, 0.85, 0.70)·9 cd·`range` 6.0 m, 켜짐이다.
+The [garage interior](../spaces/rooms/garage-interior.md#garage-interior-plan) uses one flush `light:garage:ceiling` at [garage ceiling Y = 2.55 m](../spaces/01-storeys.md#ground-threshold-datums), placed at X = 8.60 m, Z = -4.80 m, Y = 2.50 m within [garage outline](../spaces/00-building.md#attached-garage-extent) interior X = [5.75, 11.45], Z = [-6.45, -0.55] m. The guide/leaf region reserved by [ceiling above garage-door movement](../spaces/09-ceiling-assembly.md#garage-ceiling-closure) is X = [6.00, 11.20], Y = [2.15, 2.50], Z = [-3.40, -0.55] m. The light lies 1.40 m behind its rear end Z = -3.40 m, clear of raised leaf/rails, so the leaf does not block its light. [Rear-wall shelves/workbench](../spaces/rooms/garage-interior.md#garage-storage-use) occupy only rear-wall depth without overlapping the flush ceiling fixture. The light is approximately 4,000 K (1.00, 0.85, 0.70)/9 cd/`range` 6.0 m and on.
 
-source owner는 `src/systems/lighting.ts`다. 실제 광원 Z=-4.80m는 가이드 예약 뒤쪽 끝-3.40m보다1.40m 뒤다. 머드룸 문턱 원본에서 차고 평판등·회색 벽/바닥·검정 창이 읽히며 차고 내부 방향들에서 레일과 닫힌 문이 따로 구분된다. 현재 source의 최대 열림 원형에서도 네 panel이 머리 위 가이드를 따라 접히고 열린 입구와 분리되는 것을 확인했다. 후벽 선반·작업대는 미제작 사물이며 그 완성을 이 빛으로 주장하지 않는다.
+The source owner is `src/systems/lighting.ts`. Actual light Z=-4.80 m lies 1.40 m behind guide-reservation rear end Z=-3.40 m. The original mudroom-threshold view shows garage flush light, gray walls/floor and black window; interior garage directions distinguish rails from the closed door. Current source's maximum-open prototype also confirmed four panels folding along overhead guides, separate from the open entrance. Rear-wall shelves/workbench are unbuilt objects, and this light does not claim their completion.
 
-
-실제 GPU 검토에서 기존 실내 point 강도가 상층 흰 벽과 바닥을 포화시켜 경계가 사라졌다. 광원 위치·색·range·켜짐 모집단과 exposure 1.0은 유지하고, 모든 실내 point의 기준 강도를 기존의 0.15배로 재선택했다. 이는 방별 화면 보정이 아니라 한 집의 고정 광원 선언이며 위 일곱 H2의 cd 값에 반영했다. 그림자 없는 실내등의 벽 너머 기여 한계는 여전히 남는다.
+Actual GPU review found existing interior-point intensities saturated upper white walls/floors until boundaries disappeared. Light positions, colors, ranges, on-state population and exposure 1.0 were preserved while reference intensity of every interior point was reselected to 0.15 times its previous value. This is one house's fixed-light declaration rather than per-room screen correction and is reflected in the H2 cd values above. Shadowless interior lights still have the limitation of contribution through walls.

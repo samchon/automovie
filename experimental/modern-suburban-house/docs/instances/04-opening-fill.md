@@ -1,188 +1,187 @@
-# 건물 개구부 충전 배치
+# Building opening-fill placement
 
-## 개구부에서 한 충전 원형을 도출하는 규칙 {#opening-fill-membership}
+## Deriving one fill prototype per opening {#opening-fill-membership}
 <!--
-@evidence principles/core/common.md#scope-preservation window·door 개구부의 충전 membership의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 개구부 id와 같은 fill id를 하나씩 만들고 윤곽 아래 중앙에서 변환한다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 spaces 개구부 윤곽과 models 국소 원점이다. 그 위에서 이 H2가 window·door 개구부의 충전 membership의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 spaces 개구부 윤곽과 models 국소 원점이고, 이 H2는 개구부 id와 같은 fill id를 하나씩 만들고 윤곽 아래 중앙에서 변환한다.
-@evidence principles/design/instances.md#instance-prototype-boundary window·door 개구부의 충전 membership에는 본문에서 이름 붙인 원형만 배정하고, 차이는 그 원형의 선언 매개변수와 transform으로 제한한다.
-@evidence principles/design/instances.md#instance-derivation-authority kind=window·door를 골라 개구부 id를 그대로 충전 id로 쓴다. p·yaw는 윤곽 아래 중앙과 날씨·열림 법선에서 산출한다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 26개 중 남은 fill null 또는 중복 id이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work spaces 개구부 윤곽과 models 국소 원점을 실제 window·door 개구부의 충전 membership와 26개 중 남은 fill null 또는 중복 id에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence obligations/design/instances.md#instance-prototype-membership 26개 window·door 개구부 id마다 충전 원형 하나를 대응시킨다.
-@evidence obligations/design/instances.md#instance-identity-transform 개구부 아래 중앙·법선에서 p·yaw를 생성하고 scale 1을 고정한다.
-@evidence models/00-model-frame.md#model-local-frame 개구부 공통 좌표의 기준을 opening-fill-membership의 window·door 개구부의 충전 membership에 소비한다.
-@evidence spaces/06-openings.md#external-opening-interface 공간이 내보내는 거친 개구부 id·윤곽·법선을 충전 id·크기·방향의 단일 입력으로 받는다.
+@evidence principles/core/common.md#scope-preservation Twelve windows and fourteen exterior/interior doors receive one model fill each; two open passages, two storage openings and the separate site gate retain their own membership rules rather than entering that window/door denominator.
+@evidence principles/core/common.md#substantive-completion The opening kind selects membership, its lower-center/host plane determines translation, the weather or opening-room normal determines yaw, and source names the corresponding placement fill:<opening-id>; prototype dimensions are parameters, never placement scale.
+@evidence principles/core/common.md#declared-basis Compiled space openings provide identity, rectangular profile and boundary face, while model-local-frame supplies the lower-center origin and outward +Z; instance producers consume those records rather than a copied world-coordinate list.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation A wall void and local asset do not connect themselves; the child selects each opening's model family, creates one namespaced placement, and puts that placement id in the opening fill reference without recreating a wall cut.
+@evidence principles/design/instances.md#instance-prototype-boundary Windows and doors retain the named model hierarchies and permitted dimensions/articulation; world translation/yaw and unit scale add no jamb, pane, leaf or alternative geometry.
+@evidence principles/design/instances.md#instance-derivation-authority Existing kind=window/door ids key one fill:<id> placement each; host profile and face determine p/size/normal, so traversal order cannot introduce another fill or reinterpret a material-only surface as an opening.
+@evidence principles/design/instances.md#instance-verification-address A null fill, duplicate placement id or missing model reference falsifies correspondence even if the handwritten total is 26; compare opening→fill and fill→model relationships, then inspect original host/trim contacts.
+@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work The common lower-center origins match space profiles and exterior/interior host planes with scale 1; current source's fill: namespace changes only placement identity spelling, not parent opening dimensions or origin. Complete current contact/GPU approval is not inferred from that correspondence.
+@evidence obligations/design/instances.md#instance-prototype-membership Each window/door opening keeps one corresponding model placement; storage openings and the separate gate are accounted explicitly elsewhere instead of counted as extra window/door fills.
+@evidence obligations/design/instances.md#instance-identity-transform Lower-edge midpoint, the proper wall-side plane and normal derive p/yaw; rigid scale remains 1 and actual world heights are added once from the host.
+@evidence models/00-model-frame.md#model-local-frame Weather-side lower-center origins govern exterior fills and opening-room-side lower-center origins govern interior fills; the four outward +Z yaw choices retain the model's local depth conventions.
+@evidence spaces/06-openings.md#external-opening-interface Elevation-owned voids and room reveals retain the same opening id, and only prototypes apply frame recess/trim/sill projection; this child consumes their host records without duplicating the opening or shifting the whole instance by the frame recess.
 -->
 
-[개구부 공통 좌표](../models/00-model-frame.md#model-local-frame)에 따라 `src/spaces/environment-links.ts`가 내보내는 `kind=window` 또는 `kind=door` 개구부마다 같은 id의 충전 instance 하나를 배정한다. 원형은 아래 표의 models H2를 가리킨다. instance의 평행이동은 거친 개구부 아래 변의 가로 중앙과 원점 면의 교점이고, 회전은 Y축 yaw 하나, scale은 1이다. 로컬 +Y는 위, +Z는 외부 창·문에서 날씨 쪽이고 실내 문에서 열리는 방 쪽이다. yaw 0은 +Z, π는 −Z, +π/2는 +X, −π/2는 −X를 향한다. 폭과 높이는 spaces 개구부 윤곽에서 계산해 모델 매개변수로 넘기며 별도 배율로 늘리지 않는다. 아래 표는 id별 원형과 방향·경첩이라는 instance 선택만 기록한다. p와 폭·높이는 매번 공간 개구부 윤곽에서 다시 계산하며 별도의 복사 목록을 유지하지 않는다. `fill: null`을 완성 상태로 해석하지 않으며, 후속 instance source가 개구부 id와 모델 instance id를 일대일로 연결해야 한다.
+Following the [common opening frame](../models/00-model-frame.md#model-local-frame), assign one corresponding fill instance to each `kind=window` or `kind=door` opening exported by `src/spaces/environment-links.ts`. Current instance source names its placement `fill:<opening-id>` and connects the opening's `fill` field to that placement; the opening id itself is unchanged. Prototypes point to the models H2s below. Instance translation is the intersection of the rough opening's lower-edge horizontal midpoint and origin plane; rotation is one Y-axis yaw and scale is 1. Local +Y is up. Local +Z faces weather for exterior windows/doors and the opening-side room for interior doors. Yaw 0 faces +Z, π faces −Z, +π/2 faces +X and −π/2 faces −X. Calculate width/height from spaces opening outlines and pass them as model parameters rather than stretching with a separate scale. The tables record only per-id instance choices of prototype, direction and hinge. Recompute p/width/height from the space opening outline each time; keep no copied list. A window/door `fill: null` is not completed correspondence; current `src/instances/filled-building.ts` attaches the referenced placement/model and rejects missing or duplicate bindings.
 
-## 외벽 창 열두 곳 {#window-fill-placement}
+## Twelve exterior windows {#window-fill-placement}
 <!--
-@evidence principles/core/common.md#scope-preservation 외벽 열두 창의 원형 선택과 법선의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 욕조 창은 상부 경첩, 계단·차고 창은 고정창, 나머지는 상하창으로 고른다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 외피 개구부 치수와 창 모델의 들임·원점이다. 그 위에서 이 H2가 외벽 열두 창의 원형 선택과 법선의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 외피 개구부 치수와 창 모델의 들임·원점이고, 이 H2는 욕조 창은 상부 경첩, 계단·차고 창은 고정창, 나머지는 상하창으로 고른다.
-@evidence principles/design/instances.md#instance-prototype-boundary 외벽 열두 창의 원형 선택과 법선에는 본문에서 이름 붙인 원형만 배정하고, 차이는 그 원형의 선언 매개변수와 transform으로 제한한다.
-@evidence principles/design/instances.md#instance-derivation-authority 개구부 id는 원형·yaw 표의 키이며 p와 크기는 매번 해당 spaces 개구부에서 재계산한다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 높은 tub-right-window와 우측 garage-right-window의 틈이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 외피 개구부 치수와 창 모델의 들임·원점을 실제 외벽 열두 창의 원형 선택과 법선와 높은 tub-right-window와 우측 garage-right-window의 틈에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence models/01-windows.md#double-hung-window 상하창의 기준을 window-fill-placement의 외벽 열두 창의 원형 선택과 법선에 소비한다.
-@evidence models/01-windows.md#fixed-window 고정창의 기준을 window-fill-placement의 외벽 열두 창의 원형 선택과 법선에 소비한다.
-@evidence models/01-windows.md#awning-window 상부 경첩창의 기준을 window-fill-placement의 외벽 열두 창의 원형 선택과 법선에 소비한다.
-@evidence spaces/envelope/front.md#living-front-window 거실 전면 묶음창의 2.80 m 거친 폭과 +Z 법선에서 상하창 변환을 만든다.
-@evidence spaces/envelope/front.md#bedroom-two-front-window 둘째 침실 앞창의 윤곽을 같은 상하창 원형에 넘긴다.
-@evidence spaces/envelope/front.md#stair-front-window 계단실 작은 창에는 고정창 원형을 골라 그 높은 창대 윤곽에 맞춘다.
-@evidence spaces/envelope/front.md#bedroom-three-front-window 셋째 침실 앞창을 둘째와 별도 id로 유지한다.
-@evidence spaces/envelope/rear.md#kitchen-rear-window 주방 뒤 조리대 위의 창을 −Z 법선 상하창으로 놓는다.
-@evidence spaces/envelope/rear.md#family-rear-window 가족실 후면 묶음창의 너비를 원형 인자로 받는다.
-@evidence spaces/envelope/rear.md#primary-rear-window 주침실 뒤 창의 상층 Y 윤곽을 원형에 넘긴다.
-@evidence spaces/envelope/left.md#living-left-window 벽난로 뒤쪽의 거실 측창은 −X 법선에 창 원점을 맞춘다.
-@evidence spaces/envelope/left.md#primary-left-window 주침실 왼쪽 창의 윤곽을 별도 side id로 유지한다.
-@evidence spaces/envelope/right.md#family-right-window 가족실 오른쪽 창은 +X 법선에 상하창을 맞춘다.
-@evidence spaces/envelope/right.md#tub-right-window 욕조 욕실의 높은 흐린 창에 상부 경첩창 원형을 배정한다.
-@evidence spaces/envelope/right.md#garage-right-window 차고 측면 채광에는 고정창 원형을 배정한다.
-@evidenceExclude models/01-windows.md#window-fidelity `window-fidelity`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidence models/01-windows.md#window-local-frame `window-local-frame`의 원형 원점·외곽·구성원 규칙을 이 H2의 host 선정과 배치·간섭 검사에 사용한다.
-@evidenceExclude models/01-windows.md#window-member-sizes `window-member-sizes`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/01-windows.md#window-muntin-grid `window-muntin-grid`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/01-windows.md#window-sill-trim `window-sill-trim`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/01-windows.md#window-surface-partitions `window-surface-partitions`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidence settings/10-house.md#openings `openings`의 집 범위·방 역할·관찰 조건을 이 H2의 구성원 선택과 배치 검사에 적용한다.
-@evidence spaces/envelope/left.md#left-openings `left-openings`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/envelope/rear.md#rear-openings `rear-openings`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/envelope/right.md#right-openings `right-openings`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
+@evidence principles/core/common.md#scope-preservation All twelve named exterior openings retain their original room/elevation binding; the tub's obscured awning, stair/garage fixed units and nine double-hung groups are not merged into one representative window.
+@evidence principles/core/common.md#substantive-completion The id table selects three window kinds and four elevation yaw values, while current OpeningWindowFills recalculates lower-center weather contacts and dimensions from the built boundary/profile; no copied transform or second frame recess is supplied here.
+@evidence principles/core/common.md#declared-basis Individual elevation H2s supply widths/heights/unit counts and room roles, and models/01 supplies weather-side origin and operating kinds; this child assigns those models to the twelve identities without choosing another window size.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation A grouped void and sash model gain a named world placement and elevation-specific yaw; three-unit living glazing remains one opening fill while its internal units stay model members.
+@evidence principles/design/instances.md#instance-prototype-boundary Double-hung, fixed and awning members use declared W/H/n arguments and rigid unit-scale placement; sash tracks, glazing cells, trim and articulation remain inside their respective window model.
+@evidence principles/design/instances.md#instance-derivation-authority Each literal opening id selects kind/unit count, and its host face/profile supplies p/size/yaw; the producer rejects a missing, duplicate or extra exterior window rather than deriving membership from traversal order.
+@evidence principles/design/instances.md#instance-verification-address High tub-right-window and the low garage-side host challenge lower-Y/side-normal mapping and wall reveals; inspect actual frame/trim bounds and both-side contacts, not just matching twelve names.
+@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work Elevation kinds/unit counts and model weather origins permit the four yaw mappings without changing any opening or frame depth. The 0.04 m recess remains internal model geometry, so correcting a doubled instance recess requires no parent coordinate revision; current full contact/GPU approval remains unverified.
+@evidence models/01-windows.md#double-hung-window Nine living/bedroom/kitchen/family groups select this kind with elevation unit counts; upper/lower tracks and closed reference state stay model-owned while this table assigns their world normals.
+@evidence models/01-windows.md#fixed-window The one-unit stair and two-unit garage-side openings select rigid fixed-sash assets, retaining their different heights and world +Z/+X normals without creating articulated variants.
+@evidence models/01-windows.md#awning-window The tub's one-unit obscured window selects its top-hinged asset at yaw +π/2; its π/8 maximum and 0.25 m outward reservation remain model/space constraints, not a new placement angle.
+@evidence spaces/envelope/front.md#living-front-window Living-front grouped-window rough width 2.80 m and +Z normal derive the double-hung transform.
+@evidence spaces/envelope/front.md#bedroom-two-front-window The bedroom-two front outline is passed to the same double-hung prototype.
+@evidence spaces/envelope/front.md#stair-front-window Choose the fixed prototype for the small stair window and fit its high-sill outline.
+@evidence spaces/envelope/front.md#bedroom-three-front-window Keep the bedroom-three front window distinct from bedroom two by id.
+@evidence spaces/envelope/rear.md#kitchen-rear-window Place the rear kitchen-counter window as double-hung with −Z normal.
+@evidence spaces/envelope/rear.md#family-rear-window The rear family-room grouped-window width is a prototype argument.
+@evidence spaces/envelope/rear.md#primary-rear-window Pass the rear primary-window upper-floor Y outline to its prototype.
+@evidence spaces/envelope/left.md#living-left-window Align the living side-window origin behind the fireplace to the −X normal.
+@evidence spaces/envelope/left.md#primary-left-window Keep the primary left-window outline under its separate side id.
+@evidence spaces/envelope/right.md#family-right-window Align the family right double-hung window with +X normal.
+@evidence spaces/envelope/right.md#tub-right-window Assign the awning prototype to the tub bathroom's high obscured window.
+@evidence spaces/envelope/right.md#garage-right-window Assign the fixed prototype to garage side daylighting.
+@evidenceExclude models/01-windows.md#window-fidelity Weatherstrips, locks, screens and double-glazing omissions limit window representation; this id/yaw unit does not choose or realize those omitted mechanisms and cannot claim their completion from placement correspondence.
+@evidence models/01-windows.md#window-local-frame Weather-plane origin and model-internal Z=[-0.18,-0.04] m frame depth locate each asset against its original void; this mapping applies no second -0.04 m recess to the world transform.
+@evidenceExclude models/01-windows.md#window-member-sizes Frame/sash/mullion widths and glass thickness are internal model parameters; this table supplies only host W/H/n and creates no separate frame, sash or glazing-cell population.
+@evidenceExclude models/01-windows.md#window-muntin-grid The 2×2 clear-sash bars and omitted tub muntins belong inside the chosen assets; they supply no additional opening identity or world yaw for this placement table.
+@evidenceExclude models/01-windows.md#window-sill-trim Four trim boards and inner sill/casing depth bands remain window geometry; this child places the complete asset and does not derive another trim instance or reapply sill projection as a translation.
+@evidenceExclude models/01-windows.md#window-surface-partitions Nine stable face roles govern binding within a window; this unit keys opening/placement ids and neither creates a new face role nor substitutes id correspondence for actual binding review.
+@evidence settings/10-house.md#openings Each room-bound window receives thick frame/sash/muntin/glass geometry rather than a hole or opaque black plate; room/elevation assignment survives the shared prototype choice and numeric dimensions still come from spaces.
+@evidence spaces/envelope/left.md#left-openings Living-left and primary-left retain their two separate room-bound voids behind the chimney and at upper-floor height, giving weather normal -X and yaw -π/2 without another left-wall window.
+@evidence spaces/envelope/rear.md#rear-openings Kitchen, family and primary rear windows retain their distinct unit counts/height bands on the actual rear wall, with -Z weather normal and yaw π rather than copied front-window transforms.
+@evidence spaces/envelope/right.md#right-openings Family, high obscured tub and lower garage-side windows bind to their different right-wall/roof contexts at +X weather normal; sharing yaw +π/2 does not merge their host heights or room ownership.
 -->
 
-아래 열두 개는 [상하창](../models/01-windows.md#double-hung-window), [고정창](../models/01-windows.md#fixed-window), [상부 경첩창](../models/01-windows.md#awning-window) 중 한 원형을 쓴다. 원점은 각 날씨 면에 있으므로 창틀의 벽 안쪽 들임은 models 원형에서만 적용한다. 원점 `p`는 각 개구부 아래 변 중앙의 `(world X,Y,Z)` m로 계산하므로 여기서는 수치를 반복하지 않는다.
+Each of the following twelve uses one [double-hung](../models/01-windows.md#double-hung-window), [fixed](../models/01-windows.md#fixed-window) or [awning](../models/01-windows.md#awning-window) prototype. Origins lie on weather faces, so only the models prototype applies frame recess into the wall. Calculate origin `p` as `(world X,Y,Z)` m at each opening's lower-edge midpoint; values are not repeated here.
 
-| 개구부 id | 원형 | yaw |
+| Opening id | Prototype | yaw |
 |---|---|---|
-| `living-front-window` | 상하창 | 0 |
-| `bedroom-two-front-window` | 상하창 | 0 |
-| `stair-front-window` | 고정창 | 0 |
-| `bedroom-three-front-window` | 상하창 | 0 |
-| `kitchen-rear-window` | 상하창 | π |
-| `family-rear-window` | 상하창 | π |
-| `primary-rear-window` | 상하창 | π |
-| `living-left-window` | 상하창 | −π/2 |
-| `primary-left-window` | 상하창 | −π/2 |
-| `family-right-window` | 상하창 | +π/2 |
-| `tub-right-window` | 상부 경첩창 | +π/2 |
-| `garage-right-window` | 고정창 | +π/2 |
+| `living-front-window` | Double-hung | 0 |
+| `bedroom-two-front-window` | Double-hung | 0 |
+| `stair-front-window` | Fixed | 0 |
+| `bedroom-three-front-window` | Double-hung | 0 |
+| `kitchen-rear-window` | Double-hung | π |
+| `family-rear-window` | Double-hung | π |
+| `primary-rear-window` | Double-hung | π |
+| `living-left-window` | Double-hung | −π/2 |
+| `primary-left-window` | Double-hung | −π/2 |
+| `family-right-window` | Double-hung | +π/2 |
+| `tub-right-window` | Awning | +π/2 |
+| `garage-right-window` | Fixed | +π/2 |
 
-## 외부 문 세 곳과 옆마당 대문 {#exterior-door-fill-placement}
+## Three exterior doors and the side-yard gate {#exterior-door-fill-placement}
 <!--
-@evidence principles/core/common.md#scope-preservation 현관·차고·정원문과 별도 관리문의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 정원문 Y=0, world 원점 대문은 identity 변환으로 놓는다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 외피 문턱·옆마당 빈 구간과 네 문 원형이다. 그 위에서 이 H2가 현관·차고·정원문과 별도 관리문의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 외피 문턱·옆마당 빈 구간과 네 문 원형이고, 이 H2는 정원문 Y=0, world 원점 대문은 identity 변환으로 놓는다.
-@evidence principles/design/instances.md#instance-prototype-boundary 현관·차고·정원문과 별도 관리문에는 본문에서 이름 붙인 원형만 배정하고, 차이는 그 원형의 선언 매개변수와 transform으로 제한한다.
-@evidence principles/design/instances.md#instance-derivation-authority 현관·차고·정원문과 별도 관리문의 id와 위치는 본문의 한 입력 규칙에서 산출한다. 정원문 Y=0, world 원점 대문은 identity 변환으로 놓는다 순회 순서를 생성 입력으로 쓰지 않는다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 정원문 바닥 관통 또는 대문의 이중 평행이동이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 외피 문턱·옆마당 빈 구간과 네 문 원형을 실제 현관·차고·정원문과 별도 관리문와 정원문 바닥 관통 또는 대문의 이중 평행이동에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence models/02-exterior-doors.md#front-entry-door 현관문의 기준을 exterior-door-fill-placement의 현관·차고·정원문과 별도 관리문에 소비한다.
-@evidence models/02-exterior-doors.md#garage-sectional-door 차고문의 기준을 exterior-door-fill-placement의 현관·차고·정원문과 별도 관리문에 소비한다.
-@evidence models/02-exterior-doors.md#garden-door-pair 정원문의 기준을 exterior-door-fill-placement의 현관·차고·정원문과 별도 관리문에 소비한다.
-@evidence spaces/site/side-walk.md#side-gate-interface 옆마당 관리문 경계의 기준을 exterior-door-fill-placement의 현관·차고·정원문과 별도 관리문에 소비한다.
-@evidence models/02-exterior-doors.md#side-yard-gate 옆마당 대문 원형의 기준을 exterior-door-fill-placement의 현관·차고·정원문과 별도 관리문에 소비한다.
-@evidence spaces/envelope/front.md#front-entry-filling 현관문 거친 윤곽과 전면 날씨 면을 앞문 원형의 변환 기준으로 받는다.
-@evidence spaces/envelope/front.md#garage-front-opening 차고문 X=[6.10,11.10] m 개구부와 낮은 바닥 datum을 원형에 넘긴다.
-@evidence spaces/envelope/rear.md#garden-door 정원문 윤곽의 벽 아래 절개 대신 완성 문턱 Y=0을 원형 원점으로 쓴다.
-@evidenceExclude models/02-exterior-doors.md#exterior-door-fidelity `exterior-door-fidelity`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/02-exterior-doors.md#exterior-door-surfaces `exterior-door-surfaces`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidence spaces/site/fence.md#fence-gate-junction `fence-gate-junction`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/site/fence.md#fence-ground-profile `fence-ground-profile`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/site/side-walk.md#side-walk-plan `side-walk-plan`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
+@evidence principles/core/common.md#scope-preservation Three wall-door fills remain distinct from the fence gate outside the environment opening list; one garage door owns its four panels/rails and one garden pair owns both leaves, without extra opening instances.
+@evidence principles/core/common.md#substantive-completion The three ids select front/garage/garden assets at yaw 0/0/π and host-derived origins, while the house-coordinate gate uses identity placement; the garden origin retains finished threshold Y=0 and the garage retains its -0.15 m floor.
+@evidence principles/core/common.md#declared-basis Front/rear opening and threshold owners provide wall-door hosts, side-gate-interface provides the post gap, and models/02 supplies local versus house-coordinate origins; the child selects world transforms rather than door geometry.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounded wall voids and four assets gain three opening-linked fills plus one separate gate member; the gate's already world-oriented boards are not translated again by their center or rotated again toward the garden.
+@evidence principles/design/instances.md#instance-prototype-boundary Entry jamb/glazing, garage panels/rails, garden paired leaves and gate boards/hardware stay inside their four models; only declared world placement and reference/inspection state select the assets, with scale 1.
+@evidence principles/design/instances.md#instance-derivation-authority Literal wall opening ids key three fill:<id> placements derived from built host profiles; fill:side-yard-gate is a separate identity using the gate's world coordinates and walking-surface input, without traversal-dependent membership.
+@evidence principles/design/instances.md#instance-verification-address Lowering the garden model to an under-floor wall cut or applying X=12.90 m again to the gate would falsify contacts; inspect those full bodies against threshold/post faces and count the gate separately from environment window/door fills.
+@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work Finished garden threshold Y=0, garage lower datum -0.15 m and the gate's authored world frame resolve the different origin mappings without altering opening extents or prototypes. Their current source placements exist, but full state/contact/GPU acceptance is not inferred from source existence.
+@evidence models/02-exterior-doors.md#front-entry-door Its weather-side origin, +X hinge and inward -Z leaf select yaw 0 for front-door; threshold/leaf clearances remain internal model geometry rather than another downward instance offset.
+@evidence models/02-exterior-doors.md#garage-sectional-door Its garage-floor/weather origin selects yaw 0 at the low opening, preserving four internal panels and guide rails as one fill instead of one placement per panel or rail reservation.
+@evidence models/02-exterior-doors.md#garden-door-pair Its weather origin faces world -Z at yaw π and finished floor Y=0, preserving both leaf pivots inside one model; a wall cut below that floor does not lower the threshold-relative asset.
+@evidence spaces/site/side-walk.md#side-gate-interface The 1.20 m post-interior gap, +X gardenward hinge and walking-surface S bound the separate gate, while it remains outside environment wall-opening counts and retains the two waiting/access zones.
+@evidence models/02-exterior-doors.md#side-yard-gate Already house-coordinate boards X=[12.31,13.49], Z=[-0.32,-0.28] m and hinge X=13.475 m require identity transform; only the walking-surface height input enters the model rather than another center translation.
+@evidence spaces/envelope/front.md#front-entry-filling The rough entry-door outline/front weather face supply its transform.
+@evidence spaces/envelope/front.md#garage-front-opening Pass garage opening X=[6.10,11.10] m and low floor datum to its prototype.
+@evidence spaces/envelope/rear.md#garden-door Use finished threshold Y=0 as prototype origin instead of the garden-door outline's lower wall cut.
+@evidenceExclude models/02-exterior-doors.md#exterior-door-fidelity Locks, motors, springs and latch internals are omitted model mechanisms; this id/transform table generates none of them and cannot turn a garage rail pose into proof of mechanical operation.
+@evidenceExclude models/02-exterior-doors.md#exterior-door-surfaces Leaf-exterior/interior/edge, glazing and hardware ids bind internal member faces; this placement unit chooses no new partition, finish or separate threshold model from that list.
+@evidence spaces/site/fence.md#fence-gate-junction Existing posts and empty gap retain spaces ownership, so the identity-placed model leaf joins those same posts without another post pair or fixed fence panel across the gate.
+@evidence spaces/site/fence.md#fence-ground-profile The adjacent fence and gate share walking-surface-relative lower/top heights, while missing adopted terrain remains unresolved; an identity gate placement does not certify the entire enclosure's ground contact.
+@evidence spaces/site/side-walk.md#side-walk-plan The walking surface and two connected side zones supply the gate host height/access context; its leaf remains over that paving rather than receiving an invented map-height fallback or a second side path.
 -->
 
-완성 외부 문 세 곳은 [현관문](../models/02-exterior-doors.md#front-entry-door), [차고문](../models/02-exterior-doors.md#garage-sectional-door), [정원문](../models/02-exterior-doors.md#garden-door-pair)을 각각 한 번 사용한다. 기준 열림은 원형이 소유한다. 정원문은 완성 문턱 위 Y=0을 원점으로 쓴다. 따라서 벽 절개가 완성 바닥 아래까지 이어져도 문 원형을 아래로 내리지 않는다.
+The three exterior-door members each use the [entry](../models/02-exterior-doors.md#front-entry-door), [garage](../models/02-exterior-doors.md#garage-sectional-door) and [garden](../models/02-exterior-doors.md#garden-door-pair) prototype once. Prototypes own reference opening states. Garden-door origin is Y=0 at the finished threshold; do not lower the prototype even when the wall cut continues below finished floor.
 
-| 개구부 id | 원형 | yaw |
+| Opening id | Prototype | yaw |
 |---|---|---|
-| `front-door` | 현관문 | 0 |
-| `garage-front-door` | 차고문 | 0 |
-| `garden-door` | 정원문 | π |
+| `front-door` | Entry door | 0 |
+| `garage-front-door` | Garage door | 0 |
+| `garden-door` | Garden door | π |
 
-[옆마당 관리문 경계](../spaces/site/side-walk.md#side-gate-interface)는 environment 개구부 목록 대신 울타리의 별도 빈 구간이다. [옆마당 대문 원형](../models/02-exterior-doors.md#side-yard-gate)은 닫힌 판재 X=[12.31,13.49] m·Z=[−0.32,−0.28] m와 +X 경첩축을 세계 좌표로 정한다. 따라서 이 원형 한 개의 instance 변환은 위치 (0,0,0) m·yaw 0·scale 1이며, 이 H2에서 X=12.90 m 중심이나 정원 쪽 −Z 방향을 두 번째 변환으로 적용하지 않는다. 현장 경계 X=[12.30,13.50] m와 문짝의 맞댐만 검사하고 울타리 기둥·패널은 다시 만들지 않는다. 대문도 건물 충전 모집단에 넣되 환경의 `fill` 개수에는 합산하지 않는다.
+The [side-yard service-gate boundary](../spaces/site/side-walk.md#side-gate-interface) is a separate fence gap outside the environment opening list. The [side-yard gate prototype](../models/02-exterior-doors.md#side-yard-gate) defines closed boards X=[12.31,13.49] m·Z=[−0.32,−0.28] m and a +X hinge axis in world coordinates. Thus this single instance uses position (0,0,0) m, yaw 0, scale 1; do not apply center X=12.90 m or gardenward −Z as a second transform. Inspect leaf/hardware contact with site post interiors X=[12.30,13.50] m, allowed motion and the parent's passage/waiting zones; do not recreate fence posts/panels. Include the gate in the building-fill population but not in environment `fill` counts. Existing leaf/fence source does not complete adopted terrain or current user/contact/GPU review.
 
-## 실내 여닫이문 열한 곳 {#interior-door-fill-placement}
+## Eleven interior hinged doors {#interior-door-fill-placement}
 <!--
-@evidence principles/core/common.md#scope-preservation 서비스실과 상층 복도 문 열한 곳의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 열리는 방 yaw와 low/high 경첩을 id별로 배정한다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 실내 개구부와 문 원형의 경첩 거울 변형이다. 그 위에서 이 H2가 서비스실과 상층 복도 문 열한 곳의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 실내 개구부와 문 원형의 경첩 거울 변형이고, 이 H2는 열리는 방 yaw와 low/high 경첩을 id별로 배정한다.
-@evidence principles/design/instances.md#instance-prototype-boundary 서비스실과 상층 복도 문 열한 곳에는 본문에서 이름 붙인 원형만 배정하고, 차이는 그 원형의 선언 매개변수와 transform으로 제한한다.
-@evidence principles/design/instances.md#instance-derivation-authority 열한 개구부 id가 yaw·경첩 표의 키이고 p와 폭은 개구부 아래 중앙·윤곽에서 재계산한다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 service-pantry-door high Z와 hall-primary-door π yaw이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 실내 개구부와 문 원형의 경첩 거울 변형을 실제 서비스실과 상층 복도 문 열한 곳와 service-pantry-door high Z와 hall-primary-door π yaw에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence models/03-interior-doors.md#interior-door-members 실내 문 원형의 기준을 interior-door-fill-placement의 서비스실과 상층 복도 문 열한 곳에 소비한다.
-@evidence models/03-interior-doors.md#interior-door-hinges 방별 경첩 표의 기준을 interior-door-fill-placement의 서비스실과 상층 복도 문 열한 곳에 소비한다.
-@evidence spaces/05-route-network.md#room-route-network 열한 문의 A방 열림 방향을 동선 owner에서 받고 각 yaw·경첩 변형과 맞춘다.
-@evidenceExclude models/03-interior-doors.md#interior-door-fidelity `interior-door-fidelity`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/03-interior-doors.md#interior-door-surfaces `interior-door-surfaces`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
+@evidence principles/core/common.md#scope-preservation All eleven independently entered service/upper rooms retain their own door id and opening-room direction; wardrobe access stays through the primary room, and no storage opening or doorless passage enters this hinged-door set.
+@evidence principles/core/common.md#substantive-completion The complete table gives world hinge end, opening-room yaw and corresponding local left/right variant for every id; InteriorDoorFills reads host width/thickness/lower datum instead of copying another position list.
+@evidence principles/core/common.md#declared-basis Room-route-network and room owners supply destinations/hinge ends, while the two mirrored model variants supply opening-local +Z and π/2 reference state; this child converts world hinge ends into local sides under each yaw.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation A room connection and hinged asset gain one stable fill:<door-id> placement, correct room-facing normal and mirrored hinge choice; sharing one model does not copy the pantry's high-Z hinge into a low-Z door.
+@evidence principles/design/instances.md#instance-prototype-boundary All eleven use the same interior-door hierarchy with declared width, wall thickness and handle variant; only rigid world placement and its permitted reference/inspection rotation vary, without another threshold or resized leaf.
+@evidence principles/design/instances.md#instance-derivation-authority The literal id table determines yaw/hinge choice, while built host/profile determines lower-center origin, width and thickness; source rejects missing/extra door identities and keeps unit scale rather than numbering by traversal.
+@evidence principles/design/instances.md#instance-verification-address Pantry's high-Z hinge and primary's yaw π challenge the world-to-local side conversion; compare actual open leaf/handle bounds with each room's waiting/use areas and garage-floor junction instead of checking only a forward normal.
+@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work The eleven room hinge/end assignments map consistently to the model's two mirrored variants at the stated yaw, including pantry high-Z/local-left and primary low-X/local-right. Existing lower-edge datums supply ground/upper height without a new room origin; current full swept-contact/GPU approval is not established by the table.
+@evidence models/03-interior-doors.md#interior-door-members Its centered lower-edge/opening-side frame receives host width and 0.15/0.25 m wall depth; world p/yaw retain the shared jamb/leaf hierarchy and add the opening's floor height once.
+@evidence models/03-interior-doors.md#interior-door-hinges Low/high world ends and local mirrored pivots convert under the table's yaw, preserving each room's π/2 open reference without exchanging hinge sides or inferring a stop angle from a photograph.
+@evidence spaces/05-route-network.md#room-route-network The service branches, laundry-only garage route, five direct upper-hall rooms and primary-only wardrobe edge define which room each leaf opens into; door placement adds no pass-through route through pantry, powder or bedroom.
+@evidenceExclude models/03-interior-doors.md#interior-door-fidelity Three visible knuckles and omitted latch/lock/closer mechanisms limit the asset; this placement table neither generates that hardware nor adds a model threshold for the garage's existing floor step.
+@evidenceExclude models/03-interior-doors.md#interior-door-surfaces jamb-a/b/core and casing-a/b distinguish two room-side faces inside the chosen model; this id/yaw mapping adds no face partition or separate casing placement and makes no material-binding verdict.
 -->
 
-열한 곳은 [실내 문 원형](../models/03-interior-doors.md#interior-door-members)을 각각 한 번 쓴다. p는 열리는 방 쪽 벽면과 거친 개구부 아래 중앙의 교점이다. 경첩 끝의 low/high는 [방별 경첩 표](../models/03-interior-doors.md#interior-door-hinges)에 있는 개구부 수평 좌표의 낮은/높은 끝이며, 모델의 거울 변형으로 좌우를 맞춘다. `local hinge`는 +Z 쪽에서 본 좌/우다. 모든 문의 기준 상태는 원형의 π/2 열림을 따른다.
+Each of eleven locations uses the [interior-door prototype](../models/03-interior-doors.md#interior-door-members) once. p is the intersection of the opening-room wall face and rough opening's lower center. Hinge low/high means the lower/higher horizontal opening coordinate in the [room-specific hinge table](../models/03-interior-doors.md#interior-door-hinges); mirrored model variants match sides. `local hinge` is left/right viewed from +Z. All reference states follow the prototype's π/2 opening.
 
-| 개구부 id | yaw | world 경첩 끝 | local hinge |
+| Opening id | yaw | World hinge end | local hinge |
 |---|---|---|---|
-| `laundry-garage-door` | −π/2 | low Z | 좌 |
-| `entry-living-door` | −π/2 | low Z | 좌 |
-| `service-powder-door` | +π/2 | low Z | 우 |
-| `service-laundry-door` | +π/2 | low Z | 우 |
-| `service-pantry-door` | +π/2 | high Z | 좌 |
-| `hall-primary-door` | π | low X | 우 |
-| `primary-wardrobe-door` | −π/2 | low Z | 좌 |
-| `hall-bedroom-two-door` | 0 | high X | 우 |
-| `hall-bedroom-three-door` | +π/2 | low Z | 우 |
-| `hall-shower-door` | π | low X | 우 |
-| `hall-tub-door` | +π/2 | high Z | 좌 |
+| `laundry-garage-door` | −π/2 | low Z | Left |
+| `entry-living-door` | −π/2 | low Z | Left |
+| `service-powder-door` | +π/2 | low Z | Right |
+| `service-laundry-door` | +π/2 | low Z | Right |
+| `service-pantry-door` | +π/2 | high Z | Left |
+| `hall-primary-door` | π | low X | Right |
+| `primary-wardrobe-door` | −π/2 | low Z | Left |
+| `hall-bedroom-two-door` | 0 | high X | Right |
+| `hall-bedroom-three-door` | +π/2 | low Z | Right |
+| `hall-shower-door` | π | low X | Right |
+| `hall-tub-door` | +π/2 | high Z | Left |
 
-## 열린 통로와 붙박이 수납문의 경계 {#non-door-opening-fills}
+## Boundaries of open passages and built-in sliding doors {#non-door-opening-fills}
 <!--
-@evidence principles/core/common.md#scope-preservation 빈 통로 둘과 수납 미닫이문 둘의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 두 통로는 빈 채로 두고 수납문은 world 원형에 identity 변환을 준다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 spaces의 opening 네 곳과 closet 모델의 world 좌표이다. 그 위에서 이 H2가 빈 통로 둘과 수납 미닫이문 둘의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 spaces의 opening 네 곳과 closet 모델의 world 좌표이고, 이 H2는 두 통로는 빈 채로 두고 수납문은 world 원형에 identity 변환을 준다.
-@evidence principles/design/instances.md#instance-prototype-boundary 빈 통로 둘과 수납 미닫이문 둘에는 본문에서 이름 붙인 원형만 배정하고, 차이는 그 원형의 선언 매개변수와 transform으로 제한한다.
-@evidence principles/design/instances.md#instance-derivation-authority 빈 통로 둘과 수납 미닫이문 둘의 id와 위치는 본문의 한 입력 규칙에서 산출한다. 두 통로는 빈 채로 두고 수납문은 world 원형에 identity 변환을 준다 순회 순서를 생성 입력으로 쓰지 않는다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 entry-coat X=2.02 또는 upper-linen Z=−3.41의 이중 변환이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work spaces의 opening 네 곳과 closet 모델의 world 좌표을 실제 빈 통로 둘과 수납 미닫이문 둘와 entry-coat X=2.02 또는 upper-linen Z=−3.41의 이중 변환에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence models/05-closet-fittings.md#coat-closet-doors 외투장 미닫이문의 기준을 non-door-opening-fills의 빈 통로 둘과 수납 미닫이문 둘에 소비한다.
-@evidence models/05-closet-fittings.md#linen-closet-fittings 린넨장 미닫이문의 기준을 non-door-opening-fills의 빈 통로 둘과 수납 미닫이문 둘에 소비한다.
-@evidence spaces/06-openings.md#external-opening-interface environment의 window·door와 별도인 네 opening 종류를 받아 두 통로를 비워 둔다.
-@evidenceExclude models/05-closet-fittings.md#closet-fitting-fidelity `closet-fitting-fidelity`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidenceExclude models/05-closet-fittings.md#closet-fitting-surfaces `closet-fitting-surfaces`의 부재 형상·표면 분할은 models 원형 안에서 완성된다. 이 배치는 원형 전체를 한 구성원으로 놓으며 내부 부재를 별도 개체로 복제하지 않는다.
-@evidence models/05-closet-fittings.md#coat-closet-rod-shelf `coat-closet-rod-shelf`의 원형 원점·외곽·구성원 규칙을 이 H2의 host 선정과 배치·간섭 검사에 사용한다.
-@evidence models/18-house-props.md#linen-folded-towels `linen-folded-towels`의 원형 원점·외곽·구성원 규칙을 이 H2의 host 선정과 배치·간섭 검사에 사용한다.
-@evidence settings/10-house.md#upper-hall `upper-hall`의 집 범위·방 역할·관찰 조건을 이 H2의 구성원 선택과 배치 검사에 적용한다.
-@evidence spaces/rooms/upper-hall.md#upper-hall-plan `upper-hall-plan`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/rooms/upper-hall.md#upper-linen-storage `upper-linen-storage`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
+@evidence principles/core/common.md#scope-preservation Two common-room passages remain empty, while coat/linen storage openings receive one fitting each; thirty linen towels retain a separate unbuilt prop population rather than becoming door/shelf members or another room route.
+@evidence principles/core/common.md#substantive-completion House-oriented XZ requires no second translation/yaw, but coat floor Y=0 and linen floor Y=3.06 m are distinct; the body corrects the former all-identity instruction and retains stable shelf/stack/layer ids for the towel proposal.
+@evidence principles/core/common.md#declared-basis The two passage ids supply empty circulation, closet models supply existing house XZ/floor-relative heights, and upper-linen-storage supplies floor/shelf tops; linen-folded-towels supplies width/depth/count for the separate hosted draft.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Four non-window/door voids gain two explicit empty states and two namespaced fitting placements, with floor height added once to linen; the five shelf hosts gain an indexed towel proposal without another shelf or storage-room edge.
+@evidence principles/design/instances.md#instance-prototype-boundary Coat leaves/rails/rod/shelf and linen leaves/rails/five shelves retain their own assets and bounded sliding inputs; towel geometry remains its own prop model, and empty passages generate no leaf or fake fill panel.
+@evidence principles/design/instances.md#instance-derivation-authority Passage ids generate no placements; fill:entry-coat-opening and fill:upper-linen-opening select existing fitting models with house XZ and their host floor Y. Shelf/stack/layer indices name proposed towels without traversal-dependent counting.
+@evidence principles/design/instances.md#instance-verification-address A second XZ translation would move coat X=2.02 or linen Z=-3.41 m contacts off their walls, while missing linen Y=3.06 m would place it on the wrong storey; inspect both frames and maximum individual leaves separately from the unfinished towel population.
+@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work Closet parents already distinguish house XZ from floor-relative Y and upper-linen-storage supplies finished floor 3.06 m. The former child instruction p=(0,0,0) for both is corrected to a single linen floor lift, matching current source without changing parent dimensions or prototype geometry; actual complete contact/GPU review remains separate.
+@evidence models/05-closet-fittings.md#coat-closet-doors The two overlapping leaves and tracks already occupy coat house XZ at ground-floor-relative Y, so one identity placement preserves X≤2.035 m casing and its 0.45 m individual sliding limits without a second opening-center translation.
+@evidence models/05-closet-fittings.md#linen-closet-fittings House XZ and floor-relative rails/leaves/five shelf tops receive only Y=3.06 m, retaining separate 0.475 m sliding limits and model-owned casing rather than regenerating shelf or door instances.
+@evidenceExclude models/05-closet-fittings.md#closet-fitting-fidelity Rollers, brackets and screws are omitted asset internals, while contents are separately owned; this unit chooses no replacement hardware or physical roller/load verdict from a successful fitting placement.
+@evidenceExclude models/05-closet-fittings.md#closet-fitting-surfaces Leaf/panel/rail/rod/shelf/handle/casing ids remain internal model binding roles; this passage/storage membership rule adds no new surface partition or separate rail/shelf population.
+@evidence models/05-closet-fittings.md#coat-closet-rod-shelf The ground-floor coat fitting retains its house-oriented rod center X=1.425/Y=1.65 m and stair-limited shelf as model members, without another shelf transform or source claim that sliding leaves complete clothes.
+@evidence models/18-house-props.md#linen-folded-towels Three two-towel stacks on five 1.20×0.55 m shelf hosts retain 0.16 m end margins and 0.18 m front clearance; the thirty indexed props remain separate from implemented storage fittings and still await actual meshes/placement.
+@evidence settings/10-house.md#upper-hall Corridor storage keeps five shelf roles and direct hall access rather than another passage room; towels give its authored linen use without allowing a storage member to hide the hall's observation scope.
+@evidence spaces/rooms/upper-hall.md#upper-hall-plan The notched hall and independently accessed linen front determine storage affiliation and the neighboring arrival route; placing its fittings does not refill that notch or add a room-to-room edge through storage.
+@evidence spaces/rooms/upper-hall.md#upper-linen-storage Finished floor 3.06 m, opening X=[1.97,2.97] m and five shelf tops determine the one fitting's floor lift and separate towel hosts; model tracks contact the existing finished opening strip without another floor plate.
 -->
 
-나머지 `kind=opening` 네 곳은 여닫이문 목록에 넣지 않는다. `living-common-opening`과 `service-common-opening`은 통행을 위해 비워 두는 공간 개구부다. `entry-coat-opening`은 [외투장 미닫이문](../models/05-closet-fittings.md#coat-closet-doors), `upper-linen-opening`은 [린넨장 미닫이문](../models/05-closet-fittings.md#linen-closet-fittings)이 닫는다. 두 모델 H2는 부재를 세계 좌표로 이미 정했으므로 각 instance의 변환은 위치 (0,0,0) m·yaw 0·scale 1이다. 외투장 앞면 X=2.02 m·가로 Z=[−4.51,−3.56] m·바닥 Y=0, 린넨장 앞면 Z=−3.41 m·가로 X=[1.97,2.97] m·바닥 Y=3.06 m를 각각 맞댐 기준으로 검사한다. 두 번째 이동·회전을 적용하거나 공간 벽·완성 바닥을 복제하지 않는다.
+Do not include the remaining four `kind=opening` locations in the hinged-door list. `living-common-opening` and `service-common-opening` remain empty for circulation. [Coat sliding doors](../models/05-closet-fittings.md#coat-closet-doors) close `entry-coat-opening`; [linen sliding doors](../models/05-closet-fittings.md#linen-closet-fittings) close `upper-linen-opening`. Both models already define house XZ, but Y is relative to their host floor. Coat placement is p=(0,0,0) m and linen placement p=(0,3.06,0) m, both yaw 0 and scale 1. Current `src/instances/architectural-fitout.ts` uses those transforms for `fill:entry-coat-opening` and `fill:upper-linen-opening`. The former all-identity instruction omitted linen's floor lift. Inspect contact against coat front X=2.02 m, horizontal Z=[−4.51,−3.56] m, floor Y=0; and linen front Z=−3.41 m, horizontal X=[1.97,2.97] m, floor Y=3.06 m. Add that floor height once, apply no second XZ translation/yaw and duplicate no space wall/finished floor.
 
-[린넨장 다섯 선반](../spaces/rooms/upper-hall.md#upper-linen-storage)의 상면에는 [접힌 수건 원형](../models/18-house-props.md#linen-folded-towels)을 선반마다 세 더미·더미마다 두 장으로 결속한다. 개체 id는 `upper-linen-towel-<shelf>-<stack>-<layer>`이고 shelf=1…5는 아래에서 위, stack=1…3은 왼쪽에서 오른쪽, layer=1…2는 아래에서 위다. 각 장의 원점은 해당 선반 상면의 뒤쪽에서 0.05 m 띄운 깊이와, 선반 길이 1.20 m 안의 양끝 0.16 m·더미 사이 0.02 m 간격을 사용한다. 모델의 국소 +Z는 문 쪽이고 여섯 방향 변이 없이 전체 30장을 같은 수납 host에 둔다. 열린 문 정면에서 다섯 층이 보이고 앞끝이 미닫이 문 트랙을 침범하지 않는지 검사한다.
+The separate [folded-towel proposal](../models/18-house-props.md#linen-folded-towels) uses the [five linen shelves](../spaces/rooms/upper-hall.md#upper-linen-storage), three stacks per shelf and two towels per stack. Ids are `upper-linen-towel-<shelf>-<stack>-<layer>`: shelf=1…5 bottom to top, stack=1…3 left to right, layer=1…2 bottom to top. Each rear-bottom-center towel origin uses a depth 0.05 m from the shelf's rear edge, with 0.16 m end margins and 0.02 m stack spacing within shelf length 1.20 m. Those parent values derive X=1.87+0.16+0.14+(stack−1)×0.30 m, Z=-2.66−0.05=-2.71 m and Y=3.06+0.25+(shelf−1)×0.38+(layer−1)×0.06 m. Model-local +Z faces doors at world -Z, so yaw is π and scale 1. All 30 remain on that storage host without directional variation. Their 0.32 m depth leaves the parent's 0.18 m shelf-front clearance. Actual towel meshes and placement remain unbuilt; open-door front/side views must still inspect all five levels, contact and nonintrusion into tracks.
 
-## 배치의 관찰 문턱 {#opening-fill-observation}
+## Placement observation threshold {#opening-fill-observation}
 <!--
-@evidence principles/core/common.md#scope-preservation 충전 26·빈 통로 2·수납문 2·대문 1의 검증의 구성원, 배치 경계, 검토 사례를 이 H2에 모아 해당 집합이 다른 방이나 원형 뒤에 숨지 않게 한다.
-@evidence principles/core/common.md#substantive-completion 외벽 네 시야, 개구부 높이 cut, 문설주·창대 근접 검사로 판정한다. 원형을 구현하는 source가 배치 값을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 근거 입력은 환경 개구부 집합과 충전 id 집합이다. 그 위에서 이 H2가 충전 26·빈 통로 2·수납문 2·대문 1의 검증의 배치 선택을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모가 준 것은 환경 개구부 집합과 충전 id 집합이고, 이 H2는 외벽 네 시야, 개구부 높이 cut, 문설주·창대 근접 검사로 판정한다.
-@evidence principles/design/instances.md#instance-prototype-boundary 26개 충전 참조의 원형은 창·문 배치 H2에서 이미 선택된다. 이 H2의 census는 새 모델이나 변형을 만들지 않는다.
-@evidence principles/design/instances.md#instance-derivation-authority window·door 개구부 id 집합에서 충전 id 집합을 뺀 결과와 중복 id 수를 계산한다. 손으로 적은 26이라는 수는 생성 권위가 아니다.
-@evidence principles/design/instances.md#instance-verification-address 반증 표본은 fill null 하나 또는 벽과 창틀의 틈 하나이다. 이 표본을 본문에 지정한 census·평면·viewer 검토에서 확인한다.
-@evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 환경 개구부 집합과 충전 id 집합을 실제 충전 26·빈 통로 2·수납문 2·대문 1의 검증와 fill null 하나 또는 벽과 창틀의 틈 하나에 대조했다. 이 집합 때문에 상위 치수·원점·예약을 바꿀 필요는 없다.
-@evidence obligations/design/instances.md#instance-placement-review 26개 충전 census와 외벽 네 시야·문설주·창대 view가 누락과 틈을 판정한다.
-@evidence settings/20-verification.md#frame-condition `frame-condition`의 집 범위·방 역할·관찰 조건을 이 H2의 구성원 선택과 배치 검사에 적용한다.
-@evidence settings/20-verification.md#observation-allocation `observation-allocation`의 집 범위·방 역할·관찰 조건을 이 H2의 구성원 선택과 배치 검사에 적용한다.
-@evidence settings/20-verification.md#viewer-handoff `viewer-handoff`의 집 범위·방 역할·관찰 조건을 이 H2의 구성원 선택과 배치 검사에 적용한다.
-@evidence spaces/04-observations.md#engine-render-handoff `engine-render-handoff`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/04-observations.md#reference-spatial-comparisons `reference-spatial-comparisons`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
-@evidence spaces/04-observations.md#spatial-observation-derivation `spatial-observation-derivation`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
+@evidence principles/core/common.md#scope-preservation All 26 window/door fills, two empty passages, two storage fittings and one separate gate remain in the correspondence/contact review; the thirty unbuilt linen towels are not accepted through fixed-door observations.
+@evidence principles/core/common.md#substantive-completion Both-direction opening/placement/model correspondence and close jamb/sill/two-sided wall views inspect the complete set, while separate individual-leaf maxima prevent simultaneous sliding-leaf exchange from disguising another closed state.
+@evidence principles/core/common.md#declared-basis Current environment openings and actual placement/model ids supply the census; compiled spatial questions and frame conditions supply observation addresses. Earlier recorded views are provenance, not a new review of this document change or unfinished prop families.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Host/model identities alone do not judge their junctions; this child adds omission/duplication checks, paired face-ID/material contacts and separate articulation states at the same camera without inventing another asset or deleting a spatial question.
+@evidence principles/design/instances.md#instance-prototype-boundary Earlier H2s choose all fill assets; this review unit changes neither prototypes nor allowed articulation and cannot treat inspection caps or face-ID colors as authored geometry/materials.
+@evidence principles/design/instances.md#instance-derivation-authority Strip only the defined fill: namespace when comparing opening ids with corresponding placement ids, then follow each placement's model reference; the compiled set determines omissions/duplicates rather than using 26 as generation authority.
+@evidence principles/design/instances.md#instance-verification-address One window/door null fill, a model reference missing from its placement, or a frame/casing gap in a close two-sided junction view falsifies correspondence; valid ids alone do not prove intermediate motion, user access or current pixels.
+@evidence upstream/design/instances.md#parent-revision-from-instance-work spaces/04-observations formerly asserted that compiled topology/environment calls and house source did not exist despite current producers and opening fills. Its status clauses now distinguish existing compiled source and partial fixed fence from unresolved map/object inputs and full current GPU/contact review; no opening extent or prototype origin was changed and no new visual completion is claimed.
+@evidence obligations/design/instances.md#instance-placement-review Whole-set correspondence and four-elevation/jamb/sill/two-room contacts judge omissions/gaps; reference and individual maximum states remain distinct, and current full observations are not established by a design census alone.
+@evidence settings/20-verification.md#frame-condition Stable canvas/DPR, exterior/interior FOV and same-camera supplementary views keep small jamb/sill contacts comparable; added close views retain the original complete-space questions instead of hiding them with a changed camera.
+@evidence settings/20-verification.md#observation-allocation Compiled boundary/opening/room questions and all five additional reference questions remain the denominator; this fill-specific close-view set adds contact questions without replacing in-room observations with one representative opening.
+@evidenceExclude settings/20-verification.md#viewer-handoff Port 4173, --port, startup command and short HTTP/console check govern viewer operation, supplying no opening id, transform or pixel verdict; this placement-review H2 launches no server and treats startup success as separate from actual observation.
+@evidence spaces/04-observations.md#engine-render-handoff Real model-bearing elements make fills visible while a logical opening/standable surface alone cannot; null/invalid observation poses remain failures, and partial current lowering/source existence does not establish complete current pixel judgment.
+@evidence spaces/04-observations.md#reference-spatial-comparisons Intact front/upper-room/common-area comparisons preserve the original room graph, empty garage and two-storey ownership; cutaway-only views cannot substitute for both-side fill contacts and original in-room questions.
+@evidence spaces/04-observations.md#spatial-observation-derivation The same current boundary/opening records derive per-room and height-specific junction questions, retaining wall attachments and door/handle states together; matching fill ids neither removes an occluded corner nor proves a user can occupy its pose.
 -->
 
-현재 building source는 26개 window/door 개구부 각각에 하나의 충전 참조를 넣고, 2개 통로는 비워 두며, 2개 수납 개구부와 별도 대문을 배치한다. 이 연결은 공간 단독 산출물의 `fill: null`과 구분한다. 403개 전체 건물 방향·높이 cut·근접 원본과 모델 정면/측면/사선의 material·face-ID 쌍을 대조해 문설주·창대·문선·창살·유리 및 양면의 맞댐을 확인했다. 관절 최대치는 같은 사선 카메라에서 별도 판독했으며 수납 미닫이는 한 문짝씩 최대치로 움직여 반대 문짝과 교환되어 다시 닫히는 입력을 사용하지 않았다. 린넨 수건30장은 별도 미제작 사물 초안이며 고정 수납문의 관찰로 완료를 주장하지 않는다. 개구부의 위치·크기를 바꾸는 경우에는 해당 spaces owner를 먼저 고치고 이 표와 충전 입력을 함께 갱신한다.
+Current building source puts one fill reference in each of 26 window/door openings, leaves 2 passages empty and places 2 storage openings plus the separate gate. This connection differs from `fill: null` in spaces-only output. The recorded review compared all 403 whole-building directional/height-cut/close-view originals and model front/side/oblique material/face-ID pairs, inspecting jambs, sills, casing, muntins, glazing and two-sided contacts. Articulation maxima were read separately with the same oblique camera. Storage sliding inputs moved one leaf at a time to its maximum rather than exchanging both leaves into another closed state. The 30 linen towels remain a separate unbuilt prop draft; fixed storage-door observation does not establish their completion. When opening position/size changes, revise the relevant spaces owner first and update this table together with fill inputs.

@@ -1,223 +1,235 @@
-# 재료 공통 틀
+# Common material frame
 
-## 색 공간과 선형 변환 {#material-color-space}
+## Color space and linear conversion {#material-color-space}
 <!--
-@evidence principles/core/common.md#declared-basis 색 공간 H2는 hex가 저작 결정이고 선형값은 IEC 61966-2-1 식의 파생값이며 색 관계의 근거가 visual-grammar이고 원본 사진 픽셀 샘플이 아니라고 적는다.
-@evidence principles/core/common.md#scope-preservation 색 공간 규칙은 재료 hex와 선형값의 관계만 정하고 노출·white balance는 lighting-state에 남긴다.
-@evidence principles/core/common.md#substantive-completion 변환식의 두 구간(0.04045 이하 c/12.92, 초과 ((c+0.055)/1.055)^2.4)과 소수점 셋째 자리 기록, hex 우선 규칙을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation visual-grammar는 색 관계를 형용사로만 정했고 이 H2는 hex 저작·선형 파생·재계산 대조라는 수치 규약을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 색 공간 H2는 외관 수치의 표기 규약이며 각 재료 H2의 구성 문장과 분리된 외관 값의 형식을 정한다.
-@evidence principles/design/materials.md#material-binding-interface 렌더러에 넘기는 base color가 선형값이라는 입력 규약을 정해 host owner와 source가 색 공간을 추측하지 않게 한다.
-@evidence principles/design/materials.md#material-verification-address hex→선형 재계산 일치와 중성 조명 판에서 siding·trim·천장 흰 계열의 구별을 반증 견본으로 둔다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings 20-verification의 visual-grammar·reference-authority·lighting-state를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 색 맵과 hex fallback을 같은 sRGB→선형 규칙으로 해석해 텍스처가 기준색의 색 공간을 바꾸지 않는다.
-@evidence obligations/core/common.md#production-language 이 파일과 재료 H2 46개는 한국어 본문으로 쓰였고 hex·선형 값 표기는 언어와 무관한 수치다.
-@evidence obligations/core/common.md#purpose-fit 재료 값이 사진 복제가 아니라 visual-grammar 색 관계를 실제 3D blocking pass에서 읽히게 하는 목적에 맞춰졌다고 밝힌다.
-@evidence obligations/design/materials.md#addressable-material-decisions 색 공간·표면 결·응답·결합·리뷰를 틀 H2 다섯 개로, 재료를 H2 41개로 나눠 각 결정을 따로 교체할 수 있게 했다.
-@evidence settings/00-production.md#governing-aim 지배 목표가 요구한 재료의 읽힘을 이 색 공간 H2가 visual-grammar 색 관계를 hex·선형 상수로 고정하는 방식으로 받고, 41개 재료 H2가 같은 규약을 쓴다.
-@evidence settings/20-verification.md#lighting-state 색 공간과 선형 변환이 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#reference-authority 색 공간과 선형 변환이 '레퍼런스 권위'(settings/20-verification.md#reference-authority)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#visual-grammar 색 공간과 선형 변환이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidenceExclude settings/00-production.md#accessibility '접근성 전달 상태'는 "이 library의 필수 대체 접근은 한국어 문서, 이름 있는 키보드 조작, 카메라 복귀 및 관찰 선택, 색만으로 상태를 구분하지 않는 검사 결과다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#coordinate-units '좌표와 단위'는 "제작 선택은 오른손 Y-up, 길이 m, 각도 rad, 면적 ㎡, 시간이 필요할 때 s다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#coverage-map '설정 소유 지도'는 "현재 설정의 명시적 canon은 이 파일의 전달·사용·좌표·언어·접근성과 사용 가정, 10-house.md의 규모·매스·각 방과 조경 정체성, 20-verification.md의 레퍼런스…"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#delivery-scope '전달물'는 "사용자 브리프를 권위로 삼아 현대 미국 교외의 평범한 중산층 가족용 2층 단독주택 한 채, 전체 실내, 우측 붙박이 2대 차고와 주택을 읽는 데 필요한 대지를 결정론적 library로 저작한다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#operative-subjects '작동 주체와 자원'는 "주택과 각 공간은 10-house.md의 해당 H2가 소유한다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#operator-access '조작자와 접근'는 "저작 결정으로 조작자는 마우스와 키보드를 사용하는 데스크톱 검토자다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/00-production.md#use-profile '사용과 통행 가정'는 "구조·생활 가능성을 검토하기 위한 저작 가정은 성인 둘과 자녀 둘이 쓰는 집이며 특수 의료장비나 상주 보조인의 동선을 요구하지 않는다"를 정한다. 이는 production 운영·범위 결정이며 재료 hex·roughness·결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/10-house.md#common-room '후면 공용부'는 "주방·식당·가족실은 본채 1층 후면의 하나의 연속 공간이다"를 정한다. 이는 매스·동선·치수 결정이며 재료 색과 응답을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/10-house.md#house-scale '규모'는 "사용자가 정한 약 246㎡는 측량값이 아닌 규모 목표다"를 정한다. 이는 매스·동선·치수 결정이며 재료 색과 응답을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/10-house.md#main-mass '본채 매스와 지붕'는 "사용자 그래프와 외관 레퍼런스 01의 관계를 채택한다"를 정한다. 이는 매스·동선·치수 결정이며 재료 색과 응답을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/10-house.md#service-band '우측 서비스 동선'는 "사용자 고정 그래프에 따라 본채 1층 우측 서비스 띠에 팬트리·파우더룸·세탁 겸 머드룸을 놓고 차고와 직접 연결한다"를 정한다. 이는 매스·동선·치수 결정이며 재료 색과 응답을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#completion-boundary '완료와 기록'는 "../contracts/observation-denominator.md#dual-completion의 양쪽 목록과 독립 판정을 적용한다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#data-authority '측정과 프레임의 책임'는 "사용자 지시에 따라 수·id·위치·binding·치수는 컴파일된 산출물에서 읽는다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#execution-boundary '실행과 모듈 경계'는 "사용자 지시로 @automovie/engine의 CommonJS 경계를 유지한다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#implementation-boundary '편집과 의존성 경계'는 "사용자가 허용한 편집 범위는 이 production의 저작 파일이다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#observation-allocation '관찰 배분'는 "settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.md#compiled-denominator다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#role-boundary '저작·계측·판정 권한'는 "사용자가 정한 역할에 따라 저작자는 이 production의 소스·자기 fan-out·수리를 소유하고, 관찰자는 계측하며, 독립 read-only reviewer가 단계 전이를 판정한다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#submission-boundary '커밋과 푸시'는 "사용자의 현재 지시에 따라 저작자가 최소 매 turn 끝과 단계 폐쇄/뷰어 구현 때 커밋·푸시한다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#validation-boundary '정규 검증 명령'는 "사용자가 지정한 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude settings/20-verification.md#viewer-handoff '뷰어 실행 인계'는 "사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다"를 정한다. 이는 저작·실행·검증·제출 절차의 경계이며 재료 상수와 결합 면을 정하지 않으므로 materials가 이 H2에 빚진 값이 없다.
-@evidenceExclude spaces/00-building.md#attached-garage-extent '붙박이 빈 차고의 접면'는 "빈 차고는 본채 오른쪽에 하나의 단층 볼륨으로 붙는다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/00-building.md#main-building-extent '본채 외곽과 면적'는 "이 spaces의 외곽 선택은 규모와 좌표를 따른다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/01-storeys.md#ground-threshold-datums '포치와 차고의 지면 연결'는 "포치 바닥은 현관의 1층 완성 바닥과 같은 Y = 0 m다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/01-storeys.md#storey-datums '두 storey와 완성 바닥'는 "좌표 기준을 받아 ground-storey의 완성 바닥은 Y = 0 m, upper-storey는 Y = 3.06 m로 정한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/02-stair.md#stair-clearance '난간과 통행의 순폭 예약'는 "경로의 1.15 m 폭 안에서 양쪽 손잡이·난간의 수평 점유를 각각 0.075 m 이내로 예약한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/02-stair.md#stair-connector-handoff '하나의 연결에 속하는 두 flight와 중간참'는 "단일 꺾임계단을 실현한 계단 공간과 단별 치수는 유지한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/02-stair.md#stair-floor-opening '계단 구멍과 전면 창의 경계'는 "위 경로와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56,…"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/04-observations.md#engine-render-handoff '공간 산출물에서 실제 렌더로 넘기는 경계'는 "설치된 공개 엔진의 lowerBuiltEnvironment는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/04-observations.md#spatial-observation-derivation '공간 산출물에서 파생할 검사'는 "관찰 배분을 받아 전체 관찰 분모를 이 spaces 층에 그대로 적용한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/05-route-network.md#room-route-network '문으로 답하는 두 층 동선'는 "아래 이름은 이 spaces 문서가 소스로 넘길 식별자다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/06-openings.md#external-opening-interface '거친 개구부와 충전 부재의 경계'는 "외부 개구부는 방 연결과 지붕 높이를 소비한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/07-boundary-assembly.md#exterior-boundary-junctions '외벽 모서리와 지붕 단차의 단일 몸체'는 "이 접합은 본채 외벽과 차고 외벽/공유 벽의 예약 안에서 만나는 외부 경계를 잇는다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-ownership '방 사이의 한 벽체와 두 안쪽 면'는 "이 설계는 두 storey 안에서 기존 방 사이의 칸막이를 한 번만 생성하기 위한 공간 인계다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/08-floor-assembly.md#interstorey-edge-junctions '외벽과 계단 가장자리에서 닫히는 층간 단면'는 "층간 구조는 본채 내부에서 외벽의 동일 안쪽 면에 닿는다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/09-ceiling-assembly.md#ceiling-roof-clearance '낮은 지붕과 천장 바탕의 접합 여유'는 "천장은 본채 실내 평면과 차고 실내 평면 각각의 안쪽 면까지이고, 지붕은 자기 외곽과 교차 경계를 갖는다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/09-ceiling-assembly.md#garage-ceiling-closure '차고문 이동 구역 위의 천장'는 "차고는 자기 바닥/천장 datum을 갖는 ground-storey 부속 공간이다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base '낮은 차고의 독립 바닥'는 "차고의 바탕은 차고 안쪽 외곽을 받으며 자기 완성 바닥에서 아래로 0.15 m를 예약한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/10-ground-floor.md#ground-support-handoff '바닥 아래 지지와 지도 지표의 인계'는 "이 건물은 위 본채/차고 바탕 아래를 연속해서 받치는 채움과 가장자리 지지로 계획한다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions '외벽 두께 안에서 이어지는 네 출입 경계'는 "본채와 차고의 실내 바닥은 평면에서 벽 안쪽에 끝나지만, 출입 개구부 아래에는 벽 두께를 지나는 지지 바탕이 필요하다"를 정한다. 이 공간 H2는 geometry·datum·접합·관찰 파생을 정하고 materials는 결합 면을 spaces 03 owner 표로만 받으므로 이 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#bedroom-three-front-window '오른쪽 자녀실의 정면 창'는 "bedroom-three-front-window는 전면 벽의 X = [2.65, 4.75], Y = [3.91, 5.31] m 개구부로 upper-storey의 bedroom-three에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#bedroom-two-front-window '왼쪽 자녀실의 정면 창'는 "bedroom-two-front-window는 전면 벽의 X = [-4.80, -2.70], Y = [3.91, 5.31] m 개구부로 upper-storey의 bedroom-two에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#front-entry-filling '목재 현관문의 외부 충전'는 "front-door의 void·순폭 목표·경첩/열림은 현관 owner 그대로다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#front-roof-closures '박공 삼각 벽과 포치 위의 외벽'는 "전면 전체 입면 owner는 src/spaces/envelope/front.ts다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#garage-front-opening '닫힌 차고문과 상부 이동 예약'는 "garage-front-door는 차고의 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m의 거친 개구부로 택한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#living-front-window '포치 아래 거실 묶음창'는 "living-front-window는 전면 벽의 X = [-5.10, -2.30], Y = [0.70, 2.30] m 개구부로 ground-storey의 living-room에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/front.md#stair-front-window '층간 계단실의 작은 창'는 "stair-front-window는 전면 벽의 X = [-1.62, -0.84], Y = [4.11, 5.21] m 개구부다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/left.md#left-roof-closure '주 지붕 끝의 왼쪽 삼각 벽'는 "src/spaces/envelope/left.ts가 왼쪽 완결 입면을 소유한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/left.md#living-left-window '거실 벽난로 뒤쪽의 창'는 "living-left-window는 왼쪽 벽의 Z = [-5.50, -4.30], Y = [0.75, 2.30] m 개구부로 ground-storey의 living-room에 속하는 방과 외벽이…"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/left.md#primary-left-window '주침실 본체의 측면 창'는 "primary-left-window는 왼쪽 벽의 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 개구부로 upper-storey의 primary-bedroom에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/rear.md#family-rear-window '가족실의 후면 묶음창'는 "family-rear-window는 후벽의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/rear.md#garden-door '공용부에서 정원으로 나가는 문'는 "garden-door는 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부로 ground-storey의 kitchen-dining-family와 외부 대기를 잇는다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/rear.md#kitchen-rear-window '주방 조리대 위의 후면 창'는 "kitchen-rear-window는 후벽의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부로 ground-storey의 kitchen-dining-family에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/rear.md#primary-rear-window '주침실의 후면 묶음창'는 "primary-rear-window는 후벽의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/rear.md#rear-roof-closures '두 본채 지붕과 차고 아래의 후면'는 "src/spaces/envelope/rear.ts가 본채와 차고의 후면 완결 입면을 소유한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/right.md#family-right-window '가족실의 오른쪽 창'는 "family-right-window는 본채 오른쪽 벽의 Z = [-9.95, -8.25], Y = [0.75, 2.30] m 개구부로 ground-storey의…"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/right.md#garage-right-window '차고의 측면 채광창'는 "garage-right-window는 차고 오른쪽 벽의 Z = [-5.85, -4.25], Y = [1.40, 2.20] m 개구부로 ground-storey의 garage에 속한다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/envelope/right.md#right-roof-closures '본채 단차와 차고 위의 벽'는 "오른쪽 노출 입면의 owner는 src/spaces/envelope/right.ts다"를 정한다. 이 입면 H2는 void 좌표·박공 닫힘 같은 형상을 정하고 materials는 그 면을 spaces 03 owner 표와 models 창·문 파티션으로 받으므로 이 좌표 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-mass-allocation '본채 위의 세 박공과 낮은 차고'는 "본채와 차고 외곽, 두 층 천장을 유지하며 설정의 지붕군을 배치한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-profile-datums '날씨를 받는 면과 아래면'는 "여기서 높이 함수는 지붕 최상부 날씨 면의 Y를 뜻한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-shared-edges '전면 박공의 골짜기와 단차'는 "전면 박공은 주 지붕 앞쪽에 합류한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions '지붕에 닿는 외벽 두께 전체의 상단'는 "본채와 차고의 외벽은 각각 본채와 차고의 기존 외곽과 안쪽 면 사이를 점유하고 자기 지붕 아래에서 닫힌다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof '전면 왼쪽의 박공 지붕'는 "roof.front-gable.left는 박공 중심보다 -X 쪽의 면이다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/front-gable-right.md#front-gable-right-roof '계단 창 쪽으로 내려가는 박공'는 "roof.front-gable.right는 정면 왼쪽의 전방 박공 가운데 박공 중심보다 +X 쪽의 면이며 src/spaces/roof/front-gable-right.ts가 소유한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/garage-back.md#garage-back-roof '차고 후벽과 본채 접합'는 "roof.garage.back과 아래면은 src/spaces/roof/garage-back.ts가 소유한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/garage-front.md#garage-front-roof '패널문 위의 경사면'는 "roof.garage.front는 차고 지붕 영역의 앞 절반이다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/main-back.md#main-back-roof '뒤쪽 처마까지 이어지는 주 지붕'는 "roof.main.back과 아래면은 src/spaces/roof/main-back.ts가 소유한다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/main-front.md#main-front-roof '전면 박공과 굴뚝을 받는 면'는 "roof.main.front의 owner는 src/spaces/roof/main-front.ts다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/right-back.md#right-back-roof '후면까지 닫히는 오른쪽 지붕'는 "roof.right.back과 아래면은 src/spaces/roof/right-back.ts의 완결 면이다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/roof/right-front.md#right-front-roof '높은 지붕 아래에 붙는 앞 면'는 "roof.right.front는 본채 오른쪽 영역의 앞 절반이다"를 정한다. 이 지붕 H2는 경사면·교차의 높이와 윤곽을 정하고 materials의 shingle·trim은 spaces 03 owner 표의 경사면 owner에 결합하므로 이 윤곽 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/bedroom-three.md#bedroom-three-furniture-use '청회색 침실의 꺾인 경계 안 배치'는 "같은 bedroom-three/upper-storey에서 왼쪽 부분에 잠자리, 전면 중앙에 책상, 오른쪽 벽에 옷장을 배치한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/bedroom-three.md#bedroom-three-plan '도착면에서 들어오는 청회색 침실'는 "bedroom-three는 upper-storey의 전면 오른쪽 방이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/bedroom-two.md#bedroom-two-furniture-use '올리브 침실의 잠자리·공부·옷 수납'는 "같은 bedroom-two/upper-storey에서 침대는 뒤쪽 왼편, 책상은 왼쪽 벽의 전면 창 가까이, 옷장은 오른쪽 벽에 둔다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/bedroom-two.md#bedroom-two-plan '올리브 침실의 자기 경계'는 "bedroom-two는 upper-storey의 전면 왼쪽 방이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-clear-routes '가구 작업 영역을 돌아가는 공용 동선'는 "같은 kitchen-dining-family 내부의 경로이며 벽/문/새 복도를 추가하지 않는다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-dining-reservation '여섯 식사 좌석과 정원문 대기'는 "식사 구역은 같은 공용부 중앙에 두고 정원문 앞을 비운다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-family-reservation '오른쪽 가족실의 좌석과 창 접근'는 "가족실은 같은 공용부의 오른쪽이며 설정이 요구한 소파와 낮은 테이블을 둔다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-island-reservation '싱크 섬과 세 좌석의 점유'는 "섬은 같은 공용부의 X = [-3.65, -2.60], Z = [-8.70, -6.45] m에 놓는다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-kitchen-wall-reservation '왼쪽 벽 주방의 기구와 작업 점유'는 "이 주방은 위 kitchen-dining-family/ground-storey 내부의 기능 구역이며 별도 room이나 칸막이가 없다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/common.md#common-room-plan '공용부의 외곽과 열린 앞면'는 "kitchen-dining-family는 ground-storey의 방 하나다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/entry.md#entry-coat-storage '위 계단 아래의 닫힌 외투장'는 "현관에서 연결된 서비스 접근을 따라 닿는 현관 가까운 외투 수납인 외투장을 위 flight 아래의 높은 끝에 둔다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/entry.md#entry-plan '포치에서 거실과 계단으로'는 "front-entry는 ground-storey의 실내 분배 공간이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/entry.md#entry-use-routes '현관문 뒤의 매트와 분배 바닥'는 "같은 front-entry/ground-storey의 목재 현관문과 얕은 매트를 소비한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/garage-interior.md#garage-storage-use '후벽 선반과 공구 작업대'는 "같은 garage/ground-storey의 후벽에 수납을 모아 중앙 바닥과 서쪽 머드룸 대기를 비운다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/garage-interior.md#garage-use-routes '문을 닫은 차고의 내부 접근'는 "머드룸의 차고 쪽 하부 대기에서 같은 garage 내부의 선반, 작업대, 측면 창, 닫힌 전면문 안쪽으로 이동한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/laundry.md#laundry-equipment-use '나란한 두 기기와 신발 벤치의 사용'는 "같은 laundry-mudroom/ground-storey 안에서 오른쪽 기기 벽과 왼쪽 신발 벤치를 배정한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/laundry.md#laundry-plan '서비스 통로와 차고 사이'는 "laundry-mudroom은 ground-storey의 실제 방이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/laundry.md#laundry-through-route '기기를 열어도 남기는 차고 횡단'는 "이 경로는 두 출입문과 양쪽 대기를 잇는 같은 방 안의 바닥 띠다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/living.md#living-plan '거실 경계와 직접 출입'는 "living-room은 ground-storey에 속하며 마감 안쪽 X = [-5.50, -1.95], Z = [-6.05, -0.25] m다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/living.md#living-through-route '두 출입과 창·좌석으로 이어지는 바닥'는 "같은 living-room 내부에서 현관 쪽 문과 공용부 쪽 개구부를 잇는다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/pantry.md#pantry-plan '뒤쪽 식품 수납실'는 "pantry는 ground-storey, 서비스 접근의 뒤쪽에서 직접 들어가는 방이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/pantry.md#pantry-storage-use 'L형 선반과 식품의 점유'는 "같은 pantry/ground-storey의 선반 평면을 소비한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/pantry.md#pantry-use-route '열린 문에서 선반까지의 사용 통로'는 "위 실문을 90° 열고 pantry 안에서 수납을 사용하는 상태를 예약한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/powder.md#powder-plan '단일 출입과 기구 예약'는 "powder-room은 ground-storey, 서비스 띠의 앞쪽 독립실이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/primary.md#primary-plan '복도와 옷방에 직접 닿는 주침실'는 "primary-bedroom은 upper-storey의 가장 큰 침실이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/service.md#service-access-plan '오른쪽 통로와 계단 뒤 연결'는 "service-access는 ground-storey의 열린 L형 동선이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/tub-bath.md#tub-bath-plan '복도 끝에서 직접 들어가는 욕실'는 "tub-bathroom은 upper-storey의 오른쪽 독립 욕실이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/upper-hall.md#upper-hall-plan '하나의 복도에서 다섯 방으로'는 "upper-hall은 upper-storey의 복도 하나다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/upper-hall.md#upper-linen-storage '도착면 앞쪽 린넨장'는 "복도 도착면의 앞쪽에 닫힌 린넨장을 둔다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/wardrobe.md#primary-wardrobe-plan '사람이 들어가는 옷 수납실'는 "primary-wardrobe는 upper-storey의 실제 공간이다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/rooms/wardrobe.md#wardrobe-storage-use '후면 옷걸이와 접는 수납의 사용'는 "같은 primary-wardrobe/upper-storey의 후면 수납 예약을 수납 설정의 옷걸이/선반으로 사용한다"를 정한다. 이 방 H2는 평면·순치수·점유 예약을 정하고 materials는 그 방 마감을 spaces 03 interior-surface-handoff owner 면과 models 파티션으로 받으므로 이 평면·점유 결정에 빚진 것이 없다.
-@evidenceExclude spaces/site/00-access.md#map-handoff-inputs '지도에서 받아야 할 경계와 지표 입력'는 "이 H2는 house-site가 maps로부터 받아야 할 입력과 거부할 불일치를 소유한다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/00-access.md#site-access-interface '외부 네트워크에 넘길 포장 끝'는 "house-site는 본채와 차고, 포치와 아래의 외부 접근 구역을 포함할 site다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/00-access.md#site-local-routes '포장과 계단의 내부 연결'는 "이 H2는 현관 포치와 외부 진입의 포치·현관 직접 접근과 대지와 식재의 후면 테라스·우측 목재 울타리를 house-site 안의 구간 순서로 잇는다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/01-paving-support.md#paving-contact-handoff '포장 사이와 지표에서 끝나는 지지'는 "각 완결 포장 owner는 자기 평면 외곽에서 끝나고 상대의 상면/아래면을 동일 좌표로 소비한다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/01-paving-support.md#raised-platform-support '높은 포치와 테라스의 닫힌 단면'는 "현관 포치와 정원 테라스는 자기 높은 평탄면과 외부 단을 유지한다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/fence.md#fence-gate-junction '오른쪽 앞 면의 관리문 접속'는 "위 오른쪽 앞 구간에서 side-yard-gate의 개구부 X 구간을 그대로 비운다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/fence.md#fence-ground-profile '지표를 받는 높이와 점유'는 "울타리 패널 상단은 관리문의 문짝 상단과 같은 world 높이로 예약한다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/side-walk.md#side-gate-interface '측면 울타리 문과 양쪽 대기'는 "위 보행면에서 gate 앞을 side-front-access, 뒤를 side-rear-access의 두 외부 구역으로 택하고 둘 다 house-site/ground-storey에 속한다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/side-walk.md#side-walk-plan '차도와 테라스 아래 대기를 잇는 보행면'는 "side-walk는 house-site/ground-storey의 연속 외부 보행면이다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/terrace.md#garden-lower-landing-plan '정원 지표에 닿을 아래 대기'는 "garden-lower-landing은 house-site/ground-storey의 외부 대기 구역이다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/terrace.md#garden-steps-plan '테라스에서 지표로 내려가는 단'는 "garden-steps는 house-site/ground-storey의 외부 연결 구역이며 위 테라스와 아래 대기를 잇는다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidenceExclude spaces/site/terrace.md#garden-terrace-plan '정원문 대기와 포장 테라스'는 "garden-terrace는 대지와 식재가 공용부에서 닿게 둔 작은 포장 테라스이며 house-site/ground-storey의 외부 공간이다"를 정한다. 이 대지 H2는 포장·울타리의 평면과 높이식을 정하고 materials는 그 owner 상면을 spaces 03 표와 paving-depth-reservation을 통해 받으므로 이 높이식에 빚진 것이 없다.
-@evidence settings/00-production.md#working-language 작업 언어가 한국어이므로 재료 문서 네 개와 materials account를 한국어 본문으로 쓰고 hex·선형값만 언어 중립 수치로 둔다.
+@evidence principles/core/common.md#declared-basis Hex is authored under visual-grammar; linear RGB derives from the stated IEC 61966-2-1 equation rather than photographic sampling.
+@evidence principles/core/common.md#scope-preservation This unit owns color conversion; lighting-state retains exposure and white balance.
+@evidence principles/core/common.md#substantive-completion Both transfer branches, three-decimal linear notation, hex precedence, and color-texture interpretation are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The palette relationships gain numeric hex choices and reproducible linear conversion.
+@evidence principles/design/materials.md#material-construction-appearance Renderer-facing appearance notation is separate from each finish's physical assembly.
+@evidence principles/design/materials.md#material-binding-interface Base color is scene-linear RGB, so source/host owners need not infer input color space.
+@evidence principles/design/materials.md#material-verification-address Conversion comparison and neutral-light distinction among siding/trim/ceiling whites can falsify the convention.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work reference-authority prohibits pixel sampling, visual-grammar supplies palette relationships, and lighting-state fixes exposure. These suffice for the conversion rule without parent revision.
+@evidence contracts/texture-readability.md#material-texture-readability Color maps and hex fallback share sRGB interpretation without changing color space during loading.
+@evidence obligations/core/common.md#production-language The four material documents use English; hex and linear notation remain language-independent numbers.
+@evidence obligations/core/common.md#purpose-fit One convention supports consistent house-wide material readability in actual 3D without claiming photographic reproduction.
+@evidence obligations/design/materials.md#addressable-material-decisions Color, texture, response, binding, and review have separate frame H2s; independently assigned finishes retain their own H2s.
+@evidence settings/00-production.md#governing-aim Consistent color supports readable materials throughout the same house's exterior and interiors.
+@evidence settings/20-verification.md#lighting-state Materials does not compensate for per-view exposure or white balance.
+@evidence settings/20-verification.md#reference-authority Hex values interpret the reference relationships rather than sampled photograph pixels.
+@evidence settings/20-verification.md#visual-grammar Warm-white siding, charcoal, white trim, brick, wood, and neutral textiles share this numeric color convention.
+@evidenceExclude settings/00-production.md#accessibility Named controls and non-color-only inspection results are viewer duties; materials implements no alternative-access control.
+@evidenceExclude settings/00-production.md#coordinate-units World placement/transforms remain spaces/model decisions; finishes receive their metric coordinates without a second world frame.
+@evidenceExclude settings/00-production.md#coverage-map The canon map supplies no additional finish value beyond the cited material settings owners.
+@evidenceExclude settings/00-production.md#delivery-scope Deliverable and omitted film/person/vehicle scope supplies no independent finish parameter or surface assignment.
+@evidenceExclude settings/00-production.md#operative-subjects The subject/resource inventory introduces no additional material face; bindings receive named model/space surfaces.
+@evidenceExclude settings/00-production.md#operator-access Camera/observation controls remain viewer behavior without finish constants or binding keys.
+@evidenceExclude settings/00-production.md#use-profile Occupant/basket dimensions and passage widths remain geometry checks; materials constructs no occupancy body.
+@evidenceExclude settings/10-house.md#common-room Continuous-room topology and seating allocation remain spatial/model/instance decisions; materials receives existing surface partitions.
+@evidenceExclude settings/10-house.md#house-scale Area and outline targets supply no finish parameter; materials changes/measures no floor area.
+@evidenceExclude settings/10-house.md#main-mass Roof hierarchy and clear heights remain geometry; finishes receive handed-over slope faces.
+@evidenceExclude settings/10-house.md#service-band Service topology and garage connection supply no independent finish value or face.
+@evidenceExclude settings/20-verification.md#completion-boundary Completion judgment and full observation are process duties without another color/binding value; materials makes no visual completion claim.
+@evidenceExclude settings/20-verification.md#data-authority Measurement authority governs later reports; material design authors no compiled measurement report.
+@evidenceExclude settings/20-verification.md#execution-boundary CommonJS/server boundaries supply no renderer-facing finish parameter.
+@evidenceExclude settings/20-verification.md#implementation-boundary Edit/dependency procedures determine no finish color, response, or surface compatibility.
+@evidenceExclude settings/20-verification.md#observation-allocation Complete room-question derivation remains spaces/source work; material samples allocate no room pose.
+@evidenceExclude settings/20-verification.md#role-boundary Author/observer/supervisor authority governs process rather than additional finish values or faces.
+@evidenceExclude settings/20-verification.md#submission-boundary Commit/push procedures have no optical or material-design realization.
+@evidenceExclude settings/20-verification.md#validation-boundary Canonical commands belong to production wiring; materials reconfigures no command.
+@evidenceExclude settings/20-verification.md#viewer-handoff Server launch/port/URL handoff has no finish value or face binding.
+@evidenceExclude spaces/00-building.md#attached-garage-extent Garage outlines/shared-wall construction remain geometry; finishes receive existing faces through the surface handoff.
+@evidenceExclude spaces/00-building.md#main-building-extent Outline, wall reservations, and area arithmetic remain spatial dimensions unchanged by finishes.
+@evidenceExclude spaces/01-storeys.md#ground-threshold-datums Porch/garage heights and steps remain geometry; materials receives existing top/riser faces without choosing datums.
+@evidenceExclude spaces/01-storeys.md#storey-datums Storey heights/structural reservations remain spatial; finishes assign response without a new datum.
+@evidenceExclude spaces/02-stair.md#stair-clearance Clear width and occupancy checks remain geometry; coating changes no stair reservation.
+@evidenceExclude spaces/02-stair.md#stair-connector-handoff Connector routes/landings introduce no finish key; materials constructs no connector.
+@evidenceExclude spaces/02-stair.md#stair-floor-opening The L-shaped hole/protection plan remains spatial; finished coordinates arrive through the complete-face handoff.
+@evidenceExclude spaces/04-observations.md#engine-render-handoff Environment lowering/visible-element generation remains source work; materials creates no second house.
+@evidenceExclude spaces/04-observations.md#spatial-observation-derivation Pose containment/question generation remains observation work rather than finish assignment.
+@evidenceExclude spaces/05-route-network.md#room-route-network Route order and adjacency/passage distinctions remain topology; materials adds no route edge.
+@evidenceExclude spaces/06-openings.md#external-opening-interface Rough openings/depth reservations feed window/door prototypes; materials consumes their partitions without redefining openings.
+@evidenceExclude spaces/07-boundary-assembly.md#exterior-boundary-junctions Single exterior junction bodies remain geometry; materials receives elevation faces/corner-trim partitions through their existing handoffs.
+@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-ownership Shared partitions remain spatial construction; materials receives room finishes without generating another wall.
+@evidenceExclude spaces/08-floor-assembly.md#interstorey-edge-junctions Structural rims and wall/floor contacts remain geometry; their material faces arrive through complete-owner handoffs.
+@evidenceExclude spaces/09-ceiling-assembly.md#ceiling-roof-clearance Clearance arithmetic supplies no finish parameter; response preserves roof/ceiling boundaries.
+@evidenceExclude spaces/09-ceiling-assembly.md#garage-ceiling-closure Garage ceiling/travel clearance remains geometry; paint consumes the existing room face.
+@evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base Garage substrate/support remains spatial; concrete response binds to the exposed top.
+@evidenceExclude spaces/10-ground-floor.md#ground-support-handoff Pending ground/foundations supply no adopted finish height; materials invents no ground.
+@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions Substrate/threshold geometry remains spaces-owned; trim receives named threshold faces through the complete-owner handoff.
+@evidenceExclude spaces/envelope/front.md#bedroom-three-front-window Right-bedroom void placement remains spatial; the window prototype/front-openings supplies material interfaces instead.
+@evidenceExclude spaces/envelope/front.md#bedroom-two-front-window Left-bedroom void placement remains spatial; materials receives window faces without another opening decision.
+@evidenceExclude spaces/envelope/front.md#front-entry-filling Entry placement/threshold producer remains spatial/model work; materials consumes prototype partitions and the complete-face handoff.
+@evidenceExclude spaces/envelope/front.md#front-roof-closures Front wall/gable closure remains elevation geometry; finishes receive existing exposed faces.
+@evidenceExclude spaces/envelope/front.md#garage-front-opening Garage void/travel remains geometry; panel/rail finishes consume the garage-door prototype.
+@evidenceExclude spaces/envelope/front.md#living-front-window Porch-window placement remains spatial; materials receives existing elevation/window interfaces.
+@evidenceExclude spaces/envelope/front.md#stair-front-window Stair-window binding/coordinates remain spatial; the fixed prototype supplies material faces.
+@evidenceExclude spaces/envelope/left.md#left-roof-closure Left gable/base closure remains elevation geometry; finishes consume existing faces through the complete handoff.
+@evidenceExclude spaces/envelope/left.md#living-left-window Living side-window placement remains spatial; binding consumes its stable prototype partitions.
+@evidenceExclude spaces/envelope/left.md#primary-left-window Primary side-window coordinates remain spatial; materials receives frame/glazing without another location.
+@evidenceExclude spaces/envelope/rear.md#family-rear-window Family rear-window coordinates/room binding remain spatial; materials derives no second position.
+@evidenceExclude spaces/envelope/rear.md#garden-door Door opening/waiting areas remain geometry; materials receives paired-door partitions and threshold faces through the complete handoff.
+@evidenceExclude spaces/envelope/rear.md#kitchen-rear-window Counter/window clearance remains geometry; finish response determines neither appliance nor window position.
+@evidenceExclude spaces/envelope/rear.md#primary-rear-window Primary rear-window placement remains spatial; window/curtain prototypes provide material faces.
+@evidenceExclude spaces/envelope/rear.md#rear-roof-closures Rear wall/roof-step closure remains geometry rather than a new finish outline.
+@evidenceExclude spaces/envelope/right.md#family-right-window Family side-window position remains spatial; finishes consume resulting prototype faces.
+@evidenceExclude spaces/envelope/right.md#garage-right-window Garage side-window placement/rail clearance remains geometry without independent finish values.
+@evidenceExclude spaces/envelope/right.md#right-roof-closures Right gable/shared-wall closure remains geometry unchanged by response.
+@evidenceExclude spaces/roof/00-junctions.md#roof-mass-allocation Roof zones remain spatial; shingle/trim receives slope owners rather than another roof group.
+@evidenceExclude spaces/roof/00-junctions.md#roof-profile-datums Heights/pitches/thickness remain spatial inputs unchanged by finish response.
+@evidenceExclude spaces/roof/00-junctions.md#roof-shared-edges Valley/step construction remains geometry; materials receives UV/cuts through the complete slope handoff.
+@evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions Wall-head/roof contacts remain geometry; finishes use already closed faces.
+@evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof Left gable geometry remains with its owner; the shared slope handoff supplies the metric finish interface.
+@evidenceExclude spaces/roof/front-gable-right.md#front-gable-right-roof Right gable/stair-window clearance remains geometry; materials rebuilds no slope or opening.
+@evidenceExclude spaces/roof/garage-back.md#garage-back-roof Garage-back slope/window interference remains construction; finishes consume the shared slope interface.
+@evidenceExclude spaces/roof/garage-front.md#garage-front-roof Garage-front roof/door/ceiling sections remain spatial construction without another finish datum.
+@evidenceExclude spaces/roof/main-back.md#main-back-roof Main rear ridge/eave boundaries remain geometry; materials receives the existing complete face.
+@evidenceExclude spaces/roof/main-front.md#main-front-roof Main-front valley/chimney cuts remain geometry; repeat patterns end at existing cuts.
+@evidenceExclude spaces/roof/right-back.md#right-back-roof Low rear ceiling/step interfaces remain geometry unchanged by finishes.
+@evidenceExclude spaces/roof/right-front.md#right-front-roof Low front slope remains geometry; existing faces receive shingle/trim without another plate.
+@evidenceExclude spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Furniture/circulation placement remains spatial; materials consumes bedding/model faces without placing objects.
+@evidenceExclude spaces/rooms/bedroom-three.md#bedroom-three-plan Notched room outline/entrance remains geometry; the complete interior handoff supplies finish zones.
+@evidenceExclude spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Bed/desk/closet use reservations supply no independent finish value; materials preserves their occupancy.
+@evidenceExclude spaces/rooms/bedroom-two.md#bedroom-two-plan Bedroom outline/entrance remains geometry; materials receives existing room-side faces.
+@evidenceExclude spaces/rooms/common.md#common-clear-routes Kitchen/garden circulation strips remain occupancy checks without new finish faces.
+@evidenceExclude spaces/rooms/common.md#common-dining-reservation Six-seat repetition/use remains spatial/model/instance work; materials places no seats.
+@evidenceExclude spaces/rooms/common.md#common-family-reservation Family seating/rug/window access remains spatial; materials receives named textile/furniture faces.
+@evidenceExclude spaces/rooms/common.md#common-island-reservation Island footprint/seat pitch/work remains geometry; the prototype supplies cabinet/stone/metal faces.
+@evidenceExclude spaces/rooms/common.md#common-kitchen-wall-reservation Appliance/cabinet placement remains spatial; materials receives model faces without another kitchen layout.
+@evidenceExclude spaces/rooms/common.md#common-room-plan Continuous-room outline/entrances remain geometry; the shared handoff supplies room-side faces.
+@evidenceExclude spaces/rooms/entry.md#entry-coat-storage Under-stair closet envelope/opening remains spatial; storage prototypes provide leaf/rod/shelf faces.
+@evidenceExclude spaces/rooms/entry.md#entry-plan Entry outline/swing remains geometry; the complete handoff supplies finish zones.
+@evidenceExclude spaces/rooms/entry.md#entry-use-routes Mat placement/distribution remains occupancy; materials chooses no new route or mat position.
+@evidenceExclude spaces/rooms/garage-interior.md#garage-storage-use Shelf/workbench placement remains spatial; finishes receive partitions without changing clear floor area.
+@evidenceExclude spaces/rooms/garage-interior.md#garage-use-routes Garage access/basket turns remain occupancy checks rather than material constants.
+@evidenceExclude spaces/rooms/laundry.md#laundry-equipment-use Machine/bench placement and sequential use remain spatial; materials receives existing partitions.
+@evidenceExclude spaces/rooms/laundry.md#laundry-plan Laundry outline/two-door topology remains geometry unchanged by response.
+@evidenceExclude spaces/rooms/laundry.md#laundry-through-route Mudroom crossing/door sequencing remains passage checking; materials makes no second route.
+@evidenceExclude spaces/rooms/living.md#living-plan Living outline/entrances/windows remain geometry; room-side faces arrive through the shared handoff.
+@evidenceExclude spaces/rooms/living.md#living-through-route Front-to-back circulation remains occupancy without another material face or value.
+@evidenceExclude spaces/rooms/pantry.md#pantry-plan Pantry outline/shelf plan/door remains geometry; floor/shelf faces arrive from existing owners.
+@evidenceExclude spaces/rooms/pantry.md#pantry-storage-use Food/shelf occupancy remains spatial; materials invents no inventory or placement.
+@evidenceExclude spaces/rooms/pantry.md#pantry-use-route Retrieval/turning remains occupancy checking rather than finish response.
+@evidenceExclude spaces/rooms/powder.md#powder-plan Powder outline/single entrance remains geometry; the room handoff supplies finish faces.
+@evidenceExclude spaces/rooms/primary.md#primary-plan Primary outline/doors/windows remains geometry; materials changes no topology or window position.
+@evidenceExclude spaces/rooms/service.md#service-access-plan The L-shaped passage remains geometry; materials receives existing wall/floor faces.
+@evidenceExclude spaces/rooms/tub-bath.md#tub-bath-plan Tub-room outline/entrance remains geometry; room/fixture owners supply finish zones.
+@evidenceExclude spaces/rooms/upper-hall.md#upper-hall-plan Hall outline/five room connections remains geometry; materials adds no hall or door edge.
+@evidenceExclude spaces/rooms/upper-hall.md#upper-linen-storage Linen envelope/opening/shelf repetition remains geometry; storage prototypes provide binding ids.
+@evidenceExclude spaces/rooms/wardrobe.md#primary-wardrobe-plan Walk-in wardrobe topology remains spatial; materials receives room/fitting faces.
+@evidenceExclude spaces/rooms/wardrobe.md#wardrobe-storage-use Hanging/folded occupancy remains spatial allocation; materials places no clothes or shelves.
+@evidenceExclude spaces/site/00-access.md#map-handoff-inputs Pending parcel/ground/network inputs remain spatial; materials invents no geometry or height.
+@evidenceExclude spaces/site/00-access.md#site-access-interface Node/port placement remains topology; paving receives existing faces without defining network ends.
+@evidenceExclude spaces/site/00-access.md#site-local-routes Exterior route order/zone heights remains spatial; materials constructs no connection.
+@evidenceExclude spaces/site/01-paving-support.md#paving-contact-handoff Ground/foundation/paving support remains geometry; materials preserves exposed finish boundaries.
+@evidenceExclude spaces/site/01-paving-support.md#raised-platform-support Platform/column supports remain construction; finishes receive existing top/riser/side faces.
+@evidenceExclude spaces/site/fence.md#fence-gate-junction Posts/panels/gate void remain geometry; finishes consume existing fence/gate partitions.
+@evidenceExclude spaces/site/fence.md#fence-ground-profile Ground-dependent height/post occupancy remains spatial; materials adopts no pending ground value.
+@evidenceExclude spaces/site/side-walk.md#side-gate-interface Waiting/swing/clear width remains spatial; wood/metal consumes the separate gate prototype.
+@evidenceExclude spaces/site/side-walk.md#side-walk-plan Service-walk outline/interpolation remains geometry; paving binds to existing exposed faces.
+@evidenceExclude spaces/site/terrace.md#garden-lower-landing-plan Landing dimensions/ground contact remains geometry; materials defines no second landing.
+@evidenceExclude spaces/site/terrace.md#garden-steps-plan Garden step count/depth remains geometry; paving receives existing tread/riser faces.
+@evidenceExclude spaces/site/terrace.md#garden-terrace-plan Terrace/waiting/dining placement remains spatial; response changes no platform or object placement.
+@evidence settings/00-production.md#working-language The owner's English decision governs these documents/explanations; exact paths and numbers retain their identities.
 -->
 
-모든 재료의 기준색은 sRGB 8비트 hex로 저작하고, 렌더러에 넘기는 base color는 그 hex를 IEC 61966-2-1 sRGB 전달 함수로 선형화한 값이다. 변환식은 채널 값 c(0–1)가 0.04045 이하이면 c / 12.92, 그보다 크면 ((c + 0.055) / 1.055)^2.4이며 각 재료 H2는 hex와 소수점 셋째 자리까지의 선형 RGB를 함께 적는다. 두 값이 어긋나면 hex가 저작 결정이고 선형값은 파생값이므로 source는 hex에서 선형값을 다시 계산해 문서 값과 대조한다. 생성한 색 텍스처 채널에도 같은 sRGB→선형 변환을 적용해 기준색 fallback과 색 공간이 달라지지 않게 한다. 이 hex는 [레퍼런스 권위](../settings/20-verification.md#reference-authority)에 따라 원본 사진의 픽셀을 샘플링한 값이 아니라 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 색 관계(따뜻한 백색 siding, 짙은 charcoal, 흰 trim, 붉은갈색 벽돌, 꿀빛/중간갈색 목재, 회베이지 직물)를 이 branch가 수치로 정한 선택이다. 출력은 [고정 노출과 white balance](../settings/20-verification.md#lighting-state) 아래 sRGB로 표시하며 재료 값이 view별 노출 보정을 흡수하지 않는다. source owner는 `src/materials/frame.ts`이고, 리뷰는 각 재료의 hex→선형 재계산 일치와 중성 조명 견본 판에서 흰 계열(siding·trim·천장)이 서로 구별되는지를 관찰한다.
+Author every material's reference color as an 8-bit sRGB hex. Renderer-facing base color is that hex linearized with the IEC 61966-2-1 sRGB transfer function: for channel c in 0–1, use c / 12.92 when c ≤ 0.04045 and ((c + 0.055) / 1.055)^2.4 otherwise. Each material H2 records hex and linear RGB to three decimal places. If they disagree, hex is authored and linear RGB is derived; source recalculates from hex before comparison. Generated color textures use the same sRGB interpretation as fallback.
 
-## 표면 결·광학 응답과 텍스처 결속 {#material-texture-response}
+Under [reference authority](../settings/20-verification.md#reference-authority), these are numeric interpretations of [common material and envelope relationships](../settings/20-verification.md#visual-grammar): warm-white siding, deep charcoal, white trim, red-brown brick, honey/mid-brown wood, and gray-beige textiles. They are not photograph pixel samples. Output is sRGB under [fixed exposure and white balance](../settings/20-verification.md#lighting-state); materials do not compensate for individual views. Current source owner is `src/materials/finish.ts`, calling public `srgbHexToLinearColor`. Review compares conversion values and the distinction among siding/trim/ceiling whites on the neutral plate.
+
+## Surface grain, optical response, and texture binding {#material-texture-response}
 <!--
-@evidence models/00-model-frame.md#model-furniture-local-frame 가구·창호 각 면의 1 UV/m 투영과 개별 H2 우선 순위를 소비해 반복 모듈을 미터로 결속하며 materials가 좌표를 다시 생성하지 않는다.
-@evidence models/00-model-frame.md#model-representation-ceiling 실제 창틀·유리·문짝의 두께를 host에 남기고 재료 무늬로 누락한 부재를 대신하지 않으며 모델이 제외한 웨더스트립·나사를 복원하지 않는다.
-@evidence principles/core/common.md#declared-basis 사용자가 같은 날 비트맵 보류를 철회한 지시를 근거로 삼고 매끈한 표면과 반복 결이 필요한 표면을 구별한다.
-@evidence principles/core/common.md#scope-preservation siding·shingle course와 판 두께는 models/instances에 남기고 벽돌·타일 줄눈의 색·거칠기·법선 마스크와 면 결속은 materials가 받으며 발광은 systems에 남긴다.
-@evidence principles/core/common.md#substantive-completion 미터 모듈·투영 축·원점·회전·이음·실패 fallback과 validateTextureScale의 실제 모집단을 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 부재 읽힘 위에 각 표면의 물리 scale을 가진 결정론적 텍스처와 매끈한 광학 예외를 더한다.
-@evidence principles/design/materials.md#material-construction-appearance course·줄눈·shingle 형상과 색·거칠기·법선 결, 유리의 투과를 서로 다른 책임으로 나눈다.
-@evidence principles/design/materials.md#material-binding-interface 표면 id와 host가 정한 UV의 미터 단위 축·원점·이음을 소비해 재료 반복 길이와 validateTextureScale 결속을 정한다.
-@evidence principles/design/materials.md#material-verification-address 1 m·2 m 근접과 리뷰 거리에서 실제 결·광학 응답·타일 모듈을 반증하고 빠진 map은 fallback으로만 기록한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings fidelity와 visual-grammar의 불규칙 색 패치 금지를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/texture-readability.md#material-texture-readability 반복 표면의 실제 결·물리 scale·UV·이음과 매끈한 표면의 광학 응답, 실패 fallback을 이 H2가 공통으로 정한다.
-@evidence obligations/core/common.md#proportionate-development 물리 scale과 실제 읽힘이 필요한 표면만 결정론적 맵으로 만들고 매끈한 유리·거울은 광학 응답으로 처리한다.
-@evidence settings/20-verification.md#fidelity 표현 수준이 요구한 실제 마감 읽힘을 생성식·UV 결속·광학 응답으로 구현할 규칙을 정한다.
+@evidence models/00-model-frame.md#model-furniture-local-frame Host metric UV axes/origins and per-H2 precedence carry physical repeat lengths; materials does not recreate coordinates.
+@evidence models/00-model-frame.md#model-representation-ceiling Actual glass/window/leaf thickness remains geometry; texture does not recreate excluded screws/weatherstrips.
+@evidence principles/core/common.md#declared-basis The user's reversal of the bitmap hold authorizes deterministic texture and smooth optical readability.
+@evidence principles/core/common.md#scope-preservation Siding/shingle thickness remains models/instances; materials owns grout masks/response and systems owns emission.
+@evidence principles/core/common.md#substantive-completion Metric modules, projection, origins/seams, fallback limits, and actual scale-check population are specified without claiming execution.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity's readable members gain material-owned texture scale and explicit smooth optical decisions.
+@evidence principles/design/materials.md#material-construction-appearance Member overlap/thickness is geometry; grain and transmission are appearance response.
+@evidence principles/design/materials.md#material-binding-interface Stable part ids and metric UVs bind repeat modules without transferring geometry ownership.
+@evidence principles/design/materials.md#material-verification-address Views at 1 m/2 m and review distance test grain, seams, scale, and optics; fallback is not acceptance.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work fidelity/visual-grammar supplies finish readability; the model frame supplies metric coordinates and omitted-detail limits. This convention changes no parent geometry.
+@evidence contracts/texture-readability.md#material-texture-readability Repeated faces require grain/scale/seams; smooth faces require optics, and failed loads remain fallback only.
+@evidence obligations/core/common.md#proportionate-development Repeated-grain surfaces receive physical texture plans; smooth glass/mirrors receive optics rather than decorative patterns.
+@evidence settings/20-verification.md#fidelity Actual readability becomes deterministic texture/optical decisions with incomplete realization explicit.
 -->
 
-사용자가 같은 날 비트맵 보류를 철회했으므로 [표현 수준](../settings/20-verification.md#fidelity)의 실제 재료 읽힘을 텍스처와 광학 응답까지 구현한다. siding course·shingle 겹침처럼 두께와 접합을 설명하는 부재는 models/instances가 만든다. 벽돌·타일 줄눈은 기존 면 UV의 결정론적 색·거칠기·법선 마스크로 materials가 만들고, 독립 줄눈 geometry를 요구하지 않는다. 유리·거울·유약은 무늬를 억지로 칠하지 않고 투과·반사·곡면 하이라이트로 읽힌다. 발광은 systems 조명에 남긴다. 제공 레퍼런스를 표면에 붙이지 않으며 맵 픽셀은 검토 가능한 TypeScript 생성식과 명명된 물리 파라미터에서 나온다. 각 H2는 결합 파티션, 반복 모듈의 미터 치수, host가 정한 U/V 축·원점·회전·이음에 대한 결합, 기준색 fallback을 정한다. 세계 벽면은 벽 길이 U·높이 V, 바닥은 X/Z, 지붕은 처마 평행 U·경사 위쪽 V를 기본으로 하고 모델 부재는 선언된 국소 축을 쓴다. 실제 binding의 `coordinateSource`와 UV를 `validateTextureScale`에 넣어 검사하며 빈 모집단의 성공은 거부한다. 맵이 없거나 로드에 실패하면 각 H2의 기준색·roughness가 진단 fallback이지만 그것을 최종 시각 합격으로 세지 않는다. source owner는 `src/materials/frame.ts`이고 실제 맵·결속·GPU 판정은 아직 unverified다.
+The user's reversal of the bitmap hold permits textures/optics to realize [fidelity](../settings/20-verification.md#fidelity). Models/instances make thickness/junctions explaining siding courses and shingle overlap. Materials makes brick/tile joints as deterministic color, roughness, and normal masks in existing UVs, without separate grout geometry. Glass, mirrors, and glaze read through transmission/reflection/curved highlights rather than arbitrary patterns. Systems retains emission. Reference images are not pasted onto surfaces; pixels come from reviewable TypeScript formulas and named physical parameters.
 
-## 거칠기·금속성 관례 {#material-response-conventions}
+Each H2 defines partitions, repeat modules in meters, use of host U/V axes, origins, rotations/seams, and reference-color fallback. World walls default to wall-length U/height V, floors to X/Z, roofs to eave-parallel U/up-slope V, and model members to declared local axes. Physical-scale review must inspect actual binding `coordinateSource` and UVs rather than an empty population; this translation ran no scale check and claims no corresponding validator API exists. Missing/failed maps retain diagnostic color/roughness and cannot pass final readability.
+
+Current shared declarations are in `src/materials/finish.ts`; selection is in `model-bindings.ts` and `space-bindings.ts`. Existing color PNGs come from `src/materials/generate-building-textures.mts` and `src/viewer/generate-preview-textures.mts`, with furniture grain in `src/materials/furnishings/wood-grain.mts`. Native `src/viewer/scene.mts` binds color maps and constant roughness, not roughness or normal maps. A registered module/existing PNG does not establish full realization of the plans below. Close/review-distance GPU acceptance remains unverified in this translation work.
+
+## Roughness and metallic conventions {#material-response-conventions}
 <!--
-@evidence principles/core/common.md#declared-basis roughness 대역이 오후 key·하늘 fill 아래 광택 위계를 위한 저작 선택이며 측정 BRDF가 아니라고 밝힌다.
-@evidence principles/core/common.md#scope-preservation 광택·금속성 대역만 정하고 발광과 조명 세기는 systems가 소유한다고 남긴다.
-@evidence principles/core/common.md#substantive-completion 네 roughness 대역(0.02–0.05, 0.25–0.40, 0.45–0.65, 0.80–0.95)과 metallic 1.0 대상(스테인리스 가전·수전·거울 은막)을 모두 열거했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation lighting-state는 재질 반응을 materials에 넘겼고 이 H2가 그 반응을 대역 수치로 구체화한다.
-@evidence principles/design/materials.md#material-construction-appearance 창틀·차고문·난간살은 구성상 금속이어도 외관이 도막이므로 metallic 0.0이라는 구성–외관 관계를 명시한다.
-@evidence principles/design/materials.md#material-binding-interface transmission은 투명 유리만 0보다 크다는 조건으로 host가 받을 응답 종류를 한정한다.
-@evidence principles/design/materials.md#material-verification-address 같은 조명의 견본 구 배열에서 대역 순서대로 하이라이트 폭이 좁아지는지를 반증 견본으로 둔다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work lighting-state의 오후 key·하늘 fill·고정 노출을 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/texture-readability.md#material-texture-readability 거칠기 맵을 쓰더라도 이 H2의 재료별 0–1 대역과 광택 순서를 유지한다.
-@evidence obligations/design/materials.md#material-response roughness 네 대역과 metallic·transmission 규칙으로 모든 재료의 응답 범위를 정했다.
-@evidence settings/20-verification.md#lighting-state 거칠기·금속성 관례가 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#renderer-boundary 실제 3D viewer의 재질 입력으로 선형 base color·roughness·metallic·transmission 상수를 넘기고 발광은 재료에 두지 않아 조명 기구가 발광판으로 공간을 지우지 않게 한다.
+@evidence principles/core/common.md#declared-basis Bands are authored gloss hierarchy under afternoon key/sky fill, not measured BRDF data.
+@evidence principles/core/common.md#scope-preservation This unit owns gloss/metallicity; systems retains emission/intensity.
+@evidence principles/core/common.md#substantive-completion Four roughness bands, exposed-metal metallic 1.0, coating metallic 0.0, and optical exceptions are stated.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation lighting-state delegates response; this unit adds numeric bands and bare-metal/coating interpretation.
+@evidence principles/design/materials.md#material-construction-appearance Frames/panels/balusters are metal construction with dielectric coating response, hence metallic 0.0.
+@evidence principles/design/materials.md#material-binding-interface Transmission remains scoped to named glass/curtain/diffuser faces rather than opaque host surfaces.
+@evidence principles/design/materials.md#material-verification-address Same-light spheres can falsify the intended highlight-width hierarchy.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Afternoon key/sky fill/fixed exposure suffice for the gloss comparison without revising lighting state.
+@evidence contracts/texture-readability.md#material-texture-readability Planned roughness variation retains bounded response and intended gloss order.
+@evidence obligations/design/materials.md#material-response Bands and scoped metallic/transmission rules allocate renderer-facing response.
+@evidence settings/20-verification.md#lighting-state Common light supplies the comparison conditions for roughness bands.
+@evidence settings/20-verification.md#renderer-boundary Linear color/optics feeds actual 3D; systems-owned light is not replaced with emissive panels.
 -->
 
-기준 roughness는 0–1 값으로 다음 대역을 쓴다. 거칠기 맵의 국소 변조도 해당 재료의 대역을 벗어나거나 광택 순서를 뒤집지 않는다. 광택 유리·거울 0.02–0.05, 반광 도장·에나멜·도기 0.25–0.40, 무광 도장 벽·목재 오일 마감 0.45–0.65, 벽돌·콘크리트·shingle·직물 0.80–0.95. metallic은 도장하지 않은 노출 금속(스테인리스 가전, 수전, 거울 은막)만 1.0이고 도장된 금속 부재(창틀·차고문·검은 분체 도장 난간살과 손잡이)는 표면이 도막이므로 0.0으로 둔다. transmission은 투명 유리만 0보다 크다. 이 대역은 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key와 하늘 fill 아래에서 재료 사이의 광택 위계를 만들기 위한 저작 선택이며 측정한 BRDF가 아니다. 각 재료 H2의 값은 이 대역 안에 들어야 하고 벗어나면 그 H2가 이유를 적는다. source owner는 `src/materials/frame.ts`이며, 리뷰는 같은 조명의 견본 구 배열에서 대역 순서대로 하이라이트 폭이 좁아지는지를 관찰한다.
+Reference roughness uses 0–1 values: glossy glass/mirrors 0.02–0.05; semi-gloss paint/enamel/ceramic 0.25–0.40; matte wall paint/oiled wood 0.45–0.65; brick/concrete/shingle/textiles 0.80–0.95. Planned local variation preserves the chosen band and gloss hierarchy. Metallic is 1.0 only for unpainted exposed metal: stainless appliances, faucets, and mirror silver. Painted frames, garage panels, black balusters, and handles use metallic 0.0 because the visible surface is coating.
 
-## 면 결합 규칙 {#material-binding-rule}
+These are authored bands under [afternoon key and sky fill](../settings/20-verification.md#lighting-state), not measured BRDF. An H2 outside a band explains its response. Explicit privacy-glass, curtain, and fixture optical values are exceptions to the general transparent-glass transmission convention; their named faces retain those values rather than becoming opaque. Source owner is `src/materials/finish.ts`. Review compares highlights under the same light against the intended band order.
+
+## Surface binding rules {#material-binding-rule}
 <!--
-@evidence models/00-model-frame.md#model-local-frame 개구부 아래 중앙/날씨 면 또는 열림 면의 원형 좌표를 가진 실제 host 면에만 결속하며 창·문 world 배치와 외곽은 변경하지 않는다.
-@evidence models/00-model-frame.md#model-surface-partition-naming 부재 역할 id와 안팎 접미사를 결속 키로 사용하고 모든 두께/끝면을 포함해 정확히 한 최종 재료를 준다.
-@evidenceExclude models/00-model-frame.md#model-reference-scale 문 90° 유효폭과 창의 순유리 폭은 모델 부재를 빼서 산출하는 geometry 검증이다. 이 면 결합 규칙은 기존 면 id에 색/광학값을 연결하며 사람 점유체나 개구부 폭을 생성·측정하지 않는다.
-@evidence principles/core/common.md#declared-basis 결합 대상이 spaces 03의 exterior-surface-handoff와 interior-surface-handoff owner 표라고 링크로 밝힌다.
-@evidence principles/core/common.md#scope-preservation 재료는 면의 경계·두께·개수를 바꾸지 않고 host owner 면에만 결합한다고 정한다.
-@evidence principles/core/common.md#substantive-completion 한 면 한 최종 재료, 벽돌·타일 줄눈의 단일 재료 내부 UV 마스크, host 부재 경계와 일치, 삼각형 단위 분할 금지, 단면 기본과 유리·얇은 커튼 양면 규칙을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation은 동일 surface binding만 요구했고 이 H2는 경계 일치와 법선 방향 조건을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 결합 경계는 구성상 부재 경계(trim 돌출·문턱·걸레받이·기단 윗선)와 같고 외관 값이 새 경계를 만들지 않는다.
-@evidence principles/design/materials.md#material-binding-interface 바깥면 법선은 host owner가 정한 방향이고 재료는 그 surface vocabulary에 붙기만 한다고 정한다.
-@evidence principles/design/materials.md#material-verification-address 컴파일 산출물에서 재료 없는 면·두 재료를 받은 면의 수 0과 경계선 일치를 검사 모드 view로 반증한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work spaces 03의 exterior/interior surface handoff 표를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/texture-readability.md#material-texture-readability texture 좌표와 재료가 같은 안정 part id에 결속되고 한 면의 끝에서 함께 끊긴다.
-@evidence obligations/core/common.md#layer-boundary 재료는 host 면의 경계·두께·개수를 바꾸지 않고 spaces/models의 면에만 결합한다.
-@evidence obligations/design/materials.md#material-surface-assignment 한 면 한 최종 재료와 내부 UV 마스크, 부재 경계와의 일치, 단면/양면 방향을 모든 결합의 공통 조건으로 정했다.
-@evidence spaces/03-surface-owners.md#exterior-surface-handoff 면 결합 규칙이 '입면·지붕·층의 소유'(spaces/03-surface-owners.md#exterior-surface-handoff)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence spaces/03-surface-owners.md#interior-surface-handoff 면 결합 규칙이 '방 내부의 완결 면 소유'(spaces/03-surface-owners.md#interior-surface-handoff)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#surface-allocation materials가 동일 surface binding으로 마감을 구현하라는 인계를 한 면 한 최종 재료·host 부재 경계 일치 규칙으로 받는다.
-@evidence settings/00-production.md#build-allocation 제작 배분이 표면 표현을 materials에 두었으므로 이 규칙은 표현만 결합하고 부재·원형은 models, 반복 개체는 instances에 남긴다.
+@evidence models/00-model-frame.md#model-local-frame Prototype faces retain origin frames/world placement; binding changes neither envelope nor transforms.
+@evidence models/00-model-frame.md#model-surface-partition-naming Role ids and inner/outer suffixes select final finishes, including thickness/cut faces.
+@evidenceExclude models/00-model-frame.md#model-reference-scale Door/glazing clear-width checks remain geometry; binding constructs no occupancy body or opening measurement.
+@evidence principles/core/common.md#declared-basis Complete exterior/interior face handoffs supply finish host owners.
+@evidence principles/core/common.md#scope-preservation Materials assigns response without changing outlines, thickness, or face count.
+@evidence principles/core/common.md#substantive-completion Final finish uniqueness, internal grout masks, member-boundary alignment, and sidedness are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation supplies inherited binding; this unit adds member-end and normal-direction conditions.
+@evidence principles/design/materials.md#material-construction-appearance Finish transitions follow actual trim/threshold/baseboard/plinth ends rather than invented construction seams.
+@evidence principles/design/materials.md#material-binding-interface Existing ids/UVs/normals define compatibility; materials receives these interfaces.
+@evidence principles/design/materials.md#material-verification-address Missing/ambiguous bindings or disagreement with member ends can falsify the rule in actual output/views.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Complete face handoffs and model role ids suffice for finish selection without another host geometry.
+@evidence contracts/texture-readability.md#material-texture-readability Coordinates and finish bind to the same stable part and end at its boundary.
+@evidence obligations/core/common.md#layer-boundary Materials retains response; spaces/models retains geometry/coordinate ownership.
+@evidence obligations/design/materials.md#material-surface-assignment Unique finish, internal masks, member-end alignment, and direction apply across all bindings.
+@evidence spaces/03-surface-owners.md#exterior-surface-handoff Complete elevation/roof/porch/threshold/site owners supply exterior faces.
+@evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners supply wall/floor/ceiling/opening-surround finish zones.
+@evidence settings/20-verification.md#surface-allocation Finishes inherit the complete-surface responsibility shared with geometry/repetition.
+@evidence settings/00-production.md#build-allocation Response remains materials work; prototypes/repeated placement remain models/instances work.
 -->
 
-재료는 [완결 시각 표면의 소유 분해](../spaces/03-surface-owners.md#exterior-surface-handoff)와 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)가 정한 owner의 면에 결합하고, 면의 경계·두께·개수는 바꾸지 않는다. 한 면에는 정확히 한 최종 재료 인스턴스가 붙고 서로 다른 최종 재료가 만나는 선은 host owner가 이미 가진 부재 경계(trim 돌출, 문턱, 걸레받이, 기단 윗선)와 일치해야 한다. 벽돌·타일의 줄눈은 해당 최종 재료 내부의 UV 색·거칠기·normal 마스크이며 같은 면에 두 번째 재료를 결합하는 것이 아니다. 같은 면을 삼각형 단위로 나눠 다른 재료를 칠하는 방식으로 경계를 새로 만들지 않는다. 맵 좌표도 같은 part id에 결속하고 host가 정한 U/V 축·원점·회전·이음을 소비하며 재료 반복 모듈을 그 part에 기록한다. 바깥면 법선은 host owner가 정한 바깥 방향이며 재료는 단면(single-sided) 기본값을 쓰고 유리·얇은 커튼만 양면이다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 컴파일된 산출물에서 재료 없는 면·두 재료를 받은 면의 수가 0인지와 경계선이 host 부재 끝선과 일치하는지를 검사 모드 view로 관찰한다.
+Materials binds to faces assigned by the [complete exterior handoff](../spaces/03-surface-owners.md#exterior-surface-handoff) and [room interior handoff](../spaces/03-surface-owners.md#interior-surface-handoff), preserving outline, thickness, and count. Every face receives exactly one final material instance. Different finishes meet at existing member boundaries: trim projection, threshold, baseboard, or plinth top. Brick/tile grout is a UV color/roughness/normal mask inside that final material, not a second material on the face. Arbitrarily painting different triangles must not invent construction boundaries.
 
-## 재료 리뷰 견본 {#material-review-set}
+Maps bind to the same part id and receive host U/V axes, origins, rotations/seams; materials owns repeat dimensions. Normals remain host-owned. Single-sided is default; glass/thin curtains use explicit double-sided response. Current owners are `src/materials/model-bindings.ts` and `src/materials/space-bindings.ts`; `wall-tile-partitions.ts` clips declared finish zones in existing triangles, preserving positions/normals/UVs/total area rather than adding walls. Review asks for 0 unbound or multiply bound faces and checks member-end alignment. Resolver rejection alone proves neither that every intended surface was emitted nor that it was visually reviewed.
+
+## Material review samples {#material-review-set}
 <!--
-@evidence models/03-interior-doors.md#interior-door-hinges 열한 문의 low/high 경첩과 기준 π/2 상태를 재료 판정에서 그대로 쓰며 열린 두 방 쪽의 패널/문선/철물 경계가 같은 결속을 유지하는지 대조한다.
-@evidence models/00-model-frame.md#model-representation-completion 모델 구조 판정과 의미 판정이 별개라는 기준을 받아 재료 견본 성공을 닫힌 부피·예약 맞춤 성공으로 보고하지 않는다.
-@evidence models/00-model-frame.md#model-review-set 동일 카메라의 face-id 오버레이와 실제 materials 뷰를 짝지어 바인딩 누출/누락을 확인하고 문 열림 상태에서도 같은 실제 면을 사용한다.
-@evidence principles/core/common.md#declared-basis 견본 조건이 frame-condition의 1536×1024 canvas·중성 배경과 lighting-state에서 온다고 밝힌다.
-@evidence principles/core/common.md#scope-preservation 재료 판정 견본만 정하고 관찰 위치·결과는 컴파일 산출물과 현재 GPU 프레임에서 읽는다고 남긴다.
-@evidence principles/core/common.md#substantive-completion 중성 조명 판, 기준 상태 판, 약 20 m·2 m·threshold·1 m 거리 견본, 상태 견본 네 가지와 실패 시 unverified 처리를 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation frame-condition은 view 기본값만 정했고 이 H2는 0.5 m 구·평판 배열과 6500 K 상당 방향광을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 근접 거리 견본은 구성(geometry 결)을, 조명 판은 외관(색·광택)을 따로 반증한다.
-@evidence principles/design/materials.md#material-binding-interface 실제 host 위 거리 견본에서 재료 경계와 host 부재 끝선의 일치를 본다.
-@evidence principles/design/materials.md#material-verification-address 명도 순서(흰 trim > 천장 > 실내 벽 > siding)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증하는 판을 정한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work frame-condition과 lighting-state를 적힌 그대로 소비했고 부모 결함은 없었다.
-@evidence contracts/texture-readability.md#material-texture-readability 근접·리뷰 거리 견본과 실제 host에서 텍스처 scale·이음·광학 읽힘을 반증한다.
-@evidence obligations/design/materials.md#material-review-set 중성 조명 판·기준 상태 판·거리 견본·상태 견본을 정해 타일링·경계·면 오류를 극적 shot 전에 반증한다.
-@evidence settings/20-verification.md#frame-condition 재료 리뷰 견본이 '리뷰 프레임 조건'(settings/20-verification.md#frame-condition)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#lighting-state 재료 리뷰 견본이 '빛과 기준 상태'(settings/20-verification.md#lighting-state)를 링크로 소비해 규칙 값과 결합 면의 근거로 삼았다.
-@evidence settings/20-verification.md#lifecycle-boundary 제작 순서의 '재료 읽힘과 정리' 단계를 이 견본 네 가지로 판정하고 앞 단계의 공간·부재 결과를 되돌리지 않는다.
+@evidence models/03-interior-doors.md#interior-door-hinges All 11 doors retain low/high hinge assignments and reference π/2 pose while finishes are compared from both rooms.
+@evidence models/00-model-frame.md#model-representation-completion Sample success remains separate from closed-volume/reservation-fit judgment.
+@evidence models/00-model-frame.md#model-review-set Same-camera face-id/material pairs test leakage under existing allowed poses.
+@evidence principles/core/common.md#declared-basis frame-condition supplies raster/background; lighting-state supplies shared reference light.
+@evidence principles/core/common.md#scope-preservation This unit defines material samples; poses/results come from compiled output/current GPU frames.
+@evidence principles/core/common.md#substantive-completion Neutral/baseline/distance/state samples retain unverified status when absent or failed.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation View defaults gain 0.5 m sphere/plate samples and a neutral-light comparison plan.
+@evidence principles/design/materials.md#material-construction-appearance Close samples test member/grain scale; shared-light samples separately test color/gloss.
+@evidence principles/design/materials.md#material-binding-interface Actual-host distance views compare finish/member ends rather than detached swatches alone.
+@evidence principles/design/materials.md#material-verification-address White/roughness comparisons expose merged colors and unsupported gloss order instead of assuming the declared order passed.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Raster/common-light parents suffice for reproducible samples without revising room poses or geometry.
+@evidence contracts/texture-readability.md#material-texture-readability Close/review-distance actual-host samples test grain scale/seams and smooth optics.
+@evidence obligations/design/materials.md#material-review-set Neutral/baseline/distance/state samples test tiling/boundaries/face errors before dramatic composition.
+@evidence settings/20-verification.md#frame-condition Raster 1536×1024, eye heights/FOV, and neutral background remain inherited.
+@evidence settings/20-verification.md#lighting-state Baseline comparison retains afternoon key/sky fill/warm interior lights.
+@evidence settings/20-verification.md#lifecycle-boundary Readability samples belong to cleanup after space/member work without replacing geometry judgment.
 -->
 
-재료 판정은 극적 shot 전에 고정된 견본으로 한다. 첫째 견본은 중성 조명 판이다. [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 1536×1024 canvas와 중성 배경 위에 모든 재료 H2를 0.5 m 구와 0.5 m 평판으로 한 줄씩 놓고, 색온도 6500 K 상당의 방향광 하나와 균일한 환경광 아래 고정 노출로 찍는다. 이 판은 hex 명도 순서(흰 trim > 천장 > 실내 벽 > siding, charcoal 창틀 < 차고문)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증한다. 둘째 견본은 기준 상태 판이다. 같은 배열을 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key·하늘 fill과 켜진 따뜻한 실내등 아래 다시 찍어 따뜻한 조명에서 흰 계열이 서로 합쳐지거나 올리브·청회색 침구가 구별을 잃는지 본다. 셋째는 실제 host 위 거리 견본이다. 외부는 01 기본 view(사람 눈높이 1.6 m, 약 20 m)와 벽 앞 2 m 근접 view, 실내는 각 방 threshold view(바닥 위 1.6 m, 수직 FOV 60°)와 가구 앞 1 m 근접 view에서 재료 경계가 host 부재 끝선과 맞는지, 재료 없는 면이나 두 재료를 받은 면이 있는지, 실제 부재와 결속된 텍스처의 물리 scale·이음, 매끈한 표면의 광학 응답이 리뷰 거리에서 읽히는지 관찰한다. 넷째는 상태 견본이다. 이 production의 재료에는 시간 변화나 젖음·마모 상태가 없으므로 기준 상태 하나만 검사하고, 문 열림 상태에서 문짝 모서리가 같은 재료를 유지하는지만 더 본다. source owner는 `src/materials/review.ts`이며 관찰 위치와 결과는 컴파일된 산출물과 현재 GPU 프레임에서 읽고, 판이 없거나 실패하면 해당 재료 판정은 unverified로 남긴다.
+Judge materials with fixed samples before dramatic composition. The neutral-light plan uses [frame conditions](../settings/20-verification.md#frame-condition): canvas 1536×1024, neutral background, one 0.5 m sphere and 0.5 m plate per material H2, a directional light equivalent to 6500 K, uniform ambient light, and fixed exposure. Its intended brightness order is white trim > ceiling > interior wall > siding and charcoal frames < garage door, with roughness-band highlight-width comparison. Current constants do not establish that intended white order: ceiling `#FAF9F6` has higher linear channels than exterior trim `#F6F4EE`. Preserve both colors and inspect their distinction; do not silently change them or claim the order passed. Current neutral source uses white key/fill, not a calibrated temperature measurement.
 
-건물 단계의 판은 `buildingFinishes`가 현재 내보내는 36개 실제 finish를 순서대로 소비한다. 같은 id를 가진 재료를 더 만들거나 텍스처 색을 다른 swatch로 대체하지 않는다. `subject=material-review`의 `page=0`부터 한 페이지에 일곱 행씩 배분하며 마지막 페이지도 남은 한 행을 그대로 검사한다. 각 행의 왼쪽은 지름 0.5 m 구, 오른쪽은 0.5×0.5 m 평판이다. `mode=neutral`은 흰 key와 균일 fill, `mode=baseline`은 실제 HouseLighting의 같은 광원 목록·위치·환경값을 적용하며 두 판의 카메라·기하는 같다. 각 행의 실제 재료 id는 산출물의 materialReview.rows와 native 검사 표시가 같은 순서로 내보낸다. primitive tessellation의 빈 UV에는 검사 견본 owner가 구의 미터 경선·위선과 평판의 미터 평면 좌표를 붙이고 원래 finish의 texture module로 나눈다. 이 견본은 건물 catalogue의 관찰이며 아직 활성 source가 없는 소품 재료의 최종 완료를 대신하지 않는다.
+The baseline plan repeats the array under [afternoon key/sky fill and lit warm interiors](../settings/20-verification.md#lighting-state), testing whether whites merge or olive/blue-gray bedding loses distinction. Exterior samples use 01 at eye height 1.6 m/about 20 m plus a view 2 m from the wall. Interiors use each room threshold at 1.6 m above floor/vertical FOV 60° plus furniture views at 1 m. Inspect finish/member boundaries, missing/duplicate bindings, physical scale/seams, and smooth optics. State samples retain one static baseline without wetness/wear/time changes and additionally inspect leaf edges in allowed opening states. `src/materials/review.ts` owns samples. Poses/results come from compiled output/current GPU frames; missing/failed plates remain unverified.
 
-거울 finish의 평판은 실제 위생실 거울과 같은 FittingParts의 앞면 +Z producer와 `mirror` 면 의미를 보존하여 native 평면 반사를 사용한다. 구는 곡면 반사경을 새로 저작하지 않고 같은 금속 PBR 값을 검사한다. 현재 viewer에는 곡면 환경 반사가 없으므로 구의 정면이 어두운 것을 평면 거울 실패와 혼동하지 않으며, 거울의 실제 반사 판정은 평판과 실제 위생실 host에서 한다. 텍스처와 광학 상수는 이 관찰 차이 때문에 바꾸지 않는다.
+The building plate consumes the 36 actual `buildingFinishes` entries without substitute swatches or duplicated ids. `subject=material-review` begins at `page=0`, seven rows per page, retaining the last single row. Each row has a diameter 0.5 m sphere on the left and a 0.5×0.5 m plate on the right. `mode=neutral` uses white key/uniform fill; `mode=baseline` uses actual HouseLighting sources/positions/environment with unchanged camera/geometry. `materialReview.rows` and native inspection preserve emitted id order. Where primitive tessellation lacks UVs, the sample owner supplies metric meridian/latitude or plate-plane coordinates divided by the original finish module. This building observation does not complete unbuilt individual object materials.
+
+The mirror plate preserves the actual FittingParts +Z front producer and `mirror` semantics of the sanitary host, using native planar reflection. The sphere tests identical metallic PBR values without a newly authored curved mirror. Current viewer has no curved environment reflection, so a dark sphere front is not a failed planar mirror; reflection is judged on the plate and actual sanitary host. No texture/optical constant changes hide that difference. This translation made no new GPU material capture.

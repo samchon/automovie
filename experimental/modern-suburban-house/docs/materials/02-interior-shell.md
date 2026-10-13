@@ -1,287 +1,287 @@
-# 실내 외피 마감
+# Interior shell finishes
 
-## 따뜻한 밝은 벽 도장 {#interior-wall-paint}
+## Warm light wall paint {#interior-wall-paint}
 <!--
-@evidence principles/core/common.md#declared-basis 따뜻한 밝은 벽 도장의 #F1EEE6·roughness 0.60은 settings/10-house.md#entry의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 따뜻한 밝은 벽 도장은 spaces 03 interior-surface-handoff의 열다섯 방 owner(`src/spaces/rooms/*.ts`) 안쪽 벽 마감 구역(욕실 벽 타일 구역 제외, 차고 내부 벽 포함)에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 따뜻한 밝은 벽 도장은 #F1EEE6(선형 0.880, 0.855, 0.791), roughness 0.60, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/walls.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#entry는 색·재료를 말로만 정했고 따뜻한 밝은 벽 도장은 #F1EEE6 값과 roughness 0.60, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 따뜻한 밝은 벽 도장은 구성을 '석고보드 위 무광 수성 도장'로, 외관의 #F1EEE6·roughness 0.60·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 따뜻한 밝은 벽 도장의 결합 vocabulary는 spaces 03 interior-surface-handoff의 열다섯 방 owner(`src/spaces/rooms/*.ts`) 안쪽 벽 마감 구역(욕실 벽 타일 구역 제외, 차고 내부 벽 포함)이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 따뜻한 밝은 벽 도장의 반증 견본은 '실내 threshold view에서 켜진 따뜻한 천장등 아래 벽이 회색으로 가라앉지 않고 문선과 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F1EEE6 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 따뜻한 밝은 벽 도장은 settings/10-house.md#entry, settings/10-house.md#upper-hall를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 방 벽 도장의 미세 롤러 결은 0.10 m 모듈로 투영한다. 방 안쪽 벽 owner의 UV를 소비하고 문·창·걸레받이의 실제 면 끝에서 끊는다.
-@evidence settings/10-house.md#entry 따뜻한 밝은 벽 도장이 '실내 현관'(settings/10-house.md#entry)를 링크로 소비해 #F1EEE6 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#powder 따뜻한 밝은 벽 도장이 '파우더룸'(settings/10-house.md#powder)를 링크로 소비해 #F1EEE6 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#upper-hall 따뜻한 밝은 벽 도장이 '상층 복도'(settings/10-house.md#upper-hall)를 링크로 소비해 #F1EEE6 값과 결합 면의 근거로 삼았다.
-@evidence spaces/03-surface-owners.md#interior-surface-handoff 따뜻한 밝은 벽 도장이 '방 내부의 완결 면 소유'(spaces/03-surface-owners.md#interior-surface-handoff)를 링크로 소비해 #F1EEE6 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis entry's light walls ground #F1EEE6/roughness 0.60 as authored response under the common color rule.
+@evidence principles/core/common.md#scope-preservation Paint covers room-side walls outside tiled zones, including garage walls, without another wall or changed finish boundary.
+@evidence principles/core/common.md#substantive-completion Color/linear values, coating response, host zones, 0.10 m grain, source, and threshold observation are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The verbal light-wall identity gains numeric response and complete-room face bindings.
+@evidence principles/design/materials.md#material-construction-appearance Matte water-based paint over gypsum is construction; color/gloss approximates the coating without geometric film thickness.
+@evidence principles/design/materials.md#material-binding-interface Room-owner metric wall UVs and actual openings/baseboards terminate the paint without rewriting host geometry.
+@evidence principles/design/materials.md#material-verification-address Threshold views can falsify paint merged with casing or gray under warm ceiling light; neutral samples compare the swatch.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Entry/upper-hall wall identity and the complete room-face handoff suffice for paint response without geometry revision.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.10 m roller grain consumes room-owner UVs and ends at actual doors/windows/baseboards.
+@evidence settings/10-house.md#entry Light entry walls receive the warm numeric coating without changing distribution geometry.
+@evidence settings/10-house.md#powder Warm-white powder walls use the same paint outside its tile floor.
+@evidence settings/10-house.md#upper-hall Light hall walls retain a warm separation from white trim.
+@evidence spaces/03-surface-owners.md#interior-surface-handoff Each room's existing inner finish zones supply paint faces; tile-covered areas remain separate.
 -->
 
-[실내 현관](../settings/10-house.md#entry)·[상층 복도](../settings/10-house.md#upper-hall)·침실의 밝은 벽과 [파우더룸](../settings/10-house.md#powder)의 따뜻한 흰 벽이다. 구성은 석고보드 위 무광 수성 도장이며 도막 두께는 형상에 반영하지 않는다. 외관은 그 도막 한 층의 색과 광택만 근사하는 `#F1EEE6`(선형 0.880, 0.855, 0.791), roughness 0.60, metallic 0.0, transmission 0.0이다. 바깥 siding `#EDE8DC`보다 밝고 [흰 실내 trim](#interior-trim-white)보다 한 단계 따뜻해 문선이 벽에서 분리된다. 결합 면은 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)의 모든 방 owner가 가진 안쪽 벽 마감 구역이며, [욕실 벽 타일](#bath-wall-tile)이 덮는 구역은 제외하고 차고 내부 벽은 포함한다. source owner는 `src/materials/interior/walls.ts`이고, 리뷰는 실내 threshold view에서 켜진 따뜻한 천장등 아래 벽이 회색으로 가라앉지 않고 문선과 구별되는지를 관찰한다.
+The light walls of the [entry](../settings/10-house.md#entry), [upper hall](../settings/10-house.md#upper-hall), and bedrooms and warm-white [powder walls](../settings/10-house.md#powder) use matte water-based paint over gypsum board. Film thickness is not represented geometrically. Appearance approximates its color/gloss: `#F1EEE6` (linear 0.880, 0.855, 0.791), roughness 0.60, metallic 0.0, transmission 0.0. It is brighter than exterior siding `#EDE8DC` and warmer than [white interior trim](#interior-trim-white), allowing casing to separate from walls.
 
-표면 결속 계획: 방 벽 도장의 미세 롤러 결은 0.10 m 모듈로 투영한다. [방 안쪽 벽의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하며 실제 문·창·걸레받이 부재 끝에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Bind all room-owner inner wall finish zones in the [complete interior handoff](../spaces/03-surface-owners.md#interior-surface-handoff), excluding [wall-tile zones](#bath-wall-tile) and including garage walls. Source owner is `src/materials/interior/walls.ts`. Threshold views under warm ceiling lights test whether walls remain light and distinct from casing.
 
-[굴뚝 몸통](../spaces/envelope/left.md#chimney-roof-interface)의 X=-5.50 m 안쪽 면 중 upper-storey의 완성 바닥·천장 Y=[3.06,5.66] m, Z=[-2.75,-1.65] m는 같은 침실 벽 도장이다. 외부 몸통과 지붕 위는 벽돌, 1층 벽난로 앞면은 벽돌을 유지한다. 마감 경계에서 기존 삼각형만 잘라 배정하며 두 번째 벽 또는 돌출 도장판을 만들지 않는다.
+Surface plan: micro roller grain repeats at 0.10 m using [room-wall UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), ending at actual door/window/baseboard boundaries. Current source declares constant paint response without a color texture; grain realization and current close/review-distance GPU judgment remain unverified.
 
-## 평평한 흰 천장 {#interior-ceiling}
+On the [chimney body](../spaces/envelope/left.md#chimney-roof-interface), the inside face X=-5.50 m within upper-storey Y=[3.06,5.66] m and Z=[-2.75,-1.65] m receives this bedroom wall paint. Exterior/above-roof shaft and ground-storey fireplace front retain brick. Existing triangles are partitioned at the finish boundary without a second wall or projecting paint plate.
+
+## Flat white ceiling {#interior-ceiling}
 <!--
-@evidence principles/core/common.md#declared-basis 평평한 흰 천장의 #FAF9F6·roughness 0.65은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 평평한 흰 천장은 열다섯 방 owner(`src/spaces/rooms/*.ts`)의 보이는 천장 마감과 `src/spaces/stair.ts`의 계단실 위 높은 천장에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 평평한 흰 천장은 #FAF9F6(선형 0.956, 0.947, 0.922), roughness 0.65, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/ceilings.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 평평한 흰 천장은 #FAF9F6 값과 roughness 0.65, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 평평한 흰 천장은 구성을 '석고보드 위 무광 흰 도장'로, 외관의 #FAF9F6·roughness 0.65·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 평평한 흰 천장의 결합 vocabulary는 열다섯 방 owner(`src/spaces/rooms/*.ts`)의 보이는 천장 마감과 `src/spaces/stair.ts`의 계단실 위 높은 천장이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 평평한 흰 천장의 반증 견본은 '실내 모서리 view에서 벽·천장 경계가 보이고 천장이 발광판처럼 균일하게 타지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #FAF9F6 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 평평한 흰 천장은 spaces/09-ceiling-assembly.md#upper-ceiling-closure를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 도장의 약한 롤러 결은 천장 owner의 UV를 소비해 0.10 m 모듈로 반복한다. 실제 천장 구멍과 단차에서 면을 자르며 광원 바로 아래에서도 단색 판이 되지 않게 한다.
-@evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure 평평한 흰 천장이 '본채 상층과 계단실의 같은 상부 경계'(spaces/09-ceiling-assembly.md#upper-ceiling-closure)를 링크로 소비해 #FAF9F6 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis visual-grammar grounds the authored #FAF9F6/roughness 0.65 under the common color convention.
+@evidence principles/core/common.md#scope-preservation Finish covers existing room/garage ceilings and high stairwell ceiling without changing height or substrate.
+@evidence principles/core/common.md#substantive-completion Color/linear values, coating constants, ceiling hosts, 0.10 m grain, source, and corner observation are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation White-ceiling identity gains numeric response and specific ceiling-face bindings.
+@evidence principles/design/materials.md#material-construction-appearance Matte paint over gypsum is construction; optical values approximate the coating without emission.
+@evidence principles/design/materials.md#material-binding-interface Existing ceiling UVs/cuts terminate at real holes/steps rather than a new ceiling plane.
+@evidence principles/design/materials.md#material-verification-address Interior corners can falsify a lost wall/ceiling boundary or an apparently uniformly emissive ceiling.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work upper-ceiling-closure supplies complete room/stairwell faces and existing datums; this finish changes no substrate or hole.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.10 m weak roller grain uses ceiling-owner UVs and actual hole/step seams without substituting flat-color acceptance.
+@evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The existing shared upper boundary supplies room and stairwell ceiling faces while structure remains its owner.
 -->
 
-모든 실내 천장이다. 구성은 석고보드 위 무광 흰 도장이다. 외관은 도막 한 층을 근사하는 `#FAF9F6`(선형 0.956, 0.947, 0.922), roughness 0.65, metallic 0.0, transmission 0.0이다. 벽보다 밝고 차가워 벽과 천장의 모서리가 같은 조명에서 명도 차로 읽힌다. 결합 면은 각 방 owner의 보이는 천장 마감과 [계단실 위 높은 천장](../spaces/09-ceiling-assembly.md#upper-ceiling-closure)이며, 차고 천장은 같은 재료를 받는다. source owner는 `src/materials/interior/ceilings.ts`이고, 리뷰는 실내 모서리 view에서 벽·천장 경계가 보이고 천장이 발광판처럼 균일하게 타지 않는지를 관찰한다.
+All interior ceilings use matte white paint over gypsum board. Appearance is `#FAF9F6` (linear 0.956, 0.947, 0.922), roughness 0.65, metallic 0.0, transmission 0.0, approximating one coating layer. It is brighter/cooler than walls, intending to reveal their corner under the same light. Bind visible ceiling finishes of each room and the [high stairwell ceiling](../spaces/09-ceiling-assembly.md#upper-ceiling-closure); garage ceilings share the finish. Source owner is `src/materials/interior/ceilings.ts`. Corner views test wall/ceiling distinction and reject an apparently uniform emissive panel.
 
-표면 결속 계획: 천장 도장의 약한 롤러 결은 [천장 owner의 UV와 절단](../spaces/09-ceiling-assembly.md#upper-ceiling-closure)을 소비해 0.10 m 모듈로 반복한다. 실제 천장 구멍과 단차에서 면을 자르며 광원 바로 아래에서도 단색 판이 되지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: weak roller grain repeats at 0.10 m using [ceiling UVs/cuts](../spaces/09-ceiling-assembly.md#upper-ceiling-closure), ending at actual holes and height steps. It must remain readable under lights. Current source uses constant response without a texture; full grain and current close/review-distance GPU acceptance remain unverified.
 
-## 흰 실내 trim과 패널 문짝 {#interior-trim-white}
+## White interior trim and paneled leaves {#interior-trim-white}
 <!--
-@evidence models/13-bedrooms.md#sliding-closet carcass·leaf·shelf의 닫힌 판과 오목 leaf-panel에 흰 trim 도막을 결속하고 rod·rail·handle·clothes를 각각 다른 재료로 남긴다.
-@evidence models/13-bedrooms.md#wardrobe-shelves 네 shelf와 두 옆 carcass의 실제 끝면·걸레받이 홈에 흰 도막을 붙이며 folded·shoe-box·basket 소품에는 흰 도막을 넘기지 않는다.
-@evidence models/03-interior-doors.md#interior-door-members 두께 있는 양쪽 casing과 jamb-a/b/core·leaf·오목 leaf-panel에 같은 반광 도막을 적용하고 각 판의 미터 UV·끝면을 소비한다.
-@evidence models/03-interior-doors.md#interior-door-surfaces A·B 문선과 문설주·문짝·패널의 실제 id 경계에서 결속을 끝내 검은 handle·hinge에 흰 도막이 새지 않게 한다.
-@evidenceExclude models/03-interior-doors.md#interior-door-fidelity 심재·힌지 나사·걸쇠·도어클로저는 원형이 만들지 않는 부재로 재료 host도 없다. 흰 도막은 실제 문짝/문선의 광학 응답만 정하며 그 숨은 기구를 대신하지 않는다.
-@evidence models/04-stair-members.md#stair-side-skirt 두 경사판과 참 연결판의 stair-skirt 닫힌 면과 실제 경사 길이 UV에 흰 도막을 결속하며 spaces 디딤·챌판 면을 복제하지 않는다.
-@evidence models/05-closet-fittings.md#coat-closet-doors 두 깊이 층의 leaf·leaf-panel과 개구부 밖 casing만 흰 도막을 받고 오목 handle과 두 rail은 금속으로 남긴다.
-@evidence models/05-closet-fittings.md#linen-closet-fittings 닫힌 두 미닫이 leaf/패널과 다섯 shelf·세 casing의 앞뒤/끝면까지 같은 도막을 받되 선반과 트랙의 서로 다른 깊이 원점을 변경하지 않는다.
-@evidence models/05-closet-fittings.md#closet-fitting-surfaces leaf·leaf-panel·shelf·casing id와 각 부재가 낸 미터 UV에 결속하며 rod·rail·handle 파티션은 금속 결속에 남긴다.
-@evidence models/06-interior-trim.md#wall-baseboard 0.10 m 높이·0.015 m 최대 돌출인 wall-baseboard의 사면·앞뒤·끝면과 miter seam을 소비해 run 길이 방향의 흰 도막을 결속한다.
-@evidence principles/core/common.md#declared-basis 흰 실내 trim과 패널 문짝의 #F4F2EC·roughness 0.35은 settings/10-house.md#openings의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 흰 실내 trim과 패널 문짝은 models 02 외부 문의 실내 문선·03 실내 문·05 수납·01 창 안쪽 창대와 창선·06 벽 걸레받이 파티션과 `src/spaces/stair.ts` 계단의 챌판·난간 기둥에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 흰 실내 trim과 패널 문짝은 #F4F2EC(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/trim.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#openings는 색·재료를 말로만 정했고 흰 실내 trim과 패널 문짝은 #F4F2EC 값과 roughness 0.35, `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b` 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 흰 실내 trim과 패널 문짝은 구성을 '반광 도장한 목재·MDF 부재'로, 외관의 #F4F2EC·roughness 0.35·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 흰 실내 trim과 패널 문짝은 실내 문의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 현관·정원문과 외투장·린넨장·침실 미닫이 옷장의 `casing`, 창의 `interior-sill`·`interior-casing`, 독립 걸레받이 `wall-baseboard`에 결합하고 계단 챌판·기둥은 spaces 계단 owner의 면을 쓴다.
-@evidence principles/design/materials.md#material-verification-address 흰 실내 trim과 패널 문짝의 반증 견본은 '05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F4F2EC 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 실내 trim과 패널 문짝은 settings/10-house.md#openings, settings/10-house.md#stair를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이며, 계단 부재는 spaces owner의 UV를, 문선·걸레받이·문짝은 각 모델의 UV를 소비한다.
-@evidence settings/10-house.md#openings 흰 실내 trim과 패널 문짝이 '개구부의 읽힘'(settings/10-house.md#openings)를 링크로 소비해 #F4F2EC 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#stair 흰 실내 trim과 패널 문짝이 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #F4F2EC 값과 결합 면의 근거로 삼았다.
+@evidence models/13-bedrooms.md#sliding-closet carcass/leaf/shelf and real panel recesses receive white coating; rods/rails/handles/clothes remain separate finishes.
+@evidence models/13-bedrooms.md#wardrobe-shelves Four shelves and two carcass sides receive coating, including actual ends/baseboard cuts; folded/shoe-box/basket faces remain separate.
+@evidence models/03-interior-doors.md#interior-door-members Thick casing/jamb/leaf/panel members receive one coating using their actual metric UVs/end faces.
+@evidence models/03-interior-doors.md#interior-door-surfaces A/B casing, jamb, leaf, and panel ids terminate coating before black handle/hinge faces.
+@evidenceExclude models/03-interior-doors.md#interior-door-fidelity Omitted cores/screws/latches/closers have no material host; white coating does not recreate those mechanisms.
+@evidence models/04-stair-members.md#stair-side-skirt Two sloped boards and the landing connector receive white stair-skirt coating using actual slope-length UVs without duplicating treads/risers.
+@evidence models/05-closet-fittings.md#coat-closet-doors Existing two leaf depths and exterior casing receive paint while handles/rails remain metal.
+@evidence models/05-closet-fittings.md#linen-closet-fittings Leaves/panels/five shelves/three casing boards receive coating including backs/cuts; distinct shelf/track origins remain intact.
+@evidence models/05-closet-fittings.md#closet-fitting-surfaces leaf/panel/shelf/casing ids select coating, leaving rod/rail/handle with their metal owners.
+@evidence models/06-interior-trim.md#wall-baseboard The closed 0.10 m-high/0.015 m-projecting baseboard receives run-aligned coating without changing miter geometry.
+@evidence principles/core/common.md#declared-basis openings' white panel/casing identity grounds #F4F2EC/roughness 0.35 under the color convention.
+@evidence principles/core/common.md#scope-preservation Finish covers listed window/door/storage/baseboard/skirt faces and spaces-owned risers/posts without changing geometry.
+@evidence principles/core/common.md#substantive-completion Numeric response, exact face roles, closet distinctions, 0.10 m grain, source, and hall observation are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation White openings/stair identity gains #F4F2EC and concrete leaf/jamb/casing/storage bindings.
+@evidence principles/design/materials.md#material-construction-appearance Semi-gloss-painted timber/MDF construction remains separate from coating optics and geometry-owned panel divisions.
+@evidence principles/design/materials.md#material-binding-interface Actual A/B jamb/casing roles, exterior-door casing, sill/casing, baseboard/skirt, and storage faces consume their own metric UVs.
+@evidence principles/design/materials.md#material-verification-address Upper-hall views test separation from walls and narrower trim highlights rather than assuming a color constant passed.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Current opening/stair identities and listed closed prototype faces suffice for coating without creating a second wall-side closet body.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.10 m brush grain consumes space UVs for risers/posts and model UVs for leaves/casing/baseboards, ending at actual recesses/cuts.
+@evidence settings/10-house.md#openings White interior casing/panel leaves remain separate from frames, glazing, and hardware.
+@evidence settings/10-house.md#stair White risers/posts and separate skirts retain contrast with wood treads/handrails and black balusters.
 -->
 
-[03–05의 흰 실내 문선 및 패널문](../settings/10-house.md#openings)과 계단의 [흰 챌판과 기둥](../settings/10-house.md#stair)이다. 구성은 반광 도장한 목재·MDF 부재이며 패널 분절은 모델 geometry가 만든다. 외관은 도막을 근사하는 `#F4F2EC`(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0이다. 결합 면은 [실내 문의 표면 파티션](../models/03-interior-doors.md#interior-door-surfaces)의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, [현관문](../models/02-exterior-doors.md#front-entry-door)과 [정원문](../models/02-exterior-doors.md#garden-door-pair)의 `casing`, [벽 걸레받이 원형](../models/06-interior-trim.md#wall-baseboard)의 `wall-baseboard`, [계단 경사 측판](../models/04-stair-members.md#stair-side-skirt)의 `stair-skirt`, 창 안쪽 `interior-sill`·`interior-casing`([창의 표면 파티션](../models/01-windows.md#window-surface-partitions)), 계단 챌판과 난간 기둥, [외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings) 문짝·문선과 선반, [작은 침실 옷장](../models/13-bedrooms.md#sliding-closet)의 `casing`, 외투장 [봉과 선반](../models/05-closet-fittings.md#coat-closet-rod-shelf)의 `shelf`다. source owner는 `src/materials/interior/trim.ts`이고, 리뷰는 05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지를 관찰한다.
+The [white interior casing/panel doors of 03–05](../settings/10-house.md#openings) and [white stair risers/posts](../settings/10-house.md#stair) use semi-gloss-painted timber/MDF. Models makes panel divisions. Appearance approximates the coating as `#F4F2EC` (linear 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0.
 
-외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없다. [외투장](../models/05-closet-fittings.md#coat-closet-doors)과 [린넨장](../models/05-closet-fittings.md#linen-closet-fittings)의 문짝 `leaf`·`leaf-panel`과 선반 `shelf`는 이 도막을 받는다. 금속 레일·봉·손잡이에는 결합하지 않는다.
+Bind [interior door partitions](../models/03-interior-doors.md#interior-door-surfaces) `leaf`, `leaf-panel`, `jamb-a`, `jamb-b`, `jamb-core`, `casing-a`, `casing-b`; [front](../models/02-exterior-doors.md#front-entry-door)/[garden-door](../models/02-exterior-doors.md#garden-door-pair) `casing`; [baseboards](../models/06-interior-trim.md#wall-baseboard) `wall-baseboard`; [stair skirts](../models/04-stair-members.md#stair-side-skirt) `stair-skirt`; window `interior-sill`/`interior-casing` from [window partitions](../models/01-windows.md#window-surface-partitions); spaces-owned stair risers/posts; [coat](../models/05-closet-fittings.md#coat-closet-doors)/[linen](../models/05-closet-fittings.md#linen-closet-fittings) leaves/casing/shelves; [bedroom sliding closet](../models/13-bedrooms.md#sliding-closet) `casing`/`carcass`; and coat [rod/shelf prototype](../models/05-closet-fittings.md#coat-closet-rod-shelf) `shelf`. Source owner is `src/materials/interior/trim.ts`. View 05 tests white leaves/casing distinct from walls with narrower semi-gloss highlights.
 
-표면 결속 계획: 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이다. [계단 챌판](../spaces/02-stair.md#stair-reservation)과 [난간 기둥](../spaces/02-stair.md#stair-boundary-heights)은 spaces owner의 UV 축·원점·이음을 소비하고, 문선·걸레받이·패널 문짝은 각 모델의 UV를 소비한다. 패널 오목부·문짝 가장자리의 이음은 모델 owner가 정하며, 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Coat/linen closets are spaces-owned wall openings without a separate `carcass` mesh. Their `leaf`, `leaf-panel`, and `shelf` receive coating; metal rails/rods/handles do not. The `carcass` here is the [bedroom box closet](../models/13-bedrooms.md#sliding-closet), not a recreated coat/linen wall. Physical A/B jamb/casing boards belong to [interior-door members](../models/03-interior-doors.md#interior-door-members). [Inner window sill/casing](../models/01-windows.md#window-sill-trim) receives the same paint, including actual backs/ends.
 
-`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`의 물리 판은 [실내 문 부재](../models/03-interior-doors.md#interior-door-members)가 정한다. 이 H2의 `casing`은 [현관문 원형](../models/02-exterior-doors.md#front-entry-door)의 실내 판이고 `carcass`는 [침실 붙박이 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)의 몸통이다. 외투장·린넨장의 개구부 벽을 `carcass`로 다시 만들지 않는다.
+Surface plan: brush grain repeats at 0.10 m. [Risers](../spaces/02-stair.md#stair-reservation) and [posts](../spaces/02-stair.md#stair-boundary-heights) consume space-owner axes/origins/seams; leaves/casing/baseboards consume their model UVs. Models determines recess/edge seams. Current source registers coating response without a texture; grain realization and close/review-distance GPU acceptance remain unverified.
 
-[창 안쪽 부재](../models/01-windows.md#window-sill-trim)의 `interior-sill`·`interior-casing`은 이 흰 도막을 받는다. [침실 붙박이 옷장](../models/13-bedrooms.md#sliding-closet)의 `carcass`도 이 도막을 받는다.
-
-## 참나무색 마루 {#oak-floor}
+## Oak flooring {#oak-floor}
 <!--
-@evidence principles/core/common.md#declared-basis 참나무색 마루의 #B08050·roughness 0.50은 settings/10-house.md#entry의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 참나무색 마루는 `src/spaces/rooms/entry.ts`·`living.ts`·`common.ts`·`service.ts`·`pantry.ts` owner의 보이는 바닥 마감에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 참나무색 마루는 #B08050(선형 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/floors.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#entry는 색·재료를 말로만 정했고 참나무색 마루는 #B08050 값과 roughness 0.50, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 참나무색 마루는 구성을 '폭 0.13 m 판의 오일 마감 원목 마루'로, 외관의 #B08050·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 참나무색 마루의 결합 vocabulary는 `src/spaces/rooms/entry.ts`·`living.ts`·`common.ts`·`service.ts`·`pantry.ts` owner의 보이는 바닥 마감이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 참나무색 마루의 반증 견본은 '04와 03의 비교 view에서 마루가 꿀빛으로 읽히고 파우더룸·세탁실 문턱에서 끊기는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #B08050 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 참나무색 마루는 settings/10-house.md#entry와 이번 실내 문 소유 수리 뒤의 spaces/07-boundary-assembly.md#interior-boundary-junctions가 정한 바닥 전환만 소비한다. 문틀·문짝 owner 정정은 모델 분기의 수리이며 마루 재료가 부모에 요구한 수정은 없다.
-@evidence contracts/texture-readability.md#material-texture-readability 1층 마루는 판 폭 0.13 m와 길이 방향의 결정론적 오크 결·판 이음을 색/거칠기 맵에 함께 둔다. 바닥 owner의 UV를 소비해 방 사이 위상을 이어 가며 재료 문턱에서 끊는다.
-@evidence settings/10-house.md#entry 참나무색 마루가 '실내 현관'(settings/10-house.md#entry)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
-@evidence spaces/07-boundary-assembly.md#interior-boundary-junctions 참나무색 마루가 '모서리와 문턱에서 끊기지 않는 경계'(spaces/07-boundary-assembly.md#interior-boundary-junctions)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#pantry 팬트리 설정의 '주방과 이어지는 바닥'을 참나무색 마루가 `src/spaces/rooms/pantry.ts` owner 바닥에 #B08050 값으로 결합해 받는다.
-@evidence spaces/10-ground-floor.md#main-ground-floor-base 1층 바탕이 마루·타일 차이에도 높이를 맞추므로 참나무색 마루는 그 완성 면에 #B08050 기준색과 판 결속을 적용하고 바탕 높이를 바꾸지 않는다.
+@evidence principles/core/common.md#declared-basis entry's oak-colored floor grounds #B08050/roughness 0.50 as authored response under the color convention.
+@evidence principles/core/common.md#scope-preservation Finish binds existing entry/living/common/service/pantry floors without changing geometry or heights.
+@evidence principles/core/common.md#substantive-completion Color/linear values, coating response, 0.13 m plank module, room hosts, source, and threshold observations are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Oak identity gains numeric response and plank-grain binding beyond room geometry.
+@evidence principles/design/materials.md#material-construction-appearance Oiled solid-wood planks remain construction; color/gloss/joint maps approximate their surface without another floor plate.
+@evidence principles/design/materials.md#material-binding-interface Owner floor UVs preserve phase across rooms and break at actual material thresholds.
+@evidence principles/design/materials.md#material-verification-address Views 04/03 test honey wood and correct powder/laundry threshold termination.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Existing entry/floor and corrected threshold interfaces suffice for grain response; earlier door ownership repair remains model work.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.13 m plank width and lengthwise oak grain consume floor-owner UVs with continuous phase and real threshold cuts.
+@evidence settings/10-house.md#entry Oak-colored entry floor extends to the existing dry ground-storey rooms.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-junctions Finish changes follow existing threshold midplanes without changing door geometry.
+@evidence settings/10-house.md#pantry Pantry's kitchen-continuous floor receives the same oak response.
+@evidence spaces/10-ground-floor.md#main-ground-floor-base Existing level substrate supplies finished faces without a step introduced by finish choice.
 -->
 
-[실내 현관의 참나무색 마루](../settings/10-house.md#entry)이고 1층 거실·공용부·서비스 통로·팬트리에 이어진다. 구성은 폭 0.13 m 판의 오일 마감 원목 마루이며 판 이음 선은 후속 마감 맵의 0.13 m 판 모듈과 실제 방·문턱 경계에서 표현하며, 장래 별도 판 부재를 만들면 그 경계와 일치시킨다. 외관 기준색은 오일 마감 표면의 `#B08050`(선형 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0이다. 결합 면은 entry·living·common·service·pantry owner의 보이는 바닥 마감이다. 문턱에서 다른 재료로 바뀌는 선은 [실내 경계의 문턱](../spaces/07-boundary-assembly.md#interior-boundary-junctions)을 따른다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 04와 03의 비교 view에서 마루가 꿀빛으로 읽히고 파우더룸·세탁실 문턱에서 끊기는지를 관찰한다.
+The [entry oak-colored flooring](../settings/10-house.md#entry) continues into ground-storey living/common/service/pantry areas. Construction is oiled solid-wood planks of width 0.13 m. Planned finish maps express plank joints and grain using the 0.13 m module and actual room/threshold boundaries; any later separate boards must agree with those boundaries. Appearance is `#B08050` (linear 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0. Bind existing entry/living/common/service/pantry visible floors, changing materials at the [interior threshold interface](../spaces/07-boundary-assembly.md#interior-boundary-junctions). Source owner is `src/materials/interior/floors.ts`. Views 04/03 test honey-colored wood ending at powder/laundry thresholds.
 
-표면 결속 계획: 1층 마루는 판 폭 0.13 m와 길이 방향의 결정론적 오크 결·판 이음을 색/거칠기 맵에 함께 둔다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비해 방 사이 위상을 이어 가며 욕실·세탁실·문턱에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: plank width 0.13 m, deterministic lengthwise oak grain/joints in color/roughness maps, and [floor-owner UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff) preserve phase between rooms and stop at bathroom/laundry/material thresholds. Current source registers `oak.png` at 0.13×1.2 m; complete response and current close/review-distance GPU acceptance remain unverified.
 
-## 밝은 목재 계단 디딤판 {#stair-tread-wood}
+## Light wooden stair treads {#stair-tread-wood}
 <!--
-@evidence principles/core/common.md#declared-basis 밝은 목재 계단 디딤판의 #B08050·roughness 0.50은 settings/10-house.md#stair의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 밝은 목재 계단 디딤판은 `src/spaces/stair.ts` owner의 디딤판 윗면·앞 모서리와 중간참 바닥에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 밝은 목재 계단 디딤판은 #B08050(선형 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/stair.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#stair는 색·재료를 말로만 정했고 밝은 목재 계단 디딤판은 #B08050 값과 roughness 0.50, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 밝은 목재 계단 디딤판은 구성을 '마루와 같은 수종의 두께 있는 참나무 디딤판'로, 외관의 #B08050·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 밝은 목재 계단 디딤판의 결합 vocabulary는 `src/spaces/stair.ts` owner의 디딤판 윗면·앞 모서리와 중간참 바닥이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 밝은 목재 계단 디딤판의 반증 견본은 '계단 단면과 04 view에서 흰 챌판과 목재 디딤판이 층마다 번갈아 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #B08050 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 밝은 목재 계단 디딤판은 settings/10-house.md#stair, spaces/02-stair.md#stair-reservation를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 각 디딤판의 목리는 0.28 m run을 따라 놓고 0.13 m 판 폭의 오크 결을 쓴다. 계단 owner의 디딤판 UV를 소비하고 단 코와 참 이음에서 잘라 손잡이 결과 구별한다.
-@evidence settings/10-house.md#stair 밝은 목재 계단 디딤판이 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
-@evidence spaces/02-stair.md#stair-reservation 밝은 목재 계단 디딤판이 '두 층을 잇는 L형 경로'(spaces/02-stair.md#stair-reservation)를 링크로 소비해 #B08050 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis stair's light-wood treads ground #B08050/roughness 0.50 under the shared color convention.
+@evidence principles/core/common.md#scope-preservation Finish covers existing tread tops/nosings/landing without changing step dimensions or riser ownership.
+@evidence principles/core/common.md#substantive-completion Shared oak response, tread hosts, 0.28 m run/0.13 m plank grain plan, source, and alternating-riser observation are stated.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The light-wood stair identity gains numeric response and host-face bindings beyond route geometry.
+@evidence principles/design/materials.md#material-construction-appearance Thick oak tread construction remains host geometry; optical response approximates oiled wood.
+@evidence principles/design/materials.md#material-binding-interface Tread/landing UVs come from the stair owner, breaking at nosings/landing junctions.
+@evidence principles/design/materials.md#material-verification-address Sections/view 04 test alternating white risers and wood treads without inferring geometry success from color.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work The existing stair identity and tread/landing metric interfaces suffice for wood response without changing route/count.
+@evidence contracts/texture-readability.md#material-texture-readability Planned oak grain follows the 0.28 m run and 0.13 m plank width using tread-owner coordinates/cuts.
+@evidence settings/10-house.md#stair Light wood remains continuous with the entry floor, distinct from white risers/posts.
+@evidence spaces/02-stair.md#stair-reservation Existing tread tops/nosings/landing receive the finish while route and dimensions remain spatial.
 -->
 
-[밝은 목재 디딤판](../settings/10-house.md#stair)이다. 구성은 마루와 같은 수종의 두께 있는 참나무 디딤판이고, 외관은 [참나무색 마루](#oak-floor)와 같은 값 `#B08050`(선형 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0이다. 계단은 현관 마루에서 올라가므로 같은 수종으로 이어지는 것이 04의 관계이며 별도 색을 만들 근거가 없다. 결합 면은 [단일 L형 계단](../spaces/02-stair.md#stair-reservation) owner의 디딤판 윗면·앞 모서리와 중간참 바닥이다. 챌판은 [흰 실내 trim](#interior-trim-white)이다. source owner는 `src/materials/interior/stair.ts`이고, 리뷰는 계단 단면과 04 view에서 흰 챌판과 목재 디딤판이 층마다 번갈아 읽히는지를 관찰한다.
+The [light wooden treads](../settings/10-house.md#stair) are thick oak of the same species as [oak flooring](#oak-floor). Appearance shares `#B08050` (linear 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0. The stair rises from the entry wood floor in reference 04's relation, with no separate species/color basis. Bind the [single L-stair](../spaces/02-stair.md#stair-reservation) tread tops, front nosings, and intermediate landing floor. Risers receive [white trim](#interior-trim-white). Source owner is `src/materials/interior/stair.ts`; stair sections/view 04 test alternating white risers/wood treads.
 
-표면 결속 계획: 각 디딤판의 목리는 0.28 m run을 따라 놓고 0.13 m 판 폭의 오크 결을 쓴다. [계단 owner의 디딤판 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 단 코와 참 이음에서 잘라 손잡이 결과 구별한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: grain follows each 0.28 m run with 0.13 m oak plank width, consuming [stair-owner UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff) and ending at nosings/landing joints separately from handrail grain. Current source registers `oak.png`; complete response and current close/review-distance GPU acceptance remain unverified.
 
-## 목재 난간 손잡이 {#handrail-wood}
+## Wooden handrails {#handrail-wood}
 <!--
-@evidence principles/core/common.md#declared-basis 목재 난간 손잡이의 #8A5A34·roughness 0.45은 settings/10-house.md#stair의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 목재 난간 손잡이는 `src/spaces/stair.ts` owner가 소유한 계단과 계단 개구부 보호 경계의 손잡이에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 목재 난간 손잡이는 #8A5A34(선형 0.254, 0.102, 0.034), roughness 0.45, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/stair.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#stair는 색·재료를 말로만 정했고 목재 난간 손잡이는 #8A5A34 값과 roughness 0.45, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 목재 난간 손잡이는 구성을 '오일 마감 경목 원형 단면 부재'로, 외관의 #8A5A34·roughness 0.45·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 목재 난간 손잡이의 결합 vocabulary는 `src/spaces/stair.ts` owner가 소유한 계단과 계단 개구부 보호 경계의 손잡이이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 목재 난간 손잡이의 반증 견본은 '04와 05에서 손잡이가 끊김 없이 한 재료로 이어지는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #8A5A34 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 목재 난간 손잡이는 settings/10-house.md#stair, settings/10-house.md#upper-hall를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 손잡이 목리는 0.15 m 폭 오크 패턴이다. 계단 owner의 손잡이 구간 UV를 소비하고 기둥 맞댐에서 결을 끊되 경사 구간의 방향을 따른다.
-@evidence settings/10-house.md#stair 목재 난간 손잡이가 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #8A5A34 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#upper-hall 목재 난간 손잡이가 '상층 복도'(settings/10-house.md#upper-hall)를 링크로 소비해 #8A5A34 값과 결합 면의 근거로 삼았다.
-@evidence spaces/02-stair.md#stair-boundary-heights 목재 난간 손잡이가 '계단 곁 벽과 열린 보호 경계의 높이'(spaces/02-stair.md#stair-boundary-heights)를 링크로 소비해 #8A5A34 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis stair's wooden handrail grounds the authored #8A5A34/roughness 0.45 under the color convention.
+@evidence principles/core/common.md#scope-preservation Finish covers existing stair/stair-hole handrails without changing profiles, heights, or protective geometry.
+@evidence principles/core/common.md#substantive-completion Color/linear RGB, optics, host interfaces, 0.15 m grain, source, and continuity views are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The handrail identity gains numeric dark-wood response and concrete protective-boundary bindings.
+@evidence principles/design/materials.md#material-construction-appearance Oiled hardwood round members remain construction; coating/grain optics approximate their appearance.
+@evidence principles/design/materials.md#material-binding-interface Segment-owner metric UVs follow actual axes and break at post/wall contacts rather than a new continuous texture body.
+@evidence principles/design/materials.md#material-verification-address Views 04/05 test a continuous recognizable handrail finish above white posts and black balusters.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Existing stair/hall identities and protective-boundary axes/contacts suffice for handrail response without another railing.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.15 m oak grain follows sloped segments and ends at actual post contacts.
+@evidence settings/10-house.md#stair Darker wooden rails contrast with light treads, white posts, and black balusters.
+@evidence settings/10-house.md#upper-hall The same wood finish continues along existing stair-hole protection without a new hall boundary.
+@evidence spaces/02-stair.md#stair-boundary-heights Existing handrail heights/segment contacts provide finish hosts unchanged by response.
 -->
 
-[목재 손잡이](../settings/10-house.md#stair)와 [상층 복도의 목재 손잡이](../settings/10-house.md#upper-hall)다. 구성은 오일 마감 경목 원형 단면 부재다. 외관은 `#8A5A34`(선형 0.254, 0.102, 0.034), roughness 0.45, metallic 0.0, transmission 0.0이다. 디딤판보다 어두워 흰 기둥과 검은 난간살 위에서 선으로 읽힌다. 결합 면은 계단과 [계단 개구부 보호 경계](../spaces/02-stair.md#stair-boundary-heights)의 손잡이 전체 면이다. source owner는 `src/materials/interior/stair.ts`이고, 리뷰는 04와 05에서 손잡이가 끊김 없이 한 재료로 이어지는지를 관찰한다.
+The [stair wooden rail](../settings/10-house.md#stair) and [upper-hall handrail](../settings/10-house.md#upper-hall) use oiled hardwood with a round profile. Appearance is `#8A5A34` (linear 0.254, 0.102, 0.034), roughness 0.45, metallic 0.0, transmission 0.0. It is darker than treads and intended to read as a line over white posts/black balusters. Bind all existing stair and [stair-hole protective-boundary](../spaces/02-stair.md#stair-boundary-heights) handrail faces. Source owner is `src/materials/interior/stair.ts`; views 04/05 test continuous material identity.
 
-표면 결속 계획: 손잡이 목리는 [계단 owner의 난간 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하는 0.15 m 폭 오크 패턴이다. 기둥 맞댐에서 결을 끊되 경사 구간의 방향을 따른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: 0.15 m-wide oak grain consumes [handrail-owner UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), follows sloped segment directions, and breaks at post contacts. Current source declares constant response without a texture; grain/current close/review-distance GPU acceptance remains unverified.
 
-## 검은 도장 금속 {#black-coated-metal}
+## Black-coated metal {#black-coated-metal}
 <!--
-@evidence models/14-bathrooms.md#tub-curtain-rail 1.80 m rail과 두 천장 지지 rod의 검은 도막을 부재 둘레 UV에 결속하며 커튼 cloth의 무광 직물을 금속으로 덮지 않는다.
-@evidence models/04-stair-members.md#stair-balusters 0.02 m 정사각 baluster의 네 면과 절단 끝에 미터 높이/둘레 UV로 분체 도막을 붙이고 개수·끝 높이를 바꾸지 않는다.
-@evidence models/04-stair-members.md#stair-bottom-member 복도 bottom-rail의 길이3.52 m·0.04 m 단면과 실제 길이 UV에 동일 검은 도막을 결속하며 디딤/참에 경사 레일을 추가하지 않는다.
-@evidence models/04-stair-members.md#stair-member-surfaces baluster·bottom-rail을 흰 기둥/챌판·목재 handrail과 다른 결속 키로 유지한다.
-@evidenceExclude models/04-stair-members.md#stair-member-fidelity 용접부·고정 볼트·받침판은 난간 원형에 없어 도막 host가 없으며 분체 결로 그 형상이나 보호/법규 성능을 대신하지 않는다.
-@evidence principles/core/common.md#declared-basis 검은 도장 금속의 #1F1F20·roughness 0.40은 settings/10-house.md#stair의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 검은 도장 금속은 models/04-stair-members.md#stair-balusters, models/04-stair-members.md#stair-bottom-member와 본문에 링크한 문·수납 손잡이·등기구 외장의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 검은 도장 금속은 #1F1F20(선형 0.014, 0.014, 0.014), roughness 0.40, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/metal.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#stair는 색·재료를 말로만 정했고 검은 도장 금속은 #1F1F20 값과 roughness 0.40, `baluster`·`bottom-rail`·`handle`·`hinge` 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 검은 도장 금속은 구성을 '분체 도장 강재'로, 외관의 #1F1F20·roughness 0.40·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 검은 도장 금속의 결합 vocabulary는 난간의 `baluster`·`bottom-rail`, 문·수납의 `handle`·`hinge`·`rail`, 등기구 외장의 `fixture-housing`·`fixture-canopy`·`fixture-stem`, 여덟 창 커튼의 `rod`·`bracket`이며 부재별 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 검은 도장 금속의 반증 견본은 '흰 벽 앞에서 난간살 하나하나가 분리되어 보이는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #1F1F20 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 검은 도장 금속은 settings/10-house.md#stair, settings/10-house.md#shower-bathroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 난간살·손잡이·등기구에 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다.
-@evidence settings/10-house.md#porch-entry 검은 도장 금속이 '현관 포치와 외부 진입'(settings/10-house.md#porch-entry)를 링크로 소비해 #1F1F20 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#shower-bathroom 검은 도장 금속이 '샤워 욕실'(settings/10-house.md#shower-bathroom)를 링크로 소비해 #1F1F20 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#stair 검은 도장 금속이 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #1F1F20 값과 결합 면의 근거로 삼았다.
+@evidence models/14-bathrooms.md#tub-curtain-rail Existing 1.80 m rail and two ceiling supports receive coating using actual circumference/length UVs, leaving curtain textile separate.
+@evidence models/04-stair-members.md#stair-balusters Four sides/cut ends of actual 0.02 m square balusters receive coating without changed count/heights.
+@evidence models/04-stair-members.md#stair-bottom-member The actual 3.52 m-long/0.04 m-section hall bottom-rail receives coating without new sloped flight rails.
+@evidence models/04-stair-members.md#stair-member-surfaces baluster/bottom-rail ids remain distinct from white posts/risers and wooden handrails.
+@evidenceExclude models/04-stair-members.md#stair-member-fidelity Omitted welds/bolts/baseplates have no coating host; powder grain proves neither those shapes nor protection/code performance.
+@evidence principles/core/common.md#declared-basis stair's black steel and the linked hardware identities ground #1F1F20/roughness 0.40 under the authored-color convention.
+@evidence principles/core/common.md#scope-preservation Finish covers listed guards/hardware/fixture bodies without changing their model geometry.
+@evidence principles/core/common.md#substantive-completion Numeric coating response, concrete model/face roles, 0.05 m grain, source, and rail/curtain-rod views are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Black-rail identity gains #1F1F20 and scoped baluster/bottom-rail/handle/hinge bindings.
+@evidence principles/design/materials.md#material-construction-appearance Powder-coated steel has dielectric coating metallic 0.0 rather than bare-steel appearance.
+@evidence principles/design/materials.md#material-binding-interface Reused handle/rod/rail ids remain qualified by their model owner so stainless storage rails are not coated by name alone.
+@evidence principles/design/materials.md#material-verification-address White-wall views can falsify merged balusters or invisible slim curtain rods.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Existing stair/shower hardware roles and model-qualified partitions suffice for coating without new hardware geometry.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.05 m powder grain follows local member length U and resets at actual partition starts/junctions.
+@evidence settings/10-house.md#porch-entry Dark entry handles remain separate from wood and glass.
+@evidence settings/10-house.md#shower-bathroom Black shower handles retain contrast with glass/tile.
+@evidence settings/10-house.md#stair Black balusters retain individual visibility between white posts and wooden rails.
 -->
 
-[검은 수직 철제 난간살](../settings/10-house.md#stair)과 [검은 금속 손잡이](../settings/10-house.md#shower-bathroom), 현관의 [어두운 손잡이](../settings/10-house.md#porch-entry)다. 구성은 분체 도장 강재다. 외관은 도막을 근사하므로 [거칠기·금속성 관례](00-material-frame.md#material-response-conventions)에 따라 metallic 0.0이며 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.40, transmission 0.0이다. 결합 면은 [난간살](../models/04-stair-members.md#stair-balusters)의 `baluster`와 [아래 부재](../models/04-stair-members.md#stair-bottom-member)의 `bottom-rail`, 실내 문의 `handle`·`hinge`, 현관문 `handle`, 샤워부스 손잡이, 수건걸이·욕조 커튼 레일, [여덟 창 커튼](../models/13-bedrooms.md#primary-window-curtains)의 `rod`·`bracket`, [벽 거울](../models/14-bathrooms.md#wall-mirror)의 `mirror-frame`이다. source owner는 `src/materials/interior/metal.ts`이고, 리뷰는 흰 벽 앞에서 난간살 하나하나와 창 앞의 가는 커튼 봉이 분리되어 보이는지를 관찰한다.
+The [black vertical balusters](../settings/10-house.md#stair), [black shower handles](../settings/10-house.md#shower-bathroom), and [dark entry handles](../settings/10-house.md#porch-entry) are powder-coated steel. Appearance approximates coating: `#1F1F20` (linear 0.014, 0.014, 0.014), roughness 0.40, metallic 0.0, transmission 0.0 under the [response convention](00-material-frame.md#material-response-conventions).
 
-[주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)·[상부장](../models/10-kitchen-dining.md#kitchen-wall-cabinet)·[섬](../models/10-kitchen-dining.md#kitchen-island)·[세면장](../models/14-bathrooms.md#vanity-basin)·[외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings)·[침실 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[낮은 서랍장](../models/13-bedrooms.md#low-dresser)·[차고 작업대](../models/12-service-rooms.md#garage-workbench)의 `handle` 돌출 손잡이 또는 오목 홈 안쪽 면도 이 도막을 받는다. 세탁 상부장은 홈 안쪽까지 `leaf` 한 면이라 [회갈색 패널](../materials/03-furnishings.md#greige-cabinet)이 받는다. [식기세척기 손잡이](../models/10-kitchen-dining.md#kitchen-dishwasher)와 [변기 세척 레버](../models/14-bathrooms.md#shared-toilet)는 스테인리스가 받는다. 각 부품 길이 U·둘레 V의 미터 UV를 부품 끝에서 끊는다.
+Bind [balusters](../models/04-stair-members.md#stair-balusters) `baluster`, [bottom member](../models/04-stair-members.md#stair-bottom-member) `bottom-rail`, interior/front-door `handle`/`hinge`, shower handles, coated bathroom hardware, [eight-window curtains](../models/13-bedrooms.md#primary-window-curtains) `rod`/`bracket`, and [wall mirrors](../models/14-bathrooms.md#wall-mirror) `mirror-frame`. Model qualification is essential: towel-bar `rod`/`bracket` and shower/storage `rail` belong to [stainless steel](03-furnishings.md#stainless-steel); the [tub-curtain rail](../models/14-bathrooms.md#tub-curtain-rail) `rail`/support `rod` is black-coated. Source owner is `src/materials/interior/metal.ts`; views test individual balusters and slim rods against white walls.
 
-표면 결속 계획: 난간살·손잡이·등기구 검은 도장 금속은 0.05 m 모듈의 미세 분체결을 부재 국소 길이 U로 투영한다. 각 파티션 시작점에서 위상을 잡고 접합에서 끊어 광택이 검은 단색판으로 뭉개지지 않게 한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Handles/recess faces of [base cabinets](../models/10-kitchen-dining.md#kitchen-base-run), [wall cabinets](../models/10-kitchen-dining.md#kitchen-wall-cabinet), [island](../models/10-kitchen-dining.md#kitchen-island), [vanity](../models/14-bathrooms.md#vanity-basin), [coat](../models/05-closet-fittings.md#coat-closet-doors)/[linen](../models/05-closet-fittings.md#linen-closet-fittings) closets, [bedroom closet](../models/13-bedrooms.md#sliding-closet), [dresser](../models/13-bedrooms.md#low-dresser), and [garage workbench](../models/12-service-rooms.md#garage-workbench) use this coating. Laundry-upper grooves retain `leaf` and [greige coating](03-furnishings.md#greige-cabinet). [Dishwasher handles](../models/10-kitchen-dining.md#kitchen-dishwasher) and [toilet flush levers](../models/14-bathrooms.md#shared-toilet) are stainless. Project each part's metric length U/perimeter V, breaking at its ends. These planned unbuilt-object assignments are not claims of active bindings.
 
-[실내 문 경첩](../models/03-interior-doors.md#interior-door-hinges)과 [현관문](../models/02-exterior-doors.md#front-entry-door)의 `hinge`가 이 도막을 받는다. [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks)의 `hook`도 이 도막을 받는다. [펜던트](../models/17-light-fixtures.md#pendant-fixtures)의 `fixture-canopy`·`fixture-stem`, [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)의 `fixture-housing`·`fixture-stem`, [평판 천장등](../models/17-light-fixtures.md#flush-ceiling-fixture)과 [세면대 벽등](../models/17-light-fixtures.md#vanity-wall-fixture)의 `fixture-housing`도 이 도막을 받는다. 한 이름의 모든 적용 부재를 각 원형 face id로 따로 검사한다.
+[Interior-door hinges](../models/03-interior-doors.md#interior-door-hinges), [front-door hinges/handles](../models/02-exterior-doors.md#front-entry-door), [mudroom hooks](../models/12-service-rooms.md#mudroom-coat-hooks) `hook`, [pendants](../models/17-light-fixtures.md#pendant-fixtures) `fixture-canopy`/`fixture-stem`, [porch sconce](../models/17-light-fixtures.md#porch-wall-sconce) `fixture-housing`/`fixture-stem`, [flush lights](../models/17-light-fixtures.md#flush-ceiling-fixture), and [vanity lights](../models/17-light-fixtures.md#vanity-wall-fixture) `fixture-housing` receive this coating. Inspect each actual prototype face rather than assuming all identically named parts match.
 
-[실내 문](../models/03-interior-doors.md#interior-door-members)의 `handle`과 [현관문](../models/02-exterior-doors.md#front-entry-door)의 `handle`이 이 도막을 받는다. [욕조 커튼 레일](../models/14-bathrooms.md#tub-curtain-rail)의 `rail`도 이 도막을 받는다.
+Surface plan: 0.05 m micro powder grain follows local length U, starting anew per partition and ending at joints. Current source declares constant response without that texture; grain and current close/review-distance GPU judgment remain unverified.
 
-## 베이지 카펫 {#beige-carpet}
+## Beige carpet {#beige-carpet}
 <!--
-@evidence principles/core/common.md#declared-basis 베이지 카펫의 #CDBFA6·roughness 0.95은 settings/10-house.md#upper-hall의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 베이지 카펫은 `src/spaces/rooms/upper-hall.ts`·`primary.ts`·`wardrobe.ts`·`bedroom-two.ts`·`bedroom-three.ts` owner의 보이는 바닥 마감에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 베이지 카펫은 #CDBFA6(선형 0.610, 0.521, 0.381), roughness 0.95, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/floors.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#upper-hall는 색·재료를 말로만 정했고 베이지 카펫은 #CDBFA6 값과 roughness 0.95, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 베이지 카펫은 구성을 '짧은 루프 파일 카펫과 하부 패드'로, 외관의 #CDBFA6·roughness 0.95·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 베이지 카펫의 결합 vocabulary는 `src/spaces/rooms/upper-hall.ts`·`primary.ts`·`wardrobe.ts`·`bedroom-two.ts`·`bedroom-three.ts` owner의 보이는 바닥 마감이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 베이지 카펫의 반증 견본은 '05 view에서 카펫이 마루보다 밝고 하이라이트 없이 읽히며 욕실 문턱에서 타일과 경계가 맞는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #CDBFA6 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 베이지 카펫은 settings/10-house.md#upper-hall, settings/10-house.md#primary-bedroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 상층 카펫의 짧은 루프 파일은 0.01 m 반복의 결정론적 색·법선 결이다. 상층 바닥 owner의 UV를 소비하며 욕실 타일·문턱·계단 가장자리에서 끊는다.
-@evidence settings/10-house.md#bedroom-two 베이지 카펫이 '올리브 침구의 작은 침실'(settings/10-house.md#bedroom-two)를 링크로 소비해 #CDBFA6 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#primary-bedroom 베이지 카펫이 '주침실'(settings/10-house.md#primary-bedroom)를 링크로 소비해 #CDBFA6 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#shower-bathroom 베이지 카펫이 '샤워 욕실'(settings/10-house.md#shower-bathroom)를 링크로 소비해 #CDBFA6 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#upper-hall 베이지 카펫이 '상층 복도'(settings/10-house.md#upper-hall)를 링크로 소비해 #CDBFA6 값과 결합 면의 근거로 삼았다.
-@evidence spaces/rooms/shower-bath.md#shower-bath-plan shower-bath-plan의 '카펫은 방 문턱에서 끝난다'를 베이지 카펫 #CDBFA6의 결합 범위가 욕실 문턱에서 멈추는 것으로 받는다.
-@evidence spaces/08-floor-assembly.md#interstorey-floor-boundary 층간 바닥이 타일과 카펫의 두께 차로 새 단을 만들지 않게 했으므로 베이지 카펫은 방 owner의 완성 바닥 면에 파일 결속과 기준색을 적용하고 datum을 바꾸지 않는다.
-@evidence spaces/04-observations.md#reference-spatial-comparisons 방별 카펫·욕실 타일이 같은 집으로 읽히는지 비교하는 관찰을 베이지 카펫 #CDBFA6와 욕실 타일 값의 명도 차로 대비할 수 있게 했다.
+@evidence principles/core/common.md#declared-basis upper-hall's beige carpet grounds #CDBFA6/roughness 0.95 under the authored-color rule.
+@evidence principles/core/common.md#scope-preservation Finish binds hall/primary/wardrobe/two small-room floors without changed floor datums or bathroom coverage.
+@evidence principles/core/common.md#substantive-completion Color/linear RGB, matte response, 0.01 m loop scale, room bindings, source, and threshold observation are stated.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Neutral carpet identity gains numeric response and room-floor assignment beyond spatial construction.
+@evidence principles/design/materials.md#material-construction-appearance Short loop pile/underlay remain construction; color/normal grain approximates pile without another floor geometry.
+@evidence principles/design/materials.md#material-binding-interface Floor-owner UVs retain same-storey phase and end at tile thresholds/stair edges.
+@evidence principles/design/materials.md#material-verification-address View 05 tests light matte carpet and correct tile boundaries rather than presumed success from constants.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Hall/primary-room identity and the complete floor handoff suffice for carpet response without new thresholds or datums.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.01 m loop color/normal grain receives upper-floor coordinates and breaks at tile/threshold/stair cuts.
+@evidence settings/10-house.md#bedroom-two The small bedroom continues the primary room's neutral carpet family.
+@evidence settings/10-house.md#primary-bedroom Neutral primary floor remains distinct from wood/bedding.
+@evidence settings/10-house.md#shower-bathroom Carpet ends at the bathroom threshold rather than extending into the wet room.
+@evidence settings/10-house.md#upper-hall Hall carpet shares the existing upper private-zone material system.
+@evidence spaces/rooms/shower-bath.md#shower-bath-plan Its explicit threshold terminates carpet at the bathroom boundary.
+@evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Carpet response preserves the same finished datum despite tile/underlay differences.
+@evidence spaces/04-observations.md#reference-spatial-comparisons The 05 comparison can contrast neutral carpet and bathroom tile within the same house.
 -->
 
-[상층 복도의 베이지 카펫](../settings/10-house.md#upper-hall)과 [주침실](../settings/10-house.md#primary-bedroom)·[두 작은 침실](../settings/10-house.md#bedroom-two)의 중성 카펫을 한 재료로 정한다. 한 재료로 두는 이유는 두 작은 침실이 주침실의 재료 체계를 잇는다는 settings 조건이다. 구성은 짧은 루프 파일 카펫과 하부 패드이며 파일 결은 0.01 m 반복의 색·법선 맵으로 표현한다. 외관은 `#CDBFA6`(선형 0.610, 0.521, 0.381), roughness 0.95, metallic 0.0, transmission 0.0이다. 결합 면은 upper-hall·primary·wardrobe·bedroom-two·bedroom-three owner의 보이는 바닥 마감이며 [욕실 문턱에서 끝난다](../settings/10-house.md#shower-bathroom). source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 05 view에서 카펫이 마루보다 밝고 하이라이트 없이 읽히며 욕실 문턱에서 타일과 경계가 맞는지를 관찰한다.
+The [upper-hall beige carpet](../settings/10-house.md#upper-hall), [primary carpet](../settings/10-house.md#primary-bedroom), and [two smaller rooms](../settings/10-house.md#bedroom-two) share one neutral finish because the small rooms continue the primary material system. Construction is short-loop carpet with underlay; the planned 0.01 m color/normal repeat approximates pile. Appearance is `#CDBFA6` (linear 0.610, 0.521, 0.381), roughness 0.95, metallic 0.0, transmission 0.0. Bind hall/primary/wardrobe/bedroom-two/bedroom-three visible floors, [ending at bathroom thresholds](../settings/10-house.md#shower-bathroom). Source owner is `src/materials/interior/floors.ts`; view 05 tests light matte carpet and aligned tile transitions.
 
-표면 결속 계획: 상층 카펫의 짧은 루프 파일은 0.01 m 반복의 결정론적 색·법선 결이다. [상층 바닥 owner의 UV와 절단](../spaces/08-floor-assembly.md#interstorey-floor-boundary)을 소비하며 욕실 타일·문턱·계단 가장자리에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: 0.01 m short-loop color/normal grain consumes [upper-floor UVs/cuts](../spaces/08-floor-assembly.md#interstorey-floor-boundary), ending at tile/threshold/stair edges. Current `carpet.png` is registered as color; normal response and current close/review-distance GPU judgment remain unverified.
 
-## 욕실 바닥 타일 {#bath-floor-tile}
+## Bathroom floor tile {#bath-floor-tile}
 <!--
-@evidence principles/core/common.md#declared-basis 욕실 바닥 타일의 #D8D4CC·roughness 0.40은 settings/10-house.md#powder의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 욕실 바닥 타일은 `src/spaces/rooms/powder.ts`·`shower-bath.ts`·`tub-bath.ts` owner의 보이는 바닥 마감에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 욕실 바닥 타일은 #D8D4CC(선형 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/tile.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#powder는 색·재료를 말로만 정했고 욕실 바닥 타일은 #D8D4CC 값과 roughness 0.40, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 욕실 바닥 타일은 구성을 '유약 자기질 타일 0.30 m 모듈'로, 외관의 #D8D4CC·roughness 0.40·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 욕실 바닥 타일의 결합 vocabulary는 `src/spaces/rooms/powder.ts`·`shower-bath.ts`·`tub-bath.ts` owner의 보이는 바닥 마감이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 욕실 바닥 타일의 반증 견본은 '욕실 threshold view에서 바닥·벽 타일이 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #D8D4CC 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 욕실 바닥 타일은 settings/10-house.md#powder를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 욕실 바닥 타일은 0.30 × 0.30 m 판과 줄눈의 반복 결을 쓴다. 바닥 owner의 UV를 소비하고 배수·벽·문턱에서 실제 면을 절단한다.
-@evidence settings/10-house.md#powder 욕실 바닥 타일이 '파우더룸'(settings/10-house.md#powder)를 링크로 소비해 #D8D4CC 값과 결합 면의 근거로 삼았다.
-@evidence spaces/rooms/tub-bath.md#tub-fixture-use tub-fixture-use가 공간 입력 밖으로 둔 타일/카펫 경계의 재료 구현을 욕실 바닥 타일 #D8D4CC가 tub-bath owner 바닥에서 받고 카펫은 문턱에서 끝난다.
+@evidence principles/core/common.md#declared-basis powder's light tile floor grounds #D8D4CC/roughness 0.40 under the authored-color convention.
+@evidence principles/core/common.md#scope-preservation Finish binds powder/shower/tub floors without changing their geometry or introducing grout meshes.
+@evidence principles/core/common.md#substantive-completion Tile/linear color, optics, 0.30 m module/0.005 m joint plan, room hosts, source, and wall/floor observation are stated.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Light-tile identity gains numeric glaze response and metric tile/grout binding.
+@evidence principles/design/materials.md#material-construction-appearance Glazed porcelain construction is distinguished from averaged glaze color/gloss and planned grout masks.
+@evidence principles/design/materials.md#material-binding-interface Existing floor-owner UVs receive the 0.30×0.30 m module, ending at drains/walls/thresholds.
+@evidence principles/design/materials.md#material-verification-address Bathroom thresholds can falsify merged floor/wall tile or incorrect joint scale.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Powder's tile identity and complete floor-owner interfaces suffice without changing wet-room floor geometry.
+@evidence contracts/texture-readability.md#material-texture-readability Planned square tile/joints retain physical size and actual floor cuts rather than painted arbitrary boundaries.
+@evidence settings/10-house.md#powder Light tile supplies the powder floor identity separately from warm-white walls.
+@evidence spaces/rooms/tub-bath.md#tub-fixture-use The existing tub-room floor receives tile and carpet ends at its threshold without changing fixture routes.
 -->
 
-[밝은 타일 바닥](../settings/10-house.md#powder)과 욕실의 방수 바닥이다. 구성은 유약 자기질 타일 0.30 m 모듈이며, [타일 줄눈](#tile-grout)은 같은 바닥 면의 UV에 0.005 m 폭 마스크와 음영용 normal 응답으로 결합한다. 별도 오목 geometry와 별도 `grout` face id는 요구하지 않는다. 외관은 유약면을 근사하는 `#D8D4CC`(선형 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0이다. 벽 타일보다 어두워 바닥과 벽의 경계가 읽힌다. 결합 면은 powder·shower-bath·tub-bath owner의 보이는 바닥 마감이다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 욕실 threshold view에서 바닥·벽 타일이 구별되는지를 관찰한다.
+The [light powder tile floor](../settings/10-house.md#powder) and bathroom wet floors use glazed porcelain tile at a 0.30 m module. [Grout](#tile-grout) is a 0.005 m UV mask with planned normal shading on the same floor, without separate recessed geometry or `grout` face id. Appearance approximates glaze as `#D8D4CC` (linear 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0. It is darker than wall tile so their corner can read. Bind powder/shower-bath/tub-bath visible floors. Source owner is `src/materials/interior/tile.ts`; threshold views compare floor and wall tile.
 
-표면 결속 계획: 욕실 바닥 타일은 0.30 × 0.30 m 판과 줄눈의 반복 결을 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 배수·벽·문턱에서 실제 면을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: 0.30×0.30 m plates/joints consume [room-floor UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), ending at drains, walls, and thresholds. Current `tile.png` provides a color pattern; complete grout response and current close/review-distance GPU judgment remain unverified.
 
-## 욕실 벽 타일 {#bath-wall-tile}
+## Bathroom wall tile {#bath-wall-tile}
 <!--
-@evidence principles/core/common.md#declared-basis 욕실 벽 타일의 #EEEDEA·roughness 0.30은 settings/10-house.md#shower-bathroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 욕실 벽 타일은 `src/spaces/rooms/shower-bath.ts`·`tub-bath.ts`의 샤워·욕조 주위 벽 구역과 `src/spaces/rooms/common.ts`의 주방 하부장·상부장 사이 벽 구역에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 욕실 벽 타일은 #EEEDEA(선형 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/tile.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#shower-bathroom는 색·재료를 말로만 정했고 욕실 벽 타일은 #EEEDEA 값과 roughness 0.30, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 욕실 벽 타일은 구성을 '유약 도기 벽 타일'로, 외관의 #EEEDEA·roughness 0.30·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 욕실 벽 타일의 결합 vocabulary는 `src/spaces/rooms/shower-bath.ts`·`tub-bath.ts`의 샤워·욕조 주위 벽 구역과 `src/spaces/rooms/common.ts`의 주방 하부장·상부장 사이 벽 구역이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 욕실 벽 타일의 반증 견본은 '05와 03 view에서 흰 타일이 벽 도장과 광택 차이로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #EEEDEA 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 욕실 벽 타일은 settings/10-house.md#shower-bathroom, settings/10-house.md#kitchen-equipment를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 욕실 벽 타일은 0.30 m 가로 × 0.10 m 세로의 엇갈린 줄과 약한 유약 거칠기를 쓴다. 방 안쪽 벽 owner의 UV를 소비하고 코너·문·니치·설비에서 실제 면을 절단한다.
-@evidence settings/10-house.md#kitchen-equipment 욕실 벽 타일이 '주방 설비'(settings/10-house.md#kitchen-equipment)를 링크로 소비해 #EEEDEA 값과 결합 면의 근거로 삼았다.
-@evidence settings/10-house.md#shower-bathroom 욕실 벽 타일이 '샤워 욕실'(settings/10-house.md#shower-bathroom)를 링크로 소비해 #EEEDEA 값과 결합 면의 근거로 삼았다.
-@evidence spaces/rooms/shower-bath.md#shower-fixture-use shower-fixture-use가 유지하라는 도기/타일 읽힘을 욕실 벽 타일 #EEEDEA(roughness 0.30)와 흰 에나멜(roughness 0.25)의 광택 차로 받는다.
+@evidence principles/core/common.md#declared-basis shower-bathroom's white tile and kitchen-equipment's backsplash ground #EEEDEA/roughness 0.30 as authored response.
+@evidence principles/core/common.md#scope-preservation Finish covers existing shower/tub walls and backsplash zones without another tile/grout geometry.
+@evidence principles/core/common.md#substantive-completion Numeric glaze response, 0.30×0.10 m plan, exact wet-zone coordinates, source, and wall-paint comparison are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation White-tile identity gains numeric response and independently bounded wet-wall/backsplash bindings.
+@evidence principles/design/materials.md#material-construction-appearance Glazed ceramic construction is separate from optical constants and internal texture joints.
+@evidence principles/design/materials.md#material-binding-interface Host walls retain coordinates/UVs; tile zones end at actual fixtures/cabinet edges/niche cuts.
+@evidence principles/design/materials.md#material-verification-address Views 05/03 can falsify wall tile merged with paint despite distinct constants.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work Existing shower/kitchen identities and room-owned wall interfaces suffice for finish-zone assignment without changed room geometry.
+@evidence contracts/texture-readability.md#material-texture-readability The planned staggered 0.30 m-wide/0.10 m-high rows consume wall-owner metric UVs and real corner/niche/fixture cuts.
+@evidence settings/10-house.md#kitchen-equipment Tile backsplash retains the kitchen's separate wall finish between cabinets.
+@evidence settings/10-house.md#shower-bathroom White wet-wall tile remains distinct from ceramic fixtures and glass.
+@evidence spaces/rooms/shower-bath.md#shower-fixture-use Wall-tile roughness 0.30 versus enamel 0.25 supplies a planned response distinction without claiming GPU success.
 -->
 
-[흰 타일](../settings/10-house.md#shower-bathroom)과 주방의 [타일 backsplash](../settings/10-house.md#kitchen-equipment)다. 구성은 유약 도기 벽 타일이며 0.30 × 0.10 m 모듈과 [줄눈](#tile-grout)은 벽 면의 UV 텍스처 응답에서 만든다. 별도 타일·줄눈 geometry를 만들지 않는다. 외관은 `#EEEDEA`(선형 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0이다. 결합 면은 샤워부스 안 벽, 욕조 주위 벽, 주방 하부장과 상부장 사이 벽 구역이며, 그 구역의 경계는 host owner의 기구·수납 끝선을 따른다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 05와 03 view에서 흰 타일이 벽 도장과 광택 차이로 구별되는지를 관찰한다.
+This is [white bathroom tile](../settings/10-house.md#shower-bathroom) and the [kitchen backsplash](../settings/10-house.md#kitchen-equipment), constructed as glazed ceramic. The 0.30×0.10 m module and [grout](#tile-grout) are responses in existing wall UVs, without separate tile/joint geometry. Appearance is `#EEEDEA` (linear 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0. Bind shower-booth inner walls, tub surrounds, and wall zones between kitchen lower/upper cabinets, bounded by existing fixture/cabinet ends. Source owner is `src/materials/interior/tile.ts`; views 05/03 test gloss distinction from paint.
 
-표면 결속 계획: 욕실 벽 타일은 0.30 m 가로 × 0.10 m 세로의 엇갈린 줄과 약한 유약 거칠기를 쓴다. [방 안쪽 벽 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 코너·문·니치·설비에서 실제 면을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: staggered horizontal 0.30 m × vertical 0.10 m rows and weak glaze roughness consume [room-wall UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), ending at corners, doors, niches, and fixtures. Current `wall-tile.png` is a color map with an aligned grid, not realization of the staggered-row/roughness/normal plan. Complete response and current close/review-distance GPU judgment remain unverified.
 
-타일 경계는 샤워의 주침실 쪽 칸막이 안쪽 X=[0.82,0.90], Z=[-8.80,-7.70] m와 뒤 벽 Z=-8.80, X=[0.90,2.15] m, 욕조의 오른쪽 벽 X=5.50, Z=[-8.70,-6.90] m와 뒤 벽 Z=-8.80, X=[4.70,5.50] m다. 두 욕실은 Y=[3.06,5.66] m이며 샤워 niche 안쪽도 같은 타일이다. 주방 backsplash는 X=-5.50, Z=[-9.80,-7.40] m와 Z=-10.45, X=[-5.50,-2.15] m, Y=[0.91,1.45] m의 실내를 향한 면이다. 기존 벽 삼각형을 이 경계에서 분할하고 위치·법선·UV와 총 면적을 보존한다.
+Tile zones are the shower's primary-bedroom-side wall X=[0.82,0.90], Z=[-8.80,-7.70] m and rear wall Z=-8.80, X=[0.90,2.15] m; the tub's right wall X=5.50, Z=[-8.70,-6.90] m and rear wall Z=-8.80, X=[4.70,5.50] m. Both bathrooms use Y=[3.06,5.66] m, and shower niche interiors share tile. Backsplash zones face the room at X=-5.50, Z=[-9.80,-7.40] m and Z=-10.45, X=[-5.50,-2.15] m, Y=[0.91,1.45] m. `src/materials/wall-tile-partitions.ts` partitions existing triangles at these boundaries, interpolating positions/normals/UVs rather than adding wall bodies; total-area preservation remains a requirement, not a newly measured result here.
 
-## 타일 줄눈 {#tile-grout}
+## Tile grout {#tile-grout}
 <!--
-@evidence principles/core/common.md#declared-basis 타일 줄눈의 #A9A39A·roughness 0.90은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 타일 줄눈은 두 타일 재료를 받는 기존 방 owner 면의 UV 안에서 회색 0.005 m 선과 normal 음영을 만들고 별도 geometry·face id를 요구하지 않는다.
-@evidence principles/core/common.md#substantive-completion 타일 줄눈은 #A9A39A(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/tile.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 타일 줄눈은 #A9A39A 값과 roughness 0.90, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 타일 줄눈은 구성을 '시멘트 줄눈'로, 외관의 #A9A39A·roughness 0.90·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 타일 줄눈은 bath-floor-tile과 bath-wall-tile이 이미 결합한 면의 UV 마스크를 공유하며 독립 `grout` geometry id 없이 두 재료 함수의 부분 응답으로 적용한다.
-@evidence principles/design/materials.md#material-verification-address 근접 view에서 0.005 m 줄눈 마스크가 각 타일 모듈과 일치하고 normal 응답이 면 밖으로 실루엣을 만들지 않는지, 리뷰 거리에서 선이 살아 있는지 검사한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 타일 줄눈은 settings/20-verification.md#visual-grammar를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 0.005 m 회색 줄눈은 바닥 0.30×0.30 m, 벽 0.30×0.10 m 모듈의 UV 마스크에서 만든다. 같은 원점·회전을 공유하고 타일 중앙에는 번지지 않으며 면 경계에서 절단한다.
+@evidence principles/core/common.md#declared-basis The shared palette grounds #A9A39A/roughness 0.90 as an authored cement-grout response.
+@evidence principles/core/common.md#scope-preservation Grout is a 0.005 m UV/normal mask within existing tile faces without independent geometry or face ids.
+@evidence principles/core/common.md#substantive-completion Color/linear values, response, Euclidean-modulo equations, staggered wall offset, normal slope, and observations are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The tile palette gains numeric grout response and deterministic metric joint equations.
+@evidence principles/design/materials.md#material-construction-appearance Cement joints remain construction; color/normal masks approximate recesses without displacement.
+@evidence principles/design/materials.md#material-binding-interface floor/wall tile shares existing UV masks and origins with its grout response, requiring no grout host id.
+@evidence principles/design/materials.md#material-verification-address Close/review views test the 0.005 m joint against each tile module and reject displaced silhouettes.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work The palette and existing floor/wall metric coordinates suffice for internal grout masks without new tile or room geometry.
+@evidence contracts/texture-readability.md#material-texture-readability The floor 0.30×0.30/wall 0.30×0.10 m masks share origins/rotation and terminate at actual face edges without tinting tile centers.
 -->
 
-이 H2는 두 타일 재료에 공통인 시멘트 줄눈의 텍스처 응답을 소유한다. 외관은 `#A9A39A`(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0이다. 독립 줄눈 geometry와 `grout` face id는 없다. bath-floor-tile과 bath-wall-tile이 이미 결합한 방 owner 면의 UV 안에서 타일 중앙과 줄눈 마스크를 구분하며, normal 응답은 빛의 기울기만 바꾸고 표면 실루엣·깊이를 바꾸지 않는다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 근접 view에서 모듈과 0.005 m 선이 맞고 리뷰 거리에서도 색과 법선 음영으로 줄눈이 읽히는지를 관찰한다.
+This H2 owns the cement-grout response shared by floor/wall tile. Appearance is `#A9A39A` (linear 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0. There is no independent grout geometry or `grout` face id. Within the existing tile face UVs, distinguish tile centers and joint masks; planned normal response changes light direction only, not silhouette/depth. Source owner is `src/materials/interior/tile.ts`. Close views test module/0.005 m alignment and review-distance color/normal readability.
 
-표면 결속 계획: 음수 좌표에도 일관되도록 `modE(x,m)=x−m floor(x/m)`로 둔다. 바닥 UV에서 `dU=min(modE(U,0.30),0.30−modE(U,0.30))`, `dV=min(modE(V,0.30),0.30−modE(V,0.30))` m로 정해 `dU<0.0025` 또는 `dV<0.0025`이면 경계 양쪽을 합친 폭 0.005 m 줄눈이다. 벽은 `r=floor(V/0.10)`, `U′=U+0.15×modE(r,2)`로 줄을 0.15 m씩 엇갈리게 하고 같은 `dU` 식의 U에 U′를, `dV` 식의 모듈 0.30에 0.10을 대입한다. 줄눈 중심 normal은 타일 면보다 뒤로 눌린 듯한 0.002 m 높이차를 경계 양쪽 0.0025 m에서 선형 기울기로만 표현한다. 실제 메시를 변위시키지 않는다. 두 타일 면의 UV와 절단은 [방 안쪽 면 owner](../spaces/03-surface-owners.md#interior-surface-handoff)에서 각각 받는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Set `modE(x,m)=x−m floor(x/m)` for consistent negative coordinates. On floor UVs, `dU=min(modE(U,0.30),0.30−modE(U,0.30))` and `dV=min(modE(V,0.30),0.30−modE(V,0.30))` m. `dU<0.0025` or `dV<0.0025` denotes a combined-width 0.005 m joint across the boundary. On walls, set `r=floor(V/0.10)` and `U′=U+0.15×modE(r,2)`, staggering rows by 0.15 m; substitute U′ for U in dU and 0.10 for the dV module 0.30. Across each 0.0025 m half, a linear normal slope approximates a 0.002 m recessed center without mesh displacement. [Room-face owners](../spaces/03-surface-owners.md#interior-surface-handoff) supply each tile's UVs/cuts. Current generators provide color-joint patterns but not this normal response or the staggered wall-row realization; complete response/current close/review-distance GPU judgment remains unverified.
 
-## 세탁실 밝은 회색 바닥 {#laundry-floor}
+## Light-gray laundry floor {#laundry-floor}
 <!--
-@evidence principles/core/common.md#declared-basis 세탁실 밝은 회색 바닥의 #C9C4BA·roughness 0.50은 settings/10-house.md#laundry-mudroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 세탁실 밝은 회색 바닥은 `src/spaces/rooms/laundry.ts` owner의 보이는 바닥 마감과 머드룸 쪽 높은 문턱 챌면에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 세탁실 밝은 회색 바닥은 #C9C4BA(선형 0.584, 0.552, 0.491), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/floors.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#laundry-mudroom는 색·재료를 말로만 정했고 세탁실 밝은 회색 바닥은 #C9C4BA 값과 roughness 0.50, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 세탁실 밝은 회색 바닥은 구성을 '비닐 판 바닥'로, 외관의 #C9C4BA·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 세탁실 밝은 회색 바닥의 결합 vocabulary는 `src/spaces/rooms/laundry.ts` owner의 보이는 바닥 마감과 머드룸 쪽 높은 문턱 챌면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 세탁실 밝은 회색 바닥의 반증 견본은 '머드룸 문 view에서 두 바닥의 명도·광택 차'이고 00 재료 리뷰 견본의 중성 조명 판이 #C9C4BA 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 세탁실 밝은 회색 바닥은 settings/10-house.md#laundry-mudroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 세탁실의 밝은 회색 바닥은 0.30 m 정방 모듈의 약한 얼룩·거칠기를 쓴다. 방 바닥 owner의 UV를 소비하고 머드룸·차고 문턱에서 이음을 끊는다.
-@evidence settings/10-house.md#laundry-mudroom 세탁실 밝은 회색 바닥이 '세탁 겸 머드룸'(settings/10-house.md#laundry-mudroom)를 링크로 소비해 #C9C4BA 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis laundry-mudroom's light durable floor grounds #C9C4BA/roughness 0.50 under the common color rule.
+@evidence principles/core/common.md#scope-preservation Finish covers existing laundry floor/high-threshold riser without changed datum or another step.
+@evidence principles/core/common.md#substantive-completion Color/linear values, optics, 0.30 m square grain plan, source, and concrete comparison are defined.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Laundry-floor identity gains numeric vinyl response and actual floor/riser bindings.
+@evidence principles/design/materials.md#material-construction-appearance Vinyl planks remain construction; color/gloss/grain approximate their surface rather than another floor geometry.
+@evidence principles/design/materials.md#material-binding-interface Existing floor UVs retain projection and end at mudroom/garage threshold boundaries.
+@evidence principles/design/materials.md#material-verification-address Mudroom-door views can falsify lost brightness/gloss distinction from garage concrete.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work The laundry identity and existing floor/step faces suffice for finish response without new threshold construction.
+@evidence contracts/texture-readability.md#material-texture-readability Planned weak mottling/roughness uses a 0.30 m square module and actual floor-owner seams.
+@evidence settings/10-house.md#laundry-mudroom Durable light-gray floor remains brighter/smoother than the adjacent garage concrete.
 -->
 
-[밝은 회색의 내구성 바닥](../settings/10-house.md#laundry-mudroom)이다. 구성은 비닐 판 바닥이다. 외관은 `#C9C4BA`(선형 0.584, 0.552, 0.491), roughness 0.50, metallic 0.0, transmission 0.0이다. [차고 콘크리트](#garage-concrete)보다 밝고 매끈해 두 바닥이 같은 문턱에서 구별된다. 결합 면은 laundry owner의 보이는 바닥 마감과 머드룸 쪽 높은 문턱 챌면이다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 머드룸 문 view에서 두 바닥의 명도·광택 차를 관찰한다.
+The [light-gray durable laundry floor](../settings/10-house.md#laundry-mudroom) is vinyl plank construction. Appearance is `#C9C4BA` (linear 0.584, 0.552, 0.491), roughness 0.50, metallic 0.0, transmission 0.0, brighter/smoother than [garage concrete](#garage-concrete). Bind existing laundry visible floor and high mudroom-threshold riser. Source owner is `src/materials/interior/floors.ts`; mudroom-door views test brightness/gloss distinction at the shared threshold.
 
-표면 결속 계획: 세탁실의 밝은 회색 바닥은 0.30 m 정방 모듈의 약한 얼룩·거칠기를 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 머드룸·차고 문턱에서 이음을 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: weak mottling/roughness repeats in a 0.30 m square module using [floor-owner UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), breaking at mudroom/garage thresholds. Current source declares constant response without a texture; grain/current close/review-distance GPU judgment remains unverified.
 
-## 차고 콘크리트 {#garage-concrete}
+## Garage concrete {#garage-concrete}
 <!--
-@evidence principles/core/common.md#declared-basis 차고 콘크리트의 #9C9890·roughness 0.85은 settings/10-house.md#garage의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 차고 콘크리트는 `src/spaces/rooms/garage-interior.ts` owner의 노출 콘크리트 상면에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 차고 콘크리트는 #9C9890(선형 0.332, 0.314, 0.279), roughness 0.85, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/floors.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#garage는 색·재료를 말로만 정했고 차고 콘크리트는 #9C9890 값과 roughness 0.85, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 차고 콘크리트는 구성을 '흙손 마감 콘크리트 슬래브'로, 외관의 #9C9890·roughness 0.85·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 차고 콘크리트의 결합 vocabulary는 `src/spaces/rooms/garage-interior.ts` owner의 노출 콘크리트 상면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
-@evidence principles/design/materials.md#material-verification-address 차고 콘크리트의 반증 견본은 '차고 코너 view에서 바닥이 포장 콘크리트보다 어둡고 거칠게 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #9C9890 값을 대조한다.
-@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 차고 콘크리트는 settings/10-house.md#garage, spaces/rooms/garage-interior.md#garage-interior-plan를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 빈 차고 바닥은 0.50 m 콘크리트 잔골재·완만한 얼룩 모듈을 쓴다. 차고 바닥 owner의 UV를 소비하고 차고문 레일·머드룸 문턱·포장 경계에서 자른다.
-@evidence settings/10-house.md#garage 차고 콘크리트가 '빈 2대 차고'(settings/10-house.md#garage)를 링크로 소비해 #9C9890 값과 결합 면의 근거로 삼았다.
-@evidence spaces/rooms/garage-interior.md#garage-interior-plan 차고 콘크리트가 '머드룸 연결과 비어 있는 바닥'(spaces/rooms/garage-interior.md#garage-interior-plan)를 링크로 소비해 #9C9890 값과 결합 면의 근거로 삼았다.
+@evidence principles/core/common.md#declared-basis garage's concrete interior grounds #9C9890/roughness 0.85 under the common authored-color rule.
+@evidence principles/core/common.md#scope-preservation Finish covers the existing garage top; walls retain paint without another gray variant or changed geometry.
+@evidence principles/core/common.md#substantive-completion Color/linear RGB, optics, 0.50 m grain, garage host, source, and corner observation are specified.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Concrete-floor identity gains numeric response and its distinct interior-floor binding.
+@evidence principles/design/materials.md#material-construction-appearance Troweled slab construction remains geometry; color/roughness/grain approximates its exposed surface.
+@evidence principles/design/materials.md#material-binding-interface Existing garage-floor UVs and door/threshold/paving boundaries delimit the grain without another floor.
+@evidence principles/design/materials.md#material-verification-address Corner views can falsify garage concrete indistinguishable from lighter paving or smoother laundry flooring.
+@evidenceExclude upstream/design/materials.md#parent-revision-from-material-work The garage identity and garage-interior-plan supply the existing exposed top without revising room geometry or support.
+@evidence contracts/texture-readability.md#material-texture-readability Planned 0.50 m aggregate/mottling consumes floor-owner UVs and cuts at actual rail/threshold/paving interfaces.
+@evidence settings/10-house.md#garage Empty-garage concrete retains its separate darker finish without vehicles.
+@evidence spaces/rooms/garage-interior.md#garage-interior-plan The exposed top remains the garage-room finish; its substrate and high mudroom step keep their owners.
 -->
 
-[차고의 콘크리트 바닥과 내부](../settings/10-house.md#garage)다. 구성은 흙손 마감 콘크리트 슬래브다. 외관은 `#9C9890`(선형 0.332, 0.314, 0.279), roughness 0.85, metallic 0.0, transmission 0.0이다. 차고 내부 벽은 도장 석고보드이므로 [실내 벽 도장](#interior-wall-paint)을 받고 회색 변형을 따로 두지 않는다. 결합 면은 [garage-interior](../spaces/rooms/garage-interior.md#garage-interior-plan) owner의 노출 콘크리트 상면이다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 차고 코너 view에서 바닥이 포장 콘크리트보다 어둡고 거칠게 읽히는지를 관찰한다.
+The [garage concrete floor](../settings/10-house.md#garage) is troweled slab construction. Appearance is `#9C9890` (linear 0.332, 0.314, 0.279), roughness 0.85, metallic 0.0, transmission 0.0. Garage gypsum walls receive [interior paint](#interior-wall-paint) without another gray response. Bind [garage-interior](../spaces/rooms/garage-interior.md#garage-interior-plan)'s exposed concrete top. Source owner is `src/materials/interior/floors.ts`; corner views test darker/rougher response than site concrete.
 
-표면 결속 계획: 빈 차고 바닥은 0.50 m 콘크리트 잔골재·완만한 얼룩 모듈을 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 차고문 레일·머드룸 문턱·포장 경계에서 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+Surface plan: 0.50 m fine aggregate/slow mottling consumes [room-floor UVs/cuts](../spaces/03-surface-owners.md#interior-surface-handoff), ending at actual door-rail, mudroom-threshold, and paving boundaries. Current `garage.png` is registered; complete response/current close/review-distance GPU judgment remains unverified.

@@ -1,383 +1,383 @@
-# 조명 체계의 틀
+# Lighting system framework
 
-## 광원 소유와 쓰기 경계 {#lighting-authority}
+## Light ownership and write boundary {#lighting-authority}
 <!--
-@evidence principles/core/common.md#scope-preservation 광원 레코드의 쓰기 채널과, 방 경계·기구 몸체·발광 표면·배치를 spaces·models·materials·instances로 넘기는 경계를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 광원 id 형식 `light:<space-id>:<fixture-role>`, 쓸 수 있는 17개 공간 id, 대지 전체 낮빛의 `light:daylight:<role>` 예외를 정해 source가 id 규칙을 새로 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 조명의 systems 소유는 build-allocation, 광원 조건은 lighting-state에서 받고 id 형식과 한 광원 한 공간 소속은 이 branch의 선택이라고 적는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation build-allocation이 "조명은 systems가 소유한다"만 정한 데 비해 쓰기 채널 목록, 공간별 id 규칙, 한 광원 한 공간 소속, 값의 단일 저작 파일을 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 쓰는 것은 IAutoMovieLight 필드와 environment 다섯 값뿐이고 방 경계·천장 datum은 spaces, 기구 geometry는 models, 발광 표면은 materials, 배치는 instances에 남긴다.
-@evidence principles/design/systems.md#system-dependency-basis 모든 기구 광원이 spaces id 하나에 묶여 입력 공간이 이름으로 드러나고 같은 값을 두 파일에서 저작하지 않아 이름 없는 입력이 없다.
-@evidence principles/design/systems.md#system-verification-address 컴파일된 광원 목록이 네 광원 종류만 쓰는지, 공간 id가 실제 spaces 방과 일치하는지, 다른 branch 값을 쓰는 광원이 없는지의 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work build-allocation의 조명 배정과 spaces 방 id 17개를 소비했고 한 상태를 두 owner가 쓰거나 권한 없는 입력이 생기는 경우가 없어 부모 수정이 없었다.
-@evidence settings/00-production.md#build-allocation "조명은 systems가 소유한다"를 받아 쓰기를 광원 레코드와 environment 값에 한정하고 기구 형상·표면·배치는 각 branch에 남긴다.
-@evidence settings/00-production.md#working-language 본문 끝 문단대로 조명 결정을 한국어로 쓰고 API·필드명·광원 id만 원형을 보존한다.
-@evidence obligations/design/systems.md#addressable-system-decisions 태양·하늘 fill·창 자연광·기구 묶음마다 독립 H2를 두고 광원 하나를 공간 하나에 묶어 따로 바꾸고 검토하게 한다.
-@evidence obligations/design/systems.md#system-ownership-interfaces 입력(spaces 방 id·천장 datum), 출력(광원 레코드·environment 값), 영향받는 owner(models·materials·instances)를 이 H2가 나눈다.
-@evidenceExclude models/00-model-frame.md#model-local-frame 창·문의 날씨 면 원점과 yaw는 충전 메시의 배치 기준이다. 조명 레코드는 이미 world 좌표로 쓰며 이 국소 frame을 변환 입력으로 받지 않는다.
-@evidenceExclude models/00-model-frame.md#model-furniture-local-frame 가구 뒤 변 원점·걸레받이 홈·공통 손잡이와 미터 UV는 원형 생성에 남긴다. 광원 위치를 가구 mesh의 꼭짓점에서 역산하는 단계가 없다.
-@evidenceExclude models/00-model-frame.md#model-reference-scale 사람 점유체와 문 순폭은 모델 사이 척도 대조다. systems의 32개 광원 목록에는 사람 또는 문 유효폭으로 바뀌는 값이 없다.
-@evidenceExclude models/00-model-frame.md#model-representation-ceiling 웨더스트립·나사·유리 공기층의 표현 생략은 창호 원형의 한계다. 이 조명은 그러한 내부 부품을 광원으로 실현하지 않는다.
-@evidenceExclude models/00-model-frame.md#model-surface-partition-naming sash·leaf·fixture-diffuser 같은 면 이름은 재료 결속의 키다. light id는 공간과 기구 역할에서 만들며 면 이름을 광원 id로 변환하지 않는다.
-@evidenceExclude models/00-model-frame.md#model-representation-completion 닫힌 부피와 계열별 구조·의미 판정은 모델 source의 완결을 묻는다. 조명 수나 광원 동일성의 성공으로 그 모델 판정을 대신하지 않는다.
-@evidenceExclude models/00-model-frame.md#model-review-set 원형마다 직교·단면·사선 및 face-id 쌍을 요구하는 목록은 모델 검사의 카메라다. 조명의 여섯 사례는 실제 집의 외관·실내와 광원 산출물을 쓰며 중립 모델 카메라를 소비하지 않는다.
-@evidenceExclude models/01-windows.md#window-local-frame 날씨 면에서 0.04 m 물린 창틀과 0.14 m 깊이는 모델 안에서 정한다. 낮빛 directional의 위치·회전은 그 들임과 무관하게 집 전체에 고정된다.
-@evidenceExclude models/01-windows.md#window-member-sizes frame·sash·mullion·유리 두께를 조명 파일에서 재저작하지 않는다. 창 안 자연광 관찰에 원본 메시가 참여해도 부재 폭으로 새 창 광원을 만들지 않는다.
-@evidenceExclude models/01-windows.md#window-muntin-grid 유리의 2×2 격자와 양면 살대는 태양 그림자 수신 장면의 형상이다. 광원 목록의 생성 규칙은 살대 수를 입력으로 읽지 않는다.
-@evidenceExclude models/01-windows.md#double-hung-window lower-sash의 이동 범위와 upper-sash 고정은 창 motion 인터페이스다. systems는 창의 열림에 반응하는 상태나 광원을 두지 않는다.
-@evidenceExclude models/01-windows.md#fixed-window 계단·차고 고정창의 unit 계층에는 발광원이 없다. 계단참과 차고등은 해당 공간의 천장 datum에서 별도로 정한다.
-@evidenceExclude models/01-windows.md#awning-window 욕조 창 π/8 열림과 0.25 m 돌출 예약은 창의 동작 적합이다. 이 조명은 awning 각도를 입력으로 받아 세기나 방향을 바꾸지 않는다.
-@evidenceExclude models/01-windows.md#window-sill-trim 안쪽 창대·문선과 외부 trim의 돌출·UV는 창호 접합이다. 같은 태양과 fill을 모든 view에 유지하므로 이 돌출을 방별 조명 보정값으로 쓰지 않는다.
-@evidenceExclude models/01-windows.md#window-surface-partitions glass와 obscured-glass를 포함한 아홉 면 id는 materials가 바인딩한다. systems가 읽는 유리의 그림자 통과 조건은 재료의 transmission 경계이며 이 원형의 면 목록을 다시 선언하지 않는다.
-@evidenceExclude models/01-windows.md#window-fidelity 방충망·잠금쇠의 생략을 포함한 창 표현 한계는 조명의 정지 상태·예산과 별개다. 광원 체크로 창의 실내외 렌더 완결을 주장하지 않는다.
-@evidenceExclude models/02-exterior-doors.md#front-entry-door 현관문 유리 여섯 칸·손잡이·경첩 회전은 문 원형이 소유한다. 포치 벽등 위치는 spaces의 front-door 거친 개구부와 포치 바닥을 기준으로 택한다.
-@evidenceExclude models/02-exterior-doors.md#garage-sectional-door 네 패널의 rail-path와 travel 2.30 m는 차고문 동작이다. 차고등은 spaces의 가이드 예약 뒤에 고정하고 travel을 평가 입력으로 받지 않는다.
-@evidenceExclude models/02-exterior-doors.md#garden-door-pair 정원 유리문 두 장의 경첩과 순폭은 외부문 모델 결정이다. 이 systems는 후면 정원문 기구 광원을 요구하지 않는다고 정해 해당 문에 새 광원을 붙이지 않는다.
-@evidenceExclude models/02-exterior-doors.md#side-yard-gate 목재 대문의 world 형상과 경첩축에는 조명 역할이 없다. 포치 벽등 하나 외에는 외부 기구가 없으며 대문 동작과 연결한 광원도 없다.
-@evidenceExclude models/02-exterior-doors.md#exterior-door-surfaces leaf-exterior·leaf-interior·panel-edge의 면 분리는 문 재료의 교체 경로다. 낮빛과 포치등의 레코드에는 이 면 id를 선택하는 필드가 없다.
-@evidenceExclude models/02-exterior-doors.md#exterior-door-fidelity 차고 스프링·자물쇠 내부를 생략하는 한계는 문 제작 범위다. 조명은 그러한 내부 장치를 켜거나 시간 상태로 모델링하지 않는다.
-@evidenceExclude models/03-interior-doors.md#interior-door-members 문선·문설주·문짝 두께는 방 개구부를 채우는 모델 치수다. 천장 광원은 문짝 치수 대신 방 외곽과 완성 천장 좌표를 쓴다.
-@evidenceExclude models/03-interior-doors.md#interior-door-hinges 열한 문 경첩 low/high와 π/2 기준 열림은 충전 원형의 motion 값이다. 조명은 문 개폐 스위치나 문각을 소비하는 갱신 순서를 두지 않는다.
-@evidenceExclude models/03-interior-doors.md#interior-door-surfaces jamb-a·jamb-b·casing 양면 구분은 인접 방 마감 결속이다. 광원의 한 공간 소속은 spaces id에서 결정하며 문 면 이름으로 방을 판별하지 않는다.
-@evidenceExclude models/03-interior-doors.md#interior-door-fidelity 문 내부 하드웨어를 만들지 않는다는 모델 한계는 조명 필드의 범위를 늘리지 않는다. 같은 문을 비추는 결과와 문 제작 완결은 각각 검사한다.
-@evidenceExclude models/04-stair-members.md#stair-balusters 난간살 단면·반복 간격은 계단의 추락 경계 형상이다. 계단참 광원 하나는 중간참 중심과 상층 천장에서 오며 난간살 개수로 분배하지 않는다.
-@evidenceExclude models/04-stair-members.md#stair-bottom-member 디딤과 복도 가장자리의 아래 부재는 난간 접합을 닫는다. 복도 두 천장등의 중심 좌표는 그 아래 부재가 아닌 복도 팔의 spaces 외곽에서 정한다.
-@evidenceExclude models/04-stair-members.md#stair-side-skirt 열린 계단 옆 흰 경사판은 구조 디딤과 별도 메시다. 계단의 발광점 높이는 판의 경사선을 추종하지 않고 완성 천장 아래 0.05 m다.
-@evidenceExclude models/04-stair-members.md#stair-member-surfaces baluster·bottom-rail·stair-skirt의 면 id를 광원 목록으로 읽지 않는다. 각각의 마감은 materials에 남겨 조명의 쓰기 권한과 분리한다.
-@evidenceExclude models/04-stair-members.md#stair-member-fidelity 난간 체결 내부와 구조 하중의 생략은 계단 부재 표현 범위다. 조명은 난간 안전성을 검증하는 결과를 내지 않는다.
-@evidenceExclude models/05-closet-fittings.md#coat-closet-doors 외투장 두 미닫이문과 두 트랙은 수납 개구부를 닫는다. 이 library에는 외투장 안 별도 등이나 문 열림에 반응하는 광원이 없다.
-@evidenceExclude models/05-closet-fittings.md#coat-closet-rod-shelf 외투장 봉·상부 선반은 수납 기능의 고정 부재다. 천장등은 현관 방에 속하고 봉이나 선반을 광원 배치 host로 쓰지 않는다.
-@evidenceExclude models/05-closet-fittings.md#linen-closet-fittings 린넨장 다섯 단과 문 이동량은 수납 원형 결정이다. 복도 arrival 광원은 복도 외곽 중심을 쓰며 선반마다 등 다섯 개를 생성하지 않는다.
-@evidenceExclude models/05-closet-fittings.md#closet-fitting-surfaces rail·rod·shelf·leaf의 금속·도장 분리는 수납 면 결속이다. 조명 id의 fixture-role은 그 네 표면 이름과 다른 소유다.
-@evidenceExclude models/05-closet-fittings.md#closet-fitting-fidelity 수납 트랙 내부 장치를 생략해도 이 systems의 스위치 회로 생략과 같은 결정으로 합치지 않는다. 수납 원형의 기계적 완결은 모델 검사에 남긴다.
-@evidenceExclude models/06-interior-trim.md#wall-baseboard 높이 0.10 m의 벽 걸레받이 반복은 벽 하단 마감이다. 조명은 벽 길이 조각마다 광원을 더하지 않으며 바닥 가까운 trim을 위치 입력으로 받지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-base-run 하부장 세 구간의 plinth·서랍·문은 주방 고정 수납 몸체다. 섬등과 가족실등은 그 문·서랍의 개폐값을 읽지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-wall-cabinet 상부장 두 몸체의 높이·문짝 분절은 벽 예약의 충전이다. systems는 수납장 아래 작업등을 새로 만들지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-refrigerator 양문 냉장고의 내부·손잡이·문 동작은 가전 원형이다. 이 systems에는 냉장고 내부 점등 또는 기기 전원 상태가 없다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-range 레인지의 burner·오븐창·조작부는 정지 가전 형상이다. 화구 발광이나 오븐 내부 광원을 조명 목록에 포함하지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-microwave 전자레인지 문과 control-panel은 가전 표면이며 systems가 조작부 발광을 저작하지 않는다. 공용부 세 pendant와 family-ceiling만 해당 공간 광원이다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-island 싱크·수전·하부 몸통은 설비 원형이 맡는다. pendant 위치와 갓의 수평 여유는 common-island-reservation의 외곽에서 받으며 섬 메시의 정점으로 광원점을 다시 계산하지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-dishwasher 식기세척기의 회전 문과 내부는 appliance 모델이다. 이 조명에는 세척 운전 시계·기기 내부등·문 스위치가 없다.
-@evidenceExclude models/10-kitchen-dining.md#kitchen-island-stool 스툴 좌판과 footrest 치수는 좌석 use 적합을 묻는다. 섬 pendant의 통로 검사 대상은 spaces의 stool use 예약이며 의자 원형의 관절이나 치수를 광원 입력으로 읽지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#dining-table 식탁 상판·다리·여섯 좌석 배열은 가구 모델 결정이다. 식탁등의 X/Z와 갓 지름 대조는 dining 예약 상판 구역에서 정하고 아직 없는 식탁 source를 조명 구현 완료로 세지 않는다.
-@evidenceExclude models/10-kitchen-dining.md#dining-chair 의자의 seat·leg·back과 꺼낸 상태는 가구의 생활 기능이다. 식탁등 하나를 여섯 의자 수에 맞추어 복제하거나 의자 변환으로 회전시키지 않는다.
-@evidenceExclude models/11-living.md#fabric-sofa 패브릭 소파의 쿠션·팔걸이·다리는 이동 가구 원형이다. 거실 천장등은 sofa의 국소 원점과 무관하게 living-plan 중심에 고정한다.
-@evidenceExclude models/11-living.md#low-table 낮은 탁자 크기 변형은 거실과 가족실 가구의 적합이다. 두 방 조명은 탁자 길이를 광원 range나 세기로 바꾸는 규칙을 갖지 않는다.
-@evidenceExclude models/11-living.md#reading-armchair 독서 의자의 등받이·팔걸이와 사용 점유는 좌석 모델에 남긴다. 설정이 요구하지 않은 독서용 스탠드 광원을 이 의자 옆에 추가하지 않는다.
-@evidenceExclude models/11-living.md#dark-bookcase 책장의 선반·책 부피는 거실 수납이다. 책장 칸마다 광원이나 발광 book 면을 생성하는 조명 결정이 없다.
-@evidenceExclude models/11-living.md#floor-covering 러그·매트의 얇은 부피와 테두리는 바닥 covering이다. 조명은 covering 높이를 바닥 datum으로 치환하지 않고 spaces의 층 높이를 유지한다.
-@evidenceExclude models/11-living.md#fireplace-insert-mantel 검은 화구와 목재 선반은 꺼진 벽난로 원형이다. 정지 기준의 광원 목록에는 화구 불빛이나 시간 변화가 없어 이 부재가 광원 생성 입력이 아니다.
-@evidenceExclude models/12-service-rooms.md#laundry-machine 세탁기와 건조기의 drum·유리 문·조작부는 개별 가전이다. laundry 천장등 하나 외에 회전 드럼이나 작동 표시의 조명을 저작하지 않는다.
-@evidenceExclude models/12-service-rooms.md#laundry-folding-top 접는 상판과 cleat의 world 형상은 벽 예약 충전이다. 세탁실 발광점은 방 중심에서 정하며 상판 높이로 광원 Y를 정하지 않는다.
-@evidenceExclude models/12-service-rooms.md#laundry-upper-storage 동쪽 벽 상부 수납의 미리 변환된 몸체는 instances의 두 번째 yaw를 막는 모델 결정이다. systems의 world light transform에는 그 수납 변환을 합성하지 않는다.
-@evidenceExclude models/12-service-rooms.md#mudroom-bench 신발 벤치 좌판·선반과 기존 거친 신발 부피는 수납 원형이다. 머드룸등은 벤치 아래 또는 신발 칸 안 광원을 두지 않는다.
-@evidenceExclude models/12-service-rooms.md#mudroom-coat-hooks 서쪽 벽판·고리·외투는 models가 만드는 고정 수납 부재다. 고리 배열을 광원 개수로 읽지 않고 laundry-mudroom 한 공간에 천장등 하나를 둔다.
-@evidenceExclude models/12-service-rooms.md#pantry-l-shelf 팬트리 다섯 단 L형 선반은 두 storage 띠를 채운다. 천장등의 좌표는 pantry-plan 외곽 중심이며 다섯 shelf 높이를 평가 입력으로 쓰지 않는다.
-@evidenceExclude models/12-service-rooms.md#pantry-containers 선반의 병·상자·바구니는 생활 소품 원형이다. 그 70개 배치 유무에 따라 팬트리 광원 레코드를 생성하거나 생략하지 않는다.
-@evidenceExclude models/12-service-rooms.md#garage-shelving 금속 선반과 수납함은 차고 후벽 storage 원형이다. 광원의 가이드 비간섭은 garage 공간 예약에서 대조하며 선반 post 좌표를 소비하지 않는다.
-@evidenceExclude models/12-service-rooms.md#garage-workbench 작업대 상판·다리·서랍은 차고 가구다. 작업대 위 별도 작업등을 요구하지 않고 뒤쪽 ceiling 한 개로 차고 광원을 정한다.
-@evidenceExclude models/12-service-rooms.md#garage-tool-board 공구판의 board·tool-steel·tool-grip 배열은 수납 표면이다. 각 공구를 발광 대상으로 바꾸거나 tool 색을 광원 색으로 가져오지 않는다.
-@evidenceExclude models/13-bedrooms.md#headboard-bed 침대 틀·머리판·침구 변형은 가구 원형이다. 협탁등 높이는 spaces의 등 포함 높이에서 정하고 침대 메시 높이를 광원 좌표로 삼지 않는다.
-@evidenceExclude models/13-bedrooms.md#low-dresser 낮은 서랍장의 carcass·drawer-front는 가구 부피다. 침실 천장등과 협탁등 외에 서랍장 기구 광원을 두는 결정이 없다.
-@evidenceExclude models/13-bedrooms.md#child-desk 작은 책상과 연필·책 소품은 두 방의 가구 집합이다. 이 조명 목록에는 책상등이 없으며 책상 치수에서 새로운 발광점을 도출하지 않는다.
-@evidenceExclude models/13-bedrooms.md#desk-chair 책상 의자의 좌판·다리·등받이는 가구 사용 점유를 채운다. 의자 위치는 ceiling이나 nightstand-lamp의 transform을 갱신하지 않는다.
-@evidenceExclude models/13-bedrooms.md#sliding-closet 미닫이 옷장 두 문·봉·선반은 방의 수납 경계다. closet 문 상태에 반응하는 내부등이 없고 각 침실의 rest 광원만 남는다.
-@evidenceExclude models/13-bedrooms.md#primary-window-curtains 여덟 커튼의 봉·주름·띠는 원형의 창 앞 점유다. 시스템은 커튼마다 area 광원을 만들지 않고 같은 낮빛을 유지하며 커튼 광학값은 materials에 맡긴다.
-@evidenceExclude models/13-bedrooms.md#wardrobe-hanging 옷방 봉·의류 부피는 storage 띠에 속한다. 천장등 중심은 hanging 깊이 밖의 wardrobe-plan에서 택하며 rod 개수로 광원을 늘리지 않는다.
-@evidenceExclude models/13-bedrooms.md#wardrobe-shelves 옷방 선반·접힌 직물·바구니는 storage 원형이다. 선반 단마다 발광면이나 point를 더하지 않는 단일 wardrobe ceiling 상태다.
-@evidenceExclude models/14-bathrooms.md#shared-toilet 변기 도기·좌대·잠긴 뚜껑 profile은 고정 위생 원형이다. 세 위생실의 ceiling·vanity 광원은 toilet 관절값과 연결되어 있지 않다.
-@evidenceExclude models/14-bathrooms.md#vanity-basin 세면장의 W/D·볼·수전은 설비 모델이다. vanity light 위치는 각 spaces의 세면장 예약과 거울 띠에서 받으며 모델을 축소해 광원에 맞추지 않는다.
-@evidenceExclude models/14-bathrooms.md#wall-mirror 거울 판·검은 테의 형상은 위생 설비다. 광원점은 spaces의 거울 띠 위에 두고 systems가 반사 mesh나 가상 Reflector 카메라를 저작하지 않는다.
-@evidenceExclude models/14-bathrooms.md#towel-bar 수건 봉과 직물은 고정 걸이 원형이다. 같은 벽의 세면등을 수건걸이 id에 결속하는 규칙은 없다.
-@evidenceExclude models/14-bathrooms.md#sliding-shower-booth 샤워 유리·미닫이문·레일·수전과 헤드는 한 booth 원형이다. 조명은 샤워 작동·물 상태를 읽지 않고 해당 방의 ceiling와 vanity만 정지 상태로 둔다.
-@evidenceExclude models/14-bathrooms.md#bathtub 욕조의 도기 곡면과 수전은 고정 설비다. tub-bathroom 천장등은 욕조 내부 면의 좌표나 담긴 물에서 도출하지 않는다.
-@evidenceExclude models/14-bathrooms.md#tub-curtain-rail 욕조 커튼의 local 길이축과 world yaw는 모델·배치 접합이다. 욕실 광원은 그 rail yaw를 공유하는 자식 transform이 아니다.
-@evidenceExclude models/14-bathrooms.md#bath-floor-mats 욕실 바닥 매트 두 장은 covering 원형이다. 천장 Y와 세면등 Y는 매트 두께를 더하지 않고 층 완성 바닥 기준을 쓴다.
-@evidenceExclude models/14-bathrooms.md#shower-niche-bottles 벽감 선반 위 세 용기는 소품 구성원이다. 벽감 점등을 요구하지 않아 용기 수·높이를 조명 값으로 읽지 않는다.
-@evidenceExclude models/15-outdoor.md#terrace-table 테라스 식탁의 좌석 중심·상판·다리는 야외 가구 모델이다. 외부 기구는 포치 벽등 하나뿐이며 테라스 식탁등을 만들지 않는다.
-@evidenceExclude models/15-outdoor.md#terrace-chair 네 야외 의자의 사용 상태는 테라스 예약 적합이다. 낮빛 directional은 의자 수나 꺼낸 위치에 따라 분기하지 않는다.
-@evidenceExclude models/15-outdoor.md#lap-siding-board siding의 노출 0.15 m·겹침·절단 끝은 외피 부재 형상이다. 그림자 수신 장면에는 참여하지만 태양과 fill 방향의 입력은 아니다.
-@evidenceExclude models/15-outdoor.md#exterior-corner-trim 외벽 모서리 trim의 두 판 접합은 외피 마감이다. 모서리마다 별도 광원을 두거나 trim 법선을 light transform으로 쓰지 않는다.
-@evidenceExclude models/15-outdoor.md#asphalt-shingle-strip shingle 줄·starter·ridge 형상은 지붕 외피다. 태양의 그림자 예산은 한 개로 고정되어 탭이나 용마루 조각 수와 무관하다.
-@evidenceExclude models/15-outdoor.md#eave-gutter-downspout 홈통과 선홈통의 경로·배수 끝은 외장 부재 원형이다. 이 systems에는 홈통을 따라 배치하는 장식등이나 물 상태 광원이 없다.
-@evidenceExclude models/16-planting.md#site-tree-prototypes 성목과 뒤뜰 나무의 줄기·가지·잎 군집은 식재 원형이다. 오후 방향은 저작 상수이며 나무 높이로 태양 고도를 역산하지 않는다.
-@evidenceExclude models/16-planting.md#site-shrub-prototype 낮은 관목은 maps 기준점을 기다리는 식재 원형이다. 식재 입력이 없어도 네 directional과 방 기구 목록은 같은 정지 값을 낸다.
-@evidenceExclude models/18-house-props.md#porch-mat-planter 포치 매트·화분은 진입 축 밖의 생활 소품이다. 꺼진 포치 벽등의 위치는 문설주·포치 바닥에서 정하며 화분을 host로 쓰지 않는다.
-@evidenceExclude models/18-house-props.md#kitchen-food-utensils 도마·도구통·병·과일 그릇은 상판 소품이다. pendant 광원은 그 개별 소품의 색·배열·seed를 입력으로 읽지 않는다.
-@evidenceExclude models/18-house-props.md#linen-folded-towels 린넨장 30장 수건은 선반 위 직물 구성원이다. 복도 광원 목록에는 수건 묶음마다 발광점을 배정하는 법칙이 없다.
-@evidenceExclude models/19-room-accents.md#living-tabletop-props 책·쟁반·꽃병은 탁자 host에 결속되는 생활 소품이다. 조명은 소품 host를 평가하지 않고 거실·가족실 공간의 고정 ceiling을 쓴다.
-@evidenceExclude models/19-room-accents.md#wall-art-indoor-plant 액자 인쇄면과 작은 식물은 벽·선반 소품이다. 인쇄 seed를 광원 seed로 가져오거나 액자 전용 spot을 추가하지 않는다.
-@evidenceExclude models/19-room-accents.md#sofa-throws 쿠션 둘·접힌 담요의 국소 배열은 좌석 소품이다. 조명은 소파 접점과 무관한 world rest 값이며 직물 부피를 다시 만든다는 쓰기 권한이 없다.
-@evidenceExclude materials/00-material-frame.md#material-color-space 재료 hex를 IEC 함수로 선형화하는 절차는 base color의 저작 변환이다. 광원 색은 이 systems가 선형 RGB 상수로 직접 택하며 재료 hex를 광원 색으로 변환하지 않는다.
-@evidence materials/00-material-frame.md#material-texture-response 이 재료 틀은 표면 맵·유약·거울 응답을 materials에 두고 발광을 systems에 남긴다. 이 H2도 광원 레코드만 쓰고 갓과 전구의 표면을 재료 owner에 남겨 그 경계를 유지한다.
-@evidenceExclude materials/00-material-frame.md#material-response-conventions roughness 대역과 노출 금속 metallic은 물체 표면의 광학값이다. systems는 광원에 roughness·metallic 필드를 쓰지 않으며 도장 금속을 발광 금속으로 치환하지 않는다.
-@evidenceExclude materials/00-material-frame.md#material-binding-rule 면마다 한 재료와 single-sided 기본값은 메시 결속의 규칙이다. 광원 레코드에는 face binding 단계가 없고 재료 없는 면의 검사를 조명 개수 검사로 대신하지 않는다.
-@evidenceExclude materials/00-material-frame.md#material-review-set 중립 구·평판과 baseline 재료 판은 재료 비교를 위한 소비자다. 조명의 여섯 사례는 집의 외관·실내와 실제 광원 목록이며 견본별 광원이나 노출을 새로 정하지 않는다.
-@evidenceExclude materials/01-exterior.md#siding-warm-white siding의 #EDE8DC 도막·물리 맵은 외피 마감 입력이다. 태양과 두 fill은 그 hex에 따라 입면별 세기를 고르는 분기가 없다.
-@evidenceExclude materials/01-exterior.md#trim-white PVC·목재 trim의 #F6F4EE와 반광은 돌출 부재 결속이다. 이 systems는 trim을 광원 diffuser로 해석하거나 외장 면의 색을 light color로 가져오지 않는다.
-@evidenceExclude materials/01-exterior.md#roof-shingle shingle의 어두운 입자 맵·roughness는 지붕 표면이다. 낮빛 rest state는 지붕 텍스처 모듈이나 탭 패턴을 읽지 않는다.
-@evidenceExclude materials/01-exterior.md#brick-red-brown 벽돌과 연속 줄눈의 맵은 기단·굴뚝 마감이다. 꺼진 벽난로 상태에서 벽돌을 발광 화구로 바꾸는 조명 결정이 없다.
-@evidenceExclude materials/01-exterior.md#window-frame-charcoal 창틀·cap·flashing의 도장 charcoal은 불투명 표면이다. 조명은 도장 금속의 metallic 값을 directional 종류나 그림자 수로 변환하지 않는다.
-@evidenceExclude materials/01-exterior.md#front-door-wood 현관문 목재의 결·roughness는 문짝 표면이다. 포치등의 2,700 K 값은 이 목재 hex를 샘플링한 색이 아니라 systems의 별도 선택이다.
-@evidenceExclude materials/01-exterior.md#garage-door-charcoal 차고문의 charcoal 분절 마감은 모델 패널에 결속한다. 차고 ceiling의 4,000 K·9 cd는 문 패널 재료를 전원 상태로 읽지 않는다.
-@evidenceExclude materials/01-exterior.md#porch-floor 포치 바닥의 표면 응답은 접지 마감이다. 벽등 Y=1.80 m는 바닥 geometry datum을 기준으로 하며 바닥 텍스처의 색·반복 길이로 높이를 바꾸지 않는다.
-@evidenceExclude materials/01-exterior.md#paving-concrete 포장 콘크리트의 얼룩·입자 맵은 대지 표면이다. 방향광의 그림자 camera는 fence-enclosure-plan 범위를 쓰며 포장 맵 경계를 camera 범위로 읽지 않는다.
-@evidenceExclude materials/01-exterior.md#fence-wood 울타리 목재의 수직 결은 fence 부재 마감이다. 태양의 그림자 범위는 fence 공간 외곽을 읽지만 목재 재료 반복은 광원 입력이 아니다.
-@evidenceExclude materials/02-interior-shell.md#interior-wall-paint 벽 도장의 고정 base color와 미세결은 materials 값이다. 방별로 벽색을 보고 노출을 바꾸지 않는 동일 environment를 유지한다.
-@evidenceExclude materials/02-interior-shell.md#interior-ceiling 천장 흰 도장면은 기구와 접하는 마감이다. 천장등 Y는 완성 천장의 spaces datum에서 오며 이 재료의 밝기나 roughness에서 오지 않는다.
-@evidenceExclude materials/02-interior-shell.md#interior-trim-white 흰 문선·걸레받이·수납 판의 마감은 표면 결속이다. 시스템은 이 흰 판을 자체 발광원으로 만들지 않고 기존 room ceiling로 비춘다.
-@evidenceExclude materials/02-interior-shell.md#oak-floor 마루의 판 이음과 참나무색은 바닥 재료다. ground-bounce의 0.16은 실제 마루 texel을 집계한 동적 반사가 아니라 이 systems가 정한 전역 근사다.
-@evidenceExclude materials/02-interior-shell.md#stair-tread-wood 계단 디딤의 밝은 목재와 길이 UV는 발판 마감이다. 계단참 광원 높이는 디딤 재료의 반복 모듈을 입력으로 받지 않는다.
-@evidenceExclude materials/02-interior-shell.md#handrail-wood 손잡이의 목재 결은 난간 표면이다. 난간을 따라 선형 발광원을 요구하지 않아 handrail 재료는 lights 목록을 만들지 않는다.
-@evidenceExclude materials/02-interior-shell.md#black-coated-metal 검은 도장 손잡이·난간·기구 housing은 비발광 표면이다. 기구의 광원 색·세기를 housing의 검은색으로 덮어쓰지 않는 쓰기 경계다.
-@evidenceExclude materials/02-interior-shell.md#beige-carpet 베이지 카펫의 파일 결은 상층 바닥 재료다. 상층 천장과 협탁 light transform은 파일 높이나 텍스처 모듈에 결속하지 않는다.
-@evidenceExclude materials/02-interior-shell.md#bath-floor-tile 욕실 바닥 타일의 grid와 roughness는 바닥 결속이다. bath ceiling·vanity의 광원 수는 타일 행·열에서 도출하지 않는다.
-@evidenceExclude materials/02-interior-shell.md#bath-wall-tile 욕실 벽 타일의 흰 판·반광은 벽 마감이다. 세면등의 3 cd와 3,000 K는 타일마다 다른 광원 레코드를 만드는 규칙이 아니다.
-@evidenceExclude materials/02-interior-shell.md#tile-grout 줄눈은 타일 material 내부의 UV 마스크다. 조명은 줄눈 geometry나 줄눈마다 point를 추가하는 대체 표현을 쓰지 않는다.
-@evidenceExclude materials/02-interior-shell.md#laundry-floor 세탁실 회색 바닥 결은 laundry surface의 광학값이다. laundry-mudroom ceiling은 그 회색값을 보정하는 별도 exposure 없이 같은 environment를 쓴다.
-@evidenceExclude materials/02-interior-shell.md#garage-concrete 차고 콘크리트의 입자와 얼룩은 낮은 차고 바닥 마감이다. 차고 발광점 Y=2.50 m는 차고 ceiling datum에서 오고 재료 높이에서는 오지 않는다.
-@evidenceExclude materials/03-furnishings.md#light-countertop 밝은 석재 상판의 맥·roughness는 주방·세면장·접는 판에 결속한다. 섬등 발광점 Y=1.95 m는 섬 예약에서 정한 높이이며 상판 텍스처를 광원 값으로 복사하지 않는다.
-@evidenceExclude materials/03-furnishings.md#stainless-steel 수전·rail·rod의 헤어라인 금속 응답은 materials가 소유한다. 시스템은 금속 하이라이트를 새 광원이나 금속 물체의 발광으로 해석하지 않는다.
-@evidenceExclude materials/03-furnishings.md#black-glass-panel 오븐·조작부의 불투명 검은 유리는 appliance 표면이다. 광원 목록에는 가전 control-panel 점등이 없어 창의 자연광 통과 조건으로 이 재료를 쓰지 않는다.
-@evidenceExclude materials/03-furnishings.md#white-enamel 도기·에나멜과 lamp-base의 매끈한 응답은 물체 마감이다. 협탁등 point는 갓 안쪽 높이를 쓰며 도기 받침의 흰색을 발광 색으로 읽지 않는다.
-@evidenceExclude materials/03-furnishings.md#furniture-wood 선반·벤치·가구의 #A87A4E 오크 결은 비발광 재료다. 팬트리와 머드룸 광원은 목재 부재 수나 결 방향에 따라 변하지 않는다.
-@evidenceExclude materials/03-furnishings.md#dark-bookcase-wood 짙은 호두나무와 액자 테는 수납·장식 표면이다. 거실 ceiling 하나 외에 책장 선반 내부 광원을 채택하지 않는다.
-@evidenceExclude materials/03-furnishings.md#grey-beige-upholstery 소파 천과 의류의 회베이지 변형은 직물 결속이다. 해당 직물의 배치가 달라져도 rest light 목록의 공간 소속과 세기는 같다.
-@evidenceExclude materials/03-furnishings.md#primary-bedding 주침실 이불·베개의 색과 직조는 침구 마감이다. nightstand-lamp-rear/front는 침구의 fold·color를 갱신 입력으로 받지 않는다.
-@evidenceExclude materials/03-furnishings.md#olive-bedding bedroom-two 식별색은 bedding와 책·옷의 표면 변형이다. 올리브 방에 별도 색 보정 광원을 두지 않고 공통 warm ceiling와 lamp 색을 쓴다.
-@evidenceExclude materials/03-furnishings.md#blue-grey-bedding bedroom-three 청회색은 올리브와 비교할 직물 값이다. 두 방의 같은 2,700 K ceiling를 유지해 조명으로 침구색 차를 대신 만들지 않는다.
-@evidenceExclude materials/03-furnishings.md#muted-rug 얇은 러그의 field·border 무늬는 covering 표면이다. 시스템은 그 무늬에 그림자를 그려 광원 결과를 대신하거나 러그별 밝기를 적용하지 않는다.
-@evidenceExclude materials/03-furnishings.md#mirror 평면 거울의 Reflector와 은막 PBR은 재료·viewer 반사 경로다. systems는 가상 반사 카메라를 광원 transform 목록에 더하지 않는다.
-@evidenceExclude materials/03-furnishings.md#firebox-black 그을린 화구는 명시적으로 꺼져 발광이 없는 표면이다. lighting rest 목록에 불빛이 없다는 판단은 fireplace 재료의 검은색을 point로 변환하지 않는 것이다.
-@evidenceExclude materials/03-furnishings.md#planting-bark-foliage 수피·잎의 결정론적 미세결은 식재 마감이다. 태양 색과 sky-fill은 foliage texture나 나무 seed를 입력으로 쓰지 않는다.
-@evidence materials/03-furnishings.md#light-fixture-surfaces fixture-diffuser·fixture-glass의 표면 응답은 materials가 맡고 빛의 세기·색온도·그림자는 systems에 남긴다는 인터페이스를 받는다. 이 H2가 그 광원 필드만 쓰는 이유다.
-@evidenceExclude materials/03-furnishings.md#food-art-finishes 과일 색 순환과 seed 1952의 액자 붓 획은 소품 인쇄면이다. 조명에는 그 seed나 획이 기여하는 시간·색 변화 채널이 없다.
-@evidenceExclude materials/03-furnishings.md#minor-prop-partitions 이 결속 표는 각 소품 surface id를 최종 재료로 잇는다. systems는 표를 바인딩 배열로 소비하지 않으며 기구 표면의 쓰기 경계는 light-fixture-surfaces에서 직접 받는다.
-@evidenceExclude instances/00-placement-frame.md#placement-transform-rule 가구의 뒤 변·중심 원점에서 yaw 하나를 만드는 규칙은 model instance의 world 변환이다. 광원 레코드는 이미 systems가 world 좌표로 선언하여 이 가구 변환을 다시 적용하지 않는다.
-@evidenceExclude instances/00-placement-frame.md#placement-fit-validity 가구 경계 박스와 route·use·swing의 적합은 개체 source 검사다. 켜진 광원 좌표·갓 외곽의 조명 검사는 spaces 예약에 직접 대조하며 전체 가구 적합 성공을 광원 검사로 대신하지 않는다.
-@evidence instances/00-placement-frame.md#lighting-fixture-members 천장 18·pendant 3·세면 3·꺼진 포치 1의 몸체는 systems 위치 선언을 소비하고 네 협탁등은 가구 host에 남긴다. 광원과 몸체가 같은 값의 공동 저작자가 되지 않도록 이 H2의 쓰기 경계에서 그 소비 방향을 유지한다.
-@evidenceExclude instances/04-opening-fill.md#opening-fill-membership window/door 한 개구부에 충전 하나를 배정하는 규칙은 건물 instance membership이다. 광원 id는 그 개구부 id 대신 space-id와 fixture-role을 사용한다.
-@evidenceExclude instances/04-opening-fill.md#window-fill-placement 열두 창 원형의 yaw 표는 기존 유리의 world 배치다. 자연광은 그 유리 장면을 관찰하지만 systems가 각 창 instance에 area를 결속하는 분기는 없다.
-@evidenceExclude instances/04-opening-fill.md#exterior-door-fill-placement 외부문 세 개와 gate identity 변환은 개구부 충전의 배치다. 포치 벽등 하나의 값은 spaces 문설주에서 오며 garden·garage·gate instance마다 외부 light를 만들지 않는다.
-@evidenceExclude instances/04-opening-fill.md#opening-fill-observation 정면·반대·양측·개구부 cut·reveal 근접은 충전 접합 검사다. 여섯 조명 사례는 그 모델 충전 완결을 대신 판정하지 않고 빛·좌표·동일성·예산만 판독한다.
-@evidenceExclude instances/00-placement-frame.md#reservation-derived-membership 이 H2의 방 가구·설비 예약 membership은 배치 개체를 정한다. 조명은 그 예약을 생성 입력으로 읽지 않고 별도 조명 기구 배치를 받는다.
-@evidenceExclude instances/00-placement-frame.md#no-member-variation 배치 개체의 seed·jitter 금지는 models의 반복 형상 변이를 제한한다. 광원은 이 문서의 정지 상태와 명시 좌표만으로 정하며 그 변이 값을 읽지 않는다.
-@evidenceExclude instances/01-ground-rooms.md#dining-table-chairs 식탁·의자 개체 수와 변환은 조명 입력이 아니다. 식탁등 위치는 spaces의 식탁 예약 중심에서 정한다.
-@evidenceExclude instances/01-ground-rooms.md#island-stools 스툴 세 개의 변환은 광원 입력이 아니다. pendant의 통로 여유는 spaces의 섬·use 예약에서 대조한다.
-@evidenceExclude instances/01-ground-rooms.md#kitchen-fixtures 주방 기기와 붙박이 몸체의 원형 배치는 광원 목록·값을 바꾸지 않는다. 섬 위 광원은 spaces의 섬 예약을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#family-seating 가족실 소파·탁자의 개체 id와 변환은 광원을 만들지 않는다. 가족실 천장등은 spaces의 가족실 예약을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#living-furniture 거실 좌석·서가·러그의 배치는 거실 천장등 좌표의 입력이 아니다. 광원은 living-plan의 방 외곽 중심을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#window-curtain-members 커튼 여덟 개의 개체 배치는 창의 발광 광원을 만들지 않는다. 자연광은 외부 개구부와 실제 유리 충전으로 검사한다.
-@evidenceExclude instances/01-ground-rooms.md#entry-mat 현관 바닥 매트의 외곽·변환은 현관 천장등이나 포치 벽등의 위치를 정하지 않는다.
-@evidenceExclude instances/01-ground-rooms.md#powder-fixtures 파우더룸 변기·세면장·거울·수건걸이의 배치는 세면등 광원의 좌표·세기를 정하지 않는다. 세면등은 spaces의 세면장 예약을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#laundry-fixtures 세탁 기기·벤치의 개체 변환은 세탁실 천장등의 입력이 아니다. 광원은 방 외곽 중심을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#pantry-shelves 팬트리 L 선반과 용기의 배치는 천장등 광원의 입력이 아니다. 광원은 방 외곽 중심을 읽는다.
-@evidenceExclude instances/01-ground-rooms.md#garage-storage 차고 선반·작업대의 배치는 차고 천장등의 입력이 아니다. 광원은 차고 공간의 중심과 천장 datum을 읽는다.
-@evidenceExclude instances/02-upper-rooms.md#primary-furniture 주침실 침대·협탁·러그의 개체 변환은 침실 조명의 좌표·상태를 정하지 않는다. 천장등과 협탁등은 spaces의 방·침대 예약을 읽는다.
-@evidenceExclude instances/02-upper-rooms.md#wardrobe-storage 드레스룸 수납 개체의 변환은 드레스룸 천장등의 입력이 아니다. 광원은 방 외곽과 천장 datum을 읽는다.
-@evidenceExclude instances/02-upper-rooms.md#child-bedroom-furniture 두 자녀실 가구의 개체 id·변환은 각 방 천장등의 입력이 아니다. 광원은 두 방의 spaces 외곽을 읽는다.
-@evidenceExclude instances/02-upper-rooms.md#bath-fixtures 욕실의 변기·샤워·욕조 개체 변환은 세면등을 만들지 않는다. 세면등은 spaces의 세면장 예약을 읽는다.
-@evidenceExclude instances/03-exterior-repetition.md#siding-course-law siding 판의 course·절단은 태양 아래 렌더된 그림자 수신면에 영향을 주지만 광원 레코드의 방향·세기·상태 입력은 아니다.
-@evidenceExclude instances/03-exterior-repetition.md#shingle-course-law shingle 판의 course·절단은 태양 아래 렌더된 그림자 수신면에 영향을 주지만 광원 레코드의 방향·세기·상태 입력은 아니다.
-@evidenceExclude instances/03-exterior-repetition.md#exterior-exclusions 포치 기둥·난간·차고문을 외장 반복에서 빼는 결정은 태양·벽등 광원 목록의 생성 입력이 아니다.
-@evidenceExclude instances/03-exterior-repetition.md#porch-props 포치 발판·화분의 개체 배치는 현관 벽등의 위치·상태를 정하지 않는다. 벽등은 front-door 개구부와 포치 바닥을 읽는다.
-@evidenceExclude instances/03-exterior-repetition.md#planting-individuals 대지 식재의 구성원·접지·yaw는 태양 그림자를 받을 수 있지만 태양 광원 레코드의 입력이 아니다.
-@evidenceExclude instances/03-exterior-repetition.md#terrace-furniture 테라스 식탁·의자의 개체 배치는 낮빛과 포치 벽등의 광원 값·상태를 정하지 않는다.
-@evidenceExclude instances/04-opening-fill.md#interior-door-fill-placement 열한 실내 문짝의 변환은 방마다 정지 조명 하나를 두는 이 systems의 광원 생성 입력이 아니다.
-@evidenceExclude instances/04-opening-fill.md#non-door-opening-fills 열린 통로와 수납 미닫이문의 identity 변환은 광원 레코드의 위치·세기·상태를 정하지 않는다.
-@evidenceExclude settings/00-production.md#accessibility 「접근성 전달 상태」는 "이 library의 필수 대체 접근은 한국어 문서, 이름 있는 키보드 조작, 카메라 복귀 및 관찰 선택, 색만으로 상태를 구분하지 않는 검사 결과다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/00-production.md#coverage-map 설정 항목의 소유 지도는 광원 좌표를 제공하지 않는다. 조명은 그 지도가 가리키는 build-allocation·lighting-state와 방의 개별 외곽을 직접 인용하고 지도 목록 자체를 위치·색·강도·상태 입력으로 읽지 않는다.
-@evidenceExclude settings/00-production.md#governing-aim 「지배 목표」는 "사용자 지정 목표는 리뷰 거리의 외부 및 각 실내에서 레퍼런스 다섯 장과 같은 집의 구조·부재·재료·생활 기능이 읽히게 하는 것이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/00-production.md#operative-subjects 「작동 주체와 자원」는 "주택과 각 공간은 10-house.md의 해당 H2가 소유한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/00-production.md#operator-access 「조작자와 접근」는 "저작 결정으로 조작자는 마우스와 키보드를 사용하는 데스크톱 검토자다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/00-production.md#use-profile 「사용과 통행 가정」는 "구조·생활 가능성을 검토하기 위한 저작 가정은 성인 둘과 자녀 둘이 쓰는 집이며 특수 의료장비나 상주 보조인의 동선을 요구하지 않는다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#entry 「실내 현관」는 "고정 그래프의 1층 현관은 포치에서 들어와 거실과 중앙 단일 꺾임계단에 각각 직접 이어지는 분배 공간이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#garage 「빈 2대 차고」는 "오른쪽에 붙은 차고는 하나의 1층 부속 볼륨이며 두 대용 폭의 어두운 분절 패널문 하나와 상부 채광 유리를 가진다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#house-scale 「규모」는 "사용자가 정한 약 246㎡는 측량값이 아닌 규모 목표다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#kitchen-equipment 「주방 설비」는 "03에서 채택한 주방은 회갈색 패널 수납장, 밝은 상판과 타일 backsplash, 스테인리스 냉장고·레인지·전자레인지, 식기세척기, 싱크와 수도꼭지가 있는 섬으로 읽힌다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#laundry-mudroom 「세탁 겸 머드룸」는 "사용자 지정 세탁·머드룸을 우측 띠와 차고 사이의 완충실로 저작한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#living 「전면 거실」는 "거실은 본채 1층 전면 왼쪽에 있고 현관에서 직접 보이며 후면 공용부와 연결된다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#main-mass 「본채 매스와 지붕」는 "사용자 그래프와 외관 레퍼런스 01의 관계를 채택한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#openings 「개구부의 읽힘」는 "01의 검은 창틀과 흰 외부 trim, 03–05의 흰 실내 문선 및 패널문을 채택한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#pantry 「팬트리」는 "저작 선택으로 팬트리는 주방 또는 그에 바로 닿는 서비스 접근 통로에서 열리는 별도 식품 수납 공간이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#service-band 「우측 서비스 동선」는 "사용자 고정 그래프에 따라 본채 1층 우측 서비스 띠에 팬트리·파우더룸·세탁 겸 머드룸을 놓고 차고와 직접 연결한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#shower-bathroom 「샤워 욕실」는 "상층 복도에서 직접 들어가는 첫 욕실은 유리 샤워부스·세면대·변기를 가진다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#site-identity 「대지와 식재」는 "01을 바탕으로 완만한 평지의 주택 대지, 앞 보도·낮은 연석·차도 가장자리, 차고 진입 콘크리트 차도, 현관 보행길, 잔디와 낮은 화단을 만든다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#stair 「단일 꺾임계단」는 "본채 중앙의 계단 한 개가 현관과 2층 짧은 복도를 연결한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#storage 「수납」는 "사용자의 상층 수납 요구를 실현하는 저작 선택으로 계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건을 둔다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#tub-bathroom 「욕조 욕실」는 "상층 복도에 자기 문을 가진 두 번째 욕실로, 02의 욕조 겸 샤워·세면대·변기를 채택한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/10-house.md#upper-hall 「상층 복도」는 "계단 상부참에서 시작하는 짧은 복도 하나가 세 침실, 두 욕실, 수납에 직접 닿는다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#completion-boundary 「완료와 기록」는 "../contracts/observation-denominator.md#dual-completion의 양쪽 목록과 독립 판정을 적용한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#data-authority 「측정과 프레임의 책임」는 "사용자 지시에 따라 수·id·위치·binding·치수는 컴파일된 산출물에서 읽는다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#execution-boundary 「실행과 모듈 경계」는 "사용자 지시로 @automovie/engine의 CommonJS 경계를 유지한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#fidelity 「표현 수준」는 "이 production의 사용자 지시는 매스와 지붕, 개구부 비례/위치, 포치·기둥·처마·trim·굴뚝·계단·난간·창호·문짝, 재료·빛·그림자·조경과 모든 실내가 실제 캡처에서 읽혀야 한다는 것이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#implementation-boundary 「편집과 의존성 경계」는 "사용자가 허용한 편집 범위는 이 production의 저작 파일이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#lifecycle-boundary 「저작 순서」는 "사용자의 제작 순서는 매스/공간 그래프와 표면 분해를 함께 닫고, 실제 외피 부재, 외피 반복 모듈, fit-out, 재료 읽힘과 정리로 전진하는 것이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#reference-authority 다섯 참조의 비측량 권위와 차량·그래프 충돌 처리 자체는 광원 수치 입력이 아니다. 조명은 참조에서 채택한 뒤 오른쪽 그림자·따뜻한 실내 상태를 lighting-state에서 직접 받고 이미지 픽셀로 태양 각도나 cd를 역산하지 않는다.
-@evidenceExclude settings/20-verification.md#role-boundary 저작자의 자체 렌더 판정과 감독의 세션·Git 조율은 작업 권한이다. 이 권한을 광원 transform·color·intensity·켜짐 값으로 해석하는 조명 입력은 없고 공간·기구의 수치 결정과 구분한다.
-@evidenceExclude settings/20-verification.md#submission-boundary 「커밋과 푸시」는 "사용자의 현재 지시에 따라 저작자가 최소 매 turn 끝과 단계 폐쇄/뷰어 구현 때 커밋·푸시한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#surface-allocation 「표면 분해 인계」는 "../contracts/surface-ownership.md#whole-surface-owner를 1단계 폐쇄의 필수 산출물로 적용한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#validation-boundary 「정규 검증 명령」는 "사용자가 지정한 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#viewer-handoff 「뷰어 실행 인계」는 "사용자와 조정자의 지시에 따라 뷰어를 구현했으면 시작 명령, 실행 디렉터리, 포트, 열어야 할 경로를 보고한다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude settings/20-verification.md#visual-grammar 「공통 재료와 외피 인상」는 "레퍼런스에서 채택한 palette는 따뜻한 백색 수평 lap siding, 창틀과 차고문의 짙은 charcoal, 흰 trim, 붉은갈색 벽돌 기단과 굴뚝, 꿀빛/중간갈색 목재, 회베이지 실내 직물이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
-@evidenceExclude spaces/00-building.md#main-building-extent 「본채 외곽과 면적」는 "이 spaces의 외곽 선택은 규모와 좌표를 따른다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/06-openings.md#selected-window-curtain-strips 여섯 창의 정적 커튼 점유는 models와 instances가 소비한다. systems는 이 커튼의 형상·배치·작동을 쓰지 않으며 기존 방·창 id에 속한 광원만 소유한다.
-@evidenceExclude spaces/02-stair.md#stair-boundary-heights 「계단 곁 벽과 열린 보호 경계의 높이」는 "계단 구멍 둘레의 평면 띠는 모두 같은 높이의 벽을 뜻하지 않는다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/02-stair.md#stair-clearance 「난간과 통행의 순폭 예약」는 "경로의 1.15 m 폭 안에서 양쪽 손잡이·난간의 수평 점유를 각각 0.075 m 이내로 예약한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/02-stair.md#stair-connector-handoff 「하나의 연결에 속하는 두 flight와 중간참」는 "단일 꺾임계단을 실현한 계단 공간과 단별 치수는 유지한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/02-stair.md#stair-floor-opening 「계단 구멍과 전면 창의 경계」는 "위 경로와 하부 대기 면적에 한정하여, 층판 구멍은 X = [-1.80, -0.65]·Z = [-4.56, -0.25]의 세로 부분과 X = [-0.65, 1.87]·Z = [-4.56, -3.41]의 가로 부분을 합친 L형이다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff 「입면·지붕·층의 소유」는 벽 몸체·void·절단면을 spaces에, 닫힌 바깥 trim·창틀·문틀·문짝·유리를 models에 배분한다. 광원 소유와 강도는 이 외피 부재 배분을 입력으로 읽지 않으며 조명 기구의 형상 인계는 models/17-light-fixtures.md가 따로 받는다.
-@evidenceExclude spaces/03-surface-owners.md#interior-surface-handoff 「방 내부의 완결 면 소유」는 "표면 분해 인계가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/04-observations.md#engine-render-handoff 「공간 산출물에서 실제 렌더로 넘기는 경계」는 "설치된 공개 엔진의 lowerBuiltEnvironment는 환경을 검증하고 실제 model을 가진 element만 세계 변환의 set으로 내리며 원래 built environment도 보존한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 「다섯 참조에 더하는 공간 비교」는 "레퍼런스 권위를 현재 공간 owner에 연결한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/04-observations.md#spatial-observation-derivation 「공간 산출물에서 파생할 검사」는 "관찰 배분을 받아 전체 관찰 분모를 이 spaces 층에 그대로 적용한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/05-route-network.md#room-route-network 「문으로 답하는 두 층 동선」는 "아래 이름은 이 spaces 문서가 소스로 넘길 식별자다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/07-boundary-assembly.md#exterior-boundary-junctions 「외벽 모서리와 지붕 단차의 단일 몸체」는 "이 접합은 본채 외벽과 차고 외벽/공유 벽의 예약 안에서 만나는 외부 경계를 잇는다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-junctions 「모서리와 문턱에서 끊기지 않는 경계」는 "위 공유 칸막이는 같은 높이에서 만나는 끝점·L자·T자·십자 접합을 공유한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-ownership 「방 사이의 한 벽체와 두 안쪽 면」는 "이 설계는 두 storey 안에서 기존 방 사이의 칸막이를 한 번만 생성하기 위한 공간 인계다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/08-floor-assembly.md#interstorey-edge-junctions 「외벽과 계단 가장자리에서 닫히는 층간 단면」는 "층간 구조는 본채 내부에서 외벽의 동일 안쪽 면에 닿는다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/08-floor-assembly.md#interstorey-floor-boundary 「한 층간 구조와 서로 다른 두 층의 마감」는 "두 storey의 완성면 사이에 있는 층간 바닥은 upper-storey 바닥의 한 구조다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/09-ceiling-assembly.md#ceiling-roof-clearance 「낮은 지붕과 천장 바탕의 접합 여유」는 "천장은 본채 실내 평면과 차고 실내 평면 각각의 안쪽 면까지이고, 지붕은 자기 외곽과 교차 경계를 갖는다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure 「본채 상층과 계단실의 같은 상부 경계」는 "본채의 최상부 실내 경계는 upper-storey의 완성 천장 높이에 있는 수평 천장이다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base 「낮은 차고의 독립 바닥」는 "차고의 바탕은 차고 안쪽 외곽을 받으며 자기 완성 바닥에서 아래로 0.15 m를 예약한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/10-ground-floor.md#ground-support-handoff 「바닥 아래 지지와 지도 지표의 인계」는 "이 건물은 위 본채/차고 바탕 아래를 연속해서 받치는 채움과 가장자리 지지로 계획한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions 「외벽 두께 안에서 이어지는 네 출입 경계」는 "본채와 차고의 실내 바닥은 평면에서 벽 안쪽에 끝나지만, 출입 개구부 아래에는 벽 두께를 지나는 지지 바탕이 필요하다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base 「본채의 연속 바닥 바탕」는 "두 층 본채의 ground-storey 바탕은 마감 안쪽 외곽 전체를 받는 연속 지면 지지 방식으로 택한다."를 정한다. 광원 H2는 방 외곽과 천장 datum만 소비하므로 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#bedroom-three-front-window 「오른쪽 자녀실의 정면 창」는 "bedroom-three-front-window는 전면 벽의 X = [2.65, 4.75], Y = [3.91, 5.31] m 개구부로 upper-storey의 bedroom-three에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#bedroom-two-front-window 「왼쪽 자녀실의 정면 창」는 "bedroom-two-front-window는 전면 벽의 X = [-4.80, -2.70], Y = [3.91, 5.31] m 개구부로 upper-storey의 bedroom-two에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#front-entry-filling 「목재 현관문의 외부 충전」는 "front-door의 void·순폭 목표·경첩/열림은 현관 owner 그대로다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#front-openings 「거실·침실·계단의 창과 현관문」는 "공통 개구부 인계를 적용한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#front-roof-closures 「박공 삼각 벽과 포치 위의 외벽」는 "전면 전체 입면 owner는 src/spaces/envelope/front.ts다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#garage-front-opening 「닫힌 차고문과 상부 이동 예약」는 "garage-front-door는 차고의 전면 벽 Z = [-0.55, -0.30] m에 X = [6.10, 11.10], Y = [-0.15, 2.15] m의 거친 개구부로 택한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#living-front-window 「포치 아래 거실 묶음창」는 "living-front-window는 전면 벽의 X = [-5.10, -2.30], Y = [0.70, 2.30] m 개구부로 ground-storey의 living-room에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/front.md#stair-front-window 「층간 계단실의 작은 창」는 "stair-front-window는 전면 벽의 X = [-1.62, -0.84], Y = [4.11, 5.21] m 개구부다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/left.md#chimney-roof-interface 「벽난로에서 지붕까지의 굴뚝」는 "거실 벽난로는 왼쪽 외벽에 붙는다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/left.md#left-openings 「굴뚝 뒤에서 방으로 열리는 창」는 "공통 개구부 인계를 적용한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/left.md#left-roof-closure 「주 지붕 끝의 왼쪽 삼각 벽」는 "src/spaces/envelope/left.ts가 왼쪽 완결 입면을 소유한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/left.md#living-left-window 「거실 벽난로 뒤쪽의 창」는 "living-left-window는 왼쪽 벽의 Z = [-5.50, -4.30], Y = [0.75, 2.30] m 개구부로 ground-storey의 living-room에 속하는 방과 외벽이 같은 창이다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/left.md#primary-left-window 「주침실 본체의 측면 창」는 "primary-left-window는 왼쪽 벽의 Z = [-8.90, -7.30], Y = [3.91, 5.31] m 개구부로 upper-storey의 primary-bedroom에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#family-rear-window 「가족실의 후면 묶음창」는 "family-rear-window는 후벽의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#garden-door 「공용부에서 정원으로 나가는 문」는 "garden-door는 후벽의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부로 ground-storey의 kitchen-dining-family와 외부 대기를 잇는다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#kitchen-rear-window 「주방 조리대 위의 후면 창」는 "kitchen-rear-window는 후벽의 X = [-4.50, -3.30], Y = [1.15, 2.30] m 개구부로 ground-storey의 kitchen-dining-family에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#primary-rear-window 「주침실의 후면 묶음창」는 "primary-rear-window는 후벽의 X = [-3.85, -1.45], Y = [3.91, 5.31] m 개구부다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#rear-openings 「공용부와 주침실의 정원 쪽 개구부」는 "본채 외곽의 뒤 바깥 면 Z = -10.70 m에서 0.25 m 외벽 예약만큼 들어온 본채 후벽 Z = [-10.70, -10.45] m에 공통 인계를 적용한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/rear.md#rear-roof-closures 「두 본채 지붕과 차고 아래의 후면」는 "src/spaces/envelope/rear.ts가 본채와 차고의 후면 완결 입면을 소유한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/right.md#family-right-window 「가족실의 오른쪽 창」는 "family-right-window는 본채 오른쪽 벽의 Z = [-9.95, -8.25], Y = [0.75, 2.30] m 개구부로 ground-storey의 kitchen-dining-family에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/right.md#garage-right-window 「차고의 측면 채광창」는 "garage-right-window는 차고 오른쪽 벽의 Z = [-5.85, -4.25], Y = [1.40, 2.20] m 개구부로 ground-storey의 garage에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/right.md#right-openings 「차고 접합을 피한 측면 채광」는 "공통 개구부 인계에 따라 본채 오른쪽 창은 본채 외곽의 외벽 X = [5.50, 5.75] m, 차고 오른쪽 창은 차고 외곽의 외벽 X = [11.45, 11.70] m에 바인딩한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/right.md#right-roof-closures 「본채 단차와 차고 위의 벽」는 "오른쪽 노출 입면의 owner는 src/spaces/envelope/right.ts다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/envelope/right.md#tub-right-window 「욕조 욕실의 높은 흐린 창」는 "tub-right-window는 본채 오른쪽 벽의 Z = [-8.40, -7.50], Y = [4.56, 5.31] m 개구부로 upper-storey의 tub-bathroom에 속한다."를 정한다. 실내 자연광은 06-openings의 개구부 경계로 받으므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-mass-allocation 「본채 위의 세 박공과 낮은 차고」는 "본채와 차고 외곽, 두 층 천장을 유지하며 설정의 지붕군을 배치한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-profile-datums 「날씨를 받는 면과 아래면」는 "여기서 높이 함수는 지붕 최상부 날씨 면의 Y를 뜻한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-shared-edges 「전면 박공의 골짜기와 단차」는 "전면 박공은 주 지붕 앞쪽에 합류한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions 「지붕에 닿는 외벽 두께 전체의 상단」는 "본채와 차고의 외벽은 각각 본채와 차고의 기존 외곽과 안쪽 면 사이를 점유하고 자기 지붕 아래에서 닫힌다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof 「전면 왼쪽의 박공 지붕」는 "roof.front-gable.left는 박공 중심보다 -X 쪽의 면이다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/front-gable-right.md#front-gable-right-roof 「계단 창 쪽으로 내려가는 박공」는 "roof.front-gable.right는 정면 왼쪽의 전방 박공 가운데 박공 중심보다 +X 쪽의 면이며 src/spaces/roof/front-gable-right.ts가 소유한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/garage-back.md#garage-back-roof 「차고 후벽과 본채 접합」는 "roof.garage.back과 아래면은 src/spaces/roof/garage-back.ts가 소유한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/garage-front.md#garage-front-roof 「패널문 위의 경사면」는 "roof.garage.front는 차고 지붕 영역의 앞 절반이다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/main-back.md#main-back-roof 「뒤쪽 처마까지 이어지는 주 지붕」는 "roof.main.back과 아래면은 src/spaces/roof/main-back.ts가 소유한다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/main-front.md#main-front-roof 「전면 박공과 굴뚝을 받는 면」는 "roof.main.front의 owner는 src/spaces/roof/main-front.ts다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/right-back.md#right-back-roof 「후면까지 닫히는 오른쪽 지붕」는 "roof.right.back과 아래면은 src/spaces/roof/right-back.ts의 완결 면이다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/roof/right-front.md#right-front-roof 「높은 지붕 아래에 붙는 앞 면」는 "roof.right.front는 본채 오른쪽 영역의 앞 절반이다."를 정한다. 태양 그림자는 이 지붕 geometry를 렌더에서 받을 뿐 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/common.md#common-kitchen-wall-reservation 「왼쪽 벽 주방의 기구와 작업 점유」는 "이 주방은 위 kitchen-dining-family/ground-storey 내부의 기능 구역이며 별도 room이나 칸막이가 없다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/entry.md#entry-coat-storage 「위 계단 아래의 닫힌 외투장」는 "현관에서 연결된 서비스 접근을 따라 닿는 현관 가까운 외투 수납인 외투장을 위 flight 아래의 높은 끝에 둔다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/entry.md#entry-use-routes 「현관문 뒤의 매트와 분배 바닥」는 "같은 front-entry/ground-storey의 목재 현관문과 얕은 매트를 소비한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/garage-interior.md#garage-use-routes 「문을 닫은 차고의 내부 접근」는 "머드룸의 차고 쪽 하부 대기에서 같은 garage 내부의 선반, 작업대, 측면 창, 닫힌 전면문 안쪽으로 이동한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/laundry.md#laundry-equipment-use 「나란한 두 기기와 신발 벤치의 사용」는 "같은 laundry-mudroom/ground-storey 안에서 오른쪽 기기 벽과 왼쪽 신발 벤치를 배정한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/laundry.md#laundry-through-route 「기기를 열어도 남기는 차고 횡단」는 "이 경로는 두 출입문과 양쪽 대기를 잇는 같은 방 안의 바닥 띠다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/living.md#living-furniture-use 「벽난로를 향한 좌석과 독서 가구」는 "같은 living-room/ground-storey 안에서 거실 설정의 소파는 오른쪽 계단 분리벽에 등을 대고 왼쪽 벽난로를 향한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/living.md#living-through-route 「두 출입과 창·좌석으로 이어지는 바닥」는 "같은 living-room 내부에서 현관 쪽 문과 공용부 쪽 개구부를 잇는다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/pantry.md#pantry-storage-use 「L형 선반과 식품의 점유」는 "같은 pantry/ground-storey의 선반 평면을 소비한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/pantry.md#pantry-use-route 「열린 문에서 선반까지의 사용 통로」는 "위 실문을 90° 열고 pantry 안에서 수납을 사용하는 상태를 예약한다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/rooms/upper-hall.md#upper-linen-storage 「도착면 앞쪽 린넨장」는 "복도 도착면의 앞쪽에 닫힌 린넨장을 둔다."를 정한다. 이 방의 광원 좌표는 같은 방의 외곽·가구 H2에서 유도하므로 광원 H2가 이 H2의 값을 읽지 않는다.
-@evidenceExclude spaces/site/00-access.md#map-handoff-inputs 「지도에서 받아야 할 경계와 지표 입력」는 "이 H2는 house-site가 maps로부터 받아야 할 입력과 거부할 불일치를 소유한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/00-access.md#site-access-interface 「외부 네트워크에 넘길 포장 끝」는 "house-site는 본채와 차고, 포치와 아래의 외부 접근 구역을 포함할 site다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/00-access.md#site-local-routes 「포장과 계단의 내부 연결」는 "이 H2는 현관 포치와 외부 진입의 포치·현관 직접 접근과 대지와 식재의 후면 테라스·우측 목재 울타리를 house-site 안의 구간 순서로 잇는다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/01-paving-support.md#paving-contact-handoff 「포장 사이와 지표에서 끝나는 지지」는 "각 완결 포장 owner는 자기 평면 외곽에서 끝나고 상대의 상면/아래면을 동일 좌표로 소비한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/01-paving-support.md#paving-depth-reservation 「낮은 포장의 두께와 경사 바탕」는 "house-site/ground-storey의 외부 접근 중 현관 보행길·측면 관리길·정원 아래 대기의 상면은 각각 front-walk, side-walk, garden-lower-landing이 소유한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/01-paving-support.md#raised-platform-support 「높은 포치와 테라스의 닫힌 단면」는 "현관 포치와 정원 테라스는 자기 높은 평탄면과 외부 단을 유지한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/driveway.md#driveway-plan 「차고 문턱으로 오르는 차도」는 "driveway는 대지와 식재의 차고 진입 콘크리트 차도이며 house-site/ground-storey의 외부 포장 구역이다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/fence.md#fence-gate-junction 「오른쪽 앞 면의 관리문 접속」는 "위 오른쪽 앞 구간에서 side-yard-gate의 개구부 X 구간을 그대로 비운다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/fence.md#fence-ground-profile 「지표를 받는 높이와 점유」는 "울타리 패널 상단은 관리문의 문짝 상단과 같은 world 높이로 예약한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/front-walk.md#front-walk-plan 「포치 축의 연속 보행면」는 "front-walk는 대지와 식재의 현관 보행길이며 house-site/ground-storey의 외부 보행 구역이다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/side-walk.md#side-gate-interface 「측면 울타리 문과 양쪽 대기」는 "위 보행면에서 gate 앞을 side-front-access, 뒤를 side-rear-access의 두 외부 구역으로 택하고 둘 다 house-site/ground-storey에 속한다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/side-walk.md#side-walk-plan 「차도와 테라스 아래 대기를 잇는 보행면」는 "side-walk는 house-site/ground-storey의 연속 외부 보행면이다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/terrace.md#garden-lower-landing-plan 「정원 지표에 닿을 아래 대기」는 "garden-lower-landing은 house-site/ground-storey의 외부 대기 구역이다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/terrace.md#garden-steps-plan 「테라스에서 지표로 내려가는 단」는 "garden-steps는 house-site/ground-storey의 외부 연결 구역이며 위 테라스와 아래 대기를 잇는다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidenceExclude spaces/site/terrace.md#garden-terrace-plan 「정원문 대기와 포장 테라스」는 "garden-terrace는 대지와 식재가 공용부에서 닿게 둔 작은 포장 테라스이며 house-site/ground-storey의 외부 공간이다."를 정한다. 그림자 범위는 fence-enclosure-plan만 소비하므로 광원 H2가 이 값을 읽지 않는다.
-@evidence obligations/core/common.md#layer-boundary 네 파일이 모두 systems 조명 역할 하나만 가지며 기구 몸체는 models, 발광 표면은 materials, 배치는 instances, 방 경계는 spaces로 보내 이 파일들에 다른 전문 계열이 정당화해야 할 결정이 없다.
-@evidence obligations/core/common.md#production-language 조명 문서 전체를 working-language의 한국어로 쓰고 IAutoMovieLight 필드명·광원 id·색 벡터 같은 정확한 식별자만 원형으로 두어 읽는 사람이 언어 전환을 추측하지 않게 한다.
-@evidence obligations/core/common.md#purpose-fit 00-lighting-frame.md는 권한·상태·예산·리뷰 집합이라는 조명 공통 틀 역할을 맡으며 이것이 없으면 광원 id 규칙, 정지 상태, 32개 상한, 여섯 리뷰 사례가 정해지지 않는다.
+@evidence principles/core/common.md#scope-preservation This H2 owns light-record write channels and the handoff of room boundaries, fixture bodies, emissive surfaces, and placement to spaces, models, materials, and instances.
+@evidence principles/core/common.md#substantive-completion It fixes `light:<space-id>:<fixture-role>`, the 17 permitted space ids, and the site-wide daylight exception `light:daylight:<role>` so source does not choose another id rule.
+@evidence principles/core/common.md#declared-basis Systems ownership comes from build-allocation and lighting conditions from lighting-state; the id format and one-space membership are this branch's choices.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Beyond build-allocation's systems ownership, it adds write channels, space-specific ids, one-space membership, and a single authoring file for each value.
+@evidence principles/design/systems.md#system-authority-confinement Only IAutoMovieLight fields and five environment values are writable; room boundaries and ceiling datums remain with spaces, fixture geometry with models, emissive surfaces with materials, and placement with instances.
+@evidence principles/design/systems.md#system-dependency-basis Each fixture light names one spaces id, and no two files author the same value, exposing the input space and avoiding unnamed inputs.
+@evidence principles/design/systems.md#system-verification-address Compare compiled records against the four permitted light kinds, actual spaces room ids, and the absence of lights writing another branch's values.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work The recorded review compared build-allocation's lighting assignment with the 17 spaces ids and found no shared-state ownership or unauthorized input requiring parent revision.
+@evidence settings/00-production.md#build-allocation Its systems assignment confines writes to light records and environment values while each branch retains fixture geometry, surfaces, and placement.
+@evidence settings/00-production.md#working-language Lighting decisions use English, while API names, field names, and light ids retain their exact spelling.
+@evidence obligations/design/systems.md#addressable-system-decisions Independent H2s for the sun, sky fill, window daylight, and fixture groups allow separate changes and review; each fixture light belongs to one space.
+@evidence obligations/design/systems.md#system-ownership-interfaces This H2 separates inputs (spaces room ids and ceiling datums), outputs (light records and environment values), and affected owners (models, materials, and instances).
+@evidenceExclude models/00-model-frame.md#model-local-frame Weather-face origins and yaw place opening-fill meshes. Light records already use world coordinates and do not consume that local frame as a transform input.
+@evidenceExclude models/00-model-frame.md#model-furniture-local-frame Furniture rear-edge origins, baseboard recesses, shared handles, and metre UVs belong to prototype generation. No step derives light positions from furniture vertices.
+@evidenceExclude models/00-model-frame.md#model-reference-scale Human occupancy and door clear width compare model scales. Neither changes a value in the 32-light systems list.
+@evidenceExclude models/00-model-frame.md#model-representation-ceiling Omitted weatherstrips, screws, and glazing air gaps limit opening prototypes. Lighting does not realize those internal parts as lights.
+@evidenceExclude models/00-model-frame.md#model-surface-partition-naming Names such as sash, leaf, and fixture-diffuser key material bindings. Light ids derive from space and fixture role, without converting surface names to light ids.
+@evidenceExclude models/00-model-frame.md#model-representation-completion Closed volumes and family-specific structural and semantic judgments concern model-source completion. Light counts or identity cannot replace those judgments.
+@evidenceExclude models/00-model-frame.md#model-review-set Orthographic, section, oblique, and face-id pairs are model review cameras. The six lighting cases use the house exterior, interiors, and light outputs rather than neutral model cameras.
+@evidenceExclude models/01-windows.md#window-local-frame The 0.04 m frame inset and 0.14 m depth are prototype decisions. Daylight directional positions and rotations remain fixed for the house independently of that inset.
+@evidenceExclude models/01-windows.md#window-member-sizes Lighting does not reauthor frame, sash, mullion, or glass thickness. Window meshes participate in daylight observations, but member widths do not generate window lights.
+@evidenceExclude models/01-windows.md#window-muntin-grid The 2×2 glazing grid and two-sided bars are shadow-receiving geometry. Light generation does not read the number of bars.
+@evidenceExclude models/01-windows.md#double-hung-window Lower-sash travel and the fixed upper sash are window-motion interfaces. Systems defines no state or light responding to window opening.
+@evidenceExclude models/01-windows.md#fixed-window Stair and garage fixed-window units contain no lights. Landing and garage lights are assigned separately from their spaces ceiling datums.
+@evidenceExclude models/01-windows.md#awning-window The π/8 opening and 0.25 m projection reservation concern window-motion fit. Lighting does not consume the awning angle to change intensity or direction.
+@evidenceExclude models/01-windows.md#window-sill-trim Interior sill and casing projections, exterior trim, and UVs concern opening junctions. The same sun and fill serve every view, without using projections as room-specific corrections.
+@evidenceExclude models/01-windows.md#window-surface-partitions Materials binds the nine surface ids, including glass and obscured-glass. Glazing shadow transmission comes from the material transmission boundary, without redeclaring prototype surfaces here.
+@evidenceExclude models/01-windows.md#window-fidelity Omitted screens and locks limit window representation independently of lighting state and budget. Light checks do not establish interior or exterior window completion.
+@evidenceExclude models/02-exterior-doors.md#front-entry-door Six glass panes, handles, and hinge rotation belong to the door prototype. The porch sconce uses the spaces front-door rough opening and porch floor.
+@evidenceExclude models/02-exterior-doors.md#garage-sectional-door The four-panel rail path and 2.30 m travel describe garage-door motion. Garage lighting stays behind the spaces guide reservation and does not evaluate travel.
+@evidenceExclude models/02-exterior-doors.md#garden-door-pair Hinges and clear width belong to the paired garden-door model. Systems requires no rear garden-door fixture and adds no light to that door.
+@evidenceExclude models/02-exterior-doors.md#side-yard-gate The wooden gate's world geometry and hinge axis have no lighting role. The porch sconce is the only exterior fixture, with no light coupled to gate motion.
+@evidenceExclude models/02-exterior-doors.md#exterior-door-surfaces Leaf-exterior, leaf-interior, and panel-edge partitions support material replacement. Daylight and porch-light records have no field selecting those surface ids.
+@evidenceExclude models/02-exterior-doors.md#exterior-door-fidelity Omitted garage springs and lock internals limit door production. Lighting neither powers those devices nor models their temporal state.
+@evidenceExclude models/03-interior-doors.md#interior-door-members Casing, jamb, and leaf thickness fill room openings. Ceiling lights use room outlines and finished-ceiling coordinates instead of leaf dimensions.
+@evidenceExclude models/03-interior-doors.md#interior-door-hinges Low/high hinges and π/2 opening for eleven doors are prototype-motion values. Lighting defines no door switch or update order consuming door angles.
+@evidenceExclude models/03-interior-doors.md#interior-door-surfaces Jamb-a, jamb-b, and two-sided casing distinguish adjacent-room finishes. Spaces ids determine light membership, without inferring rooms from door surface names.
+@evidenceExclude models/03-interior-doors.md#interior-door-fidelity Omitted internal hardware does not expand the lighting fields. Illumination and door-production completion remain separate checks.
+@evidenceExclude models/04-stair-members.md#stair-balusters Baluster sections and spacing form a fall-protection boundary. One landing light uses the intermediate-landing centre and upper ceiling, without distributing lights by baluster count.
+@evidenceExclude models/04-stair-members.md#stair-bottom-member The bottom member closes stair-tread and hall-edge rail junctions. The two hall ceiling centres use spaces outlines of the hall arms rather than that member.
+@evidenceExclude models/04-stair-members.md#stair-side-skirt The white inclined skirt is a mesh separate from structural treads. The stair light sits 0.05 m below the finished ceiling rather than following the skirt slope.
+@evidenceExclude models/04-stair-members.md#stair-member-surfaces Baluster, bottom-rail, and stair-skirt surface ids do not generate lights. Materials owns their finishes outside the lighting write boundary.
+@evidenceExclude models/04-stair-members.md#stair-member-fidelity Omitted rail-fastener internals and structural loads limit stair representation. Lighting produces no railing-safety verification.
+@evidenceExclude models/05-closet-fittings.md#coat-closet-doors Two sliding leaves and tracks close the coat-storage opening. The library has no closet-interior light or door-responsive light.
+@evidenceExclude models/05-closet-fittings.md#coat-closet-rod-shelf The rod and upper shelf are fixed storage members. The entry ceiling light does not use them as placement hosts.
+@evidenceExclude models/05-closet-fittings.md#linen-closet-fittings Five linen shelves and leaf travel belong to the storage prototype. The hall-arrival light uses the hall outline centre rather than generating five shelf lights.
+@evidenceExclude models/05-closet-fittings.md#closet-fitting-surfaces Rail, rod, shelf, and leaf metal/paint partitions bind storage surfaces. Light-id fixture roles have a separate owner from those four surface names.
+@evidenceExclude models/05-closet-fittings.md#closet-fitting-fidelity Omitted storage-track internals and omitted lighting switch circuits remain distinct decisions. Model review retains mechanical-completion responsibility.
+@evidenceExclude models/06-interior-trim.md#wall-baseboard Repeated 0.10 m baseboards finish wall bottoms. Lighting neither adds lights per wall segment nor consumes low trim as a position input.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-base-run Plinths, drawers, and doors in three base-cabinet runs form fixed storage. Island and family lights do not read their opening values.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-wall-cabinet Two upper-cabinet bodies, heights, and leaf divisions fill wall reservations. Systems adds no under-cabinet task light.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-refrigerator Refrigerator interiors, handles, and door motion belong to the appliance prototype. Systems has no refrigerator-interior lighting or appliance-power state.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-range Burners, oven glazing, and controls are static appliance geometry. Burner emission and oven-interior lights are absent from the light list.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-microwave The microwave door and control-panel are appliance surfaces, without systems-authored control emission. Three common-area pendants and family-ceiling are that space's lights.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-island The sink, tap, and lower body belong to the fixture prototype. Pendant positions and horizontal shade clearances use common-island-reservation, without recalculating points from island vertices.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-dishwasher Its rotating leaf and interior belong to the appliance model. Lighting has no wash-cycle clock, interior light, or door switch.
+@evidenceExclude models/10-kitchen-dining.md#kitchen-island-stool Seat and footrest dimensions concern seating use. Pendant passage checks use the spaces stool-use reservation, without consuming chair joints or dimensions.
+@evidenceExclude models/10-kitchen-dining.md#dining-table The tabletop, legs, and six-seat arrangement belong to the furniture model. Light X/Z and shade diameter use the dining tabletop reservation; lighting completion does not establish production of the table body.
+@evidenceExclude models/10-kitchen-dining.md#dining-chair Seat, leg, back, and pulled-out state express furniture use. The single dining light is neither copied for six chairs nor rotated by their transforms.
+@evidenceExclude models/11-living.md#fabric-sofa Cushions, arms, and legs belong to a movable-furniture prototype. The living ceiling light uses the living-plan centre independently of the sofa local origin.
+@evidenceExclude models/11-living.md#low-table Table-size variants fit living and family furniture. Neither room converts table length into light range or intensity.
+@evidenceExclude models/11-living.md#reading-armchair The back, arms, and use occupancy remain seating-model decisions. Lighting adds no reading floor lamp absent from settings.
+@evidenceExclude models/11-living.md#dark-bookcase Shelves and book volumes are living storage. No lighting decision creates a light or emissive book surface per compartment.
+@evidenceExclude models/11-living.md#floor-covering Thin rug and mat volumes and borders are floor coverings. Lighting retains spaces floor datums rather than substituting covering height.
+@evidenceExclude models/11-living.md#fireplace-insert-mantel The black firebox and wooden mantel form an unlit fireplace prototype. The rest light list has no firelight or temporal variation, so these members do not generate lights.
+@evidenceExclude models/12-service-rooms.md#laundry-machine Drums, glazed doors, and controls belong to the washer and dryer prototypes. Lighting authors only the laundry ceiling light, without drum or operating-indicator lights.
+@evidenceExclude models/12-service-rooms.md#laundry-folding-top The folding top and cleat fill a wall reservation in world coordinates. The room centre supplies the light point, without deriving Y from countertop height.
+@evidenceExclude models/12-service-rooms.md#laundry-upper-storage Pretransformed east-wall upper cabinets prevent a second instances yaw. Systems does not compose that storage transform into world light transforms.
+@evidenceExclude models/12-service-rooms.md#mudroom-bench The bench seat, shelf, and existing rough shoe volumes belong to storage prototypes. The mudroom has no under-bench or shoe-compartment light.
+@evidenceExclude models/12-service-rooms.md#mudroom-coat-hooks Models owns the west-wall board, hooks, and coats. Hook count does not generate lights; laundry-mudroom has one ceiling light.
+@evidenceExclude models/12-service-rooms.md#pantry-l-shelf Five L-shaped shelves fill two storage strips. The ceiling centre comes from pantry-plan, without evaluating five shelf heights.
+@evidenceExclude models/12-service-rooms.md#pantry-containers Bottles, boxes, and baskets are shelf props. Presence or absence of their 70 placements does not create or omit the pantry light record.
+@evidenceExclude models/12-service-rooms.md#garage-shelving Metal shelves and bins belong to rear-wall storage. Guide noninterference is compared with garage space reservations, without consuming shelf-post coordinates.
+@evidenceExclude models/12-service-rooms.md#garage-workbench The top, legs, and drawers belong to garage furniture. One rear ceiling light serves the garage without a separate workbench task light.
+@evidenceExclude models/12-service-rooms.md#garage-tool-board Board, tool-steel, and tool-grip arrangements are storage surfaces. Lighting does not make each tool emissive or copy tool colors into light colors.
+@evidenceExclude models/13-bedrooms.md#headboard-bed Frames, headboards, and bedding variants belong to furniture prototypes. Nightstand-light height uses spaces' lamp-inclusive height rather than bed-mesh height.
+@evidenceExclude models/13-bedrooms.md#low-dresser Carcass and drawer-front volumes belong to furniture. No dresser fixture is added beyond bedroom ceiling and nightstand lights.
+@evidenceExclude models/13-bedrooms.md#child-desk The small desks, pencils, and books are furniture sets in two rooms. The list has no desk lights and derives no emission point from desk dimensions.
+@evidenceExclude models/13-bedrooms.md#desk-chair Chair seats, legs, and backs fill furniture-use occupancy. Their positions do not update ceiling or nightstand-lamp transforms.
+@evidenceExclude models/13-bedrooms.md#sliding-closet Two sliding leaves, a rod, and shelves define room storage boundaries. No interior light responds to closet-door state; only bedroom rest lights remain.
+@evidenceExclude models/13-bedrooms.md#primary-window-curtains Rods, folds, and bands of eight curtains occupy window-front prototype space. Systems creates no area light per curtain, retains daylight, and leaves curtain optics to materials.
+@evidenceExclude models/13-bedrooms.md#wardrobe-hanging Rods and clothing volumes occupy storage strips. The ceiling centre uses wardrobe-plan outside hanging depth, without increasing light count by rod count.
+@evidenceExclude models/13-bedrooms.md#wardrobe-shelves Shelves, folded textiles, and baskets are storage prototypes. A single wardrobe-ceiling state adds no emitter or point per shelf.
+@evidenceExclude models/14-bathrooms.md#shared-toilet Ceramic, seat, and closed-lid profiles belong to fixed sanitary prototypes. Ceiling and vanity lights in three sanitary rooms do not depend on toilet joints.
+@evidenceExclude models/14-bathrooms.md#vanity-basin Vanity W/D, bowls, and taps belong to fixture models. Light positions use each spaces vanity reservation and mirror strip without resizing models to fit lights.
+@evidenceExclude models/14-bathrooms.md#wall-mirror The mirror panel and black frame belong to sanitary fixtures. The light sits above the spaces mirror strip; systems authors no reflection mesh or virtual Reflector camera.
+@evidenceExclude models/14-bathrooms.md#towel-bar The bar and textile belong to a fixed hanging prototype. No rule binds the same-wall vanity light to the towel-bar id.
+@evidenceExclude models/14-bathrooms.md#sliding-shower-booth Glass, sliding leaves, rails, taps, and the head form one booth prototype. Lighting reads neither shower operation nor water state and retains the room's static ceiling and vanity lights.
+@evidenceExclude models/14-bathrooms.md#bathtub Ceramic curves and taps belong to a fixed fixture. Tub-bathroom ceiling lighting is derived neither from inner tub surfaces nor from contained water.
+@evidenceExclude models/14-bathrooms.md#tub-curtain-rail The curtain's local length axis and world yaw join model and placement. Bathroom lights are not child transforms sharing that rail yaw.
+@evidenceExclude models/14-bathrooms.md#bath-floor-mats Two bathroom mats are covering prototypes. Ceiling and vanity Y use finished-floor datums without adding mat thickness.
+@evidenceExclude models/14-bathrooms.md#shower-niche-bottles Three niche-shelf containers are prop members. No niche light is required, so their count and height do not supply lighting values.
+@evidenceExclude models/15-outdoor.md#terrace-table Seat centres, top, and legs belong to outdoor furniture. The porch sconce is the only exterior fixture, without a terrace-table light.
+@evidenceExclude models/15-outdoor.md#terrace-chair Four outdoor-chair use states fit terrace reservations. Daylight directionals do not branch by chair count or pulled-out position.
+@evidenceExclude models/15-outdoor.md#lap-siding-board The 0.15 m exposure, overlap, and cut ends form envelope geometry. They receive shadows but do not supply sun or fill directions.
+@evidenceExclude models/15-outdoor.md#exterior-corner-trim Two-board corner joints finish the envelope. Lighting neither adds a light per corner nor uses trim normals as light transforms.
+@evidenceExclude models/15-outdoor.md#asphalt-shingle-strip Courses, starters, and ridges form the roof envelope. The one-sun shadow budget is independent of tab or ridge-piece count.
+@evidenceExclude models/15-outdoor.md#eave-gutter-downspout Gutter and downspout paths and discharge ends belong to exterior prototypes. Systems has no decorative gutter lights or water-state lights.
+@evidenceExclude models/16-planting.md#site-tree-prototypes Trunks, branches, and foliage clusters belong to mature and rear-yard tree prototypes. The afternoon direction is authored, without deriving sun elevation from tree height.
+@evidenceExclude models/16-planting.md#site-shrub-prototype Low shrubs await maps datum inputs. Four directionals and room fixtures retain the same rest values without planting inputs.
+@evidenceExclude models/18-house-props.md#porch-mat-planter The flat mat lies on the inward-opening entry approach axis and the standing planter stays outside its passage width. Neither prop supplies the porch sconce's position or emitter: that unlit fixture uses jamb and porch-floor datums.
+@evidenceExclude models/18-house-props.md#kitchen-food-utensils Boards, utensil pots, bottles, and fruit bowls are countertop props. Pendants do not consume their individual colors, arrangements, or seeds.
+@evidenceExclude models/18-house-props.md#linen-folded-towels Thirty linen towels are shelf textile members. Hall lighting assigns no emitter per towel bundle.
+@evidenceExclude models/19-room-accents.md#living-tabletop-props Books, trays, and vases bind to table hosts. Lighting does not evaluate prop hosts and uses fixed living/family ceiling lights.
+@evidenceExclude models/19-room-accents.md#wall-art-indoor-plant Art prints and small plants are wall and shelf props. Lighting neither imports print seeds nor adds an art-specific spot.
+@evidenceExclude models/19-room-accents.md#sofa-throws Two cushions and a folded blanket form local seating-prop arrangements. World rest lights are independent of sofa contact and have no authority to recreate textile volumes.
+@evidenceExclude materials/00-material-frame.md#material-color-space IEC linearization of material hex values authors base colors. Systems directly chooses linear RGB light constants without converting material hex values into light colors.
+@evidence materials/00-material-frame.md#material-texture-response The material framework retains surface maps, glaze, and mirror response while assigning emission to systems. This H2 preserves that boundary by writing light records and leaving shade and bulb surfaces to materials.
+@evidenceExclude materials/00-material-frame.md#material-response-conventions Roughness bands and exposed-metal metallic values describe object optics. Systems writes neither field on lights and does not substitute emissive metal for coated metal.
+@evidenceExclude materials/00-material-frame.md#material-binding-rule One material per surface and the single-sided default govern mesh binding. Light records have no face-binding stage, and light counts cannot replace checks for unbound faces.
+@evidenceExclude materials/00-material-frame.md#material-review-set Neutral spheres, panels, and baseline material boards consume materials for comparison. The six lighting cases use house views and actual light lists without choosing new lights or exposure per swatch.
+@evidenceExclude materials/01-exterior.md#siding-warm-white The #EDE8DC coating and physical maps finish the envelope. Sun and two fills do not branch by that hex value to choose facade intensities.
+@evidenceExclude materials/01-exterior.md#trim-white The #F6F4EE PVC/wood trim and semigloss bind projecting members. Systems neither treats trim as a diffuser nor imports exterior-surface colors as light colors.
+@evidenceExclude materials/01-exterior.md#roof-shingle Dark granular maps and roughness belong to roof surfaces. The daylight rest state reads neither roof texture modules nor tab patterns.
+@evidenceExclude materials/01-exterior.md#brick-red-brown Brick and continuous-mortar maps finish the foundation and chimney. The unlit fireplace state has no decision converting brick into an emissive firebox.
+@evidenceExclude materials/01-exterior.md#window-frame-charcoal Coated charcoal frames, caps, and flashing are opaque surfaces. Lighting does not convert coated-metal metallic values into directional kinds or shadow counts.
+@evidenceExclude materials/01-exterior.md#front-door-wood Grain and roughness belong to the door leaf. The porch light's 2,700 K value is a separate systems choice rather than a sampled wood hex color.
+@evidenceExclude materials/01-exterior.md#garage-door-charcoal Charcoal segmented finishes bind garage-door panels. The 4,000 K, 9 cd garage ceiling light does not read panel materials as power state.
+@evidenceExclude materials/01-exterior.md#porch-floor Surface response belongs to the porch finish. Sconce Y=1.80 m uses the floor geometry datum without changing height by texture color or repeat length.
+@evidenceExclude materials/01-exterior.md#paving-concrete Stain and aggregate maps belong to site surfaces. The directional shadow camera uses fence-enclosure-plan rather than paving-map boundaries.
+@evidenceExclude materials/01-exterior.md#fence-wood Vertical grain finishes fence members. The sun's shadow extent reads fence space bounds, but wood-material repetition is no light input.
+@evidenceExclude materials/02-interior-shell.md#interior-wall-paint Fixed wall base colors and microtexture belong to materials. One environment is retained without changing exposure by room wall color.
+@evidenceExclude materials/02-interior-shell.md#interior-ceiling White ceiling paint finishes fixture-contact surfaces. Ceiling-light Y comes from the spaces finished-ceiling datum rather than material brightness or roughness.
+@evidenceExclude materials/02-interior-shell.md#interior-trim-white White casing, baseboard, and storage-board finishes bind surfaces. Systems illuminates them with room ceilings rather than making the boards emissive.
+@evidenceExclude materials/02-interior-shell.md#oak-floor Board joints and oak color belong to floor materials. Ground-bounce 0.16 is a systems-authored global approximation rather than dynamic reflection aggregated from floor texels.
+@evidenceExclude materials/02-interior-shell.md#stair-tread-wood Light wood and longitudinal UVs finish treads. Landing-light height does not consume the tread material's repeat module.
+@evidenceExclude materials/02-interior-shell.md#handrail-wood Grain finishes handrail surfaces. No linear rail light is required, so the material does not generate a lights list.
+@evidenceExclude materials/02-interior-shell.md#black-coated-metal Black handles, rails, and fixture housings are nonemissive surfaces. The write boundary prevents housing black from overwriting fixture light color or intensity.
+@evidenceExclude materials/02-interior-shell.md#beige-carpet Beige pile finishes upper floors. Ceiling and nightstand transforms do not bind to pile height or texture modules.
+@evidenceExclude materials/02-interior-shell.md#bath-floor-tile Tile grids and roughness bind bathroom floors. Ceiling and vanity light counts are not derived from tile rows or columns.
+@evidenceExclude materials/02-interior-shell.md#bath-wall-tile White panels and semigloss finish bathroom walls. The 3 cd, 3,000 K vanity values do not generate different records per tile.
+@evidenceExclude materials/02-interior-shell.md#tile-grout Grout is an internal material UV mask. Lighting neither creates grout geometry nor substitutes a point per grout line.
+@evidenceExclude materials/02-interior-shell.md#laundry-floor Grey floor texture describes laundry-surface optics. Laundry-mudroom uses the same environment without exposure dedicated to correcting that grey.
+@evidenceExclude materials/02-interior-shell.md#garage-concrete Aggregate and stains finish the lowered garage floor. Light Y=2.50 m comes from the garage ceiling datum rather than material height.
+@evidenceExclude materials/03-furnishings.md#light-countertop Pale stone veins and roughness bind kitchen, vanity, and folding tops. Island-light Y=1.95 m is chosen from the island reservation without copying countertop textures into lighting values.
+@evidenceExclude materials/03-furnishings.md#stainless-steel Materials owns brushed-metal responses for taps, rails, and rods. Systems does not interpret highlights as new lights or metal-object emission.
+@evidenceExclude materials/03-furnishings.md#black-glass-panel Opaque black oven and control glazing belongs to appliance surfaces. There is no control-panel light, and this material does not supply window daylight transmission.
+@evidenceExclude materials/03-furnishings.md#white-enamel Smooth ceramic, enamel, and lamp-base responses finish objects. Nightstand points use inner-shade height without reading white ceramic bases as emission color.
+@evidenceExclude materials/03-furnishings.md#furniture-wood The #A87A4E oak grain on shelves, benches, and furniture is nonemissive. Pantry and mudroom lights do not vary by member count or grain direction.
+@evidenceExclude materials/03-furnishings.md#dark-bookcase-wood Dark walnut and art frames finish storage and decoration. No bookcase-interior light is adopted beyond the living ceiling light.
+@evidenceExclude materials/03-furnishings.md#grey-beige-upholstery Grey-beige sofa fabric and clothing variants bind textiles. Changes to textile placement do not change rest-light membership or intensity.
+@evidenceExclude materials/03-furnishings.md#primary-bedding Quilt and pillow colors and weave finish primary bedding. Nightstand-lamp-rear/front do not consume bedding folds or colors as updates.
+@evidenceExclude materials/03-furnishings.md#olive-bedding Bedroom-two's identifying color varies bedding, books, and clothes. It uses common warm ceiling and lamp colors without an olive-room correction light.
+@evidenceExclude materials/03-furnishings.md#blue-grey-bedding Bedroom-three's blue-grey textiles compare with olive. Both retain 2,700 K ceilings, rather than using lighting to fabricate their color difference.
+@evidenceExclude materials/03-furnishings.md#muted-rug Field and border patterns belong to thin covering surfaces. Systems neither paints shadows into the pattern to replace lighting nor applies rug-specific brightness.
+@evidenceExclude materials/03-furnishings.md#mirror Planar Reflector and silver-film PBR belong to materials and viewer reflection paths. Systems adds no virtual reflection camera to light transforms.
+@evidenceExclude materials/03-furnishings.md#firebox-black The sooted firebox is explicitly unlit and nonemissive. Its black material is not converted into a point in the rest-light list.
+@evidenceExclude materials/03-furnishings.md#planting-bark-foliage Deterministic bark and leaf microtexture belongs to planting finishes. Sun color and sky-fill read neither foliage textures nor tree seeds.
+@evidence materials/03-furnishings.md#light-fixture-surfaces Materials retains fixture-diffuser and fixture-glass responses while systems owns intensity, color temperature, and shadows. This interface explains why the H2 writes only light fields.
+@evidenceExclude materials/03-furnishings.md#food-art-finishes Fruit-color cycles and art brushstrokes with seed 1952 belong to prop prints. Lighting has no temporal or color channel contributed by that seed or those strokes.
+@evidenceExclude materials/03-furnishings.md#minor-prop-partitions The binding table connects prop surface ids to final materials. Systems does not consume it as a binding array; light-fixture-surfaces directly supplies the fixture-surface boundary.
+@evidenceExclude instances/00-placement-frame.md#placement-transform-rule Rear-edge/centre origins and one yaw govern furniture world transforms. Systems already declares world light coordinates and does not apply those transforms again.
+@evidenceExclude instances/00-placement-frame.md#placement-fit-validity Furniture bounding-box fit against route, use, and swing belongs to instance-source checks. Lighting compares active points and shade bounds directly with spaces reservations, without claiming all furniture fits.
+@evidence instances/00-placement-frame.md#lighting-fixture-members Bodies for 18 ceilings, three pendants, three vanities, and one unlit porch fixture consume systems positions; four nightstand lamps remain furniture-hosted. This H2 retains that consumption direction to prevent shared authoring of one value.
+@evidenceExclude instances/04-opening-fill.md#opening-fill-membership Assigning one window/door fill per opening governs building-instance membership. Light ids instead use space-id and fixture-role.
+@evidenceExclude instances/04-opening-fill.md#window-fill-placement Twelve window-prototype yaw entries place existing glazing. Natural-light review observes that scene, but systems binds no area light to each window instance.
+@evidenceExclude instances/04-opening-fill.md#exterior-door-fill-placement Three exterior doors and an identity-transformed gate fill openings. Porch-light values come from spaces jambs, without a light per garden, garage, or gate instance.
+@evidenceExclude instances/04-opening-fill.md#opening-fill-observation Front, reverse, side, opening-cut, and reveal-close views examine fill junctions. Six lighting cases judge light, coordinates, identity, and budget without replacing fill-completion judgment.
+@evidenceExclude instances/00-placement-frame.md#reservation-derived-membership Room furniture and fixture reservations establish placed membership. Lighting does not generate records from that membership and receives separately defined lighting-fixture placements.
+@evidenceExclude instances/00-placement-frame.md#no-member-variation Seed and jitter prohibitions constrain model repetition. Lights use this document's rest state and explicit coordinates without reading those variation values.
+@evidenceExclude instances/01-ground-rooms.md#dining-table-chairs Table/chair counts and transforms are no lighting input. The dining light uses the spaces tabletop-reservation centre.
+@evidenceExclude instances/01-ground-rooms.md#island-stools Three stool transforms are no lighting input. Pendant passage clearance uses spaces island and use reservations.
+@evidenceExclude instances/01-ground-rooms.md#kitchen-fixtures Appliance and built-in prototype placements change neither the light list nor values. Island lights read the spaces island reservation.
+@evidenceExclude instances/01-ground-rooms.md#family-seating Family sofa/table ids and transforms create no lights. The family ceiling light reads the spaces family reservation.
+@evidenceExclude instances/01-ground-rooms.md#living-furniture Seating, bookcase, and rug placements do not supply the living-ceiling coordinates. The light reads the living-plan outline centre.
+@evidenceExclude instances/01-ground-rooms.md#window-curtain-members Eight curtain placements create no window emission. Daylight is reviewed through exterior openings and actual glazing fills.
+@evidenceExclude instances/01-ground-rooms.md#entry-mat The entry mat's bounds and transform determine neither the entry ceiling point nor porch-sconce position.
+@evidenceExclude instances/01-ground-rooms.md#powder-fixtures Toilet, vanity, mirror, and towel-bar placements determine neither vanity-light coordinates nor intensity. The light reads the spaces vanity reservation.
+@evidenceExclude instances/01-ground-rooms.md#laundry-fixtures Laundry-appliance and bench transforms are no ceiling-light input. The light uses the room outline centre.
+@evidenceExclude instances/01-ground-rooms.md#pantry-shelves L-shelf and container placements are no ceiling-light input. The light uses the pantry outline centre.
+@evidenceExclude instances/01-ground-rooms.md#garage-storage Shelf and workbench placements are no garage-ceiling input. The light uses the garage-space centre and ceiling datum.
+@evidenceExclude instances/02-upper-rooms.md#primary-furniture Bed, nightstand, and rug transforms determine neither bedroom lighting coordinates nor state. Ceiling and nightstand lights use spaces room and bed reservations.
+@evidenceExclude instances/02-upper-rooms.md#wardrobe-storage Wardrobe-storage transforms are no ceiling-light input. The light reads the room outline and ceiling datum.
+@evidenceExclude instances/02-upper-rooms.md#child-bedroom-furniture Furniture ids and transforms in the two child bedrooms are no ceiling-light input. Lights read their spaces outlines.
+@evidenceExclude instances/02-upper-rooms.md#bath-fixtures Toilet, shower, and tub transforms generate no vanity lights. Those lights read spaces vanity reservations.
+@evidenceExclude instances/03-exterior-repetition.md#siding-course-law Siding courses and cuts affect rendered shadow receivers but do not supply light-record direction, intensity, or state.
+@evidenceExclude instances/03-exterior-repetition.md#shingle-course-law Shingle courses and cuts affect rendered shadow receivers but do not supply light-record direction, intensity, or state.
+@evidenceExclude instances/03-exterior-repetition.md#exterior-exclusions Excluding porch columns, rails, and garage doors from exterior repetition does not generate sun or sconce records.
+@evidenceExclude instances/03-exterior-repetition.md#porch-props Porch-mat and planter placements determine neither entry-sconce position nor state. The sconce reads front-door openings and the porch floor.
+@evidenceExclude instances/03-exterior-repetition.md#planting-individuals Planting membership, ground contact, and yaw can receive sun shadows but are no sun-record inputs.
+@evidenceExclude instances/03-exterior-repetition.md#terrace-furniture Terrace table and chair placements determine neither daylight nor porch-light values or state.
+@evidenceExclude instances/04-opening-fill.md#interior-door-fill-placement Eleven interior-leaf transforms do not generate this system's static room lighting.
+@evidenceExclude instances/04-opening-fill.md#non-door-opening-fills Empty passages and the coat/linen fitting transforms, including linen's single upper-floor lift, determine neither light-record position, intensity, nor state; lighting uses spatial room and ceiling inputs instead.
+@evidenceExclude settings/00-production.md#accessibility The accessibility decision requires written alternatives, named keyboard controls, camera return and observation selection, and results not distinguished by color alone. It supplies no light position, color, intensity, or state.
+@evidenceExclude settings/00-production.md#coverage-map The settings-owner map supplies no light coordinates. Lighting directly cites its build-allocation, lighting-state, and individual room outlines rather than consuming the map list as position, color, intensity, or state.
+@evidenceExclude settings/00-production.md#governing-aim The governing aim requires house structure, members, materials, and living functions to read like the five references at review distance. It supplies no light position, color, intensity, or state.
+@evidenceExclude settings/00-production.md#operative-subjects House and space subjects are assigned to their 10-house.md H2s. That resource assignment supplies no light position, color, intensity, or state.
+@evidenceExclude settings/00-production.md#operator-access The author chooses desktop reviewers using mouse and keyboard. Operator access supplies no light position, color, intensity, or state.
+@evidenceExclude settings/00-production.md#use-profile The authored structural/use review assumes two adults and two children without special medical equipment or resident-assistant routes. That use profile supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#entry The ground-floor entry distributes access from the porch directly to the living room and single turned stair. This connection role supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#garage The right-side single-storey two-car garage has one dark segmented door and upper daylight glass. Its architectural identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#house-scale The approximately 246 m² user target is scale guidance rather than a survey. It supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#kitchen-equipment Reference 03's kitchen includes grey-brown paneled cabinets, pale tops, tile backsplash, stainless appliances, dishwasher, and a sink/tap island. Equipment identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#laundry-mudroom The user-specified laundry/mudroom buffers the service strip and garage. That adjacency supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#living The front-left ground-floor living room is visible from the entry and connects to the rear common area. Its graph role supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#main-mass Main mass and roof adopt the user graph and exterior reference 01. Those relationships supply no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#openings Black frames and white exterior trim from 01, and white interior casing and paneled doors from 03–05, define opening readability. They supply no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#pantry The pantry is separately authored food storage opening from the kitchen or directly adjoining service access. Its access choice supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#service-band The fixed graph places pantry, powder room, and laundry/mudroom in the ground-floor right service strip with direct garage access. The graph supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#shower-bathroom The first upper-hall bathroom contains a glazed shower, basin, and toilet. Its fixture identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#site-identity Reference 01 informs the gentle level site, front sidewalk, low curb, road edge, concrete driveway, entry walk, lawn, and low beds. Site identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#stair One central turned stair joins the entry and short upper hall. That connection supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#storage Near-landing hall linen shelves and folded towels realize the user's upper-storage requirement. Storage identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#tub-bathroom The second bathroom has its own upper-hall door and adopts reference 02's tub/shower, basin, and toilet. Its identity supplies no light position, color, intensity, or state.
+@evidenceExclude settings/10-house.md#upper-hall One short hall starts at the upper landing and reaches three bedrooms, two bathrooms, and storage directly. That graph supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#completion-boundary Completion applies the two lists and independent judgments in contracts/observation-denominator.md#dual-completion. That reporting rule supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#data-authority Counts, ids, positions, bindings, and dimensions must be read from compiled outputs. This observation authority supplies no authored light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#execution-boundary The user retains @automovie/engine's CommonJS boundary. Module execution supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#fidelity Actual captures must reveal masses, roofs, openings, porch, columns, eaves, trim, chimney, stair, rails, window/door members, materials, light, shadows, landscaping, and all interiors. The fidelity obligation supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#implementation-boundary Authorized edits stay within this production's authored files. The edit boundary supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#lifecycle-boundary Production closes mass/spatial graph and surface decomposition together, then proceeds through envelope members, repetition modules, fit-out, material readability, and cleanup. That work order supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#reference-authority Nonsurvey authority of five references and vehicle/graph conflict handling supply no numeric light inputs. Lighting receives adopted rear-right shadows and warm interiors from lighting-state, without deriving sun angles or cd from image pixels.
+@evidenceExclude settings/20-verification.md#role-boundary Author render judgment and coordinator session/Git management assign work authority. Lighting does not interpret that authority as transform, color, intensity, or on/off values, which come from space and fixture decisions.
+@evidenceExclude settings/20-verification.md#submission-boundary Commit and push cadence governs delivery of authoring work. It supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#surface-allocation Whole-surface-owner is a required stage-one handoff. Surface decomposition supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#validation-boundary README-owned normal verification commands assess this production. Their execution boundary supplies no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#viewer-handoff Viewer handoff reports the start command, directory, port, and route. Those execution instructions supply no light position, color, intensity, or state.
+@evidenceExclude settings/20-verification.md#visual-grammar The adopted palette includes warm-white lap siding, charcoal frames and garage door, white trim, red-brown brick, honey/mid-brown wood, and grey-beige textiles. Palette identity supplies no light position, color, intensity, or state.
+@evidenceExclude spaces/00-building.md#main-building-extent Building bounds follow the scale and coordinate decisions. This authority H2 consumes room outlines and ceiling datums rather than the building-extent values.
+@evidenceExclude spaces/06-openings.md#selected-window-curtain-strips Models and instances consume static curtain occupancy at six windows. Systems authors no curtain geometry, placement, or operation and owns only lights belonging to existing room/window ids.
+@evidenceExclude spaces/02-stair.md#stair-boundary-heights Stair-hole perimeter strips do not all denote walls of equal height. This authority H2 consumes room outlines and ceiling datums rather than those protective-boundary heights.
+@evidenceExclude spaces/02-stair.md#stair-clearance Each handrail/guard occupies at most 0.075 m within the 1.15 m route width. This authority H2 consumes room outlines and ceiling datums rather than that clear-width allocation.
+@evidenceExclude spaces/02-stair.md#stair-connector-handoff Two flights and the intermediate landing retain the single turned stair's spatial and step dimensions. This authority H2 consumes room outlines and ceiling datums rather than the connector handoff.
+@evidenceExclude spaces/02-stair.md#stair-floor-opening The L-shaped hole joins X=[-1.80,-0.65], Z=[-4.56,-0.25] and X=[-0.65,1.87], Z=[-4.56,-3.41], limited to the route and lower waiting area. This authority H2 consumes room outlines and ceiling datums rather than the floor-hole bounds.
+@evidenceExclude spaces/03-surface-owners.md#exterior-surface-handoff Spaces retains wall bodies, voids, and cuts; models receives closed exterior trim, frames, leaves, and glass. Light ownership and intensity do not consume that envelope allocation, while models/17-light-fixtures.md separately receives fixture geometry.
+@evidenceExclude spaces/03-surface-owners.md#interior-surface-handoff Each room's owner integrates all inner walls, ceiling, floor-finish regions, and opening surrounds. This authority H2 consumes room outlines and ceiling datums rather than complete-surface ownership.
+@evidenceExclude spaces/04-observations.md#engine-render-handoff Public lowerBuiltEnvironment validates the environment, lowers elements with actual models to world-transformed sets, and preserves the original built environment. This authority H2 consumes room outlines and ceiling datums rather than that renderer handoff.
+@evidenceExclude spaces/04-observations.md#reference-spatial-comparisons Reference authority is connected to current space owners. This authority H2 consumes room outlines and ceiling datums rather than the reference-comparison list.
+@evidenceExclude spaces/04-observations.md#spatial-observation-derivation The full observation denominator applies to spaces following observation-allocation. This authority H2 consumes room outlines and ceiling datums rather than that observation derivation.
+@evidenceExclude spaces/05-route-network.md#room-route-network Named routes hand off source identifiers for door-connected circulation on both floors. This authority H2 consumes room outlines and ceiling datums rather than route identifiers.
+@evidenceExclude spaces/07-boundary-assembly.md#exterior-boundary-junctions Junctions connect exterior boundaries within main/garage exterior and shared-wall reservations. This authority H2 consumes room outlines and ceiling datums rather than those junctions.
+@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-junctions Same-height partitions share end, L, T, and cross junctions. This authority H2 consumes room outlines and ceiling datums rather than junction construction.
+@evidenceExclude spaces/07-boundary-assembly.md#interior-boundary-ownership Existing partitions are generated once within each storey. This authority H2 consumes room outlines and ceiling datums rather than inter-room wall ownership.
+@evidenceExclude spaces/08-floor-assembly.md#interstorey-edge-junctions Interstorey structure meets the same exterior-wall inner faces inside the main house. This authority H2 consumes room outlines and ceiling datums rather than floor-edge junctions.
+@evidenceExclude spaces/08-floor-assembly.md#interstorey-floor-boundary One upper-storey structure separates the two finished storey surfaces. This authority H2 consumes room outlines and ceiling datums rather than that floor assembly.
+@evidenceExclude spaces/09-ceiling-assembly.md#ceiling-roof-clearance Ceilings reach the inner faces of their main/garage plans while roofs own their bounds and intersections. This authority H2 consumes room outlines and ceiling datums rather than roof-clearance assembly.
+@evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure The upper-storey finished-ceiling height defines the main house's horizontal top interior boundary. This authority H2 declares input ownership rather than consuming the ceiling-closure assembly values.
+@evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base The garage base covers its inner bounds and reserves 0.15 m below its finished floor. This authority H2 consumes room outlines and ceiling datums rather than the garage support base.
+@evidenceExclude spaces/10-ground-floor.md#ground-support-handoff Continuous fill and edge support carry the main and garage bases. This authority H2 consumes room outlines and ceiling datums rather than ground-support construction.
+@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions Floors end at wall inner faces, but entrance openings need support across wall thickness. This authority H2 consumes room outlines and ceiling datums rather than four threshold-support junctions.
+@evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base The main ground-storey base continuously supports the whole finish-interior outline. This authority H2 consumes room outlines and ceiling datums rather than foundation construction.
+@evidenceExclude spaces/envelope/front.md#bedroom-three-front-window The upper bedroom-three opening has X=[2.65,4.75], Y=[3.91,5.31] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/front.md#bedroom-two-front-window The upper bedroom-two opening has X=[-4.80,-2.70], Y=[3.91,5.31] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/front.md#front-entry-filling The entry owner retains the front-door void, clear-width target, hinges, and opening. Indoor daylight receives the 06-openings boundary rather than reading this filling H2 directly.
+@evidenceExclude spaces/envelope/front.md#front-openings Common opening handoff covers living, bedroom, stair windows, and the entry door. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/front.md#front-roof-closures src/spaces/envelope/front.ts owns the whole front elevation, including gable triangles and wall above the porch. Indoor daylight receives the 06-openings boundary rather than reading this closure H2 directly.
+@evidenceExclude spaces/envelope/front.md#garage-front-opening The garage rough opening occupies X=[6.10,11.10], Y=[-0.15,2.15] m in front wall Z=[-0.55,-0.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/front.md#living-front-window The ground living-room opening has X=[-5.10,-2.30], Y=[0.70,2.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/front.md#stair-front-window The stair-front opening has X=[-1.62,-0.84], Y=[4.11,5.21] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/left.md#chimney-roof-interface The living fireplace adjoins the left exterior wall. Indoor daylight receives the 06-openings boundary rather than reading this chimney H2 directly.
+@evidenceExclude spaces/envelope/left.md#left-openings Common handoff covers windows behind the chimney. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/left.md#left-roof-closure src/spaces/envelope/left.ts owns the complete left elevation and main-roof triangular end. Indoor daylight receives the 06-openings boundary rather than reading this closure H2 directly.
+@evidenceExclude spaces/envelope/left.md#living-left-window The same room/wall opening in ground living-room has Z=[-5.50,-4.30], Y=[0.75,2.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/left.md#primary-left-window The upper primary-bedroom opening has Z=[-8.90,-7.30], Y=[3.91,5.31] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#family-rear-window The family rear opening has X=[2.75,4.75], Y=[0.75,2.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#garden-door The ground kitchen-dining-family garden door joins exterior waiting space at X=[-1.20,1.20], Y=[0,2.25] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#kitchen-rear-window The ground kitchen-dining-family opening has X=[-4.50,-3.30], Y=[1.15,2.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#primary-rear-window The primary rear opening has X=[-3.85,-1.45], Y=[3.91,5.31] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#rear-openings Common handoff applies in rear wall Z=[-10.70,-10.45] m, inset by the 0.25 m wall reservation from outer Z=-10.70 m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/rear.md#rear-roof-closures src/spaces/envelope/rear.ts owns complete main/garage rear elevations below the two main roofs and garage roof. Indoor daylight receives the 06-openings boundary rather than reading this closure H2 directly.
+@evidenceExclude spaces/envelope/right.md#family-right-window The ground kitchen-dining-family right opening has Z=[-9.95,-8.25], Y=[0.75,2.30] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/right.md#garage-right-window The ground garage side opening has Z=[-5.85,-4.25], Y=[1.40,2.20] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/right.md#right-openings Common handoff binds main windows to wall X=[5.50,5.75] m and garage windows to X=[11.45,11.70] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/envelope/right.md#right-roof-closures src/spaces/envelope/right.ts owns the exposed right elevation at the main step and above the garage. Indoor daylight receives the 06-openings boundary rather than reading this closure H2 directly.
+@evidenceExclude spaces/envelope/right.md#tub-right-window The upper tub-bathroom opening has Z=[-8.40,-7.50], Y=[4.56,5.31] m. Indoor daylight receives the 06-openings boundary rather than reading this facade H2 directly.
+@evidenceExclude spaces/roof/00-junctions.md#roof-mass-allocation Roof groups retain main/garage bounds and both-storey ceilings. Sun shadows receive that roof geometry through rendering rather than reading its allocation as light-record input.
+@evidenceExclude spaces/roof/00-junctions.md#roof-profile-datums Height functions denote top weather-face Y. Sun shadows receive roof geometry through rendering rather than reading profile values as light-record inputs.
+@evidenceExclude spaces/roof/00-junctions.md#roof-shared-edges The front gable joins the main roof's front. Sun shadows receive that geometry through rendering rather than reading shared-edge values as light-record inputs.
+@evidenceExclude spaces/roof/00-junctions.md#roof-wall-head-junctions Main and garage walls occupy their outer-to-inner reservations and close below their roofs. Sun shadows receive that geometry through rendering rather than reading wall-head values as light-record inputs.
+@evidenceExclude spaces/roof/front-gable-left.md#front-gable-left-roof roof.front-gable.left lies on the gable centre's -X side. Sun shadows receive that geometry through rendering rather than reading the roof H2 as light-record input.
+@evidenceExclude spaces/roof/front-gable-right.md#front-gable-right-roof roof.front-gable.right is the front-left gable's +X side, owned by src/spaces/roof/front-gable-right.ts. Sun shadows receive its geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/garage-back.md#garage-back-roof src/spaces/roof/garage-back.ts owns roof.garage.back and its underside. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/garage-front.md#garage-front-roof roof.garage.front is the front half of the garage roof. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/main-back.md#main-back-roof src/spaces/roof/main-back.ts owns roof.main.back and its underside. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/main-front.md#main-front-roof src/spaces/roof/main-front.ts owns roof.main.front, which receives the front gable and chimney. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/right-back.md#right-back-roof src/spaces/roof/right-back.ts owns complete roof.right.back and its underside. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/roof/right-front.md#right-front-roof roof.right.front is the front half of the main right roof region. Sun shadows receive that geometry through rendering rather than reading this H2 as light-record input.
+@evidenceExclude spaces/rooms/common.md#common-kitchen-wall-reservation The kitchen is a functional zone within kitchen-dining-family/ground-storey, without another room or partition. Light positions use other outline/furniture H2s of that room rather than this wall-equipment reservation.
+@evidenceExclude spaces/rooms/entry.md#entry-coat-storage Coat storage sits under the high end of the upper flight, reached along service access near the entry. Entry lights use room-outline/furniture H2s rather than this storage reservation.
+@evidenceExclude spaces/rooms/entry.md#entry-use-routes The entry route consumes the same front-entry/ground-storey wooden door and shallow mat. Light positions use outline/furniture H2s rather than this distribution-floor reservation.
+@evidenceExclude spaces/rooms/garage-interior.md#garage-use-routes Interior access connects the mudroom-side lower waiting area to shelving, workbench, side window, and closed front door. Garage lights use outline/furniture H2s rather than this circulation reservation.
+@evidenceExclude spaces/rooms/laundry.md#laundry-equipment-use Right-wall appliances and the left shoe bench share laundry-mudroom/ground-storey. Light positions use outline/furniture H2s rather than this equipment-use allocation.
+@evidenceExclude spaces/rooms/laundry.md#laundry-through-route A same-room floor strip joins two doors and their waiting areas. Light positions use outline/furniture H2s rather than this through-route reservation.
+@evidenceExclude spaces/rooms/living.md#living-furniture-use The living-room/ground-storey sofa backs onto the right stair partition and faces the left fireplace. Light positions use other outline/furniture H2s rather than this seating-use orientation.
+@evidenceExclude spaces/rooms/living.md#living-through-route The same-room route joins entry-side and common-area openings. Light positions use outline/furniture H2s rather than this through-route reservation.
+@evidenceExclude spaces/rooms/pantry.md#pantry-storage-use Storage occupancy consumes the same pantry/ground-storey shelf plan. Light positions use room-outline/furniture H2s rather than this storage-use reservation.
+@evidenceExclude spaces/rooms/pantry.md#pantry-use-route Storage use reserves the interior state with the pantry leaf opened 90°. Light positions use outline/furniture H2s rather than that door/use reservation.
+@evidenceExclude spaces/rooms/upper-hall.md#upper-linen-storage A closed linen cabinet sits in front of the hall arrival area. Light positions use outline/furniture H2s rather than this linen-storage reservation.
+@evidenceExclude spaces/site/00-access.md#map-handoff-inputs The house-site handoff owns required maps inputs and rejected mismatches. The shadow extent uses fence-enclosure-plan rather than consuming those maps inputs here.
+@evidenceExclude spaces/site/00-access.md#site-access-interface House-site includes main house, garage, porch, and exterior access regions. The shadow extent uses fence-enclosure-plan rather than exterior-network paving ends.
+@evidenceExclude spaces/site/00-access.md#site-local-routes Porch/entry access and rear terrace/right wooden fence are connected as ordered house-site segments. The shadow extent uses fence-enclosure-plan rather than those local route sequences.
+@evidenceExclude spaces/site/01-paving-support.md#paving-contact-handoff Complete paving owners end at their plan outlines and consume counterpart upper/lower surfaces at identical coordinates. The shadow extent uses fence-enclosure-plan rather than paving-contact construction.
+@evidenceExclude spaces/site/01-paving-support.md#paving-depth-reservation Front-walk, side-walk, and garden-lower-landing own their respective external upper faces in house-site/ground-storey. The shadow extent uses fence-enclosure-plan rather than paving thickness or slope support.
+@evidenceExclude spaces/site/01-paving-support.md#raised-platform-support Porch and terrace retain their elevated level faces and external steps. The shadow extent uses fence-enclosure-plan rather than raised-platform sections.
+@evidenceExclude spaces/site/driveway.md#driveway-plan Driveway is the concrete garage-access paving region in house-site/ground-storey. The shadow extent uses fence-enclosure-plan rather than driveway bounds.
+@evidenceExclude spaces/site/fence.md#fence-gate-junction The right-front segment leaves the side-yard-gate's opening X interval clear. The shadow extent uses fence-enclosure-plan rather than the gate junction.
+@evidenceExclude spaces/site/fence.md#fence-ground-profile Fence-panel tops share the gate leaf's world top height. The shadow extent uses fence-enclosure-plan rather than ground-profile occupancy.
+@evidenceExclude spaces/site/front-walk.md#front-walk-plan Front-walk is the entry path's exterior walking region in house-site/ground-storey. The shadow extent uses fence-enclosure-plan rather than the path bounds.
+@evidenceExclude spaces/site/side-walk.md#side-gate-interface Side-front-access and side-rear-access are house-site/ground-storey regions before and behind the gate. The shadow extent uses fence-enclosure-plan rather than those waiting-region bounds.
+@evidenceExclude spaces/site/side-walk.md#side-walk-plan Side-walk is a continuous exterior walking surface in house-site/ground-storey. The shadow extent uses fence-enclosure-plan rather than its path bounds.
+@evidenceExclude spaces/site/terrace.md#garden-lower-landing-plan Garden-lower-landing is an exterior waiting region in house-site/ground-storey. The shadow extent uses fence-enclosure-plan rather than landing bounds.
+@evidenceExclude spaces/site/terrace.md#garden-steps-plan Garden-steps is the house-site/ground-storey connector from the terrace to lower waiting space. The shadow extent uses fence-enclosure-plan rather than step geometry.
+@evidenceExclude spaces/site/terrace.md#garden-terrace-plan Garden-terrace is a small house-site/ground-storey paved terrace reached from the common area. The shadow extent uses fence-enclosure-plan rather than terrace bounds.
+@evidence obligations/core/common.md#layer-boundary All four files have the systems lighting role; models owns bodies, materials emissive surfaces, instances placement, and spaces room boundaries, leaving no decision requiring another specialist family's justification here.
+@evidence obligations/core/common.md#production-language Lighting documents use working-language English, preserving exact IAutoMovieLight fields, ids, and color vectors so readers need not infer a language switch.
+@evidence obligations/core/common.md#purpose-fit 00-lighting-frame.md owns authority, state, budget, and review sets; without it, ids, rest state, the 32-light cap, and six review cases would remain undecided.
 -->
 
-[제작 설정의 build 배분](../settings/00-production.md#build-allocation)이 조명을 systems에 맡기고, [빛과 기준 상태](../settings/20-verification.md#lighting-state)가 전면 왼쪽 위 key·뒤 오른쪽 그림자·하늘 fill·켜진 따뜻한 실내등·고정 노출과 white balance를 정한다. 이 branch는 그 조건을 실현하는 광원 레코드만 쓴다. 쓰는 채널은 설치된 공개 타입 `IAutoMovieLight`(directional·point·spot·area)의 `id`·`transform`·`color`·`intensity`·`castShadow`·`shadow`·`range`·`coneAngle`·`width`·`height`와 `IAutoMovieSceneEnvironment`의 `background`·`intensity`·`exposure`·`toneMapping`·`shadows`다. 방 경계·천장 datum은 [storey datum](../spaces/01-storeys.md#storey-datums)과 각 방 owner, 기구의 갓·몸체 geometry는 models, 갓과 전구의 발광 표면은 materials, 기구 개체 배치는 instances가 소유하며 이 branch는 그 값을 다시 정하지 않는다.
+[Production build allocation](../settings/00-production.md#build-allocation) assigns lighting to systems, and [lighting and reference state](../settings/20-verification.md#lighting-state) fixes an upper-front-left key, rear-right shadows, sky fill, warm active interior lights, and fixed exposure and white balance. This branch writes the light records realizing those conditions. Writable channels are the installed public `IAutoMovieLight` kinds (directional, point, spot, area), with `id`, `transform`, `color`, `intensity`, `castShadow`, `shadow`, `range`, `coneAngle`, `width`, and `height`, and `IAutoMovieSceneEnvironment`'s `background`, `intensity`, `exposure`, `toneMapping`, and `shadows`. [Storey datums](../spaces/01-storeys.md#storey-datums) and individual room owners retain room boundaries and ceiling datums; models owns shades and body geometry, materials owns shade/bulb emissive surfaces, and instances owns fixture placements. This branch does not reassign those values.
 
-기구 광원 id는 `light:<space-id>:<fixture-role>` 형식이며 space-id는 spaces의 방 id(`front-entry`, `living-room`, `kitchen-dining-family`, `service-access`, `powder-room`, `laundry-mudroom`, `pantry`, `garage`, `upper-hall`, `primary-bedroom`, `primary-wardrobe`, `bedroom-two`, `bedroom-three`, `shower-bathroom`, `tub-bathroom`), 계단 `main-stair`, 외부 구역 `front-porch`를 그대로 쓴다. 기구 광원 하나는 그 한 공간에만 속한다. 대지 전체를 비추는 태양·두 sky fill·ground-bounce는 방에 속하지 않으므로 `light:daylight:<role>`로 구분한다. 같은 광원 값을 두 파일에서 저작하지 않는다. [작업 언어](../settings/00-production.md#working-language)에 따라 조명 결정은 한국어로 쓰고 API 이름·필드명·광원 id는 원형을 보존한다.
+Fixture ids use `light:<space-id>:<fixture-role>` with the spaces room ids `front-entry`, `living-room`, `kitchen-dining-family`, `service-access`, `powder-room`, `laundry-mudroom`, `pantry`, `garage`, `upper-hall`, `primary-bedroom`, `primary-wardrobe`, `bedroom-two`, `bedroom-three`, `shower-bathroom`, and `tub-bathroom`, stair `main-stair`, and exterior region `front-porch`. Each fixture light belongs to exactly one of these 17 spaces. The site-wide sun, two sky fills, and ground-bounce belong to no room and use `light:daylight:<role>`. Two files must not author the same light value. Following [working language](../settings/00-production.md#working-language), lighting decisions use English while API names, fields, and ids retain their exact spelling.
 
-source owner는 `src/systems/lighting.ts`다. 실제 컴파일 산출물은 directional 4개·point 28개이며 point의 방 id와 좌표를 실제 spaces 외곽·완성 높이에 대조한다. 갓·몸체의 원형과 material 결속은 각각 models·materials가 만들고 이 source는 광원 레코드·environment 값만 쓴다. 최종 관찰 결과는 아래 여섯 사례별로 보고한다.
+The source owner is `src/systems/lighting.ts`. Its compiled output contains four directionals and 28 points; point space ids and coordinates are compared with actual spaces bounds and finished heights. Models and materials produce body/shade prototypes and material bindings respectively, while this source writes only light records and environment values. The six cases below report the recorded observations.
 
-## 정지 기준 상태와 시계 {#lighting-static-state}
+## Static reference state and clock {#lighting-static-state}
 <!--
-@evidence principles/core/common.md#scope-preservation 시간 흐름이 없는 library의 조명 상태, 리뷰 프레임 on/off, 꺼진 기구의 레코드 처리, 평가 입력과 순서를 맡는다.
-@evidence principles/core/common.md#substantive-completion 모든 광원이 rest 값만 갖고 lightMotions·IAutoMovieProductionLighting·seed를 쓰지 않으며 꺼진 기구는 레코드를 만들지 않는다고 정한다.
-@evidence principles/core/common.md#declared-basis 정지 상태는 delivery-scope의 시간 순서 없는 library에서 오고 스위치 회로·조광을 모델링하지 않는 것은 이 branch의 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation lighting-state가 켜진 따뜻한 실내등만 정한 데 비해 rest 값 단일 상태, 꺼짐의 레코드 생략, spaces 확정 후 한 번 평가를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement on/off 값은 각 기구 H2가 정하고 이 H2는 상태 모델만 두며 꺼진 기구의 형상은 instances에 남긴다.
-@evidence principles/design/systems.md#system-dependency-basis 평가 입력을 spaces 산출물의 방 외곽·storey 천장 datum과 이 branch의 상수로 한정하고 다른 활성 system이 없어 update 순서가 없다고 적는다.
-@evidence principles/design/systems.md#system-verification-address 서로 다른 두 요청 시점과 두 번의 컴파일이 같은 광원 목록·값을 내는지의 대조가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work delivery-scope의 시간 순서 없는 전달물과 lighting-state의 정지 날씨를 소비했고 시계나 순서가 부모 사이에서 충돌하지 않아 부모 수정이 없었다.
-@evidence settings/00-production.md#delivery-scope 시간 순서가 있는 영화·shot이 없다는 전달 범위를 받아 조명을 rest 값의 단일 상태로 둔다.
-@evidence obligations/design/systems.md#system-state-clock 초기 상태가 유일 상태이고 시계·seed가 없으며 임의 시점이 같은 상태를 낸다고 정한다.
-@evidence obligations/design/systems.md#system-ownership-interfaces spaces 산출물 확정 뒤 한 번 평가하고 다른 system과 공동 쓰기 채널이 없다는 순서를 정한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns timeless library lighting, review-frame on/off state, records for unlit fixtures, evaluation inputs, and evaluation order.
+@evidence principles/core/common.md#substantive-completion All lights have rest values only, without lightMotions, IAutoMovieProductionLighting, or seeds; unlit fixtures create no light records.
+@evidence principles/core/common.md#declared-basis Static state follows delivery-scope's timeless library; omitting switch circuits and dimming is this branch's choice.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Beyond lighting-state's warm active interiors, it adds one rest state, omitted records for off fixtures, and one evaluation after spaces is fixed.
+@evidence principles/design/systems.md#system-authority-confinement Individual fixture H2s choose on/off; this H2 defines the state model, leaving off-fixture geometry with instances.
+@evidence principles/design/systems.md#system-dependency-basis Inputs are compiled spaces room outlines, storey ceiling datums, and branch constants; no other active system creates update-order dependencies.
+@evidence principles/design/systems.md#system-verification-address Compare light lists and values from two request times and two compilations to challenge state identity.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work The recorded review consumed delivery-scope's timeless output and lighting-state's static weather, finding no parent clock or ordering conflict requiring revision.
+@evidence settings/00-production.md#delivery-scope The absence of time-ordered films and shots makes lighting a single rest-value state.
+@evidence obligations/design/systems.md#system-state-clock The initial state is the only state, with no clock or seed and identical results at arbitrary times.
+@evidence obligations/design/systems.md#system-ownership-interfaces Evaluation occurs once after spaces is fixed; no other system shares its write channels.
 -->
 
-이 라이브러리는 시간이 흐르는 장면을 전달하지 않으므로 조명은 하나의 정지 상태다. 모든 광원은 rest 값만 가지며 `IAutoMovieShot.lightMotions`와 `IAutoMovieProductionLighting`을 쓰지 않는다. 시계·seed가 없고 임의 시점 요청은 언제나 같은 상태를 돌려준다. 평가 입력은 spaces 컴파일 산출물의 방 외곽·storey 천장 datum과 이 branch의 상수뿐이며, 조명은 spaces 산출물이 확정된 뒤 한 번 평가된다. 이 production에 다른 활성 system이 없으므로 system 사이의 update 순서나 공동 쓰기 채널은 없다. 리뷰 프레임의 on/off 상태는 [실내 기구](02-interior-fixtures.md)와 [외부 기구](03-exterior-fixtures.md)의 각 H2가 정한 값 하나이며 스위치 회로·조광·자동 점멸은 모델링하지 않는다. 꺼진 기구는 광원 레코드를 만들지 않고 기구 형상만 instances에 남는다.
+This library delivers no time-progressing scene, so lighting has one static state. Every light has rest values only, without `IAutoMovieShot.lightMotions` or `IAutoMovieProductionLighting`. There is no clock or seed, and arbitrary-time requests always return the same state. Inputs are compiled spaces room outlines, storey ceiling datums, and branch constants; lighting is evaluated once after spaces outputs are fixed. This production has no other active system, so no inter-system update order or shared write channel exists. Each H2 in [interior fixtures](02-interior-fixtures.md) and [exterior fixtures](03-exterior-fixtures.md) chooses one review-frame on/off value. Switch circuits, dimming, and automatic flashing are not modeled. Off fixtures produce no light record while their geometry remains with instances.
 
-source owner는 `src/systems/lighting.ts`다. 서로 독립적인 두 `HouseLighting.build()` 산출물과 외관·현관의 두 native 요청 산출물을 대조해 광원 목록과 environment 값이 정확히 같음을 확인했다. 시계·seed·요청 시각에 따른 변경은 없다. 원문 산출물과 대조는 작업 기록의 `lighting-measurements.json`에 보존한다.
+The source owner is `src/systems/lighting.ts`. The recorded review compared two independent `HouseLighting.build()` outputs and two native exterior/entry requests and found exactly matching light lists and environment values. The design has no variation by clock, seed, or request time. Original outputs and comparisons are retained in the work record's `lighting-measurements.json`; this translation does not repeat that native observation.
 
-## 광원 수와 그림자 예산 {#lighting-budget}
+## Light count and shadow budget {#lighting-budget}
 <!--
-@evidence principles/core/common.md#scope-preservation 광원 수, 입장 상한, 그림자 광원 수, 초과 시 저하 순서와 보고를 맡는다.
-@evidence principles/core/common.md#substantive-completion 광원 32개(directional 4·point 28), 입장 상한 32, 그림자 광원은 태양 하나, 초과 시 range 축소→같은 방 area 병합→조정자 보고의 순서를 정한다.
-@evidence principles/core/common.md#declared-basis 그림자 map 하나는 renderer-boundary의 실제 WebGL canvas를 위한 이 branch의 선택이고 방을 빼지 않는 규칙은 build-allocation에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation build-allocation이 성능 때문에 방을 생략하지 말라고만 한 데 비해 32개 상한과 세 단계 저하 순서를 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 저하는 광원의 range·종류만 바꾸고 방이나 기구 형상을 지우지 않아 spaces·instances 소유를 건드리지 않는다.
-@evidence principles/design/systems.md#system-dependency-basis 저하 발동은 컴파일된 광원 수와 32의 비교라는 이름 있는 입력에만 의존한다.
-@evidence principles/design/systems.md#system-verification-address 컴파일된 광원 수와 그림자 광원 수 1, 실제 canvas의 RENDERER와 프레임 오류 유무가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work build-allocation의 방 생략 금지와 renderer-boundary의 실제 GPU canvas를 32개 광원·그림자 1개에 대조했고 상한 안이어서 부모 예산 결정을 고칠 결함이 없었다.
-@evidence settings/20-verification.md#renderer-boundary 실제 WebGL canvas에서 그림자 map을 태양 하나로 묶고 RENDERER 보고를 관찰에 넣는다.
-@evidence obligations/design/systems.md#system-budget-degradation 입장 상한 32, 그림자 광원 1, range 축소→area 병합→보고의 저하와 실내 그림자 부재라는 보이는 한계를 정한다.
-@evidence obligations/core/common.md#proportionate-development 네 파일 14개 H2와 광원 32개를 17개 공간에 배분하되 기능 구분이 조명에 걸린 공용부에 매달린 광원 세 개와 갓 외곽 대조, 위생실에 세면등 세 개를 더 주고 수납·통로에는 천장등 하나씩만 둬 결과 비중에 맞춘다.
+@evidence principles/core/common.md#scope-preservation This H2 owns light count, admission cap, shadow-light count, degradation order, and over-budget reporting.
+@evidence principles/core/common.md#substantive-completion It defines 32 lights (four directional, 28 point), a 32-light cap, one shadow-casting sun, and degradation by reducing ranges, merging same-room lights into an area, then reporting to the coordinator.
+@evidence principles/core/common.md#declared-basis One shadow map is this branch's choice for renderer-boundary's actual WebGL canvas; build-allocation supplies the prohibition on dropping rooms.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Beyond build-allocation's room-retention rule, it adds the 32-light cap and three-step degradation order.
+@evidence principles/design/systems.md#system-authority-confinement Degradation changes light ranges or kinds without deleting room or fixture geometry owned by spaces and instances.
+@evidence principles/design/systems.md#system-dependency-basis Degradation is triggered only by comparing the compiled light count with the named cap of 32.
+@evidence principles/design/systems.md#system-verification-address Compiled light count, one shadow light, actual-canvas RENDERER, and frame errors are falsifying observations.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work The recorded review compared build-allocation's room-retention rule and renderer-boundary's actual GPU canvas with 32 lights and one shadow light; remaining within the cap required no parent-budget revision.
+@evidence settings/20-verification.md#renderer-boundary The actual WebGL canvas uses one sun shadow map and includes RENDERER in observations.
+@evidence obligations/design/systems.md#system-budget-degradation The 32-light admission cap, one shadow light, range reduction, area merging, and reporting define degradation and the visible absence of interior shadows.
+@evidence obligations/core/common.md#proportionate-development Four files distribute 32 lights across 17 spaces; the common area's lighting-dependent functions receive three pendants and shade-bound comparisons, sanitary rooms receive three vanity lights, and storage/passages receive one ceiling light each.
 -->
 
-현재 광원은 낮빛 directional 4개와 실내 point 28개로 32개이며 입장 상한을 32개로 둔다. 그림자를 던지는 광원은 태양 하나로 제한한다. 실내·외부 기구는 모두 `castShadow`를 쓰지 않는다. 이는 [렌더 경계](../settings/20-verification.md#renderer-boundary)의 실제 WebGL canvas에서 그림자 map 수를 하나로 묶기 위한 이 branch의 선택이며, 실내등의 그림자가 없다는 한계는 리뷰에서 보이는 결과로 기록한다. 광원 수가 설치 엔진의 한도를 넘으면 방을 빼지 않고 `range`를 줄이거나 같은 방의 여러 기구를 area 하나로 합치는 순서로 처리하며, 그래도 넘으면 실제 한도를 조정자에게 보고한다.
+The current light population is four daylight directionals and 28 interior points, totaling 32, with an admission cap of 32. Only the sun casts shadows. Interior and exterior fixtures do not use `castShadow`. This branch chooses one shadow map for the actual WebGL canvas at the [renderer boundary](../settings/20-verification.md#renderer-boundary), and review records the visible limitation of absent interior-light shadows. If light count exceeds the installed engine's limit, retain all rooms and first reduce `range`, then merge multiple same-room fixtures into one area light. If that still exceeds the limit, report the actual limit to the coordinator.
 
-source owner는 `src/systems/lighting.ts`다. 실제 컴파일 결과는 directional 4개·point 28개이고 그림자 광원은 태양 하나다. native 조명 캡처의 실제 canvas는 `ANGLE / AMD Radeon(TM) 8060S Graphics / Direct3D11`이며 오류와 실패한 texture가 없었다. 상한 초과가 없어 저하 단계는 발동하지 않았다. 실내 point 광원은 그림자를 만들지 않는다는 표현 한계를 유지한다.
+The source owner is `src/systems/lighting.ts`; its compiled result contains four directionals, 28 points, and one shadow-casting sun. The recorded native lighting capture used an `ANGLE / AMD Radeon(TM) 8060S Graphics / Direct3D11` canvas, with no errors or failed textures. No cap exceedance triggered degradation in that recorded review. The representation still omits shadows from interior point lights.
 
-## 조명 리뷰 집합 {#lighting-review-set}
+## Lighting review set {#lighting-review-set}
 <!--
-@evidence principles/core/common.md#scope-preservation 외관 그림자, 공용부 빛 웅덩이, 실내 연속, 좌표·갓 외곽 대조, 컴파일 동일성, 광원 수·RENDERER의 여섯 사례를 맡는다.
-@evidence principles/core/common.md#substantive-completion 여섯 사례와 "광원 하나를 빼거나 강도 0이면 해당 사례가 실패해야 한다"는 반증력 기준을 정한다.
-@evidence principles/core/common.md#declared-basis 01·03·04·05 프레임은 frame-condition의 참조 역할에서, 좌표 대조는 02·03 H2의 인용 외곽에서 온다고 적는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation frame-condition이 프레임 조건만 정한 데 비해 조명 전용 여섯 사례와 반증력 기준을 더한다.
-@evidence principles/design/systems.md#system-authority-confinement 사례는 광원 결과만 묻고 프레임·카메라 조건은 frame-condition에 남긴다.
-@evidence principles/design/systems.md#system-dependency-basis 각 사례가 대조하는 입력(참조 프레임, 인용 외곽, 두 컴파일, 광원 수)을 이름으로 적는다.
-@evidence principles/design/systems.md#system-verification-address 여섯 사례가 각 H2 주장을 반증하고 광원 제거 시 실패해야 한다는 기준으로 통과만 하는 사례를 걸러낸다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work frame-condition의 01·03·04·05 참조 프레임을 여섯 사례에 대조했고 조명 관찰을 받을 프레임이 모두 있어 부모 수정이 없었다.
-@evidence settings/20-verification.md#frame-condition 01 외관, 03 공용부, 04·05 실내 참조 프레임을 조명 사례의 관찰 조건으로 쓴다.
-@evidence obligations/design/systems.md#system-review-set 상태·예산·인터페이스 실패를 가르는 여섯 유한 사례와 반증력 기준을 정한다.
-@evidence settings/20-verification.md#observation-allocation 레퍼런스 01 외관, 03 공용부, 04 현관/거실/계단, 05 복도/침실/욕실과 계단참의 역할 배분을 여섯 사례 중 세 프레임 사례의 대상으로 쓴다.
+@evidence principles/core/common.md#scope-preservation Six cases cover exterior shadows, common-area light pools, interior continuity, coordinate/shade-bound comparisons, compilation identity, and light-count/RENDERER reporting.
+@evidence principles/core/common.md#substantive-completion It defines all six cases and requires the relevant case to fail when one light is removed or its intensity becomes zero.
+@evidence principles/core/common.md#declared-basis Frames 01, 03, 04, and 05 follow frame-condition's reference roles; coordinate comparisons follow the quoted bounds in files 02 and 03.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Beyond frame-condition's frame conditions, it adds six lighting-specific cases and a falsification criterion.
+@evidence principles/design/systems.md#system-authority-confinement Cases judge light results, leaving frame and camera conditions with frame-condition.
+@evidence principles/design/systems.md#system-dependency-basis Each case names its comparison input: reference frames, quoted bounds, two compilations, or light count.
+@evidence principles/design/systems.md#system-verification-address The cases challenge each H2 claim and reject cases that still pass after relevant light removal.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work The recorded review compared frame-condition's 01, 03, 04, and 05 roles with six cases and found an observation frame for each, requiring no parent revision.
+@evidence settings/20-verification.md#frame-condition Exterior 01, common-area 03, and interior 04/05 reference frames supply lighting observation conditions.
+@evidence obligations/design/systems.md#system-review-set Six finite cases and the falsification criterion distinguish state, budget, and interface failures.
+@evidence settings/20-verification.md#observation-allocation Reference roles 01 exterior, 03 common area, 04 entry/living/stair, and 05 hall/bedroom/bathroom plus landing define the three frame cases' subjects.
 -->
 
-조명의 유한 리뷰 사례는 여섯이다. 프레임 사례의 대상은 [관찰 배분](../settings/20-verification.md#observation-allocation)의 레퍼런스 역할을 따른다. 첫째, 01 외관 프레임에서 그림자가 뒤 오른쪽에 떨어지고 그늘이 완전 검정이 아닌지를 본다. 둘째, 03 공용부 프레임에서 섬 pendant와 식탁등의 두 빛 웅덩이를 본다. 셋째, 04·05 프레임에서 현관·계단참·복도·침실이 창 빛과 따뜻한 천장등으로 함께 읽히는지 본다. 넷째, 모든 켜진 광원의 좌표가 [실내 기구](02-interior-fixtures.md)가 인용한 방 외곽 안에 있고 매달린 기구의 갓 외곽이 인용한 가구·동선 예약과 겹치지 않는지를 산출물로 대조한다. 다섯째, 두 번의 컴파일과 두 요청 시점이 같은 광원 목록을 내는지 대조한다. 여섯째, 컴파일된 광원 수와 그림자 광원 수 1, 실제 canvas의 RENDERER를 보고한다. 광원 하나를 빼거나 강도를 0으로 바꾸면 해당 사례가 실패해야 하며, 그렇지 않은 사례는 반증력이 없는 것으로 보고 고친다.
+Lighting has six finite review cases. Frame subjects follow the reference roles in [observation allocation](../settings/20-verification.md#observation-allocation). First, inspect the 01 exterior frame for rear-right shadows and shade that is not completely black. Second, inspect the 03 common-area frame for separate island-pendant and dining-light pools. Third, inspect 04/05 for entry, landing, hall, and bedrooms jointly readable through window light and warm ceilings. Fourth, compare outputs to confirm that every active point lies inside the room bounds quoted by [interior fixtures](02-interior-fixtures.md) and that hanging shade bounds avoid quoted furniture and circulation reservations. Fifth, compare light lists across two compilations and two request times. Sixth, report compiled light count, one shadow light, and actual-canvas RENDERER. Removing a light or setting its intensity to zero must fail its relevant case; revise any case without that falsifying power.
 
-source owner는 `src/systems/lighting.ts`다. 여섯 사례의 관찰 결과는 다음과 같다. 기존 81f2521e9c40와 7e8461001b7c의 물리 조명 산출물은 같은 정지 상태이며, 각 캡처의 원래 basis를 작업 기록에 유지한다.
+The source owner is `src/systems/lighting.ts`. The following results are the recorded six-case review, not a new native review performed during this translation. Physical lighting outputs from 81f2521e9c40 and 7e8461001b7c share the same static state; each capture retains its original basis in the work record.
 
-1. 외관에서 처마·포치의 그늘과 뒤 오른쪽 그림자가 읽히며 그늘의 벽이 검정으로 닫히지 않는다. 실제 source의 태양 강도를 0으로 한 별도 native 산출물에서는 그 그림자가 사라지고 지붕·벽 읽힘이 달라졌다.
-2. 공용부에서는 두 섬등과 식탁등의 따뜻한 천장 웅덩이가 구분된다. 식탁등 강도 0인 별도 source 산출물에서 식탁 예약 위 웅덩이는 사라지고 두 섬등은 남았다. 식탁 몸체는 미제작 사물 범위이므로 이 관찰로 식탁 모델의 완료를 주장하지 않는다.
-3. 현관·계단의 디딤/참·복도 두 팔·침실의 창과 벽은 같은 고정 노출에서 읽힌다. 침실 내부 compiled 관찰에서 천장등과 따뜻한 천장/벽·열린 출입구의 연속을 확인했다. 상층 천장등 강도를 0으로 한 native 산출물에서는 그 따뜻한 연속이 사라지고 협탁 point의 국소 벽 빛만 남았다.
-4. 28개 켜진 point의 X/Z는 실제 소속 방 외곽 안이며 Y는 소속 완성 높이 안이다. 계단참은 명시한 중간참 외곽과 높이로 대조했다. 실제 세 pendant의 갓 vertex 외곽은 섬 또는 식탁 상판 예약 안이고 통행 예약으로 돌출하지 않는다.
-5. 독립 두 build와 서로 다른 두 native 요청의 실제 광원 목록·environment 값은 같았다.
-6. 실제 결과는 광원 32개·그림자 광원 하나이며 AMD 8060S의 D3D11 canvas에서 오류와 texture 실패가 없다. 모든 광원을 각각 누락하거나 강도 0으로 둔 64개 구조 반증은 필수 id·양의 강도·32개 입장 조건에서 거부했다. 이 64개는 GPU 비교가 아니며, 위 세 가지 실제 source 변형의 GPU 비교와 구분한다.
+1. Exterior eave/porch shade and rear-right shadows were readable without shaded walls closing to black. A separate native output with actual source sun intensity set to zero lost that shadow and changed roof/wall readability.
+2. The common area distinguished warm ceiling pools from two island lights and the dining light. A separate source output with dining intensity zero lost the pool above the dining reservation while retaining both island lights. The table body remained outside the produced-object scope at that recorded review, so this observation does not establish table-model completion.
+3. Entry, stair treads/landings, both hall arms, and bedroom windows/walls were readable at the same fixed exposure. Compiled bedroom observations showed ceiling lights, warm ceiling/wall illumination, and open-door continuity. A native output with upper-ceiling intensities zero lost that warm continuity, leaving local wall light from nightstand points.
+4. All 28 active points had X/Z inside their actual room outlines and Y within finished heights. The stair landing used its explicit intermediate-landing bounds and height. Vertex bounds of the three pendant shades stayed inside island or dining tabletop reservations without projecting into circulation reservations.
+5. Two independent builds and two different native requests produced identical actual light lists and environment values.
+6. The recorded output had 32 lights and one shadow light, with no errors or texture failures on the AMD 8060S D3D11 canvas. Sixty-four structural counterexamples, omitting or zeroing each light, were rejected by required-id, positive-intensity, and 32-light admission conditions. These 64 cases were not GPU comparisons; the three actual source-variant GPU comparisons above are separate.
 
-양성 원본은 `lighting-81f2521e9c40-2`, `-3`, `-4`, `lighting-positive-final`에, 반증 원본은 `lighting-sun-zero`, `lighting-dining-zero`, `lighting-upper-zero`에 보존했다. 반증은 별도 source byte 사본을 native viewer로 실행했으며 원래 `lighting.ts`는 SHA-256 `cf8a0c95f3215025dd74a1b3e8357d5788245d99f6a3ec38a87111af38d2bf8d`로 byte-exact 복원했다. 4개의 협탁등 몸체는 미제작 사물이며 광원 좌표 검증이 그 몸체의 갓/배치 검증을 대신하지 않는다.
+Positive originals are retained as `lighting-81f2521e9c40-2`, `-3`, `-4`, and `lighting-positive-final`; counterexample originals are `lighting-sun-zero`, `lighting-dining-zero`, and `lighting-upper-zero`. Those recorded counterexamples executed separate source-byte copies in the native viewer, and the original `lighting.ts` was restored byte-exactly with SHA-256 `cf8a0c95f3215025dd74a1b3e8357d5788245d99f6a3ec38a87111af38d2bf8d`. This hash records physical source restoration, not a prose-checker fingerprint. Four nightstand-light bodies were unproduced objects at that review; light-coordinate verification does not replace shade/body placement verification.

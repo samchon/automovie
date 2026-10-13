@@ -1,256 +1,256 @@
-# 침실과 옷방의 가구 원형
+# Bedroom and wardrobe furniture prototypes
 
-## 머리판 있는 침대 {#headboard-bed}
+## Headboard bed {#headboard-bed}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 L 2.15 × W 1.60 m와 두 작은 침실 L 2.15 × W 1.15 m 세 예약을 W·L·H·B 네 인자의 한 침대 원형으로 모두 받아 어느 침실 침대도 빠뜨리지 않는다.
-@evidence principles/core/common.md#substantive-completion 머리판 두께 0.06 m, 다리 0.05 m 각재·높이 0.10 m, 프레임 Y = [0.10, 0.30], 매트리스 Y = [0.30, H − 0.03], 침구 덮개 0.03 m, 베개 0.60 × 0.40 × 0.12 m를 본문 값으로 정한다.
-@evidence principles/core/common.md#declared-basis 외곽 L·W와 H·B는 세 방 예약 링크에서 받은 값이고 부품 두께·다리 높이·베개 수는 이 H2의 저작 선택으로 적혀 있다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 방 예약은 외곽과 H·B만 주는데 이 H2는 머리판·프레임·매트리스·침구·베개 다섯 부품과 +X/-Z 머리 방향을 한 원형의 인자로 더한다.
-@evidence principles/design/models.md#representation-contract 머리판·프레임·매트리스·침구 덮개·베개 계층과 `headboard`·`bed-frame`·`mattress`·`bedding`·`pillow` 재질 경계를 두고 관절 없음·이불 주름 비표현을 명시한다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z가 발끝, 높이는 상층 완성 바닥 기준이며 침구 덮개가 발끝과 양옆으로 0.02 m 내려와도 외곽 안에 머문다고 정한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 H와 B가 배치별 값과 같은지, 위에서 외곽이 세 예약과 같은지를 관찰 대상 실루엣으로 지정한다.
-@evidence principles/design/models.md#model-observable-style-basis 머리판 있는 침대라는 형식을 0.06 m 머리판, 네 모서리 다리 위 프레임, 발끝·양옆으로 0.02 m 내려오는 덮개라는 관찰 가능한 구성으로 풀고 침구색은 materials에 넘긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 세 예약의 L·W·H·B, 머리판·프레임·매트리스·침구·베개의 국소 점유와 다리 단면·위치, 다섯 재질 경계, 관절 없음, 측면·평면 관찰을 정한다. 실제 메시와 프레임은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실·둘째·셋째 침실 예약의 외곽 좌표와 H 0.60/0.55 m·B 1.00/0.95 m를 적힌 그대로 소비했고 고칠 부모 결함이 없었다.
-@evidence settings/10-house.md#primary-bedroom 성인 둘의 침대 요구를 주침실 W = 1.60 m 폭과 베개 둘로 받는다.
-@evidence settings/10-house.md#bedroom-two 자녀 한 명 침대 요구를 W = 1.15 m, 베개 하나의 작은 침실 배치로 받는다.
-@evidence settings/10-house.md#bedroom-three 둘째 자녀 침실의 침대를 같은 원형의 W = 1.15 m·H 0.55 m 배치로 받고 청회색 침구는 materials가 배치별로 정한다고 적는다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 주침실 예약 X = [-1.50, 0.65], Z = [-8.65, -7.05]를 L = 2.15 m, W = 1.60 m, H 0.60 m, B 1.00 m, 머리 +X로 소비한다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 예약 X = [-5.25, -4.10], Z = [-4.50, -2.35]를 L 2.15 m, W 1.15 m, H 0.55 m, B 0.95 m, 머리 -Z로 소비한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 예약 X = [-0.25, 0.90], Z = [-3.10, -0.95]를 둘째 침실과 같은 L·W·H·B 값과 머리 -Z로 소비한다.
-@evidence obligations/design/models.md#addressable-model-decisions 침대 원형의 인자 W·L·H·B, 다섯 부품, 다섯 재질 경계 이름, 소스 owner `src/models/furnishings/bedrooms.ts`를 한 H2에서 주소로 정한다.
-@evidence obligations/design/models.md#model-review-set 관찰을 모델 리뷰 뷰 링크의 고정 뷰로 찍고 재질 경계 이름은 표면 파티션 이름 규칙 링크를 따르게 한다.
-@evidence obligations/design/models.md#reference-scale 매트리스 상면 H를 주침실 0.60 m, 작은 침실 0.55 m로 방 예약에서 받아 매트리스 Y = [0.30, H − 0.03]과 덮개 0.03 m가 그 높이에 맞도록 부품 치수를 유도한다.
+@evidence principles/core/common.md#scope-preservation One W/L/H/B bed prototype covers the primary 2.15×1.60 m and two smaller 2.15×1.15 m reservations, omitting no bedroom bed.
+@evidence principles/core/common.md#substantive-completion It fixes headboard thickness 0.06 m, 0.05 m square legs/height 0.10 m, frame Y=[0.10,0.30], mattress Y=[0.30,H−0.03], bedding thickness 0.03 m, and pillows 0.60×0.40×0.12 m.
+@evidence principles/core/common.md#declared-basis Room reservations supply L/W/H/B; part thicknesses, leg height, and pillow counts are this H2's authored choices.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Parent bounds/H/B gain headboard, frame, mattress, bedding, pillows, and head orientation +X or -Z within one parameterized prototype.
+@evidence principles/design/models.md#representation-contract Five part groups use headboard, bed-frame, mattress, bedding, and pillow boundaries; joints and quilt folds are omitted.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z faces the foot end; heights use the upper finished floor, and a 0.02 m bedding drop at feet/sides stays inside bounds.
+@evidence principles/design/models.md#reviewable-structure Side views compare H/B to placement parameters; top views compare bounds with three reservations.
+@evidence principles/design/models.md#model-observable-style-basis A 0.06 m headboard, frame on four corner legs, and 0.02 m side/foot bedding drop provide observable construction; materials owns bedding colors.
+@evidence principles/design/models.md#model-scale-layer-completion Three L/W/H/B sets, local part occupancy and leg sections/positions, five boundaries, no joints, and side/plan observations determine the design; actual meshes and frames remain unverified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Three room bounds and H=0.60/0.55 m, B=1.00/0.95 m remain unchanged, with no parent defect identified.
+@evidence settings/10-house.md#primary-bedroom Two-adult bedding becomes primary width 1.60 m and two pillows.
+@evidence settings/10-house.md#bedroom-two One-child bedding becomes width 1.15 m and one pillow.
+@evidence settings/10-house.md#bedroom-three The other child's bed uses the same 1.15 m width/0.55 m height prototype, with placement-specific blue-grey bedding assigned to materials.
+@evidence spaces/rooms/primary.md#primary-furniture-use Reserved X=[-1.50,0.65], Z=[-8.65,-7.05] supply L=2.15, W=1.60, H=0.60, B=1.00 m and head +X.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Reserved X=[-5.25,-4.10], Z=[-4.50,-2.35] supply L=2.15, W=1.15, H=0.55, B=0.95 m and head -Z.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Reserved X=[-0.25,0.90], Z=[-3.10,-0.95] supply the same smaller-bed L/W/H/B and head -Z.
+@evidence obligations/design/models.md#addressable-model-decisions One H2 addresses W/L/H/B, five parts/boundaries, and source owner src/models/furnishings/bedrooms.ts.
+@evidence obligations/design/models.md#model-review-set Fixed model-review views own observations and the surface-partition naming rule owns boundary names.
+@evidence obligations/design/models.md#reference-scale Reserved H=0.60 m primary/0.55 m small-room heights derive mattress Y=[0.30,H−0.03] plus 0.03 m bedding to meet H.
 -->
 
-레퍼런스 05의 주침실 침대와 02의 작은 침실 두 침대를 같은 머리판 계열로 채택한다. 세 크기는 각 방 예약에서 받는다.
+Adopt reference 05's primary bed and reference 02's two smaller beds as one headboard family. Room reservations supply all three sizes.
 
-침대는 폭 W, 길이 L, 매트리스 상면 H, 머리판 상단 B를 받는 한 원형이다. [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use) X = [-1.50, 0.65], Z = [-8.65, -7.05]는 L = 2.15 m, W = 1.60 m, H = 0.60 m, B = 1.00 m이고 머리가 +X다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.25, -4.10], Z = [-4.50, -2.35]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [-0.25, 0.90], Z = [-3.10, -0.95]는 L = 2.15 m, W = 1.15 m, H = 0.55 m, B = 0.95 m이고 머리가 -Z다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 발끝 방향이며 높이는 상층 완성 바닥 기준이다.
+One prototype accepts width W, length L, mattress-top H, and headboard-top B. [Primary reservation](../spaces/rooms/primary.md#primary-furniture-use) X=[-1.50,0.65], Z=[-8.65,-7.05] supplies L=2.15, W=1.60, H=0.60, B=1.00 m, head +X. [Bedroom two](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X=[-5.25,-4.10], Z=[-4.50,-2.35] and [bedroom three](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X=[-0.25,0.90], Z=[-3.10,-0.95] supply L=2.15, W=1.15, H=0.55, B=0.95 m, head -Z. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply with +Z toward feet and heights above the upper finished floor.
 
-부품은 머리판, 프레임, 매트리스, 침구 덮개, 베개다. 국소 원점은 머리 쪽 뒤 모서리 중앙의 바닥점이고 X=[−W/2,W/2], Z=[0,L] m다. 머리판은 두께 0.06 m, 전체 폭 W이고 Z=[0,0.06], Y=[0,B] m다. 프레임은 X=[−W/2,W/2], Z=[0.06,L], Y=[0.10,0.30] m다. 네 모서리 다리는 단면 0.05 × 0.05 m·Y=[0,0.10] m이며 프레임의 X 양끝과 Z 양끝에서 바깥 두 면을 맞추고 윗면은 프레임 밑면에 접한다. 다리의 모든 노출 면에는 `bed-frame`을 붙인다. 매트리스는 X=[−W/2+0.02,W/2−0.02], Z=[0.06,L−0.02], Y=[0.30,H−0.03] m다. 침구 덮개는 매트리스 상면 위 0.03 m 두께이고 발끝·양옆에서 수직으로 0.02 m 내려오되 같은 X·Z 외곽 안에 머문다. 베개는 각 0.60 × 0.40 × 0.12 m이고 국소 Z 중심은 0.32 m다. 주침실 두 베개의 X 중심은 ±0.40 m, 작은 침실 하나는 X=0 m라 각 매트리스의 외곽 안에 든다. 재질 경계는 `headboard`, `bed-frame`, `mattress`, `bedding`, `pillow`이고 회베이지·올리브·청회색 침구는 materials가 배치별로 정한다. 관절은 없고 이불 주름은 표현하지 않는다.
+Parts are headboard, frame, mattress, bedding cover, and pillows. The local origin is the head-side rear-edge floor centre, with X=[−W/2,W/2], Z=[0,L]. The full-W, 0.06 m headboard occupies Z=[0,0.06], Y=[0,B]. Frame occupies X=[−W/2,W/2], Z=[0.06,L], Y=[0.10,0.30]. Four 0.05×0.05 m legs over Y=[0,0.10] align two outside faces with frame X/Z corners and meet its underside; all exposed leg faces use `bed-frame`. Mattress occupies X=[−W/2+0.02,W/2−0.02], Z=[0.06,L−0.02], Y=[0.30,H−0.03]. The cover adds 0.03 m above the mattress, dropping 0.02 m at feet/sides within the same X/Z outline. Pillows are 0.60×0.40×0.12 m with local Z centre 0.32; primary X centres ±0.40 and small-bed X=0 keep them within mattresses. Boundaries are `headboard`, `bed-frame`, `mattress`, `bedding`, and `pillow`. Materials assigns grey-beige, olive, and blue-grey bedding per placement. There are no joints; quilt folds are omitted.
 
-소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 H와 B가 배치별 값과 같은지, 위에서 외곽이 세 예약과 같은지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+The source owner is `src/models/furnishings/bedrooms.ts`. Side views compare H/B with placement values; top views compare the three bounds with reservations. Use fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-## 협탁과 등 {#nightstand-lamp}
+## Nightstand and lamp {#nightstand-lamp}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 두 협탁과 두 작은 침실의 협탁 하나씩을 S·T·U 세 인자의 한 원형으로 받아 등까지 포함한다.
-@evidence principles/core/common.md#substantive-completion 몸통의 국소 X=[−S/2,S/2]·Z=[0,S]·Y=[0,T] m, 서랍 전면 X=[−S/2+0.04,S/2−0.04]·Y=[T−0.20,T−0.05]·Z=[S−0.02,S] m, 등 받침 지름 0.14 m와 상판 중심 (0,S/2), 갓 지름 0.25 m·높이 0.22 m 원뿔대를 정한다.
-@evidence principles/core/common.md#declared-basis S·T·U는 방 예약 링크의 값이고 서랍 전면이 강체인 근거를 방 문서가 협탁 서랍 작동을 예약하지 않았다는 데 둔다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 협탁 외곽과 상면·등 상단 높이만 주고 이 H2는 몸통·서랍 전면·등 받침·기둥·갓 부품 구성과 갓 상단을 U에 맞추는 결정을 더한다.
-@evidence principles/design/models.md#representation-contract 몸통, 강체 서랍 전면, 등 받침·기둥·원뿔대 갓 계층과 `carcass`·`drawer-front`·`lamp-base`·`lamp-shade` 경계를 두고 빛 방출은 lighting 소유로 넘긴다. 보이지 않는 한계는 본문의 "등 전선·스위치·갓의 반투명은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z를 서랍 정면으로 두고 갓 상단이 U 높이에 오게 한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 T와 U 높이, 위에서 갓이 S 안에 드는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 침대 옆 협탁과 작은 조명을 채택한다. 협탁과 등을 사각 몸통, 서랍 전면 하나, 지름 0.25 m 원뿔대 갓이라는 형태 결정으로 한정하고 조명 성능은 주장하지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion S 0.50/0.45 m, T 0.55/0.50 m, U 1.10/1.05 m, 다섯 부품, 네 재질 경계, 강체 서랍, unverified 관찰이 함께 적혀 있다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 두 협탁과 두 작은 침실 협탁의 좌표·S·T·U를 적힌 그대로 소비했고 서랍 작동 예약이 없다는 부모 결정도 바꾸지 않았다.
-@evidence settings/10-house.md#primary-bedroom 양옆 협탁과 조명 요구를 Z = [-9.15, -8.65]와 Z = [-7.05, -6.55] 두 협탁과 U 1.10 m 등으로 받는다.
-@evidence settings/10-house.md#bedroom-two 협탁과 조명 요구를 X = [-3.95, -3.50] 협탁 하나와 U 1.05 m 등으로 받는다.
-@evidence settings/10-house.md#bedroom-three 협탁/등 요구를 X = [1.05, 1.50], Z = [-3.10, -2.65] 협탁과 같은 S 0.45 m 원형 배치로 받는다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 주침실 두 협탁 예약 X = [0.15, 0.65]를 S 0.50 m, T 0.55 m, U 1.10 m로 소비한다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 협탁 예약 X = [-3.95, -3.50], Z = [-4.50, -4.05]를 S 0.45 m, T 0.50 m로 소비한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 협탁 예약 X = [1.05, 1.50], Z = [-3.10, -2.65]를 S 0.45 m, U 1.05 m로 소비한다.
+@evidence principles/core/common.md#scope-preservation One S/T/U prototype includes lamps on two primary nightstands and one in each smaller bedroom.
+@evidence principles/core/common.md#substantive-completion It fixes body X=[−S/2,S/2], Z=[0,S], Y=[0,T], drawer X=[−S/2+0.04,S/2−0.04], Y=[T−0.20,T−0.05], Z=[S−0.02,S], base diameter 0.14 m/centre (0,S/2), and shade diameter 0.25 m/height 0.22 m.
+@evidence principles/core/common.md#declared-basis Room reservations supply S/T/U; absent drawer-operation reservations justify rigid drawer fronts.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounds/top/lamp height gain body, drawer front, lamp base/stem/shade, and shade-top alignment with U.
+@evidence principles/design/models.md#representation-contract Body, rigid drawer front, base/stem/frustum shade use carcass, drawer-front, lamp-base, and lamp-shade; lighting owns emission, while wiring, switches, and shade translucency are omitted.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z faces drawers and shade top reaches U.
+@evidence principles/design/models.md#reviewable-structure Side views compare T/U; top views require shade bounds inside S.
+@evidence principles/design/models.md#model-observable-style-basis Reference 02's bedside furniture becomes a square body, one drawer front, and 0.25 m frustum shade, without claims of lighting performance.
+@evidence principles/design/models.md#model-scale-layer-completion S=0.50/0.45, T=0.55/0.50, U=1.10/1.05 m, five parts, four boundaries, rigid drawer, and unverified observations are jointly specified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Four nightstand coordinates and S/T/U remain unchanged, retaining absent parent drawer-operation reservations.
+@evidence settings/10-house.md#primary-bedroom Two bedside tables/lights become Z=[-9.15,-8.65]/[-7.05,-6.55] and U=1.10 m.
+@evidence settings/10-house.md#bedroom-two The bedside requirement becomes one table X=[-3.95,-3.50] and U=1.05 m.
+@evidence settings/10-house.md#bedroom-three The bedside requirement becomes X=[1.05,1.50], Z=[-3.10,-2.65] using S=0.45 m.
+@evidence spaces/rooms/primary.md#primary-furniture-use Two reserved nightstands at X=[0.15,0.65] use S=0.50, T=0.55, U=1.10 m.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Reserved X=[-3.95,-3.50], Z=[-4.50,-4.05] use S=0.45, T=0.50 m.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Reserved X=[1.05,1.50], Z=[-3.10,-2.65] use S=0.45, U=1.05 m.
 -->
 
-레퍼런스 02의 침대 옆 협탁과 작은 조명을 채택한다. 레퍼런스 05에서 보이지 않는 램프 갓 치수는 예약 높이로 정한다.
+Adopt reference 02's bedside tables and small lamps. Reservation heights determine shade dimensions hidden in reference 05.
 
-협탁은 정사각 폭 S, 상면 T, 등 상단 U를 받는 한 원형이다. [주침실의 두 협탁](../spaces/rooms/primary.md#primary-furniture-use) X = [0.15, 0.65], Z = [-9.15, -8.65]와 Z = [-7.05, -6.55]는 S = 0.50 m, T = 0.55 m, U = 1.10 m다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-3.95, -3.50], Z = [-4.50, -4.05]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.05, 1.50], Z = [-3.10, -2.65]는 S = 0.45 m, T = 0.50 m, U = 1.05 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 서랍 정면이다.
+One prototype accepts square width S, top T, and lamp top U. [Two primary nightstands](../spaces/rooms/primary.md#primary-furniture-use) use X=[0.15,0.65], Z=[-9.15,-8.65]/[-7.05,-6.55], S=0.50, T=0.55, U=1.10 m. [Bedroom two](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X=[-3.95,-3.50], Z=[-4.50,-4.05] and [bedroom three](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X=[1.05,1.50], Z=[-3.10,-2.65] use S=0.45, T=0.50, U=1.05 m. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply with +Z as drawer front.
 
-부품은 몸통, 서랍 전면 하나, 등 받침, 등 기둥, 갓이다. 서랍 전면은 상면 아래 0.15 m 높이이며 방 문서가 협탁 서랍 작동을 예약하지 않으므로 강체다. 등은 지름 0.14 m·높이 0.025 m 받침, 지름 0.018 m 기둥, 하단 지름 0.25 m·상단 지름 0.16 m·높이 0.22 m 원뿔대 갓이다. 갓 상단은 U, 갓 하단은 U − 0.22 m, 기둥은 받침 상단부터 갓 하단까지 이어진다. 재질 경계는 `carcass`, `drawer-front`, `lamp-base`, `lamp-shade`다. 빛 방출은 lighting 소유다. 등 전선·스위치·갓의 반투명은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 T와 U, 위에서 갓이 S 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Parts are body, one drawer front, lamp base, stem, and shade. The 0.15 m high drawer front below the top is rigid because the room reserves no operation. The lamp has a 0.14 m diameter, 0.025 m high base, 0.018 m stem, and 0.22 m frustum shade with lower diameter 0.25/upper 0.16 m. Shade top is U, bottom U−0.22, and the stem joins base top to shade bottom. Boundaries are `carcass`, `drawer-front`, `lamp-base`, and `lamp-shade`. Lighting owns emission; wiring, switches, and shade translucency are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Observe side T/U and shade fit inside S from above using fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-협탁 `carcass`는 로컬 X=[−S/2,S/2]·Z=[0,S]·Y=[0,T] m의 닫힌 상자에서 서랍 전면 자리를 비운다. `drawer-front` 한 장은 X=[−S/2+0.04,S/2−0.04]·Z=[S−0.02,S]·Y=[T−0.20,T−0.05] m의 두께 0.02 m 판이며 몸통 개구 절단면에 면으로 접한다. `lamp-base`의 지름 0.14 m 받침 중심은 협탁 윗면의 로컬 (X,Z)=(0,S/2)이고 바닥은 Y=T m다. 기둥과 `lamp-shade`는 그 중심축을 공유한다. 이 좌표는 S=0.45 m인 작은 협탁에서도 사방 0.155 m 이상 여백을 남긴다.
+`carcass` is a closed box X=[−S/2,S/2], Z=[0,S], Y=[0,T] with the drawer-front cell removed. The 0.02 m `drawer-front` occupies X=[−S/2+0.04,S/2−0.04], Z=[S−0.02,S], Y=[T−0.20,T−0.05], contacting cut faces only. The 0.14 m `lamp-base` centres at local (X,Z)=(0,S/2), bottom Y=T; stem and shade share its axis. Even S=0.45 m leaves 0.155 m on all sides of the base and 0.10 m around the 0.25 m shade.
 
-## 낮은 서랍장 {#low-dresser}
+## Low dresser {#low-dresser}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실의 낮은 서랍장 하나를 몸통·다리 넷·서랍 여섯까지 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m, 다리 0.04 m 각재·높이 0.08 m, X 두 열과 Y 세 단의 서랍 전면 좌표·최대 인출 0.40 m, 뒤 다리 Z=0.015 m·뒤판 Y=0.10 m 시작 및 옆판 하단 홈을 확정한다 0.04 m 다리 단면과 서랍 두 열·세 행의 국소 X/Y/Z 격자를 정한다.
-@evidence principles/core/common.md#declared-basis 외곽과 상면 0.80 m는 주침실 예약에서, 인출 0.40 m는 서랍 작동 예약 X = [-5.00, -4.60]과 같다는 근거로 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 외곽과 서랍 작동 범위만 주고 이 H2는 2열 × 3단 분할, 홈 손잡이, 피벗 이름을 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·다리·서랍 여섯 계층과 `carcass`·`drawer-front`·`handle`·`leg` 경계를 두고 손잡이를 돌출 없는 윗 모서리 홈으로 정한다. 보이지 않는 한계는 본문의 "서랍 레일·서랍 내부 칸막이는 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention +Z를 서랍 정면으로 두고 yaw π/2에서 world +X가 된다고 밝히며 각 서랍 피벗이 +Z로 0.40 m까지 미끄러진다.
-@evidence principles/design/models.md#reviewable-structure 서랍 0.40 m 인출 평면이 작업 범위 X = [-4.60, -4.00]로 넘어가지 않는지를 관절 영역 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 낮은 서랍장을 높이 0.80 m, 0.08 m 다리, 2열 × 3단 전면, 돌출 없는 홈 손잡이라는 관찰 가능한 구성으로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 여섯 서랍 층, 피벗 인터페이스, 네 재질 경계, 인출 관찰이 함께 적혀 있고 관찰은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 서랍장 외곽 X = [-5.50, -5.00], Z = [-6.50, -5.10]과 서랍 작동 예약을 적힌 그대로 소비했고 부모 수정이 없었다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 낮은 서랍장 요구를 높이 0.80 m, 길이 1.40 m 서랍장으로 받는다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 주침실 서랍장 예약 X = [-5.50, -5.00], Z = [-6.50, -5.10]과 서랍 작동 예약 X = [-5.00, -4.60]을 외곽과 인출 한계로 소비한다.
-@evidence obligations/design/models.md#articulation-ownership 여섯 서랍 피벗을 `drawer-<열>-<단>`으로 이름 붙이고 +Z 최대 0.40 m 미끄럼을 이 모델의 움직임 인터페이스로 정한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns one primary dresser, body, four legs, and six drawers.
+@evidence principles/core/common.md#substantive-completion It fixes 1.40 m length/0.50 m depth/0.80 m height, 0.04 m square legs/0.08 m height, two-column/three-row drawer grids with 0.40 m travel, rear-leg Z=0.015, back panel starting Y=0.10, and side-bottom recesses.
+@evidence principles/core/common.md#declared-basis Primary reservations supply bounds/top; operating X=[-5.00,-4.60] supplies 0.40 m travel.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounds/operation gain 2×3 fronts, recessed handles, and named pivots.
+@evidence principles/design/models.md#representation-contract Body/legs/six drawers use carcass, drawer-front, handle, and leg; handles are nonprojecting upper-edge recesses, and rails/interior partitions are omitted.
+@evidence principles/design/models.md#spatial-convention +Z drawer fronts map to world +X at yaw π/2; each drawer slides at most 0.40 m in +Z.
+@evidence principles/design/models.md#reviewable-structure Extended plans challenge drawers staying outside work-use X=[-4.60,-4.00].
+@evidence principles/design/models.md#model-observable-style-basis Height 0.80 m, 0.08 m legs, 2×3 fronts, and recessed handles provide observable dresser construction.
+@evidence principles/design/models.md#model-scale-layer-completion Bounds, six-drawer divisions, pivots, four boundaries, and unverified extension observation are specified together.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Primary dresser X=[-5.50,-5.00], Z=[-6.50,-5.10] and operating reservations remain unchanged without parent revision.
+@evidence settings/10-house.md#primary-bedroom The low-dresser requirement becomes height 0.80 m and length 1.40 m.
+@evidence spaces/rooms/primary.md#primary-furniture-use Reserved X/Z supply bounds; operating X=[-5.00,-4.60] supplies travel limits.
+@evidence obligations/design/models.md#articulation-ownership Six drawer-<column>-<row> pivots expose maximum +Z travel of 0.40 m.
 -->
 
-레퍼런스 05 주침실 문 너머의 어두운 서랍장 실루엣을 채택한다. 여섯 서랍 분할은 사진에서 세지 않고 수납 기능으로 정한다.
+Adopt reference 05's dark dresser silhouette beyond the primary-room door. Storage function determines six drawers rather than counting photographic divisions.
 
-서랍장은 [주침실 예약](../spaces/rooms/primary.md#primary-furniture-use)의 X = [-5.50, -5.00], Z = [-6.50, -5.10], 상면 0.80 m를 외곽으로 받아 길이 1.40 m, 깊이 0.50 m, 높이 0.80 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 서랍 정면(yaw π/2에서 world +X)이다.
+The [primary reservation](../spaces/rooms/primary.md#primary-furniture-use) supplies X=[-5.50,-5.00], Z=[-6.50,-5.10], top 0.80 m, giving length 1.40 m, depth 0.50 m, height 0.80 m. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply with +Z drawer front mapping to world +X at yaw π/2.
 
-부품은 몸통, 다리 넷(0.08 m), 서랍 여섯(2열 × 3단)이다. 각 서랍은 피벗 `drawer-<열>-<단>`으로 +Z로 최대 0.40 m 미끄러져 [서랍 작동 예약 X = [-5.00, -4.60]](../spaces/rooms/primary.md#primary-furniture-use)과 같고, 손잡이는 각 서랍 윗변 아래 0.035 m, 서랍 가로 중앙에 폭 0.12 m·높이 0.025 m·깊이 0.012 m로 파는 홈이라 돌출이 없다. 재질 경계는 `carcass`, `drawer-front`, `handle`, `leg`다. 서랍 레일·서랍 내부 칸막이는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 서랍 0.40 m 인출 평면이 작업 범위 X = [-4.60, -4.00]로 넘어가지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Parts are body, four 0.08 m legs, and six drawers in two columns/three rows. Each `drawer-<column>-<row>` slides at most 0.40 m in +Z, matching [operating X=[-5.00,-4.60]](../spaces/rooms/primary.md#primary-furniture-use). Horizontally centred handle recesses sit 0.035 m below each upper edge, width 0.12 m, height 0.025 m, depth 0.012 m, without projection. Boundaries are `carcass`, `drawer-front`, `handle`, and `leg`; rails/interior partitions are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Extended plans require drawers not to enter work-use X=[-4.60,-4.00]. Use fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-서랍장의 외곽 뒤 기준선과 앞 서랍 면은 유지한다. 뒤쪽 두 `leg`의 뒤 경계를 국소 Z=0.015 m에 두고, `carcass` 뒤판의 시작 높이는 Y=0.10 m로 올리며 두 옆판 하단 국소 Z=[0,0.015], Y=[0,0.10] m를 파낸다. 걸레받이와 홈이 맞대며 서랍 앞면·손잡이의 0.40 m 인출 끝, 상면 0.80 m, 깊이 0.50 m는 바뀌지 않는다.
+Retain rear bounds and drawer fronts. Rear `leg` boundaries start at local Z=0.015; `carcass` back starts at Y=0.10; side-bottom Z=[0,0.015], Y=[0,0.10] is removed. Baseboards meet recesses, preserving 0.40 m front travel, top 0.80 m, and depth 0.50 m.
 
-서랍장 `leg` 네 개는 0.04×0.04 m 각재로 로컬 X 중심 ±0.665 m, Z 중심 0.035·0.465 m, Y=[0,0.08] m에 둔다. 뒤 다리 끝 Z=0.015 m는 벽 걸레받이 앞면과 접하고 앞 다리 끝 Z=0.485 m는 외곽 0.50 m 안이다. 두 열의 `drawer-front`는 각각 X=[−0.67,−0.01]·[0.01,0.67] m이고, 세 단은 Y=[0.12,0.32]·[0.35,0.55]·[0.58,0.78] m다. 여섯 전면 판은 Z=[0.48,0.50] m에 있으며 몸통 `carcass`는 그 여섯 전면 자리를 뺀 닫힌 옆·뒤·윗판으로 만든다. 손잡이 홈은 각 판 가로 중심에 놓아 0.02 m 열 간격과 0.03 m 단 간격을 침범하지 않는다.
+Four 0.04×0.04 m `leg` members centre at X=±0.665, Z=0.035/0.465, over Y=[0,0.08]. Rear ends Z=0.015 meet baseboards; front ends Z=0.485 stay within 0.50 m. Two `drawer-front` columns occupy X=[−0.67,−0.01]/[0.01,0.67], with rows Y=[0.12,0.32]/[0.35,0.55]/[0.58,0.78], all Z=[0.48,0.50]. `carcass` forms closed sides/back/top excluding those six front cells. Centred handle recesses avoid 0.02 m column and 0.03 m row gaps.
 
-## 작은 책상 {#child-desk}
+## Small desk {#child-desk}
 <!--
-@evidence principles/core/common.md#scope-preservation 두 작은 침실의 책상을 길이 L 한 인자의 원형으로 받고 상판·다리·선반·소품까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 깊이 0.60 m, 상면 0.75 m, 상판 0.03 m, 다리 0.04 m 각재의 X/Z 네 중심, 뒤 선반 X=[−L/2+0.06,L/2−0.06]·Z=[0.04,0.24]·Y=[0.62,0.72] m, 소품을 상판 뒤쪽 0.25 m 안에 두는 값을 확정한다 다리·윗선반의 국소 범위와 상판 높이 Y=[0.72,0.75] m를 정한다.
-@evidence principles/core/common.md#declared-basis L 1.20/1.15 m는 방 예약에서 받고 램프 대신 책 세 권 묶음과 연필꽂이를 둔다는 소품 선택은 이 H2의 저작 결정으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 책상 외곽만 주고 이 H2는 앞으로 열리지 않는 얕은 칸막이 선반과 무릎 공간 0.62 m를 더한다.
-@evidence principles/design/models.md#representation-contract 상판·다리 넷·칸막이 선반·소품 계층과 `top`·`leg`·`shelf`·`book`·`container`·`pencil` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 가구 국소 좌표에서 +Z를 앉는 쪽으로 두고 소품을 상판 뒤쪽 0.25 m 안에 배치한다.
-@evidence principles/design/models.md#reviewable-structure 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지를 음의 공간 관찰로 지정한다.
-@evidence principles/design/models.md#model-observable-style-basis 작은 책상을 0.03 m 얇은 상판, 0.04 m 각 다리, 0.10 m 얕은 선반이라는 비례로 정하고 램프를 두지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion L 두 값, 상면 0.75 m, 네 부품 층, 여섯 재질 경계, 관절 없음, 무릎 공간 관찰이 함께 적혀 있고 관찰은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실의 책상 예약 좌표와 L을 적힌 그대로 소비했고 고칠 부모 결함이 없었다.
-@evidence settings/10-house.md#bedroom-two 책상 요구를 둘째 침실 L = 1.20 m 책상으로 받는다.
-@evidence settings/10-house.md#bedroom-three 책상 요구를 셋째 침실 L = 1.15 m 책상으로 받아 첫 자녀 방과 같은 학습 기능을 준다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 책상 예약 X = [-5.50, -4.90], Z = [-1.60, -0.40]을 L = 1.20 m로 소비한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 책상 예약 X = [1.40, 2.55], Z = [-0.85, -0.25]를 L = 1.15 m로 소비한다.
+@evidence principles/core/common.md#scope-preservation One length-L prototype covers both small-bedroom desks, including top, legs, shelf, and props.
+@evidence principles/core/common.md#substantive-completion It fixes depth 0.60 m, top 0.75 m/thickness 0.03 m, four 0.04 m legs with explicit X/Z centres, shelf X=[−L/2+0.06,L/2−0.06], Z=[0.04,0.24], Y=[0.62,0.72], and props within the rear 0.25 m.
+@evidence principles/core/common.md#declared-basis Room reservations supply L=1.20/1.15 m; three-book stacks and pencil pots instead of lamps are this H2's choices.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Reserved bounds gain a shallow nonopening compartment shelf and 0.62 m knee clearance.
+@evidence principles/design/models.md#representation-contract Top, four legs, compartment shelf, and props use top/leg/shelf/book/container/pencil without joints; book-cover detail, individual pencil detail, and top chamfers are omitted.
+@evidence principles/design/models.md#spatial-convention Furniture-local +Z faces the sitter, with props inside the rear 0.25 m of the top.
+@evidence principles/design/models.md#reviewable-structure Side review challenges open 0.62 m knee space below the top.
+@evidence principles/design/models.md#model-observable-style-basis A 0.03 m top, 0.04 m square legs, and 0.10 m shallow shelf define proportions, without a lamp.
+@evidence principles/design/models.md#model-scale-layer-completion Two L values, top 0.75 m, four part layers, six boundaries, no joints, and unverified knee-space observation are jointly specified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Both room desk coordinates/L remain unchanged, with no parent defect identified.
+@evidence settings/10-house.md#bedroom-two The study requirement becomes an L=1.20 m desk.
+@evidence settings/10-house.md#bedroom-three The study requirement becomes L=1.15 m with the same learning function as the first child's room.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Reserved X=[-5.50,-4.90], Z=[-1.60,-0.40] supplies L=1.20 m.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Reserved X=[1.40,2.55], Z=[-0.85,-0.25] supplies L=1.15 m.
 -->
 
-레퍼런스 02의 작은 침실에서는 책상 소품이 보이지 않으므로 책·연필 개수를 사진 근거로 주장하지 않는다. 방 예약과 설정의 공부 자리를 원형으로 만든다.
+Reference 02 hides small-bedroom desk props, so book/pencil counts are authored rather than photographic evidence. Room reservations and settings' study places determine the prototype.
 
-책상은 길이 L을 받는 한 원형이며 깊이 0.60 m, 상면 0.75 m다. [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-5.50, -4.90], Z = [-1.60, -0.40]은 L = 1.20 m, [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [1.40, 2.55], Z = [-0.85, -0.25]는 L = 1.15 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z는 앉는 쪽이다.
+One desk accepts length L with depth 0.60 m and top 0.75 m. [Bedroom two](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X=[-5.50,-4.90], Z=[-1.60,-0.40] supplies L=1.20 m; [bedroom three](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X=[1.40,2.55], Z=[-0.85,-0.25] supplies L=1.15 m. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply with +Z toward the sitter.
 
-부품은 상판(0.03 m), 다리 넷(0.04 m 각), 상판 아래 앞으로 열리지 않는 얕은 칸막이 선반 하나(0.10 m 높이)다. 책상 소품은 램프 대신 0.20 × 0.14 × 0.025 m 책 세 권을 쌓아 높이 0.075 m로, 지름 0.065 m·높이 0.10 m 원통 연필꽂이 하나와 지름 0.006 m·높이 0.18 m 연필 넷을 상판 뒤쪽 0.25 m 안에 둔다. 책은 `book`, 컵은 `container`, 연필은 `pencil`이고 책상 구조는 `top`, `leg`, `shelf`다. 각 닫힌 면에는 이 여섯 id 중 하나를 붙이고 상판·책은 국소 가로 U·세로 V, 원통은 둘레 U·높이 V 미터 UV를 둔다. 관절은 없다. 책 표지·연필 개별 형상·상판 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 측면에서 상판 아래 무릎 공간 0.62 m가 비어 있는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Parts are 0.03 m top, four 0.04 m square legs, and one 0.10 m high shallow, nonopening compartment shelf below the top. Instead of a lamp, three 0.20×0.14×0.025 m books stack to 0.075 m; one 0.065 m diameter/0.10 m high pencil pot and four 0.006 m diameter/0.18 m pencils occupy the rear 0.25 m. Books use `book`, pot `container`, pencils `pencil`, structure `top`/`leg`/`shelf`. Every closed face uses one of these six ids. Tops/books use local width-U/length-V metre UVs; cylinders use circumference-U/height-V. There are no joints. Book-cover detail, individual pencil detail, and top chamfers are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Side views require open 0.62 m knee space below the top. Use fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-두 침실 책상은 뒤쪽 두 다리의 뒤 경계를 국소 Z=0.015 m로 옮겨 벽 걸레받이와 맞댄다. 상판·뒤 가로 선반은 Y=0.10 m보다 위에서만 벽 마감에 닿고 바닥으로 내려가는 다른 뒤 판은 만들지 않는다. 앞쪽 다리와 앞 상판 끝은 그대로라 두 방의 깊이 0.60 m와 의자 사용 영역은 줄지 않는다.
+Both desks move rear-leg rear boundaries to local Z=0.015 to meet baseboards. Top/rear shelf contact wall finishes only above Y=0.10, without another rear panel descending to floor. Front legs and top fronts remain fixed, preserving both 0.60 m depths and chair-use regions.
 
-책상 `top`은 로컬 X=[−L/2,L/2]·Z=[0,0.60]·Y=[0.72,0.75] m다. 네 `leg`는 0.04×0.04 m 각재로 X 중심 ±(L/2−0.04) m, Z 중심 0.035·0.565 m, Y=[0,0.72] m에 선다. 뒤 다리 끝 Z=0.015 m는 걸레받이 앞면과 맞대고 앞 다리 끝 Z=0.585 m는 외곽 안이다. `shelf`는 X=[−L/2+0.06,L/2−0.06]·Z=[0.04,0.24]·Y=[0.62,0.72] m의 뒤쪽 얕은 칸으로, 상판 밑면에 닿고 앞쪽 Z=[0.24,0.60] m에는 바닥부터 Y=0.72 m까지 무릎을 비운다. 무릎 공간 0.62 m는 선반 바로 앞/아래의 최저 통과 높이이며 선반을 앞쪽으로 늘리지 않는다.
+`top` occupies X=[−L/2,L/2], Z=[0,0.60], Y=[0.72,0.75]. Four 0.04×0.04 m `leg` members centre at X=±(L/2−0.04), Z=0.035/0.565, over Y=[0,0.72]. Rear ends Z=0.015 meet baseboards; front ends Z=0.585 stay inside bounds. `shelf` occupies rear X=[−L/2+0.06,L/2−0.06], Z=[0.04,0.24], Y=[0.62,0.72], meeting the top underside. Front Z=[0.24,0.60] remains clear from floor to Y=0.72. The 0.62 m knee value is the lowest clearance immediately in front of/below the shelf; do not extend the shelf forward.
 
-## 책상 의자 {#desk-chair}
+## Desk chair {#desk-chair}
 <!--
-@evidence principles/core/common.md#scope-preservation 두 작은 침실의 책상 의자를 식탁 의자와 구별되는 별도 원형으로 맡는다.
-@evidence principles/core/common.md#substantive-completion 몸체 예약이 없는 의자에 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 확정한다.
-@evidence principles/core/common.md#declared-basis 치수 근거를 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세, 사용 영역 안에서 밀고 당기는 여유로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 식탁 의자 링크와 같은 좌면·다리·등받이 구성을 쓰되 등받이가 낮고 깊이가 0.48 m인 차이로 별도 원형임을 밝힌다.
-@evidence principles/design/models.md#representation-contract 좌면·다리·등받이 계층과 `seat`·`leg`·`back` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "좌판 곡면·다리 이음·바퀴는 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 의자 사용 예약 0.75 × 0.75 m 안에 폭 0.45 m·깊이 0.48 m 몸체를 두는 치수 관계를 정한다.
-@evidence principles/design/models.md#reviewable-structure 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지를 검토 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 책상 의자를 식탁 의자보다 낮은 등받이 0.82 m와 깊이 0.48 m라는 비례 차이로 구분한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽과 좌면·등받이 치수, 좌판 두께·다리 단면과 위치·등판 치수, 세 재질 경계, 관절 없음, 밀어 넣기 관찰이 함께 적혀 있고 관찰은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째 침실 의자 사용 예약 0.75 × 0.75 m를 적힌 그대로 소비했고 몸체 예약 부재를 부모 결함으로 고치지 않고 이 층이 치수를 택했다.
-@evidence settings/10-house.md#bedroom-two 책상과 의자 요구 중 의자를 좌면 0.45 m 책상 의자로 받는다.
-@evidence settings/10-house.md#bedroom-three 책상/의자 요구의 의자를 같은 원형으로 두 침실에 쓴다고 적는다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 의자 사용 예약 0.75 × 0.75 m 안에서 쓰는 의자로 소비한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns a separate chair prototype for two small-bedroom desks, distinguished from dining chairs.
+@evidence principles/core/common.md#substantive-completion Without a body reservation, it chooses width 0.45 m, depth 0.48 m, seat 0.45 m, and back 0.82 m.
+@evidence principles/core/common.md#declared-basis A seat 0.30 m below the 0.75 m desk and push/pull clearance within use regions justify dimensions.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Dining-chair seat/leg/back construction becomes a separate prototype with a lower back and 0.48 m depth.
+@evidence principles/design/models.md#representation-contract Seat/legs/back use seat/leg/back boundaries without joints; seat curvature, leg joints, and wheels are omitted.
+@evidence principles/design/models.md#spatial-convention A 0.45×0.48 m body fits the 0.75×0.75 m chair-use reservation.
+@evidence principles/design/models.md#reviewable-structure Review challenges inserted-chair fit between desk legs.
+@evidence principles/design/models.md#model-observable-style-basis Back 0.82 m and depth 0.48 m distinguish proportions from the dining chair.
+@evidence principles/design/models.md#model-scale-layer-completion Bounds, seat/back heights, panel thickness, leg sections/positions, back-panel sizes, three boundaries, no joints, and unverified insertion observation are specified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work The 0.75×0.75 m use reservation remains unchanged; this layer chooses body dimensions rather than treating absent body bounds as a parent defect.
+@evidence settings/10-house.md#bedroom-two The desk/chair requirement becomes a chair with seat 0.45 m.
+@evidence settings/10-house.md#bedroom-three The desk/chair requirement uses the same chair prototype in both bedrooms.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use The chair consumes the 0.75×0.75 m use reservation.
 -->
 
-레퍼런스 02·05에는 책상 의자의 형태가 보이지 않으므로 그 사진에서 등받이 모양을 채택하지 않는다. 두 방의 책상과 사용 예약에 맞는 단순한 등판 의자를 이 H2에서 결정한다.
+References 02/05 do not show desk-chair forms. This H2 authors a simple panel-back chair fitting both desks/use reservations rather than attributing its back shape to those photographs.
 
-책상 의자는 두 침실의 [의자 사용 예약](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) 0.75 × 0.75 m 안에서 쓰는 한 원형이다. 몸체 예약이 없으므로 폭 0.45 m, 깊이 0.48 m, 좌면 0.45 m, 등받이 0.82 m를 이 층이 택하며, 근거는 책상 상면 0.75 m와 0.30 m 차이의 앉은 자세와 사용 영역 안에서 밀고 당기는 여유다. [식탁 의자](10-kitchen-dining.md#dining-chair)와 같은 좌면·다리·등받이 구성을 쓰되 등받이 높이 0.82 m와 깊이 0.48 m가 식탁 의자와 달라 별도 원형이다.
+One prototype serves both bedrooms' [chair-use reservation](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use), 0.75×0.75 m. Without body bounds, this layer chooses width 0.45 m, depth 0.48 m, seat 0.45 m, back 0.82 m, based on the 0.30 m desk/seat difference and room for pushing/pulling. It follows the [dining chair](10-kitchen-dining.md#dining-chair) seat/leg/back construction but is separate for different back height/depth.
 
-좌판은 폭 0.45 m·깊이 0.48 m·두께 0.03 m로 상면 0.45 m다. 다리 네 개는 0.035 m 각재, 좌판 모서리에서 X·Z 각각 0.04 m 안쪽에 중심을 둔다. 등받이는 뒤쪽 두 다리에서 이어지는 같은 단면의 기둥 두 개와 폭 0.35 m·높이 0.18 m·두께 0.025 m 판 하나이며 판 하단은 0.62 m, 상단은 0.80 m, 기둥 상단은 0.82 m다. 등판은 앞뒤로 기울이지 않고 좌판 뒤 가장자리에서 0.04 m 앞에 두므로 의자 깊이 0.48 m 안에 든다. 재질 경계는 `seat`, `leg`, `back`이고 관절은 없다. 좌판 곡면·다리 이음·바퀴는 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 밀어 넣은 상태에서 의자가 책상 다리 사이에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+Seat width 0.45 m/depth 0.48 m/thickness 0.03 m gives top 0.45 m. Four 0.035 m square legs centre 0.04 m inward from seat corners in both X/Z. The back has two same-section posts continuing rear legs and one 0.35×0.18×0.025 m panel, bottom 0.62 m, top 0.80 m, post top 0.82 m. It has no front/rear lean and sits 0.04 m forward of the rear seat edge, remaining within depth 0.48 m. Boundaries are `seat`, `leg`, and `back`; there are no joints. Seat curvature, leg joints, and wheels are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Observe inserted fit between desk legs using fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-## 미닫이 옷장 {#sliding-closet}
+## Sliding closet {#sliding-closet}
 <!--
-@evidence principles/core/common.md#scope-preservation 둘째·셋째 침실 옷장 두 예약을 한 원형으로 받고 문·전면 문선·봉·선반·옷까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 폭 1.50 m·깊이 0.60 m·높이 2.20 m, 두 문 0.76×2.16×0.02 m, 몸통 앞끝 Z=0.49 m, 뒤/앞 레일 [0.50,0.52]/[0.55,0.57] m, 전면 문선 Z=[0.57,0.60] m, 봉 깊이 0.28 m·높이 1.65 m, 윗선반 1.85 m와 옷 18벌의 식을 정한다. 벽 앞 상자의 뒤 하단은 걸레받이를 비운다. 바닥판·상판은 옆판 사이 X=[−0.73,0.73]·Z=[0.02,0.49] m, 뒤판은 Z=[0,0.02] m로 나뉘어 서로 면에서만 닿는다.
-@evidence principles/core/common.md#declared-basis 외곽과 -X 면 미닫이 문은 두 방 예약에서, 문·봉·선반 치수는 이 H2의 저작 값으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 방 예약은 옷장 외곽과 문 면만 주고 이 H2는 두 레일·미닫이 문, 봉·윗선반과 식으로 치수를 고정한 옷 18벌을 더한다.
-@evidence principles/design/models.md#representation-contract 몸통·두 문·봉·윗선반·옷·전면 문선 계층과 `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes`·`casing` 경계를 둔다. 미닫이 롤러·옷걸이 개별 형상·옷 주름은 표현하지 않는다.
-@evidence principles/design/models.md#spatial-convention 몸통 뒤 모서리 중앙을 원점, +Z를 문 면으로 두고 뒤/앞 문 깊이를 각각 [0.50,0.52]/[0.55,0.57] m에 고정한다. 두 문은 국소 X 방향으로 최대 0.72 m 움직이고 기준 상태는 둘 다 닫힘이다.
-@evidence principles/design/models.md#reviewable-structure 문이 열린 상태에서도 몸체 앞면 밖으로 나오지 않는지를 관절 영역 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 미닫이 옷장을 앞뒤 두 레일, 0.76 m 두 문, 2.20 m 높이라는 관찰 가능한 구성으로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽·문·레일·봉·선반·전면 문선과 옷 18벌의 식, 두 문의 국소 X 평행 이동과 닫힘 기준 상태, 여덟 재질 경계와 열린 문 관찰을 적었으며 실제 원형 source와 프레임은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 둘째·셋째 침실 옷장 예약의 좌표와 1.50 × 0.60 × 2.20 m, -X 문 면을 적힌 그대로 소비했고 부모 수정이 없었다.
-@evidence settings/10-house.md#bedroom-two 옷 수납 요구를 X = [-2.55, -1.95] 미닫이 옷장으로 받는다.
-@evidence settings/10-house.md#bedroom-three 옷 수납 요구를 X = [4.90, 5.50] 미닫이 옷장으로 받아 첫 자녀 방 좌표를 복사하지 않는다.
-@evidence settings/10-house.md#storage 침실 옷장에 문짝·옷걸이 봉·윗선반과 깊이 0.60 m 내부를 둬 빈 문짝으로 대신하지 않는다.
-@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use 둘째 침실 옷장 예약 X = [-2.55, -1.95], Z = [-2.95, -1.45]를 폭 1.50 m 원형으로 소비한다.
-@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use 셋째 침실 옷장 예약 X = [4.90, 5.50], Z = [-2.80, -1.30]을 같은 원형으로 소비한다.
-@evidence obligations/design/models.md#articulation-ownership 앞 왼쪽 문 `door-front`는 +X, 뒤 오른쪽 문 `door-back`은 -X로 각각 0–0.72 m 미끄러지고 기준 상태는 둘 다 닫힘이라고 정한다.
+@evidence principles/core/common.md#scope-preservation One prototype covers both small-bedroom closet reservations, including leaves, front casing, rod, shelf, and clothes.
+@evidence principles/core/common.md#substantive-completion It fixes 1.50×0.60×2.20 m bounds, two 0.76×2.16×0.02 m leaves, carcass front Z=0.49, rear/front tracks Z=[0.50,0.52]/[0.55,0.57], casing Z=[0.57,0.60], rod depth 0.28/height 1.65 m, shelf top 1.85 m, and formulas for 18 clothes; lower rear clears baseboard, with horizontal panels X=[−0.73,0.73], Z=[0.02,0.49] and back Z=[0,0.02] meeting only by face.
+@evidence principles/core/common.md#declared-basis Both room reservations supply bounds and -X sliding fronts; leaf/rod/shelf dimensions are authored here.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounds/fronts gain two tracks/leaves, rod/top shelf, and 18 formula-sized clothes.
+@evidence principles/design/models.md#representation-contract Body, two leaves, rod, shelf, clothes, and front casing use carcass/leaf/handle/rail/rod/shelf/clothes/casing; rollers, individual hangers, and clothing folds are omitted.
+@evidence principles/design/models.md#spatial-convention Origin is the rear-body floor centre with +Z front; rear/front leaves use Z=[0.50,0.52]/[0.55,0.57], travel at most 0.72 m along local X, and both start closed.
+@evidence principles/design/models.md#reviewable-structure Open-state review challenges leaves remaining inside the body-front envelope.
+@evidence principles/design/models.md#model-observable-style-basis References 02's small-room storage and 05's open closet become two-depth tracks, two 0.76 m leaves, and 2.20 m height.
+@evidence principles/design/models.md#model-scale-layer-completion Bounds, leaves/tracks/rod/shelf/casing, 18-clothing formulas, local-X closed-state motion, eight boundaries, and open-leaf observations are defined; actual source/frame remain unverified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Both closet coordinates, 1.50×0.60×2.20 m, and -X fronts remain unchanged without parent revision.
+@evidence settings/10-house.md#bedroom-two Required clothing storage becomes a sliding closet at X=[-2.55,-1.95].
+@evidence settings/10-house.md#bedroom-three Required storage uses X=[4.90,5.50] rather than copying the first child's coordinates.
+@evidence settings/10-house.md#storage Leaves, hanging rod, top shelf, and actual 0.60 m interior depth prevent substituting empty doors for storage.
+@evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Reserved X=[-2.55,-1.95], Z=[-2.95,-1.45] supplies the 1.50 m prototype.
+@evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Reserved X=[4.90,5.50], Z=[-2.80,-1.30] uses the same prototype.
+@evidence obligations/design/models.md#articulation-ownership Front-left door-front moves +X and rear-right door-back moves -X over 0–0.72 m; both rest closed.
 -->
 
-건물 분류: 붙박이 — 방의 벽 앞 예약에 맞추는 바닥부터 위까지의 옷장이다.
+Building classification: built-in. This floor-to-top closet fits a reservation in front of the room wall.
 
-레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 문짝 두께와 옷 개수는 사진에서 재지 않고 예약과 이 H2의 수치로 정한다.
+Adopt reference 02's small-bedroom storage and reference 05's open closet. Reservations and this H2's values determine leaf thickness and clothing counts rather than photographic measurement.
 
-옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 원점은 몸통 뒤면 바닥 중앙이고 +Z는 문 면이다.
+One prototype serves [bedroom two](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X=[-2.55,-1.95], Z=[-2.95,-1.45] and [bedroom three](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X=[4.90,5.50], Z=[-2.80,-1.30]. Both reserve width 1.50 m, depth 0.60 m, height 2.20 m and -X sliding fronts. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) use the rear-body floor centre as origin, +Z front.
 
-몸통은 로컬 X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20] m다. 옆판·뒤판·바닥판·상판은 두께 0.02 m이며 뒤판만 Z=[0,0.02] m의 전폭을 채운다. 두 옆판은 X=[−0.75,−0.73]·[0.73,0.75] m, Z=[0.02,0.49] m이고, 바닥판은 X=[−0.73,0.73]·Z=[0.02,0.49]·Y=[0,0.02] m, 상판은 같은 X/Z와 Y=[2.18,2.20] m다. 판들은 X=±0.73 m와 Z=0.02 m에서 면으로만 만나 뒤판·옆판·수평판의 공통 부피가 없다. 앞 왼쪽 문 `door-front`의 닫힌 X=[-0.75,0.01], 깊이 Z=[0.55,0.57] m이고 뒤 오른쪽 문 `door-back`의 닫힌 X=[-0.01,0.75], Z=[0.50,0.52] m다. 각 문은 폭 0.76 m·높이 2.16 m·두께 0.02 m이며 Y=[0.01,2.17] m다. 두 문의 닫힌 겹침은 0.02 m이고 기준 상태는 둘 다 닫힘이다. 앞 문은 +X, 뒤 문은 -X로 각각 0–0.72 m만 움직여 바깥 가로·깊이 범위를 넘지 않는다. 두 깊이마다 폭 0.02 m의 직사각 레일을 바닥 Y=[0,0.01] m와 상부 Y=[2.17,2.20] m에 두고 길이는 몸통 폭 1.50 m다. 몸통 속 옷걸이 봉은 뒤에서 Z=0.28 m, Y=1.65 m에 둔 지름 0.03 m 원통이고, 윗선반은 상면 1.85 m·두께 0.025 m·깊이 0.45 m다. 문짝의 손잡이는 만남선에서 각 바깥쪽으로 0.06 m, 바닥 위 1.05 m 중심의 폭 0.10 m·높이 0.025 m·깊이 0.008 m 오목 홈이라 외곽을 늘리지 않는다.
+Body bounds are X=[-0.75,0.75], Z=[0,0.60], Y=[0,2.20]. Side/back/bottom/top panels are 0.02 m thick; only the back spans full width at Z=[0,0.02]. Sides occupy X=[−0.75,−0.73]/[0.73,0.75], Z=[0.02,0.49]; bottom X=[−0.73,0.73], Z=[0.02,0.49], Y=[0,0.02]; top uses the same X/Z and Y=[2.18,2.20]. They meet only by face at X=±0.73 and Z=0.02, without common volume. Closed front-left `door-front` occupies X=[-0.75,0.01], Z=[0.55,0.57]; rear-right `door-back` X=[-0.01,0.75], Z=[0.50,0.52]. Each is 0.76×2.16×0.02 m at Y=[0.01,2.17], overlapping horizontally by 0.02 m when both rest closed. Front moves +X and rear -X over 0–0.72 m within width/depth. Each 0.02 m deep rectangular track spans 1.50 m at bottom Y=[0,0.01] and top Y=[2.17,2.20]. The 0.03 m diameter rod sits Z=0.28, Y=1.65; top shelf top 1.85, thickness 0.025, depth 0.45 m. Leaf handles are 0.10 m wide/0.025 m high/0.008 m deep recesses, centred 0.06 m outward from the meeting line at Y=1.05, without expanding bounds.
 
-걸린 옷은 18벌이다. 순번 i=0…17에 두께 `0.035+0.005×(i mod 3)` m, 앞뒤 폭 0.38 m, 어깨 아래 길이 `0.85+0.05×(i mod 3)` m를 준다. 여섯 주기 두께 합은 `6×(0.035+0.040+0.045)=0.720` m이므로 봉 중앙에서 X=[-0.36,0.36] m에 순서대로 걸고 양끝 0.39 m씩 비운다. 각 옷의 깊이 중심은 봉 Z=0.28 m로 Z=[0.09,0.47] m여서 뒤 문 안쪽 Z=0.50 m보다 0.03 m 앞에서 멈춘다. 어깨 윗면은 봉 반지름 0.015 m를 뺀 Y=1.635 m에서 봉 아랫면에 접하고, 가장 긴 옷의 아랫끝은 Y=1.635−0.95=0.685 m다. 옷걸이는 만들지 않으며 옷 부피가 봉을 관통하지 않는다. 옷은 어깨가 둥근 닫힌 얇은 부피이고 옷걸이·소매·주름은 표현하지 않는다. 재질 경계는 `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, `clothes`다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 닫힘·각 문 최대 열림에서 문과 옷이 몸통 밖으로 나오지 않는지다. 실제 source·프레임은 unverified다.
+There are 18 clothes. For i=0…17, thickness is `0.035+0.005×(i mod 3)` m, front/rear width 0.38 m, and below-shoulder length `0.85+0.05×(i mod 3)` m. Six cycles total `6×(0.035+0.040+0.045)=0.720` m, arranged sequentially at rod centre X=[-0.36,0.36] with 0.39 m left at each end. Clothes centre on rod Z=0.28, occupying Z=[0.09,0.47], ending 0.03 m before rear-leaf inner Z=0.50. Shoulder tops Y=1.635 subtract rod radius 0.015 and touch its underside; longest clothes end Y=1.635−0.95=0.685. No hangers are modeled, and clothes do not penetrate the rod. Rounded-shoulder closed thin volumes omit hangers, sleeves, and folds. Boundaries here are `carcass`, `leaf`, `handle`, `rail`, `rod`, `shelf`, and `clothes`, with `casing` defined below. The source owner is `src/models/furnishings/bedrooms.ts`. Observe clothes/leaves within body bounds at closed and maximum-open states. Actual source and frames remain unverified.
 
-흰 전면 `casing`은 두 옆판 앞의 세 판이다. 왼쪽·오른쪽 세로 판은 국소 X=[−0.75,−0.72]·[0.72,0.75] m, Z=[0.57,0.60] m, Y=[0,2.17] m다. 머리 판은 X=[−0.75,0.75] m, 같은 Z 깊이, Y=[2.17,2.20] m다. 문짝은 Z≤0.57 m에서 미끄러지므로 닫힘과 양 끝 열림에서 세 판의 부피와 겹치지 않는다. 세로 판은 바닥에 닿고 머리 판과 Y=2.17 m 면에서만 맞닿는다. 세 판은 원래 1.50×0.60×2.20 m 예약 안에 있고, 모든 앞·뒤·끝면은 `casing`이다. 세로 아래 끝과 머리 왼쪽 끝을 원점으로 길이 U·폭 V를 1 UV/m로 투영하고 판 끝마다 이음을 새로 시작한다.
+White `casing` has three front panels. Verticals occupy X=[−0.75,−0.72]/[0.72,0.75], Z=[0.57,0.60], Y=[0,2.17]; head X=[−0.75,0.75], same Z, Y=[2.17,2.20]. Leaves slide at Z≤0.57 without volume overlap in closed/end states. Verticals reach floor and meet the head only at Y=2.17. All three remain inside 1.50×0.60×2.20 m; every front/back/end uses `casing`. Project length-U/width-V at 1 UV/m from vertical lower ends/head left end, restarting seams at panel ends.
 
-붙박이 몸통의 `carcass`는 국소 X=[−0.75,0.75]·Z=[0,0.02]·Y=[0,2.20] m 뒤판과 X=[−0.75,−0.73]·[0.73,0.75]·Z=[0.02,0.49] m 옆판, 그 사이 X=[−0.73,0.73]·Z=[0.02,0.49] m의 Y=[0,0.02]·[2.18,2.20] m 수평판을 합집합으로 만들고 앞 문단의 뒤판 걸레받이 홈을 뺀다. 앞 `leaf`는 X=[−0.75,0.01]·Z=[0.55,0.57]·Y=[0.01,2.17] m, 뒤 `leaf`는 X=[−0.01,0.75]·Z=[0.50,0.52]·같은 Y 범위인 두께 0.02 m의 서로 다른 판이다. 각 `rail`은 X=[−0.75,0.75] m를 따르는 Z=[0.50,0.52]·[0.55,0.57] m 두 트랙에서 Y=[0,0.01]·[2.17,2.20] m의 아래·위 끝만 차지해 몸통 앞끝 Z=0.49 m와 겹치지 않는다. `rod`는 옆판 사이 X=[−0.73,0.73] m를 잇는 지름 0.03 m 원통으로 중심 Y=1.65·Z=0.28 m이며, `shelf`는 같은 X 범위·Z=[0.02,0.47]·Y=[1.825,1.85] m의 두께 0.025 m 판이다. 두 문의 `handle`은 중심 X=−0.06·0.06 m·Y=1.05 m, 앞·뒤 문 각 외면 Z=0.57·0.52 m에서 0.008 m 안으로 파는 폭 0.10·높이 0.025 m 홈이라 문 외곽을 늘리지 않는다. 흰 `casing`의 세로 판은 X=[−0.75,−0.72]·[0.72,0.75]·Z=[0.57,0.60]·Y=[0,2.17] m, 머리는 X=[−0.75,0.75]·Z=[0.57,0.60]·Y=[2.17,2.20] m라 앞문 끝 Z=0.57 m와 면에서만 접한다.
+`carcass` unions back X=[−0.75,0.75], Z=[0,0.02], Y=[0,2.20], side X=[−0.75,−0.73]/[0.73,0.75], Z=[0.02,0.49], and intervening horizontal X=[−0.73,0.73], Z=[0.02,0.49], Y=[0,0.02]/[2.18,2.20], with the rear-baseboard recess specified below removed. Front `leaf` occupies X=[−0.75,0.01], Z=[0.55,0.57], Y=[0.01,2.17]; rear `leaf` X=[−0.01,0.75], Z=[0.50,0.52], same Y. Rails span X=[−0.75,0.75] at both depth intervals and Y=[0,0.01]/[2.17,2.20], clear of carcass front Z=0.49. Rod axis X=[−0.73,0.73] has diameter 0.03, centre Y=1.65/Z=0.28; shelf occupies the same X, Z=[0.02,0.47], Y=[1.825,1.85]. Handle centres X=−0.06/+0.06, Y=1.05 recess 0.008 m from front/rear exterior Z=0.57/0.52. Casing verticals/head retain the bounds above and contact front-leaf end Z=0.57 only by face.
 
-두께 0.02 m의 몸통 옆판·바닥판·상판은 뒤판의 앞면 Z=0.02 m에서 앞 끝 Z=0.49 m까지만 이어진다. 뒤 문 레일·문짝은 Z=[0.50,0.52], 앞 문 레일·문짝은 Z=[0.55,0.57] m이므로 몸통의 앞 0.11 m를 비운 분리 구간 안에서 미끄러진다. 레일의 X 길이 1.50 m는 옆판의 **앞**에 있어 옆판을 관통하지 않는다. 아래 레일 Y=[0,0.01] m과 위 레일 Y=[2.17,2.20] m는 바닥판·상판의 Z 끝 0.49 m보다 앞이어서 같은 높이에 있어도 부피를 공유하지 않는다. 두 문은 기준 닫힘과 이동 끝에서 모두 X=[−0.75,0.75] m를 벗어나지 않는다.
+The 0.02 m side/bottom/top panels extend only from back front Z=0.02 to Z=0.49. Rear tracks/leaves Z=[0.50,0.52] and front Z=[0.55,0.57] slide in the remaining 0.11 m front separation. The 1.50 m rails lie in front of sides without penetrating them; even at shared heights, bottom/top rails have no shared volume with panels ending at Z=0.49. Both leaves remain inside X=[−0.75,0.75] at rest and travel ends.
 
-이 미닫이 옷장은 [두 작은 침실의 예약](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use)처럼 평평한 오른쪽 벽 **앞**의 상자형 붙박이이며 벽에 개구부나 벽감을 요구하지 않는다. 뒤판의 국소 Z=[0,0.02] m는 Y=[0,0.10] m에서 Z=[0,0.015] m를 비우고, 두 옆판은 처음부터 Z=0.02 m에서 시작하므로 그 걸레받이 띠에 들어가지 않는다. 나머지 뒤판은 Y>0.10 m에서 벽에 닿고 바닥판은 옆판 사이 X=[−0.73,0.73] m·Z=[0.02,0.49] m·Y=[0,0.02] m에 놓인다. [걸레받이 원형](06-interior-trim.md#wall-baseboard)은 둘째·셋째 침실 오른쪽 벽의 예약된 옷장 **뒤**에서 연속해 몸통 홈 안을 지난다. 옷장 앞 끝은 벽에서 0.60 m 떨어져 있으므로 그곳에서 걸레받이를 종단하지 않는다. 옷장 양끝을 벗어난 벽 run은 그대로 이어지고 닫힌 끝 마개는 방문 문선이나 실제 벽 끝에서만 생긴다. 옷장 1.50×0.60×2.20 m 외곽과 두 트랙·문짝 이동 0.72 m는 바뀌지 않는다.
+As in the [small-bedroom reservation](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use), this is a box built-in in front of a flat right wall, requiring no wall opening or niche. Back Z=[0,0.02] removes Z=[0,0.015] over Y=[0,0.10]; sides already start at Z=0.02 and avoid that strip. Remaining back contacts the wall above Y=0.10; bottom sits between sides at X=[−0.73,0.73], Z=[0.02,0.49], Y=[0,0.02]. The [baseboard prototype](06-interior-trim.md#wall-baseboard) continues behind both closets through their recesses. It does not terminate at closet fronts 0.60 m from walls; wall runs continue past ends and closed end caps occur only at door casing or actual wall ends. Bounds and 0.72 m leaf travel remain unchanged.
 
-## 주침실에서 시작하는 여덟 창의 얇은 커튼 {#primary-window-curtains}
+## Thin curtains for eight windows, starting in the primary bedroom {#primary-window-curtains}
 <!--
-@evidence principles/core/common.md#scope-preservation 주침실 두 창과 거실·가족실·작은 침실 여섯 창, 합계 여덟 창에 한 커튼 원형을 결속하고 벽·창틀·유리 면은 소유하지 않는다.
-@evidence principles/core/common.md#substantive-completion 창 폭 W·머리 높이·층 바닥을 인자로 받아 봉 중심을 창 머리 위 0.10 m, 드레이프 아랫단을 바닥 위 0.10 m, 앞돌출을 0.106 m 이내, 양끝 모임 폭을 각 0.18 m로 결정한다.
-@evidence principles/core/common.md#declared-basis 주침실 두 창은 primary-furniture-use, 다른 여섯 창은 selected-window-curtain-strips의 점유 띠와 각 입면 폭에서 받고 봉·천 형상은 이 한 원형에서 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 두 부모 예약이 각각 주침실 두 창과 다른 여섯 창의 점유만 주므로 이 H2가 여덟 창 공통의 개방 상태·접힘·부품·면 분할을 더한다.
-@evidence principles/design/models.md#representation-contract 봉·받침·양쪽 얇은 천 패널의 부품과 `rod`·`bracket`·`curtain` 표면을 구분하고 고정 개방 상태와 세 굵은 접힘만 표현을 밝힌다.
-@evidence principles/design/models.md#spatial-convention 창의 안쪽 왼쪽 아래를 국소 원점, 개구부 너비를 U, 높이를 V, 방 안쪽을 +N으로 두고 전·후·좌·우 입면 축 회전만 배치에서 바꾼다.
-@evidence principles/design/models.md#reviewable-structure 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m를 지키는지를 반증 견본으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 곧은 봉과 서로 분리된 얇은 두 드레이프를 두어 여덟 창에서 라벨 없이 커튼으로 읽히게 하고 직물 결·투과는 materials에 남긴다.
-@evidence principles/design/models.md#model-scale-layer-completion 여덟 창의 W·head·floor 입력, 0.106 m 앞돌출, 세 표면 id, 고정 개방 상태와 두 방향 리뷰를 함께 정한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 주침실 예약의 좌우·상하 부족은 이전에 primary-furniture-use에서 고쳤고, 나머지 여섯 창의 커튼 전제에 대응하는 띠가 없어 spaces/06-openings.md#selected-window-curtain-strips를 추가했다. spaces/rooms/bedroom-two.md#bedroom-two-furniture-use도 기존 커튼을 settings 요구처럼 적던 문장을 고쳐 그 띠에서 인계받는 별도 공간 결정으로 정정했다. 두 부모 수정은 원형의 여덟 창 소비와 직접 연결된다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 얇은 커튼 요구를 후면·왼쪽 두 창에 적용한다. 다른 여섯 창에 같은 원형을 반복하는 근거는 settings의 구별 문장이 아니라 spaces/06-openings.md#selected-window-curtain-strips의 별도 점유 띠다.
-@evidence spaces/envelope/rear.md#primary-rear-window X = [-3.85, -1.45] m의 후면 개구부를 W = 2.40 m 커튼 원형의 첫 배치로 받는다.
-@evidence spaces/envelope/left.md#primary-left-window Z = [-8.90, -7.30] m의 측면 개구부를 W = 1.60 m 같은 원형의 둘째 배치로 받는다.
-@evidence spaces/rooms/primary.md#primary-furniture-use 두 창 커튼의 host 유도 폭 W + 0.20 m·상하 범위와 방 안쪽 돌출 0.12 m를 `rod`·`bracket`·`curtain`의 전체 점유 상한으로 받는다.
-@evidence spaces/06-openings.md#selected-window-curtain-strips 거실·가족실·작은 침실의 여섯 창마다 W+0.20 m·머리 위 0.12 m·완성 바닥 위 0.10 m·안쪽 0.12 m의 점유 띠를 받는다.
-@evidence obligations/design/models.md#representation-ceiling 얇은 드레이프의 큰 접힘만 원형 형상으로 두고 실밥·봉제·천의 동역학은 이 정적 모델이 주장하지 않는다.
+@evidence principles/core/common.md#scope-preservation One curtain prototype serves two primary and six living/family/small-bedroom windows, eight total, without owning wall/frame/glass faces.
+@evidence principles/core/common.md#substantive-completion Inputs are W, head height, and floor; rod centre is 0.10 m above the head, curtain bottom 0.10 m above floor, projection at most 0.106 m, and each end gathers to 0.18 m.
+@evidence principles/core/common.md#declared-basis Primary-furniture-use supplies two windows; selected-window-curtain-strips and facade widths supply six others; this prototype owns rod/textile geometry.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation The two parent occupancy sets gain shared open state, folds, parts, and partitions for all eight windows.
+@evidence principles/design/models.md#representation-contract Rod, supports, and two thin panels use rod/bracket/curtain, with fixed-open state and three broad folds only.
+@evidence principles/design/models.md#spatial-convention Origin is the opening's inner lower-left, U width, V up, +N roomward; placement changes only facade-axis rotations.
+@evidence principles/design/models.md#reviewable-structure Front review challenges mostly-open windows with 0.18 m end gathers; side review challenges the 0.12 m cap.
+@evidence principles/design/models.md#model-observable-style-basis Straight rods and separate thin drapes read as curtains across eight windows; materials owns weave/transmission.
+@evidence principles/design/models.md#model-scale-layer-completion Eight W/head/floor inputs, 0.106 m projection, three ids, fixed-open state, and two-direction review are jointly specified.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work Primary-furniture-use previously corrected insufficient lateral/vertical bounds; missing six-window strips led to spaces/06-openings.md#selected-window-curtain-strips, and bedroom-two-furniture-use corrected its attribution of curtains to settings into a separate spatial handoff, directly supporting eight-window consumption.
+@evidence settings/10-house.md#primary-bedroom Thin-curtain requirements apply to primary rear/left windows; the other six repetitions derive from separate spaces curtain strips rather than a settings distinction.
+@evidence spaces/envelope/rear.md#primary-rear-window Rear X=[-3.85,-1.45] supplies first-placement W=2.40 m.
+@evidence spaces/envelope/left.md#primary-left-window Side Z=[-8.90,-7.30] supplies second-placement W=1.60 m.
+@evidence spaces/rooms/primary.md#primary-furniture-use Host width W+0.20 m, vertical range, and roomward 0.12 m bound all rod/bracket/curtain occupancy.
+@evidence spaces/06-openings.md#selected-window-curtain-strips Six living/family/small-bedroom windows supply W+0.20 m, 0.12 m above heads, 0.10 m above finished floors, and 0.12 m roomward strips.
+@evidence obligations/design/models.md#representation-ceiling Only broad thin-drape folds are modeled, without thread, sewing, or cloth dynamics.
 -->
 
-레퍼런스 05의 주침실 창에 걸린 얇은 회색 커튼을 채택한다. 레퍼런스 03·04의 공용실 창에는 드레이프가 없으나, reviewed spaces의 거실·가족실·두 작은 침실 커튼 전제를 실현하기 위해 여섯 창에도 같은 얇은 원형을 단다. 이는 레퍼런스의 맨 창과 달라지는 시각 선택이며 사진에 없는 커튼을 사진 근거로 주장하지 않는다. 접힌 주름 수는 사진 복제가 아니라 한 패널 폭의 식으로 정한다.
+Adopt reference 05's thin grey primary curtains. References 03/04 have bare common-room windows, but six additional windows use the same thin prototype to realize reviewed spaces' living/family/small-bedroom curtain decisions. This is a visual departure from those bare windows, with no photographic attribution for absent curtains. Panel-width formulas determine folds rather than copying the photograph.
 
-후면의 [주침실 창](../spaces/envelope/rear.md#primary-rear-window)은 폭 W = 2.40 m, 왼쪽의 [주침실 창](../spaces/envelope/left.md#primary-left-window)은 W = 1.60 m다. 다른 여섯 창은 [공통 커튼 점유](../spaces/06-openings.md#selected-window-curtain-strips) 순서대로 W = 2.80·1.20·2.00·1.70·2.10·2.10 m다. 창 높이 H는 각 host 개구부 머리와 창대에서 계산하고 창 하단의 세계 높이는 host가 준 값만 소비한다. 원형의 국소 원점은 개구부 안쪽 왼쪽 아래이며 U는 창 너비, V는 위쪽, +N은 방 안쪽이다. 전·후·좌·우 입면 배치는 축 회전만 다르고 치수식은 같다. 봉 중심은 V=H+0.10 m(개구부 위 0.10 m)에 놓고 U=[-0.10,W+0.10] m까지 뻗는다. 드레이프는 해당 층 완성 바닥 위 0.10 m에서 봉 중심까지 이어지고 윗단 0.025 m를 봉 주위에 감싼다. 주침실과 작은 침실의 창대에서는 국소 V=-0.75 m, 거실 전면 창은 V=-0.60 m, 거실 측면·가족실 두 창은 V=-0.65 m가 아랫단이다. 두 패널을 창 양끝에 각 0.18 m 폭으로 모은 고정 개방 상태다. 봉 반지름 0.0125 m와 천 두께 0.006 m를 더한 최고점은 개구부 위 0.1185 m로, 두 부모의 위쪽 0.12 m 띠 안에 0.0015 m 남는다. 윗단이 봉을 감싸므로 공중 틈은 없다.
+[Primary rear](../spaces/envelope/rear.md#primary-rear-window) has W=2.40 m and [primary left](../spaces/envelope/left.md#primary-left-window) W=1.60 m. In [shared-strip order](../spaces/06-openings.md#selected-window-curtain-strips), the six others have W=2.80/1.20/2.00/1.70/2.10/2.10 m. H derives from each host's head/sill; only host values supply opening world-bottom heights. Origin is inner lower-left, U width, V up, +N roomward. Front/rear/left/right placements differ only by axis rotation, sharing formulas. Rod centre V=H+0.10, spanning U=[-0.10,W+0.10]. Drapes run from 0.10 m above the finished floor to rod centre, wrapping their upper 0.025 m around the rod. Local bottoms are V=-0.75 for primary/small rooms, -0.60 for living front, -0.65 for living side/both family windows. Each end panel gathers to 0.18 m in fixed-open state. Rod radius 0.0125 plus cloth thickness 0.006 puts the highest point 0.1185 m above the opening, leaving 0.0015 m within both parents' 0.12 m top strip. Wrapped tops leave no floating gap.
 
-부품은 지름 0.025 m 봉, 양끝 받침 둘, 양쪽 얇은 천 패널이다. 봉 중심은 안쪽 벽면에서 +N 0.06 m, 천의 중간 면은 각 패널의 가로 좌표 u ∈ [0, 0.18] m에 대해 `N(u) = 0.083 + 0.02 sin(6πu / 0.18)` m로 세 접힘을 만들고 두께 0.006 m를 그 양쪽에 둔다. 앞면 최대 N = 0.106 m다. 받침은 +N 0–0.08 m에 머무르므로 봉·받침·천의 앞면을 포함한 최대 돌출 0.106 m는 [주침실 사용 예약](../spaces/rooms/primary.md#primary-furniture-use)과 [여섯 창 예약](../spaces/06-openings.md#selected-window-curtain-strips)의 0.12 m 이내다. 표면 id는 `rod`, `bracket`, `curtain`이며 여덟 배치의 천 두 패널은 같은 재료 파티션을 공유한다. 얇은 천의 직조 결·투과는 materials가 결속하고, 실밥·봉제선·천의 동역학은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 정면에서 두 끝 0.18 m 모임이 창 대부분을 열어 두는지, 측면에서 최대 돌출 0.12 m와 창대·손잡이 간섭이 없는지 본다. 실제 부재·점유·GPU 프레임은 unverified다.
+Parts are a 0.025 m rod, two end supports, and two thin panels. Rod centre is +N 0.06 m from the inner wall. For panel-width u∈[0,0.18], textile midplane `N(u)=0.083+0.02 sin(6πu/0.18)` m makes three folds, with 0.006 m thickness split on either side; maximum front N=0.106. Supports stay in +N 0–0.08. Total projection 0.106 m fits [primary occupancy](../spaces/rooms/primary.md#primary-furniture-use) and [six-window strips](../spaces/06-openings.md#selected-window-curtain-strips), each 0.12 m. Ids are `rod`, `bracket`, and `curtain`; both panels across eight placements share the textile partition. Materials binds weave/transmission; thread, seams, and dynamics are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. [Model-review](00-model-frame.md#model-review-set) fronts require mostly-open windows between 0.18 m gathers; sides require projection within 0.12 m and no sill/handle interference. Actual members, occupancy, and GPU frames remain unverified.
 
-왼쪽 커튼 판의 전역 창 폭 좌표는 U=[0,0.18] m이고 앞 문단의 접힘 인자 u=U다. 오른쪽 판은 U=[W−0.18,W] m이며 u=W−U를 써 양끝에서 같은 접힘을 거울 배치한다. N의 최솟값에서 천 뒷면은 0.083−0.020−0.003=0.060 m로 창대 앞면 0.060 m에 면으로만 접하고 관통하지 않는다.
+Left-panel global width U=[0,0.18] uses u=U; right U=[W−0.18,W] uses u=W−U to mirror folds. At minimum N, cloth rear is 0.083−0.020−0.003=0.060 m, meeting sill front 0.060 only by face without penetration.
 
-## 옷방 옷걸이 구간 {#wardrobe-hanging}
+## Wardrobe hanging section {#wardrobe-hanging}
 <!--
-@evidence principles/core/common.md#scope-preservation 옷방 예약의 옷걸이 구간을 봉·상단 선반·몸통·옷까지 한 모델로 맡는다.
-@evidence principles/core/common.md#substantive-completion 외곽 길이 2.15 m·깊이 0.55 m 안에 두께 0.03 m 옆판 둘과 그 사이 실제 길이 2.09 m 봉·선반을 두고, 봉 깊이 0.28 m·높이 1.65 m, 선반 상면 2.05 m, 옷 36벌 두께 0.035–0.045 m·폭 0.50 m를 확정한다.
-@evidence principles/core/common.md#declared-basis 외곽과 높이 2.05 m는 옷방 예약에서 받고 옷 판 치수와 인덱스 기반 결정식은 이 H2의 저작 선택으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 외곽과 높이만 주고 이 H2는 봉 위치, 상단 선반, 순번 i mod 3의 결정식으로 만든 옷 판 묶음을 더한다.
-@evidence principles/design/models.md#representation-contract 봉·상단 선반·몸통·옷 계층과 `rod`·`shelf`·`carcass`·`clothes` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 옷 판을 뒤벽과 0.55 m 앞면 사이에 머물게 해 점유 범위를 Z = [-10.45, -9.90] 안으로 한정한다.
-@evidence principles/design/models.md#reviewable-structure 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 걸린 옷을 순번별 두께 0.035–0.045 m, 폭 0.50 m인 36개 판 묶음이라는 추상화로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 부품 층, 네 재질 경계, 관절 없음, 옷 앞 끝 관찰이 함께 적혀 있고 관찰은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 2.05 m를 적힌 그대로 소비했고 부모 수정이 없었다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 옷걸이 구간을 외곽 2.15 m·옆판 사이 봉과 선반 2.09 m로 받는다.
-@evidence settings/10-house.md#storage 옷걸이 봉과 상단 선반, 0.55 m 실제 내부 깊이를 둬 수납을 빈 문짝으로 대신하지 않는다.
-@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [2.10, 4.25], Z = [-10.45, -9.90]과 높이 2.05 m를 길이 2.15 m·깊이 0.55 m 외곽으로 소비한다.
-@evidence obligations/design/models.md#representation-ceiling 옷을 순번 i mod 3의 결정식으로 두께·길이를 고정한 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns the wardrobe hanging reservation as one rod/top-shelf/carcass/clothing model.
+@evidence principles/core/common.md#substantive-completion Inside 2.15 m length/0.55 m depth, two 0.03 m sides leave actual 2.09 m rod/shelf spans; rod depth 0.28/height 1.65 m, shelf top 2.05 m, and 36 clothes thickness 0.035–0.045/width 0.50 m are fixed.
+@evidence principles/core/common.md#declared-basis Reservations supply bounds/top 2.05 m; clothing-panel sizes and index formulas are authored here.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounds/height gain rod position, top shelf, and i mod 3 clothing-panel bundles.
+@evidence principles/design/models.md#representation-contract Rod/shelf/carcass/clothes use rod/shelf/carcass/clothes without joints; individual hangers, sleeves, and folds are omitted.
+@evidence principles/design/models.md#spatial-convention Clothes stay between rear wall and 0.55 m front, inside Z=[-10.45,-9.90].
+@evidence principles/design/models.md#reviewable-structure Top review challenges clothing fronts staying behind Z=-9.90.
+@evidence principles/design/models.md#model-observable-style-basis Reference 05's open-closet clothes become 36 panels with index-defined 0.035–0.045 m thickness and 0.50 m width.
+@evidence principles/design/models.md#model-scale-layer-completion Bounds, four part layers/boundaries, no joints, and unverified clothing-front observation are specified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Reserved X=[2.10,4.25], Z=[-10.45,-9.90], height 2.05 m remain unchanged without parent revision.
+@evidence settings/10-house.md#primary-bedroom Separate clothing storage's hanging section uses outside width 2.15 m with actual 2.09 m rod/shelf spans.
+@evidence settings/10-house.md#storage Rod, top shelf, and actual 0.55 m depth avoid substituting empty leaves for storage.
+@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use Reserved X/Z/top supply length 2.15 m and depth 0.55 m.
+@evidence obligations/design/models.md#representation-ceiling i mod 3 fixes thickness/length of panel-bundle proxies; supported observation is limited to clothing fronts not passing Z=-9.90 in top view.
 -->
 
-건물 분류: 붙박이 — 옷방 예약의 바닥·양옆에 맞춘 수납 몸통과 봉이다.
+Building classification: built-in. Carcass sides and rod fit the wardrobe floor/side reservations.
 
-레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 36벌의 두께와 길이 순서는 사진의 옷을 세지 않고 결정 규칙으로 만든다.
+Adopt reference 05's clothes in the hall-side open closet. Deterministic rules set the 36 garments' thickness/length order rather than counting photographic clothes.
 
-옷걸이 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 상층 바닥 위 2.05 m를 외곽으로 받아 길이 2.15 m, 깊이 0.55 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 봉은 후면에서 0.28 m, 높이 1.65 m이고 상단 선반은 상면 2.05 m, 깊이 0.55 m다. 옷은 36벌의 얇은 부피다. 순번 i = 0…35에 대해 두께 `0.035 + 0.005 × (i mod 3)` m, 앞뒤 폭 0.50 m, 걸린 길이 `0.85 + 0.10 × (i mod 3)` m로 고정한다. 이에 따라 옷 한 벌 두께는 0.035–0.045 m다. 두께 합은 1.44 m이며 실제 길이 2.09 m 봉 중앙에 좌우 0.325 m씩 여유를 두고 순서대로 건다. 어깨는 봉 아래 0.05 m, 옷 아랫끝은 바닥 위 최소 0.55 m이며 뒤벽과 0.55 m 앞면 사이에 머문다. 재질 경계는 `rod`, `shelf`, `carcass`, `clothes`이고 관절은 없다. 옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+The [wardrobe reservation](../spaces/rooms/wardrobe.md#wardrobe-storage-use) supplies X=[2.10,4.25], Z=[-10.45,-9.90], top 2.05 m above the upper floor, giving length 2.15 m and depth 0.55 m. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply. Rod depth is 0.28 m/height 1.65; top shelf top is 2.05/depth 0.55 m. For i=0…35, clothes have thickness `0.035+0.005×(i mod 3)` m, front/rear width 0.50 m, and hanging length `0.85+0.10×(i mod 3)` m. Thickness ranges 0.035–0.045, totaling 1.44 m centred on the actual 2.09 m rod with 0.325 m each side. Shoulders sit 0.05 m below the rod; longest clothes end at least 0.55 m above floor within the rear-wall/front bounds. Boundaries are `rod`, `shelf`, `carcass`, and `clothes`; there are no joints. Hangers, sleeves, and folds are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Top views require fronts not passing Z=-9.90. Use fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-`carcass`는 옷방 벽 구멍이 아니라 예약 안의 자립 옆판 둘이다. 왼쪽 판 X=[2.10,2.13], 오른쪽 판 X=[4.22,4.25] m, 양쪽 모두 Z=[−10.45,−9.90] m·Y=[0,2.05] m의 두께 0.03 m 닫힌 판이다. 뒤벽 걸레받이와 만나는 각 판의 아래 0.10 m에서는 뒤쪽 깊이 0.015 m를 비우고, 판의 앞끝은 그대로 바닥에 닿는다. `rod`는 지름 0.03 m, 축 X=[2.13,4.22] m, 중심 Z=−10.17 m·Y=1.65 m로 두 옆판 안쪽 면에 면으로 접한다. 원래 길이 2.15 m는 예약의 바깥 폭이며 실제 봉 길이 2.09 m다. 두께 1.44 m의 옷은 봉 중앙에 걸려 좌우 0.325 m씩 빈다. 상단 `shelf`는 X=[2.13,4.22] m·Z=[−10.45,−9.90] m·Y=[2.02,2.05] m의 두께 0.03 m 판으로 같은 안쪽 면에 양끝이 닿고 다른 부재의 부피를 공유하지 않는다.
+`carcass` consists of freestanding sides within reservations, requiring no wall hole: left X=[2.10,2.13], right [4.22,4.25], both Z=[−10.45,−9.90], Y=[0,2.05]. Remove rear 0.015 m over lower 0.10 m for baseboard; fronts still contact floor. A 0.03 m `rod` spans X=[2.13,4.22], centre Z=−10.17/Y=1.65, contacting inner side faces. Reserved outside 2.15 m thus gives actual rod length 2.09. The 1.44 m clothes occupy its centre, leaving 0.325 m ends. A 0.03 m `shelf` occupies X=[2.13,4.22], Z=[−10.45,−9.90], Y=[2.02,2.05], meeting inner faces without shared volume.
 
-옷방 옷걸이 구간의 왼쪽 `carcass` 옆판은 X=[2.10,2.13]·Z=[−10.45,−9.90]·Y=[0,2.05] m, 오른쪽 `carcass` 옆판은 X=[4.22,4.25] m와 같은 Z/Y 범위다. 두 판은 각 0.03 m 두께로 뒤벽 걸레받이 띠의 Y=[0,0.10]·Z=[−10.45,−10.435] m를 빼며 상단 선반 양끝과 안쪽 면에서만 접한다.
+Both 0.03 m `carcass` sides retain those bounds and remove baseboard strip Y=[0,0.10], Z=[−10.45,−10.435], contacting shelf ends only at inner faces.
 
-## 옷방 선반 구간 {#wardrobe-shelves}
+## Wardrobe shelf section {#wardrobe-shelves}
 <!--
-@evidence principles/core/common.md#scope-preservation 옷방 예약의 선반 구간을 네 선반과 접은 옷·신발 상자까지 맡는다.
-@evidence principles/core/common.md#substantive-completion 외곽 길이 1.10 m·깊이 0.55 m 안에 두께 0.03 m 옆판 둘과 그 사이 실제 길이 1.04 m 선반 넷을 두고, 선반 상면 0.20·0.65·1.10·1.55 m와 두께 0.03 m, 상자·바구니 각각 0.30 × 0.35 × 0.20 m를 확정한다.
-@evidence principles/core/common.md#declared-basis 외곽은 옷방 예약에서 받고 0.20 m 시작과 0.45 m 간격의 네 단은 이 H2의 저작 값으로 적힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 옷방 예약은 선반 구간 외곽만 주고 이 H2는 네 단 높이와 접은 옷·신발 상자 대리를 더한다.
-@evidence principles/design/models.md#representation-contract 선반·몸통·접은 옷·신발 상자·바구니 계층과 `shelf`·`carcass`·`folded`·`shoe-box`·`basket` 경계를 두고 관절이 없다고 적는다. 보이지 않는 한계는 본문의 "접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다."로 밝힌다.
-@evidence principles/design/models.md#spatial-convention 선반 높이를 바닥 위 0.20 m부터 0.45 m 간격으로 정하고 가구 국소 좌표를 따른다.
-@evidence principles/design/models.md#reviewable-structure 정면에서 네 단이 읽히는지를 검토 실루엣으로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 개방 선반을 0.03 m 얇은 네 단, 0.30 × 0.35 × 0.20 m의 상자 세 개와 바구니 하나, 접은 옷 여덟 더미로 정한다.
-@evidence principles/design/models.md#model-scale-layer-completion 외곽 치수, 네 단 높이, 다섯 재질 경계, 관절 없음, 정면 관찰이 함께 적혀 있고 관찰은 unverified다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 옷방 예약 X = [4.40, 5.50], Z = [-10.45, -9.90]을 적힌 그대로 소비했고 부모 수정이 없었다.
-@evidence settings/10-house.md#storage 선반과 접은 옷·신발 상자를 둔 0.55 m 깊이 선반 구간으로 수납의 선반 요구를 받는다.
-@evidence settings/10-house.md#primary-bedroom 주침실의 별도 옷 수납 요구 중 접은 옷 선반 몫을 네 단 선반 구간으로 받는다.
-@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [4.40, 5.50], Z = [-10.45, -9.90]을 길이 1.10 m·깊이 0.55 m 외곽으로 소비한다.
-@evidence obligations/design/models.md#model-representation-completion 이 파일 마지막 H2로서 네 단 높이·상자와 바구니 치수·다섯 재질 경계·관절 없음을 적고 정면 관찰이 unverified임을 밝혀 이 H2의 표현 완결 몫을 기록한다.
+@evidence principles/core/common.md#scope-preservation This H2 owns four wardrobe shelves, folded clothes, and shoe boxes.
+@evidence principles/core/common.md#substantive-completion Inside 1.10 m length/0.55 m depth, two 0.03 m sides leave 1.04 m shelves; tops 0.20/0.65/1.10/1.55 m, thickness 0.03 m, and boxes/basket 0.30×0.35×0.20 m are fixed.
+@evidence principles/core/common.md#declared-basis Reservations supply bounds; four levels starting 0.20 m at 0.45 m intervals are authored here.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation Bounds gain four heights and folded-clothing/shoe-box proxies.
+@evidence principles/design/models.md#representation-contract Shelf/carcass/folded-clothes/shoe-box/basket hierarchy uses shelf/carcass/folded/shoe-box/basket without joints; folded layers, shoe shapes, and brackets are omitted.
+@evidence principles/design/models.md#spatial-convention Furniture-local shelves start 0.20 m above floor at 0.45 m intervals.
+@evidence principles/design/models.md#reviewable-structure Front review challenges readability of four levels.
+@evidence principles/design/models.md#model-observable-style-basis Four 0.03 m open shelves, three 0.30×0.35×0.20 m boxes, one same-sized basket, and eight folded-clothing piles define observable construction.
+@evidence principles/design/models.md#model-scale-layer-completion Bounds, four heights, five boundaries, no joints, and unverified front observation are specified.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work Reserved X=[4.40,5.50], Z=[-10.45,-9.90] remain unchanged without parent revision.
+@evidence settings/10-house.md#storage Shelf storage becomes a 0.55 m deep section with folded clothes and shoe boxes.
+@evidence settings/10-house.md#primary-bedroom Separate primary clothing storage's folded-clothes share becomes four shelves.
+@evidence spaces/rooms/wardrobe.md#wardrobe-storage-use Reserved X/Z supply outside length 1.10 m/depth 0.55 m.
+@evidence obligations/design/models.md#model-representation-completion This final H2 records heights, box/basket dimensions, five boundaries, no joints, and unverified front observation for its representation-completion share.
 -->
 
-건물 분류: 붙박이 — 옷방 예약의 바닥·양옆에 맞춘 선반 몸통이다.
+Building classification: built-in. Shelf carcass fits the wardrobe floor/side reservations.
 
-선반 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [4.40, 5.50], Z = [-10.45, -9.90]을 받아 길이 1.10 m, 깊이 0.55 m다. 네 선반 상면은 바닥 위 0.20 m부터 0.45 m 간격인 0.20, 0.65, 1.10, 1.55 m이고 두께 0.03 m다. 각 선반마다 접은 옷 두 더미와 오른쪽 용기 하나를 좌우로 둔다. 아래 세 선반의 용기는 신발 상자, 맨 위 선반의 용기는 레퍼런스 05의 바구니로 채택한다. 더미는 각각 0.28 × 0.32 × 0.12 m, 상자와 바구니는 모두 0.30 × 0.35 × 0.20 m이며 바구니는 벽 두께 0.015 m의 열린 상자와 양옆 지름 0.025 m 둥근 손잡이 두 개로 만든다. 바구니 입구는 위로 열리고, 0.02 m 간격 두 개를 포함한 가로 합은 0.90 m라 실제 선반 길이 1.04 m 안에 양끝 0.07 m씩 남는다. 네 선반에 더미 8개와 상자 3개·바구니 1개가 생기고 각 높이는 다음 선반과의 0.45 m 간격보다 작다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 재질 경계는 `shelf`, `carcass`, `folded`, `shoe-box`, `basket`이고 관절은 없다. 접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 정면에서 네 단이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+The [reservation](../spaces/rooms/wardrobe.md#wardrobe-storage-use) supplies X=[4.40,5.50], Z=[-10.45,-9.90], giving length 1.10 m/depth 0.55 m. Four 0.03 m shelves have tops 0.20/0.65/1.10/1.55 m above floor at 0.45 m intervals. Each holds two folded-clothes piles and one right-side container: shoe boxes on the lower three and reference 05's basket on top. Piles are 0.28×0.32×0.12 m; boxes/basket 0.30×0.35×0.20. The basket is open upward with 0.015 m walls and two 0.025 m diameter round side handles. Two 0.02 m gaps bring total width to 0.90 m, leaving 0.07 m ends within actual 1.04 m shelf length. Totals are eight piles, three boxes, one basket; each height is less than 0.45 m shelf spacing. [Furniture-local coordinates](00-model-frame.md#model-furniture-local-frame) apply. Boundaries are `shelf`, `carcass`, `folded`, `shoe-box`, and `basket`; there are no joints. Folded layers, shoe shapes, and brackets are omitted. The source owner is `src/models/furnishings/bedrooms.ts`. Front views require four readable levels using fixed [model-review views](00-model-frame.md#model-review-set) and [surface partition names](00-model-frame.md#model-surface-partition-naming). All observations remain unverified.
 
-이 구간의 `carcass`는 왼쪽 X=[4.40,4.43] m와 오른쪽 X=[5.47,5.50] m의 두께 0.03 m 옆판 둘이다. 두 판은 Z=[−10.45,−9.90] m·Y=[0,1.78] m이고 뒤벽에 닿는 Y=[0,0.10] m의 뒤 0.015 m는 걸레받이에 양보한다. 오른쪽 벽 X=5.50 m에 닿는 옆판은 Y=[0,0.10] m·X=[5.485,5.50] m의 측면 띠도 비운다. 두 홈은 겹치는 직사각형 합집합으로 한 번만 제거한다. 네 `shelf` 판은 두 옆판 안쪽 면 사이 X=[4.43,5.47] m와 같은 깊이를 갖고 각 상면의 아래 0.03 m를 차지한다. 실제 판 길이 1.04 m 안에 소품 합 0.90 m를 가운데 두면 양끝 0.07 m씩 남는다. 선반 양끝은 옆판 안쪽 면에만 닿고 판 부피에 들어가지 않는다.
+Two 0.03 m `carcass` sides occupy left X=[4.40,4.43], right X=[5.47,5.50], both Z=[−10.45,−9.90], Y=[0,1.78]. Rear 0.015 m over Y=[0,0.10] clears baseboard; the right side against X=5.50 also clears X=[5.485,5.50] over that height. Remove the intersecting rectangular union once. Four `shelf` panels span inner faces X=[4.43,5.47] with the same depth, each 0.03 m below its top. Centre the 0.90 m prop total within actual 1.04 m length to leave 0.07 m ends. Shelf ends contact side inner faces without entering their volume.
