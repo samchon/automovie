@@ -8,31 +8,31 @@ import { IAutoMovieGetShotRequest } from "./IAutoMovieGetShotRequest";
 import { IAutoMovieMeasureDistanceRequest } from "./IAutoMovieMeasureDistanceRequest";
 
 /**
- * A **query tool**: the agent reads instead of writing this turn, and the
- * engine answers. Two families share this union:
+ * A query the agent makes instead of writing, answered by the engine. Two
+ * families share the union, discriminated on `type`:
  *
- * - **Stored context** ({@link IAutoMovieGetScriptRequest} /
- *   {@link IAutoMovieGetSceneRequest} / {@link IAutoMovieGetShotRequest} /
- *   {@link IAutoMovieGetNotesRequest} / {@link IAutoMovieGetBeatEndRequest}),
- *   AutoBe's "preliminary" pattern: pull a slice of the production state
- *   (script, staged scene, a sibling shot, the open review notes, where a prior
- *   beat left everyone) rather than guessing or inventing it.
- * - **Engine queries** ({@link IAutoMovieGetReachRequest} /
- *   {@link IAutoMovieGetResolvedPoseRequest} /
- *   {@link IAutoMovieMeasureDistanceRequest}): interrogate the engine's
- *   _resolved geometry_ so the agent grounds its next move in fact, not hope.
- *   This is the harness's "the engine is the strong controller" principle as a
- *   read surface: before staging a strike the agent asks whether the actor can
- *   actually reach the target (so it _lands_ rather than mimes at air), and
- *   reads where a hand truly ends up before chaining the next action onto it.
+ * - Stored context ({@link IAutoMovieGetScriptRequest},
+ *   {@link IAutoMovieGetSceneRequest}, {@link IAutoMovieGetShotRequest},
+ *   {@link IAutoMovieGetNotesRequest}, {@link IAutoMovieGetBeatEndRequest})
+ *   pulls a slice of the production state (the script, the staged scene, a
+ *   sibling shot, the open review notes, where a prior beat left everyone)
+ *   rather than guessing it.
+ * - Engine queries ({@link IAutoMovieGetReachRequest},
+ *   {@link IAutoMovieGetResolvedPoseRequest},
+ *   {@link IAutoMovieMeasureDistanceRequest}) ask about resolved geometry, such
+ *   as whether an actor can reach a target before a strike is staged, or where
+ *   a hand ends up before the next action is chained onto it.
  *
- * In the autonomous toolbox these are tools the agent calls in any order and to
- * any depth, not a fixed pipeline step. Keeping them explicit and exhaustible
- * stops the model inventing context it could have asked the engine for.
+ * Only the stored family has a resolver in this repository: the engine's
+ * `readSlateContext` answers it from the slate, through the narrower
+ * `IAutoMovieStoredContextRequest` type. No source answers the three engine
+ * queries yet, and no tool surface in this repository exposes the union to a
+ * model.
  *
- * Only the stored family has a resolver in this repository: `readSlateContext`
- * answers it from the slate. No source answers the three engine queries yet.
- *
+ * @evidence contracts/common.md#principled-implementation A discriminated union on `type`, so `readSlateContext` answers each stored request with an exhaustive switch over the slate and the engine's `Extract` narrows the union to the stored family at the type level.
+ * @evidence contracts/common.md#clear-and-simple-design One union names every read the agent may make, split into stored slices and geometry questions by what their answer needs, with each request's parameters in its own record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The geometry queries are excluded from the stored resolver by type rather than answered with a guess, and the documentation states that nothing answers them yet instead of implying a working tool.
+ * @evidence contracts/common.md#meaningful-documentation States the two families with their members and purpose, the discriminator, the one resolver and its narrowed input, and the unanswered queries and missing tool surface.
  * @author Samchon
  */
 export type IAutoMovieContextRequest =

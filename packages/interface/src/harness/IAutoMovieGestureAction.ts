@@ -3,15 +3,21 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
- * A whole-body gesture from the engine's motion vocabulary. Pick the closest
- * `kind`; refine with `note`. The engine owns the keyframes; keep this intent,
+ * A gesture from the engine's motion vocabulary. Pick the closest `kind` and
+ * refine it with `note`; the engine owns the keyframes, so this states intent,
  * not animation.
  *
  * `point` and `strike` require an `at` that resolves to a point and always
- * solve the right arm toward it; `performShot` refuses them when that arm
- * cannot bend. An `"auto"` gesture lasts 1 s. {@link AutoMovieGestureKind}
- * lists the kinds the reference synthesizer leaves without motion.
+ * solve the right arm toward it, `point` holding the extended arm and `strike`
+ * snapping out and back; `performShot` refuses them without a target or when
+ * that arm cannot bend. An `"auto"` gesture lasts 1 s.
+ * {@link AutoMovieGestureKind} lists which kinds the reference synthesizer
+ * leaves without motion and each kind's default region.
  *
+ * @evidence contracts/common.md#principled-implementation `makeActorSynthesizer` routes `point` and `strike` through `reachPose` on the right arm toward the resolved target, sampled per frame when the target or actor moves, and every other kind through `gestureMotion`'s fixed keyframe table.
+ * @evidence contracts/common.md#clear-and-simple-design A kind, an optional note and an optional target are the whole gesture; timing comes from the shared base and the motion from the engine, so no keyframe or joint field is exposed.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `reachPose` extends the arm toward a far target but never clamps joint angles into the rig's ranges, so an impossible pose fails the range-of-motion gate instead of being hidden, and `note` is never parsed to choose different motion.
+ * @evidence contracts/common.md#meaningful-documentation States the intent-only contract, the arm, target and refusal rules of `point` and `strike`, their hold and snap shapes, the `"auto"` length, and where per-kind coverage is listed; members say who reads `note` and which kinds read `at`.
  * @author Samchon
  */
 export interface IAutoMovieGestureAction extends IAutoMovieActionBase {
@@ -22,8 +28,8 @@ export interface IAutoMovieGestureAction extends IAutoMovieActionBase {
   kind: AutoMovieGestureKind;
 
   /**
-   * Specialise the family ("jab" for `strike`, "roundhouse" for `kick`) or
-   * describe a `custom` one. Read by people and host synthesizers; the engine
+   * Specialises the family ("jab" for `strike`, "roundhouse" for `kick`) or
+   * describes a `custom` one. Read by people and host synthesizers; the engine
    * ignores it.
    */
   note?: string;

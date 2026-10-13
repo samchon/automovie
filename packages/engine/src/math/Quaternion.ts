@@ -1,4 +1,8 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieEuler,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Pure-function quaternion math over {@link IAutoMovieQuaternion} (`(x, y, z,
@@ -65,18 +69,11 @@ export namespace Quaternion {
 
   /**
    * Compose intrinsic Euler angles (degrees) into a quaternion, applying the
-   * axes in the given `order`, the same intrinsic convention glTF/three.js use,
-   * so `fromEuler({x,y,z,order:"XYZ"})` equals `qx·qy·qz`. This is how the production
-   * boundary lowers an LLM-authored semantic placement rotation
-   * ({@link "@automovie/interface".IAutoMovieEuler}) into the engine's
-   * quaternion. The model never emits a quaternion (#723).
+   * axes in the given `order`, the same intrinsic convention three.js uses, so
+   * `fromEuler({x,y,z,order:"XYZ"})` equals `qx·qy·qz`. The instance-set paths
+   * use it for their per-slot rotation offsets.
    */
-  export const fromEuler = (euler: {
-    x: number;
-    y: number;
-    z: number;
-    order: "XYZ" | "XZY" | "YXZ" | "YZX" | "ZXY" | "ZYX";
-  }): IAutoMovieQuaternion => {
+  export const fromEuler = (euler: IAutoMovieEuler): IAutoMovieQuaternion => {
     const axisOf = (c: string): IAutoMovieVector3 =>
       c === "X"
         ? { x: 1, y: 0, z: 0 }

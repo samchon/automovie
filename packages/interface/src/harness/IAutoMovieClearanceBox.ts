@@ -3,14 +3,21 @@ import { IAutoMoviePropBox } from "./IAutoMoviePropBox";
 /**
  * One axis-aligned model-local volume another prop may not occupy.
  *
- * The validator compares the transformed keep-out volume against the
- * transformed occupancy of every other uniquely staged, valid prop. Boxes that
- * only touch on a face do not overlap, and a clearance is tested neither
- * against its own prop nor against building geometry.
+ * `validatePropPlacements` refuses a blank or repeated clearance id within the
+ * prop and a box that is not finite with `min < max` on every axis. It then
+ * transforms the keep-out volume by the prop's staged placement and refuses it
+ * when it overlaps the transformed occupancy of any other forged, uniquely
+ * staged prop whose footprint is absent or finite. Boxes that only touch on a
+ * face do not overlap, and a clearance is tested neither against its own prop
+ * nor against building geometry.
  *
+ * @evidence contracts/common.md#principled-implementation `propClearanceBounds` takes the world box of the eight transformed corners and `propBoundsOverlap` tests strict interval overlap on all three axes, the exact separating-axis test for two axis-aligned boxes.
+ * @evidence contracts/common.md#clear-and-simple-design A clearance is a prop box plus an id, so it shares the occupancy box's corner rules and transform code and needs no shape of its own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each violation names the clearance and the intruding prop instead of nudging either; building geometry is out of scope by design, since relations already measure how a prop meets the building.
+ * @evidence contracts/common.md#meaningful-documentation States the id and corner refusals, how the volume is transformed and against which props it is tested, the face-contact rule, and the two things it is never tested against.
  * @author Samchon
  */
 export interface IAutoMovieClearanceBox extends IAutoMoviePropBox {
-  /** Stable, non-blank clearance identity, unique within the prop. */
+  /** Stable, non-blank clearance id, unique within the prop. */
   id: string;
 }

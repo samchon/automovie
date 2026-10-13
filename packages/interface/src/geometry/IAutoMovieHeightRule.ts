@@ -1,16 +1,24 @@
 /**
  * How high the ground is, as a rule rather than a mesh.
  *
- * One declaration, because two records ask the question: the production world's
- * terrain, which a crowd is placed on, and the scene's standable space, which a
- * performer stands and foot-plants on. A rule spelled twice is how a member and
- * the figure beside it come to stand on two different grounds, so both cite
- * this and one engine function answers it.
+ * One declaration serves the two records that ask the question: the production
+ * world's terrain (`IAutoMovieWorldSurface.height`), which a crowd is placed
+ * on, and the scene's standable patch (`IAutoMovieSurface.height`), which a
+ * performer stands and foot-plants on. Both are read by the engine's
+ * `surfaceHeightAt`, so a crowd member and the figure beside it cannot stand on
+ * two different grounds.
  *
- * Every kind is pure arithmetic over its own stored numbers: the same rule
- * answers the same height on every machine and every run. The rule ignores the
+ * Every kind is pure arithmetic over its own stored numbers, so the same rule
+ * answers the same height on every machine and run. The rule ignores the
  * footprint; the record that carries it says where the surface exists.
+ * `validateSpace` checks a scene patch's rule and `validateProductionDesign` a
+ * world surface's, each requiring finite numbers, positive lattice pitch, at
+ * least two lattice lines per axis, and exactly `columns * rows` samples.
  *
+ * @evidence contracts/common.md#principled-implementation `surfaceHeightAt` returns `value` for `constant`, evaluates `originHeight + slopeX * x + slopeZ * z` for `plane`, and interpolates bilinearly within the clamped lattice cell for `heightfield`, which is continuous across cells and reproduces each sample at its own lattice point.
+ * @evidence contracts/common.md#clear-and-simple-design Three kinds in one discriminated union, from one number to a sampled lattice, cover level, tilted and relief ground without a mesh, and both the world terrain and the scene patch cite this one type instead of spelling their own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A query off the lattice clamps to the edge samples rather than extrapolating relief nobody authored; the remaining gap is that the engine and production packages each keep their own copy of the validity checks, so the two refusals can drift.
+ * @evidence contracts/common.md#meaningful-documentation States which records carry the rule, the one evaluating function, determinism, that the footprint is ignored, which validators refuse what, and per kind the formula, units, lattice layout, clamping and interpolation.
  * @author Samchon
  */
 export type IAutoMovieHeightRule =
@@ -18,20 +26,20 @@ export type IAutoMovieHeightRule =
       /** Flat surface. */
       kind: "constant";
 
-      /** Surface height in meters. */
+      /** Finite surface height in meters. */
       value: number;
     }
   | {
       /** Planar slope: `originHeight + slopeX * x + slopeZ * z`. */
       kind: "plane";
 
-      /** Plane height at the world origin, in meters. */
+      /** Finite plane height at the world origin, in meters. */
       originHeight: number;
 
-      /** Height in meters gained per positive X meter. */
+      /** Finite height in meters gained per positive X meter. */
       slopeX: number;
 
-      /** Height in meters gained per positive Z meter. */
+      /** Finite height in meters gained per positive Z meter. */
       slopeZ: number;
     }
   | {
@@ -39,35 +47,27 @@ export type IAutoMovieHeightRule =
        * Sampled relief: a regular XZ grid of heights over the surface.
        *
        * `constant` is one number and `plane` is a single tilt, so neither can
-       * express a rise: a hill, a terraced square, a riverbank, a stepped
-       * approach. This is the smallest rule that can. The grid is a lattice of
-       * stored heights and the surface height between them is interpolated, so
-       * relief costs `columns * rows` numbers rather than a mesh.
+       * express a hill, a terraced square, a riverbank, or a stepped approach.
+       * This is the smallest rule that can, costing `columns * rows` numbers
+       * rather than a mesh.
        *
-       * **Bounds.** The grid is a sampling lattice, not an extent: the
-       * footprint still says where the surface exists, exactly as it does for
-       * `constant` and `plane`. A query outside the lattice clamps to the
-       * nearest edge sample rather than extrapolating, because extrapolating a
-       * sampled relief invents terrain nobody authored, and a lattice that
-       * covers its footprint never reaches this at all.
+       * The grid is a sampling lattice, not an extent: the footprint still says
+       * where the surface exists. A query outside the lattice clamps to the
+       * nearest edge sample rather than extrapolating, so a lattice that covers
+       * its footprint never reaches the clamp.
        *
-       * **Interpolation.** Bilinear between the four surrounding samples. The
-       * result is continuous across cell boundaries and reproduces a stored
-       * sample exactly at its own lattice point, so a member standing on a
-       * sample stands at the authored height.
-       *
-       * **Determinism.** Pure arithmetic over the stored samples: the same
-       * design answers the same height on every machine and every run. Nothing
-       * is sampled from an image, a noise function, or a seed here; a generator
-       * that wants relief bakes its samples into this array, where the builder
-       * digests them with the rest of the design.
+       * Between samples the height is bilinear over the four surrounding
+       * samples, continuous across cell boundaries and exact at each lattice
+       * point. Nothing is sampled from an image, a noise function, or a seed
+       * here; a generator that wants relief bakes its samples into this array,
+       * as `worldHeightfield` does.
        */
       kind: "heightfield";
 
-      /** World X of sample column zero, in meters. */
+      /** Finite world X of sample column zero, in meters. */
       originX: number;
 
-      /** World Z of sample row zero, in meters. */
+      /** Finite world Z of sample row zero, in meters. */
       originZ: number;
 
       /** Finite column pitch along +X in meters, strictly above zero. */
@@ -76,15 +76,15 @@ export type IAutoMovieHeightRule =
       /** Finite row pitch along +Z in meters, strictly above zero. */
       spacingZ: number;
 
-      /** Sample columns along +X; at least two. */
+      /** Sample columns along +X; an integer of at least two. */
       columns: number;
 
-      /** Sample rows along +Z; at least two. */
+      /** Sample rows along +Z; an integer of at least two. */
       rows: number;
 
       /**
-       * Finite sample heights in meters, row-major: index `row * columns +
-       * column`. Exactly `columns * rows` entries.
+       * Finite sample heights in meters, row-major: index
+       * `row * columns + column`. Exactly `columns * rows` entries.
        */
       samples: number[];
     };

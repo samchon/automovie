@@ -7,16 +7,20 @@ import { AutoMovieBodyRegion } from "../skeleton/AutoMovieBodyRegion";
  * `performShot` validates these before any synthesis and reports each fault at
  * its field path.
  *
+ * @evidence contracts/common.md#principled-implementation `performShot` checks actor ids against the staged nodes and cameras, `start` and a numeric span against `[0, shot duration]`, and `repeat` as a positive integer, then `compilePerformance` repeats each synthesized clip and places it at `start` in the lane `actionRegion` assigns.
+ * @evidence contracts/common.md#clear-and-simple-design The timing, actor, repetition and region fields live once here and every verb extends them, so the gate and the compiler read the same names for every verb instead of a per-verb timing shape.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An `"auto"` span is treated as running to the shot end by the overlap and attach checks rather than guessed from the synthesizer, and `physicsIntent` is stated as unread instead of implying the warnings it names are suppressed.
+ * @evidence contracts/common.md#meaningful-documentation States who validates the fields; members give the actor list rules and the camera exception, time units and bounds, what `"auto"` means to each consumer, how `repeat` extends the motion but not the checked span, every default region, and that `physicsIntent` has no reader.
  * @author Samchon
  */
 export interface IAutoMovieActionBase {
   /**
-   * The scene-node id(s) performing this action (reuse ids from staging). A
-   * list applies the **same** verb to several actors in **unison** (a chorus
-   * line, a crowd, synchronised dancers) instead of repeating the action per
-   * actor (fewer tokens, no drift across parallel runs). Every id must be a
-   * staged scene node; a list must be non-empty with no duplicates. Only a
-   * `frame` action names a camera, and it names exactly one as a string.
+   * The scene-node id or ids performing this action, reusing ids from staging.
+   * A list applies the same verb to several actors in unison (a chorus line, a
+   * crowd, synchronised dancers) instead of repeating the action per actor.
+   * Every id must be a staged scene node, and a list must be non-empty with no
+   * duplicates. Only a `frame` action names a camera, and it names exactly one
+   * as a string.
    */
   actor: string | string[];
 
@@ -29,46 +33,46 @@ export interface IAutoMovieActionBase {
    * cadence, a punch's snap, a projectile's flight time). The reference
    * synthesizer sizes an `"auto"` clip itself, while `performShot`'s overlap
    * check and an `attachTo` treat the span as running to the shot end, and a
-   * `frame` as running until the next camera move.
+   * `frame` as running until the next camera move. An `"auto"` action may not
+   * start exactly at the shot end, which leaves it no span.
    */
   duration: number | "auto";
 
   /**
-   * Play the synthesized motion this many times back to back (a positive
-   * integer, default 1): a step repeated on the count, an idle sway. Cheaper
-   * than N near-identical copies. Each copy lasts `duration`, so the repeated
-   * motion runs `repeat * duration` seconds, while `performShot`'s span and
+   * Play the synthesized motion this many times back to back, a positive
+   * integer defaulting to 1: a step repeated on the count, an idle sway.
+   * `compilePerformance` concatenates the synthesized clip that many times, so
+   * the motion runs `repeat` clip lengths, while `performShot`'s span and
    * overlap checks read only `start + duration`.
    */
   repeat?: number;
 
   /**
-   * The body-region this action drives ({@link AutoMovieBodyRegion}). Actions on
-   * **disjoint** regions compose concurrently (walk while waving while
-   * looking); actions sharing a region sequence. Omit to let the engine infer
-   * the natural mask from the verb and, for gestures, the kind: a `locomote` is
-   * `fullBody` (the shipped gaits drive hips, knees, and contralateral arms, so
-   * a narrower mask strips them), a `wave`/`reach` is `upperBody`, a `lookAt`
-   * or `nod`/`shake` is `head`, an `emote` is `face`, and the whole-body
-   * gestures (`bow`/`crouch`/`kick`/`stagger`/`jump`/`draw`) plus `react` are
-   * `fullBody`. Overlap is judged on the content surviving those masks (root,
-   * bones, expression), so a `fullBody` gait still layers with a disjoint
-   * head-only `lookAt`. Override only when the natural mask is wrong for the
-   * staging; note the engine masks the synthesized clip to the region you pick,
-   * so a narrower region trims the authored motion to those bones. Camera
-   * (`frame`) and `attachTo` actions ignore it.
+   * The body region this action drives ({@link AutoMovieBodyRegion}). Actions
+   * whose masked content is disjoint compose concurrently (walk while waving
+   * while looking), and actions sharing content take turns. Omitted, the
+   * engine's `actionRegion` infers it from the verb and, for gestures, the
+   * kind: `locomote` is `fullBody`, because the shipped gaits drive hips,
+   * knees, and contralateral arms; `gesture` and `reach` are `upperBody`;
+   * `lookAt` and the `nod` and `shake` gestures are `head`; `emote` is `face`;
+   * the `bow`, `crouch`, `kick`, `stagger`, `jump`, and `draw` gestures and
+   * every other verb are `fullBody`. Overlap is judged on the content
+   * surviving those masks (root, bones, expression), so a `fullBody` gait
+   * still layers with a disjoint head-only `lookAt`. The engine masks the
+   * synthesized clip to the chosen region and `performShot` reports content
+   * the mask drops, so override only when the natural region is wrong for the
+   * staging. Camera (`frame`) and `attachTo` actions ignore it.
    */
   region?: AutoMovieBodyRegion;
 
   /**
-   * Acknowledge a deliberate physical implausibility so the engine's
-   * physical-plausibility feedback (`"warning"`-severity, see
-   * {@link IAutoMovieConstraintViolation.severity}) does not re-fire on this
-   * action. A free-text intent (`"defies-gravity"`, `"superhuman-impact"`,
-   * `"intentional-clip"`) that marks "this is on purpose". Omit for ordinary
-   * actions; the engine warns as usual and the correction loop can address it.
-   * No engine path reads this field yet: the plausibility detectors take their
-   * own `physicsIntent` argument from their caller.
+   * Free-text acknowledgment of a deliberate physical implausibility, such as
+   * `"defies-gravity"` or `"intentional-clip"`, meant to stop the engine's
+   * warning-severity plausibility feedback (see
+   * {@link IAutoMovieConstraintViolation.severity}) from re-firing on this
+   * action. No engine or production path reads this field: the plausibility
+   * detectors take their own `physicsIntent` argument, and no shot pipeline
+   * calls them, so setting it changes nothing today.
    */
   physicsIntent?: string;
 }
