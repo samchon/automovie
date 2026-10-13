@@ -1,5 +1,4 @@
-import type { IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
-import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
+import type { IAutoMovieProductionEvidence, IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
 import path from "node:path";
 import { canonicalAutoMovieJsonBytes, compareCodeUnits, digestAutoMovieBytes, normalizeAutoMovieSource } from "./contentIdentity";
 import type { IAutoMovieLibraryAuthoringSnapshot } from "./IAutoMovieLibraryAuthoringSnapshot";

@@ -1,5 +1,4 @@
-import type { IAutoMovieDerivedArtifactRecord } from "@automovie/interface";
-import type { IAutoMovieDerivedArtifactManifest } from "@automovie/interface";
+import type { IAutoMovieDerivedArtifactManifest, IAutoMovieDerivedArtifactRecord } from "@automovie/interface";
 import path from "node:path";
 import { acquireCommitLock, releaseCommitLock } from "../project/commitLock";
 import { derivedArtifactPhysicalProjectRoot } from "./derivedArtifactPhysicalProjectRoot";

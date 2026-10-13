@@ -1,5 +1,4 @@
-import type { Stats } from "node:fs";
-import type { BigIntStats } from "node:fs";
+import type { BigIntStats, Stats } from "node:fs";
 import { productionFileSystem as fileSystem } from "../project/productionFileSystem";
 
 /**

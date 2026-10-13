@@ -1,5 +1,4 @@
-import type { IAutoMovieLegacyOwnedDirectoryBaseline } from "@automovie/interface";
-import { IAutoMovieLegacyImportPlan } from "@automovie/interface";
+import type { IAutoMovieLegacyImportPlan, IAutoMovieLegacyOwnedDirectoryBaseline } from "@automovie/interface";
 import typia from "typia";
 import { AutoMovieLegacyImportPlanError } from "./AutoMovieLegacyImportPlanError";
 import { legacyImportAssertInventory } from "./legacyImportAssertInventory";

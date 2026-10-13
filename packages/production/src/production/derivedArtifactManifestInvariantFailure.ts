@@ -1,6 +1,5 @@
-import type { IAutoMovieDerivedArtifactDependency } from "@automovie/interface";
+import type { IAutoMovieDerivedArtifactDependency, IAutoMovieDerivedArtifactManifest } from "@automovie/interface";
 import { SHA256_DIGEST_PATTERN } from "@automovie/engine";
-import type { IAutoMovieDerivedArtifactManifest } from "@automovie/interface";
 import { compareCodeUnits } from "./contentIdentity";
 import { derivedArtifactFirstUnsafePath } from "./derivedArtifactFirstUnsafePath";
 import { AUTOMOVIE_DERIVED_ARTIFACT_DERIVED_ROOT } from "./AUTOMOVIE_DERIVED_ARTIFACT_DERIVED_ROOT";

@@ -1,5 +1,4 @@
-import type { IAutoMovieMaterializedLibraryOwner } from "@automovie/interface";
-import type { IAutoMovieMaterializedLibrary } from "@automovie/interface";
+import type { IAutoMovieMaterializedLibrary, IAutoMovieMaterializedLibraryOwner } from "@automovie/interface";
 import { compareCodeUnits } from "./contentIdentity";
 import { parseAutoMovieStructuredJson } from "./duplicateAwareJson";
 import { libraryStateIsRecord } from "./libraryStateIsRecord";

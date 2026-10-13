@@ -1,5 +1,4 @@
-import type { IAutoMovieLegacyImportInventoryEntry } from "@automovie/interface";
-import { IAutoMovieLegacyOwnedDirectoryBaseline } from "@automovie/interface";
+import type { IAutoMovieLegacyImportInventoryEntry, IAutoMovieLegacyOwnedDirectoryBaseline } from "@automovie/interface";
 import { AutoMovieLegacyImportPlanError } from "./AutoMovieLegacyImportPlanError";
 import { legacyImportAssertSortedPaths } from "./legacyImportAssertSortedPaths";
 import { legacyImportIsBaselinePath } from "./legacyImportIsBaselinePath";
