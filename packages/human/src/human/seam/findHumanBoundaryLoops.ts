@@ -1,40 +1,37 @@
 /**
- * The open boundary of an oriented triangle mesh as directed loops.
+ * Walk open directed triangle boundaries without reading coordinates. An a→b edge is open when no b→a exists; loops retain triangle-owned direction. Complete triangle rows are enforced. Caller supplies compact nonnegative integral indices whose packed key from*vertexCount+to remains exactly representable; this walker adds no complete index-domain admission.
  *
- * A directed edge `a -> b` of a triangle is on the boundary when no triangle
- * holds `b -> a`, so the boundary is read from the winding alone and needs no
- * position. Each loop lists its vertices in the direction its edges run in
- * the triangles that own them, which puts the surface on the left of a loop
- * seen from the side its normals face. A seam between two surfaces therefore
- * knows which way to walk each loop before it places any triangle on it.
+ * Repeated directed edges, multiple outgoing boundary edges, unclosed walks and walks joining an already-seen different loop refuse. No open edges returns no loops. These incidence checks do not establish interior vertex links, geometric nonintersection, outward winding or a global manifold/clinical surface.
  *
- * The input must be an oriented manifold along its boundary: an edge held in
- * the same direction by two triangles, or a boundary vertex from which two
- * boundary edges leave (a pinch), has no single loop to report and refuses
- * with the vertex named, because a seam built on it would join the wrong
- * pair of edges. An index list with no open edge returns no loop.
+ * @evidence contracts/common.md#principled-implementation Actual directed source incidence and reverse-edge absence determine boundary order without coordinate welding.
+ * @evidence contracts/common.md#clear-and-simple-design A directed edge set, outgoing map and visited walk separate incidence detection from deterministic loop extraction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate/pinched/unclosed boundaries refuse rather than guessed joins, and compact numeric-key premises or global manifoldness are not falsely claimed validated.
+ * @evidence contracts/common.md#meaningful-documentation Prose states triangle direction, exact packed-key premise, named refusal scope and coordinate/global qualification boundaries.
+ * @evidence contracts/performance.md#efficient-algorithms Edge collection and loop traversal are linear in triangle/boundary population, with sorted boundary starts adding O(B log B) deterministic ordering.
+ * @evidence contracts/performance.md#reuse-equivalent-work One directed edge set answers reverse membership for every edge and one visited set prevents revisiting extracted boundary vertices.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only owned loop arrays escape; source-sized sets/maps are local with no geometry buffer, asset task or render resource retained.
  */
 export function findHumanBoundaryLoops(indices: readonly number[]): number[][] {
   if (indices.length % 3 !== 0)
     throw new Error("A triangle list needs a multiple of three indices.");
-  let vertexCount = 0;
+  let vertexCount: number = 0;
   for (const index of indices) vertexCount = Math.max(vertexCount, index + 1);
-  const held = new Set<number>();
-  for (let corner = 0; corner < indices.length; corner += 3)
-    for (let side = 0; side < 3; side++) {
-      const from = indices[corner + side];
-      const to = indices[corner + ((side + 1) % 3)];
-      const key = from * vertexCount + to;
+  const held: Set<number> = new Set<number>();
+  for (let corner: number = 0; corner < indices.length; corner += 3)
+    for (let side: number = 0; side < 3; side++) {
+      const from: number = indices[corner + side];
+      const to: number = indices[corner + ((side + 1) % 3)];
+      const key: number = from * vertexCount + to;
       if (held.has(key))
         throw new Error(
           "Two triangles hold the edge " + from + " -> " + to + " alike.",
         );
       held.add(key);
     }
-  const next = new Map<number, number>();
+  const next: Map<number, number> = new Map<number, number>();
   for (const key of held) {
-    const from = Math.floor(key / vertexCount);
-    const to = key - from * vertexCount;
+    const from: number = Math.floor(key / vertexCount);
+    const to: number = key - from * vertexCount;
     if (held.has(to * vertexCount + from)) continue;
     if (next.has(from))
       throw new Error(
@@ -45,15 +42,15 @@ export function findHumanBoundaryLoops(indices: readonly number[]): number[][] {
     next.set(from, to);
   }
   const loops: number[][] = [];
-  const seen = new Set<number>();
-  for (const start of [...next.keys()].sort((a, b) => a - b)) {
+  const seen: Set<number> = new Set<number>();
+  for (const start of [...next.keys()].sort((a: number, b: number): number => a - b)) {
     if (seen.has(start)) continue;
     const loop: number[] = [];
-    let at = start;
+    let at: number = start;
     while (!seen.has(at)) {
       seen.add(at);
       loop.push(at);
-      const following = next.get(at);
+      const following: number | undefined = next.get(at);
       if (following === undefined)
         throw new Error(
           "The boundary at the vertex " + at + " does not close.",
