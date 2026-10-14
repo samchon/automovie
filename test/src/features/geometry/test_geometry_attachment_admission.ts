@@ -1,8 +1,9 @@
-import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
+import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
 
 /**
  * Canonical contact metadata never grants a malformed or unrelated support.
@@ -12,8 +13,13 @@ import { throwsError } from "../internal/predicates";
  *    missing primary support and sparse/noninteger supports refuse by name.
  * 3. A second coplanar incident face remains legal when both original supports
  *    of the sampled edge are supplied.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the separation query with registered plane-root fans, asserting certification for valid support metadata and named refusals for malformed metadata or an incomplete fan; an adjacent two-face support remains legal.
+ * @evidence contracts/testing.md#independent-expectations Triangle ordinal zero and barycentric weights identify the authored root, and the edge fan requires both incident triangle ordinals. These admission facts follow the supplied mesh and support contract, not a recorded query result; certification here does not prove a general embedded surface or rendered contact.
+ * @evidence contracts/testing.md#distinguishing-cases Covers dense and incomplete fans, fractional/absent/unrelated/sparse support fields, and a valid coplanar incident pair. Numerical source-to-Float32 contact extent and unrelated piercing obstacles belong to the attachment-contact and representation tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named test invokes portable separation source and the existing exception observer directly, using only its existing synthetic plane data. It requires no process, consumer installation, native build, browser or GPU and dynamically registers no cases.
  */
-export const test_geometry_attachment_admission = (): void => {
+export function test_geometry_attachment_admission(): void {
   const mesh: IAutoMovieMesh = {
     positions: [0, 0, 0, 2, 0, 0, 0, 2, 0],
     indices: [0, 1, 2],
@@ -21,14 +27,14 @@ export const test_geometry_attachment_admission = (): void => {
     uvs: null,
     skin: null,
   };
-  const query = createAutoMovieMeshSeparationQuery(mesh);
-  const fan = [
+  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh);
+  const fan: IAutoMovieVector3[] = [
     { x: 0.5, y: 0.5, z: 0 },
     { x: 0.4, y: 0.5, z: 0.1 },
     { x: 0.6, y: 0.5, z: 0.1 },
   ];
-  const attachment = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
-  const options = () => ({
+  const attachment: { triangle: number; weights: number[]; supports: number[]; } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
+  const options: () => { clearance: number; budget: { remaining: number; }; attachment: { triangle: number; weights: number[]; supports: number[]; }; } = (): { clearance: number; budget: { remaining: number; }; attachment: { triangle: number; weights: number[]; supports: number[]; }; }  => ({
     clearance: 0,
     budget: { remaining: 1000 },
     attachment,
@@ -38,7 +44,7 @@ export const test_geometry_attachment_admission = (): void => {
     query(fan, options()).certified,
     true,
   );
-  const malformed = [
+  const malformed: ({ weights: undefined; triangle: number; supports: number[]; } | { supports: undefined; triangle: number; weights: number[]; } | { supports: (number | undefined)[]; triangle: number; weights: number[]; })[] = [
     { ...attachment, triangle: 0.5 },
     { ...attachment, weights: undefined },
     { ...attachment, supports: undefined },
@@ -50,7 +56,7 @@ export const test_geometry_attachment_admission = (): void => {
     TestValidator.predicate(
       "malformed original contact metadata refuses",
       throwsError(
-        () =>
+        (): IAutoMovieMeshSeparationResult  =>
           query(fan, {
             ...options(),
             attachment: invalid as unknown as typeof attachment,
@@ -60,19 +66,19 @@ export const test_geometry_attachment_admission = (): void => {
     );
   TestValidator.predicate(
     "canonical metadata requires an actual complete fan",
-    throwsError(() => query(fan.slice(1), options()), "attachment"),
+    throwsError((): IAutoMovieMeshSeparationResult  => query(fan.slice(1), options()), "attachment"),
   );
-  const double = createAutoMovieMeshSeparationQuery({
+  const double: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery({
     ...mesh,
     positions: [...mesh.positions, 2, 2, 0],
     indices: [0, 1, 2, 1, 3, 2],
   });
-  const edgeFan = [
+  const edgeFan: IAutoMovieVector3[] = [
     { x: 1, y: 1, z: 0 },
     { x: 0.9, y: 1, z: 0.1 },
     { x: 1.1, y: 1, z: 0.1 },
   ];
-  const edgeAttachment = {
+  const edgeAttachment: { triangle: number; weights: number[]; supports: number[]; } = {
     triangle: 0,
     weights: [0, 0.5, 0.5],
     supports: [0, 1],
@@ -86,4 +92,4 @@ export const test_geometry_attachment_admission = (): void => {
     }).certified,
     true,
   );
-};
+}

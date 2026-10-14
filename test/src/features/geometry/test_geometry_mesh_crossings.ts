@@ -1,11 +1,12 @@
-import { measureAutoMovieMeshCrossings } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { type IAutoMovieMeshCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieMeshCrossing";
 
 /** A mesh of one triangle from three hand-typed corners. */
-const blade = (corners: number[][]): IAutoMovieMesh => ({
+const blade: (corners: number[][]) => IAutoMovieMesh = (corners: number[][]): IAutoMovieMesh => ({
   positions: corners.flat(),
   indices: [0, 1, 2],
   normals: null,
@@ -14,7 +15,7 @@ const blade = (corners: number[][]): IAutoMovieMesh => ({
 });
 
 /** The unit right triangle on the z=0 plane, the fixed reference every case is read against. */
-const flat = blade([
+const flat: IAutoMovieMesh = blade([
   [0, 0, 0],
   [1, 0, 0],
   [0, 1, 0],
@@ -37,15 +38,20 @@ const flat = blade([
  * 3. A vertex a millimetre inside crosses, a vertex a millimetre outside does not, and one resting exactly on the surface does not.
  * 4. Coplanar and overlapping is reported with coplanar true; coplanar and apart is not reported.
  * 5. An absent index buffer means consecutive position triples, and malformed buffers refuse.
- * 6. Ordinals follow the first mesh's own triangle order, and neither input is mutated.
+ * 6. Ordinals follow the first mesh's own triangle order, and that mesh is not mutated.
  * 7. Two triangles of one surface that share a corner and bend gently across
  *    it are not a crossing, however the shared corner sits in either corner
- *    list and including an exact pair from the shipped body skin that the
- *    barycentric residue used to report; a fold that drives an edge of one
+ *    list and including the existing recorded skin-coordinate regression;
+ *    its historical asset provenance is not revalidated here. A fold of one
  *    through the other still is.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls mesh crossing source and checks transverse/coplanar classification, triangle ordinals, empty reports, implicit indices, input ownership and named buffer refusals. Shared-corner gentle bends must remain clear while the retained folded face crosses.
+ * @evidence contracts/testing.md#independent-expectations The unit-plane and authored blades determine piercing, lateral miss, millimetre interior/exterior and flat overlap geometrically before execution. The recorded skin-coordinate pair is an existing regression input, not a snapshot of expected function output, new Human asset or current anatomy proof; common numerical classification errors beyond these cases may remain.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps lifted/sideways misses, exact endpoint contact, interior/exterior vertices, coplanar apart/overlap, implicit indices, malformed buffers, reordered triangle ordinals, input ownership and all existing shared-corner/fold permutations. Complete-pair enumeration and explicit dimensionless boundary tolerance have separate tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry executes portable crossing source and exception observation using only existing triangle data. It starts no process, browser, GPU or native build, adds no Human fixture or geometry case and registers no dynamic cases; visual validity remains unobserved.
  */
-export const test_geometry_mesh_crossings = (): void => {
-  const through = blade([
+export function test_geometry_mesh_crossings(): void {
+  const through: IAutoMovieMesh = blade([
     [0.25, 0.25, -1],
     [0.25, 0.25, 1],
     [0.75, 0.25, 1],
@@ -189,7 +195,7 @@ export const test_geometry_mesh_crossings = (): void => {
     TestValidator.predicate(
       "malformed triangle buffers refuse",
       throwsError(
-        () => measureAutoMovieMeshCrossings(broken, through),
+        (): IAutoMovieMeshCrossing[]  => measureAutoMovieMeshCrossings(broken, through),
         "complete triangle buffers",
       ),
     );
@@ -215,26 +221,25 @@ export const test_geometry_mesh_crossings = (): void => {
     positions: [5, 5, 0, 6, 5, 0, 5, 6, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
     indices: [0, 1, 2, 3, 4, 5],
   };
-  const snapshot = JSON.stringify(pair);
+  const snapshot: unknown = structuredClone(pair);
   TestValidator.equals(
     "ordinals follow the first mesh's own triangle order",
     measureAutoMovieMeshCrossings(pair, through),
     [{ triangle: 1, other: 0, coplanar: false }],
   );
-  TestValidator.equals(
-    "neither input is mutated",
-    JSON.stringify(pair),
-    snapshot,
+  TestValidator.predicate(
+    "the reordered first input is not mutated",
+    equalGeometryTestValues(pair, snapshot),
   );
   // Neighbours on a curved surface: both meet at (1, 0, 0), the second tilting
   // slightly upward, in every rotation of its corner list.
   for (const rotate of [0, 1, 2]) {
-    const corners = [
+    const corners: number[][] = [
       [1, 0, 0],
       [2, 0.01, 0.05],
       [1, 1.001, 0.03],
     ];
-    const neighbour = blade([
+    const neighbour: IAutoMovieMesh = blade([
       ...corners.slice(rotate),
       ...corners.slice(0, rotate),
     ]);
@@ -244,17 +249,18 @@ export const test_geometry_mesh_crossings = (): void => {
       [],
     );
   }
-  // Two neighbouring skin triangles of the shipped body, copied exactly: they
+  // Existing recorded neighbouring skin triangles: their historical provenance
+  // is not revalidated here. They
   // share their corner at x = -0.0803 and the surface bends by a few degrees
   // between them. The barycentric test alone reported them as crossed, which
   // read every seam of a partitioned body as a collision; the corner must be
   // excluded by identity before the arithmetic.
-  const skinA = blade([
+  const skinA: IAutoMovieMesh = blade([
     [-0.07281415909528732, -0.5830061435699463, -0.06736848503351212],
     [-0.08017368614673615, -0.5966654419898987, -0.07248512655496599],
     [-0.08033677190542221, -0.5835632681846619, -0.06539095193147659],
   ]);
-  const skinB = blade([
+  const skinB: IAutoMovieMesh = blade([
     [-0.07291097939014435, -0.5704334378242493, -0.05966000258922577],
     [-0.08033677190542221, -0.5835632681846619, -0.06539095193147659],
     [-0.08007320761680602, -0.5711591839790344, -0.05790312588214874],
@@ -267,7 +273,7 @@ export const test_geometry_mesh_crossings = (): void => {
   // The same shared corner, but the neighbour folds back through the
   // reference: its far edge runs from below the plane to above it inside the
   // reference's interior, which is a real crossing.
-  const folded = blade([
+  const folded: IAutoMovieMesh = blade([
     [1, 0, 0],
     [0.2, 0.2, -0.1],
     [0.3, 0.3, 0.1],
@@ -277,4 +283,4 @@ export const test_geometry_mesh_crossings = (): void => {
     measureAutoMovieMeshCrossings(flat, folded),
     [{ triangle: 0, other: 0, coplanar: false }],
   );
-};
+}

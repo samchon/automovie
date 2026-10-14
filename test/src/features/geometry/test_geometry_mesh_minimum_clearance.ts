@@ -1,11 +1,11 @@
-import {
-  measureAutoMovieMeshClearance,
-  minimizeAutoMovieMeshClearance,
-} from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import { nclose } from "../internal/nclose";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { measureAutoMovieMeshClearance } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshClearance";
+import { minimizeAutoMovieMeshClearance } from "../../../../packages/engine/src/geometry/minimizeAutoMovieMeshClearance";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieMeshClearanceWitness } from "../../../../packages/engine/src/geometry/IAutoMovieMeshClearanceWitness";
 
 /**
  * A tilted plane under a flat triangle needs unequal vertex travel. At the
@@ -20,9 +20,14 @@ import { throwsError } from "../internal/predicates";
  * 3. The optional contact visitor exposes original barycentric corner witnesses;
  *    mutating retained witness arrays cannot change either input mesh.
  * 4. Invalid clearance is refused beside exact-zero admitted clearance.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes minimum-clearance optimization and applies its travel to the existing mesh, checking independently derived vertex targets, complete projected-face gaps, untouched transverse/caller data, fixed/disjoint/empty populations and copied barycentric visitor records. Invalid clearances must refuse beside admitted zero.
+ * @evidence contracts/testing.md#independent-expectations The tilted plane has z=x, so nonnegative travel meeting gap c minimizes at (c,1+c,c) for the authored corners; affine corner weights and gaps follow their coordinates. Target agreement retains 1e-6 and the post-displacement clearance bound. These local optimality checks do not prove the solver generally or certify final Float32/GPU geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all depth axes, zero/.25 gap, indexed disjoint and clear patches, fixed-vertex elimination, wholly clear/empty input, visitor ordinals/weights ownership and negative/NaN/infinite clearance refusals. General scheduler convergence and malformed projected arithmetic belong to their own entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable geometry entry reaches the actual pinned Clarabel WebAssembly reactor through quadratic source for active optimization, with portable clearance observation around it. It builds no native artifact, installs no consumer and starts no external process, browser or GPU; it registers no new cases.
  */
-export const test_geometry_mesh_minimum_clearance = (): void => {
-  const mesh = (
+export function test_geometry_mesh_minimum_clearance(): void {
+  const mesh: (positions: number[], indices?: number[] | null) => IAutoMovieMesh = (
     positions: number[],
     indices: number[] | null = null,
   ): IAutoMovieMesh => ({
@@ -32,25 +37,25 @@ export const test_geometry_mesh_minimum_clearance = (): void => {
     uvs: null,
     skin: null,
   });
-  const frontPoints = [
+  const frontPoints: number[][] = [
     [0, 0, 0],
     [1, 0, 0],
     [0, 1, 0],
   ];
-  const backPoints = [
+  const backPoints: number[][] = [
     [0, 0, 0],
     [1, 0, 1],
     [0, 1, 0],
   ];
   for (const axis of ["x", "y", "z"] as const) {
-    const axes = { x: [2, 0, 1], y: [1, 2, 0], z: [0, 1, 2] }[axis];
-    const rotate = (points: number[][]) =>
-      points.flatMap((p) => axes.map((i) => p[i]));
-    const front = mesh(rotate(frontPoints)),
-      back = mesh(rotate(backPoints));
-    const original = structuredClone([front, back]);
+    const axes: number[] = { x: [2, 0, 1], y: [1, 2, 0], z: [0, 1, 2] }[axis];
+    const rotate: (points: number[][]) => number[] = (points: number[][]): number[]  =>
+      points.flatMap((p: number[]): number[]  => axes.map((i: number): number  => p[i]));
+    const front: IAutoMovieMesh = mesh(rotate(frontPoints)),
+      back: IAutoMovieMesh = mesh(rotate(backPoints));
+    const original: IAutoMovieMesh[] = structuredClone([front, back]);
     for (const clearance of [0, 0.25]) {
-      const targets = minimizeAutoMovieMeshClearance(
+      const targets: { vertex: number; distance: number; }[] = minimizeAutoMovieMeshClearance(
         front,
         back,
         axis,
@@ -58,41 +63,42 @@ export const test_geometry_mesh_minimum_clearance = (): void => {
       );
       TestValidator.equals(
         "three incident vertex targets",
-        targets.map((t) => t.vertex),
+        targets.map((t: { vertex: number; distance: number; }): number  => t.vertex),
         [0, 1, 2],
       );
       TestValidator.predicate(
         "corner-derived minimum",
         targets.every(
-          (t, i) =>
-            Math.abs(t.distance - (i === 1 ? 1 + clearance : clearance)) < 1e-6,
+          (t: { vertex: number; distance: number; }, i: number): boolean  =>
+            (nclose(t.distance - (i === 1 ? 1 + clearance : clearance), 0, 1e-6) && Math.abs(t.distance - (i === 1 ? 1 + clearance : clearance)) < 1e-6),
         ),
       );
-      const displaced = structuredClone(front);
-      const depth = { x: 0, y: 1, z: 2 }[axis];
+      const displaced: IAutoMovieMesh = structuredClone(front);
+      const depth: number = { x: 0, y: 1, z: 2 }[axis];
       for (const { vertex, distance } of targets)
         displaced.positions[3 * vertex + depth] += distance;
+      const measured: ReturnType<typeof measureAutoMovieMeshClearance> = measureAutoMovieMeshClearance(displaced, back, axis);
       TestValidator.predicate(
         "complete triangles retain clearance",
-        measureAutoMovieMeshClearance(displaced, back, axis).every(
-          (r) => r.minimum >= clearance - 1e-6,
+        measured.length === 1 && measured.every(
+          (r: { triangle: number; minimum: number; }): boolean  => r.minimum >= clearance - 1e-6,
         ),
       );
     }
-    TestValidator.equals("caller buffers retained", [front, back], original);
+    TestValidator.predicate("caller buffers retained", equalGeometryTestValues([front, back], original));
   }
-  const front = mesh(
+  const front: IAutoMovieMesh = mesh(
     [...frontPoints.flat(), 10, 10, 0, 11, 10, 0, 10, 11, 0],
     [0, 1, 2, 3, 4, 5],
   );
-  const back = mesh(backPoints.flat());
-  const result = minimizeAutoMovieMeshClearance(front, back, "z");
+  const back: IAutoMovieMesh = mesh(backPoints.flat());
+  const result: { vertex: number; distance: number; }[] = minimizeAutoMovieMeshClearance(front, back, "z");
   TestValidator.equals(
     "disjoint patch owns no target",
-    result.map((r) => r.vertex),
+    result.map((r: { vertex: number; distance: number; }): number  => r.vertex),
     [0, 1, 2],
   );
-  const clearOverlap = mesh([
+  const clearOverlap: IAutoMovieMesh = mesh([
     ...back.positions,
     10,
     10,
@@ -107,11 +113,11 @@ export const test_geometry_mesh_minimum_clearance = (): void => {
   TestValidator.equals(
     "clear overlapping patch retains its fixed vertices",
     minimizeAutoMovieMeshClearance(front, clearOverlap, "z").map(
-      (r) => r.vertex,
+      (r: { vertex: number; distance: number; }): number  => r.vertex,
     ),
     [0, 1, 2],
   );
-  const clear = mesh(frontPoints.map(([x, y]) => [x, y, 2]).flat());
+  const clear: IAutoMovieMesh = mesh(frontPoints.map(([x, y]: number[]): number[]  => [x, y, 2]).flat());
   TestValidator.equals(
     "clear triangle needs no travel",
     minimizeAutoMovieMeshClearance(clear, back, "z"),
@@ -123,11 +129,13 @@ export const test_geometry_mesh_minimum_clearance = (): void => {
     [],
   );
   const seen: number[][] = [];
+  const visitorFront: IAutoMovieMesh = mesh(frontPoints.flat());
+  const visitorInputs: IAutoMovieMesh[] = structuredClone([visitorFront, back]);
   measureAutoMovieMeshClearance(
-    mesh(frontPoints.flat()),
+    visitorFront,
     back,
     "z",
-    (witness) => {
+    (witness: IAutoMovieMeshClearanceWitness): void  => {
       TestValidator.equals(
         "source triangle ordinals",
         [witness.triangle, witness.backTriangle],
@@ -143,17 +151,18 @@ export const test_geometry_mesh_minimum_clearance = (): void => {
       witness.weights[0] = 99;
     },
   );
-  TestValidator.equals("independent affine corner witnesses", seen, [
+  TestValidator.predicate("independent affine corner witnesses", equalGeometryTestValues(seen, [
     [1, 0, 0, 0],
     [0, 1, 0, -1],
     [0, 0, 1, 0],
-  ]);
+  ]));
+  TestValidator.predicate("retained witness mutation preserves both inputs", equalGeometryTestValues([visitorFront, back], visitorInputs));
   for (const clearance of [-1, NaN, Infinity])
     TestValidator.predicate(
       "invalid clearance domain",
       throwsError(
-        () => minimizeAutoMovieMeshClearance(front, back, "z", clearance),
+        (): { vertex: number; distance: number; }[]  => minimizeAutoMovieMeshClearance(front, back, "z", clearance),
         "nonnegative",
       ),
     );
-};
+}

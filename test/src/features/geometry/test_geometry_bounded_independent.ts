@@ -1,16 +1,14 @@
-/**
- * A selected affine system splits the positive diagonal displacement objective
- * into participating variables and independent zero minima. These scenarios
- * exercise that exact decomposition through the actual contact scheduler, not
- * a copied presolver or a named portrait.
- */
-import { solveAutoMovieBoundedDisplacement } from "@automovie/engine";
+import { nclose } from "../internal/nclose";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { solveAutoMovieBoundedDisplacement } from "../../../../packages/engine/src/math/solveAutoMovieBoundedDisplacement";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/math/IAutoMovieQuadraticRow";
 
 /**
  * Pins elimination without losing later contacts or small genuine couplings.
+ * The positive diagonal objective leaves independent coordinates at zero;
+ * the actual scheduler must preserve every genuinely coupled coordinate.
  *
  * Scenarios:
  * 1. Only the middle coordinate participates; the other two have exact zero
@@ -19,9 +17,14 @@ import { throwsError } from "../internal/predicates";
  *    the row tolerance is expressed in that small coefficient's units.
  * 3. An unsatisfied constant row is infeasible, while its adjacent zero lower
  *    bound is satisfied and needs no numerical iteration.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the real bounded scheduler, checking exact zero minima for absent/zero-weight variables, the participating cap, unchanged input, preservation of a tiny genuine coupling, and refusal of an inconsistent constant beside an admitted zero constant.
+ * @evidence contracts/testing.md#independent-expectations A positive diagonal objective minimizes unconstrained coordinates at zero; the middle lower bound equals its unit cap, and the 1e-8 coefficient with the same lower bound still requires unit travel. Constant zero cannot meet lower bound one but meets zero. These analytic minima are independent of presolver output; participating travel retains its 1e-7 numerical tolerance.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves explicit zero terms versus tiny nonzero coupling, untouched caller data, empty versus zero-weight constant rows and each adjacent zero lower bound. Group scheduling, general malformed problems and round exhaustion remain in bounded-displacement.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry reaches actual scheduler and pinned Clarabel WebAssembly source for active problems, so it is CPU/WebAssembly integration rather than a pure TypeScript solver test. It uses the existing inputs without consumer installation, native build, process, browser, GPU or dynamically registered cases.
  */
-export const test_geometry_bounded_independent = (): void => {
-  const solve = solveAutoMovieBoundedDisplacement;
+export function test_geometry_bounded_independent(): void {
+  const solve: (input: { mass: readonly number[]; upper: readonly number[]; constraints: readonly { row: IAutoMovieQuadraticRow; group: number; }[]; tolerance: number; maximumRounds: number; }) => { travel: number[]; violation: number; rounds: number; status: number | null; } = solveAutoMovieBoundedDisplacement;
   const base: Parameters<typeof solve>[0] = {
     mass: [1, 4, 2],
     upper: [1, 1, 1],
@@ -34,19 +37,15 @@ export const test_geometry_bounded_independent = (): void => {
     tolerance: 1e-7,
     maximumRounds: 40,
   };
-  const original = structuredClone(base);
-  const result = solve(base);
-  TestValidator.equals(
-    "independent variables are exact zeros",
-    [result.travel[0], result.travel[2]],
-    [0, 0],
-  );
+  const original: { mass: readonly number[]; upper: readonly number[]; constraints: readonly { row: IAutoMovieQuadraticRow; group: number; }[]; tolerance: number; maximumRounds: number; } = structuredClone(base);
+  const result: { travel: number[]; violation: number; rounds: number; status: number | null; } = solve(base);
+  TestValidator.predicate("independent variables are exact zeros", equalGeometryTestValues([result.travel[0], result.travel[2]], [0, 0]));
   TestValidator.predicate(
     "participating variable reaches cap",
-    Math.abs(result.travel[1] - 1) < 1e-7,
+    (nclose(result.travel[1] - 1, 0, 1e-7) && Math.abs(result.travel[1] - 1) < 1e-7),
   );
-  TestValidator.equals("caller problem remains unchanged", base, original);
-  const coupled = solve({
+  TestValidator.predicate("caller problem remains unchanged", equalGeometryTestValues(base, original));
+  const coupled: { travel: number[]; violation: number; rounds: number; status: number | null; } = solve({
     ...base,
     tolerance: 1e-13,
     constraints: [
@@ -63,13 +62,13 @@ export const test_geometry_bounded_independent = (): void => {
   });
   TestValidator.predicate(
     "tiny nonzero coupling is preserved",
-    Math.abs(coupled.travel[1] - 1) < 1e-7,
+    (nclose(coupled.travel[1] - 1, 0, 1e-7) && Math.abs(coupled.travel[1] - 1) < 1e-7),
   );
   for (const [indices, weights] of [
     [[], []],
     [[0], [0]],
   ]) {
-    const constant = {
+    const constant: { constraints: { row: { indices: number[]; weights: number[]; lower: number; upper: null; }; group: number; }[]; mass: readonly number[]; upper: readonly number[]; tolerance: number; maximumRounds: number; } = {
       ...base,
       constraints: [
         { row: { indices, weights, lower: 1, upper: null }, group: 0 },
@@ -77,13 +76,9 @@ export const test_geometry_bounded_independent = (): void => {
     };
     TestValidator.predicate(
       "inconsistent constant refuses",
-      throwsError(() => solve(constant), "constant rows"),
+      throwsError((): { travel: number[]; violation: number; rounds: number; status: number | null; }  => solve(constant), "constant rows"),
     );
     constant.constraints[0].row.lower = 0;
-    TestValidator.equals(
-      "adjacent constant admits exact zero",
-      solve(constant).travel,
-      [0, 0, 0],
-    );
+    TestValidator.predicate("adjacent constant admits exact zero", equalGeometryTestValues(solve(constant).travel, [0, 0, 0]));
   }
-};
+}

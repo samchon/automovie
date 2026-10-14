@@ -1,11 +1,10 @@
-import { createAutoMovieMeshDeformer } from "@automovie/engine";
-import type {
-  IAutoMovieMesh,
-  IAutoMovieMeshDeformationField,
-} from "@automovie/interface";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
+import { type IAutoMovieMesh, type IAutoMovieMeshDeformationField, type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 
 /**
  * Compact spatial fields move vertices and transform normals by their actual
@@ -20,9 +19,14 @@ import { nclose, throwsError } from "../internal/predicates";
  *    accumulated geometry are refused, with a nearby positive Jacobian allowed.
  * 4. All six support faces and diagonals outside the ellipsoid retain their
  *    coordinates, including points inside its bounding box but outside its field.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes compiled compact-field deformation, checking polynomial displacement and transported normals, support-boundary identity, copied field ownership, preserved input/metadata and refusals for malformed or orientation-reversing maps. It detects incorrect gradients or silently mutated geometry while allowing an adjacent positive Jacobian.
+ * @evidence contracts/testing.md#independent-expectations At x=1, the authored radius-two kernel gives (3/4)^3=27/64 and derivative -27/32; normalizing the independently derived plane normal gives the expected components. Identity outside compact support follows zero kernel weight. Endpoint differential and triangle checks do not prove global embedding, continuous collision freedom or GPU appearance.
+ * @evidence contracts/testing.md#distinguishing-cases Retains center/interior/boundary/exterior samples, all six support faces and diagonals, empty and normal-free meshes, copied fields, metadata, invalid field parameters, reflection/singularity and overflow. Mask product derivatives, extreme scales and tessellated-face orientation have companion tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly calls portable deformation source with unchanged synthetic buffers and existing exception observation. It creates no Human asset or new case, starts no process, browser, GPU or native build and registers no dynamic tests.
  */
-export const test_geometry_mesh_deformation = (): void => {
-  const zero = { x: 0, y: 0, z: 0 };
+export function test_geometry_mesh_deformation(): void {
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const field: IAutoMovieMeshDeformationField = {
     center: { ...zero },
     radius: { x: 2, y: 2, z: 2 },
@@ -32,21 +36,21 @@ export const test_geometry_mesh_deformation = (): void => {
   const mesh: IAutoMovieMesh = {
     positions: [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 0, 1, 0],
     indices: [0, 1, 4],
-    normals: Array.from({ length: 5 }, () => [0, 0, 1]).flat(),
+    normals: Array.from({ length: 5 }, (): number[]  => [0, 0, 1]).flat(),
     uvs: new Array(10).fill(0),
     skin: null,
   };
-  const before = structuredClone(mesh),
-    apply = createAutoMovieMeshDeformer([field]);
+  const before: IAutoMovieMesh = structuredClone(mesh),
+    apply: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([field]);
   field.displacement.z = 100;
-  const result = apply(mesh),
-    length = Math.hypot(27 / 32, 1);
+  const result: IAutoMovieMesh = apply(mesh),
+    length: number = Math.hypot(27 / 32, 1);
   TestValidator.predicate(
     "independent displacement polynomial",
     nclose(result.positions[2], 1) &&
       nclose(result.positions[5], 27 / 64) &&
-      result.positions[8] === 0 &&
-      result.positions[11] === 0,
+      nclose(result.positions[8], 0, 0) &&
+      nclose(result.positions[11], 0, 0),
   );
   TestValidator.predicate(
     "inverse-transpose normal",
@@ -54,33 +58,25 @@ export const test_geometry_mesh_deformation = (): void => {
       nclose(result.normals![4], 0) &&
       nclose(result.normals![5], 1 / length),
   );
-  TestValidator.equals("input geometry retained", mesh, before);
-  const boundaries = [
+  TestValidator.predicate("input geometry retained", equalGeometryTestValues(mesh, before));
+  const boundaries: number[] = [
     2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 1.6, 1.6, 0, 1.6,
     0, 1.6, 0, 1.6, 1.6,
   ];
-  TestValidator.equals(
-    "support faces and exterior diagonals remain unchanged",
-    apply({
+  TestValidator.predicate("support faces and exterior diagonals remain unchanged", equalGeometryTestValues(apply({
       ...mesh,
       positions: boundaries,
       normals: null,
       indices: null,
       uvs: null,
-    }).positions,
-    boundaries,
-  );
+    }).positions, boundaries));
   TestValidator.predicate(
     "attribute ownership retained",
     result.indices === mesh.indices &&
       result.uvs === mesh.uvs &&
       result.skin === mesh.skin,
   );
-  TestValidator.equals(
-    "empty field geometry",
-    createAutoMovieMeshDeformer([])(mesh),
-    mesh,
-  );
+  TestValidator.predicate("empty field geometry", equalGeometryTestValues(createAutoMovieMeshDeformer([])(mesh), mesh));
   TestValidator.equals(
     "normal-free mesh",
     apply({ ...mesh, normals: null }).normals,
@@ -101,23 +97,23 @@ export const test_geometry_mesh_deformation = (): void => {
   ])
     TestValidator.predicate(
       "invalid field refused",
-      throwsError(() => createAutoMovieMeshDeformer([{ ...field, ...change }])),
+      throwsError((): (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh  => createAutoMovieMeshDeformer([{ ...field, ...change }]), "finite vectors and strictly positive radii"),
     );
   for (const stretch of [-2, -1])
     TestValidator.predicate(
       "orientation reversal refused",
-      throwsError(() =>
+      throwsError((): IAutoMovieMesh  =>
         createAutoMovieMeshDeformer([
           { ...field, displacement: zero, stretch: { x: stretch, y: 0, z: 0 } },
         ])(mesh),
-      ),
+        "local surface orientation"),
     );
   createAutoMovieMeshDeformer([
     { ...field, displacement: zero, stretch: { x: -0.99, y: 0, z: 0 } },
   ])(mesh);
   TestValidator.predicate(
     "overflowing Jacobian refused",
-    throwsError(() =>
+    throwsError((): IAutoMovieMesh  =>
       createAutoMovieMeshDeformer([
         {
           ...field,
@@ -128,11 +124,11 @@ export const test_geometry_mesh_deformation = (): void => {
           },
         },
       ])(mesh),
-    ),
+      "local surface orientation"),
   );
-  const huge = { ...field, displacement: { x: 0, y: 0, z: Number.MAX_VALUE } };
+  const huge: { displacement: IAutoMovieVector3; center: IAutoMovieVector3; radius: IAutoMovieVector3; stretch: IAutoMovieVector3; } = { ...field, displacement: { x: 0, y: 0, z: Number.MAX_VALUE } };
   TestValidator.predicate(
     "nonfinite accumulated displacement refused",
-    throwsError(() => createAutoMovieMeshDeformer([huge, huge])(mesh)),
+    throwsError((): IAutoMovieMesh  => createAutoMovieMeshDeformer([huge, huge])(mesh), "local surface orientation"),
   );
-};
+}

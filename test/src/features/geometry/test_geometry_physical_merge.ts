@@ -1,13 +1,11 @@
-import {
-  mergeAutoMovieMeshes,
-  transformAutoMovieMesh,
-  validateMeshTopology,
-} from "@automovie/engine";
-import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
+import { mergeAutoMovieMeshes } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshes";
+import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
+import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
+import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
 import { TestValidator } from "@nestia/e2e";
-
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Composition retains physical lineage and dynamically position-derived legacy.
@@ -17,21 +15,26 @@ import { throwsError } from "../internal/predicates";
  * 3. Mixed inputs keep one legacy cohort separate from explicit source points.
  * 4. Placement of the same physical pair to different cells refuses on merge.
  * 5. Legacy-only/empty output keeps metadata absent, and arrays remain owned.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes merge, physical resolution, placement and topology admission, checking shared-source edge identity, domain separation, remerge/regrouping, mixed legacy cohorts, owned arrays and refusal when one source pair occupies separate grid cells. It catches lineage loss without treating concatenation as a boolean union.
+ * @evidence contracts/testing.md#independent-expectations The authored domain/ID pairs define aliases and opposite directed faces define a legal shared edge; equal integer IDs in another domain remain independent. Operand order determines the expected mapping table. These identity/admission expectations are discrete contracts, not geometry snapshots, and do not prove general surface embedding or pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves same versus different domains, original merge/remerge/nesting, mixed explicit/legacy entries, separated placement refusal, legacy-only and empty metadata, and mutation ownership. Cache invalidation and per-vertex deformation splitting are owned by their companion entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly executes portable product source using the unchanged existing physical-mesh helper and exception observer. It starts no process, browser, GPU or native build, installs no consumer and registers no new cases.
  */
-export const test_geometry_physical_merge = (): void => {
-  const a = createPhysicalMesh(
+export function test_geometry_physical_merge(): void {
+  const a: IAutoMovieMesh = createPhysicalMesh(
     [0, 0, 0, 1, 0, 0, 0, 1, 0],
     [0, 1, 2],
     [11, 12, 13],
     "actual-instance",
   );
-  const b = createPhysicalMesh(
+  const b: IAutoMovieMesh = createPhysicalMesh(
     [1, 0, 0, 0, 0, 0, 0, -1, 0],
     [0, 1, 2],
     [12, 11, 14],
     "actual-instance",
   );
-  const combined = mergeAutoMovieMeshes([a, b]);
+  const combined: IAutoMovieMesh = mergeAutoMovieMeshes([a, b]);
   TestValidator.equals(
     "original edge aliases",
     resolveAutoMovieMeshPhysicalVertices(combined).vertices,
@@ -42,7 +45,7 @@ export const test_geometry_physical_merge = (): void => {
     validateMeshTopology({ mesh: combined }),
     { success: true },
   );
-  const remerged = mergeAutoMovieMeshes([combined, a]);
+  const remerged: IAutoMovieMesh = mergeAutoMovieMeshes([combined, a]);
   TestValidator.equals(
     "remerge sees original A",
     resolveAutoMovieMeshPhysicalVertices(remerged).vertices,
@@ -53,7 +56,7 @@ export const test_geometry_physical_merge = (): void => {
     remerged.physicalVertices,
     mergeAutoMovieMeshes([a, mergeAutoMovieMeshes([b, a])]).physicalVertices,
   );
-  const independent = createPhysicalMesh(
+  const independent: IAutoMovieMesh = createPhysicalMesh(
     b.positions,
     b.indices,
     [12, 11, 14],
@@ -65,8 +68,8 @@ export const test_geometry_physical_merge = (): void => {
       .vertices,
     [0, 1, 2, 3, 4, 5],
   );
-  const bare = createPhysicalMesh(a.positions, a.indices);
-  const mixed = mergeAutoMovieMeshes([
+  const bare: IAutoMovieMesh = createPhysicalMesh(a.positions, a.indices);
+  const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([
     a,
     bare,
     createPhysicalMesh(bare.positions, null),
@@ -87,18 +90,18 @@ export const test_geometry_physical_merge = (): void => {
     resolveAutoMovieMeshPhysicalVertices(mixed).vertices,
     [0, 1, 2, 3, 4, 5, 6, 4, 5],
   );
-  const placed = transformAutoMovieMesh(a, {
+  const placed: IAutoMovieMesh = transformAutoMovieMesh(a, {
     translation: { x: 2, y: 0, z: 0 },
   });
   TestValidator.predicate(
     "same point cannot occupy another placement",
-    throwsError(() => mergeAutoMovieMeshes([a, placed])),
+    throwsError((): IAutoMovieMesh  => mergeAutoMovieMeshes([a, placed]), ["physicalVertices", "aliases disagree"]),
   );
-  const malformed = createPhysicalMesh(a.positions, a.indices, [11, 12, 13]);
+  const malformed: IAutoMovieMesh = createPhysicalMesh(a.positions, a.indices, [11, 12, 13]);
   malformed.physicalVertices!.vertices[0] = -1;
   TestValidator.predicate(
     "invalid operand not lost",
-    throwsError(() => mergeAutoMovieMeshes([a, malformed])),
+    throwsError((): IAutoMovieMesh  => mergeAutoMovieMeshes([a, malformed]), "physicalVertices"),
   );
   combined.physicalVertices!.sources[0].domain = "mutated-output";
   combined.physicalVertices!.vertices[0] = null;
@@ -122,4 +125,4 @@ export const test_geometry_physical_merge = (): void => {
     mergeAutoMovieMeshes([]).physicalVertices,
     undefined,
   );
-};
+}

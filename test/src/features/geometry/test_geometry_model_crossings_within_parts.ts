@@ -1,9 +1,10 @@
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
+import { type IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { type IAutoMovieModelCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieModelCrossing";
 
 /** A model part holding the given hand-typed triangles as one mesh. */
-const part = (id: string, triangles: number[][][]) => ({
+const part: (id: string, triangles: number[][][]) => { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; } = (id: string, triangles: number[][][]): { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; }  => ({
   id,
   name: id,
   material: "skin",
@@ -11,7 +12,7 @@ const part = (id: string, triangles: number[][][]) => ({
     type: "mesh" as const,
     mesh: {
       positions: triangles.flat(2),
-      indices: triangles.flatMap((_, t) => [t * 3, t * 3 + 1, t * 3 + 2]),
+      indices: triangles.flatMap((_: number[][], t: number): number[]  => [t * 3, t * 3 + 1, t * 3 + 2]),
       normals: null,
       uvs: null,
       skin: null,
@@ -21,7 +22,7 @@ const part = (id: string, triangles: number[][][]) => ({
   transform: null,
 });
 
-const model = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
+const model: (parts: ReturnType<typeof part>[]) => IAutoMovieModel = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
   id: "within",
   name: "within",
   origin: "imported",
@@ -32,31 +33,31 @@ const model = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
   asset: null,
 });
 
-const floor = [
+const floor: number[][] = [
   [0, 0, 0],
   [1, 0, 0],
   [0, 1, 0],
 ];
 /** Stands upright through the floor's interior. */
-const blade = [
+const blade: number[][] = [
   [0.25, 0.25, -1],
   [0.25, 0.25, 1],
   [0.75, 0.25, 1],
 ];
 /** Shares the floor's edge (0,0,0)-(1,0,0) and folds up out of its plane. */
-const hinge = [
+const hinge: number[][] = [
   [0, 0, 0],
   [1, 0, 0],
   [0.5, -0.5, 0.5],
 ];
 /** Shares only the floor's corner (0,0,0), clear of it elsewhere. */
-const fan = [
+const fan: number[][] = [
   [0, 0, 0],
   [-1, 0, 0.2],
   [-1, -1, 0.2],
 ];
 /** Lies in the floor's plane and overlaps its area. */
-const overlap = [
+const overlap: number[][] = [
   [0.1, 0.1, 0],
   [0.6, 0.1, 0],
   [0.1, 0.6, 0],
@@ -82,8 +83,13 @@ const overlap = [
  * 4. The self entry precedes the part's pairs: a part holding floor and
  *    blade beside a second part holding a blade reports the self entry, then
  *    the pair, in model order; a single one-triangle part reports nothing.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures model crossings with and without withinParts, checking retained self witnesses, transverse/coplanar counts, excluded edge/corner contact and ordering before inter-part pairs. It catches ignored self examination or treating shared boundaries as piercing.
+ * @evidence contracts/testing.md#independent-expectations The authored floor/blade pair crosses both subject triangles, the flat overlap is coplanar on both, and the hinge/fan meet only shared boundaries. Ordinals and model order determine entries. Default silence means self examination was disabled, not that a part is healthy, and these counts do not prove solid embedding or anatomy.
+ * @evidence contracts/testing.md#distinguishing-cases Retains default versus enabled self measurement, transverse versus coplanar overlap, edge/corner touching, self-before-pair order and singleton triangles. Inter-part transform placement and forged nonmesh skip behavior remain in model-crossings; full face-pair enumeration is a mesh-level option.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly executes portable model and mesh crossing source on unchanged synthetic part records. It starts no process, browser, GPU or native build and introduces no Human fixture, new geometry case or dynamic test registration.
  */
-export const test_geometry_model_crossings_within_parts = (): void => {
+export function test_geometry_model_crossings_within_parts(): void {
   TestValidator.equals(
     "a part crossing itself is counted with withinParts",
     measureAutoMovieModelCrossings(model([part("skin", [floor, blade])]), {
@@ -131,7 +137,7 @@ export const test_geometry_model_crossings_within_parts = (): void => {
     measureAutoMovieModelCrossings(
       model([part("skin", [floor, blade]), part("other", [blade])]),
       { withinParts: true },
-    ).map((one) => [one.part, one.other]),
+    ).map((one: IAutoMovieModelCrossing): string[]  => [one.part, one.other]),
     [
       ["skin", "skin"],
       ["skin", "other"],
@@ -144,4 +150,4 @@ export const test_geometry_model_crossings_within_parts = (): void => {
     }),
     [],
   );
-};
+}

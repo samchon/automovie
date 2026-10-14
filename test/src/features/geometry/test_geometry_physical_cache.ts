@@ -4,7 +4,8 @@ import { weldedDegenerateTriangles } from "../../../../packages/engine/src/geome
 import { createMeshPhysicalPartitionMatcher } from "../../../../packages/engine/src/math/createMeshPhysicalPartitionMatcher";
 import { TestValidator } from "@nestia/e2e";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
-import { throwsError } from "../internal/predicates";
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Cache reuse requires source meaning and connectivity, not just equal incidence.
  * Scenarios:
@@ -17,7 +18,7 @@ import { throwsError } from "../internal/predicates";
  * 6. Sparse coordinate holes refuse both capture and triangle participation queries.
  *
  * @evidence contracts/testing.md#behavioral-verification Captures physical topology and changes source meaning, connectivity and collapsed-face participation, asserting reuse only while all captured semantics agree and malformed buffers refuse.
- * @evidence contracts/testing.md#independent-expectations Authored source IDs, triangle ordinals and explicit coincident positions define equivalence; a separately validated fin demonstrates the incidence consequence of activating one dormant face.
+ * @evidence contracts/testing.md#independent-expectations Authored source IDs, triangle ordinals and explicit coincident positions define equivalence; a separately validated fin demonstrates the incidence consequence of activating one dormant face. These discrete identity and grid-participation checks establish cache eligibility, not general surface embedding, area or rendered validity.
  * @evidence contracts/testing.md#distinguishing-cases Covers empty and malformed captures, translated/table-reordered equivalents, split/merged legacy classes, mutation ownership, changed dormant ordinal with equal population and sparse-coordinate holes; weld tests own raw grid-label rounding.
  * @evidence contracts/testing.md#execution-ownership This exported geometry entry owns all physical-cache cases and invokes CPU source through ordinary mesh records without installing a consumer or starting a host.
  */
@@ -140,12 +141,14 @@ export function test_geometry_physical_cache(): void {
     "invalid capture coordinates",
     throwsError((): (candidate: IAutoMovieMesh) => boolean =>
       createMeshPhysicalPartitionMatcher(createPhysicalMesh([NaN, 0, 0], [])),
+      ["finite", "XYZ"],
     ),
   );
   TestValidator.predicate(
     "invalid capture structure",
     throwsError((): (candidate: IAutoMovieMesh) => boolean =>
       createMeshPhysicalPartitionMatcher(createPhysicalMesh([0, 0], [])),
+      "whole xyz triples",
     ),
   );
   TestValidator.equals(
