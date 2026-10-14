@@ -2,16 +2,21 @@ import typia from "typia";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 
-const bounded: (value: number, low: number, high: number) => boolean = (value: number, low: number, high: number): boolean =>
-  Number.isFinite(value) && value >= low && value <= high;
+const bounded: (value: number, low: number, high: number) => boolean = (
+  value: number,
+  low: number,
+  high: number,
+): boolean => Number.isFinite(value) && value >= low && value <= high;
 const positive: (value: number) => boolean = (value: number): boolean =>
   Number.isFinite(value) && value > 0;
 const nonnegative: (value: number) => boolean = (value: number): boolean =>
   Number.isFinite(value) && value >= 0;
-const vector: (values: readonly number[]) => boolean = (values: readonly number[]): boolean =>
-  values.every(Number.isFinite);
-const direction: (values: readonly number[]) => boolean = (values: readonly number[]): boolean =>
-  vector(values) && positive(Math.hypot(...values));
+const vector: (values: readonly number[]) => boolean = (
+  values: readonly number[],
+): boolean => values.every(Number.isFinite);
+const direction: (values: readonly number[]) => boolean = (
+  values: readonly number[],
+): boolean => vector(values) && positive(Math.hypot(...values));
 
 /**
  * Admit a complete numerical hairstyle before root sampling or allocation. Document loading and generation call the same owner. Units and styling meanings belong to IAutoMovieHumanFaceHair; limits here bound representation and arithmetic cost, not biological populations. The million-interval budget counts all layers and the longest authored length including its variation. Even a zero-count layer must have valid fields. Shared surface/domain lookup, actual root emergence and contact feasibility belong to the compiled builder. The input and its nested arrays are read without mutation or normalization.
@@ -25,14 +30,17 @@ const direction: (values: readonly number[]) => boolean = (values: readonly numb
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only small temporary sets and enumeration arrays are owned by this synchronous check; caller arrays and future geometry remain unallocated.
  */
 export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
-  const hair: IAutoMovieHumanFaceHair = typia.assertEquals<IAutoMovieHumanFaceHair>(input);
+  const hair: IAutoMovieHumanFaceHair =
+    typia.assertEquals<IAutoMovieHumanFaceHair>(input);
   if (hair.layers.length > 8)
     throw new Error("A numerical hairstyle accepts at most eight layers.");
   const identities: Set<string> = new Set<string>();
   let intervals: number = 0;
   for (const layer of hair.layers) {
     if (
-      [layer.id, layer.surface, layer.domain].some((id: string): boolean => id.trim() === "") ||
+      [layer.id, layer.surface, layer.domain].some(
+        (id: string): boolean => id.trim() === "",
+      ) ||
       identities.has(layer.id)
     )
       throw new Error(
@@ -53,8 +61,11 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !positive(layer.samplingStep) ||
       layer.samplingStep > 0.005 ||
       !nonnegative(layer.clearance) ||
-      (layer.terminalShaftDiameter !== undefined && !positive(layer.terminalShaftDiameter)) ||
-      (layer.emergenceAngleDegrees !== undefined && (!positive(layer.emergenceAngleDegrees) || layer.emergenceAngleDegrees > 90)) ||
+      (layer.terminalShaftDiameter !== undefined &&
+        !positive(layer.terminalShaftDiameter)) ||
+      (layer.emergenceAngleDegrees !== undefined &&
+        (!positive(layer.emergenceAngleDegrees) ||
+          layer.emergenceAngleDegrees > 90)) ||
       !direction(layer.flow) ||
       !nonnegative(layer.lift.strength) ||
       !positive(layer.lift.reach) ||
@@ -76,7 +87,8 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
         "Hair guides need a fraction in (0,1], one to eight neighbours and a clump in [0,1].",
       );
     if (layer.gather !== undefined) {
-      const gather: NonNullable<IAutoMovieHumanFaceHair.Layer["gather"]> = layer.gather;
+      const gather: NonNullable<IAutoMovieHumanFaceHair.Layer["gather"]> =
+        layer.gather;
       if (
         !bounded(gather.anchor.polar, 0, Math.PI) ||
         !bounded(gather.anchor.azimuth, -Math.PI, Math.PI) ||
@@ -123,7 +135,9 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
       !positive(layer.curl.reach) ||
       !bounded(layer.taper.tipWidth, 0.05, 1) ||
       !bounded(layer.taper.start, 0, 0.95) ||
-      !layer.finish.color.every((value: number): boolean => bounded(value, 0, 1)) ||
+      !layer.finish.color.every((value: number): boolean =>
+        bounded(value, 0, 1),
+      ) ||
       !bounded(layer.finish.roughness, 0, 1) ||
       !Number.isInteger(layer.finish.fibres) ||
       !bounded(layer.finish.fibres, 1, 32) ||

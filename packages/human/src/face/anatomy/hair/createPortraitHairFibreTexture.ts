@@ -36,7 +36,8 @@ export function createPortraitHairFibreTexture(
       mixture.grey > 1 ||
       mixture.pigment.length !== 3 ||
       !mixture.pigment.every(
-        (value: number): boolean => Number.isFinite(value) && value >= 0 && value <= 1,
+        (value: number): boolean =>
+          Number.isFinite(value) && value >= 0 && value <= 1,
       )
     )
       throw new Error(
@@ -76,27 +77,34 @@ export function createPortraitHairFibreTexture(
     return ((value ^ (value >>> 16)) >>> 0) / 0x100000000;
   };
   // Trigonometry belongs to one fibre at one row, not every raster column.
-  const curlRows: { center: number; slope: number; }[][] | undefined =
+  const curlRows: { center: number; slope: number }[][] | undefined =
     curl === undefined
       ? undefined
-      : Array.from({ length: height }, (_: unknown, y: number): { center: number; slope: number; }[] =>
-          Array.from({ length: fibres }, (_: unknown, f: number): { center: number; slope: number; } => {
-            const t: number = y / (height - 1);
-            const amplitude: number =
-              curl.amplitude * (0.65 + 0.35 * curlNoise(f + 17));
-            const frequency: number = curl.cycles * (0.8 + 0.4 * curlNoise(f + 11));
-            const angle: number = 2 * Math.PI * (curlNoise(f) + frequency * t);
-            return {
-              center: (f + 0.5) / fibres + amplitude * Math.sin(angle),
-              slope:
-                amplitude *
-                2 *
-                Math.PI *
-                frequency *
-                Math.cos(angle) *
-                curl.aspectRatio,
-            };
-          }),
+      : Array.from(
+          { length: height },
+          (_: unknown, y: number): { center: number; slope: number }[] =>
+            Array.from(
+              { length: fibres },
+              (_: unknown, f: number): { center: number; slope: number } => {
+                const t: number = y / (height - 1);
+                const amplitude: number =
+                  curl.amplitude * (0.65 + 0.35 * curlNoise(f + 17));
+                const frequency: number =
+                  curl.cycles * (0.8 + 0.4 * curlNoise(f + 11));
+                const angle: number =
+                  2 * Math.PI * (curlNoise(f) + frequency * t);
+                return {
+                  center: (f + 0.5) / fibres + amplitude * Math.sin(angle),
+                  slope:
+                    amplitude *
+                    2 *
+                    Math.PI *
+                    frequency *
+                    Math.cos(angle) *
+                    curl.aspectRatio,
+                };
+              },
+            ),
         );
   for (let y: number = 0; y < height; y++)
     for (let x: number = 0; x < width; x++) {
@@ -116,8 +124,10 @@ export function createPortraitHairFibreTexture(
         // The proportion has to mean what it says, so the switch reads the
         // mixing hash rather than the single-multiply noise beside it, whose
         // consecutive fibres are too correlated to divide at a threshold.
-        const white: boolean = mixture !== undefined && curlNoise(f + 53) < mixture.grey;
-        const wave: { center: number; slope: number; } | undefined = curlRows?.[y][f];
+        const white: boolean =
+          mixture !== undefined && curlNoise(f + 53) < mixture.grey;
+        const wave: { center: number; slope: number } | undefined =
+          curlRows?.[y][f];
         const center: number =
           wave === undefined
             ? (f + 0.5 + 0.2 * Math.sin(t * 5 + phase * 6.28)) / fibres

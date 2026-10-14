@@ -1,13 +1,22 @@
-import type { IHumanFaceHairLayerPart as ImportedIHumanFaceHairLayerPart } from "../../structures/IHumanFaceHairLayerPart";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceHairLayerPart as ImportedIHumanFaceHairLayerPart } from "../../structures/IHumanFaceHairLayerPart";
 import type { IHumanFaceHairDirectionInput } from "./IHumanFaceHairDirectionInput";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairPartSide } from "./humanFaceHairPartSide";
 
-const { perpendicular, direction: requireDirection }: { direction(value: IAutoMovieVector3): IAutoMovieVector3; perpendicular(axis: IAutoMovieVector3, reference: IAutoMovieVector3): IAutoMovieVector3; } = humanFaceHairFrame;
+const {
+  perpendicular,
+  direction: requireDirection,
+}: {
+  direction(value: IAutoMovieVector3): IAutoMovieVector3;
+  perpendicular(
+    axis: IAutoMovieVector3,
+    reference: IAutoMovieVector3,
+  ): IAutoMovieVector3;
+} = humanFaceHairFrame;
 
 /**
  * Evaluate a dimensionless static styling field for the metric curve integrator. The root is a neutral chart point in metres, while the supplied unit normal belongs to the current host; both use the same head axes. The layer is already admitted. Parting depends on root position and decays along the lock. An optional fall hands the combed direction over to the head's downward axis by exp(-d / reach) of arc length before the inward part is removed, so a lock still on the head slides down along the scalp. Outward lift then augments the normalized comb field; wave or helical modulation rotates that axis by the authored angular field. Contact projection belongs to the integrator and may change this desired direction. This is a kinematic field, without an elastic energy or gravity simulation. A cancelled direction refuses instead of choosing a random comb. Inputs remain unchanged and the returned unit vector is independently owned.
@@ -27,7 +36,9 @@ export function evaluateHumanFaceHairDirection(
   let aim: IAutoMovieVector3 = Vector3.create(...layer.flow);
   const part: ImportedIHumanFaceHairLayerPart | undefined = layer.part;
   if (part !== undefined) {
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.create(...part.normal));
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.create(...part.normal),
+    );
     const side: number = humanFaceHairPartSide(root, part);
     const comb: IAutoMovieVector3 = Vector3.add(
       Vector3.scale(axis, side),
@@ -70,8 +81,10 @@ export function evaluateHumanFaceHairDirection(
   const axis: IAutoMovieVector3 = requireDirection(aim);
   const across: IAutoMovieVector3 = perpendicular(axis, normal);
   const up: IAutoMovieVector3 = Vector3.cross(axis, across);
-  const angle: number = layer.curl.angle * (1 - Math.exp(-distance / layer.curl.reach));
-  const turn: number = props.phase + (2 * Math.PI * distance) / layer.curl.wavelength;
+  const angle: number =
+    layer.curl.angle * (1 - Math.exp(-distance / layer.curl.reach));
+  const turn: number =
+    props.phase + (2 * Math.PI * distance) / layer.curl.wavelength;
   if (layer.curl.mode === "helix")
     return requireDirection(
       Vector3.add(

@@ -15,18 +15,40 @@ import type { IAutoMovieHumanFaceFacialHair } from "../../structures/IAutoMovieH
  *
  * @author Samchon
  */
-export function assertHumanFaceFacialHair(input: IAutoMovieHumanFaceFacialHair): void {
-  const hair: IAutoMovieHumanFaceFacialHair = typia.assertEquals<IAutoMovieHumanFaceFacialHair>(input);
+export function assertHumanFaceFacialHair(
+  input: IAutoMovieHumanFaceFacialHair,
+): void {
+  const hair: IAutoMovieHumanFaceFacialHair =
+    typia.assertEquals<IAutoMovieHumanFaceFacialHair>(input);
   for (const profile of Object.values(hair.sites)) {
     if (profile === undefined) continue;
-    if (!Number.isInteger(profile.count) || profile.count < 0 || profile.count > 1024 ||
-        !Number.isInteger(profile.seed) || profile.seed < 0 || profile.seed > 0xffffffff ||
-        !Number.isFinite(profile.lengthMm) || profile.lengthMm < 0 ||
-        !Number.isFinite(profile.diameterMicrometres) || profile.diameterMicrometres <= 0 ||
-        !Number.isFinite(profile.emergenceAngleDegrees) || profile.emergenceAngleDegrees <= 0 || profile.emergenceAngleDegrees > 90 ||
-        !Number.isFinite(profile.flowAngleDegrees) || profile.flowAngleDegrees < -180 || profile.flowAngleDegrees > 180 ||
-        !Number.isFinite(profile.samplingStepMm) || profile.samplingStepMm <= 0 || profile.samplingStepMm > 5 ||
-        Object.values(profile.finish).some((value: number): boolean => !Number.isFinite(value) || value < 0 || value > 1))
-      throw new Error("Facial terminal shafts need finite admitted counts, metric dimensions, styling angle, seed and finish.");
+    if (
+      !Number.isInteger(profile.count) ||
+      profile.count < 0 ||
+      profile.count > 1024 ||
+      !Number.isInteger(profile.seed) ||
+      profile.seed < 0 ||
+      profile.seed > 0xffffffff ||
+      !Number.isFinite(profile.lengthMm) ||
+      profile.lengthMm < 0 ||
+      !Number.isFinite(profile.diameterMicrometres) ||
+      profile.diameterMicrometres <= 0 ||
+      !Number.isFinite(profile.emergenceAngleDegrees) ||
+      profile.emergenceAngleDegrees <= 0 ||
+      profile.emergenceAngleDegrees > 90 ||
+      !Number.isFinite(profile.flowAngleDegrees) ||
+      profile.flowAngleDegrees < -180 ||
+      profile.flowAngleDegrees > 180 ||
+      !Number.isFinite(profile.samplingStepMm) ||
+      profile.samplingStepMm <= 0 ||
+      profile.samplingStepMm > 5 ||
+      Object.values(profile.finish).some(
+        (value: number): boolean =>
+          !Number.isFinite(value) || value < 0 || value > 1,
+      )
+    )
+      throw new Error(
+        "Facial terminal shafts need finite admitted counts, metric dimensions, styling angle, seed and finish.",
+      );
   }
 }

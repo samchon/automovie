@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import type { IHumanFaceHairRootPopulation } from "./IHumanFaceHairRootPopulation";
@@ -26,36 +26,58 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  */
 export function createHumanFaceHairRoots(
   props: IHumanFaceHairRootSamplingProps,
-): (layer: Pick<IAutoMovieHumanFaceHair.Layer, "count" | "seed" | "hairline" | "rootRegion">) => IHumanFaceHairRootPopulation {
+): (
+  layer: Pick<
+    IAutoMovieHumanFaceHair.Layer,
+    "count" | "seed" | "hairline" | "rootRegion"
+  >,
+) => IHumanFaceHairRootPopulation {
   const origin: ImportedIAutoMovieVector3 = Vector3.create(...props.origin);
   let area: number = 0;
-  const triangles: { triangle: number; ids: number[]; points: ImportedIAutoMovieVector3[]; area: number; normal: ImportedIAutoMovieVector3; }[] = props.triangles.map((triangle: number): { triangle: number; ids: number[]; points: ImportedIAutoMovieVector3[]; area: number; normal: ImportedIAutoMovieVector3; } => {
-    const ids: number[] = props.indices.slice(3 * triangle, 3 * triangle + 3);
-    const points: ImportedIAutoMovieVector3[] = ids.map((id: number): ImportedIAutoMovieVector3 =>
-      Vector3.create(
-        ...(props.positions.slice(3 * id, 3 * id + 3) as [
-          number,
-          number,
-          number,
-        ]),
-      ),
-    );
-    const cross: ImportedIAutoMovieVector3 = Vector3.cross(
-      Vector3.subtract(points[1], points[0]),
-      Vector3.subtract(points[2], points[0]),
-    );
-    const magnitude: number = Vector3.length(cross);
-    if (!Number.isFinite(magnitude) || magnitude <= 0)
-      throw new Error("A hair growth triangle needs finite nonzero area.");
-    area += magnitude / 2;
-    return {
-      triangle,
-      ids,
-      points,
-      area,
-      normal: Vector3.normalize(cross),
-    };
-  });
+  const triangles: {
+    triangle: number;
+    ids: number[];
+    points: ImportedIAutoMovieVector3[];
+    area: number;
+    normal: ImportedIAutoMovieVector3;
+  }[] = props.triangles.map(
+    (
+      triangle: number,
+    ): {
+      triangle: number;
+      ids: number[];
+      points: ImportedIAutoMovieVector3[];
+      area: number;
+      normal: ImportedIAutoMovieVector3;
+    } => {
+      const ids: number[] = props.indices.slice(3 * triangle, 3 * triangle + 3);
+      const points: ImportedIAutoMovieVector3[] = ids.map(
+        (id: number): ImportedIAutoMovieVector3 =>
+          Vector3.create(
+            ...(props.positions.slice(3 * id, 3 * id + 3) as [
+              number,
+              number,
+              number,
+            ]),
+          ),
+      );
+      const cross: ImportedIAutoMovieVector3 = Vector3.cross(
+        Vector3.subtract(points[1], points[0]),
+        Vector3.subtract(points[2], points[0]),
+      );
+      const magnitude: number = Vector3.length(cross);
+      if (!Number.isFinite(magnitude) || magnitude <= 0)
+        throw new Error("A hair growth triangle needs finite nonzero area.");
+      area += magnitude / 2;
+      return {
+        triangle,
+        ids,
+        points,
+        area,
+        normal: Vector3.normalize(cross),
+      };
+    },
+  );
   if (!Number.isFinite(area) || area <= 0)
     throw new Error("A hair growth domain needs a finite positive area.");
   return (
@@ -81,7 +103,13 @@ export function createHumanFaceHairRoots(
         if (triangles[middle].area <= target) low = middle + 1;
         else high = middle;
       }
-      const chosen: { triangle: number; ids: number[]; points: ImportedIAutoMovieVector3[]; area: number; normal: ImportedIAutoMovieVector3; } = triangles[low];
+      const chosen: {
+        triangle: number;
+        ids: number[];
+        points: ImportedIAutoMovieVector3[];
+        area: number;
+        normal: ImportedIAutoMovieVector3;
+      } = triangles[low];
       const radial: number = Math.sqrt(humanFaceHairSequence(sequence, 3));
       const along: number = humanFaceHairSequence(sequence, 5);
       const weights: [number, number, number] = [
@@ -90,14 +118,25 @@ export function createHumanFaceHairRoots(
         radial * along,
       ];
       const point: ImportedIAutoMovieVector3 = chosen.points.reduce(
-        (sum: ImportedIAutoMovieVector3, p: ImportedIAutoMovieVector3, at: number): ImportedIAutoMovieVector3 => Vector3.add(sum, Vector3.scale(p, weights[at])),
+        (
+          sum: ImportedIAutoMovieVector3,
+          p: ImportedIAutoMovieVector3,
+          at: number,
+        ): ImportedIAutoMovieVector3 =>
+          Vector3.add(sum, Vector3.scale(p, weights[at])),
         Vector3.create(),
       );
-      const direction: ImportedIAutoMovieVector3 = Vector3.subtract(point, origin);
+      const direction: ImportedIAutoMovieVector3 = Vector3.subtract(
+        point,
+        origin,
+      );
       const magnitude: number = Vector3.length(direction);
       if (!Number.isFinite(magnitude) || magnitude === 0)
         throw new Error("The hair chart is singular at a sampled root.");
-      const boundary: number = humanFaceHairlineBoundary(direction, layer.hairline);
+      const boundary: number = humanFaceHairlineBoundary(
+        direction,
+        layer.hairline,
+      );
       const polar: number = Math.acos(
         Math.max(-1, Math.min(1, direction.y / magnitude)),
       );

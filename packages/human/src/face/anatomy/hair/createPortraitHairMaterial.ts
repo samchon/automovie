@@ -43,7 +43,7 @@ export function createPortraitHairMaterial(
     value <= 0.0031308
       ? 12.92 * value
       : 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
-  const mixture: { grey: number; pigment: number[]; } | undefined =
+  const mixture: { grey: number; pigment: number[] } | undefined =
     grey === 0
       ? undefined
       : {

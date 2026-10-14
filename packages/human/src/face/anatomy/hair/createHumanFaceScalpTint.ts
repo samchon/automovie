@@ -1,6 +1,13 @@
-import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain } from "@automovie/human";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMaterial, IAutoMovieColor as ImportedIAutoMovieColor, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain,
+} from "@automovie/human";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieColor as ImportedIAutoMovieColor,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
@@ -29,44 +36,96 @@ export function createHumanFaceScalpTint(
   hair: IAutoMovieHumanFaceHair | null | undefined,
   materials: readonly IAutoMovieMaterial[],
 ) => Map<string, number[]> {
-  const domains: Map<string, { readonly surface: ImportedIAutoMovieHumanFaceBasisSurface; readonly byId: Map<string, { origin: [number, number, number]; vertices: number[]; }>; readonly material: Map<number, string>; }> = new Map(
-    basis.surfaces.map((surface: ImportedIAutoMovieHumanFaceBasisSurface): readonly [string, { readonly surface: ImportedIAutoMovieHumanFaceBasisSurface; readonly byId: Map<string, { origin: [number, number, number]; vertices: number[]; }>; readonly material: Map<number, string>; }] => {
-      const byId: Map<string, { origin: [number, number, number]; vertices: number[]; }> = new Map(
-        (surface.hairDomains ?? []).map((domain: ImportedIAutoMovieHumanFaceHairDomain): [string, { origin: [number, number, number]; vertices: number[]; }] => {
-          const vertices: Set<number> = new Set<number>();
-          for (const triangle of domain.triangles)
-            for (let corner: number = 0; corner < 3; corner++)
-              vertices.add(surface.indices[3 * triangle + corner]);
-          return [
-            domain.id,
-            { origin: domain.origin, vertices: [...vertices] },
-          ];
-        }),
-      );
-      const material: Map<number, string> = new Map<number, string>();
-      for (const region of [...surface.regions].reverse())
-        for (const vertex of region.indices)
-          material.set(vertex, region.material);
-      return [surface.id, { surface, byId, material }] as const;
-    }),
+  const domains: Map<
+    string,
+    {
+      readonly surface: ImportedIAutoMovieHumanFaceBasisSurface;
+      readonly byId: Map<
+        string,
+        { origin: [number, number, number]; vertices: number[] }
+      >;
+      readonly material: Map<number, string>;
+    }
+  > = new Map(
+    basis.surfaces.map(
+      (
+        surface: ImportedIAutoMovieHumanFaceBasisSurface,
+      ): readonly [
+        string,
+        {
+          readonly surface: ImportedIAutoMovieHumanFaceBasisSurface;
+          readonly byId: Map<
+            string,
+            { origin: [number, number, number]; vertices: number[] }
+          >;
+          readonly material: Map<number, string>;
+        },
+      ] => {
+        const byId: Map<
+          string,
+          { origin: [number, number, number]; vertices: number[] }
+        > = new Map(
+          (surface.hairDomains ?? []).map(
+            (
+              domain: ImportedIAutoMovieHumanFaceHairDomain,
+            ): [
+              string,
+              { origin: [number, number, number]; vertices: number[] },
+            ] => {
+              const vertices: Set<number> = new Set<number>();
+              for (const triangle of domain.triangles)
+                for (let corner: number = 0; corner < 3; corner++)
+                  vertices.add(surface.indices[3 * triangle + corner]);
+              return [
+                domain.id,
+                { origin: domain.origin, vertices: [...vertices] },
+              ];
+            },
+          ),
+        );
+        const material: Map<number, string> = new Map<number, string>();
+        for (const region of [...surface.regions].reverse())
+          for (const vertex of region.indices)
+            material.set(vertex, region.material);
+        return [surface.id, { surface, byId, material }] as const;
+      },
+    ),
   );
-  return (hair: IAutoMovieHumanFaceHair | null | undefined, materials: readonly IAutoMovieMaterial[]): Map<string, number[]> => {
+  return (
+    hair: IAutoMovieHumanFaceHair | null | undefined,
+    materials: readonly IAutoMovieMaterial[],
+  ): Map<string, number[]> => {
     const tints: Map<string, number[]> = new Map<string, number[]>();
     if (hair === undefined || hair === null) return tints;
     const finishes: Map<string, ImportedIAutoMovieColor> = new Map(
-      materials.map((material: IAutoMovieMaterial): [string, ImportedIAutoMovieColor] => [material.id, material.baseColor]),
+      materials.map(
+        (material: IAutoMovieMaterial): [string, ImportedIAutoMovieColor] => [
+          material.id,
+          material.baseColor,
+        ],
+      ),
     );
-    const best: Map<string, { weight: Float64Array; colour: number[][]; }> = new Map<
-      string,
-      { weight: Float64Array; colour: number[][] }
-    >();
+    const best: Map<string, { weight: Float64Array; colour: number[][] }> =
+      new Map<string, { weight: Float64Array; colour: number[][] }>();
     for (const layer of hair.layers) {
       if (layer.count === 0) continue;
-      const source: { readonly surface: ImportedIAutoMovieHumanFaceBasisSurface; readonly byId: Map<string, { origin: [number, number, number]; vertices: number[]; }>; readonly material: Map<number, string>; } | undefined = domains.get(layer.surface);
-      const domain: { origin: [number, number, number]; vertices: number[]; } | undefined = source?.byId.get(layer.domain);
+      const source:
+        | {
+            readonly surface: ImportedIAutoMovieHumanFaceBasisSurface;
+            readonly byId: Map<
+              string,
+              { origin: [number, number, number]; vertices: number[] }
+            >;
+            readonly material: Map<number, string>;
+          }
+        | undefined = domains.get(layer.surface);
+      const domain:
+        | { origin: [number, number, number]; vertices: number[] }
+        | undefined = source?.byId.get(layer.domain);
       if (source === undefined || domain === undefined) continue;
       const positions: number[] = source.surface.positions;
-      let entry: { weight: Float64Array; colour: number[][]; } | undefined = best.get(layer.surface);
+      let entry: { weight: Float64Array; colour: number[][] } | undefined =
+        best.get(layer.surface);
       if (entry === undefined) {
         entry = {
           weight: new Float64Array(positions.length / 3),
@@ -74,14 +133,19 @@ export function createHumanFaceScalpTint(
         };
         best.set(layer.surface, entry);
       }
-      const origin: ImportedIAutoMovieVector3 = Vector3.create(...domain.origin);
+      const origin: ImportedIAutoMovieVector3 = Vector3.create(
+        ...domain.origin,
+      );
       for (const vertex of domain.vertices) {
         const point: ImportedIAutoMovieVector3 = Vector3.create(
           positions[3 * vertex],
           positions[3 * vertex + 1],
           positions[3 * vertex + 2],
         );
-        const direction: ImportedIAutoMovieVector3 = Vector3.subtract(point, origin);
+        const direction: ImportedIAutoMovieVector3 = Vector3.subtract(
+          point,
+          origin,
+        );
         if (!(Vector3.length(direction) > 0)) continue;
         // A parting is the one place the document itself takes fibres away.
         const bare: number =
@@ -101,15 +165,26 @@ export function createHumanFaceScalpTint(
         entry.colour[vertex] =
           grey === 0
             ? layer.finish.color
-            : layer.finish.color.map((value: number): number => value + (1 - value) * grey);
+            : layer.finish.color.map(
+                (value: number): number => value + (1 - value) * grey,
+              );
       }
     }
     for (const [surfaceId, entry] of best) {
-      const source: { readonly surface: ImportedIAutoMovieHumanFaceBasisSurface; readonly byId: Map<string, { origin: [number, number, number]; vertices: number[]; }>; readonly material: Map<number, string>; } = domains.get(surfaceId)!;
+      const source: {
+        readonly surface: ImportedIAutoMovieHumanFaceBasisSurface;
+        readonly byId: Map<
+          string,
+          { origin: [number, number, number]; vertices: number[] }
+        >;
+        readonly material: Map<number, string>;
+      } = domains.get(surfaceId)!;
       const gains: number[] = [];
       for (let vertex: number = 0; vertex < entry.weight.length; vertex++) {
         const coverage: number = entry.weight[vertex];
-        const skin: ImportedIAutoMovieColor | undefined = finishes.get(source.material.get(vertex) ?? "");
+        const skin: ImportedIAutoMovieColor | undefined = finishes.get(
+          source.material.get(vertex) ?? "",
+        );
         if (coverage === 0 || skin === undefined) {
           gains.push(1, 1, 1);
           continue;

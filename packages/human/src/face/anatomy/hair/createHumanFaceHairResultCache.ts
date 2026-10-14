@@ -26,7 +26,12 @@ export function createHumanFaceHairResultCache<T>(
   let last:
     | { pose: object; hair: string; result: T; certified: boolean }
     | undefined;
-  return (hair: IAutoMovieHumanFaceHair, positions: ReadonlyMap<string, readonly number[]>, pose: object, progress: ((owner: string) => void) | undefined): { value: T; certified: boolean; certify: () => void; } => {
+  return (
+    hair: IAutoMovieHumanFaceHair,
+    positions: ReadonlyMap<string, readonly number[]>,
+    pose: object,
+    progress: ((owner: string) => void) | undefined,
+  ): { value: T; certified: boolean; certify: () => void } => {
     const key: string = JSON.stringify(hair);
     if (last === undefined || last.pose !== pose || last.hair !== key)
       last = {
@@ -35,7 +40,8 @@ export function createHumanFaceHairResultCache<T>(
         result: build(hair, positions, progress),
         certified: false,
       };
-    const entry: { pose: object; hair: string; result: T; certified: boolean; } = last;
+    const entry: { pose: object; hair: string; result: T; certified: boolean } =
+      last;
     return {
       value: structuredClone(entry.result),
       certified: entry.certified,

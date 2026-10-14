@@ -1,4 +1,8 @@
-import { Vector3, createAutoMovieSignedMeshQuery, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import {
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+  createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairGatherFieldProps } from "./IHumanFaceHairGatherFieldProps";
@@ -25,7 +29,9 @@ export function createHumanFaceHairGatherField(
     y: props.anchor.point.y,
     z: props.anchor.point.z,
   };
-  const at: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 =>
+  const at: (id: number) => IAutoMovieVector3 = (
+    id: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(
       props.positions[3 * id],
       props.positions[3 * id + 1],
@@ -46,11 +52,18 @@ export function createHumanFaceHairGatherField(
     welded.set(id, owner);
     return owner;
   };
-  const edges: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
-  const connect: (a: number, b: number) => void = (a: number, b: number): void => {
+  const edges: Map<number, Map<number, number>> = new Map<
+    number,
+    Map<number, number>
+  >();
+  const connect: (a: number, b: number) => void = (
+    a: number,
+    b: number,
+  ): void => {
     a = canonical(a);
     b = canonical(b);
-    const adjacent: Map<number, number> = edges.get(a) ?? new Map<number, number>();
+    const adjacent: Map<number, number> =
+      edges.get(a) ?? new Map<number, number>();
     adjacent.set(b, Vector3.length(Vector3.subtract(at(a), at(b))));
     edges.set(a, adjacent);
   };
@@ -61,11 +74,16 @@ export function createHumanFaceHairGatherField(
       connect(ids[(corner + 1) % 3], ids[corner]);
     }
   }
-  const distances: Map<number, number> = new Map([...edges.keys()].map((id: number): [number, number] => [id, Infinity]));
+  const distances: Map<number, number> = new Map(
+    [...edges.keys()].map((id: number): [number, number] => [id, Infinity]),
+  );
   const tieTriangle: number = props.triangles.indexOf(anchorTriangle);
   if (tieTriangle < 0)
     throw new Error("A hair tie must belong to its shared scalp domain.");
-  const tie: number[] = props.indices.slice(3 * anchorTriangle, 3 * anchorTriangle + 3);
+  const tie: number[] = props.indices.slice(
+    3 * anchorTriangle,
+    3 * anchorTriangle + 3,
+  );
   for (const id of tie)
     distances.set(
       canonical(id),
@@ -92,26 +110,35 @@ export function createHumanFaceHairGatherField(
       if (candidate < distances.get(other)!) distances.set(other, candidate);
     }
   }
-  const gradients: IAutoMovieVector3[] = props.triangles.map((triangle: number): IAutoMovieVector3 => {
-    const [a, b, c]: number[] = props.indices.slice(3 * triangle, 3 * triangle + 3);
-    const ab: IAutoMovieVector3 = Vector3.subtract(at(b), at(a));
-    const ac: IAutoMovieVector3 = Vector3.subtract(at(c), at(a));
-    const aa: number = Vector3.dot(ab, ab);
-    const bb: number = Vector3.dot(ac, ac);
-    const cross: number = Vector3.dot(ab, ac);
-    const determinant: number = aa * bb - cross * cross;
-    if (!(determinant > 0) || !Number.isFinite(determinant))
-      throw new Error(
-        "Gathered scalp gradients need finite nondegenerate triangles.",
+  const gradients: IAutoMovieVector3[] = props.triangles.map(
+    (triangle: number): IAutoMovieVector3 => {
+      const [a, b, c]: number[] = props.indices.slice(
+        3 * triangle,
+        3 * triangle + 3,
       );
-    const riseB: number = distances.get(canonical(b))! - distances.get(canonical(a))!;
-    const riseC: number = distances.get(canonical(c))! - distances.get(canonical(a))!;
-    return Vector3.add(
-      Vector3.scale(ab, (riseB * bb - riseC * cross) / determinant),
-      Vector3.scale(ac, (riseC * aa - riseB * cross) / determinant),
-    );
-  });
-  const query: (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(
+      const ab: IAutoMovieVector3 = Vector3.subtract(at(b), at(a));
+      const ac: IAutoMovieVector3 = Vector3.subtract(at(c), at(a));
+      const aa: number = Vector3.dot(ab, ab);
+      const bb: number = Vector3.dot(ac, ac);
+      const cross: number = Vector3.dot(ab, ac);
+      const determinant: number = aa * bb - cross * cross;
+      if (!(determinant > 0) || !Number.isFinite(determinant))
+        throw new Error(
+          "Gathered scalp gradients need finite nondegenerate triangles.",
+        );
+      const riseB: number =
+        distances.get(canonical(b))! - distances.get(canonical(a))!;
+      const riseC: number =
+        distances.get(canonical(c))! - distances.get(canonical(a))!;
+      return Vector3.add(
+        Vector3.scale(ab, (riseB * bb - riseC * cross) / determinant),
+        Vector3.scale(ac, (riseC * aa - riseB * cross) / determinant),
+      );
+    },
+  );
+  const query: (
+    point: readonly number[],
+  ) => ImportedIAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(
     {
       positions: [...props.positions],
       indices: props.triangles.flatMap((triangle: number): number[] =>
@@ -124,8 +151,15 @@ export function createHumanFaceHairGatherField(
     { boundary: "open" },
   );
   return (point: IAutoMovieVector3): IAutoMovieVector3 => {
-    const hit: ImportedIAutoMovieSignedMeshQueryHit = query([point.x, point.y, point.z]);
-    const descent: IAutoMovieVector3 = Vector3.scale(gradients[hit.triangle], -1);
+    const hit: ImportedIAutoMovieSignedMeshQueryHit = query([
+      point.x,
+      point.y,
+      point.z,
+    ]);
+    const descent: IAutoMovieVector3 = Vector3.scale(
+      gradients[hit.triangle],
+      -1,
+    );
     if (hit.triangle !== tieTriangle && Vector3.length(descent) > 0)
       return Vector3.normalize(descent);
     // A piecewise-linear vertex-distance interpolant has its minimum at one
@@ -133,7 +167,11 @@ export function createHumanFaceHairGatherField(
     // triangle use the exact tangent toward the anchor, or every strand could
     // orbit the nearest vertex and leave without ever entering the tie radius.
     const direct: IAutoMovieVector3 = Vector3.subtract(anchorPoint, point);
-    const normal: IAutoMovieVector3 = Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2]);
+    const normal: IAutoMovieVector3 = Vector3.create(
+      hit.normal[0],
+      hit.normal[1],
+      hit.normal[2],
+    );
     const tangent: IAutoMovieVector3 = Vector3.subtract(
       direct,
       Vector3.scale(normal, Vector3.dot(direct, normal)),

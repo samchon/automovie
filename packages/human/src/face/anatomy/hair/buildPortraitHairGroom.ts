@@ -35,13 +35,21 @@ export function buildPortraitHairGroom(props: {
   }
   const parts: IAutoMovieModelPart[] = [];
   const materials: IAutoMovieMaterial[] = structuredClone([...props.materials]);
-  const append: (shape: IPortraitHairShape, layerId?: string) => void = (shape: IPortraitHairShape, layerId?: string): void => {
+  const append: (shape: IPortraitHairShape, layerId?: string) => void = (
+    shape: IPortraitHairShape,
+    layerId?: string,
+  ): void => {
     const cards: IAutoMovieModelPart[] = buildPortraitHairCards(shape);
     if (cards.length === 0) return;
-    const finish: IAutoMovieMaterial | undefined = props.materials.find((item: IAutoMovieMaterial): boolean => item.id === shape.material);
+    const finish: IAutoMovieMaterial | undefined = props.materials.find(
+      (item: IAutoMovieMaterial): boolean => item.id === shape.material,
+    );
     if (finish === undefined)
       throw new Error("Hair cards require their named resident finish.");
-    const material: IAutoMovieMaterial = createPortraitHairMaterial(finish, shape);
+    const material: IAutoMovieMaterial = createPortraitHairMaterial(
+      finish,
+      shape,
+    );
     if (layerId !== undefined) {
       material.id = `human-hair-layer:${layerId}`;
       material.name = material.id;
@@ -50,7 +58,11 @@ export function buildPortraitHairGroom(props: {
         part.name = part.id;
       }
     }
-    if (materials.some((item: IAutoMovieMaterial): boolean => item.id === material.id))
+    if (
+      materials.some(
+        (item: IAutoMovieMaterial): boolean => item.id === material.id,
+      )
+    )
       throw new Error(
         "Generated hair finish identity collides with a resident material.",
       );

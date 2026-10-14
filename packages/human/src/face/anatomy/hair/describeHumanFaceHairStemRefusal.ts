@@ -1,4 +1,7 @@
-import { Vector3, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import {
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRootedLookaheadDecision } from "./IHumanFaceHairRootedLookaheadDecision";

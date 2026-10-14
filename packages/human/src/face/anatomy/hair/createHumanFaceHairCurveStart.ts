@@ -1,7 +1,10 @@
+import {
+  type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceHairContact as ImportedIHumanFaceHairContact } from "./IHumanFaceHairContact";
-import { Vector3, type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget } from "@automovie/engine";
 
+import type { IHumanFaceHairContact as ImportedIHumanFaceHairContact } from "./IHumanFaceHairContact";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { assertHumanFaceHairIntegrationContext } from "./assertHumanFaceHairIntegrationContext";
@@ -26,14 +29,48 @@ export function createHumanFaceHairCurveStart(
   props: IHumanFaceHairIntegration,
   metric: IHumanFaceHairMetric,
   degrees: number,
-): { stage: { pending: () => boolean; direction(point: ImportedIAutoMovieVector3, normal: ImportedIAutoMovieVector3, distance: number): ImportedIAutoMovieVector3; observe(point: ImportedIAutoMovieVector3, distance: number): void; crossing(from: ImportedIAutoMovieVector3, to: ImportedIAutoMovieVector3): number | undefined; enter: (point: ImportedIAutoMovieVector3, distance: number) => void; assertTied(last: ImportedIAutoMovieVector3): void; }; length: number; contact: ImportedIHumanFaceHairContact; budget: ImportedIAutoMovieMeshQueryBudget; direction: ImportedIAutoMovieVector3; } {
+): {
+  stage: {
+    pending: () => boolean;
+    direction(
+      point: ImportedIAutoMovieVector3,
+      normal: ImportedIAutoMovieVector3,
+      distance: number,
+    ): ImportedIAutoMovieVector3;
+    observe(point: ImportedIAutoMovieVector3, distance: number): void;
+    crossing(
+      from: ImportedIAutoMovieVector3,
+      to: ImportedIAutoMovieVector3,
+    ): number | undefined;
+    enter: (point: ImportedIAutoMovieVector3, distance: number) => void;
+    assertTied(last: ImportedIAutoMovieVector3): void;
+  };
+  length: number;
+  contact: ImportedIHumanFaceHairContact;
+  budget: ImportedIAutoMovieMeshQueryBudget;
+  direction: ImportedIAutoMovieVector3;
+} {
   assertHumanFaceHairIntegrationContext(props);
   const { layer }: IHumanFaceHairIntegration = props;
   if (layer.gather !== undefined && props.place !== undefined)
     throw new Error(
       "Gathered hair requires direct integration through its scalp tie, without hierarchy placement.",
     );
-  const stage: { pending: () => boolean; direction(point: ImportedIAutoMovieVector3, normal: ImportedIAutoMovieVector3, distance: number): ImportedIAutoMovieVector3; observe(point: ImportedIAutoMovieVector3, distance: number): void; crossing(from: ImportedIAutoMovieVector3, to: ImportedIAutoMovieVector3): number | undefined; enter: (point: ImportedIAutoMovieVector3, distance: number) => void; assertTied(last: ImportedIAutoMovieVector3): void; } = createHumanFaceHairGatherStage({
+  const stage: {
+    pending: () => boolean;
+    direction(
+      point: ImportedIAutoMovieVector3,
+      normal: ImportedIAutoMovieVector3,
+      distance: number,
+    ): ImportedIAutoMovieVector3;
+    observe(point: ImportedIAutoMovieVector3, distance: number): void;
+    crossing(
+      from: ImportedIAutoMovieVector3,
+      to: ImportedIAutoMovieVector3,
+    ): number | undefined;
+    enter: (point: ImportedIAutoMovieVector3, distance: number) => void;
+    assertTied(last: ImportedIAutoMovieVector3): void;
+  } = createHumanFaceHairGatherStage({
     layer,
     reference: props.reference,
     root: props.root,
@@ -45,11 +82,27 @@ export function createHumanFaceHairCurveStart(
   if (!Number.isFinite(length) || length <= contact.epsilon)
     throw new Error("Hair length cannot accommodate its rooted transition.");
   const budget: ImportedIAutoMovieMeshQueryBudget = props.budget;
-  const normal: ImportedIAutoMovieVector3 = humanFaceHairFrame.direction(props.normal);
-  const field: ImportedIAutoMovieVector3 = stage.direction(props.root, normal, 0);
-  if (layer.emergenceAngleDegrees !== undefined && degrees < 90 &&
-      Vector3.length(Vector3.subtract(field, Vector3.scale(normal, Vector3.dot(field, normal)))) === 0)
-    throw new Error("An authored non-normal hair emergence requires a nonzero tangential styling direction.");
+  const normal: ImportedIAutoMovieVector3 = humanFaceHairFrame.direction(
+    props.normal,
+  );
+  const field: ImportedIAutoMovieVector3 = stage.direction(
+    props.root,
+    normal,
+    0,
+  );
+  if (
+    layer.emergenceAngleDegrees !== undefined &&
+    degrees < 90 &&
+    Vector3.length(
+      Vector3.subtract(
+        field,
+        Vector3.scale(normal, Vector3.dot(field, normal)),
+      ),
+    ) === 0
+  )
+    throw new Error(
+      "An authored non-normal hair emergence requires a nonzero tangential styling direction.",
+    );
   const direction: ImportedIAutoMovieVector3 = humanFaceHairEmergence({
     normal: props.normal,
     degrees,

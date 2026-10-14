@@ -1,21 +1,22 @@
-import type { IHumanFaceHairLayerGather as ImportedIHumanFaceHairLayerGather } from "../../structures/IHumanFaceHairLayerGather";
-import type { IHumanFaceHairLayerHairline as ImportedIHumanFaceHairLayerHairline } from "../../structures/IHumanFaceHairLayerHairline";
-import type { Region as ImportedRegion } from "../../structures/IAutoMovieHumanFaceHair/Region";
-import type { IHumanFaceHairLayerGuides as ImportedIHumanFaceHairLayerGuides } from "../../structures/IHumanFaceHairLayerGuides";
-import type { IAutoMovieHumanFaceHairFall as ImportedIAutoMovieHumanFaceHairFall } from "../../structures/IAutoMovieHumanFaceHairFall";
-import type { IHumanFaceHairLayerCurl as ImportedIHumanFaceHairLayerCurl } from "../../structures/IHumanFaceHairLayerCurl";
-import type { IHumanFaceHairLayerTaper as ImportedIHumanFaceHairLayerTaper } from "../../structures/IHumanFaceHairLayerTaper";
-import type { IAutoMovieHumanFaceHairFinish as ImportedIAutoMovieHumanFaceHairFinish } from "@automovie/human";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieHumanFaceHairFinish as ImportedIAutoMovieHumanFaceHairFinish } from "@automovie/human";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { Region as ImportedRegion } from "../../structures/IAutoMovieHumanFaceHair/Region";
+import type { IAutoMovieHumanFaceHairFall as ImportedIAutoMovieHumanFaceHairFall } from "../../structures/IAutoMovieHumanFaceHairFall";
+import type { IHumanFaceHairLayerCurl as ImportedIHumanFaceHairLayerCurl } from "../../structures/IHumanFaceHairLayerCurl";
+import type { IHumanFaceHairLayerGather as ImportedIHumanFaceHairLayerGather } from "../../structures/IHumanFaceHairLayerGather";
+import type { IHumanFaceHairLayerGuides as ImportedIHumanFaceHairLayerGuides } from "../../structures/IHumanFaceHairLayerGuides";
+import type { IHumanFaceHairLayerHairline as ImportedIHumanFaceHairLayerHairline } from "../../structures/IHumanFaceHairLayerHairline";
+import type { IHumanFaceHairLayerTaper as ImportedIHumanFaceHairLayerTaper } from "../../structures/IHumanFaceHairLayerTaper";
 import type { ICreateHumanFaceHairGatherStageProps } from "./ICreateHumanFaceHairGatherStageProps";
 import { createHumanFaceHairTailSpread } from "./createHumanFaceHairTailSpread";
 import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 
-const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 = humanFaceHairFrame.direction;
+const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 =
+  humanFaceHairFrame.direction;
 
 /**
  * The stages of one lock: the field it is combed by and, when the layer gathers, the tie it is drawn to and the tail it grows after it. Without a gather the lock has one stage and `direction` is the ordinary comb field. With one, the lock is drawn toward its scalp tie by blending the scalp gathering direction into the field with the layer's strength, until it enters the tie's radius; from that arc length it follows the tail direction (the layer's flow replaced by the tail's, no parting, no lift) plus, when the tail has a spread, the lock's own radial velocity from `createHumanFaceHairTailSpread`.
@@ -34,7 +35,18 @@ const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 = humanF
  */
 export function createHumanFaceHairGatherStage(
   props: ICreateHumanFaceHairGatherStageProps,
-): { pending: () => boolean; direction(point: IAutoMovieVector3, normal: IAutoMovieVector3, distance: number): IAutoMovieVector3; observe(point: IAutoMovieVector3, distance: number): void; crossing(from: IAutoMovieVector3, to: IAutoMovieVector3): number | undefined; enter: (point: IAutoMovieVector3, distance: number) => void; assertTied(last: IAutoMovieVector3): void; } {
+): {
+  pending: () => boolean;
+  direction(
+    point: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+    distance: number,
+  ): IAutoMovieVector3;
+  observe(point: IAutoMovieVector3, distance: number): void;
+  crossing(from: IAutoMovieVector3, to: IAutoMovieVector3): number | undefined;
+  enter: (point: IAutoMovieVector3, distance: number) => void;
+  assertTied(last: IAutoMovieVector3): void;
+} {
   const { layer }: ICreateHumanFaceHairGatherStageProps = props;
   const gather: ImportedIHumanFaceHairLayerGather | undefined = layer.gather;
   if (
@@ -43,7 +55,33 @@ export function createHumanFaceHairGatherStage(
   )
     throw new Error("Gathered hair needs its attached scalp anchor.");
   const phase: number = 2 * Math.PI * humanFaceHairSequence(props.sequence, 11);
-  const tailLayer: { flow: [number, number, number]; part: undefined; lift: { strength: number; reach: number; }; id: string; surface: string; domain: string; count: number; seed: number; hairline: ImportedIHumanFaceHairLayerHairline; rootRegion?: ImportedRegion; terminalShaftDiameter?: number; emergenceAngleDegrees?: number; lengthAxes: [number, number, number, number, number, number]; frontScale?: number; lengthVariation: number; guides?: ImportedIHumanFaceHairLayerGuides; gather?: ImportedIHumanFaceHairLayerGather; samplingStep: number; clearance: number; fall?: ImportedIAutoMovieHumanFaceHairFall; curl: ImportedIHumanFaceHairLayerCurl; taper: ImportedIHumanFaceHairLayerTaper; finish: ImportedIAutoMovieHumanFaceHairFinish; } | undefined =
+  const tailLayer:
+    | {
+        flow: [number, number, number];
+        part: undefined;
+        lift: { strength: number; reach: number };
+        id: string;
+        surface: string;
+        domain: string;
+        count: number;
+        seed: number;
+        hairline: ImportedIHumanFaceHairLayerHairline;
+        rootRegion?: ImportedRegion;
+        terminalShaftDiameter?: number;
+        emergenceAngleDegrees?: number;
+        lengthAxes: [number, number, number, number, number, number];
+        frontScale?: number;
+        lengthVariation: number;
+        guides?: ImportedIHumanFaceHairLayerGuides;
+        gather?: ImportedIHumanFaceHairLayerGather;
+        samplingStep: number;
+        clearance: number;
+        fall?: ImportedIAutoMovieHumanFaceHairFall;
+        curl: ImportedIHumanFaceHairLayerCurl;
+        taper: ImportedIHumanFaceHairLayerTaper;
+        finish: ImportedIAutoMovieHumanFaceHairFinish;
+      }
+    | undefined =
     gather === undefined
       ? undefined
       : {
@@ -55,7 +93,10 @@ export function createHumanFaceHairGatherStage(
   let tied: boolean = false;
   let tieDistance: number = 0;
   let spread: ((distance: number) => IAutoMovieVector3) | undefined;
-  const enter: (point: IAutoMovieVector3, distance: number) => void = (point: IAutoMovieVector3, distance: number): void => {
+  const enter: (point: IAutoMovieVector3, distance: number) => void = (
+    point: IAutoMovieVector3,
+    distance: number,
+  ): void => {
     tied = true;
     tieDistance = distance;
     if (gather?.tail.spread !== undefined)
@@ -69,8 +110,9 @@ export function createHumanFaceHairGatherStage(
         ...gather.tail.spread,
       });
   };
-  const gap: (point: IAutoMovieVector3) => number = (point: IAutoMovieVector3): number =>
-    Vector3.length(Vector3.subtract(props.anchor!, point));
+  const gap: (point: IAutoMovieVector3) => number = (
+    point: IAutoMovieVector3,
+  ): number => Vector3.length(Vector3.subtract(props.anchor!, point));
   let nearest: number = gather === undefined ? Infinity : gap(props.root);
   let nearestPoint: IAutoMovieVector3 = props.root;
   if (gather !== undefined && nearest <= gather.radius) enter(props.root, 0);

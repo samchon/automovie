@@ -1,5 +1,9 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
@@ -72,14 +76,21 @@ export function buildPortraitHairCards(
       card.width <= 0 ||
       card.width > 40 ||
       [...card.guide, ...card.across].some(
-        (p: readonly [number, number, number]): boolean => p.length !== 3 || !p.every(Number.isFinite),
+        (p: readonly [number, number, number]): boolean =>
+          p.length !== 3 || !p.every(Number.isFinite),
       )
     )
       throw new Error(
         "Each hair card needs paired finite guide/frame stations and a positive bounded width.",
       );
-    const guide: ImportedIAutoMovieVector3[] = card.guide.map((p: readonly [number, number, number]): ImportedIAutoMovieVector3 => millimetrePoint(...p));
-    const across: ImportedIAutoMovieVector3[] = card.across.map((p: readonly [number, number, number]): ImportedIAutoMovieVector3 => millimetrePoint(...p));
+    const guide: ImportedIAutoMovieVector3[] = card.guide.map(
+      (p: readonly [number, number, number]): ImportedIAutoMovieVector3 =>
+        millimetrePoint(...p),
+    );
+    const across: ImportedIAutoMovieVector3[] = card.across.map(
+      (p: readonly [number, number, number]): ImportedIAutoMovieVector3 =>
+        millimetrePoint(...p),
+    );
     const mesh: IAutoMovieMesh = {
       positions: [],
       indices: [],
@@ -122,12 +133,13 @@ export function buildPortraitHairCards(
     for (let i: number = 0; i < mesh.indices!.length; i += 3) {
       const [a, b, c]: ImportedIAutoMovieVector3[] = mesh
         .indices!.slice(i, i + 3)
-        .map((id: number): ImportedIAutoMovieVector3 =>
-          millimetrePoint(
-            mesh.positions[id * 3],
-            mesh.positions[id * 3 + 1],
-            mesh.positions[id * 3 + 2],
-          ),
+        .map(
+          (id: number): ImportedIAutoMovieVector3 =>
+            millimetrePoint(
+              mesh.positions[id * 3],
+              mesh.positions[id * 3 + 1],
+              mesh.positions[id * 3 + 2],
+            ),
         );
       const area: number = Vector3.length(
         Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),

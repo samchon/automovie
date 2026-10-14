@@ -29,7 +29,11 @@ export function anticipateHumanFaceHairRootedStem(
 ): IHumanFaceHairRootedLookaheadDecision {
   const turn: number = humanFaceHairConstructionTurn(props.step);
   const radius: number = props.step / turn;
-  const cast: (from: IAutoMovieVector3, along: IAutoMovieVector3, range: number) => ReturnType<typeof props.raycaster.nearestHit> = (
+  const cast: (
+    from: IAutoMovieVector3,
+    along: IAutoMovieVector3,
+    range: number,
+  ) => ReturnType<typeof props.raycaster.nearestHit> = (
     from: IAutoMovieVector3,
     along: IAutoMovieVector3,
     range: number,
@@ -60,9 +64,10 @@ export function anticipateHumanFaceHairRootedStem(
     ) {
       const hit: ReturnType<typeof cast> = cast(at, along, props.step);
       if (hit !== null) {
-        const reached: ReturnType<typeof props.contact.sample> = props.contact.sample(
-          Vector3.add(at, Vector3.scale(along, hit.distance)),
-        );
+        const reached: ReturnType<typeof props.contact.sample> =
+          props.contact.sample(
+            Vector3.add(at, Vector3.scale(along, hit.distance)),
+          );
         blocking = Vector3.normalize(
           Vector3.create(
             reached.normal[0],
@@ -82,7 +87,10 @@ export function anticipateHumanFaceHairRootedStem(
   }
   if (blocking === undefined)
     return { direction: props.heading, plan: "clear", blocking: null };
-  const escape: IAutoMovieVector3 = escapeHumanFaceHairRootedStem(props.normal, blocking);
+  const escape: IAutoMovieVector3 = escapeHumanFaceHairRootedStem(
+    props.normal,
+    blocking,
+  );
   // Chords needed to rotate the whole angle from the heading to the escape
   // direction, plus the chord that follows it; a quarter turn bounds the angle
   // the look-ahead range was chosen for.
@@ -90,7 +98,9 @@ export function anticipateHumanFaceHairRootedStem(
     Math.max(-1, Math.min(1, Vector3.dot(props.before, escape))),
   );
   const chords: number = Math.ceil(Math.min(angle, Math.PI) / turn) + 2;
-  const admissible: (first: IAutoMovieVector3) => boolean = (first: IAutoMovieVector3): boolean => {
+  const admissible: (first: IAutoMovieVector3) => boolean = (
+    first: IAutoMovieVector3,
+  ): boolean => {
     let at: IAutoMovieVector3 = props.point;
     let along: IAutoMovieVector3 = first;
     for (let chord: number = 0; chord < chords; chord++) {

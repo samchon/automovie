@@ -1,5 +1,9 @@
+import {
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+  createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import { Vector3, createAutoMovieSignedMeshQuery, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
 
 import type { IHumanFaceHairRootBoundary } from "./IHumanFaceHairRootBoundary";
 import type { IHumanFaceHairRootBoundaryProps } from "./IHumanFaceHairRootBoundaryProps";
@@ -33,7 +37,8 @@ export function createHumanFaceHairRootBoundary(
     indices.length % 3 !== 0 ||
     !positions.every(Number.isFinite) ||
     indices.some(
-      (id: number): boolean => !Number.isInteger(id) || id < 0 || id >= positions.length / 3,
+      (id: number): boolean =>
+        !Number.isInteger(id) || id < 0 || id >= positions.length / 3,
     )
   )
     throw new Error("Root boundary needs finite complete resident triangles.");
@@ -57,12 +62,13 @@ export function createHumanFaceHairRootBoundary(
       throw new Error(
         "Root boundary triangles need distinct current vertices.",
       );
-    const [a, b, c]: ImportedIAutoMovieVector3[] = source.map((id: number): ImportedIAutoMovieVector3 =>
-      Vector3.create(
-        positions[3 * id],
-        positions[3 * id + 1],
-        positions[3 * id + 2],
-      ),
+    const [a, b, c]: ImportedIAutoMovieVector3[] = source.map(
+      (id: number): ImportedIAutoMovieVector3 =>
+        Vector3.create(
+          positions[3 * id],
+          positions[3 * id + 1],
+          positions[3 * id + 2],
+        ),
     );
     const area: number = Vector3.length(
       Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
@@ -89,15 +95,19 @@ export function createHumanFaceHairRootBoundary(
         "Root boundary requires its original resident triangle ordinal.",
       );
   };
-  const queries: Map<number, (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit> = new Map<
+  const queries: Map<
     number,
-    ReturnType<typeof createAutoMovieSignedMeshQuery>
-  >();
-  const resolve: (root: IHumanFaceHairRootReference) => number[] = (root: IHumanFaceHairRootReference): number[] => {
+    (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit
+  > = new Map<number, ReturnType<typeof createAutoMovieSignedMeshQuery>>();
+  const resolve: (root: IHumanFaceHairRootReference) => number[] = (
+    root: IHumanFaceHairRootReference,
+  ): number[] => {
     resident(root.triangle);
     if (
       root.weights.length !== 3 ||
-      root.weights.some((weight: number): boolean => !Number.isFinite(weight) || weight < 0)
+      root.weights.some(
+        (weight: number): boolean => !Number.isFinite(weight) || weight < 0,
+      )
     )
       throw new Error(
         "Root boundary needs three finite nonnegative support weights.",
@@ -120,13 +130,17 @@ export function createHumanFaceHairRootBoundary(
     resolve,
     distance: (triangle: number, point: readonly number[]): number => {
       resident(triangle);
-      let query: ((point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit) | undefined = queries.get(triangle);
+      let query:
+        | ((point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit)
+        | undefined = queries.get(triangle);
       if (query === undefined) {
         query = createAutoMovieSignedMeshQuery(
           {
             positions: indices
               .slice(3 * triangle, 3 * triangle + 3)
-              .flatMap((id: number): number[] => positions.slice(3 * id, 3 * id + 3)),
+              .flatMap((id: number): number[] =>
+                positions.slice(3 * id, 3 * id + 3),
+              ),
             indices: [0, 1, 2],
             normals: null,
             uvs: null,

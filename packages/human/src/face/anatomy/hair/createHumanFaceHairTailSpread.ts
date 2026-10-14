@@ -21,7 +21,9 @@ export function createHumanFaceHairTailSpread(
   props: ICreateHumanFaceHairTailSpreadProps,
 ): (distance: number) => IAutoMovieVector3 {
   const axis: IAutoMovieVector3 = humanFaceHairFrame.direction(props.axis);
-  const transverse: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+  const transverse: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const offset: IAutoMovieVector3 = Vector3.subtract(point, props.anchor);
     return Vector3.subtract(
       offset,
@@ -30,7 +32,8 @@ export function createHumanFaceHairTailSpread(
   };
   const entry: IAutoMovieVector3 = transverse(props.entry);
   const entryRadius: number = Vector3.length(entry);
-  let radial: IAutoMovieVector3 = entryRadius > 0 ? entry : transverse(props.root);
+  let radial: IAutoMovieVector3 =
+    entryRadius > 0 ? entry : transverse(props.root);
   if (Vector3.length(radial) === 0) {
     radial = humanFaceHairFrame.perpendicular(axis, Vector3.create(0, 1, 0));
   }

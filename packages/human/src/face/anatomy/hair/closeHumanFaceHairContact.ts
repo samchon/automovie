@@ -20,7 +20,8 @@ export function closeHumanFaceHairContact(
 ): IHumanFaceHairContactSurface {
   const out: number[] = [...positions];
   const triangles: number[] = [...indices];
-  const at: (v: number) => number[] = (v: number): number[] => [0, 1, 2].map((k: number): number => out[3 * v + k]!);
+  const at: (v: number) => number[] = (v: number): number[] =>
+    [0, 1, 2].map((k: number): number => out[3 * v + k]!);
   for (const loop of loops) {
     const centre: number = out.length / 3;
     const sum: number[] = [0, 0, 0];

@@ -1,4 +1,10 @@
-import { Vector3, adjacentAutoMovieFloat64, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit, type createAutoMovieSignedMeshQuery as ImportedcreateAutoMovieSignedMeshQuery, type IAutoMovieMeshRayHit as ImportedIAutoMovieMeshRayHit } from "@automovie/engine";
+import {
+  type IAutoMovieMeshRayHit as ImportedIAutoMovieMeshRayHit,
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  type createAutoMovieSignedMeshQuery as ImportedcreateAutoMovieSignedMeshQuery,
+  Vector3,
+  adjacentAutoMovieFloat64,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairExteriorRay } from "./IHumanFaceHairExteriorRay";
@@ -20,9 +26,26 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  */
 export function createHumanFaceHairExteriorInterval(
   props: IHumanFaceHairExteriorRay,
-): { low: number; bound: number; bounded: boolean; rootHit: ImportedIAutoMovieSignedMeshQueryHit; pointAt: (travel: number) => IAutoMovieVector3; spend: () => void; } {
-  const direction: IAutoMovieVector3 = humanFaceHairFrame.direction(props.direction);
-  const { epsilon, sample }: { sample: (p: IAutoMovieVector3) => ReturnType<ReturnType<typeof ImportedcreateAutoMovieSignedMeshQuery>>; epsilon: number; } = props.contact;
+): {
+  low: number;
+  bound: number;
+  bounded: boolean;
+  rootHit: ImportedIAutoMovieSignedMeshQueryHit;
+  pointAt: (travel: number) => IAutoMovieVector3;
+  spend: () => void;
+} {
+  const direction: IAutoMovieVector3 = humanFaceHairFrame.direction(
+    props.direction,
+  );
+  const {
+    epsilon,
+    sample,
+  }: {
+    sample: (
+      p: IAutoMovieVector3,
+    ) => ReturnType<ReturnType<typeof ImportedcreateAutoMovieSignedMeshQuery>>;
+    epsilon: number;
+  } = props.contact;
   assertHumanFaceHairIntegrationContext(props);
   if (!Number.isFinite(props.maximum) || props.maximum <= epsilon)
     throw new Error("Hair length cannot accommodate its emergence clearance.");
@@ -45,9 +68,14 @@ export function createHumanFaceHairExteriorInterval(
     );
   const origin: number[] = [props.root.x, props.root.y, props.root.z];
   const along: number[] = [direction.x, direction.y, direction.z];
-  const root: IAutoMovieVector3 = Vector3.create(origin[0], origin[1], origin[2]);
-  const pointAt: (travel: number) => IAutoMovieVector3 = (travel: number): IAutoMovieVector3 =>
-    Vector3.add(root, Vector3.scale(direction, travel));
+  const root: IAutoMovieVector3 = Vector3.create(
+    origin[0],
+    origin[1],
+    origin[2],
+  );
+  const pointAt: (travel: number) => IAutoMovieVector3 = (
+    travel: number,
+  ): IAutoMovieVector3 => Vector3.add(root, Vector3.scale(direction, travel));
   let low: number = 0;
   let bound: number = props.maximum;
   let bounded: boolean = false;
@@ -67,7 +95,10 @@ export function createHumanFaceHairExteriorInterval(
       props.rootBoundary.triangles.includes(hit.triangle)
     ) {
       spend();
-      const rootDistance: number = props.rootBoundary.distance(hit.triangle, origin);
+      const rootDistance: number = props.rootBoundary.distance(
+        hit.triangle,
+        origin,
+      );
       const point: IAutoMovieVector3 = pointAt(hit.distance);
       spend();
       const hitDistance: number = props.rootBoundary.distance(hit.triangle, [
@@ -90,8 +121,10 @@ export function createHumanFaceHairExteriorInterval(
   const before: IAutoMovieVector3 = pointAt(low);
   const witness: IAutoMovieVector3 = pointAt(middle);
   const end: IAutoMovieVector3 = pointAt(bound);
-  const distinct: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    a.x !== b.x || a.y !== b.y || a.z !== b.z;
+  const distinct: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): boolean => a.x !== b.x || a.y !== b.y || a.z !== b.z;
   if (
     !(middle > low && middle < bound) ||
     !distinct(witness, before) ||

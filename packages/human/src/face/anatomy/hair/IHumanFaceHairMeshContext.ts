@@ -4,8 +4,8 @@ import type {
   createAutoMovieSignedMeshQuery,
 } from "@automovie/engine";
 
-import type { IHumanFaceHairSeparationReaders } from "./IHumanFaceHairSeparationReaders";
 import type { IHumanFaceHairContactCurve } from "./IHumanFaceHairContactCurve";
+import type { IHumanFaceHairSeparationReaders } from "./IHumanFaceHairSeparationReaders";
 
 /**
  * Per-layer inputs `buildHumanFaceHairMesh` needs beside its curves.
