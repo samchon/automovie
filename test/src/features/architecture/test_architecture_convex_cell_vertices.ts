@@ -1,57 +1,71 @@
-import {
-  builtConvexCellVertices,
-  builtSpaceVolumeBounds,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { nclose } from "../internal/nclose";
+import { builtConvexCellVertices } from "../../../../packages/engine/src/architecture/builtConvexCellVertices";
+import { builtSpaceVolumeBounds } from "../../../../packages/engine/src/architecture/builtSpaceVolumeBounds";
+import type { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { boxCell } from "../internal/envelopeFixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
- * A room is stated as the planes that cut it, so its corners have to be solved.
- *
- * Every question an interior observation asks starts from where the room
- * actually is, and a half-space cell says that only implicitly. Three planes
- * whose normals are independent meet at one point, and that point belongs to the
- * cell when every other plane admits it, which is the whole solve. What matters
- * for a review population is that the failures are honest rather than
- * approximated: a half-space that closes nothing produces no corners and
- * therefore no extent, instead of a box around the origin that a camera would
- * then be aimed into.
+ * Solve convex-cell vertices and derive volume bounds from cells, shells or no stated volume.
  *
  * Scenarios:
- *
- * 1. A unit cube's six planes produce its eight corners exactly once each, with
- *    the parallel triples that meet nowhere and the triples that meet outside
- *    the cell both discarded.
- * 2. Six planes through one point produce that point once rather than eight
- *    times, because a corner over-determined by its own planes is one corner.
- * 3. A plane whose normal is zero states no half-space and is skipped, so a cell
- *    carrying one is read from the planes that remain.
+ * 1. A unit cube produces eight ordered corners, each coordinate within 5e-10 metres of its literal expected value.
+ * 2. Six planes through the origin produce one retained point; this case observes deduplicated count rather than its coordinates.
+ * 3. A plane whose normal is zero states no half-space and is skipped, so a cell carrying one is read from the planes that remain.
  * 4. A single half-space closes nothing and produces no corners at all.
- * 5. A celled space reports the extent of the corners its cells cut, a shelled
- *    space the extent of its own vertices, and a space stating neither reports
- *    nothing rather than a box at the origin.
+ * 5. A celled space reports the extent of the corners its cells cut, a shelled space the extent of its own vertices, and a space stating neither reports nothing rather than a box at the origin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls builtConvexCellVertices and builtSpaceVolumeBounds, observing ordered unit-cube coordinates, point/zero-normal/unbounded counts and cell/shell/null bounds. Duplicate cube corners, invented half-space extents, omitted volume spelling or wrong union extremes change these observations; this fixture does not isolate an independently solvable triple lying outside another plane.
+ * @evidence contracts/testing.md#independent-expectations Six literal unit-box inequalities give all eight coordinate triples checked at 5e-10 metres; origin planes give count one, and adding a zero normal retains count eight. Local L-shaped cell endpoints and tetrahedron vertices fix their min/max through the original vclose tolerance. These are finite, well-conditioned examples rather than numerical certification of every admitted plane system.
+ * @evidence contracts/testing.md#distinguishing-cases Unit cube, redundant/zero planes, a singleton point, an unbounded half-space, cell and shell spellings and unstated volume distinguish finite corners from invented bounds; arbitrary ill-conditioned plane systems are not numerically certified.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_convex_cell_vertices imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_convex_cell_vertices = (): void => {
-  TestValidator.equals(
+export function test_architecture_convex_cell_vertices(): void {
+  TestValidator.predicate(
     "a unit cube's planes cut exactly its own eight corners",
-    ordered(
+    (() : boolean => {
+      const observed: [number, number, number][] = ordered(
       builtConvexCellVertices(
         boxCell("cube", { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }),
       ),
-    ),
-    [
-      [0, 0, 0],
-      [0, 0, 1],
-      [0, 1, 0],
-      [0, 1, 1],
-      [1, 0, 0],
-      [1, 0, 1],
-      [1, 1, 0],
-      [1, 1, 1],
-    ],
+    );
+      return (
+        Array.isArray(observed) && observed.length === 8 &&
+        Array.isArray(observed[0]!) && observed[0]!.length === 3 &&
+        typeof observed[0]![0]! === "number" && nclose(observed[0]![0]!, 0, 5e-10) &&
+        typeof observed[0]![1]! === "number" && nclose(observed[0]![1]!, 0, 5e-10) &&
+        typeof observed[0]![2]! === "number" && nclose(observed[0]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[1]!) && observed[1]!.length === 3 &&
+        typeof observed[1]![0]! === "number" && nclose(observed[1]![0]!, 0, 5e-10) &&
+        typeof observed[1]![1]! === "number" && nclose(observed[1]![1]!, 0, 5e-10) &&
+        typeof observed[1]![2]! === "number" && nclose(observed[1]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[2]!) && observed[2]!.length === 3 &&
+        typeof observed[2]![0]! === "number" && nclose(observed[2]![0]!, 0, 5e-10) &&
+        typeof observed[2]![1]! === "number" && nclose(observed[2]![1]!, 1, 5e-10) &&
+        typeof observed[2]![2]! === "number" && nclose(observed[2]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[3]!) && observed[3]!.length === 3 &&
+        typeof observed[3]![0]! === "number" && nclose(observed[3]![0]!, 0, 5e-10) &&
+        typeof observed[3]![1]! === "number" && nclose(observed[3]![1]!, 1, 5e-10) &&
+        typeof observed[3]![2]! === "number" && nclose(observed[3]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[4]!) && observed[4]!.length === 3 &&
+        typeof observed[4]![0]! === "number" && nclose(observed[4]![0]!, 1, 5e-10) &&
+        typeof observed[4]![1]! === "number" && nclose(observed[4]![1]!, 0, 5e-10) &&
+        typeof observed[4]![2]! === "number" && nclose(observed[4]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[5]!) && observed[5]!.length === 3 &&
+        typeof observed[5]![0]! === "number" && nclose(observed[5]![0]!, 1, 5e-10) &&
+        typeof observed[5]![1]! === "number" && nclose(observed[5]![1]!, 0, 5e-10) &&
+        typeof observed[5]![2]! === "number" && nclose(observed[5]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[6]!) && observed[6]!.length === 3 &&
+        typeof observed[6]![0]! === "number" && nclose(observed[6]![0]!, 1, 5e-10) &&
+        typeof observed[6]![1]! === "number" && nclose(observed[6]![1]!, 1, 5e-10) &&
+        typeof observed[6]![2]! === "number" && nclose(observed[6]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[7]!) && observed[7]!.length === 3 &&
+        typeof observed[7]![0]! === "number" && nclose(observed[7]![0]!, 1, 5e-10) &&
+        typeof observed[7]![1]! === "number" && nclose(observed[7]![1]!, 1, 5e-10) &&
+        typeof observed[7]![2]! === "number" && nclose(observed[7]![2]!, 1, 5e-10)
+      );
+    })(),
   );
 
   TestValidator.equals(
@@ -59,7 +73,7 @@ export const test_architecture_convex_cell_vertices = (): void => {
     namedFacts([
       [
         "six planes through one point cut that point once",
-        () =>
+        (): boolean =>
           ordered(
             builtConvexCellVertices(
               boxCell("point", { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }),
@@ -68,7 +82,7 @@ export const test_architecture_convex_cell_vertices = (): void => {
       ],
       [
         "a plane with no normal states no half-space",
-        () =>
+        (): boolean =>
           ordered(
             builtConvexCellVertices({
               id: "with-null-plane",
@@ -82,7 +96,7 @@ export const test_architecture_convex_cell_vertices = (): void => {
       ],
       [
         "and one half-space closes nothing",
-        () =>
+        (): boolean =>
           builtConvexCellVertices({
             id: "sky",
             planes: [{ normal: { x: 0, y: 1, z: 0 }, offset: 3 }],
@@ -101,8 +115,8 @@ export const test_architecture_convex_cell_vertices = (): void => {
     namedFacts([
       [
         "a celled space measures the corners its planes cut",
-        () => {
-          const box = builtSpaceVolumeBounds({
+        (): boolean => {
+          const box: IAutoMovieSubjectBox | null = builtSpaceVolumeBounds({
             id: "hall",
             kind: "room",
             parent: null,
@@ -120,8 +134,8 @@ export const test_architecture_convex_cell_vertices = (): void => {
       ],
       [
         "a shelled space measures its own vertices",
-        () => {
-          const box = builtSpaceVolumeBounds({
+        (): boolean => {
+          const box: IAutoMovieSubjectBox | null = builtSpaceVolumeBounds({
             id: "hall",
             kind: "room",
             parent: null,
@@ -145,7 +159,7 @@ export const test_architecture_convex_cell_vertices = (): void => {
       ],
       [
         "a space stating no volume measures nothing",
-        () =>
+        (): boolean =>
           builtSpaceVolumeBounds({
             id: "hall",
             kind: "zone",
@@ -155,7 +169,7 @@ export const test_architecture_convex_cell_vertices = (): void => {
       ],
       [
         "and a space whose cell closes nothing measures nothing either",
-        () =>
+        (): boolean =>
           builtSpaceVolumeBounds({
             id: "hall",
             kind: "room",
@@ -176,25 +190,21 @@ export const test_architecture_convex_cell_vertices = (): void => {
       "and a space whose cell closes nothing measures nothing either": true,
     },
   );
-};
+}
 
 /**
- * Solved corners as rounded triples in one deterministic order.
- *
- * A linear solve returns metres, not exact integers, so each coordinate is
- * rounded to the nanometre before comparison; a corner of a unit cube is not
- * wrong by one part in a quadrillion.
+ * Raw solved coordinates in lexicographic order for the unit-box corner oracle; the caller compares metres with a half-nanometre tolerance.
  */
-const ordered = (
+const ordered: (vertices: readonly IAutoMovieVector3[]) => Array<[number, number, number]> = (
   vertices: readonly IAutoMovieVector3[],
 ): Array<[number, number, number]> =>
   vertices
-    .map((vertex): [number, number, number] => [
-      Math.round(vertex.x * 1e9) / 1e9,
-      Math.round(vertex.y * 1e9) / 1e9,
-      Math.round(vertex.z * 1e9) / 1e9,
+    .map((vertex: IAutoMovieVector3): [number, number, number] => [
+      vertex.x,
+      vertex.y,
+      vertex.z,
     ])
     .sort(
-      (left, right) =>
+      (left: [number, number, number], right: [number, number, number]): number =>
         left[0] - right[0] || left[1] - right[1] || left[2] - right[2],
     );

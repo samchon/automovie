@@ -1,49 +1,30 @@
-import { designLineageImpact } from "@automovie/engine";
+import type { IAutoMovieDesignLineage, IAutoMovieDesignImpact } from "@automovie/interface";
+import { designLineageImpact } from "../../../../packages/engine/src/architecture/designLineageImpact";
 import { TestValidator } from "@nestia/e2e";
-
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Pin that one changed identity invalidates exactly the outputs derived from
- * it, and nothing else.
- *
- * "Everything is stale" is always a correct answer and always a useless one, so
- * the claim this test defends is the complement: the artifacts left standing
- * are named beside the ones that fell, and both lists are read off the authored
- * derivation edges by hand.
- *
- * Moving one door opening therefore reaches the wall mesh it is cut into, the
- * finish pieces cut to that wall, the door leaf hosted in it, the schedule line
- * counting those pieces, and the render that drew them. It does not reach the
- * opposite wall, that wall's finishes, its render, the phase render, or either
- * of the two alternative comparison renders.
+ * Trace changed identities through authored derivation edges and account for unaffected artifacts beside invalidated ones.
  *
  * Scenarios:
- *
- * 1. One opening change invalidates the wall mesh, the finish cut, the door mesh,
- *    the quantity, and the render, and leaves the six unrelated artifacts
- *    untouched.
- * 2. The same question asked twice about the same identity deduplicates rather
- *    than doubling the answer.
- * 3. Changing an imported asset's bytes invalidates the outputs that read it even
- *    though no line of the design moved, including the one alternative's
- *    comparison render that lays that texture, while the other alternative's
- *    render stands.
+ * 1. One opening change invalidates the wall mesh, the finish cut, the door mesh, the quantity, and the render, and leaves the six unrelated artifacts untouched.
+ * 2. The same question asked twice about the same identity deduplicates rather than doubling the answer.
+ * 3. Naming oak-texture as changed reaches its declared dependents, including render-warm while leaving render-cool unaffected; no asset bytes are replaced.
  * 4. A derived artifact named as changed invalidates itself and its dependents.
  * 5. Two unrelated changes union their impact rather than one shadowing the other.
- * 6. Changing nothing invalidates nothing and leaves every artifact accounted for,
- *    which is the boundary that proves the partition is total.
- * 7. An identity no graph declared is refused rather than traced as empty, and an
- *    incoherent lineage is refused before any impact is computed.
+ * 6. Changing nothing invalidates nothing and leaves every artifact accounted for, which is the boundary that proves the partition is total.
+ * 7. An identity no graph declared is refused rather than traced as empty, and an incoherent lineage is refused before any impact is computed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls designLineageImpact for subject, asset and derived-artifact ids, comparing complete changed/invalidated/unaffected lists and named refusals. A missing transitive dependency, a changed artifact excluded from itself, duplicate ids or collateral invalidation of unrelated artifacts changes these observations; the call computes a graph answer without rebuilding outputs.
+ * @evidence contracts/testing.md#independent-expectations Explicit fixture input edges give opening-door's five invalidated and six unaffected artifacts, and oak-texture's four invalidated and seven unaffected artifacts. Literal partitions also cover the changed mesh, union of unrelated ids and empty set. The duplicate-id relation shares the same query, beside these independent lists; neither that relation nor the asset id observes changed disk bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Opening, imported-asset id, derived artifact and two unrelated changes, duplicates, empty changes, unknown ids and invalid lineage cover selective invalidation; no actual artifact rebuild or external file mutation runs here.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_design_lineage_change_impact imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_design_lineage_change_impact = (): void => {
-  const lineage = renovationLineage();
+export function test_architecture_design_lineage_change_impact(): void {
+  const lineage: IAutoMovieDesignLineage = renovationLineage();
 
-  TestValidator.equals(
-    "one opening change invalidates its wall, cut, door, quantity, and render",
-    designLineageImpact(lineage, ["opening-door"]),
-    {
+  TestValidator.equals("one opening change invalidates its wall, cut, door, quantity, and render", designLineageImpact(lineage, ["opening-door"]), {
       changed: ["opening-door"],
       invalidated: [
         "cut-floor-oak",
@@ -60,19 +41,11 @@ export const test_architecture_design_lineage_change_impact = (): void => {
         "render-warm",
         "render-west",
       ],
-    },
-  );
+    });
 
-  TestValidator.equals(
-    "asking twice about one identity deduplicates instead of doubling",
-    designLineageImpact(lineage, ["opening-door", "opening-door"]),
-    designLineageImpact(lineage, ["opening-door"]),
-  );
+  TestValidator.equals("asking twice about one identity deduplicates instead of doubling", designLineageImpact(lineage, ["opening-door", "opening-door"]), designLineageImpact(lineage, ["opening-door"]));
 
-  TestValidator.equals(
-    "changing an imported asset's bytes invalidates the outputs reading it",
-    designLineageImpact(lineage, ["oak-texture"]),
-    {
+  TestValidator.equals("changing an imported asset's bytes invalidates the outputs reading it", designLineageImpact(lineage, ["oak-texture"]), {
       changed: ["oak-texture"],
       invalidated: [
         "cut-floor-oak",
@@ -89,13 +62,9 @@ export const test_architecture_design_lineage_change_impact = (): void => {
         "render-strip-phase",
         "render-west",
       ],
-    },
-  );
+    });
 
-  TestValidator.equals(
-    "a derived artifact named as changed invalidates itself and its dependents",
-    designLineageImpact(lineage, ["mesh-wall-north"]),
-    {
+  TestValidator.equals("a derived artifact named as changed invalidates itself and its dependents", designLineageImpact(lineage, ["mesh-wall-north"]), {
       changed: ["mesh-wall-north"],
       invalidated: [
         "cut-floor-oak",
@@ -112,13 +81,9 @@ export const test_architecture_design_lineage_change_impact = (): void => {
         "render-warm",
         "render-west",
       ],
-    },
-  );
+    });
 
-  TestValidator.equals(
-    "two unrelated changes union their impact",
-    designLineageImpact(lineage, ["opening-door", "wall-west"]),
-    {
+  TestValidator.equals("two unrelated changes union their impact", designLineageImpact(lineage, ["opening-door", "wall-west"]), {
       changed: ["opening-door", "wall-west"],
       invalidated: [
         "cut-floor-oak",
@@ -131,13 +96,9 @@ export const test_architecture_design_lineage_change_impact = (): void => {
         "render-west",
       ],
       unaffected: ["render-cool", "render-strip-phase", "render-warm"],
-    },
-  );
+    });
 
-  TestValidator.equals(
-    "changing nothing invalidates nothing and accounts for every artifact",
-    designLineageImpact(lineage, []),
-    {
+  TestValidator.equals("changing nothing invalidates nothing and accounts for every artifact", designLineageImpact(lineage, []), {
       changed: [],
       invalidated: [],
       unaffected: [
@@ -153,22 +114,21 @@ export const test_architecture_design_lineage_change_impact = (): void => {
         "render-warm",
         "render-west",
       ],
-    },
-  );
+    });
 
   TestValidator.predicate(
     "an identity no graph declared is refused rather than traced as empty",
     throwsError(
-      () => designLineageImpact(lineage, ["wall-east"]),
+      (): IAutoMovieDesignImpact => designLineageImpact(lineage, ["wall-east"]),
       'has no identity "wall-east" to trace',
     ),
   );
   TestValidator.predicate(
     "an incoherent lineage is refused before any impact is computed",
     throwsError(
-      () =>
+      (): IAutoMovieDesignImpact =>
         designLineageImpact(
-          brokenLineage((draft) => {
+          brokenLineage((draft: IAutoMovieDesignLineage): void => {
             draft.head = "r9";
           }),
           ["opening-door"],
@@ -176,4 +136,4 @@ export const test_architecture_design_lineage_change_impact = (): void => {
       'head revision "r9" does not resolve',
     ),
   );
-};
+}

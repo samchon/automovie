@@ -1,56 +1,31 @@
-import {
-  validateDesignLineage,
-  validateDesignLineageBinding,
-} from "@automovie/engine";
+import type { IAutoMovieDesignSubject, IAutoMovieDesignLineage, IAutoMovieDesignLifecycle } from "@automovie/interface";
+import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
+import { validateDesignLineageBinding } from "../../../../packages/engine/src/architecture/validateDesignLineageBinding";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  lineageDigest,
-  refusesLineage as refuses,
-  renovationLineage,
-} from "../internal/lineageFixtures";
+import { lineageDigest, refusesLineage as refuses, renovationLineage } from "../internal/lineageFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- * Pin every way a lineage's identity, revision, phase, and lifecycle graphs can
- * stop being able to answer their own questions.
- *
- * The rule these refusals defend is that lineage annotates identities it does
- * not own. That makes a dangling reference invisible from inside the record, so
- * the validator has to be the thing that notices, and the binding check has to
- * exist separately because self-consistency cannot see a renamed wall.
- *
- * Lifecycle coverage is total for the same reason a building unit's ownership
- * is: any default for a subject with no lifecycle asserts something the author
- * did not, either that the thing predates the work or that it survives it.
+ * Validate lineage identity, revision ancestry, phase/lifecycle relations and binding to published identities.
  *
  * Scenarios:
- *
- * 1. The coherent fixture validates, so every refusal below is one property away
- *    from a clean record rather than away from noise.
+ * 1. The coherent fixture validates before the existing targeted structural and binding mutations are evaluated.
  * 2. A blank identity or a wrong schema version is refused.
- * 3. Subject identities must be unique, non-blank, graph-labelled, and carry
- *    either a well-formed digest or none at all.
- * 4. A lineage with no revision, a dangling revision parent, a malformed revision
- *    digest, a revision cycle, and a dangling head are all refused, while a
- *    revision history twenty thousand ancestors deep validates without
- *    exhausting the call stack.
- * 5. A phase requiring nothing that exists, requiring the same phase twice, or
- *    requiring itself around a cycle is refused.
- * 6. A lifecycle about an unknown subject, a second lifecycle for one subject, a
- *    dangling introducing or removing phase, and a subject with no lifecycle at
- *    all are refused.
- * 7. A subject removed in a phase that does not follow the one that installed it
- *    is refused, including the incomparable-branch case where neither phase
- *    precedes the other.
- * 8. Binding accepts a lineage whose subjects all resolve, refuses one that names
- *    an identity nothing published, refuses a derived artifact squatting on a
- *    published identity, and does not complain about published identities the
- *    lineage simply does not track.
+ * 3. Subject identities must be unique, non-blank, graph-labelled, and carry either a well-formed digest or none at all.
+ * 4. A lineage with no revision, a dangling revision parent, a malformed revision digest, a revision cycle, and a dangling head are all refused, while a revision history twenty thousand ancestors deep validates without exhausting the call stack.
+ * 5. A phase requiring nothing that exists, requiring the same phase twice, or requiring itself around a cycle is refused.
+ * 6. A lifecycle about an unknown subject, a second lifecycle for one subject, a dangling introducing or removing phase, and a subject with no lifecycle at all are refused.
+ * 7. A subject removed in a phase that does not follow the one that installed it is refused, including the incomparable-branch case where neither phase precedes the other.
+ * 8. Binding accepts a lineage whose subjects all resolve, refuses one that names an identity nothing published, refuses a derived artifact squatting on a published identity, and does not complain about published identities the lineage simply does not track.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateDesignLineage and host-id binding on the authored fixture, requiring clean controls, targeted type/range path membership and successful admission after adding 20000 revision ancestors. Missing coverage, cyclic references, invalid removal order or artifact/host identity collisions change these Booleans; the deep case has no timing or allocation assertion.
+ * @evidence contracts/testing.md#independent-expectations Literal mutation paths and prerequisite relations determine refusals, including removal in the introducing phase or an incomparable sibling. The explicit published list contains all subject ids plus untracked wall-east; removing opening-door or adding artifact id render-lobby fixes the binding expectations. A hand-constructed 20000-ancestor chain demands completion without stack overflow, while path membership permits other findings and does not prove asymptotic performance or inspect host geometry/bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Valid and blank/duplicate/dangling records, revision/phase cycles, deep ancestry, incomplete lifecycle coverage, incomparable removal, missing host identities, artifact squatting and untracked published identities preserve the cases; host geometry and content bytes are not inspected.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_design_lineage_structure_refusals imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_design_lineage_structure_refusals = (): void => {
-  const published = [
-    ...renovationLineage().subjects.map((subject) => subject.id),
+export function test_architecture_design_lineage_structure_refusals(): void {
+  const published: string[] = [
+    ...renovationLineage().subjects.map((subject: IAutoMovieDesignSubject): string => subject.id),
     "wall-east",
   ];
 
@@ -59,33 +34,33 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
     namedFacts([
       [
         "the coherent renovation lineage validates",
-        () => validateDesignLineage({ lineage: renovationLineage() }).success,
+        (): boolean => validateDesignLineage({ lineage: renovationLineage() }).success,
       ],
       [
         "a blank lineage id is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.id = "  ";
           }, "$input.id"),
       ],
       [
         "an unknown schema version is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             (draft as { version: number }).version = 2;
           }, "$input.version"),
       ],
       [
         "a blank subject id is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.subjects[0]!.id = "";
           }, "$input.subjects[0].id"),
       ],
       [
         "a duplicated subject id is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.subjects.push({
               id: "wall-north",
               graph: "element",
@@ -95,23 +70,23 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a subject with no graph label is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.subjects[0]!.graph = " ";
           }, "$input.subjects[0].graph"),
       ],
       [
         "a malformed subject digest is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.subjects[10]!.digest = "sha256:not-hex";
           }, "$input.subjects[10].digest"),
       ],
       [
         "a lineage recording no revision at all is refused",
-        () =>
+        (): boolean =>
           refuses(
-            (draft) => {
+            (draft: IAutoMovieDesignLineage): void => {
               draft.revisions = [];
             },
             "$input.revisions",
@@ -120,32 +95,32 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a dangling revision parent is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.revisions[0]!.parent = "r0";
           }, "$input.revisions[0].parent"),
       ],
       [
         "a malformed revision digest is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.revisions[1]!.digest = "sha256:2B2B";
           }, "$input.revisions[1].digest"),
       ],
       [
         "a revision that supersedes its own successor is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.revisions[0]!.parent = "r2";
           }, "$input.revisions[0].parent"),
       ],
       [
         "a revision history deeper than the call stack still validates",
-        () => {
-          const lineage = renovationLineage();
-          const depth = 20_000;
+        (): boolean => {
+          const lineage: IAutoMovieDesignLineage = renovationLineage();
+          const depth: 20000 = 20_000;
           lineage.revisions[0]!.parent = "ancestor-0";
-          for (let index = 0; index < depth; ++index)
+          for (let index: number = 0; index < depth; ++index)
             lineage.revisions.push({
               id: `ancestor-${index}`,
               parent: index + 1 === depth ? null : `ancestor-${index + 1}`,
@@ -156,50 +131,50 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a head naming no recorded revision is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.head = "r9";
           }, "$input.head"),
       ],
       [
         "a phase with no label is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.phases[0]!.label = "";
           }, "$input.phases[0].label"),
       ],
       [
         "a prerequisite naming no phase is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.phases[3]!.requires = ["ghost"];
           }, "$input.phases[3].requires[0]"),
       ],
       [
         "the same prerequisite twice is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.phases[3]!.requires = ["strip", "strip"];
           }, "$input.phases[3].requires[1]"),
       ],
       [
         "a construction plan that requires itself around a cycle is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.phases[0]!.requires = ["finishes"];
           }, "$input.phases"),
       ],
       [
         "a lifecycle about an unknown subject is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles[0]!.subject = "wall-east";
           }, "$input.lifecycles[0].subject"),
       ],
       [
         "a second lifecycle for one subject is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles.push({
               subject: "wall-north",
               introducedIn: null,
@@ -209,45 +184,45 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a dangling introducing phase is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles[3]!.introducedIn = "ghost";
           }, "$input.lifecycles[3].introducedIn"),
       ],
       [
         "a dangling removing phase is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles[3]!.removedIn = "ghost";
           }, "$input.lifecycles[3].removedIn"),
       ],
       [
         "a subject with no lifecycle at all is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles = draft.lifecycles.filter(
-              (lifecycle) => lifecycle.subject !== "wall-west",
+              (lifecycle: IAutoMovieDesignLifecycle): boolean => lifecycle.subject !== "wall-west",
             );
           }, "$input.subjects[2].id"),
       ],
       [
         "removing a subject in the very phase that installs it is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles[3]!.removedIn = "shore";
           }, "$input.lifecycles[3].removedIn"),
       ],
       [
         "removing a subject on a branch that never follows its installation is refused",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles[3]!.removedIn = "strip";
           }, "$input.lifecycles[3].removedIn"),
       ],
       [
         "a prerequisite chain that dead-ends still reports the ordering defect",
-        () =>
-          refuses((draft) => {
+        (): boolean =>
+          refuses((draft: IAutoMovieDesignLineage): void => {
             draft.phases[3]!.requires = ["ghost"];
           }, "$input.lifecycles[3].removedIn"),
       ],
@@ -289,7 +264,7 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       // identity is not a defect.
       [
         "a lineage whose subjects all resolve binds cleanly",
-        () =>
+        (): boolean =>
           validateDesignLineageBinding({
             lineage: renovationLineage(),
             known: published,
@@ -297,11 +272,11 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a subject resolving to nothing published is refused",
-        () =>
+        (): boolean =>
           hasViolation(
             validateDesignLineageBinding({
               lineage: renovationLineage(),
-              known: published.filter((id) => id !== "opening-door"),
+              known: published.filter((id: string): boolean => id !== "opening-door"),
             }),
             "type",
             "$input.subjects[5].id",
@@ -309,7 +284,7 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       ],
       [
         "a derived artifact squatting on a published identity is refused",
-        () =>
+        (): boolean =>
           hasViolation(
             validateDesignLineageBinding({
               lineage: renovationLineage(),
@@ -326,4 +301,4 @@ export const test_architecture_design_lineage_structure_refusals = (): void => {
       "a derived artifact squatting on a published identity is refused": true,
     },
   );
-};
+}

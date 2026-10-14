@@ -1,23 +1,13 @@
-import {
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceContentBounds,
-  builtEnvironmentSpaceNodes,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieConvexSpaceCell,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
+import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
+import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieSubjectBox, IAutoMovieBuiltEnvironment, IAutoMovieConvexSpaceCell, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
-const place = (
+const place: (x: number, y: number, z: number, scale?: IAutoMovieVector3) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
@@ -28,7 +18,7 @@ const place = (
   scale,
 });
 
-const box = (
+const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieConvexSpaceCell = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -45,7 +35,7 @@ const box = (
 });
 
 /** The eight corners of a unit cube, as a mesh the record states itself. */
-const cubeMeshPart = (transform: IAutoMovieTransform): IAutoMovieModelPart => ({
+const cubeMeshPart: (transform: IAutoMovieTransform) => IAutoMovieModelPart = (transform: IAutoMovieTransform): IAutoMovieModelPart => ({
   id: "slab-mesh",
   name: null,
   geometry: {
@@ -66,7 +56,7 @@ const cubeMeshPart = (transform: IAutoMovieTransform): IAutoMovieModelPart => ({
   transform,
 });
 
-const model = (id: string, parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
+const model: (id: string, parts: IAutoMovieModelPart[]) => IAutoMovieModel = (id: string, parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
   ...makeProp(parts),
   id,
 });
@@ -74,12 +64,9 @@ const model = (id: string, parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
 /**
  * A stair hall declared far wider than the tower that actually stands in it.
  *
- * The cell is the one observed in the `#1902` residence experiment (x 3.5..14.5,
- * y 0..4.2, z 5.5..11.5); the tower inside it is written from unit boxes at
- * whole-metre placements so every expected bound is hand arithmetic rather than
- * a snapshot of what the kernel happened to print.
+ * The cell is the one observed in the `#1902` residence experiment (x 3.5..14.5, y 0..4.2, z 5.5..11.5); the tower inside it is written from unit boxes at whole-metre placements so every expected bound is hand arithmetic rather than a snapshot of what the kernel happened to print.
  */
-const residence = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
+const residence: (doorState?: string) => IAutoMovieBuiltEnvironment = (doorState: string = "closed"): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "residence",
   units: "meter",
@@ -254,68 +241,47 @@ const residence = (doorState = "closed"): IAutoMovieBuiltEnvironment => ({
 });
 
 /**
- * A declared space is not where its contents are, and the box says which.
- *
- * The `#1902` experiment placed review cameras at the corners of a space's own
- * convex cell and three of the four stood in empty air facing a wall, because
- * `stair-ground` is declared eleven metres wide while the stair tower filling it
- * is five. This pins the query that answers the other question: the world extent
- * of what is actually staged in a space and everything below it, so a consumer
- * placing an eye aims at content rather than at a declaration.
- *
- * Every expected bound is hand arithmetic over unit primitives at whole-metre
- * placements, never a transcript of the kernel's own output.
+ * Measure staged room contents, descendants and current door state separately from declared logical cells.
  *
  * Scenarios:
- *
  * 1. The record validates, so nothing below is read off a malformed building.
- * 2. `stair-ground` is measured at x 8.95..14, y 0..4, z 5.8..11: the two tower
- *    walls, the closed door leaf standing 0.05 m proud of the west face, and the
- *    landing slab reaching to z 5.8. The unassigned eaves at x 19..21, the hall
- *    table in a sibling space, and the modelless assembly node standing at y 8
- *    inside this very space are all absent, which are the three ways an element
- *    fails the selection and each would move a bound if it were counted.
- * 3. The declared cell and the content disagree exactly as the experiment found:
- *    the corner camera at (4.1, 1.62, 6.1) is inside the space and outside its
- *    contents, so the cell could not have answered where to stand.
- * 4. A descendant space contributes: the landing slab and its vault sit below
- *    `stair-ground`, and their own box is the same query asked one level down.
- *    The slab is a stated mesh under its own part transform, so the other
- *    geometry spelling and the other placement path are measured here too.
- * 5. An element citing a runtime model reference the record does not own carries
- *    its world origin rather than nothing: the vault at y 3.9 raises the
- *    landing's top above the 2.1 the slab alone reaches.
- * 6. The box is measured where the current operating state puts a member, not at
- *    rest: opening the sliding leaf 0.9 m widens the same space to x 8.05.
- * 7. A space with nothing placed in it answers `null` rather than refusing or
- *    inventing a degenerate box, beside the empty node list of the same space.
- * 8. An undeclared space id is refused by name, exactly as every other query in
- *    the file refuses it.
+ * 2. `stair-ground` is measured at x 8.95..14, y 0..4, z 5.8..11: the two tower walls, the closed door leaf standing 0.05 m proud of the west face, and the landing slab reaching to z 5.8. The unassigned eaves at x 19..21, the hall table in a sibling space, and the modelless assembly node standing at y 8 inside this very space are all absent, which are the three ways an element fails the selection and each would move a bound if it were counted.
+ * 3. The declared cell and the content disagree exactly as the experiment found: the corner camera at (4.1, 1.62, 6.1) is inside the space and outside its contents, so the cell could not have answered where to stand.
+ * 4. A descendant space contributes: the landing slab and its vault sit below `stair-ground`, and their own box is the same query asked one level down. The slab is a stated mesh under its own part transform, so the other geometry spelling and the other placement path are measured here too.
+ * 5. An element citing a runtime model reference the record does not own carries its world origin rather than nothing: the vault at y 3.9 raises the landing's top above the 2.1 the slab alone reaches.
+ * 6. The box is measured where the current operating state puts a member, not at rest: opening the sliding leaf 0.9 m widens the same space to x 8.05.
+ * 7. A space with nothing placed in it answers `null` rather than refusing or inventing a degenerate box, beside the empty node list of the same space.
+ * 8. An undeclared space id is refused by name, exactly as every other query in the file refuses it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls builtEnvironmentSpaceContentBounds beside containment/node queries and building admission, observing selected min/max coordinates, descendants, origin-only external content, closed/open leaf changes, null emptiness and an unknown-id message fragment. Counting an unassigned/sibling/modelless element or measuring the door at rest would move a tested bound.
+ * @evidence contracts/testing.md#independent-expectations Unit primitives, the explicit eight-corner mesh and part transform give authored ground bounds (8.95,0,5.8)..(14,4,11) and landing bounds (10,1.9,5.8)..(12,3.9,8.4); 0.9 m travel moves minimum X to 8.05 under the original vclose tolerance. The camera point has literal X 4.1 below the content minimum, while its logical-cell admission uses the production predicate. External geometry contributes its stated origin only, so these CPU expectations do not enclose loaded vault bytes or a rendered frame.
+ * @evidence contracts/testing.md#distinguishing-cases Owned primitives and mesh, referenced geometry, sibling/unassigned/modelless exclusions, descendant content, a cell-only camera point, open/closed leaf, empty space and unknown id distinguish content from declared extent; external model bytes and camera images are unobserved.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_environment_content_bounds imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_built_environment_content_bounds = (): void => {
-  const closed = residence();
+export function test_architecture_built_environment_content_bounds(): void {
+  const closed: IAutoMovieBuiltEnvironment = residence();
   TestValidator.equals(
     "the stair-hall record validates",
     validateBuiltEnvironment({ environment: closed }).success,
     true,
   );
 
-  const ground = builtEnvironmentSpaceContentBounds(closed, "stair-ground");
+  const ground: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(closed, "stair-ground");
   TestValidator.equals(
     "the box is the staged contents, not the declared cell",
     namedFacts([
-      ["measured", () => ground !== null],
+      ["measured", (): boolean => ground !== null],
       [
         "min",
-        () => ground !== null && vclose(ground.min, { x: 8.95, y: 0, z: 5.8 }),
+        (): boolean => ground !== null && vclose(ground.min, { x: 8.95, y: 0, z: 5.8 }),
       ],
       [
         "max",
-        () => ground !== null && vclose(ground.max, { x: 14, y: 4, z: 11 }),
+        (): boolean => ground !== null && vclose(ground.max, { x: 14, y: 4, z: 11 }),
       ],
       [
         "sameElementsAsTheNodeQuery",
-        () =>
+        (): boolean =>
           builtEnvironmentSpaceNodes(closed, "stair-ground").join(",") ===
           [
             "residence/stair-tower-west",
@@ -339,7 +305,7 @@ export const test_architecture_built_environment_content_bounds = (): void => {
     namedFacts([
       [
         "cornerIsInTheSpace",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(closed, "stair-ground", {
             x: 4.1,
             y: 1.62,
@@ -348,11 +314,11 @@ export const test_architecture_built_environment_content_bounds = (): void => {
       ],
       [
         "cornerIsOutsideTheContent",
-        () => ground !== null && 4.1 < ground.min.x,
+        (): boolean => ground !== null && 4.1 < ground.min.x,
       ],
       [
         "centreOfTheContentIsInTheSpace",
-        () =>
+        (): boolean =>
           ground !== null &&
           builtEnvironmentContainsPoint(closed, "stair-ground", {
             x: (ground.min.x + ground.max.x) / 2,
@@ -368,40 +334,40 @@ export const test_architecture_built_environment_content_bounds = (): void => {
     },
   );
 
-  const landing = builtEnvironmentSpaceContentBounds(closed, "stair-landing");
+  const landing: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(closed, "stair-landing");
   TestValidator.equals(
     "a descendant space is measured on its own, referenced models included",
     namedFacts([
-      ["measured", () => landing !== null],
+      ["measured", (): boolean => landing !== null],
       [
         "min",
-        () =>
+        (): boolean =>
           landing !== null && vclose(landing.min, { x: 10, y: 1.9, z: 5.8 }),
       ],
       [
         "max",
-        () =>
+        (): boolean =>
           landing !== null && vclose(landing.max, { x: 12, y: 3.9, z: 8.4 }),
       ],
     ]),
     { measured: true, min: true, max: true },
   );
 
-  const opened = builtEnvironmentSpaceContentBounds(
+  const opened: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
     residence("open"),
     "stair-ground",
   );
   TestValidator.equals(
     "an opened leaf is measured where it rests, not where it was authored",
     namedFacts([
-      ["measured", () => opened !== null],
+      ["measured", (): boolean => opened !== null],
       [
         "min",
-        () => opened !== null && vclose(opened.min, { x: 8.05, y: 0, z: 5.8 }),
+        (): boolean => opened !== null && vclose(opened.min, { x: 8.05, y: 0, z: 5.8 }),
       ],
       [
         "max",
-        () => opened !== null && vclose(opened.max, { x: 14, y: 4, z: 11 }),
+        (): boolean => opened !== null && vclose(opened.max, { x: 14, y: 4, z: 11 }),
       ],
     ]),
     { measured: true, min: true, max: true },
@@ -419,9 +385,9 @@ export const test_architecture_built_environment_content_bounds = (): void => {
   TestValidator.equals(
     "an undeclared logical space is refused by name",
     throwsError(
-      () => builtEnvironmentSpaceContentBounds(closed, "cellar"),
+      (): IAutoMovieSubjectBox | null => builtEnvironmentSpaceContentBounds(closed, "cellar"),
       ['has no logical space "cellar"'],
     ),
     true,
   );
-};
+}

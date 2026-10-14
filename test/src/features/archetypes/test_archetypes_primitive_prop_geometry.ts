@@ -1,10 +1,11 @@
 import { PRIMITIVE_PROP_ARCHETYPE } from "../../../../packages/archetypes/src/PRIMITIVE_PROP_ARCHETYPE";
-import { IAutoMovieArchetypeParameterPlan } from "../../../../packages/archetypes/src/IAutoMovieArchetypeParameterPlan";
-import { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
-import { IAutoMovieArchetypeRefusal } from "../../../../packages/archetypes/src/IAutoMovieArchetypeRefusal";
-import { IAutoMovieModelPart, AutoMoviePrimitiveShape } from "@automovie/interface";
+import type { IAutoMovieArchetypeParameterPlan } from "../../../../packages/archetypes/src/IAutoMovieArchetypeParameterPlan";
+import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
+import type { IAutoMovieArchetypeRefusal } from "../../../../packages/archetypes/src/IAutoMovieArchetypeRefusal";
+import { type IAutoMovieModelPart, AutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose } from "../internal/predicates";
+
 /** One accepted parameter map, as the design gate would have handed it over. */
 type IParameters = Readonly<Record<string, number | string | boolean>>;
 
@@ -30,16 +31,12 @@ const shapeOf: (parameters: Readonly<Record<string, string | number | boolean>>)
 /**
  * One shaft, stated once and read by three shapes.
  *
- * A capsule, a cylinder and a cone take the same two dimensions, so measuring
- * all three from one pair is what separates their three formulas: a capsule
- * reaches its radius past each cap, a cylinder and a cone reach the corner of
- * their own silhouette, and nothing about the pair itself distinguishes them.
+ * A capsule, a cylinder and a cone take the same two dimensions, so measuring all three from one pair is what separates the capsule's formula from the cylinder/cone formula: a capsule reaches its radius past each cap, a cylinder and a cone reach the corner of their own silhouette, and nothing about the pair itself distinguishes them.
  */
 const SHAFT: { radius: number; height: number; } = { radius: 3, height: 8 };
 
 /**
- * A box whose three dimensions are all different, so none can stand for
- * another.
+ * A box whose three dimensions are all different, so none can stand for another.
  */
 const BOX: { width: number; height: number; depth: number; } = { width: 2, height: 3, depth: 6 };
 
@@ -47,42 +44,19 @@ const BOX: { width: number; height: number; depth: number; } = { width: 2, heigh
 const PLANE: { width: number; depth: number; } = { width: 6, depth: 8 };
 
 /**
- * The single-primitive archetype measures and builds exactly the shape it was
- * asked for.
- *
- * Selection and culling read `projectionRadius` before any geometry exists, and
- * the builder wraps it in a floor, so an answer that was wrong by a factor of
- * two — or that read a cylinder's formula for a capsule — stayed finite and
- * positive and passed every check anything made of it. The same holds of the
- * builder: nothing downstream read the dimensions back, so a box built with its
- * width and depth exchanged drew a different prop and nothing said so.
- *
- * Every number below is the formula written out, and every shape is measured
- * from dimensions that differ from one another, so a formula reading the wrong
- * key or the wrong shape's rule answers a different number rather than the same
- * one.
+ * Build supported primitive props and check their root-centered radius estimates and ordinary output records.
  *
  * Scenarios:
- *
- * 1. A sphere's bound is its own radius; a capsule reaches half its height past
- *    that radius; a cylinder and a cone reach the corner of their silhouette; a
- *    plane and a box reach half their own diagonal. Measured from one shared
- *    shaft, the three shapes that take a radius and a height answer three
- *    different numbers, so none is standing in for another.
- * 2. A parameter that is not a real measurement measures as zero rather than
- *    poisoning the bound with `NaN`, because selection runs before the design
- *    gate that would have refused it.
- * 3. Each shape is built with its own dimensions in its own keys: a box's width,
- *    height and depth are three different numbers and each lands where it
- *    belongs, and so do a plane's two.
- * 4. The built part is one primitive on the archetype's own material, carrying no
- *    bone and no local transform, and the archetype owns no skeleton.
+ * 1. A sphere's bound is its own radius; a capsule reaches half its height past that radius; a cylinder and a cone reach the corner of their silhouette; a plane and a box reach half their own diagonal. Measured from one shared shaft, the capsule gives 7 while both cylinder and cone give 5, exercising the cap distinction and the shared radial silhouette formula.
+ * 2. A parameter that is not a real measurement measures as zero rather than poisoning the bound with `NaN`, because selection runs before the design gate that would have refused it.
+ * 3. Each shape is built with its own dimensions in its own keys: a box's width, height and depth are three different numbers and each lands where it belongs, and so do a plane's two.
+ * 4. The built part is one primitive on the archetype's own material, carrying no bone and no local transform, and the archetype owns no skeleton.
  * 5. Inherited object keys and arbitrary names produce an unsupported-shape refusal; an ordinary box keeps its dimension list.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans shape parameters, measures projection radius and builds the selected primitive, checking owned dimensions, unskinned material binding and unsupported-name refusal rather than allowing inherited-table lookups to throw.
- * @evidence contracts/testing.md#independent-expectations Unequal authored box/plane dimensions and a shared radius-three height-eight shaft distinguish the shape formulas; closed shape vocabulary independently excludes constructor, toString and __proto__.
- * @evidence contracts/testing.md#distinguishing-cases Covers each supported shape's dimensions and radius, missing/mistyped/nonfinite placeholders and inherited/unknown names beside ordinary box planning; registry tests own duplicate ids and production tests own complete recipe diagnostics.
- * @evidence contracts/testing.md#execution-ownership The exported archetypes entry owns all CPU plan/geometry assertions, reaches catalogue source directly and starts no Human inspection, renderer, consumer process or native artifact.
+ * @evidence contracts/testing.md#behavioral-verification Calls PRIMITIVE_PROP_ARCHETYPE.plan, projectionRadius and build, observing refusal codes, required keys, numeric bounds, discriminated shape dimensions and part attachment/material records. A cylinder formula substituted for the capsule, swapped unequal box dimensions or inherited-property lookup would contradict these observations.
+ * @evidence contracts/testing.md#independent-expectations Local dimensions give literal radii 2, 7, 5, 5, 5 and 3.5 for sphere/capsule/cylinder/cone/plane/box under the original nclose tolerance; copied build dimensions use tolerance zero. Missing, string and infinite radius fields must yield zero, while a readable capsule radius survives an unreadable height. These are pre-gate placeholder expectations, not certification of arbitrary malformed geometry or outward-rounded enclosure.
+ * @evidence contracts/testing.md#distinguishing-cases Supported shapes, unequal dimensions, inherited-property shape names, unreadable fields and partly readable capsule parameters retain the existing positive and refusal cases; no rendered mesh or Human anatomy is inferred.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_archetypes_primitive_prop_geometry imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
 export function test_archetypes_primitive_prop_geometry(): void {
   for (const shape of ["constructor", "toString", "__proto__", "unsupported"]) {
@@ -91,7 +65,7 @@ export function test_archetypes_primitive_prop_geometry(): void {
   }
   TestValidator.equals("ordinary box dimensions remain admitted", PRIMITIVE_PROP_ARCHETYPE.plan({ shape: "box" }).required, ["shape", "width", "height", "depth"]);
   TestValidator.equals(
-    "every shape's bound is its own formula, and no two share one",
+    "each shape's bound follows its formula, including the shared cylinder/cone result",
     namedFacts([
       ["sphere", (): boolean => nclose(radiusOf({ shape: "sphere", radius: 2 }), 2)],
       // A capsule is a shaft with a hemisphere on each end, so it reaches its
@@ -130,12 +104,12 @@ export function test_archetypes_primitive_prop_geometry(): void {
   TestValidator.equals(
     "a dimension nobody can read measures as zero rather than as nothing at all",
     namedFacts([
-      ["absent", (): boolean => radiusOf({ shape: "sphere" }) === 0],
-      ["notANumber", (): boolean => radiusOf({ shape: "sphere", radius: "big" }) === 0],
+      ["absent", (): boolean => nclose(radiusOf({ shape: "sphere" }), 0, 0)],
+      ["notANumber", (): boolean => nclose(radiusOf({ shape: "sphere", radius: "big" }), 0, 0)],
       [
         "notFinite",
         (): boolean =>
-          radiusOf({ shape: "sphere", radius: Number.POSITIVE_INFINITY }) === 0,
+          nclose(radiusOf({ shape: "sphere", radius: Number.POSITIVE_INFINITY }), 0, 0),
       ],
       // And a partly readable map keeps the part it can read, rather than
       // discarding the whole bound.
@@ -162,16 +136,16 @@ export function test_archetypes_primitive_prop_geometry(): void {
         "box",
         (): boolean =>
           box.type === "box" &&
-          box.width === BOX.width &&
-          box.height === BOX.height &&
-          box.depth === BOX.depth,
+          nclose(box.width, BOX.width, 0) &&
+          nclose(box.height, BOX.height, 0) &&
+          nclose(box.depth, BOX.depth, 0),
       ],
       [
         "plane",
         (): boolean =>
           plane.type === "plane" &&
-          plane.width === PLANE.width &&
-          plane.depth === PLANE.depth,
+          nclose(plane.width, PLANE.width, 0) &&
+          nclose(plane.depth, PLANE.depth, 0),
       ],
       [
         "sphere",
@@ -181,7 +155,7 @@ export function test_archetypes_primitive_prop_geometry(): void {
         "sphereRadius",
         (): boolean => {
           const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "sphere", radius: 2 });
-          return shape.type === "sphere" && shape.radius === 2;
+          return shape.type === "sphere" && nclose(shape.radius, 2, 0);
         },
       ],
       [
@@ -190,8 +164,8 @@ export function test_archetypes_primitive_prop_geometry(): void {
           const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "capsule", ...SHAFT });
           return (
             shape.type === "capsule" &&
-            shape.radius === SHAFT.radius &&
-            shape.height === SHAFT.height
+            nclose(shape.radius, SHAFT.radius, 0) &&
+            nclose(shape.height, SHAFT.height, 0)
           );
         },
       ],
@@ -201,8 +175,8 @@ export function test_archetypes_primitive_prop_geometry(): void {
           const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "cylinder", ...SHAFT });
           return (
             shape.type === "cylinder" &&
-            shape.radius === SHAFT.radius &&
-            shape.height === SHAFT.height
+            nclose(shape.radius, SHAFT.radius, 0) &&
+            nclose(shape.height, SHAFT.height, 0)
           );
         },
       ],
@@ -212,8 +186,8 @@ export function test_archetypes_primitive_prop_geometry(): void {
           const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "cone", ...SHAFT });
           return (
             shape.type === "cone" &&
-            shape.radius === SHAFT.radius &&
-            shape.height === SHAFT.height
+            nclose(shape.radius, SHAFT.radius, 0) &&
+            nclose(shape.height, SHAFT.height, 0)
           );
         },
       ],

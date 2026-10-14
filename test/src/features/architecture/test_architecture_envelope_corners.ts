@@ -1,88 +1,57 @@
-import {
-  builtEnvironmentEnvelopeCorners,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
+import { builtEnvironmentEnvelopeCorners } from "../../../../packages/engine/src/architecture/builtEnvironmentEnvelopeCorners";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieTransform, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  FACE_ROTATION,
-  boxCell,
-  lFootprintBuilding,
-  originTransform,
-  rectangularBuilding,
-} from "../internal/envelopeFixtures";
+import { FACE_ROTATION, boxCell, lFootprintBuilding, originTransform, rectangularBuilding } from "../internal/envelopeFixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
- * A corner is where an elevation hides itself, so it is derived, not declared.
- *
- * The survey guidance draws a rectangle as four perpendicular facade views plus
- * four corner obliques, and an irregular footprint as those plus one more view
- * at every re-entrant face. That second half is the part a facade-by-facade
- * sweep loses: the two elevations meeting in a notch each photograph away from
- * the notch, so nothing in a per-facade population ever looks into it.
- *
- * The two kinds are told apart at the meeting point itself. Walking from the
- * corner toward one facade's own body, an exterior corner leaves that body
- * behind the other facade's outward plane and a re-entrant corner leaves it in
- * front. Nothing here reads a label, a winding order, or a footprint the record
- * does not carry.
+ * Derive exterior and reentrant corners from adjacent facade frames within one building unit.
  *
  * Scenarios:
+ * 1. The rectangle produces exactly its four corners, all exterior; its two parallel opposite-wall pairs contribute none under this query's exclusion rule.
+ * 2. One corner's meeting point and outward bisector match hand-authored values under the existing vector tolerance.
+ * 3. The L-shaped wing is a legal building whose six facades produce six corners: five exterior and exactly one re-entrant, standing in the notch.
+ * 4. The rectangle/L-wing's complete expected populations exclude their nonmeeting facade pairs; no separate wall-thickness threshold pair is authored.
+ * 5. Two facades of different building units produce nothing even when they share a point.
+ * 6. A facade whose own centroid is the meeting point produces nothing, because there is no direction from the corner into its body to read.
+ * 7. A meeting whose second body sits exactly on the first's outward plane produces nothing, because it turns neither way.
  *
- * 1. The rectangle produces exactly its four corners, all exterior, and its two
- *    opposite wall pairs produce none, because parallel facades never meet.
- * 2. One corner's meeting point and outward bisector equal the metres typed by
- *    hand from the fixture's own frames.
- * 3. The L-shaped wing is a legal building whose six facades produce six
- *    corners: five exterior and exactly one re-entrant, standing in the notch.
- * 4. Facades that are neither parallel nor adjacent produce nothing, because the
- *    gap between them exceeds the thicker of the two separations.
- * 5. Two facades of different building units produce nothing even when they
- *    share a point.
- * 6. A facade whose own centroid is the meeting point produces nothing, because
- *    there is no direction from the corner into its body to read.
- * 7. A meeting whose second body sits exactly on the first's outward plane
- *    produces nothing, because it turns neither way.
+ * @evidence contracts/testing.md#behavioral-verification Calls builtEnvironmentEnvelopeCorners on rectangle/L-wing and the three explicit excluded-meeting fixtures, with L-wing admission checked separately. Complete id/kind/owner populations, selected position/normal/facade ids and zero result counts expose omitted reentrant classification, cross-unit pairing or guessed turns for arealess/flat meetings; the query reports CPU proximity proxies rather than proven edge intersections.
+ * @evidence contracts/testing.md#independent-expectations Literal rectangular face frames give north-east (4,1.5,6) and bisector (sqrt(1/2),0,sqrt(1/2)); the authored L footprint gives six expected pairs with its only reentrant position (2,1.5,2), under the original vclose tolerance. Separate unit ids, zero-area centroid and the triangular flat-turn coordinates determine the three exclusions without using the corner output as an oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Rectangle/L-wing populations include exterior/reentrant meetings and exclude their other pairs; different units, an arealess facade and a flat turn have explicit zero-result controls. No separately isolated near-thickness threshold, arbitrary curved envelope, complete global topology or photographed coverage is certified.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_envelope_corners imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_envelope_corners = (): void => {
-  const rectangle = builtEnvironmentEnvelopeCorners(rectangularBuilding());
+export function test_architecture_envelope_corners(): void {
+  const rectangle: IAutoMovieBuiltEnvelopeCorner[] = builtEnvironmentEnvelopeCorners(rectangularBuilding());
 
-  TestValidator.equals(
-    "the rectangle owes one corner per pair of meeting walls",
-    rectangle.map((corner) => [corner.id, corner.kind, corner.building]),
-    [
+  TestValidator.equals("the rectangle owes one corner per pair of meeting walls", rectangle.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [corner.id, corner.kind, corner.building]), [
       ["wall-east+wall-north", "exterior", "house"],
       ["wall-east+wall-south", "exterior", "house"],
       ["wall-north+wall-west", "exterior", "house"],
       ["wall-south+wall-west", "exterior", "house"],
-    ],
-  );
+    ]);
 
   TestValidator.equals(
     "the north-east corner stands where its two walls meet",
     namedFacts([
       [
         "the meeting point is the middle of the shared vertical edge",
-        () => vclose(rectangle[0]!.position, { x: 4, y: 1.5, z: 6 }),
+        (): boolean => vclose(rectangle[0]!.position, { x: 4, y: 1.5, z: 6 }),
       ],
       [
         "and the bisector points off the envelope",
-        () =>
+        (): boolean =>
           vclose(rectangle[0]!.normal, {
-            x: 0.7071067811865476,
+            x: Math.SQRT1_2,
             y: 0,
-            z: 0.7071067811865476,
+            z: Math.SQRT1_2,
           }),
       ],
       [
         "naming both walls in code-unit order",
-        () =>
+        (): boolean =>
           rectangle[0]!.facades[0] === "wall-east" &&
           rectangle[0]!.facades[1] === "wall-north",
       ],
@@ -94,7 +63,7 @@ export const test_architecture_envelope_corners = (): void => {
     },
   );
 
-  const wing = lFootprintBuilding();
+  const wing: IAutoMovieBuiltEnvironment = lFootprintBuilding();
 
   TestValidator.equals(
     "the L-shaped wing is a legal building",
@@ -102,24 +71,20 @@ export const test_architecture_envelope_corners = (): void => {
     true,
   );
 
-  const notched = builtEnvironmentEnvelopeCorners(wing);
+  const notched: IAutoMovieBuiltEnvelopeCorner[] = builtEnvironmentEnvelopeCorners(wing);
 
-  TestValidator.equals(
-    "its notch is the one corner an observer walks into",
-    notched.map((corner) => [corner.id, corner.kind]),
-    [
+  TestValidator.equals("its notch is the one corner an observer walks into", notched.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [corner.id, corner.kind]), [
       ["wall-0+wall-1", "exterior"],
       ["wall-0+wall-5", "exterior"],
       ["wall-1+wall-2", "exterior"],
       ["wall-2+wall-3", "reentrant"],
       ["wall-3+wall-4", "exterior"],
       ["wall-4+wall-5", "exterior"],
-    ],
-  );
+    ]);
 
   TestValidator.equals(
     "the re-entrant corner stands at the inside angle of the footprint",
-    vclose(notched.find((corner) => corner.kind === "reentrant")!.position, {
+    vclose(notched.find((corner: IAutoMovieBuiltEnvelopeCorner): boolean => corner.kind === "reentrant")!.position, {
       x: 2,
       y: 1.5,
       z: 2,
@@ -132,15 +97,15 @@ export const test_architecture_envelope_corners = (): void => {
     namedFacts([
       [
         "two units touching at a point share no corner",
-        () => builtEnvironmentEnvelopeCorners(differentUnits()).length === 0,
+        (): boolean => builtEnvironmentEnvelopeCorners(differentUnits()).length === 0,
       ],
       [
         "a facade standing on its own meeting point contributes none",
-        () => builtEnvironmentEnvelopeCorners(pointlessFacade()).length === 0,
+        (): boolean => builtEnvironmentEnvelopeCorners(pointlessFacade()).length === 0,
       ],
       [
         "and a meeting that turns neither way contributes none",
-        () => builtEnvironmentEnvelopeCorners(flatTurn()).length === 0,
+        (): boolean => builtEnvironmentEnvelopeCorners(flatTurn()).length === 0,
       ],
     ]),
     {
@@ -149,10 +114,10 @@ export const test_architecture_envelope_corners = (): void => {
       "and a meeting that turns neither way contributes none": true,
     },
   );
-};
+}
 
 /** One enclosing separation with a hand-written face frame. */
-const facade = (props: {
+const facade: (props: { id: string; space: string; origin: { x: number; y: number; z: number; }; rotation: IAutoMovieQuaternion; outline: Array<{ x: number; y: number; }>; }) => IAutoMovieBuiltBoundary = (props: {
   id: string;
   space: string;
   origin: { x: number; y: number; z: number };
@@ -172,7 +137,7 @@ const facade = (props: {
 });
 
 /** The rectangle outline every small fixture below reuses. */
-const panel = (
+const panel: (width: number, height: number) => Array<{ x: number; y: number; }> = (
   width: number,
   height: number,
 ): Array<{ x: number; y: number }> => [
@@ -183,7 +148,7 @@ const panel = (
 ];
 
 /** One record shell holding hand-written spaces and boundaries. */
-const shell = (props: {
+const shell: (props: { id: string; units: Array<{ id: string; space: string; }>; spaces: IAutoMovieBuiltEnvironment["spaces"]; boundaries: IAutoMovieBuiltBoundary[]; }) => IAutoMovieBuiltEnvironment = (props: {
   id: string;
   units: Array<{ id: string; space: string }>;
   spaces: IAutoMovieBuiltEnvironment["spaces"];
@@ -192,14 +157,14 @@ const shell = (props: {
   version: 1,
   id: props.id,
   units: "meter",
-  buildings: props.units.map((unit) => ({
+  buildings: props.units.map((unit: { id: string; space: string; }): { id: string; element: string; space: string; } => ({
     id: unit.id,
     element: `${unit.id}-root`,
     space: unit.space,
   })),
   models: [],
   modelReferences: [],
-  elements: props.units.map((unit) => ({
+  elements: props.units.map((unit: { id: string; space: string; }): { id: string; kind: string; parent: null; transform: IAutoMovieTransform; model: null; space: string; } => ({
     id: `${unit.id}-root`,
     kind: "building",
     parent: null,
@@ -218,10 +183,9 @@ const shell = (props: {
 /**
  * Two building units whose facades meet at the world origin.
  *
- * A corner belongs to one envelope, so two works standing against each other
- * share a seam rather than a corner, and neither owes the other's observation.
+ * A corner belongs to one envelope, so two works standing against each other share a seam rather than a corner, and neither owes the other's observation.
  */
-const differentUnits = (): IAutoMovieBuiltEnvironment =>
+const differentUnits: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
   shell({
     id: "neighbours",
     units: [
@@ -265,10 +229,9 @@ const differentUnits = (): IAutoMovieBuiltEnvironment =>
 /**
  * One arealess separation sharing a point with a real one.
  *
- * Its own centroid is the meeting point, so nothing states which way its body
- * lies and the meeting cannot be classified either way.
+ * Its own centroid is the meeting point, so nothing states which way its body lies and the meeting cannot be classified either way.
  */
-const pointlessFacade = (): IAutoMovieBuiltEnvironment =>
+const pointlessFacade: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
   shell({
     id: "pointless",
     units: [{ id: "a", space: "a-hall" }],
@@ -305,11 +268,9 @@ const pointlessFacade = (): IAutoMovieBuiltEnvironment =>
 /**
  * Two separations meeting with the second's body on the first's outward plane.
  *
- * The triangular face's centroid sits directly below the shared point, so the
- * direction from the corner into it is perpendicular to the other facade's
- * normal and the meeting turns neither out of nor into the envelope.
+ * The triangular face's centroid sits directly below the shared point, so the direction from the corner into it is perpendicular to the other facade's normal and the meeting turns neither out of nor into the envelope.
  */
-const flatTurn = (): IAutoMovieBuiltEnvironment =>
+const flatTurn: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
   shell({
     id: "flat",
     units: [{ id: "a", space: "a-hall" }],

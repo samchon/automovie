@@ -1,67 +1,41 @@
-import {
-  designLineagePhaseOrder,
-  designLineagePhaseSnapshot,
-  designLineageProject,
-  validateDesignLineage,
-} from "@automovie/engine";
+import type { IAutoMovieDesignLineage, IAutoMovieDesignPhaseState, IAutoMovieDesignPhaseSnapshot } from "@automovie/interface";
+import { designLineagePhaseOrder } from "../../../../packages/engine/src/architecture/designLineagePhaseOrder";
+import { designLineagePhaseSnapshot } from "../../../../packages/engine/src/architecture/designLineagePhaseSnapshot";
+import { designLineageProject } from "../../../../packages/engine/src/architecture/designLineageProject";
+import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
 import { TestValidator } from "@nestia/e2e";
-
 import { emptyLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Pin retained, demolished, temporary, and new to one per-phase answer that a
- * scene, a drawing, a schedule, and a render all read.
- *
- * The two facts a renovation has to keep apart are the role a thing plays in
- * the whole work and whether it is standing right now. A wall marked for
- * demolition is `demolished` for the entire job and still `present` while the
- * shoring goes up; collapsing those into one field is how a demolition plan and
- * a demolition render start disagreeing. Expectations here are read off the
- * authored plan by hand, never off the implementation's own output.
- *
- * The plan is also deliberately a graph. `shore` and `strip` are siblings, so
- * the shoring being absent during demolition is a statement about incomparable
- * branches, not about an invented order between them.
+ * Query phase prerequisites, lifecycle roles/presence and identity projection at demolition, shoring and completion.
  *
  * Scenarios:
- *
- * 1. The construction plan orders by prerequisite and then by ascending id, so
- *    reshuffling the authored array cannot reorder a schedule.
- * 2. At `strip` the demolished wall is gone, the retained fabric stands, and
- *    everything the work has yet to install reads `pending`.
- * 3. At `shore` the same demolished wall is still standing, which separates the
- *    work-level role from the per-phase presence.
- * 4. At `shore` the temporary shoring is `present`; at `structure` it is `removed`
- *    while keeping the role `temporary`, and the sibling `strip` leaves it
- *    `pending` because neither branch precedes the other.
- * 5. A null phase answers for the completed work: everything ever removed is gone
- *    and everything else stands.
- * 6. Four differently shaped consumer collections project to exactly the same ids
- *    at one phase and to a different same set at another, and an id the lineage
- *    never declared survives both.
- * 7. A lineage with no phases still orders and still answers for the completed
- *    work.
+ * 1. The out-of-order fixture returns the expected prerequisite order with ascending-id ties; this unit does not perform a second array permutation.
+ * 2. At `strip` the demolished wall is gone, the retained fabric stands, and everything the work has yet to install reads `pending`.
+ * 3. At `shore` the same demolished wall is still standing, which separates the work-level role from the per-phase presence.
+ * 4. At `shore` the temporary shoring is `present`; at `structure` it is `removed` while keeping the role `temporary`, and the sibling `strip` leaves it `pending` because neither branch precedes the other.
+ * 5. A null phase answers for the completed work: everything ever removed is gone and everything else stands.
+ * 6. Four differently shaped consumer collections project to exactly the same ids at one phase and to a different same set at another, and an id the lineage never declared survives both.
+ * 7. A lineage with no phases still orders and still answers for the completed work.
  * 8. A phase the plan does not contain is refused rather than answered.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls phase order/snapshot and generic designLineageProject, comparing the whole strip snapshot, selected shore/structure states, completed state strings and projected ids of four local row shapes. Confusing whole-lifecycle role with current presence, linearizing incomparable branches or dropping untracked stage-camera changes these observations; these rows do not invoke compiled scene, drawing, quantity or render hosts.
+ * @evidence contracts/testing.md#independent-expectations The authored diamond with shore and strip as incomparable siblings determines every subject's role and presence; four existing row shapes carry the same explicit ids, so expected projection is hand-listed rather than produced by another snapshot query.
+ * @evidence contracts/testing.md#distinguishing-cases Prerequisite order, demolition versus shoring, temporary installation/removal, null completion, four projection collections, untracked ids, an empty plan and an unknown phase retain distinct decisions; these generic row projections do not execute four renderer/drawing host applications.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_design_lineage_phase_states imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_design_lineage_phase_states = (): void => {
-  const lineage = renovationLineage();
+export function test_architecture_design_lineage_phase_states(): void {
+  const lineage: IAutoMovieDesignLineage = renovationLineage();
   TestValidator.equals(
     "the authored renovation lineage is self-consistent",
     validateDesignLineage({ lineage }).success,
     true,
   );
 
-  TestValidator.equals(
-    "the construction plan orders by prerequisite then by ascending id",
-    designLineagePhaseOrder(lineage),
-    ["survey", "shore", "strip", "structure", "services", "finishes"],
-  );
+  TestValidator.equals("the construction plan orders by prerequisite then by ascending id", designLineagePhaseOrder(lineage), ["survey", "shore", "strip", "structure", "services", "finishes"]);
 
-  TestValidator.equals(
-    "the demolition phase reports every subject's role and presence",
-    designLineagePhaseSnapshot(lineage, "strip"),
-    {
+  TestValidator.equals("the demolition phase reports every subject's role and presence", designLineagePhaseSnapshot(lineage, "strip"), {
       phase: "strip",
       states: [
         {
@@ -131,49 +105,33 @@ export const test_architecture_design_lineage_phase_states = (): void => {
           presence: "pending",
         },
       ],
-    },
-  );
+    });
 
-  const shoring = designLineagePhaseSnapshot(lineage, "shore").states;
-  TestValidator.equals(
-    "a wall marked for demolition is still standing before its phase",
-    shoring.find((state) => state.subject === "wall-south"),
-    {
+  const shoring: IAutoMovieDesignPhaseState[] = designLineagePhaseSnapshot(lineage, "shore").states;
+  TestValidator.equals("a wall marked for demolition is still standing before its phase", shoring.find((state: IAutoMovieDesignPhaseState): boolean => state.subject === "wall-south"), {
       subject: "wall-south",
       graph: "element",
       role: "demolished",
       presence: "present",
-    },
-  );
-  TestValidator.equals(
-    "the temporary shoring is up in its own phase",
-    shoring.find((state) => state.subject === "shoring-frame"),
-    {
+    });
+  TestValidator.equals("the temporary shoring is up in its own phase", shoring.find((state: IAutoMovieDesignPhaseState): boolean => state.subject === "shoring-frame"), {
       subject: "shoring-frame",
       graph: "element",
       role: "temporary",
       presence: "present",
-    },
-  );
-  TestValidator.equals(
-    "the shoring is taken out again once the structure phase completes",
-    designLineagePhaseSnapshot(lineage, "structure").states.find(
-      (state) => state.subject === "shoring-frame",
-    ),
-    {
+    });
+  TestValidator.equals("the shoring is taken out again once the structure phase completes", designLineagePhaseSnapshot(lineage, "structure").states.find(
+      (state: IAutoMovieDesignPhaseState): boolean => state.subject === "shoring-frame",
+    ), {
       subject: "shoring-frame",
       graph: "element",
       role: "temporary",
       presence: "removed",
-    },
-  );
+    });
 
-  TestValidator.equals(
-    "the completed work keeps everything the plan never removes",
-    designLineagePhaseSnapshot(lineage, null).states.map(
-      (state) => `${state.subject}:${state.role}:${state.presence}`,
-    ),
-    [
+  TestValidator.equals("the completed work keeps everything the plan never removes", designLineagePhaseSnapshot(lineage, null).states.map(
+      (state: IAutoMovieDesignPhaseState): string => `${state.subject}:${state.role}:${state.presence}`,
+    ), [
       "door-leaf:new:present",
       "floor-oak:new:present",
       "oak-texture:retained:present",
@@ -185,59 +143,46 @@ export const test_architecture_design_lineage_phase_states = (): void => {
       "wall-south:demolished:removed",
       "wall-west:retained:present",
       "window-north:new:present",
-    ],
-  );
+    ]);
 
   // Four consumers of four different shapes, carrying the same identities plus
   // one the lineage never declared.
-  const ids = ["wall-north", "wall-south", "shoring-frame", "stage-camera"];
-  const sceneNodes = ids.map((id) => ({ id, model: `${id}-model` }));
-  const drawingRows = ids.map((id) => ({ id, sheet: "A-101" }));
-  const quantityLines = ids.map((id) => ({ id, unit: "m2", amount: 1 }));
-  const renderDraws = ids.map((id) => ({ id, pass: "beauty" }));
-  const projected = (phase: string | null): string[][] => [
-    designLineageProject(lineage, phase, sceneNodes).map((row) => row.id),
-    designLineageProject(lineage, phase, drawingRows).map((row) => row.id),
-    designLineageProject(lineage, phase, quantityLines).map((row) => row.id),
-    designLineageProject(lineage, phase, renderDraws).map((row) => row.id),
+  const ids: string[] = ["wall-north", "wall-south", "shoring-frame", "stage-camera"];
+  const sceneNodes: { id: string; model: string; }[] = ids.map((id: string): { id: string; model: string; } => ({ id, model: `${id}-model` }));
+  const drawingRows: { id: string; sheet: string; }[] = ids.map((id: string): { id: string; sheet: string; } => ({ id, sheet: "A-101" }));
+  const quantityLines: { id: string; unit: string; amount: number; }[] = ids.map((id: string): { id: string; unit: string; amount: number; } => ({ id, unit: "m2", amount: 1 }));
+  const renderDraws: { id: string; pass: string; }[] = ids.map((id: string): { id: string; pass: string; } => ({ id, pass: "beauty" }));
+  const projected: (phase: string | null) => string[][] = (phase: string | null): string[][] => [
+    designLineageProject(lineage, phase, sceneNodes).map((row: { id: string; model: string; }): string => row.id),
+    designLineageProject(lineage, phase, drawingRows).map((row: { id: string; sheet: string; }): string => row.id),
+    designLineageProject(lineage, phase, quantityLines).map((row: { id: string; unit: string; amount: number; }): string => row.id),
+    designLineageProject(lineage, phase, renderDraws).map((row: { id: string; pass: string; }): string => row.id),
   ];
-  TestValidator.equals(
-    "scene, drawing, quantity, and render agree on what stands at demolition",
-    projected("strip"),
-    [
+  TestValidator.equals("scene, drawing, quantity, and render agree on what stands at demolition", projected("strip"), [
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
-    ],
-  );
-  TestValidator.equals(
-    "the same four consumers agree on the different set standing at shoring",
-    projected("shore"),
-    [
+    ]);
+  TestValidator.equals("the same four consumers agree on the different set standing at shoring", projected("shore"), [
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
-    ],
-  );
+    ]);
 
-  const bare = emptyLineage();
-  TestValidator.equals(
-    "a lineage with no construction sequence still orders and still answers",
-    [
+  const bare: IAutoMovieDesignLineage = emptyLineage();
+  TestValidator.equals("a lineage with no construction sequence still orders and still answers", [
       designLineagePhaseOrder(bare),
       designLineagePhaseSnapshot(bare, null).states,
-      designLineageProject(bare, null, sceneNodes).map((row) => row.id),
-    ],
-    [[], [], ids],
-  );
+      designLineageProject(bare, null, sceneNodes).map((row: { id: string; model: string; }): string => row.id),
+    ], [[], [], ids]);
 
   TestValidator.predicate(
     "a phase the plan does not contain is refused, not answered",
     throwsError(
-      () => designLineagePhaseSnapshot(lineage, "topping-out"),
+      (): IAutoMovieDesignPhaseSnapshot => designLineagePhaseSnapshot(lineage, "topping-out"),
       'has no construction phase "topping-out"',
     ),
   );
-};
+}

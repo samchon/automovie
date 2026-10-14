@@ -12,7 +12,8 @@ import { BUILT_CONNECTOR_TEST_NO_ROTATION as NO_ROTATION } from "./BUILT_CONNECT
 import { builtConnectorTestYaw as yaw } from "./builtConnectorTestYaw";
 import { createModel } from "./fixtures";
 
-const box = (
+/** Create six authored axis-aligned half-spaces; consumers own admission and geometry assertions. */
+const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieConvexSpaceCell = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -28,23 +29,21 @@ const box = (
   ],
 });
 
-const place = (x = 0, y = 0, z = 0): IAutoMovieTransform => ({
+/** Place one fixture element in metres, sharing the declared identity quaternion. */
+const place: (x?: number, y?: number, z?: number) => IAutoMovieTransform = (x: number = 0, y: number = 0, z: number = 0): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: NO_ROTATION,
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /**
- * Four spaces joined by every connector family this stage must express.
+ * Four spaces joined by the six connector families in the existing connector unit.
  *
- * The spiral stair is the case the old position-only route could not state at
- * all: its stations sit on a helix whose facing turns a quarter each tread, and
- * without a per-station quaternion two treads a quarter turn apart are the same
- * record. The corridor states a varying section instead of a scalar, the ramp
- * states a slope its own route must agree with, and the escalator is its own
- * traversal family rather than a mislabelled stair.
+ * The spiral has quarter-turn facings and plan coordinates that repeat after four stations; its increasing Y coordinates still distinguish those route points. The corridor's equally spaced stations carry a varying section, the ramp declares a slope and the flight declares steps. Literal coordinates, dimensions and quaternions supply inputs; this builder neither validates them nor supplies assertions.
+ *
+ * The directly imported test_architecture_built_connector and builtConnectorTestRefusalPaths consume a fresh graph per call. Models come from createModel, identity rotations are shared, and callers may mutate each graph independently. This internal fixture is not a discoverable test and starts no process, renderer or native build; the consumer owns all verdicts and tolerances.
  */
-export const builtConnectorTestLevels = (): IAutoMovieBuiltEnvironment => ({
+export const builtConnectorTestLevels: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "levels",
   units: "meter",
@@ -94,19 +93,18 @@ export const builtConnectorTestLevels = (): IAutoMovieBuiltEnvironment => ({
   openings: [],
   connectors: [
     {
-      // A helix: the centre route barely moves in plan, so only the facing
-      // tells one tread from the next.
+      // Quarter-turn stations repeat in plan after one turn while Y rises.
       id: "spiral",
       kind: "stair",
       from: "lower",
       to: "upper",
       bidirectional: true,
-      route: Array.from({ length: HELIX_TURNS + 1 }, (_, index) => ({
+      route: Array.from({ length: HELIX_TURNS + 1 }, (_: unknown, index: number): IAutoMovieVector3 => ({
         x: HELIX_RADIUS * Math.cos((index * Math.PI) / 2),
         y: index * HELIX_RISE,
         z: HELIX_RADIUS * Math.sin((index * Math.PI) / 2),
       })),
-      orientations: Array.from({ length: HELIX_TURNS + 1 }, (_, index) =>
+      orientations: Array.from({ length: HELIX_TURNS + 1 }, (_: unknown, index: number): IAutoMovieTransform["rotation"] =>
         yaw((index * Math.PI) / 2),
       ),
       width: 1.2,

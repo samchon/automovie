@@ -1,23 +1,16 @@
-import {
-  builtEnvironmentElementPartBounds,
-  builtEnvironmentPlacementBounds,
-  builtEnvironmentPlacementOverlap,
-  builtEnvironmentPlacementOverlapSweep,
-  builtEnvironmentSupportStatus,
-  builtEnvironmentSupportSweep,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieModel,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
+import { builtEnvironmentPlacementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementBounds";
+import { builtEnvironmentPlacementOverlap } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlap";
+import { builtEnvironmentPlacementOverlapSweep } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlapSweep";
+import { builtEnvironmentSupportStatus } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportStatus";
+import { builtEnvironmentSupportSweep } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportSweep";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieBuiltPlacementBounds, IAutoMovieSubjectBox, IAutoMovieBuiltSupportResult, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieBuiltElement, IAutoMovieBuiltSupportSweepReport, IAutoMovieBuiltPlacementOverlapReport, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const place = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const place: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -26,10 +19,9 @@ const place = (x: number, y: number, z: number): IAutoMovieTransform => ({
 /**
  * A shelf: a back panel standing 1.8 m and two boards at 0.75 m and 1.4 m.
  *
- * The union of those three parts spans the floor to the panel's top and is
- * mostly air, which is the whole of the defect being pinned.
+ * The union of those three parts spans the floor to the panel's top and is mostly air, which is the whole of the defect being pinned.
  */
-const shelfModel = (): IAutoMovieModel => ({
+const shelfModel: () => IAutoMovieModel = (): IAutoMovieModel => ({
   ...makeProp([
     {
       ...primitivePart("panel", {
@@ -62,7 +54,7 @@ const shelfModel = (): IAutoMovieModel => ({
   id: "shelf-model",
 });
 
-const caseModel = (): IAutoMovieModel => ({
+const caseModel: () => IAutoMovieModel = (): IAutoMovieModel => ({
   ...makeProp([
     primitivePart("case-box", {
       type: "box",
@@ -77,10 +69,9 @@ const caseModel = (): IAutoMovieModel => ({
 /**
  * An L-shaped bench: two boards meeting at a corner, leaving a quarter open.
  *
- * The union of the two spans the whole square including the open quarter, which
- * is the notch a subject can stand in while standing over neither board.
+ * The union of the two spans the whole square including the open quarter, which is the notch a subject can stand in while standing over neither board.
  */
-const benchModel = (): IAutoMovieModel => ({
+const benchModel: () => IAutoMovieModel = (): IAutoMovieModel => ({
   ...makeProp([
     {
       ...primitivePart("arm-x", {
@@ -107,11 +98,9 @@ const benchModel = (): IAutoMovieModel => ({
 /**
  * The same case standing in that open quarter.
  *
- * Its underside is exactly the boards' top, so a probe that reads the union box
- * answers `resting` with a zero gap — a confident yes about a body standing over
- * nothing at all.
+ * Its underside is exactly the boards' top, so a probe that reads the union box answers `resting` with a zero gap — a confident yes about a body standing over nothing at all.
  */
-const notchEnvironment = (): IAutoMovieBuiltEnvironment => ({
+const notchEnvironment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
   ...environment(),
   id: "bench-room",
   models: [benchModel(), caseModel()],
@@ -146,11 +135,9 @@ const notchEnvironment = (): IAutoMovieBuiltEnvironment => ({
 /**
  * One shelf and a case resting exactly on its lower board.
  *
- * `0.775` is the board's top: `0.75 + 0.05 / 2`. The case's own box is 0.28
- * high about its origin, so an origin at `0.915` puts its underside at `0.775`
- * — zero gap, zero interpenetration.
+ * `0.775` is the board's top: `0.75 + 0.05 / 2`. The case's own box is 0.28 high about its origin, so an origin at `0.915` puts its underside at `0.775` — zero gap, zero interpenetration.
  */
-const environment = (): IAutoMovieBuiltEnvironment => ({
+const environment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "records-room",
   units: "meter",
@@ -193,57 +180,33 @@ const environment = (): IAutoMovieBuiltEnvironment => ({
 });
 
 /**
- * A body's box is not its body, and a placement probe now reads its parts.
- *
- * A `#1954` production stood eight scroll cases on a two-tier shelf. Every one
- * was seated exactly — the arithmetic gives zero gap and zero interpenetration,
- * and the frame agreed — and the sweep reported all eight as **floating and
- * overlapping**. Both answers came from one cause: an element resolved to a
- * single world box, so a shelf that is a back panel and two boards became a
- * solid volume from the floor to head height. Anything on a board is inside
- * that box, and the box's top is the panel rather than the board.
- *
- * Part boxes are contained in the union box, so reading them can only withdraw
- * an overlap the union invented; it can never invent one the union missed. A
- * single-part body yields exactly its union box and answers as it did before.
+ * Probe support and overlap using part boxes, retaining the union box for extent reporting.
  *
  * Scenarios:
- *
- * 1. The union box is still what `builtEnvironmentPlacementBounds` reports, and
- *    it is still mostly air — the defect is what was read from it, not the box.
+ * 1. The union box is still what `builtEnvironmentPlacementBounds` reports, and it is still mostly air — the defect is what was read from it, not the box.
  * 2. The parts resolve separately, one box per drawn part.
- * 3. A case seated on the lower board is `resting`, because the bearing face is
- *    the board it is over rather than the panel behind it.
- * 4. The same case does not overlap the shelf, because no part of the shelf
- *    shares volume with it.
- * 5. A case pushed into the board still reports `sunk`, so tightening the boxes
- *    did not cost the answers that were already right.
- * 6. The whole-building sweeps agree with the named queries. The support sweep
- *    finds nothing floating, because the case is borne by the board; the overlap
- *    sweep finds no pair, because no part of the shelf shares volume with it.
- * 7. The sweeps still report the case that is genuinely wrong: pushed into the
- *    board, it comes back as an intersecting pair.
- * 8. A case standing in the open quarter of an L-shaped bench is over no part of
- *    it, and says so. Falling back to the union where a subject is over none of
- *    the parts would answer `resting` with a zero gap here, which is the same
- *    box-for-a-body mistake in the one place the notch makes it visible.
+ * 3. A case seated on the lower board is `resting`, because the bearing face is the board it is over rather than the panel behind it.
+ * 4. The same case does not overlap the shelf, because no part of the shelf shares volume with it.
+ * 5. A case pushed into the board still reports `sunk`, so tightening the boxes did not cost the answers that were already right.
+ * 6. The whole-building sweeps agree with the named queries. The support sweep finds nothing floating, because the case is borne by the board; the overlap sweep finds no pair, because no part of the shelf shares volume with it.
+ * 7. The sweeps still report the case that is genuinely wrong: pushed into the board, it comes back as an intersecting pair.
+ * 8. A case standing in the open quarter of an L-shaped bench is over no part of it, and says so. Falling back to the union where a subject is over none of the parts would answer `resting` with a zero gap here, which is the same box-for-a-body mistake in the one place the notch makes it visible. The sweeps are the surface the defect was reported from. They take the environment and nothing else, so they are what an author runs over a finished building, and a named-pair fix that left them reading union boxes would have fixed the query nobody ran.
  *
- * The sweeps are the surface the defect was reported from. They take the
- * environment and nothing else, so they are what an author runs over a finished
- * building, and a named-pair fix that left them reading union boxes would have
- * fixed the query nobody ran.
+ * @evidence contracts/testing.md#behavioral-verification Calls placement/part bounds, named support/overlap and whole-building sweeps, observing shelf union Y, three part boxes, lower-board top, seated/sunk/not-over-support states, signed gap and pair counts/positive volume. Reading the shelf union as occupied material would falsely float or overlap the seated case; reading the bench union as support would fill the notch.
+ * @evidence contracts/testing.md#independent-expectations Authored board top 0.75+0.05/2=0.775 and case underside 0.915-0.28/2 coincide under the original nclose tolerance. Lowering the case origin to 0.85 penetrates that board, while the L-bench's missing quarter leaves the case over neither part. Literal states/counts and positive overlap volume are independent of returned sweep output; calling validateBuiltEnvironment here does not assert its returned success.
+ * @evidence contracts/testing.md#distinguishing-cases Seated/sunk shelf cases run named probes and sweeps; the L-shaped notch is tested through the named support query only. The sweep asserts no floating bodies with a positive borne count, no seated overlap pair and one positive-volume sunk pair, without pinning every report field or testing the notch sweep. These CPU proxies do not prove continuous curved-body contact or rendered appearance.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_environment_multipart_support imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_built_environment_multipart_support =
-  (): void => {
-    const world = environment();
+export function test_architecture_built_environment_multipart_support(): void {
+    const world: IAutoMovieBuiltEnvironment = environment();
     validateBuiltEnvironment({ environment: world });
 
-    const union = builtEnvironmentPlacementBounds({
+    const union: IAutoMovieBuiltPlacementBounds | null = builtEnvironmentPlacementBounds({
       environment: world,
       target: { kind: "element", id: "shelf" },
     });
-    const parts = builtEnvironmentElementPartBounds(world, "shelf");
-    const support = builtEnvironmentSupportStatus({
+    const parts: IAutoMovieSubjectBox[] | null = builtEnvironmentElementPartBounds(world, "shelf");
+    const support: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
       environment: world,
       query: {
         kind: "bearing",
@@ -251,26 +214,26 @@ export const test_architecture_built_environment_multipart_support =
         support: { kind: "element", id: "shelf" },
       },
     });
-    const overlap = builtEnvironmentPlacementOverlap({
+    const overlap: IAutoMovieBuiltPlacementOverlapResult = builtEnvironmentPlacementOverlap({
       environment: world,
       left: { kind: "element", id: "case" },
       right: { kind: "element", id: "shelf" },
     });
 
-    const sunkWorld = environment();
-    sunkWorld.elements = sunkWorld.elements.map((element) =>
+    const sunkWorld: IAutoMovieBuiltEnvironment = environment();
+    sunkWorld.elements = sunkWorld.elements.map((element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
       element.id === "case"
         ? { ...element, transform: place(0, 0.85, 0) }
         : element,
     );
-    const sweep = builtEnvironmentSupportSweep({ environment: world });
-    const overlaps = builtEnvironmentPlacementOverlapSweep({
+    const sweep: IAutoMovieBuiltSupportSweepReport = builtEnvironmentSupportSweep({ environment: world });
+    const overlaps: IAutoMovieBuiltPlacementOverlapReport = builtEnvironmentPlacementOverlapSweep({
       environment: world,
     });
-    const sunkOverlaps = builtEnvironmentPlacementOverlapSweep({
+    const sunkOverlaps: IAutoMovieBuiltPlacementOverlapReport = builtEnvironmentPlacementOverlapSweep({
       environment: sunkWorld,
     });
-    const notch = builtEnvironmentSupportStatus({
+    const notch: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
       environment: notchEnvironment(),
       query: {
         kind: "bearing",
@@ -278,7 +241,7 @@ export const test_architecture_built_environment_multipart_support =
         support: { kind: "element", id: "bench" },
       },
     });
-    const sunk = builtEnvironmentSupportStatus({
+    const sunk: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
       environment: sunkWorld,
       query: {
         kind: "bearing",
@@ -293,41 +256,41 @@ export const test_architecture_built_environment_multipart_support =
         // The reported box is unchanged: this is about what is read from it.
         [
           "the union box still spans the whole shelf",
-          () =>
+          (): boolean =>
             union !== null &&
             nclose(union.min.y, 0) &&
             nclose(union.max.y, 1.8),
         ],
-        ["the parts resolve one box each", () => parts?.length === 3],
+        ["the parts resolve one box each", (): boolean => parts?.length === 3],
         [
           "and the lower board's top is where the case sits",
-          () =>
-            parts !== null && parts.some((part) => nclose(part.max.y, 0.775)),
+          (): boolean =>
+            parts !== null && parts.some((part: IAutoMovieSubjectBox): boolean => nclose(part.max.y, 0.775)),
         ],
         // The defect: this was `floating` by 1.025 m, the height of a panel the
         // case is nowhere near.
-        ["the seated case rests", () => support.status === "resting"],
-        ["with no gap", () => support.gap !== null && nclose(support.gap, 0)],
+        ["the seated case rests", (): boolean => support.status === "resting"],
+        ["with no gap", (): boolean => support.gap !== null && nclose(support.gap, 0)],
         // The paired defect: the union box swallowed the case whole.
-        ["and does not overlap its shelf", () => overlap.status === "separate"],
+        ["and does not overlap its shelf", (): boolean => overlap.status === "separate"],
         // Tighter boxes must not cost an answer that was already right.
-        ["a case pushed into the board is sunk", () => sunk.status === "sunk"],
+        ["a case pushed into the board is sunk", (): boolean => sunk.status === "sunk"],
         // The sweeps are where the eight false findings came from.
         [
           "the support sweep finds nothing floating",
-          () => sweep.floating.length === 0 && sweep.borne > 0,
+          (): boolean => sweep.floating.length === 0 && sweep.borne > 0,
         ],
         [
           "and the overlap sweep finds no pair",
-          () => overlaps.pairs.length === 0,
+          (): boolean => overlaps.pairs.length === 0,
         ],
         [
           "a case in an L-shaped bench's notch is over no part of it",
-          () => notch.status === "not-over-support" && notch.gap === null,
+          (): boolean => notch.status === "not-over-support" && notch.gap === null,
         ],
         [
           "while the sunk case is still reported as intersecting",
-          () =>
+          (): boolean =>
             sunkOverlaps.pairs.length === 1 &&
             sunkOverlaps.pairs[0]!.volume > 0,
         ],
@@ -346,4 +309,4 @@ export const test_architecture_built_environment_multipart_support =
         "while the sunk case is still reported as intersecting": true,
       },
     );
-  };
+  }

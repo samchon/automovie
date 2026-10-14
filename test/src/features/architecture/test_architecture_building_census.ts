@@ -1,54 +1,38 @@
-import { builtEnvironmentBuildingCensus } from "@automovie/engine";
+import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
+import type { IAutoMovieBuiltEnvelopeFace } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeFace";
+import type { IAutoMovieBuildingObservationCensus } from "../../../../packages/engine/src/architecture/IAutoMovieBuildingObservationCensus";
+import { builtEnvironmentBuildingCensus } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingCensus";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  FACE_ROTATION,
-  boxCell,
-  originTransform,
-  rectangularBuilding,
-} from "../internal/envelopeFixtures";
+import { FACE_ROTATION, boxCell, originTransform, rectangularBuilding } from "../internal/envelopeFixtures";
 
 /**
- * A building is a denominator, and the census is what states the whole of it.
- *
- * A room-by-room survey is not a survey of a building: an exterior wall, a roof
- * and a foundation belong to no room, so a population counted over spaces leaves
- * out the envelope the exterior review is entirely about. The census answers for
- * one unit at once, with every population it owes derived from the record rather
- * than declared beside it.
- *
- * The space list is the one place a judgement is made, and it is made the same
- * way everywhere here: a space that states a volume is a room and a space that
- * states none is a name. A named zone with no extent has no inside to stand in,
- * so charging it nine interior views would charge a review for a heading.
+ * Census one building's facades, roof, underside, corners, entrances, volumetric spaces and connector identities.
  *
  * Scenarios:
- *
- * 1. The rectangular hall reports its four facades, its roof, its ground slab,
- *    its four corners and the one opening cut through its envelope.
- * 2. Its space list carries the storey and the room above it, and leaves out the
- *    named zone that bounds nothing.
+ * 1. The rectangular hall reports its four facades, its roof, its ground slab, its four corners and the one opening cut through its envelope.
+ * 2. Its space list carries the bounded hall and loft, and leaves out the named zone that bounds nothing.
  * 3. A connector landing in either of those spaces is named once.
- * 4. Two building units each answer for their own envelope only, in building-id
- *    order, and neither claims the other's face.
+ * 4. Two building units each answer for their own envelope only, in building-id order, and neither claims the other's face.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls builtEnvironmentBuildingCensus and compares projected building/face/corner/entrance/space/connector ids in declared expected order. Missing envelope members, including an extent-free zone as a volumetric room, duplicate stair membership or cross-unit face ownership would change the observed rows.
+ * @evidence contracts/testing.md#independent-expectations The rectangular fixture declares four walls, one roof/slab/opening and two volumetric spaces; a named extent-free zone contributes no room, and two independent units determine separate code-unit-ordered rows without copying the census output.
+ * @evidence contracts/testing.md#distinguishing-cases One unit, a stair serving two spaces, an extent-free zone and two units distinguish envelope ownership from room contents; geometric corner locations belong to the corner test.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_building_census imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_building_census = (): void => {
-  const census = builtEnvironmentBuildingCensus(furnished());
+export function test_architecture_building_census(): void {
+  const census: IAutoMovieBuildingObservationCensus[] = builtEnvironmentBuildingCensus(furnished());
 
-  TestValidator.equals(
-    "one unit answers for its own envelope, corners, entrances and rooms",
-    census.map((unit) => ({
+  TestValidator.equals("one unit answers for its own envelope, corners, entrances and rooms", census.map((unit: IAutoMovieBuildingObservationCensus): { building: string; facades: string[]; roofs: string[]; undersides: string[]; corners: string[]; entrances: string[]; spaces: string[]; connectors: string[]; } => ({
       building: unit.building,
-      facades: unit.facades.map((face) => face.boundary),
-      roofs: unit.roofs.map((face) => face.boundary),
-      undersides: unit.undersides.map((face) => face.boundary),
-      corners: unit.corners.map((corner) => corner.id),
+      facades: unit.facades.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
+      roofs: unit.roofs.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
+      undersides: unit.undersides.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
+      corners: unit.corners.map((corner: IAutoMovieBuiltEnvelopeCorner): string => corner.id),
       entrances: unit.entrances,
       spaces: unit.spaces,
       connectors: unit.connectors,
-    })),
-    [
+    })), [
       {
         building: "house",
         facades: ["wall-east", "wall-north", "wall-south", "wall-west"],
@@ -64,31 +48,25 @@ export const test_architecture_building_census = (): void => {
         spaces: ["hall", "loft"],
         connectors: ["stair-1"],
       },
-    ],
-  );
+    ]);
 
-  TestValidator.equals(
-    "two units answer separately, in building-id order",
-    builtEnvironmentBuildingCensus(twoUnits()).map((unit) => [
+  TestValidator.equals("two units answer separately, in building-id order", builtEnvironmentBuildingCensus(twoUnits()).map((unit: IAutoMovieBuildingObservationCensus): (string | string[])[] => [
       unit.building,
-      unit.facades.map((face) => face.boundary),
+      unit.facades.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
       unit.spaces,
-    ]),
-    [
+    ]), [
       ["east", ["east-wall"], ["east-hall"]],
       ["west", ["west-wall"], ["west-hall"]],
-    ],
-  );
-};
+    ]);
+}
 
 /**
  * The rectangular hall with a room above it, a named zone, and a stair.
  *
- * `loft` states a volume and enters the room population; `west-wing` states none
- * and does not. The stair lands in both real spaces and is named once.
+ * `loft` states a volume and enters the room population; `west-wing` states none and does not. The stair lands in both real spaces and is named once.
  */
-const furnished = (): IAutoMovieBuiltEnvironment => {
-  const record = rectangularBuilding();
+const furnished: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
+  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
   return {
     ...record,
     spaces: [
@@ -123,7 +101,7 @@ const furnished = (): IAutoMovieBuiltEnvironment => {
 };
 
 /** Two independent units, each with exactly one exposed separation. */
-const twoUnits = (): IAutoMovieBuiltEnvironment => ({
+const twoUnits: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "pair",
   units: "meter",

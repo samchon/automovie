@@ -1,20 +1,14 @@
-import {
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceFidelity,
-  builtSpaceContainsPoint,
-  builtSpaceIsConvex,
-  builtSpaceShellVolume,
-  builtSpaceStatesVolume,
-  deriveAutoMovieDrawing,
-  measureAutoMovieQuantities,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltSpace,
-  IAutoMovieSpaceShell,
-} from "@automovie/interface";
+import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
+import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
+import { builtSpaceContainsPoint } from "../../../../packages/engine/src/architecture/builtSpaceContainsPoint";
+import { builtSpaceIsConvex } from "../../../../packages/engine/src/architecture/builtSpaceIsConvex";
+import { builtSpaceShellVolume } from "../../../../packages/engine/src/architecture/builtSpaceShellVolume";
+import { builtSpaceStatesVolume } from "../../../../packages/engine/src/architecture/builtSpaceStatesVolume";
+import { deriveAutoMovieDrawing } from "../../../../packages/engine/src/drawing/deriveAutoMovieDrawing";
+import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieBuiltEnvironment, IAutoMovieQuantityFinding, IAutoMovieQuantityContributor, IAutoMovieDrawingGap, IAutoMovieDrawingView, IAutoMovieBuiltSpace, IAutoMovieSpaceShell } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
 import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";
 import { builtSpaceShellTestBoxShell as boxShell } from "../internal/builtSpaceShellTestBoxShell";
@@ -24,64 +18,41 @@ import { drawingView } from "../internal/drawingFixtures";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 
 /**
- * A logical volume may be its own closed boundary, and that boundary may have a
- * void through it.
- *
- * Half-space cells state every polyhedral region exactly, but a region pierced
- * by an atrium is a chore to decompose and a curved region cannot be stated at
- * all — the exact gap #1868 names, and the one IFC keeps a `Brep` fallback and
- * an `IfcFacetedBrepWithVoids` open for. This case pins that the escape hatch
- * is exact where it claims to be and refuses everything a query could not read,
- * and that what it still cannot do is reported rather than smoothed over.
+ * Query an authored closed shell with an atrium void and retain declared fidelity and unsupported downstream section gaps.
  *
  * Scenarios:
- *
- * 1. A shelled hall with an atrium void: a point in the room is inside, a point in
- *    the void is **outside**, a point beyond the hall is outside, and a point
- *    on the hall's own face, edge and corner is inside — the corner case being
- *    the one a bare solid-angle test gets wrong.
- * 2. The enclosed volume is the outer box less the void, exactly.
+ * 1. A shelled hall with an atrium void: a point in the room is inside, a point in the void is **outside**, a point beyond the hall is outside, and a point on the hall's own face, edge and corner is inside — the corner case being the one a bare solid-angle test gets wrong.
+ * 2. Signed shell volume matches outer box minus void within 1e-9 cubic metres.
  * 3. A space states its volume once: carrying cells beside a shell is refused.
- * 4. A shell is held to what makes its inside a fact — too few vertices, too few
- *    triangles, a ragged index count, an index naming no vertex, a degenerate
- *    facet, an unmatched directed edge, a doubled facet, and a shell wound
- *    inside out are each refused.
- * 5. `fidelity` is a closed word, may not be declared by a space that states no
- *    volume, and folds over descendants: a faceted hall makes its own building
- *    faceted, a volume-less subtree is `unstated`.
- * 6. The quantity take-off measures a shell exactly, and reports a faceted space
- *    as its own `unsupported` gap rather than quoting facets as a curve.
- * 7. The drafter cannot section a shell and says so: a cut sheet of the shelled
- *    hall draws no region for it and carries an `unsupported` gap naming the
- *    subject, while the same sheet of a celled hall draws the region and raises
- *    no such gap. A sheet that does draw a faceted space owns up to that under
- *    the same subject the take-off uses, so the two artifacts cannot disagree
- *    about whether a dome was drawn or approximated.
- * 8. Either spelling answers one set of questions: `builtSpaceStatesVolume` and
- *    `builtSpaceIsConvex` read a shell, one cell, several cells and nothing at
- *    all without any caller counting cells for itself.
- * 9. A shell nobody validated is read as the arithmetic says rather than thrown
- *    over: an index naming no vertex contributes no facet to the volume or the
- *    winding, and a facet with no area is skipped rather than summed as a `NaN`
- *    that would poison every later answer.
+ * 4. A shell is held to what makes its inside a fact — too few vertices, too few triangles, a ragged index count, an index naming no vertex, a degenerate facet, an unmatched directed edge, a doubled facet, and a shell wound inside out are each refused.
+ * 5. `fidelity` is a closed word, may not be declared by a space that states no volume, and folds over descendants: a faceted hall makes its own building faceted, a volume-less subtree is `unstated`.
+ * 6. Quantity contributor/total volume match 336 within 1e-6, and the faceted space produces its unsupported curvature gap beside the exact-declared twin.
+ * 7. The drafter cannot section a shell and says so: a cut sheet of the shelled hall draws no region for it and carries an `unsupported` gap naming the subject, while the same sheet of a celled hall draws the region and raises no such gap. A sheet that does draw a faceted space owns up to that under the same subject the take-off uses, so the two artifacts cannot disagree about whether a dome was drawn or approximated.
+ * 8. Either spelling answers one set of questions: `builtSpaceStatesVolume` and `builtSpaceIsConvex` read a shell, one cell, several cells and nothing at all without any caller counting cells for itself.
+ * 9. Missing-vertex triples give zero volume and false containment; the existing repeated-index facet mutation preserves the tested inside/outside answers without NaN poisoning.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls shell and descendant containment, signed volume, spelling/convexity/fidelity readers, building admission, quantity take-off and drawing derivation. Literal point Booleans, volumes, selected gap subject/status/reason fragments, region counts and malformed-shell path membership expose filled atrium voids, lost boundary admission, absent-volume confusion or downstream gaps presented as solved geometry.
+ * @evidence contracts/testing.md#independent-expectations Authored boxes give 10*4*10-4*4*4=336 m3 under volume tolerance 1e-9 and quantity tolerance 1e-6; explicit face/edge/corner/void points supply independent membership expectations. Hand-written index/vertex mutations and shell-versus-cell twins determine refusal/gap/region expectations. Fidelity labels are authored metadata, and selected region counts/gaps do not independently validate full drawing geometry, arbitrary shell topology or curved-space accuracy.
+ * @evidence contracts/testing.md#distinguishing-cases Inside/outside/void/boundary points, malformed facets/indices/winding, exclusive cell/shell spelling, fidelity folding, quantity and drawing controls, empty volume and unvalidated dangling/flat facets retain the original cases; this does not certify arbitrary shells or render a curved solid.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_space_shell imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_built_space_shell = (): void => {
-  const shelled = work({});
+export function test_architecture_built_space_shell(): void {
+  const shelled: IAutoMovieBuiltEnvironment = work({});
   TestValidator.equals(
     "a shelled hall holds its room and not its atrium",
     namedFacts([
       [
         "valid",
-        () => validateBuiltEnvironment({ environment: shelled }).success,
+        (): boolean => validateBuiltEnvironment({ environment: shelled }).success,
       ],
       [
         "inTheRoom",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", { x: 1, y: 2, z: 1 }),
       ],
       [
         "inTheAtrium",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", {
             x: 5,
             y: 2,
@@ -90,7 +61,7 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "beyondTheHall",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", {
             x: 12,
             y: 2,
@@ -99,27 +70,27 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "onAFace",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 2, z: 5 }),
       ],
       [
         "onAnEdge",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 5 }),
       ],
       [
         "inACorner",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 0 }),
       ],
       [
         "onTheAtriumWall",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "hall", { x: 3, y: 2, z: 5 }),
       ],
       [
         "throughTheParent",
-        () =>
+        (): boolean =>
           builtEnvironmentContainsPoint(shelled, "whole", { x: 1, y: 2, z: 1 }),
       ],
     ]),
@@ -141,26 +112,26 @@ export const test_architecture_built_space_shell = (): void => {
     nclose(builtSpaceShellVolume(HALL), 10 * 4 * 10 - 4 * 4 * 4, 1e-9),
   );
 
-  const cube = boxShell({ x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2 });
+  const cube: IAutoMovieSpaceShell = boxShell({ x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2 });
   assertBuiltSpaceShellTestRefusals(cube);
 
-  const faceted = work({ fidelity: "faceted" });
+  const faceted: IAutoMovieBuiltEnvironment = work({ fidelity: "faceted" });
   TestValidator.equals(
     "a faceted volume says so, and says it for everything above it",
     namedFacts([
       [
         "facetedValidates",
-        () => validateBuiltEnvironment({ environment: faceted }).success,
+        (): boolean => validateBuiltEnvironment({ environment: faceted }).success,
       ],
       [
         "exactValidates",
-        () =>
+        (): boolean =>
           validateBuiltEnvironment({ environment: work({ fidelity: "exact" }) })
             .success,
       ],
       [
         "junkWordRefused",
-        () =>
+        (): boolean =>
           hasViolation(
             validateBuiltEnvironment({
               environment: work({
@@ -173,8 +144,8 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "nothingToApproximate",
-        () => {
-          const environment = work({});
+        (): boolean => {
+          const environment: IAutoMovieBuiltEnvironment = work({});
           spaceOf(environment, "whole").fidelity = "faceted";
           return hasViolation(
             validateBuiltEnvironment({ environment }),
@@ -185,20 +156,20 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "theHallIsExactByDefault",
-        () => builtEnvironmentSpaceFidelity(shelled, "hall") === "exact",
+        (): boolean => builtEnvironmentSpaceFidelity(shelled, "hall") === "exact",
       ],
       [
         "theFacetedHallIsFaceted",
-        () => builtEnvironmentSpaceFidelity(faceted, "hall") === "faceted",
+        (): boolean => builtEnvironmentSpaceFidelity(faceted, "hall") === "faceted",
       ],
       [
         "andSoIsTheBuildingOverIt",
-        () => builtEnvironmentSpaceFidelity(faceted, "whole") === "faceted",
+        (): boolean => builtEnvironmentSpaceFidelity(faceted, "whole") === "faceted",
       ],
       [
         "aVolumelessSubtreeIsUnstated",
-        () => {
-          const environment = work({});
+        (): boolean => {
+          const environment: IAutoMovieBuiltEnvironment = work({});
           delete spaceOf(environment, "hall").shell;
           return (
             builtEnvironmentSpaceFidelity(environment, "whole") === "unstated"
@@ -223,13 +194,13 @@ export const test_architecture_built_space_shell = (): void => {
     namedFacts([
       [
         "shellVolumeIsMeasured",
-        () => {
-          const finding = measureAutoMovieQuantities({
+        (): boolean => {
+          const finding: IAutoMovieQuantityFinding = measureAutoMovieQuantities({
             environment: shelled,
-          }).findings.find((entry) => entry.subject === "space-volume")!;
+          }).findings.find((entry: IAutoMovieQuantityFinding): boolean => entry.subject === "space-volume")!;
           return (
             finding.contributors.some(
-              (contributor) =>
+              (contributor: IAutoMovieQuantityContributor): boolean =>
                 contributor.owner === "hall" &&
                 nclose(contributor.value, 336, 1e-6),
             ) && nclose(finding.total, 336, 1e-6)
@@ -238,16 +209,16 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "anExactSpaceRaisesNoCurvatureGap",
-        () =>
+        (): boolean =>
           measureAutoMovieQuantities({ environment: shelled }).gaps.some(
-            (gap) => gap.subject === "curved-space-boundary",
+            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-space-boundary",
           ) === false,
       ],
       [
         "aFacetedSpaceRaisesOne",
-        () =>
+        (): boolean =>
           measureAutoMovieQuantities({ environment: faceted }).gaps.some(
-            (gap) =>
+            (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "curved-space-boundary" &&
               gap.status === "unsupported" &&
               gap.reason.includes("hall"),
@@ -261,7 +232,7 @@ export const test_architecture_built_space_shell = (): void => {
     },
   );
 
-  const celled = work({
+  const celled: IAutoMovieBuiltEnvironment = work({
     shell: undefined,
     cells: [
       {
@@ -277,44 +248,44 @@ export const test_architecture_built_space_shell = (): void => {
       },
     ],
   });
-  const plan = drawingView({ origin: { x: 0, y: 2, z: 0 } });
+  const plan: IAutoMovieDrawingView = drawingView({ origin: { x: 0, y: 2, z: 0 } });
   TestValidator.equals(
     "a shell is a section the drafter cannot cut, and it says which",
     namedFacts([
       [
         "theShelledHallDrawsNoRegion",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({ environment: shelled, view: plan }).regions
             .length === 0,
       ],
       [
         "andTheSheetNamesTheSubject",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({
             environment: shelled,
             view: plan,
           }).gaps.some(
-            (gap) =>
+            (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "shelled-space-section" &&
               gap.status === "unsupported",
           ),
       ],
       [
         "aCelledHallDrawsItsRegion",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({ environment: celled, view: plan }).regions
             .length === 1,
       ],
       [
         "andRaisesNoSuchGap",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
-            (gap) => gap.subject === "shelled-space-section",
+            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "shelled-space-section",
           ) === false,
       ],
       [
         "aDrawnFacetedRegionOwnsUpToItToo",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({
             environment: work({
               shell: undefined,
@@ -323,7 +294,7 @@ export const test_architecture_built_space_shell = (): void => {
             }),
             view: plan,
           }).gaps.some(
-            (gap) =>
+            (gap: IAutoMovieDrawingGap): boolean =>
               gap.subject === "curved-space-boundary" &&
               gap.status === "unsupported" &&
               gap.reason.includes("hall"),
@@ -331,9 +302,9 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "andAnExactOneDoesNot",
-        () =>
+        (): boolean =>
           deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
-            (gap) => gap.subject === "curved-space-boundary",
+            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-space-boundary",
           ) === false,
       ],
     ]),
@@ -347,7 +318,7 @@ export const test_architecture_built_space_shell = (): void => {
     },
   );
 
-  const twoCells = work({
+  const twoCells: IAutoMovieBuiltEnvironment = work({
     shell: undefined,
     cells: [
       ...spaceOf(celled, "hall").cells,
@@ -359,25 +330,25 @@ export const test_architecture_built_space_shell = (): void => {
     namedFacts([
       [
         "aShellIsAVolume",
-        () => builtSpaceStatesVolume(spaceOf(shelled, "hall")),
+        (): boolean => builtSpaceStatesVolume(spaceOf(shelled, "hall")),
       ],
-      ["aCellIsAVolume", () => builtSpaceStatesVolume(spaceOf(celled, "hall"))],
+      ["aCellIsAVolume", (): boolean => builtSpaceStatesVolume(spaceOf(celled, "hall"))],
       [
         "aNameIsNot",
-        () => builtSpaceStatesVolume(spaceOf(shelled, "whole")) === false,
+        (): boolean => builtSpaceStatesVolume(spaceOf(shelled, "whole")) === false,
       ],
-      ["oneCellIsConvex", () => builtSpaceIsConvex(spaceOf(celled, "hall"))],
+      ["oneCellIsConvex", (): boolean => builtSpaceIsConvex(spaceOf(celled, "hall"))],
       [
         "twoCellsAreNot",
-        () => builtSpaceIsConvex(spaceOf(twoCells, "hall")) === false,
+        (): boolean => builtSpaceIsConvex(spaceOf(twoCells, "hall")) === false,
       ],
       [
         "aShellIsNot",
-        () => builtSpaceIsConvex(spaceOf(shelled, "hall")) === false,
+        (): boolean => builtSpaceIsConvex(spaceOf(shelled, "hall")) === false,
       ],
       [
         "andNeitherIsANameWithNoCells",
-        () => builtSpaceIsConvex(spaceOf(shelled, "whole")) === false,
+        (): boolean => builtSpaceIsConvex(spaceOf(shelled, "whole")) === false,
       ],
     ]),
     {
@@ -397,15 +368,15 @@ export const test_architecture_built_space_shell = (): void => {
   };
   const flat: IAutoMovieSpaceShell = {
     vertices: cube.vertices,
-    triangles: cube.triangles.map((index, at) => (at === 1 ? 0 : index)),
+    triangles: cube.triangles.map((index: number, at: number): number => (at === 1 ? 0 : index)),
   };
   TestValidator.equals(
     "an unvalidated shell is read as the arithmetic says",
     namedFacts([
-      ["danglingEnclosesNothing", () => builtSpaceShellVolume(dangling) === 0],
+      ["danglingEnclosesNothing", (): boolean => nclose(builtSpaceShellVolume(dangling), 0, 0)],
       [
         "danglingHoldsNothing",
-        () =>
+        (): boolean =>
           builtSpaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: dangling },
             { x: 1, y: 1, z: 1 },
@@ -413,7 +384,7 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "aFlatFacetIsSkippedRatherThanSummed",
-        () =>
+        (): boolean =>
           builtSpaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: flat },
             { x: 1, y: 1, z: 1 },
@@ -421,7 +392,7 @@ export const test_architecture_built_space_shell = (): void => {
       ],
       [
         "andWhatItLeavesOpenStaysOutside",
-        () =>
+        (): boolean =>
           builtSpaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: flat },
             { x: 9, y: 9, z: 9 },
@@ -435,4 +406,4 @@ export const test_architecture_built_space_shell = (): void => {
       andWhatItLeavesOpenStaysOutside: true,
     },
   );
-};
+}
