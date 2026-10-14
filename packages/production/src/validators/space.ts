@@ -1,1 +1,0 @@
-export { validateSpaceShape } from "./validateSpaceShape";
