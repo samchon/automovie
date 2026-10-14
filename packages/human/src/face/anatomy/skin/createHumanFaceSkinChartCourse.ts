@@ -1,10 +1,9 @@
+import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
 import type { IHumanFaceSkinChartCourse } from "./IHumanFaceSkinChartCourse";
 import type { IHumanFaceSkinChartMetricSpan } from "./IHumanFaceSkinChartMetricSpan";
 import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
-import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCourse";
-import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
 import type { IHumanFaceSkinFrame as IHumanFaceSkinFrameImported } from "./IHumanFaceSkinFrame";
-
+import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCourse";
 
 /**
  * Measure one lifted native course for attachment and skin relief.
@@ -40,7 +39,7 @@ export function createHumanFaceSkinChartCourse(
     const start: number[] = [...span.start],
       end: number[] = [...span.end];
     const lengthMetres: number = Math.hypot(
-      ...end.map((value: number, axis: number): number  => value - start[axis]),
+      ...end.map((value: number, axis: number): number => value - start[axis]),
     );
     if (lengthMetres === 0) continue;
     const next: number = totalLengthMetres + lengthMetres;
@@ -61,9 +60,11 @@ export function createHumanFaceSkinChartCourse(
   return {
     spans,
     totalLengthMetres,
-    read: (point: readonly number[]): IHumanFaceProjectedSkinCourseReadingImported  =>
+    read: (
+      point: readonly number[],
+    ): IHumanFaceProjectedSkinCourseReadingImported =>
       readHumanFaceProjectedSkinCourse(spans, totalLengthMetres, point),
-    frameAt: (distance: number): IHumanFaceSkinFrameImported  => {
+    frameAt: (distance: number): IHumanFaceSkinFrameImported => {
       if (
         !Number.isFinite(distance) ||
         distance < 0 ||
@@ -74,7 +75,8 @@ export function createHumanFaceSkinChartCourse(
           "A native course frame needs a distance within a nonzero physical course.",
         );
       const span: IHumanFaceSkinChartMetricSpan = spans.find(
-        (piece: IHumanFaceSkinChartMetricSpan): boolean  => distance <= piece.precedingLengthMetres + piece.lengthMetres,
+        (piece: IHumanFaceSkinChartMetricSpan): boolean =>
+          distance <= piece.precedingLengthMetres + piece.lengthMetres,
       )!;
       const end: number = span.precedingLengthMetres + span.lengthMetres;
       const fraction: number =

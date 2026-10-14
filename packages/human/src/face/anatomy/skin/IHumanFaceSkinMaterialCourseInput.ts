@@ -1,5 +1,5 @@
-import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 
 /**

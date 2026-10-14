@@ -1,6 +1,8 @@
 import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
+import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
 import type { IHumanFaceProjectedSkinCourse } from "./IHumanFaceProjectedSkinCourse";
 import type { IHumanFaceProjectedSkinCourseInput } from "./IHumanFaceProjectedSkinCourseInput";
+import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
 import type { IHumanFaceProjectedSkinSpan } from "./IHumanFaceProjectedSkinSpan";
 import type { IHumanFaceSkinProjectionFeature } from "./IHumanFaceSkinProjectionFeature";
 import type { IHumanFaceSkinProjectionFeatures } from "./IHumanFaceSkinProjectionFeatures";
@@ -8,9 +10,6 @@ import type { IHumanFaceSkinProjectionInterval } from "./IHumanFaceSkinProjectio
 import { createHumanFaceSkinProjectionEnvelope } from "./createHumanFaceSkinProjectionEnvelope";
 import { createHumanFaceSkinProjectionFeatures } from "./createHumanFaceSkinProjectionFeatures";
 import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCourse";
-import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
-import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
-
 
 /**
  * Compile a free guide's continuous nearest projection onto the immutable
@@ -52,14 +51,15 @@ export function compileHumanFaceProjectedSkinCourse(
     !Number.isInteger(count) ||
     input.indices.length % 3 !== 0 ||
     input.indices.length === 0 ||
-    input.positions.some((value: number): boolean  => !Number.isFinite(value)) ||
+    input.positions.some((value: number): boolean => !Number.isFinite(value)) ||
     input.indices.some(
-      (id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= count,
+      (id: number): boolean => !Number.isInteger(id) || id < 0 || id >= count,
     ) ||
     input.guide.length < 2 ||
     input.guide.some(
-      (point: readonly number[]): boolean  =>
-        point.length !== 3 || point.some((value: number): boolean  => !Number.isFinite(value)),
+      (point: readonly number[]): boolean =>
+        point.length !== 3 ||
+        point.some((value: number): boolean => !Number.isFinite(value)),
     )
   )
     throw new Error(
@@ -74,27 +74,32 @@ export function compileHumanFaceProjectedSkinCourse(
   let previousContext: IHumanFaceSkinProjectionFeatures | undefined;
   let previousSegment: number | undefined;
   for (let segment: number = 0; segment + 1 < input.guide.length; segment++) {
-    const features: IHumanFaceSkinProjectionFeatures = createHumanFaceSkinProjectionFeatures(input, segment);
-    const envelope: IHumanFaceSkinProjectionInterval[] = createHumanFaceSkinProjectionEnvelope(features);
+    const features: IHumanFaceSkinProjectionFeatures =
+      createHumanFaceSkinProjectionFeatures(input, segment);
+    const envelope: IHumanFaceSkinProjectionInterval[] =
+      createHumanFaceSkinProjectionEnvelope(features);
     for (const interval of envelope) {
       const feature: IHumanFaceSkinProjectionFeature = interval.feature;
-      const at: (parameter: number) => number[] = (parameter: number): number[] =>
-        feature.origin.map((value: IHumanExactFractionImported, axis: number): number  =>
-          Fraction.number(
-            Fraction.add(
-              Fraction.from(features.origin[axis]),
-              Fraction.multiply(
-                Fraction.from(features.scale),
-                Fraction.add(
-                  value,
-                  Fraction.multiply(
-                    Fraction.from(parameter),
-                    feature.velocity[axis],
+      const at: (parameter: number) => number[] = (
+        parameter: number,
+      ): number[] =>
+        feature.origin.map(
+          (value: IHumanExactFractionImported, axis: number): number =>
+            Fraction.number(
+              Fraction.add(
+                Fraction.from(features.origin[axis]),
+                Fraction.multiply(
+                  Fraction.from(features.scale),
+                  Fraction.add(
+                    value,
+                    Fraction.multiply(
+                      Fraction.from(parameter),
+                      feature.velocity[axis],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         );
       const start: number[] = at(interval.lower),
         end: number[] = at(interval.upper);
@@ -102,13 +107,21 @@ export function compileHumanFaceProjectedSkinCourse(
         throw new Error("Skin course projection is unrepresentable.");
       const previous: IHumanFaceProjectedSkinSpan | undefined = spans.at(-1);
       if (previous !== undefined && previousFeature !== undefined) {
-        const common: Set<string> = new Set(previousFeature.vertices.map(aliases));
-        if (!feature.vertices.some((id: number): boolean  => common.has(aliases(id))))
+        const common: Set<string> = new Set(
+          previousFeature.vertices.map(aliases),
+        );
+        if (
+          !feature.vertices.some((id: number): boolean =>
+            common.has(aliases(id)),
+          )
+        )
           throw new Error(
             "Skin guide nearest projection jumps between native sheets.",
           );
         const separation: number = Math.hypot(
-          ...start.map((value: number, axis: number): number  => value - previous.end[axis]),
+          ...start.map(
+            (value: number, axis: number): number => value - previous.end[axis],
+          ),
         );
         const arithmeticScale: number = Math.max(
           features.scale,
@@ -132,8 +145,9 @@ export function compileHumanFaceProjectedSkinCourse(
                       feature.vertices.length - 1
                     ],
                     vertices: feature.vertices,
-                    nativePositions: feature.vertices.map((id: number): number[]  =>
-                      input.positions.slice(3 * id, 3 * id + 3),
+                    nativePositions: feature.vertices.map(
+                      (id: number): number[] =>
+                        input.positions.slice(3 * id, 3 * id + 3),
                     ),
                     validity: [feature.lower, feature.upper],
                     interval: [interval.lower, interval.upper],
@@ -152,8 +166,9 @@ export function compileHumanFaceProjectedSkinCourse(
                       previousFeature.vertices.length - 1
                     ],
                     vertices: previousFeature.vertices,
-                    nativePositions: previousFeature.vertices.map((id: number): number[]  =>
-                      input.positions.slice(3 * id, 3 * id + 3),
+                    nativePositions: previousFeature.vertices.map(
+                      (id: number): number[] =>
+                        input.positions.slice(3 * id, 3 * id + 3),
                     ),
                     validity: [previousFeature.lower, previousFeature.upper],
                     interval: [
@@ -187,7 +202,9 @@ export function compileHumanFaceProjectedSkinCourse(
           );
       }
       const lengthMetres: number = Math.hypot(
-        ...end.map((value: number, axis: number): number  => value - start[axis]),
+        ...end.map(
+          (value: number, axis: number): number => value - start[axis],
+        ),
       );
       if (
         !Number.isFinite(lengthMetres) ||
@@ -210,7 +227,9 @@ export function compileHumanFaceProjectedSkinCourse(
   return {
     spans,
     totalLengthMetres,
-    read: (point: readonly number[]): IHumanFaceProjectedSkinCourseReadingImported  =>
+    read: (
+      point: readonly number[],
+    ): IHumanFaceProjectedSkinCourseReadingImported =>
       readHumanFaceProjectedSkinCourse(spans, totalLengthMetres, point),
   };
 }

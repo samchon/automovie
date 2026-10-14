@@ -38,7 +38,9 @@ export function createHumanFaceSkinProjectionFeatures(
 ): IHumanFaceSkinProjectionFeatures {
   const origin: readonly number[] = input.guide[segment],
     end: readonly number[] = input.guide[segment + 1];
-  let scale: number = Math.hypot(...end.map((value: number, axis: number): number  => value - origin[axis]));
+  let scale: number = Math.hypot(
+    ...end.map((value: number, axis: number): number => value - origin[axis]),
+  );
   for (let vertex: number = 0; vertex < input.positions.length / 3; vertex++)
     for (let axis: number = 0; axis < 3; axis++)
       scale = Math.max(
@@ -49,41 +51,57 @@ export function createHumanFaceSkinProjectionFeatures(
     throw new Error(
       "Skin projection needs a finite representable coordinate scale.",
     );
-  const exactOrigin: IHumanExactFraction[] = origin.map((value: number): IHumanExactFraction  => Fraction.from(value)),
-    exactScale: IHumanExactFraction = Fraction.from(scale);
-  const direction: IHumanExactFraction[] = end.map((value: number, axis: number): IHumanExactFraction  =>
-    Fraction.divide(
-      Fraction.subtract(Fraction.from(value), exactOrigin[axis]),
-      exactScale,
+  const exactOrigin: IHumanExactFraction[] = origin.map(
+      (value: number): IHumanExactFraction => Fraction.from(value),
     ),
-  );
-  const point: (id: number) => IHumanExactFraction[] = (id: number): IHumanExactFraction[] =>
-    [0, 1, 2].map((axis: number): IHumanExactFraction  =>
+    exactScale: IHumanExactFraction = Fraction.from(scale);
+  const direction: IHumanExactFraction[] = end.map(
+    (value: number, axis: number): IHumanExactFraction =>
       Fraction.divide(
-        Fraction.subtract(
-          Fraction.from(input.positions[3 * id + axis]),
-          exactOrigin[axis],
-        ),
+        Fraction.subtract(Fraction.from(value), exactOrigin[axis]),
         exactScale,
       ),
+  );
+  const point: (id: number) => IHumanExactFraction[] = (
+    id: number,
+  ): IHumanExactFraction[] =>
+    [0, 1, 2].map(
+      (axis: number): IHumanExactFraction =>
+        Fraction.divide(
+          Fraction.subtract(
+            Fraction.from(input.positions[3 * id + axis]),
+            exactOrigin[axis],
+          ),
+          exactScale,
+        ),
     );
   // Broad-phase boxes use ordinary coordinates before any rational feature
   // construction. Retained features alone pay for exact projection; these
   // approximations never enter the lower-envelope distance comparison.
   const approximatePoint: (id: number) => number[] = (id: number): number[] =>
     [0, 1, 2].map(
-      (axis: number): number  => (input.positions[3 * id + axis] - origin[axis]) / scale,
+      (axis: number): number =>
+        (input.positions[3 * id + axis] - origin[axis]) / scale,
     );
-  const dot: (a: readonly IHumanExactFraction[], b: readonly IHumanExactFraction[]) => IHumanExactFraction = (
+  const dot: (
+    a: readonly IHumanExactFraction[],
+    b: readonly IHumanExactFraction[],
+  ) => IHumanExactFraction = (
     a: readonly IHumanExactFraction[],
     b: readonly IHumanExactFraction[],
   ): IHumanExactFraction =>
     a.reduce(
-      (sum: IHumanExactFraction, value: IHumanExactFraction, axis: number): IHumanExactFraction  =>
+      (
+        sum: IHumanExactFraction,
+        value: IHumanExactFraction,
+        axis: number,
+      ): IHumanExactFraction =>
         Fraction.add(sum, Fraction.multiply(value, b[axis])),
       Fraction.create(0n),
     );
-  const zero: IHumanExactFraction[] = [0, 0, 0].map((): IHumanExactFraction  => Fraction.create(0n)),
+  const zero: IHumanExactFraction[] = [0, 0, 0].map(
+      (): IHumanExactFraction => Fraction.create(0n),
+    ),
     one: IHumanExactFraction = Fraction.create(1n);
   const roundedDirection: number[] = direction.map(Fraction.number);
   let bound: number = Infinity;
@@ -93,14 +111,24 @@ export function createHumanFaceSkinProjectionFeatures(
       bound,
       Math.max(
         Math.hypot(...p),
-        Math.hypot(...p.map((value: number, axis: number): number  => value - roundedDirection[axis])),
+        Math.hypot(
+          ...p.map(
+            (value: number, axis: number): number =>
+              value - roundedDirection[axis],
+          ),
+        ),
       ),
     );
   }
   const features: IHumanFaceSkinProjectionFeature[] = [];
   const vertices: Set<number> = new Set<number>(),
     edges: Set<string> = new Set<string>();
-  const emit: (native: readonly number[], start: IHumanExactFraction[], velocity: IHumanExactFraction[], inequalities: IHumanExactFraction[][]) => void = (
+  const emit: (
+    native: readonly number[],
+    start: IHumanExactFraction[],
+    velocity: IHumanExactFraction[],
+    inequalities: IHumanExactFraction[][],
+  ) => void = (
     native: readonly number[],
     start: IHumanExactFraction[],
     velocity: IHumanExactFraction[],
@@ -112,7 +140,10 @@ export function createHumanFaceSkinProjectionFeatures(
       if (b.numerator === 0n) {
         if (a.numerator < 0n) return;
       } else {
-        const boundary: IHumanExactFraction = Fraction.divide(Fraction.negate(a), b);
+        const boundary: IHumanExactFraction = Fraction.divide(
+          Fraction.negate(a),
+          b,
+        );
         if (b.numerator > 0n && Fraction.compare(boundary, lower) > 0)
           lower = boundary;
         if (b.numerator < 0n && Fraction.compare(boundary, upper) < 0)
@@ -131,12 +162,20 @@ export function createHumanFaceSkinProjectionFeatures(
         upper: Fraction.number(upper),
       });
   };
-  for (let triangle: number = 0; triangle < input.indices.length / 3; triangle++) {
+  for (
+    let triangle: number = 0;
+    triangle < input.indices.length / 3;
+    triangle++
+  ) {
     const ids: number[] = input.indices.slice(3 * triangle, 3 * triangle + 3);
     const roundedPoints: number[][] = ids.map(approximatePoint);
-    const gap: number[] = [0, 1, 2].map((axis: number): number  => {
-      const low: number = Math.min(...roundedPoints.map((p: number[]): number  => p[axis]));
-      const high: number = Math.max(...roundedPoints.map((p: number[]): number  => p[axis]));
+    const gap: number[] = [0, 1, 2].map((axis: number): number => {
+      const low: number = Math.min(
+        ...roundedPoints.map((p: number[]): number => p[axis]),
+      );
+      const high: number = Math.max(
+        ...roundedPoints.map((p: number[]): number => p[axis]),
+      );
       return Math.max(
         0,
         low - Math.max(0, roundedDirection[axis]),
@@ -159,20 +198,33 @@ export function createHumanFaceSkinProjectionFeatures(
       edges.add(key);
       const a: IHumanExactFraction[] = points[at],
         b: IHumanExactFraction[] = points[next];
-      const vector: IHumanExactFraction[] = b.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  => Fraction.subtract(value, a[axis]));
+      const vector: IHumanExactFraction[] = b.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.subtract(value, a[axis]),
+      );
       const squaredLength: IHumanExactFraction = dot(vector, vector);
       if (!(squaredLength.numerator > 0n))
         throw new Error(
           "Skin projection native edge has no representable length.",
         );
-      const s: IHumanExactFraction = Fraction.divide(Fraction.negate(dot(a, vector)), squaredLength),
-        ds: IHumanExactFraction = Fraction.divide(dot(direction, vector), squaredLength);
+      const s: IHumanExactFraction = Fraction.divide(
+          Fraction.negate(dot(a, vector)),
+          squaredLength,
+        ),
+        ds: IHumanExactFraction = Fraction.divide(
+          dot(direction, vector),
+          squaredLength,
+        );
       emit(
         [ids[at], ids[next]],
-        a.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  =>
-          Fraction.add(value, Fraction.multiply(vector[axis], s)),
+        a.map(
+          (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+            Fraction.add(value, Fraction.multiply(vector[axis], s)),
         ),
-        vector.map((value: IHumanExactFraction): IHumanExactFraction  => Fraction.multiply(value, ds)),
+        vector.map(
+          (value: IHumanExactFraction): IHumanExactFraction =>
+            Fraction.multiply(value, ds),
+        ),
         [
           [s, ds],
           [Fraction.subtract(one, s), Fraction.negate(ds)],
@@ -180,8 +232,14 @@ export function createHumanFaceSkinProjectionFeatures(
       );
     }
     const [a, b, c]: IHumanExactFraction[][] = points;
-    const u: IHumanExactFraction[] = b.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  => Fraction.subtract(value, a[axis])),
-      v: IHumanExactFraction[] = c.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  => Fraction.subtract(value, a[axis]));
+    const u: IHumanExactFraction[] = b.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.subtract(value, a[axis]),
+      ),
+      v: IHumanExactFraction[] = c.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.subtract(value, a[axis]),
+      );
     const uu: IHumanExactFraction = dot(u, u),
       uv: IHumanExactFraction = dot(u, v),
       vv: IHumanExactFraction = dot(v, v);
@@ -193,12 +251,19 @@ export function createHumanFaceSkinProjectionFeatures(
       throw new Error(
         "Skin projection native triangle has no representable plane.",
       );
-    const w: IHumanExactFraction[] = a.map((value: IHumanExactFraction): IHumanExactFraction  => Fraction.negate(value)),
+    const w: IHumanExactFraction[] = a.map(
+        (value: IHumanExactFraction): IHumanExactFraction =>
+          Fraction.negate(value),
+      ),
       wu: IHumanExactFraction = dot(w, u),
       wv: IHumanExactFraction = dot(w, v),
       du: IHumanExactFraction = dot(direction, u),
       dv: IHumanExactFraction = dot(direction, v);
-    const solve: (first: IHumanExactFraction, second: IHumanExactFraction, diagonal: IHumanExactFraction) => IHumanExactFraction = (
+    const solve: (
+      first: IHumanExactFraction,
+      second: IHumanExactFraction,
+      diagonal: IHumanExactFraction,
+    ) => IHumanExactFraction = (
       first: IHumanExactFraction,
       second: IHumanExactFraction,
       diagonal: IHumanExactFraction,
@@ -216,20 +281,22 @@ export function createHumanFaceSkinProjectionFeatures(
       dt: IHumanExactFraction = solve(dv, du, uu);
     emit(
       ids,
-      a.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  =>
-        Fraction.add(
-          value,
+      a.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
           Fraction.add(
-            Fraction.multiply(u[axis], s),
-            Fraction.multiply(v[axis], t),
+            value,
+            Fraction.add(
+              Fraction.multiply(u[axis], s),
+              Fraction.multiply(v[axis], t),
+            ),
           ),
-        ),
       ),
-      u.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  =>
-        Fraction.add(
-          Fraction.multiply(value, ds),
-          Fraction.multiply(v[axis], dt),
-        ),
+      u.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.add(
+            Fraction.multiply(value, ds),
+            Fraction.multiply(v[axis], dt),
+          ),
       ),
       [
         [s, ds],

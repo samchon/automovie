@@ -51,9 +51,13 @@ export function compareHumanFaceSkinProjectionFeatures(
     qc: IHumanExactFraction = Fraction.create(0n);
   for (let owner: number = 0; owner < 2; owner++) {
     const feature: IHumanFaceSkinProjectionFeature = [first, second][owner];
-    const origin: IHumanExactFraction[] = feature.origin.map((value: IHumanExactFraction): IHumanExactFraction  => Fraction.negate(value)),
-      velocity: IHumanExactFraction[] = feature.velocity.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  =>
-        Fraction.subtract(direction[axis], value),
+    const origin: IHumanExactFraction[] = feature.origin.map(
+        (value: IHumanExactFraction): IHumanExactFraction =>
+          Fraction.negate(value),
+      ),
+      velocity: IHumanExactFraction[] = feature.velocity.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.subtract(direction[axis], value),
       ),
       sign: IHumanExactFraction = Fraction.create(owner === 0 ? 1n : -1n);
     for (let axis: number = 0; axis < 3; axis++) {
@@ -83,7 +87,7 @@ export function compareHumanFaceSkinProjectionFeatures(
   // The least common denominator avoids multiplying redundant denominator
   // factors. Reduction changes neither the distance order nor its roots.
   const denominator: bigint = [qa, qb, qc].reduce(
-    (multiple: bigint, value: IHumanExactFraction): bigint  =>
+    (multiple: bigint, value: IHumanExactFraction): bigint =>
       multiple * Fraction.create(multiple, value.denominator).denominator,
     1n,
   );
@@ -91,14 +95,19 @@ export function compareHumanFaceSkinProjectionFeatures(
     b: bigint = qb.numerator * (denominator / qb.denominator),
     c: bigint = qc.numerator * (denominator / qc.denominator);
   const discriminant: bigint = b * b - 4n * a * c;
-  const valueAt: (parameter: IHumanExactFraction) => number = (parameter: IHumanExactFraction): number => {
+  const valueAt: (parameter: IHumanExactFraction) => number = (
+    parameter: IHumanExactFraction,
+  ): number => {
     const n: bigint = parameter.numerator,
       d: bigint = parameter.denominator;
     const value: bigint = a * n * n + b * n * d + c * d * d;
     return value < 0n ? -1 : value > 0n ? 1 : 0;
   };
-  const derivativeAt: (parameter: IHumanExactFraction) => number = (parameter: IHumanExactFraction): number => {
-    const value: bigint = 2n * a * parameter.numerator + b * parameter.denominator;
+  const derivativeAt: (parameter: IHumanExactFraction) => number = (
+    parameter: IHumanExactFraction,
+  ): number => {
+    const value: bigint =
+      2n * a * parameter.numerator + b * parameter.denominator;
     return value < 0n ? -1 : value > 0n ? 1 : 0;
   };
   const sign: (parameter: number) => number = (parameter: number): number => {
@@ -117,10 +126,10 @@ export function compareHumanFaceSkinProjectionFeatures(
           Fraction.create(b),
           Fraction.create(a),
         ]);
-  const countCrossings: (lo: IHumanExactFraction, hi: IHumanExactFraction) => number = (
+  const countCrossings: (
     lo: IHumanExactFraction,
     hi: IHumanExactFraction,
-  ): number => {
+  ) => number = (lo: IHumanExactFraction, hi: IHumanExactFraction): number => {
     if (Fraction.compare(lo, hi) >= 0 || (a === 0n && b === 0n)) return 0;
     const left: number = valueAt(lo),
       right: number = valueAt(hi);
@@ -132,7 +141,10 @@ export function compareHumanFaceSkinProjectionFeatures(
     if (dl >= 0 || dr <= 0) return left * right < 0 ? 1 : 0;
     return Number(leading * left > 0) + Number(leading * right > 0);
   };
-  const partition: (lower: number, upper: number) => readonly IHumanFaceSkinProjectionOwnership[] = (
+  const partition: (
+    lower: number,
+    upper: number,
+  ) => readonly IHumanFaceSkinProjectionOwnership[] = (
     lower: number,
     upper: number,
   ): readonly IHumanFaceSkinProjectionOwnership[] => {
@@ -148,7 +160,10 @@ export function compareHumanFaceSkinProjectionFeatures(
     if (lower === upper) return [];
     const lo: IHumanExactFraction = Fraction.from(lower),
       hi: IHumanExactFraction = Fraction.from(upper);
-    const refuse: (reason: string, root?: IHumanPolynomialRoot) => never = (reason: string, root?: IHumanPolynomialRoot): never => {
+    const refuse: (reason: string, root?: IHumanPolynomialRoot) => never = (
+      reason: string,
+      root?: IHumanPolynomialRoot,
+    ): never => {
       throw new Error(
         reason +
           " " +
@@ -182,8 +197,10 @@ export function compareHumanFaceSkinProjectionFeatures(
               Fraction.compare(root.lower, hi) < 0,
           );
         else {
-          const start: IHumanExactFraction = Fraction.compare(root.lower, lo) < 0 ? lo : root.lower;
-          const end: IHumanExactFraction = Fraction.compare(root.upper, hi) > 0 ? hi : root.upper;
+          const start: IHumanExactFraction =
+            Fraction.compare(root.lower, lo) < 0 ? lo : root.lower;
+          const end: IHumanExactFraction =
+            Fraction.compare(root.upper, hi) > 0 ? hi : root.upper;
           count = countCrossings(start, end);
         }
         if (count === 0) continue;
@@ -211,7 +228,8 @@ export function compareHumanFaceSkinProjectionFeatures(
     const result: IHumanFaceSkinProjectionOwnership[] = [];
     for (let at: number = 0; at <= events.length; at++) {
       const start: IHumanExactFraction = at === 0 ? lo : events[at - 1].upper;
-      const end: IHumanExactFraction = at === events.length ? hi : events[at].lower;
+      const end: IHumanExactFraction =
+        at === events.length ? hi : events[at].lower;
       if (Fraction.compare(start, end) > 0)
         refuse(
           "Skin projection root enclosures do not certify interval ordering.",

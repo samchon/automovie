@@ -1,21 +1,20 @@
 import { HumanExactFraction as F } from "../../../common/measure/HumanExactFraction";
+import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
+import type { IAutoMovieHumanFaceAttachmentChart as IAutoMovieHumanFaceAttachmentChartImported } from "../../structures/IAutoMovieHumanFaceAttachmentChart";
 import { createHumanFaceAttachmentChartHost } from "../eye/createHumanFaceAttachmentChartHost";
+import type { IHumanFaceExactSkinSeat as IHumanFaceExactSkinSeatImported } from "./IHumanFaceExactSkinSeat";
 import type { IHumanFaceSkinChart } from "./IHumanFaceSkinChart";
 import type { IHumanFaceSkinChartCoordinate } from "./IHumanFaceSkinChartCoordinate";
 import type { IHumanFaceSkinChartInput } from "./IHumanFaceSkinChartInput";
 import type { IHumanFaceSkinChartSpan } from "./IHumanFaceSkinChartSpan";
 import type { IHumanFaceSkinChartTriangle } from "./IHumanFaceSkinChartTriangle";
+import type { IHumanFaceSkinFrame as IHumanFaceSkinFrameImported } from "./IHumanFaceSkinFrame";
+import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
+import type { IHumanFaceSkinSeat as IHumanFaceSkinSeatImported } from "./IHumanFaceSkinSeat";
+import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { readHumanFaceSkinChartWeights } from "./readHumanFaceSkinChartWeights";
 import { walkHumanFaceSkinChart } from "./walkHumanFaceSkinChart";
-import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
-import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
-import type { IAutoMovieHumanFaceAttachmentChart as IAutoMovieHumanFaceAttachmentChartImported } from "../../structures/IAutoMovieHumanFaceAttachmentChart";
-import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
-import type { IHumanFaceExactSkinSeat as IHumanFaceExactSkinSeatImported } from "./IHumanFaceExactSkinSeat";
-import type { IHumanFaceSkinFrame as IHumanFaceSkinFrameImported } from "./IHumanFaceSkinFrame";
-import type { IHumanFaceSkinSeat as IHumanFaceSkinSeatImported } from "./IHumanFaceSkinSeat";
-
 
 /**
  * Read one publisher-registered material disk through the current skin host.
@@ -55,27 +54,54 @@ export function createHumanFaceSkinChart(
   const domain: string = input.domain;
   const supports: number[] = [...input.supportVertices];
   const source: IAutoMovieHumanFaceBasisSurfaceImported = input.surface;
-  const registered: IAutoMovieHumanFaceAttachmentChartImported | undefined = input.registration ?? source.materialCharts?.[domain];
-  if (registered === undefined || supports.length === 0 ||
-    supports.some((vertex: number): boolean  => !registered.vertices.includes(vertex)))
-    throw new Error("A skin course needs its registered material disk covering every native anchor: " + domain);
-  const registration: IAutoMovieHumanFaceAttachmentChartImported = structuredClone(registered);
+  const registered: IAutoMovieHumanFaceAttachmentChartImported | undefined =
+    input.registration ?? source.materialCharts?.[domain];
+  if (
+    registered === undefined ||
+    supports.length === 0 ||
+    supports.some(
+      (vertex: number): boolean => !registered.vertices.includes(vertex),
+    )
+  )
+    throw new Error(
+      "A skin course needs its registered material disk covering every native anchor: " +
+        domain,
+    );
+  const registration: IAutoMovieHumanFaceAttachmentChartImported =
+    structuredClone(registered);
   createHumanFaceAttachmentChartHost(registration, source);
   const points: number[] = [...input.referencePositions];
   const referenceIndices: number[] = [...source.indices];
-  if (points.length !== source.positions.length || points.length % 3 !== 0 || points.some((value: number): boolean  => !Number.isFinite(value)))
-    throw new Error("A skin material chart needs finite source-reference positions.");
-  const ordinal: Map<number, number> = new Map(registration.vertices.map((vertex: number, at: number): [number, number]  => [vertex, at]));
-  const coordinate: (vertex: number) => IHumanFaceSkinChartCoordinate = (vertex: number): IHumanFaceSkinChartCoordinate => {
+  if (
+    points.length !== source.positions.length ||
+    points.length % 3 !== 0 ||
+    points.some((value: number): boolean => !Number.isFinite(value))
+  )
+    throw new Error(
+      "A skin material chart needs finite source-reference positions.",
+    );
+  const ordinal: Map<number, number> = new Map(
+    registration.vertices.map(
+      (vertex: number, at: number): [number, number] => [vertex, at],
+    ),
+  );
+  const coordinate: (vertex: number) => IHumanFaceSkinChartCoordinate = (
+    vertex: number,
+  ): IHumanFaceSkinChartCoordinate => {
     const at: number | undefined = ordinal.get(vertex);
     if (at === undefined)
-      throw new Error("A skin material station is outside its registered source disk.");
+      throw new Error(
+        "A skin material station is outside its registered source disk.",
+      );
     return {
       x: F.from(registration.coordinates[2 * at]),
       y: F.from(registration.coordinates[2 * at + 1]),
     };
   };
-  const edges: Map<string, [number, number][]> = new Map<string, [number, number][]>();
+  const edges: Map<string, [number, number][]> = new Map<
+    string,
+    [number, number][]
+  >();
   for (const triangle of registration.sourceTriangles)
     for (let axis: number = 0; axis < 3; axis++) {
       const a: number = source.indices[3 * triangle + ((axis + 1) % 3)];
@@ -85,11 +111,23 @@ export function createHumanFaceSkinChart(
       entries.push([triangle, axis]);
       edges.set(key, entries);
     }
-  const neighbors: Map<number, number[][]> = new Map(registration.sourceTriangles.map((triangle: number): [number, number[][]]  => [triangle, [[], [], []] as number[][]]));
+  const neighbors: Map<number, number[][]> = new Map(
+    registration.sourceTriangles.map(
+      (triangle: number): [number, number[][]] => [
+        triangle,
+        [[], [], []] as number[][],
+      ],
+    ),
+  );
   for (const entries of edges.values())
     for (const [triangle, axis] of entries)
-      neighbors.get(triangle)![axis] = entries.filter(([other]: [number, number]): boolean  => other !== triangle).map(([other]: [number, number]): number  => other);
-  const cells: Map<number, IHumanFaceSkinChartTriangle> = new Map<number, IHumanFaceSkinChartTriangle>();
+      neighbors.get(triangle)![axis] = entries
+        .filter(([other]: [number, number]): boolean => other !== triangle)
+        .map(([other]: [number, number]): number => other);
+  const cells: Map<number, IHumanFaceSkinChartTriangle> = new Map<
+    number,
+    IHumanFaceSkinChartTriangle
+  >();
   for (let at: number = 0; at < registration.sourceTriangles.length; at++) {
     const triangle: number = registration.sourceTriangles[at];
     const vertices: [number, number, number] = [
@@ -97,38 +135,98 @@ export function createHumanFaceSkinChart(
       registration.vertices[registration.indices[3 * at + 1]],
       registration.vertices[registration.indices[3 * at + 2]],
     ];
-    if (vertices.some((vertex: number, corner: number): boolean  => host.corners(triangle)[corner] !== vertex))
-      throw new Error("A skin material chart and current host disagree about native incidence.");
-    const corners: [IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate] =
-      [coordinate(vertices[0]), coordinate(vertices[1]), coordinate(vertices[2])];
-    const [a, b, c]: [IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate] = corners;
+    if (
+      vertices.some(
+        (vertex: number, corner: number): boolean =>
+          host.corners(triangle)[corner] !== vertex,
+      )
+    )
+      throw new Error(
+        "A skin material chart and current host disagree about native incidence.",
+      );
+    const corners: [
+      IHumanFaceSkinChartCoordinate,
+      IHumanFaceSkinChartCoordinate,
+      IHumanFaceSkinChartCoordinate,
+    ] = [
+      coordinate(vertices[0]),
+      coordinate(vertices[1]),
+      coordinate(vertices[2]),
+    ];
+    const [a, b, c]: [
+      IHumanFaceSkinChartCoordinate,
+      IHumanFaceSkinChartCoordinate,
+      IHumanFaceSkinChartCoordinate,
+    ] = corners;
     const determinant: IHumanExactFractionImported = F.subtract(
       F.multiply(F.subtract(b.x, a.x), F.subtract(c.y, a.y)),
       F.multiply(F.subtract(b.y, a.y), F.subtract(c.x, a.x)),
     );
     if (determinant.numerator <= 0n)
-      throw new Error("A registered skin material disk has a nonpositive exact facet.");
-    cells.set(triangle, { ordinal: triangle, vertices, corners, determinant, neighbors: neighbors.get(triangle)! });
+      throw new Error(
+        "A registered skin material disk has a nonpositive exact facet.",
+      );
+    cells.set(triangle, {
+      ordinal: triangle,
+      vertices,
+      corners,
+      determinant,
+      neighbors: neighbors.get(triangle)!,
+    });
   }
-  const cell: (triangle: number) => IHumanFaceSkinChartTriangle = (triangle: number): IHumanFaceSkinChartTriangle => {
+  const cell: (triangle: number) => IHumanFaceSkinChartTriangle = (
+    triangle: number,
+  ): IHumanFaceSkinChartTriangle => {
     const result: IHumanFaceSkinChartTriangle | undefined = cells.get(triangle);
     if (result === undefined)
       throw new Error("A skin material walk left its registered disk.");
     return result;
   };
-  const seedTriangle: number | undefined = registration.sourceTriangles.find((triangle: number): boolean  => cell(triangle).vertices.includes(supports[0]));
+  const seedTriangle: number | undefined = registration.sourceTriangles.find(
+    (triangle: number): boolean =>
+      cell(triangle).vertices.includes(supports[0]),
+  );
   if (seedTriangle === undefined)
     throw new Error("A registered skin anchor needs actual native incidence.");
   const seed: IHumanFaceSkinChartTriangle = cell(seedTriangle);
   const third: IHumanExactFractionImported = F.create(1n, 3n);
   const origin: IHumanFaceSkinChartCoordinate = {
-    x: F.multiply(seed.corners.reduce((sum: IHumanExactFractionImported, point: IHumanFaceSkinChartCoordinate): IHumanExactFractionImported  => F.add(sum, point.x), F.create(0n)), third),
-    y: F.multiply(seed.corners.reduce((sum: IHumanExactFractionImported, point: IHumanFaceSkinChartCoordinate): IHumanExactFractionImported  => F.add(sum, point.y), F.create(0n)), third),
+    x: F.multiply(
+      seed.corners.reduce(
+        (
+          sum: IHumanExactFractionImported,
+          point: IHumanFaceSkinChartCoordinate,
+        ): IHumanExactFractionImported => F.add(sum, point.x),
+        F.create(0n),
+      ),
+      third,
+    ),
+    y: F.multiply(
+      seed.corners.reduce(
+        (
+          sum: IHumanExactFractionImported,
+          point: IHumanFaceSkinChartCoordinate,
+        ): IHumanExactFractionImported => F.add(sum, point.y),
+        F.create(0n),
+      ),
+      third,
+    ),
   };
-  const frame: (seat: IHumanFaceExactSkinSeatImported) => IHumanFaceSkinFrameImported = host.frameExact;
-  const locate: (point: IHumanFaceSkinChartCoordinate) => number = (point: IHumanFaceSkinChartCoordinate): number => {
+  const frame: (
+    seat: IHumanFaceExactSkinSeatImported,
+  ) => IHumanFaceSkinFrameImported = host.frameExact;
+  const locate: (point: IHumanFaceSkinChartCoordinate) => number = (
+    point: IHumanFaceSkinChartCoordinate,
+  ): number => {
     try {
-      return walkHumanFaceSkinChart({ from: origin, to: point, startTriangle: seedTriangle, cell, frame, spans: [] });
+      return walkHumanFaceSkinChart({
+        from: origin,
+        to: point,
+        startTriangle: seedTriangle,
+        cell,
+        frame,
+        spans: [],
+      });
     } catch (error) {
       throw new Error(
         `Skin material domain ${domain}: ${error instanceof Error ? error.message : String(error)}`,
@@ -139,52 +237,132 @@ export function createHumanFaceSkinChart(
   for (const vertex of supports) {
     const point: IHumanFaceSkinChartCoordinate = coordinate(vertex);
     const support: IHumanFaceSkinChartTriangle = cell(locate(point));
-    const weights: [IHumanExactFractionImported, IHumanExactFractionImported, IHumanExactFractionImported] = readHumanFaceSkinChartWeights(support, point);
-    if (!support.vertices.some((id: number, axis: number): boolean  => id === vertex && weights[axis].numerator === weights[axis].denominator && weights.every((weight: IHumanExactFractionImported, other: number): boolean  => other === axis || weight.numerator === 0n)))
-      throw new Error("A skin material chart cannot retain registered native anchor identity: " + vertex);
+    const weights: [
+      IHumanExactFractionImported,
+      IHumanExactFractionImported,
+      IHumanExactFractionImported,
+    ] = readHumanFaceSkinChartWeights(support, point);
+    if (
+      !support.vertices.some(
+        (id: number, axis: number): boolean =>
+          id === vertex &&
+          weights[axis].numerator === weights[axis].denominator &&
+          weights.every(
+            (weight: IHumanExactFractionImported, other: number): boolean =>
+              other === axis || weight.numerator === 0n,
+          ),
+      )
+    )
+      throw new Error(
+        "A skin material chart cannot retain registered native anchor identity: " +
+          vertex,
+      );
   }
   let referenceHost: IHumanFaceSkinHost | undefined;
-  const register: (point: readonly number[]) => IHumanFaceSkinChartCoordinate = (point: readonly number[]): IHumanFaceSkinChartCoordinate => {
-    if (point.length !== 3 || point.some((value: number): boolean  => !Number.isFinite(value)))
-      throw new Error("Reference material registration needs three finite head-frame metres.");
+  const register: (
+    point: readonly number[],
+  ) => IHumanFaceSkinChartCoordinate = (
+    point: readonly number[],
+  ): IHumanFaceSkinChartCoordinate => {
+    if (
+      point.length !== 3 ||
+      point.some((value: number): boolean => !Number.isFinite(value))
+    )
+      throw new Error(
+        "Reference material registration needs three finite head-frame metres.",
+      );
     referenceHost ??= createHumanFaceSkinHost(referenceIndices, points);
     const seat: IHumanFaceSkinSeatImported = referenceHost.seat(point);
-    const target: IHumanFaceSkinChartTriangle | undefined = cells.get(seat.triangle);
+    const target: IHumanFaceSkinChartTriangle | undefined = cells.get(
+      seat.triangle,
+    );
     if (target === undefined)
-      throw new Error(`Skin material domain ${domain} lacks reference triangle ${seat.triangle}: ${JSON.stringify({ point, weights: seat.weights })}`);
+      throw new Error(
+        `Skin material domain ${domain} lacks reference triangle ${seat.triangle}: ${JSON.stringify({ point, weights: seat.weights })}`,
+      );
     // Normalize only the exact sum of represented geometric barycentrics;
     // the finite reference guide and anatomical quantities stay unchanged.
-    const weights: IHumanExactFractionImported[] = seat.weights.map((value: number): IHumanExactFractionImported  => F.from(value));
-    const total: IHumanExactFractionImported = weights.reduce((sum: IHumanExactFractionImported, value: IHumanExactFractionImported): IHumanExactFractionImported  => F.add(sum, value), F.create(0n));
-    const normalized: IHumanExactFractionImported[] = weights.map((value: IHumanExactFractionImported): IHumanExactFractionImported  => F.divide(value, total));
+    const weights: IHumanExactFractionImported[] = seat.weights.map(
+      (value: number): IHumanExactFractionImported => F.from(value),
+    );
+    const total: IHumanExactFractionImported = weights.reduce(
+      (
+        sum: IHumanExactFractionImported,
+        value: IHumanExactFractionImported,
+      ): IHumanExactFractionImported => F.add(sum, value),
+      F.create(0n),
+    );
+    const normalized: IHumanExactFractionImported[] = weights.map(
+      (value: IHumanExactFractionImported): IHumanExactFractionImported =>
+        F.divide(value, total),
+    );
     return {
-      x: target.corners.reduce((sum: IHumanExactFractionImported, corner: IHumanFaceSkinChartCoordinate, at: number): IHumanExactFractionImported  => F.add(sum, F.multiply(normalized[at], corner.x)), F.create(0n)),
-      y: target.corners.reduce((sum: IHumanExactFractionImported, corner: IHumanFaceSkinChartCoordinate, at: number): IHumanExactFractionImported  => F.add(sum, F.multiply(normalized[at], corner.y)), F.create(0n)),
+      x: target.corners.reduce(
+        (
+          sum: IHumanExactFractionImported,
+          corner: IHumanFaceSkinChartCoordinate,
+          at: number,
+        ): IHumanExactFractionImported =>
+          F.add(sum, F.multiply(normalized[at], corner.x)),
+        F.create(0n),
+      ),
+      y: target.corners.reduce(
+        (
+          sum: IHumanExactFractionImported,
+          corner: IHumanFaceSkinChartCoordinate,
+          at: number,
+        ): IHumanExactFractionImported =>
+          F.add(sum, F.multiply(normalized[at], corner.y)),
+        F.create(0n),
+      ),
     };
   };
   return {
     coordinate,
     register,
-    offset: (point: IHumanFaceSkinChartCoordinate, displacement: readonly number[]): IHumanFaceSkinChartCoordinate  => {
-      if (displacement.length !== 3 || displacement.some((value: number): boolean  => !Number.isFinite(value)))
-        throw new Error("A reference material displacement needs three finite head-frame metres.");
+    offset: (
+      point: IHumanFaceSkinChartCoordinate,
+      displacement: readonly number[],
+    ): IHumanFaceSkinChartCoordinate => {
+      if (
+        displacement.length !== 3 ||
+        displacement.some((value: number): boolean => !Number.isFinite(value))
+      )
+        throw new Error(
+          "A reference material displacement needs three finite head-frame metres.",
+        );
       const facet: IHumanFaceSkinChartTriangle = cell(locate(point));
-      if (displacement.every((value: number): boolean  => value === 0))
+      if (displacement.every((value: number): boolean => value === 0))
         return { x: point.x, y: point.y };
       referenceHost ??= createHumanFaceSkinHost(referenceIndices, points);
       const origin: number[] = referenceHost.frameExact({
         triangle: facet.ordinal,
         weights: readHumanFaceSkinChartWeights(facet, point),
       }).point;
-      return register(origin.map((value: number, axis: number): number  => value + displacement[axis]));
+      return register(
+        origin.map(
+          (value: number, axis: number): number => value + displacement[axis],
+        ),
+      );
     },
-    compile: (guide: readonly IHumanFaceSkinChartCoordinate[]): IHumanFaceSkinChartSpan[]  => {
+    compile: (
+      guide: readonly IHumanFaceSkinChartCoordinate[],
+    ): IHumanFaceSkinChartSpan[] => {
       if (guide.length < 2)
-        throw new Error("A skin material course needs at least two ordered stations.");
+        throw new Error(
+          "A skin material course needs at least two ordered stations.",
+        );
       let triangle: number = locate(guide[0]);
       const spans: IHumanFaceSkinChartSpan[] = [];
       for (let at: number = 0; at + 1 < guide.length; at++)
-        triangle = walkHumanFaceSkinChart({ from: guide[at], to: guide[at + 1], startTriangle: triangle, cell, frame, spans });
+        triangle = walkHumanFaceSkinChart({
+          from: guide[at],
+          to: guide[at + 1],
+          startTriangle: triangle,
+          cell,
+          frame,
+          spans,
+        });
       return spans;
     },
   };

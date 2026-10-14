@@ -1,15 +1,16 @@
-import { createAutoMovieSignedMeshQuery, type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported } from "@automovie/engine";
+import {
+  type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported,
+  createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 
 import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
+import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
 import type { IHumanFaceExactSkinSeat } from "./IHumanFaceExactSkinSeat";
+import type { IHumanFaceProjectedSkinCourse as IHumanFaceProjectedSkinCourseImported } from "./IHumanFaceProjectedSkinCourse";
 import type { IHumanFaceSkinFrame } from "./IHumanFaceSkinFrame";
 import type { IHumanFaceSkinHost } from "./IHumanFaceSkinHost";
 import type { IHumanFaceSkinSeat } from "./IHumanFaceSkinSeat";
 import { compileHumanFaceProjectedSkinCourse } from "./compileHumanFaceProjectedSkinCourse";
-
-import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
-import type { IHumanFaceProjectedSkinCourse as IHumanFaceProjectedSkinCourseImported } from "./IHumanFaceProjectedSkinCourse";
-
 
 /**
  * Compile one state of the face skin into a host for attached parts.
@@ -60,15 +61,21 @@ export function createHumanFaceSkinHost(
   if (
     !Number.isInteger(count) ||
     indices.length % 3 !== 0 ||
-    indices.some((id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= count) ||
-    positions.some((value: number): boolean  => !Number.isFinite(value))
+    indices.some(
+      (id: number): boolean => !Number.isInteger(id) || id < 0 || id >= count,
+    ) ||
+    positions.some((value: number): boolean => !Number.isFinite(value))
   )
     throw new Error("A skin host needs finite positions and resident indices.");
   const points: number[] = [...positions];
   const corners: number[] = [...indices];
-  const corner: (triangle: number, at: number) => number = (triangle: number, at: number): number =>
-    corners[3 * triangle + at] * 3;
-  const faceNormal: (triangle: number) => number[] = (triangle: number): number[] => {
+  const corner: (triangle: number, at: number) => number = (
+    triangle: number,
+    at: number,
+  ): number => corners[3 * triangle + at] * 3;
+  const faceNormal: (triangle: number) => number[] = (
+    triangle: number,
+  ): number[] => {
     const a: number = corner(triangle, 0),
       b: number = corner(triangle, 1),
       c: number = corner(triangle, 2);
@@ -115,7 +122,11 @@ export function createHumanFaceSkinHost(
     normals[3 * vertex + 2] = sum[2] / length;
   }
   let query: ReturnType<typeof createAutoMovieSignedMeshQuery> | undefined;
-  const nearest: (point: readonly number[]) => IAutoMovieSignedMeshQueryHitImported = (point: readonly number[]): IAutoMovieSignedMeshQueryHitImported  =>
+  const nearest: (
+    point: readonly number[],
+  ) => IAutoMovieSignedMeshQueryHitImported = (
+    point: readonly number[],
+  ): IAutoMovieSignedMeshQueryHitImported =>
     (query ??= createAutoMovieSignedMeshQuery(
       {
         positions: points,
@@ -126,8 +137,12 @@ export function createHumanFaceSkinHost(
       },
       { boundary: "open" },
     ))(point);
-  const frameExact: (seat: IHumanFaceExactSkinSeat) => IHumanFaceSkinFrame = (seat: IHumanFaceExactSkinSeat): IHumanFaceSkinFrame => {
-    const point: IHumanExactFractionImported[] = [0, 0, 0].map((): IHumanExactFractionImported  => Fraction.create(0n)),
+  const frameExact: (seat: IHumanFaceExactSkinSeat) => IHumanFaceSkinFrame = (
+    seat: IHumanFaceExactSkinSeat,
+  ): IHumanFaceSkinFrame => {
+    const point: IHumanExactFractionImported[] = [0, 0, 0].map(
+        (): IHumanExactFractionImported => Fraction.create(0n),
+      ),
       blend: number[] = [0, 0, 0];
     for (let at: number = 0; at < 3; at++) {
       const id: number = corner(seat.triangle, at);
@@ -142,37 +157,53 @@ export function createHumanFaceSkinHost(
     }
     const area: number[] = faceNormal(seat.triangle),
       areaLength: number = Math.hypot(...area);
-    const face: number[] = area.map((value: number): number  => value / areaLength);
+    const face: number[] = area.map(
+      (value: number): number => value / areaLength,
+    );
     const length: number = Math.hypot(...blend);
     const smooth: number[] =
       length > 0 &&
       blend[0] * face[0] + blend[1] * face[1] + blend[2] * face[2] > 0
-        ? blend.map((value: number): number  => value / length)
+        ? blend.map((value: number): number => value / length)
         : face;
     return { point: point.map(Fraction.number), normal: smooth, face };
   };
-  const seat: (point: readonly number[]) => IHumanFaceSkinSeat = (point: readonly number[]): IHumanFaceSkinSeat => {
+  const seat: (point: readonly number[]) => IHumanFaceSkinSeat = (
+    point: readonly number[],
+  ): IHumanFaceSkinSeat => {
     const hit: IAutoMovieSignedMeshQueryHitImported = nearest(point);
     const a: number = corner(hit.triangle, 0),
       b: number = corner(hit.triangle, 1),
       c: number = corner(hit.triangle, 2);
     // Solve the hit in its triangle's plane; the hit lies on that triangle.
-    const u: number[] = [0, 1, 2].map((axis: number): number  => points[b + axis] - points[a + axis]);
-    const v: number[] = [0, 1, 2].map((axis: number): number  => points[c + axis] - points[a + axis]);
-    const w: number[] = [0, 1, 2].map((axis: number): number  => hit.point[axis] - points[a + axis]);
+    const u: number[] = [0, 1, 2].map(
+      (axis: number): number => points[b + axis] - points[a + axis],
+    );
+    const v: number[] = [0, 1, 2].map(
+      (axis: number): number => points[c + axis] - points[a + axis],
+    );
+    const w: number[] = [0, 1, 2].map(
+      (axis: number): number => hit.point[axis] - points[a + axis],
+    );
     const uu: number = u[0] * u[0] + u[1] * u[1] + u[2] * u[2],
       uv: number = u[0] * v[0] + u[1] * v[1] + u[2] * v[2],
       vv: number = v[0] * v[0] + v[1] * v[1] + v[2] * v[2],
       wu: number = w[0] * u[0] + w[1] * u[1] + w[2] * u[2],
       wv: number = w[0] * v[0] + w[1] * v[1] + w[2] * v[2];
     const determinant: number = uu * vv - uv * uv;
-    const s: number = Math.min(1, Math.max(0, (wu * vv - wv * uv) / determinant));
-    const t: number = Math.min(1 - s, Math.max(0, (wv * uu - wu * uv) / determinant));
+    const s: number = Math.min(
+      1,
+      Math.max(0, (wu * vv - wv * uv) / determinant),
+    );
+    const t: number = Math.min(
+      1 - s,
+      Math.max(0, (wv * uu - wu * uv) / determinant),
+    );
     return { triangle: hit.triangle, weights: [1 - s - t, s, t] };
   };
   return {
     seat,
-    frame: (seat: IHumanFaceSkinSeat): IHumanFaceSkinFrame  =>
+    frame: (seat: IHumanFaceSkinSeat): IHumanFaceSkinFrame =>
       frameExact({
         triangle: seat.triangle,
         weights: [
@@ -182,10 +213,14 @@ export function createHumanFaceSkinHost(
         ],
       }),
     frameExact,
-    corners: (triangle: number): number[]  => corners.slice(3 * triangle, 3 * triangle + 3),
-    signedDistance: (point: readonly number[]): number  => nearest(point).signedDistance,
+    corners: (triangle: number): number[] =>
+      corners.slice(3 * triangle, 3 * triangle + 3),
+    signedDistance: (point: readonly number[]): number =>
+      nearest(point).signedDistance,
     normals,
-    compileProjectedCourse: (guide: readonly (readonly number[])[]): IHumanFaceProjectedSkinCourseImported  =>
+    compileProjectedCourse: (
+      guide: readonly (readonly number[])[],
+    ): IHumanFaceProjectedSkinCourseImported =>
       compileHumanFaceProjectedSkinCourse({
         positions: points,
         indices: corners,

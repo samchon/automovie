@@ -1,11 +1,10 @@
+import type { IHumanFaceSkinChart as IHumanFaceSkinChartImported } from "./IHumanFaceSkinChart";
+import type { IHumanFaceSkinChartCoordinate as IHumanFaceSkinChartCoordinateImported } from "./IHumanFaceSkinChartCoordinate";
 import type { IHumanFaceSkinChartCourse } from "./IHumanFaceSkinChartCourse";
 import type { IHumanFaceSkinMaterialCourseInput } from "./IHumanFaceSkinMaterialCourseInput";
+import type { IHumanFaceSkinMaterialGuidePoint as IHumanFaceSkinMaterialGuidePointImported } from "./IHumanFaceSkinMaterialGuidePoint";
 import { createHumanFaceSkinChart } from "./createHumanFaceSkinChart";
 import { createHumanFaceSkinChartCourse } from "./createHumanFaceSkinChartCourse";
-import type { IHumanFaceSkinChart as IHumanFaceSkinChartImported } from "./IHumanFaceSkinChart";
-import type { IHumanFaceSkinMaterialGuidePoint as IHumanFaceSkinMaterialGuidePointImported } from "./IHumanFaceSkinMaterialGuidePoint";
-import type { IHumanFaceSkinChartCoordinate as IHumanFaceSkinChartCoordinateImported } from "./IHumanFaceSkinChartCoordinate";
-
 
 /**
  * Lift a source-relative relief guide through one registered material chart.
@@ -41,9 +40,18 @@ export function createHumanFaceSkinMaterialCourse(
     supportVertices: input.supportVertices,
   });
   return createHumanFaceSkinChartCourse(
-    chart.compile(input.guide.map((point: IHumanFaceSkinMaterialGuidePointImported): IHumanFaceSkinChartCoordinateImported  => {
-      const native: IHumanFaceSkinChartCoordinateImported = chart.coordinate(point.vertex);
-      return point.displacement === undefined ? native : chart.offset(native, point.displacement);
-    })),
+    chart.compile(
+      input.guide.map(
+        (
+          point: IHumanFaceSkinMaterialGuidePointImported,
+        ): IHumanFaceSkinChartCoordinateImported => {
+          const native: IHumanFaceSkinChartCoordinateImported =
+            chart.coordinate(point.vertex);
+          return point.displacement === undefined
+            ? native
+            : chart.offset(native, point.displacement);
+        },
+      ),
+    ),
   );
 }

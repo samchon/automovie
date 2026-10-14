@@ -28,7 +28,11 @@ export function readHumanFaceSkinChartWeights(
       "Skin source chart reaches a vertical or reversed native facet: " +
         triangle.ordinal,
     );
-  const [a, b, c]: readonly [IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate, IHumanFaceSkinChartCoordinate] = triangle.corners;
+  const [a, b, c]: readonly [
+    IHumanFaceSkinChartCoordinate,
+    IHumanFaceSkinChartCoordinate,
+    IHumanFaceSkinChartCoordinate,
+  ] = triangle.corners;
   const ux: IHumanExactFraction = F.subtract(b.x, a.x),
     uy: IHumanExactFraction = F.subtract(b.y, a.y),
     vx: IHumanExactFraction = F.subtract(c.x, a.x),

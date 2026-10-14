@@ -23,7 +23,10 @@ export function readHumanFaceProjectedSkinCourse(
   totalLengthMetres: number,
   point: readonly number[],
 ): IHumanFaceProjectedSkinCourseReading {
-  if (point.length !== 3 || point.some((value: number): boolean  => !Number.isFinite(value)))
+  if (
+    point.length !== 3 ||
+    point.some((value: number): boolean => !Number.isFinite(value))
+  )
     throw new Error(
       "Skin course reading needs a finite three-coordinate point.",
     );
@@ -32,7 +35,9 @@ export function readHumanFaceProjectedSkinCourse(
   for (const span of spans) {
     if (span.lengthMetres === 0) {
       const distance: number = Math.hypot(
-        ...point.map((value: number, axis: number): number  => value - span.start[axis]),
+        ...point.map(
+          (value: number, axis: number): number => value - span.start[axis],
+        ),
       );
       if (distance < distanceMetres) {
         distanceMetres = distance;
@@ -44,16 +49,22 @@ export function readHumanFaceProjectedSkinCourse(
       continue;
     }
     const direction: number[] = span.end.map(
-      (value: number, axis: number): number  => (value - span.start[axis]) / span.lengthMetres,
+      (value: number, axis: number): number =>
+        (value - span.start[axis]) / span.lengthMetres,
     );
-    const offset: number[] = point.map((value: number, axis: number): number  => value - span.start[axis]);
+    const offset: number[] = point.map(
+      (value: number, axis: number): number => value - span.start[axis],
+    );
     const along: number =
       offset[0] * direction[0] +
       offset[1] * direction[1] +
       offset[2] * direction[2];
     const reach: number = Math.max(0, Math.min(span.lengthMetres, along));
     const distance: number = Math.hypot(
-      ...offset.map((value: number, axis: number): number  => value - reach * direction[axis]),
+      ...offset.map(
+        (value: number, axis: number): number =>
+          value - reach * direction[axis],
+      ),
     );
     if (distance < distanceMetres) {
       distanceMetres = distance;

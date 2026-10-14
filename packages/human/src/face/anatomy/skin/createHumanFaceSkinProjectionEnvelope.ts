@@ -33,22 +33,32 @@ export function createHumanFaceSkinProjectionEnvelope(
   // A pair's immutable represented polynomial belongs to this one guide.
   // Validity clipping is read separately, so repeated overlap fragments do
   // not reconstruct its coefficients or isolate the same roots again.
-  const comparisons: Map<IHumanFaceSkinProjectionFeature, Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>> = new Map<
+  const comparisons: Map<
+    IHumanFaceSkinProjectionFeature,
+    Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>
+  > = new Map<
     IHumanFaceSkinProjectionFeature,
     Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison>
   >();
-  const readComparison: (first: IHumanFaceSkinProjectionFeature, second: IHumanFaceSkinProjectionFeature) => IHumanFaceSkinProjectionComparison = (
+  const readComparison: (
+    first: IHumanFaceSkinProjectionFeature,
+    second: IHumanFaceSkinProjectionFeature,
+  ) => IHumanFaceSkinProjectionComparison = (
     first: IHumanFaceSkinProjectionFeature,
     second: IHumanFaceSkinProjectionFeature,
   ): IHumanFaceSkinProjectionComparison => {
-    const row: Map<IHumanFaceSkinProjectionFeature, IHumanFaceSkinProjectionComparison> =
+    const row: Map<
+      IHumanFaceSkinProjectionFeature,
+      IHumanFaceSkinProjectionComparison
+    > =
       comparisons.get(first) ??
       new Map<
         IHumanFaceSkinProjectionFeature,
         IHumanFaceSkinProjectionComparison
       >();
     comparisons.set(first, row);
-    let result: IHumanFaceSkinProjectionComparison | undefined = row.get(second);
+    let result: IHumanFaceSkinProjectionComparison | undefined =
+      row.get(second);
     if (result === undefined) {
       result = compareHumanFaceSkinProjectionFeatures(
         first,
@@ -59,18 +69,26 @@ export function createHumanFaceSkinProjectionEnvelope(
     }
     return result;
   };
-  const merge: (first: readonly IHumanFaceSkinProjectionInterval[], second: readonly IHumanFaceSkinProjectionInterval[]) => IHumanFaceSkinProjectionInterval[] = (
+  const merge: (
+    first: readonly IHumanFaceSkinProjectionInterval[],
+    second: readonly IHumanFaceSkinProjectionInterval[],
+  ) => IHumanFaceSkinProjectionInterval[] = (
     first: readonly IHumanFaceSkinProjectionInterval[],
     second: readonly IHumanFaceSkinProjectionInterval[],
   ): IHumanFaceSkinProjectionInterval[] => {
     const output: IHumanFaceSkinProjectionInterval[] = [];
-    const append: (feature: IHumanFaceSkinProjectionInterval["feature"], lower: number, upper: number) => void = (
+    const append: (
+      feature: IHumanFaceSkinProjectionInterval["feature"],
+      lower: number,
+      upper: number,
+    ) => void = (
       feature: IHumanFaceSkinProjectionInterval["feature"],
       lower: number,
       upper: number,
     ): void => {
       if (!(lower < upper)) return;
-      const previous: IHumanFaceSkinProjectionInterval | undefined = output.at(-1);
+      const previous: IHumanFaceSkinProjectionInterval | undefined =
+        output.at(-1);
       if (previous?.feature === feature && previous.upper === lower)
         previous.upper = upper;
       else output.push({ feature, lower, upper });
@@ -98,7 +116,10 @@ export function createHumanFaceSkinProjectionEnvelope(
       );
       if (!Number.isFinite(end)) break;
       if (a !== undefined && b !== undefined) {
-        const comparison: IHumanFaceSkinProjectionComparison = readComparison(a.feature, b.feature);
+        const comparison: IHumanFaceSkinProjectionComparison = readComparison(
+          a.feature,
+          b.feature,
+        );
         for (const interval of comparison.partition(position, end)) {
           append(
             interval.sign <= 0 ? a.feature : b.feature,
@@ -112,9 +133,19 @@ export function createHumanFaceSkinProjectionEnvelope(
     }
     return output;
   };
-  let layer: { feature: IHumanFaceSkinProjectionFeature; lower: number; upper: number; }[][] = input.features.map((feature: IHumanFaceSkinProjectionFeature): { feature: IHumanFaceSkinProjectionFeature; lower: number; upper: number; }[]  => [
-    { feature, lower: feature.lower, upper: feature.upper },
-  ]);
+  let layer: {
+    feature: IHumanFaceSkinProjectionFeature;
+    lower: number;
+    upper: number;
+  }[][] = input.features.map(
+    (
+      feature: IHumanFaceSkinProjectionFeature,
+    ): {
+      feature: IHumanFaceSkinProjectionFeature;
+      lower: number;
+      upper: number;
+    }[] => [{ feature, lower: feature.lower, upper: feature.upper }],
+  );
   while (layer.length > 1) {
     const next: IHumanFaceSkinProjectionInterval[][] = [];
     for (let at: number = 0; at < layer.length; at += 2)
@@ -125,12 +156,23 @@ export function createHumanFaceSkinProjectionEnvelope(
       );
     layer = next;
   }
-  const envelope: { feature: IHumanFaceSkinProjectionFeature; lower: number; upper: number; }[] = layer[0] ?? [];
+  const envelope: {
+    feature: IHumanFaceSkinProjectionFeature;
+    lower: number;
+    upper: number;
+  }[] = layer[0] ?? [];
   if (
     envelope[0]?.lower !== 0 ||
     envelope.at(-1)?.upper !== 1 ||
     envelope.some(
-      (interval: { feature: IHumanFaceSkinProjectionFeature; lower: number; upper: number; }, at: number): boolean  => at > 0 && envelope[at - 1].upper !== interval.lower,
+      (
+        interval: {
+          feature: IHumanFaceSkinProjectionFeature;
+          lower: number;
+          upper: number;
+        },
+        at: number,
+      ): boolean => at > 0 && envelope[at - 1].upper !== interval.lower,
     )
   )
     throw new Error(
