@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanSkinLandmark as ImportedIAutoMovieHumanSkinLandmark, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanSkinLandmark as ImportedIAutoMovieHumanSkinLandmark,
+} from "@automovie/human";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
@@ -15,7 +18,7 @@ import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown keys or unavailable surfaces return explicit gaps; no nearby vertex or rest coordinate is inferred.
  * @evidence contracts/common.md#meaningful-documentation The returned coordinate uses current head-frame metres.
  * @evidence contracts/performance.md#efficient-algorithms Exact-key lookup and one current point read determine work.
- * @evidence contracts/performance.md#reuse-equivalent-work The same landmark reader supports distance, angle and dental instruments.
+ * @evidence contracts/performance.md#reuse-equivalent-work Distance, angle and vertex-to-landmark instruments share this registration reader and current context; each invocation still acquires its requested point.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned point is caller-owned; basis and source arrays remain borrowed through the context.
  *
  * @author Samchon
@@ -24,7 +27,8 @@ export function readHumanFaceMeasurementLandmark(
   context: IHumanFaceMeasurementContext,
   name: string,
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
-  const landmark: ImportedIAutoMovieHumanSkinLandmark | undefined = findHumanSkinLandmark(context.basis, name);
+  const landmark: ImportedIAutoMovieHumanSkinLandmark | undefined =
+    findHumanSkinLandmark(context.basis, name);
   const surface: ImportedIAutoMovieHumanFaceBasisSurface | undefined =
     landmark === undefined
       ? undefined
