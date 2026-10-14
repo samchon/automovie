@@ -3,7 +3,7 @@ import { tags } from "typia";
 import { AutoMovieHumanIrisColor } from "./AutoMovieHumanIrisColor";
 
 /**
- * Who a person is, as detailed parameters: named anthropometric and craniofacial measurements, body composition and pigmentation.
+ * Who a person is, as detailed parameters: named anthropometric and craniofacial measurements, joint mobility, body composition and pigmentation.
  *
  * Modeling reads this document and nothing else about the person. It holds no sex, age, ancestry or vague trait such as slimness: those are beginner inputs ({@link IAutoMovieHumanTraits}) that a converter expands into these measurements, so any ancestry, age or look is reachable by measurements alone and every assumption a converter makes is visible in its output. A saved person stores this resolved document, so a later converter revision never changes a saved person.
  *
@@ -76,7 +76,7 @@ export namespace IAutoMovieHumanIdentity {
     /**
      * Neck circumference: just below the thyroid cartilage, perpendicular to the neck axis, millimetres.
      */
-    neckCircumference: number & tags.Minimum<150> & tags.Maximum<700>;
+    neckCircumference: number & tags.Minimum<100> & tags.Maximum<700>;
 
     /**
      * Chest circumference at the most anterior point of the chest, the bust in women, at the maximum of quiet respiration, millimetres.
@@ -142,6 +142,25 @@ export namespace IAutoMovieHumanIdentity {
 
     /** Wrist circumference over the radial styloid, millimetres. */
     wristCircumference: number & tags.Minimum<50> & tags.Maximum<300>;
+
+    /**
+     * Shoulder flexion, the arm raised forward from hanging, degrees. Goniometric, as in the CDC normal joint range of motion study (Soucie et al. 2011, Haemophilia 17(3)): means of 164 to 179 degrees by age and sex.
+     */
+    shoulderFlexion: number & tags.Minimum<0> & tags.Maximum<200>;
+
+    /** Elbow flexion from full extension, degrees; 143 to 153 in the same study. */
+    elbowFlexion: number & tags.Minimum<0> & tags.Maximum<180>;
+
+    /**
+     * Elbow extension beyond straight, degrees; negative when the elbow does not straighten fully. Means run from -0.7 (men 45 to 69) to 6.8 (girls 2 to 8) in the same study.
+     */
+    elbowHyperextension: number & tags.Minimum<-30> & tags.Maximum<30>;
+
+    /** Forearm pronation from the thumb-up neutral, degrees. */
+    forearmPronation: number & tags.Minimum<0> & tags.Maximum<120>;
+
+    /** Forearm supination from the thumb-up neutral, degrees. */
+    forearmSupination: number & tags.Minimum<0> & tags.Maximum<140>;
   }
 
   /**
@@ -185,6 +204,28 @@ export namespace IAutoMovieHumanIdentity {
 
     /** Minimum horizontal ankle circumference above the malleoli, millimetres. */
     ankleCircumference: number & tags.Minimum<60> & tags.Maximum<450>;
+
+    /**
+     * Hip flexion, the thigh raised forward, degrees. Goniometric, as in the CDC normal joint range of motion study (Soucie et al. 2011, Haemophilia 17(3)): means of 127 to 141 degrees by age and sex.
+     */
+    hipFlexion: number & tags.Minimum<0> & tags.Maximum<180>;
+
+    /** Hip extension, the thigh carried backward, degrees; 13.5 to 28.3 in the same study. */
+    hipExtension: number & tags.Minimum<0> & tags.Maximum<90>;
+
+    /**
+     * Knee flexion from full extension, degrees, before the thigh and calf meet; the skeleton lowers it further when the person's own calf girth closes the joint earlier.
+     */
+    kneeFlexion: number & tags.Minimum<0> & tags.Maximum<180>;
+
+    /** Knee extension beyond straight, degrees; negative when the knee does not straighten fully. */
+    kneeHyperextension: number & tags.Minimum<-30> & tags.Maximum<30>;
+
+    /** Ankle dorsiflexion, the foot raised, degrees. */
+    ankleDorsiflexion: number & tags.Minimum<0> & tags.Maximum<60>;
+
+    /** Ankle plantar flexion, the foot pointed, degrees. */
+    anklePlantarFlexion: number & tags.Minimum<0> & tags.Maximum<100>;
   }
 
   /**
@@ -234,6 +275,16 @@ export namespace IAutoMovieHumanIdentity {
      * Minimum frontal width: frontotemporale to frontotemporale, the narrowest forehead between the temporal crests, millimetres.
      */
     minimumFrontalWidth: number & tags.Minimum<50> & tags.Maximum<160>;
+
+    /**
+     * Active maximum mouth opening between the upper and lower incisal edges, millimetres, as measured with a ruler in children by Verkouteren et al. (2022, Eur J Oral Sci 130(3):e12869): 42.8 to 55.3 mm from 6 to 18 years. The skeleton turns it into the jaw's opening angle through the person's own jaw geometry.
+     */
+    mouthOpening: number & tags.Minimum<5> & tags.Maximum<90>;
+
+    /**
+     * Lateral excursion of the lower incisors to one side, millimetres, from the dental midline; 9.1 to 10.4 mm in the same study.
+     */
+    mandibularLaterotrusion: number & tags.Minimum<0> & tags.Maximum<25>;
   }
 
   /**
