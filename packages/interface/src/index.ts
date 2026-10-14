@@ -9,7 +9,6 @@ export * from "./model";
 export * from "./skeleton";
 export * from "./pose";
 export * from "./expression";
-export * from "./face";
 export * from "./motion";
 export * from "./material";
 export * from "./scene";

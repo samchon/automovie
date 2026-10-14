@@ -22,4 +22,4 @@ import type { IAutoMovieShot, IAutoMovieModel } from "@automovie/interface";
 
 ## Domains
 
-`core`, `geometry`, `skeleton`, `pose`, `motion`, `model`, `material`, `expression`, `face`, `scene`, `cinematics`, `authoring`, `harness`, `production`, `render`, `validation`, `architecture`, `service`, `analysis`, `drawing`, `soft`, `fluid`, and `color`, one folder per domain.
+`core`, `geometry`, `skeleton`, `pose`, `motion`, `model`, `material`, `expression`, `scene`, `cinematics`, `authoring`, `harness`, `production`, `render`, `validation`, `architecture`, `service`, `analysis`, `drawing`, `soft`, `fluid`, and `color`, one folder per domain.
