@@ -22,7 +22,10 @@ import { IAutoMovieBuiltElement } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed per call from the given array, because the element list is the caller's record and callers ask from different roots.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The child index and queue are released on return; the caller owns the returned set, bounded by the element count plus the undeclared roots.
  */
-export const builtElementSubtree: (elements: readonly IAutoMovieBuiltElement[], roots: readonly string[]) => Set<string> = (
+export const builtElementSubtree: (
+  elements: readonly IAutoMovieBuiltElement[],
+  roots: readonly string[],
+) => Set<string> = (
   elements: readonly IAutoMovieBuiltElement[],
   roots: readonly string[],
 ): Set<string> => {

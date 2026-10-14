@@ -19,7 +19,9 @@ import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one environment per call and keeps nothing; a caller that already holds the faces calls `builtEnvelopeFaceCorners` instead of placing them again.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The placed faces are dropped on return; the caller owns the returned corners.
  */
-export const builtEnvironmentEnvelopeCorners: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvelopeCorner[] = (
+export const builtEnvironmentEnvelopeCorners: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvelopeCorner[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvelopeCorner[] =>
   builtEnvelopeFaceCorners(builtEnvironmentEnvelopeFaces(environment));

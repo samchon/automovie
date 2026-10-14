@@ -38,7 +38,10 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening per call from the caller's mutable record; within the call one staging and one element index serve every panel.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrices and element index only for the call and returns new sweep records; nothing is retained.
  */
-export const builtOpeningSweepEnvelope: (environment: IAutoMovieBuiltEnvironment, openingId: string) => IAutoMovieOpeningSweep[] = (
+export const builtOpeningSweepEnvelope: (
+  environment: IAutoMovieBuiltEnvironment,
+  openingId: string,
+) => IAutoMovieOpeningSweep[] = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
 ): IAutoMovieOpeningSweep[] => {
@@ -89,7 +92,12 @@ export const builtOpeningSweepEnvelope: (environment: IAutoMovieBuiltEnvironment
  *
  * The panel's own displacement is the last factor of its local matrix and moves nothing above it, so its parent's staged matrix times its rest transform is exactly the staging with that one joint removed.
  */
-const restingFrame: (environment: IAutoMovieBuiltEnvironment, elements: ReadonlyMap<string, IAutoMovieBuiltElement>, staged: ReadonlyMap<string, number[]>, panel: IAutoMovieMovablePanel) => number[] = (
+const restingFrame: (
+  environment: IAutoMovieBuiltEnvironment,
+  elements: ReadonlyMap<string, IAutoMovieBuiltElement>,
+  staged: ReadonlyMap<string, number[]>,
+  panel: IAutoMovieMovablePanel,
+) => number[] = (
   environment: IAutoMovieBuiltEnvironment,
   elements: ReadonlyMap<string, IAutoMovieBuiltElement>,
   staged: ReadonlyMap<string, number[]>,
@@ -117,7 +125,10 @@ const restingFrame: (environment: IAutoMovieBuiltEnvironment, elements: Readonly
  *
  * Travel must be finite, ordered, nonempty and contain rest at zero, as `validateBuiltEnvironment` requires. Together with the revolute full-turn cap this bounds the absolute critical-angle indices, so incrementing an index cannot stall at a large finite floating-point value. Direct callers receive a named refusal instead of entering an enumeration outside those premises.
  */
-const requireEnumerableTravel: (environment: IAutoMovieBuiltEnvironment, panel: IAutoMovieMovablePanel) => void = (
+const requireEnumerableTravel: (
+  environment: IAutoMovieBuiltEnvironment,
+  panel: IAutoMovieMovablePanel,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   panel: IAutoMovieMovablePanel,
 ): void => {
@@ -137,7 +148,10 @@ const requireEnumerableTravel: (environment: IAutoMovieBuiltEnvironment, panel: 
 };
 
 /** Apply a column-major matrix to a point. */
-const applyMatrix: (matrix: readonly number[], point: IAutoMovieVector3) => IAutoMovieVector3 = (
+const applyMatrix: (
+  matrix: readonly number[],
+  point: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   matrix: readonly number[],
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
@@ -150,7 +164,10 @@ const applyMatrix: (matrix: readonly number[], point: IAutoMovieVector3) => IAut
 };
 
 /** Apply a column-major matrix's linear part to a direction. */
-const applyDirection: (matrix: readonly number[], vector: IAutoMovieVector3) => IAutoMovieVector3 = (
+const applyDirection: (
+  matrix: readonly number[],
+  vector: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   matrix: readonly number[],
   vector: IAutoMovieVector3,
 ): IAutoMovieVector3 => ({
@@ -160,7 +177,11 @@ const applyDirection: (matrix: readonly number[], vector: IAutoMovieVector3) => 
 });
 
 /** The world bounds one leaf corner reaches across a panel's whole travel. */
-const sweptCornerBounds: (base: readonly number[], motion: IAutoMovieTravelMotion, corner: IAutoMovieVector3) => IAutoMovieSubjectBox = (
+const sweptCornerBounds: (
+  base: readonly number[],
+  motion: IAutoMovieTravelMotion,
+  corner: IAutoMovieVector3,
+) => IAutoMovieSubjectBox = (
   base: readonly number[],
   motion: IAutoMovieTravelMotion,
   corner: IAutoMovieVector3,
@@ -190,7 +211,9 @@ const sweptCornerBounds: (base: readonly number[], motion: IAutoMovieTravelMotio
     base,
     Vector3.cross(axis, offset),
   );
-  const reach: (component: "x" | "y" | "z") => { low: number; high: number; } = (component: "x" | "y" | "z"): { low: number; high: number } => {
+  const reach: (component: "x" | "y" | "z") => { low: number; high: number } = (
+    component: "x" | "y" | "z",
+  ): { low: number; high: number } => {
     const phase: number = Math.atan2(sine[component], cosine[component]);
     const angles: number[] = [motion.min, motion.max];
     const first: number = Math.ceil((motion.min - phase) / Math.PI);

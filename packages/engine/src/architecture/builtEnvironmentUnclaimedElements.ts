@@ -31,9 +31,9 @@ import {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned id list.
  * @author Samchon
  */
-export const builtEnvironmentUnclaimedElements: (environment: IAutoMovieBuiltEnvironment) => string[] = (
+export const builtEnvironmentUnclaimedElements: (
   environment: IAutoMovieBuiltEnvironment,
-): string[] =>
+) => string[] = (environment: IAutoMovieBuiltEnvironment): string[] =>
   environment.elements
     .filter(
       (element: IAutoMovieBuiltElement): boolean =>

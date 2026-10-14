@@ -32,7 +32,9 @@ import { outlineCentroid } from "./outlineCentroid";
  * @evidence contracts/performance.md#reuse-equivalent-work Each space's owning building is resolved once per call and reused by every face of that space; nothing persists across calls because the record is the caller's.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The space index and owner memo live for one call, bounded by the space count; the caller owns the returned faces.
  */
-export const builtEnvironmentEnvelopeFaces: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvelopeFace[] = (
+export const builtEnvironmentEnvelopeFaces: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvelopeFace[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvelopeFace[] => {
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
@@ -57,7 +59,11 @@ export const builtEnvironmentEnvelopeFaces: (environment: IAutoMovieBuiltEnviron
     ): IAutoMovieVector3 =>
       Vector3.add(
         face.origin,
-        Quaternion.rotateVector(face.rotation, { x: point.x, y: point.y, z: 0 }),
+        Quaternion.rotateVector(face.rotation, {
+          x: point.x,
+          y: point.y,
+          z: 0,
+        }),
       );
     const centroid: IAutoMovieVector3 = place(outlineCentroid(face.outline));
     const authored: IAutoMovieVector3 = Vector3.normalize(
@@ -65,7 +71,10 @@ export const builtEnvironmentEnvelopeFaces: (environment: IAutoMovieBuiltEnviron
     );
     const normal: IAutoMovieVector3 = builtSpaceContainsPoint(
       space,
-      Vector3.add(centroid, Vector3.scale(authored, AUTOMOVIE_OBSERVATION_PROBE)),
+      Vector3.add(
+        centroid,
+        Vector3.scale(authored, AUTOMOVIE_OBSERVATION_PROBE),
+      ),
     )
       ? Vector3.scale(authored, -1)
       : authored;
@@ -94,7 +103,9 @@ export const builtEnvironmentEnvelopeFaces: (environment: IAutoMovieBuiltEnviron
     });
   }
   return faces.sort(
-    (left: IAutoMovieBuiltEnvelopeFace, right: IAutoMovieBuiltEnvelopeFace): number =>
-      compareAutoMovieRenderIds(left.boundary, right.boundary),
+    (
+      left: IAutoMovieBuiltEnvelopeFace,
+      right: IAutoMovieBuiltEnvelopeFace,
+    ): number => compareAutoMovieRenderIds(left.boundary, right.boundary),
   );
 };

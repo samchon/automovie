@@ -22,7 +22,11 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one fraction per call over the caller's mutable record and caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned section.
  */
-export const builtConnectorSectionAt: (environment: IAutoMovieBuiltEnvironment, connectorId: string, at: number) => IAutoMovieConnectorSectionAt = (
+export const builtConnectorSectionAt: (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+  at: number,
+) => IAutoMovieConnectorSectionAt = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
   at: number,

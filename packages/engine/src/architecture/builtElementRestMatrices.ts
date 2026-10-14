@@ -34,7 +34,9 @@ import { Matrix4 } from "../math/Matrix4";
  * @evidence contracts/performance.md#reuse-equivalent-work Within one lookup every ancestor's matrix is computed once and reused by all its descendants and by every later request; across lookups nothing is shared, because the record is the caller's mutable data.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the id index and the memo for as long as the caller holds the lookup, bounded by one entry and one sixteen-number matrix per element, and both are released when the lookup is dropped.
  */
-export const builtElementRestMatrices: (environment: IAutoMovieBuiltEnvironment) => (id: string) => number[] | null = (
+export const builtElementRestMatrices: (
+  environment: IAutoMovieBuiltEnvironment,
+) => (id: string) => number[] | null = (
   environment: IAutoMovieBuiltEnvironment,
 ): ((id: string) => number[] | null) => {
   const byId: Map<string, IAutoMovieBuiltElement> = new Map();
@@ -42,7 +44,9 @@ export const builtElementRestMatrices: (environment: IAutoMovieBuiltEnvironment)
     if (!byId.has(element.id)) byId.set(element.id, element);
   const memo: Map<string, number[] | null> = new Map();
   const visiting: Set<string> = new Set();
-  const read: (id: string) => number[] | null = (id: string): number[] | null => {
+  const read: (id: string) => number[] | null = (
+    id: string,
+  ): number[] | null => {
     const cached: number[] | null | undefined = memo.get(id);
     if (cached !== undefined) return cached;
     if (visiting.has(id)) return null;

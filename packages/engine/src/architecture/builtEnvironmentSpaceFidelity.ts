@@ -22,7 +22,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The subtree set is dropped on return; the answer is a string literal.
  * @author Samchon
  */
-export const builtEnvironmentSpaceFidelity: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => "exact" | "faceted" | "unstated" = (
+export const builtEnvironmentSpaceFidelity: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => "exact" | "faceted" | "unstated" = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): "exact" | "faceted" | "unstated" => {

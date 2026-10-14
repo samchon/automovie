@@ -32,7 +32,11 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure computation over one resolved assembly and one opening that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned reveal, whose layer list is bounded by the assembly's layer count.
  */
-export const autoMovieAssemblyOpeningReveal: (props: { resolved: IAutoMovieResolvedAssembly; width: number; height: number }) => IAutoMovieAssemblyReveal = (props: {
+export const autoMovieAssemblyOpeningReveal: (props: {
+  resolved: IAutoMovieResolvedAssembly;
+  width: number;
+  height: number;
+}) => IAutoMovieAssemblyReveal = (props: {
   resolved: IAutoMovieResolvedAssembly;
   /** Structural opening width in metres before lining, strictly above zero. */
   width: number;

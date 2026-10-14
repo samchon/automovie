@@ -31,7 +31,9 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, body list and active list live for one call; the active list holds at most the resolved body count, and the caller owns the returned report, bounded by the admitted pair count.
  * @author Samchon
  */
-export const builtEnvironmentPlacementOverlapSweep: (props: { environment: IAutoMovieBuiltEnvironment; }) => IAutoMovieBuiltPlacementOverlapReport = (props: {
+export const builtEnvironmentPlacementOverlapSweep: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieBuiltPlacementOverlapReport = (props: {
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieBuiltPlacementOverlapReport => {
   const boxes: Map<string, IAutoMovieSubjectBox[]> = builtEnvironmentPartBoxes(
@@ -39,7 +41,9 @@ export const builtEnvironmentPlacementOverlapSweep: (props: { environment: IAuto
   );
   const locators: AutoMovieBuiltPlacementBodyLocator[] = [
     ...props.environment.elements.map(
-      (element: IAutoMovieBuiltElement): AutoMovieBuiltPlacementBodyLocator => ({
+      (
+        element: IAutoMovieBuiltElement,
+      ): AutoMovieBuiltPlacementBodyLocator => ({
         kind: "element",
         id: element.id,
       }),
@@ -140,13 +144,17 @@ interface ISweptBody extends IAutoMovieBuiltPlacementBody {
 }
 
 /** The volume of one box, zero when any extent is flat. */
-const boxVolume: (box: IAutoMovieSubjectBox) => number = (box: IAutoMovieSubjectBox): number =>
+const boxVolume: (box: IAutoMovieSubjectBox) => number = (
+  box: IAutoMovieSubjectBox,
+): number =>
   Math.max(0, box.max.x - box.min.x) *
   Math.max(0, box.max.y - box.min.y) *
   Math.max(0, box.max.z - box.min.z);
 
 /** How much solid a body's parts hold, which is not the volume of its box. */
-const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (parts: readonly IAutoMovieSubjectBox[]): number =>
+const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (
+  parts: readonly IAutoMovieSubjectBox[],
+): number =>
   parts.reduce(
     (total: number, part: IAutoMovieSubjectBox): number =>
       total + boxVolume(part),
@@ -154,7 +162,10 @@ const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (parts: 
   );
 
 /** The volume two boxes share, zero when they only touch or miss. */
-const sharedVolume: (left: IAutoMovieSubjectBox, right: IAutoMovieSubjectBox) => number = (
+const sharedVolume: (
+  left: IAutoMovieSubjectBox,
+  right: IAutoMovieSubjectBox,
+) => number = (
   left: IAutoMovieSubjectBox,
   right: IAutoMovieSubjectBox,
 ): number =>

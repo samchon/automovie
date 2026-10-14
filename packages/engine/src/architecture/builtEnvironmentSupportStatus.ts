@@ -61,11 +61,15 @@ interface IResolvedSupport {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the resolved boxes and face only for the call; the caller owns the returned verdict.
  * @author Samchon
  */
-export const builtEnvironmentSupportStatus: (props: { environment: IAutoMovieBuiltEnvironment; query: IAutoMovieBuiltSupportQuery; }) => IAutoMovieBuiltSupportResult = (props: {
+export const builtEnvironmentSupportStatus: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  query: IAutoMovieBuiltSupportQuery;
+}) => IAutoMovieBuiltSupportResult = (props: {
   environment: IAutoMovieBuiltEnvironment;
   query: IAutoMovieBuiltSupportQuery;
 }): IAutoMovieBuiltSupportResult => {
-  const tolerance: number = props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
+  const tolerance: number =
+    props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
@@ -124,7 +128,11 @@ export const builtEnvironmentSupportStatus: (props: { environment: IAutoMovieBui
  *
  * A support's union box puts the bearing face at the highest point of the whole body, which for a shelf is the back panel rather than the board an object rests on, so a correctly seated object would read as floating by the height of a part it is nowhere near. The face is therefore the top of the part {@link bearingSolid} picks.
  */
-const resolveSupport: (environment: IAutoMovieBuiltEnvironment, locator: AutoMovieBuiltPlacementSupportLocator, subject: IAutoMovieBuiltPlacementBounds | null) => IResolvedSupport | null = (
+const resolveSupport: (
+  environment: IAutoMovieBuiltEnvironment,
+  locator: AutoMovieBuiltPlacementSupportLocator,
+  subject: IAutoMovieBuiltPlacementBounds | null,
+) => IResolvedSupport | null = (
   environment: IAutoMovieBuiltEnvironment,
   locator: AutoMovieBuiltPlacementSupportLocator,
   subject: IAutoMovieBuiltPlacementBounds | null,
@@ -174,7 +182,10 @@ const resolveSupport: (environment: IAutoMovieBuiltEnvironment, locator: AutoMov
  *
  * A subject over none of the solids gets the first of them rather than the union. It is over no part, so any part answers `not-over-support`, which is the truth; the union would have said it stands over the body, and a notch in an L-shaped body is exactly where that reappears. A single-solid body, and a subject that did not resolve, yield the body's own box.
  */
-const bearingSolid: (body: IAutoMovieBuiltPlacementBody, subject: IAutoMovieBuiltPlacementBounds | null) => IAutoMovieSubjectBox = (
+const bearingSolid: (
+  body: IAutoMovieBuiltPlacementBody,
+  subject: IAutoMovieBuiltPlacementBounds | null,
+) => IAutoMovieSubjectBox = (
   body: IAutoMovieBuiltPlacementBody,
   subject: IAutoMovieBuiltPlacementBounds | null,
 ): IAutoMovieSubjectBox => {
@@ -185,8 +196,12 @@ const bearingSolid: (body: IAutoMovieBuiltPlacementBody, subject: IAutoMovieBuil
   );
   if (over.length === 0) return body.solids[0]!;
   return over.reduce(
-    (best: IAutoMovieSubjectBox, solid: IAutoMovieSubjectBox): IAutoMovieSubjectBox =>
-      Math.abs(solid.max.y - subject.min.y) < Math.abs(best.max.y - subject.min.y)
+    (
+      best: IAutoMovieSubjectBox,
+      solid: IAutoMovieSubjectBox,
+    ): IAutoMovieSubjectBox =>
+      Math.abs(solid.max.y - subject.min.y) <
+      Math.abs(best.max.y - subject.min.y)
         ? solid
         : best,
   );

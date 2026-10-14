@@ -45,7 +45,10 @@ type IGridLayout = Extract<
  * @evidence contracts/performance.md#bound-retention-and-release-resources Compact layouts allocate a bounded corner set; explicit layouts allocate O(count) transformed corners and validation can collect O(T) findings. These temporaries and the collector become unreachable on return or throw; only the returned box escapes.
  * @author Samchon
  */
-export const builtInstanceSetPlacementBounds: (set: IAutoMovieInstanceSetDesign, prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieSubjectBox = (
+export const builtInstanceSetPlacementBounds: (
+  set: IAutoMovieInstanceSetDesign,
+  prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"],
+) => IAutoMovieSubjectBox = (
   set: IAutoMovieInstanceSetDesign,
   prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ): IAutoMovieSubjectBox => {
@@ -121,7 +124,10 @@ export const builtInstanceSetPlacementBounds: (set: IAutoMovieInstanceSetDesign,
 };
 
 /** Place one layout-local point under the set's anchor and base heading. */
-const placeInstancePoint: (set: IAutoMovieInstanceSetDesign, point: IAutoMovieVector3) => IAutoMovieVector3 = (
+const placeInstancePoint: (
+  set: IAutoMovieInstanceSetDesign,
+  point: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   set: IAutoMovieInstanceSetDesign,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
@@ -136,7 +142,10 @@ const placeInstancePoint: (set: IAutoMovieInstanceSetDesign, point: IAutoMovieVe
 };
 
 /** Scale one model-local point per axis. */
-const scaled: (point: IAutoMovieVector3, scale: IAutoMovieVector3) => IAutoMovieVector3 = (
+const scaled: (
+  point: IAutoMovieVector3,
+  scale: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   point: IAutoMovieVector3,
   scale: IAutoMovieVector3,
 ): IAutoMovieVector3 => ({
@@ -146,12 +155,17 @@ const scaled: (point: IAutoMovieVector3, scale: IAutoMovieVector3) => IAutoMovie
 });
 
 /** The eight corners of one model-local box, duplicates included when flat. */
-const prototypeBoxCorners: (bounds: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieVector3[] = (
+const prototypeBoxCorners: (
+  bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
+) => IAutoMovieVector3[] = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ): IAutoMovieVector3[] => boxCorners(bounds.min, bounds.max);
 
 /** Every combination of per-axis extremes between two corners. */
-const boxCorners: (min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieVector3[] = (
+const boxCorners: (
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+) => IAutoMovieVector3[] = (
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
 ): IAutoMovieVector3[] =>
@@ -162,7 +176,10 @@ const boxCorners: (min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovie
   );
 
 /** The prototype offset shared by every compact, non-explicit layout slot. */
-const prototypeOffsetBounds: (set: IAutoMovieInstanceSetDesign, corners: readonly IAutoMovieVector3[]) => IAutoMovieSubjectBox = (
+const prototypeOffsetBounds: (
+  set: IAutoMovieInstanceSetDesign,
+  corners: readonly IAutoMovieVector3[],
+) => IAutoMovieSubjectBox = (
   set: IAutoMovieInstanceSetDesign,
   corners: readonly IAutoMovieVector3[],
 ): IAutoMovieSubjectBox => {
@@ -227,7 +244,10 @@ const prototypeOffsetBounds: (set: IAutoMovieInstanceSetDesign, corners: readonl
  *
  * A rotated point set's world box is the box of its convex hull's corners, so a lattice needs its corners rather than its slots. The last row of a grid may be short, which is why the corner list is not simply four: the hull then has the full rows' far corner and the short row's own end, and taking the full rectangle instead would report a column of slate nobody laid. A lattice's top layer reuses the full layer's corners; the heading turns only about the vertical, so the full layer below already sets the horizontal extent.
  */
-const instanceSetExtremeSlots: (set: IAutoMovieInstanceSetDesign, layout: IGridLayout) => IAutoMovieVector3[] = (
+const instanceSetExtremeSlots: (
+  set: IAutoMovieInstanceSetDesign,
+  layout: IGridLayout,
+) => IAutoMovieVector3[] = (
   set: IAutoMovieInstanceSetDesign,
   layout: IGridLayout,
 ): IAutoMovieVector3[] => {
@@ -252,7 +272,10 @@ const instanceSetExtremeSlots: (set: IAutoMovieInstanceSetDesign, layout: IGridL
 };
 
 /** The hull corners of `count` slots laid row-major into `columns` columns. */
-const gridExtremeCells: (count: number, columns: number) => Array<{ column: number; row: number; }> = (
+const gridExtremeCells: (
+  count: number,
+  columns: number,
+) => Array<{ column: number; row: number }> = (
   count: number,
   columns: number,
 ): Array<{ column: number; row: number }> => {

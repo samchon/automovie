@@ -74,7 +74,10 @@ const CORNER_VIEWS: readonly (readonly [
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call from the caller's mutable record; within the call the anchor and boundary index serve every station.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the boundary index only for the call; the caller owns the returned station list, bounded by eight plus the space's opening count.
  */
-export const builtSpaceObservationStations: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieSpaceObservationStation[] = (
+export const builtSpaceObservationStations: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieSpaceObservationStation[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieSpaceObservationStation[] => {
@@ -123,10 +126,9 @@ export const builtSpaceObservationStations: (environment: IAutoMovieBuiltEnviron
     });
   const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
     environment.boundaries.map(
-      (boundary: IAutoMovieBuiltBoundary): [string, IAutoMovieBuiltBoundary] => [
-        boundary.id,
-        boundary,
-      ],
+      (
+        boundary: IAutoMovieBuiltBoundary,
+      ): [string, IAutoMovieBuiltBoundary] => [boundary.id, boundary],
     ),
   );
   const openings: IAutoMovieBuiltOpening[] = environment.openings
@@ -134,8 +136,9 @@ export const builtSpaceObservationStations: (environment: IAutoMovieBuiltEnviron
       (opening: IAutoMovieBuiltOpening): boolean =>
         boundaries.get(opening.boundary)?.spaces.includes(spaceId) === true,
     )
-    .sort((left: IAutoMovieBuiltOpening, right: IAutoMovieBuiltOpening): number =>
-      compareAutoMovieRenderIds(left.id, right.id),
+    .sort(
+      (left: IAutoMovieBuiltOpening, right: IAutoMovieBuiltOpening): number =>
+        compareAutoMovieRenderIds(left.id, right.id),
     );
   for (const opening of openings) {
     const mouth: IAutoMovieVector3 | null =
@@ -162,7 +165,10 @@ export const builtSpaceObservationStations: (environment: IAutoMovieBuiltEnviron
  * whose stated volume narrows with height can leave that point outside itself,
  * so the interior point it was derived from is kept as the fallback.
  */
-const readingAnchor: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox) => IAutoMovieVector3 | null = (
+const readingAnchor: (
+  space: IAutoMovieBuiltSpace,
+  bounds: IAutoMovieSubjectBox,
+) => IAutoMovieVector3 | null = (
   space: IAutoMovieBuiltSpace,
   bounds: IAutoMovieSubjectBox,
 ): IAutoMovieVector3 | null => {
@@ -181,7 +187,10 @@ const readingAnchor: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox)
 };
 
 /** An interior point of the space, or null when none is found. */
-const interiorCentre: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox) => IAutoMovieVector3 | null = (
+const interiorCentre: (
+  space: IAutoMovieBuiltSpace,
+  bounds: IAutoMovieSubjectBox,
+) => IAutoMovieVector3 | null = (
   space: IAutoMovieBuiltSpace,
   bounds: IAutoMovieSubjectBox,
 ): IAutoMovieVector3 | null => {
@@ -198,8 +207,10 @@ const interiorCentre: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox
     if (vertices.length === 0) continue;
     const centre: IAutoMovieVector3 = Vector3.scale(
       vertices.reduce(
-        (sum: IAutoMovieVector3, vertex: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(sum, vertex),
+        (
+          sum: IAutoMovieVector3,
+          vertex: IAutoMovieVector3,
+        ): IAutoMovieVector3 => Vector3.add(sum, vertex),
         { x: 0, y: 0, z: 0 },
       ),
       1 / vertices.length,
@@ -210,7 +221,11 @@ const interiorCentre: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox
 };
 
 /** Pull an eye toward the anchor until it lands inside, then aim it there. */
-const settledPose: (space: IAutoMovieBuiltSpace, from: IAutoMovieVector3, anchor: IAutoMovieVector3) => IStationPose = (
+const settledPose: (
+  space: IAutoMovieBuiltSpace,
+  from: IAutoMovieVector3,
+  anchor: IAutoMovieVector3,
+) => IStationPose = (
   space: IAutoMovieBuiltSpace,
   from: IAutoMovieVector3,
   anchor: IAutoMovieVector3,
@@ -223,13 +238,17 @@ const settledPose: (space: IAutoMovieBuiltSpace, from: IAutoMovieVector3, anchor
 };
 
 /** Aim one station at a target, or refuse it when the two coincide. */
-const aim: (position: IAutoMovieVector3, target: IAutoMovieVector3) => IStationPose = (
+const aim: (
+  position: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+) => IStationPose = (
   position: IAutoMovieVector3,
   target: IAutoMovieVector3,
 ): IStationPose => {
   const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
   const length: number = Vector3.length(offset);
-  if (!Number.isFinite(length) || length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
+  if (!Number.isFinite(length) || length <= AUTOMOVIE_OBSERVATION_EPSILON)
+    return null;
   return { position, direction: Vector3.scale(offset, 1 / length), target };
 };
 
@@ -237,7 +256,10 @@ const aim: (position: IAutoMovieVector3, target: IAutoMovieVector3) => IStationP
  * World centre of one opening's void, or of its host face when uncut, or null
  * when the host boundary states no face to place it on.
  */
-const openingCentre: (boundary: IAutoMovieBuiltBoundary, opening: IAutoMovieBuiltOpening) => IAutoMovieVector3 | null = (
+const openingCentre: (
+  boundary: IAutoMovieBuiltBoundary,
+  opening: IAutoMovieBuiltOpening,
+) => IAutoMovieVector3 | null = (
   boundary: IAutoMovieBuiltBoundary,
   opening: IAutoMovieBuiltOpening,
 ): IAutoMovieVector3 | null => {

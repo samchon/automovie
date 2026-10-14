@@ -30,7 +30,10 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coordinates no work across calls; mapping multiple points repeats the candidate lookup for each point, with no bound on candidate count assumed here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing.
  */
-export const designReferenceWorldPoint: (frame: IAutoMovieDesignSourceFrame, point: IAutoMovieDesignPoint) => IAutoMovieVector3 = (
+export const designReferenceWorldPoint: (
+  frame: IAutoMovieDesignSourceFrame,
+  point: IAutoMovieDesignPoint,
+) => IAutoMovieVector3 = (
   frame: IAutoMovieDesignSourceFrame,
   point: IAutoMovieDesignPoint,
 ): IAutoMovieVector3 => {
@@ -62,7 +65,9 @@ export const designReferenceWorldPoint: (frame: IAutoMovieDesignSourceFrame, poi
 };
 
 /** Normalize an axis longer than the threshold; otherwise return it unchanged. */
-const unit: (value: IAutoMovieVector3) => IAutoMovieVector3 = (value: IAutoMovieVector3): IAutoMovieVector3 => {
+const unit: (value: IAutoMovieVector3) => IAutoMovieVector3 = (
+  value: IAutoMovieVector3,
+): IAutoMovieVector3 => {
   const length: number = Math.hypot(value.x, value.y, value.z);
   if (length <= AXIS_EPSILON) return value;
   return { x: value.x / length, y: value.y / length, z: value.z / length };

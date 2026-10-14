@@ -51,7 +51,13 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * @evidence contracts/performance.md#reuse-equivalent-work Every placement of a zone reuses that zone's resolved panel basis instead of re-validating its frame; nothing is reused across calls, since the result and frames are inputs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The panel map is dropped on return; the caller owns the slots and cut ids, together bounded by the placement count.
  */
-export const autoMoviePatternInstanceTransforms: (props: { result: IAutoMovieSurfacePatternResult; frame: IAutoMoviePatternFaceFrame; facets?: readonly IAutoMoviePatternFacet[]; thickness: number; prototypes?: readonly string[] }) => IAutoMoviePatternInstancing = (props: {
+export const autoMoviePatternInstanceTransforms: (props: {
+  result: IAutoMovieSurfacePatternResult;
+  frame: IAutoMoviePatternFaceFrame;
+  facets?: readonly IAutoMoviePatternFacet[];
+  thickness: number;
+  prototypes?: readonly string[];
+}) => IAutoMoviePatternInstancing = (props: {
   result: IAutoMovieSurfacePatternResult;
   frame: IAutoMoviePatternFaceFrame;
   /** Panels the folded or curved zones return onto; the rest use `frame`. */
@@ -105,8 +111,7 @@ export const autoMoviePatternInstanceTransforms: (props: { result: IAutoMovieSur
       },
     };
     if (props.prototypes !== undefined) {
-      const prototype: string | undefined =
-        props.prototypes[placement.variant];
+      const prototype: string | undefined = props.prototypes[placement.variant];
       if (prototype === undefined)
         throw new Error(
           `pattern occurrence "${placement.id}" draws variant ${placement.variant}, which the ${props.prototypes.length} declared prototypes do not cover`,
@@ -141,7 +146,10 @@ interface IResolvedPanel {
 }
 
 /** Index each declared quantity zone's facet, including zones with no survivors. */
-const resolveFacets: (result: IAutoMovieSurfacePatternResult, facets: readonly IAutoMoviePatternFacet[]) => Map<string, IResolvedPanel> = (
+const resolveFacets: (
+  result: IAutoMovieSurfacePatternResult,
+  facets: readonly IAutoMoviePatternFacet[],
+) => Map<string, IResolvedPanel> = (
   result: IAutoMovieSurfacePatternResult,
   facets: readonly IAutoMoviePatternFacet[],
 ): Map<string, IResolvedPanel> => {
@@ -171,7 +179,11 @@ const resolveFacets: (result: IAutoMovieSurfacePatternResult, facets: readonly I
 };
 
 /** Validate one frame and anchor against the approximate orthonormality tolerance. */
-const resolvePanel: (anchor: IAutoMoviePatternPoint, frame: IAutoMoviePatternFaceFrame, label: string) => IResolvedPanel = (
+const resolvePanel: (
+  anchor: IAutoMoviePatternPoint,
+  frame: IAutoMoviePatternFaceFrame,
+  label: string,
+) => IResolvedPanel = (
   anchor: IAutoMoviePatternPoint,
   frame: IAutoMoviePatternFaceFrame,
   label: string,
@@ -187,7 +199,10 @@ const resolvePanel: (anchor: IAutoMoviePatternPoint, frame: IAutoMoviePatternFac
 };
 
 /** Refuse an axis that is not finite or not unit length within `1e-6`. */
-const unitAxis: (axis: IAutoMovieVector3, label: string) => IAutoMovieVector3 = (
+const unitAxis: (
+  axis: IAutoMovieVector3,
+  label: string,
+) => IAutoMovieVector3 = (
   axis: IAutoMovieVector3,
   label: string,
 ): IAutoMovieVector3 => {
@@ -198,7 +213,10 @@ const unitAxis: (axis: IAutoMovieVector3, label: string) => IAutoMovieVector3 = 
 };
 
 /** Refuse a vector with a non-finite component. */
-const finiteVector: (value: IAutoMovieVector3, label: string) => void = (value: IAutoMovieVector3, label: string): void => {
+const finiteVector: (value: IAutoMovieVector3, label: string) => void = (
+  value: IAutoMovieVector3,
+  label: string,
+): void => {
   if (![value.x, value.y, value.z].every(Number.isFinite))
     throw new Error(`${label} must be finite`);
 };

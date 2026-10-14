@@ -23,7 +23,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Rebuilds each connector's stop list on every call instead of indexing stops by space, because the index would outlive a record the caller may edit; no work is shared between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one stop list per connector during the scan and the returned array of record references, which the caller owns.
  */
-export const builtEnvironmentSpaceConnectors: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieBuiltConnector[] = (
+export const builtEnvironmentSpaceConnectors: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieBuiltConnector[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltConnector[] => {

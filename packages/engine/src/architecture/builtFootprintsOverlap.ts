@@ -20,7 +20,10 @@ import { IAutoMovieSubjectBox } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate on two values that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Compares eight stored numbers of two caller-owned boxes and keeps neither box after returning.
  */
-export const builtFootprintsOverlap: (left: IAutoMovieSubjectBox, right: IAutoMovieSubjectBox) => boolean = (
+export const builtFootprintsOverlap: (
+  left: IAutoMovieSubjectBox,
+  right: IAutoMovieSubjectBox,
+) => boolean = (
   left: IAutoMovieSubjectBox,
   right: IAutoMovieSubjectBox,
 ): boolean =>

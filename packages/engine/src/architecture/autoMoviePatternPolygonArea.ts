@@ -16,9 +16,9 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure sum over one outline that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond scalars, so nothing outlives the call.
  */
-export const autoMoviePatternPolygonArea: (polygon: readonly IAutoMoviePatternPoint[]) => number = (
+export const autoMoviePatternPolygonArea: (
   polygon: readonly IAutoMoviePatternPoint[],
-): number => {
+) => number = (polygon: readonly IAutoMoviePatternPoint[]): number => {
   let twice: number = 0;
   for (let index: number = 0; index < polygon.length; ++index) {
     const from: IAutoMoviePatternPoint = polygon[index]!;

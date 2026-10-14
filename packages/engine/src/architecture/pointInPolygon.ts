@@ -19,7 +19,10 @@ import { pointOnSegment } from "./pointOnSegment";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure query over one point and one ring that coordinates no work across requests; a caller testing many points against one ring owns any indexing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps a loop index and one parity flag for the call and allocates nothing, so nothing outlives it.
  */
-export const pointInPolygon: (point: IAutoMoviePlanarPoint, polygon: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
+export const pointInPolygon: (
+  point: IAutoMoviePlanarPoint,
+  polygon: readonly IAutoMoviePlanarPoint[],
+) => boolean = (
   point: IAutoMoviePlanarPoint,
   polygon: readonly IAutoMoviePlanarPoint[],
 ): boolean => {

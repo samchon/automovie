@@ -40,7 +40,10 @@ const COVERAGE_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one run's placements per call; the bucket grid is built once per call and serves every piece.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Buckets and the largest per-piece partner set/sorted array use O(N) local storage, released on return. Returned findings can use O(N²) records; the caller owns them, with no silent truncation cap.
  */
-export const autoMoviePatternFindings: (pattern: IAutoMovieSurfacePattern, placements: readonly IAutoMoviePatternPlacement[]) => IAutoMoviePatternFinding[] = (
+export const autoMoviePatternFindings: (
+  pattern: IAutoMovieSurfacePattern,
+  placements: readonly IAutoMoviePatternPlacement[],
+) => IAutoMoviePatternFinding[] = (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
 ): IAutoMoviePatternFinding[] => {
@@ -103,7 +106,12 @@ export const autoMoviePatternFindings: (pattern: IAutoMovieSurfacePattern, place
 };
 
 /** Append the pair findings one neighbouring pair raises. */
-const judgePair: (pattern: IAutoMovieSurfacePattern, placement: IAutoMoviePatternPlacement, other: IAutoMoviePatternPlacement, findings: IAutoMoviePatternFinding[]) => void = (
+const judgePair: (
+  pattern: IAutoMovieSurfacePattern,
+  placement: IAutoMoviePatternPlacement,
+  other: IAutoMoviePatternPlacement,
+  findings: IAutoMoviePatternFinding[],
+) => void = (
   pattern: IAutoMovieSurfacePattern,
   placement: IAutoMoviePatternPlacement,
   other: IAutoMoviePatternPlacement,
@@ -142,7 +150,12 @@ const judgePair: (pattern: IAutoMovieSurfacePattern, placement: IAutoMoviePatter
 };
 
 /** The grid cell key of a placement's centre, offset by whole cells. */
-const bucketKey: (placement: IAutoMoviePatternPlacement, cellSize: number, du: number, dv: number) => string = (
+const bucketKey: (
+  placement: IAutoMoviePatternPlacement,
+  cellSize: number,
+  du: number,
+  dv: number,
+) => string = (
   placement: IAutoMoviePatternPlacement,
   cellSize: number,
   du: number,
@@ -151,7 +164,10 @@ const bucketKey: (placement: IAutoMoviePatternPlacement, cellSize: number, du: n
   `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
 
 /** Smallest in-plane angle between two 180-periodic grain directions. */
-const grainDeviation: (left: number, right: number) => number = (left: number, right: number): number => {
+const grainDeviation: (left: number, right: number) => number = (
+  left: number,
+  right: number,
+): number => {
   const delta: number = positiveModulo(left - right, 180);
   return Math.min(delta, 180 - delta);
 };
@@ -164,7 +180,10 @@ const grainDeviation: (left: number, right: number) => number = (left: number, r
  * edge normals. A negative result is a real overlap, because no axis separated
  * them.
  */
-const separation: (left: readonly IAutoMoviePatternPoint[], right: readonly IAutoMoviePatternPoint[]) => number = (
+const separation: (
+  left: readonly IAutoMoviePatternPoint[],
+  right: readonly IAutoMoviePatternPoint[],
+) => number = (
   left: readonly IAutoMoviePatternPoint[],
   right: readonly IAutoMoviePatternPoint[],
 ): number => {
@@ -190,7 +209,10 @@ const separation: (left: readonly IAutoMoviePatternPoint[], right: readonly IAut
 };
 
 /** The interval a polygon's corners cover along one unit axis. */
-const project: (polygon: readonly IAutoMoviePatternPoint[], axis: IAutoMoviePatternPoint) => { min: number; max: number } = (
+const project: (
+  polygon: readonly IAutoMoviePatternPoint[],
+  axis: IAutoMoviePatternPoint,
+) => { min: number; max: number } = (
   polygon: readonly IAutoMoviePatternPoint[],
   axis: IAutoMoviePatternPoint,
 ): { min: number; max: number } => {

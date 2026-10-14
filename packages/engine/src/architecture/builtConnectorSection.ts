@@ -31,7 +31,10 @@ import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one record and one fraction that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned two-number section.
  */
-export const builtConnectorSection: (connector: IAutoMovieBuiltConnector, at: number) => IAutoMovieConnectorSectionAt | null = (
+export const builtConnectorSection: (
+  connector: IAutoMovieBuiltConnector,
+  at: number,
+) => IAutoMovieConnectorSectionAt | null = (
   connector: IAutoMovieBuiltConnector,
   at: number,
 ): IAutoMovieConnectorSectionAt | null => {

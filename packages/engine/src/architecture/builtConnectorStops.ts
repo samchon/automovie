@@ -20,9 +20,9 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure projection of one record that coordinates no work; callers that need it repeatedly per connector call it once per connector.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned array, bounded by the landing count plus two.
  */
-export const builtConnectorStops: (connector: IAutoMovieBuiltConnector) => string[] = (
+export const builtConnectorStops: (
   connector: IAutoMovieBuiltConnector,
-): string[] => [
+) => string[] = (connector: IAutoMovieBuiltConnector): string[] => [
   connector.from,
   ...(connector.landings ?? []).map(
     (landing: IAutoMovieConnectorLanding): string => landing.space,

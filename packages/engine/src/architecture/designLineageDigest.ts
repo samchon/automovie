@@ -37,9 +37,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Digests the record it is handed each call; a cached digest could not prove the caller's mutable record unchanged.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the sorted copies and serialized lines only for the call and returns one digest string.
  */
-export const designLineageDigest: (lineage: IAutoMovieDesignLineage) => string = (
+export const designLineageDigest: (
   lineage: IAutoMovieDesignLineage,
-): string => {
+) => string = (lineage: IAutoMovieDesignLineage): string => {
   requireValidDesignLineage(lineage);
   const lines: string[] = [
     designLineageRecord(
@@ -51,110 +51,104 @@ export const designLineageDigest: (lineage: IAutoMovieDesignLineage) => string =
     ...sortedBy(
       lineage.subjects,
       (subject: IAutoMovieDesignSubject): string => subject.id,
-    ).map(
-      (subject: IAutoMovieDesignSubject): string =>
-        designLineageRecord(
-          "subject",
-          subject.id,
-          subject.graph,
-          subject.digest ?? "",
-        ),
+    ).map((subject: IAutoMovieDesignSubject): string =>
+      designLineageRecord(
+        "subject",
+        subject.id,
+        subject.graph,
+        subject.digest ?? "",
+      ),
     ),
     ...sortedBy(
       lineage.revisions,
       (revision: IAutoMovieDesignRevision): string => revision.id,
-    ).map(
-      (revision: IAutoMovieDesignRevision): string =>
-        designLineageRecord(
-          "revision",
-          revision.id,
-          revision.parent ?? "",
-          revision.digest,
-        ),
+    ).map((revision: IAutoMovieDesignRevision): string =>
+      designLineageRecord(
+        "revision",
+        revision.id,
+        revision.parent ?? "",
+        revision.digest,
+      ),
     ),
     ...sortedBy(
       lineage.phases,
       (phase: IAutoMovieDesignPhase): string => phase.id,
-    ).map(
-      (phase: IAutoMovieDesignPhase): string =>
-        designLineageRecord(
-          "phase",
-          phase.id,
-          phase.label,
-          ...[...phase.requires].sort(compareCodeUnits),
-        ),
+    ).map((phase: IAutoMovieDesignPhase): string =>
+      designLineageRecord(
+        "phase",
+        phase.id,
+        phase.label,
+        ...[...phase.requires].sort(compareCodeUnits),
+      ),
     ),
     ...sortedBy(
       lineage.lifecycles,
       (lifecycle: IAutoMovieDesignLifecycle): string => lifecycle.subject,
-    ).map(
-      (lifecycle: IAutoMovieDesignLifecycle): string =>
-        designLineageRecord(
-          "lifecycle",
-          lifecycle.subject,
-          lifecycle.introducedIn ?? "",
-          lifecycle.removedIn ?? "",
-        ),
+    ).map((lifecycle: IAutoMovieDesignLifecycle): string =>
+      designLineageRecord(
+        "lifecycle",
+        lifecycle.subject,
+        lifecycle.introducedIn ?? "",
+        lifecycle.removedIn ?? "",
+      ),
     ),
     ...sortedBy(
       lineage.variants,
       (variant: IAutoMovieDesignVariant): string => variant.id,
-    ).flatMap(
-      (variant: IAutoMovieDesignVariant): string[] => [
-        designLineageRecord("variant", variant.id, variant.label, variant.base),
-        ...sortedBy(
-          variant.changes,
-          (change: IAutoMovieDesignChange): string => change.id,
-        ).map(
-          (change: IAutoMovieDesignChange): string =>
-            designLineageRecord(
-              "change",
-              variant.id,
-              change.id,
-              change.subject,
-              change.aspect,
-              change.value,
-              change.rationale,
-            ),
+    ).flatMap((variant: IAutoMovieDesignVariant): string[] => [
+      designLineageRecord("variant", variant.id, variant.label, variant.base),
+      ...sortedBy(
+        variant.changes,
+        (change: IAutoMovieDesignChange): string => change.id,
+      ).map((change: IAutoMovieDesignChange): string =>
+        designLineageRecord(
+          "change",
+          variant.id,
+          change.id,
+          change.subject,
+          change.aspect,
+          change.value,
+          change.rationale,
         ),
-      ],
-    ),
+      ),
+    ]),
     ...sortedBy(
       lineage.decisions,
       (decision: IAutoMovieDesignDecision): string => decision.id,
-    ).map(
-      (decision: IAutoMovieDesignDecision): string =>
-        designLineageRecord(
-          "decision",
-          decision.id,
-          decision.question,
-          decision.selected ?? "",
-          ...[...decision.options].sort(compareCodeUnits),
-        ),
+    ).map((decision: IAutoMovieDesignDecision): string =>
+      designLineageRecord(
+        "decision",
+        decision.id,
+        decision.question,
+        decision.selected ?? "",
+        ...[...decision.options].sort(compareCodeUnits),
+      ),
     ),
     ...sortedBy(
       lineage.derived,
       (artifact: IAutoMovieDerivedArtifact): string => artifact.id,
-    ).map(
-      (artifact: IAutoMovieDerivedArtifact): string =>
-        designLineageRecord(
-          "derived",
-          artifact.id,
-          artifact.kind,
-          artifact.digest,
-          artifact.stamp.revision,
-          artifact.stamp.variant ?? "",
-          artifact.stamp.phase ?? "",
-          artifact.stamp.configuration,
-          ...[...artifact.inputs].sort(compareCodeUnits),
-        ),
+    ).map((artifact: IAutoMovieDerivedArtifact): string =>
+      designLineageRecord(
+        "derived",
+        artifact.id,
+        artifact.kind,
+        artifact.digest,
+        artifact.stamp.revision,
+        artifact.stamp.variant ?? "",
+        artifact.stamp.phase ?? "",
+        artifact.stamp.configuration,
+        ...[...artifact.inputs].sort(compareCodeUnits),
+      ),
     ),
   ];
   return autoMovieRenderDigest(lines.join("\n"));
 };
 
 /** A code-unit-sorted copy of one collection, keyed by one string field. */
-const sortedBy: <T>(items: readonly T [ ], key: ( item : T ) => string) => T [ ] = <T,>(items: readonly T[], key: (item: T) => string): T[] =>
+const sortedBy: <T>(items: readonly T[], key: (item: T) => string) => T[] = <T>(
+  items: readonly T[],
+  key: (item: T) => string,
+): T[] =>
   [...items].sort((left: T, right: T): number =>
     compareCodeUnits(key(left), key(right)),
   );

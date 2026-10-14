@@ -28,7 +28,10 @@ import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPart
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the one returned box.
  * @author Samchon
  */
-export const builtEnvironmentElementBounds: (environment: IAutoMovieBuiltEnvironment, elementId: string) => IAutoMovieSubjectBox | null = (
+export const builtEnvironmentElementBounds: (
+  environment: IAutoMovieBuiltEnvironment,
+  elementId: string,
+) => IAutoMovieSubjectBox | null = (
   environment: IAutoMovieBuiltEnvironment,
   elementId: string,
 ): IAutoMovieSubjectBox | null => {

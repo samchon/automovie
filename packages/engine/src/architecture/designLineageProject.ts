@@ -31,7 +31,11 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Projects one record list per call from the caller's mutable lineage; nothing is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the snapshot and index only for the call; the returned array is new but shares the input record objects.
  */
-export const designLineageProject: <T extends { id: string; }>(lineage: IAutoMovieDesignLineage, phase: string | null, records: readonly T[]) => T[] = <T extends { id: string }>(
+export const designLineageProject: <T extends { id: string }>(
+  lineage: IAutoMovieDesignLineage,
+  phase: string | null,
+  records: readonly T[],
+) => T[] = <T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
   records: readonly T[],

@@ -16,7 +16,9 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one outline that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the one returned point.
  */
-export const outlineCentroid: (outline: readonly IAutoMoviePlanarPoint[]) => IAutoMoviePlanarPoint = (
+export const outlineCentroid: (
+  outline: readonly IAutoMoviePlanarPoint[],
+) => IAutoMoviePlanarPoint = (
   outline: readonly IAutoMoviePlanarPoint[],
 ): IAutoMoviePlanarPoint => {
   let doubleArea: number = 0;

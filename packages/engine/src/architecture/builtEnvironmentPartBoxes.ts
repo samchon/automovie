@@ -25,7 +25,9 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Staged matrices and the model index are dropped on return; the caller owns the map, bounded by the drawn element count times each model's part count.
  * @author Samchon
  */
-export const builtEnvironmentPartBoxes: (environment: IAutoMovieBuiltEnvironment) => Map<string, IAutoMovieSubjectBox[]> = (
+export const builtEnvironmentPartBoxes: (
+  environment: IAutoMovieBuiltEnvironment,
+) => Map<string, IAutoMovieSubjectBox[]> = (
   environment: IAutoMovieBuiltEnvironment,
 ): Map<string, IAutoMovieSubjectBox[]> => {
   const matrices: Map<string, number[]> =

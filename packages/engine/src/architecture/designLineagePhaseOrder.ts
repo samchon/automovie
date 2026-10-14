@@ -21,9 +21,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Orders the plan it is handed each call; nothing is cached because the caller may change the lineage between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The indices and ready list live only for the call and are linear in the plan size; the caller owns the returned order.
  */
-export const designLineagePhaseOrder: (lineage: IAutoMovieDesignLineage) => string[] = (
+export const designLineagePhaseOrder: (
   lineage: IAutoMovieDesignLineage,
-): string[] => {
+) => string[] = (lineage: IAutoMovieDesignLineage): string[] => {
   requireValidDesignLineage(lineage);
   const waiting: Map<string, number> = new Map();
   const dependents: Map<string, string[]> = new Map();
@@ -52,7 +52,10 @@ export const designLineagePhaseOrder: (lineage: IAutoMovieDesignLineage) => stri
 };
 
 /** Insert one id into a code-unit-sorted list, keeping it sorted. */
-const insertSorted: (sorted: string[], id: string) => void = (sorted: string[], id: string): void => {
+const insertSorted: (sorted: string[], id: string) => void = (
+  sorted: string[],
+  id: string,
+): void => {
   let low: number = 0;
   let high: number = sorted.length;
   while (low < high) {

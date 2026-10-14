@@ -27,7 +27,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidence contracts/performance.md#reuse-equivalent-work The one validation result is shared by every pair of the decision, because each pair reads the same unmodified lineage within one synchronous call; nothing is reused across calls, since the caller may change the record between them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the sorted option list only for the call; the caller owns the returned comparisons.
  */
-export const designLineageDecisionComparisons: (lineage: IAutoMovieDesignLineage, decision: string) => IAutoMovieDesignComparison[] = (
+export const designLineageDecisionComparisons: (
+  lineage: IAutoMovieDesignLineage,
+  decision: string,
+) => IAutoMovieDesignComparison[] = (
   lineage: IAutoMovieDesignLineage,
   decision: string,
 ): IAutoMovieDesignComparison[] => {

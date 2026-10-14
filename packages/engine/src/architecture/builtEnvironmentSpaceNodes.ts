@@ -28,7 +28,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call from the caller's mutable record, so nothing staged by an earlier call is kept to be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the subtree set only for the call; the caller owns the returned id list.
  */
-export const builtEnvironmentSpaceNodes: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => string[] = (
+export const builtEnvironmentSpaceNodes: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => string[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): string[] => {

@@ -26,7 +26,11 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over three points; it coordinates no work across requests or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads three points and allocates nothing, so no state, handle or task outlives the call.
  */
-export const planarSide: (from: IAutoMoviePlanarPoint, to: IAutoMoviePlanarPoint, point: IAutoMoviePlanarPoint) => -1 | 0 | 1 = (
+export const planarSide: (
+  from: IAutoMoviePlanarPoint,
+  to: IAutoMoviePlanarPoint,
+  point: IAutoMoviePlanarPoint,
+) => -1 | 0 | 1 = (
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,
   point: IAutoMoviePlanarPoint,

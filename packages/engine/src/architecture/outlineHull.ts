@@ -23,11 +23,15 @@ import { polygonDoubleArea } from "./polygonDoubleArea";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure transformation of one profile that coordinates no work across requests; building validation computes each hull once and passes it to the overlap and panel-fit checks.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned ring of at most 3n points, which the caller owns; nothing else outlives the call.
  */
-export const outlineHull: (profile: IAutoMovieOpeningProfile) => IAutoMoviePlanarPoint [ ] = (
+export const outlineHull: (
+  profile: IAutoMovieOpeningProfile,
+) => IAutoMoviePlanarPoint[] = (
   profile: IAutoMovieOpeningProfile,
 ): IAutoMoviePlanarPoint[] => {
   const points: IAutoMoviePlanarPoint[] = profile.outline;
-  const winding: number = profile.bulges?.some((bulge: number): boolean => bulge !== 0)
+  const winding: number = profile.bulges?.some(
+    (bulge: number): boolean => bulge !== 0,
+  )
     ? polygonDoubleArea(points)
     : 0;
   const hull: IAutoMoviePlanarPoint[] = [];
@@ -36,7 +40,8 @@ export const outlineHull: (profile: IAutoMovieOpeningProfile) => IAutoMoviePlana
     const to: IAutoMoviePlanarPoint = points[(index + 1) % points.length]!;
     hull.push(from);
     const bulge: number = profile.bulges?.[index] ?? 0;
-    if (bulge === 0 || (bulge > 0 && winding > 0) || (bulge < 0 && winding < 0)) continue;
+    if (bulge === 0 || (bulge > 0 && winding > 0) || (bulge < 0 && winding < 0))
+      continue;
     const dx: number = to.x - from.x;
     const dy: number = to.y - from.y;
     const chord: number = Math.hypot(dx, dy);

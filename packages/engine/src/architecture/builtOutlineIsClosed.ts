@@ -32,7 +32,13 @@ import { polygonShortestEdge } from "./polygonShortestEdge";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one outline per call; each face and opening outline is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond the violations, at most one per coordinate or one for the count or the repeat, appended to the caller's collector.
  */
-export const builtOutlineIsClosed: (outline: readonly IAutoMoviePlanarPoint[], least: number, path: string, label: string, collector: ViolationCollector) => boolean = (
+export const builtOutlineIsClosed: (
+  outline: readonly IAutoMoviePlanarPoint[],
+  least: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => boolean = (
   outline: readonly IAutoMoviePlanarPoint[],
   least: number,
   path: string,

@@ -17,7 +17,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call over the caller's mutable record and keeps no index between calls; a caller labelling many spaces pays the index build per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The id indexes and visited set live for one call and are dropped on return; the caller owns the returned id string.
  */
-export const builtEnvironmentBuildingOfSpace: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => string = (
+export const builtEnvironmentBuildingOfSpace: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => string = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): string => {

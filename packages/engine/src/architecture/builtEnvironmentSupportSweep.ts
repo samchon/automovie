@@ -67,7 +67,11 @@ interface ICandidateSolid {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
  * @author Samchon
  */
-export const builtEnvironmentSupportSweep: (props: { environment: IAutoMovieBuiltEnvironment; groundY?: number; tolerance?: number; }) => IAutoMovieBuiltSupportSweepReport = (props: {
+export const builtEnvironmentSupportSweep: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  groundY?: number;
+  tolerance?: number;
+}) => IAutoMovieBuiltSupportSweepReport = (props: {
   environment: IAutoMovieBuiltEnvironment;
   /** World height a body may rest on directly, in metres. Defaults to `0`. */
   groundY?: number;
@@ -86,7 +90,13 @@ export const builtEnvironmentSupportSweep: (props: { environment: IAutoMovieBuil
       `building ground height must be finite, but was ${String(groundY)}`,
     );
 
-  const { resolved, unresolved }: { resolved: IResolvedBody[]; unresolved: AutoMovieBuiltPlacementBodyLocator[]; } = resolveBodies(props.environment);
+  const {
+    resolved,
+    unresolved,
+  }: {
+    resolved: IResolvedBody[];
+    unresolved: AutoMovieBuiltPlacementBodyLocator[];
+  } = resolveBodies(props.environment);
   // Descending top heights make the first footprint hit below the slack-adjusted
   // ceiling the nearest admitted candidate.
   const descending: ICandidateSolid[] = resolved
@@ -150,7 +160,10 @@ export const builtEnvironmentSupportSweep: (props: { environment: IAutoMovieBuil
  *
  * The building is staged once for every element's parts, and each body is then resolved from that table. Resolving an element means tessellating its model and walking its transform chain, so repeating it per body is the cost that would make a whole-building sweep unusable.
  */
-const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => { resolved: IResolvedBody[]; unresolved: AutoMovieBuiltPlacementBodyLocator[]; } = (
+const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => {
+  resolved: IResolvedBody[];
+  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+} = (
   environment: IAutoMovieBuiltEnvironment,
 ): {
   resolved: IResolvedBody[];
@@ -160,7 +173,9 @@ const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => { resolved: IR
     builtEnvironmentPartBoxes(environment);
   const locators: AutoMovieBuiltPlacementBodyLocator[] = [
     ...environment.elements.map(
-      (element: IAutoMovieBuiltElement): AutoMovieBuiltPlacementBodyLocator => ({
+      (
+        element: IAutoMovieBuiltElement,
+      ): AutoMovieBuiltPlacementBodyLocator => ({
         kind: "element",
         id: element.id,
       }),
@@ -177,12 +192,14 @@ const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => { resolved: IR
   const resolved: IResolvedBody[] = [];
   const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
   for (const locator of locators) {
-    const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody({
-      environment,
-      target: locator,
-      parts: (elementId: string): IAutoMovieSubjectBox[] | undefined =>
-        parts.get(elementId),
-    });
+    const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody(
+      {
+        environment,
+        target: locator,
+        parts: (elementId: string): IAutoMovieSubjectBox[] | undefined =>
+          parts.get(elementId),
+      },
+    );
     if (body === null) unresolved.push(locator);
     else resolved.push({ locator, body });
   }
@@ -194,7 +211,10 @@ const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => { resolved: IR
  *
  * A binary search rather than a scan, because the bodies above a subject are the many in a tall building and reading past them is the cost this ordering exists to avoid.
  */
-const firstAtOrBelow: (descending: readonly ICandidateSolid[], ceiling: number) => number = (
+const firstAtOrBelow: (
+  descending: readonly ICandidateSolid[],
+  ceiling: number,
+) => number = (
   descending: readonly ICandidateSolid[],
   ceiling: number,
 ): number => {

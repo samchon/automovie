@@ -21,7 +21,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call over the caller's mutable record; a caller asking many spaces owns any index it builds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the returned ids, bounded by the space count.
  */
-export const builtEnvironmentAdjacentSpaces: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => string[] = (
+export const builtEnvironmentAdjacentSpaces: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => string[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): string[] => {

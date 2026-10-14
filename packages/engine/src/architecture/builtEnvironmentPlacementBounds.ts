@@ -29,7 +29,10 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the returned box.
  * @author Samchon
  */
-export const builtEnvironmentPlacementBounds: (props: { environment: IAutoMovieBuiltEnvironment; target: AutoMovieBuiltPlacementBodyLocator; }) => IAutoMovieBuiltPlacementBounds | null = (props: {
+export const builtEnvironmentPlacementBounds: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  target: AutoMovieBuiltPlacementBodyLocator;
+}) => IAutoMovieBuiltPlacementBounds | null = (props: {
   environment: IAutoMovieBuiltEnvironment;
   target: AutoMovieBuiltPlacementBodyLocator;
 }): IAutoMovieBuiltPlacementBounds | null => {

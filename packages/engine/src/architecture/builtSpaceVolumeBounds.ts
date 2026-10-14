@@ -26,7 +26,9 @@ import { builtPointBounds } from "./builtPointBounds";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure read of one space value per call that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the cut corner list only for the call; the caller owns the returned box.
  */
-export const builtSpaceVolumeBounds: (space: IAutoMovieBuiltSpace) => IAutoMovieSubjectBox | null = (
+export const builtSpaceVolumeBounds: (
+  space: IAutoMovieBuiltSpace,
+) => IAutoMovieSubjectBox | null = (
   space: IAutoMovieBuiltSpace,
 ): IAutoMovieSubjectBox | null =>
   builtPointBounds(

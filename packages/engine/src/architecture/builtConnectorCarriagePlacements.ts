@@ -29,7 +29,11 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * @evidence contracts/performance.md#reuse-equivalent-work One staging pass is shared by every carriage of the run within the call; nothing is kept between calls because the state and the record are inputs that may differ.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The staged matrices are dropped on return; the caller owns the returned placements, one per carriage.
  */
-export const builtConnectorCarriagePlacements: (environment: IAutoMovieBuiltEnvironment, connectorId: string, stateId?: string) => IAutoMovieConnectorCarriagePlacement[] = (
+export const builtConnectorCarriagePlacements: (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+  stateId?: string,
+) => IAutoMovieConnectorCarriagePlacement[] = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
   stateId?: string,

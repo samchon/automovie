@@ -19,5 +19,7 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds no state, handle or task; the space passed in is only read.
  * @author Samchon
  */
-export const builtSpaceStatesVolume: (space: IAutoMovieBuiltSpace) => boolean = (space: IAutoMovieBuiltSpace): boolean =>
+export const builtSpaceStatesVolume: (
+  space: IAutoMovieBuiltSpace,
+) => boolean = (space: IAutoMovieBuiltSpace): boolean =>
   space.cells.length !== 0 || space.shell !== undefined;

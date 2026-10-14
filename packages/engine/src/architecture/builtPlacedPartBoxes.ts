@@ -25,7 +25,10 @@ import { Matrix4 } from "../math/Matrix4";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Tessellation is not cached across calls, because a primitive's shape is part of the caller's mutable record; callers that measure many elements resolve world matrices once and call this per element.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the boxes, one per part, and each tessellation is garbage once its part is folded.
  */
-export const builtPlacedPartBoxes: (model: IAutoMovieModel | undefined, world: number[]) => IAutoMovieSubjectBox[] = (
+export const builtPlacedPartBoxes: (
+  model: IAutoMovieModel | undefined,
+  world: number[],
+) => IAutoMovieSubjectBox[] = (
   model: IAutoMovieModel | undefined,
   world: number[],
 ): IAutoMovieSubjectBox[] => {
@@ -40,7 +43,10 @@ export const builtPlacedPartBoxes: (model: IAutoMovieModel | undefined, world: n
 };
 
 /** The world box one drawn part fills, or null when it has no vertex. */
-const placedPartBox: (part: IAutoMovieModelPart, world: number[]) => IAutoMovieSubjectBox | null = (
+const placedPartBox: (
+  part: IAutoMovieModelPart,
+  world: number[],
+) => IAutoMovieSubjectBox | null = (
   part: IAutoMovieModelPart,
   world: number[],
 ): IAutoMovieSubjectBox | null => {

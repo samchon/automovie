@@ -18,5 +18,7 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure encoder of its arguments that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned string.
  */
-export const designLineageRecord: (...fields: readonly string[]) => string = (...fields: readonly string[]): string =>
+export const designLineageRecord: (...fields: readonly string[]) => string = (
+  ...fields: readonly string[]
+): string =>
   fields.map((field: string): string => `${field.length}:${field}`).join("|");

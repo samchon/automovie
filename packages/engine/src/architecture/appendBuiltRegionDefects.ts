@@ -23,7 +23,12 @@ import { polygonIsSimple } from "./polygonIsSimple";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one region per call; each outline is judged once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond at most one violation appended to the caller's collector.
  */
-export const appendBuiltRegionDefects: (region: readonly IAutoMoviePlanarPoint[], path: string, label: string, collector: ViolationCollector) => void = (
+export const appendBuiltRegionDefects: (
+  region: readonly IAutoMoviePlanarPoint[],
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   region: readonly IAutoMoviePlanarPoint[],
   path: string,
   label: string,
@@ -31,7 +36,12 @@ export const appendBuiltRegionDefects: (region: readonly IAutoMoviePlanarPoint[]
 ): void => {
   const area: number = polygonDoubleArea(region);
   if (!Number.isFinite(area) || Math.abs(area) <= PLANAR_EPSILON)
-    collector.push("range", path, `${label} needs finite non-negligible area`, region);
+    collector.push(
+      "range",
+      path,
+      `${label} needs finite non-negligible area`,
+      region,
+    );
   else if (polygonIsSimple(region) === false)
     collector.push("type", path, `${label} must not cross itself`, region);
 };

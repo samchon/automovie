@@ -40,7 +40,9 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lowers one record per call from the caller's mutable data; nothing is cached because no key could prove an earlier lowering still matches the record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrices and the per-space groupings only for the call; the caller owns the returned contribution, which shares the record's own models, surfaces and population sets.
  */
-export const lowerBuiltEnvironment: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieSubjectContribution = (
+export const lowerBuiltEnvironment: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieSubjectContribution = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieSubjectContribution => {
   const validated: IAutoMovieValidation = validateBuiltEnvironment({
@@ -92,15 +94,15 @@ export const lowerBuiltEnvironment: (environment: IAutoMovieBuiltEnvironment) =>
 };
 
 /** One stage space per logical space, carrying its own support patches. */
-const stageSpaces: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieSpace[] = (
+const stageSpaces: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieSpace[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieSpace[] => {
   const surfaces: Map<string, IAutoMovieSurface[]> = new Map();
   const owner: Map<string, string> = new Map();
   for (const entry of environment.surfaces) {
-    const list: IAutoMovieSurface[] | undefined = surfaces.get(
-      entry.space,
-    );
+    const list: IAutoMovieSurface[] | undefined = surfaces.get(entry.space);
     if (list === undefined) surfaces.set(entry.space, [entry.surface]);
     else list.push(entry.surface);
     owner.set(entry.surface.id, entry.space);

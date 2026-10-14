@@ -35,7 +35,11 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening and state per call from the caller's mutable record, so no staging is cached across calls; within a call the one staging serves every panel.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrix map only for the call and returns new placement records; nothing is retained.
  */
-export const builtOpeningPanelPlacements: (environment: IAutoMovieBuiltEnvironment, openingId: string, stateId?: string) => IAutoMovieOpeningPanelPlacement[] = (
+export const builtOpeningPanelPlacements: (
+  environment: IAutoMovieBuiltEnvironment,
+  openingId: string,
+  stateId?: string,
+) => IAutoMovieOpeningPanelPlacement[] = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
   stateId?: string,

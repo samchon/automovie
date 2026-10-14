@@ -38,7 +38,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Digests one view per call from the caller's mutable record; a cached digest could not prove the lineage or subject bytes unchanged.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the snapshot, index and lines only for the call and returns one digest string.
  */
-export const designLineageViewDigest: (lineage: IAutoMovieDesignLineage, view: { variant : string | null ; phase : string | null }) => string = (
+export const designLineageViewDigest: (
+  lineage: IAutoMovieDesignLineage,
+  view: { variant: string | null; phase: string | null },
+) => string = (
   lineage: IAutoMovieDesignLineage,
   view: { variant: string | null; phase: string | null },
 ): string => {
@@ -78,20 +81,18 @@ export const designLineageViewDigest: (lineage: IAutoMovieDesignLineage, view: {
       variant === null ? "" : variant.id,
       view.phase ?? "",
     ),
-    ...applied.map(
-      (change: IAutoMovieDesignChange): string =>
-        designLineageRecord("apply", change.subject, change.aspect, change.value),
+    ...applied.map((change: IAutoMovieDesignChange): string =>
+      designLineageRecord("apply", change.subject, change.aspect, change.value),
     ),
-    ...snapshot.states.map(
-      (state: IAutoMovieDesignPhaseState): string =>
-        designLineageRecord(
-          "state",
-          state.subject,
-          state.graph,
-          state.role,
-          state.presence,
-          digests.get(state.subject)!,
-        ),
+    ...snapshot.states.map((state: IAutoMovieDesignPhaseState): string =>
+      designLineageRecord(
+        "state",
+        state.subject,
+        state.graph,
+        state.role,
+        state.presence,
+        digests.get(state.subject)!,
+      ),
     ),
   ];
   return autoMovieRenderDigest(lines.join("\n"));

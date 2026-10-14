@@ -26,7 +26,10 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one connector per call over the caller's mutable record and caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The arc-length table is dropped on return; the caller owns the geometry, whose stations reference the record's own route points and orientations.
  */
-export const builtConnectorGeometry: (environment: IAutoMovieBuiltEnvironment, connectorId: string) => IAutoMovieConnectorGeometry = (
+export const builtConnectorGeometry: (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+) => IAutoMovieConnectorGeometry = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
 ): IAutoMovieConnectorGeometry => {
@@ -57,7 +60,10 @@ export const builtConnectorGeometry: (environment: IAutoMovieBuiltEnvironment, c
     length: total,
     slope: Math.atan2(Math.abs(rise), run),
     stations: route.map(
-      (position: IAutoMovieVector3, index: number): IAutoMovieConnectorStation => ({
+      (
+        position: IAutoMovieVector3,
+        index: number,
+      ): IAutoMovieConnectorStation => ({
         position,
         rotation: connector.orientations?.[index] ?? null,
         at: cumulative[index]! / total,
@@ -78,7 +84,11 @@ export const builtConnectorGeometry: (environment: IAutoMovieBuiltEnvironment, c
  *
  * The caller has already refused a route with no measurable length, so the segment the length falls in always exists; a length past the end is extrapolated along the last segment.
  */
-const routePointAt: (route: readonly IAutoMovieVector3[], cumulative: readonly number[], target: number) => IAutoMovieVector3 = (
+const routePointAt: (
+  route: readonly IAutoMovieVector3[],
+  cumulative: readonly number[],
+  target: number,
+) => IAutoMovieVector3 = (
   route: readonly IAutoMovieVector3[],
   cumulative: readonly number[],
   target: number,

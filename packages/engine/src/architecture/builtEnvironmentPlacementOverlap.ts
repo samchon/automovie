@@ -28,7 +28,11 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the small result record.
  * @author Samchon
  */
-export const builtEnvironmentPlacementOverlap: (props: { environment: IAutoMovieBuiltEnvironment; left: AutoMovieBuiltPlacementBodyLocator; right: AutoMovieBuiltPlacementBodyLocator; }) => IAutoMovieBuiltPlacementOverlapResult = (props: {
+export const builtEnvironmentPlacementOverlap: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  left: AutoMovieBuiltPlacementBodyLocator;
+  right: AutoMovieBuiltPlacementBodyLocator;
+}) => IAutoMovieBuiltPlacementOverlapResult = (props: {
   environment: IAutoMovieBuiltEnvironment;
   left: AutoMovieBuiltPlacementBodyLocator;
   right: AutoMovieBuiltPlacementBodyLocator;
@@ -42,9 +46,11 @@ export const builtEnvironmentPlacementOverlap: (props: { environment: IAutoMovie
     target: props.left,
     parts,
   });
-  const right: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody(
-    { environment: props.environment, target: props.right, parts },
-  );
+  const right: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody({
+    environment: props.environment,
+    target: props.right,
+    parts,
+  });
   const unresolved: ("left" | "right")[] = [];
   if (left === null) unresolved.push("left");
   if (right === null) unresolved.push("right");

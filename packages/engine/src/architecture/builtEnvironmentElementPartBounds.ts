@@ -28,7 +28,10 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The staged matrices are dropped on return; the caller owns the returned boxes, one per drawn part.
  * @author Samchon
  */
-export const builtEnvironmentElementPartBounds: (environment: IAutoMovieBuiltEnvironment, elementId: string) => IAutoMovieSubjectBox[] | null = (
+export const builtEnvironmentElementPartBounds: (
+  environment: IAutoMovieBuiltEnvironment,
+  elementId: string,
+) => IAutoMovieSubjectBox[] | null = (
   environment: IAutoMovieBuiltEnvironment,
   elementId: string,
 ): IAutoMovieSubjectBox[] | null => {

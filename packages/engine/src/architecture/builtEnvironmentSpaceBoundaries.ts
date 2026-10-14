@@ -23,7 +23,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array, which references the record's own boundaries and is owned by the caller.
  * @author Samchon
  */
-export const builtEnvironmentSpaceBoundaries: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieBuiltBoundary[] = (
+export const builtEnvironmentSpaceBoundaries: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieBuiltBoundary[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltBoundary[] => {

@@ -35,7 +35,14 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each ancestor's world matrix is computed once and reused by every descendant; across calls nothing is cached, because the environment is the caller's mutable record and no key could prove an earlier staging still matches it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id index, displacement table and returned matrices grow with element count; a selected operation's temporary value index grows with its value count, and recursive staging uses ancestor-depth stack space. Only the returned matrix map escapes; deep acyclic input can still exhaust the JavaScript stack.
  */
-export const builtEnvironmentWorldMatrices: (environment: IAutoMovieBuiltEnvironment, stateId?: string | ((member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector) => string | null)) => Map<string, number[]> = (
+export const builtEnvironmentWorldMatrices: (
+  environment: IAutoMovieBuiltEnvironment,
+  stateId?:
+    | string
+    | ((
+        member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+      ) => string | null),
+) => Map<string, number[]> = (
   environment: IAutoMovieBuiltEnvironment,
   stateId?:
     | string
@@ -77,11 +84,17 @@ export const builtEnvironmentWorldMatrices: (environment: IAutoMovieBuiltEnviron
 };
 
 /** The element-local displacement every moving member carries in one state. */
-const operationDeltas: (environment: IAutoMovieBuiltEnvironment, stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1]) => Map<string, number[]> = (
+const operationDeltas: (
+  environment: IAutoMovieBuiltEnvironment,
+  stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1],
+) => Map<string, number[]> = (
   environment: IAutoMovieBuiltEnvironment,
   stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1],
 ): Map<string, number[]> => {
-  const choose: (member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector, current: string) => string | null = (
+  const choose: (
+    member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+    current: string,
+  ) => string | null = (
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
     current: string,
   ): string | null =>
@@ -111,7 +124,11 @@ const operationDeltas: (environment: IAutoMovieBuiltEnvironment, stateId: Parame
 };
 
 /** Place every panel of one opening at the travel a state gives it. */
-const applyPanelState: (panels: readonly IAutoMovieMovablePanel[], state: IAutoMovieOperationState, deltas: Map<string, number[]>) => void = (
+const applyPanelState: (
+  panels: readonly IAutoMovieMovablePanel[],
+  state: IAutoMovieOperationState,
+  deltas: Map<string, number[]>,
+) => void = (
   panels: readonly IAutoMovieMovablePanel[],
   state: IAutoMovieOperationState,
   deltas: Map<string, number[]>,
@@ -127,7 +144,11 @@ const applyPanelState: (panels: readonly IAutoMovieMovablePanel[], state: IAutoM
 };
 
 /** Place every carriage of one run at the travel a state gives it. */
-const applyCarriageState: (carriages: readonly IAutoMovieConnectorCarriage[], state: IAutoMovieConnectorState, deltas: Map<string, number[]>) => void = (
+const applyCarriageState: (
+  carriages: readonly IAutoMovieConnectorCarriage[],
+  state: IAutoMovieConnectorState,
+  deltas: Map<string, number[]>,
+) => void = (
   carriages: readonly IAutoMovieConnectorCarriage[],
   state: IAutoMovieConnectorState,
   deltas: Map<string, number[]>,
@@ -143,10 +164,10 @@ const applyCarriageState: (carriages: readonly IAutoMovieConnectorCarriage[], st
 };
 
 /** The element-local displacement one moving member carries at one value. */
-const travelDelta: (motion: IAutoMovieTravelMotion, value: number) => number[] = (
+const travelDelta: (
   motion: IAutoMovieTravelMotion,
   value: number,
-): number[] => {
+) => number[] = (motion: IAutoMovieTravelMotion, value: number): number[] => {
   const axis: IAutoMovieVector3 = Vector3.normalize(motion.axis);
   const unit: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
   if (motion.kind === "prismatic")
@@ -165,7 +186,10 @@ const travelDelta: (motion: IAutoMovieTravelMotion, value: number) => number[] =
   // Turning about a pivot is a turn about the origin plus the offset that puts
   // the pivot back where it was.
   return Matrix4.compose(
-    Vector3.subtract(motion.pivot, Quaternion.rotateVector(rotation, motion.pivot)),
+    Vector3.subtract(
+      motion.pivot,
+      Quaternion.rotateVector(rotation, motion.pivot),
+    ),
     rotation,
     unit,
   );

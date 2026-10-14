@@ -68,7 +68,9 @@ interface IPatternSpan {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lays one declaration per call; the generator is the author's code and may not be pure, so no earlier run's placements are reused.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Placements/outlines and the run-wide occurrence-id set grow with survivors; each zone's seen-id set grows with all generated candidates including discarded ones. Findings can grow quadratically and callback output has no fixed cap. Local sets/clip arrays are released after use; the caller owns returned records.
  */
-export const generateAutoMovieSurfacePattern: (props: { pattern: IAutoMovieSurfacePattern }) => IAutoMovieSurfacePatternResult = (props: {
+export const generateAutoMovieSurfacePattern: (props: {
+  pattern: IAutoMovieSurfacePattern;
+}) => IAutoMovieSurfacePatternResult = (props: {
   pattern: IAutoMovieSurfacePattern;
 }): IAutoMovieSurfacePatternResult => {
   const { pattern }: { pattern: IAutoMovieSurfacePattern } = props;
@@ -121,7 +123,14 @@ export const generateAutoMovieSurfacePattern: (props: { pattern: IAutoMovieSurfa
 };
 
 /** Enumerate one zone's lattice and append every surviving piece. */
-const layZone: (pattern: IAutoMovieSurfacePattern, zone: IAutoMovieSurfacePatternZone, region: readonly IAutoMoviePatternPoint[], exclusions: readonly IAutoMoviePatternPoint[][], placements: IAutoMoviePatternPlacement[], occurrenceIds: Set<string>) => void = (
+const layZone: (
+  pattern: IAutoMovieSurfacePattern,
+  zone: IAutoMovieSurfacePatternZone,
+  region: readonly IAutoMoviePatternPoint[],
+  exclusions: readonly IAutoMoviePatternPoint[][],
+  placements: IAutoMoviePatternPlacement[],
+  occurrenceIds: Set<string>,
+) => void = (
   pattern: IAutoMovieSurfacePattern,
   zone: IAutoMovieSurfacePatternZone,
   region: readonly IAutoMoviePatternPoint[],
@@ -146,7 +155,11 @@ const layZone: (pattern: IAutoMovieSurfacePattern, zone: IAutoMovieSurfacePatter
   );
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-  if (!Number.isSafeInteger(cells) || cells < 1 || cells > AUTOMOVIE_MAX_PATTERN_CELLS)
+  if (
+    !Number.isSafeInteger(cells) ||
+    cells < 1 ||
+    cells > AUTOMOVIE_MAX_PATTERN_CELLS
+  )
     throw new Error(
       `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
     );
@@ -178,7 +191,10 @@ const layZone: (pattern: IAutoMovieSurfacePattern, zone: IAutoMovieSurfacePatter
         if (area <= AREA_EPSILON) continue;
         const moduleArea: number = candidate.size.u * candidate.size.v;
         const id: string = `${zone.id}/${candidate.id}`;
-        if (occurrenceIds.has(id)) throw new Error(`pattern occurrence id "${id}" is ambiguous across zones and modules`);
+        if (occurrenceIds.has(id))
+          throw new Error(
+            `pattern occurrence id "${id}" is ambiguous across zones and modules`,
+          );
         occurrenceIds.add(id);
         const boundaryCut: boolean = clipped < moduleArea - AREA_EPSILON;
         const punched: boolean = removed > AREA_EPSILON;
@@ -211,7 +227,9 @@ const layZone: (pattern: IAutoMovieSurfacePattern, zone: IAutoMovieSurfacePatter
 };
 
 /** Check the declaration's own fields and canonicalize its exclusions. */
-const validatePattern: (pattern: IAutoMovieSurfacePattern) => IAutoMoviePatternPoint[][] = (
+const validatePattern: (
+  pattern: IAutoMovieSurfacePattern,
+) => IAutoMoviePatternPoint[][] = (
   pattern: IAutoMovieSurfacePattern,
 ): IAutoMoviePatternPoint[][] => {
   nonBlank(pattern.id, "pattern id");
@@ -282,7 +300,12 @@ const validatePattern: (pattern: IAutoMovieSurfacePattern) => IAutoMoviePatternP
  * needs exactly those corners next, so they are returned rather than built a
  * second time in the innermost loop of the whole run.
  */
-const validateCandidate: (zone: IAutoMovieSurfacePatternZone, candidate: IAutoMoviePatternCandidate, origin: IAutoMoviePatternPoint, seen: Set<string>) => IAutoMoviePatternPoint[] = (
+const validateCandidate: (
+  zone: IAutoMovieSurfacePatternZone,
+  candidate: IAutoMoviePatternCandidate,
+  origin: IAutoMoviePatternPoint,
+  seen: Set<string>,
+) => IAutoMoviePatternPoint[] = (
   zone: IAutoMovieSurfacePatternZone,
   candidate: IAutoMoviePatternCandidate,
   origin: IAutoMoviePatternPoint,
@@ -323,21 +346,36 @@ const validateCandidate: (zone: IAutoMovieSurfacePatternZone, candidate: IAutoMo
  * and then divided by the pitch. Widening before dividing is what keeps a
  * module laid across a cell border from being lost at the region's edge.
  */
-const latticeRange: (min: number, max: number, origin: number, period: number, reach: number) => { min: number; max: number } = (
+const latticeRange: (
+  min: number,
+  max: number,
+  origin: number,
+  period: number,
+  reach: number,
+) => { min: number; max: number } = (
   min: number,
   max: number,
   origin: number,
   period: number,
   reach: number,
 ): { min: number; max: number } => {
-  const range: { min: number; max: number } = { min: Math.floor((min - reach - origin) / period), max: Math.ceil((max + reach - origin) / period) };
-  if (!Number.isSafeInteger(range.min) || !Number.isSafeInteger(range.max) || range.min > range.max)
+  const range: { min: number; max: number } = {
+    min: Math.floor((min - reach - origin) / period),
+    max: Math.ceil((max + reach - origin) / period),
+  };
+  if (
+    !Number.isSafeInteger(range.min) ||
+    !Number.isSafeInteger(range.max) ||
+    range.min > range.max
+  )
     throw new Error("pattern lattice bounds must be ordered safe integers");
   return range;
 };
 
 /** A module rectangle's four corners, counter-clockwise, turned in place. */
-const moduleCorners: (candidate: IAutoMoviePatternCandidate) => IAutoMoviePatternPoint[] = (
+const moduleCorners: (
+  candidate: IAutoMoviePatternCandidate,
+) => IAutoMoviePatternPoint[] = (
   candidate: IAutoMoviePatternCandidate,
 ): IAutoMoviePatternPoint[] => {
   const angle: number = candidate.rotationDeg * Quaternion.DEG2RAD;
@@ -359,7 +397,10 @@ const moduleCorners: (candidate: IAutoMoviePatternCandidate) => IAutoMoviePatter
 };
 
 /** The seeded variant index of one occurrence id, in `[0, variants)`. */
-const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (pattern: IAutoMovieSurfacePattern, id: string): number =>
+const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (
+  pattern: IAutoMovieSurfacePattern,
+  id: string,
+): number =>
   Math.min(
     pattern.variants - 1,
     Math.floor(
@@ -378,7 +419,11 @@ const hashOf: (id: string) => number = (id: string): number => {
 };
 
 /** One zone's take-off from its own placements and net region area. */
-const summarize: (zone: string, placements: readonly IAutoMoviePatternPlacement[], netRegionArea: number) => IAutoMoviePatternZoneQuantities = (
+const summarize: (
+  zone: string,
+  placements: readonly IAutoMoviePatternPlacement[],
+  netRegionArea: number,
+) => IAutoMoviePatternZoneQuantities = (
   zone: string,
   placements: readonly IAutoMoviePatternPlacement[],
   netRegionArea: number,
@@ -404,12 +449,18 @@ const summarize: (zone: string, placements: readonly IAutoMoviePatternPlacement[
 };
 
 /** The whole pattern's take-off, summed from its zones. */
-const totalQuantities: (pattern: IAutoMovieSurfacePattern, placements: readonly IAutoMoviePatternPlacement[], zones: readonly IAutoMoviePatternZoneQuantities[]) => IAutoMoviePatternQuantities = (
+const totalQuantities: (
+  pattern: IAutoMovieSurfacePattern,
+  placements: readonly IAutoMoviePatternPlacement[],
+  zones: readonly IAutoMoviePatternZoneQuantities[],
+) => IAutoMoviePatternQuantities = (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
   zones: readonly IAutoMoviePatternZoneQuantities[],
 ): IAutoMoviePatternQuantities => {
-  const sum: (read: (zone: IAutoMoviePatternZoneQuantities) => number) => number = (
+  const sum: (
+    read: (zone: IAutoMoviePatternZoneQuantities) => number,
+  ) => number = (
     read: (zone: IAutoMoviePatternZoneQuantities) => number,
   ): number =>
     zones.reduce(
@@ -444,14 +495,19 @@ const totalQuantities: (pattern: IAutoMovieSurfacePattern, placements: readonly 
 };
 
 /** The area two convex outlines share, the second canonical. */
-const overlapArea: (subject: readonly IAutoMoviePatternPoint[], clipper: readonly IAutoMoviePatternPoint[]) => number = (
+const overlapArea: (
+  subject: readonly IAutoMoviePatternPoint[],
+  clipper: readonly IAutoMoviePatternPoint[],
+) => number = (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
 ): number =>
   autoMoviePatternPolygonArea(clipAutoMoviePatternPolygon(subject, clipper));
 
 /** The extent of a non-empty outline on both face-local axes. */
-const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (polygon: readonly IAutoMoviePatternPoint[]): IPatternSpan => {
+const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (
+  polygon: readonly IAutoMoviePatternPoint[],
+): IPatternSpan => {
   const span: IPatternSpan = {
     minU: Infinity,
     maxU: -Infinity,
@@ -467,16 +523,26 @@ const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (po
   return span;
 };
 
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (point: IAutoMoviePatternPoint, label: string): void => {
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
+  point: IAutoMoviePatternPoint,
+  label: string,
+): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
 };
 
-const nonBlank: (value: string, label: string) => void = (value: string, label: string): void => {
+const nonBlank: (value: string, label: string) => void = (
+  value: string,
+  label: string,
+): void => {
   if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
 };
 
-const atLeast: (value: number, limit: number, label: string) => void = (value: number, limit: number, label: string): void => {
+const atLeast: (value: number, limit: number, label: string) => void = (
+  value: number,
+  limit: number,
+  label: string,
+): void => {
   if (!Number.isFinite(value) || value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };

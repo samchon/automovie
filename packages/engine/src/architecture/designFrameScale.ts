@@ -19,9 +19,9 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup on one frame value that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number already stored on the frame and keeps no reference to the frame or its candidates.
  */
-export const designFrameScale: (frame: IAutoMovieDesignSourceFrame) => number | null = (
+export const designFrameScale: (
   frame: IAutoMovieDesignSourceFrame,
-): number | null => {
+) => number | null = (frame: IAutoMovieDesignSourceFrame): number | null => {
   if (frame.scale === null) return null;
   const candidate: IAutoMovieDesignScaleCandidate | undefined =
     frame.scaleCandidates.find(

@@ -25,7 +25,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A synchronous read of one record per call; the walkable set is rebuilt from the record each time because the record may have changed between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the subtree and walkable sets only for the call; the caller owns the returned entries.
  */
-export const builtEnvironmentSpaceSurfaces: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => Array<{ space: string; surface: string; walkable: boolean; }> = (
+export const builtEnvironmentSpaceSurfaces: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => Array<{ space: string; surface: string; walkable: boolean }> = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): Array<{ space: string; surface: string; walkable: boolean }> => {

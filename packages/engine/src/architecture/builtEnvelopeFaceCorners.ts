@@ -23,7 +23,9 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the caller's already placed faces instead of re-deriving them, which is what lets the census place the envelope once per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one meeting list per pair during the scan and the returned corners, which the caller owns; nothing is kept between calls.
  */
-export const builtEnvelopeFaceCorners: (faces: readonly IAutoMovieBuiltEnvelopeFace[]) => IAutoMovieBuiltEnvelopeCorner[] = (
+export const builtEnvelopeFaceCorners: (
+  faces: readonly IAutoMovieBuiltEnvelopeFace[],
+) => IAutoMovieBuiltEnvelopeCorner[] = (
   faces: readonly IAutoMovieBuiltEnvelopeFace[],
 ): IAutoMovieBuiltEnvelopeCorner[] => {
   const facades: IAutoMovieBuiltEnvelopeFace[] = faces.filter(
@@ -67,8 +69,10 @@ export const builtEnvelopeFaceCorners: (faces: readonly IAutoMovieBuiltEnvelopeF
       if (meetings.length === 0) continue;
       const meeting: IAutoMovieVector3 = Vector3.scale(
         meetings.reduce(
-          (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(sum, point),
+          (
+            sum: IAutoMovieVector3,
+            point: IAutoMovieVector3,
+          ): IAutoMovieVector3 => Vector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / meetings.length,

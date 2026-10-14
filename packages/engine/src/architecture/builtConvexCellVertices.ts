@@ -20,7 +20,9 @@ interface IPlane {
 }
 
 /** Read a plane as a unit normal and its matching offset, or null if degenerate. */
-const unitPlane: (plane: IPlane) => IPlane | null = (plane: IPlane): IPlane | null => {
+const unitPlane: (plane: IPlane) => IPlane | null = (
+  plane: IPlane,
+): IPlane | null => {
   const length: number = Vector3.length(plane.normal);
   if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
   return {
@@ -44,7 +46,9 @@ const unitPlane: (plane: IPlane) => IPlane | null = (plane: IPlane): IPlane | nu
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one cell that coordinates no work across calls; a caller reading one cell repeatedly owns any reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned points, at most one per plane triple.
  */
-export const builtConvexCellVertices: (cell: IAutoMovieConvexSpaceCell) => IAutoMovieVector3[] = (
+export const builtConvexCellVertices: (
+  cell: IAutoMovieConvexSpaceCell,
+) => IAutoMovieVector3[] = (
   cell: IAutoMovieConvexSpaceCell,
 ): IAutoMovieVector3[] => {
   const planes: IPlane[] = [];

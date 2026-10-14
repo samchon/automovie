@@ -53,7 +53,11 @@ const SHEAR_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map over one run's placements for one sheet; nothing coordinates work across calls, and a caller texturing several materials reuses the same run result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned transforms and sheared ids, together bounded by the placement count.
  */
-export const autoMoviePatternTextureTransforms: (props: { result: IAutoMovieSurfacePatternResult; tile: { u: number; v: number }; sheet: AutoMoviePatternTextureSheet }) => IAutoMoviePatternTexturing = (props: {
+export const autoMoviePatternTextureTransforms: (props: {
+  result: IAutoMovieSurfacePatternResult;
+  tile: { u: number; v: number };
+  sheet: AutoMoviePatternTextureSheet;
+}) => IAutoMoviePatternTexturing = (props: {
   result: IAutoMovieSurfacePatternResult;
   /** Metres one turn of the texture covers along its own two axes. */
   tile: {
@@ -140,7 +144,12 @@ interface IUvRow {
 }
 
 /** Where a face point falls on a sheet turned by the grain, in turns. */
-const sheetPoint: (point: IAutoMoviePatternPoint, origin: IAutoMoviePatternPoint, grain: number, tile: { u: number; v: number }) => IUvRow = (
+const sheetPoint: (
+  point: IAutoMoviePatternPoint,
+  origin: IAutoMoviePatternPoint,
+  grain: number,
+  tile: { u: number; v: number },
+) => IUvRow = (
   point: IAutoMoviePatternPoint,
   origin: IAutoMoviePatternPoint,
   grain: number,
@@ -157,7 +166,10 @@ const sheetPoint: (point: IAutoMoviePatternPoint, origin: IAutoMoviePatternPoint
 };
 
 /** Refuse a point with a non-finite coordinate. */
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (point: IAutoMoviePatternPoint, label: string): void => {
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
+  point: IAutoMoviePatternPoint,
+  label: string,
+): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
 };

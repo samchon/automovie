@@ -27,7 +27,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one change set per call from the caller's mutable record; the index is rebuilt each call because a cached one could not prove the lineage unchanged.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The index, queue and visited set live only for the call and are linear in the lineage size; the caller owns the returned lists.
  */
-export const designLineageImpact: (lineage: IAutoMovieDesignLineage, changed: readonly string[]) => IAutoMovieDesignImpact = (
+export const designLineageImpact: (
+  lineage: IAutoMovieDesignLineage,
+  changed: readonly string[],
+) => IAutoMovieDesignImpact = (
   lineage: IAutoMovieDesignLineage,
   changed: readonly string[],
 ): IAutoMovieDesignImpact => {

@@ -26,7 +26,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the subtree set only for the call; the returned array is new but shares the record's own population objects.
  * @author Samchon
  */
-export const builtEnvironmentSpacePopulations: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieBuiltPopulation[] = (
+export const builtEnvironmentSpacePopulations: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieBuiltPopulation[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltPopulation[] => {

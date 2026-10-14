@@ -1,7 +1,4 @@
-import {
-  IAutoMovieSpaceShell,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Volume, in cubic metres, enclosed by a closed outward-wound shell.
@@ -22,7 +19,9 @@ import {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond scalars and retains nothing.
  * @author Samchon
  */
-export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (shell: IAutoMovieSpaceShell): number => {
+export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (
+  shell: IAutoMovieSpaceShell,
+): number => {
   let sum: number = 0;
   for (let face: number = 0; face + 2 < shell.triangles.length; face += 3) {
     const a: IAutoMovieVector3 | undefined =

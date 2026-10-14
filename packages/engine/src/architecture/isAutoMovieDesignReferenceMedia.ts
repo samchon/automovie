@@ -22,7 +22,9 @@ import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./constants/AUTO_MOVIE_DESIGN
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate on one value that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scans the module's constant table in place; no copy of the table or the value is made or kept.
  */
-export const isAutoMovieDesignReferenceMedia: (value: unknown) => value is AutoMovieDesignReferenceMedia = (
+export const isAutoMovieDesignReferenceMedia: (
+  value: unknown,
+) => value is AutoMovieDesignReferenceMedia = (
   value: unknown,
 ): value is AutoMovieDesignReferenceMedia =>
   (AUTO_MOVIE_DESIGN_REFERENCE_MEDIA as readonly unknown[]).includes(value);

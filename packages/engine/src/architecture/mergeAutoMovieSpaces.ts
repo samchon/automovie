@@ -17,7 +17,10 @@ import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure merge of its arguments that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned space's arrays are new and share the input surface objects.
  */
-export const mergeAutoMovieSpaces: (id: string, spaces: readonly IAutoMovieSpace[]) => IAutoMovieSpace = (
+export const mergeAutoMovieSpaces: (
+  id: string,
+  spaces: readonly IAutoMovieSpace[],
+) => IAutoMovieSpace = (
   id: string,
   spaces: readonly IAutoMovieSpace[],
 ): IAutoMovieSpace => ({
@@ -25,5 +28,7 @@ export const mergeAutoMovieSpaces: (id: string, spaces: readonly IAutoMovieSpace
   surfaces: spaces.flatMap(
     (space: IAutoMovieSpace): IAutoMovieSurface[] => space.surfaces,
   ),
-  walkable: spaces.flatMap((space: IAutoMovieSpace): string[] => space.walkable),
+  walkable: spaces.flatMap(
+    (space: IAutoMovieSpace): string[] => space.walkable,
+  ),
 });

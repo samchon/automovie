@@ -19,5 +19,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Creates no object and keeps no reference to the space once it returns its boolean.
  * @author Samchon
  */
-export const builtSpaceIsConvex: (space: IAutoMovieBuiltSpace) => boolean = (space: IAutoMovieBuiltSpace): boolean =>
-  space.shell === undefined && space.cells.length === 1;
+export const builtSpaceIsConvex: (space: IAutoMovieBuiltSpace) => boolean = (
+  space: IAutoMovieBuiltSpace,
+): boolean => space.shell === undefined && space.cells.length === 1;

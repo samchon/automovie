@@ -39,7 +39,11 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Compares one pair per call; validation, the expensive shared step, is done once by the caller and not repeated here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two keyed change maps only for the call; the caller owns the returned comparison.
  */
-export const compareDesignVariants: (lineage: IAutoMovieDesignLineage, left: string, right: string) => IAutoMovieDesignComparison = (
+export const compareDesignVariants: (
+  lineage: IAutoMovieDesignLineage,
+  left: string,
+  right: string,
+) => IAutoMovieDesignComparison = (
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,
@@ -97,7 +101,9 @@ export const compareDesignVariants: (lineage: IAutoMovieDesignLineage, left: str
 };
 
 /** One variant's changes keyed by subject and aspect. */
-const keyed: (changes: readonly IAutoMovieDesignChange[]) => Map<string, IAutoMovieDesignChange> = (
+const keyed: (
+  changes: readonly IAutoMovieDesignChange[],
+) => Map<string, IAutoMovieDesignChange> = (
   changes: readonly IAutoMovieDesignChange[],
 ): Map<string, IAutoMovieDesignChange> =>
   new Map(

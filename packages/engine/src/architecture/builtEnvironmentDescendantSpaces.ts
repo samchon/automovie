@@ -20,7 +20,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the sorted id list, bounded by the space count.
  * @author Samchon
  */
-export const builtEnvironmentDescendantSpaces: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => string[] = (
+export const builtEnvironmentDescendantSpaces: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => string[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): string[] => {

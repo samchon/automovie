@@ -34,7 +34,10 @@ const CONTAINMENT_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only temporary vectors and retains nothing.
  * @author Samchon
  */
-export const builtSpaceContainsPoint: (space: IAutoMovieBuiltSpace, point: IAutoMovieVector3) => boolean = (
+export const builtSpaceContainsPoint: (
+  space: IAutoMovieBuiltSpace,
+  point: IAutoMovieVector3,
+) => boolean = (
   space: IAutoMovieBuiltSpace,
   point: IAutoMovieVector3,
 ): boolean => {
@@ -58,7 +61,10 @@ export const builtSpaceContainsPoint: (space: IAutoMovieBuiltSpace, point: IAuto
  *
  * Tests triangle surfaces before solid angles because angles are singular at vertices and have boundary-dependent limits on faces and edges. Missing indexed vertices and trailing incomplete index triples are skipped; malformed topology is a validation concern.
  */
-const spaceShellContainsPoint: (shell: IAutoMovieSpaceShell, point: IAutoMovieVector3) => boolean = (
+const spaceShellContainsPoint: (
+  shell: IAutoMovieSpaceShell,
+  point: IAutoMovieVector3,
+) => boolean = (
   shell: IAutoMovieSpaceShell,
   point: IAutoMovieVector3,
 ): boolean => {
@@ -78,7 +84,12 @@ const spaceShellContainsPoint: (shell: IAutoMovieSpaceShell, point: IAutoMovieVe
 };
 
 /** Signed solid angle triangle `abc` subtends at `point`, in steradians. */
-const signedSolidAngle: (point: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => number = (
+const signedSolidAngle: (
+  point: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+) => number = (
   point: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -100,7 +111,12 @@ const signedSolidAngle: (point: IAutoMovieVector3, a: IAutoMovieVector3, b: IAut
 };
 
 /** Whether a point sits on triangle `abc`, its edges and corners included. */
-const pointOnTriangle: (point: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => boolean = (
+const pointOnTriangle: (
+  point: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+) => boolean = (
   point: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,

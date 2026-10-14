@@ -24,7 +24,10 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one outline; the pattern run calls it once per region and exclusion and reuses the result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the lifted and hulled copies for one call and retains nothing; the caller owns the returned outline.
  */
-export const canonicalAutoMoviePatternPolygon: (polygon: readonly IAutoMoviePatternPoint[], label: string) => IAutoMoviePatternPoint[] = (
+export const canonicalAutoMoviePatternPolygon: (
+  polygon: readonly IAutoMoviePatternPoint[],
+  label: string,
+) => IAutoMoviePatternPoint[] = (
   polygon: readonly IAutoMoviePatternPoint[],
   label: string,
 ): IAutoMoviePatternPoint[] => {

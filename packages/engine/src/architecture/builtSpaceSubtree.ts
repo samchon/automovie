@@ -17,7 +17,10 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed per call from the given array; the space list is the caller's mutable record, so no cached subtree could prove it still matches.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The child index/queue are local. The caller owns the set, bounded by S declared ids plus one possibly undeclared root, rather than always S.
  */
-export const builtSpaceSubtree: (spaces: readonly IAutoMovieBuiltSpace[], root: string) => Set<string> = (
+export const builtSpaceSubtree: (
+  spaces: readonly IAutoMovieBuiltSpace[],
+  root: string,
+) => Set<string> = (
   spaces: readonly IAutoMovieBuiltSpace[],
   root: string,
 ): Set<string> => {

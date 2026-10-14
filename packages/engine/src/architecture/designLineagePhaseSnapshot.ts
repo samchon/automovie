@@ -35,7 +35,10 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one phase per call from the caller's mutable record; nothing is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reached set and index live only for the call; the caller owns the returned snapshot.
  */
-export const designLineagePhaseSnapshot: (lineage: IAutoMovieDesignLineage, phase: string | null) => IAutoMovieDesignPhaseSnapshot = (
+export const designLineagePhaseSnapshot: (
+  lineage: IAutoMovieDesignLineage,
+  phase: string | null,
+) => IAutoMovieDesignPhaseSnapshot = (
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
 ): IAutoMovieDesignPhaseSnapshot => {
@@ -90,7 +93,10 @@ export const designLineagePhaseSnapshot: (lineage: IAutoMovieDesignLineage, phas
 /**
  * The named phase and every phase that must complete before it, or a thrown `Error` when the lineage declares no such phase.
  */
-const reachedPhases: (lineage: IAutoMovieDesignLineage, phase: string) => Set<string> = (
+const reachedPhases: (
+  lineage: IAutoMovieDesignLineage,
+  phase: string,
+) => Set<string> = (
   lineage: IAutoMovieDesignLineage,
   phase: string,
 ): Set<string> => {

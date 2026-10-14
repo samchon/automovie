@@ -21,7 +21,11 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one point per call over the caller's mutable record; callers testing many points of one space recompute the subtree each time, a cost bounded by the space count.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The subtree set is dropped on return and nothing else is allocated beyond the predicate's own work.
  */
-export const builtEnvironmentContainsPoint: (environment: IAutoMovieBuiltEnvironment, spaceId: string, point: IAutoMovieVector3) => boolean = (
+export const builtEnvironmentContainsPoint: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+  point: IAutoMovieVector3,
+) => boolean = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
   point: IAutoMovieVector3,

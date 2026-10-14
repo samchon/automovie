@@ -29,7 +29,10 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two outlines that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one working outline per clipper edge and retains nothing; the caller owns the returned outline.
  */
-export const clipAutoMoviePatternPolygon: (subject: readonly IAutoMoviePatternPoint[], clipper: readonly IAutoMoviePatternPoint[]) => IAutoMoviePatternPoint[] = (
+export const clipAutoMoviePatternPolygon: (
+  subject: readonly IAutoMoviePatternPoint[],
+  clipper: readonly IAutoMoviePatternPoint[],
+) => IAutoMoviePatternPoint[] = (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
 ): IAutoMoviePatternPoint[] => {
@@ -61,7 +64,11 @@ export const clipAutoMoviePatternPolygon: (subject: readonly IAutoMoviePatternPo
 };
 
 /** Twice the signed area of `from`, `to`, `point`; positive on the left. */
-const side: (from: IAutoMoviePatternPoint, to: IAutoMoviePatternPoint, point: IAutoMoviePatternPoint) => number = (
+const side: (
+  from: IAutoMoviePatternPoint,
+  to: IAutoMoviePatternPoint,
+  point: IAutoMoviePatternPoint,
+) => number = (
   from: IAutoMoviePatternPoint,
   to: IAutoMoviePatternPoint,
   point: IAutoMoviePatternPoint,
@@ -69,7 +76,12 @@ const side: (from: IAutoMoviePatternPoint, to: IAutoMoviePatternPoint, point: IA
   (to.u - from.u) * (point.v - from.v) - (to.v - from.v) * (point.u - from.u);
 
 /** Where segment `from`-`to` crosses the line through `edgeFrom`-`edgeTo`. */
-const intersect: (from: IAutoMoviePatternPoint, to: IAutoMoviePatternPoint, edgeFrom: IAutoMoviePatternPoint, edgeTo: IAutoMoviePatternPoint) => IAutoMoviePatternPoint = (
+const intersect: (
+  from: IAutoMoviePatternPoint,
+  to: IAutoMoviePatternPoint,
+  edgeFrom: IAutoMoviePatternPoint,
+  edgeTo: IAutoMoviePatternPoint,
+) => IAutoMoviePatternPoint = (
   from: IAutoMoviePatternPoint,
   to: IAutoMoviePatternPoint,
   edgeFrom: IAutoMoviePatternPoint,

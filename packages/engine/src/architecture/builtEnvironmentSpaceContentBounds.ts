@@ -35,7 +35,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates the subtree set, staged matrices, model index and one box per measured part for one call and drops them on return; the caller owns the single returned box.
  * @author Samchon
  */
-export const builtEnvironmentSpaceContentBounds: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieSubjectBox | null = (
+export const builtEnvironmentSpaceContentBounds: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieSubjectBox | null = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieSubjectBox | null => {

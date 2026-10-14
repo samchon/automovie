@@ -28,7 +28,10 @@ import { polygonBounds } from "./polygonBounds";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure translation of one boundary per call that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the panel record, whose rotation is the face's own object, and its voids, bounded by the boundary's opening count.
  */
-export const builtBoundaryWallCut: (environment: IAutoMovieBuiltEnvironment, boundaryId: string) => IAutoMovieBoundaryWallCut = (
+export const builtBoundaryWallCut: (
+  environment: IAutoMovieBuiltEnvironment,
+  boundaryId: string,
+) => IAutoMovieBoundaryWallCut = (
   environment: IAutoMovieBuiltEnvironment,
   boundaryId: string,
 ): IAutoMovieBoundaryWallCut => {

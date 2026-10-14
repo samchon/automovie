@@ -26,7 +26,11 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one pair per call from the caller's mutable record; a caller comparing every option of a decision uses `designLineageDecisionComparisons`, which validates once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned comparison.
  */
-export const designLineageCompare: (lineage: IAutoMovieDesignLineage, left: string, right: string) => IAutoMovieDesignComparison = (
+export const designLineageCompare: (
+  lineage: IAutoMovieDesignLineage,
+  left: string,
+  right: string,
+) => IAutoMovieDesignComparison = (
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,

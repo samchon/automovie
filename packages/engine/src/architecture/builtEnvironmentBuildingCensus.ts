@@ -32,7 +32,9 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#reuse-equivalent-work The placed faces feed both the face lists and the corner pairing, so the envelope is placed once per call instead of once for faces and again for corners; nothing persists across calls because the record is the caller's.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Faces, corners and per-building sets live for one call; the caller owns the census, which references the placed faces and corners and is bounded by the record's faces, openings, spaces and connectors.
  */
-export const builtEnvironmentBuildingCensus: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuildingObservationCensus[] = (
+export const builtEnvironmentBuildingCensus: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuildingObservationCensus[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuildingObservationCensus[] => {
   const faces: IAutoMovieBuiltEnvelopeFace[] =
@@ -41,7 +43,9 @@ export const builtEnvironmentBuildingCensus: (environment: IAutoMovieBuiltEnviro
     builtEnvelopeFaceCorners(faces);
   return environment.buildings
     .map(
-      (building: IAutoMovieBuildingUnit): IAutoMovieBuildingObservationCensus => {
+      (
+        building: IAutoMovieBuildingUnit,
+      ): IAutoMovieBuildingObservationCensus => {
         const owned: Set<string> = builtSpaceSubtree(
           environment.spaces,
           requireBuiltSpace(environment, building.space).id,
@@ -51,7 +55,9 @@ export const builtEnvironmentBuildingCensus: (environment: IAutoMovieBuiltEnviro
             face.building === building.id,
         );
         const envelope: Set<string> = new Set(
-          mine.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
+          mine.map(
+            (face: IAutoMovieBuiltEnvelopeFace): string => face.boundary,
+          ),
         );
         return {
           building: building.id,
@@ -88,8 +94,8 @@ export const builtEnvironmentBuildingCensus: (environment: IAutoMovieBuiltEnviro
             ...new Set(
               environment.connectors
                 .filter((connector: IAutoMovieBuiltConnector): boolean =>
-                  builtConnectorStops(connector).some(
-                    (stop: string): boolean => owned.has(stop),
+                  builtConnectorStops(connector).some((stop: string): boolean =>
+                    owned.has(stop),
                   ),
                 )
                 .map(
