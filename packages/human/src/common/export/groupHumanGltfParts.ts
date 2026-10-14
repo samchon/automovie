@@ -22,7 +22,10 @@ import type { IHumanGltfPartGroup } from "./IHumanGltfPartGroup";
 export function groupHumanGltfParts(
   parts: readonly IAutoMovieModelPart[],
 ): IHumanGltfPartGroup[] {
-  const groups: Map<string, IHumanGltfPartGroup> = new Map<string, IHumanGltfPartGroup>();
+  const groups: Map<string, IHumanGltfPartGroup> = new Map<
+    string,
+    IHumanGltfPartGroup
+  >();
   for (const part of parts) {
     const transform: IAutoMovieModelPart["transform"] = part.transform;
     const key: string = JSON.stringify([
@@ -39,8 +42,7 @@ export function groupHumanGltfParts(
       transform?.scale.z ?? 1,
     ]);
     const group: IHumanGltfPartGroup | undefined = groups.get(key);
-    if (group === undefined)
-      groups.set(key, { parts: [part], transform });
+    if (group === undefined) groups.set(key, { parts: [part], transform });
     else group.parts.push(part);
   }
   return Array.from(groups.values());

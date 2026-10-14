@@ -28,7 +28,9 @@ export function readHumanMeshPhysicalVertices(
   primitive: Primitive,
 ): IAutoMovieMesh["physicalVertices"] {
   const extras: ReturnType<Primitive["getExtras"]> = primitive.getExtras();
-  const attribute: Accessor | null = primitive.getAttribute("_AUTOMOVIE_PHYSICAL_SOURCE");
+  const attribute: Accessor | null = primitive.getAttribute(
+    "_AUTOMOVIE_PHYSICAL_SOURCE",
+  );
   if (!Object.hasOwn(extras, "automoviePhysicalVertices")) {
     if (attribute !== null)
       throw new Error(
@@ -44,12 +46,16 @@ export function readHumanMeshPhysicalVertices(
     input.version !== 1
   )
     throw new Error("Unsupported physical source namespace version.");
-  const record: IHumanMeshPhysicalSourceTable = typia.assertEquals<IHumanMeshPhysicalSourceTable>(input);
+  const record: IHumanMeshPhysicalSourceTable =
+    typia.assertEquals<IHumanMeshPhysicalSourceTable>(input);
   const positions: Accessor | null = primitive.getAttribute("POSITION");
   const indices: Accessor | null = primitive.getIndices();
-  const xyz: ReturnType<Accessor["getArray"]> | undefined = positions?.getArray();
-  const references: ReturnType<Accessor["getArray"]> | undefined = attribute?.getArray();
-  const triangles: ReturnType<Accessor["getArray"]> | undefined = indices?.getArray();
+  const xyz: ReturnType<Accessor["getArray"]> | undefined =
+    positions?.getArray();
+  const references: ReturnType<Accessor["getArray"]> | undefined =
+    attribute?.getArray();
+  const triangles: ReturnType<Accessor["getArray"]> | undefined =
+    indices?.getArray();
   if (
     primitive.getMode() !== 4 ||
     positions?.getType() !== "VEC3" ||
@@ -71,18 +77,27 @@ export function readHumanMeshPhysicalVertices(
   if (
     triangles.length === 0 ||
     triangles.length % 3 !== 0 ||
-    Array.from(triangles).some((vertex: number): boolean => vertex >= positions.getCount())
+    Array.from(triangles).some(
+      (vertex: number): boolean => vertex >= positions.getCount(),
+    )
   )
     throw new Error(
       "Physical source correspondence needs complete in-range actual triangles.",
     );
   const result: NonNullable<IAutoMovieMesh["physicalVertices"]> = {
-    sources: record.sources.map((source: IHumanMeshPhysicalSourceTable["sources"][number]): IHumanMeshPhysicalSourceTable["sources"][number] => ({ ...source })),
-    vertices: Array.from({ length: references.length / 2 }, (_value: unknown, vertex: number): number | null => {
-      const reference: number =
-        references[vertex * 2] + 65536 * references[vertex * 2 + 1];
-      return reference === 0 ? null : reference - 1;
-    }),
+    sources: record.sources.map(
+      (
+        source: IHumanMeshPhysicalSourceTable["sources"][number],
+      ): IHumanMeshPhysicalSourceTable["sources"][number] => ({ ...source }),
+    ),
+    vertices: Array.from(
+      { length: references.length / 2 },
+      (_value: unknown, vertex: number): number | null => {
+        const reference: number =
+          references[vertex * 2] + 65536 * references[vertex * 2 + 1];
+        return reference === 0 ? null : reference - 1;
+      },
+    ),
   };
   resolveAutoMovieMeshPhysicalVertices({
     positions: Array.from(xyz),

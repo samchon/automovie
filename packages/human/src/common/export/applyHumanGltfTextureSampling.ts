@@ -36,12 +36,22 @@ export function applyHumanGltfTextureSampling(
       .setWrapS(TextureInfo.WrapMode.CLAMP_TO_EDGE)
       .setWrapT(TextureInfo.WrapMode.CLAMP_TO_EDGE);
   else {
-    const wrap: Readonly<Record<NonNullable<IHumanGltfTextureReference["sampler"]>["wrapS"], ReturnType<TextureInfo["getWrapS"]>>> = {
+    const wrap: Readonly<
+      Record<
+        NonNullable<IHumanGltfTextureReference["sampler"]>["wrapS"],
+        ReturnType<TextureInfo["getWrapS"]>
+      >
+    > = {
       clamp: TextureInfo.WrapMode.CLAMP_TO_EDGE,
       repeat: TextureInfo.WrapMode.REPEAT,
       mirror: TextureInfo.WrapMode.MIRRORED_REPEAT,
     };
-    const minFilter: Readonly<Record<NonNullable<IHumanGltfTextureReference["sampler"]>["minFilter"], NonNullable<ReturnType<TextureInfo["getMinFilter"]>>>> = {
+    const minFilter: Readonly<
+      Record<
+        NonNullable<IHumanGltfTextureReference["sampler"]>["minFilter"],
+        NonNullable<ReturnType<TextureInfo["getMinFilter"]>>
+      >
+    > = {
       nearest: TextureInfo.MinFilter.NEAREST,
       linear: TextureInfo.MinFilter.LINEAR,
       nearestMipmapLinear: TextureInfo.MinFilter.NEAREST_MIPMAP_LINEAR,
@@ -57,7 +67,8 @@ export function applyHumanGltfTextureSampling(
           : TextureInfo.MagFilter.LINEAR,
       );
   }
-  const transform: IHumanGltfTextureReference["transform"] = reference.transform;
+  const transform: IHumanGltfTextureReference["transform"] =
+    reference.transform;
   if (
     transform === null ||
     transform === undefined ||

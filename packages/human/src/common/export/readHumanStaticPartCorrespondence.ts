@@ -21,9 +21,10 @@ export function readHumanStaticPartCorrespondence(
 ): IAutoMovieHumanStaticPartCorrespondence | undefined {
   const extras: ReturnType<Primitive["getExtras"]> = primitive.getExtras();
   if (!Object.hasOwn(extras, "automovieSourceParts")) return undefined;
-  const record: IAutoMovieHumanStaticPartCorrespondence = typia.assertEquals<IAutoMovieHumanStaticPartCorrespondence>(
-    extras.automovieSourceParts,
-  );
+  const record: IAutoMovieHumanStaticPartCorrespondence =
+    typia.assertEquals<IAutoMovieHumanStaticPartCorrespondence>(
+      extras.automovieSourceParts,
+    );
   const positions: Accessor | null = primitive.getAttribute("POSITION");
   const indices: Accessor | null = primitive.getIndices();
   if (
@@ -39,11 +40,15 @@ export function readHumanStaticPartCorrespondence(
       "Source part correspondence requires an indexed Float32 triangle primitive.",
     );
   // An admitted unsigned component type comes from a resident typed array.
-  const values: NonNullable<ReturnType<Accessor["getArray"]>> = indices.getArray()!;
+  const values: NonNullable<ReturnType<Accessor["getArray"]>> =
+    indices.getArray()!;
   if (
     primitive
       .listAttributes()
-      .some((attribute: Accessor): boolean => attribute.getCount() !== positions.getCount())
+      .some(
+        (attribute: Accessor): boolean =>
+          attribute.getCount() !== positions.getCount(),
+      )
   )
     throw new Error(
       "Source part correspondence requires aligned resident accessors.",
@@ -67,7 +72,9 @@ export function readHumanStaticPartCorrespondence(
         part.vertexCount,
         part.indexOffset,
         part.indexCount,
-      ].every((value: number): boolean => Number.isSafeInteger(value) && value >= 0) ||
+      ].every(
+        (value: number): boolean => Number.isSafeInteger(value) && value >= 0,
+      ) ||
       part.vertexCount === 0 ||
       part.indexCount % 3 !== 0 ||
       part.vertexOffset !== vertex ||

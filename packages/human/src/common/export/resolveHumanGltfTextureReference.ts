@@ -29,7 +29,9 @@ export function resolveHumanGltfTextureReference(
   slot: "baseColorTexture" | "normalTexture" | "occlusionTexture",
 ): IHumanGltfTextureReference {
   const uri: string = typeof binding === "string" ? binding : binding.asset;
-  const mediaType: "image/png" | "image/jpeg" | undefined = (["image/png", "image/jpeg"] as const).find(
+  const mediaType: "image/png" | "image/jpeg" | undefined = (
+    ["image/png", "image/jpeg"] as const
+  ).find(
     (candidate: "image/png" | "image/jpeg"): boolean =>
       typeof uri === "string" && uri.startsWith(`data:${candidate};base64,`),
   );
@@ -43,7 +45,8 @@ export function resolveHumanGltfTextureReference(
     throw new Error(
       `Model texture ${slot} must address UV set 0; the exporter writes no other set.`,
     );
-  const expected: "srgb" | "linear" = slot === "baseColorTexture" ? "srgb" : "linear";
+  const expected: "srgb" | "linear" =
+    slot === "baseColorTexture" ? "srgb" : "linear";
   if (binding.colorSpace !== expected)
     throw new Error(
       `Model texture ${slot} must declare the ${expected} colour space glTF fixes for it.`,
