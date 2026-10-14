@@ -1,3 +1,5 @@
+import type { IPortraitLowerLidSection } from "./IPortraitLowerLidSection";
+
 /**
  * The named sections of a lower-lid profile, in sampling order: margin,
  * pretarsalCrest, pretarsalLower, subtarsalInner, subtarsalOuter, preseptal.
@@ -16,5 +18,3 @@ export const portraitLowerLidRoles: readonly [
   "subtarsalOuter",
   "preseptal",
 ] as const;
-import type { IPortraitLowerLidSection } from "./IPortraitLowerLidSection";
-
