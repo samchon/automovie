@@ -4,6 +4,7 @@ import {
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieTextureReference,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,7 +16,7 @@ import {
 } from "../internal/predicates";
 
 /** A structured base-colour binding with only the fields a case cares about. */
-const texture = (
+const texture: (extra?: Partial<IAutoMovieTextureReference>) => IAutoMovieTextureReference = (
   extra: Partial<IAutoMovieTextureReference> = {},
 ): IAutoMovieTextureReference => ({
   asset: "public/textures/oak.png",
@@ -25,7 +26,7 @@ const texture = (
 });
 
 /** Turns of the image per coordinate unit, same on both axes unless split. */
-const uv = (
+const uv: (x: number, y?: number) => NonNullable<IAutoMovieTextureReference["transform"]> = (
   x: number,
   y: number = x,
 ): NonNullable<IAutoMovieTextureReference["transform"]> => ({
@@ -34,7 +35,7 @@ const uv = (
   rotationDeg: 0,
 });
 
-const material = (
+const material: (id: string, base: IAutoMovieMaterial["baseColorTexture"], extra?: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
   id: string,
   base: IAutoMovieMaterial["baseColorTexture"],
   extra: Partial<IAutoMovieMaterial> = {},
@@ -46,7 +47,7 @@ const material = (
   }) as IAutoMovieMaterial;
 
 /** One mesh part whose UV rectangle spans exactly `spanU` by `spanV`. */
-const meshPart = (
+const meshPart: (id: string, materialId: string | null, uvs: number[] | null) => IAutoMovieModelPart = (
   id: string,
   materialId: string | null,
   uvs: number[] | null,
@@ -62,7 +63,7 @@ const meshPart = (
   transform: null,
 });
 
-const rect = (spanU: number, spanV: number): number[] => [
+const rect: (spanU: number, spanV: number) => number[] = (spanU: number, spanV: number): number[] => [
   0,
   0,
   spanU,
@@ -73,7 +74,7 @@ const rect = (spanU: number, spanV: number): number[] => [
   spanV,
 ];
 
-const model = (
+const model: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IAutoMovieModel = (
   parts: IAutoMovieModelPart[],
   materials: IAutoMovieMaterial[],
 ): IAutoMovieModel =>
@@ -86,7 +87,7 @@ const model = (
     materials,
   }) as IAutoMovieModel;
 
-const run = (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) =>
+const run: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IAutoMovieValidation = (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]): IAutoMovieValidation =>
   validateTextureScale({ models: [model(parts, materials)] });
 
 /**
@@ -109,12 +110,17 @@ const run = (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) =>
  *    axis, a missing or unusable transform scale, a primitive part, a mesh with
  *    no or degenerate texture coordinates, an unbound part, and a part naming a
  *    material the model does not define.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual texture-scale admission over authored mesh UV spans and bound material slots, observing per-axis type errors, advisory tile-size warnings and deliberate silence for unmeasurable claims. A matching coordinate declaration must not warn merely because another surface would be too small.
+ * @evidence contracts/testing.md#independent-expectations Authored rectangular UV ranges supply normalized span limits and metre spans; repeat scale s implies tile size 1/abs(s), so scale 0.25 exactly fits four metres while scale 1 exceeds a 0.1-metre post. These arithmetic expectations are independent of returned findings; the minimal records intentionally do not certify complete mesh/model validity or decoded texture content.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts spans above/equal/below one, metre tile overflow/exact fit/many repeats, mirrored and split axes, all populated image slots and absence of usable unit/scale/UV/material facts. Primitive, degenerate and unresolved bindings remain the admission responsibility of their owners rather than guessed physical-scale advice here.
+ * @evidence contracts/testing.md#execution-ownership The named unit directly invokes portable scale classification with existing authored scalar records and no image bytes. Local array callbacks own these cases; no loader, asset generation, browser or GPU is started.
  */
-export const test_validation_texture_scale = (): void => {
+export function test_validation_texture_scale(): void {
   //----
   // NORMALIZED: THE DECLARATION MUST MATCH THE SET
   //----
-  const metreUvs = run(
+  const metreUvs: IAutoMovieValidation = run(
     [meshPart("floor", "oak", rect(9, 4))],
     [material("oak", texture({ coordinateSource: "normalized" }))],
   );
@@ -132,31 +138,31 @@ export const test_validation_texture_scale = (): void => {
     2,
   );
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "a set spanning exactly one is the boundary and passes",
-    violationCount(
+    validationHasWarningCount("normalized exact span",
       run(
         [meshPart("panel", "oak", rect(1, 1))],
         [material("oak", texture({ coordinateSource: "normalized" }))],
       ),
+      0,
     ),
-    0,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a normalized set occupying part of its range is left alone",
-    violationCount(
+    validationHasWarningCount("normalized partial span",
       run(
         [meshPart("island", "oak", rect(0.5, 0.25))],
         [material("oak", texture({ coordinateSource: "normalized" }))],
       ),
+      0,
     ),
-    0,
   );
 
   //----
   // SURFACE-METRES: THE TILE MUST FIT ON THE SURFACE
   //----
-  const bedPost = run(
+  const bedPost: IAutoMovieValidation = run(
     [meshPart("bed-post", "oak", rect(0.1, 0.1))],
     [
       material(
@@ -288,7 +294,7 @@ export const test_validation_texture_scale = (): void => {
   //----
   // SILENCE WHERE NOTHING MEASURABLE WAS CLAIMED
   //----
-  const post = (base: IAutoMovieMaterial["baseColorTexture"]) =>
+  const post: (base: IAutoMovieMaterial["baseColorTexture"]) => IAutoMovieValidation = (base: IAutoMovieMaterial["baseColorTexture"]): IAutoMovieValidation =>
     run([meshPart("post", "oak", rect(0.1, 0.1))], [material("oak", base)]);
   const silent: readonly string[] = [
     "a legacy bare-id binding claims no coordinate unit",
@@ -327,17 +333,17 @@ export const test_validation_texture_scale = (): void => {
       ),
       post(texture({ coordinateSource: "surface-metres", transform: uv(0) })),
       post(null),
-    ].map((validation, index) => [
+    ].map((validation: IAutoMovieValidation, index: number): [string, boolean] => [
       silent[index]!,
       validationHasWarningCount(silent[index]!, validation, 0),
     ]),
-    silent.map((title) => [title, true]),
+    silent.map((title: string): [string, boolean] => [title, true]),
   );
 
   //----
   // SURFACES THIS VALIDATOR CANNOT MEASURE
   //----
-  const bound = material(
+  const bound: IAutoMovieMaterial = material(
     "oak",
     texture({ coordinateSource: "normalized", transform: uv(1) }),
   );
@@ -353,8 +359,8 @@ export const test_validation_texture_scale = (): void => {
     "an imported mesh may carry no texture coordinates at all",
     "an empty coordinate array is nothing to measure",
     "a non-finite coordinate makes the whole span unusable",
-    "a zero u span is mesh topology's finding, not this one",
-    "a zero v span is refused the same way",
+    "a zero u span supplies no measurable tile domain",
+    "a zero v span is likewise unmeasurable",
     "a part bound to no material has no pair to measure",
     "a part naming an undefined material is model validation's finding",
     "no models is a clean pass rather than an empty claim",
@@ -371,10 +377,10 @@ export const test_validation_texture_scale = (): void => {
       run([meshPart("unbound", null, rect(9, 9))], [bound]),
       run([meshPart("missing", "walnut", rect(9, 9))], [bound]),
       validateTextureScale({ models: [] }),
-    ].map((validation, index) => [
+    ].map((validation: IAutoMovieValidation, index: number): [string, boolean] => [
       unmeasurable[index]!,
       validationHasWarningCount(unmeasurable[index]!, validation, 0),
     ]),
-    unmeasurable.map((title) => [title, true]),
+    unmeasurable.map((title: string): [string, boolean] => [title, true]),
   );
-};
+}

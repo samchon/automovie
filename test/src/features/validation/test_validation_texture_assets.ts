@@ -20,7 +20,7 @@ import {
   violationCount,
 } from "../internal/predicates";
 
-const PRODUCTION = "atrium";
+const PRODUCTION: string = "atrium";
 
 const FACTS: Record<string, IAutoMovieTextureImageFacts> = {
   "public/textures/tile-base.png": {
@@ -40,20 +40,20 @@ const FACTS: Record<string, IAutoMovieTextureImageFacts> = {
   },
 };
 
-const facts = (asset: string): IAutoMovieTextureImageFacts | undefined =>
+const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (asset: string): IAutoMovieTextureImageFacts | undefined =>
   FACTS[asset];
 
-const use = (
+const use: (kind: "material-texture" | "scene-environment" | "audio-cue", id: string, production?: string) => IAutoMovieAssetUse = (
   kind: "material-texture" | "scene-environment" | "audio-cue",
   id: string,
-  production = PRODUCTION,
+  production: string = PRODUCTION,
 ): IAutoMovieAssetUse => ({
   production,
   consumer: { kind, id },
   reason: "built environment finish",
 });
 
-const record = (
+const record: (path: string, uses: IAutoMovieAssetUse[]) => IAutoMovieAssetProvenance = (
   path: string,
   uses: IAutoMovieAssetUse[],
 ): IAutoMovieAssetProvenance => ({
@@ -68,17 +68,17 @@ const record = (
   uses,
 });
 
-const material = (patch: Partial<IAutoMovieMaterial>): IAutoMovieMaterial => ({
+const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (patch: Partial<IAutoMovieMaterial>): IAutoMovieMaterial => ({
   ...createModel().materials[0]!,
   ...patch,
 });
 
-const model = (
+const model: (id: string, materials: IAutoMovieMaterial[]) => IAutoMovieModel = (
   id: string,
   materials: IAutoMovieMaterial[],
 ): IAutoMovieModel => ({ ...createModel(), id, materials });
 
-const TILED_FLOOR = model("floor", [
+const TILED_FLOOR: IAutoMovieModel = model("floor", [
   material({
     id: "tile",
     baseColorTexture: {
@@ -110,7 +110,7 @@ const CLEAN_ASSETS: IAutoMovieAssetProvenance[] = [
   record("public/textures/studio.hdr", [use("scene-environment", "opening")]),
 ];
 
-const closure = (props: ITextureAssetClosureOverrides) =>
+const closure: (props: ITextureAssetClosureOverrides) => ReturnType<typeof validateTextureAssets> = (props: ITextureAssetClosureOverrides): ReturnType<typeof validateTextureAssets> =>
   validateTextureAssets({
     production: PRODUCTION,
     models: props.models ?? [TILED_FLOOR],
@@ -132,18 +132,23 @@ const closure = (props: ITextureAssetClosureOverrides) =>
  *    registered one with no typed use, a use whose production or consumer id
  *    does not match, and a ledger entry for a consumer that no longer binds
  *    it.
- * 3. Bytes decide media and size: unreadable bytes, an HDR bound as base color, a
+ * 3. Supplied image facts decide media and size: unavailable facts, HDR base color, a
  *    zero, fractional or over-budget edge are all refused, while the exact
  *    portable limit and a PNG environment are accepted.
  * 4. One image bound as both a colour and a measurement is refused at every
  *    contradicting slot, including through legacy bare-id bindings whose intent
  *    comes from the slot itself.
- * 5. A scene environment joins that rule with the intent its media proves: an
- *    8-bit sky and a linear material map over the same bytes are refused at
- *    both consumers, the same sky beside a base-color binding of those bytes is
- *    clean, and a Radiance sky never shares a decoding to contradict at all.
+ * 5. A scene environment joins that rule with intent from its supplied media facts: a
+ *    PNG sky and a linear material map over the same asset are refused at
+ *    both consumers, the same sky beside a base-color binding of that asset is
+ *    clean, and a Radiance sky beside a separate normal-map asset is accepted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual texture-asset closure over material/environment bindings, typed ledger uses and supplied image facts. Missing or mismatched authorization, stale uses, media/edge limits and contradictory decoding must produce addressed failures while matching and image-free consumers remain accepted.
+ * @evidence contracts/testing.md#independent-expectations Authored production/consumer identities, color versus linear slot roles and supplied PNG/Radiance dimensions define expected closure and field paths. Edge limit 8192 has an exact accepted case and 8193 refuses; the facts callback is an explicit seam, so no bytes are decoded or hashed and the fixed digest placeholders prove no content identity.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts registered/missing/stale/wrong-kind/wrong-production uses, absent/null/imageless environments, unavailable or invalid facts and exact edge budget. Shared assets distinguish agreeing roles from color/data conflicts across material and environment consumers, including legacy bindings; actual decoder and provenance-byte integrity belong to other owners.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit directly invokes closure semantics and its existing local assertion helper with authored records and a synchronous facts port. It creates no image assets, network requests, native viewer or GPU, and helper cases are owned by this discoverable entry.
  */
-export const test_validation_texture_assets = (): void => {
+export function test_validation_texture_assets(): void {
   TestValidator.equals(
     "an authorized floor and environment close cleanly",
     closure({}).success,
@@ -154,7 +159,7 @@ export const test_validation_texture_assets = (): void => {
     namedFacts([
       [
         "noEnvironmentKey",
-        () =>
+        (): boolean =>
           closure({
             models: [model("bare", [material({})])],
             scenes: [{ shot: "opening" }],
@@ -163,7 +168,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "nullEnvironment",
-        () =>
+        (): boolean =>
           closure({
             models: [],
             scenes: [{ shot: "opening", environment: null }],
@@ -172,7 +177,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "imagelessEnvironment",
-        () =>
+        (): boolean =>
           closure({
             models: [],
             scenes: [
@@ -190,7 +195,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "otherProductionLedgerIgnored",
-        () =>
+        (): boolean =>
           closure({
             models: [],
             scenes: [{ shot: "opening" }],
@@ -203,7 +208,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "nonTextureConsumerIgnored",
-        () =>
+        (): boolean =>
           closure({
             models: [],
             scenes: [{ shot: "opening" }],
@@ -227,7 +232,7 @@ export const test_validation_texture_assets = (): void => {
     namedFacts([
       [
         "unregisteredTexture",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({ assets: CLEAN_ASSETS.slice(1) }),
             "type",
@@ -236,7 +241,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "unregisteredEnvironment",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({ assets: CLEAN_ASSETS.slice(0, 2) }),
             "type",
@@ -245,7 +250,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "noTypedUse",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               assets: [
@@ -259,7 +264,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "wrongConsumerId",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               assets: [
@@ -275,7 +280,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "wrongConsumerKind",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               assets: [
@@ -291,7 +296,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "wrongProduction",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               assets: [
@@ -307,7 +312,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "staleMaterialUse",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               models: [model("floor", [material({})])],
@@ -320,7 +325,7 @@ export const test_validation_texture_assets = (): void => {
       ],
       [
         "staleEnvironmentUse",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
               models: [],
@@ -345,7 +350,7 @@ export const test_validation_texture_assets = (): void => {
   );
 
   assertTextureAssetImageFacts(closure, facts);
-  const contradiction = closure({
+  const contradiction: ReturnType<typeof closure> = closure({
     models: [
       model("floor", [
         material({
@@ -375,7 +380,7 @@ export const test_validation_texture_assets = (): void => {
     [true, true, 2],
   );
 
-  const legacyContradiction = closure({
+  const legacyContradiction: ReturnType<typeof closure> = closure({
     models: [
       model("floor", [
         material({
@@ -411,11 +416,8 @@ export const test_validation_texture_assets = (): void => {
     true,
   );
 
-  // An equirectangular image declares no intent of its own, so its container
-  // decides one: an 8-bit sky is sRGB-encoded colour and a Radiance sky is
-  // linear radiance. The first therefore collides with a material measurement
-  // over the same bytes exactly as two material slots would.
-  const litByLdr = (patch: Partial<IAutoMovieMaterial>) =>
+  // The supplied PNG media role gives the environment sRGB intent; this unit does not inspect image bit depth or decode bytes.
+  const litByLdr: (patch: Partial<IAutoMovieMaterial>) => ReturnType<typeof closure> = (patch: Partial<IAutoMovieMaterial>): ReturnType<typeof closure> =>
     closure({
       models: [model("floor", [material(patch)])],
       scenes: [
@@ -434,7 +436,7 @@ export const test_validation_texture_assets = (): void => {
         ]),
       ],
     });
-  const skyAsMeasurement = litByLdr({
+  const skyAsMeasurement: ReturnType<typeof closure> = litByLdr({
     normalTexture: {
       asset: "public/textures/tile-base.png",
       texCoord: 0,
@@ -442,7 +444,7 @@ export const test_validation_texture_assets = (): void => {
     },
   });
   TestValidator.equals(
-    "an 8-bit sky and a linear map over the same bytes are both refused",
+    "a PNG sky and a linear map over the same asset are both refused",
     [
       hasViolation(
         skyAsMeasurement,
@@ -455,7 +457,7 @@ export const test_validation_texture_assets = (): void => {
     [true, true, 2],
   );
   TestValidator.equals(
-    "the same sky beside a base-color binding of those bytes agrees",
+    "the same sky beside a base-color binding of that asset agrees",
     litByLdr({
       baseColorTexture: {
         asset: "public/textures/tile-base.png",
@@ -466,7 +468,7 @@ export const test_validation_texture_assets = (): void => {
     true,
   );
   TestValidator.equals(
-    "a Radiance sky and a material map never share a decoding to contradict",
+    "a Radiance sky and a separate normal-map asset remain accepted",
     closure({
       models: [
         model("floor", [
@@ -477,4 +479,4 @@ export const test_validation_texture_assets = (): void => {
     }).success,
     true,
   );
-};
+}
