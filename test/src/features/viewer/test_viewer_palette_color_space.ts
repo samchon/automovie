@@ -1,20 +1,20 @@
-import { materializeCompiledInstanceSet } from "@automovie/engine";
+import { materializeCompiledInstanceSet, productionRuntimeModelId, srgbHexToLinearColor } from "@automovie/engine";
 import {
   IAutoMovieInstanceSetDesign,
   IAutoMovieModel,
   IAutoMovieModelRecipe,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
-import { materializeProductionModels } from "@automovie/production";
 import { buildInstancedInstanceSet } from "../../../../packages/viewer/src/buildInstancedInstanceSet";
 import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { nclose, throwsError } from "../internal/predicates";
+import { createModel } from "../internal/fixtures";
 
 /**
- * One authored swatch reaches the same linear albedo through the recipe-material and instance-palette paths.
+ * One authored swatch reaches the same linear albedo through the material and instance-palette paths.
  *
  * Both paths interpret authored hex swatches as sRGB and supply linear values to native material or instance color state. The independent transfer function distinguishes a shared correct decode from two paths agreeing on byte transcription.
  *
@@ -29,7 +29,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. Two slots using one palette entry receive equal color values.
  * 6. Instance retirement attempts later resources after a geometry listener throws, preserves its failure without retry and refuses later updates.
  *
- * @evidence contracts/testing.md#behavioral-verification Materializes a palette recipe and compact instance set, reads real material/instance albedo and observes actual dispose events; catches sRGB transcription, color collapse and instance lifetime that skips later releases after a listener failure.
+ * @evidence contracts/testing.md#behavioral-verification Decodes an authored material swatch with the engine color seam and materializes a compact instance set, reads real material/instance albedo and observes actual dispose events; catches sRGB transcription, color collapse and instance lifetime that skips later releases after a listener failure.
  * @evidence contracts/testing.md#independent-expectations W3C CSS Color 4's sRGB transfer function independently maps authored hex bytes to linear channels, with 1e-7 tolerance covering Float32 attributes; dispose event counts follow one attempt per owned visible resource and the supplied listener Error must remain the repeated completion.
  * @evidence contracts/testing.md#distinguishing-cases Covers a midtone, contrasting palette, black/white endpoints, repeated swatch slots, normal cleanup and a throwing geometry retirement with healthy instance/material release; other instancing tests own transforms, culling and prototype selection.
  * @evidence contracts/testing.md#execution-ownership This discovered unit function uses portable materialization plus in-memory Three colors, geometry and disposal events; no browser, GPU, native artifact or process is created and all cases are declared directly here.
@@ -93,12 +93,9 @@ function referenceSrgbChannel(byte: number): number {
   return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4;
 }
 
-/** Read a generated recipe's CPU-side linear diffuse color. */
+/** Read an authored material's CPU-side linear diffuse color. */
 const materialAlbedo: (swatch: string) => THREE.Color = (swatch: string): THREE.Color => {
-  const recipe: IAutoMovieModelRecipe = paletteRecipe(swatch);
-  const model: IAutoMovieModel = [
-    ...materializeProductionModels(new Map([[recipe.id, recipe]])).values(),
-  ][0]!;
+  const model: IAutoMovieModel = paletteModel(swatch);
   const material: THREE.MeshPhysicalMaterial = buildMaterial(model.materials[0]!);
   const result: THREE.Color = material.color.clone();
   material.dispose();
@@ -158,13 +155,20 @@ function paletteInstances(swatch: string): ReturnType<typeof buildInstancedInsta
       world,
       recipes,
     }),
-    models: new Map(
-      [...materializeProductionModels(recipes).values()].map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
-        model.id,
-        model,
-      ]),
-    ),
+    models: new Map([[productionRuntimeModelId(recipe.id), paletteModel(swatch)]]),
   });
+}
+
+/** Author the slab directly through the model AST and the shared sRGB decoder. */
+function paletteModel(swatch: string): IAutoMovieModel {
+  const model: IAutoMovieModel = createModel(null);
+  model.id = productionRuntimeModelId("slate");
+  model.materials[0]!.baseColor = srgbHexToLinearColor(swatch);
+  model.parts[0]!.geometry = {
+    type: "primitive",
+    shape: { type: "box", width: 1, height: 0.05, depth: 1 },
+  };
+  return model;
 }
 
 /** One flat slab whose single material color is the swatch under test. */

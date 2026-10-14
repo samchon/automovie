@@ -3,12 +3,6 @@ import {
   autoMovieRenderDigest,
   canonicalizeAutoMovieJson,
 } from "@automovie/engine";
-import {
-  AutoMovieCanonicalJsonError as ProductionCanonicalJsonError,
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-  canonicalizeAutoMovieJson as productionCanonicalizeAutoMovieJson,
-} from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
@@ -16,8 +10,8 @@ import { createHash } from "node:crypto";
  * Canonical JSON v2 has one implementation and one identity on every runtime.
  *
  * The engine owns the canonicalizer and a pure SHA-256 so a browser viewer can
- * identify an edit without a Node built-in, while Node project services keep
- * digesting through `node:crypto`. The two paths are one identity only when
+ * identify an edit without a Node built-in, while Node hosts can hash those
+ * bytes through `node:crypto`. The two paths are one identity only when
  * their bytes and their hash agree, so every expectation here comes from
  * outside both implementations: the FIPS 180-4 example digests, canonical text
  * written by hand from the protocol rules, and `node:crypto` over those
@@ -30,7 +24,7 @@ import { createHash } from "node:crypto";
  * 2. For canonical inputs whose UTF-8 text is exactly 2, 55, 56, 63, 64 and 65
  *    bytes, including two-, three- and four-byte scalars that straddle a block
  *    boundary, the engine text equals the hand-written text, and the pure
- *    digest, the Node production digest and `node:crypto` over the hand-written
+ *    digest and `node:crypto` over the hand-written
  *    bytes are one digest. Two further cases fix non-ASCII member order and a
  *    nested value whose numbers include negative zero and an exponent. Each
  *    arranged byte length is checked first, so a case that missed its boundary
@@ -38,14 +32,13 @@ import { createHash } from "node:crypto";
  * 3. Members follow UTF-16 code-unit order rather than insertion order or
  *    collation, an absent member changes neither text nor digest, and a
  *    changed member value changes the digest (the negative twin).
- * 4. A refused value throws one error class whether it is reached through the
- *    engine or through the production name Node services import, while an
- *    unrelated `TypeError` is not that class.
+ * 4. A refused container and a non-finite scalar throw the canonical error
+ *    class with distinct categories, while an unrelated `TypeError` is not that class.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual engine canonicalization/pure hashing and production byte/hash exports, checking exact canonical text, UTF-8 lengths, digest agreement, omitted/changed members and shared domain-error classification.
- * @evidence contracts/testing.md#independent-expectations Three literal standard SHA-256 vectors and thirteen hand-written canonical/byte-length cases provide external expectations; Node crypto independently checks the engine hash, while the production hash and Node oracle share that crypto implementation.
+ * @evidence contracts/testing.md#behavioral-verification Calls actual engine canonicalization/pure hashing, checking exact canonical text, UTF-8 lengths, agreement with Node hashing, omitted/changed members and domain-error classification.
+ * @evidence contracts/testing.md#independent-expectations Three literal standard SHA-256 vectors and thirteen hand-written canonical/byte-length cases provide external expectations; Node crypto independently checks the engine hash over those literal bytes.
  * @evidence contracts/testing.md#distinguishing-cases Preserves block/padding boundaries, multibyte and astral strings, non-ASCII member order, nested numbers including negative zero/exponent, omitted/changed members and Date/NaN versus unrelated TypeError refusals; cycles/accessors and all refusal categories are not exercised here.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine/production export paths are compared in one runtime, without launching a browser or proving every runtime independently.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine and Node hash paths are compared in one runtime, without launching a browser or proving every runtime independently.
  */
 export function test_text_canonical_json_runtime_parity(): void {
   const nodeDigest: (text: string) => `sha256:${string}` = (text: string): `sha256:${string}` =>
@@ -115,13 +108,6 @@ export function test_text_canonical_json_runtime_parity(): void {
     ),
     cases.map((item: typeof cases[number]): string => nodeDigest(item.text)),
   );
-  TestValidator.equals(
-    "the Node production digest equals node:crypto over the hand-written bytes",
-    cases.map((item: typeof cases[number]): string =>
-      digestAutoMovieBytes(canonicalAutoMovieJsonBytes(item.value)),
-    ),
-    cases.map((item: typeof cases[number]): string => nodeDigest(item.text)),
-  );
 
   TestValidator.equals(
     "members follow code units and absent members leave the identity unchanged",
@@ -147,19 +133,19 @@ export function test_text_canonical_json_runtime_parity(): void {
     }
   };
   const engineRefusal: unknown = refusal((): string => canonicalizeAutoMovieJson(new Date(0)));
-  const productionRefusal: unknown = refusal((): string =>
-    productionCanonicalizeAutoMovieJson(Number.NaN),
+  const scalarRefusal: unknown = refusal((): string =>
+    canonicalizeAutoMovieJson(Number.NaN),
   );
   TestValidator.equals(
-    "a refusal is one error class through both import paths",
+    "container and scalar refusals preserve their domain error categories",
     [
-      engineRefusal instanceof ProductionCanonicalJsonError,
-      productionRefusal instanceof AutoMovieCanonicalJsonError,
+      engineRefusal instanceof AutoMovieCanonicalJsonError,
+      scalarRefusal instanceof AutoMovieCanonicalJsonError,
       engineRefusal instanceof AutoMovieCanonicalJsonError
         ? engineRefusal.category
         : null,
-      productionRefusal instanceof AutoMovieCanonicalJsonError
-        ? productionRefusal.category
+      scalarRefusal instanceof AutoMovieCanonicalJsonError
+        ? scalarRefusal.category
         : null,
       new TypeError("unrelated") instanceof AutoMovieCanonicalJsonError,
     ],

@@ -1,17 +1,15 @@
 import {
   AUTOMOVIE_INSTANCE_CHUNK_SIZE,
   materializeCompiledInstanceSet,
+  canonicalizeAutoMovieJson,
 } from "@automovie/engine";
 import { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceChunk, IAutoMovieCompiledFormationLod, IAutoMovieCompiledInstancePrototype,
   IAutoMovieInstanceSetDesign,
   IAutoMovieModelRecipe,
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
-import {
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-} from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
 
 import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
@@ -67,7 +65,7 @@ const recipes: Map<string, IAutoMovieModelRecipe> = new Map<string, IAutoMovieMo
 ]);
 
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  digestAutoMovieBytes(canonicalAutoMovieJsonBytes(value));
+  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
 
 /**
  * An instance set compiles to a compact record that keeps its laws, its route

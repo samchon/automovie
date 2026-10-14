@@ -1,6 +1,7 @@
 import {
   AUTOMOVIE_FORMATION_CHUNK_SIZE,
   materializeCompiledFormation,
+  canonicalizeAutoMovieJson,
   productionRuntimeModelId,
   worldRamp,
 } from "@automovie/engine";
@@ -9,11 +10,8 @@ import { IAutoMovieCompiledFormation, IAutoMovieFormationChunk, IAutoMovieCompil
   IAutoMovieModelRecipe,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
-import {
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-} from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
 
 import {
   namedFacts,
@@ -84,7 +82,7 @@ const tiered: () => Map<string, IAutoMovieModelRecipe> = (): Map<string, IAutoMo
 
 /** The Node builder's digest of one value's canonical JSON. */
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  digestAutoMovieBytes(canonicalAutoMovieJsonBytes(value));
+  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
 
 /** A flat rectangle from one ground-plan point to another, `width` across. */
 const strip: (id: string, from: { x: number; z: number; }, to: { x: number; z: number; }, width: number) => IAutoMovieWorldSurface = (

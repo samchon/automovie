@@ -1,7 +1,6 @@
 import { productionFilmEffectEditFingerprint } from "../../../../packages/engine/src/effectRuntime/productionFilmEffectEditFingerprint";
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
-import { canonicalAutoMovieJsonBytes } from "../../../../packages/production/src/production/canonicalAutoMovieJsonBytes";
-import { digestAutoMovieBytes } from "../../../../packages/production/src/production/digestAutoMovieBytes";
+import { canonicalizeAutoMovieJson } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
@@ -22,8 +21,8 @@ export function test_film_effect_edit_fingerprint(): void {
   const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (
     timeline: IAutoMovieFilmTimeline,
   ): string =>
-    digestAutoMovieBytes(
-      canonicalAutoMovieJsonBytes({
+    `sha256:${createHash("sha256").update(
+      canonicalizeAutoMovieJson({
         protocol: "automovie.production-render-edit.v2",
         id: timeline.id,
         fps: timeline.fps,
@@ -33,7 +32,8 @@ export function test_film_effect_edit_fingerprint(): void {
         omissions: timeline.omissions,
         tracks: timeline.tracks,
       }),
-    );
+      "utf8",
+    ).digest("hex")}`;
   const minimal: IAutoMovieFilmTimeline = {
     ...filmEffectTimeline([]),
     id: "f",
