@@ -11,8 +11,9 @@ import { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
  * @evidence contracts/common.md#meaningful-documentation States what travels together and why, which function produces and which validates it, the diagnostic for blank identity, and that the compiled artifact takes this exact id.
  * @author Samchon
  */
-export interface IAutoMovieDefinedShot<Context = undefined>
-  extends IAutoMovieShotDefinition<Context> {
+export interface IAutoMovieDefinedShot<
+  Context = undefined,
+> extends IAutoMovieShotDefinition<Context> {
   /**
    * Non-blank stable shot id; the compiled shot and its contract receive this exact identity.
    */

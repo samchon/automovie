@@ -29,7 +29,6 @@ export type IAutoMovieStageLight = {
    * Finite non-negative intensity, lowered verbatim: lux for directional, candela for point and spot, and nits for an area panel.
    */
   intensity: number;
-
 } & (
   | {
       /** Parallel source; omission preserves the directional default. */
