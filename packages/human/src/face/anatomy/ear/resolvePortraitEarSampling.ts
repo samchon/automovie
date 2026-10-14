@@ -36,7 +36,11 @@ export function resolvePortraitEarSampling(
     throw new Error(
       "Pinna dimensions need finite placement, positive scales/projection and nonnegative embedding.",
     );
-  const sampling: Readonly<{ columns: number; frontRows: number; backRows: number; }> = shape.sampling ?? portraitEarSampling;
+  const sampling: Readonly<{
+    columns: number;
+    frontRows: number;
+    backRows: number;
+  }> = shape.sampling ?? portraitEarSampling;
   if (
     ![sampling.columns, sampling.frontRows, sampling.backRows].every(
       Number.isInteger,

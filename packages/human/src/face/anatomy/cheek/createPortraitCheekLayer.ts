@@ -1,13 +1,15 @@
-import type { IPortraitCheekVolume } from "./IPortraitCheekVolume";
-import type { IPortraitSurfaceHost } from "../../surface/structures/IPortraitSurfaceHost";
-
-import type { IAutoMovieMeshDeformationField, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMeshDeformationField,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
+import type { IPortraitSurfaceHost } from "../../surface/structures/IPortraitSurfaceHost";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitCheekShape } from "./IPortraitCheekShape";
 import { IPortraitCheekSocket } from "./IPortraitCheekSocket";
+import type { IPortraitCheekVolume } from "./IPortraitCheekVolume";
 
 /**
  * Fit named cheek envelopes and a nasolabial groove to the final shared skin.
@@ -40,19 +42,30 @@ export function createPortraitCheekLayer(
 ): IPortraitSurfaceLayer {
   const socket: IPortraitCheekSocket = structuredClone(socketInput);
   const shape: IPortraitCheekShape = structuredClone(shapeInput);
-  const names: readonly ["malar", "medial", "buccal", "modiolus"] = ["malar", "medial", "buccal", "modiolus"] as const;
-  const bindings: number[] = [...names.map((name: "malar" | "medial" | "buccal" | "modiolus"): number  => socket[name]), ...socket.nasolabial];
+  const names: readonly ["malar", "medial", "buccal", "modiolus"] = [
+    "malar",
+    "medial",
+    "buccal",
+    "modiolus",
+  ] as const;
+  const bindings: number[] = [
+    ...names.map(
+      (name: "malar" | "medial" | "buccal" | "modiolus"): number =>
+        socket[name],
+    ),
+    ...socket.nasolabial,
+  ];
   if (
     (socket.side !== "left" && socket.side !== "right") ||
     socket.nasolabial.length < 2 ||
     new Set(socket.nasolabial).size !== socket.nasolabial.length ||
-    bindings.some((id: number): boolean  => !Number.isInteger(id) || id < 0)
+    bindings.some((id: number): boolean => !Number.isInteger(id) || id < 0)
   )
     throw new Error(
       "Cheek attachments need a side, skin identities and an ordered distinct fold path.",
     );
   if (
-    names.some((name: "malar" | "medial" | "buccal" | "modiolus"): boolean  => {
+    names.some((name: "malar" | "medial" | "buccal" | "modiolus"): boolean => {
       const volume: IPortraitCheekVolume = shape[name];
       return (
         (volume.offset !== undefined &&
@@ -82,7 +95,7 @@ export function createPortraitCheekLayer(
     );
   return {
     id: `${socket.side}-cheek`,
-    fields: (host: IPortraitSurfaceHost): IAutoMovieMeshDeformationField[]  => {
+    fields: (host: IPortraitSurfaceHost): IAutoMovieMeshDeformationField[] => {
       // Read current skin positions rather than freezing fitted coordinates in
       // the component. Mouth/nose replacement can move these same attachments.
       for (const id of bindings) {
@@ -97,7 +110,14 @@ export function createPortraitCheekLayer(
           );
       }
       const fields: IAutoMovieMeshDeformationField[] = [];
-      const field: (point: readonly number[], width: number, height: number, reach: number, projection: number, lift: number) => void = (
+      const field: (
+        point: readonly number[],
+        width: number,
+        height: number,
+        reach: number,
+        projection: number,
+        lift: number,
+      ) => void = (
         point: readonly number[],
         width: number,
         height: number,
@@ -124,7 +144,7 @@ export function createPortraitCheekLayer(
           // identity or baking another person's absolute coordinates into it.
           const offset: [number, number, number] = volume.offset ?? [0, 0, 0];
           const center: number[] = host.positions[socket[name]].map(
-            (v: number, axis: number): number  =>
+            (v: number, axis: number): number =>
               v +
               offset[axis] * (axis === 0 && socket.side === "right" ? -1 : 1),
           );
@@ -143,10 +163,12 @@ export function createPortraitCheekLayer(
         }
       }
       if (shape.foldDepth === 0) return fields;
-      const path: IAutoMovieVector3[] = socket.nasolabial.map((id: number): IAutoMovieVector3  => {
-        const point: readonly number[] = host.positions[id];
-        return millimetrePoint(point[0], point[1], point[2]);
-      });
+      const path: IAutoMovieVector3[] = socket.nasolabial.map(
+        (id: number): IAutoMovieVector3 => {
+          const point: readonly number[] = host.positions[id];
+          return millimetrePoint(point[0], point[1], point[2]);
+        },
+      );
       let length: number = 0;
       for (let i: number = 1; i < path.length; i++)
         length += Math.hypot(
@@ -165,17 +187,36 @@ export function createPortraitCheekLayer(
       // Resolve the guide first, retaining both physical travel and travel in
       // its ellipsoidal support metric. Equal spline parameter steps are not
       // equal distances when anatomical landmarks have unequal spacing.
-      const samples: { point: IAutoMovieVector3; physical: number; normalized: number; }[] = Array.from(
+      const samples: {
+        point: IAutoMovieVector3;
+        physical: number;
+        normalized: number;
+      }[] = Array.from(
         { length: 16 * (path.length - 1) + 1 },
-        (_value: unknown, i: number): { point: IAutoMovieVector3; physical: number; normalized: number; }  => ({
+        (
+          _value: unknown,
+          i: number,
+        ): {
+          point: IAutoMovieVector3;
+          physical: number;
+          normalized: number;
+        } => ({
           point: catmullRomPoint(path, i / (16 * (path.length - 1))),
           physical: 0,
           normalized: 0,
         }),
       );
       for (let i: number = 1; i < samples.length; i++) {
-        const previous: { point: IAutoMovieVector3; physical: number; normalized: number; } = samples[i - 1],
-          next: { point: IAutoMovieVector3; physical: number; normalized: number; } = samples[i];
+        const previous: {
+            point: IAutoMovieVector3;
+            physical: number;
+            normalized: number;
+          } = samples[i - 1],
+          next: {
+            point: IAutoMovieVector3;
+            physical: number;
+            normalized: number;
+          } = samples[i];
         const dx: number = next.point.x - previous.point.x,
           dy: number = next.point.y - previous.point.y,
           dz: number = next.point.z - previous.point.z;
@@ -188,7 +229,11 @@ export function createPortraitCheekLayer(
             dz / shape.foldReach,
           );
       }
-      const total: { point: IAutoMovieVector3; physical: number; normalized: number; } = samples[samples.length - 1];
+      const total: {
+        point: IAutoMovieVector3;
+        physical: number;
+        normalized: number;
+      } = samples[samples.length - 1];
       if (!Number.isFinite(total.physical) || total.normalized <= 0)
         throw new Error(
           "Nasolabial displacement must remain finite along a nonzero sampled path.",
@@ -207,15 +252,23 @@ export function createPortraitCheekLayer(
           samples[cursor + 1].normalized <= distance
         )
           cursor++;
-        const before: { point: IAutoMovieVector3; physical: number; normalized: number; } = samples[cursor],
-          after: { point: IAutoMovieVector3; physical: number; normalized: number; } = samples[cursor + 1];
+        const before: {
+            point: IAutoMovieVector3;
+            physical: number;
+            normalized: number;
+          } = samples[cursor],
+          after: {
+            point: IAutoMovieVector3;
+            physical: number;
+            normalized: number;
+          } = samples[cursor + 1];
         const fraction: number =
           (distance - before.normalized) /
           (after.normalized - before.normalized);
         const physical: number =
           before.physical + fraction * (after.physical - before.physical);
         const center: number[] = (["x", "y", "z"] as const).map(
-          (axis: "x" | "y" | "z"): number  =>
+          (axis: "x" | "y" | "z"): number =>
             before.point[axis] +
             fraction * (after.point[axis] - before.point[axis]),
         );
