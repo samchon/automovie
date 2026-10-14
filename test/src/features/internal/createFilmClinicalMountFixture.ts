@@ -24,14 +24,17 @@ export function createFilmClinicalMountFixture(): {
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   synthesize: IAutoMovieActionSynthesizer;
 } {
-  const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {
-    hips: {
-      flexion: { x: 0, y: 0, z: 1 },
-      abduction: { x: 1, y: 0, z: 0 },
-      twist: { x: 0, y: 1, z: 0 },
-    },
-  };
-  const restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {
+  const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    {
+      hips: {
+        flexion: { x: 0, y: 0, z: 1 },
+        abduction: { x: 1, y: 0, z: 0 },
+        twist: { x: 0, y: 1, z: 0 },
+      },
+    };
+  const restFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = {
     hips: { flexion: { sign: 1 as const, neutral: 15 } },
   };
   const motion: IAutoMovieMotion = makeMotion(

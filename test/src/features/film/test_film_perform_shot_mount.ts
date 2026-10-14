@@ -231,23 +231,24 @@ export function test_film_perform_shot_mount(): void {
     "a rider mounted at local time 0 has an empty velocity window (zero)",
     vclose(riderAtStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
   );
-  const riderBeforeStart: IAutoMovieBeatEndActorState =
-    endAtOffset(3).actors.find(
-      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
-    )!;
+  const riderBeforeStart: IAutoMovieBeatEndActorState = endAtOffset(
+    3,
+  ).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+  )!;
   TestValidator.predicate(
     "a rider's future performance also has no velocity history",
     vclose(riderBeforeStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
   );
-  const riderJustStarted: IAutoMovieBeatEndActorState =
-    endAtOffset(1.995).actors.find(
-      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
-    )!;
+  const riderJustStarted: IAutoMovieBeatEndActorState = endAtOffset(
+    1.995,
+  ).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+  )!;
   TestValidator.predicate(
     "a short active window retains the carrier's one-metre-per-second velocity",
     vclose(riderJustStarted.rootVelocity!, { x: 1, y: 0, z: 0 }, 1e-6),
   );
-
   // 3c. a mount whose parent clip is authored in clinical space threads the
   // parent's custom axes/rest frames into the follow FK.
   const clinical: IAutoMoviePerformedShot = performShot({
@@ -272,7 +273,8 @@ export function test_film_perform_shot_mount(): void {
       node: string,
     ):
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-      | undefined => (node === "horse" ? clinicalFixture.restFrames : undefined),
+      | undefined =>
+      node === "horse" ? clinicalFixture.restFrames : undefined,
   });
   TestValidator.equals("the clinical mount performs", clinical.success, true);
   if (clinical.success === true) {
