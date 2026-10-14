@@ -1,11 +1,15 @@
-import { AUTOMOVIE_DIAGNOSTIC_CODES, type AutoMovieDiagnosticCode, type IAutoMovieDiagnosticReference } from "@automovie/interface";
+import type { AutoMovieDiagnosticCode, IAutoMovieDiagnosticReference } from "@automovie/interface";
+import { AUTOMOVIE_DIAGNOSTIC_CODES } from "../AUTOMOVIE_DIAGNOSTIC_CODES";
 import type { IAutoMovieDiagnosticCatalogEntry } from "./IAutoMovieDiagnosticCatalogEntry";
 
-/** The closed tuple supplies every family the behavioural catalogue must answer. */
+/** Derive family prefixes from the closed code union; this erased type validates no runtime string. */
 type DiagnosticFamily<Code extends string> = Code extends `${infer Family}-${string}` ? Family : never;
+
+/** Family names supplied by the maintained code population and its contract table. */
 type AutoMovieDiagnosticFamily = DiagnosticFamily<AutoMovieDiagnosticCode>;
 
-const CATALOG_REVISION = 3;
+/** Reference revision embedded in every entry constructed by this module. */
+const CATALOG_REVISION: number = 3;
 
 /**
  * One diagnostic family's documented invariant and caller-owned recovery route.
@@ -13,12 +17,20 @@ const CATALOG_REVISION = 3;
  * @author Samchon
  */
 interface IDiagnosticFamilyContract {
+  /** Documentation address returned without opening the document. */
   path: IAutoMovieDiagnosticReference["path"];
+
+  /** Required behavior described to the caller; lookup performs no validation. */
   invariant: string;
+
+  /** Caller-owned repair guidance, never an automatically applied edit. */
   correction: string;
+
+  /** Suggested operation after repair; lookup does not execute it. */
   recheck: string;
 }
 
+/** Exhaustive family guidance supplies defaults for codes without a specific override. */
 const FAMILY_CONTRACTS: Readonly<Record<AutoMovieDiagnosticFamily, IDiagnosticFamilyContract> & Record<string, IDiagnosticFamilyContract>> = {
   acceptance: {
     path: "README.md#canonical-command-routes",
@@ -248,9 +260,9 @@ const FAMILY_CONTRACTS: Readonly<Record<AutoMovieDiagnosticFamily, IDiagnosticFa
   source: {
     path: "README.md#canonical-command-routes",
     invariant:
-      "Tracked source must export the registered deterministic contract and stay inside the builder sandbox and ownership boundary.",
+      "Tracked source must export its registered contract and produce deterministic validated output within its declared ownership boundary. Node executes authored source without a runtime sandbox.",
     correction:
-      "Correct the exact module, export, capability, or registration named by the occurrence without bypassing the sandbox.",
+      "Correct the exact module, export, capability or registration named by the occurrence; authors remain responsible for deterministic source execution.",
     recheck: "Run source lint and the same compile scope again.",
   },
   stage: {
@@ -263,6 +275,7 @@ const FAMILY_CONTRACTS: Readonly<Record<AutoMovieDiagnosticFamily, IDiagnosticFa
   },
 };
 
+/** Code-specific guidance takes precedence over its family contract. */
 const CODE_CONTRACTS: Readonly<
   Partial<Record<AutoMovieDiagnosticCode, IDiagnosticFamilyContract>>
 > = {
@@ -322,12 +335,16 @@ const CODE_CONTRACTS: Readonly<
   },
 };
 
-/** Construct only codes from the closed tuple; the family table is statically exhaustive, so no absent-family runtime branch is reachable. */
-const createCatalogEntry = (
+/**
+ * Construct a frozen entry and reference from the maintained code population.
+ * Typed family coverage and code overrides supply descriptive guidance; this helper has no runtime admission check for mutated or foreign code strings.
+ * Slicing and reference construction cost work linear in code length and allocate the entry and reference retained by the catalog.
+ */
+const createCatalogEntry: (code: AutoMovieDiagnosticCode) => Readonly<IAutoMovieDiagnosticCatalogEntry> = (
   code: AutoMovieDiagnosticCode,
 ): Readonly<IAutoMovieDiagnosticCatalogEntry> => {
-  const family = code.slice(0, code.indexOf("-")) as AutoMovieDiagnosticFamily;
-  const contract = CODE_CONTRACTS[code] ?? FAMILY_CONTRACTS[family];
+  const family: AutoMovieDiagnosticFamily = code.slice(0, code.indexOf("-")) as AutoMovieDiagnosticFamily;
+  const contract: IDiagnosticFamilyContract = CODE_CONTRACTS[code] ?? FAMILY_CONTRACTS[family];
   return Object.freeze({
     code,
     reference: Object.freeze({
@@ -341,21 +358,40 @@ const createCatalogEntry = (
   });
 };
 
-const DIAGNOSTIC_CATALOG = Object.freeze(
+/** Observe the ordered population once; later registry mutations do not rebuild these entries. */
+const DIAGNOSTIC_CATALOG: readonly Readonly<IAutoMovieDiagnosticCatalogEntry>[] = Object.freeze(
   AUTOMOVIE_DIAGNOSTIC_CODES.map(createCatalogEntry),
 );
 
-const DIAGNOSTIC_CATALOG_BY_CODE = new Map(
-  DIAGNOSTIC_CATALOG.map((entry) => [entry.code, entry] as const),
+/** Index the same entries once and retain this private Map for the module lifetime. */
+const DIAGNOSTIC_CATALOG_BY_CODE: Map<AutoMovieDiagnosticCode, Readonly<IAutoMovieDiagnosticCatalogEntry>> = new Map(
+  DIAGNOSTIC_CATALOG.map((entry: Readonly<IAutoMovieDiagnosticCatalogEntry>): readonly [AutoMovieDiagnosticCode, Readonly<IAutoMovieDiagnosticCatalogEntry>] => [entry.code, entry] as const),
 );
 
 /**
- * One immutable diagnostic catalogue and its lookup index. Construction runs
- * once in canonical code order; list and find retain the same entry objects.
- * Public bindings alias these exact functions rather than wrapping a second
- * index. Unknown lookup strings still return null and no correction is applied.
+ * Own the frozen catalog and private index shared by the public list/find bindings.
+ *
+ * Initialization maps the maintained codes in declaration order, selects code overrides before exhaustive typed family guidance, and indexes those exact entries.
+ *
+ * One owner keeps construction and indexing together; public modules alias its functions without another cache or invocation wrapper.
+ *
+ * The revision and overrides are catalog contracts, not fixture exceptions. Lookup changes no source, replaces no foreign method and executes no returned recovery guidance.
+ *
+ * Callers receive frozen entries and references, the same ordered list, or null for an unknown code. The typed registry remains mutable at runtime and is observed only during initialization.
+ *
+ * For C codes with total text length L, initialization traverses C twice and retains O(C + L) catalog/index data. List is constant work; find uses Map lookup with string-key processing, without a worst-case constant-time claim.
+ *
+ * All requests share the entries from that module initialization. There is no invalidation after registry changes or cross-module-instance identity guarantee.
+ *
+ * The module retains catalog, index and guidance until its instance is released. Population follows the initialized codes; no file handle, timer or running task is acquired.
  */
-export const AutoMovieDiagnosticCatalogOwner = Object.freeze({
+export const AutoMovieDiagnosticCatalogOwner: Readonly<{
+  /** Return the same frozen ordered catalog without applying its guidance. */
+  listAutoMovieDiagnosticCatalog: () => readonly Readonly<IAutoMovieDiagnosticCatalogEntry>[];
+
+  /** Return the indexed entry identity, or null for an unknown code. */
+  findAutoMovieDiagnosticCatalogEntry: (code: string) => Readonly<IAutoMovieDiagnosticCatalogEntry> | null;
+}> = Object.freeze({
   /**
    * List the complete immutable diagnostic catalog in canonical code order.
    *
