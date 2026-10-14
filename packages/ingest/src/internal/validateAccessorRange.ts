@@ -1,5 +1,5 @@
-﻿import { object } from "./object";
-import { accessorElementByteLength } from "./accessorElementByteLength";
+﻿import { accessorElementByteLength } from "./accessorElementByteLength";
+import { object } from "./object";
 
 /**
  * Admit one accessor's dense byte extent using its component shape and stride.
@@ -15,7 +15,11 @@ import { accessorElementByteLength } from "./accessorElementByteLength";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The gate borrows metadata for the duration of one call and owns no reader or resident bytes.
  * @author Samchon
  */
-export const validateAccessorRange: (accessor: Record<string, unknown>, index: number, bufferViews: unknown[]) => void = (
+export const validateAccessorRange: (
+  accessor: Record<string, unknown>,
+  index: number,
+  bufferViews: unknown[],
+) => void = (
   accessor: Record<string, unknown>,
   index: number,
   bufferViews: unknown[],

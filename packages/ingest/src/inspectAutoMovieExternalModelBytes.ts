@@ -1,35 +1,35 @@
-import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
-import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalModelIngestProfile";
 import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
-import { fileExtension } from "./internal/fileExtension";
+import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
+import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelResource";
+import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
+import { COMPONENT_BYTES } from "./internal/COMPONENT_BYTES";
+import type { IAccessorSource } from "./internal/IAccessorSource";
+import type { IHumanoidSlot } from "./internal/IHumanoidSlot";
 import type { IParsedContainer } from "./internal/IParsedContainer";
-import { decodeJson } from "./internal/decodeJson";
+import { SHAPE_COMPONENTS } from "./internal/SHAPE_COMPONENTS";
+import { collectExternalResources } from "./internal/collectExternalResources";
 import { decodeGlb } from "./internal/decodeGlb";
-import { object } from "./internal/object";
-import { optionalArray } from "./internal/optionalArray";
+import { decodeJson } from "./internal/decodeJson";
+import { fileExtension } from "./internal/fileExtension";
+import { gltfHumanoidBones } from "./internal/gltfHumanoidBones";
+import { inspectExternalModelHierarchy } from "./internal/inspectExternalModelHierarchy";
+import { inspectExternalMotion } from "./internal/inspectExternalMotion";
 import { integerIndex } from "./internal/integerIndex";
 import { integerIndices } from "./internal/integerIndices";
-import { inspectExternalModelHierarchy } from "./internal/inspectExternalModelHierarchy";
+import { nonNegativeInteger } from "./internal/nonNegativeInteger";
+import { object } from "./internal/object";
+import { optionalArray } from "./internal/optionalArray";
+import { optionalObject } from "./internal/optionalObject";
+import { optionalStringArray } from "./internal/optionalStringArray";
 import { positiveInteger } from "./internal/positiveInteger";
 import { requiredArray } from "./internal/requiredArray";
-import { nonNegativeInteger } from "./internal/nonNegativeInteger";
-import { COMPONENT_BYTES } from "./internal/COMPONENT_BYTES";
-import { SHAPE_COMPONENTS } from "./internal/SHAPE_COMPONENTS";
-import { validateAccessorRange } from "./internal/validateAccessorRange";
-import { validateSparseAccessor } from "./internal/validateSparseAccessor";
 import { uniqueStrings } from "./internal/uniqueStrings";
-import { optionalStringArray } from "./internal/optionalStringArray";
-import { optionalObject } from "./internal/optionalObject";
-import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelResource";
-import { collectExternalResources } from "./internal/collectExternalResources";
-import { validatePayloadClosure } from "./internal/validatePayloadClosure";
-import type { IAccessorSource } from "./internal/IAccessorSource";
-import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
-import { inspectExternalMotion } from "./internal/inspectExternalMotion";
-import type { IHumanoidSlot } from "./internal/IHumanoidSlot";
-import { gltfHumanoidBones } from "./internal/gltfHumanoidBones";
-import { vrmHumanoidBones } from "./internal/vrmHumanoidBones";
+import { validateAccessorRange } from "./internal/validateAccessorRange";
 import { validateHumanoidSkinning } from "./internal/validateHumanoidSkinning";
+import { validatePayloadClosure } from "./internal/validatePayloadClosure";
+import { validateSparseAccessor } from "./internal/validateSparseAccessor";
+import { vrmHumanoidBones } from "./internal/vrmHumanoidBones";
+import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalModelIngestProfile";
 
 /**
  * Parse and validate exact external model bytes before compilation.
@@ -159,21 +159,23 @@ export const inspectAutoMovieExternalModelBytes: (props: {
     );
     if (primitives.length === 0)
       throw new Error(`meshes[${meshIndex}] has no render primitive.`);
-    primitives.forEach((primitiveValue: unknown, primitiveIndex: number): void => {
-      const path: string = `meshes[${meshIndex}].primitives[${primitiveIndex}]`;
-      const primitive: Record<string, unknown> = object(primitiveValue, path);
-      const attributes: Record<string, unknown> = object(
-        primitive.attributes,
-        `${path}.attributes`,
-      );
-      integerIndex(
-        attributes.POSITION,
-        accessors.length,
-        `${path}.attributes.POSITION`,
-        true,
-      );
-      integerIndex(primitive.indices, accessors.length, `${path}.indices`);
-    });
+    primitives.forEach(
+      (primitiveValue: unknown, primitiveIndex: number): void => {
+        const path: string = `meshes[${meshIndex}].primitives[${primitiveIndex}]`;
+        const primitive: Record<string, unknown> = object(primitiveValue, path);
+        const attributes: Record<string, unknown> = object(
+          primitive.attributes,
+          `${path}.attributes`,
+        );
+        integerIndex(
+          attributes.POSITION,
+          accessors.length,
+          `${path}.attributes.POSITION`,
+          true,
+        );
+        integerIndex(primitive.indices, accessors.length, `${path}.indices`);
+      },
+    );
   });
   skins.forEach((value: unknown, index: number): void => {
     const skin: Record<string, unknown> = object(value, `skins[${index}]`);
@@ -254,8 +256,10 @@ export const inspectAutoMovieExternalModelBytes: (props: {
     ...optionalStringArray(document.extensionsUsed, "extensionsUsed"),
     ...Object.keys(optionalObject(document.extensions, "extensions")),
   ]);
-  const resources: IAutoMovieExternalModelResource[] =
-    collectExternalResources(buffers, images);
+  const resources: IAutoMovieExternalModelResource[] = collectExternalResources(
+    buffers,
+    images,
+  );
   const payloads: Uint8Array[] = validatePayloadClosure({
     format: parsed.format,
     bin: parsed.bin,
@@ -291,8 +295,9 @@ export const inspectAutoMovieExternalModelBytes: (props: {
   if (
     profile === "gltf-humanoid-v1" &&
     (skins.length === 0 ||
-      humanoidMapping.some((slot: IHumanoidSlot): boolean => slot.bone === "hips") ===
-        false)
+      humanoidMapping.some(
+        (slot: IHumanoidSlot): boolean => slot.bone === "hips",
+      ) === false)
   )
     throw new Error(
       'Profile "gltf-humanoid-v1" requires a skin and a normalized hips/pelvis joint.',
@@ -309,8 +314,9 @@ export const inspectAutoMovieExternalModelBytes: (props: {
     (parsed.format === "gltf" ||
       vrm === false ||
       skins.length === 0 ||
-      humanoidMapping.some((slot: IHumanoidSlot): boolean => slot.bone === "hips") ===
-        false)
+      humanoidMapping.some(
+        (slot: IHumanoidSlot): boolean => slot.bone === "hips",
+      ) === false)
   )
     throw new Error(
       'Profile "vrm-humanoid-v1" requires a GLB/VRM container with VRM or VRMC_vrm metadata.',
@@ -329,7 +335,9 @@ export const inspectAutoMovieExternalModelBytes: (props: {
     extensions,
     resources,
     humanoidBones: humanoidMapping.map(
-      (slot: IHumanoidSlot): IAutoMovieExternalModelInspection["humanoidBones"][number] => ({
+      (
+        slot: IHumanoidSlot,
+      ): IAutoMovieExternalModelInspection["humanoidBones"][number] => ({
         ...slot,
         weighted: weightedNodes.has(slot.node),
       }),

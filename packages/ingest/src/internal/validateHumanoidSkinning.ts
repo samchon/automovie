@@ -1,9 +1,9 @@
 ﻿import type { IAccessorSource } from "./IAccessorSource";
-import { object } from "./object";
-import { requiredArray } from "./requiredArray";
-import { integerIndex } from "./integerIndex";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
 import { accessorReader } from "./accessorReader";
+import { integerIndex } from "./integerIndex";
+import { object } from "./object";
+import { requiredArray } from "./requiredArray";
 
 /**
  * Check complete mesh/skin bindings and collect joints actually receiving positive weights.
@@ -128,7 +128,7 @@ export const validateHumanoidSkinning: (props: {
                 `Skinned primitive ${meshIndex}:${primitiveIndex} vertex ${vertex} component ${component} has negative skin weight ${weight}.`,
               );
             weightSum += weight;
-            if ((weight > 0) === false) continue;
+            if (weight > 0 === false) continue;
             const joint: number = readJoint(vertex, component);
             if (Number.isSafeInteger(joint) === false || joint >= joints.length)
               throw new Error(

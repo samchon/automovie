@@ -1,5 +1,3 @@
-
-
 /**
  * One inspector call's admitted accessor metadata and borrowed resident buffers.
  *

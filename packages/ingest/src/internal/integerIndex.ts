@@ -12,7 +12,12 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources No inventory is copied or retained, and no resource is acquired by index admission.
  * @author Samchon
  */
-export const integerIndex: (value: unknown, length: number, path: string, required?: boolean) => void = (
+export const integerIndex: (
+  value: unknown,
+  length: number,
+  path: string,
+  required?: boolean,
+) => void = (
   value: unknown,
   length: number,
   path: string,

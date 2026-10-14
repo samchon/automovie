@@ -1,10 +1,11 @@
-﻿import type { IHumanoidSlot } from "./IHumanoidSlot";
-import { optionalObject } from "./optionalObject";
-import { object } from "./object";
+﻿import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
+import type { IHumanoidSlot } from "./IHumanoidSlot";
 import { compareCodeUnits } from "./compareCodeUnits";
-import { validNodeIndex } from "./validNodeIndex";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { object } from "./object";
+import { optionalObject } from "./optionalObject";
 import { requiredArray } from "./requiredArray";
+import { validNodeIndex } from "./validNodeIndex";
 
 /**
  * Read declared VRM humanoid mappings using version-specific thumb migration.
@@ -20,7 +21,10 @@ import { requiredArray } from "./requiredArray";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Result slot records scale with declared mappings; temporary entries and uniqueness sets die on return or throw.
  * @author Samchon
  */
-export const vrmHumanoidBones: (document: Record<string, unknown>, nodes: unknown[]) => IHumanoidSlot[] = (
+export const vrmHumanoidBones: (
+  document: Record<string, unknown>,
+  nodes: unknown[],
+) => IHumanoidSlot[] = (
   document: Record<string, unknown>,
   nodes: unknown[],
 ): IHumanoidSlot[] => {
@@ -42,9 +46,8 @@ export const vrmHumanoidBones: (document: Record<string, unknown>, nodes: unknow
       "extensions.VRMC_vrm.humanoid.humanBones",
     );
     return Object.entries(bones)
-      .sort(
-        ([left]: [string, unknown], [right]: [string, unknown]): number =>
-          compareCodeUnits(left, right),
+      .sort(([left]: [string, unknown], [right]: [string, unknown]): number =>
+        compareCodeUnits(left, right),
       )
       .map(([bone, value]: [string, unknown]): IHumanoidSlot => {
         if (Object.hasOwn(HUMANOID_BONES, bone) === false)
@@ -95,7 +98,9 @@ export const vrmHumanoidBones: (document: Record<string, unknown>, nodes: unknow
 };
 
 /** Read a VRM 0.x bone name as its VRM 1.0 slot. VRM 1.0 renamed the thumb chain, so 0.x `ThumbProximal` is the 1.0 `ThumbMetacarpal` and 0.x `ThumbIntermediate` the 1.0 `ThumbProximal`; every other name is shared. */
-const vrm0Bone: (value: unknown) => AutoMovieHumanoidBone | undefined = (value: unknown): AutoMovieHumanoidBone | undefined => {
+const vrm0Bone: (value: unknown) => AutoMovieHumanoidBone | undefined = (
+  value: unknown,
+): AutoMovieHumanoidBone | undefined => {
   if (typeof value !== "string") return undefined;
   const migrated: string = Object.hasOwn(VRM0_THUMB_NAMES, value)
     ? VRM0_THUMB_NAMES[value]!

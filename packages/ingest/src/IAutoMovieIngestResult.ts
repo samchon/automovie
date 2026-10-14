@@ -1,4 +1,4 @@
-import type { IAutoMovieNode, IAutoMovieClip } from "@automovie/interface";
+import type { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
 
 /**
  * The core node graph and clips one parsed glTF/GLB document maps to.

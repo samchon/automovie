@@ -10,4 +10,7 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A function signature acquires no payload bytes or handles; its factory owns closure lifetime.
  * @author Samchon
  */
-export type IExternalModelAccessorReader = (element: number, component: number) => number;
+export type IExternalModelAccessorReader = (
+  element: number,
+  component: number,
+) => number;

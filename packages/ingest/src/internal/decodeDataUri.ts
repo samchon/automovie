@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Decode an RFC 2397 data URI into exact payload octets.
  *
  * Canonical base64 spelling includes zero unused padding bits under RFC 4648 section 3.5 (https://www.rfc-editor.org/rfc/rfc4648.html#section-3.5); complete percent-octet escapes determine bytes, and literal Unicode chunks are encoded as UTF-8.
@@ -14,7 +12,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Decoded arrays transfer to the inspector's call-local payload owner; chunk arrays and encoded literals die on return.
  * @author Samchon
  */
-export const decodeDataUri: (uri: string, path: string) => Uint8Array = (uri: string, path: string): Uint8Array => {
+export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
+  uri: string,
+  path: string,
+): Uint8Array => {
   const comma: number = uri.indexOf(",");
   if (comma < 5) throw new Error(`${path} is not a complete data URI.`);
   const metadata: string = uri.slice(5, comma);

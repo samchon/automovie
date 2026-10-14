@@ -1,8 +1,11 @@
 ﻿import type { IAutoMovieExternalModelResource } from "../IAutoMovieExternalModelResource";
-import { object } from "./object";
 import { compareCodeUnits } from "./compareCodeUnits";
+import { object } from "./object";
 
-const externalUri: (value: unknown, path: string) => string | null = (value: unknown, path: string): string | null => {
+const externalUri: (value: unknown, path: string) => string | null = (
+  value: unknown,
+  path: string,
+): string | null => {
   if (value === undefined) return null;
   if (typeof value !== "string" || value.length === 0)
     throw new Error(`${path} must be a non-empty URI string.`);
@@ -21,7 +24,10 @@ const externalUri: (value: unknown, path: string) => string | null = (value: unk
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only U scalar resource records survive in the result; the temporary map retains no resident sidecar bytes.
  * @author Samchon
  */
-export const collectExternalResources: (buffers: unknown[], images: unknown[]) => IAutoMovieExternalModelResource[] = (
+export const collectExternalResources: (
+  buffers: unknown[],
+  images: unknown[],
+) => IAutoMovieExternalModelResource[] = (
   buffers: unknown[],
   images: unknown[],
 ): IAutoMovieExternalModelResource[] => {
@@ -31,10 +37,7 @@ export const collectExternalResources: (buffers: unknown[], images: unknown[]) =
   >();
   buffers.forEach((value: unknown, index: number): void => {
     const buffer: Record<string, unknown> = object(value, `buffers[${index}]`);
-    const uri: string | null = externalUri(
-      buffer.uri,
-      `buffers[${index}].uri`,
-    );
+    const uri: string | null = externalUri(buffer.uri, `buffers[${index}].uri`);
     if (uri === null) return;
     const byteLength: number = buffer.byteLength as number;
     const prior: IAutoMovieExternalModelResource | undefined = byUri.get(uri);

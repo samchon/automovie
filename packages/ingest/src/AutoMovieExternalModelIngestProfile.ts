@@ -1,5 +1,3 @@
-
-
 /**
  * Fixed normalization profiles the builder may select for an external model.
  *

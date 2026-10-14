@@ -1,4 +1,5 @@
 import type { IAutoMovieSkeleton } from "@automovie/interface";
+
 import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMotionBoneMapping";
 
 /**

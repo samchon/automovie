@@ -13,10 +13,10 @@ import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function owns no arrays, byte views or retained state and returns one scalar size.
  * @author Samchon
  */
-export const accessorElementByteLength: (componentType: number, shape: string) => number = (
+export const accessorElementByteLength: (
   componentType: number,
   shape: string,
-): number => {
+) => number = (componentType: number, shape: string): number => {
   const component: number = COMPONENT_BYTES.get(componentType)!;
   if (shape === "MAT2" && component === 1) return 8;
   if (shape === "MAT3" && component === 1) return 12;

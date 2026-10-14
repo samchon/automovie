@@ -1,18 +1,26 @@
 import { SHA256_DIGEST_PATTERN } from "@automovie/engine/validation/constants/SHA256_DIGEST_PATTERN";
-import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
-import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
-import type { AutoMovieExternalMotionAdoptionDecision } from "./AutoMovieExternalMotionAdoptionDecision";
-import type { IAutoMovieExternalMotionAdoption } from "./IAutoMovieExternalMotionAdoption";
-import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieClip,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import type { IAutoMovieClip, IAutoMovieSkeleton, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieTransform, IAutoMovieTrack } from "@automovie/interface";
+import type { AutoMovieExternalMotionAdoptionDecision } from "./AutoMovieExternalMotionAdoptionDecision";
+import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
+import type { IAutoMovieExternalMotionAdoption } from "./IAutoMovieExternalMotionAdoption";
+import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMotionBoneMapping";
+import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
 import type { IAutoMovieExternalMotionNativeHandoff } from "./IAutoMovieExternalMotionNativeHandoff";
 import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExternalMotionNodeInspection";
-import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMotionBoneMapping";
-import { compareCodeUnits } from "./internal/compareCodeUnits";
-import { composeLocalTransform } from "./internal/composeLocalTransform";
 import type { IAutoMovieExternalMotionRetargetDecision } from "./IAutoMovieExternalMotionRetargetDecision";
 import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExternalMotionRetargetHandoff";
+import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
+import { compareCodeUnits } from "./internal/compareCodeUnits";
+import { composeLocalTransform } from "./internal/composeLocalTransform";
 
 /**
  * Select one inspected take and validate the author's native or retarget decision without fetching bytes, choosing a provider or inferring a rig.
@@ -129,7 +137,10 @@ const validateMotionBinding: (props: {
   decision: AutoMovieExternalMotionAdoptionDecision;
   take: IAutoMovieClip;
   nodes: IAutoMovieExternalMotionNodeInspection[];
-}) => Pick<IAutoMovieExternalMotionNativeHandoff, "sourceRig" | "mapping"> = (props: {
+}) => Pick<
+  IAutoMovieExternalMotionNativeHandoff,
+  "sourceRig" | "mapping"
+> = (props: {
   decision: AutoMovieExternalMotionAdoptionDecision;
   take: IAutoMovieClip;
   nodes: IAutoMovieExternalMotionNodeInspection[];
@@ -248,7 +259,11 @@ const validateMotionBinding: (props: {
 };
 
 /** The parent and rest a mapped node implies: walk to the nearest mapped ancestor, then fold every unmapped helper's TRS into the node's own, nearest helper first. A node without a mapped ancestor keeps its local TRS. */
-const inspectedBoneBasis: (node: IAutoMovieExternalMotionNodeInspection, nodes: Map<string, IAutoMovieExternalMotionNodeInspection>, nodeToBone: Map<string, AutoMovieHumanoidBone>) => { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } = (
+const inspectedBoneBasis: (
+  node: IAutoMovieExternalMotionNodeInspection,
+  nodes: Map<string, IAutoMovieExternalMotionNodeInspection>,
+  nodeToBone: Map<string, AutoMovieHumanoidBone>,
+) => { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } = (
   node: IAutoMovieExternalMotionNodeInspection,
   nodes: Map<string, IAutoMovieExternalMotionNodeInspection>,
   nodeToBone: Map<string, AutoMovieHumanoidBone>,
@@ -264,15 +279,18 @@ const inspectedBoneBasis: (node: IAutoMovieExternalMotionNodeInspection, nodes: 
         rest = composeLocalTransform(helper.transform, rest);
       return { parent: mappedParent, rest };
     }
-    const parent: IAutoMovieExternalMotionNodeInspection =
-      nodes.get(parentId)!;
+    const parent: IAutoMovieExternalMotionNodeInspection = nodes.get(parentId)!;
     helpers.push(parent);
     parentId = parent.parent;
   }
   return { parent: null, rest: node.transform };
 };
 
-const assertTransformMatches: (bone: AutoMovieHumanoidBone, actual: IAutoMovieTransform, expected: IAutoMovieTransform) => void = (
+const assertTransformMatches: (
+  bone: AutoMovieHumanoidBone,
+  actual: IAutoMovieTransform,
+  expected: IAutoMovieTransform,
+) => void = (
   bone: AutoMovieHumanoidBone,
   actual: IAutoMovieTransform,
   expected: IAutoMovieTransform,
@@ -296,7 +314,9 @@ const assertTransformMatches: (bone: AutoMovieHumanoidBone, actual: IAutoMovieTr
       );
 };
 
-const validateRetargetDecision: (decision: IAutoMovieExternalMotionRetargetDecision) => Pick<
+const validateRetargetDecision: (
+  decision: IAutoMovieExternalMotionRetargetDecision,
+) => Pick<
   IAutoMovieExternalMotionRetargetHandoff,
   "target" | "translationScale"
 > = (
@@ -320,7 +340,9 @@ const validateRetargetDecision: (decision: IAutoMovieExternalMotionRetargetDecis
   };
 };
 
-const cloneClip: (clip: IAutoMovieClip) => IAutoMovieClip = (clip: IAutoMovieClip): IAutoMovieClip => ({
+const cloneClip: (clip: IAutoMovieClip) => IAutoMovieClip = (
+  clip: IAutoMovieClip,
+): IAutoMovieClip => ({
   ...clip,
   tracks: clip.tracks.map(
     (track: IAutoMovieTrack): IAutoMovieTrack => ({
@@ -331,7 +353,9 @@ const cloneClip: (clip: IAutoMovieClip) => IAutoMovieClip = (clip: IAutoMovieCli
     }),
   ),
 });
-const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (skeleton: IAutoMovieSkeleton): IAutoMovieSkeleton => ({
+const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
+  skeleton: IAutoMovieSkeleton,
+): IAutoMovieSkeleton => ({
   id: skeleton.id,
   bones: skeleton.bones.map(
     (bone: IAutoMovieBone): IAutoMovieBone => ({
@@ -362,4 +386,3 @@ const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (ske
     }),
   ),
 });
-

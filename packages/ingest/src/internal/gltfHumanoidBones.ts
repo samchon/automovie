@@ -1,8 +1,9 @@
-﻿import type { IHumanoidSlot } from "./IHumanoidSlot";
-import { requiredArray } from "./requiredArray";
-import { object } from "./object";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+﻿import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { humanoidBoneOfName } from "../internal/humanoidBoneOfName";
+import type { IHumanoidSlot } from "./IHumanoidSlot";
+import { object } from "./object";
+import { requiredArray } from "./requiredArray";
 
 /**
  * Resolve first-claim glTF skin joints to recognized humanoid naming slots.
@@ -18,7 +19,10 @@ import { humanoidBoneOfName } from "../internal/humanoidBoneOfName";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary membership sets die with the call; returned slot records are bounded by the recognized humanoid vocabulary.
  * @author Samchon
  */
-export const gltfHumanoidBones: (nodes: unknown[], skins: unknown[]) => IHumanoidSlot[] = (
+export const gltfHumanoidBones: (
+  nodes: unknown[],
+  skins: unknown[],
+) => IHumanoidSlot[] = (
   nodes: unknown[],
   skins: unknown[],
 ): IHumanoidSlot[] => {

@@ -1,8 +1,8 @@
 ﻿import type { IAccessorSource } from "./IAccessorSource";
-import { object } from "./object";
-import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
+import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import { accessorReader } from "./accessorReader";
+import { object } from "./object";
 
 /**
  * Read a finite non-sparse FLOAT accessor into caller-owned motion values.
@@ -18,7 +18,12 @@ import { accessorReader } from "./accessorReader";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The output array belongs to its caller; the reader's borrowed payload reference ends when decoding completes.
  * @author Samchon
  */
-export const readMotionAccessor: (source: IAccessorSource, accessorIndex: number, expectedType: "SCALAR" | "VEC3" | "VEC4", path: string) => number[] = (
+export const readMotionAccessor: (
+  source: IAccessorSource,
+  accessorIndex: number,
+  expectedType: "SCALAR" | "VEC3" | "VEC4",
+  path: string,
+) => number[] = (
   source: IAccessorSource,
   accessorIndex: number,
   expectedType: "SCALAR" | "VEC3" | "VEC4",

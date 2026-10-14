@@ -12,5 +12,7 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only omitted input creates a new empty array; valid supplied arrays remain borrowed and unretained.
  * @author Samchon
  */
-export const optionalArray: (value: unknown, path: string) => unknown[] = (value: unknown, path: string): unknown[] =>
-  value === undefined ? [] : requiredArray(value, path);
+export const optionalArray: (value: unknown, path: string) => unknown[] = (
+  value: unknown,
+  path: string,
+): unknown[] => (value === undefined ? [] : requiredArray(value, path));

@@ -1,5 +1,5 @@
-﻿import { object } from "./object";
-import { decodeDataUri } from "./decodeDataUri";
+﻿import { decodeDataUri } from "./decodeDataUri";
+import { object } from "./object";
 
 /**
  * Bind every declared glTF buffer and image to its exact resident payload.
@@ -46,10 +46,7 @@ export const validatePayloadClosure: (props: {
           throw new Error(
             `buffers[${index}] declares ${length} bytes but the GLB has no BIN chunk.`,
           );
-        if (
-          props.bin.byteLength < length ||
-          props.bin.byteLength > length + 3
-        )
+        if (props.bin.byteLength < length || props.bin.byteLength > length + 3)
           throw new Error(
             `GLB BIN chunk length ${props.bin.byteLength} does not cover buffers[${index}].byteLength ${length} with at most three padding bytes.`,
           );

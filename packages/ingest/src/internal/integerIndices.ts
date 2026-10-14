@@ -1,5 +1,5 @@
-﻿import { requiredArray } from "./requiredArray";
-import { integerIndex } from "./integerIndex";
+﻿import { integerIndex } from "./integerIndex";
+import { requiredArray } from "./requiredArray";
 
 /**
  * Validate every index in an optional glTF reference array.
@@ -13,7 +13,11 @@ import { integerIndex } from "./integerIndex";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The enumeration borrows its array for the call and retains no graph or payload resource.
  * @author Samchon
  */
-export const integerIndices: (value: unknown, length: number, path: string) => void = (value: unknown, length: number, path: string): void => {
+export const integerIndices: (
+  value: unknown,
+  length: number,
+  path: string,
+) => void = (value: unknown, length: number, path: string): void => {
   if (value === undefined) return;
   requiredArray(value, path).forEach((entry: unknown, index: number): void =>
     integerIndex(entry, length, `${path}[${index}]`, true),

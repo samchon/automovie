@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Require a positive safe-integer glTF count or declared byte length.
  *
  * @evidence contracts/common.md#principled-implementation Type, safe-integer and strict-positive checks reject nonnumeric, fractional, zero and unsafe values before range arithmetic.
@@ -12,7 +10,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The predicate retains no metadata and allocates only an error when refusing a value.
  * @author Samchon
  */
-export const positiveInteger: (value: unknown, path: string) => void = (value: unknown, path: string): void => {
+export const positiveInteger: (value: unknown, path: string) => void = (
+  value: unknown,
+  path: string,
+): void => {
   if (
     typeof value !== "number" ||
     Number.isSafeInteger(value) === false ||

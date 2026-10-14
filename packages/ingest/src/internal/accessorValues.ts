@@ -17,7 +17,9 @@ import type { Accessor } from "@gltf-transform/core";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The element buffer is released on return; the result array, proportional to the accessor's component count, is owned by the caller and nothing is retained by the helper.
  * @author Samchon
  */
-export const accessorValues: (accessor: Accessor) => number[] | null = (accessor: Accessor): number[] | null => {
+export const accessorValues: (accessor: Accessor) => number[] | null = (
+  accessor: Accessor,
+): number[] | null => {
   const array: ReturnType<Accessor["getArray"]> = accessor.getArray();
   if (array === null) return null;
   if (accessor.getNormalized() === false) return Array.from(array);

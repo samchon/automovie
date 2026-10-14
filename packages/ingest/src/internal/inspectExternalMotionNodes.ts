@@ -1,6 +1,6 @@
 ﻿import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
-import { object } from "./object";
 import { finiteTuple } from "./finiteTuple";
+import { object } from "./object";
 
 /**
  * Read glTF motion nodes as finite canonical local TRS records.
@@ -16,7 +16,10 @@ import { finiteTuple } from "./finiteTuple";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned node records own new fixed-size transforms; source JSON arrays and tuple temporaries are not retained.
  * @author Samchon
  */
-export const inspectExternalMotionNodes: (values: unknown[], parentByIndex: readonly (number | undefined)[]) => IAutoMovieExternalMotionNodeInspection[] = (
+export const inspectExternalMotionNodes: (
+  values: unknown[],
+  parentByIndex: readonly (number | undefined)[],
+) => IAutoMovieExternalMotionNodeInspection[] = (
   values: unknown[],
   parentByIndex: readonly (number | undefined)[],
 ): IAutoMovieExternalMotionNodeInspection[] =>

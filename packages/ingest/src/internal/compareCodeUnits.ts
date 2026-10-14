@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Compare two exact strings in deterministic JavaScript code-unit order.
  *
  * @evidence contracts/common.md#principled-implementation Relational string comparison produces negative, zero or positive ordering without locale-dependent collation.
@@ -12,5 +10,7 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The comparator allocates no retained arrays, collation handles or comparison cache.
  * @author Samchon
  */
-export const compareCodeUnits: (left: string, right: string) => number = (left: string, right: string): number =>
-  Number(left > right) - Number(left < right);
+export const compareCodeUnits: (left: string, right: string) => number = (
+  left: string,
+  right: string,
+): number => Number(left > right) - Number(left < right);

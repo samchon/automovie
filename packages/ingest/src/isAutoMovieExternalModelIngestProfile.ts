@@ -1,5 +1,5 @@
-import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
 import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES } from "./AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES";
+import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
 
 /**
  * Whether an untyped selection, such as a command-line or manifest value, names one supported ingest profile exactly.
@@ -18,7 +18,12 @@ import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES } from "./AUTO_MOVIE_EXTERNAL
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The guard retains nothing and reads a module constant.
  * @author Samchon
  */
-export const isAutoMovieExternalModelIngestProfile: (value: unknown) => value is AutoMovieExternalModelIngestProfile = (
+export const isAutoMovieExternalModelIngestProfile: (
+  value: unknown,
+) => value is AutoMovieExternalModelIngestProfile = (
   value: unknown,
 ): value is AutoMovieExternalModelIngestProfile =>
-  typeof value === "string" && AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES.includes(value as AutoMovieExternalModelIngestProfile);
+  typeof value === "string" &&
+  AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES.includes(
+    value as AutoMovieExternalModelIngestProfile,
+  );

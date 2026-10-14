@@ -1,8 +1,8 @@
-﻿import type { IAccessorSource } from "./IAccessorSource";
+﻿import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
+import type { IAccessorSource } from "./IAccessorSource";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
-import { object } from "./object";
-import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import { accessorElementByteLength } from "./accessorElementByteLength";
+import { object } from "./object";
 
 /**
  * Resolve one admitted accessor's resident component reader.
@@ -18,7 +18,11 @@ import { accessorElementByteLength } from "./accessorElementByteLength";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure borrows one payload until its owning profile finishes; it retains no global reader cache or handle.
  * @author Samchon
  */
-export const accessorReader: (source: IAccessorSource, accessorIndex: number, role: string) => IExternalModelAccessorReader = (
+export const accessorReader: (
+  source: IAccessorSource,
+  accessorIndex: number,
+  role: string,
+) => IExternalModelAccessorReader = (
   source: IAccessorSource,
   accessorIndex: number,
   role: string,

@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Require an actual JSON array at a named external-document path.
  *
  * @evidence contracts/common.md#principled-implementation Array.isArray admits only array values; rejected inputs report their owning JSON path.
@@ -12,7 +10,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The helper allocates no collection and returns the caller's existing array reference.
  * @author Samchon
  */
-export const requiredArray: (value: unknown, path: string) => unknown[] = (value: unknown, path: string): unknown[] => {
+export const requiredArray: (value: unknown, path: string) => unknown[] = (
+  value: unknown,
+  path: string,
+): unknown[] => {
   if (Array.isArray(value) === false)
     throw new Error(`${path} must be an array.`);
   return value as unknown[];

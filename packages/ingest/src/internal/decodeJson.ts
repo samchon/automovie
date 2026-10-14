@@ -1,5 +1,3 @@
-
-
 /**
  * Decode strict UTF-8 JSON and refuse duplicate decoded member names.
  *
@@ -12,7 +10,9 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Text, scope stack and key sets are temporary; only the caller-owned parsed JSON tree survives return.
  * @author Samchon
  */
-export const decodeJson: (bytes: Uint8Array) => unknown = (bytes: Uint8Array): unknown => {
+export const decodeJson: (bytes: Uint8Array) => unknown = (
+  bytes: Uint8Array,
+): unknown => {
   try {
     const text: string = new TextDecoder("utf-8", { fatal: true }).decode(
       bytes,
@@ -32,7 +32,9 @@ export const decodeJson: (bytes: Uint8Array) => unknown = (bytes: Uint8Array): u
  *
  * The scan runs only over text `JSON.parse` has already accepted, so it needs no syntax checks: one pass keeps a stack of open containers, with a name set for each object, and treats the string after `{` or after `,` inside an object as a member name. A name containing an escape is decoded through `JSON.parse`, so an escaped spelling collides with its plain spelling. The stack replaces recursion, so nesting depth never becomes call-stack depth. It lives here rather than reusing the production package's structured JSON ingress because production sits above ingest in the dependency graph; importing its ingress would reverse that package dependency.
  */
-const assertUniqueJsonObjectMembers: (text: string) => void = (text: string): void => {
+const assertUniqueJsonObjectMembers: (text: string) => void = (
+  text: string,
+): void => {
   const scopes: Array<Set<string> | null> = [];
   let expectName: boolean = false;
   let cursor: number = 0;
@@ -69,8 +71,7 @@ const assertUniqueJsonObjectMembers: (text: string) => void = (text: string): vo
     else if (code === 0x7d || code === 0x5d) {
       scopes.pop();
       expectName = false;
-    }
-    else if (code === 0x2c) expectName = scopes[scopes.length - 1] !== null;
+    } else if (code === 0x2c) expectName = scopes[scopes.length - 1] !== null;
     ++cursor;
   }
 };

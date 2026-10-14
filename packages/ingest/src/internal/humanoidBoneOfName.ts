@@ -17,7 +17,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module-level table is a fixed forty-entry constant; a call retains nothing.
  * @author Samchon
  */
-export const humanoidBoneOfName: (name: string) => AutoMovieHumanoidBone | undefined = (
+export const humanoidBoneOfName: (
+  name: string,
+) => AutoMovieHumanoidBone | undefined = (
   name: string,
 ): AutoMovieHumanoidBone | undefined =>
   HUMANOID_ALIASES.get(

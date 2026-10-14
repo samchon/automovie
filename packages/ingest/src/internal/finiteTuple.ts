@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Read a finite numeric tuple with a glTF default when omitted.
  *
  * Undefined copies the caller's fallback without validating it; motion-node callers supply finite three- or four-component glTF defaults. Present arrays must have the same length and finite numeric entries, or throw with the field/index path. Both branches return a fresh array.
@@ -14,7 +12,11 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned K-number array belongs to its caller and retains no reference to the source or fallback array.
  * @author Samchon
  */
-export const finiteTuple: (value: unknown, path: string, fallback: readonly number[]) => number[] = (
+export const finiteTuple: (
+  value: unknown,
+  path: string,
+  fallback: readonly number[],
+) => number[] = (
   value: unknown,
   path: string,
   fallback: readonly number[],

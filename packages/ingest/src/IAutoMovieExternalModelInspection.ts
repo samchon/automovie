@@ -1,6 +1,7 @@
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
 import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelResource";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
 
 /**

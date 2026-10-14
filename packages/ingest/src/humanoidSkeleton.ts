@@ -1,5 +1,17 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-import type { Document, Node as GLTFNode, Skin, vec3, vec4 } from "@gltf-transform/core";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import type {
+  Document,
+  Node as GLTFNode,
+  Skin,
+  vec3,
+  vec4,
+} from "@gltf-transform/core";
+
 import { composeLocalTransform } from "./internal/composeLocalTransform";
 import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
 
@@ -25,7 +37,10 @@ import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The slot and parent maps and the helper arrays are local and released on return or throw; the returned skeleton holds new transform objects proportional to the mapped bones, at most the humanoid slot count, owned by the caller.
  * @author Samchon
  */
-export const humanoidSkeleton: (doc: Document, skeletonId?: string) => IAutoMovieSkeleton | null = (
+export const humanoidSkeleton: (
+  doc: Document,
+  skeletonId?: string,
+) => IAutoMovieSkeleton | null = (
   doc: Document,
   skeletonId: string = "skeleton",
 ): IAutoMovieSkeleton | null => {
@@ -77,7 +92,9 @@ export const humanoidSkeleton: (doc: Document, skeletonId?: string) => IAutoMovi
   return { id: skeletonId, bones };
 };
 
-const localTransform: (node: GLTFNode) => IAutoMovieTransform = (node: GLTFNode): IAutoMovieTransform => {
+const localTransform: (node: GLTFNode) => IAutoMovieTransform = (
+  node: GLTFNode,
+): IAutoMovieTransform => {
   const t: vec3 = node.getTranslation();
   const r: vec4 = node.getRotation();
   const s: vec3 = node.getScale();

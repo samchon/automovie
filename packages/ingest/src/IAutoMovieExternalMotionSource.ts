@@ -1,5 +1,3 @@
-
-
 /**
  * Manifest-owned identity of the exact external motion bytes the author chose.
  *

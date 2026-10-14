@@ -20,7 +20,10 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing; its single result object belongs to the caller.
  * @author Samchon
  */
-export const composeLocalTransform: (parent: IAutoMovieTransform, child: IAutoMovieTransform) => IAutoMovieTransform = (
+export const composeLocalTransform: (
+  parent: IAutoMovieTransform,
+  child: IAutoMovieTransform,
+) => IAutoMovieTransform = (
   parent: IAutoMovieTransform,
   child: IAutoMovieTransform,
 ): IAutoMovieTransform => {

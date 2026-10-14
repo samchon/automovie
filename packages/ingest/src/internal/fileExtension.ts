@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Read the case-insensitive suffix of the final project-relative path component.
  *
  * @evidence contracts/common.md#principled-implementation The last forward slash selects the contract's project-path basename and the last dot selects its extension.
@@ -12,7 +10,9 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary substrings are allocated; paths, file handles and container bytes are not retained.
  * @author Samchon
  */
-export const fileExtension: (value: string) => string = (value: string): string => {
+export const fileExtension: (value: string) => string = (
+  value: string,
+): string => {
   const name: string = value.slice(value.lastIndexOf("/") + 1);
   const index: number = name.lastIndexOf(".");
   return index < 0 ? "" : name.slice(index).toLowerCase();

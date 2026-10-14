@@ -12,7 +12,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Omission allocates one empty record; supplied records are borrowed with no retained handle or cache.
  * @author Samchon
  */
-export const optionalObject: (value: unknown, path: string) => Record<string, unknown> = (
+export const optionalObject: (
+  value: unknown,
+  path: string,
+) => Record<string, unknown> = (
   value: unknown,
   path: string,
 ): Record<string, unknown> => (value === undefined ? {} : object(value, path));

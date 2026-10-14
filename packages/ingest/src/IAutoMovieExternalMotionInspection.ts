@@ -1,6 +1,7 @@
+import type { IAutoMovieClip } from "@automovie/interface";
+
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExternalMotionNodeInspection";
-import type { IAutoMovieClip } from "@automovie/interface";
 
 /**
  * Animation facts normalized from one exact glTF, GLB or VRM byte revision.

@@ -1,5 +1,12 @@
 import { IAutoMovieFaceTemplate } from "@automovie/interface";
-import type { Accessor, Document, Mesh, Primitive, PrimitiveTarget } from "@gltf-transform/core";
+import type {
+  Accessor,
+  Document,
+  Mesh,
+  Primitive,
+  PrimitiveTarget,
+} from "@gltf-transform/core";
+
 import { accessorValues } from "./internal/accessorValues";
 
 /**
@@ -23,14 +30,19 @@ import { accessorValues } from "./internal/accessorValues";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh, primitive and target list copies, the name map and entry list are temporary; new position/delta arrays transfer to the caller, with malformed arrays collectable on refusal and no retained Document reference.
  * @author Samchon
  */
-export const ingestFaceTemplate: (doc: Document) => IAutoMovieFaceTemplate = (doc: Document): IAutoMovieFaceTemplate => {
+export const ingestFaceTemplate: (doc: Document) => IAutoMovieFaceTemplate = (
+  doc: Document,
+): IAutoMovieFaceTemplate => {
   for (const mesh of doc.getRoot().listMeshes())
     for (const prim of mesh.listPrimitives())
       if (prim.listTargets().length !== 0) return templateOf(mesh, prim);
   throw new Error("document has no primitive with morph targets");
 };
 
-const templateOf: (mesh: Mesh, prim: Primitive) => IAutoMovieFaceTemplate = (mesh: Mesh, prim: Primitive): IAutoMovieFaceTemplate => {
+const templateOf: (mesh: Mesh, prim: Primitive) => IAutoMovieFaceTemplate = (
+  mesh: Mesh,
+  prim: Primitive,
+): IAutoMovieFaceTemplate => {
   const posAccessor: Accessor | null = prim.getAttribute("POSITION");
   if (posAccessor === null)
     throw new Error("morphed primitive has no POSITION attribute");

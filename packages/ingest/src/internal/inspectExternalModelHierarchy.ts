@@ -13,7 +13,9 @@ import { optionalArray } from "./optionalArray";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parent/state/path arrays are bounded by node count; only the returned table remains with its synchronous caller.
  * @author Samchon
  */
-export const inspectExternalModelHierarchy: (values: unknown[]) => Array<number | undefined> = (
+export const inspectExternalModelHierarchy: (
+  values: unknown[],
+) => Array<number | undefined> = (
   values: unknown[],
 ): Array<number | undefined> => {
   const parentByIndex: Array<number | undefined> = new Array<

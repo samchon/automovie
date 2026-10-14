@@ -1,8 +1,9 @@
-import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
-import type { AutoMovieExternalMotionAdoptionDecision } from "./AutoMovieExternalMotionAdoptionDecision";
 import type { IAutoMovieClip } from "@automovie/interface";
+
+import type { AutoMovieExternalMotionAdoptionDecision } from "./AutoMovieExternalMotionAdoptionDecision";
 import type { IAutoMovieExternalMotionNativeHandoff } from "./IAutoMovieExternalMotionNativeHandoff";
 import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExternalMotionRetargetHandoff";
+import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
 
 /**
  * Receipt connecting one byte-pinned take to native playback or a later engine retarget pass. It copies everything it holds, so mutating it never changes the inspection or the decision it came from.

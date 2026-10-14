@@ -19,7 +19,10 @@ const GLB_BIN_CHUNK: number = 0x004e4942;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed result borrows BIN bytes only during synchronous inspection; JSON objects and view references are call-local.
  * @author Samchon
  */
-export const decodeGlb: (bytes: Uint8Array, vrmExtension: boolean) => IParsedContainer = (
+export const decodeGlb: (
+  bytes: Uint8Array,
+  vrmExtension: boolean,
+) => IParsedContainer = (
   bytes: Uint8Array,
   vrmExtension: boolean,
 ): IParsedContainer => {

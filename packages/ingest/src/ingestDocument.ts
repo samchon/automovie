@@ -1,6 +1,26 @@
-import type { Document, Root, Node as GLTFNode, Mesh, Camera, Skin, vec3, vec4, Animation, AnimationChannel, AnimationSampler, Accessor } from "@gltf-transform/core";
+import type {
+  AutoMovieInterpolation,
+  AutoMovieNodeKind,
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMovieTrack,
+} from "@automovie/interface";
+import type {
+  Accessor,
+  Animation,
+  AnimationChannel,
+  AnimationSampler,
+  Camera,
+  Document,
+  Node as GLTFNode,
+  Mesh,
+  Root,
+  Skin,
+  vec3,
+  vec4,
+} from "@gltf-transform/core";
+
 import type { IAutoMovieIngestResult } from "./IAutoMovieIngestResult";
-import type { IAutoMovieNode, IAutoMovieClip, IAutoMovieTrack, AutoMovieInterpolation, AutoMovieNodeKind } from "@automovie/interface";
 import { accessorValues } from "./internal/accessorValues";
 
 /**
@@ -24,7 +44,9 @@ import { accessorValues } from "./internal/accessorValues";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The lookup maps are local and released on return or throw; the result retains new node records and per-track copies of keyframe data proportional to the document's animation size, owned by the caller, and no handle or task.
  * @author Samchon
  */
-export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (doc: Document): IAutoMovieIngestResult => {
+export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (
+  doc: Document,
+): IAutoMovieIngestResult => {
   const root: Root = doc.getRoot();
   const gltfNodes: GLTFNode[] = root.listNodes();
 
@@ -114,7 +136,9 @@ const INTERPOLATIONS: Readonly<Record<string, AutoMovieInterpolation>> = {
 };
 
 /** Map each item to its decimal list index. */
-const indexIds: <T>(items: T[]) => Map<T, string> = <T>(items: T[]): Map<T, string> => {
+const indexIds: <T>(items: T[]) => Map<T, string> = <T>(
+  items: T[],
+): Map<T, string> => {
   const map: Map<T, string> = new Map<T, string>();
   items.forEach((item: T, i: number): void => {
     map.set(item, `${i}`);
@@ -122,7 +146,10 @@ const indexIds: <T>(items: T[]) => Map<T, string> = <T>(items: T[]): Map<T, stri
   return map;
 };
 
-const kindOf: (node: GLTFNode, joints: Set<GLTFNode>) => AutoMovieNodeKind = (node: GLTFNode, joints: Set<GLTFNode>): AutoMovieNodeKind =>
+const kindOf: (node: GLTFNode, joints: Set<GLTFNode>) => AutoMovieNodeKind = (
+  node: GLTFNode,
+  joints: Set<GLTFNode>,
+): AutoMovieNodeKind =>
   joints.has(node)
     ? "bone"
     : node.getMesh() !== null
@@ -131,7 +158,10 @@ const kindOf: (node: GLTFNode, joints: Set<GLTFNode>) => AutoMovieNodeKind = (no
         ? "camera"
         : "group";
 
-const toTrack: (channel: AnimationChannel, idByNode: Map<GLTFNode, string>) => IAutoMovieTrack = (
+const toTrack: (
+  channel: AnimationChannel,
+  idByNode: Map<GLTFNode, string>,
+) => IAutoMovieTrack = (
   channel: AnimationChannel,
   idByNode: Map<GLTFNode, string>,
 ): IAutoMovieTrack => {

@@ -12,5 +12,6 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources One temporary Set and returned U-element array are allocated; no input collection is retained after return.
  * @author Samchon
  */
-export const uniqueStrings: (values: string[]) => string[] = (values: string[]): string[] =>
-  [...new Set<string>(values)].sort(compareCodeUnits);
+export const uniqueStrings: (values: string[]) => string[] = (
+  values: string[],
+): string[] => [...new Set<string>(values)].sort(compareCodeUnits);

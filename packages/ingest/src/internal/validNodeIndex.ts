@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
  * Recognize a safe integer inside a zero-based inventory.
  *
  * @evidence contracts/common.md#principled-implementation Number type, safe-integer identity and half-open bounds determine resolvable node or array references.
@@ -12,7 +10,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The predicate retains no inventory references and acquires no resource.
  * @author Samchon
  */
-export const validNodeIndex: (value: unknown, length: number) => boolean = (value: unknown, length: number): boolean =>
+export const validNodeIndex: (value: unknown, length: number) => boolean = (
+  value: unknown,
+  length: number,
+): boolean =>
   typeof value === "number" &&
   Number.isSafeInteger(value) &&
   value >= 0 &&

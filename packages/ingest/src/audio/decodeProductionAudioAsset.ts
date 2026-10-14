@@ -133,10 +133,7 @@ export const decodeProductionAudioAsset: (props: {
   const declaredTag: number = view.getUint16(format.offset, true);
   const channels: number = view.getUint16(format.offset + 2, true);
   const sourceSampleRate: number = view.getUint32(format.offset + 4, true);
-  const averageBytesPerSecond: number = view.getUint32(
-    format.offset + 8,
-    true,
-  );
+  const averageBytesPerSecond: number = view.getUint32(format.offset + 8, true);
   const blockAlign: number = view.getUint16(format.offset + 12, true);
   const containerBits: number = view.getUint16(format.offset + 14, true);
   const extensible: boolean = declaredTag === WAVE_FORMAT_EXTENSIBLE;
@@ -174,8 +171,7 @@ export const decodeProductionAudioAsset: (props: {
     subFormatGuid = waveGuid(guidBytes);
     if (
       SUBFORMAT_TAIL.some(
-        (byte: number, index: number): boolean =>
-          guidBytes[index + 2] !== byte,
+        (byte: number, index: number): boolean => guidBytes[index + 2] !== byte,
       )
     )
       fail(
@@ -385,7 +381,11 @@ const fail: (asset: string, reason: string, message: string) => never = (
   throw new Error(`Audio asset "${asset}" [${reason}] ${message}`);
 };
 
-const resampleMono: (source: Float32Array, from: number, to: number) => Float32Array = (
+const resampleMono: (
+  source: Float32Array,
+  from: number,
+  to: number,
+) => Float32Array = (
   source: Float32Array,
   from: number,
   to: number,
@@ -403,7 +403,10 @@ const resampleMono: (source: Float32Array, from: number, to: number) => Float32A
   return output;
 };
 
-const asciiTag: (bytes: Uint8Array, offset: number) => string = (bytes: Uint8Array, offset: number): string => {
+const asciiTag: (bytes: Uint8Array, offset: number) => string = (
+  bytes: Uint8Array,
+  offset: number,
+): string => {
   let text: string = "";
   for (let index: number = offset; index < offset + 4; ++index) {
     const byte: number = bytes[index]!;
@@ -412,14 +415,19 @@ const asciiTag: (bytes: Uint8Array, offset: number) => string = (bytes: Uint8Arr
   return text;
 };
 
-const leadingHex: (bytes: Uint8Array) => string = (bytes: Uint8Array): string => `0x${hexBytes(bytes, 0, 4)}`;
+const leadingHex: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
+  `0x${hexBytes(bytes, 0, 4)}`;
 
 /** Canonical GUID text: the first three fields are little-endian in the file, the last two are byte strings. */
 const waveGuid: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
   `${hexBytes(bytes, 3, -1)}-${hexBytes(bytes, 5, 3)}-${hexBytes(bytes, 7, 5)}-${hexBytes(bytes, 8, 10)}-${hexBytes(bytes, 10, 16)}`;
 
 /** Hex digits of `bytes[from]` toward `to` (exclusive), in either direction. */
-const hexBytes: (bytes: Uint8Array, from: number, to: number) => string = (bytes: Uint8Array, from: number, to: number): string => {
+const hexBytes: (bytes: Uint8Array, from: number, to: number) => string = (
+  bytes: Uint8Array,
+  from: number,
+  to: number,
+): string => {
   const direction: number = to > from ? 1 : -1;
   let text: string = "";
   for (let index: number = from; index !== to; index += direction)
@@ -437,7 +445,8 @@ const bitCount: (value: number) => number = (value: number): number => {
   return count;
 };
 
-const hex4: (value: number) => string = (value: number): string => value.toString(16).padStart(4, "0");
+const hex4: (value: number) => string = (value: number): string =>
+  value.toString(16).padStart(4, "0");
 
 const hex8: (value: number) => string = (value: number): string =>
   `0x${(value >>> 0).toString(16).padStart(8, "0")}`;

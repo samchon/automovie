@@ -1,5 +1,3 @@
-
-
 /**
  * One external URI whose resident bytes the builder must bind before ingest.
  *

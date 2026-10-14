@@ -12,7 +12,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned string array survives; original arrays and validation metadata are not retained.
  * @author Samchon
  */
-export const optionalStringArray: (value: unknown, path: string) => string[] = (value: unknown, path: string): string[] =>
+export const optionalStringArray: (value: unknown, path: string) => string[] = (
+  value: unknown,
+  path: string,
+): string[] =>
   optionalArray(value, path).map((entry: unknown, index: number): string => {
     if (typeof entry !== "string" || entry.trim().length === 0)
       throw new Error(`${path}[${index}] must be a non-blank string.`);

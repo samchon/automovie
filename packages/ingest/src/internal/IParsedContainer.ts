@@ -1,5 +1,3 @@
-
-
 /**
  * One decoded glTF/GLB container with parsed JSON and optional borrowed BIN view.
  *

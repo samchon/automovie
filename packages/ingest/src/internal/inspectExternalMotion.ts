@@ -1,14 +1,15 @@
-﻿import type { IAccessorSource } from "./IAccessorSource";
+﻿import type { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+
+import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "../AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import type { IAutoMovieExternalMotionInspection } from "../IAutoMovieExternalMotionInspection";
 import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
-import { inspectExternalMotionNodes } from "./inspectExternalMotionNodes";
-import { readMotionAccessor } from "./readMotionAccessor";
-import type { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
-import { object } from "./object";
-import { requiredArray } from "./requiredArray";
-import { integerIndex } from "./integerIndex";
-import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "../AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
+import type { IAccessorSource } from "./IAccessorSource";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
+import { inspectExternalMotionNodes } from "./inspectExternalMotionNodes";
+import { integerIndex } from "./integerIndex";
+import { object } from "./object";
+import { readMotionAccessor } from "./readMotionAccessor";
+import { requiredArray } from "./requiredArray";
 
 type AutoMovieMotionTargetPath =
   | "translation"
@@ -64,7 +65,11 @@ export const inspectExternalMotion: (props: {
   // Shared accessors reuse finite FLOAT decoding; each track owns a copy and
   // still checks its times, interpolation-specific arity and quaternion values.
   const decoded: Map<string, number[]> = new Map<string, number[]>();
-  const readOnce: (accessorIndex: number, expectedType: "SCALAR" | "VEC3" | "VEC4", path: string) => number[] = (
+  const readOnce: (
+    accessorIndex: number,
+    expectedType: "SCALAR" | "VEC3" | "VEC4",
+    path: string,
+  ) => number[] = (
     accessorIndex: number,
     expectedType: "SCALAR" | "VEC3" | "VEC4",
     path: string,
@@ -194,9 +199,7 @@ export const inspectExternalMotion: (props: {
       );
       const name: unknown = animation.name;
       if (name !== undefined && typeof name !== "string")
-        throw new Error(
-          `animations[${animationIndex}].name must be a string.`,
-        );
+        throw new Error(`animations[${animationIndex}].name must be a string.`);
       return {
         id: `clip_${animationIndex}`,
         name: name === undefined || name.length === 0 ? null : name,
@@ -220,7 +223,10 @@ export const inspectExternalMotion: (props: {
   };
 };
 
-const motionInterpolation: (value: unknown, path: string) => IAutoMovieTrack["interpolation"] = (
+const motionInterpolation: (
+  value: unknown,
+  path: string,
+) => IAutoMovieTrack["interpolation"] = (
   value: unknown,
   path: string,
 ): IAutoMovieTrack["interpolation"] => {
@@ -230,7 +236,10 @@ const motionInterpolation: (value: unknown, path: string) => IAutoMovieTrack["in
   throw new Error(`${path} must be LINEAR, STEP, or CUBICSPLINE.`);
 };
 
-const validateMotionTimes: (times: number[], path: string) => void = (times: number[], path: string): void => {
+const validateMotionTimes: (times: number[], path: string) => void = (
+  times: number[],
+  path: string,
+): void => {
   for (let index: number = 0; index < times.length; ++index)
     if (times[index]! < 0 || (index > 0 && times[index]! <= times[index - 1]!))
       throw new Error(

@@ -1,9 +1,9 @@
-﻿import { object } from "./object";
-import { positiveInteger } from "./positiveInteger";
-import { integerIndex } from "./integerIndex";
-import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
+﻿import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import { accessorElementByteLength } from "./accessorElementByteLength";
+import { integerIndex } from "./integerIndex";
 import { nonNegativeInteger } from "./nonNegativeInteger";
+import { object } from "./object";
+import { positiveInteger } from "./positiveInteger";
 
 /**
  * Admit sparse accessor byte ranges within validated glTF buffer views.
@@ -19,7 +19,11 @@ import { nonNegativeInteger } from "./nonNegativeInteger";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The range gate creates temporary metadata references only and retains no payload, reader or handle.
  * @author Samchon
  */
-export const validateSparseAccessor: (accessor: Record<string, unknown>, index: number, bufferViews: unknown[]) => void = (
+export const validateSparseAccessor: (
+  accessor: Record<string, unknown>,
+  index: number,
+  bufferViews: unknown[],
+) => void = (
   accessor: Record<string, unknown>,
   index: number,
   bufferViews: unknown[],
@@ -83,7 +87,13 @@ export const validateSparseAccessor: (accessor: Record<string, unknown>, index: 
   );
 };
 
-const validateSubViewRange: (bufferViews: unknown[], viewIndex: number, offset: number, length: number, path: string) => void = (
+const validateSubViewRange: (
+  bufferViews: unknown[],
+  viewIndex: number,
+  offset: number,
+  length: number,
+  path: string,
+) => void = (
   bufferViews: unknown[],
   viewIndex: number,
   offset: number,
