@@ -3,10 +3,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The orthonormal page basis a view resolved to.
  *
- * Published because every number in the drawing is expressed in it: without
- * the basis, a page coordinate cannot be turned back into the world point it
- * came from, and a consumer checking the drawing against the design would have
- * to re-derive the frame.
+ * The published basis locates page coordinates in world space on the projection plane. Orthographic projection discards source depth, so page coordinates alone cannot recover the original 3D point; the rounded published axes also need not invert the unrounded derivation exactly.
  *
  * `normal` is the reversed view direction, `right` is `up hint × normal`, and
  * `up` is `normal × right`. For a reflected ceiling plan `right` is negated,
@@ -14,7 +11,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * rounds every component to six decimals, so unit length holds only to that
  * precision.
  *
- * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` normalizes the negated direction into the normal, takes the right axis from the cross product of the up hint and the normal, and re-orthogonalizes up as `normal × right`, throwing when the direction or up hint is non-finite, shorter than the drawing epsilon, or parallel; a page point is then `(dot(p - origin, right), dot(p - origin, up))`.
+ * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` checks finite vector components, direction/up lengths above 1e-9, positive finite scale and optional finite nonnegative depth bands. It normalizes -direction, normalizes up cross normal and derives normal cross right, rejecting raw cross length at or below 1e-9; this parallelism threshold depends on up magnitude. Usable finite cross-product intermediates remain a premise, and the published drawing rounds each axis component to six decimals after projecting with the unrounded frame.
  * @evidence contracts/common.md#clear-and-simple-design Origin plus three unit vectors is the complete affine frame, and the cut plane reuses the same origin and normal, so no separate plane record is needed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The mirror for a reflected ceiling plan is the single negation of `right`, stated as making the basis left-handed, rather than a flip applied later in a serializer.
  * @evidence contracts/common.md#meaningful-documentation States how each axis is derived, the reflected handedness, that the origin is both page origin and cut-plane point, and the rounding precision.

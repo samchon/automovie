@@ -9,17 +9,17 @@ import { IAutoMovieDrawingOpeningMark } from "./IAutoMovieDrawingOpeningMark";
 import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
 
 /**
- * One drawing, derived from one design at one revision.
+ * One drawing record derived from a built-environment snapshot and a view.
  *
- * Every line, region, opening mark, dimension and note below was computed from the built environment the view was applied to, which `deriveAutoMovieDrawing` validates first and refuses when invalid. Nothing was drafted, and nothing may be edited back into the design: a sheet cannot become a second source of truth for the building it depicts.
+ * `deriveAutoMovieDrawing` validates the built environment, derives static CPU geometry and feature positions, and copies authored view identity and note text. It does not pin a revision digest, authenticate a rendered frame or apply edits back to building source. Current operating states affect element geometry, while declared gaps record omitted capabilities.
  *
  * Page coordinates are world metres along the frame's axes, rounded to six decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the sheet. Lines, regions, openings and gaps are sorted into a canonical order independent of the order the design declares things in, and dimensions and notes keep the view's authored order, so the same design and view produce the same record on every run.
  *
  * The digest is SHA-256 over the canonical JSON of every other field, including authored text. Equal canonical records yield equal digests; covering every field does not prove mathematical collision freedom for distinct records.
  *
- * @evidence contracts/common.md#principled-implementation The record is a pure function of design and view: geometry is projected through the resolved frame, every page scalar passes through `roundAutoMovieDrawingScalar` at six decimals with negative zero folded to zero, identical strokes are merged by key, and arrays are sorted with `compareAutoMovieRenderIds` before the digest is taken over the record's canonical JSON.
+ * @evidence contracts/common.md#principled-implementation The synchronous derivation shares a current-state design index, projects static CPU part/face triangles, clips cell sections, resolves opening/feature metadata and rounds stored coordinates to six decimals. Stroke keys and prescribed array sorts canonicalize output; the payload digest covers produced JSON metadata rather than proving rendered geometry, source-byte identity or complete design coverage. Projection, clipping and round(value*1e6)/1e6 have finite/conditioning limits.
  * @evidence contracts/common.md#clear-and-simple-design One flat record per sheet with each kind of content in its own typed array, and the view's identity fields copied in, so the serializer and any checker read the drawing without the view except for its pen.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts What the derivation cannot compute is listed in `gaps` instead of being omitted, and the digest covers every field through canonical JSON, so no field or authored character escapes it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Known unsupported/missing derivations become gaps, including hidden-line removal and opening subtraction. This is not a universal detector of every numerical or modelling defect; filtering can intentionally omit content and world-to-page projection loses depth. Digest equality is deterministic serialization identity without a collision-free or execution-provenance guarantee.
  * @evidence contracts/common.md#meaningful-documentation States the provenance and one-way direction, the page units and rounding, where scale is applied, the ordering of every array, what the extent contains, why openings ignore the kind filter, and exactly what the digest covers.
  * @author Samchon
  */

@@ -10,9 +10,7 @@
  * - `plan` looks down. Material wholly above the cut is removed except within
  *   the view's `overhead` band, what the plane passes through is drawn `cut`,
  *   and what lies below is drawn `projected`.
- * - `reflected-ceiling-plan` looks up and cuts the same way, and its page
- *   basis is mirrored so a coffer at a world point lands on the page point it
- *   occupies in the plan: the ceiling as seen in a mirror laid on the floor.
+ * - `reflected-ceiling-plan` conventionally looks up and cuts the same way; negating page right supplies the mirror. Matching floor/ceiling page positions additionally requires compatible origins, opposite vertical directions and matching up hints; the literal alone does not align independently authored views.
  * - `section` cuts on a plane across the view direction and keeps what is
  *   beyond it.
  * - `elevation` has no cut. Nothing is removed and nothing is drawn `cut`; the

@@ -7,24 +7,14 @@ import { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
 /**
  * How one drawing is taken from one design.
  *
- * A view is a question asked of the design, never a second copy of it: it
- * states a cut plane, a direction, a scale, filters and a pen, and every line,
- * area and mark in the resulting drawing is derived from the built environment
- * it is applied to, so a sheet cannot disagree with the model. A derived drawing
- * is output the design produces, the opposite direction from an
- * {@link IAutoMovieDesignReference}, which is evidence the design cites; neither
- * is read back as the other.
+ * A view supplies cut/projection placement, scale, filters, dimensions, authored notes and a pen to a drawing derivation. Geometry comes from the built-environment snapshot, but tessellation, clipping, rounding and unimplemented derivations limit agreement with rendered geometry. The drawing is output; {@link IAutoMovieDesignReference} is separately authored evidence, and neither is automatically read back into building source.
  *
- * `deriveAutoMovieDrawing` validates the design first and throws for an
- * invalid one. It then throws before drafting when `origin`, `direction` or
- * `up` is not finite, when `direction` or `up` is zero or the two are
- * parallel, when `scale` is not a finite positive number, or when `depth` or
- * `overhead` is negative or not finite.
+ * `deriveAutoMovieDrawing` validates the design first and throws for an invalid one. Its frame gate then requires finite origin/direction/up components, direction and up lengths above 1e-9, an up-cross-normal length above 1e-9, positive finite scale and finite nonnegative depth/overhead when non-null. Duplicate dimension or annotation ids also throw; canonical output encoding can refuse non-finite derived values or invalid Unicode text.
  *
  * @evidence contracts/common.md#principled-implementation `autoMovieDrawingFrame` resolves an orthonormal page basis from the view, with normal `-direction`, right `up x normal` and up re-orthogonalized as `normal x right`, negating right for a reflected ceiling plan; the drafter classifies geometry by signed distance to the plane through `origin` against `depth` and `overhead`, and filters by `spaces` and `elementKinds`.
  * @evidence contracts/common.md#clear-and-simple-design The view holds only the parameters of the question and no geometry of its own, and the pen sits in a nested style the serializer alone reads, so derivation and presentation stay separate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown filter space is reported as the `view-space-filter` gap instead of yielding a silently blank sheet, invalid placement throws instead of being repaired, and a discipline label never changes what is drawn.
- * @evidence contracts/common.md#meaningful-documentation States that the view holds no geometry, its relation to design references, and every refusal; members give units, axis conventions, which origin components matter per projection, the null meanings of `depth` and `overhead`, how each filter selects and what it leaves alone, and draw order.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown space ids produce one view-space-filter gap containing sorted distinct names; an unmatched open kind remains an empty selection. Duplicate dimension/annotation ids throw, but the view is not otherwise admitted as an arbitrary runtime object or exhaustively checked for id/text/style/projection values. Discipline selects nothing, and projection intent does not enforce a cardinal viewing direction.
+ * @evidence contracts/common.md#meaningful-documentation States that the view holds no geometry, its relation to design references and the placement/id admission boundaries; members give units, axis conventions, which origin components place the cut, the null meanings of depth and overhead, how each filter selects and what it leaves alone, and draw order.
  * @author Samchon
  */
 export interface IAutoMovieDrawingView {
@@ -46,9 +36,7 @@ export interface IAutoMovieDrawingView {
   /**
    * World point the cut plane passes through, and the page origin, in metres.
    *
-   * For a `plan` only the height decides the cut, and for a `section` only the
-   * offset along the view direction does. The remaining components move the
-   * page origin, which lets two views of one building share page coordinates.
+   * The normal component places the cut and in-plane components move the page origin. For the usual vertical plan direction only world height changes the plane; an admitted oblique plan direction also makes horizontal origin components affect its cut. Projection labels do not override the supplied direction.
    */
   origin: IAutoMovieVector3;
 
