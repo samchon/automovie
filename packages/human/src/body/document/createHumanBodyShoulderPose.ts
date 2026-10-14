@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHu
 /**
  * One thorax-relative humeral goal of a body document.
  *
- * Plane is the elevation plane (0 lateral, +90 anterior), elevation is total humeral elevation and axialRotation is axial rotation, all in degrees. The builder resolves the goal through its declared girdle and upper-arm skin frames. Editor presets and review states share this constructor; document admission and the basis's shoulder contract still judge the goal.
+ * Plane is the elevation plane (0 lateral, +90 anterior), elevation is total humeral elevation and axialRotation is axial rotation, all in degrees; omitted axial rotation is zero. The builder resolves the goal through its declared girdle and upper-arm skin frames. Editor presets and review states share this constructor; document admission and the basis's shoulder contract still judge the goal.
  *
  * @evidence contracts/common.md#principled-implementation The named shoulder and requested thorax-relative plane/elevation/axial degrees are preserved in the existing TT goal schema with zero axial rotation when omitted.
  * @evidence contracts/common.md#clear-and-simple-design One goal constructor supplies presets and documents while the existing shoulder resolver owns conversion into performed frames.
