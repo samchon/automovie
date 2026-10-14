@@ -20,7 +20,7 @@ import { loadModelGltfCore } from "./loadModelGltfCore";
 /**
  * Serialize an `IAutoMovieModel` into binary glTF 2.0 (`.glb`) bytes with all geometry in one embedded buffer.
  *
- * Each skeleton bone becomes a node under its parent, or under the scene for a root, carrying rest translation and rotation with unit scale. Each part becomes a mesh node with its own transform under its `attachedBone`, or under the scene when unattached. Engine tessellation exports a capsule as its bounding-cylinder approximation; authored meshes export positions, normals, vertex colors as `COLOR_0`, and indices.
+ * Each skeleton bone becomes a node under its parent, or under the scene for a root, carrying rest translation and rotation with unit scale. Each part becomes a mesh node with its own transform under its `attachedBone`, or under the scene when unattached. Engine tessellation exports a capsule's hemispheres and cylindrical body; authored meshes export positions, normals, vertex colors as `COLOR_0`, and indices.
  *
  * Materials use glTF metallic-roughness, authored alpha mode or an opacity-derived default, mask cutoff 0.5 by default, and authored sidedness. Exported base alpha is `(baseColor.a ?? 1) * opacity`; the live viewer currently uses opacity alone, so authored base alpha can produce a different appearance.
  *

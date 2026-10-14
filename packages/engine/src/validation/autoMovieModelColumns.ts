@@ -20,7 +20,7 @@ import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
  *
  * @evidence contracts/common.md#principled-implementation Repeated ancestry passes resolve axial unit-scale rest chains whose actual yaw matrix has horizontal gain exactly one. Radial polygon apothems bound cylinder/cone cores; the sphere contains a ball of radius R*cos(pi/segments)*cos(pi/(2*rings)), which contains an equal-radius/half-height cylinder after division by sqrt(2). Primitive resolution comes from the tessellator's shared constants.
  * @evidence contracts/common.md#clear-and-simple-design Formation overlap consumes these rest-axis quantities independently of outer projection radii, so the required no-invented-occupancy meaning must survive any correction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported meshes/planes, off-axis or nonunit-scale ancestry, nonisometric axial rest/part rotations, unrepresentable primitive total height/scaled outer envelope and nonfinite output intervals produce no column. Omission loses detections without normalizing authored rotations or changing model admission; capsule cores lie in the current bounding-cylinder mesh, without certifying the declared rounded silhouette or repairing extreme producer output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported meshes/planes, off-axis or nonunit-scale ancestry, nonisometric axial rest/part rotations, unrepresentable primitive total height/scaled outer envelope and nonfinite output intervals produce no column. Omission loses detections without normalizing authored rotations or changing model admission; capsule cores lie inside the central cylindrical body without certifying the rounded silhouette or repairing extreme producer output.
  * @evidence contracts/common.md#meaningful-documentation Defines model-origin metre intervals and rest-pose scope, per-axis part scaling, mathematically inscribed CPU-double mesh cores and omitted cases. GPU Float32 narrowing and animated deformation are outside this numerical guarantee.
  * @evidence contracts/performance.md#efficient-algorithms For B bones and P parts, repeated settling can take O(B^2) and part lookup O(P), with O(B+P) working/output storage; this is not a single linear parent walk.
  * @evidence contracts/performance.md#reuse-equivalent-work One ancestry-height map serves all parts; each core and outer-envelope admission is computed once per part, without a retained cache of mutable model generations.
@@ -156,7 +156,7 @@ const axialPartColumn: (
 /** The scale a part with no transform of its own is drawn at. */
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** Half-extents of the actual primitive recipe for scaled-envelope admission; the current capsule producer needs finite H+2R before its cylinder exists. */
+/** Half-extents of the primitive envelope for scaled-envelope admission; the capsule's conservative admission requires a finite total H+2R. */
 function primitiveOuterExtents(
   geometry: IAutoMovieGeometry,
 ): IAutoMovieVector3 | null {
