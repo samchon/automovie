@@ -7,25 +7,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
- * Validate the generation identity recorded for bytes nothing served.
+ * Validate authored generation metadata beside a supplied output-digest identity.
  *
- * The rules that matter are all about honesty rather than shape. A record that
- * claims to be reproducible must carry the seed that reproduces it, or the
- * claim is unbacked; a record that admits it is not reproducible but still
- * carries a seed is warned about, because a seed that does not replay the bytes
- * is decoration a later reader will mistake for a replay handle.
+ * A record claiming reproducibility must carry a seed, while a seed beside a false reproducibility claim produces a consistency warning. Presence is evidence that the field was recorded; this gate invokes no provider and proves neither replay nor whether the output was externally served.
  *
- * A recorded seed must also be a number a provider could have handed back. A
- * fractional, infinite, `NaN`, or beyond-2^53 value is not null and so passes
- * both rules above while naming no draw at all, which is the invented replay
- * handle they exist to prevent. It is therefore refused before either speaks.
+ * A seed must be a safe integer within ±(2^53-1), so adjacent integer identities survive JSON-number transport; fractional, nonfinite and larger-magnitude values are refused before the presence/warning rules. The actual provider's seed domain remains outside this metadata gate.
  *
- * Provider and model must be non-blank, a present request id or prompt must be
- * non-blank, both digests must be lowercase `sha256:` hex, and when `digest`
- * is given `outputDigest` must equal it. Findings are returned with `$input`
- * paths and nothing throws; the irreproducible-seed case is a warning, so it
- * leaves the validation successful. Input asset paths are checked for
- * blankness only, not resolved.
+ * Provider and model must be non-blank, present request ids and prompts non-blank, and both digests lowercase `sha256:` hex. A supplied digest must equal outputDigest. Findings use `$input` paths; an irreproducible seed is a non-blocking warning. Input slots, including holes, are visited by index and checked for nonblank strings without resolving paths. Non-throwing collection assumes the declared acquisition/container and string shapes; malformed runtime containers can throw before findings are returned.
  *
  * @param props.acquisition Generation identity recorded for one set of bytes.
  * @param props.digest Digest the bytes must still have, or null when replaced.
@@ -43,10 +31,7 @@ export const validateGeneratedAcquisition: (props: { /** Generation identity rec
   /** Generation identity recorded for one set of returned bytes. */
   acquisition: IAutoMovieGeneratedAcquisition;
 
-  /**
-   * Digest the returned bytes must still have, or null when a recorded local
-   * transformation has since replaced them.
-   */
+  /** Digest the returned bytes must still have, or null after a recorded local transformation. */
   digest: string | null;
 }): IAutoMovieValidation => {
   const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
@@ -76,13 +61,18 @@ export const validateGeneratedAcquisition: (props: { /** Generation identity rec
         `${key} must be a lowercase "sha256:" hex digest, but was ${String(acquisition[key])}`,
         acquisition[key],
       );
-  acquisition.inputs.forEach((input: string, index: number): void =>
+  for (let index: number = 0; index < acquisition.inputs.length; ++index) {
+    const input: string | undefined = acquisition.inputs[index];
+    if (input === undefined) {
+      out.push("type", `${root}.inputs[${index}]`, "a resident generator input slot must contain its declared path", input);
+      continue;
+    }
     out.nonEmpty(
       `${root}.inputs[${index}]`,
       input,
       "generator input asset path",
-    ),
-  );
+    );
+  }
   if (props.digest !== null && acquisition.outputDigest !== props.digest)
     out.push(
       "type",

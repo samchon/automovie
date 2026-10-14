@@ -48,11 +48,11 @@ import { polygonInside } from "./polygonInside";
  * @evidence contracts/common.md#clear-and-simple-design One staged check separated from `validateBuiltEnvironment`; rest staging comes from `builtEnvironmentWorldMatrices` with every member at rest instead of a private copy of the staging code.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No door type is special-cased; smaller leaves and out-of-plane leaves are allowed by the stated design reasons, and openings with defects reported elsewhere are skipped rather than reported twice.
  * @evidence contracts/common.md#meaningful-documentation The documentation states where the leaf is measured, what is and is not compared and why, the leaf rectangle, the containment rule, the skips, and the path.
- * @evidence contracts/performance.md#efficient-algorithms One rest staging of the whole work, linear in elements, then four corner transforms and one containment test per panel, quadratic only in the small void hull.
+ * @evidence contracts/performance.md#efficient-algorithms Pays full rest staging through `builtEnvironmentWorldMatrices`, including its operation/member indexing, then opening scans, four transforms per panel and `polygonInside` against that panel's void. With four inner corners the latter is O(H²) for H void vertices; no small fixed hull size is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runs once per validation over one staging shared by every panel.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The world matrices are released on return, bounded by the element count; one violation per refused panel is appended to the caller's collector.
  */
-export const validateBuiltPanelFit = (
+export const validateBuiltPanelFit: (environment: IAutoMovieBuiltEnvironment, root: string, faces: ReadonlyMap<string, IAutoMovieBoundaryFace>, hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>, collector: ViolationCollector) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,

@@ -35,11 +35,11 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * @evidence contracts/common.md#clear-and-simple-design The comparison body lives once here, without validation, so the single-pair and per-decision queries share it and each validates exactly once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no lineage, variant or subject; different base revisions are refused because a comparison across them would mix the schemes with the revision's own changes.
  * @evidence contracts/common.md#meaningful-documentation States the validity premise and what a duplicate key would do, every refusal, the null-side meaning, both orders, and what `common` lists.
- * @evidence contracts/performance.md#efficient-algorithms Linear in both variants' change counts to key and compare, plus sorting the D differences and the S common subjects, O(C + D log D + S log S).
+ * @evidence contracts/performance.md#efficient-algorithms Two O(V) variant lookups, O(C) change indexing/comparison, O(S) subject filtering and sorting D differences/U untouched subjects: O(V + C + S + D log D + U log U), treating string-key work separately from fixed-size scalar operations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Compares one pair per call; validation, the expensive shared step, is done once by the caller and not repeated here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two keyed change maps only for the call; the caller owns the returned comparison.
  */
-export const compareDesignVariants = (
+export const compareDesignVariants: (lineage: IAutoMovieDesignLineage, left: string, right: string) => IAutoMovieDesignComparison = (
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,
@@ -97,7 +97,7 @@ export const compareDesignVariants = (
 };
 
 /** One variant's changes keyed by subject and aspect. */
-const keyed = (
+const keyed: (changes: readonly IAutoMovieDesignChange[]) => Map<string, IAutoMovieDesignChange> = (
   changes: readonly IAutoMovieDesignChange[],
 ): Map<string, IAutoMovieDesignChange> =>
   new Map(

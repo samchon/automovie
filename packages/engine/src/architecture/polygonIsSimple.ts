@@ -3,31 +3,24 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { segmentsTouch } from "./segmentsTouch";
 
 /**
- * Whether a closed polygon never crosses or touches itself away from a shared
- * corner.
+ * Whether no two non-adjacent edges of a closed ring touch.
  *
- * A self-crossing outline has no interior, so every later question about what
- * is inside it would answer arbitrarily. Adjacent edges are skipped because
- * they legitimately meet at the corner they share.
+ * Building outlines require a simple boundary, rather than selecting a fill rule for self-crossings. Adjacent edges are skipped because their shared corner is expected; consequently this function does not detect adjacent backtracking or overlapping adjacent segments.
  *
- * Contact uses {@link segmentsTouch} and so the same scale-relative
- * `PLANAR_EPSILON` tolerance as the other planar predicates, which means a
- * vertex lying on a non-adjacent edge counts as touching. The point count is
- * not checked: a ring of two or three points is reported simple, and callers
- * test area or point count separately.
+ * Contact uses {@link segmentsTouch}'s scale-relative `PLANAR_EPSILON`; a vertex on a non-adjacent edge counts as touching. Point count, adjacent degeneracy and area are separate caller checks: even a two- or three-point ring returns true here if no non-adjacent pair exists.
  *
  * @param polygon Closed ring of corners, the last joined back to the first.
  * @returns True when no two non-adjacent edges share a point.
  *
- * @evidence contracts/common.md#principled-implementation A ring is simple exactly when no two non-adjacent edges intersect, so the function tests every such pair with the shared closed-segment contact predicate; adjacency includes the closing pair of the first and last edge.
+ * @evidence contracts/common.md#principled-implementation Tests every non-adjacent pair with the shared tolerance-based closed-segment predicate, including closing-edge adjacency. This is the non-adjacent-contact portion of simplicity validation; adjacent overlap, non-degenerate edges and sufficient point count require separate checks.
  * @evidence contracts/common.md#clear-and-simple-design Delegates contact to the shared `segmentsTouch`, so building validation and support-surface validation refuse self-contact under the same tolerance as the containment and overlap predicates.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No figure or caller is special-cased; the only skipped pairs are the adjacent ones whose shared corner is not a defect, and degenerate point counts are left to the callers that own them, as documented.
  * @evidence contracts/common.md#meaningful-documentation The documentation states why simplicity matters, which pairs are skipped, the tolerance and its consequence for a vertex on an edge, and that point count is not judged.
- * @evidence contracts/performance.md#efficient-algorithms O(n²) time and O(1) space over the n(n-3)/2 non-adjacent edge pairs with an early return on the first contact; a Shamos-Hoey sweep would be O(n log n), but faces and void hulls carry tens of corners, so the pairwise scan is kept and no sweep structure is built.
+ * @evidence contracts/performance.md#efficient-algorithms O(n²) time and O(1) space with an early return on contact. For n at least three there are n(n-3)/2 non-adjacent pairs; no input-size cap or measured advantage over a sweep algorithm is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure simplicity test of one outline; building and support validation each ask once per outline and share nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two edge indices of the pair scan and allocates nothing, so no state survives the scan.
  */
-export const polygonIsSimple = (
+export const polygonIsSimple: (polygon: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
   polygon: readonly IAutoMoviePlanarPoint[],
 ): boolean => {
   const count: number = polygon.length;

@@ -14,7 +14,7 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidence contracts/common.md#clear-and-simple-design Carries identity, provenance, the generated geometry and every derived measurement in one record, so mesh, slot, finish and take-off cite the same occurrence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A fully clipped module is absent rather than recorded at zero area, and a punched piece keeps its convex outline with the loss in `punchedArea` rather than a fabricated non-convex shape.
  * @evidence contracts/common.md#meaningful-documentation States the producer, when a candidate is absent, the variant's dependence, the id format, units, the coverage range with its rounding caveat, the cut cases, and why joints use `outline` and what `punchedArea` means.
- * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each placement costs a constant clip plus one clip per exclusion, answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; producing a placement includes a zone clip and exclusion clips whose costs depend on outline vertex counts, plus id hashing. The run owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run builds placements once, and the instancer, texturer and take-off all read that one list rather than re-laying the pattern.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh points and a fresh outline array owned by the run result.
  * @author Samchon

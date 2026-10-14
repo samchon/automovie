@@ -29,7 +29,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one run per call; each connector is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen set is released on return; at most a few violations per landing are appended to the caller's collector.
  */
-export const validateBuiltConnectorLandings = (
+export const validateBuiltConnectorLandings: (connector: IAutoMovieBuiltConnector, path: string, spaces: ReadonlySet<string>, collector: ViolationCollector) => void = (
   connector: IAutoMovieBuiltConnector,
   path: string,
   spaces: ReadonlySet<string>,

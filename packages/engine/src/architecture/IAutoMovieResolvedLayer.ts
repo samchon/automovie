@@ -1,12 +1,9 @@
 /**
  * One layer placed on the host's own measuring line.
  *
- * Coordinates are signed metres along the assembly's axis. `start` is the face
- * the stacking reaches first, beginning at the assembly offset, so under a
- * negative sense `start` is greater than `end`; take the minimum and maximum
- * for an interval.
+ * Coordinates are signed metres along the assembly axis. `start` is reached first, beginning at its offset. Under negative sense, positive thickness ideally gives `start > end`; rounding can collapse the endpoints. A zero-thickness membrane has equal endpoints. Take minimum and maximum for an interval.
  *
- * @evidence contracts/common.md#principled-implementation Each layer's faces are signed coordinates on the assembly's axis, starting from the previous layer's end, so a negative sense yields `start > end` and an interval is taken as min and max.
+ * @evidence contracts/common.md#principled-implementation Each layer starts at the previous computed end on the signed axis. Negative sense reverses positive-thickness endpoint order; zero-thickness membranes retain equal endpoints. Finite endpoints are enforced before resolution, while numerical rounding can collapse a sufficiently small positive thickness at a large offset.
  * @evidence contracts/common.md#clear-and-simple-design Carries the authored layer facts beside its placed coordinates, so downstream queries do not join back to the authored record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates are not reordered to hide the sense; consumers take min and max as documented.
  * @evidence contracts/common.md#meaningful-documentation States the signed coordinate convention, the reversal under a negative sense, how to take an interval, and the meaning and units of each field.

@@ -30,7 +30,7 @@ const AXIS_EPSILON: number = 1e-12;
  * @param path Violation path of the frame, such as `$input.frames[0]`.
  * @param collector Sink that receives the violations.
  *
- * @evidence contracts/common.md#principled-implementation Checks each field against the domain its readers need, and judges parallel axes by the absolute cosine of their unit vectors exceeding `1 - 1e-12`, which is only computed once both axes have passed the non-zero length test, so normalizing cannot divide by zero.
+ * @evidence contracts/common.md#principled-implementation Checks each field against its reader's domain. Axis comparison uses `Math.hypot` lengths, refuses non-finite derived lengths, and divides components only by finite lengths above `1e-12`; this avoids squared-length overflow for representable large axes. Absolute cosine above `1 - 1e-12` is the parallelism policy, not an exact orientation certificate.
  * @evidence contracts/common.md#clear-and-simple-design The frame half of `validateDesignReference`, separated so that validator stays within one file's size, and built from the shared collector rules for blank strings, ranges and directions plus the shared id and transform checks instead of private copies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No view, sheet or scale reading is special-cased, and an unknown scale is accepted as null rather than replaced with a guessed candidate.
  * @evidence contracts/common.md#meaningful-documentation The documentation lists every rule by field, how an unknown scale is recorded, the path the findings use, and that nothing throws.
@@ -38,7 +38,7 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one frame per call; the reference validator calls it once per frame and coordinates no shared work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The candidate id set is local and released on return; findings are appended to the caller's collector, a constant number per field plus four per scale candidate.
  */
-export const validateDesignSourceFrame = (
+export const validateDesignSourceFrame: (frame: IAutoMovieDesignSourceFrame, path: string, collector: ViolationCollector) => void = (
   frame: IAutoMovieDesignSourceFrame,
   path: string,
   collector: ViolationCollector,
@@ -143,11 +143,15 @@ export const validateDesignSourceFrame = (
         `frame origin ${axis} must be finite, but was ${frame.origin[axis]}`,
         frame.origin[axis],
       );
+  const axisXLength: number = Math.hypot(frame.axisX.x, frame.axisX.y, frame.axisX.z);
+  const axisYLength: number = Math.hypot(frame.axisY.x, frame.axisY.y, frame.axisY.z);
+  if (!Number.isFinite(axisXLength)) collector.push("range", `${path}.axisX`, "frame x axis must have a finite computed length", frame.axisX);
+  if (!Number.isFinite(axisYLength)) collector.push("range", `${path}.axisY`, "frame y axis must have a finite computed length", frame.axisY);
   if (
-    Vector3.length(frame.axisX) > AXIS_EPSILON &&
-    Vector3.length(frame.axisY) > AXIS_EPSILON &&
+    Number.isFinite(axisXLength) && axisXLength > AXIS_EPSILON &&
+    Number.isFinite(axisYLength) && axisYLength > AXIS_EPSILON &&
     Math.abs(
-      Vector3.dot(Vector3.normalize(frame.axisX), Vector3.normalize(frame.axisY)),
+      Vector3.dot(Vector3.scale(frame.axisX, 1 / axisXLength), Vector3.scale(frame.axisY, 1 / axisYLength)),
     ) >
       1 - AXIS_EPSILON
   )

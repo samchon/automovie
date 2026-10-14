@@ -18,7 +18,7 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * @param point Point to classify, in the same frame.
  * @returns `1`, `-1` or `0` as described above.
  *
- * @evidence contracts/common.md#principled-implementation The orientation predicate of computational geometry, the sign of the 2D cross product, with a zero band scaled by the operands' extent so that rounding in the product of two coordinate differences is not read as a side; the band is linear rather than quadratic in the extent, which keeps it conservative for metre-scale figures and is the stated limitation.
+ * @evidence contracts/common.md#principled-implementation Classifies the binary64 cross-product sign outside an extent-scaled zero band. The linear band is a tolerance policy, not a proven roundoff bound or adaptive exact orientation predicate. Callers need finite, suitable-scale intermediates; overflow/cancellation can invalidate the geometric interpretation.
  * @evidence contracts/common.md#clear-and-simple-design The one orientation test behind `pointOnSegment`, `segmentsCross`, `segmentsTouch` and so every planar containment and overlap predicate, replacing four private copies those predicates each carried.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate, figure or caller is special-cased; the tolerance is the shared `PLANAR_EPSILON` constant scaled by the operands themselves.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the sign convention and axis orientation, the exact zero band and its floor, the degenerate-line answer, and each parameter's frame.
@@ -26,7 +26,7 @@ import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over three points; it coordinates no work across requests or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads three points and allocates nothing, so no state, handle or task outlives the call.
  */
-export const planarSide = (
+export const planarSide: (from: IAutoMoviePlanarPoint, to: IAutoMoviePlanarPoint, point: IAutoMoviePlanarPoint) => -1 | 0 | 1 = (
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,
   point: IAutoMoviePlanarPoint,

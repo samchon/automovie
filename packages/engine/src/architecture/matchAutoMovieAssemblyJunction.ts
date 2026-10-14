@@ -3,10 +3,19 @@ import { IAutoMovieAssemblyContinuity } from "./IAutoMovieAssemblyContinuity";
 import { IAutoMovieAssemblyJunction } from "./IAutoMovieAssemblyJunction";
 import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 
-/** The hull and summed thickness of every layer one side spends on a role. */
+/**
+ * The hull and summed thickness of layers sharing one role.
+ *
+ * @author Samchon
+ */
 interface IRoleSpan {
+  /** Least signed layer endpoint. */
   min: number;
+
+  /** Greatest signed layer endpoint. */
   max: number;
+
+  /** Sum of matching layer thicknesses. */
   thickness: number;
 }
 
@@ -46,7 +55,7 @@ interface IRoleSpan {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure comparison of two resolved values that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two role maps only for the call; the caller owns the returned junction.
  */
-export const matchAutoMovieAssemblyJunction = (props: {
+export const matchAutoMovieAssemblyJunction: (props: { left: IAutoMovieResolvedAssembly; right: IAutoMovieResolvedAssembly; tolerance: number }) => IAutoMovieAssemblyJunction = (props: {
   /** Build-up on one side of the junction, resolved on the shared line. */
   left: IAutoMovieResolvedAssembly;
 
@@ -85,7 +94,7 @@ export const matchAutoMovieAssemblyJunction = (props: {
 };
 
 /** Fold one build-up's layers into one span per role, in first-seen order. */
-const rolesOf = (
+const rolesOf: (assembly: IAutoMovieResolvedAssembly) => Map<string, IRoleSpan> = (
   assembly: IAutoMovieResolvedAssembly,
 ): Map<string, IRoleSpan> => {
   const roles: Map<string, IRoleSpan> = new Map();

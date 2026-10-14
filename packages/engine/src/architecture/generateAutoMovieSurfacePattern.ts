@@ -22,24 +22,29 @@ const VARIANT_DOMAIN: number = 0x7061_7474;
 /** Smallest square metre area counted as real coverage. */
 const AREA_EPSILON: number = 1e-12;
 
-/** The inclusive span of a face-local outline on both axes, in metres. */
+/**
+ * The inclusive span of a face-local outline on both axes, in metres.
+ *
+ * @author Samchon
+ */
 interface IPatternSpan {
+  /** Least U coordinate. */
   minU: number;
+
+  /** Greatest U coordinate. */
   maxU: number;
+
+  /** Least V coordinate. */
   minV: number;
+
+  /** Greatest V coordinate. */
   maxV: number;
 }
 
 /**
  * Lay one pattern and measure exactly what was laid.
  *
- * The run is a fixed sequence so two runs of the same declaration produce
- * byte-identical output on every platform: zones in declaration order, lattice
- * rows outermost and columns innermost, and each cell's modules in the order
- * the author's generator returned them. Nothing samples a clock, a hash
- * iteration order, or `Math.random`; the only randomness is {@link seededValue},
- * drawn from the pattern seed and an FNV-1a hash of the occurrence id
- * `<zone>/<module>`, which picks each piece's variant.
+ * With stable input and a pure generator, the fixed sequence is repeatable in the same numerical runtime: zones in declaration order, rows outermost, columns innermost and candidates in generator order. Engine code samples neither clock nor `Math.random`; variants use {@link seededValue} with the pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a caller premise.
  *
  * Every module is clipped to its own zone region, then measured against every
  * exclusion. A module the region rejects entirely is not a zero-area
@@ -50,27 +55,20 @@ interface IPatternSpan {
  * reported per zone and in total, and quality is judged by
  * {@link autoMoviePatternFindings}.
  *
- * Coordinates are the surface's planar (u, v) metres and angles are degrees.
- * A malformed declaration throws an `Error` naming the field: blank or
- * duplicate ids, non-finite or non-positive sizes, a non-convex region or
- * exclusion, overlapping zones or exclusions, a zone spanning more than
- * `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, or a generated module reaching
- * beyond its cell's declared reach. Quality defects are not thrown; they are
- * returned as `findings` (sliver, unsupported-piece, module-overlap,
- * joint-deviation, grain-break).
+ * Coordinates are the surface's planar (u, v) metres and angles are degrees. A malformed declaration throws an `Error` naming the field: blank or duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion, overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, non-safe-integer derived lattice bounds, or a generated module reaching beyond its cell's declared reach. Quality defects are not thrown; they are returned as `findings` (sliver, unsupported-piece, module-overlap, joint-deviation, grain-break).
  *
  * @param props.pattern The declaration to lay.
  * @returns The pattern id, every surviving placement, the quantities, and the quality findings.
  *
- * @evidence contracts/common.md#principled-implementation Each zone enumerates exactly the lattice cells whose declared reach can meet its region's span, clips each generated module rectangle to the region and subtracts the exclusions with Sutherland and Hodgman clipping over canonical convex outlines, and measures area with the shoelace formula; zones and exclusions are refused when they overlap, so the subtracted areas never double count. Variants come from `seededValue` over an FNV-1a hash of the occurrence id, so a piece keeps its variant when others are added.
+ * @evidence contracts/common.md#principled-implementation Enumerates safe-integer lattice bounds, clips rectangles against canonical convex outlines and measures binary64 shoelace areas. Zone/exclusion overlap beyond tolerance is refused; smaller overlaps can affect accounting. A run-wide set refuses collisions in slash-composed surviving occurrence ids without restricting authored characters. FNV-1a hashing and `seededValue` stabilize variants, without asserting collision-free hashes or cross-platform transcendental bit identity.
  * @evidence contracts/common.md#clear-and-simple-design The run owns laying and quantities; clipping, canonical outlines and area live in `clipAutoMoviePatternPolygon`, `canonicalAutoMoviePatternPolygon` and `autoMoviePatternPolygonArea`, and quality judgement in `autoMoviePatternFindings`, and every zone region is canonicalized once and reused for the overlap check and the clip.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or material; the cell cap is a contract constant that refuses an unbounded enumeration by name instead of truncating it, and the epsilons only absorb floating-point noise in measured areas.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or material. The shared cell cap refuses oversized enumerations, and derived safe-integer bounds ensure incrementing loop indexes advances. Area tolerances define accepted discrepancies rather than proving every floating-point error is bounded.
  * @evidence contracts/common.md#meaningful-documentation States the fixed run order and the only source of randomness, when a module is absent, what each placement carries, the units, every thrown refusal, and that quality defects are returned rather than thrown.
- * @evidence contracts/performance.md#efficient-algorithms O(Z²) region overlap checks and O(E²) exclusion overlap checks for Z zones and E exclusions, then per zone a scan of at most `AUTOMOVIE_MAX_PATTERN_CELLS` cells with one region clip and E exclusion clips per generated module; each region is canonicalized once instead of once per zone pair.
+ * @evidence contracts/performance.md#efficient-algorithms Canonical hulls cost the sum of n log n over authored outline sizes. Performs Z² zone and E² exclusion clips, whose costs depend on outline vertices, then capped cell enumeration plus arbitrary generator work and one region/E exclusion clips per candidate. Adds id hashing, quantity folds and the full `autoMoviePatternFindings` partner/geometry/sort cost; candidate count and callback time are not bounded by the cell cap.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lays one declaration per call; the generator is the author's code and may not be pure, so no earlier run's placements are reused.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Placements grow with the surviving modules and are bounded by the cell cap times the modules each cell generates; the per-zone seen-id set is dropped after its zone, and the caller owns the returned result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Placements/outlines and the run-wide occurrence-id set grow with survivors; each zone's seen-id set grows with all generated candidates including discarded ones. Findings can grow quadratically and callback output has no fixed cap. Local sets/clip arrays are released after use; the caller owns returned records.
  */
-export const generateAutoMovieSurfacePattern = (props: {
+export const generateAutoMovieSurfacePattern: (props: { pattern: IAutoMovieSurfacePattern }) => IAutoMovieSurfacePatternResult = (props: {
   pattern: IAutoMovieSurfacePattern;
 }): IAutoMovieSurfacePatternResult => {
   const { pattern }: { pattern: IAutoMovieSurfacePattern } = props;
@@ -86,6 +84,7 @@ export const generateAutoMovieSurfacePattern = (props: {
       ),
   );
   const placements: IAutoMoviePatternPlacement[] = [];
+  const occurrenceIds: Set<string> = new Set();
   const zoneQuantities: IAutoMoviePatternZoneQuantities[] = [];
 
   pattern.zones.forEach(
@@ -97,7 +96,7 @@ export const generateAutoMovieSurfacePattern = (props: {
             `pattern zones "${pattern.zones[other]!.id}" and "${zone.id}" overlap`,
           );
       const start: number = placements.length;
-      layZone(pattern, zone, region, exclusions, placements);
+      layZone(pattern, zone, region, exclusions, placements, occurrenceIds);
       zoneQuantities.push(
         summarize(
           zone.id,
@@ -122,12 +121,13 @@ export const generateAutoMovieSurfacePattern = (props: {
 };
 
 /** Enumerate one zone's lattice and append every surviving piece. */
-const layZone = (
+const layZone: (pattern: IAutoMovieSurfacePattern, zone: IAutoMovieSurfacePatternZone, region: readonly IAutoMoviePatternPoint[], exclusions: readonly IAutoMoviePatternPoint[][], placements: IAutoMoviePatternPlacement[], occurrenceIds: Set<string>) => void = (
   pattern: IAutoMovieSurfacePattern,
   zone: IAutoMovieSurfacePatternZone,
   region: readonly IAutoMoviePatternPoint[],
   exclusions: readonly IAutoMoviePatternPoint[][],
   placements: IAutoMoviePatternPlacement[],
+  occurrenceIds: Set<string>,
 ): void => {
   const span: IPatternSpan = spanOf(region);
   const columns: { min: number; max: number } = latticeRange(
@@ -146,7 +146,7 @@ const layZone = (
   );
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-  if (cells > AUTOMOVIE_MAX_PATTERN_CELLS)
+  if (!Number.isSafeInteger(cells) || cells < 1 || cells > AUTOMOVIE_MAX_PATTERN_CELLS)
     throw new Error(
       `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
     );
@@ -178,6 +178,8 @@ const layZone = (
         if (area <= AREA_EPSILON) continue;
         const moduleArea: number = candidate.size.u * candidate.size.v;
         const id: string = `${zone.id}/${candidate.id}`;
+        if (occurrenceIds.has(id)) throw new Error(`pattern occurrence id "${id}" is ambiguous across zones and modules`);
+        occurrenceIds.add(id);
         const boundaryCut: boolean = clipped < moduleArea - AREA_EPSILON;
         const punched: boolean = removed > AREA_EPSILON;
         placements.push({
@@ -209,7 +211,7 @@ const layZone = (
 };
 
 /** Check the declaration's own fields and canonicalize its exclusions. */
-const validatePattern = (
+const validatePattern: (pattern: IAutoMovieSurfacePattern) => IAutoMoviePatternPoint[][] = (
   pattern: IAutoMovieSurfacePattern,
 ): IAutoMoviePatternPoint[][] => {
   nonBlank(pattern.id, "pattern id");
@@ -280,7 +282,7 @@ const validatePattern = (
  * needs exactly those corners next, so they are returned rather than built a
  * second time in the innermost loop of the whole run.
  */
-const validateCandidate = (
+const validateCandidate: (zone: IAutoMovieSurfacePatternZone, candidate: IAutoMoviePatternCandidate, origin: IAutoMoviePatternPoint, seen: Set<string>) => IAutoMoviePatternPoint[] = (
   zone: IAutoMovieSurfacePatternZone,
   candidate: IAutoMoviePatternCandidate,
   origin: IAutoMoviePatternPoint,
@@ -321,19 +323,21 @@ const validateCandidate = (
  * and then divided by the pitch. Widening before dividing is what keeps a
  * module laid across a cell border from being lost at the region's edge.
  */
-const latticeRange = (
+const latticeRange: (min: number, max: number, origin: number, period: number, reach: number) => { min: number; max: number } = (
   min: number,
   max: number,
   origin: number,
   period: number,
   reach: number,
-): { min: number; max: number } => ({
-  min: Math.floor((min - reach - origin) / period),
-  max: Math.ceil((max + reach - origin) / period),
-});
+): { min: number; max: number } => {
+  const range: { min: number; max: number } = { min: Math.floor((min - reach - origin) / period), max: Math.ceil((max + reach - origin) / period) };
+  if (!Number.isSafeInteger(range.min) || !Number.isSafeInteger(range.max) || range.min > range.max)
+    throw new Error("pattern lattice bounds must be ordered safe integers");
+  return range;
+};
 
 /** A module rectangle's four corners, counter-clockwise, turned in place. */
-const moduleCorners = (
+const moduleCorners: (candidate: IAutoMoviePatternCandidate) => IAutoMoviePatternPoint[] = (
   candidate: IAutoMoviePatternCandidate,
 ): IAutoMoviePatternPoint[] => {
   const angle: number = candidate.rotationDeg * Quaternion.DEG2RAD;
@@ -355,7 +359,7 @@ const moduleCorners = (
 };
 
 /** The seeded variant index of one occurrence id, in `[0, variants)`. */
-const variantOf = (pattern: IAutoMovieSurfacePattern, id: string): number =>
+const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (pattern: IAutoMovieSurfacePattern, id: string): number =>
   Math.min(
     pattern.variants - 1,
     Math.floor(
@@ -364,7 +368,7 @@ const variantOf = (pattern: IAutoMovieSurfacePattern, id: string): number =>
   );
 
 /** Fold an occurrence id into a 32-bit integer with FNV-1a. */
-const hashOf = (id: string): number => {
+const hashOf: (id: string) => number = (id: string): number => {
   let hash: number = 0x811c9dc5;
   for (let index: number = 0; index < id.length; ++index) {
     hash = (hash ^ id.charCodeAt(index)) >>> 0;
@@ -374,7 +378,7 @@ const hashOf = (id: string): number => {
 };
 
 /** One zone's take-off from its own placements and net region area. */
-const summarize = (
+const summarize: (zone: string, placements: readonly IAutoMoviePatternPlacement[], netRegionArea: number) => IAutoMoviePatternZoneQuantities = (
   zone: string,
   placements: readonly IAutoMoviePatternPlacement[],
   netRegionArea: number,
@@ -400,12 +404,12 @@ const summarize = (
 };
 
 /** The whole pattern's take-off, summed from its zones. */
-const totalQuantities = (
+const totalQuantities: (pattern: IAutoMovieSurfacePattern, placements: readonly IAutoMoviePatternPlacement[], zones: readonly IAutoMoviePatternZoneQuantities[]) => IAutoMoviePatternQuantities = (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
   zones: readonly IAutoMoviePatternZoneQuantities[],
 ): IAutoMoviePatternQuantities => {
-  const sum = (
+  const sum: (read: (zone: IAutoMoviePatternZoneQuantities) => number) => number = (
     read: (zone: IAutoMoviePatternZoneQuantities) => number,
   ): number =>
     zones.reduce(
@@ -440,14 +444,14 @@ const totalQuantities = (
 };
 
 /** The area two convex outlines share, the second canonical. */
-const overlapArea = (
+const overlapArea: (subject: readonly IAutoMoviePatternPoint[], clipper: readonly IAutoMoviePatternPoint[]) => number = (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
 ): number =>
   autoMoviePatternPolygonArea(clipAutoMoviePatternPolygon(subject, clipper));
 
 /** The extent of a non-empty outline on both face-local axes. */
-const spanOf = (polygon: readonly IAutoMoviePatternPoint[]): IPatternSpan => {
+const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (polygon: readonly IAutoMoviePatternPoint[]): IPatternSpan => {
   const span: IPatternSpan = {
     minU: Infinity,
     maxU: -Infinity,
@@ -463,16 +467,16 @@ const spanOf = (polygon: readonly IAutoMoviePatternPoint[]): IPatternSpan => {
   return span;
 };
 
-const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (point: IAutoMoviePatternPoint, label: string): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
 };
 
-const nonBlank = (value: string, label: string): void => {
+const nonBlank: (value: string, label: string) => void = (value: string, label: string): void => {
   if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
 };
 
-const atLeast = (value: number, limit: number, label: string): void => {
+const atLeast: (value: number, limit: number, label: string) => void = (value: number, limit: number, label: string): void => {
   if (!Number.isFinite(value) || value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };

@@ -15,7 +15,7 @@ import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No population is declared by the reviewer or filtered by an authored label; the asymmetry between `spaces`, which needs a stated volume, and `connectors`, which reads every descendant including the root, is the producer's rule and is documented.
  * @evidence contracts/common.md#meaningful-documentation States the producer and its order, that the three face lists partition the building's envelope faces by aspect in boundary-id order, what each id list contains and its order, and which space population `spaces` and `connectors` each read.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the census cost, envelope derivation once per environment followed by per-building filters and descendant walks, is answered on `builtEnvironmentBuildingCensus`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Within one call the face and corner lists are derived once and filtered per building, though the corner finder derives the faces a second time internally; no census survives the call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The census derives faces once, passes those faces to `builtEnvelopeFaceCorners` and filters both lists per building; no census is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the face and corner records built for this call plus fresh id arrays, all owned by the caller's census list and released with it.
  * @author Samchon
  */

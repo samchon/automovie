@@ -16,38 +16,26 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
 /**
  * Where an opening's panels stand, in world space, at one named state.
  *
- * Omitting the state answers for the state the record itself stands in, which
- * is the placement {@link lowerBuiltEnvironment} stages. Naming another one
- * answers for that state without editing the record, so a shot can ask where
- * the leaf would be when open without a second building.
+ * Omitting the state answers for the state the record itself stands in, which is the placement {@link lowerBuiltEnvironment} stages. Naming another one answers for that state without editing the record, so a shot can ask where the leaf would be when open without a second building.
  *
- * A state is a configuration rather than a moment. A door that swings on screen
- * is a shot `objectMotions` clip over the
- * {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the
- * architecture record never grows a second clock beside the shot's own.
+ * A state is a configuration rather than a moment. A door that swings on screen is a shot `objectMotions` clip over the {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the architecture record never grows a second clock beside the shot's own.
  *
- * Entries follow the opening's panel order, each with the decomposed world
- * transform of the element the panel drives and a normalized rotation. Naming
- * a state applies it to every opening and run that declares a state with that
- * id, through {@link builtEnvironmentWorldMatrices}, so an ancestor leaf of
- * another opening moves too. An opening without an operation answers an empty
- * list. Throws an `Error` when the opening does not exist, the named state is
- * not one of its states, or a panel's element is missing from the record.
+ * Entries follow the opening's panel order, each with the decomposed world transform of the element the panel drives and a normalized rotation. Naming a state applies it to every opening and run that declares a state with that id, through {@link builtEnvironmentWorldMatrices}, so an ancestor leaf of another opening moves too. An opening without an operation answers an empty list. Throws an `Error` when the opening does not exist, the named state is not one of its states, or a panel's element is missing from the record.
  *
  * @param environment Building record holding the opening.
  * @param openingId Id of the opening whose panels are placed.
  * @param stateId Operating state to answer for; the record's own when omitted.
  * @returns One placement per panel, in panel order.
  *
- * @evidence contracts/common.md#principled-implementation Reads each panel element's world matrix from `builtEnvironmentWorldMatrices`, the hierarchy composition the lowering stages, and splits it with `Matrix4.decompose`; the premise is a validated parent tree, and the rotation is renormalized because a decomposed product drifts off unit length.
+ * @evidence contracts/common.md#principled-implementation Reads the shared world matrix and decomposes it with a normalized rotation. Finite, unsheared TRS representability is a premise beyond an acyclic parent tree: `validateBuiltEnvironment` checks named configurations, but this query does not validate input and decomposition does not preserve arbitrary shear.
  * @evidence contracts/common.md#clear-and-simple-design The query owns only the state check and the per-panel answer; staging under a state lives in `builtEnvironmentWorldMatrices` and the opening lookup in `requireBuiltOpening`, replacing a private copy of each.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no opening, state or element; an unknown state and a missing panel element are refused by name rather than answered at rest.
  * @evidence contracts/common.md#meaningful-documentation States what an omitted state means, that a named state applies building-wide, the entry order and content, the empty answer for an inoperable opening, and each thrown refusal.
- * @evidence contracts/performance.md#efficient-algorithms One staging pass linear in the element count plus the summed panel and carriage values, then one lookup and decomposition per panel; the full staging is needed because a panel's matrix depends on its whole ancestor chain.
+ * @evidence contracts/performance.md#efficient-algorithms One opening lookup and requested-state scan, the shared world staging cost O(E + O + S + M + V) for elements, opening/connector records, scanned states, moving members and selected values, then one constant-size decomposition per panel.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening and state per call from the caller's mutable record, so no staging is cached across calls; within a call the one staging serves every panel.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrix map only for the call and returns new placement records; nothing is retained.
  */
-export const builtOpeningPanelPlacements = (
+export const builtOpeningPanelPlacements: (environment: IAutoMovieBuiltEnvironment, openingId: string, stateId?: string) => IAutoMovieOpeningPanelPlacement[] = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
   stateId?: string,

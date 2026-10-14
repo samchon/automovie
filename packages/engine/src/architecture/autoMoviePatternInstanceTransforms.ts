@@ -15,7 +15,7 @@ import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantiti
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /**
- * Turn whole occurrences into exact instance slots and name the ones that
+ * Turn whole occurrences into computed instance slots and name the ones that
  * cannot be.
  *
  * A repeated module is a GPU instance, never duplicated vertex data, so the
@@ -43,15 +43,15 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * perpendicular within `1e-6`, a facet names a zone the run did not lay or
  * repeats one, or an occurrence's variant has no entry in `prototypes`.
  *
- * @evidence contracts/common.md#principled-implementation Each slot's rotation is the unit quaternion of the orthonormal right-handed basis `(U·cos θ + V·sin θ, N × that, N)` read with Shepperd's method in `quaternionFromAutoMovieBasis`, and its translation is the developed offset from the panel anchor along the panel's U and V; the frame checks establish the orthonormal premise within `1e-6`.
+ * @evidence contracts/common.md#principled-implementation Computes basis `(U cos θ + V sin θ, N × that, N)` and converts it through `quaternionFromAutoMovieBasis`; translation uses the developed panel offset. Frame checks admit approximate orthogonality within `1e-6`, so the quaternion is a numerical TRS representation rather than an exact affine factorization. Placement fields and finite intermediate results are caller premises, not independently revalidated here.
  * @evidence contracts/common.md#clear-and-simple-design Validates and resolves every panel once, then maps each whole placement to one slot; the slot shape is the interface's explicit instance transform, so no second instancing record is introduced.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or production; a cut piece is reported for geometry instead of being approximated by a scaled whole module, and a missing prototype throws instead of falling back to the set default.
  * @evidence contracts/common.md#meaningful-documentation States why whole modules become slots and cut ones do not, how id, rotation, scale and prototype are derived, the local axis mapping, the facet rule, the metre unit of thickness, and every throw.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the placement count plus the facet count, with constant work per whole placement; panels are resolved once into a map keyed by zone so each placement looks its panel up in constant time.
+ * @evidence contracts/performance.md#efficient-algorithms O(Z + F + N) for quantity-zone records, facets and placements: builds the known-zone set and facet map once, then performs constant basis/slot work per whole placement.
  * @evidence contracts/performance.md#reuse-equivalent-work Every placement of a zone reuses that zone's resolved panel basis instead of re-validating its frame; nothing is reused across calls, since the result and frames are inputs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The panel map is dropped on return; the caller owns the slots and cut ids, together bounded by the placement count.
  */
-export const autoMoviePatternInstanceTransforms = (props: {
+export const autoMoviePatternInstanceTransforms: (props: { result: IAutoMovieSurfacePatternResult; frame: IAutoMoviePatternFaceFrame; facets?: readonly IAutoMoviePatternFacet[]; thickness: number; prototypes?: readonly string[] }) => IAutoMoviePatternInstancing = (props: {
   result: IAutoMovieSurfacePatternResult;
   frame: IAutoMoviePatternFaceFrame;
   /** Panels the folded or curved zones return onto; the rest use `frame`. */
@@ -118,7 +118,11 @@ export const autoMoviePatternInstanceTransforms = (props: {
   return { transforms, cut };
 };
 
-/** One panel's orthonormal world basis and the developed point it stands at. */
+/**
+ * One panel's approximate orthonormal world basis and developed anchor.
+ *
+ * @author Samchon
+ */
 interface IResolvedPanel {
   /** Face-local metre point {@link origin} sits at. */
   anchor: IAutoMoviePatternPoint;
@@ -132,12 +136,12 @@ interface IResolvedPanel {
   /** Unit world direction of the panel's V axis. */
   v: IAutoMovieVector3;
 
-  /** Unit world face normal, `u × v`. */
+  /** Computed world face normal, `u × v`, under the approximate frame checks. */
   normal: IAutoMovieVector3;
 }
 
-/** The panel each zone returns onto, refusing a facet nothing was laid in. */
-const resolveFacets = (
+/** Index each declared quantity zone's facet, including zones with no survivors. */
+const resolveFacets: (result: IAutoMovieSurfacePatternResult, facets: readonly IAutoMoviePatternFacet[]) => Map<string, IResolvedPanel> = (
   result: IAutoMovieSurfacePatternResult,
   facets: readonly IAutoMoviePatternFacet[],
 ): Map<string, IResolvedPanel> => {
@@ -166,8 +170,8 @@ const resolveFacets = (
   return panels;
 };
 
-/** Validate one frame and anchor into an orthonormal panel. */
-const resolvePanel = (
+/** Validate one frame and anchor against the approximate orthonormality tolerance. */
+const resolvePanel: (anchor: IAutoMoviePatternPoint, frame: IAutoMoviePatternFaceFrame, label: string) => IResolvedPanel = (
   anchor: IAutoMoviePatternPoint,
   frame: IAutoMoviePatternFaceFrame,
   label: string,
@@ -183,7 +187,7 @@ const resolvePanel = (
 };
 
 /** Refuse an axis that is not finite or not unit length within `1e-6`. */
-const unitAxis = (
+const unitAxis: (axis: IAutoMovieVector3, label: string) => IAutoMovieVector3 = (
   axis: IAutoMovieVector3,
   label: string,
 ): IAutoMovieVector3 => {
@@ -194,7 +198,7 @@ const unitAxis = (
 };
 
 /** Refuse a vector with a non-finite component. */
-const finiteVector = (value: IAutoMovieVector3, label: string): void => {
+const finiteVector: (value: IAutoMovieVector3, label: string) => void = (value: IAutoMovieVector3, label: string): void => {
   if (![value.x, value.y, value.z].every(Number.isFinite))
     throw new Error(`${label} must be finite`);
 };

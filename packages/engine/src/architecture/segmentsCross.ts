@@ -16,7 +16,7 @@ import { planarSide } from "./planarSide";
  * @param d Second endpoint of the second segment.
  * @returns True only for a proper crossing.
  *
- * @evidence contracts/common.md#principled-implementation The classic four-orientation proper-intersection test: two segments properly cross exactly when each straddles the other's supporting line, and requiring every orientation to be non-zero excludes touching and collinear contact by construction.
+ * @evidence contracts/common.md#principled-implementation Uses four `planarSide` classifications and requires opposite nonzero sides for each segment. The proper-intersection theorem holds in ideal arithmetic; this implementation inherits the shared tolerance and finite-intermediate premises rather than providing an exact robust predicate.
  * @evidence contracts/common.md#clear-and-simple-design One proper-crossing test for `polygonInside` and `segmentsTouch`, replacing the copies each polygon predicate carried.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No configuration is special-cased; contact cases are excluded by the orientation signs alone, not by caller-specific checks.
  * @evidence contracts/common.md#meaningful-documentation The documentation states what counts as a crossing, which contacts do not, where to ask about contact instead, and each parameter's role.
@@ -24,7 +24,7 @@ import { planarSide } from "./planarSide";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over four points; it coordinates no work across requests or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads four points and allocates nothing, so no state, handle or task outlives the call.
  */
-export const segmentsCross = (
+export const segmentsCross: (a: IAutoMoviePlanarPoint, b: IAutoMoviePlanarPoint, c: IAutoMoviePlanarPoint, d: IAutoMoviePlanarPoint) => boolean = (
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,

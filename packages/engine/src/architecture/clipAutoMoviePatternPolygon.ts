@@ -6,7 +6,7 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * The clipper is read as a counter-clockwise convex outline, as the pattern
  * run canonicalizes every region and exclusion, and the subject is cut by each
  * of its edges in turn. The answer is the intersection as a new outline in the
- * subject's winding, or an empty list when the two share no area.
+ * subject's winding. Disjoint inputs yield an empty list; point or line contact can yield a nonempty zero-area outline. Arithmetic assumes finite, well-scaled intermediates and does not validate them here.
  *
  * A crossing is only cut where the corner it crosses to actually leaves the
  * line. A corner sitting exactly on a clip edge already is the intersection,
@@ -21,15 +21,15 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @param clipper Counter-clockwise convex outline to clip by.
  * @returns The part of `subject` inside `clipper`, possibly empty.
  *
- * @evidence contracts/common.md#principled-implementation Sutherland and Hodgman half-plane clipping, exact for a convex clipper: each clipper edge keeps the subject corners on its inner side and inserts the edge's crossing point by linear interpolation of the signed side values; the premise is a counter-clockwise convex clipper, which the pattern run guarantees by canonicalizing through a convex hull.
+ * @evidence contracts/common.md#principled-implementation Implements Sutherland-Hodgman half-plane clipping for a counter-clockwise convex clipper, retaining inside corners and interpolating crossings from signed sides. The convex-intersection theorem is an ideal-arithmetic premise; binary64 rounding, cancellation and overflow are not independently certified or refused by this helper.
  * @evidence contracts/common.md#clear-and-simple-design One clipper with two private helpers, used by the pattern run for zone overlap, region clipping and exclusion area, so every area in a take-off is cut the same way.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no outline; the on-line corner rule is the algorithm's correct treatment of a vertex on the clip line, not a guard for one measured case.
  * @evidence contracts/common.md#meaningful-documentation States the clipper's required winding and convexity, what is returned and when it is empty, and why an on-line corner emits no extra crossing.
- * @evidence contracts/performance.md#efficient-algorithms O(n·m) for an n-corner subject and m-edge clipper, the cost of Sutherland and Hodgman, with early exit once the outline is empty; pattern outlines are a handful of corners.
+ * @evidence contracts/performance.md#efficient-algorithms O(M(N + M)) conservative time for N subject corners and M clipper edges, accounting for growth of intermediate convex outlines; exits when empty. Working storage is O(N + M), rather than assuming a fixed vertex count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two outlines that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one working outline per clipper edge and retains nothing; the caller owns the returned outline.
  */
-export const clipAutoMoviePatternPolygon = (
+export const clipAutoMoviePatternPolygon: (subject: readonly IAutoMoviePatternPoint[], clipper: readonly IAutoMoviePatternPoint[]) => IAutoMoviePatternPoint[] = (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
 ): IAutoMoviePatternPoint[] => {
@@ -61,7 +61,7 @@ export const clipAutoMoviePatternPolygon = (
 };
 
 /** Twice the signed area of `from`, `to`, `point`; positive on the left. */
-const side = (
+const side: (from: IAutoMoviePatternPoint, to: IAutoMoviePatternPoint, point: IAutoMoviePatternPoint) => number = (
   from: IAutoMoviePatternPoint,
   to: IAutoMoviePatternPoint,
   point: IAutoMoviePatternPoint,
@@ -69,7 +69,7 @@ const side = (
   (to.u - from.u) * (point.v - from.v) - (to.v - from.v) * (point.u - from.u);
 
 /** Where segment `from`-`to` crosses the line through `edgeFrom`-`edgeTo`. */
-const intersect = (
+const intersect: (from: IAutoMoviePatternPoint, to: IAutoMoviePatternPoint, edgeFrom: IAutoMoviePatternPoint, edgeTo: IAutoMoviePatternPoint) => IAutoMoviePatternPoint = (
   from: IAutoMoviePatternPoint,
   to: IAutoMoviePatternPoint,
   edgeFrom: IAutoMoviePatternPoint,

@@ -7,34 +7,23 @@ import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 
 /**
- * Every meeting of two facades among already placed envelope faces.
+ * Proximity-based corner records among already placed envelope facades.
  *
- * Only faces whose aspect is `facade` are paired, and only within one
- * building. Two facades meet when their normals are not parallel and a vertex
- * of one stands within the thicker of the two separations of a vertex of the
- * other, which is exactly the slack a wall's own construction introduces
- * between two faces authored on the same envelope corner. The meeting point is
- * the mean of the midpoints of the nearest vertex pairs, so it falls at the
- * middle of a shared edge whichever end the outlines were written from. Each
- * pair is read with its boundary ids in code-unit order: the corner is
- * `exterior` when the second facade's centroid lies behind the first facade's
- * outward plane and `reentrant` when in front, and a pair whose side cannot be
- * read, because the meeting point is the second centroid or lies in the first
- * plane, is skipped. Corners are sorted by id.
+ * Only non-parallel `facade` pairs of one building qualify. Vertex proximity within the thicker separation plus numeric slack supplies an allowance rather than proof of a shared edge. The position averages approximately nearest vertex-pair midpoints; it equals a shared edge midpoint only when those pairs describe its ends. Boundary ids fix pair order. The first probe-oriented normal's sign toward the second centroid determines exterior/reentrant; negligible direction or dot product skips an unreadable pair. Results sort by id.
  *
  * {@link builtEnvironmentEnvelopeCorners} answers for a whole environment, and
  * the building census passes the faces it already placed so they are not
  * placed twice.
  *
- * @evidence contracts/common.md#principled-implementation Pairs facades by nearest-vertex proximity within the thicker wall thickness and reads the turn from the sign of the first outward normal against the direction to the second centroid; ordering each pair by boundary id before reading makes the id, the facade order and the side independent of input order.
+ * @evidence contracts/common.md#principled-implementation Pairs facades by vertex proximity within the thicker wall thickness and reads the turn from the first normal's dot product toward the second centroid. Boundary-id ordering stabilizes pair identity and the side convention. Near-equal distances use the observation tolerance; the predicate does not prove edge intersection or simultaneous orientation behind both planes.
  * @evidence contracts/common.md#clear-and-simple-design Takes placed faces rather than an environment, so the environment-level corner query and the census, which already holds the faces, share one pairing rule without placing the envelope twice.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no building or boundary; the proximity slack is each pair's own wall thickness plus the shared observation tolerance, and unreadable pairs are skipped by a stated rule rather than given a guessed side.
  * @evidence contracts/common.md#meaningful-documentation States which faces are paired, the meeting rule and its slack, where the meeting point falls, the pair order, the exterior and reentrant tests, when a pair is skipped, the sort, and who calls it.
- * @evidence contracts/performance.md#efficient-algorithms Quadratic in the facade count with a constant-time building check before the vertex-pair loop, which is quadratic in the two outlines' point counts; an envelope holds tens to hundreds of facades, so a spatial index would cost more than the pairs it prunes.
+ * @evidence contracts/performance.md#efficient-algorithms O(F² + sum(Vi Vj) + Q log Q) for F facades, outline sizes Vi/Vj of eligible pairs and Q returned corners. Building and parallel-normal checks precede each vertex-product scan; no measured crossover with a spatial index is asserted.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the caller's already placed faces instead of re-deriving them, which is what lets the census place the envelope once per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one meeting list per pair during the scan and the returned corners, which the caller owns; nothing is kept between calls.
  */
-export const builtEnvelopeFaceCorners = (
+export const builtEnvelopeFaceCorners: (faces: readonly IAutoMovieBuiltEnvelopeFace[]) => IAutoMovieBuiltEnvelopeCorner[] = (
   faces: readonly IAutoMovieBuiltEnvelopeFace[],
 ): IAutoMovieBuiltEnvelopeCorner[] => {
   const facades: IAutoMovieBuiltEnvelopeFace[] = faces.filter(
@@ -60,10 +49,8 @@ export const builtEnvelopeFaceCorners = (
         continue;
       const tolerance: number =
         Math.max(a.thickness, b.thickness) + AUTOMOVIE_OBSERVATION_EPSILON;
-      // Two facades meeting at a building corner share a whole edge, so the
-      // nearest pair is not one point but every pair along it. Averaging them
-      // puts the corner at the middle of that edge rather than at whichever end
-      // the outlines happened to be written from.
+      // Average approximately nearest vertex-pair midpoints as the corner proxy.
+      // Proximity alone does not establish a shared geometric edge.
       let best: number = Number.POSITIVE_INFINITY;
       const meetings: IAutoMovieVector3[] = [];
       for (const left of a.vertices)

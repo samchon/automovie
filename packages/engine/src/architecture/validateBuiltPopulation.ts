@@ -39,7 +39,7 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @param path Path prefix the violations are reported under.
  * @param collector Collector the violations are appended to.
  *
- * @evidence contracts/common.md#principled-implementation Each field is checked against the domain its consumer needs: `Number.isSafeInteger` for counts, `Number.isFinite` for coordinates, strict positivity for scales and spacings, min-not-above-max for ranges, and a unit-norm test within `1e-6` for slot quaternions, which is the drift a hand-written or serialized unit quaternion carries; ordering is only compared once both ends are finite, so one bad number yields one violation.
+ * @evidence contracts/common.md#principled-implementation Checks safe-integer counts, finite coordinates, positive scales/spacings and finite ordered ranges. Slot quaternion norms use `Math.hypot` with a fixed `1e-6` accepted discrepancy; it is a normalization policy, not a universal serialization-error bound. Range ordering is compared only after both endpoints are finite.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the population subset of the building contract and is called by both the record validator and the bounds fold, which previously kept two identical copies; small private checks keep each rule's path and message in one place.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no population or layout instance; `along-route` is refused as a kind because a building record has no field that can reach a production route, which is a contract difference rather than a special case.
  * @evidence contracts/common.md#meaningful-documentation States what subset is checked and why the production builder owns the rest, the two path prefixes and who uses them, every rule per field and layout kind, and that defects are collected rather than thrown.
@@ -47,7 +47,7 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A synchronous check of one population that coordinates no work across calls; each caller validates the record it was handed.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; violations go into the caller's collector, which the caller owns.
  */
-export const validateBuiltPopulation = (
+export const validateBuiltPopulation: (population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">, path: string, collector: ViolationCollector) => void = (
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
   path: string,
   collector: ViolationCollector,
@@ -60,7 +60,7 @@ export const validateBuiltPopulation = (
   validateSet(population.set, `${path}.set`, collector);
 };
 
-const validatePrototypeBounds = (
+const validatePrototypeBounds: (bounds: IAutoMovieBuiltPopulation["prototypeBounds"], path: string, collector: ViolationCollector) => void = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
   path: string,
   collector: ViolationCollector,
@@ -87,7 +87,7 @@ const validatePrototypeBounds = (
     );
 };
 
-const validateSet = (
+const validateSet: (set: IAutoMovieInstanceSetDesign, path: string, collector: ViolationCollector) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
   collector: ViolationCollector,
@@ -110,7 +110,7 @@ const validateSet = (
   validateLayout(set, `${path}.layout`, collector);
 };
 
-const validateVariation = (
+const validateVariation: (variation: IAutoMovieInstanceSetDesign["variation"], path: string, collector: ViolationCollector) => void = (
   variation: IAutoMovieInstanceSetDesign["variation"],
   path: string,
   collector: ViolationCollector,
@@ -185,7 +185,7 @@ const validateVariation = (
     }
 };
 
-const validateLayout = (
+const validateLayout: (set: IAutoMovieInstanceSetDesign, path: string, collector: ViolationCollector) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
   collector: ViolationCollector,
@@ -294,7 +294,7 @@ const validateLayout = (
     );
 };
 
-const positiveInteger = (
+const positiveInteger: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
   value: number,
   path: string,
   label: string,
@@ -309,7 +309,7 @@ const positiveInteger = (
     );
 };
 
-const finiteNumber = (
+const finiteNumber: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
   value: number,
   path: string,
   label: string,
@@ -324,7 +324,7 @@ const finiteNumber = (
     );
 };
 
-const finiteVector = (
+const finiteVector: (value: IAutoMovieVector3, path: string, label: string, collector: ViolationCollector) => void = (
   value: IAutoMovieVector3,
   path: string,
   label: string,
@@ -335,7 +335,7 @@ const finiteVector = (
 };
 
 /** Report a range whose finite minimum lies above its finite maximum. */
-const ordered = (
+const ordered: (min: number, max: number, path: string, label: string, collector: ViolationCollector) => void = (
   min: number,
   max: number,
   path: string,
@@ -352,7 +352,7 @@ const ordered = (
 };
 
 /** A missing value is reported like a non-positive one, for unvalidated JSON. */
-const positive = (
+const positive: (value: number | undefined, path: string, label: string, collector: ViolationCollector) => void = (
   value: number | undefined,
   path: string,
   label: string,
@@ -367,7 +367,7 @@ const positive = (
     );
 };
 
-const unitQuaternion = (
+const unitQuaternion: (value: IAutoMovieQuaternion, path: string, label: string, collector: ViolationCollector) => void = (
   value: IAutoMovieQuaternion,
   path: string,
   label: string,

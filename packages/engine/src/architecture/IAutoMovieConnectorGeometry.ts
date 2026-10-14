@@ -11,7 +11,7 @@ import { IAutoMovieConnectorStation } from "./IAutoMovieConnectorStation";
  * its steepest segment. A route that climbs and then descends reports only its
  * net rise.
  *
- * @evidence contracts/common.md#principled-implementation Measures the route polyline directly: `run` sums each segment's horizontal length, `length` its 3D length, `rise` is the net `y` change between end points, and `slope` is `atan2(|rise|, run)`, so every figure is exact for the authored polyline.
+ * @evidence contracts/common.md#principled-implementation Records binary64 polyline measurements: summed horizontal/3D segment lengths, endpoint net rise and `atan2(|rise|, run)`. These are computed route metrics, not exact-real values; finite source coordinates alone do not guarantee finite derived arithmetic, which callers must account for.
  * @evidence contracts/common.md#clear-and-simple-design Groups the scalar figures with the stations and landings placed on the same arc length, so a caller reads the whole traversal shape from one call instead of re-walking the route.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The route-average slope and net rise are stated as such rather than replaced by a steepest-segment figure for some consumer, and a degenerate route throws instead of reporting zero lengths.
  * @evidence contracts/common.md#meaningful-documentation States the producer and its refusals, the up axis, how rise, run and slope are computed and that slope is a route average, the net-rise limitation of a climb that descends, and the metre and radian units with the slope's range.

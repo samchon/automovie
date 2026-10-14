@@ -8,18 +8,12 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * two elevations join, while a reentrant corner is where an elevation hides
  * itself, which is exactly the face a facade-by-facade sweep leaves unread.
  *
- * Produced by `builtEnvironmentEnvelopeCorners`, sorted by `id`. Two facades
- * meet when their normals are not parallel and some vertex of one lies within
- * the thicker of the two separations of a vertex of the other; `position` is
- * the mean of the midpoints of the closest such vertex pairs, so it falls at
- * the middle of a shared edge. A pair whose meeting point coincides with the
- * second facade's centroid, or whose first normal is perpendicular to the
- * direction toward that centroid, is skipped because its side cannot be read.
+ * Produced by `builtEnvironmentEnvelopeCorners`, sorted by `id`. Non-parallel facade pairs qualify by vertex proximity within the thicker separation plus numeric slack. `position` averages approximately nearest vertex-pair midpoints, which does not prove a shared edge. Pairs with negligible meeting-to-second-centroid direction or negligible first-normal dot product are skipped because the side convention cannot classify them.
  *
- * @evidence contracts/common.md#principled-implementation Pairs non-parallel facades of one building, keeps the nearest vertex pairs within the thicker separation plus the observation epsilon, averages their midpoints, and classifies the corner by the sign of the first normal toward the second centroid, negative exactly when each body lies behind the other's outward plane.
+ * @evidence contracts/common.md#principled-implementation Pairs non-parallel facades of one building by vertex proximity, averages approximately nearest pair midpoints and classifies the sign of the first normal toward the second centroid. The side is a one-normal convention, not a test that both bodies lie behind each other's planes or that their geometry intersects.
  * @evidence contracts/common.md#clear-and-simple-design Carries an id, the building, both facade ids, the kind, a point and an aim direction, which is what a corner observation needs to place a camera, without copying facade geometry the census already holds.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The meeting tolerance is the thicker wall plus `AUTOMOVIE_OBSERVATION_EPSILON`, the construction slack two faces of one corner really have, and degenerate pairs are skipped as documented rather than classified arbitrarily.
- * @evidence contracts/common.md#meaningful-documentation States why exterior and reentrant corners matter, the producer and sort order, the meeting test, how `position` is derived, which degenerate pairs are skipped, the id format and pair order, and that `normal` is a unit bisector pointing off the envelope.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The thicker wall plus `AUTOMOVIE_OBSERVATION_EPSILON` is the shared proximity allowance policy, not a proof of construction error bounds. Degenerate pairs are skipped rather than assigned an arbitrary side.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, sort/id/pair order, proximity proxy, position fold, side convention and skipped pairs; the normal is the normalized sum of the producer's probe-oriented normals, without an independent global outward guarantee.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The shape only; finding corners compares every facade pair of a building and every vertex pair between two facades, answered on `builtEnvironmentEnvelopeCorners`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed from the envelope faces on each call; a census call derives corners once and filters that one list per building.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and two fresh vectors by value, with the caller's corner list as sole owner.
@@ -38,9 +32,9 @@ export interface IAutoMovieBuiltEnvelopeCorner {
   /** Which side of the envelope the corner turns toward. */
   kind: "exterior" | "reentrant";
 
-  /** World point the two facades meet at, in metres. */
+  /** Mean of selected vertex-pair midpoints, in world metres. */
   position: IAutoMovieVector3;
 
-  /** Unit bisector of the two outward normals, pointing off the envelope. */
+  /** Normalized sum of the two probe-oriented normals, subject to numerical premises. */
   normal: IAutoMovieVector3;
 }

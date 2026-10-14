@@ -1,11 +1,6 @@
 /**
  * Slack below which two derived quantities are treated as one.
  *
- * It is read two ways, and both land on the same number for the same reason.
- * As a length it is metres of building, so one micrometre is far below any
- * authored dimension and far above the drift a rotation and a linear solve
- * introduce. As the scalar triple product of three unit normals it is
- * dimensionless, and one micrometre of it is three planes so nearly coplanar
- * that the point they meet at is numerically meaningless.
+ * Observation routines use this fixed numeric tolerance both for metre-scale proximity and dimensionless normal/determinant tests. Each caller states its comparison; sharing the number does not equate those units or prove a universal roundoff/error bound for every scale or conditioning.
  */
-export const AUTOMOVIE_OBSERVATION_EPSILON = 1e-6;
+export const AUTOMOVIE_OBSERVATION_EPSILON: number = 1e-6;

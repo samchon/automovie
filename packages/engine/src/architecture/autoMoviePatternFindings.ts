@@ -24,37 +24,23 @@ const COVERAGE_EPSILON: number = 1e-12;
  * than `jointTolerance`, and a `grain-break` when the grain turns by more than
  * `grainToleranceDeg`, unless that tolerance is null.
  *
- * Pairs are gathered through a uniform bucket grid rather than an all-pairs
- * sweep, and the grid is sized so the screen provably loses nothing. A piece
- * lies inside its own module rectangle, so it is never further than half that
- * rectangle's diagonal from the centre the grid buckets by. Two pieces whose
- * true separation is within the adjacency gap therefore have centres no further
- * apart than the largest module diagonal plus that gap, which is exactly the
- * cell size, so they always share a bucket or an adjacent one. The partner
- * list is sorted, so a bucket map's insertion order can never reach the
- * output.
+ * Candidate pairs share a centre bucket or one of its eight neighbours. The cell width is the largest module diagonal plus adjacency. With finite, well-scaled generated convex geometry, Euclidean-near pieces fit this broad phase because each lies within half its module diagonal of its centre. Partners are sorted by placement index before measurement.
  *
- * What is then reported is the edge-normal joint, which is how a joint is read
- * and which never exceeds the true separation. A pair whose projections read
- * close while the pieces themselves sit diagonally further apart than the
- * adjacency gap is not scanned, and should not be: those two are not neighbours
- * on the surface. Neighbours are measured between the pieces as laid, not
- * between the modules as designed, so two zones that each cut their modules at
- * a shared border are not reported as colliding across it.
+ * The narrow phase uses the largest edge-normal projection gap, not Euclidean distance. A diagonally distant pair inside neighbouring buckets can therefore still report a small joint; a projection-close pair outside those buckets is not tested. Findings describe this combined bucket/projection policy, not exhaustive Euclidean or projection-gap neighbourhoods. Measurements use clipped outlines rather than uncut module rectangles.
  *
  * @param pattern The validated declaration whose limits are applied.
  * @param placements The run's placements, in run order.
  * @returns Every quality finding, per-piece findings first.
  *
- * @evidence contracts/common.md#principled-implementation Neighbour candidates come from a uniform grid whose cell is the largest module diagonal plus the adjacency gap, which provably contains every pair within that gap, and each pair's joint is the separating-axis gap over both pieces' edge normals, the perpendicular reading of a joint and negative exactly on overlap; grain is compared modulo 180 degrees because a grain direction has no sense.
+ * @evidence contracts/common.md#principled-implementation Combines adjacent centre buckets with separating-axis projection gaps over clipped convex outlines; grain directions compare modulo 180 degrees. The ideal convex SAT overlap theorem requires nondegenerate geometry and finite intermediate arithmetic, which extreme finite coordinates alone do not guarantee. No Euclidean-distance narrow-phase filter is performed.
  * @evidence contracts/common.md#clear-and-simple-design Split from the pattern run so laying and judging are separate responsibilities: the run produces placements and this reads only them and the declared limits.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or material; every limit is the pattern's own declared field, and the epsilons only absorb floating-point noise in the measured lengths and coverage.
- * @evidence contracts/common.md#meaningful-documentation States each finding kind and when it is raised, the output order, why the bucket grid loses no neighbour, why partners are sorted, what joint is measured, and why laid pieces rather than designed modules are compared.
- * @evidence contracts/performance.md#efficient-algorithms O(n) to bucket n pieces and O(n·k) to judge them for k candidates in the nine surrounding cells, instead of O(n²) for all pairs; each pair costs a separating-axis test over the two outlines' edges, a handful each.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or material. Declared limits plus fixed length/coverage comparison slack apply to every placement; that slack is an acceptance policy, not a proved bound on arbitrary binary64 error.
+ * @evidence contracts/common.md#meaningful-documentation States finding thresholds/order, the centre-bucket candidate rule, sorted partners, edge-normal measurement and its difference from Euclidean neighbourhoods, plus the generated-geometry and arithmetic premises.
+ * @evidence contracts/performance.md#efficient-algorithms O(N) bucket construction plus candidate gathering and sum(k_i log k_i) partner sorting. Each judged pair with Vi/Vj vertices costs O((Vi + Vj)²), projecting both outlines for every edge normal. Dense buckets can produce N² pairs; outline sizes and candidate density have no fixed small bound.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one run's placements per call; the bucket grid is built once per call and serves every piece.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The bucket grid and partner sets live only for the call and are linear in the placement count; the caller owns the returned findings.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Buckets and the largest per-piece partner set/sorted array use O(N) local storage, released on return. Returned findings can use O(N²) records; the caller owns them, with no silent truncation cap.
  */
-export const autoMoviePatternFindings = (
+export const autoMoviePatternFindings: (pattern: IAutoMovieSurfacePattern, placements: readonly IAutoMoviePatternPlacement[]) => IAutoMoviePatternFinding[] = (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
 ): IAutoMoviePatternFinding[] => {
@@ -117,7 +103,7 @@ export const autoMoviePatternFindings = (
 };
 
 /** Append the pair findings one neighbouring pair raises. */
-const judgePair = (
+const judgePair: (pattern: IAutoMovieSurfacePattern, placement: IAutoMoviePatternPlacement, other: IAutoMoviePatternPlacement, findings: IAutoMoviePatternFinding[]) => void = (
   pattern: IAutoMovieSurfacePattern,
   placement: IAutoMoviePatternPlacement,
   other: IAutoMoviePatternPlacement,
@@ -156,7 +142,7 @@ const judgePair = (
 };
 
 /** The grid cell key of a placement's centre, offset by whole cells. */
-const bucketKey = (
+const bucketKey: (placement: IAutoMoviePatternPlacement, cellSize: number, du: number, dv: number) => string = (
   placement: IAutoMoviePatternPlacement,
   cellSize: number,
   du: number,
@@ -165,7 +151,7 @@ const bucketKey = (
   `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
 
 /** Smallest in-plane angle between two 180-periodic grain directions. */
-const grainDeviation = (left: number, right: number): number => {
+const grainDeviation: (left: number, right: number) => number = (left: number, right: number): number => {
   const delta: number = positiveModulo(left - right, 180);
   return Math.min(delta, 180 - delta);
 };
@@ -178,7 +164,7 @@ const grainDeviation = (left: number, right: number): number => {
  * edge normals. A negative result is a real overlap, because no axis separated
  * them.
  */
-const separation = (
+const separation: (left: readonly IAutoMoviePatternPoint[], right: readonly IAutoMoviePatternPoint[]) => number = (
   left: readonly IAutoMoviePatternPoint[],
   right: readonly IAutoMoviePatternPoint[],
 ): number => {
@@ -204,7 +190,7 @@ const separation = (
 };
 
 /** The interval a polygon's corners cover along one unit axis. */
-const project = (
+const project: (polygon: readonly IAutoMoviePatternPoint[], axis: IAutoMoviePatternPoint) => { min: number; max: number } = (
   polygon: readonly IAutoMoviePatternPoint[],
   axis: IAutoMoviePatternPoint,
 ): { min: number; max: number } => {

@@ -8,7 +8,7 @@ import { IAutoMoviePatternTextureTransform } from "./IAutoMoviePatternTextureTra
  * exactly one of the two lists. A caller texturing several materials calls
  * once per material and keeps the occurrences of that material's zones.
  *
- * @evidence contracts/common.md#principled-implementation Every placement is classified once: expressible maps become transforms and maps needing shear are listed, so the two lists partition the run.
+ * @evidence contracts/common.md#principled-implementation Every placement is classified once by the producer's relative row-skew test. Under its generated-data and finite-intermediate premises, tolerated maps become transforms and over-tolerance maps become sheared ids; the lists partition placements, without proving exact zero skew.
  * @evidence contracts/common.md#clear-and-simple-design Two lists mirror the instancing result's slot-and-remainder split, so a caller handles both outputs the same way.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One call states one material sheet; a multi-material caller filters by zone material rather than this producer guessing per zone.
  * @evidence contracts/common.md#meaningful-documentation States the producer, that each placement lands in exactly one list, the per-material call convention, and the order of both lists.

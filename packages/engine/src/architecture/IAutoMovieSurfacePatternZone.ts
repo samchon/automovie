@@ -23,8 +23,7 @@ export interface IAutoMovieSurfacePatternZone {
   id: string;
 
   /**
-   * Convex face-local polygon of at least three non-collinear points, with no
-   * interior or repeated point, overlapping no other zone's region.
+   * Convex-position face-local point set with at least three non-collinear points and no interior/duplicate points. The run canonicalizes hull order rather than preserving the authored ring and refuses overlap above its area tolerance.
    */
   region: IAutoMoviePatternPoint[];
 

@@ -6,13 +6,9 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * The area-weighted centroid of a closed planar outline, or the mean of its
  * points when the outline encloses no area.
  *
- * The outline is read as a simple polygon closing from its last point back to
- * its first, in either winding. When the absolute doubled signed area is at most
- * `AUTOMOVIE_OBSERVATION_EPSILON`, the polygon is a line or a point and has no
- * area to weight by, so the vertex mean is returned instead. An empty outline
- * answers `NaN` coordinates.
+ * The outline is read as a simple polygon closing from its last point back to its first, in either winding. When the absolute doubled signed area is at most `AUTOMOVIE_OBSERVATION_EPSILON`, including a sufficiently small nonzero area, the vertex mean is returned instead. An empty outline answers `NaN` coordinates.
  *
- * @evidence contracts/common.md#principled-implementation The shoelace centroid formula, `Σ (pᵢ + pᵢ₊₁)·cross(pᵢ, pᵢ₊₁) / (3·Σ cross)`, which is exact for a simple polygon and independent of winding because the sign cancels; a self-intersecting outline gets the signed-area-weighted point, and a degenerate area falls back to the vertex mean rather than dividing by near zero.
+ * @evidence contracts/common.md#principled-implementation Evaluates the shoelace centroid formula in binary64, with vertex-mean fallback below the doubled-area threshold. The ideal formula is winding independent for simple polygons; finite inputs alone do not prevent intermediate overflow/cancellation, and this helper does not certify containment of the resulting point.
  * @evidence contracts/common.md#clear-and-simple-design One planar helper beside `outlineHull` and `polygonBounds`, so the envelope query reads a face centroid without carrying a private copy of the formula.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no face or caller; the degenerate threshold is the shared observation tolerance, applied to every outline alike.
  * @evidence contracts/common.md#meaningful-documentation States the closing rule, that winding does not matter, the degenerate threshold and its fallback, and the `NaN` answer for an empty outline.
@@ -20,7 +16,7 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one outline that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the one returned point.
  */
-export const outlineCentroid = (
+export const outlineCentroid: (outline: readonly IAutoMoviePlanarPoint[]) => IAutoMoviePlanarPoint = (
   outline: readonly IAutoMoviePlanarPoint[],
 ): IAutoMoviePlanarPoint => {
   let doubleArea: number = 0;

@@ -15,9 +15,9 @@ import { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
  * whose one space is not in the record yields no record; a space no building
  * unit owns makes the producer throw.
  *
- * @evidence contracts/common.md#principled-implementation Exposure is read from topology: a boundary separating exactly one logical space is envelope. The outward normal is the authored `+Z`, flipped when a probe along it lands inside the space, and the centroid is the shoelace area centroid, falling back to the vertex mean for a degenerate outline.
+ * @evidence contracts/common.md#principled-implementation Exposure means a declared face separates exactly one declared space. The normal is authored +Z flipped only when a positive-offset centroid probe passes containment; this heuristic does not certify global outward orientation. The shoelace centroid falls back to the vertex mean below the area threshold.
  * @evidence contracts/common.md#clear-and-simple-design Carries identity, owner, authored label, aspect and world geometry together, so the census and the corner finder read one record per face instead of re-deriving world vertices and normals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The authored `kind` is preserved but never decides aspect or exposure, and a face wound the wrong way is corrected by the containment probe, a geometric test rather than a label or fixture exception.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored `kind` never decides aspect or exposure. The same positive-side containment probe applies to every face; an outside probe preserves the authored direction rather than inventing an orientation certificate.
  * @evidence contracts/common.md#meaningful-documentation States the exposure rule, the producer and its order, when no record is produced and when the producer throws, how the normal is derived and why, the centroid weighting, the vertex order and the metre units.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; deriving it costs one outline transform, one centroid and one containment probe per boundary, answered on `builtEnvironmentEnvelopeFaces`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call rebuilds the face list from the record; the census and corner finder each call the producer, and nothing stores faces across environments or edits.
@@ -37,16 +37,13 @@ export interface IAutoMovieBuiltEnvelopeFace {
   /** Authored boundary label, preserved without being trusted for geometry. */
   kind: string;
 
-  /** Observation role derived from the outward normal. */
+  /** Observation role derived from the probe-oriented normal. */
   aspect: AutoMovieEnvelopeFaceAspect;
 
   /**
-   * Unit normal pointing away from the enclosed space.
+   * Normal oriented by the producer's positive-side containment probe.
    *
-   * Derived rather than copied. The authored frame states its own outward `+Z`,
-   * and a face wound the other way would otherwise put every camera inside the
-   * wall it was meant to photograph, so the direction is settled by asking the
-   * space which side it is on.
+   * Authored +Z is flipped only when the offset centroid is inside. Off-volume faces and concave outlines can retain an inward direction; see the producer's numerical and geometric premises.
    */
   normal: IAutoMovieVector3;
 

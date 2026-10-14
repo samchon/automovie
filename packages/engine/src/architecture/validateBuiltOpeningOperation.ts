@@ -38,11 +38,11 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * @evidence contracts/common.md#clear-and-simple-design The opening half of operation validation, separated from `validateBuiltEnvironment`; travel is judged by the rule shared with connector carriages, and the work-wide `driven` table is threaded through both so doors and runs share one element budget.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No door type, state name or hardware kind is special-cased, and a second driver of an element is refused rather than allowed to silently override the first.
  * @evidence contracts/common.md#meaningful-documentation The documentation states every panel, state, current-state and hardware rule, the one-driver rule and why, how `driven` is used and changed, the path, and the skip for an unoperated opening.
- * @evidence contracts/performance.md#efficient-algorithms Linear in elements, panels, state values and hardware: one subtree walk, one panel index, and one seen set per state, replacing a linear panel search per state value.
+ * @evidence contracts/performance.md#efficient-algorithms Builds the element subtree and panel index once, then checks supplied values by map lookup. Each of S states also scans P panels for missing assignments, so state work is O(S·P + V), even with few invalid supplied values; adds element, panel and hardware scans.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per operated opening; the work-wide `driven` table is the state shared across calls, by design.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The subtree, panel index and per-state sets are released on return; `driven` grows by at most one entry per panel and is owned by the caller.
  */
-export const validateBuiltOpeningOperation = (props: {
+export const validateBuiltOpeningOperation: (props: { opening: IAutoMovieBuiltOpening; path: string; elements: readonly IAutoMovieBuiltElement[]; elementIds: ReadonlySet<string>; driven: Map<string, string>; collector: ViolationCollector }) => void = (props: {
   opening: IAutoMovieBuiltOpening;
   path: string;
   elements: readonly IAutoMovieBuiltElement[];
@@ -50,7 +50,7 @@ export const validateBuiltOpeningOperation = (props: {
   driven: Map<string, string>;
   collector: ViolationCollector;
 }): void => {
-  const { opening, path, collector } = props;
+  const { opening, path, collector }: Parameters<typeof validateBuiltOpeningOperation>[0] = props;
   const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;
   if (operation === undefined) return;
   const base: string = `${path}.operation`;

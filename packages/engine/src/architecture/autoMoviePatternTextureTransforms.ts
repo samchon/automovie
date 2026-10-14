@@ -39,26 +39,21 @@ const SHEAR_EPSILON: number = 1e-9;
  * materials calls it once per material and keeps the occurrences belonging to
  * that material's zones, exactly as the prototype table is stated per call.
  *
- * The renderer's texture matrix scales and then rotates, so a piece samples
- * exactly when its own two axes stay perpendicular under the map, which they do
- * when the piece is square or when it is laid square to its grain. A long piece
- * turned off its grain by anything else needs a shear the transform has no term
- * for, and is reported by id rather than handed back as a transform that
- * quietly skews the image.
+ * At zero texture centre, the viewer/Three matrix is `diag(scale) · R(-rotationDeg) · uv + offset`: it rotates the UV column vector first, then applies axis scales. Orthogonal rows admit this ideal factorization; the implementation accepts their relative dot product within `1e-9` and reports larger residual skew by occurrence id.
  *
  * Every placement of the run lands in exactly one of the two lists, in
  * placement order. Throws when a tile length is not a finite number above zero
  * or a face sheet's origin is not finite.
  *
- * @evidence contracts/common.md#principled-implementation Builds the linear map `diag(1/tile) · R(rotation − grain) · diag(±width, height)` from a piece's unit UV onto the sheet and factors it into the renderer's scale-then-rotate texture matrix, which is exact when the map's rows are orthogonal; a row dot product above `1e-9` of their lengths needs a shear and the piece is reported instead.
+ * @evidence contracts/common.md#principled-implementation Builds `diag(1/tile) · R(rotation − grain) · diag(±width, height)` and factors rows whose relative dot product is within `1e-9`. Exact orthogonality permits the ideal factorization; tolerated residual skew is approximate. Valid generated placement fields and finite, non-underflowing intermediate row lengths/determinants are premises beyond the tile/origin input checks.
  * @evidence contracts/common.md#clear-and-simple-design Emits the offset, scale and rotation the material texture reference already carries, so no second texturing path is opened, and one call states one material's sheet as the prototype table is stated per call.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no material, module or production; a piece needing shear is reported by id rather than given a transform that skews the image, and a cut piece keeps its module-rectangle mapping rather than being renormalized over its outline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no material, module or production. Rows exceeding the stated relative skew tolerance are reported by id; smaller residual skew is admitted explicitly. Cut pieces retain module-rectangle mapping instead of renormalizing their surviving outlines.
  * @evidence contracts/common.md#meaningful-documentation States the normalized UV source a prototype must use, how whole and cut pieces span it, how grain and mirror enter, the per-material call rule, when a piece is sheared, the list order and partition, and both throws.
  * @evidence contracts/performance.md#efficient-algorithms Constant work per placement, so linear in the placement count, with no intermediate matrix allocation beyond two small row records.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map over one run's placements for one sheet; nothing coordinates work across calls, and a caller texturing several materials reuses the same run result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned transforms and sheared ids, together bounded by the placement count.
  */
-export const autoMoviePatternTextureTransforms = (props: {
+export const autoMoviePatternTextureTransforms: (props: { result: IAutoMovieSurfacePatternResult; tile: { u: number; v: number }; sheet: AutoMoviePatternTextureSheet }) => IAutoMoviePatternTexturing = (props: {
   result: IAutoMovieSurfacePatternResult;
   /** Metres one turn of the texture covers along its own two axes. */
   tile: {
@@ -105,7 +100,7 @@ export const autoMoviePatternTextureTransforms = (props: {
       sheared.push(placement.id);
       continue;
     }
-    // Scaling and then rotating carries the second row to `ry · (sin, cos)`, so
+    // `diag(scale) · R(angle)` has second row `ry · (sin, cos)`, so
     // the angle is read off that row and `ry` is its length. That leaves the
     // first row as `rx · (cos, -sin)`, whose signed length along the same
     // direction is the pair's determinant over `ry`, which is where a flipped
@@ -131,7 +126,11 @@ export const autoMoviePatternTextureTransforms = (props: {
   return { transforms, sheared };
 };
 
-/** A two-component UV quantity: a matrix row or a point on the sheet, in turns. */
+/**
+ * A two-component UV quantity: a matrix row or sheet point, in turns.
+ *
+ * @author Samchon
+ */
 interface IUvRow {
   /** First component. */
   x: number;
@@ -141,7 +140,7 @@ interface IUvRow {
 }
 
 /** Where a face point falls on a sheet turned by the grain, in turns. */
-const sheetPoint = (
+const sheetPoint: (point: IAutoMoviePatternPoint, origin: IAutoMoviePatternPoint, grain: number, tile: { u: number; v: number }) => IUvRow = (
   point: IAutoMoviePatternPoint,
   origin: IAutoMoviePatternPoint,
   grain: number,
@@ -158,7 +157,7 @@ const sheetPoint = (
 };
 
 /** Refuse a point with a non-finite coordinate. */
-const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (point: IAutoMoviePatternPoint, label: string): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
 };

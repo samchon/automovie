@@ -24,24 +24,18 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * An invalid build-up is refused here rather than resolved into numbers that
  * look usable, the same way a built environment refuses to lower.
  *
- * Positions are metres on the host's `axis`: `start` and `end` of each layer
- * are signed coordinates, so with a `negative` sense `end` is below `start`,
- * while `extent` is always ordered. `total` is the sum of thicknesses and the
- * assembly's `end` is `offset` plus the signed total, which can differ from
- * the last layer's `end` by floating-point rounding. A build-up that fails
- * {@link validateAutoMovieMaterialAssembly} throws an `Error` naming its first
- * violation.
+ * Positions are signed metres along the host axis. Negative sense makes a positive-thickness layer advance downward; zero-thickness membranes or rounded increments can have equal endpoints. `extent` orders the assembly ends. `total` sums thicknesses and the overall `end` is offset plus signed total, which can differ from the final accumulated layer end by rounding. Failed validation throws an `Error` naming its first finding.
  *
  * @param props.assembly Layered build-up to place.
  * @param props.substances Substances the layers may cite, or omitted.
  * @param props.host Host dimension the layers must sum to, or omitted.
  * @returns The placed layers, the total and the assembly's signed extent.
  *
- * @evidence contracts/common.md#principled-implementation A running cursor along one signed axis is a prefix sum of the thicknesses, so each layer's faces are exact consecutive positions; `total` is summed separately so it does not inherit the cursor's sign, and the rounding difference this allows between `end` and the last layer is stated.
+ * @evidence contracts/common.md#principled-implementation Accumulates binary64 signed layer endpoints and unsigned total thickness after validation refuses non-finite derived sums/endpoints. Each start reuses the previous computed end; half-start plus half-end computes the centre without overflowing their sum. The separately accumulated overall end can differ from the final layer end by rounding.
  * @evidence contracts/common.md#clear-and-simple-design Resolution is separate from validation so a caller can judge a build-up without placing it, and this function delegates every rule to `validateAutoMovieMaterialAssembly` instead of re-checking any.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No layer, role or sense is special-cased beyond the sign the contract defines, and an invalid build-up throws rather than being clamped into usable numbers.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the placement rule, where positions start, what `total` means for the host, the units and signed coordinates, the ordered extent, the rounding caveat, and the failure effect.
- * @evidence contracts/performance.md#efficient-algorithms One validation pass and one placement pass, both linear in the layer count.
+ * @evidence contracts/performance.md#efficient-algorithms Pays O(L + S) validation for L layers and S supplied substance records, then O(L) placement. Substance-index construction is not omitted from the layer-count estimate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one build-up that coordinates no work across calls; callers that place the same build-up repeatedly own any caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned record, one resolved layer per input layer, which the caller owns; nothing else outlives the call.
  */
@@ -81,7 +75,7 @@ export const resolveAutoMovieMaterialAssembly: (props: { /** Layered build-up to
         thickness: layer.thickness,
         start,
         end,
-        center: (start + end) / 2,
+        center: start / 2 + end / 2,
         finish: layer.finish,
         wrapsOpening: layer.wrapsOpening,
       };

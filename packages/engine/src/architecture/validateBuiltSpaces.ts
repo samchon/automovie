@@ -29,7 +29,7 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
  * @param collector Sink that receives the violations.
  * @returns The declared space ids, for resolving references to spaces.
  *
- * @evidence contracts/common.md#principled-implementation A bounded convex cell needs at least 4 half-spaces, the fewest that enclose a volume in three dimensions, and each half-space needs a usable normal; one volume statement per space keeps containment from having two answers; the hierarchy is checked with the shared depth-first cycle walk.
+ * @evidence contracts/common.md#principled-implementation Requires at least four half-spaces and finite usable computed normal lengths; this necessary plane-count floor does not prove boundedness, nonemptiness or positive volume. Rejects competing shell/cell statements and checks hierarchy cycles with the shared graph traversal.
  * @evidence contracts/common.md#clear-and-simple-design The space section of `validateBuiltEnvironment`, separated so that file stays one orchestration; it returns the id set every later section resolves against and delegates shells and ids to their shared checks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No space kind or fidelity is special-cased beyond the two named values, and a cell is not repaired or completed.
  * @evidence contracts/common.md#meaningful-documentation The documentation states every rule for spaces, cells, planes, shells and fidelity, the hierarchy rule, the path root, and what the return value is for.
@@ -37,7 +37,7 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; its id set is reused by every later section.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Per-space cell id sets are released after each space; the caller owns the returned id set, bounded by the space count.
  */
-export const validateBuiltSpaces = (
+export const validateBuiltSpaces: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => Set<string> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,
@@ -116,11 +116,11 @@ export const validateBuiltSpaces = (
                 "plane normal",
               );
               const length: number = Vector3.length(plane.normal);
-              if (Number.isFinite(length) && length <= PLANE_NORMAL_EPSILON)
+              if (!Number.isFinite(length) || length <= PLANE_NORMAL_EPSILON)
                 collector.push(
                   "range",
                   `${planePath}.normal`,
-                  "plane normal must be non-zero",
+                  "plane normal must have finite non-zero computed length",
                   plane.normal,
                 );
               if (!Number.isFinite(plane.offset))

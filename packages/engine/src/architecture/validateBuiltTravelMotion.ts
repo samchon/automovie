@@ -14,13 +14,7 @@ const AXIS_EPSILON: number = 1e-12;
  * door leaf and a lift car share this arithmetic, and a message that called a
  * car a panel would send its author looking through the openings for it.
  *
- * The axis must be finite and longer than 1e-12, and a revolute pivot finite.
- * Travel is measured from the rest pose, so `min` must be finite and at most 0
- * and `max` finite and at least 0, with `max` strictly above `min`. A revolute
- * range may span at most a full turn, `2 * PI` plus
- * `AUTOMOVIE_FULL_TURN_EPSILON` radians, the cap the swept-envelope solver
- * relies on. Values are metres for a prismatic motion and radians for a
- * revolute one. Findings are pushed under `path`.
+ * Axis components/computed length must be finite, length above 1e-12, and a revolute pivot finite. Rest-relative `min` must be finite and at most zero, `max` finite and at least zero, with `max > min`. Revolute span is capped at `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver. Prismatic values are metres and revolute values radians. Findings use `path`.
  *
  * @param motion Travel to check.
  * @param path Violation path of the motion.
@@ -35,18 +29,19 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one motion per call; each panel and carriage is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most a bounded handful of violations to the caller's collector and retains nothing.
  */
-export const validateBuiltTravelMotion = (
+export const validateBuiltTravelMotion: (motion: IAutoMovieTravelMotion, path: string, label: string, collector: ViolationCollector) => void = (
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,
   collector: ViolationCollector,
 ): void => {
   collector.finiteVector(`${path}.axis`, motion.axis, `${label} travel axis`);
-  if (Vector3.length(motion.axis) <= AXIS_EPSILON)
+  const length: number = Vector3.length(motion.axis);
+  if (!Number.isFinite(length) || length <= AXIS_EPSILON)
     collector.push(
       "range",
       `${path}.axis`,
-      `${label} travel axis must be non-zero`,
+      `${label} travel axis must have finite non-zero computed length`,
       motion.axis,
     );
   if (motion.kind === "revolute")

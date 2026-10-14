@@ -16,7 +16,7 @@ import { planarSide } from "./planarSide";
  * @param to The other endpoint, in the same frame.
  * @returns True when the point is on the segment within the stated tolerance.
  *
- * @evidence contracts/common.md#principled-implementation Collinearity by the orientation predicate plus a bounding-box test is the standard exact-arithmetic recipe for point-on-segment; the box is widened by the same epsilon so a vertex computed with rounding still lands on its edge.
+ * @evidence contracts/common.md#principled-implementation Combines the shared approximate orientation classification with an epsilon-expanded box. The exact-arithmetic collinearity/box theorem motivates the test; its fixed tolerances do not certify every rounded vertex or arbitrary-scale input.
  * @evidence contracts/common.md#clear-and-simple-design One definition of "on an edge" for `pointInPolygon` and `segmentsTouch`, which previously kept separate copies of it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate or caller is special-cased; the slack is the shared `PLANAR_EPSILON` constant.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the two conditions, the box slack, the zero-length case, and each parameter's frame.
@@ -24,7 +24,7 @@ import { planarSide } from "./planarSide";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure point-on-segment predicate that each polygon test calls per edge; nothing is coordinated across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads one point and one segment and allocates nothing, so nothing outlives the call.
  */
-export const pointOnSegment = (
+export const pointOnSegment: (point: IAutoMoviePlanarPoint, from: IAutoMoviePlanarPoint, to: IAutoMoviePlanarPoint) => boolean = (
   point: IAutoMoviePlanarPoint,
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,

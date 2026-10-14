@@ -12,12 +12,7 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * the depth each lining reaches is the run of wrapping layers measured inward
  * from that face, and whatever the two linings do not reach is bare jamb.
  *
- * A lining that would consume the opening is refused rather than reported as a
- * negative dimension: a door 0.6 m wide lined by 0.4 m on each side is not a
- * narrow door, it is a wall. The refusal is written as "not above zero" rather
- * than "at or below zero", so a build-up carrying a non-finite thickness is
- * refused here too instead of returning a `NaN` width that every later
- * comparison would read as acceptable.
+ * A lining that consumes the opening is refused rather than reported as a negative clear dimension. Testing "not above zero" also refuses a computed `NaN`. The resolved assembly is assumed to carry finite nonnegative thicknesses, including zero-thickness membranes; arbitrary forged negative-infinite layers are outside that premise.
  *
  * Only wrapping layers reachable from a face line the jamb. A layer that claims
  * to wrap from behind one that stops there cannot turn the corner, which is why
@@ -37,7 +32,7 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure computation over one resolved assembly and one opening that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned reveal, whose layer list is bounded by the assembly's layer count.
  */
-export const autoMovieAssemblyOpeningReveal = (props: {
+export const autoMovieAssemblyOpeningReveal: (props: { resolved: IAutoMovieResolvedAssembly; width: number; height: number }) => IAutoMovieAssemblyReveal = (props: {
   resolved: IAutoMovieResolvedAssembly;
   /** Structural opening width in metres before lining, strictly above zero. */
   width: number;

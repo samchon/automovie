@@ -6,4 +6,4 @@
  * room shorter than twice this height is observed from its own mid-height
  * instead, so a crawl space is not observed from inside its ceiling.
  */
-export const AUTOMOVIE_OBSERVATION_EYE_HEIGHT = 1.6;
+export const AUTOMOVIE_OBSERVATION_EYE_HEIGHT: number = 1.6;

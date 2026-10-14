@@ -7,28 +7,17 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
 /**
- * Report the compact populations standing in a logical space and its
- * descendants.
+ * Report the compact populations standing in a logical space and its descendants.
  *
- * {@link builtEnvironmentSpaceNodes} names them; this hands back the records, so
- * a caller that needs a member's own transform regenerates it from the same set
- * the renderer draws instead of re-deriving a placement law from the geometry.
- * Selection is by declared membership, exactly as an element's is: a population
- * states the one space it occupies and every ancestor of that space folds it in,
- * so nothing here tests a member's position against a cell. That is deliberate.
- * A floor flag rests on the floor plane and an ashlar block sits inside the
- * wall, both of them on or across the boundary a derived test would have to
- * judge them against, so deriving membership would answer "the room is empty" in
- * exactly the cases the room is most full.
+ * {@link builtEnvironmentSpaceNodes} returns owner ids; this returns the population records so callers can regenerate member transforms from the renderer's declared placement law. Selection uses the authored space field and its ancestors, independent of member positions. That semantic ownership can include members intentionally crossing a geometric boundary and does not imply every member lies in the space's stated volume.
  *
- * The records are the environment's own objects in record order. Throws an
- * `Error` for an undeclared space id.
+ * The records are the environment's own objects in record order. Throws an `Error` for an undeclared space id.
  *
  * @param environment Building record to read.
  * @param spaceId Logical space whose populations are reported.
  * @returns The population records the space or a descendant declares.
  *
- * @evidence contracts/common.md#principled-implementation A filter over each population's declared `space` against the subtree `builtSpaceSubtree` folds; membership is authored rather than derived from positions because a member resting on or inside a boundary would be judged outside by any geometric test.
+ * @evidence contracts/common.md#principled-implementation Filters each population's declared `space` against the subtree from `builtSpaceSubtree`. This is semantic membership, independent of geometric containment: a population may intentionally cross its room boundary, while the containment query itself admits boundary points.
  * @evidence contracts/common.md#clear-and-simple-design The id lookup and the subtree fold are the shared `requireBuiltSpace` and `builtSpaceSubtree`, so this query owns only the population filter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space or population and tests no geometry; rejecting a derived membership test is a stated contract choice rather than an exception for one record.
  * @evidence contracts/common.md#meaningful-documentation States why the records are returned, that selection is by declared membership and why, that the objects are the record's own in record order, and the thrown refusal.
@@ -37,7 +26,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the subtree set only for the call; the returned array is new but shares the record's own population objects.
  * @author Samchon
  */
-export const builtEnvironmentSpacePopulations = (
+export const builtEnvironmentSpacePopulations: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieBuiltPopulation[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltPopulation[] => {

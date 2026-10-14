@@ -4,19 +4,15 @@ import {
 } from "@automovie/interface";
 
 /**
- * One placed body resolved to its reported box and to the boxes it fills.
+ * One placed body resolved to its reported box and overlap proxy boxes.
  *
- * Produced by `resolveBuiltPlacementBody`. An element's `solids` are its part
- * boxes, because a multi-part body's union box is mostly air; a population has
- * no part structure, so its one `bounds` box is also its only solid. Every
- * solid lies inside `bounds`, so `bounds` is a safe prune before solids are
- * compared.
+ * Produced by `resolveBuiltPlacementBody`. An element's `solids` are its part boxes because the union can contain gaps; a population has no part split, so its one `bounds` envelope is also its only solid proxy. These AABBs can contain empty space and are not exact mesh occupancy. Every solid lies inside `bounds`, making the union a safe prune before proxy comparison.
  *
  * @evidence contracts/common.md#principled-implementation Pairs the union box with the boxes it was folded from, so an overlap query can prune on the union and confirm on the parts without resolving the body twice; every solid lies inside `bounds` because `bounds` is their union or is the one solid itself.
- * @evidence contracts/common.md#clear-and-simple-design Two members, the reported box with its basis and the solid boxes, which are exactly what the pairwise and sweep overlap queries read, so neither re-derives the other's rule for what a body fills.
+ * @evidence contracts/common.md#clear-and-simple-design Two members supply the reported envelope with provenance and the finer AABB proxies consumed by pairwise/sweep overlap queries; they describe box occupancy, not a separate physical solid solver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A part box carries no fabricated `basis`; only the reported box does, and a population is given its own box as solid rather than an invented part split.
  * @evidence contracts/common.md#meaningful-documentation States the producer, what `solids` holds for each locator kind and why, and the containment of every solid in `bounds` that makes the union a safe prune.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no behavior; resolving it costs one part-box lookup and one union fold inside `resolveBuiltPlacementBody`.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record without behavior; the resolver costs element part-box lookup/folding or population search and instance-bounds generation, as documented on `resolveBuiltPlacementBody`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Describes one body for one query; the sweep resolves each body once and the pairwise query once per side, which is where reuse is decided.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one reported box and the part boxes the lookup returned; the querying call owns it and drops it on return.
  * @author Samchon
@@ -26,8 +22,7 @@ export interface IAutoMovieBuiltPlacementBody {
   bounds: IAutoMovieBuiltPlacementBounds;
 
   /**
-   * World boxes the body actually fills: one per drawn part for an element,
-   * or `[bounds]` for a population. Never empty.
+   * World AABB proxies: one per drawn part for an element, or `[bounds]` for a population. Never empty; proxies can include gaps and other empty space.
    */
   solids: readonly IAutoMovieSubjectBox[];
 }

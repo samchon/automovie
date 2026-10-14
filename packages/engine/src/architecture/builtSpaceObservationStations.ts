@@ -58,38 +58,23 @@ const CORNER_VIEWS: readonly (readonly [
  * observation a sweep taken from inside can never substitute for. A space that
  * states no volume is a name rather than a room and owes nothing here.
  *
- * Every station's point is proved inside the space's own stated volume before
- * it is returned, which is what separates an interior observation from a
- * turntable that circles the room from outside and photographs its walls.
+ * Every returned eye passes the space's numerical containment predicate; this is the stated interior-placement check, not proof of visibility or exact-real containment.
  *
- * The anchor stands at reading height, `AUTOMOVIE_OBSERVATION_EYE_HEIGHT` or
- * half the volume's height when that is less, above an interior point: the
- * volume box's centre when the space contains it, otherwise the mean corner of
- * the first cell that closes a volume. When the raised anchor falls outside a
- * space that narrows with height, the interior point itself is used. Centre
- * views look along world `±x` and `±z` from the anchor; corner and threshold
- * eyes are pulled along `AUTOMOVIE_OBSERVATION_INSET_LADDER` toward the anchor
- * until one lands inside, and look at it. A threshold eye starts at the
- * opening's centre, its profile's box centre or else its host face's centroid,
- * at anchor height. Stations come centre, corner, then threshold, with
- * threshold stations sorted by opening id. A shelled space whose box centre
- * falls in a void or notch gets no anchor, so every pose of it is null, as is
- * a threshold pose whose host boundary states no face, and any pose whose eye could not be placed or coincides with its target. Throws
- * an `Error` for an undeclared space id.
+ * The interior candidate is the accepted volume-box centre, otherwise the first enumerated cell-corner mean that passes containment. Enumeration does not prove the cell closes a bounded volume. Reading height is the box floor plus the lesser of `AUTOMOVIE_OBSERVATION_EYE_HEIGHT` and half box height; a failed raised probe falls back to the interior candidate. Centre views aim along world ±x/±z. Corner/threshold eyes try the fixed inset ladder toward the anchor. Thresholds start from the profile-box centre or host-face centroid at anchor height. Order is centre, corner, then opening-id-sorted thresholds. Shelled spaces have no cell fallback. Missing bounds/anchor/face, failed eye placement or non-finite/negligible aim yields null poses; an unknown space throws.
  *
  * @param environment Building record holding the space.
  * @param spaceId Logical space to observe.
  * @returns Eight interior stations plus one per opening on the space's boundaries, or none for a volume-less space.
  *
- * @evidence contracts/common.md#principled-implementation Every eye is moved along a fixed inset ladder toward an interior anchor and accepted only where `builtSpaceContainsPoint` proves it inside the stated volume, so no station is placed by assumption; the anchor is the box centre or a convex cell's corner mean, which a convex cell always contains. A shelled space with a hollow centre has no fallback, a limitation the documentation states.
+ * @evidence contracts/common.md#principled-implementation Checks the box centre and candidate cell-corner means through `builtSpaceContainsPoint`, checks raised/inset eyes through the same predicate and refuses a non-finite or negligible aim length. These are numerical containment checks under that predicate's premises, not exact-real geometric proofs. Shelled spaces have no cell fallback.
  * @evidence contracts/common.md#clear-and-simple-design Station roles are two fixed tables and one opening pass over shared settle and aim helpers; containment, volume bounds, face centroid and the space lookup are the shared architecture helpers rather than copies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space, opening or room type; the eye height, probe length and inset ladder are named observation constants applied to every space alike.
- * @evidence contracts/common.md#meaningful-documentation States the closed population and why each role exists, the containment proof, how the anchor is chosen and its fallback, each role's direction and start point, the station order, every null pose case, and the thrown refusal.
- * @evidence contracts/performance.md#efficient-algorithms Builds a boundary index once, so selecting and centring the space's openings is linear in the opening and boundary counts plus a sort of the selected openings; each station costs at most one containment test per ladder rung.
+ * @evidence contracts/common.md#meaningful-documentation States the closed population and role purposes, numerical containment checks, anchor/fallback, direction/start point, station order, null-pose cases and unknown-space refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Pays space lookup and full `builtSpaceVolumeBounds` derivation, including convex-cell plane-triple enumeration where applicable. A failed box-centre probe can re-enumerate cells for candidate means. Adds boundary/opening scans, selected-opening sorting, profile hull/centroid work and containment costs for anchor candidates and each fixed ladder rung; those delegated geometry costs vary with volume/outline size.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one space per call from the caller's mutable record; within the call the anchor and boundary index serve every station.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the boundary index only for the call; the caller owns the returned station list, bounded by eight plus the space's opening count.
  */
-export const builtSpaceObservationStations = (
+export const builtSpaceObservationStations: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieSpaceObservationStation[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieSpaceObservationStation[] => {
@@ -177,7 +162,7 @@ export const builtSpaceObservationStations = (
  * whose stated volume narrows with height can leave that point outside itself,
  * so the interior point it was derived from is kept as the fallback.
  */
-const readingAnchor = (
+const readingAnchor: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox) => IAutoMovieVector3 | null = (
   space: IAutoMovieBuiltSpace,
   bounds: IAutoMovieSubjectBox,
 ): IAutoMovieVector3 | null => {
@@ -196,7 +181,7 @@ const readingAnchor = (
 };
 
 /** An interior point of the space, or null when none is found. */
-const interiorCentre = (
+const interiorCentre: (space: IAutoMovieBuiltSpace, bounds: IAutoMovieSubjectBox) => IAutoMovieVector3 | null = (
   space: IAutoMovieBuiltSpace,
   bounds: IAutoMovieSubjectBox,
 ): IAutoMovieVector3 | null => {
@@ -206,15 +191,12 @@ const interiorCentre = (
     z: (bounds.min.z + bounds.max.z) / 2,
   };
   if (builtSpaceContainsPoint(space, middle)) return middle;
-  // A space split into several cells, or pierced by a void, can miss its own
-  // box centre. A convex cell contains the mean of its own corners, and that
-  // cell is part of the space's own union, so the first cell closing a volume
-  // supplies an interior point without a second containment test. A cell that
-  // closes nothing supplies no corners and is passed over.
+  // Cell means are candidate interiors; numerical enumeration/averaging does
+  // not replace checking the candidate through the space's own predicate.
   for (const cell of space.cells) {
     const vertices: IAutoMovieVector3[] = builtConvexCellVertices(cell);
     if (vertices.length === 0) continue;
-    return Vector3.scale(
+    const centre: IAutoMovieVector3 = Vector3.scale(
       vertices.reduce(
         (sum: IAutoMovieVector3, vertex: IAutoMovieVector3): IAutoMovieVector3 =>
           Vector3.add(sum, vertex),
@@ -222,12 +204,13 @@ const interiorCentre = (
       ),
       1 / vertices.length,
     );
+    if (builtSpaceContainsPoint(space, centre)) return centre;
   }
   return null;
 };
 
 /** Pull an eye toward the anchor until it lands inside, then aim it there. */
-const settledPose = (
+const settledPose: (space: IAutoMovieBuiltSpace, from: IAutoMovieVector3, anchor: IAutoMovieVector3) => IStationPose = (
   space: IAutoMovieBuiltSpace,
   from: IAutoMovieVector3,
   anchor: IAutoMovieVector3,
@@ -240,20 +223,21 @@ const settledPose = (
 };
 
 /** Aim one station at a target, or refuse it when the two coincide. */
-const aim = (
+const aim: (position: IAutoMovieVector3, target: IAutoMovieVector3) => IStationPose = (
   position: IAutoMovieVector3,
   target: IAutoMovieVector3,
 ): IStationPose => {
   const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
-  if (Vector3.length(offset) <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
-  return { position, direction: Vector3.normalize(offset), target };
+  const length: number = Vector3.length(offset);
+  if (!Number.isFinite(length) || length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
+  return { position, direction: Vector3.scale(offset, 1 / length), target };
 };
 
 /**
  * World centre of one opening's void, or of its host face when uncut, or null
  * when the host boundary states no face to place it on.
  */
-const openingCentre = (
+const openingCentre: (boundary: IAutoMovieBuiltBoundary, opening: IAutoMovieBuiltOpening) => IAutoMovieVector3 | null = (
   boundary: IAutoMovieBuiltBoundary,
   opening: IAutoMovieBuiltOpening,
 ): IAutoMovieVector3 | null => {

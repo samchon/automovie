@@ -4,4 +4,4 @@
  * `Math.SQRT1_2` is the sine of forty-five degrees, so a face tilted past that
  * is more horizontal than vertical.
  */
-export const AUTOMOVIE_ENVELOPE_FACADE_LIMIT = Math.SQRT1_2;
+export const AUTOMOVIE_ENVELOPE_FACADE_LIMIT: number = Math.SQRT1_2;

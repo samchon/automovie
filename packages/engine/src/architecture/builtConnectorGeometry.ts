@@ -14,27 +14,19 @@ import { requireBuiltConnector } from "./requireBuiltConnector";
 /**
  * Measure one connector's traversal shape: climb, run, length, slope, stations.
  *
- * A station's facing is answered as authored or as `null`, never as a heading
- * this function invented. A connector that declared no orientation has no
- * orientation, and saying so is what keeps a later analysis from reading a
- * derived guess as a design decision.
+ * A station's facing is answered as authored or as `null`, never as a heading this function invented. A connector that declared no orientation has no orientation, and saying so is what keeps a later analysis from reading a derived guess as a design decision.
  *
- * Run is the horizontal (`x`, `z`) length of the route polyline and rise its
- * signed `y` change between the end points, both in metres; length is the 3D
- * polyline length. Stations and landings are placed by arc-length fraction, so
- * a landing on an unevenly spaced route stands where its author put it, exactly
- * as a connector section is placed. Throws when the connector does not exist
- * or its route has fewer than two points or zero length.
+ * Run is the horizontal (`x`, `z`) length of the route polyline and rise its signed `y` change between the end points, both in metres; length is the 3D polyline length. Stations and landings are placed by arc-length fraction, so a landing on an unevenly spaced route stands where its author put it, exactly as a connector section is placed. Throws when the connector does not exist or its route has fewer than two points or zero length.
  *
  * @evidence contracts/common.md#principled-implementation Accumulates segment lengths into a cumulative arc-length table in one pass, so stations take `cumulative / total` and a landing fraction is located by linear interpolation inside the segment whose cumulative span brackets it; slope is `atan2(|rise|, run)`, the route-average gradient.
  * @evidence contracts/common.md#clear-and-simple-design Builds the arc-length table once and reads the length, the station fractions and the landing points from it, with connector lookup shared through `requireBuiltConnector`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no connector kind; a missing orientation is reported as `null` rather than derived, and an unmeasurable route is refused rather than given a zero slope.
  * @evidence contracts/common.md#meaningful-documentation States the null-orientation rule and why, how run, rise and length are measured and their units, that stations and landings are placed by arc length, and both throws.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the route point count for the table and the run, plus a forward scan per landing that is at most the route length; landings are few, so a binary search would not pay for itself.
+ * @evidence contracts/performance.md#efficient-algorithms O(C + R + LR) worst-case time for C connectors, R route points and L landings: connector lookup, the cumulative table and station mapping, then a fresh forward route scan per landing. No bound on landing count or measured advantage over binary search is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one connector per call over the caller's mutable record and caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The arc-length table is dropped on return; the caller owns the geometry, whose stations reference the record's own route points and orientations.
  */
-export const builtConnectorGeometry = (
+export const builtConnectorGeometry: (environment: IAutoMovieBuiltEnvironment, connectorId: string) => IAutoMovieConnectorGeometry = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
 ): IAutoMovieConnectorGeometry => {
@@ -84,11 +76,9 @@ export const builtConnectorGeometry = (
 /**
  * The point an arc length reaches along a route polyline.
  *
- * The caller has already refused a route with no measurable length, so the
- * segment the length falls in always exists; a length past the end is
- * extrapolated along the last segment.
+ * The caller has already refused a route with no measurable length, so the segment the length falls in always exists; a length past the end is extrapolated along the last segment.
  */
-const routePointAt = (
+const routePointAt: (route: readonly IAutoMovieVector3[], cumulative: readonly number[], target: number) => IAutoMovieVector3 = (
   route: readonly IAutoMovieVector3[],
   cumulative: readonly number[],
   target: number,

@@ -27,11 +27,11 @@ import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
  * @evidence contracts/common.md#clear-and-simple-design The record-addressed core that the id-addressed `builtConnectorSectionAt` and callers already holding the record share, so the interpolation rule has one owner and the range guard stays with the id form.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no connector; a connector stating no section answers null for the caller to refuse instead of a default width, and a fraction outside the stations is answered by the stated hold and extension rules rather than refused here, because the id form owns the range guard.
  * @evidence contracts/common.md#meaningful-documentation States why the record-addressed form exists, that the fraction is unchecked here, the constant and null answers, the interpolation and its behaviour beyond the end stations, and the metre units.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the section station count for the forward bracket scan; connectors state a handful of stations, so a binary search would not pay for itself.
+ * @evidence contracts/performance.md#efficient-algorithms O(S) worst-case time for S section stations, with a forward bracket scan and constant interpolation work. Each caller's repeated samples pay this scan separately; a constant section takes O(1).
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one record and one fraction that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned two-number section.
  */
-export const builtConnectorSection = (
+export const builtConnectorSection: (connector: IAutoMovieBuiltConnector, at: number) => IAutoMovieConnectorSectionAt | null = (
   connector: IAutoMovieBuiltConnector,
   at: number,
 ): IAutoMovieConnectorSectionAt | null => {

@@ -15,28 +15,13 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
 /**
  * Report every declared subject's role and presence once a phase completes.
  *
- * This exists so a phased scene, drawing, schedule, and render can read one
- * answer instead of computing "what is standing" four times, because four
- * computations are four chances to disagree and a demolition drawing that
- * contradicts the demolition render is worse than neither existing.
+ * This exists so a phased scene, drawing, schedule, and render can read one answer instead of computing "what is standing" four times, because four computations are four chances to disagree and a demolition drawing that contradicts the demolition render is worse than neither existing.
  *
- * None of those four reads it. The callers are {@link designLineageProject} and
- * {@link designLineageViewDigest} in this package and the test suite; no
- * compiled scene, derived drawing, derived schedule, or draw list is filtered
- * by it. The four cannot disagree because none of them asks, which is not the
- * same property.
+ * None of those four reads it. The callers are {@link designLineageProject} and {@link designLineageViewDigest} in this package and the test suite; no compiled scene, derived drawing, derived schedule, or draw list is filtered by it. The four cannot disagree because none of them asks, which is not the same property.
  *
- * A null phase asks for the completed work: everything the plan ever removes is
- * gone and everything else stands. That is also the only sensible answer for a
- * lineage that records alternatives without recording a construction sequence.
+ * A null phase asks for the completed work: everything the plan ever removes is gone and everything else stands. That is also the only sensible answer for a lineage that records alternatives without recording a construction sequence.
  *
- * A subject's role comes from its whole lifecycle (`retained`, `demolished`,
- * `new`, `temporary`) and its presence from the named phase: `present` once its
- * introducing phase is reached, `removed` once its removing phase is reached,
- * `pending` before either. A phase counts as reached when it is the named phase
- * or one of its transitive prerequisites. One state is reported per lifecycle,
- * sorted by subject id in code-unit order. An invalid lineage or an undeclared
- * phase id throws an `Error`.
+ * A subject's role comes from its whole lifecycle (`retained`, `demolished`, `new`, `temporary`) and its presence from the named phase: `present` once its introducing phase is reached, `removed` once its removing phase is reached, `pending` before either. A phase counts as reached when it is the named phase or one of its transitive prerequisites. One state is reported per lifecycle, sorted by subject id in code-unit order. An invalid lineage or an undeclared phase id throws an `Error`.
  *
  * @param lineage Lineage whose lifecycles are read.
  * @param phase Construction phase id, or null for the completed work.
@@ -46,11 +31,11 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * @evidence contracts/common.md#clear-and-simple-design One reached set and one map over the lifecycles behind the shared validation guard; the projection and view digest read this answer instead of recomputing presence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no phase or subject; the null phase is the completed work for every lineage, and the documentation states plainly that no compiled consumer reads this yet rather than claiming the drift it exists to prevent is prevented.
  * @evidence contracts/common.md#meaningful-documentation States the purpose and its unmet wiring, the null-phase meaning, the four roles, the three presences and when each applies, what counts as reached, the order, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms Linear in phases plus prerequisite edges for the reached walk, which reads its queue by index, and linear in subjects and lifecycles, plus sorting the states by subject.
+ * @evidence contracts/performance.md#efficient-algorithms Pays full lineage validation, including per-lifecycle prerequisite reachability and decision-by-artifact fairness scans. Snapshot construction then costs O(P + R + S + L log L) for phases, prerequisite edges, subjects and lifecycles; its reached queue is read by index.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one phase per call from the caller's mutable record; nothing is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reached set and index live only for the call; the caller owns the returned snapshot.
  */
-export const designLineagePhaseSnapshot = (
+export const designLineagePhaseSnapshot: (lineage: IAutoMovieDesignLineage, phase: string | null) => IAutoMovieDesignPhaseSnapshot = (
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
 ): IAutoMovieDesignPhaseSnapshot => {
@@ -103,10 +88,9 @@ export const designLineagePhaseSnapshot = (
 };
 
 /**
- * The named phase and every phase that must complete before it, or a thrown
- * `Error` when the lineage declares no such phase.
+ * The named phase and every phase that must complete before it, or a thrown `Error` when the lineage declares no such phase.
  */
-const reachedPhases = (
+const reachedPhases: (lineage: IAutoMovieDesignLineage, phase: string) => Set<string> = (
   lineage: IAutoMovieDesignLineage,
   phase: string,
 ): Set<string> => {

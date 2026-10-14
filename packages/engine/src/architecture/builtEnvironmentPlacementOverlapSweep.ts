@@ -14,41 +14,24 @@ import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /**
- * Find every pair of placed bodies in a building whose volumes intersect.
+ * Find positive-volume intersections of placed bodies' axis-aligned part-box proxies.
  *
- * Every body is resolved once, from one building-wide part table, and the rest
- * of the check works on boxes. Sorting by the lower x corner and sweeping an
- * active list is what keeps this usable on a building rather than on a room. A
- * naive pass over one measured production's 3,474 placings is six million pair
- * tests; pruning on one axis leaves the comparisons the geometry actually
- * forces, and `compared` states how many that was, so the cost of the check is
- * part of its answer.
+ * Resolves each body from one building-wide part table, sorts lower x corners, then sweeps an active list. The broad phase avoids narrow-phase work for disjoint union boxes; compared counts active candidate comparisons and is not a full operation or timing measurement.
  *
- * Exact face contact is excluded by {@link propBoundsOverlap} itself, so a slab
- * bearing on a wall head and a tenon meeting its mortise produce nothing here.
- * What is reported is interpenetration, graded by the share of the smaller body
- * inside the larger and deepest first, because a quoin toothed a centimetre into
- * its wall and a column standing wholly inside one are not one finding.
+ * Exact box-face contact is excluded by {@link propBoundsOverlap}. Positive overlap is a bounds finding, not proof of mesh interpenetration: part boxes include empty space, and a population envelope includes gaps between members. Volume and fraction grade these proxies, not occupied material.
  *
- * Every element and population is a body, elements first in declaration order.
- * A pair whose union boxes meet is confirmed part against part and reported,
- * left being the earlier body, with its summed shared part volume in cubic
- * metres and that volume's share of the smaller body's summed part volume,
- * clamped to `1` because two parts of one body may themselves meet. Pairs are
- * sorted by share and then by volume, both descending. `measured` counts
- * resolved bodies and `unresolved` lists the rest in body order. A population
- * with an `along-route` layout makes the placement fold throw.
+ * Every element and population is a body, elements first in declaration order. A pair whose union boxes meet is confirmed part against part and reported, left being the earlier body, with its summed shared part volume in cubic metres and that volume's share of the smaller body's summed part volume, clamped to `1` because two parts of one body may themselves meet. Pairs are sorted by share and then by volume, both descending. `measured` counts resolved bodies and `unresolved` lists the rest in body order. A population with an `along-route` layout makes the placement fold throw.
  *
- * @evidence contracts/common.md#principled-implementation A sort-and-sweep broad phase on the x axis with union boxes, which over-admit because every part lies inside its union, followed by an exact part-against-part narrow phase whose shared volume is the product of per-axis interval overlaps; ties in x keep body order so the pair list is deterministic.
+ * @evidence contracts/common.md#principled-implementation A sort-and-sweep broad phase on union boxes followed by part-box interval intersections. Summed pairwise intersection volumes can double-count overlapping parts; the reported fraction divides by the smaller summed part-box volume and clamps to one. Ties in x keep declaration order.
  * @evidence contracts/common.md#clear-and-simple-design Shares body resolution with the single-body and pairwise queries through `resolveBuiltPlacementBody`, fed from `builtEnvironmentPartBoxes`, so this query owns only the sweep, the narrow phase and the grading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no production or body; the 3,474-placing figure motivates the design in documentation only, contact is excluded by the shared kernel, and the clamp is a stated rule for self-overlapping parts rather than a fix for a known case.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no production or body; contact is excluded by the shared box kernel, and the clamp is a stated proxy-volume rule for self-overlapping parts rather than a fixture adjustment.
  * @evidence contracts/common.md#meaningful-documentation States the body set and order, the broad and narrow phases, the contact rule, the units of `volume`, how `fraction` is computed and why it is clamped, the pair sort, what `measured`, `compared` and `unresolved` mean, and the `along-route` throw.
- * @evidence contracts/performance.md#efficient-algorithms One staging pass and vertex fold for every drawn element, an n log n sort of the bodies, and a sweep whose cost is the reported `compared` count times the part products of admitted pairs; resolving bodies from one part table replaced a per-body restaging that was quadratic in the element count.
+ * @evidence contracts/performance.md#efficient-algorithms Pays one batch part-table measurement, each body's union or population placement fold, and O(R²) worst-case population lookup work for R populations. For B resolved bodies, sorting costs O(B log B); active-list scanning and splice shifts cost O(B²) worst case, in addition to admitted part-count products and O(Q log Q) sorting of Q findings. `compared` counts candidate comparisons, not all this work.
  * @evidence contracts/performance.md#reuse-equivalent-work The part table is built once per call and every body's reported box and solids are read from it, so no element is staged or measured twice; nothing is reused across calls because the record is the caller's and may change.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, body list and active list live for one call; the active list holds at most the resolved body count, and the caller owns the returned report, bounded by the admitted pair count.
  * @author Samchon
  */
-export const builtEnvironmentPlacementOverlapSweep = (props: {
+export const builtEnvironmentPlacementOverlapSweep: (props: { environment: IAutoMovieBuiltEnvironment; }) => IAutoMovieBuiltPlacementOverlapReport = (props: {
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieBuiltPlacementOverlapReport => {
   const boxes: Map<string, IAutoMovieSubjectBox[]> = builtEnvironmentPartBoxes(
@@ -143,7 +126,11 @@ export const builtEnvironmentPlacementOverlapSweep = (props: {
   };
 };
 
-/** One resolved body with its locator and its position in body order. */
+/**
+ * One resolved body with its locator and its position in body order.
+ *
+ * @author Samchon
+ */
 interface ISweptBody extends IAutoMovieBuiltPlacementBody {
   /** The locator the body was resolved from. */
   locator: AutoMovieBuiltPlacementBodyLocator;
@@ -153,13 +140,13 @@ interface ISweptBody extends IAutoMovieBuiltPlacementBody {
 }
 
 /** The volume of one box, zero when any extent is flat. */
-const boxVolume = (box: IAutoMovieSubjectBox): number =>
+const boxVolume: (box: IAutoMovieSubjectBox) => number = (box: IAutoMovieSubjectBox): number =>
   Math.max(0, box.max.x - box.min.x) *
   Math.max(0, box.max.y - box.min.y) *
   Math.max(0, box.max.z - box.min.z);
 
 /** How much solid a body's parts hold, which is not the volume of its box. */
-const solidVolume = (parts: readonly IAutoMovieSubjectBox[]): number =>
+const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (parts: readonly IAutoMovieSubjectBox[]): number =>
   parts.reduce(
     (total: number, part: IAutoMovieSubjectBox): number =>
       total + boxVolume(part),
@@ -167,7 +154,7 @@ const solidVolume = (parts: readonly IAutoMovieSubjectBox[]): number =>
   );
 
 /** The volume two boxes share, zero when they only touch or miss. */
-const sharedVolume = (
+const sharedVolume: (left: IAutoMovieSubjectBox, right: IAutoMovieSubjectBox) => number = (
   left: IAutoMovieSubjectBox,
   right: IAutoMovieSubjectBox,
 ): number =>

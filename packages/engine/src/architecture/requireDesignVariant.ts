@@ -23,7 +23,7 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single synchronous lookup that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned variant is the caller's own record object.
  */
-export const requireDesignVariant = (
+export const requireDesignVariant: (lineage: IAutoMovieDesignLineage, variant: string) => IAutoMovieDesignVariant = (
   lineage: IAutoMovieDesignLineage,
   variant: string,
 ): IAutoMovieDesignVariant => {

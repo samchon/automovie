@@ -6,15 +6,9 @@ import { segmentsTouch } from "./segmentsTouch";
 /**
  * Whether two polygons share any point at all, contact included.
  *
- * Contact counts because two voids meeting exactly along a jamb are one void
- * written twice, and the wall between them has nothing left to be.
+ * Contact counts so opening validation can refuse voids meeting along a jamb.
  *
- * Both polygons are non-empty simple closed rings in one planar frame. True
- * when any edge of one touches any edge of the other by {@link segmentsTouch},
- * within the scale-relative `PLANAR_EPSILON` tolerance, or when one lies wholly
- * inside the other, which is tested with one corner of each by
- * {@link pointInPolygon}. An empty ring breaks that premise: paired with a
- * non-empty ring, its missing corner throws a `TypeError`.
+ * Requires non-empty simple rings in one planar frame and inherits the binary64 and scale-relative `PLANAR_EPSILON` behavior of {@link segmentsTouch} and {@link pointInPolygon}. An edge contact or containment of one corner returns true. Paired with a non-empty ring, an empty ring can throw a `TypeError` when its missing corner reaches the containment predicate.
  *
  * @param left One closed ring.
  * @param right The other closed ring, in the same frame.
@@ -24,11 +18,11 @@ import { segmentsTouch } from "./segmentsTouch";
  * @evidence contracts/common.md#clear-and-simple-design Composes the shared `segmentsTouch` and `pointInPolygon` predicates, so opening overlap and support-surface overlap use the same contact rule as containment.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No void, jamb or caller is special-cased; contact counts as overlap by the stated design reason, through the predicate's own tolerance.
  * @evidence contracts/common.md#meaningful-documentation The documentation states why contact counts, the simple non-empty premise and the `TypeError` an empty ring raises, the two ways the answer becomes true, and each parameter's role.
- * @evidence contracts/performance.md#efficient-algorithms O(n·m) edge-pair tests plus O(n + m) for the two corner tests, O(1) space, returning on the first contact; authored voids carry tens of corners, so no sweep structure is built.
+ * @evidence contracts/performance.md#efficient-algorithms O(nm + n + m) time and O(1) space, returning on the first edge contact. This pairwise implementation has no input-size cap and does not assume all authored rings are small.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure overlap answer for one pair of rings; opening and support validation ask once per pair on one boundary.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the edge-pair counters and allocates nothing, so no object outlives the overlap test.
  */
-export const polygonsOverlap = (
+export const polygonsOverlap: (left: readonly IAutoMoviePlanarPoint [ ], right: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
   left: readonly IAutoMoviePlanarPoint[],
   right: readonly IAutoMoviePlanarPoint[],
 ): boolean => {

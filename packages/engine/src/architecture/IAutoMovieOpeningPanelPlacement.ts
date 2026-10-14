@@ -10,7 +10,7 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * named state is applied to every opening and run that declares it, so an
  * ancestor leaf displaced by that state carries this panel with it.
  *
- * @evidence contracts/common.md#principled-implementation The pose is the panel element's world matrix, composed down the element hierarchy with every member's state displacement applied after its local transform, then decomposed into translation, normalized rotation and scale.
+ * @evidence contracts/common.md#principled-implementation Composes the panel element's world affine matrix with state displacements, then decomposes it to translation, normalized rotation and scale. Meaningful TRS correspondence requires finite, representable world TRS; staged validation checks a numerical round trip, while this record does not represent arbitrary shear.
  * @evidence contracts/common.md#clear-and-simple-design Names the panel, its element and staged node beside the world pose, so a shot can stage the configuration or animate the node without another lookup; it carries no served space because an opening serves none.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A state is a configuration, not a clock, so motion over time is left to the shot's object motions rather than simulated here, and a member lacking the state stands at rest.
  * @evidence contracts/common.md#meaningful-documentation States the producer and order, the default state, the refusal of an undeclared state, that the state applies to every opening and run declaring it, the node id format and the world units of the pose.

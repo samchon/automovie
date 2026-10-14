@@ -7,15 +7,9 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
 /**
  * Every logical space under one space, including that space itself.
  *
- * The containment fold the space queries perform, published so a caller asking
- * what a storey holds, what a building unit owns, or which rooms a derived
- * review population must charge for uses this walk instead of rewriting it,
- * because two walks over one hierarchy are two answers that eventually
- * disagree.
+ * The containment fold the space queries perform, published so a caller asking what a storey holds, what a building unit owns, or which rooms a derived review population must charge for uses this walk instead of rewriting it, because two walks over one hierarchy are two answers that eventually disagree.
  *
- * Membership follows `parent` links at any depth. Sorted in code-unit order,
- * because a population is compared and printed rather than only tested for
- * membership. Throws for an undeclared space id.
+ * Membership follows `parent` links at any depth. Sorted in code-unit order, because a population is compared and printed rather than only tested for membership. Throws for an undeclared space id.
  *
  * @evidence contracts/common.md#principled-implementation Sorts the shared breadth-first subtree with `compareAutoMovieRenderIds`, the engine's code-unit id order, so the published population is independent of authored and discovery order.
  * @evidence contracts/common.md#clear-and-simple-design A sorted, refusing wrapper over `builtSpaceSubtree`, the same walk the containment, fidelity and content queries read, so every answer folds one hierarchy the same way.
@@ -26,7 +20,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the sorted id list, bounded by the space count.
  * @author Samchon
  */
-export const builtEnvironmentDescendantSpaces = (
+export const builtEnvironmentDescendantSpaces: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => string[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): string[] => {

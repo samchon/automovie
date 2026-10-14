@@ -37,15 +37,15 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
  * @param collector Sink that receives the violations.
  * @returns Every usable void hull by opening index, for the staged panel fit.
  *
- * @evidence contracts/common.md#principled-implementation Every void is judged by its arc-bounding hull, which contains the true arcs and touches their extremes, so containment in the face and pairwise overlap only err toward refusal; overlap counts contact because two voids meeting along a jamb leave nothing of the wall between them.
+ * @evidence contracts/common.md#principled-implementation Tests the shared straight arc-envelope ring for region validity, approximate containment and contact overlap. Under `outlineHull`'s arc/winding and finite-intermediate premises its geometric overestimate is conservative, but binary64 predicates are not a universal one-sided error certificate and circular-arc simplicity is not independently proved. Contact is refused to preserve a separating jamb.
  * @evidence contracts/common.md#clear-and-simple-design The opening section of `validateBuiltEnvironment`, separated so that file stays one orchestration; it reuses the shared outline, region, containment, overlap and operation rules and returns exactly what the staged panel fit consumes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No opening type is special-cased; a void on an unusable face is not also reported as leaving it, and hulls are keyed by position so a repeated opening id is not reported as overlapping itself.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No opening type is special-cased; unusable host faces suppress a redundant containment complaint. Position-keyed hulls preserve distinct records even when ids repeat, so those distinct records can still report overlap rather than overwriting one another.
  * @evidence contracts/common.md#meaningful-documentation The documentation states every opening, void, bulge, hull and overlap rule, where operations are judged and what they share, the path root, and what the result is for.
- * @evidence contracts/performance.md#efficient-algorithms Linear in openings and their corners for the per-opening checks, plus O(k²) hull pair tests among the k usable voids, each pair skipped unless both share a boundary; authored works carry tens of openings per boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Builds the boundary index, then pays each profile's hull generation, O(H²) simplicity and `polygonInside` cost against its host, plus full operation validation. Scans O(K²) usable-void pairs, with shared-boundary pairs paying vertex-product overlap work. Vertex counts, operation state counts and openings per boundary are variable inputs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; each hull is computed once and reused by the face, overlap and panel-fit checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The boundary index is released on return; the caller owns the returned hull map, bounded by the opening count, and `driven` grows by at most one entry per panel.
  */
-export const validateBuiltOpenings = (
+export const validateBuiltOpenings: (environment: IAutoMovieBuiltEnvironment, root: string, boundaries: { ids: ReadonlySet<string>; faces: ReadonlyMap<string, IAutoMovieBoundaryFace> }, elementIds: ReadonlySet<string>, driven: Map<string, string>, collector: ViolationCollector) => Map<number, IAutoMoviePlanarPoint[]> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   boundaries: {
@@ -102,9 +102,7 @@ export const validateBuiltOpenings = (
       });
     },
   );
-  // Hulls are keyed by position rather than by id, so a work that declares one
-  // opening id twice reports that one defect on its own path instead of also
-  // reporting the record as overlapping itself.
+  // Position keys preserve distinct records even when their declared ids repeat.
   environment.openings.forEach(
     (opening: IAutoMovieBuiltOpening, index: number): void => {
       const hull: IAutoMoviePlanarPoint[] | undefined = hulls.get(index);
@@ -134,7 +132,7 @@ export const validateBuiltOpenings = (
  * encloses, and that hull staying on the host face. Returns the hull when the
  * void itself is usable, or null.
  */
-const validateVoid = (
+const validateVoid: (opening: IAutoMovieBuiltOpening, path: string, host: IAutoMovieBuiltBoundary | undefined, face: IAutoMovieBoundaryFace | undefined, collector: ViolationCollector) => IAutoMoviePlanarPoint[] | null = (
   opening: IAutoMovieBuiltOpening,
   path: string,
   host: IAutoMovieBuiltBoundary | undefined,

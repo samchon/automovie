@@ -57,10 +57,10 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @param props.host Host dimension the layers must sum to, or omitted.
  * @returns Success, or every violation found.
  *
- * @evidence contracts/common.md#principled-implementation Treats the stack as an ordered sequence whose two ends are the presented faces, so finish rules reduce to position (an end, next to a finish, or buried) and wrap rules to membership in the leading or trailing run of wrapping layers; the host comparison uses a 1e-9 m absolute slack, far below any authored layer and above the rounding of a summed float series.
+ * @evidence contracts/common.md#principled-implementation Checks finish positions and leading/trailing wrapping runs in authored order. Requires finite computed total thickness and signed endpoints before resolution; host comparison admits a fixed absolute `1e-9` m discrepancy, without claiming a universal summation-error or authoring-precision bound.
  * @evidence contracts/common.md#clear-and-simple-design One validator owns the build-up contract and is the gate `resolveAutoMovieMaterialAssembly` runs before placing layers; finish and wrap defects are separate private passes because each names a different author action, and blank strings use the collector's shared rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No role, substance id or layer is special-cased; a membrane may be zero thick because it is a sheet by definition, which is a contract difference, and the single-layer case follows from both faces sharing one layer rather than from an exception.
- * @evidence contracts/common.md#meaningful-documentation The documentation names the three defect groups with examples, the single-layer rule, the wrap rule, every field rule, the host slack and unit, the substance resolution, the path root, and that nothing throws.
+ * @evidence contracts/common.md#meaningful-documentation Names layer/finish/dimension defects, wrapping runs, single-layer faces, field rules, finite derived total/endpoints, host tolerance, optional substance resolution, paths and collector-based failure effects.
  * @evidence contracts/performance.md#efficient-algorithms Linear in the layer count plus the substance count: one pass per rule group, a set for substance and layer ids, and the leading and trailing wrap runs measured once.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
@@ -194,12 +194,16 @@ export const validateAutoMovieMaterialAssembly: (props: { /** Layered build-up t
   appendFinishDefects(assembly, collector, root);
   appendWrapDefects(layers, collector, root);
 
+  const total: number = layers.reduce((sum: number, layer: IAutoMovieMaterialLayer): number => sum + layer.thickness, 0);
+  if (Number.isFinite(assembly.offset) && layers.every((layer: IAutoMovieMaterialLayer): boolean => Number.isFinite(layer.thickness) && layer.thickness >= 0)) {
+    const direction: number = assembly.sense === "positive" ? 1 : -1;
+    let cursor: number = assembly.offset;
+    for (const layer of layers) cursor += direction * layer.thickness;
+    if (!Number.isFinite(total) || !Number.isFinite(cursor) || !Number.isFinite(assembly.offset + direction * total))
+      collector.push("range", `${root}.layers`, "material assembly must produce finite total thickness and signed layer endpoints", total);
+  }
+
   if (props.host !== undefined) {
-    const total: number = layers.reduce(
-      (sum: number, layer: IAutoMovieMaterialLayer): number =>
-        sum + layer.thickness,
-      0,
-    );
     if (
       Number.isFinite(props.host.thickness) === false ||
       props.host.thickness <= 0

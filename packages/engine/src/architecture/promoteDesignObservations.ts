@@ -26,13 +26,7 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * Ask one reference for metric geometry, and get back what it can honestly
  * give.
  *
- * This is the only path from an observation to metres, and it is deliberately
- * refusing by default. A candidate is promoted only when a settled frame scale
- * exists, an `observed` analysis actually produced it, no competing reading is
- * recorded, no issue about it is still open, its confidence clears the caller's
- * floor, and every primitive it reads carries geometry at all. Anything else
- * lands in `withheld` with the exact reason, and every analysis that produced
- * nothing lands in `skipped` carrying its own `unsupported` or `not-run` word.
+ * This gated promotion path refuses by default. A candidate promotes only with a settled frame scale, an `observed` producing analysis, no competing reading or open issue, confidence at the caller's floor and geometric primitives. Other candidates land in `withheld` with the first failing reason; non-observed analyses land in `skipped` with their `unsupported` or `not-run` status. The lower-level point mapper remains separately callable.
  *
  * The result is therefore never a design. It is a proposal the authored
  * building source may accept, reject, or contradict; the source of truth stays
@@ -52,10 +46,10 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * @returns The promoted, withheld and skipped readings.
  *
  * @evidence contracts/common.md#principled-implementation Promotion is a fixed sequence of gates over facts the validated reference records, so the first failing gate is a deterministic reason; metres come only from the frame's settled scale through `designReferenceWorldPoint`, and the reference is validated first, which is what lets every id lookup assume a resolved target.
- * @evidence contracts/common.md#clear-and-simple-design The one path from observation to metres; scale and world conversion are owned by `designFrameScale` and `designReferenceWorldPoint`, and validation by `validateDesignReference`, so this function only owns the gate order.
+ * @evidence contracts/common.md#clear-and-simple-design Owns the promotion gate order while scale/world conversion remain in `designFrameScale` and `designReferenceWorldPoint`, and reference validation in `validateDesignReference`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No candidate, frame or semantic is special-cased; ambiguity, open issues and unknown scales are withheld rather than resolved arbitrarily, and the default floor of `1` refuses anything uncertain unless the caller lowers it.
  * @evidence contracts/common.md#meaningful-documentation The documentation states what promotion requires, that the result is a proposal and not a design, the gate order and reason names, which families carry geometry, the outline order, the output order, the default floor, and both failure conditions.
- * @evidence contracts/performance.md#efficient-algorithms Linear in frames, primitives, issues, analysis citations, candidates and promoted points: every lookup goes through a map or set built once, and each frame's settled scale is resolved once rather than once per primitive.
+ * @evidence contracts/performance.md#efficient-algorithms Pays full `validateDesignReference`, then frame/primitive/issue/producer indexing and candidate-citation walks. The settled-frame set resolves each frame once, but each promoted point's `designReferenceWorldPoint` call scans that frame's scale candidates again; adds the sum of those scan lengths and world projections, not only a linear promoted-point count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one reference and floor that coordinates no work across calls; the reference is the caller's value, so no promotion is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The frame, primitive, issue and producer indexes are local and released on return, each bounded by its record count; the caller owns the returned promotion, whose outlines are bounded by the promoted candidates' points.
  */

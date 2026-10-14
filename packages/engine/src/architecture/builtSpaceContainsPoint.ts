@@ -17,36 +17,24 @@ const CONTAINMENT_EPSILON: number = 1e-9;
 /**
  * Does one logical space's own stated volume contain a point?
  *
- * The single place either spelling is read, so nothing has to know which one a
- * space used: a celled space is the union of its half-space cells, a shelled
- * space is the inside of its own closed boundary, and a space that states
- * neither locates nothing and contains nothing. Every containment consumer
- * (the descendant-folding {@link builtEnvironmentContainsPoint}, room
- * visibility's per-leaf placement, prop occupancy, a fluid basin's stray-cell
- * walk) goes through here, because a second reading of the same field is how a
- * room and its own camera ended up with two answers about where the camera
- * stood.
+ * A celled space is the union of its half-space cells, a shelled space uses its closed boundary, and a space with neither spelling contains nothing. Descendant containment, room visibility, prop occupancy and basin containment share this per-space reader.
  *
- * Points on a cell plane or on the shell surface count as inside. A cell's
- * slack is `1e-9` in the plane's own scale, which is metres only when the
- * normal is unit length; the contract allows unnormalized normals. A shell is
- * read through its winding number, so an inward-facing void excludes the
- * points inside it.
+ * Boundary points are intended inside. Cell slack is 1e-9 in the plane's scale, measured in metres only for unit normals. Shell surface admission uses a plane-distance check and oriented edge tests with one area-scaled slack, then winding distinguishes the outer region from inward-wound voids. Raw binary64 products and sums can overflow or lose accuracy for extreme or nearly degenerate inputs; the returned Boolean is not an exact containment certificate.
  *
  * @param space Logical space whose stated volume is tested.
  * @param point World point, in metres.
  * @returns True when the point lies inside or on the stated volume.
  *
- * @evidence contracts/common.md#principled-implementation A cell is the intersection of `normal · p <= offset` half-spaces and a celled space their union; a shell is decided by the generalized winding number summed with the Van Oosterom and Strackee solid-angle formula, after a distance test that puts the surface itself inside, because solid angle degenerates on edges and vertices. The premise is a closed, consistently wound shell, which validation enforces.
+ * @evidence contracts/common.md#principled-implementation Uses half-space intersection/union for cells and the Van Oosterom-Strackee solid-angle sum for shells, with a surface-first triangle test. Closed consistently oriented shells and finite, well-conditioned intermediates are premises; validation checks local opposite edge pairing and positive aggregate volume but does not certify every component's orientation, all self-intersections or arbitrary binary64 containment. Shell plane and edge tests reuse one numeric slack at different geometric scales.
  * @evidence contracts/common.md#clear-and-simple-design One public reader of both volume spellings with two private helpers for the shell, so every containment consumer shares one answer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space; the surface-first test is the mathematically required treatment of the solid angle's degenerate set rather than a fix for one measured box.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space; surface-first handling admits boundary points without selecting a ray direction. Its fixed numeric slack and raw solid-angle arithmetic are stated approximations, not an exact numerical certificate.
  * @evidence contracts/common.md#meaningful-documentation States both spellings and the empty case, that the boundary counts as inside, the slack and its unit caveat for unnormalized normals, and how voids read.
  * @evidence contracts/performance.md#efficient-algorithms Linear in the summed plane count of the cells, stopping at the first containing cell, or in the shell's triangle count, stopping at the first triangle the point lies on; no acceleration structure is built because each call answers one point.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure test of one point against one space value that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only temporary vectors and retains nothing.
  * @author Samchon
  */
-export const builtSpaceContainsPoint = (
+export const builtSpaceContainsPoint: (space: IAutoMovieBuiltSpace, point: IAutoMovieVector3) => boolean = (
   space: IAutoMovieBuiltSpace,
   point: IAutoMovieVector3,
 ): boolean => {
@@ -66,20 +54,11 @@ export const builtSpaceContainsPoint = (
 /**
  * Is a point inside a closed shell?
  *
- * The winding number, summed as signed solid angles (Van Oosterom and
- * Strackee), so the answer never depends on a ray direction somebody had to
- * pick and a void's inward facets cancel the outer boundary's contribution
- * exactly. A point strictly inside subtends a full turn, a point outside
- * subtends nothing, and a point in a void subtends nothing because that is
- * what a void is.
+ * Sums signed solid angles without choosing a ray direction. For closed consistently wound surfaces in exact arithmetic, inward void contributions cancel the outer winding in the void; this implementation evaluates that sum in binary64 and compares its absolute value with 2π.
  *
- * The shell's own surface is inside it, tested first and by distance, because
- * solid angle degenerates exactly where a crate's corner sits: on a face it is
- * half a turn, but on an edge or at a vertex it is whatever the dihedral
- * happens to be, so a box standing in the corner of a room would have been
- * reported outside the room it is in.
+ * Tests triangle surfaces before solid angles because angles are singular at vertices and have boundary-dependent limits on faces and edges. Missing indexed vertices and trailing incomplete index triples are skipped; malformed topology is a validation concern.
  */
-const spaceShellContainsPoint = (
+const spaceShellContainsPoint: (shell: IAutoMovieSpaceShell, point: IAutoMovieVector3) => boolean = (
   shell: IAutoMovieSpaceShell,
   point: IAutoMovieVector3,
 ): boolean => {
@@ -99,7 +78,7 @@ const spaceShellContainsPoint = (
 };
 
 /** Signed solid angle triangle `abc` subtends at `point`, in steradians. */
-const signedSolidAngle = (
+const signedSolidAngle: (point: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => number = (
   point: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -121,7 +100,7 @@ const signedSolidAngle = (
 };
 
 /** Whether a point sits on triangle `abc`, its edges and corners included. */
-const pointOnTriangle = (
+const pointOnTriangle: (point: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => boolean = (
   point: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,

@@ -14,77 +14,64 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./constants/AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/** One resolved body of the building, with the locator that names it. */
+/**
+ * One resolved body of the building, with the locator that names it.
+ *
+ * @author Samchon
+ */
 interface IResolvedBody {
+  /** Declared identity retained in the report. */
   locator: AutoMovieBuiltPlacementBodyLocator;
+
+  /** Resolved CPU bounds and part-box proxies. */
   body: IAutoMovieBuiltPlacementBody;
 }
 
-/** One solid a body fills, with the body that owns it. */
+/**
+ * One solid a body fills, with the body that owns it.
+ *
+ * @author Samchon
+ */
 interface ICandidateSolid {
+  /** Axis-aligned part box whose top is considered for support. */
   solid: IAutoMovieSubjectBox;
+
+  /** Body excluded when the subject would otherwise support itself. */
   owner: IResolvedBody;
 }
 
 /**
  * Find every placed body in a building with clear air under it.
  *
- * The requirement this answers asks for two capabilities in one sentence: express
- * what supports what, and find the floating or disconnected elements.
- * {@link builtEnvironmentSupportStatus} is the first and cannot be the second,
- * because it judges a relation the author already named, and an oriel window
- * nobody suspected is a query nobody wrote. This sweeps the record instead and
- * needs no declaration at all.
+ * The requirement this answers asks for two capabilities in one sentence: express what supports what, and find the floating or disconnected elements. {@link builtEnvironmentSupportStatus} is the first and cannot be the second, because it judges a relation the author already named, and an oriel window nobody suspected is a query nobody wrote. This sweeps the record instead and needs no declaration at all.
  *
- * It reports a measurement rather than a relation. For each body it takes the
- * highest drawn part whose footprint overlaps this one and whose top is at or
- * below this one's underside, then reports the clearance to it and names the
- * body that part belongs to. Nothing here claims that body is the support: a
- * lintel measured under a sill is simply the nearest thing beneath it. What the
- * answer does support is the reading that matters, which is that nothing is
- * under this body at all, or that the nearest thing is a metre down.
+ * Reports a measurement rather than an authored support relation. For each non-grounded body it chooses the highest candidate part-box top no higher than underside plus tolerance with an overlapping footprint, then reports signed clearance and owner. This identifies the nearest admitted proxy, not a proven physical support.
  *
- * Parts rather than boxes, because a body's box is not its body. A shelf that is
- * a back panel and two boards has a box spanning the floor to head height, and
- * everything standing on a board is under its top and over its bottom without
- * touching anything. Eight scroll cases seated exactly on such a shelf were
- * reported as floating by the height of a panel they were nowhere near. The
- * subject keeps its union box, because a body's underside is the lowest point
- * it has.
+ * Candidate part boxes avoid treating a multi-part support's entire union as material: a shelf board can support a subject below the shelf back's highest point. The subject still uses its union box, so a notch or gap in its footprint remains outside this approximation's ability to distinguish.
  *
- * Every element and population is a body. A body whose underside is within
- * the tolerance of `groundY` is grounded, one whose nearest part below is
- * within the tolerance is borne, and every other resolved body is listed as
- * floating with that nearest part's owner and clearance, or null when nothing
- * is under it. `groundY` defaults to the world origin's height; without it
- * every ground-borne element would report as floating, which is a sweep nobody
- * can read. A body the record carries no vertices for is judged as the stated
- * point it is, and its `element-origin-point` basis travels with the finding,
- * which is how a caller reads "floating" as a claim about a point.
+ * Every element and population is a body. An underside at or below `groundY + tolerance` is grounded, including bodies below the ground plane. Candidate tops may reach tolerance above the underside; the first footprint overlap yields a signed clearance, and clearance no greater than tolerance is borne. Other bodies are floating. The subject's union footprint can bridge notches, and candidate part boxes can include empty space, so these are proxy classifications rather than mesh-contact certificates. `groundY` defaults to zero, and the point basis accompanies degenerate bounds.
  *
- * Throws a `RangeError` when the tolerance is negative or non-finite, or
- * `groundY` is not finite. `measured` counts resolved bodies, `compared` the
- * candidate parts examined, and `unresolved` lists the bodies that occupy no
- * place.
+ * Throws a `RangeError` when the tolerance is negative or non-finite, or `groundY` is not finite. `measured` counts resolved bodies, `compared` the candidate parts examined, and `unresolved` lists the bodies that occupy no place.
  *
  * @param props.environment Building record to sweep.
  * @param props.groundY World height a body may rest on directly, in metres.
  * @param props.tolerance Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE` when omitted.
  * @returns The counts, the floating bodies and the unresolved bodies.
  *
- * @evidence contracts/common.md#principled-implementation Candidate parts are sorted by descending top height, so the first footprint-overlapping part at or below a subject's underside, found from a binary-searched start, is the highest part beneath it; the premise is axis-aligned part boxes from the same staging the single-relation query reads.
+ * @evidence contracts/common.md#principled-implementation Descending candidate top heights and a binary-searched ceiling of underside plus tolerance choose the highest footprint-overlapping part box within that ceiling. Signed clearance may be negative; subject union footprints and candidate boxes are the stated proxies, not proof of physical contact.
  * @evidence contracts/common.md#clear-and-simple-design Body resolution is the shared `resolveBuiltPlacementBody` over one `builtEnvironmentPartBoxes` table, the footprint test is `builtFootprintsOverlap`, and the default slack is the constant shared with the status query, so this function owns only the sweep and its classification.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no element, population or part; the ground plane is an input with a stated default rather than an exemption for particular bodies, and an invalid tolerance or ground height is refused rather than defaulted.
  * @evidence contracts/common.md#meaningful-documentation States what is measured and what is not claimed, why parts replace boxes, the grounded, borne and floating classes, the `groundY` default and why it exists, how a point body reads, each refusal, and what every count means.
- * @evidence contracts/performance.md#efficient-algorithms The building is staged once for every element's parts, then the B bodies' P solids are sorted in O(P log P); each subject binary-searches past the solids above it and stops at the first overlap below, so the scan is O(B log P) plus the non-overlapping solids passed over, which `compared` reports, and O(B·P) in the worst case where no solid below a subject overlaps it.
+ * @evidence contracts/performance.md#efficient-algorithms Pays one batch part-table measurement, each body's union or population placement fold and O(R²) worst-case population lookups for R populations. With B resolved bodies and P part boxes, sorting is O(P log P), binary searches O(B log P), and scans O(BP) worst case. `compared` excludes self candidates and does not count resolution, sorting or search work.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one sweep the single staging and part table are shared by every body's resolution instead of restaging the building per body; across calls nothing is cached because the record is the caller's mutable data.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
  * @author Samchon
  */
-export const builtEnvironmentSupportSweep = (props: {
+export const builtEnvironmentSupportSweep: (props: { environment: IAutoMovieBuiltEnvironment; groundY?: number; tolerance?: number; }) => IAutoMovieBuiltSupportSweepReport = (props: {
   environment: IAutoMovieBuiltEnvironment;
   /** World height a body may rest on directly, in metres. Defaults to `0`. */
   groundY?: number;
+
   /** Contact slack in metres. Defaults to `AUTOMOVIE_SUPPORT_TOLERANCE`. */
   tolerance?: number;
 }): IAutoMovieBuiltSupportSweepReport => {
@@ -99,9 +86,9 @@ export const builtEnvironmentSupportSweep = (props: {
       `building ground height must be finite, but was ${String(groundY)}`,
     );
 
-  const { resolved, unresolved } = resolveBodies(props.environment);
-  // Descending by top height, so the first footprint hit at or below a subject's
-  // underside is the nearest part under it and the walk can stop there.
+  const { resolved, unresolved }: { resolved: IResolvedBody[]; unresolved: AutoMovieBuiltPlacementBodyLocator[]; } = resolveBodies(props.environment);
+  // Descending top heights make the first footprint hit below the slack-adjusted
+  // ceiling the nearest admitted candidate.
   const descending: ICandidateSolid[] = resolved
     .flatMap((owner: IResolvedBody): ICandidateSolid[] =>
       owner.body.solids.map(
@@ -161,12 +148,9 @@ export const builtEnvironmentSupportSweep = (props: {
 /**
  * Every element and population of one building, resolved once.
  *
- * The building is staged once for every element's parts, and each body is
- * then resolved from that table. Resolving an element means tessellating its
- * model and walking its transform chain, so repeating it per body is the cost
- * that would make a whole-building sweep unusable.
+ * The building is staged once for every element's parts, and each body is then resolved from that table. Resolving an element means tessellating its model and walking its transform chain, so repeating it per body is the cost that would make a whole-building sweep unusable.
  */
-const resolveBodies = (
+const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => { resolved: IResolvedBody[]; unresolved: AutoMovieBuiltPlacementBodyLocator[]; } = (
   environment: IAutoMovieBuiltEnvironment,
 ): {
   resolved: IResolvedBody[];
@@ -208,11 +192,9 @@ const resolveBodies = (
 /**
  * The first index of a top-height-descending list at or below one height.
  *
- * A binary search rather than a scan, because the bodies above a subject are the
- * many in a tall building and reading past them is the cost this ordering exists
- * to avoid.
+ * A binary search rather than a scan, because the bodies above a subject are the many in a tall building and reading past them is the cost this ordering exists to avoid.
  */
-const firstAtOrBelow = (
+const firstAtOrBelow: (descending: readonly ICandidateSolid[], ceiling: number) => number = (
   descending: readonly ICandidateSolid[],
   ceiling: number,
 ): number => {

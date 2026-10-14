@@ -44,15 +44,15 @@ const SLOPE_TOLERANCE: number = 1e-6;
  * @param measured Whether `builtConnectorGeometry` resolves this record by id.
  * @param collector Sink that receives the violations.
  *
- * @evidence contracts/common.md#principled-implementation Stated slope and steps are claims about the route, so they are settled against the route's own measured climb and horizontal run from the shared connector geometry, with tolerances far below authoring precision; a route whose stations all coincide has no length to measure, so it is not measured.
+ * @evidence contracts/common.md#principled-implementation Compares stated slope/steps with the shared route metrics under fixed `1e-6` rad / `1e-3` m discrepancies, without assuming a universal authoring precision. Refuses non-finite computed length/run/rise/slope before comparisons; coincident routes have no measurable travel. Finite source coordinates alone need not produce finite derived metrics.
  * @evidence contracts/common.md#clear-and-simple-design The shape section of connector validation, separated from `validateBuiltEnvironment`; route measurement is delegated to `builtConnectorGeometry`, the query every consumer reads, instead of a private copy of its formula.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No connector kind is special-cased; a record whose id repeats an earlier one is not measured, because the duplicate is reported on its own path and the id-addressed measurement would describe the other record.
  * @evidence contracts/common.md#meaningful-documentation The documentation states every station, facing, section, slope and step rule, the units and tolerances, when the route is measured and why, and the path.
- * @evidence contracts/performance.md#efficient-algorithms Linear in route stations, facings and sections, plus one route measurement linear in the stations.
+ * @evidence contracts/performance.md#efficient-algorithms Scans route stations, facings and sections, then pays full `builtConnectorGeometry`: connector-id lookup, route folds and a route walk for each landing sample. Thus measurement includes connector count and landing-count times route-size terms, not only one linear station scan.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one connector per call; each connector is measured at most once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The route measurement is released on return; a bounded number of violations per station, facing and section is appended to the caller's collector.
  */
-export const validateBuiltConnectorShape = (
+export const validateBuiltConnectorShape: (environment: IAutoMovieBuiltEnvironment, connector: IAutoMovieBuiltConnector, path: string, measured: boolean, collector: ViolationCollector) => void = (
   environment: IAutoMovieBuiltEnvironment,
   connector: IAutoMovieBuiltConnector,
   path: string,
@@ -124,9 +124,13 @@ export const validateBuiltConnectorShape = (
     );
   } else validateSections(connector.sections!, `${path}.sections`, collector);
 
-  const metrics: IAutoMovieConnectorGeometry | null = measurable
+  let metrics: IAutoMovieConnectorGeometry | null = measurable
     ? builtConnectorGeometry(environment, connector.id)
     : null;
+  if (metrics !== null && [metrics.length, metrics.run, metrics.rise, metrics.slope].some((value: number): boolean => !Number.isFinite(value))) {
+    collector.push("range", `${path}.route`, "connector route must produce finite length, run, rise and slope", connector.route);
+    metrics = null;
+  }
   if (connector.slope !== undefined) {
     if (
       !Number.isFinite(connector.slope) ||
@@ -180,7 +184,7 @@ export const validateBuiltConnectorShape = (
 };
 
 /** A varying section: 2+ stations from 0 to 1, increasing, each positive. */
-const validateSections = (
+const validateSections: (sections: readonly IAutoMovieConnectorSection[], path: string, collector: ViolationCollector) => void = (
   sections: readonly IAutoMovieConnectorSection[],
   path: string,
   collector: ViolationCollector,

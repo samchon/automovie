@@ -10,7 +10,7 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * summed `total`, while the last layer's own `end` is accumulated layer by
  * layer, so the two can differ by floating-point rounding.
  *
- * @evidence contracts/common.md#principled-implementation Places layers on a signed line by accumulating thickness from the offset in the declared sense, and orders `start` and `end` into `extent` so interval arithmetic works for either sense.
+ * @evidence contracts/common.md#principled-implementation Accumulates binary64 signed endpoints and unsigned thickness after the producer's validation refuses non-finite derived sums/endpoints. Ordered extent supports either sense; rounding can collapse a sufficiently small layer at a large offset, so this is numerical placement rather than exact-real interval arithmetic.
  * @evidence contracts/common.md#clear-and-simple-design Keeps the overall dimension, both signed ends, the ordered extent and the placed layers, which is what dimensioning, reveal and junction queries read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid build-up is refused before resolution rather than resolved into usable-looking numbers, and the rounding difference between `end` and the last layer's end is stated rather than patched.
  * @evidence contracts/common.md#meaningful-documentation States the producer and its precondition, the coordinate convention, how `start`, `end` and `extent` relate, and the rounding difference between `end` and the last layer.

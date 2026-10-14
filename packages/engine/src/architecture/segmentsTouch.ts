@@ -18,7 +18,7 @@ import { segmentsCross } from "./segmentsCross";
  * @param d Second endpoint of the second segment.
  * @returns True when the closed segments share a point within tolerance.
  *
- * @evidence contracts/common.md#principled-implementation Uses the standard decomposition of closed-segment intersection into a proper crossing or an endpoint lying on the other segment, which is complete because a non-crossing contact, including collinear overlap, always contains an endpoint.
+ * @evidence contracts/common.md#principled-implementation Composes proper crossing with four endpoint-on-segment checks. This is the ideal closed-segment case split, evaluated through the shared approximate predicates and their numerical premises; it is not an independent exact-arithmetic certificate.
  * @evidence contracts/common.md#clear-and-simple-design The contact test `polygonIsSimple` and `polygonsOverlap` both need, composed from the shared crossing and point-on-segment predicates instead of the private copy each file kept.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No configuration or caller is special-cased; every contact is decided by the two shared predicates and their shared tolerance.
  * @evidence contracts/common.md#meaningful-documentation The documentation states what counts as touching, why the case split is complete, and each parameter's role.
@@ -26,7 +26,7 @@ import { segmentsCross } from "./segmentsCross";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure contact predicate over two segments, called per edge pair by the polygon predicates; it shares no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads two segments, delegates to allocation-free predicates, and retains nothing.
  */
-export const segmentsTouch = (
+export const segmentsTouch: (a: IAutoMoviePlanarPoint, b: IAutoMoviePlanarPoint, c: IAutoMoviePlanarPoint, d: IAutoMoviePlanarPoint) => boolean = (
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,

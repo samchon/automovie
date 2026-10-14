@@ -64,8 +64,7 @@ export interface IAutoMovieSurfacePattern {
   jointTolerance: number;
 
   /**
-   * Greatest metre gap at which two laid pieces still count as neighbours, at
-   * least zero.
+   * Edge-normal projection-gap cutoff in metres, at least zero, applied only to pairs selected by the producer's adjacent centre buckets; it is not an exhaustive Euclidean-distance neighbourhood.
    */
   adjacency: number;
 

@@ -45,12 +45,7 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * collapsing into each other, because the moment an observation is allowed to
  * carry a conclusion, the design source of truth has been silently replaced.
  *
- * So it refuses a candidate that cites a primitive nobody saw, an issue about
- * nothing, an analysis that claims `observed` while producing no reading, and
- * an analysis that claims `unsupported` or `not-run` while carrying one. It
- * also refuses a settled scale that names no recorded candidate: an unknown
- * scale is a fact about the drawing, and inventing one is how a plan image
- * turns into metres nobody measured.
+ * So it refuses a candidate that cites a primitive nobody saw, an issue about nothing, an analysis that claims `observed` while producing no reading, and a non-observed analysis without a non-blank reason. Extra runtime properties on non-observed analysis objects are not inspected. It also refuses a settled scale that names no recorded candidate: an unknown scale is a fact about the drawing, and inventing one is how a plan image turns into metres nobody measured.
  *
  * The same principle binds an analysis to the one frame it says it read: a
  * candidate built from marks on another sheet was not produced by this reading,
@@ -58,13 +53,7 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * Correlating two sheets is the authored building's job, through evidence that
  * may cite any candidate of any document.
  *
- * Observed points are in frame units and must lie within the frame's
- * `bounds` (0 to width, 0 to height); each primitive family has a fixed point
- * count, and only `text` and `level-marker` carry literal text. Frames are
- * judged by {@link validateDesignSourceFrame}. Every id is unique and
- * non-blank, the digest is a lowercase `sha256:` hex digest, and the media is a
- * supported type. Findings are returned with `$input` paths and nothing
- * throws; the asset bytes behind `digest` are not read here.
+ * Observed points are in frame units and must lie within the frame's `bounds` (0 to width, 0 to height); each primitive family has its own point-count bounds, and only `text` and `level-marker` carry literal text. Frames are judged by {@link validateDesignSourceFrame}. Every id is unique and non-blank, the digest is a lowercase `sha256:` hex digest, and the media is a supported type. Findings are returned with `$input` paths and nothing throws; the asset bytes behind `digest` are not read here.
  *
  * @param props.reference Observed design reference to validate.
  * @returns Success, or every violation found.
@@ -73,7 +62,7 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * @evidence contracts/common.md#clear-and-simple-design The reference owns its layered rules; the frame rules live in `validateDesignSourceFrame`, and id declaration, reference resolution, blank strings and ranges come from the shared validation helpers instead of private copies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No sheet, frame, kind or id is special-cased; an unknown scale stays null and a barren analysis stays `unsupported` or `not-run` rather than being filled in.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the four layers and why they are kept apart, every refusal class, the frame binding of an analysis, the point units and bounds, the text rule, the path root, that nothing throws, and that asset bytes are not read.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the total of frames, primitives, points, candidates, issues and analysis citations: every reference resolves through a set or map built once, and the frame-binding check walks only the cited candidate's primitives.
+ * @evidence contracts/performance.md#efficient-algorithms Builds record/reference indexes and scans points, frame scale candidates, candidate/issue references and analysis citations. Each analysis citation walks its candidate's primitive references again for frame binding, adding their summed lengths even for repeated invalid citations; indexes do not make that repeated work linear in distinct records alone.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one reference per call that coordinates no shared work; `promoteDesignObservations` calls it once per promotion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, frame and candidate indexes and the producing-analysis map are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */

@@ -49,18 +49,16 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * Checks, in order: schema version 1 and metre units; owned models through
  * `validateModel` and runtime model references; logical spaces with their
  * cells or closed shells; the element and space hierarchies for dangling
- * parents, cycles, and ownership by exactly one building unit; populations;
+ * parents and cycles; populations; ownership by exactly one building unit;
  * boundaries and their faces; openings, their voids inside the host face, their
  * operations, and void overlap on one boundary; connectors, their route shape,
  * landings and operations; and the support surfaces through `validateSpace`.
  * Only when none of that produced an error does it run the staged checks:
- * every closed panel fits its void, every carriage stands inside the bounded
+ * every closed panel fits its void, every carriage stands inside the stated-volume
  * space its state serves, and no operating state composes shear into the
  * element hierarchy.
  *
- * Every finding is returned with a `$input` path, warnings included; nothing
- * throws. Lowering, drawing, scheduling and quantity take-off refuse a record
- * this rejects.
+ * Record defects are collected with `$input` paths, warnings included. Typed containers and executable traversal depth remain premises; this is not a universal non-throw guarantee for arbitrary runtime values or resource exhaustion. Guarded lowering and downstream consumers refuse a rejected record.
  *
  * @param props.environment Building record to validate.
  * @returns Success with any warnings, or every violation found.
@@ -68,9 +66,9 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * @evidence contracts/common.md#principled-implementation Validates the record as a graph of declared ids, resolving every reference through id sets, then judges staged geometry only once the graph is sound, because the staged checks place elements through their parents and would answer arbitrarily over a dangling or cyclic hierarchy; nested model and surface validation is re-rooted onto this record's paths.
  * @evidence contracts/common.md#clear-and-simple-design The orchestrator of building validation: each section with rules of its own lives in its own `validateBuilt*` function, and the shared id, reference, cycle, outline and region rules come from their owners, so this file states the order, the cross-section references, the opening voids and the staging gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No building, kind or id is special-cased; a defect already reported is not compounded, so an opening on an unusable face is not also reported as leaving it, and staged checks wait for an error-free record instead of guarding each unusable input.
- * @evidence contracts/common.md#meaningful-documentation The documentation lists every section in order, the staging gate and what it runs, the path root and warnings, that nothing throws, and which consumers refuse a rejected record.
- * @evidence contracts/performance.md#efficient-algorithms Id indexes make reference checks linear in declarations and references; opening overlap is pairwise, planar containment resolves vertex contacts, and simplicity scans edge pairs. Staged validation checks individual states and Cartesian named-state assignments only among operations affecting the same element, with exponential worst-case cost in interacting operations.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one record per call; lowering and every query validate the record they are handed, and nothing is cached because the record is the caller's mutable value.
+ * @evidence contracts/common.md#meaningful-documentation Lists section order, staging gate, path root/warnings and guarded consumers; distinguishes collected record defects from malformed-container or runtime-resource exceptions.
+ * @evidence contracts/performance.md#efficient-algorithms Pays all nested model/surface and `validateBuilt*` costs: reference indexing, summed parent-chain ownership walks, state-by-member assignment checks, route/landing sampling, outline geometry and opening-pair comparisons. Staged individual/Cartesian state checks add repeated staging and containment, with exponential worst-case cost in interacting operations; id indexing alone does not make the complete validator linear.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates the supplied mutable record per call. Lowering and guarded consumers invoke it; low-level queries can instead require an already-valid record and do not all validate independently. No persistent validation cache is maintained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, face and hull maps and the work-wide driven-element table are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
 export const validateBuiltEnvironment: (props: { /** Building record to validate. */ environment : IAutoMovieBuiltEnvironment ; }) => IAutoMovieValidation = (props: {

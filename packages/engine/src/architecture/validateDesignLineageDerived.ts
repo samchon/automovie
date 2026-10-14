@@ -39,15 +39,15 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * @param props.root Violation path of the lineage itself.
  * @param props.out Sink that receives the violations.
  *
- * @evidence contracts/common.md#principled-implementation Freshness is decided by exact identity: an artifact must stamp the current head, agree with every upstream artifact's full stamp, and cite the current content digest of every imported input, so any change upstream makes the record invalid until its outputs move with it; the input graph is checked for cycles with the shared depth-first walk.
+ * @evidence contracts/common.md#principled-implementation Checks the current head, agreement with upstream artifact stamps and current digest citations for imported subject inputs, then uses the shared graph-cycle check. These recorded identities are the freshness evidence: output bytes are not recomputed, and changing an upstream artifact digest without changing its stamp is not detected here.
  * @evidence contracts/common.md#clear-and-simple-design The derived half of `validateDesignLineage`, separated so the lineage validator stays within one file's size, receiving the id sets and variant index that validator already built instead of recomputing them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No artifact kind, revision or subject is special-cased; staleness is refused rather than warned, and a comparison mismatch is refused rather than normalized.
  * @evidence contracts/common.md#meaningful-documentation The documentation lists every identity, freshness, citation and fairness rule, the path root, the reporting order, and that nothing throws, and each parameter states what it supplies.
- * @evidence contracts/performance.md#efficient-algorithms Linear in artifacts, inputs and citations through id maps and sets, plus O(D·A) for the fairness check over D decisions and A artifacts, kept because each decision needs its own kind table and decisions are few.
+ * @evidence contracts/performance.md#efficient-algorithms Scans subjects, artifacts, input links, citations and decision options through maps/sets, adds the shared derivation-cycle traversal and O(D·A) fairness comparisons for D decisions and A artifacts. No bound on decision count is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per lineage validation and fed the caller's id sets and variant index, so no work is repeated or shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The artifact index, subject digest map, per-artifact citation sets and per-decision kind tables are local and released on return, each bounded by its record count; findings go to the caller's collector.
  */
-export const validateDesignLineageDerived = (props: {
+export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLineage; subjectIds: ReadonlySet<string>; phaseIds: ReadonlySet<string>; variants: ReadonlyMap<string, IAutoMovieDesignVariant>; root: string; out: ViolationCollector }) => void = (props: {
   lineage: IAutoMovieDesignLineage;
   subjectIds: ReadonlySet<string>;
   phaseIds: ReadonlySet<string>;
@@ -55,7 +55,7 @@ export const validateDesignLineageDerived = (props: {
   root: string;
   out: ViolationCollector;
 }): void => {
-  const { lineage, subjectIds, phaseIds, variants, root, out } = props;
+  const { lineage, subjectIds, phaseIds, variants, root, out }: Parameters<typeof validateDesignLineageDerived>[0] = props;
   const derivedIds: Set<string> = collectDeclaredIds(
     lineage.derived,
     `${root}.derived`,
@@ -210,7 +210,7 @@ export const validateDesignLineageDerived = (props: {
 };
 
 /** Report every imported input read without citing its current bytes once. */
-const appendCitationDefects = (
+const appendCitationDefects: (artifact: IAutoMovieDerivedArtifact, subjectBytes: ReadonlyMap<string, string>, path: string, out: ViolationCollector) => void = (
   artifact: IAutoMovieDerivedArtifact,
   subjectBytes: ReadonlyMap<string, string>,
   path: string,
@@ -261,7 +261,7 @@ const appendCitationDefects = (
 };
 
 /** Whether two stamps name the same revision, variant, phase and configuration. */
-const sameStamp = (
+const sameStamp: (a: IAutoMovieDesignStamp, b: IAutoMovieDesignStamp) => boolean = (
   a: IAutoMovieDesignStamp,
   b: IAutoMovieDesignStamp,
 ): boolean =>

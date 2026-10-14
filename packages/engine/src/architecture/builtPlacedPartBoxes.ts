@@ -9,31 +9,23 @@ import { tessellate } from "../geometry/tessellate";
 import { Matrix4 } from "../math/Matrix4";
 
 /**
- * One world box per drawn part of one placed element, in the model's part
- * order, or the element's world origin as a single degenerate box when it draws
- * no vertex.
+ * One world box per drawn part of one placed element, in the model's part order, or the element's world origin as a single degenerate box when it draws no vertex.
  *
- * Each part is placed the way the renderer places it, under its own transform
- * and then under the element's world matrix, and its vertices are read through
- * {@link tessellate} for a primitive and from the stated mesh otherwise. A part
- * with no vertex adds no box. A model the environment does not hold is
- * `undefined`, because a runtime model reference is a legal way to furnish a
- * building whose bytes the record never carries; such an element, and one
- * whose parts draw nothing, keeps its origin so the answer still says where
- * the record put it.
+ * Each part is placed for this CPU measurement under its own transform and then under the element's world matrix, and its vertices are read through {@link tessellate} for a primitive and from the stated mesh otherwise. A part with no vertex adds no box. A model the environment does not hold is `undefined`, because a runtime model reference is a legal way to furnish a building whose bytes the record never carries; such an element, and one whose parts draw nothing, keeps its origin so the answer still says where the record put it.
  *
- * The union of the returned boxes is the element's whole world box, so the
- * per-element union query and the per-part queries read one measurement.
+ * The union of the returned boxes is the element's whole world box, so the per-element union query and the per-part queries read one measurement.
  *
- * @evidence contracts/common.md#principled-implementation Folds every transformed vertex into a running minimum and maximum, which is the exact axis-aligned box of a finite point set; the transform is the column-major affine product `world · partTRS` the renderer applies, so the box encloses exactly what is drawn.
+ * These are CPU boxes of finite stated or tessellated vertices under element-world and part-local TRS. Attached-bone transforms, skinning, animation, loaded external geometry and GPU Float32 evaluation are outside this measurement; enclosure of a rendered frame requires those extra effects to be absent or separately bounded.
+ *
+ * @evidence contracts/common.md#principled-implementation Folds every transformed vertex into a running minimum and maximum, which is the exact axis-aligned box of a finite point set; the transform is the column-major affine product `world · partTRS`, so this bounds that computed CPU point set under the stated static premise, with ordinary binary64 rounding.
  * @evidence contracts/common.md#clear-and-simple-design One placement and tessellation rule shared by the element, part, part-sweep and space-content bounds queries, so how a part is measured lives in one file instead of four private copies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no model or part kind; the origin fallback for an unheld model or vertex-less parts is a stated rule that keeps the record's stated position, not an invented extent.
- * @evidence contracts/common.md#meaningful-documentation States the world frame, the part order, the renderer-matching placement, which vertices are read, when a part adds no box, the meaning of an `undefined` model, the origin fallback, and that the boxes' union is the element box.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the summed vertex count of the model's parts, folding each transformed vertex directly into its part's box without materializing a point array; primitives are tessellated once per part per call.
+ * @evidence contracts/common.md#meaningful-documentation States the world frame, the part order, the static CPU placement and its excluded pose and GPU effects, which vertices are read, when a part adds no box, the meaning of an `undefined` model, the origin fallback, and that the boxes' union is the element box.
+ * @evidence contracts/performance.md#efficient-algorithms O(P + V) for P model parts and V visited vertices, plus procedural tessellation cost. Empty parts still pay their iteration; transformed points are folded directly rather than stored in another array, and each primitive is tessellated once per part per call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Tessellation is not cached across calls, because a primitive's shape is part of the caller's mutable record; callers that measure many elements resolve world matrices once and call this per element.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the boxes, one per part, and each tessellation is garbage once its part is folded.
  */
-export const builtPlacedPartBoxes = (
+export const builtPlacedPartBoxes: (model: IAutoMovieModel | undefined, world: number[]) => IAutoMovieSubjectBox[] = (
   model: IAutoMovieModel | undefined,
   world: number[],
 ): IAutoMovieSubjectBox[] => {
@@ -48,7 +40,7 @@ export const builtPlacedPartBoxes = (
 };
 
 /** The world box one drawn part fills, or null when it has no vertex. */
-const placedPartBox = (
+const placedPartBox: (part: IAutoMovieModelPart, world: number[]) => IAutoMovieSubjectBox | null = (
   part: IAutoMovieModelPart,
   world: number[],
 ): IAutoMovieSubjectBox | null => {

@@ -22,7 +22,7 @@ import { segmentsCross } from "./segmentsCross";
  * @param outer Ring that must contain it, such as the host face outline.
  * @returns True when `inner` stays within `outer` by the rule above.
  *
- * @evidence contracts/common.md#principled-implementation A contained boundary has contained vertices, no proper crossing, and no exterior interval between boundary contacts. Outer vertices on each inner edge partition the remaining contacts, so one midpoint per interval catches an exit through a concave vertex while preserving boundary contact under the shared planar tolerance.
+ * @evidence contracts/common.md#principled-implementation For simple rings, ideal containment has contained vertices and no exterior boundary interval. Shared approximate predicates classify crossings/contacts and midpoint intervals under their finite-intermediate and scale premises; this is not an exact robust containment certificate. An empty inner ring passes vacuously; a nonempty inner ring with empty outer ring fails.
  * @evidence contracts/common.md#clear-and-simple-design Composes the shared `pointInPolygon` and `segmentsCross` predicates, so opening-in-face, panel fit, service and support-surface containment all apply one rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no void, wall or caller; flush edges pass through boundary-inclusive predicates, and vertex-only exits are judged by their exterior intervals rather than tolerated for a shape family.
  * @evidence contracts/common.md#meaningful-documentation The documentation states allowed contact, the shared frame and simple-ring premises, and why midpoint classification is needed for concave vertex contacts.

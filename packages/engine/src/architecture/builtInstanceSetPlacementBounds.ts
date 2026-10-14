@@ -26,46 +26,26 @@ type IGridLayout = Extract<
 /**
  * The world box one compact population and its prototype geometry occupy.
  *
- * The placement law and the authored local box are the two inputs. A grid and a
- * lattice contribute only their occupied hull corners, including a short final
- * row, so thousands of repeated members cost the same bounded fold as four. A
- * scatter contributes its declared disk rather than copying the seeded
- * materializer. The local box is then scaled and rotated about every slot.
- * Fixed rotations stay exact. A non-constant seeded rotation range contributes
- * the smallest origin-centred sphere enclosing every scaled local corner; that
- * conservative result cannot crop a member, and records that it is an authored
- * range rather than pretending to know which unexpanded slots sampled which
- * angles. Explicit transforms are already stored per member, so their exact
- * rotations and scales are folded directly and cost only the data the author
- * chose to store, and only the first `count` of them are read. Visibility
- * variation never shrinks the result: this is the declared population's
- * occupied placement envelope, not a seed-expanded list of the members visible
- * in one render sample.
+ * The placement law and authored prototype-local box define an envelope. Grid and lattice folds use occupied hull slots, including a short final row; scatter uses its declared disk, independent of realized seed samples. Prototype-box corners use fixed rotations directly, or an enclosing origin-centred sphere for a varying rotation range. Explicit layouts fold the first count stored transforms, while validation reads all stored transforms. These envelopes may include empty space, and binary64 arithmetic is not outward rounded. Visibility variation does not shrink the envelope.
  *
- * `along-route` throws an `Error`: its slots follow a production-world route,
- * and a building record carries no field that can reach one.
- * `validateBuiltEnvironment` refuses such a population outright, so this
- * throws only for a caller handing over a world set directly.
+ * `along-route` throws an `Error`: its slots follow a production-world route, and a building record carries no field that can reach one. `validateBuiltEnvironment` refuses such a population outright, so this throws only for a caller handing over a world set directly.
  *
- * Every other input is checked by {@link validateBuiltPopulation}, the same
- * rules the building validator applies, and the first violation is thrown as
- * a `RangeError` naming its path under `$input`. The box is world-space, in
- * metres, and inclusive.
+ * Every other input is checked by {@link validateBuiltPopulation}, the same rules the building validator applies, and the first violation is thrown as a `RangeError` naming its path under `$input`. The box is world-space, in metres, and inclusive.
  *
  * @param set The population's instance-set design.
  * @param prototypeBounds The prototype's model-local box, in metres.
  * @returns A new world box enclosing every member the set can place.
  *
- * @evidence contracts/common.md#principled-implementation A rotated point set's world box is the box of its convex hull's corners, so a grid or lattice is bounded by its hull slots, a scatter by its disk, and the prototype offset by its eight corners under every extreme scale, rotated exactly when the rotation is fixed and by the enclosing sphere when it varies; the result is exact for fixed rotations and conservative otherwise, a limitation the documentation states.
+ * @evidence contracts/common.md#principled-implementation Uses occupied grid/lattice hull slots, a scatter disk envelope and transformed prototype-box corners. Fixed rotations preserve the stated box envelope; variable rotations use an origin-centred enclosing sphere. Scatter and variation envelopes can exceed the realized seeded members, and prototype boxes can exceed mesh geometry; binary64 evaluation is not an outward-rounded enclosure proof.
  * @evidence contracts/common.md#clear-and-simple-design The fold handles one population per call: validation is delegated to `validateBuiltPopulation`, shared with `validateBuiltEnvironment`, and the point fold to `builtPointBounds`, so this file keeps only the placement law it bounds.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the placement law instead of materializing seeded members, and names no set or layout instance; the `along-route` refusal is the contract's statement that a building cannot reach a world route.
- * @evidence contracts/common.md#meaningful-documentation States each layout's treatment, which result is exact and which conservative, that explicit transforms beyond `count` are ignored, that visibility never shrinks the box, both thrown error types and their paths, and the frame and unit of the answer.
- * @evidence contracts/performance.md#efficient-algorithms Constant time for grid, lattice and scatter, independent of `count`, and linear in `count` for an explicit layout, because those members are stored data with no law to summarize; validation is linear in the explicit transforms as well.
+ * @evidence contracts/common.md#meaningful-documentation States each envelope law, the seeded-member and numerical limitations, the distinction between validating all stored explicit transforms and folding only count, visibility treatment, error types and paths, and the world frame and metre unit.
+ * @evidence contracts/performance.md#efficient-algorithms Compact grid, lattice and scatter corner folds are independent of count. An explicit layout validates all T stored transforms, then folds eight corners for each of the first count transforms, costing O(T + count) time and O(count) temporary corner storage, plus any violation records produced by validation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call bounds one population from its own record; the record is the caller's mutable data, so a cached box could not prove it still matches.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a bounded set of corner points and one collector per call and retains none of them; the caller owns the returned box.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Compact layouts allocate a bounded corner set; explicit layouts allocate O(count) transformed corners and validation can collect O(T) findings. These temporaries and the collector become unreachable on return or throw; only the returned box escapes.
  * @author Samchon
  */
-export const builtInstanceSetPlacementBounds = (
+export const builtInstanceSetPlacementBounds: (set: IAutoMovieInstanceSetDesign, prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieSubjectBox = (
   set: IAutoMovieInstanceSetDesign,
   prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ): IAutoMovieSubjectBox => {
@@ -141,7 +121,7 @@ export const builtInstanceSetPlacementBounds = (
 };
 
 /** Place one layout-local point under the set's anchor and base heading. */
-const placeInstancePoint = (
+const placeInstancePoint: (set: IAutoMovieInstanceSetDesign, point: IAutoMovieVector3) => IAutoMovieVector3 = (
   set: IAutoMovieInstanceSetDesign,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
@@ -156,7 +136,7 @@ const placeInstancePoint = (
 };
 
 /** Scale one model-local point per axis. */
-const scaled = (
+const scaled: (point: IAutoMovieVector3, scale: IAutoMovieVector3) => IAutoMovieVector3 = (
   point: IAutoMovieVector3,
   scale: IAutoMovieVector3,
 ): IAutoMovieVector3 => ({
@@ -166,12 +146,12 @@ const scaled = (
 });
 
 /** The eight corners of one model-local box, duplicates included when flat. */
-const prototypeBoxCorners = (
+const prototypeBoxCorners: (bounds: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieVector3[] = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ): IAutoMovieVector3[] => boxCorners(bounds.min, bounds.max);
 
 /** Every combination of per-axis extremes between two corners. */
-const boxCorners = (
+const boxCorners: (min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieVector3[] = (
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
 ): IAutoMovieVector3[] =>
@@ -182,7 +162,7 @@ const boxCorners = (
   );
 
 /** The prototype offset shared by every compact, non-explicit layout slot. */
-const prototypeOffsetBounds = (
+const prototypeOffsetBounds: (set: IAutoMovieInstanceSetDesign, corners: readonly IAutoMovieVector3[]) => IAutoMovieSubjectBox = (
   set: IAutoMovieInstanceSetDesign,
   corners: readonly IAutoMovieVector3[],
 ): IAutoMovieSubjectBox => {
@@ -245,15 +225,9 @@ const prototypeOffsetBounds = (
 /**
  * The set-local points that can carry a deterministic layout's extremes.
  *
- * A rotated point set's world box is the box of its convex hull's corners, so a
- * lattice needs its corners rather than its slots. The last row of a grid may be
- * short, which is why the corner list is not simply four: the hull then has the
- * full rows' far corner and the short row's own end, and taking the full
- * rectangle instead would report a column of slate nobody laid. A lattice's top
- * layer reuses the full layer's corners; the heading turns only about the
- * vertical, so the full layer below already sets the horizontal extent.
+ * A rotated point set's world box is the box of its convex hull's corners, so a lattice needs its corners rather than its slots. The last row of a grid may be short, which is why the corner list is not simply four: the hull then has the full rows' far corner and the short row's own end, and taking the full rectangle instead would report a column of slate nobody laid. A lattice's top layer reuses the full layer's corners; the heading turns only about the vertical, so the full layer below already sets the horizontal extent.
  */
-const instanceSetExtremeSlots = (
+const instanceSetExtremeSlots: (set: IAutoMovieInstanceSetDesign, layout: IGridLayout) => IAutoMovieVector3[] = (
   set: IAutoMovieInstanceSetDesign,
   layout: IGridLayout,
 ): IAutoMovieVector3[] => {
@@ -278,7 +252,7 @@ const instanceSetExtremeSlots = (
 };
 
 /** The hull corners of `count` slots laid row-major into `columns` columns. */
-const gridExtremeCells = (
+const gridExtremeCells: (count: number, columns: number) => Array<{ column: number; row: number; }> = (
   count: number,
   columns: number,
 ): Array<{ column: number; row: number }> => {

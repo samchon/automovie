@@ -14,26 +14,13 @@ import { polygonBounds } from "./polygonBounds";
 /**
  * Turn one boundary's declared face into the wall panel a mesh kernel can cut.
  *
- * This is the join that stops the declared opening and the modelled hole from
- * being two unrelated facts: the returned voids carry the architectural
- * opening's own id, so `buildAutoMovieWall` cuts the wall against the same
- * records validation held inside the face.
+ * This is the join that stops the declared opening and the modelled hole from being two unrelated facts: the returned voids carry the architectural opening's own id, so `buildAutoMovieWall` cuts the wall against the same records validation held inside the face.
  *
- * The kernel is rectangular, and that shows in two places rather than being
- * hidden. An arched or round void is handed over as the rectangle that exactly
- * bounds it, so an author who needs the arch's own spandrel back composes it
- * from the profile rather than being told the rectangle was the arch. A concave
- * face likewise becomes its own bounding panel. Two voids that clear each other
- * as outlines may therefore still have overlapping bounds, and the kernel
- * refuses that pair by name; that refusal is the rectangle's limit speaking,
- * not a defect in the design it was handed.
+ * The rectangular kernel receives the bounds of the shared straight arc-envelope ring, which can overstate an arched opening's profile-axis extent. A concave face likewise becomes its bounding panel. Distinct void outlines can therefore have overlapping rectangle proxies that the kernel refuses by name; callers needing curved cuts must compose the profile geometry separately.
  *
- * Void positions are measured in metres from the panel's lower-left corner in
- * the face's own planar frame, voids follow record order, and an opening
- * without a profile contributes no void. Throws when the boundary does not
- * exist or declares no face.
+ * Void positions are measured in metres from the panel's lower-left corner in the face's own planar frame, voids follow record order, and an opening without a profile contributes no void. Throws when the boundary does not exist or declares no face.
  *
- * @evidence contracts/common.md#principled-implementation The panel is the axis-aligned bounding rectangle of the face outline in its planar frame, centred back into world space through the face rotation, and each void is the bounding rectangle of `outlineHull`, which encloses every arc of the profile, so the rectangular kernel never cuts less than the declared opening.
+ * @evidence contracts/common.md#principled-implementation Bounds the face outline in its planar frame and rotates the box midpoint into world space. Each void bounds `outlineHull`'s straight arc-envelope ring under its arc/winding and finite-intermediate premises; this is a rectangular cut proxy, not an exact curved cut or an outward-rounded binary64 enclosure certificate.
  * @evidence contracts/common.md#clear-and-simple-design Owns only the translation from boundary and openings to the kernel's panel-and-voids record; arc bounding stays in `outlineHull` and cutting in `buildAutoMovieWall`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no boundary or opening; overlapping void rectangles are passed to the kernel, which refuses them by name, instead of being merged or nudged here.
  * @evidence contracts/common.md#meaningful-documentation States why voids carry opening ids, the rectangular approximation for arches and concave faces and its overlap consequence, the void frame, units and order, the profile-less case, and both throws.
@@ -41,7 +28,7 @@ import { polygonBounds } from "./polygonBounds";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure translation of one boundary per call that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the panel record, whose rotation is the face's own object, and its voids, bounded by the boundary's opening count.
  */
-export const builtBoundaryWallCut = (
+export const builtBoundaryWallCut: (environment: IAutoMovieBuiltEnvironment, boundaryId: string) => IAutoMovieBoundaryWallCut = (
   environment: IAutoMovieBuiltEnvironment,
   boundaryId: string,
 ): IAutoMovieBoundaryWallCut => {

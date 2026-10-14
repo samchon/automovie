@@ -19,40 +19,23 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * The column-major world matrix of every element, with each moving member
- * displaced to the travel one operating state gives it.
+ * The column-major world matrix of every element, displaced by its selected operating state.
  *
- * An element's local matrix is its rest transform followed by its joint
- * displacement, and its world matrix is its parent's world matrix times that
- * local one, so a displacement rides down the hierarchy: an element parented to
- * a folding leaf is carried by the leaf's travel without a second parenting
- * notion. This is the staging {@link lowerBuiltEnvironment} applies, and every
- * element-measuring query reads it here.
+ * The local matrix is rest transform times joint displacement; the world matrix is parent world times local. Travel consequently carries descendants, and {@link lowerBuiltEnvironment} and element measurements share this staging.
  *
- * Without `stateId`, each opening and connector stands in its own current
- * state. Naming a state applies it to every opening and run that declares a
- * state with that id; a member without such a state, or a state that names no
- * value for one of its members, leaves that member at rest. A function instead
- * names the state each opening or connector stands in, or `null` to leave it
- * at rest, which is how validation stages one member's alternative state
- * against the rest of the work in its current one, and measures a closed leaf
- * at rest. Validation refuses
- * a state missing a member and two members driving one element, so the
- * displacement table never holds two claims for one element.
+ * Omitting stateId selects each operation's current state. A string selects that name wherever declared; an operation without it, or a member without a value, stays at rest. A selector chooses a name or null per operation. State and value lookup preserve the first matching entry. Validated records require every member value and prohibit multiple members driving one element; otherwise later operation iteration overwrites a shared driven element's displacement.
  *
- * Parents are assumed to resolve and to be acyclic, which validation enforces:
- * a missing parent throws a `TypeError` and a parent cycle overflows the stack.
- * Keys are element ids and every declared element has an entry.
+ * Parents must resolve and be acyclic: an unresolved parent throws a TypeError and a cycle or sufficiently deep chain can exhaust the call stack. Returned keys are element ids, with one world matrix per id under the validated unique-id premise.
  *
  * @evidence contracts/common.md#principled-implementation Composes TRS matrices with `Matrix4.compose` and `Matrix4.multiply`, the three.js convention the renderer uses, because composing TRS triples directly shears wrong under a scaled rotating parent; a revolute displacement is the rotation about its pivot written as `T(pivot - R·pivot)·R`, and a prismatic one is a translation along the normalized axis.
  * @evidence contracts/common.md#clear-and-simple-design One owner for element staging under operating states, shared by carriage placement and every element, part and space-content bounds query, so a change to how an element is placed reaches all of them at once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no element, opening or connector; a member lacking the requested state or a value stays at rest by the stated rule, and unresolved parents are documented as an assumption validation enforces rather than caught and retried.
  * @evidence contracts/common.md#meaningful-documentation States the column-major matrices, the local and world composition order, how `stateId` selects travel by one name or per member and what a missing state, a null choice or a missing value means, the validation premises, the failure effects when they are broken, and the key set.
- * @evidence contracts/performance.md#efficient-algorithms Memoized depth-first composition computes each element's world matrix once, so time is linear in the element count plus the summed panel and carriage values scanned per member; the full pass is needed because any element's matrix depends on its whole ancestor chain.
+ * @evidence contracts/performance.md#efficient-algorithms Memoized depth-first composition computes each element's world matrix once. Every opening/connector is visited; each operation scans its state list once, indexes selected values once and looks up each moving member once. Time is O(E + O + S + M + V) for elements, opening/connector records, scanned states, moving members and selected values, assuming constant-time map access and selector cost added separately.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each ancestor's world matrix is computed once and reused by every descendant; across calls nothing is cached, because the environment is the caller's mutable record and no key could prove an earlier staging still matches it.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates the id index, the displacement table and one sixteen-number matrix per element for one call; the caller owns the returned map, bounded by the element count, and nothing else is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The id index, displacement table and returned matrices grow with element count; a selected operation's temporary value index grows with its value count, and recursive staging uses ancestor-depth stack space. Only the returned matrix map escapes; deep acyclic input can still exhaust the JavaScript stack.
  */
-export const builtEnvironmentWorldMatrices = (
+export const builtEnvironmentWorldMatrices: (environment: IAutoMovieBuiltEnvironment, stateId?: string | ((member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector) => string | null)) => Map<string, number[]> = (
   environment: IAutoMovieBuiltEnvironment,
   stateId?:
     | string
@@ -70,7 +53,7 @@ export const builtEnvironmentWorldMatrices = (
     ),
   );
   const matrices: Map<string, number[]> = new Map();
-  const read = (id: string): number[] => {
+  const read: (id: string) => number[] = (id: string): number[] => {
     const cached: number[] | undefined = matrices.get(id);
     if (cached !== undefined) return cached;
     const element: IAutoMovieBuiltElement = byId.get(id)!;
@@ -94,11 +77,11 @@ export const builtEnvironmentWorldMatrices = (
 };
 
 /** The element-local displacement every moving member carries in one state. */
-const operationDeltas = (
+const operationDeltas: (environment: IAutoMovieBuiltEnvironment, stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1]) => Map<string, number[]> = (
   environment: IAutoMovieBuiltEnvironment,
   stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1],
 ): Map<string, number[]> => {
-  const choose = (
+  const choose: (member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector, current: string) => string | null = (
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
     current: string,
   ): string | null =>
@@ -128,38 +111,39 @@ const operationDeltas = (
 };
 
 /** Place every panel of one opening at the travel a state gives it. */
-const applyPanelState = (
+const applyPanelState: (panels: readonly IAutoMovieMovablePanel[], state: IAutoMovieOperationState, deltas: Map<string, number[]>) => void = (
   panels: readonly IAutoMovieMovablePanel[],
   state: IAutoMovieOperationState,
   deltas: Map<string, number[]>,
 ): void => {
+  const values: Map<string, IAutoMoviePanelValue> = new Map();
+  for (const entry of state.panels)
+    if (!values.has(entry.panel)) values.set(entry.panel, entry);
   for (const panel of panels) {
-    const entry: IAutoMoviePanelValue | undefined = state.panels.find(
-      (value: IAutoMoviePanelValue): boolean => value.panel === panel.id,
-    );
+    const entry: IAutoMoviePanelValue | undefined = values.get(panel.id);
     if (entry !== undefined)
       deltas.set(panel.element, travelDelta(panel.motion, entry.value));
   }
 };
 
 /** Place every carriage of one run at the travel a state gives it. */
-const applyCarriageState = (
+const applyCarriageState: (carriages: readonly IAutoMovieConnectorCarriage[], state: IAutoMovieConnectorState, deltas: Map<string, number[]>) => void = (
   carriages: readonly IAutoMovieConnectorCarriage[],
   state: IAutoMovieConnectorState,
   deltas: Map<string, number[]>,
 ): void => {
+  const values: Map<string, IAutoMovieCarriageValue> = new Map();
+  for (const entry of state.carriages)
+    if (!values.has(entry.carriage)) values.set(entry.carriage, entry);
   for (const carriage of carriages) {
-    const entry: IAutoMovieCarriageValue | undefined = state.carriages.find(
-      (value: IAutoMovieCarriageValue): boolean =>
-        value.carriage === carriage.id,
-    );
+    const entry: IAutoMovieCarriageValue | undefined = values.get(carriage.id);
     if (entry !== undefined)
       deltas.set(carriage.element, travelDelta(carriage.motion, entry.value));
   }
 };
 
 /** The element-local displacement one moving member carries at one value. */
-const travelDelta = (
+const travelDelta: (motion: IAutoMovieTravelMotion, value: number) => number[] = (
   motion: IAutoMovieTravelMotion,
   value: number,
 ): number[] => {

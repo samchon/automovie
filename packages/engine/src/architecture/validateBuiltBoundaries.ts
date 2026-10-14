@@ -32,11 +32,11 @@ import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
  * @evidence contracts/common.md#clear-and-simple-design The boundary section of `validateBuiltEnvironment`, separated so that file stays one orchestration; it returns exactly what the opening checks consume and reuses the shared id, reference, outline and region rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No boundary kind is special-cased, and a defective face is left out of the returned map rather than repaired, so a void on it is not also reported as leaving it.
  * @evidence contracts/common.md#meaningful-documentation The documentation states every boundary and face rule, the path root, and what each returned value holds and why.
- * @evidence contracts/performance.md#efficient-algorithms Linear in boundaries and their references, plus the quadratic simplicity test of each face outline, whose corner count is small.
+ * @evidence contracts/performance.md#efficient-algorithms O(B + R + sum(Vi²)) for B boundaries, R authored references and face outline sizes Vi, including finite/area scans and pairwise simplicity checks. No fixed small outline size is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; its id set and face map are reused by every opening.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned set and map, each bounded by the boundary count; nothing else is retained.
  */
-export const validateBuiltBoundaries = (
+export const validateBuiltBoundaries: (environment: IAutoMovieBuiltEnvironment, root: string, spaceIds: ReadonlySet<string>, elementIds: ReadonlySet<string>, collector: ViolationCollector) => { ids: Set<string>; faces: Map<string, IAutoMovieBoundaryFace> } = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   spaceIds: ReadonlySet<string>,

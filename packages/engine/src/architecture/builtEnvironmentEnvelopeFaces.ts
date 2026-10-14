@@ -19,28 +19,20 @@ import { outlineCentroid } from "./outlineCentroid";
 /**
  * Every exposed separation of every building unit, placed in world space.
  *
- * A boundary is exposed when it declares a face and separates exactly one
- * declared space. Each face carries its world vertices, its area-weighted
- * centroid, an outward unit normal, its owning building, and an aspect of roof,
- * underside, or facade read from the normal's vertical component against
- * `AUTOMOVIE_ENVELOPE_FACADE_LIMIT`. The outward normal is the face frame's
- * `+Z`, flipped when a probe `AUTOMOVIE_OBSERVATION_PROBE` metres along it lands
- * inside the space; a face standing off the volume by its own wall thickness
- * keeps its authored direction because neither side is in the room. Sorted by
- * boundary id in code-unit order.
+ * A face is exposed when its boundary separates exactly one declared space. Each result carries placed vertices, shoelace centroid, owning building and a computed normal used for roof/underside/facade classification. Authored +Z flips only if the positive-offset centroid probe is inside the space; the opposite side is not tested. Off-volume faces, concave outlines and numerical limitations preclude a general outward-orientation certificate. Results sort by boundary id in code-unit order.
  *
  * Throws when an exposed face's space belongs to no building unit, which
  * validation refuses.
  *
- * @evidence contracts/common.md#principled-implementation Places the outline and its shoelace centroid with the face's rotation and origin, and orients the normal by asking the space's own containment predicate which side of the face is interior, so a face wound the other way is corrected from the geometry rather than trusted.
+ * @evidence contracts/common.md#principled-implementation Places the outline and shoelace centroid with the face frame. Flips authored +Z only when the positive-offset centroid probe passes the space containment predicate; otherwise preserves it. This is a finite-distance orientation heuristic, not proof that the entire face borders the volume or points outward.
  * @evidence contracts/common.md#clear-and-simple-design Composes the shared centroid, containment and building-owner queries, so this query owns only the exposure rule, the orientation probe and the aspect classification.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no boundary, space or building; the aspect threshold and probe distance are shared contract constants, and an unowned space is refused by the owner query rather than skipped.
  * @evidence contracts/common.md#meaningful-documentation States the exposure rule, every carried field, how the outward normal is chosen and when it is kept, the aspect rule and its constant, the sort order, and the throw for an unowned space.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the summed outline points of exposed faces plus one containment probe per face, then an f log f sort; the owner of each distinct space is resolved once and remembered for the call, since one space usually exposes many faces.
+ * @evidence contracts/performance.md#efficient-algorithms Builds an O(S) space index and scans B boundaries. Each of D distinct exposed spaces pays a full owner lookup over S spaces, U building units and its ancestry depth. Adds summed outline vertices, one delegated containment probe per face and O(F log F) face sorting; containment cost depends on each space's volume representation.
  * @evidence contracts/performance.md#reuse-equivalent-work Each space's owning building is resolved once per call and reused by every face of that space; nothing persists across calls because the record is the caller's.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The space index and owner memo live for one call, bounded by the space count; the caller owns the returned faces.
  */
-export const builtEnvironmentEnvelopeFaces = (
+export const builtEnvironmentEnvelopeFaces: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvelopeFace[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvelopeFace[] => {
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
