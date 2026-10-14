@@ -16,7 +16,7 @@ import { HUMAN_SKIN_FINISH } from "./HUMAN_SKIN_FINISH";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing skin leaves the input unchanged and a spread copy prevents the recipient from mutating the shared scattering record.
  * @evidence contracts/common.md#meaningful-documentation The prose states the body's fresh-copy call boundary, mutation ownership, absent-material behavior and independent scattering copy.
  * @evidence contracts/performance.md#efficient-algorithms A single find scans at most M materials and assigning three scattering components costs constant work.
- * @evidence contracts/performance.md#reuse-equivalent-work The function reads the common HUMAN_SKIN_FINISH record once for the match and uses the same source values as the face finish.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each material comparison reads the shared HUMAN_SKIN_FINISH identity; the matched material copies its scattering values without retaining a cross-call result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains its materials; only the matched material owns the new three-component scattering record, with no global retention.
  */
 export function applyHumanSkinFinish(
