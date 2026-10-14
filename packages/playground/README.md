@@ -23,6 +23,6 @@ pnpm --filter @automovie/playground human:viewer ensure   # Human inspection at 
 | `index.html`, `drivers.html`, `stickman.html` | Procedural proportions, poses, IK, drivers and hand-authored clips |
 | `gesture.html`, `showcase.html`, `film.html` | Engine gestures, actions and the script-to-cut film pipeline |
 | `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
-| `knight.html`, `archery.html`, `spar.html` | Mounted, archery and boxing scenes |
+| `spar.html` | Boxing scene |
 
 Example Human documents and camera presets live in [`src/human/examples`](src/human/examples). A Human change is verified in the actual browser display, not by the success of an unrelated page.
