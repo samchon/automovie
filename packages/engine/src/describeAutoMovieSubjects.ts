@@ -27,7 +27,9 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
  * @evidence contracts/performance.md#reuse-equivalent-work Within the call, model geometry is shared across the prototype, its parts and every element of that model and part boxes across every building of an environment; across calls nothing is cached because the artifact is the caller's value.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The describer and its caches live only for this call and are released on return; the caller owns the returned list, one description per stored subject.
  */
-export const describeAutoMovieSubjects = (
+export const describeAutoMovieSubjects: (
+  artifact: IAutoMovieSubjectArtifact,
+) => IAutoMovieSubjectDescription[] = (
   artifact: IAutoMovieSubjectArtifact,
 ): IAutoMovieSubjectDescription[] =>
   new AutoMovieSubjectDescriber(artifact).inventory();

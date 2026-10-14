@@ -17,7 +17,9 @@ import { IAutoMovieSubjectBox } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure fold over the given list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the one returned box.
  */
-export const unionSubjectBoxes = (
+export const unionSubjectBoxes: (
+  boxes: readonly IAutoMovieSubjectBox[],
+) => IAutoMovieSubjectBox | null = (
   boxes: readonly IAutoMovieSubjectBox[],
 ): IAutoMovieSubjectBox | null => {
   if (boxes.length === 0) return null;

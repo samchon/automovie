@@ -23,7 +23,7 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidence contracts/common.md#meaningful-documentation States the two snapshot readers and their instants, the linter's use and order, the builder, the duplicate-key failure, and for each member its source and what omitting it means.
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record with no runtime body; the snapshot cost is answered on `resolveBeatSnapshot`, which both entry points call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per compiled shot and handed to both snapshots, which each index it independently through `resolveBeatSnapshot`; nothing caches a snapshot.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the caller's scene, shot, motions, mounts and plants without copying; the snapshot indexes live for one call, and the returned state references the caller's pose, plant and mount objects, so those stay reachable as long as the state is held.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References scene, shot, motions, mounts and plants without copying. Snapshot indexes and sampled-channel maps live for one call; returned states shallow-copy non-null poses with root cleared, borrow joints, selected plants and mounts, and own or borrow transforms according to the sampled branch.
  * @author Samchon
  */
 export interface IResolveBeatProps {

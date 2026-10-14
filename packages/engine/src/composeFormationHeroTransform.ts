@@ -44,7 +44,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-sample composition that coordinates no work across calls; callers sample once per frame and hero.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned transform and its three components; nothing outlives the call.
  */
-export const composeFormationHeroTransform = (
+export const composeFormationHeroTransform: (
+  base: IAutoMovieTransform,
+  source: IAutoMovieTransform,
+  anchor: IAutoMovieVector3,
+  motion: IAutoMovieFormationMotionState,
+  baseFacingDeg?: number,
+) => IAutoMovieTransform = (
   base: IAutoMovieTransform,
   source: IAutoMovieTransform,
   anchor: IAutoMovieVector3,

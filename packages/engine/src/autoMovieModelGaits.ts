@@ -28,7 +28,9 @@ import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup over one model that coordinates no work; it returns the model's own array, so repeated calls share it without a cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing but a possible empty array and retains nothing; the returned list is owned by the model.
  */
-export const autoMovieModelGaits = (
+export const autoMovieModelGaits: (
+  model: Pick<IAutoMovieModel, "profiles">,
+) => readonly IAutoMovieGait[] = (
   model: Pick<IAutoMovieModel, "profiles">,
 ): readonly IAutoMovieGait[] => {
   for (const profile of model.profiles ?? []) {

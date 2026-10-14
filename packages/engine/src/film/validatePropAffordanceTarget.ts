@@ -33,7 +33,16 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one relation per call; the registry index it reads is built once by the caller.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and appends at most one violation per call.
  */
-export const validatePropAffordanceTarget = (
+export const validatePropAffordanceTarget: (
+  props: {
+    relation: IAutoMoviePropRelation;
+    target: IAutoMoviePropRelationTarget.IPropAffordance;
+    path: string;
+    node: string;
+    matches: readonly { value: IAutoMoviePropSpec }[];
+  },
+  out: ViolationCollector,
+) => void = (
   props: {
     relation: IAutoMoviePropRelation;
     target: IAutoMoviePropRelationTarget.IPropAffordance;

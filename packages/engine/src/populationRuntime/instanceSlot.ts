@@ -1,5 +1,12 @@
-import type { IAutoMovieExplicitInstanceTransform, IAutoMovieCompiledInstancePrototype, IAutoMovieVector3, IAutoMovieInstanceSetLayout, IAutoMovieWorldRoute, IAutoMovieInstanceSlot, IAutoMovieQuaternion } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieExplicitInstanceTransform,
+  IAutoMovieInstanceSetLayout,
+  IAutoMovieInstanceSlot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  IAutoMovieWorldRoute,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { seededValue } from "../math/seededValue";
@@ -42,7 +49,10 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * @evidence contracts/performance.md#reuse-equivalent-work The canonical slot and prototype laws are shared; different salts prevent one variation field from consuming another's random stream. Mutable placement laws prevent an identity-only result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned member is fresh; temporary route lengths and choice arrays are released after the call, with no expanded population or handle retained.
  */
-export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: number) => IAutoMovieInstanceSlot = (
+export const instanceSlot: (
+  instanceSet: IAutoMovieInstanceSetPlacement,
+  slot: number,
+) => IAutoMovieInstanceSlot = (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
 ): IAutoMovieInstanceSlot => {
@@ -54,7 +64,10 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
     throw new RangeError(
       `Instance set "${instanceSet.id}" slot ${slot} is outside 0..${instanceSet.count - 1}.`,
     );
-  const point: { x: number; y: number; z: number; } = localInstancePoint(instanceSet, slot);
+  const point: { x: number; y: number; z: number } = localInstancePoint(
+    instanceSet,
+    slot,
+  );
   const radians: number = (instanceSet.facingDeg * Math.PI) / 180;
   const cosine: number = Math.cos(radians);
   const sine: number = Math.sin(radians);
@@ -71,7 +84,7 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
         instanceSet.variation.palette.length,
     ),
   );
-  const position: { x: number; y: number; z: number; } =
+  const position: { x: number; y: number; z: number } =
     instanceSet.layout.kind === "along-route"
       ? {
           x: point.x,
@@ -83,15 +96,20 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
           y: instanceSet.anchor.y + point.y,
           z: instanceSet.anchor.z - point.x * sine + point.z * cosine,
         };
-  const traits: { [k: string]: number; } = Object.fromEntries(
-    instanceSet.variation.traits.map((trait: { name: string; min: number; max: number; }, index: number) : [string, number] => [
-      trait.name,
-      stableInterpolate(
-        trait.min,
-        trait.max,
-        seededValue(instanceSet.seed, slot, index, 0x74726169),
-      ),
-    ]),
+  const traits: { [k: string]: number } = Object.fromEntries(
+    instanceSet.variation.traits.map(
+      (
+        trait: { name: string; min: number; max: number },
+        index: number,
+      ): [string, number] => [
+        trait.name,
+        stableInterpolate(
+          trait.min,
+          trait.max,
+          seededValue(instanceSet.seed, slot, index, 0x74726169),
+        ),
+      ],
+    ),
   );
   const explicit: IAutoMovieExplicitInstanceTransform | undefined =
     instanceSet.layout.kind === "explicit"
@@ -101,7 +119,7 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
     explicit?.palette ?? instanceSet.variation.palette[paletteIndex];
   if (
     [position.x, position.y, position.z, scale, ...Object.values(traits)].some(
-      (value: number) : boolean => Number.isFinite(value) === false,
+      (value: number): boolean => Number.isFinite(value) === false,
     ) ||
     palette === undefined
   )
@@ -115,12 +133,20 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
     instanceSet.variation.scale3 === undefined &&
     instanceSet.variation.rotationDeg === undefined &&
     instanceSet.variation.visibleProbability === undefined;
-  const selected: Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight"> = selectInstancePrototype(
-    instanceSet,
-    slot,
-    explicit?.prototype,
-  );
-  const base: { slot: number; node: string; modelRecipe: string; position: { x: number; y: number; z: number; }; facingDeg: number; scale: number; palette: string; traits: { [x: string]: number; }; } = {
+  const selected: Pick<
+    IAutoMovieCompiledInstancePrototype,
+    "id" | "modelRecipe" | "weight"
+  > = selectInstancePrototype(instanceSet, slot, explicit?.prototype);
+  const base: {
+    slot: number;
+    node: string;
+    modelRecipe: string;
+    position: { x: number; y: number; z: number };
+    facingDeg: number;
+    scale: number;
+    palette: string;
+    traits: { [x: string]: number };
+  } = {
     slot,
     node:
       explicit === undefined
@@ -175,11 +201,20 @@ export const instanceSlot: (instanceSet: IAutoMovieInstanceSetPlacement, slot: n
 };
 
 /** Seeded XYZ Euler offset applied after the set heading, or identity. */
-const seededInstanceRotation: (instanceSet: IAutoMovieInstanceSetPlacement, slot: number) => IAutoMovieQuaternion = (
+const seededInstanceRotation: (
+  instanceSet: IAutoMovieInstanceSetPlacement,
+  slot: number,
+) => IAutoMovieQuaternion = (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
 ): IAutoMovieQuaternion => {
-  const ranges: { x: { min: number; max: number; }; y: { min: number; max: number; }; z: { min: number; max: number; }; } | undefined = instanceSet.variation.rotationDeg;
+  const ranges:
+    | {
+        x: { min: number; max: number };
+        y: { min: number; max: number };
+        z: { min: number; max: number };
+      }
+    | undefined = instanceSet.variation.rotationDeg;
   return ranges === undefined
     ? Quaternion.identity()
     : Quaternion.fromEuler({
@@ -209,7 +244,10 @@ const seededInstanceRotation: (instanceSet: IAutoMovieInstanceSetPlacement, slot
  * plan, because the route snapshot is already there, so its heading and anchor
  * translation are skipped by the caller.
  */
-const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: number) => { x : number ; y : number ; z : number } = (
+const localInstancePoint: (
+  instanceSet: IAutoMovieInstanceSetPlacement,
+  slot: number,
+) => { x: number; y: number; z: number } = (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
 ): { x: number; y: number; z: number } => {
@@ -227,7 +265,8 @@ const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: nu
     const radius: number =
       Math.sqrt(seededValue(instanceSet.seed, slot, 0x72616469)) *
       layout.radius;
-    const angle: number = seededValue(instanceSet.seed, slot, 0x616e676c) * Math.PI * 2;
+    const angle: number =
+      seededValue(instanceSet.seed, slot, 0x616e676c) * Math.PI * 2;
     return {
       x: Math.cos(angle) * radius,
       y: 0,
@@ -247,7 +286,8 @@ const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: nu
     };
   }
   if (layout.kind === "explicit") {
-    const transform: IAutoMovieExplicitInstanceTransform = layout.transforms[slot];
+    const transform: IAutoMovieExplicitInstanceTransform =
+      layout.transforms[slot];
     if (transform === undefined)
       throw new Error(
         `Instance set "${instanceSet.id}" slot ${slot} has no explicit transform.`,
@@ -259,21 +299,50 @@ const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: nu
     throw new Error(
       `Instance set "${instanceSet.id}" references unavailable route "${layout.route}".`,
     );
-  const segments: { left: { x: number; z: number; }; right: { x: number; z: number; }; length: number; }[] = route.waypoints.slice(1).map((right: { x: number; z: number; }, index: number) : { left: { x: number; z: number; }; right: { x: number; z: number; }; length: number; } => {
-    const left: { x: number; z: number; } = route.waypoints[index]!;
-    return {
-      left,
-      right,
-      length: Math.hypot(right.x - left.x, right.z - left.z),
-    };
-  });
-  const total: number = segments.reduce((sum: number, segment: { left: { x: number; z: number; }; right: { x: number; z: number; }; length: number; }) : number => sum + segment.length, 0);
+  const segments: {
+    left: { x: number; z: number };
+    right: { x: number; z: number };
+    length: number;
+  }[] = route.waypoints
+    .slice(1)
+    .map(
+      (
+        right: { x: number; z: number },
+        index: number,
+      ): {
+        left: { x: number; z: number };
+        right: { x: number; z: number };
+        length: number;
+      } => {
+        const left: { x: number; z: number } = route.waypoints[index]!;
+        return {
+          left,
+          right,
+          length: Math.hypot(right.x - left.x, right.z - left.z),
+        };
+      },
+    );
+  const total: number = segments.reduce(
+    (
+      sum: number,
+      segment: {
+        left: { x: number; z: number };
+        right: { x: number; z: number };
+        length: number;
+      },
+    ): number => sum + segment.length,
+    0,
+  );
   if (Number.isFinite(total) === false || total <= 0)
     throw new RangeError(
       `Instance set "${instanceSet.id}" route "${layout.route}" must have finite non-zero length.`,
     );
   let remaining: number = ((slot + 0.5) / instanceSet.count) * total;
-  let segment: { left: { x: number; z: number; }; right: { x: number; z: number; }; length: number; } = segments.at(-1)!;
+  let segment: {
+    left: { x: number; z: number };
+    right: { x: number; z: number };
+    length: number;
+  } = segments.at(-1)!;
   for (const candidate of segments.slice(0, -1)) {
     if (remaining <= candidate.length) {
       segment = candidate;
@@ -282,7 +351,7 @@ const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: nu
     remaining -= candidate.length;
   }
   const ratio: number = Math.min(1, remaining / segment.length);
-  const tangent: { x: number; z: number; } = {
+  const tangent: { x: number; z: number } = {
     x: segment.right.x - segment.left.x,
     z: segment.right.z - segment.left.z,
   };
@@ -300,5 +369,8 @@ const localInstancePoint: (instanceSet: IAutoMovieInstanceSetPlacement, slot: nu
 };
 
 /** Interpolate one seeded sample between an authored range's ends. */
-const stableInterpolate: (from: number, to: number, ratio: number) => number = (from: number, to: number, ratio: number): number =>
-  from * (1 - ratio) + to * ratio;
+const stableInterpolate: (from: number, to: number, ratio: number) => number = (
+  from: number,
+  to: number,
+  ratio: number,
+): number => from * (1 - ratio) + to * ratio;
