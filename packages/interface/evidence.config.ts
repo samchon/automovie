@@ -7,16 +7,12 @@ export default {
     {
       name: "interface declarations",
       type: "typescript",
-      files: [
-        "src/**/*.ts",
-      ],
+      files: ["src/**/*.ts"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
-        files: [
-          "contracts/common.md",
-        ],
+        files: ["contracts/common.md"],
         symbol: "h2",
         checklist: true,
       },
