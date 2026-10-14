@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
 
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -22,7 +22,7 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
   duration,
 });
 
-const SHOTS = [shot("shot:a", 2), shot("shot:b", 3)];
+const SHOTS: IAutoMovieShot[] = [shot("shot:a", 2), shot("shot:b", 3)];
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq:duel",
@@ -50,10 +50,10 @@ const SPEC: IAutoMovieRenderSpec = {
 /**
  * The chunked render plans guide passes per chunk, the 1-hour film's real path:
  * chunking (#609) × guide passes (#608) in one manifest. Each chunk's per-pass
- * paths carry the chunk-local re-base exactly like its beauty frames, so a
- * single chunk renders a pass frame-identical to the same frames of the whole
- * render modulo the chunk dir + re-base; tagged passes terminate as frame
- * sequences whose whole-timeline order is the pass manifest's chunk-dir walk.
+ * paths carry the chunk-local re-base exactly like its beauty frames. This test
+ * observes those addresses and manifest order; actual rendered pixel parity
+ * belongs to a capture test. Tagged pass sequences retain whole-timeline order
+ * through the pass manifest's chunk-dir walk.
  *
  * Scenarios:
  *
@@ -71,14 +71,19 @@ const SPEC: IAutoMovieRenderSpec = {
  * 5. An unknown pass name throws before any chunk is built.
  * 6. An empty pass list plans empty pass sets (fields present, no outputs), the
  *    planGuidePassOutputs convention.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans a trimmed/dissolved sequence and its chunked depth/beauty outputs, asserting deduplication order, literal tagged/beauty paths, chunk-local rebase, parallel manifest directory/pattern order, exact frame coverage and unknown/empty pass behavior. It checks planning rather than rendered frame parity.
+ * @evidence contracts/testing.md#independent-expectations The authored 2.5-second sequence at four fps yields ten frames partitioned 3/3/3/1; literal chunk paths and manifest lists state zero-based local naming. The constructed wholePassLast string alone is only a naming illustration, while actual depth outputs and manifest assertions supply behavioral oracles; beauty/base comparisons establish internal path agreement.
+ * @evidence contracts/testing.md#distinguishing-cases Retains duplicate depth requests, beauty's untagged neighbor, a one-frame tail, global index nine rebased to local zero, all manifest chunks, an unknown sketch pass and explicitly empty outputs. Omitted/undefined pass fields belong to chunk_guide_passes_twin.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_chunk_guide_passes owns six portable synchronous planner scenarios and the shared fixture objects. No frame is captured, path written, encoder invoked or renderer/browser/process created.
  */
-export const test_render_chunk_guide_passes = (): void => {
-  const whole = planSequenceRender({
+export function test_render_chunk_guide_passes(): void {
+  const whole: ReturnType<typeof planSequenceRender> = planSequenceRender({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
   });
-  const chunked = planChunkedSequenceRender({
+  const chunked: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
     plan: whole,
     spec: SPEC,
     chunkFrames: 3,
@@ -88,7 +93,7 @@ export const test_render_chunk_guide_passes = (): void => {
   // 1. dedup + per-chunk order
   TestValidator.equals(
     "every chunk plans [depth, beauty]",
-    chunked.chunks.map((c) => c.passOutputs!.map((o) => o.pass)),
+    chunked.chunks.map((c: typeof chunked.chunks[number]): NonNullable<typeof c.passOutputs>[number]["pass"][] => c.passOutputs!.map((o: NonNullable<typeof c.passOutputs>[number]): typeof o.pass => o.pass)),
     [
       ["depth", "beauty"],
       ["depth", "beauty"],
@@ -98,7 +103,7 @@ export const test_render_chunk_guide_passes = (): void => {
   );
 
   // 2. hand oracles
-  const depth1 = chunked.chunks[1]!.passOutputs![0]!;
+  const depth1: NonNullable<typeof chunked.chunks[number]["passOutputs"]>[number] = chunked.chunks[1]!.passOutputs![0]!;
   TestValidator.equals(
     "chunk 1 depth first frame",
     depth1.firstFrame,
@@ -114,7 +119,7 @@ export const test_render_chunk_guide_passes = (): void => {
     depth1.inputPattern,
     "frames/seq_duel/chunk_1/frame_%05d.depth.png",
   );
-  const depth3 = chunked.chunks[3]!.passOutputs![0]!;
+  const depth3: typeof depth1 = chunked.chunks[3]!.passOutputs![0]!;
   TestValidator.equals(
     "single-frame chunk starts and ends at frame_00000",
     [depth3.firstFrame, depth3.lastFrame],
@@ -123,7 +128,7 @@ export const test_render_chunk_guide_passes = (): void => {
       "frames/seq_duel/chunk_3/frame_00000.depth.png",
     ],
   );
-  const beauty1 = chunked.chunks[1]!.passOutputs![1]!;
+  const beauty1: typeof depth1 = chunked.chunks[1]!.passOutputs![1]!;
   TestValidator.equals(
     "beauty pass coincides with the chunk's base frames",
     [beauty1.firstFrame, beauty1.lastFrame],
@@ -131,7 +136,7 @@ export const test_render_chunk_guide_passes = (): void => {
   );
 
   // 3. parity modulo dir + re-base (global 9 lives in chunk 3 at local 0)
-  const wholePassLast = `${whole.frameDir}/frame_00009.depth.png`;
+  const wholePassLast: string = `${whole.frameDir}/frame_00009.depth.png`;
   TestValidator.equals(
     "whole-render depth path at global index 9",
     wholePassLast,
@@ -148,10 +153,10 @@ export const test_render_chunk_guide_passes = (): void => {
   // 4. manifests
   TestValidator.equals(
     "manifest passes in dedup order",
-    chunked.passManifests!.map((m) => m.pass),
+    chunked.passManifests!.map((m: NonNullable<typeof chunked.passManifests>[number]): typeof m.pass => m.pass),
     ["depth", "beauty"],
   );
-  const depthManifest = chunked.passManifests![0]!;
+  const depthManifest: NonNullable<typeof chunked.passManifests>[number] = chunked.passManifests![0]!;
   TestValidator.equals(
     "depth manifest walks all chunks in order",
     depthManifest.chunkFrameDirs,
@@ -179,7 +184,7 @@ export const test_render_chunk_guide_passes = (): void => {
   );
   TestValidator.equals(
     "union of chunk pass frames equals the manifest count",
-    chunked.chunks.reduce((sum, c) => sum + c.frameCount, 0),
+    chunked.chunks.reduce((sum: number, c: typeof chunked.chunks[number]): number => sum + c.frameCount, 0),
     depthManifest.frameCount,
   );
 
@@ -187,7 +192,7 @@ export const test_render_chunk_guide_passes = (): void => {
   TestValidator.predicate(
     "unknown pass rejects",
     throwsError(
-      () =>
+      (): ReturnType<typeof planChunkedSequenceRender> =>
         planChunkedSequenceRender({
           plan: whole,
           spec: SPEC,
@@ -199,7 +204,7 @@ export const test_render_chunk_guide_passes = (): void => {
   );
 
   // 6. empty list plans empty sets
-  const empty = planChunkedSequenceRender({
+  const empty: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
     plan: whole,
     spec: SPEC,
     chunkFrames: 3,
@@ -207,7 +212,7 @@ export const test_render_chunk_guide_passes = (): void => {
   });
   TestValidator.equals(
     "empty passes yield empty per-chunk outputs",
-    empty.chunks.map((c) => c.passOutputs),
+    empty.chunks.map((c: typeof empty.chunks[number]): typeof c.passOutputs => c.passOutputs),
     [[], [], [], []],
   );
   TestValidator.equals(
@@ -215,4 +220,4 @@ export const test_render_chunk_guide_passes = (): void => {
     empty.passManifests,
     [],
   );
-};
+}

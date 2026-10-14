@@ -3,6 +3,8 @@ import {
   createAutoMovieReferenceReader,
 } from "@automovie/mcp";
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieReferenceIdentity } from "@automovie/mcp";
+import type { AutoMovieReferenceResult } from "../../../../packages/mcp/src/structures/AutoMovieReferenceResult";
 
 import { createReferenceMemoryFileSystem } from "../internal/createReferenceMemoryFileSystem";
 
@@ -13,9 +15,14 @@ import { createReferenceMemoryFileSystem } from "../internal/createReferenceMemo
  * 1. Path/handle device differences and own-open ctime changes permit a read.
  * 2. Path replacement, content metadata changes and a different resident
  *    handle refuse, including mutations at the corroborating open boundary.
- * 3. Read, corroboration and close failures return no bytes and close handles.
+ * 3. Read, corroboration and close failures return refusals and attempt handle close.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual reader/provider with win32 observations for twenty arrangements, asserting success only for allowed path/handle device differences plus own-open ctime drift. Identity/version/link/alias mutations refuse, I/O failures classify separately and close-attempt counts equal successful handle acquisitions including corroboration.
+ * @evidence contracts/testing.md#independent-expectations Authored pathname device zero versus descriptor device one supplies the allowed observation-basis difference; each open advances only ctime in the control. Explicit inode/device/mtime/size/link/alias changes and failure positions define literal categories and acquired-handle arithmetic independently of output. Close counts prove attempted callbacks rather than physical release after a close error.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the admitted control, opening inode/mtime changes, primary path/handle changes, corroborating handle device/inode/size/link changes, final resident inode/mtime/link/alias changes and read/second-open/stat/close failures. Strict non-Windows ctime/version comparisons and inventory/resource boundaries are exercised in separate reader tests; actual Windows kernel races remain outside these finite supplied observations.
+ * @evidence contracts/testing.md#execution-ownership The named asynchronous test_reference_windows_observation owns three portable groups and all twenty rows through fresh memory observations with platform win32 explicitly supplied. No native Windows descriptor, filesystem path, process, server, browser or renderer opens; the maintained Windows branch consumes the deterministic ports.
  */
-export const test_reference_windows_observation = async (): Promise<void> => {
+export async function test_reference_windows_observation(): Promise<void> {
   for (const mutation of [
     "none",
     "opened-inode",
@@ -38,12 +45,12 @@ export const test_reference_windows_observation = async (): Promise<void> => {
     "stat-failure",
     "close-failure",
   ] as const) {
-    const memory = createReferenceMemoryFileSystem();
+    const memory: ReturnType<typeof createReferenceMemoryFileSystem> = createReferenceMemoryFileSystem();
     memory.state.entries.get(memory.absolute)!.device = 0n;
-    let opens = 0;
-    let closes = 0;
-    memory.state.hook = (operation, location) => {
-      const resident = memory.state.entries.get(memory.absolute)!;
+    let opens: number = 0;
+    let closes: number = 0;
+    memory.state.hook = (operation: string, location: string): void => {
+      const resident: IAutoMovieReferenceIdentity = memory.state.entries.get(memory.absolute)!;
       if (operation === "open") {
         ++opens;
         resident.changed += 1n;
@@ -84,11 +91,11 @@ export const test_reference_windows_observation = async (): Promise<void> => {
           throw new Error("close failed");
       }
     };
-    const reader = await createAutoMovieReferenceReader(memory.root, {
+    const reader: Awaited<ReturnType<typeof createAutoMovieReferenceReader>> = await createAutoMovieReferenceReader(memory.root, {
       ...memory.io,
       platform: "win32",
     });
-    const result = await createAutoMovieReferenceProvider(reader)({
+    const result: AutoMovieReferenceResult = await createAutoMovieReferenceProvider(reader)({
       operation: "get_index_of_file",
       file: memory.file,
     });
@@ -107,4 +114,4 @@ export const test_reference_windows_observation = async (): Promise<void> => {
       opens - (mutation === "open-failure" ? 1 : 0),
     );
   }
-};
+}

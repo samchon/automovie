@@ -14,15 +14,20 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * Scenarios:
  *
  * 1. Negative and fractional limits, absent models, missing LOD and invalid particle caps name their refusal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real budget evaluator and inventory measurer on six malformed inputs, requiring an exception containing each violated-boundary message rather than a plausible partial inventory/report.
+ * @evidence contracts/testing.md#independent-expectations Resource limits are nonnegative safe integers, particle populations are positive safe integers and every referenced model/prototype needs measurable representation. Authored -1, 1.5, zero, absent-model and empty-LOD inputs violate those contracts independently of returned values; wording checks identify the refused boundary without comparing complete stacks.
+ * @evidence contracts/testing.md#distinguishing-cases Retains negative/fractional budget limits, missing model, prototype with no LOD and zero/fractional particle caps. Valid subjects and inclusive budget equality are covered by report and compact-population tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_invalid_inputs owns six portable synchronous refusal cases through shared measurement/evaluation fixtures, with no actual renderer, allocation, browser or process.
  */
-export const test_render_budget_invalid_inputs = (): void => {
-  const target = renderBudgetTargetFixture();
-  const subject = renderBudgetSubjectFixture;
-  const budget = renderReportBudgetFixture();
+export function test_render_budget_invalid_inputs(): void {
+  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
+  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
 
-  const inventory = measure(subject());
+  const inventory: ReturnType<typeof measure> = measure(subject());
 
-  const effect = {
+  const effect: IAutoMovieCompiledEffect = {
     id: "haze",
     recipe: { budget: { maxParticles: 5 } },
   } as unknown as IAutoMovieCompiledEffect;
@@ -32,9 +37,9 @@ export const test_render_budget_invalid_inputs = (): void => {
     namedFacts([
       [
         "negative limit",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof report> =>
               report(
                 inventory,
                 { ...budget, limits: { triangles: -1 } },
@@ -45,9 +50,9 @@ export const test_render_budget_invalid_inputs = (): void => {
       ],
       [
         "fractional limit",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof report> =>
               report(
                 inventory,
                 { ...budget, limits: { triangles: 1.5 } },
@@ -58,17 +63,17 @@ export const test_render_budget_invalid_inputs = (): void => {
       ],
       [
         "absent model",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ scene: sceneFixture(), models: [] }),
+            (): ReturnType<typeof measure> => measure({ scene: sceneFixture(), models: [] }),
             'model "wall-model" is absent',
           ),
       ],
       [
         "prototype without level of detail",
-        () =>
-          throwsError(() => {
-            const set = instanceSetFixture({
+        (): boolean =>
+          throwsError((): ReturnType<typeof measure> => {
+            const set: ReturnType<typeof instanceSetFixture> = instanceSetFixture({
               id: "windows",
               count: 1,
               chunks: 1,
@@ -91,9 +96,9 @@ export const test_render_budget_invalid_inputs = (): void => {
       ],
       [
         "zero effect cap",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof measure> =>
               measure({
                 scene: { ...sceneFixture(), nodes: [], lights: [] },
                 models: modelsFixture(),
@@ -109,9 +114,9 @@ export const test_render_budget_invalid_inputs = (): void => {
       ],
       [
         "fractional effect cap",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof measure> =>
               measure({
                 scene: { ...sceneFixture(), nodes: [], lights: [] },
                 models: modelsFixture(),
@@ -135,4 +140,4 @@ export const test_render_budget_invalid_inputs = (): void => {
       "fractional effect cap": true,
     },
   );
-};
+}

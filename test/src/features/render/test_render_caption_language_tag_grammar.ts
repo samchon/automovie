@@ -1,7 +1,7 @@
 import {
   autoMovieCaptionLanguageComparisonKey,
   parseAutoMovieCaptionLanguage,
-} from "@automovie/render";
+} from "../../../../packages/render/src/caption";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -35,11 +35,16 @@ import { TestValidator } from "@nestia/e2e";
  * 8. A private-use tail ends the tag, and a trailing subtag the grammar cannot
  *    place is refused rather than ignored.
  * 9. The comparison key folds ASCII case only, and a malformed tag has no key.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real caption-language parser and comparison-key projection, checking retained display spelling, ASCII-folded identity and malformed null results across the grammar's alternative and uniqueness decisions.
+ * @evidence contracts/testing.md#independent-expectations Expected strings and refusals come from the listed RFC 5646 langtag, privateuse and grandfathered productions, not an IANA lookup or parser output snapshot. This pins well-formed syntax and case identity, not registered language semantics.
+ * @evidence contracts/testing.md#distinguishing-cases The original nine groups preserve grandfathered near-misses, empty/long/illegal subtags, private-use requirements, language length, ordered extlang/script/region, variant uniqueness, required/unique extensions, terminal private use and malformed comparison keys.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_language_tag_grammar owns these synchronous portable string cases; it installs no runtime, contacts no registry, opens no file and starts no host process.
  */
-export const test_render_caption_language_tag_grammar = (): void => {
-  const parsed = (value: string): string | null =>
+export function test_render_caption_language_tag_grammar(): void {
+  const parsed: (value: string) => string | null = (value: string): string | null =>
     parseAutoMovieCaptionLanguage(value)?.comparisonKey ?? null;
-  const display = (value: string): string | null =>
+  const display: (value: string) => string | null = (value: string): string | null =>
     parseAutoMovieCaptionLanguage(value)?.display ?? null;
 
   TestValidator.equals(
@@ -166,4 +171,4 @@ export const test_render_caption_language_tag_grammar = (): void => {
     },
     { folded: "en-us", preserved: "EN-Us", malformed: null },
   );
-};
+}

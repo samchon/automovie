@@ -12,15 +12,20 @@ import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture
  * Scenarios:
  *
  * 1. Shared maps count once, environment derivatives count their extents, area lights cast no map, and missing image facts remain unknown.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the original lit scene with shadow policy off/on and with environment facts omitted, asserting exact draw/light/map counts, each texture storage record, total bytes and fluid counts rather than accepting an unknown allocation as zero.
+ * @evidence contracts/testing.md#independent-expectations Literal RGBA8/half-float/float texel widths, declared map extents and the renderer storage-layout contract determine every byte formula; shared material uploads count once while the listed environment derivatives and LTC/shadow allocations remain distinct. These are CPU inventory expectations, not measured native allocation peaks.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves policy off/on, area-light non-casting, shared/reference material maps, unmipmapped base extents, known/missing environment facts and known-cell/null-particle fluid state; other tests own malformed facts and budget refusal attribution.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_environment_storage owns the portable measurement calls through the existing fixture; repeated calls remeasure supplied records without creating a renderer, PMREM target, shadow map or GPU context.
  */
-export const test_render_budget_environment_storage = (): void => {
-  const costBag = (rows: readonly { asset: string | null; materials: string[]; bytes: number | null }[]): string[] =>
-    rows.map((row) => JSON.stringify(row)).sort((left, right) => left.localeCompare(right, "en"));
+export function test_render_budget_environment_storage(): void {
+  const costBag: (rows: readonly { asset: string | null; materials: string[]; bytes: number | null }[]) => string[] = (rows: readonly { asset: string | null; materials: string[]; bytes: number | null }[]): string[] =>
+    rows.map((row: { asset: string | null; materials: string[]; bytes: number | null }): string => JSON.stringify(row)).sort((left: string, right: string): number => left.localeCompare(right, "en"));
   // A declared environment owns the shadow policy and adds one background
   // draw; an area light rasterizes no shadow camera however it is flagged; a
   // texture bound by two materials is one texture; an unmipmapped texture is
   // its base level exactly.
-  const lit = (shadows: boolean, knownEnvironment = true): IAutoMovieRenderInventory =>
+  const lit: (shadows: boolean, knownEnvironment?: boolean) => IAutoMovieRenderInventory = (shadows: boolean, knownEnvironment: boolean = true): IAutoMovieRenderInventory =>
     measure({
       scene: {
         id: "lit",
@@ -70,7 +75,7 @@ export const test_render_budget_environment_storage = (): void => {
       ],
       textureResidency: { owner: "current", residents: [], dfgRetained: false, pmremRetained: null,
         renderTargets: shadows ? [renderShadowTargetFixture()] : [],
-        runtimeTextures: (["area-ltc-1", "area-ltc-2"] as const).map((purpose) => ({ owner: purpose, purpose, residents: ["current"],
+        runtimeTextures: (["area-ltc-1", "area-ltc-2"] as const).map((purpose: "area-ltc-1" | "area-ltc-2"): NonNullable<NonNullable<Parameters<typeof measure>[0]["textureResidency"]>["runtimeTextures"]>[number] => ({ owner: purpose, purpose, residents: ["current"],
           texture: { width: 64, height: 64, format: "rgba32f", colorSpace: "linear", mipmapped: false,
             sourceIdentity: purpose, uploadState: "native-float-ltc" },
         })),
@@ -107,7 +112,7 @@ export const test_render_budget_environment_storage = (): void => {
         shadowMaps: lit(true).totals.shadowMaps,
       },
       lights: lit(true).totals.lights,
-      textures: costBag(lit(true).textures.map((texture) => ({
+      textures: costBag(lit(true).textures.map((texture: IAutoMovieRenderInventory["textures"][number]): { asset: string | null; materials: string[]; bytes: number | null } => ({
         asset: texture.asset,
         materials: texture.materials,
         bytes: texture.bytes,
@@ -150,4 +155,4 @@ export const test_render_budget_environment_storage = (): void => {
   );
 
   TestValidator.equals("missing declared environment facts keep total unbounded", lit(true, false).totals.textureBytes, null);
-};
+}

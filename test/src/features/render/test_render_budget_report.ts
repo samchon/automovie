@@ -13,13 +13,18 @@ import { renderBudgetFindingShape } from "../internal/renderBudgetFindingShape";
  * Scenarios:
  *
  * 1. The staged world reports each metric and fits its declared limits.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the staged world and evaluates its budget, asserting every inventory total, instance-set draw bound, sorted model/tier attribution and complete within-status metric list with zero excess and no recovery. Missing resource or frame-pass costs cannot hide behind the overall verdict.
+ * @evidence contracts/testing.md#independent-expectations Five staged plus twelve instanced boxes give literal geometry arithmetic, eight opaque draws repeat for one shadow caster, the 512-square RGBA mip chain sums 4*(4^10-1)/3 bytes and declared resident profiles add 1024 plus the shadow color/depth storage. Expected metric order and model/tier pairs are authored separately from production output/constants.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the supported populated world, shared instanced prototype, one shadow caster, decoded mip texture and fully admitted budget across all fifteen metrics. Missing resources, overruns, absent budgets and ranked truncation belong to their dedicated budget tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_report owns portable synchronous inventory/report semantics via shared fixtures; these byte/count estimates allocate no native renderer resources and do not measure actual GPU residency or frame time.
  */
-export const test_render_budget_report = (): void => {
-  const target = renderBudgetTargetFixture();
-  const subject = renderBudgetSubjectFixture;
-  const budget = renderReportBudgetFixture();
+export function test_render_budget_report(): void {
+  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
+  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
 
-  const inventory = measure(subject());
+  const inventory: ReturnType<typeof measure> = measure(subject());
 
   // 5 staged boxes and 12 instanced boxes; one shadow-casting light repeats
   // the 8 opaque draws (5 nodes + 3 chunks) once; a mipmapped 512x512 RGBA
@@ -63,7 +68,7 @@ export const test_render_budget_report = (): void => {
 
   TestValidator.equals(
     "a model cited only by one level-of-detail tier reports that tier",
-    inventory.models.map((cost) => [cost.model, cost.tier]),
+    inventory.models.map((cost: ReturnType<typeof measure>["models"][number]): [string, typeof cost.tier] => [cost.model, cost.tier]),
     [
       ["door-model", null],
       ["prop-model", null],
@@ -73,9 +78,9 @@ export const test_render_budget_report = (): void => {
     ],
   );
 
-  const clear = report(inventory, budget, target);
+  const clear: ReturnType<typeof report> = report(inventory, budget, target);
   TestValidator.equals("within findings have no overrun recovery", renderBudgetFindingShape(
-    clear.findings.find((finding) => finding.metric === "textureBytes")!,
+    clear.findings.find((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "textureBytes")!,
   ).recovers, false);
 
   TestValidator.equals(
@@ -83,10 +88,10 @@ export const test_render_budget_report = (): void => {
     {
       status: clear.status,
       tier: clear.tier,
-      metrics: clear.findings.map((finding) => finding.metric),
-      statuses: [...new Set(clear.findings.map((finding) => finding.status))],
-      excess: clear.findings.every((finding) => finding.excess === 0),
-      recovery: clear.findings.every((finding) => finding.recovery === null),
+      metrics: clear.findings.map((finding: ReturnType<typeof report>["findings"][number]): typeof finding.metric => finding.metric),
+      statuses: [...new Set(clear.findings.map((finding: ReturnType<typeof report>["findings"][number]): typeof finding.status => finding.status))],
+      excess: clear.findings.every((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.excess === 0),
+      recovery: clear.findings.every((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.recovery === null),
     },
     {
       status: "within",
@@ -115,4 +120,4 @@ export const test_render_budget_report = (): void => {
       recovery: true,
     },
   );
-};
+}

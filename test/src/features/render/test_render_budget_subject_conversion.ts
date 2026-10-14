@@ -10,12 +10,17 @@ import { plantingCluster, plantingRecipe, softPanel } from "../internal/softFixt
  * Scenarios:
  *
  * 1. Absent optional inputs become empty lists; supplied environment, water, cloth, planting and texture records remain reachable.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Converts a compiled-shot projection through the real adapter and checks empty optional populations, retained instance-set count and supplied environment/water/texture/cloth/planting identities. Dropping any tested supplemental population fails its literal identity assertion.
+ * @evidence contracts/testing.md#independent-expectations The authored fixtures supply tower, basin, textures/stone.png, panel and atrium-bed, while omitted inputs specify empty lists. These literal identities and one set are independent expectations; this test checks reachability and does not certify every field of each projected payload.
+ * @evidence contracts/testing.md#distinguishing-cases Retains absent versus supplied supplemental arrays and a compiled instance set. Detailed geometry, residency and decoded-resource accounting belong to inventory and storage tests; this adapter case does not validate choreography.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_subject_conversion owns portable synchronous adapter calls on in-memory records. Its reduced compiled fixture covers only fields this adapter reads and no shot execution, viewer, GPU or host is created.
  */
-export const test_render_budget_subject_conversion = (): void => {
+export function test_render_budget_subject_conversion(): void {
   // The compiled shot is read through one conversion, so every evidence path
   // measures the same artifact. The shot choreography plays no part in the
   // conversion, which is why the fixture states only the fields it reads.
-  const compiled = {
+  const compiled: IAutoMovieCompiledShotSource = {
     scene: sceneFixture(),
     models: modelsFixture(),
     motions: [],
@@ -61,7 +66,7 @@ export const test_render_budget_subject_conversion = (): void => {
               mipmapped: false,
             },
           ],
-        }).environments?.map((environment) => environment.id),
+        }).environments?.map((environment: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["environments"]>[number]): string => environment.id),
         water: autoMovieRenderSubjectOfShot({
           compiled,
           waterBodies: [
@@ -75,7 +80,7 @@ export const test_render_budget_subject_conversion = (): void => {
               material: null,
             },
           ],
-        }).waterBodies?.map((body) => body.id),
+        }).waterBodies?.map((body: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["waterBodies"]>[number]): string => body.id),
         textures: autoMovieRenderSubjectOfShot({
           compiled,
           textures: [
@@ -86,7 +91,7 @@ export const test_render_budget_subject_conversion = (): void => {
               mipmapped: false,
             },
           ],
-        }).textures?.map((texture) => texture.asset),
+        }).textures?.map((texture: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["textures"]>[number]): string => texture.asset),
         // Cloth and planting reach the subject the same way water does: the
         // compiled shot does not carry them, so a conversion that dropped them
         // would produce a report that reads complete over an unfurnished room.
@@ -99,7 +104,7 @@ export const test_render_budget_subject_conversion = (): void => {
               material: null,
             },
           ],
-        }).softBodies?.map((body) => body.domain.id),
+        }).softBodies?.map((body: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["softBodies"]>[number]): string => body.domain.id),
         plantings: autoMovieRenderSubjectOfShot({
           compiled,
           plantings: [
@@ -113,7 +118,7 @@ export const test_render_budget_subject_conversion = (): void => {
               leaf: null,
             },
           ],
-        }).plantings?.map((planting) => planting.cluster.id),
+        }).plantings?.map((planting: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["plantings"]>[number]): string => planting.cluster.id),
       },
     },
     {
@@ -134,4 +139,4 @@ export const test_render_budget_subject_conversion = (): void => {
       },
     },
   );
-};
+}

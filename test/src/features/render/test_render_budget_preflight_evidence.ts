@@ -18,24 +18,24 @@ import { BOX_TRIANGLES } from "../internal/renderFixtures";
 import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture";
 
 /**
- * The render job publishes one verdict per tier, and never dresses an
- * unmeasured cost as a cleared one.
+ * Budget helpers aggregate one verdict per tier without treating an
+ * unmeasured cost as a cleared one. This unit invokes no render job or publisher.
  *
  * Evidence preserves every incomplete and not-run measurement. Over-limit
- * evidence and required texture storage without a safe bound refuse admission;
- * another concern's incomplete measurement keeps its owning contract's status.
+ * evidence and required texture storage without a safe bound produce refusal
+ * text; another concern's incomplete measurement keeps its owning contract's status.
  *
  * Scenarios:
  *
- * 1. A job selects the budget of the tier it targets, ignores the others, and
+ * 1. Tier lookup selects its exact budget, ignores the others, and
  *    resolves a duplicated tier to its first declaration.
  * 2. A production declaring no budget at all, and one declaring budgets for other
- *    tiers only, both report `unbudgeted` with the declared tiers named.
- * 3. Five staged boxes measured against a triangle limit they fit inside clear the
- *    tier; the same shot one triangle under its own cost goes `over` and names
+ *    tiers only, both mark report metrics `unbudgeted` with the declared tiers named.
+ * 3. Five staged boxes measured against a triangle limit they fit inside give a
+ *    `within` assessment; the same shot one triangle under its own cost goes `over` and names
  *    the owner to edit.
  * 4. Withholding decoded upload facts of a bound asset makes the tier
- *    incomplete and refuses unknown required resident storage.
+ *    incomplete and formats a diagnostic for unknown required resident storage.
  * 5. The worst outcome wins: `over` beats `not-run` beats `incomplete` beats
  *    `within`, whichever order the shots arrive in, and a document over no
  *    shots at all is `not-run` rather than a verdict over an empty set.

@@ -8,12 +8,17 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  * Scenarios:
  *
  * 1. A convex quad reports four vertices and two triangles per pass; the adjacent sliver adds no geometry.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the real render inventory of one convex ground quad beside a collinear floor and asserts total triangles, vertices, draws, geometry bytes, node count and editable source ownership.
+ * @evidence contracts/testing.md#independent-expectations Four quad vertices and six indices require 4*24+6*4 bytes; two base triangles submitted in the retained two-pass model give four triangles and two draws. The collinear polygon has zero area and must contribute no additional owner or geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the nonzero convex floor and zero-area sliver together while removing staged models/lights from the scene. Mesh, environment-image and fluid storage are covered by neighboring inventory tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_ground_storage owns one portable engine tessellation/inventory case through the existing measurement fixture; it acquires no GPU, viewer or captured frame.
  */
-export const test_render_budget_ground_storage = (): void => {
+export function test_render_budget_ground_storage(): void {
   // The ground is measured through the same tessellator the viewer draws it
   // with: a convex quad footprint is one fan of two triangles over four
   // vertices, and a footprint enclosing no area draws nothing at all.
-  const grounded = measure({
+  const grounded: ReturnType<typeof measure> = measure({
     scene: {
       ...sceneFixture(),
       nodes: [],
@@ -58,7 +63,7 @@ export const test_render_budget_ground_storage = (): void => {
       geometryBytes: grounded.totals.geometryBytes,
       nodes: grounded.totals.nodes,
       owner: grounded.owners.find(
-        (entry) => entry.metric === "triangles" && entry.owner === "node:yard",
+        (entry: ReturnType<typeof measure>["owners"][number]): boolean => entry.metric === "triangles" && entry.owner === "node:yard",
       )?.source,
     },
     {
@@ -70,4 +75,4 @@ export const test_render_budget_ground_storage = (): void => {
       owner: "scene.space.surfaces",
     },
   );
-};
+}
