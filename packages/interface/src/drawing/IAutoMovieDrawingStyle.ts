@@ -14,8 +14,8 @@ import { IAutoMovieDrawingWeights } from "./IAutoMovieDrawingWeights";
  * positive number. Region fills carry no stroke, opening outlines are stroked
  * with the `cut` weight, and dimension lines with the `projected` weight.
  *
- * @evidence contracts/common.md#principled-implementation `autoMovieDrawingToSvg` writes each line's role weight as `stroke-width` and its dash pattern as `stroke-dasharray` in a sheet whose user unit is one page millimetre, after checking every role's weight and dash entries and the text height are finite and positive.
- * @evidence contracts/common.md#clear-and-simple-design Styling lives on the view and is applied only at serialization, so one derived drawing and its digest stay independent of the pen, and weights and dashes are per-role maps over the closed role union.
+ * @evidence contracts/common.md#principled-implementation The serializer checks finite positive role weights, dash entries and text height, then formats them to three decimals in page millimetres. Admission precedes formatting, so a small positive value can print as zero and extreme finite values can overflow the intermediate round(value*1000)/1000; no printed-value admission follows.
+ * @evidence contracts/common.md#clear-and-simple-design Styling lives on the view and is applied only at serialization, so drawing metadata and its digest stay independent of the pen. The serializer matches view id, not the complete original view; weight and dash maps supply every role but do not form runtime closed-object admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid value throws before any SVG is written instead of being clamped or replaced with a default, and no role, layer or discipline gets a built-in pen.
  * @evidence contracts/common.md#meaningful-documentation States the page-millimetre unit and its reason, that derivation ignores the style, the serializer's refusal, and which pen strokes openings and dimensions; members restate the positivity rule, the solid meaning of an empty dash array, and that the text height sizes annotations only.
  * @author Samchon
