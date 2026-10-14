@@ -11,22 +11,11 @@ import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
 /**
  * One drawing, derived from one design at one revision.
  *
- * Every line, region, opening mark, dimension and note below was computed from
- * the built environment the view was applied to, which `deriveAutoMovieDrawing`
- * validates first and refuses when invalid. Nothing was drafted, and nothing
- * may be edited back into the design: a sheet cannot become a second source of
- * truth for the building it depicts.
+ * Every line, region, opening mark, dimension and note below was computed from the built environment the view was applied to, which `deriveAutoMovieDrawing` validates first and refuses when invalid. Nothing was drafted, and nothing may be edited back into the design: a sheet cannot become a second source of truth for the building it depicts.
  *
- * Page coordinates are world metres along the frame's axes, rounded to six
- * decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the
- * sheet. Lines, regions, openings and gaps are sorted into a canonical order
- * independent of the order the design declares things in, and dimensions and
- * notes keep the view's authored order, so the same design and view produce
- * the same record on every run.
+ * Page coordinates are world metres along the frame's axes, rounded to six decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the sheet. Lines, regions, openings and gaps are sorted into a canonical order independent of the order the design declares things in, and dimensions and notes keep the view's authored order, so the same design and view produce the same record on every run.
  *
- * The digest is a SHA-256 over the canonical JSON of every other field, so two
- * records share a digest only when they are equal field by field, whatever
- * characters their authored text contains.
+ * The digest is SHA-256 over the canonical JSON of every other field, including authored text. Equal canonical records yield equal digests; covering every field does not prove mathematical collision freedom for distinct records.
  *
  * @evidence contracts/common.md#principled-implementation The record is a pure function of design and view: geometry is projected through the resolved frame, every page scalar passes through `roundAutoMovieDrawingScalar` at six decimals with negative zero folded to zero, identical strokes are merged by key, and arrays are sorted with `compareAutoMovieRenderIds` before the digest is taken over the record's canonical JSON.
  * @evidence contracts/common.md#clear-and-simple-design One flat record per sheet with each kind of content in its own typed array, and the view's identity fields copied in, so the serializer and any checker read the drawing without the view except for its pen.
@@ -51,8 +40,7 @@ export interface IAutoMovieDrawing {
   discipline: string;
 
   /**
-   * Scale denominator the view declared (`50` means 1:50); page coordinates do
-   * not include it.
+   * Scale denominator the view declared (`50` means 1:50); page coordinates do not include it.
    */
   scale: number;
 
@@ -63,38 +51,26 @@ export interface IAutoMovieDrawing {
   frame: IAutoMovieDrawingFrame;
 
   /**
-   * Page bounding box of everything the sheet draws, or `null` when it draws
-   * nothing.
+   * Page bounding box of everything the sheet draws, or `null` when it draws nothing.
    *
-   * It holds linework, region outlines, opening voids and every dimension and
-   * note that resolved, because a dimension string sits beside the plan rather
-   * than across it and a box sized from the geometry alone would put the
-   * sheet's own annotation off the paper. A note contributes the point its text
-   * is set from rather than the glyphs it sets, which the derivation cannot
-   * measure without font metrics and declares as the `note-text-extent` gap.
+   * It holds linework, region outlines, opening voids and every dimension and note that resolved, because a dimension string sits beside the plan rather than across it and a box sized from the geometry alone would put the sheet's own annotation off the paper. A note contributes the point its text is set from rather than the glyphs it sets, which the derivation cannot measure without font metrics and declares as the `note-text-extent` gap.
    */
   extent: IAutoMovieDrawingExtent | null;
 
   /**
-   * Drafted segments, sorted by role, layer, owner and then endpoints, with
-   * identical strokes kept once.
+   * Drafted segments, sorted by role, layer, owner and then endpoints, with identical strokes kept once.
    */
   lines: IAutoMovieDrawingLine[];
 
   /**
-   * Cross-sections of cell-stated logical spaces, sorted by space and cell;
-   * empty for an elevation, and a shell-stated space contributes none.
+   * Cross-sections of cell-stated logical spaces, sorted by space and cell; empty for an elevation, and a shell-stated space contributes none.
    */
   regions: IAutoMovieDrawingRegion[];
 
   /**
-   * Every opening whose host boundary reaches a space this view covers, sorted
-   * by opening id.
+   * Every opening whose host boundary reaches a space this view covers, sorted by opening id.
    *
-   * The view's element-kind filter does not reach these. A mark is how a sheet
-   * and the design are reconciled by id, so a lighting plan of a room still
-   * answers for the room's doors; the kind filter decides which linework is
-   * drafted, not which openings exist.
+   * The view's element-kind filter does not reach these. A mark is how a sheet and the design are reconciled by id, so a lighting plan of a room still answers for the room's doors; the kind filter decides which linework is drafted, not which openings exist.
    */
   openings: IAutoMovieDrawingOpeningMark[];
 

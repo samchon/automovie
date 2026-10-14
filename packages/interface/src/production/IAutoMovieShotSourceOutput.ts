@@ -94,7 +94,7 @@ export interface IAutoMovieShotSourceOutput {
   formationMotions?: IAutoMovieFormationMotion[];
 
   /**
-   * Optional sparse per-member exceptions inside compact formations. The builder materializes an empty list when omitted; the cost is the number of exceptions, never the number of members.
+   * Optional sparse per-member exceptions inside compact formations. Omission materializes an empty list. Stored data scales with authored cues and slot references; this field does not bound sampling or full-population execution work.
    */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
 

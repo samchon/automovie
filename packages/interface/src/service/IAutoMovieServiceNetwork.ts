@@ -7,9 +7,9 @@ import { IAutoMovieWetZone } from "./IAutoMovieWetZone";
 /**
  * The distribution networks a built environment is served by, as one graph.
  *
- * Water, drainage, power, data, air, fire suppression and control are the same computational object: equipment that owns typed ports, segments that join two ports, junctions where several meet, and sleeves where a run crosses a boundary. Giving each discipline its own record would make "is this network connected" seven different questions with seven different answers, so the graph is shared and only the **rules** are per discipline: an engine validator decides which media a discipline may carry and which unit each medium is measured in, and a domain solver; flow, circuit load, duct pressure; remains a separate analysis this record does not claim to perform.
+ * Typed ports, two-port segments, junctions and boundary sleeves share one graph across disciplines. Discipline rules select medium and unit; quantitative flow, circuit and pressure models remain separate and are not supplied by this graph alone.
  *
- * Nothing here is a catalogue. There is no fixture library, no pipe schedule and no equipment model: a basin, a sprinkler head and a distribution panel are all authored by the production as nodes with the ports they actually have. What the record owns is the part a rendering that merely _looks_ plumbed cannot prove; that every port is joined to something, that the medium and unit agree end to end, that a run crossing a wall declares the sleeve it passes through, that two disciplines do not occupy the same cubic metre, and that the space a panel needs to be opened in stays clear.
+ * Productions author equipment nodes and their ports rather than selecting a built-in fixture catalog. Validation examines declared connectivity, medium/unit agreement, demand, sleeves, run clashes and maintenance keep-outs; missing spatial facts remain explicit analysis gaps rather than measured service performance.
  *
  * The record is **beside** the architecture record rather than inside it, and cites it only by stable id, exactly as an independent fluid domain is bound to a basin by `IAutoMovieWaterFeature`. A drainage network that ends in a floor gully composes that same fluid domain instead of inventing a second model of moving water.
  *

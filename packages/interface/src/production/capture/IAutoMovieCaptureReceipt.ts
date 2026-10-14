@@ -2,11 +2,11 @@ import { IAutoMovieSemanticMaskReceipt } from "../../render/IAutoMovieSemanticMa
 import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 
 /**
- * Provenance returned for one verified capture that reopens through its committed current bundle.
+ * Retained intended receipt for the removed legacy capture result; no current producer or reopening consumer implements this shape.
  *
- * @evidence contracts/common.md#principled-implementation Capture receipt binds exact registry target and compile identity to target-local fingerprint, canonical capture runtime, bundle path and PNG digest, retaining the semantic-mask dependency only for a shot mask.
- * @evidence contracts/common.md#clear-and-simple-design One compact identity record links the portable tool result to verified bundle bytes without duplicating every frame or renderer configuration field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A receipt must reopen against current target and frame identity; a shot mask requires its exact semantic dependency and every other product carries null rather than an unrelated sidecar.
+ * @evidence contracts/common.md#principled-implementation Fields describe the intended registry target, compile/local identities, runtime, bundle and PNG digest, with a semantic dependency for shot masks. Only the retained Frame type currently references this receipt; supplied fields alone establish no verified capture.
+ * @evidence contracts/common.md#clear-and-simple-design The retained identity record separates target and byte claims without duplicating full frame/runtime state; active Oracle preview and bundles use their own current contracts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Intended currentness and shot-mask dependency obligations are not currently implemented for this result shape. A digest or bundle path is a supplied claim rather than proof that bytes were reopened, and no replacement host is introduced.
  * @evidence contracts/common.md#meaningful-documentation Defines production and target identity, compile versus local freshness, capture runtime, content-addressed bundle, exact output digest and mask-null semantics.
  * @author Samchon
  */

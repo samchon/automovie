@@ -25,7 +25,7 @@ export interface IAutoMovieLibrarySourceOwner {
    *
    * @evidence contracts/common.md#principled-implementation The ordinary source evaluator invokes this method only after owner and binding admission; the returned data must pass contribution schema, branch ownership and domain validation before publication.
    * @evidence contracts/common.md#clear-and-simple-design A single synchronous context-to-contribution method keeps source execution separate from subsequent persistent publication and precomputed-generator execution.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returning a payload does not itself complete an owner: empty, cross-branch, invalid and colliding semantic results are refused by the builder.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returning a payload does not itself complete an owner: empty semantic branches, cross-branch, invalid and colliding results refuse. An admitted production-settings owner must return the explicit empty contribution described by this registration.
    * @evidence contracts/common.md#meaningful-documentation States deterministic owner-local construction and verified inputs; the containing registration documents address admission and result ownership.
    */
   build(context: IAutoMovieLibraryBuildContext): IAutoMovieLibraryContribution;

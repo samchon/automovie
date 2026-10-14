@@ -38,7 +38,7 @@ export interface IAutoMovieServicePenetration {
   radius: number;
 
   /**
-   * Whether the annulus around the run was made good; fire-stopped, tanked or gasketed. A sleeve through a waterproof membrane that is not sealed is a leak the render cannot show.
+   * Authored assertion that the annulus is closed, for example by fire-stopping, tanking or gasketing. Validation can require that declaration; it does not simulate actual leakage or prove installed closure.
    */
   sealed: boolean;
 }

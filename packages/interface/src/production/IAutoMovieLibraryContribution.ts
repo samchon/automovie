@@ -5,14 +5,14 @@ import { IAutoMovieModel } from "../model/IAutoMovieModel";
 /**
  * What one library source owner hands back to the builder.
  *
- * Completion is branch-specific: maps publish contexts, models publish models, and spaces publish built environments. Each completed owner supplies at least one result in its own carrier; material, instance, motion and system owners currently have no standalone result carrier and are refused.
+ * Semantic completion is branch-specific: maps publish contexts, models publish models and spaces publish built environments, each with at least one result in its own carrier. Production-settings owners instead return an empty contribution so execution is attributable without claiming semantic artifacts. Material, instance, motion and system owners currently have no standalone result carrier and are refused.
  *
  * Omitted contexts and an empty list both mean no adopted context, preserving older environment/model sources. A map owner with no context still fails completion.
  *
- * @evidence contracts/common.md#principled-implementation Branch admission checks a nonempty own semantic carrier, domain validation and unique published identities; the materialized library retains accepted contribution provenance for observation and review.
+ * @evidence contracts/common.md#principled-implementation Semantic branches require a nonempty own carrier, domain validity and unique identities; admitAutoMovieLibrarySettingsContribution instead requires zero normalized environments, models and contexts. Materialized owners retain accepted provenance separately from payloads.
  * @evidence contracts/common.md#clear-and-simple-design Three existing semantic carriers share one owner return shape, with branch validation preventing nested data from being mistaken for another branch's completed output.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty and cross-branch completion refuse, unsupported standalone carriers refuse explicitly, and optional contexts preserves older model/space source shape without letting an empty map pass.
- * @evidence contracts/common.md#meaningful-documentation States supported branch-to-carrier ownership, nonempty completion, unsupported carriers and context omission; arrays preserve authored order.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty semantic branches and cross-branch completion refuse; settings-only emptiness is an explicit owner contract, and omitted contexts cannot make an empty map complete. Unsupported standalone carriers remain refused.
+ * @evidence contracts/common.md#meaningful-documentation States branch carriers, the settings-only empty exception, unsupported carriers, authored array order and context omission.
  * @author Samchon
  */
 export interface IAutoMovieLibraryContribution {

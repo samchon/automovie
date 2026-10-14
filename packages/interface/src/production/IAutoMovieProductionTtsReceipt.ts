@@ -93,7 +93,7 @@ export interface IAutoMovieProductionTtsReceipt {
   /**
    * Join from final-byte viseme timing to the authored speaking actor.
    *
-   * Optional only for legacy receipts. New receipts record an available or not-run outcome rather than silently dropping mouth motion.
+   * The supported receipt contract requests an available or not-run outcome for new receipts; older receipts may omit it. No current execution reader enforces this field or applies mouth motion, and this repository has no synthesis writer.
    */
   lipSync?: IAutoMovieProductionLipSyncJoin;
 }

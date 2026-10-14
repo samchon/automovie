@@ -1,7 +1,7 @@
 /**
  * The complete state of a soft-body domain at one **absolute** step.
  *
- * Absolute is the whole contract. A state is a pure function of the domain record, the named state applied and the integer step index, so seeking a shot backwards, forwards, or out of order yields exactly the same numbers as playing it straight through; nothing accumulates in a runtime object between frames.
+ * Static evaluation restarts from the domain and selected named state before integrating to the absolute step. Boundary-aware evaluation additionally consumes a complete resolved moving-anchor/capsule history from zero through that step; changing the history changes the trajectory. Replaying the same complete input basis does not depend on a mutable playback cursor, and the boundary-aware path currently has test callers rather than a wired production/viewer host.
  *
  * Particle arrays are flat and row-major: particle `k = row * columns + column` occupies `[3k, 3k + 1, 3k + 2]`.
  *
@@ -47,7 +47,7 @@ export interface IAutoMovieSoftBodyState {
   /**
    * Particle-collider resolutions applied during the last integrated step.
    *
-   * `0` at step `0`, where nothing has been integrated yet; which is not the same claim as a panel resting clear of everything around it. A rest configuration touching a floor still reports no contact, because no step has asked it to.
+   * Zero at step zero because no integration step has applied a projection. This does not establish that the rest mesh is clear of every collider.
    */
   contacts: number;
 }

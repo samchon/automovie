@@ -3,7 +3,7 @@ import { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
 /**
  * An ordered layer build-up applied to one host element.
  *
- * This is the third of the three material records the requirement separates: the substance, the visible surface, and the assembly. It exists because a single colour cannot say that a wall is 300 mm of structure, cavity, insulation, barrier, and board, and because that build-up; not the colour; is what sets the wall's overall thickness, the depth of a window reveal, and which layers survive a junction with the next wall.
+ * Substance, visible finish and assembly carry separate facts. The ordered build-up supplies thickness, reveal depth and layer continuity at junctions; a color alone supplies none of those construction dimensions.
  *
  * The stack is measured, not drawn: {@link axis} names the host-local direction the layers advance along, {@link sense} whether they advance with or against that axis, and {@link offset} where the first layer's outer face sits relative to the host's reference plane. That triple is what lets a build-up be stated once and applied to a wall, a floor, and a soffit without rewriting it for each.
  *

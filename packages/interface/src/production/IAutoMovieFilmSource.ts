@@ -2,22 +2,22 @@ import { IAutoMovieFilmBuildContext } from "./IAutoMovieFilmBuildContext";
 import { IAutoMovieFilmEdit } from "./IAutoMovieFilmEdit";
 
 /**
- * Deterministic film module export authored against the builder's frozen context.
+ * Synchronous film module export authored against the builder's admitted context.
  *
- * @evidence contracts/common.md#principled-implementation One synchronous build method maps the admitted film context to the exact authored edit, which the source sandbox validates before frame-clock normalization and atomic generated publication.
+ * @evidence contracts/common.md#principled-implementation The resident Node export's synchronous build method returns an authored edit that the builder validates before timeline assembly and publication; the signature establishes neither isolated execution nor deterministic ambient effects.
  * @evidence contracts/common.md#clear-and-simple-design A single build entry separates authored composition from compiler-owned source loading, validation and timeline materialization, without exposing project mutation or renderer services.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Film authoring cannot substitute delivered video bytes for an edit or select undeclared assets through hidden host access; all supported inputs arrive through the deterministic context.
- * @evidence contracts/common.md#meaningful-documentation States deterministic module ownership, frozen input context and synchronous production of an authored edit rather than generated media.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Returned media bytes cannot replace the edit schema, and thenable results refuse; synchronous ordinary Node execution can still read ambient state or cause effects, so deterministic source behavior remains the author's responsibility.
+ * @evidence contracts/common.md#meaningful-documentation States resident module ownership, admitted borrowed context and synchronous edit output, including the absence of a runtime sandbox or deep-freeze guarantee.
  * @author Samchon
  */
 export interface IAutoMovieFilmSource {
   /**
-   * Compose one finished-film edit from frozen current design and verified inputs.
+   * Compose one finished-film edit from current design and admitted inputs.
    *
-   * @evidence contracts/common.md#principled-implementation Receives the exact current production and shot registry and returns the source-owned video order and timed tracks; the sandbox checks the edit schema before assembly measures its exact frame grid.
+   * @evidence contracts/common.md#principled-implementation Receives current production and shot records and returns source-owned video order and timed tracks; buildFilmEdit checks the returned schema before frame-grid assembly. The callback executes on its resident module receiver in ordinary Node.
    * @evidence contracts/common.md#clear-and-simple-design One explicit context parameter supplies the entire authoring basis and one return value supplies composition, keeping source code independent of compiler mutation and publication sequencing.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This method has no asynchronous provider or capture channel, so its result remains deterministic source output rather than externally sampled media hidden inside compilation.
-   * @evidence contracts/common.md#meaningful-documentation Defines the frozen design and verified-input basis and the finished-film edit output owned by this authoring entry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A Promise-like return is refused instead of awaited, but synchronous code can access host state and shared aliases; the method contract does not certify determinism or prohibit every external effect at runtime.
+   * @evidence contracts/common.md#meaningful-documentation Defines the current borrowed input basis, synchronous finished-film edit output, receiver semantics and the remaining author responsibility for deterministic execution.
    */
   build(context: IAutoMovieFilmBuildContext): IAutoMovieFilmEdit;
 }

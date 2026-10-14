@@ -4,7 +4,7 @@ import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
 /**
  * Explicit triangle-mesh geometry: imported, baked, or deterministically generated.
  *
- * Unlike a {@link AutoMoviePrimitiveShape} with compact named dimensions, a mesh carries explicit bulk vertex data. Ingest may decode it from a glTF/VRM/FBX, an engine may bake it, or ordinary production TypeScript may generate it deterministically from reviewed equations and inputs. An authoring agent does not hand-transcribe opaque bulk arrays; it authors the named generator and lets that program produce the data.
+ * Unlike a {@link AutoMoviePrimitiveShape} with compact named dimensions, a mesh carries explicit bulk vertex data. Supported ingest reads glTF, GLB or VRM appearance; this repository implements no FBX importer. An engine may bake triangles, or ordinary production TypeScript may generate them from authored equations and inputs. An authoring agent authors the named generator rather than transcribing opaque bulk arrays.
  *
  * Attributes follow the glTF convention of parallel flat arrays indexed by vertex: `positions` is `[x0,y0,z0, x1,y1,z1, ...]`, so `positions.length` is `3 * vertexCount`. `normals` and `uvs` (when present) align to the same vertex order. `skin` binds vertices to skeleton bones for deformation.
  *
@@ -12,7 +12,7 @@ import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
  *
  * @evidence contracts/common.md#principled-implementation Parallel flat buffers share one render-vertex index; validateMesh checks tuple cardinality, finite values, indices and skin weights, while physical correspondence separately identifies true source aliases for topology without merging independent contact points.
  * @evidence contracts/common.md#clear-and-simple-design Positions and triangle addressing are the geometry core, with nullable shading and skin buffers and optional correspondence, colour and relief attributes; each optional attribute states its own neutral absence rather than requiring placeholder arrays.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit buffers must come from imported bytes or an authored deterministic generator rather than transcribed opaque content; source identity cannot exempt a triangle from area, winding or intersection validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit buffers come from adopted bytes or an authored generator, without a source-identity exemption from existing admission. Physical correspondence supplies topology; incidence and winding checks alone do not certify nonzero triangle area or absence of geometric intersections.
  * @evidence contracts/common.md#meaningful-documentation Defines flat tuple layouts, metre positions, attribute alignment, indexed and non-indexed ordering, null shading and skin semantics, physical-source ownership and optional colour and relief defaults and export limits.
  * @author Samchon
  */

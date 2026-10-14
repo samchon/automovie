@@ -39,13 +39,12 @@ export interface IAutoMovieSceneEnvironment {
   /**
    * Renderer shadow-map policy for physical scene lights.
    *
-   * The master switch, and it outranks the lights: `enabled: false` renders no shadow map for this scene's beauty pass however many of its lights declare `castShadow`, and the render budget prices them the same way. A light's `castShadow` and `shadow` settings therefore state what that light WOULD cast; this states whether the scene pays for any of it, which is what lets a draft drop the whole cost without editing every light in the set.
+   * The master switch, and it outranks the lights: `enabled: false` renders no shadow map for this scene's beauty pass however many of its lights declare `castShadow`, and the render budget prices them the same way. A light's `castShadow` and `shadow` settings therefore state what that light would cast; this states whether the scene pays for any of it, which is what lets a draft drop the whole cost without editing every light in the set.
    */
   shadows: {
     /** Whether shadow maps are rendered in beauty passes. */
     enabled: boolean;
 
-    /** Deterministic Three.js shadow-filter family. */
     /**
      * Effective filters are PCF and VSM. The legacy pcfSoft spelling is a PCF alias. VSM is supported for directional and spot shadows; enabled shadow-casting point lights with VSM are refused before rendering.
      */

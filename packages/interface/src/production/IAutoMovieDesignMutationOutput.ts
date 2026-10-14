@@ -3,7 +3,7 @@ import { IAutoMovieDesignTarget } from "./IAutoMovieDesignTarget";
 import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 
 /**
- * Atomic design-setter or erasure result with revision, diagnostics and downstream effects. Refusal preserves tracked state; a refused erasure may still report the existing target's fingerprint.
+ * Atomic design-setter or erasure result with revision, diagnostics and predicted downstream consequences. Refusal preserves tracked state; a refused erasure may still report the existing target's fingerprint.
  *
  * @evidence contracts/common.md#principled-implementation Accepted mutation commits the addressed design and its audit effects under the project revision boundary; refusal leaves tracked state unchanged while exposing validation findings and predicted dependency consequences.
  * @evidence contracts/common.md#clear-and-simple-design Acceptance, current revision, exact target, optional fingerprint, consequences and diagnostics separate commit outcome from the information needed to correct a refused mutation.
@@ -25,12 +25,12 @@ export interface IAutoMovieDesignMutationOutput {
   fingerprint: string | null;
 
   /**
-   * Downstream review, render and generated artifacts made stale or removed by the accepted mutation, or predicted for a refused mutation.
+   * Predicted downstream review, render and generated-output dependencies for this mutation. These lists do not attest that each receipt was invalidated or each file removed, even when accepted is true.
    */
   consequences: IAutoMovieDesignMutationConsequences;
 
   /**
-   * Validation, reference and downstream diagnostics. A refused mutation never changes tracked state; accepted warnings must be corrected before compile.
+   * Validation, reference and downstream diagnostics. A refused mutation preserves tracked state; advisory warnings remain visible, while error-level compile findings block publication.
    */
   diagnostics: IAutoMovieDiagnostic[];
 }

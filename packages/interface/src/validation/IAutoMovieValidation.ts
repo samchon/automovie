@@ -1,9 +1,9 @@
 import { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 
 /**
- * The result of running a automovie artifact through the deterministic validator tiers: success, or the full list of violations to feed back.
+ * Result of the engine validation checks actually invoked for an artifact.
  *
- * Discriminated on `success` so the consumer either proceeds with the validated artifact or hands `violations` to the harness for a correction round. Success means no `"error"`-severity violation: a run that produced only `"warning"`s (physical-plausibility advice) still succeeds, carrying them in `warnings` for the harness to surface without blocking. The shape mirrors typia's `IValidation` so the two compose: typia handles Tier 1 (type/range) structurally, and the engine appends Tier 2+ (ROM, physics, temporal) domain violations into the same envelope.
+ * The success discriminator means no collected error-severity violation; warning-only results retain advice without failing. Failure carries the complete collected violations. Selected Production ingress uses typia's separate data/errors envelope and projects schema findings at its boundary; this record neither shares those fields nor proves that every structural or domain validator ran.
  *
  * @evidence contracts/common.md#principled-implementation toValidation returns failure when any collected item has error severity, success with warnings for a warning-only list and clean success for an empty list.
  * @evidence contracts/common.md#clear-and-simple-design The success discriminator separates a permitted artifact from the complete refusal list while keeping nonblocking advice available.

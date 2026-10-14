@@ -33,7 +33,7 @@ import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
  */
 export interface IAutoMovieProductionShotProgram extends IAutoMovieShotProgram {
   /**
-   * Source-owned generated models assembled by ordinary TypeScript. Imported assets remain builder-owned production inputs rather than sandbox output.
+   * Source-owned generated models assembled by ordinary TypeScript. Imported assets remain builder-owned production inputs, separate from this returned model population.
    */
   models?: IAutoMovieModel[];
 

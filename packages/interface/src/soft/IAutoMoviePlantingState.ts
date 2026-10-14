@@ -5,7 +5,7 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 /**
  * The derived structure of one planting recipe at its authored growth state.
  *
- * A pure function of the recipe. Nothing accumulates between calls, so two derivations of the same record are bit-identical and a plant re-derived in a later chunk of the same render is the same plant.
+ * Derivation restarts from the complete recipe without accumulating playback state. Replaying the same admitted inputs under the same numeric implementation repeats that derivation; this record supplies no independently observed cross-host or GPU bit-equality certificate.
  *
  * Every coordinate here is in the recipe's own frame, with the trunk's base at the origin. That is what makes one derived structure serve a whole bed: the cluster's placements carry the world transforms, and a renderer composes the two. A consumer that read these as world coordinates would draw forty ferns on top of each other at the origin.
  *

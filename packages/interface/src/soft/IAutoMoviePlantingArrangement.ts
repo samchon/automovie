@@ -4,7 +4,7 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 /**
  * The deterministic arrangement of one planting cluster.
  *
- * Members are generated from the cluster seed alone, so the same cluster is the same arrangement everywhere, and refusals are counted rather than hidden.
+ * Members depend on the complete cluster: seed, count, anchor, extent, spacing, attempts, scale and yaw choices. The seeded algorithm replays those admitted inputs and counts refusal; this record carries no independently observed cross-platform bit certificate.
  *
  * @evidence contracts/common.md#principled-implementation arrangePlantingCluster derives candidates from seed, slot and attempt, accepts minimum-spaced positions against already placed members and reports rejected slots with exact accepted full-TRS placements.
  * @evidence contracts/common.md#clear-and-simple-design The result separates requested cluster/recipe identity from accepted positions, refusal count and nullable placement-origin bounds.

@@ -7,18 +7,11 @@ import { IAutoMovieDesignSubject } from "./IAutoMovieDesignSubject";
 import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
 /**
- * Phases, alternatives, and derivation for one work, over identities other
- * graphs own.
+ * Phases, alternatives, and derivation for one work, over identities other graphs own.
  *
- * Nothing here is a building. The record annotates ids that already exist
- * elsewhere, which is what keeps a renovation from being modelled as a second
- * building and an alternative from being modelled as a third. A production that
- * declares no lineage at all is unaffected: this fold is additive, and its
- * absence means only that no phase or alternative claim is being made.
+ * Nothing here is a building. The record annotates ids that already exist elsewhere, which is what keeps a renovation from being modelled as a second building and an alternative from being modelled as a third. A production that declares no lineage at all is unaffected: this fold is additive, and its absence means only that no phase or alternative claim is being made.
  *
- * A shot's lineage is validated for coherence when the shot compiles, and its
- * subjects are bound to the ids the production publishes when the production
- * builds. A stale derived artifact is a refusal, not a warning.
+ * A shot's lineage is validated for coherence when the shot compiles, and its subjects are bound to the ids the production publishes when the production builds. A stale derived artifact is a refusal, not a warning.
  *
  * @evidence contracts/common.md#principled-implementation Coherence is checked by `validateDesignLineage` in the shot runtime (unique ids, acyclic revision, phase and derivation graphs, a resolving head, total lifecycles, head-stamped derived artifacts) and binding by `validateDesignLineageBinding` in the production builder against the ids the compiled buildings, models, and asset uses publish.
  * @evidence contracts/common.md#clear-and-simple-design One record holds the seven lists a lineage answers from, each owned by its own member type, and points at foreign graphs only through subject ids, so no building type gains a phase or variant field.
@@ -33,8 +26,7 @@ export interface IAutoMovieDesignLineage {
   /**
    * Stable, non-blank lineage identity within the production.
    *
-   * Canonically equal lineages may be shared across shots. Different lineages
-   * under one id refuse compilation rather than replace one another.
+   * Canonically equal lineages may be shared across shots. Different lineages under one id refuse compilation rather than replace one another.
    */
   id: string;
 

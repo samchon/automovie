@@ -43,7 +43,7 @@ export interface IAutoMovieExternalMotionConversionReceipt {
   /** Ordered ledger of dropped, approximated, or altered source facts. */
   losses: IAutoMovieExternalMotionLossEntry[];
 
-  /** Source-to-target compatibility findings before user authorization. */
+  /** Compatibility findings for the authored adoption; no separate override-authorization workflow is implemented. */
   characterization: IAutoMovieExternalMotionReceiptCharacterization;
 
   /** Canonical motion and generated output identities. */

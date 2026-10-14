@@ -5,12 +5,9 @@ import { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
 /**
  * One physical light placed on the authored set.
  *
- * Each family takes exactly its own parameters: a field that cannot act on the
- * declared family is refused, not ignored. `stageScene` lowers the placement
- * to the scene light its `type` names, aiming local -Z along `direction` and
- * translating to `position`.
+ * Each family takes exactly its own parameters: a field that cannot act on the declared family is refused, not ignored. `stageScene` lowers the placement to the scene light its `type` names, aiming local -Z along `direction` and translating to `position`.
  *
- * @evidence contracts/common.md#principled-implementation `validateLightPlacementShape` derives the family from `type`, defaulting to directional, then requires or forbids each field by family: an aim for every family but point, a position for every family but directional, `range` only on point and spot, `coneAngle` only on spot within `(0, 90]`, `width` and `height` only on area, `castShadow` never on area and always with `shadow`; colour components must lie in `[0, 1]`.
+ * @evidence contracts/common.md#principled-implementation `validateLightPlacementShape` derives the family from `type`, defaulting to directional, then requires or forbids each field by family: an aim for every family but point, a position for every family but directional, `range` only on point and spot, `coneAngle` only on spot within `(0, 90]`, and `width` and `height` only on area. Area forbids castShadow presence; punctual castShadow true requires shadow tuning, while false permits no tuning. Colour components must lie in `[0, 1]`.
  * @evidence contracts/common.md#clear-and-simple-design Shared identity, colour and intensity intersect a union discriminated by light type; every arm requires its physical inputs and marks inapplicable fields never, while the directional arm alone permits omission of type for the established sun-light default.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Defaults exist only where the family defines one, a `range` of `0`, a 45 degree cone and neutral white, and an area panel's extent has no default because an unstated window size is an undecided design, not a usual softbox.
  * @evidence contracts/common.md#meaningful-documentation States the per-family requirement of every optional field, the default each omission takes, intensity units per family, that `role` is never read, and why an area light takes neither `range` nor a shadow.
@@ -24,14 +21,12 @@ export type IAutoMovieStageLight = {
   role?: "key" | "fill" | "rim" | "ambient" | "sun";
 
   /**
-   * Linear light color with `r`, `g`, `b` in `[0, 1]` and `a` either `null`
-   * or in `[0, 1]`; omitted means neutral white with `a: null`.
+   * Linear light color with `r`, `g`, `b` in `[0, 1]` and `a` either `null` or in `[0, 1]`; omitted means neutral white with `a: null`.
    */
   color?: IAutoMovieColor;
 
   /**
-   * Finite non-negative intensity, lowered verbatim: lux for directional,
-   * candela for point and spot, and nits for an area panel.
+   * Finite non-negative intensity, lowered verbatim: lux for directional, candela for point and spot, and nits for an area panel.
    */
   intensity: number;
 

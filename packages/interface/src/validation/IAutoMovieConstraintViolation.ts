@@ -3,7 +3,7 @@ import { AutoMovieViolationKind } from "./AutoMovieViolationKind";
 /**
  * One deterministic constraint violation: the unit of feedback a direct authoring caller or build boundary turns into a located correction.
  *
- * This is automovie's domain-level analogue of typia's `IValidation.IError`, enriched with a {@link AutoMovieViolationKind} (so failures route to the right tier/corrector) and a human-and-LLM-readable `expected` string. The engine emits these from its ROM / physics / temporal verifiers at the offending JSON path. A direct caller consumes them as data, and the same objects cross every boundary that carries a refusal outward, so both direct and remote callers see exactly what was wrong and fix only that field. This object _is_ how a rejected fact or a physics warning becomes an actionable signal rather than a silent failure.
+ * Engine verifiers report rule kind, severity, offending JSON path, expected condition and observed value. Direct callers receive these records; a build boundary may project them into its own diagnostic schema rather than preserving object identity or every field. The record supplies located correction data and does not write annotations into authored source.
  *
  * @evidence contracts/common.md#principled-implementation violation and ViolationCollector retain the failed rule category, severity, located path and observed value; toValidation treats any error as failure and preserves warnings alongside errors.
  * @evidence contracts/common.md#clear-and-simple-design One data record supports direct and build callers; optional magnitude and script-node location add context without separate feedback subclasses.
@@ -21,7 +21,7 @@ export interface IAutoMovieConstraintViolation {
   severity: "error" | "warning";
 
   /**
-   * JSON path to the offending value, in typia's `$input...` notation (e.g. `$input.joints[3].flexion`). This is the anchor the `// ❌` comment attaches to.
+   * JSON path to the offending value, in typia's `$input...` notation (e.g. `$input.joints[3].flexion`). A caller uses it to locate the correction; this record writes no source comment.
    */
   path: string;
 
@@ -31,12 +31,12 @@ export interface IAutoMovieConstraintViolation {
   expected: string;
 
   /**
-   * The actual offending value, carried verbatim for the feedback comment. `unknown` because a violation can occur at any field type; this is the one deliberate `unknown` at the validation boundary.
+   * The observed offending value, retained without coercion. `unknown` permits malformed values at any field type; downstream diagnostic projection need not retain it.
    */
   value: unknown;
 
   /**
-   * Signed magnitude by which the value missed the bound, in the channel's own unit (degrees for ROM): how far _past_ the limit it sat (an elbow at 175° against a 150° max → `25`). Present only for numeric overshoots; lets a corrector judge severity (a 2° graze vs a 90° break) and the `// ❌` comment quote the gap. Absent for non-numeric or non-magnitude violations.
+   * Signed magnitude by which the value missed the bound, in the channel's own unit (degrees for ROM): an elbow at 175° against a 150° maximum yields `25`. Present only when the producer supplies a numeric overshoot, otherwise absent; magnitude does not determine severity.
    */
   overshoot?: number;
 

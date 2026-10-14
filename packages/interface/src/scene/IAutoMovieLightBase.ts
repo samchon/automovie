@@ -26,14 +26,14 @@ export interface IAutoMovieLightBase {
   color: IAutoMovieColor;
 
   /**
-   * Radiant intensity, `>= 0`: lux for directional, candela for point/spot, and nits (candela per square metre) for an area panel, whose emitted power is therefore its intensity times its own area.
+   * Finite nonnegative photometric magnitude: illuminance in lux for directional, luminous intensity in candela for point/spot and luminance in nits (candela per square metre) for an area panel. Three's rectangular-area power convention is luminous flux in lumens equal to intensity times width times height times PI.
    */
   intensity: number;
 
   /**
    * Whether this source casts a shadow map. Omitted preserves legacy output.
    *
-   * What this light WOULD cast, not what the frame renders: a scene's `environment.shadows.enabled` is the master switch and turning it off renders no shadow map for any light, which is also how the render budget prices it. A scene declaring no environment leaves the decision to the host renderer, exactly as it did before environments existed.
+   * What this light would cast, not what the frame renders: a scene's `environment.shadows.enabled` is the master switch and turning it off renders no shadow map for any light, which is also how the render budget prices it. A scene declaring no environment leaves the decision to the host renderer, exactly as it did before environments existed.
    *
    * Only the three punctual kinds can cast one. A rectangular area source is analytically integrated rather than rasterized from a light-space camera, so `three.js` renders no shadow map for it and the engine refuses `castShadow` on an {@link IAutoMovieAreaLight} instead of accepting a flag no frame would honor.
    */

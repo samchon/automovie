@@ -4,12 +4,12 @@ import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Frozen current design and verified inputs available to deterministic film authoring.
+ * Current design and admitted inputs supplied to ordinary Node film authoring.
  *
- * @evidence contracts/common.md#principled-implementation Production design, current shot contracts, present declared assets, verified derived payloads and registered effect zones form the admitted snapshot supplied to the sandboxed film builder.
- * @evidence contracts/common.md#clear-and-simple-design The context exposes only film-composition inputs, using id-keyed readonly shot and artifact tables rather than permitting mutable project services or filesystem access inside the authoring callback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Film source cannot manufacture current asset ownership or regenerate stale derived artifacts through this context; the builder establishes their presence and content identity before sandbox execution.
- * @evidence contracts/common.md#meaningful-documentation States frozen snapshot ownership, active production, shot indexing, present render-content paths, verified derived input indexing and registered effect-zone scope.
+ * @evidence contracts/common.md#principled-implementation The builder groups current production, shot contracts, present asset paths, admitted derived payloads and effect zones for the synchronous source callback. Production and other nested records can remain borrowed; construction performs no deep freeze.
+ * @evidence contracts/common.md#clear-and-simple-design Id-keyed readonly tables expose composition inputs without adding project-service methods to this shape; ordinary Node still gives the module ambient host capabilities independently of the context.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Input acquisition checks declared presence and identity before source execution, but this record supplies neither filesystem isolation nor protection against mutation through another alias. Authors must preserve deterministic input use.
+ * @evidence contracts/common.md#meaningful-documentation Defines current production, shot and artifact indexing, asset paths and effect zones, with readonly access distinguished from runtime immutability and sandboxing.
  * @author Samchon
  */
 export interface IAutoMovieFilmBuildContext {

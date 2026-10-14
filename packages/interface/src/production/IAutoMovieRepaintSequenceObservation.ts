@@ -4,9 +4,9 @@ import { IAutoMovieRepaintObservationMember } from "./IAutoMovieRepaintObservati
 /**
  * Versioned aggregate playback observation over one exact current ordered visual member set.
  *
- * @evidence contracts/common.md#principled-implementation Sequence admission compares production, compile, timeline, baseline, canonical member population and observed artifact digest, then requires completed status and passing verdicts on every independent temporal axis.
+ * @evidence contracts/common.md#principled-implementation Sequence admission compares production, compile, timeline, caller-supplied baseline, canonical member population and artifact digest, then requires completed status and passing stored verdicts on every temporal axis. Final delivery currently passes this record's own baseline as the expected baseline rather than resolving an independent current baseline.
  * @evidence contracts/common.md#clear-and-simple-design Separates observation basis and playback artifact from the five review verdicts, retaining intentional baseline deltas instead of treating every visible difference as drift.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Current ordered membership and artifact bytes must match; stale selected receipts, incomplete playback or any non-pass axis refuse, while verdicts remain explicit external observations rather than an invented automatic image-quality score.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Current ordered membership and artifact bytes must match; stale selected receipts, incomplete playback or any non-pass axis refuse. Stored verdicts are external assertions, not fresh playback, and final delivery does not independently establish baseline currency.
  * @evidence contracts/common.md#meaningful-documentation Defines current basis, baseline scope and intended deltas, ordered lane population, observed artifact identity, playback context and independent completion and verdict fields.
  * @author Samchon
  */

@@ -28,7 +28,7 @@ export interface IAutoMovieSceneNode {
   motion: string | null;
 
   /**
-   * A held static pose when the node is not playing a motion, or `null` to use the model's rest pose. Ignored when `motion` is set.
+   * A held static pose when motion is null, or null for model rest. Admission refuses a nonnull pose alongside nonnull motion rather than ignoring either authored state.
    */
   pose: IAutoMoviePose | null;
 }

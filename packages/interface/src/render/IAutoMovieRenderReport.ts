@@ -6,7 +6,7 @@ import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
  *
  * Each fixed metric carries at most the caller-selected positive safe integer K dominant owners, defaulting to the engine's contributor limit, with omitted owners and cost counted. Fixed K bounds the finding population; the complete report still retains its borrowed target asset inventory and variable-length source and recovery strings.
  *
- * A finding never reports a missing analysis as a pass. `unsupported` and `not-run` are first-class outcomes that make the whole report `incomplete`, because "we did not look" and "we looked and it was fine" are different facts and only one of them clears an artifact.
+ * Unsupported or not-run analysis prevents aggregate within. A measured budget breach takes over precedence; otherwise an analysis gap makes the report incomplete. Missing measurement never becomes a successful numeric finding.
  *
  * @evidence contracts/common.md#principled-implementation Budget evaluation emits one finding per fixed metric, reduces aggregate state by over then incomplete precedence and hashes fixed-position JSON tuples covering every finding field, including contributor sources and recovery, plus mask and target identity.
  * @evidence contracts/common.md#clear-and-simple-design Fixed metrics and caller-selected top-K attribution bound new finding records while omitted counts and costs preserve remaining attribution; borrowed target assets and string bytes still determine full retained or serialized report size.
@@ -27,7 +27,7 @@ export interface IAutoMovieRenderReport {
   /**
    * Worst outcome across findings: `over` when any budgeted metric exceeds its limit, otherwise `incomplete` when any metric is `unsupported` or `not-run`, otherwise `within`.
    *
-   * `within` means exactly "nothing measured exceeded a declared limit and no analysis is missing". It does NOT mean the production is budgeted: a legacy production that declares no budget reports `within` with every finding `unbudgeted` and the tier spelled `unbudgeted`, which is the documented default and is deliberately distinguishable from a production that declared limits and met them.
+   * `within` means exactly "nothing measured exceeded a declared limit and no analysis is missing". It does not mean the production is budgeted: a legacy production that declares no budget reports `within` with every finding `unbudgeted` and the tier spelled `unbudgeted`, distinguishable from a production that declared limits and met them.
    */
   status: "within" | "over" | "incomplete";
 

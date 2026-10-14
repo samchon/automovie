@@ -2,14 +2,9 @@
 /**
  * The exact view one derived artifact was produced under.
  *
- * Every field is required because a missing one is the failure mode this record
- * exists to prevent: a quantity take-off that does not say which alternative it
- * counted, or a render that does not say which phase it depicts, is a number
- * and a picture that cannot be checked against anything.
+ * Every field is required because a missing one is the failure mode this record exists to prevent: a quantity take-off that does not say which alternative it counted, or a render that does not say which phase it depicts, is a number and a picture that cannot be checked against anything.
  *
- * The revision must be the lineage head, a named variant must be based on that
- * revision, a named phase must be declared, and an artifact computed from
- * another artifact must carry the same stamp as its input.
+ * The revision must be the lineage head, a named variant must be based on that revision, a named phase must be declared, and an artifact computed from another artifact must carry the same stamp as its input.
  *
  * @evidence contracts/common.md#principled-implementation `validateDesignLineage` compares the revision with the head, resolves the variant and checks its base equals the revision, resolves the phase, checks the configuration's `sha256:` form, and requires field-by-field equality with every derived input's stamp.
  * @evidence contracts/common.md#clear-and-simple-design Four fields name the revision, alternative, phase, and lowering configuration, the complete set of choices that change a derived output, with null standing for the base design or a phase-independent view.

@@ -32,7 +32,7 @@ export interface IAutoMovieMaterial {
   /** Metalness, `[0, 1]`. `0` = dielectric, `1` = metal. */
   metallic: number;
 
-  /** Surface roughness, `[0, 1]`. `0` = mirror-smooth, `1` = fully diffuse. */
+  /** PBR microfacet roughness in `[0, 1]`, from smooth to maximally rough; one does not remove the specular lobe. */
   roughness: number;
 
   /**

@@ -7,7 +7,7 @@ import { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRange";
  *
  * Repetition is generated, never hand-duplicated. Every member is a seeded placement of the same recipe, and members are refused rather than overlapped when they cannot honour {@link minSpacing}, so a cluster is a stated arrangement with a stated collision rule instead of a list of coordinates somebody typed.
  *
- * @evidence contracts/common.md#principled-implementation Bounded per-slot rejection sampling uses seed-index-attempt candidates in a world-XZ rectangle and a uniform-grid spacing test equivalent to exhaustive neighbouring-point rejection, then emits full TRS placements.
+ * @evidence contracts/common.md#principled-implementation Bounded slot/attempt sampling generates candidates in a world-XZ rectangle; a minSpacing-sized grid checks neighboring accepted points before full TRS emission. Exhaustive-test equivalence requires representable cell indices and finite distance-square arithmetic, while zero spacing bypasses rejection; extreme numeric inputs are not universally certified.
  * @evidence contracts/common.md#clear-and-simple-design One cluster defines recipe repetition and placement variability independently from recursive growth and architecture installation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance depends on earlier accepted slots in stable authored order; exhausted attempts produce counted refusal rather than overlap or an invented requested count.
  * @evidence contracts/common.md#meaningful-documentation Defines count, world anchor and half-extents, safe seed, spacing and attempt bounds, axis scale and normalized-quaternion yaw jitter.

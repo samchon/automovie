@@ -5,30 +5,30 @@ import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 import { IAutoMovieCaptureReceipt } from "./IAutoMovieCaptureReceipt";
 
 /**
- * One current registry-owned evidence-frame capture or explicit refusal.
+ * Retained frame-capture result contract; no current repository producer returns this shape after removal of the legacy capture orchestrator.
  *
- * @evidence contracts/common.md#principled-implementation Capture resolves current production registry membership, delegates decoded PNG generation to the oracle and reopens the committed bundle through its exact target and frame receipt before returning success.
- * @evidence contracts/common.md#clear-and-simple-design Success groups frame metadata and receipt beside the affected review target, while refusal nulls both and supplies attributed diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Provider-reported pixels alone are insufficient; stale target or receipt identity and non-reopenable output refuse instead of manufacturing evidence metadata.
- * @evidence contracts/common.md#meaningful-documentation Defines verified capture effect, production and review ownership, receipt and frame refusal nulls, snapped time and exact PNG identity.
+ * @evidence contracts/common.md#principled-implementation The erased record groups intended capture outcome, production/review identity, receipt, PNG metadata and diagnostics. Its retained contract describes committed-frame success and refusal, but no current producer establishes those effects for this type.
+ * @evidence contracts/common.md#clear-and-simple-design Receipt and frame are nullable within one result rather than copying host state into the authoring AST; active Oracle preview and capture bundles use their separate current contracts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplying this shape alone does not verify PNG bytes, current registry membership or committed receipt identity. Removal of its legacy producer is not compensated by a new host or fabricated success.
+ * @evidence contracts/common.md#meaningful-documentation Defines the retained field meanings, refusal nulls, frame units and intended receipt relation, with current producer absence explicit.
  * @author Samchon
  */
 export interface IAutoMovieCaptureFrame {
   /**
-   * True only after decoded pixels and their receipt are atomically committed.
+   * Intended committed-frame success flag; this type has no current producer enforcing it.
    */
   captured: boolean;
 
   /** Production namespace used for the attempt. */
   productionId: string;
 
-  /** Review surface whose current evidence changed, when captured. */
+  /** Review surface attributed to the intended capture, or null. */
   reviewTarget: IAutoMovieReviewTarget | null;
 
-  /** Verified receipt, or null on refusal. */
+  /** Intended capture receipt, or null on refusal; presence alone is not verification. */
   receipt: IAutoMovieCaptureReceipt | null;
 
-  /** Verified current PNG, or null on refusal. */
+  /** Intended PNG metadata, or null on refusal; bytes are not reopened by this type. */
   frame: {
     /** Snapped frame index. */
     index: number;
@@ -57,17 +57,17 @@ export interface IAutoMovieCaptureFrame {
 }
 
 /**
- * Result of producing one actual current evidence frame.
+ * Input paired with the retained, currently unproduced frame-result contract.
  *
  */
 export namespace IAutoMovieCaptureFrame {
   /**
    * One registry-target frame request with optional bounded raster dimensions.
    *
-   * @evidence contracts/common.md#principled-implementation A closed target selects current shot time or asset turntable state; optional positive dimensions configure the existing production-bound PNG capture path.
+   * @evidence contracts/common.md#principled-implementation A closed target and optional dimensions describe the retained request shape; shot/frame or asset state remains explicit, but no current frame-result producer consumes this request.
    * @evidence contracts/common.md#clear-and-simple-design Request fields remain grouped under the capture result's namespace so one public file identity exposes the paired input and output contract.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Dimensions cannot exceed admitted production raster limits, and no arbitrary scene graph or file output enters through this request.
-   * @evidence contracts/common.md#meaningful-documentation Defines exact target ownership and optional positive integer raster bounds.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Intended positive production-bounded dimensions remain documented author obligations; the erased request supplies no active range gate, arbitrary scene graph, output effect or verified receipt.
+   * @evidence contracts/common.md#meaningful-documentation Defines target ownership, intended positive integer raster bounds and current request-consumer absence.
    * @author Samchon
    */
   export interface IProps {

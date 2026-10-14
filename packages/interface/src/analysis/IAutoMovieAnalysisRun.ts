@@ -3,14 +3,9 @@ import { IAutoMovieAnalysisOutcome } from "./IAutoMovieAnalysisOutcome";
 import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
 
 /**
- * One analysis run: what was asked, of which design revision, by which solver,
- * and what came back.
+ * One analysis run: what was asked, of which design revision, by which solver, and what came back.
  *
- * {@link inputRevision} makes a result perishable. A run that read revision
- * `r7` is evidence about `r7` only, so a report assembled at `r8` counts it as
- * stale rather than as an answer. {@link digest} seals the record, so a run
- * whose outcome was edited after sealing fails validation instead of passing as
- * a measurement.
+ * {@link inputRevision} makes a result perishable. A run that read revision `r7` is evidence about `r7` only, so a report assembled at `r8` counts it as stale rather than as an answer. {@link digest} seals the record, so a run whose outcome was edited after sealing fails validation instead of passing as a measurement.
  *
  * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text, checks the record with the contents rules `validateAutoMovieAnalysisRun` also applies, throws on the first violation, and only then digests the record; the validator recomputes that digest, so the stored seal is checked against the same canonical text that produced it.
  * @evidence contracts/common.md#clear-and-simple-design The settings are stored only as a digest because a run must prove what it was configured with, not replay it; the solver and outcome stay nested records the digest reads in fixed order.
@@ -32,8 +27,7 @@ export interface IAutoMovieAnalysisRun {
   domain: AutoMovieAnalysisDomain;
 
   /**
-   * Non-blank open subject label, usually the logical space or boundary
-   * analysed.
+   * Non-blank open subject label, usually the logical space or boundary analysed.
    */
   subject: string;
 
@@ -44,8 +38,7 @@ export interface IAutoMovieAnalysisRun {
   solver: IAutoMovieAnalysisSolver;
 
   /**
-   * Digest of the canonical settings text the run was configured with, written
-   * `sha256:` followed by 64 lowercase hex digits.
+   * Digest of the canonical settings text the run was configured with, written `sha256:` followed by 64 lowercase hex digits.
    */
   settings: string;
 
@@ -53,8 +46,7 @@ export interface IAutoMovieAnalysisRun {
   outcome: IAutoMovieAnalysisOutcome;
 
   /**
-   * Digest over protocol, version, id, domain, subject, input revision, solver,
-   * settings and outcome, in the same `sha256:` form; validation recomputes it.
+   * Digest over protocol, version, id, domain, subject, input revision, solver, settings and outcome, in the same `sha256:` form; validation recomputes it.
    */
   digest: string;
 }

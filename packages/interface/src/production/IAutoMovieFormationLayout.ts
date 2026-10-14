@@ -32,7 +32,7 @@ export type IAutoMovieFormationLayout =
        *
        * Formed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.
        *
-       * The deviation is derived from the formation seed and the slot index, so it costs no storage, regenerates identically everywhere, and the same design always compiles to the same crowd.
+       * Deviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate.
        */
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
@@ -66,7 +66,7 @@ export type IAutoMovieFormationLayout =
        *
        * Formed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.
        *
-       * The deviation is derived from the formation seed and the slot index, so it costs no storage, regenerates identically everywhere, and the same design always compiles to the same crowd.
+       * Deviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate.
        */
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
@@ -97,7 +97,7 @@ export type IAutoMovieFormationLayout =
        *
        * Formed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.
        *
-       * The deviation is derived from the formation seed and the slot index, so it costs no storage, regenerates identically everywhere, and the same design always compiles to the same crowd.
+       * Deviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate.
        */
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */
@@ -122,7 +122,7 @@ export type IAutoMovieFormationLayout =
        *
        * Formed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.
        *
-       * The deviation is derived from the formation seed and the slot index, so it costs no storage, regenerates identically everywhere, and the same design always compiles to the same crowd.
+       * Deviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate.
        */
       dressing?: {
         /** Maximum left-to-right deviation in meters, zero or above. */

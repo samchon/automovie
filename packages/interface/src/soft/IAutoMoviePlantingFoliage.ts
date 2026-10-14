@@ -3,7 +3,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The leaf rule.
  *
- * Leaves are emitted as full-TRS instance occurrences; translation, unit quaternion and per-axis scale; because that is exactly what GPU instancing consumes without loss. A leaf is never a degraded yaw or a uniform scale.
+ * Leaves retain translation, quaternion rotation and independent axis scale as full TRS occurrences. The recipe does not replace that representation with yaw-only or uniform scale; downstream Float32 and GPU conversion still has its own precision limits.
  *
  * @evidence contracts/common.md#principled-implementation Bearing branch length and positive density determine leaf count above minLevel, with seeded scale and roll perturbations yielding unit-quaternion full-TRS occurrences.
  * @evidence contracts/common.md#clear-and-simple-design The foliage law stays separate from branch recursion and material binding so one recipe can become bare without another growth implementation.

@@ -5,7 +5,7 @@ import { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
 /**
  * One standable surface patch of a space: the semantic ground the engine queries where it previously assumed a single scalar plane.
  *
- * The parameterization is deliberately minimal ("proxy means the thing", D011): an **XZ footprint**; one outer ring, optionally holed; plus one statement of how high the ground is over it. The visual set piece behind a surface needs no new geometry type: a set proxy is an ordinary static {@link IAutoMovieModel} (skeleton `null`) placed as a scene node: a room is a box, a table is a box, per the stickman doctrine. The surface is the _meaning_ (where feet and props may rest); the model is the crude diffusion hint.
+ * One outer XZ ring with optional holes defines the footprint, and one height representation defines support over it. Visible set geometry remains a separately authored model; this surface states where feet and props can rest rather than prescribing that model's shape.
  *
  * **A surface states its ground exactly one way.** Either the general {@link height} rule, which is the same rule a production world's terrain carries, or the two-anchor spelling below, which says the same thing for the flat and single-plane cases and is what every space authored before relief existed says. Stating both, or neither, is refused by `validateSpace`: a patch with two heights is a patch whose feet and whose renderer can disagree, which is the whole failure this record exists to prevent.
  *
@@ -47,7 +47,7 @@ export interface IAutoMovieSurface {
   /**
    * The general ground rule: a `constant` level, a `plane` slope, or a `heightfield` lattice the surface interpolates bilinearly.
    *
-   * This is the one thing the two-anchor spelling cannot say. A flat patch and a ramp are a level and a tilt, so relief; a rise, a terrace, a bank, a stepped approach; has no anchors to be written with, and a shot staged on terrain that rises had to flatten it. Carrying the world's own rule here means the ground a crowd is placed on and the ground a performer plants a foot on are one statement read by one function.
+   * Constant and plane rules cover level and tilted ground; a heightfield additionally describes sampled relief. World terrain and scene support share this evaluator, with the same interpolation and finite-derived-arithmetic limits.
    *
    * Present means {@link anchor} and {@link rampTo} are absent, and the reverse.
    */

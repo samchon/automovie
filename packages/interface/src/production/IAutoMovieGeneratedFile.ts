@@ -15,7 +15,7 @@ export interface IAutoMovieGeneratedFile {
   /** Ownership marker. */
   owner: "builder";
 
-  /** SHA-256 identity of the exact file bytes, formatted as sha256 plus 64 lowercase hexadecimal digits. */
+  /** SHA-256 identity of exact file bytes: the literal sha256: prefix followed by 64 lowercase hexadecimal digits. */
   digest: string;
 
   /** Design or source targets that produced the file. */

@@ -12,12 +12,12 @@ import { IAutoMovieInstanceSlot } from "./IAutoMovieInstanceSlot";
  */
 export interface IAutoMovieSourceOracle {
   /**
-   * Euclidean distance in meters between finite world-space points.
+   * Binary64 Euclidean distance in meters between finite world-space points. Extreme finite coordinates can overflow a difference or the final norm to infinity.
    *
-   * @evidence contracts/common.md#principled-implementation Computes Math.hypot of the three coordinate differences, the Euclidean norm; finite meter coordinates remain the caller's input premise.
+   * @evidence contracts/common.md#principled-implementation Computes Math.hypot of binary64 coordinate differences, the Euclidean norm; finite inputs and representable differences and result are caller premises for a finite answer, with ordinary rounding remaining.
    * @evidence contracts/common.md#clear-and-simple-design One scalar answer exposes no geometry representation beyond its two explicit operands.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor id, scene state or expected distance is inferred; the helper does not independently admit non-finite point coordinates.
-   * @evidence contracts/common.md#meaningful-documentation Defines finite world-meter operands and Euclidean meter output.
+   * @evidence contracts/common.md#meaningful-documentation Defines finite world-meter operands, binary64 meter output and extreme-input overflow without implying independent numeric admission.
    */
   distance(
     left: { x: number; y: number; z: number },

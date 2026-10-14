@@ -1,7 +1,7 @@
 /**
  * A library owner whose complete contribution was explicitly precomputed.
  *
- * The builder reads the selected current UTF-8 JSON artifact after admitting this export against its design owner, then applies the same contribution and spatial validation as an executed build. A registration chooses either this path or a build function; generators run only through explicit precomputation.
+ * The builder reads the selected current UTF-8 JSON artifact after admitting this export against its design owner, then applies the same contribution and spatial validation as an executed build. A registration chooses either this path or a build function; artifact admission does not invoke its generator. Loading the registration still executes an ordinary Node module and does not isolate its ambient effects.
  *
  * @evidence contracts/common.md#principled-implementation admitAutoMovieLibraryDerivedContribution verifies an own current UTF-8 artifact entry and digest-grounded bytes, then uses duplicate-aware structured JSON ingress before normal branch and domain admission.
  * @evidence contracts/common.md#clear-and-simple-design A design address and artifact path select the precomputed contribution without adding a second contribution schema or executing its generator during compile.

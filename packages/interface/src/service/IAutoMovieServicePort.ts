@@ -31,7 +31,7 @@ export interface IAutoMovieServicePort {
   unit: AutoMovieServiceUnit;
 
   /**
-   * Design flow, load or bandwidth through this port in {@link unit}; a finite number `>= 0`. A fitting that merely passes the medium on; a tee, a valve, a damper, a switch; declares `0`, because the demand beyond it is already stated where it is actually drawn.
+   * Finite nonnegative terminal flow, load or bandwidth in unit. A passing tee, valve, damper or switch declares zero to avoid counting the downstream terminal's demand twice.
    *
    * It is the port's own terminal that states it: a basin states what it draws on its `in` supply port and what it discharges on its `out` waste port, so a supply system and a drainage system are each loaded by the end that actually loads them.
    */

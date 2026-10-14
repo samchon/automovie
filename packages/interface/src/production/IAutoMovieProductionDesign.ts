@@ -67,16 +67,16 @@ export interface IAutoMovieProductionDesign {
    *
    * Where {@link storyClock} says when a shot happens, this says what the light is doing then. A shot's `lightMotions` is the right unit for a light that belongs to the moment and the wrong unit for one that belongs to the production: stated per shot, every shot restages the same source and nothing relates the light in the first shot to the light in the last. A production that runs across a stretch of story could not say that its light travelled over that stretch, whatever the subject.
    *
-   * Declared once here, each shot reads the state at its own story moment ({@link IAutoMovieShotStoryTime}); a shot still states its own local light on top. Optional and purely additive: a production declaring none is unaffected in every respect, and so is any shot carrying no story pin.
+   * Current Production assembly samples a pinned shot's opening story instant only, then merges shot-local lights. Production tracks do not automatically animate through the shot; continued change belongs to shot-local lightMotions. Omission and unpinned shots preserve shot-only lighting.
    */
   lighting?: IAutoMovieProductionLighting;
 
   /**
    * Render cost limits this production holds its own artifacts to, by tier.
    *
-   * The engine ships no preset tiers. A budget is a claim about what this production is willing to draw, which nobody else can make for it, so a production that declares none is measured and reported without a verdict rather than judged against a number it never chose.
+   * The engine ships no preset tiers. A budget declares what this production is willing to draw; explicit evaluation reports omitted limits as unbudgeted instead of choosing thresholds for the author.
    *
-   * Each entry names its own `tier`, such as `review` or `delivery`, and a render job checks an artifact against the one it targets. Optional and purely additive: a production declaring none behaves exactly as it did before the field existed.
+   * Each entry names an intended tier, such as review or delivery. Explicit-argument Render preflight helpers can select and evaluate such a budget, but the current repository has no execution reader connecting this design field to render-job refusal. Presence changes no automatic budget gate; omission retains current caller-selected behavior.
    */
   renderBudgets?: IAutoMovieRenderBudget[];
 
@@ -99,7 +99,7 @@ export interface IAutoMovieProductionDesign {
    *
    * Omitting propagation or the room response preserves the legacy dry path. The engine does not choose a physical profile, external provider, adopted asset, or room mapping.
    *
-   * The same record carries the two dialogue decisions nothing else can make for the production: which generator it adopted under which reviewed rights, and which compiled actor each screenplay speaker performs through.
+   * Dialogue generator and speaker declarations retain authored choices, not independently verified rights or synthesis effects. Their current fields have no in-tree execution consumer; supplied TTS receipts are consumed separately by sound-evidence validation.
    */
   sound?: {
     /** Selected direct-path propagation model. */
@@ -111,9 +111,9 @@ export interface IAutoMovieProductionDesign {
     /**
      * The exact dialogue generator this production adopted, if any.
      *
-     * The choice of a voice is a delivery decision the production makes and answers for, so it is stated here beside the rest of the design rather than in a runtime declaration that no reviewed document owns. The record carries no credential: it names where the generator came from, which rights and terms were reviewed on which calendar day, the authored cost basis, and why this production needs synthesized dialogue at all.
+     * Provider, model, revision, inference choices and provenance are authored declarations without credentials. Source, license and terms metadata are optional descriptive claims through the receipt provenance type; they do not establish a rights-review verdict.
      *
-     * The host runtime narrows this to the adapter it actually implements and refuses a provider, model revision, dtype, or device it cannot produce; this contract stays provider-neutral so the decision is portable. Omission means the production synthesizes no dialogue.
+     * This repository has no synthesis writer or execution reader for this design field. It does not currently narrow these choices to a provider adapter or produce dialogue when present; omission adds no synthesis declaration.
      */
     dialogueSynthesis?: {
       /** Non-blank generator identity the host runtime must implement. */
@@ -128,7 +128,7 @@ export interface IAutoMovieProductionDesign {
       /** Non-blank weight quantization the adopted revision was taken at. */
       dtype: string;
 
-      /** Non-blank execution device the adoption was reviewed for. */
+      /** Authored non-blank execution-device identity. */
       device: string;
 
       /** Non-blank voice identity inside that model revision. */
@@ -137,16 +137,16 @@ export interface IAutoMovieProductionDesign {
       /** Finite speaking rate strictly above zero. */
       speed: number;
 
-      /** Reviewed source, rights, terms date, cost, and consumer reason. */
+      /** Authored cost and consumer reason with optional descriptive source, license and terms metadata; no independent rights-review proof. */
       generatorProvenance: IAutoMovieProductionTtsReceipt["generatorProvenance"];
     };
 
     /**
      * Joins from a screenplay speaker identity to the compiled actor whose mouth performs that line.
      *
-     * The screenplay names who speaks and source names the actor node, and nothing between them is inferable: cast order and a similar name are both wrong answers. Stating the join in the design is what lets the builder refuse a speaker with no line, a duplicate identity, and an actor absent from the shot the line lands in.
+     * Speaker and actor identities state the intended explicit join rather than inferring it from cast order or similar names. This design field currently has no execution reader enforcing duplicate, missing-line or absent-actor checks, so its presence is not a wired mouth-motion binding.
      *
-     * A binding is for an audible identity with a mouth on screen. An off-screen narrator or machine voice still needs a settings owner and a screenplay source, but it has no actor to bind. Omission means the production binds no speaker to a mouth.
+     * Omission states no intended join. Supplied receipt lip-sync joins and numerical viseme derivation remain separate contracts; retaining this declaration does not create a synthesis or actor-binding host.
      */
     speakerBindings?: Array<{
       /** Non-blank speaker identity carried by the dialogue line. */
@@ -158,15 +158,15 @@ export interface IAutoMovieProductionDesign {
   };
 
   /**
-   * The proxy and final visual deliverables this production renders at.
+   * Authored proxy and final tier declarations, currently without a reader of this design field.
    *
-   * A tier is a delivery contract rather than a filename: the raster scale and the frame decimation say what the review pass and the final pass actually are, and a proxy that succeeded is not clearance for the final. Declaring both here keeps the pair addressable by the same design revision every other delivery decision is read from.
+   * Raster scale and frame stride describe intended review and delivery work. Render's explicit tier arguments use corresponding normalization rules, but current callers do not obtain those arguments from this field.
    *
-   * Optional and purely additive: a production declaring none is rendered at the host's shipped review and delivery tiers, exactly as it was before the field existed.
+   * Presence alone changes no render tier in the current repository. Omission retains existing caller-selected tier behavior rather than selecting a pair of defaults through this record.
    */
   renderTiers?: {
     /**
-     * Review tier, which must be cheaper than the final one in at least one of its two axes. A proxy that reduces neither is refused rather than run.
+     * Intended review tier with a reduction in at least one axis; explicit Render tier normalization enforces that rule when given this shape, but does not read this design field.
      */
     proxy: {
       /** Stable tier identity used in slots, chunks, and publication paths. */
@@ -193,20 +193,20 @@ export interface IAutoMovieProductionDesign {
   };
 
   /**
-   * The appearance rendition this production adopted, and its exact requests.
+   * Authored appearance-generator, execution-policy and shot-request declarations.
    *
-   * A repaint is a derived appearance over deterministic truth, so what it may do has to be decided before anything is drawn: which generator, on which execution boundary, under which bounded retry and cost policy, and with which exact prompt, seed, preservation strength, and role-specific references per shot. Holding that here means a request cannot appear as an ephemeral command-line override, and a changed request stales the compile that consumed it.
+   * These fields retain the intended generator, execution boundary, retry and cost policy, prompt, seed, preservation strength and role-specific references. They participate in acquired design identity, but the current repaint service does not read this field: it consumes host-supplied adapter/adoption and execution options plus request controls and references.
    *
-   * The post-generation selection review is deliberately not part of this record: reviewing a candidate must not stale the deterministic render that produced it, so the host joins that observation by shot from its own control-plane sidecar. Omission means deterministic visual delivery.
+   * Candidate selection and sequence observation use separate persisted records. This declaration does not prove a request was reviewed, freeze its object or select the delivery lane; visualDelivery and its current admission gates own that choice.
    */
   repaint?: {
-    /** Adopted runtime identity and reviewed rights for the generator. */
+    /** Authored runtime adoption and descriptive generator context; source/license/terms metadata does not establish reviewed legal rights. */
     generator: IAutoMovieRepaintGeneratorAdoption;
 
     /** Bounded attempts, timeouts, cost, backoff, and retryable failures. */
     executionPolicy: IAutoMovieRepaintExecutionPolicy;
 
-    /** One immutable reviewed request per delivered shot, unique by shot. */
+    /** Intended authored requests by shot; the current repaint service does not consume this list. */
     requests: Array<{
       /** Authored shot id this request repaints. */
       shot: string;

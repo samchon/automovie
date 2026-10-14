@@ -4,7 +4,7 @@ import { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
 /**
  * A time-based animation clip: an ordered sequence of keyframes over a fixed duration, targeting one skeleton.
  *
- * This is automovie's top-level _motion_ AST and the deterministic-export anchor: the engine samples it (interpolating per `easing`) into dense frames for the viewer, or compiles it to VRMA / VMD / glTF animation. Storing sparse keyframes + easing (rather than baked frames) keeps the LLM's output small and is what the temporal verifier checks for coherence: monotonic time, bounded per-keyframe angular velocity, every keyframe pose within ROM.
+ * The engine samples sparse keyframes with their outgoing easing for playback and compilation. Motion validation checks ordered timing, per-keyframe angular changes and declared joint ranges. The repository currently implements no VRMA, VMD or glTF animation exporter; its model GLB exporter emits static rest geometry.
  *
  * The clip is frame-rate independent: `duration` and keyframe `time`s are in seconds, sampled at whatever fps the consumer renders.
  *

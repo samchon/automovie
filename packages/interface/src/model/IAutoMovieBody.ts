@@ -1,16 +1,16 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * The physical body of a model: the mass properties the engine reasons about when it gives physical-plausibility feedback (collision recoil, stacking and support, free-fall).
+ * Authored model mass and contact properties available to physical-analysis helpers.
  *
- * This is deliberately opt-in. A model with `body: null` has no declared physics (a static set piece, or a purely visual prop) and the engine raises no physical feedback for it. When a body IS declared, `mass` weighs momentum exchange in a collision, `centerOfMass` decides whether a stacked body is supported or topples, and `restitution` / `friction` shape a suggested response. None of this is a hard rejection: a film may be deliberately unphysical, so physical implausibility is advisory. The body is simply what gives that advice something to compute from.
+ * Null means no authored body, not a universal feedback exemption. detectFreeFall skips it, while detectBodyCollision uses its documented 70kg mass and 0.2 restitution defaults; bodyCenterOfMass can still derive a primitive geometry estimate. These helpers currently have no maintained product caller. Friction is validated as a declaration but has no current contact-response reader.
  *
  * Rough numbers, as everywhere in `interface`: units and ranges live here in the JSDoc and are enforced at runtime by `@automovie/engine`, not by the type.
  *
- * @evidence contracts/common.md#principled-implementation Mass, local centre of mass, Coulomb friction and restitution supply the inputs to momentum and support judgments; validation requires positive finite mass and bounded dimensionless contact coefficients before advisory physical analysis.
- * @evidence contracts/common.md#clear-and-simple-design Four physical properties sit on the model independently of optical materials and skeleton geometry; a null body opts out, while a null centre requests geometry-derived mass placement.
+ * @evidence contracts/common.md#principled-implementation validateBody admits positive finite mass, nullable finite local centre and bounded contact coefficients. Available collision and centre helpers consume mass/restitution or centre; friction remains declared metadata and the detectors are not automatically wired into product execution.
+ * @evidence contracts/common.md#clear-and-simple-design Four model-owned properties remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No named object selects mass or grip presets; an authored centre overrides uniform-density geometric estimation, and physical advice remains distinct from rejecting malformed numeric inputs.
- * @evidence contracts/common.md#meaningful-documentation Describes opt-in physics, advisory plausibility, kilograms, local metre centre and uniform-density estimation, and the unit intervals and physical meanings of friction and restitution.
+ * @evidence contracts/common.md#meaningful-documentation Defines authored kilograms, local metre centre and contact coefficients, distinct null-body helper behavior, friction's unread status and current detector wiring limits.
  * @author Samchon
  */
 export interface IAutoMovieBody {

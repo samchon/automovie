@@ -1,7 +1,7 @@
 /**
  * A conservative cell-and-portal culling hint over a building's logical space graph.
  *
- * The rule this obeys, in one sentence: a space is hidden only when it is PROVED unreachable from the camera through every opening, connector and exterior route the design declares. Everything else stays drawn. Aggressive culling trades a wrong frame for a faster one, and a wrong frame is not a cheaper frame, it is a different film; so an exterior camera hides nothing, an ambiguous camera position hides nothing, and a space whose extent the design never stated hides nothing.
+ * A space is hidden only when it is proved unreachable from the camera through every opening, connector and exterior route the design declares. Everything else stays drawn. An exterior or ambiguous camera position and an unstated space extent therefore hide nothing.
  *
  * The exterior is a node of the portal graph, not the absence of one. A room with a window is reachable from outside, so from a sealed interior room the other windowed rooms are still hidden, while from a windowed room they are kept: light and geometry can travel out one opening and in another, and the graph says so instead of the culler guessing.
  *

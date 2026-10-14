@@ -68,7 +68,7 @@ export namespace IAutoMoviePropRelationTarget {
    *
    * @evidence contracts/common.md#principled-implementation The pair resolves to one entry of the environment's `boundaries` list, whose first realizing element supplies the anchor.
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; which elements realize the boundary stays on the boundary record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Standing against a boundary is checked as a citation and not measured, since the boundary record states no contact face.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Standing against a boundary is currently checked as a citation, without a bearing measurement. The boundary's optional face does not change that consumer path; its anchor comes from the first realizing element.
    * @evidence contracts/common.md#meaningful-documentation States which relation kind accepts it, where its anchor comes from, and which list each id must appear in.
    * @author Samchon
    */

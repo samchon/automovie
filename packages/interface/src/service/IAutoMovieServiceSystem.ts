@@ -32,10 +32,8 @@ export interface IAutoMovieServiceSystem {
   /**
    * How reachability is traversed from {@link root}.
    *
-   * - `from-root`: the root emits and everything else consumes; a supply main, a
-   *   lighting circuit, a supply air trunk.
-   * - `to-root`: the root receives and everything else discharges; a drainage
-   *   stack, a return air path, an exhaust riser.
+   * - `from-root`: the root emits and everything else consumes; a supply main, a lighting circuit, a supply air trunk.
+   * - `to-root`: the root receives and everything else discharges; a drainage stack, a return air path, an exhaust riser.
    * - `undirected`: a ring or bus where either end may feed the other.
    *
    * It never changes what a segment _means_: a segment always carries its medium out of its `from` port and into its `to` port.

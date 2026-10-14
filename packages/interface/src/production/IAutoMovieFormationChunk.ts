@@ -26,6 +26,6 @@ export interface IAutoMovieFormationChunk {
   /** Exact world-space slot-position bounds, excluding model extents. */
   bounds: IAutoMovieFormationBounds;
 
-  /** Exact arithmetic centroid of the range. */
+  /** Binary64 running-mean centroid of the generated range positions. */
   centroid: IAutoMovieVector3;
 }

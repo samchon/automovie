@@ -7,7 +7,7 @@ import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated runtime for a non-formation instance set. Bounds enclose slot positions; conservative model radii and per-slot scale supply visible member extent.
+ * Compact generated runtime for a non-formation instance set. Bounds summarize slot positions; radius estimates and slot scale feed viewer culling without guaranteeing enclosure of every visible model.
  *
  * @evidence contracts/common.md#principled-implementation Layout, route snapshot, seed and variation regenerate positions and prototype choices; chunk and overall summaries are measured through that same slot law, and canonical digest covers the compiled inputs and summaries.
  * @evidence contracts/common.md#clear-and-simple-design Compact placement and variation laws serve both viewer and oracle, with reusable prototype tables and bounded chunk summaries rather than one persisted record per instance.
@@ -56,10 +56,10 @@ export interface IAutoMovieCompiledInstanceSet {
   /** Bounds of generated slot positions before geometry-radius expansion. */
   bounds: IAutoMovieFormationBounds;
 
-  /** Exact arithmetic centroid of all generated slots. */
+  /** Binary64 running-mean centroid of all generated slot positions. */
   centroid: IAutoMovieVector3;
 
-  /** Compiler-derived representative radius used by viewer culling. */
+  /** Maximum compiled prototype radius estimate in metres for viewer culling; each prototype follows tier/base/0.5m fallback and 0.01m floor policy, with producer-owned root-centering and geometry-coverage premises. */
   projectionRadius: number;
 
   /** Bounded independently regenerable slot ranges. */

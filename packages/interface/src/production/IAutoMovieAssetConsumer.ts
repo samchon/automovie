@@ -50,7 +50,7 @@ export type IAutoMovieAssetConsumer =
       /**
        * Image bound by one compiled material's PBR texture slots.
        *
-       * The consumer is the MODEL, not the material or the slot: one image routinely serves several slots of several materials of one model (an ORM map is occlusion, roughness and metalness at once), and a ledger keyed per slot would demand one entry per use of the same bytes for the same reason.
+       * The model owns this consumer address: one image can serve several slots of several model materials (an ORM map carries occlusion, roughness and metalness), without requiring a ledger entry for every slot using the same bytes.
        */
       kind: "material-texture";
 
@@ -68,7 +68,7 @@ export type IAutoMovieAssetConsumer =
       /**
        * Observed plan, section, elevation, detail, or generated design study.
        *
-       * The consumer is the observation DOCUMENT, not the building it informs: one sheet is routinely read by several buildings, and the reading; not the building; is what the bytes justify. Registering the use never converts the image into design; it only authorizes an observation document to cite these exact bytes as evidence.
+       * The observation document owns this byte use; several buildings may cite readings from one sheet. Registration permits the document to cite exact image bytes and does not convert those bytes into built geometry.
        */
       kind: "design-reference";
 

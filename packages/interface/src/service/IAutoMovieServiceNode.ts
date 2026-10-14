@@ -42,7 +42,7 @@ export interface IAutoMovieServiceNode {
   state: IAutoMovieServiceState | null;
 
   /**
-   * Volume in **node-local** metres that must stay clear for the node to be serviced; the door swing of a panel, the pull space of a filter, the reach in front of a valve; or `null` when the node needs none. The world volume is this box offset by {@link position}, which is the same axis-aligned keep-out a prop declares, so one collision rule covers both.
+   * Node-local axis-aligned maintenance volume in metres, such as panel-door swing or filter pull space; null declares no keep-out. Translation by position forms its world box without an equipment-specific rotation or inferred extent.
    */
   maintenance: IAutoMoviePropBox | null;
 }

@@ -4,11 +4,11 @@ import { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
 /**
  * A segmentation palette keyed by stable semantic identity, plus the sidecar that reads a rendered color back to the thing it named.
  *
- * The mask pass this replaces coloured the Nth top-level scene child with the Nth colour of a golden-angle ramp. Two things were wrong with that, and both are why a mask could not be used as evidence. A whole building collapsed into one colour, so a room, a wall, an opening and a repeated window slot were indistinguishable in the very image that exists to distinguish them. And the colour was an ARRAY INDEX, so inserting an unrelated node ahead of a building repainted the building: two masks of the same design disagreed about what they had segmented, and neither was wrong.
+ * Allocation hashes semantic ids and processes the complete id population in code-unit order with deterministic forward probing. Scene ordering does not change the palette; adding a colliding earlier id can shift an existing color along the probe chain, so allocation is not a pure function of one id alone.
  *
- * Here a colour is a pure function of the entity's stable semantic id. Scene order, insertion order, and the presence of unrelated entities do not enter the derivation, so reordering the scene reproduces a byte-identical mask and adding a non-colliding node leaves every existing colour untouched. Two ids that hash to the same colour are separated deterministically by comparing the ids themselves rather than by scene position. A newly added colliding earlier id can shift existing colors along the probe chain.
+ * Entries and bounded gaps describe logical hierarchy and drawable ownership. The canonical payload digest seals those supplied records; it does not establish scene visibility or capture provenance.
  *
- * The palette is exact 8-bit-per-channel RGB, so a PNG readback recovers the authored value with no tolerance, and `#000000` is reserved for background and never assigned.
+ * Palette colors are exact RGB24 values with black reserved for background. Actual PNG recovery additionally depends on the rendering pass, color conversion, antialiasing and pixel position; this palette alone guarantees neither exact GPU edges nor byte-identical images across hosts.
  *
  * @evidence contracts/common.md#principled-implementation Semantic palette derives non-background RGB24 colors from stable ids, processes collision claims in code-unit id order with deterministic forward probing and seals the full entries and bounded-gap payload by digest.
  * @evidence contracts/common.md#clear-and-simple-design Entries join semantic hierarchy to drawable node or slot identity while unaddressed records expose bounded per-slot gaps rather than silently losing the logical instance-set address.

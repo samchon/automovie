@@ -12,11 +12,8 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  *
  * This is automovie's central geometry container, and it deliberately unifies the two things the project animates:
  *
- * - A **character** is a model _with_ a humanoid `skeleton`: poses and motions
- *   articulate its bones;
- * - An **object / prop** is a model with `skeleton: null`; it has geometry and
- *   materials but no joints, and is moved as a whole (placed in a scene, or
- *   parented to a character's bone as a held item).
+ * - A **character** is a model _with_ a humanoid `skeleton`: poses and motions articulate its bones;
+ * - An **object / prop** is a model with `skeleton: null`; it has geometry and materials but no joints, and is moved as a whole (placed in a scene, or parented to a character's bone as a held item).
  *
  * A model bundles its geometry (`parts`), its rig (`skeleton`, optional), and its `materials` behind one id; downstream layers cite it by `id` and never need to know whether it was generated from primitives or imported as a mesh (that is `origin`). The LLM authors parts, materials, and the skeleton's ROM or a deterministic mesh generator; opaque vertex arrays are not authored by hand.
  *
@@ -47,7 +44,7 @@ export interface IAutoMovieModel {
   skeleton: IAutoMovieSkeleton | null;
 
   /**
-   * The physical body: mass, center of mass, friction, restitution. `null` when the model has no declared physics (a static prop or set piece); physical-plausibility feedback is only computed for models with a body.
+   * Authored mass, centre and contact properties, or null when absent. Null behavior is helper-specific: free-fall skips it, collision analysis uses documented defaults and centre estimation can still use primitive geometry. These available helpers currently have no product caller; this field alone enables no physical-feedback pipeline.
    */
   body: IAutoMovieBody | null;
 

@@ -5,9 +5,9 @@ import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
 /**
  * One semantic event lowered from the compiled film edit into audible space.
  *
- * @evidence contracts/common.md#principled-implementation Sound planning maps admitted shot event samples into film occurrences, samples source mass and camera placement, and derives RMS spread and sqrt(memberCount) incoherent-source gain before optional propagation and room-response composition.
+ * @evidence contracts/common.md#principled-implementation Sound planning maps current shot event samples into film occurrences, samples camera placement and models population variance from uniform axis-aligned boxes before sqrt(memberCount) gain and optional propagation. It copies acousticProfile without deriving event responses; a consumer supplies those separately.
  * @evidence contracts/common.md#clear-and-simple-design One event carries authoritative timing, spatial mass and bounded acoustic results so the pure mixer needs no scene traversal or policy selection while rendering PCM.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A crowd is represented by its declared member count and RMS spread rather than one point emitter; unavailable selected acoustic response is explicit, while the dry path is permitted only by omitted production profiles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Population spread is a box-based source approximation rather than measured individual positions. Final sound validation requires a supplied response outcome when an acoustic profile is selected; the standalone mixer can still take a dry event with no response and does not establish that final admission.
  * @evidence contracts/common.md#meaningful-documentation Defines occurrence identity, film frame and seconds, world-meter source/listener positions, RMS spread, incoherent density, stereo pan and optional propagation and room-response effects.
  * @author Samchon
  */
@@ -47,7 +47,7 @@ export interface IAutoMovieProductionSoundEvent {
   memberCount: number;
 
   /**
-   * Root-mean-square distance in meters from `emitter` to those members: the source's own size.
+   * Square root of the modeled source variance in metres about emitter. Formations and instance sets use a uniform-box approximation from compiled position bounds, rather than measuring every member.
    *
    * Zero for a single node. A crowd has a radius, and a source with a radius is not a point: it cannot be all in one place in the stereo field, and the listener is not the same distance from all of it.
    */
@@ -56,21 +56,21 @@ export interface IAutoMovieProductionSoundEvent {
   /**
    * Level factor for `memberCount` mutually uncorrelated sources, `sqrt(memberCount)`.
    *
-   * Independent sources add in POWER, not in amplitude, because their cross terms average to zero over time: `p_total^2 = N * p_single^2`, so the amplitude gain is `sqrt(N)` and the level rises `10*log10(N)` dB per the standard incoherent-summation result (coherent, perfectly in-phase sources would instead give `N` and `20*log10(N)` dB, which no crowd is). Ten voices are 10 dB over one, a hundred are 20 dB over one.
+   * The model assumes equal-level uncorrelated sources, whose powers add: `p_total^2 = N * p_single^2`, giving amplitude gain `sqrt(N)` and a `10*log10(N)` dB increase. It does not measure actual source correlation; coherent sources would require a different law.
    */
   densityGain: number;
 
   /**
    * Camera-relative stereo position from -1 (left) through 1 (right), narrowed by the source's own angular width: `local.x / hypot(distanceMeters, spreadRadiusMeters)`.
    *
-   * A wide crowd close to the listener occupies a span of the stereo field rather than a point in it, and its energy-weighted image sits nearer the center than its centroid's direction alone would put it; a distant one has no width left to speak of and pans exactly as a point source does.
+   * Modeled spread reduces the centroid's pan magnitude. As spread becomes small relative to distance, this formula approaches the point-source result; it does not measure each member's stereo contribution.
    */
   pan: number;
 
   /**
    * Distance-derived dry gain from zero through one, taken at the root-mean-square source/listener distance `hypot(distanceMeters, spreadRadiusMeters)` rather than at the centroid alone.
    *
-   * That substitution is an identity, not a fudge: for members distributed with RMS radius `a` about a centroid at distance `d`, the mean squared listener-to-member distance is exactly `d^2 + a^2`. It is what keeps a sprawling crowd underfoot from attenuating as though every member stood at one point in its middle.
+   * The declared dry gain law is evaluated at the modeled RMS distance. Population variance comes from uniform-box approximations of compiled position bounds, so this calculation does not measure individual member distances or their combined physical attenuation.
    */
   attenuation: number;
 
@@ -98,7 +98,7 @@ export interface IAutoMovieProductionSoundEvent {
   };
 
   /**
-   * Room-path result when the production selected an acoustic profile. Omitted only on the legacy dry path.
+   * Consumer-supplied room-path result. The planner does not derive it; final sound admission requires an outcome for each event when production selects an acoustic profile and refuses an undeclared response.
    */
   acousticResponse?: IAutoMovieProductionAcousticResponse;
 

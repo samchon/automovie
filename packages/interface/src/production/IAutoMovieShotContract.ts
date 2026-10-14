@@ -79,7 +79,7 @@ export interface IAutoMovieShotContract {
     /**
      * Finite maximum allowed pixel-occlusion ratio, inclusive from zero to one.
      *
-     * The builder projects subject root points but does not measure this ratio. The external reviewer must compare current mask, depth, outline or beauty frames against it.
+     * The builder tests sampled subject boxes against the cropped camera frustum and declared depth precision; it does not measure this pixel-occlusion ratio. External review must compare current mask, depth, outline or beauty frames against the authored threshold.
      */
     maxOcclusionRatio: number;
   };

@@ -5,7 +5,7 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  *
  * A budget is a design decision, not a measurement: it is authored beside the production it constrains rather than read back off it. That direction matters. Numbers derived from whatever the current scene happens to cost would ratify every regression the moment it lands, so no limit here is ever inferred from an inventory; a production that declares no budget is reported as unbudgeted rather than silently given one.
  *
- * The check runs where the frame is made, not where the design is compiled. No compile scope reads `renderBudgets`; the render job does, selecting the tier it targets, measuring each shot against it, and failing rather than shipping an `over` tier. A compile therefore never reports a budget breach, and a design that compiles clean has not been cleared to render.
+ * Engine evaluation and Render's explicit-argument preflight helpers compare supplied budgets with inventory. The current repository has no execution reader for ProductionDesign.renderBudgets, and those Render helpers currently have only test or internal-helper callers. Declaring this field therefore connects no automatic render-job refusal, and successful design compilation proves no budget clearance.
  *
  * Limits are inclusive: a measurement exactly equal to its limit is inside the budget. An omitted metric is unbudgeted, which the report states explicitly so an author can tell "allowed to be large" from "nobody thought about it".
  *

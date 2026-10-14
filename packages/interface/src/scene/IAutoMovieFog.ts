@@ -15,7 +15,7 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
  */
 export interface IAutoMovieFog {
   /**
-   * Extinction coefficient per meter, `>= 0`. Half-visibility sits at `0.8326 / density` meters; `0` is a vacuum.
+   * Finite nonnegative squared-depth fog density in inverse metres. Half-transmittance is approximately 0.8326/density metres for positive density; zero gives unit transmission in this renderer convention, not a measured vacuum.
    */
   density: number;
 

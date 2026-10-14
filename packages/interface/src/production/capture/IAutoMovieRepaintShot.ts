@@ -45,9 +45,9 @@ export namespace IAutoMovieRepaintShot {
   /**
    * One shot repaint request with fixed role-specific references and exact generation controls.
    *
-   * @evidence contracts/common.md#principled-implementation The exact production and current registry shot join to the production's declared repaint adoption, references and parameters before the host creates immutable request identity.
-   * @evidence contracts/common.md#clear-and-simple-design Input selects shot and appearance guidance while deterministic source acquisition, execution policy and adoption authority remain production-owned.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A caller cannot substitute arbitrary source geometry or silently choose a provider; current admitted design and fixed reference bytes gate the request.
+   * @evidence contracts/common.md#principled-implementation The host joins the exact production and current registry shot with its service-supplied adapter, generator adoption and execution options, then verifies the request's controls and fixed reference bytes before creating immutable request identity.
+   * @evidence contracts/common.md#clear-and-simple-design Input selects shot and appearance guidance while the service configuration owns adapter adoption and execution policy; deterministic source acquisition remains host-owned.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A request cannot substitute arbitrary source geometry or select a provider through its fields. Current compile, frame contract and fixed reference bytes gate it; ProductionDesign.repaint currently supplies no execution reader or automatic adoption check.
    * @evidence contracts/common.md#meaningful-documentation Defines production and shot addressing, non-collapsible manifest references and exact controls retained by the candidate receipt.
    * @author Samchon
    */

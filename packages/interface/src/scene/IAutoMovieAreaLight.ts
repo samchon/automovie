@@ -3,7 +3,7 @@ import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 /**
  * A rectangular emissive panel: a softbox, a window, a light strip, a luminous ceiling coffer.
  *
- * The one light kind with EXTENT. A punctual source has a position and no size, so its terminator is hard however far away it stands; a built interior is mostly lit by surfaces, and the soft wrap those surfaces give is a function of the panel's width and height, not of an intensity an author could tune to imitate it.
+ * The light kind with extent. A punctual source has a position and no size, so its terminator is hard however far away it stands; a built interior is mostly lit by surfaces, and the soft wrap those surfaces give is a function of the panel's width and height, not of an intensity an author could tune to imitate it.
  *
  * The panel occupies its transform's local XY plane and emits from the face its local −Z points at, which is the same convention every aimed light here uses, so one `direction` reads identically on a spot and on a window. It has no distance falloff parameter: the inverse-square term follows from the panel's own area, so a `range` would be a second, contradictory falloff.
  *

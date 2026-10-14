@@ -7,7 +7,7 @@ import { IAutoMovieMaterializedLibraryOwner } from "./IAutoMovieMaterializedLibr
  *
  * @evidence contracts/common.md#principled-implementation Library compilation emits a versioned index bound to its protocol, namespace and aggregate input fingerprint, with accepted owners in canonical branch-and-address order.
  * @evidence contracts/common.md#clear-and-simple-design One generated index supplies provenance for library results that have no film shot manifest, while each owner entry names its semantic artifacts separately.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Index publication follows owner execution and contribution admission; an empty or unexecuted completion cannot gain attribution merely by naming a design address.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Index publication requires admitted owner registration and branch-specific contribution, from a build callback or verified precomputed artifact. Settings require zero semantic payload; naming an address alone establishes neither registration nor completion.
  * @evidence contracts/common.md#meaningful-documentation Defines generated ownership, compiler and production identities, current input binding and canonical owner ordering for readers.
  * @author Samchon
  */
@@ -24,6 +24,6 @@ export interface IAutoMovieMaterializedLibrary {
   /** Compiler input identity this index was derived at. */
   inputFingerprint: string;
 
-  /** Executed owners in stable branch-and-address order. */
+  /** Admitted build or precomputed owners in stable branch-and-address order, including zero-payload settings lineage. */
   owners: IAutoMovieMaterializedLibraryOwner[];
 }

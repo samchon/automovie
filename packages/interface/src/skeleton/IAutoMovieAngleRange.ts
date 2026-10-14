@@ -1,7 +1,7 @@
 /**
  * A closed `[min, max]` interval of allowed rotation about one anatomical axis, in degrees.
  *
- * This is the atom of automovie's anatomical range-of-motion (ROM) model. The engine holds, per joint and per axis, one of these intervals (sourced from clinical goniometry norms) and rejects any pose whose joint angle falls outside it, feeding the violation back into the harness as a `// ❌` correction. That is how automovie makes "physically impossible poses are structurally rejected" real, rather than hoping the LLM emits plausible numbers.
+ * The ROM validator compares a supplied joint angle with these declared inclusive bounds and reports an overshoot. Engine defaults draw on goniometry norms and rigs may override them; satisfying an interval alone is not proof of complete physical or anatomical possibility.
  *
  * Sign convention is per-axis and documented on {@link IAutoMovieJointConstraint}. `min <= max` is required; the engine treats `min > max` as a malformed constraint.
  *

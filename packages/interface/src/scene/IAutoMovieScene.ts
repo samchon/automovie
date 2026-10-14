@@ -48,7 +48,7 @@ export interface IAutoMovieScene {
    *
    * Absent or `null` means no atmosphere, and a scene that says nothing about fog renders exactly as it did before the field existed: the viewer leaves `scene.fog` unset and every offline consumer derives a transmittance of one. Optional (`?`) rather than required for the same evolving-schema reason {@link space} is, so no committed scene has to be rewritten.
    *
-   * The viewer builds it once ({@link applySceneFog}) and the offline side derives the identical number from the identical declaration ({@link sceneFogTransmittance}); the two cannot disagree, because a review frame that lies about the film's atmosphere is worse than no frame. Structural guide passes suspend it: a depth or mask pass describes geometry, and fogging it would tint the very channel the pass exists to state exactly.
+   * applySceneFog constructs FogExp2 from this declaration; sceneFogTransmittance predicts the same squared camera-depth law in binary64. Shader precision, rasterization and appearance processing can differ, so the shared formula does not certify identical rendered pixels or numbers. Structural guide passes suspend fog to preserve their geometry channels.
    */
   fog?: IAutoMovieFog | null;
 }

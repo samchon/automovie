@@ -33,8 +33,7 @@ export interface IAutoMovieSoftFurnishing {
   /**
    * How the furnishing is evaluated over shot time.
    *
-   * - `rest`: always the authored rest configuration, reported as such. A rug
-   *   that must read identically in every frame of a cut.
+   * - `rest`: always the authored rest configuration, reported as such. A rug that must read identically in every frame of a cut.
    * - `simulated`: the fixed-step solve at that second.
    */
   mode: AutoMovieSoftFurnishingMode;

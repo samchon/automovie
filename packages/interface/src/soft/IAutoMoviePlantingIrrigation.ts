@@ -3,7 +3,7 @@ import { AutoMoviePlantingIrrigationMedium } from "./AutoMoviePlantingIrrigation
 /**
  * How a planting is watered.
  *
- * The supply is named as a building element acting as the port, because that is what exists today; a full typed service network is a separate concern and this record must not pretend to be one. What it does state completely is the demand, the medium, and; for aquatic planting; the fluid domain the roots actually stand in, which the engine checks rather than trusts.
+ * The supply names an architectural element rather than a typed service-network port. Binding validation checks that reference, daily demand, medium and an aquatic installation's fluid-domain join; this record does not prove service capacity or water delivery.
  *
  * @evidence contracts/common.md#principled-implementation Binding admission resolves the supply as an environment element and positive daily liter demand, requiring a compatible fluid-domain reference exactly for aquatic installations.
  * @evidence contracts/common.md#clear-and-simple-design Planting supply declaration stays separate from the full service graph because its current port field names an architectural element rather than a typed service port.

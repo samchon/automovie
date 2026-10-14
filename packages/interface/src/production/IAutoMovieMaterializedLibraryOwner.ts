@@ -1,8 +1,8 @@
 
 /**
- * What one design owner's executed source published on this compile.
+ * Attribution of one design owner's admitted executed or precomputed contribution.
  *
- * @evidence contracts/common.md#principled-implementation Records the admitted owner address, normalized executed source digest and sorted ids from its accepted contribution, allowing later observations to resolve exact published semantic artifacts.
+ * @evidence contracts/common.md#principled-implementation Records admitted owner address, acquired normalized source digest and sorted contribution ids. The resident Node module registers either build or a verified derived-artifact selection; that selection does not call build. The source digest identifies acquired text rather than every executed transitive byte or cache entry.
  * @evidence contracts/common.md#clear-and-simple-design Separates source provenance from the three semantic id lists, leaving full environment, model and context payloads in their generated artifacts.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Current writers always emit contexts; omission is accepted only to read older indexes as no context contribution, not as proof that a map owner completed.
  * @evidence contracts/common.md#meaningful-documentation Defines branch and owner address, project-relative module and export, normalized source identity, code-unit ordering and legacy context omission.
@@ -21,7 +21,7 @@ export interface IAutoMovieMaterializedLibraryOwner {
   /** Named export inside that file. */
   export: string;
 
-  /** Digest of the normalized source bytes that were executed. */
+  /** Digest of acquired normalized source text; resident module execution is not a byte-by-byte attestation of that text. */
   sourceDigest: string;
 
   /** Ids of the built environments this owner published, in code-unit order. */

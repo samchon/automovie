@@ -1,14 +1,14 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 
 /**
- * One view an asset review must be able to see before it can complete.
+ * One asset-review view descriptor with an optional captured-frame path.
  *
- * The review contract supplies the required view set; the caller cannot reduce coverage by choosing convenient angles.
+ * Production's IAutoMovieAssetReviewView omits frame and its factory returns the fixed rest or rigged descriptor population. The former turntable-capture producer has been removed; this record itself creates or verifies no image.
  *
- * @evidence contracts/common.md#principled-implementation captureAutoMovieProductionTurntable derives the exact rig-dependent review views and captures each through the same current-frame and receipt-reopen path, retaining a null frame for any refused view.
- * @evidence contracts/common.md#clear-and-simple-design View identity and camera/pass parameters sit beside the resulting PNG path, exposing complete required coverage without copying the full receipt into each summary row.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused view cannot be replaced by another angle, and extreme-range views are chosen from the actual compiled rig rather than treating an unreadable model as unrigged.
- * @evidence contracts/common.md#meaningful-documentation Defines required view identity, degree angles, rig pose, render pass and refusal-null path with view-specific correction diagnostics.
+ * @evidence contracts/common.md#principled-implementation Stable view id, degree angles, pose and pass form the descriptor consumed through Production's frame-omitting review type. The nullable path preserves the retained result contract without claiming an active captured-row producer.
+ * @evidence contracts/common.md#clear-and-simple-design Descriptor fields are shared with the current review-view factory; image paths remain separate from full receipt and byte provenance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A path or descriptor population is not visual approval or verified pixels. Rigged view selection is an explicit factory input, and this type performs no compiled-rig lookup or refusal recovery.
+ * @evidence contracts/common.md#meaningful-documentation Defines view identity, degree units, pose, pass, nullable path, live descriptor consumption and absent turntable-capture production.
  * @author Samchon
  */
 export interface IAutoMovieAssetTurntableView {
@@ -28,9 +28,9 @@ export interface IAutoMovieAssetTurntableView {
   pass: AutoMovieGuidePass;
 
   /**
-   * Project-relative PNG path, or null when this view was refused.
+   * Intended project-relative PNG path, or null when no captured frame is supplied.
    *
-   * A null path is not a gap the caller may fill by choosing another angle. The diagnostic naming this view states what to correct.
+   * Neither a nonnull path nor a null value carries an independent byte, receipt or diagnostic verification.
    */
   frame: string | null;
 }

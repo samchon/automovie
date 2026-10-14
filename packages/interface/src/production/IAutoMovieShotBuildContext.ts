@@ -33,7 +33,7 @@ export interface IAutoMovieShotBuildContext {
   /**
    * The production's story-clock light sources, when it declares any.
    *
-   * The source reads what the production is lit by at this shot's story moment; its contract carries the pin; and states its own local light on top through {@link IAutoMovieProductionShotProgram.lightMotions}. Absent when the production declares no lighting, which is exactly the context a source saw before the field existed.
+   * The shot contract carries the story pin. Current assembly inherits the production's opening state at shot second zero; source-owned lightMotions supplies continued local animation. Absent when production lighting is undeclared.
    */
   lighting?: IAutoMovieProductionLighting;
 

@@ -7,7 +7,7 @@ import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated formation runtime; it never stores every anonymous slot. Slot bounds and centroid describe member placement points; projectionRadius supplies the separate conservative member extent for view tests.
+ * Compact generated formation runtime without a persisted row for every anonymous slot. Bounds and centroid describe placement points; projectionRadius is a separate supplied or fallback estimate used for view tests, not a guaranteed model enclosure.
  *
  * @evidence contracts/common.md#principled-implementation Layout, anchor, heading, seed and snapshotted terrain regenerate every slot deterministically; chunk summaries and ordered hero promotions derive from those same positions, while the record digest identifies all compiled inputs and summaries.
  * @evidence contracts/common.md#clear-and-simple-design The runtime stores compact placement laws and bounded chunk summaries instead of every anonymous member; explicit heroes and representation tiers add only the exceptions and view choices consumers need.
@@ -53,10 +53,10 @@ export interface IAutoMovieCompiledFormation {
   /** Bounds of all slot placement points, before member-radius expansion. */
   bounds: IAutoMovieFormationBounds;
 
-  /** Exact arithmetic centroid of all slots. */
+  /** Binary64 running-mean centroid of all generated slot positions. */
   centroid: IAutoMovieVector3;
 
-  /** Compiler-derived representative member radius used by LOD projection. */
+  /** Unscaled member-radius estimate in metres for LOD projection: maximum applicable tier estimate, base then 0.5m fallback, with a 0.01m floor. Root centering and geometry coverage depend on the supplied producer. */
   projectionRadius: number;
 
   /** Bounded independently regenerable slot ranges. */

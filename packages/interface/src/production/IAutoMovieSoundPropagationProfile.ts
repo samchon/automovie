@@ -21,7 +21,7 @@ export interface IAutoMovieSoundPropagationProfile {
     /** Current bounded law, `1 / (1 + coefficient * distance^2)`. */
     kind: "softened-inverse-square-v1";
 
-    /** Finite non-negative softening coefficient. */
+    /** Finite non-negative softening coefficient in inverse square metres. */
     coefficient: number;
   };
 

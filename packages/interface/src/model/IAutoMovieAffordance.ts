@@ -26,7 +26,7 @@ export interface IAutoMovieAffordance {
   frame: IAutoMovieTransform;
 
   /**
-   * The supporting face's footprint for a `"stack-top"`: a convex polygon in the affordance frame's XZ plane, at least three non-collinear points, `y` ignored (write `0`): the same minimal parameterization as {@link IAutoMovieSurface.polygon}. Its corners, transformed to world, become #601 support contacts. **Must be `null` for point-like kinds** (`handle` / `socket` / `hook`), which have no face to rest on.
+   * Stack-top support footprint: a convex polygon in the affordance frame's XZ plane with at least three non-collinear points; y is ignored and should be zero. propSupportFace transforms these corners through the full affordance and staged matrices for placement support. Point-like handle, socket and hook kinds require null; this field does not establish a wired toppling judgment.
    */
   extent: IAutoMovieVector3[] | null;
 }

@@ -40,7 +40,7 @@ export interface IAutoMoviePlantingInstallation {
   branchMaterial: string | null;
 
   /**
-   * Id of the material every leaf instance is drawn with, or `null` for the renderer's default. Separate from {@link branchMaterial} because the two batches are separate draws with separate textures, and one id for both would make a budget count one of them twice or not at all.
+   * Id of the material every leaf instance is drawn with, or `null` for the renderer's default. The leaf batch can choose a different material from {@link branchMaterial}; both fields may also cite the same shared material without duplicating its resource identity.
    */
   leafMaterial: string | null;
 
