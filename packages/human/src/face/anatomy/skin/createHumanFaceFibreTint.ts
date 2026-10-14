@@ -36,8 +36,15 @@ export function createHumanFaceFibreTint(
   materials: readonly IAutoMovieMaterial[],
   brows?: ReadonlyMap<string, readonly number[]>,
 ) => Map<string, number[]> {
-  const scalp: (hair: IAutoMovieHumanFaceHair | null | undefined, materials: readonly IAutoMovieMaterial[]) => Map<string, number[]> = createHumanFaceScalpTint(basis);
-  return (hair: IAutoMovieHumanFaceHair | null | undefined, materials: readonly IAutoMovieMaterial[], brows: ReadonlyMap<string, readonly number[]> | undefined): Map<string, number[]>  => {
+  const scalp: (
+    hair: IAutoMovieHumanFaceHair | null | undefined,
+    materials: readonly IAutoMovieMaterial[],
+  ) => Map<string, number[]> = createHumanFaceScalpTint(basis);
+  return (
+    hair: IAutoMovieHumanFaceHair | null | undefined,
+    materials: readonly IAutoMovieMaterial[],
+    brows: ReadonlyMap<string, readonly number[]> | undefined,
+  ): Map<string, number[]> => {
     const tints: Map<string, number[]> = scalp(hair, materials);
     for (const [surface, gains] of brows ?? []) {
       const resident: number[] | undefined = tints.get(surface);
@@ -45,7 +52,9 @@ export function createHumanFaceFibreTint(
         surface,
         resident === undefined
           ? [...gains]
-          : resident.map((value: number, at: number): number  => value * gains[at]),
+          : resident.map(
+              (value: number, at: number): number => value * gains[at],
+            ),
       );
     }
     return tints;

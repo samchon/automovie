@@ -27,16 +27,20 @@ export function createPortraitColourField(
   input: readonly IPortraitColourField[],
 ): (point: readonly number[]) => number[] {
   const fields: IPortraitColourField[] = [...structuredClone(input)];
-  if (new Set(fields.map((field: IPortraitColourField): string  => field.name)).size !== fields.length)
+  if (
+    new Set(fields.map((field: IPortraitColourField): string => field.name))
+      .size !== fields.length
+  )
     throw new Error("Skin colour region identities must be unique.");
   for (const field of fields)
     if (
       field.name.trim().length === 0 ||
       [field.center, field.radius, field.gain].some(
-        (values: [number, number, number]): boolean  => values.length !== 3 || !values.every(Number.isFinite),
+        (values: [number, number, number]): boolean =>
+          values.length !== 3 || !values.every(Number.isFinite),
       ) ||
-      field.radius.some((value: number): boolean  => value <= 0) ||
-      field.gain.some((value: number): boolean  => value < 0) ||
+      field.radius.some((value: number): boolean => value <= 0) ||
+      field.gain.some((value: number): boolean => value < 0) ||
       !Number.isFinite(field.strength) ||
       field.strength < 0 ||
       field.strength > 1
@@ -44,15 +48,18 @@ export function createPortraitColourField(
       throw new Error(
         "Skin colour needs named finite centres, positive radii, nonnegative gains and strength in [0,1].",
       );
-  fields.sort((a: IPortraitColourField, b: IPortraitColourField): 1 | -1  => (a.name < b.name ? -1 : 1));
-  return (point: readonly number[]): number[]  => {
+  fields.sort((a: IPortraitColourField, b: IPortraitColourField): 1 | -1 =>
+    a.name < b.name ? -1 : 1,
+  );
+  return (point: readonly number[]): number[] => {
     if (point.length !== 3 || !point.every(Number.isFinite))
       throw new Error("Skin colour sampling requires finite reference XYZ.");
     const rgb: number[] = [1, 1, 1];
     for (const field of fields) {
       const distance: number = Math.hypot(
         ...point.map(
-          (value: number, axis: number): number  => (value - field.center[axis]) / field.radius[axis],
+          (value: number, axis: number): number =>
+            (value - field.center[axis]) / field.radius[axis],
         ),
       );
       if (distance >= 1) continue;

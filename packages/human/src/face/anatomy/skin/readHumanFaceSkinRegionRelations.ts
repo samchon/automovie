@@ -1,10 +1,9 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
 import type { IHumanFaceAssemblyCensusInput } from "../../basis/IHumanFaceAssemblyCensusInput";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
-
 
 /**
  * Observe how each named area of the face skin lies against the rest of the
@@ -52,7 +51,8 @@ export function readHumanFaceSkinRegionRelations(
   const tolerance: number = basis.contact?.toleranceMetres ?? 0;
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const [name, area] of Object.entries(basis.skinRegions ?? {})) {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[area.surface];
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+      basis.surfaces[area.surface];
     const points: readonly number[] | undefined =
       surface === undefined ? undefined : pose.positions.get(surface.id);
     if (surface === undefined || points === undefined) continue;
@@ -61,18 +61,29 @@ export function readHumanFaceSkinRegionRelations(
       outside: number[] = [];
     for (let at: number = 0; at < surface.indices.length; at += 3) {
       const corners: number[] = surface.indices.slice(at, at + 3);
-      const count: number = corners.filter((vertex: number): boolean  => members.has(vertex)).length;
+      const count: number = corners.filter((vertex: number): boolean =>
+        members.has(vertex),
+      ).length;
       if (count === 3) inside.push(...corners);
       else if (count === 0) outside.push(...corners);
     }
-    const mesh: (indices: number[]) => IAutoMovieMesh = (indices: number[]): IAutoMovieMesh => ({
+    const mesh: (indices: number[]) => IAutoMovieMesh = (
+      indices: number[],
+    ): IAutoMovieMesh => ({
       positions: [...points],
       indices,
       normals: null,
       uvs: null,
       skin: null,
     });
-    const request: { owner: string; state: "performed"; subject: string; against: string; judged: boolean; toleranceMetres: number; } = {
+    const request: {
+      owner: string;
+      state: "performed";
+      subject: string;
+      against: string;
+      judged: boolean;
+      toleranceMetres: number;
+    } = {
       owner: "skin-regions",
       state: "performed" as const,
       subject: surface.id + ":" + name,

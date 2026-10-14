@@ -1,7 +1,9 @@
+import type {
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanSkinRegion as IAutoMovieHumanSkinRegionImported,
+} from "../../../index";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceSkinRegionAppearance } from "../../structures/IAutoMovieHumanFaceSkinRegionAppearance";
-import type { IAutoMovieHumanSkinRegion as IAutoMovieHumanSkinRegionImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
-
 
 /**
  * Expand named shared-area reflectance into the skin's resident gain buffers.
@@ -30,15 +32,19 @@ export function createHumanFaceSkinRegionGains(
       basis.contact?.lips.surface,
       basis.periocular?.left.cage?.surface,
       basis.periocular?.right.cage?.surface,
-    ].filter((surface: string | undefined): surface is string => surface !== undefined),
+    ].filter(
+      (surface: string | undefined): surface is string => surface !== undefined,
+    ),
   );
-  for (const name of Object.keys(input ?? {}).sort((a: string, b: string): 0 | 1 | -1  =>
-    a < b ? -1 : a > b ? 1 : 0,
+  for (const name of Object.keys(input ?? {}).sort(
+    (a: string, b: string): 0 | 1 | -1 => (a < b ? -1 : a > b ? 1 : 0),
   )) {
     const value: IAutoMovieHumanFaceSkinRegionAppearance = input![name];
     if (
       value.gain.length !== 3 ||
-      value.gain.some((gain: number): boolean  => !Number.isFinite(gain) || gain < 0) ||
+      value.gain.some(
+        (gain: number): boolean => !Number.isFinite(gain) || gain < 0,
+      ) ||
       !Number.isFinite(value.strength) ||
       value.strength < 0 ||
       value.strength > 1
@@ -47,7 +53,8 @@ export function createHumanFaceSkinRegionGains(
         "Named skin appearance needs nonnegative RGB gains and strength in [0,1]: " +
           name,
       );
-    const area: IAutoMovieHumanSkinRegionImported | undefined = basis.skinRegions?.[name];
+    const area: IAutoMovieHumanSkinRegionImported | undefined =
+      basis.skinRegions?.[name];
     const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
       area === undefined ? undefined : basis.surfaces[area.surface];
     if (

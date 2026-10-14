@@ -45,7 +45,9 @@ export function createPortraitSkinColour(
   input: readonly IPortraitSkinColourRegion[],
 ): (reference: readonly number[]) => number[] {
   const regions: readonly IPortraitSkinColourRegion[] = structuredClone(input);
-  const point: (id: number) => readonly number[] = (id: number): readonly number[] => {
+  const point: (id: number) => readonly number[] = (
+    id: number,
+  ): readonly number[] => {
     const p: number[] = host.positions[id];
     if (p === undefined || p.length !== 3 || !p.every(Number.isFinite))
       throw new Error("Skin colour requires a finite reference landmark.");
@@ -55,19 +57,35 @@ export function createPortraitSkinColour(
   if (!(breadth > 0))
     throw new Error("Skin colour needs a positive bizygomatic breadth.");
   const radius: number = extent * breadth;
-  const fields: { name: PortraitSkinColourSite; center: [number, number, number]; radius: [number, number, number]; gain: [number, number, number]; strength: number; }[] = regions.map((r: IPortraitSkinColourRegion): { name: PortraitSkinColourSite; center: [number, number, number]; radius: [number, number, number]; gain: [number, number, number]; strength: number; }  => {
-    if (!Object.hasOwn(landmarks, r.site))
-      throw new Error("Skin colour needs one of the named skin sites.");
-    const id: number = landmarks[r.site];
-    if (r.gain.some((value: number): boolean  => value > 1))
-      throw new Error("Skin colour region gains lie in [0,1].");
-    return {
-      name: r.site,
-      center: [...point(id)] as [number, number, number],
-      radius: [radius, radius, radius] as [number, number, number],
-      gain: r.gain,
-      strength: r.strength,
-    };
-  });
+  const fields: {
+    name: PortraitSkinColourSite;
+    center: [number, number, number];
+    radius: [number, number, number];
+    gain: [number, number, number];
+    strength: number;
+  }[] = regions.map(
+    (
+      r: IPortraitSkinColourRegion,
+    ): {
+      name: PortraitSkinColourSite;
+      center: [number, number, number];
+      radius: [number, number, number];
+      gain: [number, number, number];
+      strength: number;
+    } => {
+      if (!Object.hasOwn(landmarks, r.site))
+        throw new Error("Skin colour needs one of the named skin sites.");
+      const id: number = landmarks[r.site];
+      if (r.gain.some((value: number): boolean => value > 1))
+        throw new Error("Skin colour region gains lie in [0,1].");
+      return {
+        name: r.site,
+        center: [...point(id)] as [number, number, number],
+        radius: [radius, radius, radius] as [number, number, number],
+        gain: r.gain,
+        strength: r.strength,
+      };
+    },
+  );
   return createPortraitColourField(fields);
 }
