@@ -1,8 +1,8 @@
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
-import type { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
-import type { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
+import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Admits a sparse-row quadratic program and lays its constraint matrix out in
@@ -35,8 +35,7 @@ export function assembleAutoMovieQuadraticProgram(
   const variables: number = input.diagonal.length;
   const count: number = input.rows.length;
   const columns: number[] = new Array<number>(variables + 1).fill(0);
-  for (const row of input.rows)
-    for (const id of row.indices) columns[id + 1]++;
+  for (const row of input.rows) for (const id of row.indices) columns[id + 1]++;
   for (let column: number = 0; column < variables; column++)
     columns[column + 1] += columns[column];
   const nonzeros: number = columns[variables]!;

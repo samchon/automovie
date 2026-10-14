@@ -1,4 +1,4 @@
-import type { IAutoMovieQuadraticConstraintBasis } from "./IAutoMovieQuadraticConstraintBasis";
+import { IAutoMovieQuadraticConstraintBasis } from "./IAutoMovieQuadraticConstraintBasis";
 
 /**
  * One equality-constrained step of the quadratic polisher, returned by
