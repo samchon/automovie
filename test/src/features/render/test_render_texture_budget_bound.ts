@@ -1,7 +1,6 @@
-import { deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget } from "@automovie/engine";
+import { deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget, type IAutoMovieRenderSubject, type IAutoMovieRenderTextureSource } from "@automovie/engine";
 import { assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderSubject, IAutoMovieRenderTextureSource } from "@automovie/engine";
 import type { IAutoMovieModel, IAutoMovieScene, IAutoMovieRenderAnalysisGap, IAutoMovieRenderFinding } from "@automovie/interface";
 
 import { compiledShotFixture, renderBudgetFixture } from "../internal/renderBudgetFixtures";

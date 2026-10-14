@@ -1,6 +1,5 @@
-import { autoMovieRenderTextureDigest, autoMovieTextureBindingStateKey, measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { autoMovieRenderTextureDigest, autoMovieTextureBindingStateKey, measureAutoMovieRenderTextureClosure, type IAutoMovieRenderTextureSource } from "@automovie/engine";
 import type { IAutoMovieMaterial, IAutoMovieTextureReference } from "@automovie/interface";
-import type { IAutoMovieRenderTextureSource } from "@automovie/engine";
 import { assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

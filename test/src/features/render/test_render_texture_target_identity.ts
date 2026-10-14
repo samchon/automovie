@@ -1,6 +1,5 @@
-import { autoMovieRenderTextureDigest, compareAutoMovieRenderTarget, deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, sealAutoMovieRenderTarget } from "@automovie/engine";
+import { autoMovieRenderTextureDigest, compareAutoMovieRenderTarget, deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, sealAutoMovieRenderTarget, type IAutoMovieRenderTextureSource } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderTextureSource } from "@automovie/engine";
 
 import { throwsError } from "../internal/predicates";
 import { sceneFixture } from "../internal/renderFixtures";

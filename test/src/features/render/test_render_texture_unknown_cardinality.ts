@@ -1,9 +1,8 @@
-import { autoMovieRenderTextureDigest, deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory, measureAutoMovieRenderTextureClosure, type IAutoMovieRenderTextureResidency } from "@automovie/engine";
+import { autoMovieRenderTextureDigest, deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory, measureAutoMovieRenderTextureClosure, type IAutoMovieRenderTextureResidency, type IAutoMovieRenderSubject, type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureResident } from "@automovie/engine";
 import { assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal } from "@automovie/render";
 import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
-import type { IAutoMovieRenderSubject, IAutoMovieRenderTextureSource, IAutoMovieRenderTextureResident } from "@automovie/engine";
 import type { IAutoMovieRenderAnalysisGap, IAutoMovieRenderOwnerCost } from "@automovie/interface";
 
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
