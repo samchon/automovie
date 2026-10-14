@@ -26,39 +26,51 @@ const instance: ReturnType<typeof humanViewerInstance> = humanViewerInstance(
  */
 export async function humanViewerViteConfig(): Promise<UserConfig> {
   return runtimeEntry.endsWith(".ts")
-  ? (await import("./humanViewerDevelopmentViteConfig.js"))
-      .humanViewerDevelopmentViteConfig
-  : {
-      root: application.directory,
-      plugins: [{ name: "human-viewer-no-hot-update", handleHotUpdate: (): [] => [] }],
-      resolve: {
-        alias: [
-          {
-            find: "/human-runtime/page.ts",
-            replacement: path.join(path.dirname(runtimeEntry), "page.js"),
-          },
-          { find: "/human-runtime", replacement: path.dirname(runtimeEntry) },
+    ? (await import("./humanViewerDevelopmentViteConfig.js"))
+        .humanViewerDevelopmentViteConfig
+    : {
+        root: application.directory,
+        plugins: [
+          { name: "human-viewer-no-hot-update", handleHotUpdate: (): [] => [] },
         ],
-      },
-      optimizeDeps: { exclude: ["@automovie/human", "@automovie/engine", "@automovie/viewer"] },
-      server: {
-        host: "127.0.0.1",
-        port: process.env[humanViewerLaunch.ownerVariable] === undefined
-          ? instance.port
-          : Number(process.env[humanViewerLaunch.internalVariable]),
-        strictPort: true,
-        hmr: false,
-        ws: false,
-        fs: { allow: [
-          path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd()),
-          application.directory,
-          path.dirname(runtimeEntry),
-          ...["human", "engine", "interface", "viewer"].map(
-            (name: string): string => path.dirname(fileURLToPath(
-              import.meta.resolve(`@automovie/${name}`),
-            )),
-          ),
-        ] },
-      },
-    };
+        resolve: {
+          alias: [
+            {
+              find: "/human-runtime/page.ts",
+              replacement: path.join(path.dirname(runtimeEntry), "page.js"),
+            },
+            { find: "/human-runtime", replacement: path.dirname(runtimeEntry) },
+          ],
+        },
+        optimizeDeps: {
+          exclude: [
+            "@automovie/human",
+            "@automovie/engine",
+            "@automovie/viewer",
+          ],
+        },
+        server: {
+          host: "127.0.0.1",
+          port:
+            process.env[humanViewerLaunch.ownerVariable] === undefined
+              ? instance.port
+              : Number(process.env[humanViewerLaunch.internalVariable]),
+          strictPort: true,
+          hmr: false,
+          ws: false,
+          fs: {
+            allow: [
+              path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd()),
+              application.directory,
+              path.dirname(runtimeEntry),
+              ...["human", "engine", "interface", "viewer"].map(
+                (name: string): string =>
+                  path.dirname(
+                    fileURLToPath(import.meta.resolve(`@automovie/${name}`)),
+                  ),
+              ),
+            ],
+          },
+        },
+      };
 }

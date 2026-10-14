@@ -1,5 +1,4 @@
 import type { IAutoMovieSequenceRenderAndSeeResult } from "../../index.js";
-
 import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck.js";
 
 /**

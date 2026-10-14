@@ -1,4 +1,5 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+
 import { AutoMovieHeadlessCaptureError } from "./AutoMovieHeadlessCaptureError.js";
 import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptureErrorCode.js";
 import type { IAutoMovieHeadlessLocator } from "./IAutoMovieHeadlessLocator.js";
@@ -19,7 +20,11 @@ import type { IViewerCaptureSession } from "./IViewerCaptureSession.js";
  * @evidence contracts/performance.md#bound-retention-and-release-resources One caller-supplied page transfers on successful creation and closes explicitly; non-overlapping calls retain at most one screenshot buffer plus whatever the writer retains. Failed creation leaves release with the caller.
  * @author Samchon
  */
-export const createViewerCaptureSession: (options: IViewerCaptureOptions) => Promise<IViewerCaptureSession> = async (options: IViewerCaptureOptions): Promise<IViewerCaptureSession> => {
+export const createViewerCaptureSession: (
+  options: IViewerCaptureOptions,
+) => Promise<IViewerCaptureSession> = async (
+  options: IViewerCaptureOptions,
+): Promise<IViewerCaptureSession> => {
   const seekFunction: string = options.seekFunction ?? "__afSeek";
   const passFunction: string = options.passFunction ?? "__afPass";
   const viewSelector: string = options.viewSelector ?? "#view";

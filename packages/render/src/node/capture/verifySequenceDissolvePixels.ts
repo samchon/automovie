@@ -1,6 +1,11 @@
-import type { IAutoMovieSequenceRenderFrame, IAutoMovieSequenceRenderPlan, IAutoMovieSequenceRenderTransitionSpan } from "../../index.js";
 import fs from "node:fs/promises";
 import { PNG } from "pngjs";
+
+import type {
+  IAutoMovieSequenceRenderFrame,
+  IAutoMovieSequenceRenderPlan,
+  IAutoMovieSequenceRenderTransitionSpan,
+} from "../../index.js";
 import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck.js";
 
 /**

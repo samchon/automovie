@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
-
 import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 
 /**

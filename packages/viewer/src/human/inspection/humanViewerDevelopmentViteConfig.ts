@@ -27,9 +27,12 @@ import {
 import { humanViewerCompileGate } from "./humanViewerCompileGate.js";
 import { readHumanViewerApplication } from "./readHumanViewerApplication.js";
 
-const application: Awaited<ReturnType<typeof readHumanViewerApplication>> = await readHumanViewerApplication();
+const application: Awaited<ReturnType<typeof readHumanViewerApplication>> =
+  await readHumanViewerApplication();
 const directory: string = application.directory;
-const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
+const root: string = path.resolve(
+  process.env.HUMAN_VIEWER_ROOT ?? process.cwd(),
+);
 // This configuration serves live checkout source. Packed runtime exports own
 // a separate compiled-module contract and cannot stand in for source workers.
 const runtimeEntry: string = fileURLToPath(
@@ -41,7 +44,9 @@ if (!runtimeEntry.endsWith(".ts"))
     "Live Human inspection requires the declared workspace source entry.",
   );
 const runtimeDirectory: string = path.dirname(runtimeEntry);
-const human: string = path.dirname(fileURLToPath(import.meta.resolve("@automovie/human/package.json")));
+const human: string = path.dirname(
+  fileURLToPath(import.meta.resolve("@automovie/human/package.json")),
+);
 const outputDirectory: string = humanViewerStorage(
   root,
   process.env.HUMAN_VIEWER_STORAGE_ROOT,
@@ -67,10 +72,7 @@ if (compilationProcessStartedAt === null)
   );
 /** Workspace source imports resolved from cached listings instead of a realpath per import. */
 const sourceResolver: ReturnType<typeof createHumanViewerSourceResolver> =
-  createHumanViewerSourceResolver([
-    path.join(root, "packages"),
-    root,
-  ]);
+  createHumanViewerSourceResolver([path.join(root, "packages"), root]);
 /** Paths the compile inputs already added to the watcher. */
 const watching: Set<string> = new Set<string>();
 const inputs: ReturnType<typeof createHumanViewerCompileInputs> =

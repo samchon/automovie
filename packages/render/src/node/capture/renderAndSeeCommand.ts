@@ -1,4 +1,5 @@
 import path from "node:path";
+
 import { normalizeGuidePasses } from "../../normalizeGuidePasses.js";
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE.js";
 import type { IAutoMoviePageRenderAndSeeArtifact } from "./IAutoMoviePageRenderAndSeeArtifact.js";
@@ -22,8 +23,7 @@ const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
 export const renderAndSeeCommand: (argv?: string[]) => Promise<void> = async (
   argv: string[] = process.argv.slice(2),
 ): Promise<void> => {
-  const options: IAutoMoviePageRenderAndSeeOptions | null =
-    parseArgs(argv);
+  const options: IAutoMoviePageRenderAndSeeOptions | null = parseArgs(argv);
   if (options === null) {
     printHelp();
     return;

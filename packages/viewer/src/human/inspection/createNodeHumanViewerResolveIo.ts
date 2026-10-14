@@ -19,9 +19,12 @@ export function createNodeHumanViewerResolveIo(
   runtimeRoots: readonly string[] = [],
 ): ICreateHumanViewerRevisionsProps["io"] {
   const actualRoot: string = fs.realpathSync.native(root);
-  const actualRoots: string[] = [actualRoot, ...runtimeRoots.map(
-    (directory: string): string => fs.realpathSync.native(directory),
-  )];
+  const actualRoots: string[] = [
+    actualRoot,
+    ...runtimeRoots.map((directory: string): string =>
+      fs.realpathSync.native(directory),
+    ),
+  ];
   const owned: (file: string) => string | undefined = (
     file: string,
   ): string | undefined => {
@@ -31,11 +34,16 @@ export function createNodeHumanViewerResolveIo(
     } catch {
       return undefined;
     }
-    if (!actualRoots.some((directory: string): boolean => {
-      const relative: string = path.relative(directory, resolved);
-      return relative !== ".." &&
-        !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative);
-    }))
+    if (
+      !actualRoots.some((directory: string): boolean => {
+        const relative: string = path.relative(directory, resolved);
+        return (
+          relative !== ".." &&
+          !relative.startsWith(".." + path.sep) &&
+          !path.isAbsolute(relative)
+        );
+      })
+    )
       throw new Error(
         "A source graph input resolves outside its physical checkout: " + file,
       );

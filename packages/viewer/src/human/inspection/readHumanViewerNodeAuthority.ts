@@ -36,17 +36,21 @@ export function readHumanViewerNodeAuthority(
     );
   const require: ReturnType<typeof createRequire> = createRequire(input.entry);
   const source: boolean = input.entry.endsWith(".ts");
-  const compiler: Record<string, unknown> = source ? JSON.parse(
-    fs.readFileSync(require.resolve("ttsc/package.json"), "utf8"),
-  ) as Record<string, unknown> : {};
+  const compiler: Record<string, unknown> = source
+    ? (JSON.parse(
+        fs.readFileSync(require.resolve("ttsc/package.json"), "utf8"),
+      ) as Record<string, unknown>)
+    : {};
   if (source && typeof compiler.version !== "string")
     throw new Error("The installed Node compiler has no version authority.");
   return {
     revision: input.revision,
     loader: source ? "ttsc/register" : "node",
-    project: source ? path.resolve(path.dirname(input.entry), "../../../tsconfig.json") : null,
+    project: source
+      ? path.resolve(path.dirname(input.entry), "../../../tsconfig.json")
+      : null,
     node: process.version,
-    compiler: source ? compiler.version as string : null,
+    compiler: source ? (compiler.version as string) : null,
     inputs,
   };
 }

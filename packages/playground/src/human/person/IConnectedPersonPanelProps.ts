@@ -6,6 +6,8 @@ import type {
   IAutoMovieHumanPersonChannelAlias,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
+import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
+import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 import type { IAutoMovieHumanPersonBodyReach } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyReach";
 import type { IAutoMovieHumanPersonHeadShapeSource } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadShapeSource";
 
@@ -13,8 +15,6 @@ import type { BodyPosePreset } from "../body/BodyPosePreset";
 import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
 import type { IConnectedFaceExpressionPreset } from "../face/IConnectedFaceExpressionPreset";
 import type { IConnectedPersonFaceSolution } from "./IConnectedPersonFaceSolution";
-import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
-import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
 

@@ -1,4 +1,5 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+
 import type { AutoMovieHeadlessWaitUntil } from "./AutoMovieHeadlessWaitUntil.js";
 import type { IAutoMovieHeadlessPage } from "./IAutoMovieHeadlessPage.js";
 

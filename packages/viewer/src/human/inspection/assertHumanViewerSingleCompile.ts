@@ -21,7 +21,8 @@ export function assertHumanViewerSingleCompile(
     new Set(page).size > 1 ||
     worker.revision !== revision ||
     (worker.loader !== "ttsc/register" && worker.loader !== "node") ||
-    (worker.loader === "node" && (worker.compiler !== null || worker.project !== null)) ||
+    (worker.loader === "node" &&
+      (worker.compiler !== null || worker.project !== null)) ||
     Object.keys(worker.inputs).length === 0
   )
     throw new HumanViewerMixedCompileError(

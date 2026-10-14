@@ -24,7 +24,11 @@ export interface IViewerCaptureSession {
    * @evidence contracts/performance.md#reuse-equivalent-work Capture reuses the session page and locator; different samples and effectful writes cannot be cached.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Non-overlap and awaited delivery keep one screenshot buffer in flight; writers own anything retained, while the session remains responsible for page close.
    */
-  capture(sample: unknown, write: (pass: AutoMovieGuidePass, bytes: Uint8Array) => Promise<void>, hook?: string): Promise<void>;
+  capture(
+    sample: unknown,
+    write: (pass: AutoMovieGuidePass, bytes: Uint8Array) => Promise<void>,
+    hook?: string,
+  ): Promise<void>;
 
   /**
    * Release the page exactly once when capture ends. A rejection propagates unchanged; the caller must handle release failure. The enclosing browser remains caller-owned.

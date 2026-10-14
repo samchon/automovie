@@ -36,7 +36,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
-const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
+const root: string = path.resolve(
+  process.env.HUMAN_VIEWER_ROOT ?? process.cwd(),
+);
 const storage: string = humanViewerStorage(
   root,
   process.env.HUMAN_VIEWER_STORAGE_ROOT,
@@ -176,18 +178,22 @@ front.listen(
         path.join(directory, "server.ts"),
       );
       const source: boolean = import.meta.url.endsWith(".ts");
-      const ttsx: string | undefined = source ? path.join(
-        path.dirname(require.resolve("ttsc/package.json")),
-        "lib/launcher/ttsx.js",
-      ) : undefined;
+      const ttsx: string | undefined = source
+        ? path.join(
+            path.dirname(require.resolve("ttsc/package.json")),
+            "lib/launcher/ttsx.js",
+          )
+        : undefined;
       child = spawn(
         process.execPath,
-        source ? [
-          ttsx!,
-          "-P",
-          path.resolve(directory, "../../../tsconfig.json"),
-          path.join(directory, "server.ts"),
-        ] : [path.join(directory, "server.js")],
+        source
+          ? [
+              ttsx!,
+              "-P",
+              path.resolve(directory, "../../../tsconfig.json"),
+              path.join(directory, "server.ts"),
+            ]
+          : [path.join(directory, "server.js")],
         {
           cwd: root,
           env: {

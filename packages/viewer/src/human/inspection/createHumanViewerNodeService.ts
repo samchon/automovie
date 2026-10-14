@@ -47,7 +47,10 @@ export function createHumanViewerNodeService(
   > = new Map();
   const closedWorkers: WeakSet<ChildProcess> = new WeakSet();
   const source: boolean = import.meta.url.endsWith(".ts");
-  const entry: string = path.join(props.directory, source ? "numerical-worker.ts" : "numerical-worker.js");
+  const entry: string = path.join(
+    props.directory,
+    source ? "numerical-worker.ts" : "numerical-worker.js",
+  );
   const require: ReturnType<typeof createRequire> = createRequire(entry);
   const close: (id: string) => Promise<void> = (id: string): Promise<void> => {
     const existing:

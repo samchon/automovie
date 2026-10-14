@@ -21,13 +21,16 @@ export async function readHumanViewerApplication(): Promise<{
 }> {
   const selected: string | undefined = process.env.HUMAN_VIEWER_APPLICATION;
   if (selected === undefined || selected.trim() === "")
-    throw new Error("Select HUMAN_VIEWER_APPLICATION before starting inspection.");
+    throw new Error(
+      "Select HUMAN_VIEWER_APPLICATION before starting inspection.",
+    );
   const loaded: { default?: unknown } = await import(
     pathToFileURL(path.resolve(selected)).href
   );
-  const application: unknown = typeof loaded.default === "function"
-    ? await (loaded.default as () => unknown)()
-    : loaded.default;
+  const application: unknown =
+    typeof loaded.default === "function"
+      ? await (loaded.default as () => unknown)()
+      : loaded.default;
   if (
     application === null ||
     typeof application !== "object" ||
@@ -38,21 +41,40 @@ export async function readHumanViewerApplication(): Promise<{
     application.examples === null ||
     typeof application.examples !== "object"
   )
-    throw new Error("The inspection application must supply directory and examples.");
+    throw new Error(
+      "The inspection application must supply directory and examples.",
+    );
   const examples: IHumanViewerExampleSources =
     application.examples as IHumanViewerExampleSources;
   if (
-    ![examples.documentsFile, examples.bodyExamplesFile, examples.cameraPosesFile]
-      .every((file: unknown): file is string => typeof file === "string" && path.isAbsolute(file)) ||
-    ![examples.reference, examples.standardPeople, examples.subjectPeople]
-      .every((factory: unknown): boolean => typeof factory === "function")
+    ![
+      examples.documentsFile,
+      examples.bodyExamplesFile,
+      examples.cameraPosesFile,
+    ].every(
+      (file: unknown): file is string =>
+        typeof file === "string" && path.isAbsolute(file),
+    ) ||
+    ![
+      examples.reference,
+      examples.standardPeople,
+      examples.subjectPeople,
+    ].every((factory: unknown): boolean => typeof factory === "function")
   )
-    throw new Error("The inspection application has incomplete example bindings.");
-  const sourceDirectories: unknown = "sourceDirectories" in application
-    ? application.sourceDirectories : [application.directory];
-  if (!Array.isArray(sourceDirectories) || !sourceDirectories.every(
-    (directory: unknown): directory is string => typeof directory === "string" && path.isAbsolute(directory),
-  ))
+    throw new Error(
+      "The inspection application has incomplete example bindings.",
+    );
+  const sourceDirectories: unknown =
+    "sourceDirectories" in application
+      ? application.sourceDirectories
+      : [application.directory];
+  if (
+    !Array.isArray(sourceDirectories) ||
+    !sourceDirectories.every(
+      (directory: unknown): directory is string =>
+        typeof directory === "string" && path.isAbsolute(directory),
+    )
+  )
     throw new Error("Application source directories must be absolute paths.");
   return { directory: application.directory, examples, sourceDirectories };
 }

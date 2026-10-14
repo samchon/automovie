@@ -12,7 +12,9 @@ import path from "node:path";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Membership is reread at startup; this helper retains no inventory cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous directory reads retain no open handles; pending paths and returned files scale with the selected tree.
  */
-export function readHumanViewerRuntimeFiles(roots: readonly string[]): string[] {
+export function readHumanViewerRuntimeFiles(
+  roots: readonly string[],
+): string[] {
   const pending: string[] = [...roots];
   const files: Set<string> = new Set<string>();
   while (pending.length !== 0) {
@@ -20,7 +22,10 @@ export function readHumanViewerRuntimeFiles(roots: readonly string[]): string[] 
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const file: string = path.join(directory, entry.name);
       if (entry.isDirectory()) pending.push(file);
-      else if (entry.isFile() && /\.(?:js|mjs|cjs|json|html|ts)$/.test(entry.name))
+      else if (
+        entry.isFile() &&
+        /\.(?:js|mjs|cjs|json|html|ts)$/.test(entry.name)
+      )
         files.add(file);
     }
   }

@@ -363,35 +363,32 @@ events.addEventListener(
   },
   { signal: lifetime.signal },
 );
-addEventListener(
-  "pagehide",
-  (event: PageTransitionEvent): void => {
-    if (event.persisted || closed) return;
-    closed = true;
-    void fetch("/display", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "release", session }),
-      keepalive: true,
-    }).catch((failure: unknown): void => {
-      console.error("AUTOMOVIE_DISPLAY_RELEASE_ERROR", failure);
-    });
-    const resume: (() => void) | undefined = release;
-    const previous: HTMLIFrameElement | undefined = active;
-    const next: HTMLIFrameElement | undefined = candidate;
-    release = undefined;
-    active = undefined;
-    candidate = undefined;
-    activeToken = undefined;
-    candidateToken = undefined;
-    transferredState = undefined;
-    reportAutoMovieResourceRetirement([
-      (): void => lifetime.abort(),
-      (): void => events.close(),
-      (): void => resume?.(),
-      (): void => next?.remove(),
-      (): void => previous?.remove(),
-    ]);
-  },
-);
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (event.persisted || closed) return;
+  closed = true;
+  void fetch("/display", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "release", session }),
+    keepalive: true,
+  }).catch((failure: unknown): void => {
+    console.error("AUTOMOVIE_DISPLAY_RELEASE_ERROR", failure);
+  });
+  const resume: (() => void) | undefined = release;
+  const previous: HTMLIFrameElement | undefined = active;
+  const next: HTMLIFrameElement | undefined = candidate;
+  release = undefined;
+  active = undefined;
+  candidate = undefined;
+  activeToken = undefined;
+  candidateToken = undefined;
+  transferredState = undefined;
+  reportAutoMovieResourceRetirement([
+    (): void => lifetime.abort(),
+    (): void => events.close(),
+    (): void => resume?.(),
+    (): void => next?.remove(),
+    (): void => previous?.remove(),
+  ]);
+});
 void prepare().catch((error: unknown): void => retain(String(error)));

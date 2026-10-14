@@ -9,8 +9,15 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each startup reads its supplied setting without a cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Admission owns no timer, queue or browser.
  */
-export function readHumanViewerAutomaticWarm(setting: string | undefined): boolean {
-  if (setting !== undefined && setting !== "" && setting !== "on" && setting !== "off")
+export function readHumanViewerAutomaticWarm(
+  setting: string | undefined,
+): boolean {
+  if (
+    setting !== undefined &&
+    setting !== "" &&
+    setting !== "on" &&
+    setting !== "off"
+  )
     throw new Error("HUMAN_VIEWER_AUTO_WARM must be on or off when set.");
   return setting !== "off";
 }

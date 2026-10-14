@@ -1,4 +1,10 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+import * as HME from "h264-mp4-encoder";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { type Page, chromium } from "playwright-core";
+import { PNG } from "pngjs";
+
 import {
   IAutoMovieRenderAdapters,
   IAutoMovieRenderAndSeeResult,
@@ -6,12 +12,6 @@ import {
   frameTimes,
   renderAndSee,
 } from "../../index.js";
-import * as HME from "h264-mp4-encoder";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { type Page, chromium } from "playwright-core";
-import { PNG } from "pngjs";
-
 import type { IAutoMoviePageRenderAndSeeArtifact } from "./IAutoMoviePageRenderAndSeeArtifact.js";
 import type { IAutoMoviePageRenderAndSeeOptions } from "./IAutoMoviePageRenderAndSeeOptions.js";
 import { preserveCleanupFailure } from "./preserveCleanupFailure.js";

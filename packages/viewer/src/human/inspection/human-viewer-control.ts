@@ -32,7 +32,9 @@ if (command !== "status" && command !== "stop")
 const instance: IHumanViewerInstance = humanViewerInstance(
   process.env.HUMAN_VIEWER_PORT,
 );
-const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
+const root: string = path.resolve(
+  process.env.HUMAN_VIEWER_ROOT ?? process.cwd(),
+);
 const record: string = path.join(
   humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT),
   instance.record,

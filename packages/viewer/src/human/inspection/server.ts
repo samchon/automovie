@@ -57,7 +57,8 @@ import { humanViewerCompileGate } from "./humanViewerCompileGate.js";
 import { readHumanViewerApplication } from "./readHumanViewerApplication.js";
 import { readHumanViewerAutomaticWarm } from "./readHumanViewerAutomaticWarm.js";
 
-const application: Awaited<ReturnType<typeof readHumanViewerApplication>> = await readHumanViewerApplication();
+const application: Awaited<ReturnType<typeof readHumanViewerApplication>> =
+  await readHumanViewerApplication();
 const applicationDirectory: string = application.directory;
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
 /** The launcher that owns this server's port and record, or null when it was started directly. */
@@ -69,7 +70,9 @@ const owner: number | null =
 const instance: IHumanViewerInstance = humanViewerInstance(
   process.env.HUMAN_VIEWER_PORT,
 );
-const automaticWarm: boolean = readHumanViewerAutomaticWarm(process.env.HUMAN_VIEWER_AUTO_WARM);
+const automaticWarm: boolean = readHumanViewerAutomaticWarm(
+  process.env.HUMAN_VIEWER_AUTO_WARM,
+);
 console.log("human-viewer automatic warm: " + (automaticWarm ? "on" : "off"));
 const source: ReturnType<typeof createHumanViewerSource> =
   createHumanViewerSource(

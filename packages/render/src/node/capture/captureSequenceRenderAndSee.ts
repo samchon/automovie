@@ -1,4 +1,3 @@
-import { createViewerCaptureSession, type IViewerCaptureSession } from "@automovie/viewer/node";
 import {
   AutoMovieGuidePass,
   IAutoMovieRenderSpec,
@@ -6,17 +5,21 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 import {
-  IAutoMovieSequenceRenderAdapters,
-  IAutoMovieSequenceRenderAndSeeResult,
-  IAutoMovieSequenceRenderFrame,
-  renderSequenceAndSee,
-} from "../../index.js";
+  type IViewerCaptureSession,
+  createViewerCaptureSession,
+} from "@automovie/viewer/node";
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
+import {
+  IAutoMovieSequenceRenderAdapters,
+  IAutoMovieSequenceRenderAndSeeResult,
+  IAutoMovieSequenceRenderFrame,
+  renderSequenceAndSee,
+} from "../../index.js";
 import type { IAutoMoviePageSequenceMetadata } from "./IAutoMoviePageSequenceMetadata.js";
 import type { IAutoMoviePageSequenceRenderArtifact } from "./IAutoMoviePageSequenceRenderArtifact.js";
 import type { IAutoMoviePageSequenceRenderOptions } from "./IAutoMoviePageSequenceRenderOptions.js";
@@ -193,25 +196,43 @@ const openSequenceCaptureSession: (options: {
     seekFunction: "__afSeekSequenceFrame",
   });
   await options.page.waitForFunction((): boolean => {
-    const host: Record<string, unknown> = globalThis as unknown as Record<string, unknown>;
-    return (host.__automovie as { ready?: boolean } | undefined)?.ready === true &&
-      typeof host.__afSeekSequenceShot === "function";
+    const host: Record<string, unknown> = globalThis as unknown as Record<
+      string,
+      unknown
+    >;
+    return (
+      (host.__automovie as { ready?: boolean } | undefined)?.ready === true &&
+      typeof host.__afSeekSequenceShot === "function"
+    );
   });
-  const metadata: IAutoMoviePageSequenceMetadata =
-    await readSequenceMetadata(options.page);
+  const metadata: IAutoMoviePageSequenceMetadata = await readSequenceMetadata(
+    options.page,
+  );
   return {
     metadata,
-    captureFrame: async (frame: IAutoMovieSequenceRenderFrame): Promise<string> => {
-      await session.capture(toHostFrame(frame), async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
-        await options.writeFrame(frame.path, bytes, frame);
-      });
+    captureFrame: async (
+      frame: IAutoMovieSequenceRenderFrame,
+    ): Promise<string> => {
+      await session.capture(
+        toHostFrame(frame),
+        async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
+          await options.writeFrame(frame.path, bytes, frame);
+        },
+      );
       return frame.path;
     },
-    captureShot: async (sample: { shot: string; shotTimeSeconds: number }): Promise<Uint8Array> => {
+    captureShot: async (sample: {
+      shot: string;
+      shotTimeSeconds: number;
+    }): Promise<Uint8Array> => {
       let captured: Uint8Array = new Uint8Array();
-      await session.capture(sample, async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
-        captured = bytes;
-      }, "__afSeekSequenceShot");
+      await session.capture(
+        sample,
+        async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
+          captured = bytes;
+        },
+        "__afSeekSequenceShot",
+      );
       return captured;
     },
     close: (): Promise<void> => session.close(),

@@ -31,14 +31,19 @@ export function serveHumanViewerDisplay(props: {
   close: () => Promise<void>;
 } {
   const output: string = path.resolve(props.root, ".shots/output");
-  const storageRelative: string = path.relative(output, path.resolve(props.storage));
+  const storageRelative: string = path.relative(
+    output,
+    path.resolve(props.storage),
+  );
   if (
     storageRelative === "" ||
     (!path.isAbsolute(storageRelative) &&
       storageRelative !== ".." &&
       !storageRelative.startsWith(".." + path.sep))
   )
-    throw new Error("Viewer metadata and cache must remain outside .shots/output.");
+    throw new Error(
+      "Viewer metadata and cache must remain outside .shots/output.",
+    );
   const staging: string = path.resolve(props.root, ".shots/display-staging");
   const records: string = path.resolve(props.storage, "display-records");
   const manifest: string = path.join(records, `port-${props.port}.json`);
@@ -55,18 +60,28 @@ export function serveHumanViewerDisplay(props: {
     const temporary: string = path.join(records, randomUUID() + ".json.tmp");
     let primary: { error: unknown } | undefined;
     try {
-      await fs.writeFile(temporary, JSON.stringify({
-        owner: "automovie-display-v1", port: props.port, entries, latest, pending,
-      }));
+      await fs.writeFile(
+        temporary,
+        JSON.stringify({
+          owner: "automovie-display-v1",
+          port: props.port,
+          entries,
+          latest,
+          pending,
+        }),
+      );
       await fs.rename(temporary, manifest);
     } catch (error) {
       primary = { error };
       throw error;
     } finally {
       const operations: readonly (() => Promise<void>)[] = [
-        async (): Promise<void> => { await fs.rm(temporary, { force: true }); },
+        async (): Promise<void> => {
+          await fs.rm(temporary, { force: true });
+        },
       ];
-      if (primary === undefined) await createAutoMovieResourceRetirement(operations)();
+      if (primary === undefined)
+        await createAutoMovieResourceRetirement(operations)();
       else await createAutoMovieResourceRetirement(operations, primary)();
     }
   };
@@ -75,16 +90,22 @@ export function serveHumanViewerDisplay(props: {
       (entry: Record<string, unknown>): boolean =>
         entry.released === true && entry.image !== latest,
     );
-    await createAutoMovieResourceRetirement(obsolete.map(
-      (entry: Record<string, unknown>): (() => Promise<void>) => async (): Promise<void> => {
-        await fs.rm(path.join(output, String(entry.image)), { force: true });
-      },
-    ))();
-    const obsoleteImages: Set<unknown> = new Set(obsolete.map(
-      (entry: Record<string, unknown>): unknown => entry.image,
-    ));
+    await createAutoMovieResourceRetirement(
+      obsolete.map(
+        (entry: Record<string, unknown>): (() => Promise<void>) =>
+          async (): Promise<void> => {
+            await fs.rm(path.join(output, String(entry.image)), {
+              force: true,
+            });
+          },
+      ),
+    )();
+    const obsoleteImages: Set<unknown> = new Set(
+      obsolete.map((entry: Record<string, unknown>): unknown => entry.image),
+    );
     entries = entries.filter(
-      (entry: Record<string, unknown>): boolean => !obsoleteImages.has(entry.image),
+      (entry: Record<string, unknown>): boolean =>
+        !obsoleteImages.has(entry.image),
     );
     await persist();
   };
@@ -92,13 +113,20 @@ export function serveHumanViewerDisplay(props: {
     if (initialized) return;
     let value: Record<string, unknown>;
     try {
-      value = JSON.parse(await fs.readFile(manifest, "utf8")) as Record<string, unknown>;
+      value = JSON.parse(await fs.readFile(manifest, "utf8")) as Record<
+        string,
+        unknown
+      >;
     } catch (cause) {
       if ((cause as NodeJS.ErrnoException).code !== "ENOENT") throw cause;
       initialized = true;
       return;
     }
-    if (value.owner !== "automovie-display-v1" || value.port !== props.port || !Array.isArray(value.entries))
+    if (
+      value.owner !== "automovie-display-v1" ||
+      value.port !== props.port ||
+      !Array.isArray(value.entries)
+    )
       throw new Error("The display ownership manifest is invalid.");
     const admitted: Array<Record<string, unknown>> = [
       ...value.entries,
@@ -106,21 +134,36 @@ export function serveHumanViewerDisplay(props: {
     ] as Array<Record<string, unknown>>;
     for (const entry of admitted) {
       if (
-        typeof entry.session !== "string" || !/^[0-9a-f-]{36}$/.test(entry.session) ||
+        typeof entry.session !== "string" ||
+        !/^[0-9a-f-]{36}$/.test(entry.session) ||
         typeof entry.image !== "string" ||
-        !new RegExp(`^current-${props.port}-${entry.session}-[0-9a-f]{64}\\.png$`).test(entry.image) ||
-        !Number.isSafeInteger(entry.generation) || !Number.isSafeInteger(entry.sequence) ||
-        entry.metadata === null || typeof entry.metadata !== "object" ||
-        entry.image !== `current-${props.port}-${entry.session}-${createHash("sha256").update(JSON.stringify(entry.metadata)).digest("hex")}.png`
-      ) throw new Error("The display ownership entry is invalid.");
+        !new RegExp(
+          `^current-${props.port}-${entry.session}-[0-9a-f]{64}\\.png$`,
+        ).test(entry.image) ||
+        !Number.isSafeInteger(entry.generation) ||
+        !Number.isSafeInteger(entry.sequence) ||
+        entry.metadata === null ||
+        typeof entry.metadata !== "object" ||
+        entry.image !==
+          `current-${props.port}-${entry.session}-${createHash("sha256").update(JSON.stringify(entry.metadata)).digest("hex")}.png`
+      )
+        throw new Error("The display ownership entry is invalid.");
     }
-    if (value.latest !== undefined && !admitted.some(
-      (entry: Record<string, unknown>): boolean => entry.image === value.latest,
-    )) throw new Error("The latest display has no ownership entry.");
+    if (
+      value.latest !== undefined &&
+      !admitted.some(
+        (entry: Record<string, unknown>): boolean =>
+          entry.image === value.latest,
+      )
+    )
+      throw new Error("The latest display has no ownership entry.");
     entries = value.entries as Array<Record<string, unknown>>;
     latest = typeof value.latest === "string" ? value.latest : undefined;
     if (value.pending !== undefined) {
-      const pending: Record<string, unknown> = value.pending as Record<string, unknown>;
+      const pending: Record<string, unknown> = value.pending as Record<
+        string,
+        unknown
+      >;
       try {
         await fs.access(path.join(output, String(pending.image)));
         entries.push(pending);
@@ -134,7 +177,10 @@ export function serveHumanViewerDisplay(props: {
     initialized = true;
     await collect();
   };
-  const handler: (request: IncomingMessage, response: ServerResponse) => void = (request: IncomingMessage, response: ServerResponse): void => {
+  const handler: (
+    request: IncomingMessage,
+    response: ServerResponse,
+  ) => void = (request: IncomingMessage, response: ServerResponse): void => {
     let canceled: boolean = false;
     request.once("aborted", (): void => {
       canceled = true;
@@ -184,7 +230,10 @@ export function serveHumanViewerDisplay(props: {
         if (typeof session !== "string" || !/^[0-9a-f-]{36}$/.test(session))
           throw new Error("A display session is required.");
         if (value.action === "release") {
-          if (closed) { response.end(); return; }
+          if (closed) {
+            response.end();
+            return;
+          }
           released.add(session);
           const release: Promise<void> = queue.then(async (): Promise<void> => {
             await initialize();
@@ -193,7 +242,11 @@ export function serveHumanViewerDisplay(props: {
             await collect();
           });
           queue = release.catch((): undefined => undefined);
-          void release.then((): void => { response.end(); }).catch(fail);
+          void release
+            .then((): void => {
+              response.end();
+            })
+            .catch(fail);
           return;
         }
         if (closed || released.has(session))
@@ -235,12 +288,17 @@ export function serveHumanViewerDisplay(props: {
         );
         const operation: Promise<void> = queue.then(async (): Promise<void> => {
           await initialize();
-          if (canceled || closed || released.has(session)) throw new Error("The display save was canceled.");
+          if (canceled || closed || released.has(session))
+            throw new Error("The display save was canceled.");
           // A failed retirement must be repaired before publishing another
           // image, rather than accumulating an IO-failure history in output.
-          if (entries.some(
-            (entry: Record<string, unknown>): boolean => entry.released === true && entry.image !== latest,
-          )) await collect();
+          if (
+            entries.some(
+              (entry: Record<string, unknown>): boolean =>
+                entry.released === true && entry.image !== latest,
+            )
+          )
+            await collect();
           const decoded: PNG = await new Promise<PNG>(
             (
               resolve: (value: PNG) => void,
@@ -257,14 +315,21 @@ export function serveHumanViewerDisplay(props: {
             throw new Error(
               "The encoded display dimensions disagree with its frame.",
             );
-          const prior: Record<string, unknown> | undefined = entries.reduce<Record<string, unknown> | undefined>(
-            (previous: Record<string, unknown> | undefined, entry: Record<string, unknown>): Record<string, unknown> | undefined => entry.session === session ? entry : previous,
+          const prior: Record<string, unknown> | undefined = entries.reduce<
+            Record<string, unknown> | undefined
+          >(
+            (
+              previous: Record<string, unknown> | undefined,
+              entry: Record<string, unknown>,
+            ): Record<string, unknown> | undefined =>
+              entry.session === session ? entry : previous,
             undefined,
           );
           if (
             prior !== undefined &&
             (generation < Number(prior.generation) ||
-              (generation === prior.generation && sequence <= Number(prior.sequence)))
+              (generation === prior.generation &&
+                sequence <= Number(prior.sequence)))
           )
             throw new Error("The display save was superseded.");
           await fs.mkdir(output, { recursive: true });
@@ -282,14 +347,24 @@ export function serveHumanViewerDisplay(props: {
             serverRevisionAtSave,
             stale: revision !== serverRevisionAtSave,
           };
-          const identity: string = createHash("sha256").update(JSON.stringify(metadata)).digest("hex");
+          const identity: string = createHash("sha256")
+            .update(JSON.stringify(metadata))
+            .digest("hex");
           const image: string = `${name}-${identity}.png`;
-          const entry: Record<string, unknown> = { session, generation, sequence, image, metadata, released: false };
+          const entry: Record<string, unknown> = {
+            session,
+            generation,
+            sequence,
+            image,
+            metadata,
+            released: false,
+          };
           let primary: { error: unknown } | undefined;
           try {
             await fs.writeFile(temporary, bytes);
             await persist(entry);
-            if (canceled || closed || released.has(session)) throw new Error("The display save was canceled.");
+            if (canceled || closed || released.has(session))
+              throw new Error("The display save was canceled.");
             await fs.rename(temporary, path.join(output, image));
             // PNG rename is the publication boundary; cancellation after it
             // cannot undo a completed filesystem commit.

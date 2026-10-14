@@ -6,6 +6,7 @@ import type {
 } from "@automovie/human";
 import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
 import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";
+import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
 import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
 import type { IAutoMovieHumanBodySimpleWhole } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleWhole";
@@ -19,8 +20,6 @@ import { measureHumanPersonDocument } from "@automovie/human/human/measure/measu
 import { measureHumanPersonHead } from "@automovie/human/human/measure/measureHumanPersonHead";
 import { solveHumanPersonHead } from "@automovie/human/human/measure/solveHumanPersonHead";
 import { solveHumanPersonMeasuredChannel } from "@automovie/human/human/measure/solveHumanPersonMeasuredChannel";
-
-import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
 import type { IConnectedPersonEvaluator } from "@automovie/human/human/runtime/IConnectedPersonEvaluator";
 import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasureMessage } from "@automovie/human/human/runtime/IConnectedPersonMeasureMessage";

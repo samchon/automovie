@@ -478,47 +478,44 @@ export function createPlaygroundViewerPage():
     },
     { signal: listeners.signal },
   );
-  addEventListener(
-    "pagehide",
-    (event: PageTransitionEvent): void => {
-      if (event.persisted || closed) return;
-      closed = true;
-      terminal = true;
-      const waiter: typeof frameWaiter = frameWaiter;
-      const resume: (() => void) | undefined = resumeCandidate;
-      const saved: typeof saver = saver;
-      const display: typeof gpuDisplay = gpuDisplay;
-      const targets: HTMLCanvasElement[] = [...subscribed];
-      frameWaiter = undefined;
-      resumeCandidate = undefined;
-      saver = undefined;
-      gpuDisplay = undefined;
-      frame = undefined;
-      canvas = undefined;
-      application = undefined;
-      facts = undefined;
-      completedState = undefined;
-      transfer = undefined;
-      subscribed.clear();
-      reportAutoMovieResourceRetirement([
-        (): void => listeners.abort(),
-        (): void => sourceRead.abort(),
-        (): void => mutations.disconnect(),
-        (): void =>
-          waiter?.reject(
-            new Error("The hosted page closed before frame admission."),
-          ),
-        (): void => resume?.(),
-        (): void => saved?.dispose(),
-        (): void => display?.dispose(),
-        ...targets.map(
-          (target: HTMLCanvasElement): (() => void) =>
-            (): void =>
-              target.removeAttribute("data-automovie-frame-observer"),
+  addEventListener("pagehide", (event: PageTransitionEvent): void => {
+    if (event.persisted || closed) return;
+    closed = true;
+    terminal = true;
+    const waiter: typeof frameWaiter = frameWaiter;
+    const resume: (() => void) | undefined = resumeCandidate;
+    const saved: typeof saver = saver;
+    const display: typeof gpuDisplay = gpuDisplay;
+    const targets: HTMLCanvasElement[] = [...subscribed];
+    frameWaiter = undefined;
+    resumeCandidate = undefined;
+    saver = undefined;
+    gpuDisplay = undefined;
+    frame = undefined;
+    canvas = undefined;
+    application = undefined;
+    facts = undefined;
+    completedState = undefined;
+    transfer = undefined;
+    subscribed.clear();
+    reportAutoMovieResourceRetirement([
+      (): void => listeners.abort(),
+      (): void => sourceRead.abort(),
+      (): void => mutations.disconnect(),
+      (): void =>
+        waiter?.reject(
+          new Error("The hosted page closed before frame admission."),
         ),
-      ]);
-    },
-  );
+      (): void => resume?.(),
+      (): void => saved?.dispose(),
+      (): void => display?.dispose(),
+      ...targets.map(
+        (target: HTMLCanvasElement): (() => void) =>
+          (): void =>
+            target.removeAttribute("data-automovie-frame-observer"),
+      ),
+    ]);
+  });
   announce("automovie:initialize");
   return {
     capture,

@@ -1,4 +1,5 @@
 import path from "node:path";
+
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE.js";
 import type { IAutoMoviePageSequenceRenderArtifact } from "./IAutoMoviePageSequenceRenderArtifact.js";
 import type { IAutoMoviePageSequenceRenderOptions } from "./IAutoMoviePageSequenceRenderOptions.js";
@@ -18,11 +19,12 @@ const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
  * @evidence contracts/performance.md#reuse-equivalent-work The command parses once and prints the completed artifact including its existing dissolve observations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed values and the artifact reference live through this invocation; the delegated capture owns resource teardown and persistent output files.
  */
-export const renderSequenceAndSeeCommand: (argv?: string[]) => Promise<void> = async (
+export const renderSequenceAndSeeCommand: (
+  argv?: string[],
+) => Promise<void> = async (
   argv: string[] = process.argv.slice(2),
 ): Promise<void> => {
-  const options: IAutoMoviePageSequenceRenderOptions | null =
-    parseArgs(argv);
+  const options: IAutoMoviePageSequenceRenderOptions | null = parseArgs(argv);
   if (options === null) {
     printHelp();
     return;

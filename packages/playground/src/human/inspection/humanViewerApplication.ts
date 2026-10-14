@@ -30,7 +30,10 @@ export function humanViewerApplication(): {
     examples: {
       documentsFile: path.resolve(directory, "../examples/faces.json"),
       bodyExamplesFile: path.resolve(directory, "../examples/bodies.json"),
-      cameraPosesFile: path.resolve(directory, "../examples/cameras/poses-lens-frame.json"),
+      cameraPosesFile: path.resolve(
+        directory,
+        "../examples/cameras/poses-lens-frame.json",
+      ),
       reference: createHumanViewerReferenceFaceDocument,
       standardPeople: readHumanViewerStandardPeople,
       subjectPeople: readHumanViewerSubjectPeople,

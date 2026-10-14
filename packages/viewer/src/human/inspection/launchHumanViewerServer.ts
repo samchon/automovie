@@ -30,8 +30,14 @@ export function launchHumanViewerServer(
   try {
     owned = spawn(
       process.execPath,
-      [path.join(context.directory, import.meta.url.endsWith(".ts")
-        ? "human-viewer-launcher.ts" : "human-viewer-launcher.js")],
+      [
+        path.join(
+          context.directory,
+          import.meta.url.endsWith(".ts")
+            ? "human-viewer-launcher.ts"
+            : "human-viewer-launcher.js",
+        ),
+      ],
       {
         cwd: context.root,
         windowsHide: true,

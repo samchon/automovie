@@ -1,10 +1,13 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+import {
+  type IViewerCaptureSession,
+  createViewerCaptureSession,
+} from "@automovie/viewer/node";
 
 import { guidePassFrameName, normalizeGuidePasses } from "../guidePasses";
 import { AutoMovieHeadlessCaptureError } from "./AutoMovieHeadlessCaptureError";
 import type { IAutoMovieHeadlessCaptureOptions } from "./IAutoMovieHeadlessCaptureOptions";
 import type { IAutoMovieHeadlessCaptureSession } from "./IAutoMovieHeadlessCaptureSession";
-import { createViewerCaptureSession, type IViewerCaptureSession } from "@automovie/viewer/node";
 
 /**
  * Open a capture session over a Playwright-like page and return its
@@ -35,18 +38,32 @@ export const createHeadlessCaptureAdapter: (
 ) => Promise<IAutoMovieHeadlessCaptureSession> = async (
   options: IAutoMovieHeadlessCaptureOptions,
 ): Promise<IAutoMovieHeadlessCaptureSession> => {
-  const passes: readonly AutoMovieGuidePass[] = foldPasses(options.passes ?? ["beauty"]);
-  const primaryPass: AutoMovieGuidePass = passes.includes("beauty") ? "beauty" : passes[0]!;
-  const session: IViewerCaptureSession = await createViewerCaptureSession({ ...options, passes });
+  const passes: readonly AutoMovieGuidePass[] = foldPasses(
+    options.passes ?? ["beauty"],
+  );
+  const primaryPass: AutoMovieGuidePass = passes.includes("beauty")
+    ? "beauty"
+    : passes[0]!;
+  const session: IViewerCaptureSession = await createViewerCaptureSession({
+    ...options,
+    passes,
+  });
   return {
-    captureFrame: async (timeSeconds: number, index: number, dir: string): Promise<string> => {
+    captureFrame: async (
+      timeSeconds: number,
+      index: number,
+      dir: string,
+    ): Promise<string> => {
       const base: string = dir.replace(/[\\/]+$/, "");
       let primary: string = "";
-      await session.capture(timeSeconds, async (pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
-        const file: string = `${base}/${guidePassFrameName(index, pass)}`;
-        await options.writeFrame(file, bytes, { timeSeconds, index });
-        if (pass === primaryPass) primary = file;
-      });
+      await session.capture(
+        timeSeconds,
+        async (pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
+          const file: string = `${base}/${guidePassFrameName(index, pass)}`;
+          await options.writeFrame(file, bytes, { timeSeconds, index });
+          if (pass === primaryPass) primary = file;
+        },
+      );
       return primary;
     },
     close: (): Promise<void> => session.close(),

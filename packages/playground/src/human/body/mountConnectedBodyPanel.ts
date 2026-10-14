@@ -6,6 +6,8 @@ import type {
 import { HUMAN_BODY_SIMPLE_POSTURE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_POSTURE";
 import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
+import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
+import { connectedBodyReach } from "@automovie/human/body/measure/connectedBodyReach";
 import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
@@ -15,8 +17,6 @@ import type {
 } from "@automovie/interface";
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
-import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
-import { connectedBodyReach } from "@automovie/human/body/measure/connectedBodyReach";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
 import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
 import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
