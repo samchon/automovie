@@ -11,7 +11,7 @@ import { ProductionOwnedDescriptorCleanupError } from "./ProductionOwnedDescript
  * @evidence contracts/common.md#meaningful-documentation Defines close-only versus combined failure, recursive same-class flattening and target context.
  * @evidence contracts/performance.md#efficient-algorithms One native close plus copying K prior causes on combined failure and Error stack construction; no payload is copied.
  * @evidence contracts/performance.md#reuse-equivalent-work The same already captured failure is reused without repeating the read or close operation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the descriptor and receives any release failure; this helper stores no handle, but returned Error causes live until the catcher releases them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the descriptor and receives any release failure; this helper stores no handle, but thrown error causes live until the catcher releases them.
  */
 export function closeProductionOwnedDescriptor(descriptor: number, failure: IProductionOwnedDescriptorFailure | undefined, target: string): void {
     try {
