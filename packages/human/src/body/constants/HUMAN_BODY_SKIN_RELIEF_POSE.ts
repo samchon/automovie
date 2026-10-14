@@ -24,8 +24,8 @@ import type { IAutoMovieHumanBodySkinReliefPose } from "../structures/IAutoMovie
  */
 export const HUMAN_BODY_SKIN_RELIEF_POSE: IAutoMovieHumanBodySkinReliefPose = {
   joints: [
-    ...["Index", "Middle", "Ring", "Little"].flatMap((finger) =>
-      ["Proximal", "Intermediate", "Distal"].map((segment) => ({
+    ...["Index", "Middle", "Ring", "Little"].flatMap((finger: string): IAutoMovieHumanBodySkinReliefPose["joints"] =>
+      ["Proximal", "Intermediate", "Distal"].map((segment: string): IAutoMovieHumanBodySkinReliefPose["joints"][number] => ({
         bone: finger + segment,
         sigmaMetres: 0.005,
         reachMetres: 0.012,

@@ -87,7 +87,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShape
       // matched programmes), and a woman carries 40 percent less muscle than
       // a man in the upper body (arms and trunk) and 33 percent less in the
       // lower (Janssen et al. 2000, whole-body MRI of 468 adults)
-      ([channel, woman]): Term => ({
+      ([channel, woman]: readonly [string, number]): Term => ({
         channel,
         gain: 0.7,
         curves: [

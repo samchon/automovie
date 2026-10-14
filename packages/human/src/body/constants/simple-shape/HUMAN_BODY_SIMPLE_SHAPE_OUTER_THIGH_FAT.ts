@@ -10,7 +10,7 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 export const HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
   [
     ...["outerThighFatLeft", "outerThighFatRight"].map(
-      (channel): Term => ({
+      (channel: string): Term => ({
         // gynoid fat: the outer thighs, more on women, less with age
         channel,
         gain: 1,

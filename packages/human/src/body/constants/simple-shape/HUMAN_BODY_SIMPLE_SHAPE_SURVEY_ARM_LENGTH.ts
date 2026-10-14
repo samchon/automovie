@@ -38,7 +38,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_ARM_LENGTH: IAutoMovieHumanBodySimpl
     "measureLowerarmLength",
     "handScaleLeft",
     "handScaleRight",
-  ].map((channel) => ({
+  ].map((channel: string): IAutoMovieHumanBodySimpleShapeTable["terms"][number] => ({
     channel,
     gain: 1,
     curves: [
