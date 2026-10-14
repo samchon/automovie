@@ -8,34 +8,23 @@ import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { isRecord } from "../validation/isRecord";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate one positional target of a performance and resolve it to a world point,
- * or report why it cannot be and answer `null`.
+ * Gate one positional target of a performance and resolve it to a world point, or report why it cannot be and answer `null`.
  *
- * Positional targets are a `lookAt`, `reach` or `locomote` destination, a
- * `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame`
- * subject or focus, and a coverage subject. They resolve against every staged placement,
- * cameras included, so an actor may look down the lens.
+ * Positional targets are a `lookAt`, `reach` or `locomote` destination, a `react` source, a `point` or `strike` gesture aim, a `launch` aim, a `frame` subject or focus, and a coverage subject. They resolve against every staged placement, cameras included, so an actor may look down the lens.
  *
  * The checks run in this order, each answering `null` after its violation:
  *
- * 1. Unless `formationsFramed` is true, a group naming any formation is refused
- *    first, because only a lens frames a mass and every other target asks one
- *    body for one point; checking membership first would hide that.
- * 2. The target must be a record; a `bone` target's actor must be a staged node
- *    with an actor context and a rig carrying that bone; a `group` must list
- *    its nodes as an array with every member staged, and each formation it
- *    names must be one this shot compiled. Every id must be a non-blank string.
- * 3. Missing nodes, malformed point vectors, empty groups and non-positional
- *    kinds are refused before invoking the live resolver.
- * 4. The point comes from the live resolver at `seconds` when it answers, and
- *    otherwise from the staged placements and opening formation points; a
- *    missing or non-finite point is refused naming the id that failed.
+ * 1. Unless `formationsFramed` is true, a group naming any formation is refused first, because only a lens frames a mass and every other target asks one body for one point; checking membership first would hide that.
+ * 2. The target must be a record; a `bone` target's actor must be a staged node with an actor context and a rig carrying that bone; a `group` must list its nodes as an array with every member staged, and each formation it names must be one this shot compiled. Every id must be a non-blank string.
+ * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds are refused before invoking the live resolver.
+ * 4. The point comes from the live resolver at `seconds` when it answers, and otherwise from the staged placements and opening formation points; a missing or non-finite point is refused naming the id that failed.
  *
  * @param context The shot's staged tables and collector.
  * @param props.target The target as authored.
@@ -50,7 +39,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidence contracts/common.md#clear-and-simple-design Resolution is the reference synthesizer's own `resolveTargetPoint` over the same placement table, so a target the gate accepts is a target the performer can aim at; the fault text is the shared `positionalTargetFault`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cameras resolve as placements without becoming performers; every named group member must exist so no centroid silently drops an authored member, and formation groups are accepted only by camera framing. Malformed or unsupported targets cannot be made valid by a permissive live callback.
  * @evidence contracts/common.md#meaningful-documentation States which targets reach it, the order of the checks and why the formation refusal is first, what each kind requires, where the point comes from, and the `null` answer after every violation.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per target apart from a group's member list, which is walked once for its ids and once by the resolver, and a bone target's rig scan, linear in the rig's bone count.
+ * @evidence contracts/performance.md#efficient-algorithms Cost includes id trimming, group member/id/resolution walks and a bone target's rig scan; each absent formation also lists the supplied formation table, so repeated failures can repeat that population scan. Diagnostic representation size, user-defined conversion hooks and caller-supplied target/rig callbacks add their own unbounded work beyond those local traversals.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one target per call; the placement and formation tables it reads are built once per shot in the context and shared by every call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing; the returned point is a staged or resolved vector the caller only reads.
  */
@@ -77,7 +66,7 @@ export function resolvePerformShotTarget (
         "type",
         path,
         `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but its group names formation ${named
-          .map((formation: unknown): string => `"${String(formation)}"`)
+          .map((formation: unknown): string => `"${describeInvalidValue(formation)}"`)
           .join(
             ", ",
           )}: a formation is a mass a camera frames, not one body with one point to aim at; name the staged nodes to aim at instead`,
@@ -118,8 +107,7 @@ export function resolvePerformShotTarget (
 }
 
 /**
- * Check the ids an untyped target carries, answering whether it is a target
- * record resolution may read.
+ * Check the ids an untyped target carries, answering whether it is a target record resolution may read.
  */
 function validateTargetIds (
   context: IPerformShotGateContext,

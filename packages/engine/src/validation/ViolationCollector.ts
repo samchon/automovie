@@ -1,5 +1,6 @@
 import { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieQuaternion, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
+import { describeInvalidValue } from "./describeInvalidValue";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
 /** A direction this short or shorter carries no direction at all. */
@@ -49,9 +50,7 @@ export class ViolationCollector {
   }
 
   /**
-   * Push a `"warning"`-severity violation, physical-plausibility advice that
-   * does not fail validation (see
-   * {@link IAutoMovieConstraintViolation.severity}).
+   * Push a `"warning"`-severity violation, physical-plausibility advice that does not fail validation (see {@link IAutoMovieConstraintViolation.severity}).
    *
    * @evidence contracts/common.md#principled-implementation Delegates the exact supplied finding to push with severity=warning, retaining optional measured overshoot without failing warning-only canonical validation.
    * @evidence contracts/common.md#clear-and-simple-design Physical advice uses the same finding shape and ordered collector as structural errors, with severity expressing its different consequence.
@@ -72,15 +71,13 @@ export class ViolationCollector {
   }
 
   /**
-   * Finite range check `[min, max]`; pushes a `range` violation unless `value`
-   * is a finite number inside it. `value` is `unknown` so a field read off an
-   * untyped payload is narrowed here rather than cast to `number` first.
+   * Finite range check `[min, max]`; pushes a `range` violation unless `value` is a finite number inside it. `value` is `unknown` so a field read off an untyped payload is narrowed here rather than cast to `number` first. Failed string conversion changes only the diagnostic representation to `an uninspectable value`; the finding retains the original value.
    *
    * @evidence contracts/common.md#principled-implementation Type and Number.isFinite checks precede inclusive min/max comparisons; internal infinite bounds are permitted while the tested value must be finite.
    * @evidence contracts/common.md#clear-and-simple-design The shared collector supplies one unknown-scalar interval policy while each gate supplies the field path, label and bounds.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid values are reported unchanged rather than clamped or coerced; bounds are caller policy and are not reordered here.
-   * @evidence contracts/common.md#meaningful-documentation States closed endpoints, finite tested values, range-kind result and the unknown-input shape check.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed scalar checks take constant work; only refusal renders the value and allocates its message and finding.
+   * @evidence contracts/common.md#meaningful-documentation States closed endpoints, finite tested values, range-kind result, the unknown-input shape check and the representation fallback without changing the retained value.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed scalar checks take constant work; refusal adds label/output-sized text and describeInvalidValue conversion, whose user-defined hooks carry no bounded execution-time guarantee.
    * @evidence contracts/performance.md#reuse-equivalent-work One interval predicate serves distinct fields without memoizing mutable input values or rebuilding an admission table.
    * @evidence contracts/performance.md#bound-retention-and-release-resources At most one finding retains the offending value in items; accepted values acquire no storage or host resource.
    */
@@ -100,14 +97,13 @@ export class ViolationCollector {
       this.push(
         "range",
         path,
-        `${label} must be a finite number within [${min}, ${max}], but was ${String(value)}`,
+        `${label} must be a finite number within [${min}, ${max}], but was ${describeInvalidValue(value)}`,
         value,
       );
   }
 
   /**
-   * Pushes a `type` violation when `value` is empty or only whitespace; the
-   * message is `<label> must be non-empty`.
+   * Pushes a `type` violation when `value` is empty or only whitespace; the message is `<label> must be non-empty`.
    *
    * @param path Violation path of the checked string.
    * @param value String that must carry a non-whitespace character.
@@ -127,9 +123,7 @@ export class ViolationCollector {
   }
 
   /**
-   * Checks a direction that need not be unit length: one `range` violation at
-   * `<path>.<axis>` per non-finite component, or, when every component is
-   * finite, one at `path` if the length is `1e-12` or shorter.
+   * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the length is `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
    * @param value Direction to check; a finite measured length above 1e-12 passes.
@@ -155,9 +149,7 @@ export class ViolationCollector {
   }
 
   /**
-   * Pushes one `range` violation at `<path>.<axis>` for each non-finite
-   * component of a vector, worded `<label> <axis> must be finite, but was
-   * <value>`.
+   * Pushes one `range` violation at `<path>.<axis>` for each non-finite component of a vector, worded `<label> <axis> must be finite, but was <value>`.
    *
    * @param path Violation path of the checked vector.
    * @param value Vector whose three components must be finite.
@@ -187,8 +179,7 @@ export class ViolationCollector {
   }
 
   /**
-   * Pushes a `range` violation at `path` unless a value is a finite number
-   * strictly above zero; a missing value fails and is reported as `null`.
+   * Pushes a `range` violation at `path` unless a value is a finite number strictly above zero; a missing value fails and is reported as `null`.
    *
    * @param path Violation path of the checked number.
    * @param value Number that must be finite and positive, or undefined.
@@ -217,8 +208,7 @@ export class ViolationCollector {
   }
 
   /**
-   * Pushes a `range` violation at `path` when a quaternion's norm is not
-   * finite or differs from 1 by more than `1e-6`, reporting the norm.
+   * Pushes a `range` violation at `path` when a quaternion's norm is not finite or differs from 1 by more than `1e-6`, reporting the norm.
    *
    * @param path Violation path of the checked rotation.
    * @param value Quaternion that must be a unit rotation.

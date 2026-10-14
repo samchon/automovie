@@ -20,43 +20,25 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
 /**
  * The world volume each panel of an opening sweeps across its whole travel.
  *
- * The envelope is solved rather than sampled. Every corner of a turning leaf
- * traces `A + B cos(t) + D sin(t)` under the panel's own placement, and an
- * affine world matrix keeps that form, so each axis is a single cosine whose
- * extremes are its endpoints and the critical angles the travel actually
- * crosses. A sliding leaf is linear and reaches its extremes at its limits.
- * Nothing here judges whether a person can pass the leaf: this is the volume a
- * later clearance or collision analysis reads, not its verdict.
+ * The envelope is solved rather than sampled. Every corner of a turning leaf traces `A + B cos(t) + D sin(t)` under the panel's own placement, and an affine world matrix keeps that form, so each axis is a single cosine whose extremes are its endpoints and the critical angles the travel actually crosses. A sliding leaf is linear and reaches its extremes at its limits. Nothing here judges whether a person can pass the leaf: this is the volume a later clearance or collision analysis reads, not its verdict.
  *
- * The answer is per panel, and only that panel's own travel. Ancestors stand
- * where the environment's current state puts them, so an inner folding leaf is
- * measured against the outer leaf as it currently stands. That is the volume
- * this leaf sweeps from where the design has it, not the union over every
- * configuration a chain of leaves could reach between its named states. A
- * caller wanting that union asks for each state in turn and takes the hull
- * itself; inventing it here would quietly report a chain's envelope under one
- * panel's name.
+ * The answer is per panel, and only that panel's own travel. Ancestors stand where the environment's current state puts them, so an inner folding leaf is measured against the outer leaf as it currently stands. That is the volume this leaf sweeps from where the design has it, not the union over every configuration a chain of leaves could reach between its named states. A caller wanting that union asks for each state in turn and takes the hull itself; inventing it here would quietly report a chain's envelope under one panel's name.
  *
- * Each entry is a world-space axis-aligned box over the four corners of the
- * panel's `width` by `height` leaf, in panel order. An opening without an
- * operation answers an empty list. Throws an `Error` when the opening does not
- * exist, a panel's element is missing, or a travel has an infinite limit or a
- * revolute travel spans more than a full turn plus
- * `AUTOMOVIE_FULL_TURN_EPSILON`, the cap `validateBuiltEnvironment` applies.
+ * Each entry is a world-space axis-aligned box over the four corners of the panel's `width` by `height` leaf, in panel order. An opening without an operation answers an empty list. Throws an `Error` when the opening does not exist, a panel's element is missing, or travel limits are non-finite, unordered, empty, exclude rest at zero, or span more than a full revolute turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules `validateBuiltEnvironment` applies.
  *
  * @param environment Building record holding the opening.
  * @param openingId Id of the opening whose panels are swept.
  * @returns One swept box per panel, in panel order.
  *
- * @evidence contracts/common.md#principled-implementation A revolute corner's world coordinate is `c + b cos t + d sin t`, whose extremes over `[min, max]` are the endpoints plus every `phase + kπ` inside the range, so the box is exact rather than sampled; a prismatic corner is linear in its travel and extreme at its limits. The premise is a finite travel of at most one turn, which validation enforces and this function refuses by name otherwise.
+ * @evidence contracts/common.md#principled-implementation A revolute corner's world coordinate is `c + b cos t + d sin t`, whose extremes over `[min, max]` are the endpoints plus every `phase + kπ` inside the range, so the box is solved rather than sampled; a prismatic corner is linear in its travel and extreme at its limits. Finite ordered travel must contain rest at zero, and revolute travel spans at most one turn, so its absolute limits and critical indices stay bounded and integer increments progress; this function refuses violations of those shared admission rules before enumeration.
  * @evidence contracts/common.md#clear-and-simple-design Staging comes from `builtEnvironmentWorldMatrices` and the opening lookup from `requireBuiltOpening`; the panel's base frame is its parent's staged matrix times its rest transform, which removes only its own travel without restaging the building per panel.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no opening or panel; the full-turn cap is the shared contract constant rather than a private copy, and an unenumerable travel is refused instead of truncated.
  * @evidence contracts/common.md#meaningful-documentation States the exact solve, that ancestors stand at the current state and only the panel's own travel is swept, why no chain union is formed, the box's corners and order, and every refusal with the cap it uses.
- * @evidence contracts/performance.md#efficient-algorithms One staging pass linear in the element count, then constant work per panel corner, at most a handful of critical angles per axis because travel is capped at one turn; this replaces restaging the whole building once per panel.
+ * @evidence contracts/performance.md#efficient-algorithms One opening lookup, element index and shared staging precede constant work per queried panel corner, with a bounded critical-angle population. Staging composes each element once but also searches operating states and each panel/carriage's state-value list, so its cost includes those scans and can be quadratic in a member population; matrices, indices and returned sweeps grow with elements and queried panels.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening per call from the caller's mutable record; within the call one staging and one element index serve every panel.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrices and element index only for the call and returns new sweep records; nothing is retained.
  */
-export const builtOpeningSweepEnvelope = (
+export const builtOpeningSweepEnvelope: (environment: IAutoMovieBuiltEnvironment, openingId: string) => IAutoMovieOpeningSweep[] = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
 ): IAutoMovieOpeningSweep[] => {
@@ -105,11 +87,9 @@ export const builtOpeningSweepEnvelope = (
 /**
  * The world frame a panel's leaf stands in with its own travel at rest.
  *
- * The panel's own displacement is the last factor of its local matrix and
- * moves nothing above it, so its parent's staged matrix times its rest
- * transform is exactly the staging with that one joint removed.
+ * The panel's own displacement is the last factor of its local matrix and moves nothing above it, so its parent's staged matrix times its rest transform is exactly the staging with that one joint removed.
  */
-const restingFrame = (
+const restingFrame: (environment: IAutoMovieBuiltEnvironment, elements: ReadonlyMap<string, IAutoMovieBuiltElement>, staged: ReadonlyMap<string, number[]>, panel: IAutoMovieMovablePanel) => number[] = (
   environment: IAutoMovieBuiltEnvironment,
   elements: ReadonlyMap<string, IAutoMovieBuiltElement>,
   staged: ReadonlyMap<string, number[]>,
@@ -135,14 +115,9 @@ const restingFrame = (
 /**
  * Refuse a panel whose travel the swept envelope could not enumerate.
  *
- * The solver walks the critical angles the travel actually crosses, so an
- * infinite limit or a range spanning more than a full turn is not a wrong
- * answer waiting to happen: it is a walk that never reaches its end.
- * `validateBuiltEnvironment` refuses both by name with the same cap, so this
- * only fires on a record that was never validated, and on one of those a named
- * refusal is the only acceptable outcome.
+ * Travel must be finite, ordered, nonempty and contain rest at zero, as `validateBuiltEnvironment` requires. Together with the revolute full-turn cap this bounds the absolute critical-angle indices, so incrementing an index cannot stall at a large finite floating-point value. Direct callers receive a named refusal instead of entering an enumeration outside those premises.
  */
-const requireEnumerableTravel = (
+const requireEnumerableTravel: (environment: IAutoMovieBuiltEnvironment, panel: IAutoMovieMovablePanel) => void = (
   environment: IAutoMovieBuiltEnvironment,
   panel: IAutoMovieMovablePanel,
 ): void => {
@@ -150,6 +125,9 @@ const requireEnumerableTravel = (
   if (
     Number.isFinite(min) === false ||
     Number.isFinite(max) === false ||
+    min > 0 ||
+    max < 0 ||
+    max <= min ||
     (panel.motion.kind === "revolute" &&
       max - min > 2 * Math.PI + AUTOMOVIE_FULL_TURN_EPSILON)
   )
@@ -159,7 +137,7 @@ const requireEnumerableTravel = (
 };
 
 /** Apply a column-major matrix to a point. */
-const applyMatrix = (
+const applyMatrix: (matrix: readonly number[], point: IAutoMovieVector3) => IAutoMovieVector3 = (
   matrix: readonly number[],
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
@@ -172,7 +150,7 @@ const applyMatrix = (
 };
 
 /** Apply a column-major matrix's linear part to a direction. */
-const applyDirection = (
+const applyDirection: (matrix: readonly number[], vector: IAutoMovieVector3) => IAutoMovieVector3 = (
   matrix: readonly number[],
   vector: IAutoMovieVector3,
 ): IAutoMovieVector3 => ({
@@ -182,7 +160,7 @@ const applyDirection = (
 });
 
 /** The world bounds one leaf corner reaches across a panel's whole travel. */
-const sweptCornerBounds = (
+const sweptCornerBounds: (base: readonly number[], motion: IAutoMovieTravelMotion, corner: IAutoMovieVector3) => IAutoMovieSubjectBox = (
   base: readonly number[],
   motion: IAutoMovieTravelMotion,
   corner: IAutoMovieVector3,
@@ -212,7 +190,7 @@ const sweptCornerBounds = (
     base,
     Vector3.cross(axis, offset),
   );
-  const reach = (component: "x" | "y" | "z"): { low: number; high: number } => {
+  const reach: (component: "x" | "y" | "z") => { low: number; high: number; } = (component: "x" | "y" | "z"): { low: number; high: number } => {
     const phase: number = Math.atan2(sine[component], cosine[component]);
     const angles: number[] = [motion.min, motion.max];
     const first: number = Math.ceil((motion.min - phase) / Math.PI);
