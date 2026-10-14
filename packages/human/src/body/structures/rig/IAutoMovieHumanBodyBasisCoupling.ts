@@ -36,8 +36,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * function and range are data of the basis, the builder applies it in a
  * stated order, the editor shows the addition beside the joint row, and the
  * document never stores it. For a TT shoulder source, `source.measure` is
- * the document's total `shoulders[].elevation`, or the measured A-pose
- * elevation when omitted. For a non-humeral source it retains the engine's
+ * the document's total `shoulders[].elevation`, or the supplied shaped
+ * shoulder-rest elevation when omitted, falling back to the declared fixed
+ * neutral. For a non-humeral source it retains the engine's
  * `swingConeAngle` of the clinical flexion and abduction. The curve is
  * piecewise linear over
  * `[elevation, degrees]` knots: zero at and below the first knot, linear
@@ -51,9 +52,10 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * Admission (`assertHumanBodyRig`) requires a unique nonblank `id`, declared
  * source and output joints, an output axis the output joint's constraint
  * leaves open (which excludes the unconstrained root), at least two finite
- * knots strictly increasing in elevation, the first at or above the source
- * joint's rest elevation with an ordinate of zero so the rest, the hanging
- * arm and every pose below the rest add nothing, every `rest + ordinate`
+ * knots strictly increasing in elevation, the first no more than 1e-9 degrees
+ * below the declared source-rest elevation, with a zero ordinate. This numerical
+ * rest-cone allowance does not establish zero activation at every shaped
+ * shoulder rest. Admission also requires every `rest + ordinate`
  * inside the output axis's clinical range, no output joint that
  * is any coupling's source (so no chain and no cycle), and no output axis
  * driven twice. Correctives read the coupled angles, so a joint ramp on the
@@ -75,6 +77,7 @@ export interface IAutoMovieHumanBodyBasisCoupling {
 
   /** The driving joint and the measure read from it. */
   source: {
+    /** Declared source joint whose unchanged document or shoulder-rest reading drives the curve. */
     bone: AutoMovieHumanoidBone;
 
     /** TT total elevation on an upper arm, otherwise the clinical flexion/abduction swing cone. */
@@ -83,10 +86,13 @@ export interface IAutoMovieHumanBodyBasisCoupling {
 
   /** The driven joint and the clinical axis the ordinate is added to. */
   output: {
+    /** Declared driven joint; admission prevents any coupling source from being an output. */
     bone: AutoMovieHumanoidBone;
+
+    /** Clinical coordinate receiving the curve's degree contribution before pose admission. */
     axis: "flexion" | "abduction" | "twist";
   };
 
-  /** `[elevation, degrees]` knots, strictly increasing in elevation from the source's rest elevation or above, the first ordinate zero. */
+  /** `[elevation, degrees]` knots, strictly increasing in elevation with a zero first ordinate; onset may be at most 1e-9 degrees below declared source rest for numerical cone error. */
   curve: [number, number][];
 }

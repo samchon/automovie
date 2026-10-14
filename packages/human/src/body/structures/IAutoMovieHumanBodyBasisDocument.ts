@@ -16,7 +16,7 @@ import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwea
  * Compact edits against a separately supplied immutable body basis.
  *
  * Zero is the source neutral; omitted channels are zero, omitted non-humeral
- * joints are at rest and omitted shoulders hold their measured A-pose goal.
+ * joints are at rest and omitted shoulders hold the shaped body's own rest goal.
  * Negative controls use their authored negative endpoint, never an
  * extrapolated positive one. The document contains no photo, mesh cache,
  * renderer or Blender dependency, and no schema version: the basis revision it
@@ -102,7 +102,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
 
   /**
    * Optional humerothoracic goals in tilt-and-torsion coordinates. An omitted
-   * arm keeps the basis's measured A-pose total direction even when its
+   * arm keeps the shaped body's own rest total direction even when its
    * shoulder girdle is posed; the girdle still transports its joint centre.
    */
   shoulders?: IAutoMovieHumanBodyShoulderPose[];
@@ -155,8 +155,8 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * base-colour map of its two chromophores, melanin and haemoglobin,
    * varying about the site colour (`HUMAN_BODY_SKIN_TONE`) at `strength` in
    * [0,1], less even with the document's age; the base colour is compensated
-   * so the skin's mean colour stays the site albedo. Omission keeps the tone
-   * even.
+   * against the map's pre-encoding mean. Texture quantization and material
+   * clipping prevent exact final mean preservation. Omission keeps the tone even.
    */
   skinTone?: IAutoMovieHumanBodySkinLayerStrength;
 

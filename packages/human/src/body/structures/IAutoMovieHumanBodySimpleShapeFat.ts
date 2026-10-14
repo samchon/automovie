@@ -31,7 +31,8 @@ export interface IAutoMovieHumanBodySimpleShapeFat {
    * Fat-free mass index (kg/m²) one unit of the muscle parameter adds over
    * the regression's body at the same stature and mass, by sex: the fat
    * the definition gates read is the regression's less the mass that
-   * muscle displaces (`100 · Δ · muscle / BMI` points). Deurenberg's
+   * muscle displaces (`100 · Δ · developedMuscle / BMI` points, using the
+   * authored age-conditioned training ramp). Deurenberg's
    * regression knows no muscularity, so without this an athlete reads the
    * fat of an untrained body of the same mass index.
    */

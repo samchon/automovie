@@ -14,15 +14,17 @@
 export interface IAutoMovieHumanBodySkinChromophore {
   /**
    * The band of the variation, the shortest and longest wavelength in
-   * millimetres: a periodic sum of sinusoids at every integer frequency of
-   * the tile inside the band, amplitudes falling as one over the frequency.
+   * millimetres. Frequencies are sampled log-uniformly in this band, then
+   * their direction components round to tile harmonics; the rounded wavelength
+   * can leave the band and repeated harmonics are possible. Amplitudes fall
+   * as one over the rounded frequency.
    */
   wavelengths: [number, number];
 
-  /** Number of sinusoids drawn inside the band. */
+  /** Number of frequency draws; a draw rounding to the zero harmonic contributes no sinusoid. */
   waves: number;
 
-  /** Standard deviation of the chromophore's optical density at the green primary, natural log units. */
+  /** Nominal green-primary optical-density scale, natural log units; wave-power normalization does not guarantee the sampled field's standard deviation. */
   spread: number;
 
   /** Its absorbance at the red, green and blue primaries relative to green. */

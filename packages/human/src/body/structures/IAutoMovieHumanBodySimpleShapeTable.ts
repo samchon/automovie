@@ -42,8 +42,7 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
 
   /**
    * The stature channel, solved by measurement, and the mass direction: the
-   * channels a kilogram is spread over (the source's weight macro and the
-   * regional fat, by sex) as term rows whose products are the direction's
+   * channels selected by authored term rows whose products are the direction's
    * coefficients; the mass is solved as one scalar along that direction,
    * over the envelope of the channel named `range`.
    */

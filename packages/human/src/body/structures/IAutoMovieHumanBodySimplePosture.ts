@@ -1,7 +1,8 @@
 /**
  * The table a body's standing posture follows with age: how much the
  * thoracic kyphosis grows past the source body's own, which spine joints
- * carry it, and which joint turns the head back so the gaze stays level.
+ * carry it, and which joint compensates within its extension limit. A clamped
+ * compensation can leave a change in head orientation.
  *
  * @evidence contracts/common.md#principled-implementation Age and sex curves specify an authored kyphosis increment distributed over named spine joints with a separate gaze compensation joint.
  * @evidence contracts/common.md#clear-and-simple-design The posture table groups its baseline, age response and joint shares.
@@ -32,6 +33,6 @@ export interface IAutoMovieHumanBodySimplePosture {
   /** The spine joints that carry the added kyphosis as flexion, `[bone, share]`, the shares summing to one. */
   thoracic: [string, number][];
 
-  /** The joint that extends by the added kyphosis, as far as its range allows, so the head keeps its orientation. */
+  /** The joint that subtracts the added kyphosis from its rest flexion, clamped at its minimum; incomplete compensation can leave a head-orientation change. */
   compensation: string;
 }

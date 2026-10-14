@@ -12,7 +12,7 @@
  * measurement rules so the built body actually measures them, and when
  * absent the body's sex, age and mass decide them. The expansion
  * (`expandHumanBodySimpleShape`) is a numeric table of terms per channel
- * plus measured inversions: stature against the basis's own height rule,
+ * plus measured inversions: stature against the whole person's floor-to-crown reading,
  * mass through the skin volume, and each tape measurement against its rule.
  * Age, mass and training drive legacy authored exterior responses. Sarcopenia,
  * gluteal and breast ptosis and fat redistribution motivate their directions,
@@ -44,7 +44,7 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Years, inside the basis's age nodes (the source's child node is 11 years, its old node 90). */
   ageYears: number;
 
-  /** Standing height in metres, crown to floor, solved against the measured height rule. */
+  /** Standing height in metres, crown to floor, solved through the caller's whole-person reader. */
   statureMetres: number;
 
   /** Body mass in kilograms, solved against the measured skin volume at the estimated fat fraction's density. */

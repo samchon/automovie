@@ -5,7 +5,7 @@
  * the coupled pose; the row evaluator multiplies every offset of `target` by
  * a positive activation and skips a zero one.
  *
- * @evidence contracts/common.md#principled-implementation A target name and nonnegative scalar represent one corrective contribution after weight and pose admission.
+ * @evidence contracts/common.md#principled-implementation A target name and nonnegative scalar represent one contribution derived from admitted weights and the coupled pose; the builder separately admits clinical pose coordinates before skinning.
  * @evidence contracts/common.md#clear-and-simple-design The row evaluator receives the activation separately from the basis offsets it scales.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero activation skips a target by the row contract, without supplying replacement offsets.
  * @evidence contracts/common.md#meaningful-documentation The prose states the producer, multiplication meaning and zero behavior.

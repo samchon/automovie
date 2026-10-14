@@ -19,6 +19,6 @@ export interface IAutoMovieHumanBodyChannelReach {
   /** Highest evaluable weight. */
   maximum: number;
 
-  /** One sentence per side whose reach ends before the envelope, naming the missing target. */
+  /** One sentence per matching missing corrective driver, including drivers whose onset does not tighten the final envelope. */
   limits: string[];
 }

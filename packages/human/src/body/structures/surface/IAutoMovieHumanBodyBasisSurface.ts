@@ -69,9 +69,10 @@ export interface IAutoMovieHumanBodyBasisSurface {
    * Four influences per shared vertex, glTF style: `boneIndices[4v..4v+3]`
    * index `joints` and `weights[4v..4v+3]` sum to one. The weights blend the
    * bones' `posed ∘ rest⁻¹` transforms as unit dual quaternions. Their
-   * normalized blend applies one rigid transform to each vertex, and a
-   * vertex bound to one bone with weight one follows that bone exactly,
-   * which is the property the rigid-segment check measures. Different
+   * normalized blend applies one rigid transform to each vertex. Without
+   * distributed twist or a toe-ray split, a vertex bound to one bone with
+   * weight one follows that bone exactly, the rigid-segment check's premise.
+   * Those optional policies alter the local influence instead. Different
    * vertices can receive different transforms; neither distance to a
    * shared anatomical joint nor local tissue volume is thereby preserved.
    */
