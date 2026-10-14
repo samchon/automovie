@@ -14,7 +14,7 @@ export interface IAutoMovieMaterialLayer {
   id: string;
 
   /**
-   * Open construction role such as `structure`, `insulation`, `barrier`, or `finish`. Roles are matched across a junction to decide which layers continue and which stop, so the same word must mean the same thing on both sides of that junction; nothing else reads it.
+   * Open construction role such as `structure`, `insulation`, `barrier`, or `finish`. Admission requires nonblank text and resolution preserves it; junction matching uses the same role spelling to describe layer continuity, without inferring a substance or construction catalogue.
    */
   role: string;
 

@@ -16,7 +16,7 @@ export interface IAutoMovieTextureReference {
   /**
    * UV set index. Generated automovie meshes that emit texture coordinates provide set zero and no other.
    *
-   * A second set would be a packed atlas: the promise that a named `[0, 1]` island of one image belongs to one named part of one surface. That is a decided exclusion rather than pending work. Packing islands is a layout decision no authoring agent can state in natural language, the layout only becomes useful once it leaves the engine as an artifact an image model can paint into, which is the scene export the product does not have, and painted-to-fit artwork is finished-look work the repaint lane owns rather than blocking-pass work. It reopens when an authoring agent can drive a packing rule and the product has somewhere for the layout to go.
+   * The supported mesh representation carries UV0 only; a second coordinate set is not inherently a packed atlas. Packed-atlas authoring and multiple UV sets remain excluded by this contract. Reopening requires an authorable layout rule and a supported artifact/consumer path for that layout, rather than selecting an unavailable channel here.
    *
    * The current runtime admits only zero, including imported appearances.
    */

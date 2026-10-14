@@ -1,19 +1,19 @@
 import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 
 /**
- * A surface layer composited over a material where its own image covers: a tissue or a marking the material's maps do not carry, placed once across the surface rather than tiled with them, such as the veins under a skin or the nail plates at its fingertips.
+ * An ordered colour and optional relief layer over a material, with independently authored image sampling. Tissue and markings are possible uses of the same blend rules rather than special shader categories.
  *
- * Its colour image carries the layer's colour and, in alpha, its coverage. Where it covers, the layer multiplies the material's base colour (a tint, such as the absorption over a vein) or replaces it (another tissue, such as a nail plate), and sets its own roughness if it names one. A tint's normal map adds its slopes to the material's; a replacing layer's replaces the material's normal, so the tissue under it does not show through. `strength` scales the coverage and a tint's slopes together, so one image serves every intensity. glTF has no ratified extension for it, so an exported asset omits its overlays.
+ * Colour alpha times `strength` controls colour, optional roughness and replacement-normal coverage. Multiply normals instead add strength-scaled XY to the existing tangent normal and multiply their Z components before normalization; this branch ignores colour alpha and can change an existing normal even at zero strength. Static Human glTF export omits overlays. These shader formulas do not prove tissue response or observed appearance.
  *
- * @evidence contracts/common.md#principled-implementation Image alpha times strength supplies coverage for ordered material compositing; multiply layers add tangent-space slopes while replace layers interpolate their normal by coverage, keeping colour and relief semantics aligned.
+ * @evidence contracts/common.md#principled-implementation Ordered colour/roughness and replacement normals use alpha-times-strength coverage. Multiply normals use whiteout composition with strength-scaled XY and retained sampled Z, independently of colour alpha; zero strength therefore does not universally preserve an existing normal.
  * @evidence contracts/common.md#clear-and-simple-design Each overlay owns its image, blend, optional colour and relief factors and strength; the enclosing material owns list order and the four-layer budget, while texture references reuse the normal material sampling representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Veins and nails are examples rather than special shader branches; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
- * @evidence contracts/common.md#meaningful-documentation Explains sRGB colour with alpha coverage, edge texel colours, multiply-versus-replace colour and normal behavior, finite nonnegative factors, strength and roughness ranges, omission defaults and glTF exclusion.
+ * @evidence contracts/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and static export omission without a physical-response guarantee.
  * @author Samchon
  */
 export interface IAutoMovieMaterialOverlay {
   /**
-   * The layer's colour in sRGB with its coverage in alpha, 0 where the material shows through unchanged. Filtering blends colour and coverage apart, so an uncovered texel beside a covered one should carry the colour the edge fades into: a replacing layer's own colour carried past its edge, white for a tint.
+   * The layer's sRGB colour with alpha controlling colour, roughness and replacement-normal coverage; alpha zero does not suppress multiply normals. Filtering blends colour and coverage separately, so edge padding should carry the replacement colour or white tint as appropriate.
    */
   baseColorTexture: AutoMovieTextureBinding;
 
@@ -31,7 +31,7 @@ export interface IAutoMovieMaterialOverlay {
   roughness?: number;
 
   /**
-   * Optional tangent-space normal map, scaled by `normalScale`. A `multiply` layer's slopes, times `strength` too, add to the material's (whiteout blending); a `replace` layer's normal replaces the material's by its coverage. On a material without a normal map it bends the surface's own normal.
+   * Optional tangent-space normal map. Multiply blends scale XY by `normalScale * strength`, add existing XY and multiply sampled Z, ignoring colour alpha. Replace blends scale XY by `normalScale` and interpolate normalized directions by coverage. Without an existing normal map, the viewer supplies a conventional flat map as the tangent-frame prerequisite.
    */
   normalTexture?: AutoMovieTextureBinding | null;
 
@@ -41,7 +41,7 @@ export interface IAutoMovieMaterialOverlay {
   normalScale?: number;
 
   /**
-   * How much of the layer shows, `[0, 1]`: its coverage and a tint's slopes are scaled by it, and at 0 the material is as if it had no overlay.
+   * Finite factor in `[0, 1]` scaling colour/roughness/replacement-normal coverage and multiply-normal XY. At zero, multiply-normal Z can still change an existing tilted normal; this is not a universal disable switch.
    */
   strength: number;
 }

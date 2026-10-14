@@ -33,7 +33,7 @@ export interface IAutoMovieMaterialAssembly {
   /**
    * Whether each end of the stack is exposed to view.
    *
-   * `first` is the face the first layer presents, `last` the face the final layer presents. An exposed end must be finished and a concealed end must not be, which is how a missing finish and a wasted one are both caught.
+   * `first` is the face the first layer presents, `last` the face the final layer presents. Each terminal layer must be marked as a finish if any face it presents is exposed, and must not be marked if all are concealed. In a single-layer stack, the same finish flag answers for both faces, including one exposed and one concealed face.
    */
   faces: {
     /** Exposure of the face the first layer presents. */

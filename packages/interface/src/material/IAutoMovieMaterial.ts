@@ -5,7 +5,7 @@ import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 /**
  * A physically-based (PBR) surface material: the "what it's made of and how it catches light" of a character or object surface.
  *
- * The base fields follow glTF's metallic-roughness model; the viewer builds a `MeshPhysicalMaterial` and adds the documented subsurface, detail-normal and overlay effects. glTF export omits those three extensions. The engine validates coefficient domains before rendering.
+ * The base fields follow glTF's metallic-roughness model; the viewer builds a `MeshPhysicalMaterial` with optional subsurface, detail-normal and overlay shader approximations. The static Human exporter omits those three effects and refuses metallic-roughness and emissive image slots; it is not a general material/scene exporter. Engine model admission owns coefficient domains, while direct viewer callers must supply admitted values.
  *
  * Texture images are referenced assets. Their payload and GPU lifetime belong to the renderer's texture resolver, rather than this authoring record.
  *
@@ -13,7 +13,7 @@ import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
  *
  * @evidence contracts/common.md#principled-implementation Metallic, roughness and linear colour describe the base reflectance model; `validateModel` admits their domains, and `buildMaterial` maps the admitted fields to physical material parameters and separately composes the optional shader effects.
  * @evidence contracts/common.md#clear-and-simple-design One optical record owns reflectance, alpha and texture slots; physical density and construction layers use separate substance and assembly types, and image bytes stay behind asset references.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No finish name selects a shader or numerical preset; explicit alpha mode overrides opacity-derived defaults, and unsupported glTF subsurface, detail-normal and overlay effects are documented as omitted rather than claimed as exported.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No finish name selects a numerical preset; explicit alpha mode overrides opacity-derived defaults. Shader approximations make no measured tissue-response claim, and static export's omitted effects and refused texture slots remain explicit.
  * @evidence contracts/common.md#meaningful-documentation States coefficient bounds, linear colour, texture slot colour roles, alpha defaults, normal-map composition and metre-valued transmission and subsurface properties, including export omissions and resolver ownership.
  * @author Samchon
  */
@@ -36,7 +36,7 @@ export interface IAutoMovieMaterial {
   roughness: number;
 
   /**
-   * Emissive (self-illumination) color, or `null` for a non-emitting surface. Adds surface radiance without creating a scene light.
+   * Emissive RGB multiplier, or `null`. The viewer uses white when null and an emissive image resolves, otherwise its non-emitting default; this adds surface radiance without creating a scene light.
    */
   emissive: IAutoMovieColor | null;
 
@@ -67,7 +67,7 @@ export interface IAutoMovieMaterial {
   /** Occlusion strength in `[0, 1]`. */
   occlusionStrength?: number;
 
-  /** Emissive texture id multiplied by {@link emissive}. */
+  /** Emissive texture multiplied by authored emissive RGB, or white when that field is null. */
   emissiveTexture?: AutoMovieTextureBinding | null;
 
   /** Whether both sides of the surface are visible. */
@@ -94,7 +94,7 @@ export interface IAutoMovieMaterial {
   clearcoat?: number;
 
   /**
-   * Distance light travels under the surface before it leaves again, per primary, in metres: the diffuse mean free path of a translucent tissue such as skin (red farthest). A renderer blurs the diffuse response over the surface by it, so a lit side bleeds soft and red into the shadowed one where the surface curves within that distance and a flat surface stays Lambertian. glTF has no ratified extension for it, so an exported asset omits it. Omitted, the diffuse response is Lambertian.
+   * Nonnegative finite RGB radius parameters in metres for the viewer's direct-diffuse subsurface approximation. Screen-space normal curvature and a shared Gaussian-response lookup modify diffuse lighting; this does not transport light through measured tissue or establish an observed appearance. Omission keeps the ordinary physical material response, and static Human glTF export omits this effect.
    */
   subsurfaceRadius?: { r: number; g: number; b: number };
 
@@ -109,7 +109,7 @@ export interface IAutoMovieMaterial {
   detailNormalScale?: number;
 
   /**
-   * Surface layers composited over this material in order, each where its own image covers (veins under a skin, the nail plates at its fingertips), at most four: a renderer samples up to two images for each on top of the material's own. glTF has no ratified extension for them, so an exported asset omits them. Omitted or empty, the material shows alone.
+   * At most four ordered surface layers, each sampling a colour image and optionally a normal image. Colour/roughness and replacement normals use image coverage; multiply normals follow the separate formula on `IAutoMovieMaterialOverlay`. Static Human glTF export omits them. Omitted or empty, no overlay shader is installed.
    */
   overlays?: IAutoMovieMaterialOverlay[];
 }
