@@ -410,17 +410,19 @@ const thumbnailFile: (search: string) => string | null = (
 
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
-  const middleware: HumanViewerMiddleware = createHumanViewerMiddleware({
-    origin: instance.origin,
-    sourceEvents,
-    pages: serveHumanViewerPages(applicationDirectory),
-    display: serveHumanViewerDisplay({
+  const display: ReturnType<typeof serveHumanViewerDisplay> =
+    serveHumanViewerDisplay({
       root,
       storage,
       port: instance.port,
       origin: instance.origin,
       revision: (): string => inventory.revision,
-    }),
+    });
+  const middleware: HumanViewerMiddleware = createHumanViewerMiddleware({
+    origin: instance.origin,
+    sourceEvents,
+    pages: serveHumanViewerPages(applicationDirectory),
+    display,
     health: (): IHumanViewerHealth =>
       assembleHumanViewerHealth({
         port: instance.port,
@@ -533,6 +535,7 @@ async function main(): Promise<void> {
       warmReadiness.hardware();
     },
     closeRenderer: createAutoMovieResourceRetirement([
+      (): Promise<void> => display.close(),
       (): void => sourceEvents.close(),
       (): Promise<void> => numerical.shutdown(),
       (): Promise<void> => residency.close(),

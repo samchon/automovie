@@ -461,6 +461,14 @@ sourceEvents.addEventListener(
 addEventListener("pagehide", (event: PageTransitionEvent): void => {
   if (event.persisted || closed) return;
   closed = true;
+  void fetch("/display", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "release", session: displaySession }),
+    keepalive: true,
+  }).catch((failure: unknown): void => {
+    console.error("HUMAN_DISPLAY_RELEASE_ERROR", failure);
+  });
   ++navigationVersion;
   ++generation;
   again = false;
