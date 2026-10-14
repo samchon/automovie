@@ -21,6 +21,9 @@ import type { IAutoMovieHumanFaceFacialHairSite } from "./IAutoMovieHumanFaceFac
 export interface IAutoMovieHumanFaceFacialHair {
   /** Independently selected anatomical sites; omission leaves a site without an emitted terminal layer. */
   sites: Partial<
-    Record<IAutoMovieHumanFaceFacialHairSite, IAutoMovieHumanFaceFacialHairProfile>
+    Record<
+      IAutoMovieHumanFaceFacialHairSite,
+      IAutoMovieHumanFaceFacialHairProfile
+    >
   >;
 }

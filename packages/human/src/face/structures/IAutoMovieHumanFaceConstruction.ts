@@ -1,10 +1,10 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
 import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceResidentSourceRegion } from "../basis/IHumanFaceResidentSourceRegion";
 import type { IAutoMovieHumanFacePeriocularMappingReport } from "./IAutoMovieHumanFacePeriocularMappingReport";
-import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
 import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
 
 /**

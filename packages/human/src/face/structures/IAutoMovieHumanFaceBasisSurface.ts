@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBasisSourcePartition } from "../../common/basis/IAutoMovieHumanBasisSourcePartition";
-import type { IAutoMovieHumanFaceBasisRegion } from "./IAutoMovieHumanFaceBasisRegion";
 import type { IAutoMovieHumanFaceAttachmentChart } from "./IAutoMovieHumanFaceAttachmentChart";
+import type { IAutoMovieHumanFaceBasisRegion } from "./IAutoMovieHumanFaceBasisRegion";
 import type { IAutoMovieHumanFaceHairDomain } from "./IAutoMovieHumanFaceHairDomain";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "./IAutoMovieHumanFaceSourcePosePlan";
 import type { IAutoMovieHumanFaceSurfaceAttachment } from "./IAutoMovieHumanFaceSurfaceAttachment";
