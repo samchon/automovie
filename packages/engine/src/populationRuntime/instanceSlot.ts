@@ -303,25 +303,23 @@ const localInstancePoint: (
     left: { x: number; z: number };
     right: { x: number; z: number };
     length: number;
-  }[] = route.waypoints
-    .slice(1)
-    .map(
-      (
-        right: { x: number; z: number },
-        index: number,
-      ): {
-        left: { x: number; z: number };
-        right: { x: number; z: number };
-        length: number;
-      } => {
-        const left: { x: number; z: number } = route.waypoints[index]!;
-        return {
-          left,
-          right,
-          length: Math.hypot(right.x - left.x, right.z - left.z),
-        };
-      },
-    );
+  }[] = route.waypoints.slice(1).map(
+    (
+      right: { x: number; z: number },
+      index: number,
+    ): {
+      left: { x: number; z: number };
+      right: { x: number; z: number };
+      length: number;
+    } => {
+      const left: { x: number; z: number } = route.waypoints[index]!;
+      return {
+        left,
+        right,
+        length: Math.hypot(right.x - left.x, right.z - left.z),
+      };
+    },
+  );
   const total: number = segments.reduce(
     (
       sum: number,
