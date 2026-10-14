@@ -2,9 +2,9 @@ import { Quaternion, rotationBetween } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IHumanBodyUnderwearSurfaceEvaluation } from "../../../../packages/human/src/body/basis/IHumanBodyUnderwearSurfaceEvaluation";
-import { createHumanBodyUnderwearNormalLinearizer } from "../../../../packages/human/src/body/basis/createHumanBodyUnderwearNormalLinearizer";
-import { areaWeightedNormals } from "../../../../packages/human/src/common/mesh/areaWeightedNormals";
+import type { IHumanBodyUnderwearSurfaceEvaluation } from "@automovie/human/body/basis/IHumanBodyUnderwearSurfaceEvaluation";
+import { createHumanBodyUnderwearNormalLinearizer } from "@automovie/human/body/basis/createHumanBodyUnderwearNormalLinearizer";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { nclose } from "../internal/nclose";
 
 /**

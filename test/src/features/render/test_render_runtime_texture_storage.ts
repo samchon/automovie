@@ -9,7 +9,7 @@ import { type IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureSource, a
 
 
 
-import { readAutoMovieTextureSource } from "../../../../packages/viewer/src/readAutoMovieTextureSource";
+import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { throwsError } from "../internal/predicates";
 import { material } from "../internal/renderFixtures";
 

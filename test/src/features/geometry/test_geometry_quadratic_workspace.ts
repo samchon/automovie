@@ -1,7 +1,7 @@
 import { createAutoMovieQuadraticMemory } from "@automovie/engine/math/createAutoMovieQuadraticMemory";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieQuadraticHeap } from "../../../../packages/engine/src/math/IAutoMovieQuadraticHeap";
+import { type IAutoMovieQuadraticHeap } from "@automovie/engine/math/IAutoMovieQuadraticHeap";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 

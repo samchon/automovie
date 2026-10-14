@@ -15,7 +15,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import { exportModelToGLB } from "@automovie/render/node";
 
 const T: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 1, z: 0 },

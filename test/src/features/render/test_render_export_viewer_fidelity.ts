@@ -14,7 +14,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import { exportModelToGLB } from "@automovie/render/node";
 import { nclose, vclose } from "../internal/predicates";
 
 const material: (

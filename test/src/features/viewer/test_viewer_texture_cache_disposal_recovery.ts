@@ -3,9 +3,9 @@ import * as THREE from "three";
 
 import { AutoMovieTextureCache, createAutoMovieResourceRetirement } from "@automovie/viewer";
 
-import type { HumanResidentPort } from "../../../../packages/viewer/src/human/common/HumanResidentPort";
-import type { IHumanResidentRequest } from "../../../../packages/viewer/src/human/common/IHumanResidentRequest";
-import { createHumanResidentWorker } from "../../../../packages/viewer/src/human/common/createHumanResidentWorker";
+import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
+import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
+import { createHumanResidentWorker } from "@automovie/viewer/human/common/createHumanResidentWorker";
 import { throwsError } from "../internal/predicates";
 
 /**

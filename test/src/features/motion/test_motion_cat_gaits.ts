@@ -11,8 +11,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { CAT_GAITS } from "../../../../packages/archetypes/src/CAT_GAITS";
-import { CAT_PROFILE } from "../../../../packages/archetypes/src/CAT_PROFILE";
+import { CAT_GAITS } from "@automovie/archetypes";
+import { CAT_PROFILE } from "@automovie/archetypes";
 import { bindProfileGaits, gaitMotion, validateMotion } from "@automovie/engine";
 
 

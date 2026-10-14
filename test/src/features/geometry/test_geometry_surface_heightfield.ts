@@ -2,7 +2,7 @@ import { surfaceHeightAt, tessellateSurface } from "@automovie/engine";
 import { IAutoMovieSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { type ITessellation } from "@automovie/engine";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** A diamond footprint over a 3x3 lattice carrying a peak, a terrace, a bank. */

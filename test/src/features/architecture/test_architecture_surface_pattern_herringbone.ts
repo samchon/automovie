@@ -14,7 +14,7 @@ import {
 import type { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
+import { compareCodeUnits } from "@automovie/engine";
 import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";

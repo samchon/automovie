@@ -12,8 +12,8 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { constructAutoMovieOwnedResources } from "../../../../packages/viewer/src/constructAutoMovieOwnedResources";
-import { createHumanObservationAlbedoMaterial } from "../../../../packages/viewer/src/human/common/observation/createHumanObservationAlbedoMaterial";
-import { createHumanObservationAlbedoPass } from "../../../../packages/viewer/src/human/common/observation/createHumanObservationAlbedoPass";
+import { createHumanObservationAlbedoMaterial } from "@automovie/viewer/human/common/observation/createHumanObservationAlbedoMaterial";
+import { createHumanObservationAlbedoPass } from "@automovie/viewer/human/common/observation/createHumanObservationAlbedoPass";
 import {
   boxModel,
   material as materialDefinition,
