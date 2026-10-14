@@ -16,13 +16,13 @@ import { createConnectedBodySimpleWhole } from "@automovie/human/human/runtime/c
 import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
 import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
 
-import type { IBodySimpleExpandMessage } from "@automovie/viewer/human/body/IBodySimpleExpandMessage";
-import type { IBodySimpleProjectMessage } from "@automovie/viewer/human/body/IBodySimpleProjectMessage";
-import type { IBodySimpleSolveMessage } from "@automovie/viewer/human/body/IBodySimpleSolveMessage";
-import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
-import { readConnectedHeadView } from "@automovie/viewer/human/body/readConnectedHeadView";
+import type { IBodySimpleExpandMessage } from "./human/body/IBodySimpleExpandMessage";
+import type { IBodySimpleProjectMessage } from "./human/body/IBodySimpleProjectMessage";
+import type { IBodySimpleSolveMessage } from "./human/body/IBodySimpleSolveMessage";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { connectedBodyReach } from "@automovie/human/body/measure/connectedBodyReach";
-import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
+import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 const scope: DedicatedWorkerGlobalScope =
   self as unknown as DedicatedWorkerGlobalScope;

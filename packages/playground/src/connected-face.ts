@@ -14,14 +14,14 @@ import { parseHumanFaceBasisDocument } from "@automovie/human/face/document/pars
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import { createConnectedFaceBrowserViewport } from "@automovie/viewer/human/face/createConnectedFaceBrowserViewport";
 
-import { createHumanResidentPort } from "@automovie/viewer/human/common/createHumanResidentPort";
-import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
+import { createHumanResidentPort } from "./human/common/createHumanResidentPort";
+import { createHumanWorker } from "./human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 import simpleControls from "./human/examples/face-controls.json";
 import studyDocuments from "./human/examples/faces.json";
 import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
 import { mountConnectedFacePanel } from "./human/face/mountConnectedFacePanel";
-import { readConnectedFaceSourceUrl } from "@automovie/viewer/human/face/readConnectedFaceSourceUrl";
+import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {

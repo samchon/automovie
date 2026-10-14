@@ -1,4 +1,4 @@
-import type { IConnectedPersonSourceUrls } from "@automovie/viewer/human/person/IConnectedPersonSourceUrls";
+import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
 
 /**
  * Give a module worker the same resolved source URLs through its standard name.

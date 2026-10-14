@@ -28,12 +28,12 @@ const hold: (event: MessageEvent) => void = (event: MessageEvent): void => {
 };
 scope.onmessage = hold;
 const load: () => Promise<unknown> = (): Promise<unknown> => {
-  if (role === "body") return import("./connected-body-worker.js");
-  if (role === "body-anatomy") return import("./connected-body-anatomy-worker.js");
-  if (role === "body-head") return import("./connected-body-head-worker.js");
-  if (role === "body-simple") return import("./connected-body-simple-worker.js");
-  if (role === "face") return import("./connected-face-worker.js");
-  if (role === "person") return import("./connected-person-worker.js");
+  if (role === "body") return import("./connected-body-worker");
+  if (role === "body-anatomy") return import("./connected-body-anatomy-worker");
+  if (role === "body-head") return import("./connected-body-head-worker");
+  if (role === "body-simple") return import("./connected-body-simple-worker");
+  if (role === "face") return import("./connected-face-worker");
+  if (role === "person") return import("./connected-person-worker");
   return Promise.reject(
     new Error("The human worker has no role named " + String(role) + "."),
   );

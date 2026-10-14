@@ -1,6 +1,6 @@
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 
-import type { IHumanResidentHandlerProps } from "@automovie/viewer/human/common/IHumanResidentHandlerProps";
+import type { IHumanResidentHandlerProps } from "./IHumanResidentHandlerProps";
 
 /**
  * Bind asynchronous preparation and evaluation to the initiating request ID. A refusal is local to its request; other queued replies keep their identity. Preparation is shared by all requests, including a shared rejection. Evaluation and reply failures are reported under the same ID; if sending that refusal itself throws, the returned promise rejects to the native worker error path.

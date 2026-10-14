@@ -15,8 +15,8 @@ import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanRes
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 
-import { createHumanResidentHandler } from "@automovie/viewer/human/common/createHumanResidentHandler";
-import { readConnectedFaceSourceUrl } from "@automovie/viewer/human/face/readConnectedFaceSourceUrl";
+import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
+import { readConnectedFaceSourceUrl } from "./human/face/readConnectedFaceSourceUrl";
 
 const scope: DedicatedWorkerGlobalScope =
   self as unknown as DedicatedWorkerGlobalScope;

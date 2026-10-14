@@ -1,4 +1,4 @@
-import type { IConnectedPersonSourceUrls } from "@automovie/viewer/human/person/IConnectedPersonSourceUrls";
+import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
 
 /**
  * Select caller-owned source views through the editor URL. The form stays outside the model panel so a refused generation can be replaced. Blank fields omit both overrides and select the default loaders; this does not establish that a default asset is available. A partial pair retains the current page and reports the missing selection.

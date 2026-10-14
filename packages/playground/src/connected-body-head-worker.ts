@@ -19,12 +19,12 @@ import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/struc
 import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 
-import type { IConnectedBodyWorkerMessage } from "@automovie/viewer/human/body/IConnectedBodyWorkerMessage";
-import { connectedBodyTransfers } from "@automovie/viewer/human/body/connectedBodyTransfers";
-import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
-import { readConnectedHeadView } from "@automovie/viewer/human/body/readConnectedHeadView";
-import { createHumanResidentHandler } from "@automovie/viewer/human/common/createHumanResidentHandler";
-import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
+import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
+import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
+import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
+import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 const scope: DedicatedWorkerGlobalScope =
   self as unknown as DedicatedWorkerGlobalScope;

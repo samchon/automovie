@@ -5,7 +5,7 @@ import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanRes
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 
-import type { IConnectedBodyProgress } from "@automovie/viewer/human/body/IConnectedBodyProgress";
+import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
 /**
  * Keep native event callbacks and termination inside the browser adapter.

@@ -2,8 +2,8 @@ import type { IHumanPendingResult } from "@automovie/viewer/human/common/IHumanP
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 
 import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
-import type { IBodySimpleWorkerTransport } from "@automovie/viewer/human/body/IBodySimpleWorkerTransport";
-import type { IConnectedBodyProgress } from "@automovie/viewer/human/body/IConnectedBodyProgress";
+import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";
+import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
 /**
  * Correlate the connected body editor's simple-tier expansion and projection requests with replies from one browser worker. A worker failure retires that connection and rejects every request it owns; the next request allocates a new worker. A request leaves only after the preceding reply. Elapsed time never retires a valid evaluation. Request IDs never repeat, and callbacks from retired workers cannot affect the new connection.

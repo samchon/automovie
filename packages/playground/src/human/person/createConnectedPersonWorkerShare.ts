@@ -1,7 +1,7 @@
 import { reportAutoMovieResourceRetirement } from "@automovie/viewer";
 
-import type { ConnectedPersonWorkerEnd } from "@automovie/viewer/human/person/ConnectedPersonWorkerEnd";
-import type { IConnectedPersonWorkerShare } from "@automovie/viewer/human/person/IConnectedPersonWorkerShare";
+import type { ConnectedPersonWorkerEnd } from "./ConnectedPersonWorkerEnd";
+import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare";
 
 /**
  * Share one resident person worker between the preview transport and the

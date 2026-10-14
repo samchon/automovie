@@ -15,15 +15,15 @@ import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import { connectedBodyEditorPoses } from "./human/body/connectedBodyEditorPoses";
-import { createConnectedBodyHeadSeat } from "@automovie/viewer/human/body/createConnectedBodyHeadSeat";
+import { createConnectedBodyHeadSeat } from "./human/body/createConnectedBodyHeadSeat";
 import { createConnectedBodyInitialDocument } from "./human/body/createConnectedBodyInitialDocument";
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
 import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBodySimpleSolvers";
 import { mountConnectedBodyPanel } from "./human/body/mountConnectedBodyPanel";
-import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
+import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
-import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
+import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {

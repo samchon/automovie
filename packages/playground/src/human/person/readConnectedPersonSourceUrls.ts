@@ -1,4 +1,4 @@
-import type { IConnectedPersonSourceUrls } from "@automovie/viewer/human/person/IConnectedPersonSourceUrls";
+import type { IConnectedPersonSourceUrls } from "./IConnectedPersonSourceUrls";
 
 /**
  * Select a complete caller-owned source pair from editor or worker parameters. Omission returns no override; a partial/blank pair refuses before loading. Relative URLs resolve against the supplying page before worker propagation. URL text is not evidence of content, identity or a healthy model; fetch and generation owners retain those checks.
