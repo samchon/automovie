@@ -83,43 +83,31 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
 /**
  * Measure everything the design can answer for, and name everything it cannot.
  *
- * Throws an `Error` when `maxContributors` is not a positive safe integer or
- * the design fails `validateBuiltEnvironment`. Every number is arithmetic over
- * authored geometry: a support surface's plan footprint area with holes
- * subtracted, attributed to its space; a space's volume as its shell's exact
- * volume or the sum of its cells' volumes; an opening void's exact area with
- * arcs; a connector route's polyline length; and counts of elements by kind,
- * openings by kind and model occurrences by model. Nothing is looked up,
- * defaulted or carried over from a previous revision.
+ * Throws an `Error` when `maxContributors` is not a positive safe integer or the design fails `validateBuiltEnvironment`. Every number is arithmetic over authored geometry: a support surface's plan footprint area with holes subtracted, attributed to its space; a space's volume as its shell's exact volume or the sum of its cells' volumes; an opening void's exact area with arcs; a connector route's polyline length; and counts of elements by kind, openings by kind and model occurrences by model. Nothing is looked up, defaulted or carried over from a previous revision.
  *
- * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an
- * absent quantity is a stated zero rather than a missing row. A finding names
- * its largest owners up to the bound, counts and sums the rest, and says
- * whether its total is exact; the space-volume total is approximate because
- * overlapping cells are summed. What cannot be measured is a gap. The digest
- * is SHA-256 over the canonical JSON of every other field.
+ * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an absent quantity is a stated zero rather than a missing row. A finding names its largest owners up to the bound, counts and sums the rest, and says whether its total is exact; the space-volume total is approximate because overlapping cells are summed. What cannot be measured is a gap. The digest is SHA-256 over the canonical JSON of every other field.
  *
  * @param props.environment Design the quantities are measured from.
- * @param props.maxContributors Owners named per finding; defaults to
- *   {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
+ * @param props.maxContributors Owners named per finding; defaults to {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
  * @returns The quantity report.
  *
- * @evidence contracts/common.md#principled-implementation Shoelace footprint areas, the divergence-theorem shell volume, the cone decomposition of convex cells, closed-form arc segments and polyline lengths, each exact for its stated geometry; the stated approximation is that cell volumes are summed rather than unioned, carried on the finding, and the digest is SHA-256 of `canonicalizeAutoMovieJson`, an injective encoding of the record.
+ * @evidence contracts/common.md#principled-implementation Uses shoelace footprints, signed-tetrahedron shell volume, convex-cell cones, circular arc segments and polyline lengths under their validated geometry premises. Binary64 arithmetic, cell weld tolerances and drawing-grid rounding remain numerical limits; overlapping cells are summed, not unioned. The deterministic canonical JSON digest does not establish collision-free source identity.
  * @evidence contracts/common.md#clear-and-simple-design One pass per record list fills one owner tally per subject, and one bounded-finding step turns every tally into a finding, so adding a subject means one unit and one tally source.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No design or owner is special-cased; an unbounded cell or a void-less opening is counted into a declared gap rather than measured as zero silently, and the fixed gaps state take-offs this derivation is never handed the records for.
  * @evidence contracts/common.md#meaningful-documentation The comment states both refusals, every measured quantity and its owner, the subject coverage, the contributor bound and reconciliation, the approximate basis and why, the gap policy and the digest's coverage.
- * @evidence contracts/performance.md#efficient-algorithms Linear in surfaces, openings, connector route points, elements and shell triangles, plus the per-cell volume cost that is polynomial in each cell's handful of planes, and `O(o log o)` per subject to order its owners.
+ * @evidence contracts/performance.md#efficient-algorithms Includes full environment validation, then linear surface/profile/route/element/shell walks, O(p^4) plane-triple admission plus face hulls per convex cell, and O(o log o) owner sorting per subject. Canonical encoding sorts object keys and hashes the complete output text; bounding listed contributors does not bound the preceding tallies or scans.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each record is measured once in its own pass and no measured value is needed twice, so there is no repeated work to share; nothing is cached across calls because the environment is the caller's mutable record.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owner tallies live for the call, bounded by the distinct owners per subject, and are released on return; only the report, owned by the caller and bounded by the contributor limit per finding, survives.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local owner tallies grow with distinct owners and are released on return. The caller owns the report, whose named contributors are bounded per finding; full gap strings can still name every faceted space and are bounded by authored design size rather than the contributor limit.
  * @author Samchon
  */
-export const measureAutoMovieQuantities = (props: {
+export const measureAutoMovieQuantities: (props: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number; }) => IAutoMovieQuantityReport = (props: {
   /** Design the quantities are measured from. */
   environment: IAutoMovieBuiltEnvironment;
+
   /** Named-owner bound; defaults to the exported maximum. */
   maxContributors?: number;
 }): IAutoMovieQuantityReport => {
-  const { environment } = props;
+  const { environment }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number; } = props;
   const bound: number =
     props.maxContributors ?? AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS;
   if (!Number.isSafeInteger(bound) || bound < 1)
@@ -146,7 +134,7 @@ export const measureAutoMovieQuantities = (props: {
       ],
     ),
   );
-  const add = (
+  const add: (subject: AutoMovieQuantitySubject, owner: string, value: number) => void = (
     subject: AutoMovieQuantitySubject,
     owner: string,
     value: number,
@@ -185,7 +173,7 @@ export const measureAutoMovieQuantities = (props: {
       status: "unsupported",
       reason: `${faceted.length} logical space(s) (${faceted.sort(compareAutoMovieRenderIds).join(", ")}) declare their stated volume faceted, so their measured volume and floor area are the flats they were written as and not the curved region those flats stand for`,
       remedy:
-        "read the faceted total as a lower bound on a vaulted or domed region; an exact figure needs a curved boundary primitive this record does not carry",
+        "read the total as the authored faceted geometry; no enclosing curved region or error bound is declared, and measuring one needs its own curved boundary representation",
     });
   if (unmeasuredCells !== 0)
     gaps.push({
@@ -253,12 +241,11 @@ export const measureAutoMovieQuantities = (props: {
 /**
  * Turn one subject's owner tally into its bounded finding.
  *
- * Owners are ordered by rounded value descending, then by id. The total is
- * summed over every owner before the bound is applied, so naming fewer owners
- * never changes the number somebody orders against, and the omitted count and
- * value let a reader reconcile the two.
+ * Owners are ordered by rounded value descending, then by id. The total is summed over every owner before the bound is applied, so naming fewer owners never changes the number somebody orders against, and the omitted count and value let a reader reconcile the two.
+ *
+ * The bound is already admitted and owner values are borrowed; totals sum individually rounded owner values, not raw measurements. Sorting and both slices use O(O log O) time/O(O) temporary space for O owners; the returned prefix belongs to the report and nothing is cached. The space-volume subject is always labelled approximate, including shell-only inputs.
  */
-const finding = (
+const finding: (subject: AutoMovieQuantitySubject, owners: ReadonlyMap<string, number>, bound: number) => IAutoMovieQuantityFinding = (
   subject: AutoMovieQuantitySubject,
   owners: ReadonlyMap<string, number>,
   bound: number,
@@ -297,8 +284,8 @@ const finding = (
   };
 };
 
-/** The sum of the contributors' rounded values. */
-const sum = (entries: readonly IAutoMovieQuantityContributor[]): number =>
+/** Fold every contributor's already-rounded value in list order, preserving the same accounting for total and omitted suffix. O(N) binary64 summation uses constant extra storage and can round or overflow; no list or sum is retained between findings. */
+const sum: (entries: readonly IAutoMovieQuantityContributor[]) => number = (entries: readonly IAutoMovieQuantityContributor[]): number =>
   entries.reduce(
     (total: number, entry: IAutoMovieQuantityContributor): number =>
       total + entry.value,

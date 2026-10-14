@@ -8,7 +8,7 @@ import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
 /**
- * Refuse a blocker that cannot bound anything.
+ * Refuse malformed blocker identifiers and half-space fields.
  *
  * The rule is {@link validateSolidPlanes}, raised to a throw: an adapter reading
  * an authored shading solid has no honest result to return for a solid with no
@@ -19,6 +19,8 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * `solids`, or the first plane violation of a solid, naming that solid and the
  * violation path. `label` names the kind of solid in every message and path, and
  * ids need to be unique only within this one list.
+ *
+ * Plane count and finite fields do not prove the intersection bounded or nonempty; validateSolidPlanes deliberately leaves those geometric properties unchecked.
  *
  * @param solids Authored convex blockers, checked in list order.
  * @param label Kind of solid named in messages and paths, such as `shading solid`.
@@ -32,7 +34,7 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id set holds at most N ids and each collector lives for one solid's iteration; all are released when the call returns or throws, and nothing is retained.
  * @author Samchon
  */
-export const assertAutoMovieAnalysisSolids = (
+export const assertAutoMovieAnalysisSolids: (solids: readonly IAutoMovieAnalysisSolid[], label: string) => void = (
   solids: readonly IAutoMovieAnalysisSolid[],
   label: string,
 ): void => {

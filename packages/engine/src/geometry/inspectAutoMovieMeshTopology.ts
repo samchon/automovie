@@ -7,41 +7,25 @@ import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
- * Measure a mesh's triangle topology and signed volume from its actual
- * buffers instead of assuming them.
+ * Measure a mesh's triangle topology and signed volume from its actual buffers instead of assuming them.
  *
- * Without physical source correspondence, vertices weld by position on the
- * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
- * mesh that declares physical sources instead keeps their incidence across
- * contact: two different sources stay distinct even where they touch. A
- * triangle whose corners collapse onto fewer than three grid cells is counted
- * degenerate, by ordinal, and contributes no edges in either mode. A closed
- * solid reports `watertight`; an assembly whose members share faces, or a
- * surface meant to stay open, reports its boundary and non-manifold edge
- * counts rather than passing. Non-finite components are counted across
- * positions, normals, UVs, colours and relief weights. Coordinates are metres
- * and the volume, by the divergence theorem, is cubic metres, positive for an
- * outward-wound closed shell.
+ * Without physical source correspondence, vertices weld by position on the `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A mesh that declares physical sources instead keeps their incidence across contact: two different sources stay distinct even where they touch. A triangle whose corners collapse onto fewer than three grid cells is counted degenerate, by ordinal, and contributes no edges in either mode. A closed solid reports `watertight`; an assembly whose members share faces, or a surface meant to stay open, reports its boundary and non-manifold edge counts rather than passing. Non-finite components are counted across positions, normals, UVs, colours and relief weights. Coordinates are metres and the volume, by the divergence theorem, is cubic metres, positive for an outward-wound closed shell.
  *
- * This measures; it does not judge. `validateMeshTopology` is the verdict on
- * the same surface, adding winding consistency and an `expectClosed`
- * declaration, and `validateModel` runs it on every mesh a model carries. A
- * malformed index buffer and invalid physical correspondence throw their own
- * named refusals. The mesh is only read.
+ * This measures; it does not judge. `validateMeshTopology` is the verdict on the same surface, adding winding consistency and an `expectClosed` declaration, and `validateModel` runs it on every mesh a model carries. A malformed index buffer and invalid physical correspondence throw their own named refusals. The mesh is only read.
  *
  * @param mesh Mesh to measure.
  * @returns Counts, degenerate ordinals, closure and volume.
  *
- * @evidence contracts/common.md#principled-implementation An edge-incidence census over welded vertex keys: a closed 2-manifold has every edge on exactly two triangles, so one-use edges are boundary and three-or-more-use edges non-manifold, and the volume is the divergence-theorem sum of signed tetrahedra against the origin.
+ * @evidence contracts/common.md#principled-implementation Count undirected edge incidence over physical ids or rounded-position keys: one use is boundary and more than two is nonmanifold. The nonempty two-use census supplies watertight, not a full vertex-manifold, winding, nondegeneracy or finiteness proof; volume sums signed tetrahedra against the origin, subject to binary64 overflow and cancellation.
  * @evidence contracts/common.md#clear-and-simple-design Measurement only; the pass/fail verdict lives in `validateMeshTopology`, index admission in `triangleIndicesOf`, and physical identity in `resolveAutoMovieMeshPhysicalVertices`, which this reads instead of reinterpreting.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The weld grid is the shared `MESH_WELD_GRID` constant rather than a local tolerance, degenerate triangles are reported instead of dropped silently, and an empty mesh is not watertight because having no edges is not having no holes.
- * @evidence contracts/common.md#meaningful-documentation States both identity modes, the degenerate rule, what each count means, which attributes the finiteness count covers, the units and volume sign, how it differs from the validator, and the refusals.
+ * @evidence contracts/common.md#meaningful-documentation States identity modes, coordinate-weld degeneracy, attribute finiteness, edge-census limits, units and signed volume, the separate validator and named index/physical-source refusals.
  * @evidence contracts/performance.md#efficient-algorithms Linear in vertices and triangles: one finiteness pass per attribute without concatenating them, and one hashed edge count per triangle edge keyed by welded corner strings.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures the mesh it is given and keeps nothing, so a caller that needs the report twice keeps the first one.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one edge map bounded by three entries per triangle and a degenerate ordinal list, both released except the list, which the returned report owns.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local storage includes at most three edge keys per triangle, a generated index run for nonindexed input and the optional physical-vertex correspondence. Only the returned degenerate ordinal list and scalar report survive; no mesh or topology cache is retained.
  * @author Samchon
  */
-export const inspectAutoMovieMeshTopology = (
+export const inspectAutoMovieMeshTopology: (mesh: IAutoMovieMesh) => IAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,
 ): IAutoMovieMeshTopology => {
   const nonFinite: number =
@@ -55,7 +39,7 @@ export const inspectAutoMovieMeshTopology = (
     mesh.physicalVertices === undefined
       ? undefined
       : resolveAutoMovieMeshPhysicalVertices(mesh);
-  const key = (at: number): string =>
+  const key: (at: number) => string = (at: number): string =>
     [0, 1, 2]
       .map((axis: number): number =>
         Math.round(mesh.positions[at * 3 + axis]! * MESH_WELD_GRID),
@@ -117,11 +101,9 @@ export const inspectAutoMovieMeshTopology = (
 };
 
 /**
- * How many components of one optional attribute buffer are not finite numbers,
- * counted in place so measuring a merged building never allocates a second
- * copy of its buffers.
+ * How many components of one optional attribute buffer are not finite numbers, counted in place so measuring a merged building never allocates a second copy of its buffers.
  */
-const countNonFinite = (values: readonly number[] | null): number => {
+const countNonFinite: (values: readonly number[] | null) => number = (values: readonly number[] | null): number => {
   if (values === null) return 0;
   let count: number = 0;
   for (const value of values) if (Number.isFinite(value) === false) ++count;

@@ -49,52 +49,39 @@ interface IOccurrence {
 }
 
 /**
- * Schedule one design's rooms, openings or connectors.
+ * Schedule every declared space, opening or connector of one design.
  *
- * Throws an `Error` naming the first violation when the design fails
- * `validateBuiltEnvironment`. The schedule and the drawing are two readings of
- * one graph: rows come from the design's own records, so `total` is the
- * number of spaces, openings or connectors it declares, and the row counts
- * sum to it by construction.
+ * Throws an `Error` naming the first violation when the design fails `validateBuiltEnvironment`. The schedule and the drawing are two readings of one graph: rows come from the design's own records, so `total` is the number of spaces, openings or connectors it declares, and the row counts sum to it by construction.
  *
- * Openings and connectors are grouped into type rows by kind, model, nominal
- * size and basis; a room is its own row, because two alike rooms are still
- * two rooms to visit. Rows are ordered by kind, model, size, basis and first
- * member, and marked `<kind>-NN` in that order. A row names at most
- * {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS} members and counts the rest.
+ * Openings and connectors are grouped into type rows by kind, model, nominal size and basis; a room is its own row, because two alike rooms are still two rooms to visit. Rows are ordered by kind, model, size, basis and first member, and marked `<kind>-NN` in that order. A row names at most {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS} members and counts the rest.
  *
- * An opening's size comes from its own void where the design authored one and
- * from its filling element's extent otherwise, labelled `fill` because a
- * leaf's size is not the hole's; one with neither is `unmeasured` with `null`
- * sizes, never zero. A connector is sized by its narrowest and lowest stated
- * section, the one a passage is limited by. A room's row is located by the
- * environment's own membership, content, adjacency, connection and fidelity
- * queries and carries two boxes, the declared volume and the measured
- * contents, because those answer different questions. What a schedule does
- * not state is declared in its gaps.
+ * An opening's size comes from its authored void or its fill's world extent, labelled fill because the leaf is not the hole; with neither source its sizes remain null and unmeasured. A connector uses its narrowest and lowest declared section. Room rows carry declared-volume and measured-content boxes plus graph relations. A grouped opening/connector row keeps the first sorted occurrence's place, so that location does not describe every member; missing schedule content is stated in gaps.
  *
  * The digest is SHA-256 over the canonical JSON of every other field.
+ *
+ * This function takes no drawing view and applies no view space or element-kind filter. A space row also includes semantic or unlocated containers, so the whole-design total need not equal the visible members of a filtered drawing. The member-name limit bounds each returned row's named prefix, while occurrences and grouping still process the full selected subject population.
  *
  * @param props.environment Design the schedule is derived from.
  * @param props.subject What to schedule.
  * @returns The schedule record.
  *
- * @evidence contracts/common.md#principled-implementation Groups occurrences by a JSON-encoded type key and orders rows by a total comparator ending in identity, so the result does not depend on declaration order; sizes come from the shared opening rule, the declared-box rule and the connector sections, and the digest is SHA-256 of `canonicalizeAutoMovieJson`, an injective encoding of the record.
+ * @evidence contracts/common.md#principled-implementation Groups occurrences by a JSON-encoded type key and orders rows by a total comparator ending in identity, so the result does not depend on declaration order; sizes come from the shared opening rule, the declared-box rule and the connector sections, and the digest is SHA-256 of `canonicalizeAutoMovieJson`, a deterministic encoding of the record's JSON payload, without a hash-injectivity guarantee.
  * @evidence contracts/common.md#clear-and-simple-design One derivation per subject feeding one grouping and marking pass; room membership, contents, adjacency, connection and fidelity are the architecture queries rather than re-implementations, and box and size rules live in shared helpers the drawing also reads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No design, kind or id shape is special-cased; membership comes from declarations, never from id prefixes, an unmeasurable occurrence is `unmeasured` rather than zero, and each subject's undelivered content is a declared gap.
  * @evidence contracts/common.md#meaningful-documentation The comment states the refusal, the total's meaning, grouping and row identity, order and marks, the member bound, each subject's sizing and basis, the room row's location and two boxes, the gap policy and the digest's coverage.
- * @evidence contracts/performance.md#efficient-algorithms Opening and connector rows are linear in their occurrences plus the fill models' triangles, with boundary, element and model lookups from one design index; room rows call the architecture queries once per space, whose own scans make that stage proportional to spaces times the design size, and the final sort is `O(r log r)` in the row count.
- * @evidence contracts/performance.md#reuse-equivalent-work One design index per call shares element, model and boundary lookups, world matrices and fill tessellations across every opening row, so many doors of one leaf model tessellate it once; nothing is cached across calls because the environment is the caller's mutable record.
+ * @evidence contracts/performance.md#efficient-algorithms Full environment validation precedes derivation. Opening/connector scans include profile edges, placed fill triangles or section samples; each room invokes graph/bounds queries whose repeated scans scale with spaces times design size. Every bucket and its member ids are sorted before prefix truncation, as are rows, so ordering costs O(N log N) overall in occurrences, plus encoded text and canonical key sorts.
+ * @evidence contracts/performance.md#reuse-equivalent-work The opening subject builds one design index that shares id lookups, world matrices and part tessellations across opening rows. Room queries keep their own request-local work and connector rows need no index; no cross-call cache can conceal a mutable environment edit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The index, occurrences and grouping map are owned by the call and released on return, bounded by the design's size; only the returned schedule, owned by the caller, survives.
  * @author Samchon
  */
-export const deriveAutoMovieDrawingSchedule = (props: {
+export const deriveAutoMovieDrawingSchedule: (props: { environment: IAutoMovieBuiltEnvironment; subject: AutoMovieDrawingScheduleSubject; }) => IAutoMovieDrawingSchedule = (props: {
   /** Design the schedule is derived from. */
   environment: IAutoMovieBuiltEnvironment;
+
   /** What to count. */
   subject: AutoMovieDrawingScheduleSubject;
 }): IAutoMovieDrawingSchedule => {
-  const { environment, subject } = props;
+  const { environment, subject }: { environment: IAutoMovieBuiltEnvironment; subject: AutoMovieDrawingScheduleSubject; } = props;
   const validated: ReturnType<typeof validateBuiltEnvironment> =
     validateBuiltEnvironment({ environment });
   if (validated.success === false) {
@@ -176,8 +163,12 @@ export const deriveAutoMovieDrawingSchedule = (props: {
   };
 };
 
-/** The gaps one subject's schedule declares, sorted by subject. */
-const scheduleGaps = (
+/**
+ * Count every occurrence represented by unmeasured rows and append that geometry gap beside the subject's fixed undelivered-content gaps, ordered by subject. Row counts preserve grouped populations rather than counting only named prefixes.
+ *
+ * O(R) row work includes a temporary filtered subset, followed by a fixed-size gap sort. The caller owns the returned gap records and no result is cached.
+ */
+const scheduleGaps: (subject: AutoMovieDrawingScheduleSubject, rows: readonly IAutoMovieDrawingScheduleRow[]) => IAutoMovieDrawingGap[] = (
   subject: AutoMovieDrawingScheduleSubject,
   rows: readonly IAutoMovieDrawingScheduleRow[],
 ): IAutoMovieDrawingGap[] => {
@@ -253,8 +244,12 @@ const scheduleGaps = (
   );
 };
 
-/** Rooms, each sized by its declared box and located by the design's queries. */
-const spaceOccurrences = (
+/**
+ * Build one occurrence per declared space using its shell/axis-cell box, world Y height and wider X/Z width; unboxable volumes remain null while content bounds and graph relations still resolve. Semantic containers remain schedule members.
+ *
+ * Architecture queries scan the current environment per space, including measured model geometry; only named contents are capped. Borrowed design data is unchanged and returned occurrences own their temporary relation lists.
+ */
+const spaceOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IOccurrence[] =>
   environment.spaces.map((space: IAutoMovieBuiltSpace): IOccurrence => {
@@ -305,8 +300,12 @@ const spaceOccurrences = (
     };
   });
 
-/** Openings, sized by the rule the drawing shares and placed on their host. */
-const openingOccurrences = (
+/**
+ * Prefer the opening's void hull extent, otherwise its placed fill extent, keeping the profile/fill/unmeasured basis and host boundary location. Validated boundary/fill references are premises; this measures nominal world extents rather than leaf-local manufacturing dimensions.
+ *
+ * One design index shares lookup, staging and part tessellation across the O(O) opening walk; per-occurrence placed geometry remains work, and the index releases with this call while occurrences pass to grouping.
+ */
+const openingOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IOccurrence[] => {
   const design: IAutoMovieDrawingDesignIndex =
@@ -336,8 +335,12 @@ const openingOccurrences = (
   );
 };
 
-/** Connectors, sized by their narrowest and lowest stated section. */
-const connectorOccurrences = (
+/**
+ * Use the admitted constant width/clearHeight pair when present, otherwise minimum sampled section values, rounded onto the drawing grid. This declared-section reading is a nominal size, not a traversal or clearance solve.
+ *
+ * Scan each connector and its stated sections once, borrowing the design and returning fresh occurrence/place records without a persistent index.
+ */
+const connectorOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IOccurrence[] =>
   environment.connectors.map(
@@ -375,8 +378,8 @@ const connectorOccurrences = (
     },
   );
 
-/** Where an opening is: its host boundary and the regions it joins. */
-const openingPlace = (
+/** Sort the validated host boundary's space ids and report its building only when every side belongs to one unit. Sorting costs O(S log S) plus each building query; the returned space list is a copy and no boundary or location is cached. */
+const openingPlace: (environment: IAutoMovieBuiltEnvironment, boundary: IAutoMovieBuiltBoundary) => IAutoMovieDrawingOpeningPlace = (
   environment: IAutoMovieBuiltEnvironment,
   boundary: IAutoMovieBuiltBoundary,
 ): IAutoMovieDrawingOpeningPlace => {
@@ -392,11 +395,11 @@ const openingPlace = (
 };
 
 /**
- * Where a connector is: every region its declared stops stand in, ends and
- * landings alike, the rule `builtEnvironmentSpaceConnectors` follows from the
- * other direction.
+ * Where a connector is: every region its declared stops stand in, ends and landings alike, the rule `builtEnvironmentSpaceConnectors` follows from the other direction.
+ *
+ * Deduplicate from/landing/to space ids and sort them before the shared-building query. Work is stop sorting plus the building lookups; the caller owns the new stop list and place record, with no retained connector state.
  */
-const connectorPlace = (
+const connectorPlace: (environment: IAutoMovieBuiltEnvironment, connector: IAutoMovieBuiltConnector) => IAutoMovieDrawingConnectorPlace = (
   environment: IAutoMovieBuiltEnvironment,
   connector: IAutoMovieBuiltConnector,
 ): IAutoMovieDrawingConnectorPlace => {
@@ -417,11 +420,11 @@ const connectorPlace = (
 };
 
 /**
- * The one building unit a set of validated regions belongs to, or `null` when
- * the set is empty or two regions belong to different units: a passage between
- * two buildings belongs to neither alone.
+ * The one building unit a set of validated regions belongs to, or `null` when the set is empty or two regions belong to different units: a passage between two buildings belongs to neither alone.
+ *
+ * Query every space through the architecture owner and collect distinct returned units, so graph membership rather than id spelling decides. Work is the sum of those graph queries with O(S) temporary strings; no result is cached across mutable designs.
  */
-const buildingOfAny = (
+const buildingOfAny: (environment: IAutoMovieBuiltEnvironment, spaces: readonly string[]) => string | null = (
   environment: IAutoMovieBuiltEnvironment,
   spaces: readonly string[],
 ): string | null => {
@@ -436,10 +439,11 @@ const buildingOfAny = (
 /**
  * Order two occurrences by what a reader sorts a schedule on, identity last.
  *
- * The identity tiebreak decides the member order within a type row and the
- * order of two alike rooms, so neither depends on declaration order.
+ * The identity tiebreak decides the member order within a type row and the order of two alike rooms, so neither depends on declaration order.
+ *
+ * Compare kind, stringified model, optional width/height, basis and id using shared ordinal text order. Finite admitted measurements are a premise; this constant-field comparator allocates no retained state and never mutates occurrences.
  */
-const compareOccurrences = (left: IOccurrence, right: IOccurrence): number =>
+const compareOccurrences: (left: IOccurrence, right: IOccurrence) => number = (left: IOccurrence, right: IOccurrence): number =>
   compareAutoMovieRenderIds(left.kind, right.kind) ||
   compareAutoMovieRenderIds(String(left.model), String(right.model)) ||
   compareNullable(left.width, right.width) ||
@@ -447,6 +451,6 @@ const compareOccurrences = (left: IOccurrence, right: IOccurrence): number =>
   compareAutoMovieRenderIds(left.basis, right.basis) ||
   compareAutoMovieRenderIds(left.id, right.id);
 
-/** Order two optional measurements, with the unmeasured one first. */
-const compareNullable = (left: number | null, right: number | null): number =>
+/** Order null before finite measurements, otherwise subtract the numeric values; equal values compare as zero. The admitted finite-size premise keeps sorting meaningful, and this constant-work predicate retains no state. */
+const compareNullable: (left: number | null, right: number | null) => number = (left: number | null, right: number | null): number =>
   left === right ? 0 : left === null ? -1 : right === null ? 1 : left - right;

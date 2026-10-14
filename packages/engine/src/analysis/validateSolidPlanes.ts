@@ -11,7 +11,7 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * to exactly the same standard.
  *
  * Violations are appended to `out` under `path` and worded with `label`;
- * nothing is thrown. The checks are a plane count of at least
+ * resident plane slots are visited by index and missing records are refused at their slot. The plane-array and other nested vector shapes remain a caller premise; this helper does not validate arbitrary container types. The checks are a plane count of at least
  * `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, finite normals longer than `1e-12`, and
  * finite offsets. Whether the planes enclose a non-empty, bounded region is not
  * checked, so four or more planes describing an unbounded or empty set pass.
@@ -23,16 +23,16 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * @param label Kind of solid named in every message, such as `occluder`.
  * @param out Caller-owned sink the violations are appended to.
  *
- * @evidence contracts/common.md#principled-implementation Compares the plane count with four, the fewest half-spaces that can bound a 3D region, and checks each normal through `ViolationCollector.direction` and each offset for finiteness; boundedness and non-emptiness of the intersection would need a pairwise or linear-programming test and remain unchecked, which the documentation states.
+ * @evidence contracts/common.md#principled-implementation Compares the plane count with four, the fewest half-spaces that can bound a 3D region, then visits each index, refusing an absent record before checking its normal through `ViolationCollector.direction` and offset for finiteness; boundedness and non-emptiness of the intersection remain unchecked.
  * @evidence contracts/common.md#clear-and-simple-design One function holds the per-plane rule and writes into the caller's collector, so the context validator accumulates every violation while `assertAutoMovieAnalysisSolids` converts the same violations into a throw; the direction rule itself belongs to the collector shared with other validators.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No plane, label or caller is special-cased; the count floor is the named constant `AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES`, and nothing downstream compensates for an unbounded solid, which simply blocks wherever its half-spaces say.
- * @evidence contracts/common.md#meaningful-documentation The documentation names both callers, the three checks, the `1e-12` length floor, the no-throw sink behavior, the inside convention of a plane, and that empty or unbounded sets pass.
- * @evidence contracts/performance.md#efficient-algorithms One pass over the P planes with constant work each, so time is O(P) and no memory is allocated beyond the violations; no pairwise plane test runs, which is also why boundedness goes unchecked.
+ * @evidence contracts/common.md#meaningful-documentation Names both callers, resident-slot/count/normal/offset checks, the 1e-12 length floor, typed nested-container premise, accumulating sink, inside convention and unchecked empty/unbounded intersections.
+ * @evidence contracts/performance.md#efficient-algorithms One O(P) pass performs fixed scalar/vector checks per plane with constant live scratch, plus path/diagnostic text proportional to its length. No pairwise plane or enclosure solve proves boundedness; only caller-owned findings accumulate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure check of one plane list per call; each caller passes a different solid, and no verdict exists to share between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and opens no handle; the violations go into the caller-owned collector, whose lifetime the caller controls.
  * @author Samchon
  */
-export const validateSolidPlanes = (
+export const validateSolidPlanes: (planes: readonly IAutoMovieHalfSpacePlane[], path: string, label: string, out: ViolationCollector) => void = (
   planes: readonly IAutoMovieHalfSpacePlane[],
   path: string,
   label: string,
@@ -45,18 +45,24 @@ export const validateSolidPlanes = (
       `a convex ${label} needs at least ${AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES} half-spaces to bound a solid, but had ${planes.length}`,
       planes.length,
     );
-  planes.forEach((plane: IAutoMovieHalfSpacePlane, index: number): void => {
+  for (let index: number = 0; index < planes.length; ++index) {
+    const plane: IAutoMovieHalfSpacePlane | undefined = planes[index];
+    const slotPath: string = `${path}[${index}]`;
+    if (plane === undefined) {
+      out.push("type", slotPath, "a resident plane slot must contain its declared record", plane);
+      continue;
+    }
     out.direction(
-      `${path}[${index}].normal`,
-      plane.normal,
-      `${label} plane normal`,
-    );
+          `${path}[${index}].normal`,
+          plane.normal,
+          `${label} plane normal`,
+        );
     if (!Number.isFinite(plane.offset))
-      out.push(
-        "range",
-        `${path}[${index}].offset`,
-        `${label} plane offset must be finite, but was ${plane.offset}`,
-        plane.offset,
-      );
-  });
+          out.push(
+            "range",
+            `${path}[${index}].offset`,
+            `${label} plane offset must be finite, but was ${plane.offset}`,
+            plane.offset,
+          );
+  }
 };

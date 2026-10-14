@@ -4,10 +4,7 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * The declared targets as they enter an analyzer's settings text.
  *
  * Each target is copied to exactly its four contract fields, `key`, `unit`,
- * `value` and `comparison`, in that order and in list order, so the settings
- * digest of a study changes with every target that changes a verdict and with
- * nothing else: an extra runtime property on a structurally typed target, or a
- * different property order, digests the same.
+ * `value` and `comparison`, in that order and in list order. Extra runtime properties and original property order are ignored; changes to covered JSON values change the settings text, while signed zeros share an encoding and a digest is not a collision-free identity proof.
  *
  * @param targets Targets the study declares, already checked.
  * @returns New records holding only the four contract fields.
@@ -21,7 +18,7 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns T new records that the caller serializes into the settings text and then drops; this function retains nothing.
  * @author Samchon
  */
-export const autoMovieAnalysisSettingsTargets = (
+export const autoMovieAnalysisSettingsTargets: (targets: readonly IAutoMovieAnalysisTarget[]) => IAutoMovieAnalysisTarget[] = (
   targets: readonly IAutoMovieAnalysisTarget[],
 ): IAutoMovieAnalysisTarget[] =>
   targets.map(

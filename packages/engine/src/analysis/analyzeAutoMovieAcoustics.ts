@@ -60,14 +60,14 @@ const EPSILON: number = 1e-12;
  *
  * @evidence contracts/common.md#principled-implementation Evaluates Sabine reverberation, the room constant with a direct-plus-diffuse receiver level, and tau-weighted composite transmission loss in closed form; each diffuse-field result assumes a diffuse field, so the zero- and full-absorption extremes become gaps, and a negative sound reduction index, which would let a partition transmit more energy than reaches it, is refused.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the solve and the metric list with private helpers for the per-receiver direct field and the request check; the receiver level is split as the direct term per receiver plus one shared diffuse term, the same sum regrouped so the room-wide part is computed once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The 0.161 Sabine constant and the 1e-12 m coincidence refusal are equation facts, not tuned values; the underflow and overflow gaps state the double-precision bound crossed rather than reporting an infinite or meaningless level, and no room, source or receiver id is special-cased.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The named 0.161 coefficient selects the Sabine model; the 1e-12-metre coincidence floor is the engine's numerical policy around the inverse-square singularity. Infinite receiver levels become explicit underflow/overflow gaps, while other nonfinite arithmetic can still throw through metric admission; no room, source or receiver id is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the three closed forms, the unsupported speech index and why, the diffuse-field gaps and why Sabine's anechoic answer is withheld, the energy-range gaps, every throwing condition and when samples exist.
  * @evidence contracts/performance.md#efficient-algorithms Cost is O(R·S) for R receivers (at most 4096) and S sources, paid once: each source's power `10^(Lw/10)` is computed once instead of per receiver, and the receiver-source distance pass both refuses coincidence and accumulates the direct field; other work is linear in surfaces, partitions and metrics times targets.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one study the absorption area and room constant serve the reverberation, room-constant and level metrics, the summed source power serves every receiver's diffuse term, and the receiver levels serve the mean, the maximum and the samples; nothing is shared across studies.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays of S powers and R direct terms and levels, bounded by the receiver limit and the declared sources, and keeps none of them after returning the sealed run, which owns its samples.
  * @author Samchon
  */
-export const analyzeAutoMovieAcoustics = (props: {
+export const analyzeAutoMovieAcoustics: (props: { request: IAutoMovieAcousticRequest; }) => IAutoMovieAnalysisRun = (props: {
   /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieAcousticRequest;
 }): IAutoMovieAnalysisRun => {
@@ -192,7 +192,7 @@ export const analyzeAutoMovieAcoustics = (props: {
           0,
         ) / transmissionArea;
 
-  const metric = (entry: {
+  const metric: (entry: { key: string; unit: string; value: number | null; gap?: IAutoMovieAnalysisMetricGap; status?: "unsupported" | "not-run"; }) => IAutoMovieAnalysisMetric = (entry: {
     key: string;
     unit: string;
     value: number | null;
@@ -330,10 +330,11 @@ export const analyzeAutoMovieAcoustics = (props: {
 };
 
 /**
- * The direct-field energy `sum(10^(Lw/10) * Q / (4*pi*r^2))` at one receiver,
- * refusing a receiver that stands on a source.
+ * Sum precomputed source power times directivity over 4*pi*r^2 at one receiver, refusing distances at or below 1e-12 metres. Typed admitted positions and matching source/power order are premises; intermediate overflow or underflow is not repaired.
+ *
+ * One source scan reuses the study's powers and retains only a scalar accumulator; the caller owns the borrowed lists and handles nonfinite derived levels.
  */
-const directField = (
+const directField: (sources: readonly IAutoMovieAcousticSource[], powers: readonly number[], receiver: IAutoMovieAcousticReceiver) => number = (
   sources: readonly IAutoMovieAcousticSource[],
   powers: readonly number[],
   receiver: IAutoMovieAcousticReceiver,
@@ -354,8 +355,12 @@ const directField = (
   return energy;
 };
 
-/** Refuse an acoustic request no honest study can be made from. */
-const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
+/**
+ * Check headers, positive volume/surface areas, absorption fractions, nonnegative transmission loss, finite source fields and receiver positions; per-list ids are unique and receiver count is capped. Throws the first defect without modifying inputs; nested typed shape is assumed and derived energy is unchecked.
+ *
+ * Linear member/target scans use per-list id sets, released on return or throw; no validation result persists across studies.
+ */
+const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (request: IAutoMovieAcousticRequest): void => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],
@@ -450,8 +455,12 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
   assertAutoMovieAnalysisTargets(request.targets);
 };
 
-/** The canonical settings text one acoustic study is digested against. */
-const acousticSettings = (request: IAutoMovieAcousticRequest): string =>
+/**
+ * Serialize the study's physical fields and projected targets in fixed list/field order, omitting run header identity. Position records are borrowed into the serialization, so extra fields or custom serialization hooks on them can affect text; this is not arbitrary-object canonicalization.
+ *
+ * Linear encoded-entry/text work creates temporary mapped records and one returned string, with no cache or retained request after hashing.
+ */
+const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (request: IAutoMovieAcousticRequest): string =>
   JSON.stringify({
     volume: request.volume,
     surfaces: request.surfaces.map(

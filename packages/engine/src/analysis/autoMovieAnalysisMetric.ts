@@ -35,7 +35,7 @@ import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a new metric record and appends at most one warning to the caller-owned array, retaining nothing itself.
  * @author Samchon
  */
-export const autoMovieAnalysisMetric = (props: {
+export const autoMovieAnalysisMetric: (props: { key: string; unit: string; value: number | null; targets: readonly IAutoMovieAnalysisTarget[]; warnings: IAutoMovieAnalysisWarning[]; gap?: IAutoMovieAnalysisMetricGap; status?: "unsupported" | "not-run"; }) => IAutoMovieAnalysisMetric = (props: {
   /** Open metric key, such as `workplane.total.illuminance`. */
   key: string;
 

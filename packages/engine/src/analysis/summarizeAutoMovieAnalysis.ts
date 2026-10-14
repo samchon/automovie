@@ -23,7 +23,7 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * run for becomes a gap of its own; a run that read a superseded revision is
  * counted as stale rather than as an answer; a metric that produced no value
  * carries its reason up. Only when every required domain answered against this
- * revision, every metric produced a value, and every declared target held does
+ * revision, every metric produced a value, and every judged metric met its target does
  * the status read `meets`.
  *
  * Declaring at least one required domain is mandatory, which is what removes
@@ -43,7 +43,7 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * an empty or unknown required domain, a run that fails validation, and a run
  * id reported twice.
  *
- * @evidence contracts/common.md#principled-implementation One pass validates each run and folds it into per-domain counters seeded from `AUTOMOVIE_ANALYSIS_DOMAINS`, one pass over that table adds missing required answers, a precedence rule sets the status, and the digest is SHA-256 over JSON-array lines, which escape every separator so two different reports never share a digest text.
+ * @evidence contracts/common.md#principled-implementation Validates each run, folds counters by the fixed domain table, adds missing required domains and applies misses-before-incomplete-before-meets precedence. Untargeted measured metrics and warnings do not create a gap. JSON-array lines delimit covered fields, but omitted gap contents, signed-zero distinctions and SHA-256 collisions prevent treating equal digests as proof of identical source reports.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the rollup, the bound and the digest because each depends on the same fold; run validation is delegated to `validateAutoMovieAnalysisRun` so a report accepts exactly the runs a reader would.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No domain, run id or status is special-cased; the default bound is the exported `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`, and a non-required domain's gaps still count toward `incomplete` because every submitted metric must produce a value.
  * @evidence contracts/common.md#meaningful-documentation The documentation states why silence cannot clear the report, the mandatory required domain, where gaps come from and their order, the status precedence, the bound, what the digest covers and its line form, and every throwing input; each property states its role and default.
@@ -52,7 +52,7 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Listed gaps are retained only up to the bound and later ones are counted, so gap memory is O(maxGaps) rather than O(total gaps); the id set grows with run count and the rollup map is fixed at six rows, all call-local except the returned report, which keeps the rows and the listed slice.
  * @author Samchon
  */
-export const summarizeAutoMovieAnalysis = (props: {
+export const summarizeAutoMovieAnalysis: (props: { runs: readonly IAutoMovieAnalysisRun[]; revision: string; required: readonly AutoMovieAnalysisDomain[]; maxGaps?: number; }) => IAutoMovieAnalysisReport = (props: {
   /** Runs to roll up; each is validated before it is counted. */
   runs: readonly IAutoMovieAnalysisRun[];
 
@@ -112,7 +112,7 @@ export const summarizeAutoMovieAnalysis = (props: {
     );
   const listed: IAutoMovieAnalysisGap[] = [];
   let total: number = 0;
-  const gap = (entry: IAutoMovieAnalysisGap): void => {
+  const gap: (entry: IAutoMovieAnalysisGap) => void = (entry: IAutoMovieAnalysisGap): void => {
     ++total;
     if (listed.length < bound) listed.push(entry);
   };

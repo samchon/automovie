@@ -20,7 +20,7 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the only allocation is one short-lived props object per solid tested, released when the test returns.
  * @author Samchon
  */
-export const autoMovieRayObstructed = (props: {
+export const autoMovieRayObstructed: (props: { origin: IAutoMovieVector3; direction: IAutoMovieVector3; solids: readonly IAutoMovieAnalysisSolid[]; maxDistance: number; }) => boolean = (props: {
   /** World-space ray origin in metres. */
   origin: IAutoMovieVector3;
 

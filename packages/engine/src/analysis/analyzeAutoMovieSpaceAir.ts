@@ -35,6 +35,8 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
  * returned run is always `solved` and carries no spatial samples.
  *
+ * Finite admitted inputs can still overflow or underflow intermediate arithmetic; a nonfinite metric throws through the shared builder instead of becoming a fabricated measurement.
+ *
  * @evidence contracts/common.md#principled-implementation Evaluates the well-mixed single-zone balance in closed form (air change rate, outdoor air per person, steady-state carbon dioxide), whose premise is uniform concentration in the zone, and reports velocity and stagnation as `unsupported` because a zone model has no flow field.
  * @evidence contracts/common.md#clear-and-simple-design One function validates, evaluates five metrics through the shared metric builder and seals one run; the request check is a private helper because only this analyzer reads a ventilation request.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A null flow, a zero flow and zero occupancy each produce a named gap instead of a substituted value, and the zero-flow reason is chosen from whether anything generates carbon dioxide rather than assuming an occupied space.
@@ -44,7 +46,7 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds five metrics, a warning list and one settings string for the sealed run and retains nothing after returning it.
  * @author Samchon
  */
-export const analyzeAutoMovieSpaceAir = (props: {
+export const analyzeAutoMovieSpaceAir: (props: { request: IAutoMovieSpaceAirRequest; }) => IAutoMovieAnalysisRun = (props: {
   /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieSpaceAirRequest;
 }): IAutoMovieAnalysisRun => {
@@ -60,7 +62,7 @@ export const analyzeAutoMovieSpaceAir = (props: {
     remedy:
       "declare the supply flow the space is ventilated at, or record an infiltration study as its own run",
   };
-  const air = (
+  const air: (key: string, unit: string, value: number | null, gap?: IAutoMovieAnalysisMetricGap, status?: "unsupported" | "not-run") => IAutoMovieAnalysisMetric = (
     key: string,
     unit: string,
     value: number | null,
@@ -178,8 +180,12 @@ export const analyzeAutoMovieSpaceAir = (props: {
   });
 };
 
-/** Refuse a ventilation request no honest study can be made from. */
-const validateAirRequest = (request: IAutoMovieSpaceAirRequest): void => {
+/**
+ * Check nonblank header strings, positive volume, null/nonnegative flow, safe nonnegative occupancy and finite nonnegative carbon-dioxide inputs before target admission. Throws at the first defect; nested typed-record shape is a premise and derived arithmetic is not certified.
+ *
+ * One fixed field pass plus the shared target scan uses target-proportional temporary ids and retains no request or verdict after return or throw.
+ */
+const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (request: IAutoMovieSpaceAirRequest): void => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],

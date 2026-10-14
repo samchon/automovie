@@ -24,7 +24,7 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * @returns The context's own instant record, or `null` when the request names
  *   none.
  *
- * @evidence contracts/common.md#principled-implementation One ordered pass checks every bound the request contract states, uses `Set`s for id uniqueness and for the bridge-to-assembly reference, and delegates the context and targets to their shared validators; finite and strictly positive films, areas, thicknesses and conductivities keep every resistance and the transmittance finite and positive.
+ * @evidence contracts/common.md#principled-implementation One ordered pass checks the declared scalar bounds, uses Sets for id uniqueness and bridge-to-assembly references, and delegates context and targets to shared validators. Positive finite scalar inputs make the ideal resistance positive but do not prevent binary64 division, summation or reciprocal overflow/underflow; computed nonfinite metrics are refused later rather than certified here.
  * @evidence contracts/common.md#clear-and-simple-design The request check lives beside the analyzer it serves and returns the instant it had to look up, so the analyzer neither repeats the lookup nor asserts it non-null.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No study, assembly or fixture is special-cased; the only constant is `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, which bounds assemblies because each yields one sample, and nothing is clamped or defaulted.
  * @evidence contracts/common.md#meaningful-documentation The documentation states where the refused inputs are listed, their check order, the per-list uniqueness and the bridge reference rule, and what the returned instant is.
@@ -33,7 +33,7 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * @evidence contracts/performance.md#bound-retention-and-release-resources The assembly, layer and bridge id sets are call-local and grow with A, the largest assembly's layers and B; the returned instant is a reference into the caller's context.
  * @author Samchon
  */
-export const resolveAutoMovieEnvelopeRequest = (
+export const resolveAutoMovieEnvelopeRequest: (request: IAutoMovieEnvelopeRequest) => IAutoMovieEnvironmentInstant | null = (
   request: IAutoMovieEnvelopeRequest,
 ): IAutoMovieEnvironmentInstant | null => {
   for (const [label, value] of [

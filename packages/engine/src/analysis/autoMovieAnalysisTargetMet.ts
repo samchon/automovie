@@ -21,7 +21,7 @@ import { AutoMovieAnalysisComparison } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing and owns no handle.
  * @author Samchon
  */
-export const autoMovieAnalysisTargetMet = (
+export const autoMovieAnalysisTargetMet: (value: number, target: number, comparison: AutoMovieAnalysisComparison) => boolean = (
   value: number,
   target: number,
   comparison: AutoMovieAnalysisComparison,

@@ -22,7 +22,7 @@ import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAI
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the module-level domain tuple in place; no copy, set or handle is created per call.
  * @author Samchon
  */
-export const isAutoMovieAnalysisDomain = (
+export const isAutoMovieAnalysisDomain: (value: unknown) => value is AutoMovieAnalysisDomain = (
   value: unknown,
 ): value is AutoMovieAnalysisDomain =>
   (AUTOMOVIE_ANALYSIS_DOMAINS as readonly unknown[]).includes(value);
