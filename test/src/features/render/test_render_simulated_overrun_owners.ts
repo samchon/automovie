@@ -1,10 +1,16 @@
-import type { IAutoMovieRenderBudget, IAutoMovieRenderFinding, IAutoMovieRenderInventory, IAutoMovieRenderTarget } from "@automovie/interface";
+import type {
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderFinding,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
-import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRenderBudgetFixture";
+import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
+import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
 
 /**
  * Simulated resource overruns rank editable drawables while retaining full frame-pass cost.
@@ -20,7 +26,8 @@ import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRen
  */
 export function test_render_simulated_overrun_owners(): void {
   const target: IAutoMovieRenderTarget = simulatedRenderTargetFixture();
-  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
+  const subject: typeof simulatedRenderSubjectFixture =
+    simulatedRenderSubjectFixture;
 
   const PANEL_TRIANGLES: 12 = 12 as const;
 
@@ -30,7 +37,10 @@ export function test_render_simulated_overrun_owners(): void {
   // cluster places six members of it.
   const BRANCH_INSTANCES: number = 7 * 6;
 
-  const BRANCH: { vertices: number; triangles: number } = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
   // reports the conservative one-frame peak rather than the beauty pass alone.
@@ -43,7 +53,11 @@ export function test_render_simulated_overrun_owners(): void {
 
   const inventory: IAutoMovieRenderInventory = measure(subject());
 
-  const twin: (metric: keyof IAutoMovieRenderBudget["limits"], over: IAutoMovieRenderInventory, limit: number) => Record<string, unknown> = (
+  const twin: (
+    metric: keyof IAutoMovieRenderBudget["limits"],
+    over: IAutoMovieRenderInventory,
+    limit: number,
+  ) => Record<string, unknown> = (
     metric: keyof IAutoMovieRenderBudget["limits"],
     over: IAutoMovieRenderInventory,
     limit: number,
@@ -52,7 +66,9 @@ export function test_render_simulated_overrun_owners(): void {
       over,
       { ...budget(), limits: { ...budget().limits, [metric]: limit } },
       target,
-    ).findings.find((item: IAutoMovieRenderFinding): boolean => item.metric === metric)!;
+    ).findings.find(
+      (item: IAutoMovieRenderFinding): boolean => item.metric === metric,
+    )!;
     return {
       status: finding.status,
       excess: finding.excess,
@@ -64,12 +80,19 @@ export function test_render_simulated_overrun_owners(): void {
       // The listed owners plus what the report leaves unnamed are still the
       // whole measurement, pass included.
       accounted:
-        finding.contributors.reduce((sum: number, entry: IAutoMovieRenderFinding["contributors"][number]): number => sum + entry.cost, 0) +
+        finding.contributors.reduce(
+          (
+            sum: number,
+            entry: IAutoMovieRenderFinding["contributors"][number],
+          ): number => sum + entry.cost,
+          0,
+        ) +
           finding.omittedCost ===
         finding.measured,
       // Whatever else the recovery says, it never sends an author to a pass.
       editable: finding.contributors.every(
-        (entry: IAutoMovieRenderFinding["contributors"][number]): boolean => !entry.owner.startsWith("render-pass:"),
+        (entry: IAutoMovieRenderFinding["contributors"][number]): boolean =>
+          !entry.owner.startsWith("render-pass:"),
       ),
     };
   };

@@ -1,12 +1,22 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
-import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
-import { IAutoMovieSequenceRenderShotSpan } from "../../../../packages/render/src/IAutoMovieSequenceRenderShotSpan";
-import { IAutoMovieSequenceRenderPlan } from "../../../../packages/render/src/IAutoMovieSequenceRenderPlan";
-import { IAutoMovieTrim, IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+  IAutoMovieTrim,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
+import { IAutoMovieSequenceRenderPlan } from "../../../../packages/render/src/IAutoMovieSequenceRenderPlan";
+import { IAutoMovieSequenceRenderShotSpan } from "../../../../packages/render/src/IAutoMovieSequenceRenderShotSpan";
+import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -84,60 +94,86 @@ export function test_render_sequence_plan(): void {
   );
 
   // 2. shot spans + transition span
-  TestValidator.predicate("shot spans", filmEffectValuesClose(plan.shots.map((span: IAutoMovieSequenceRenderShotSpan): { shot: string; start: number; end: number; played: number; offset: number; trim: IAutoMovieTrim | null; } => ({
-      shot: span.shot,
-      start: span.start,
-      end: span.end,
-      played: span.played,
-      offset: span.offset,
-      trim: span.trim,
-    })), [
+  TestValidator.predicate(
+    "shot spans",
+    filmEffectValuesClose(
+      plan.shots.map(
+        (
+          span: IAutoMovieSequenceRenderShotSpan,
+        ): {
+          shot: string;
+          start: number;
+          end: number;
+          played: number;
+          offset: number;
+          trim: IAutoMovieTrim | null;
+        } => ({
+          shot: span.shot,
+          start: span.start,
+          end: span.end,
+          played: span.played,
+          offset: span.offset,
+          trim: span.trim,
+        }),
+      ),
+      [
+        {
+          shot: "shot:a",
+          start: 0,
+          end: 1,
+          played: 1,
+          offset: 0.5,
+          trim: { start: 0.5, duration: 1 },
+        },
+        {
+          shot: "shot:b",
+          start: 0.5,
+          end: 2.5,
+          played: 2,
+          offset: 1,
+          trim: { start: 1, duration: 2 },
+        },
+      ],
+    ),
+  );
+  TestValidator.predicate(
+    "transition span",
+    filmEffectValuesClose(plan.transitionSpans, [
       {
-        shot: "shot:a",
-        start: 0,
-        end: 1,
-        played: 1,
-        offset: 0.5,
-        trim: { start: 0.5, duration: 1 },
-      },
-      {
-        shot: "shot:b",
+        entry: 1,
+        from: "shot:a",
+        to: "shot:b",
+        kind: "crossDissolve",
         start: 0.5,
-        end: 2.5,
-        played: 2,
-        offset: 1,
-        trim: { start: 1, duration: 2 },
+        end: 1,
+        duration: 0.5,
       },
-    ]));
-  TestValidator.predicate("transition span", filmEffectValuesClose(plan.transitionSpans, [
-    {
-      entry: 1,
-      from: "shot:a",
-      to: "shot:b",
-      kind: "crossDissolve",
-      start: 0.5,
-      end: 1,
-      duration: 0.5,
-    },
-  ]));
+    ]),
+  );
 
   // 3. frame samples
-  TestValidator.predicate("first frame", filmEffectValuesClose(plan.frames[0], {
-    index: 0,
-    timeSeconds: 0,
-    path: "frames/seq_duel/frame_00000.png",
-    shot: "shot:a",
-    shotTimeSeconds: 0.5,
-    blend: null,
-  }));
-  TestValidator.predicate("dissolve entry frame", filmEffectValuesClose(plan.frames[2], {
-    index: 2,
-    timeSeconds: 0.5,
-    path: "frames/seq_duel/frame_00002.png",
-    shot: "shot:b",
-    shotTimeSeconds: 1,
-    blend: { shot: "shot:a", shotTimeSeconds: 1, alpha: 0 },
-  }));
+  TestValidator.predicate(
+    "first frame",
+    filmEffectValuesClose(plan.frames[0], {
+      index: 0,
+      timeSeconds: 0,
+      path: "frames/seq_duel/frame_00000.png",
+      shot: "shot:a",
+      shotTimeSeconds: 0.5,
+      blend: null,
+    }),
+  );
+  TestValidator.predicate(
+    "dissolve entry frame",
+    filmEffectValuesClose(plan.frames[2], {
+      index: 2,
+      timeSeconds: 0.5,
+      path: "frames/seq_duel/frame_00002.png",
+      shot: "shot:b",
+      shotTimeSeconds: 1,
+      blend: { shot: "shot:a", shotTimeSeconds: 1, alpha: 0 },
+    }),
+  );
   const midDissolve: IAutoMovieSequenceRenderFrame = plan.frames[3]!;
   TestValidator.equals(
     "mid dissolve sample",
@@ -154,7 +190,8 @@ export function test_render_sequence_plan(): void {
       ["midDissolveBlend", (): boolean => midDissolve.blend !== null],
       [
         "midDissolveBlendShot",
-        (): boolean => midDissolve.blend !== null && midDissolve.blend.shot === "shot:a",
+        (): boolean =>
+          midDissolve.blend !== null && midDissolve.blend.shot === "shot:a",
       ],
       [
         "ncloseMidDissolveBlend",
@@ -198,7 +235,8 @@ export function test_render_sequence_plan(): void {
     namedFacts([
       [
         "planFfmpegArgsIncludes",
-        (): boolean => plan.ffmpegArgs.includes("frames/seq_duel/frame_%05d.png"),
+        (): boolean =>
+          plan.ffmpegArgs.includes("frames/seq_duel/frame_%05d.png"),
       ],
       [
         "planFfmpegArgsIncludes2",

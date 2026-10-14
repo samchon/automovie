@@ -1,9 +1,11 @@
 import { IAutoMovieScript } from "@automovie/interface";
-import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
+
+import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
 import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
+import { namedFacts, throwsError } from "../internal/predicates";
 import { screenplayNode } from "../internal/screenplayNode";
+
 /**
  * The treeless fallback and the guards: flat scripts stay exportable, ghost references degrade to the raw id, an empty tree renders only the terminator, and a script with no beats refuses to render.
  *
@@ -43,7 +45,8 @@ export function test_render_screenplay_fallback(): void {
       ],
       [
         "textIncludesBEAT2",
-        (): boolean => text.includes("BEAT, The aftermath\nThe aftermath summary"),
+        (): boolean =>
+          text.includes("BEAT, The aftermath\nThe aftermath summary"),
       ],
     ]),
     { textIncludesBEAT: true, textIncludesBEAT2: true },

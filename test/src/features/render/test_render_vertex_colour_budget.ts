@@ -1,10 +1,14 @@
 import {
+  type IAutoMovieRenderSubject,
   deriveAutoMovieSemanticMask,
   measureAutoMovieRenderInventory,
-  type IAutoMovieRenderSubject,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieScene,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieScene } from "@automovie/interface";
 
 import { sceneFixture } from "../internal/renderFixtures";
 import {
@@ -27,16 +31,18 @@ import {
 export function test_render_vertex_colour_budget(): void {
   const colored: IAutoMovieMesh = vertexColourMesh();
   const { colors: _colors, ...bare }: IAutoMovieMesh = colored;
-  const costs: Array<number | null> = [colored, bare].map((mesh: IAutoMovieMesh): number | null => {
-    const model: IAutoMovieModel = vertexColourModel([mesh]);
-    const scene: IAutoMovieScene = sceneFixture();
-    scene.nodes = [{ ...scene.nodes[0]!, model: model.id }];
-    const subject: IAutoMovieRenderSubject = { scene, models: [model] };
-    return measureAutoMovieRenderInventory({
-      subject,
-      mask: deriveAutoMovieSemanticMask(subject),
-    }).models[0]!.geometryBytes;
-  });
+  const costs: Array<number | null> = [colored, bare].map(
+    (mesh: IAutoMovieMesh): number | null => {
+      const model: IAutoMovieModel = vertexColourModel([mesh]);
+      const scene: IAutoMovieScene = sceneFixture();
+      scene.nodes = [{ ...scene.nodes[0]!, model: model.id }];
+      const subject: IAutoMovieRenderSubject = { scene, models: [model] };
+      return measureAutoMovieRenderInventory({
+        subject,
+        mask: deriveAutoMovieSemanticMask(subject),
+      }).models[0]!.geometryBytes;
+    },
+  );
   TestValidator.equals("actual RGB allocation", costs, [
     3 * (12 + 12 + 12) + 3 * 4,
     3 * (12 + 12) + 3 * 4,

@@ -1,10 +1,17 @@
-import { IAutoMovieRenderSubject, deriveAutoMovieSemanticMask } from "@automovie/engine";
+import {
+  IAutoMovieRenderSubject,
+  deriveAutoMovieSemanticMask,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+
 import { modelsFixture } from "../internal/renderFixtures";
-import { softPanel } from "../internal/softFixtures";
 import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
 import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
+import { softPanel } from "../internal/softFixtures";
 
 /**
  * Simulated drawables preserve their stable semantic identities independently of list order.
@@ -20,16 +27,24 @@ import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjec
  */
 export function test_render_simulated_mask_identity(): void {
   const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
-  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
+  const subject: typeof simulatedRenderSubjectFixture =
+    simulatedRenderSubjectFixture;
 
   // The mask joins by the name each viewer builder assigns its own object, so
   // a curtain, a bed and a pond resolve to their own colour instead of painting
   // the reserved background as unaddressed geometry.
   const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject());
 
-  const entry: (id: string) => Record<string, unknown> = (id: string): Record<string, unknown> => {
-    const found: IAutoMovieSemanticMaskEntry | undefined = mask.entries.find((item: IAutoMovieSemanticMaskEntry): boolean => item.id === id);
-    TestValidator.predicate(`arranged semantic entry ${id}`, found !== undefined);
+  const entry: (id: string) => Record<string, unknown> = (
+    id: string,
+  ): Record<string, unknown> => {
+    const found: IAutoMovieSemanticMaskEntry | undefined = mask.entries.find(
+      (item: IAutoMovieSemanticMaskEntry): boolean => item.id === id,
+    );
+    TestValidator.predicate(
+      `arranged semantic entry ${id}`,
+      found !== undefined,
+    );
     return { kind: found!.kind, owner: found!.owner, nodes: found!.nodes };
   };
 
@@ -59,7 +74,9 @@ export function test_render_simulated_mask_identity(): void {
     },
   );
 
-  const crowded: (reverse: boolean) => IAutoMovieRenderSubject = (reverse: boolean): IAutoMovieRenderSubject => {
+  const crowded: (reverse: boolean) => IAutoMovieRenderSubject = (
+    reverse: boolean,
+  ): IAutoMovieRenderSubject => {
     const panels: NonNullable<IAutoMovieRenderSubject["softBodies"]> = [
       {
         domain: softPanel({ columns: 2, rows: 2 }),

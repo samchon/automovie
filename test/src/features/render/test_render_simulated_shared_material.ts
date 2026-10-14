@@ -1,9 +1,14 @@
+import type {
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderTextureCost,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderInventory, IAutoMovieRenderOwnerCost, IAutoMovieRenderTextureCost } from "@automovie/interface";
-import { modelsFixture } from "../internal/renderFixtures";
-import { softPanel } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import { softPanel } from "../internal/softFixtures";
 
 /**
  * Shared simulated fabric is charged once while unnamed drawables own separate default materials.
@@ -43,7 +48,13 @@ export function test_render_simulated_shared_material(): void {
       },
     ],
     textures: [
-      { format: "rgba8" as const, asset: "textures/stone.png", width: 2, height: 2, mipmapped: false },
+      {
+        format: "rgba8" as const,
+        asset: "textures/stone.png",
+        width: 2,
+        height: 2,
+        mipmapped: false,
+      },
     ],
   });
 
@@ -51,19 +62,27 @@ export function test_render_simulated_shared_material(): void {
     "a shared fabric is one material and one texture; a default is one per drawable",
     {
       materials: shared.totals.materials,
-      textures: shared.textures.map((texture: IAutoMovieRenderTextureCost): unknown[] => [
-        texture.asset,
-        texture.materials,
-        texture.bytes,
-      ]),
+      textures: shared.textures.map(
+        (texture: IAutoMovieRenderTextureCost): unknown[] => [
+          texture.asset,
+          texture.materials,
+          texture.bytes,
+        ],
+      ),
       textureBytes: shared.totals.textureBytes,
       defaults: shared.owners
-        .filter((item: IAutoMovieRenderOwnerCost): boolean => item.metric === "materials")
+        .filter(
+          (item: IAutoMovieRenderOwnerCost): boolean =>
+            item.metric === "materials",
+        )
         .map((item: IAutoMovieRenderOwnerCost): string => item.owner),
     },
     {
       materials: 2,
-      textures: [[null, ["stone"], 1024], ["textures/stone.png", ["stone"], 2 * 2 * 4]],
+      textures: [
+        [null, ["stone"], 1024],
+        ["textures/stone.png", ["stone"], 2 * 2 * 4],
+      ],
       textureBytes: 2 * 2 * 4 + 1024,
       defaults: ["material:soft-body:bare/default", "material:stone"],
     },

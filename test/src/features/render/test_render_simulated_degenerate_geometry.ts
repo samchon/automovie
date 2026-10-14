@@ -1,10 +1,11 @@
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieRenderInventory } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { flatBasin } from "../internal/fluidFixtures";
-import { modelsFixture } from "../internal/renderFixtures";
-import { softPanel } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import { softPanel } from "../internal/softFixtures";
 
 /**
  * A one-site lattice axis retains its buffers but produces no surface draws.

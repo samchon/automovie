@@ -1,9 +1,15 @@
 import {
+  type IAutoMovieRenderSubject,
   deriveAutoMovieSemanticMask,
   measureAutoMovieRenderInventory,
-  type IAutoMovieRenderSubject,
 } from "@automovie/engine";
-import type { IAutoMovieCompiledFormation, IAutoMovieCompiledInstanceSet, IAutoMovieMesh, IAutoMovieModel, IAutoMovieScene } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieScene,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { instanceSetFixture, sceneFixture } from "../internal/renderFixtures";
@@ -57,10 +63,14 @@ export function test_render_vertex_colour_instancing_budget(): void {
       ...set,
       id: "crowd",
       anonymousCount: set.count,
-      chunks: set.chunks.map((chunk: IAutoMovieCompiledInstanceSet["chunks"][number]): IAutoMovieCompiledFormation["chunks"][number] => ({
-        ...chunk,
-        anonymousCount: chunk.count,
-      })),
+      chunks: set.chunks.map(
+        (
+          chunk: IAutoMovieCompiledInstanceSet["chunks"][number],
+        ): IAutoMovieCompiledFormation["chunks"][number] => ({
+          ...chunk,
+          anonymousCount: chunk.count,
+        }),
+      ),
       ground: [],
       heroes: [],
       phase: { seed: 1 },
@@ -74,24 +84,27 @@ export function test_render_vertex_colour_instancing_budget(): void {
     const scene: IAutoMovieScene = sceneFixture();
     scene.nodes = [{ ...scene.nodes[0]!, model: model.id }];
     scene.lights = [];
-    const costs: Array<number | null> = [0, 1, 2, 3].map((mode: number): number | null => {
-      const subject: IAutoMovieRenderSubject = {
-        scene,
-        models: [model],
-        instanceSets: mode & 1 ? [set] : [],
-        formations: mode & 2 ? [formation] : [],
-      };
-      const inventory: ReturnType<typeof measureAutoMovieRenderInventory> = measureAutoMovieRenderInventory({
-        subject,
-        mask: deriveAutoMovieSemanticMask(subject),
-      });
-      TestValidator.equals(
-        "model and total agree",
-        inventory.models[0]!.geometryBytes,
-        inventory.totals.geometryBytes,
-      );
-      return inventory.totals.geometryBytes;
-    });
+    const costs: Array<number | null> = [0, 1, 2, 3].map(
+      (mode: number): number | null => {
+        const subject: IAutoMovieRenderSubject = {
+          scene,
+          models: [model],
+          instanceSets: mode & 1 ? [set] : [],
+          formations: mode & 2 ? [formation] : [],
+        };
+        const inventory: ReturnType<typeof measureAutoMovieRenderInventory> =
+          measureAutoMovieRenderInventory({
+            subject,
+            mask: deriveAutoMovieSemanticMask(subject),
+          });
+        TestValidator.equals(
+          "model and total agree",
+          inventory.models[0]!.geometryBytes,
+          inventory.totals.geometryBytes,
+        );
+        return inventory.totals.geometryBytes;
+      },
+    );
     TestValidator.equals("resident padded geometry", costs, [
       expected[index]![0],
       ...new Array(3).fill(expected[index]![1]),

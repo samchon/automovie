@@ -1,9 +1,15 @@
-import { exportModelToGLB } from "@automovie/render/node";
-import { NodeIO, type Accessor, type Document, type Mesh, type Primitive } from "@gltf-transform/core";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { nclose } from "../internal/predicates";
+import { exportModelToGLB } from "@automovie/render/node";
+import {
+  type Accessor,
+  type Document,
+  type Mesh,
+  NodeIO,
+  type Primitive,
+} from "@gltf-transform/core";
+import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/predicates";
 import {
   vertexColourMesh,
   vertexColourModel,
@@ -36,7 +42,11 @@ export async function test_render_vertex_colour_export(): Promise<void> {
   TestValidator.predicate(
     "binary RGB values",
     colors.getArray()!.length === colored.colors!.length &&
-      Array.from(colors.getArray()!).every((value: unknown, index: number): boolean => typeof value === "number" && nclose(value, colored.colors![index]!, 0)),
+      Array.from(colors.getArray()!).every(
+        (value: unknown, index: number): boolean =>
+          typeof value === "number" &&
+          nclose(value, colored.colors![index]!, 0),
+      ),
   );
   TestValidator.equals(
     "bare attribute omitted",

@@ -1,13 +1,21 @@
 import {
+  type IAutoMovieRenderPlanting,
+  type IAutoMovieRenderSoftPanel,
+  type IAutoMovieRenderSubject,
+  type IAutoMovieRenderTextureSource,
+  type IAutoMovieRenderWaterBody,
   autoMovieRenderSubjectOfCompiledShot,
   deriveAutoMovieSemanticMask,
   renderAutoMovieSemanticMaskSidecar,
-  type IAutoMovieRenderPlanting, type IAutoMovieRenderSoftPanel, type IAutoMovieRenderSubject, type IAutoMovieRenderTextureSource, type IAutoMovieRenderWaterBody,
 } from "@automovie/engine";
 import {
+  type IAutoMovieCompiledEffect,
+  type IAutoMovieCompiledFormation,
+  type IAutoMovieCompiledInstanceSet,
   IAutoMovieCompiledShotSource,
   IAutoMovieSemanticMask,
-  type IAutoMovieCompiledEffect, type IAutoMovieCompiledFormation, type IAutoMovieCompiledInstanceSet, type IAutoMovieSemanticMaskEntry, type IAutoMovieWaterFeature,
+  type IAutoMovieSemanticMaskEntry,
+  type IAutoMovieWaterFeature,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -73,16 +81,24 @@ export function test_render_subject_compiled_shot(): void {
     shot: {},
   } as unknown as IAutoMovieCompiledShotSource;
 
-  const empty: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot({ compiled: bare });
+  const empty: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot({
+    compiled: bare,
+  });
   TestValidator.equals(
     "a shot declaring no simulated domain converts to empty drawable lists",
     {
       scene: empty.scene.id,
       models: empty.models.length,
       environments: empty.environments,
-      sets: empty.instanceSets?.map((set: IAutoMovieCompiledInstanceSet): string => set.id),
-      formations: empty.formations?.map((formation: IAutoMovieCompiledFormation): string => formation.id),
-      effects: empty.effects?.map((effect: IAutoMovieCompiledEffect): string => effect.id),
+      sets: empty.instanceSets?.map(
+        (set: IAutoMovieCompiledInstanceSet): string => set.id,
+      ),
+      formations: empty.formations?.map(
+        (formation: IAutoMovieCompiledFormation): string => formation.id,
+      ),
+      effects: empty.effects?.map(
+        (effect: IAutoMovieCompiledEffect): string => effect.id,
+      ),
       water: empty.waterBodies,
       panels: empty.softBodies,
       plantings: empty.plantings,
@@ -133,39 +149,75 @@ export function test_render_subject_compiled_shot(): void {
       }),
     ],
   } as unknown as IAutoMovieCompiledShotSource;
-  const subject: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot({
-    compiled: furnished,
-    textures: [
-      { format: "rgba8" as const, asset: "textures/stone.png", width: 2, height: 2, mipmapped: false },
-    ],
-  });
+  const subject: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot(
+    {
+      compiled: furnished,
+      textures: [
+        {
+          format: "rgba8" as const,
+          asset: "textures/stone.png",
+          width: 2,
+          height: 2,
+          mipmapped: false,
+        },
+      ],
+    },
+  );
   TestValidator.equals(
     "every declared domain is one drawable, and only a bound one names a room",
     {
-      water: subject.waterBodies?.map((body: IAutoMovieRenderWaterBody): { id: string; owner: string | null; material: string | null; cells: number | null; nodes: number; proved: Array<number | null> } => ({
-        id: body.id,
-        owner: body.owner,
-        material: body.material,
-        cells: body.domain?.grid.columns ?? null,
-        nodes: body.nodes.length,
-        proved: [body.cells, body.particles],
-      })),
-      panels: subject.softBodies?.map((panel: IAutoMovieRenderSoftPanel): { id: string; owner: string | null; material: string | null } => ({
-        id: panel.domain.id,
-        owner: panel.owner,
-        material: panel.material,
-      })),
-      plantings: subject.plantings?.map((planting: IAutoMovieRenderPlanting): { id: string; recipe: string; owner: string | null; branchMaterial: string | null; leafMaterial: string | null; cost: Array<IAutoMovieRenderPlanting["branch"]> } => ({
-        id: planting.cluster.id,
-        recipe: planting.domain.id,
-        owner: planting.owner,
-        branchMaterial: planting.branchMaterial,
-        leafMaterial: planting.leafMaterial,
-        // The solid a renderer sweeps along a branch is in no compiled record,
-        // so an invented cost here would be the number a budget approves.
-        cost: [planting.branch, planting.leaf],
-      })),
-      textures: subject.textures?.map((texture: IAutoMovieRenderTextureSource): string => texture.asset),
+      water: subject.waterBodies?.map(
+        (
+          body: IAutoMovieRenderWaterBody,
+        ): {
+          id: string;
+          owner: string | null;
+          material: string | null;
+          cells: number | null;
+          nodes: number;
+          proved: Array<number | null>;
+        } => ({
+          id: body.id,
+          owner: body.owner,
+          material: body.material,
+          cells: body.domain?.grid.columns ?? null,
+          nodes: body.nodes.length,
+          proved: [body.cells, body.particles],
+        }),
+      ),
+      panels: subject.softBodies?.map(
+        (
+          panel: IAutoMovieRenderSoftPanel,
+        ): { id: string; owner: string | null; material: string | null } => ({
+          id: panel.domain.id,
+          owner: panel.owner,
+          material: panel.material,
+        }),
+      ),
+      plantings: subject.plantings?.map(
+        (
+          planting: IAutoMovieRenderPlanting,
+        ): {
+          id: string;
+          recipe: string;
+          owner: string | null;
+          branchMaterial: string | null;
+          leafMaterial: string | null;
+          cost: Array<IAutoMovieRenderPlanting["branch"]>;
+        } => ({
+          id: planting.cluster.id,
+          recipe: planting.domain.id,
+          owner: planting.owner,
+          branchMaterial: planting.branchMaterial,
+          leafMaterial: planting.leafMaterial,
+          // The solid a renderer sweeps along a branch is in no compiled record,
+          // so an invented cost here would be the number a budget approves.
+          cost: [planting.branch, planting.leaf],
+        }),
+      ),
+      textures: subject.textures?.map(
+        (texture: IAutoMovieRenderTextureSource): string => texture.asset,
+      ),
     },
     {
       water: [
@@ -219,7 +271,9 @@ export function test_render_subject_compiled_shot(): void {
   // Two bindings on one drawable is an authoring contradiction, but the subject
   // still has to be a function of the design: whichever order the array holds
   // them in, the smaller binding id owns the pond.
-  const contested: (order: "ascending" | "descending") => string | null = (order: "ascending" | "descending"): string | null => {
+  const contested: (order: "ascending" | "descending") => string | null = (
+    order: "ascending" | "descending",
+  ): string | null => {
     const bindings: IAutoMovieWaterFeature[] = [
       waterFeature({ id: "a-feature", environment: "north", space: "pool" }),
       waterFeature({ id: "b-feature", environment: "south", space: "tank" }),
@@ -267,7 +321,8 @@ export function test_render_subject_compiled_shot(): void {
       stable: sidecar === renderAutoMovieSemanticMaskSidecar(mask),
       digest: (JSON.parse(sidecar) as IAutoMovieSemanticMask).digest,
       pond: (JSON.parse(sidecar) as IAutoMovieSemanticMask).entries.find(
-        (entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "water-body:basin",
+        (entry: IAutoMovieSemanticMaskEntry): boolean =>
+          entry.id === "water-body:basin",
       )?.color,
     },
     {
@@ -275,8 +330,10 @@ export function test_render_subject_compiled_shot(): void {
       indented: true,
       stable: true,
       digest: mask.digest,
-      pond: mask.entries.find((entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "water-body:basin")
-        ?.color,
+      pond: mask.entries.find(
+        (entry: IAutoMovieSemanticMaskEntry): boolean =>
+          entry.id === "water-body:basin",
+      )?.color,
     },
   );
 }

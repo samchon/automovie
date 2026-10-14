@@ -18,14 +18,49 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership The exported test_render_texture_allocation_sum entry owns synchronous scalar aggregation assertions over explicit cost rows, starting no renderer, graphics context, native allocation, installed consumer or dynamically registered case.
  */
 export function test_render_texture_allocation_sum(): void {
-  const row: (allocations?: number | null) => IAutoMovieRenderTextureCost = (allocations?: number | null): IAutoMovieRenderTextureCost => ({
-    asset: null, materials: [], bytes: 0, allocations,
+  const row: (allocations?: number | null) => IAutoMovieRenderTextureCost = (
+    allocations?: number | null,
+  ): IAutoMovieRenderTextureCost => ({
+    asset: null,
+    materials: [],
+    bytes: 0,
+    allocations,
   });
-  TestValidator.equals("empty allocation population", sumAutoMovieRenderTextureAllocations([]), 0);
-  TestValidator.equals("legacy and aggregate count arithmetic", sumAutoMovieRenderTextureAllocations([row(), row(0), row(5)]), 1 + 0 + 5);
-  TestValidator.equals("unknown is not the legacy default", sumAutoMovieRenderTextureAllocations([row(2), row(null)]), null);
+  TestValidator.equals(
+    "empty allocation population",
+    sumAutoMovieRenderTextureAllocations([]),
+    0,
+  );
+  TestValidator.equals(
+    "legacy and aggregate count arithmetic",
+    sumAutoMovieRenderTextureAllocations([row(), row(0), row(5)]),
+    1 + 0 + 5,
+  );
+  TestValidator.equals(
+    "unknown is not the legacy default",
+    sumAutoMovieRenderTextureAllocations([row(2), row(null)]),
+    null,
+  );
   for (const count of [-1, 1.5, Infinity, NaN, Number.MAX_SAFE_INTEGER + 1])
-    TestValidator.equals("invalid native count is unbounded", sumAutoMovieRenderTextureAllocations([row(count)]), null);
-  TestValidator.equals("exact safe count boundary", sumAutoMovieRenderTextureAllocations([row(Number.MAX_SAFE_INTEGER), row(0)]), Number.MAX_SAFE_INTEGER);
-  TestValidator.equals("unsafe aggregate count is unbounded", sumAutoMovieRenderTextureAllocations([row(Number.MAX_SAFE_INTEGER), row(1)]), null);
+    TestValidator.equals(
+      "invalid native count is unbounded",
+      sumAutoMovieRenderTextureAllocations([row(count)]),
+      null,
+    );
+  TestValidator.equals(
+    "exact safe count boundary",
+    sumAutoMovieRenderTextureAllocations([
+      row(Number.MAX_SAFE_INTEGER),
+      row(0),
+    ]),
+    Number.MAX_SAFE_INTEGER,
+  );
+  TestValidator.equals(
+    "unsafe aggregate count is unbounded",
+    sumAutoMovieRenderTextureAllocations([
+      row(Number.MAX_SAFE_INTEGER),
+      row(1),
+    ]),
+    null,
+  );
 }

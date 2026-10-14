@@ -1,13 +1,20 @@
+import type {
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderFinding,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderAnalysisGap, IAutoMovieRenderFinding, IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget } from "@automovie/interface";
-import { modelsFixture } from "../internal/renderFixtures";
-import { plantingCluster } from "../internal/softFixtures";
-import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+
+import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
 import { leaflessPlantingRecipeFixture } from "../internal/leaflessPlantingRecipeFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
-import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { modelsFixture } from "../internal/renderFixtures";
 import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRenderBudgetFixture";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
+import { plantingCluster } from "../internal/softFixtures";
 
 /**
  * An unstated planting prototype leaves geometry unknown while batching remains exact.
@@ -24,7 +31,8 @@ import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRen
 export function test_render_simulated_unknown_prototype(): void {
   const target: IAutoMovieRenderTarget = simulatedRenderTargetFixture();
   const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
-  const bareRecipe: typeof leaflessPlantingRecipeFixture = leaflessPlantingRecipeFixture;
+  const bareRecipe: typeof leaflessPlantingRecipeFixture =
+    leaflessPlantingRecipeFixture;
 
   // A complete two-child tree of three levels is 1 + 2 + 4 branches, and the
   // cluster places six members of it.
@@ -55,7 +63,11 @@ export function test_render_simulated_unknown_prototype(): void {
     ],
   });
 
-  const unstatedReport: IAutoMovieRenderReport = report(unstated, budget(), target);
+  const unstatedReport: IAutoMovieRenderReport = report(
+    unstated,
+    budget(),
+    target,
+  );
 
   TestValidator.equals(
     "an unstated prototype leaves geometry unmeasured and the batching exact",
@@ -66,15 +78,27 @@ export function test_render_simulated_unknown_prototype(): void {
       drawCalls: unstated.totals.drawCalls,
       instanceSlots: unstated.totals.instanceSlots,
       nodes: unstated.totals.nodes,
-      gaps: unstated.gaps.map((gap: IAutoMovieRenderAnalysisGap): string[] => [gap.metric, gap.status]),
+      gaps: unstated.gaps.map((gap: IAutoMovieRenderAnalysisGap): string[] => [
+        gap.metric,
+        gap.status,
+      ]),
       statuses: unstatedReport.findings
         .filter((finding: IAutoMovieRenderFinding): boolean =>
           ["triangles", "vertices", "geometryBytes"].includes(finding.metric),
         )
-        .map((finding: IAutoMovieRenderFinding): IAutoMovieRenderFinding["status"] => finding.status),
+        .map(
+          (
+            finding: IAutoMovieRenderFinding,
+          ): IAutoMovieRenderFinding["status"] => finding.status,
+        ),
       remedies: unstatedReport.findings
-        .filter((finding: IAutoMovieRenderFinding): boolean => finding.metric === "triangles")
-        .every((finding: IAutoMovieRenderFinding): boolean => (finding.recovery ?? "").includes("atrium-bed")),
+        .filter(
+          (finding: IAutoMovieRenderFinding): boolean =>
+            finding.metric === "triangles",
+        )
+        .every((finding: IAutoMovieRenderFinding): boolean =>
+          (finding.recovery ?? "").includes("atrium-bed"),
+        ),
       report: unstatedReport.status,
     },
     {

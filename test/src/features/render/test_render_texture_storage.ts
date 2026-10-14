@@ -19,16 +19,93 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership The discoverable exported test_render_texture_storage entry runs pure scalar engine arithmetic in-process; its loops own the representation and refusal cases without allocating pixels, creating native textures or starting a host or installed consumer.
  */
 export function test_render_texture_storage(): void {
-  for (const [bytesPerTexel, expected] of [[4, 64], [8, 128], [16, 256]])
-    TestValidator.equals("base representation", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel, mipmapped: false }), expected);
-  TestValidator.equals("square mip chain", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel: 4, mipmapped: true }), (16 + 4 + 1) * 4);
-  TestValidator.equals("non-power-of-two chain", measureAutoMovieTextureStorage({ width: 3, height: 5, bytesPerTexel: 4, mipmapped: true }), (15 + 2 + 1) * 4);
-  TestValidator.equals("narrow chain", measureAutoMovieTextureStorage({ width: 1, height: 8, bytesPerTexel: 8, mipmapped: true }), (8 + 4 + 2 + 1) * 8);
-  TestValidator.equals("single texel", measureAutoMovieTextureStorage({ width: 1, height: 1, bytesPerTexel: 16, mipmapped: true }), 16);
+  for (const [bytesPerTexel, expected] of [
+    [4, 64],
+    [8, 128],
+    [16, 256],
+  ])
+    TestValidator.equals(
+      "base representation",
+      measureAutoMovieTextureStorage({
+        width: 4,
+        height: 4,
+        bytesPerTexel,
+        mipmapped: false,
+      }),
+      expected,
+    );
+  TestValidator.equals(
+    "square mip chain",
+    measureAutoMovieTextureStorage({
+      width: 4,
+      height: 4,
+      bytesPerTexel: 4,
+      mipmapped: true,
+    }),
+    (16 + 4 + 1) * 4,
+  );
+  TestValidator.equals(
+    "non-power-of-two chain",
+    measureAutoMovieTextureStorage({
+      width: 3,
+      height: 5,
+      bytesPerTexel: 4,
+      mipmapped: true,
+    }),
+    (15 + 2 + 1) * 4,
+  );
+  TestValidator.equals(
+    "narrow chain",
+    measureAutoMovieTextureStorage({
+      width: 1,
+      height: 8,
+      bytesPerTexel: 8,
+      mipmapped: true,
+    }),
+    (8 + 4 + 2 + 1) * 8,
+  );
+  TestValidator.equals(
+    "single texel",
+    measureAutoMovieTextureStorage({
+      width: 1,
+      height: 1,
+      bytesPerTexel: 16,
+      mipmapped: true,
+    }),
+    16,
+  );
   for (const value of [0, -1, 1.5, NaN, Infinity]) {
     for (const field of ["width", "height", "bytesPerTexel"])
-      TestValidator.equals("invalid storage fact", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel: 4, mipmapped: false, [field]: value }), null);
+      TestValidator.equals(
+        "invalid storage fact",
+        measureAutoMovieTextureStorage({
+          width: 4,
+          height: 4,
+          bytesPerTexel: 4,
+          mipmapped: false,
+          [field]: value,
+        }),
+        null,
+      );
   }
-  TestValidator.equals("unknown representation", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel: null, mipmapped: false }), null);
-  TestValidator.equals("overflow", measureAutoMovieTextureStorage({ width: Number.MAX_SAFE_INTEGER, height: 2, bytesPerTexel: 16, mipmapped: false }), null);
+  TestValidator.equals(
+    "unknown representation",
+    measureAutoMovieTextureStorage({
+      width: 4,
+      height: 4,
+      bytesPerTexel: null,
+      mipmapped: false,
+    }),
+    null,
+  );
+  TestValidator.equals(
+    "overflow",
+    measureAutoMovieTextureStorage({
+      width: Number.MAX_SAFE_INTEGER,
+      height: 2,
+      bytesPerTexel: 16,
+      mipmapped: false,
+    }),
+    null,
+  );
 }

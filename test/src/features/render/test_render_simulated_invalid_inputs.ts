@@ -1,13 +1,21 @@
 import { IAutoMovieRenderSubject } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingDomain,
+  IAutoMovieRenderInventory,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMoviePlantingDomain, IAutoMovieRenderInventory } from "@automovie/interface";
+
 import { flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
-import { boxModel, material, modelsFixture } from "../internal/renderFixtures";
-import { plantingCluster, plantingRecipe, softPanel } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
 import { leaflessPlantingRecipeFixture } from "../internal/leaflessPlantingRecipeFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { namedFacts, throwsError } from "../internal/predicates";
+import { boxModel, material, modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import {
+  plantingCluster,
+  plantingRecipe,
+  softPanel,
+} from "../internal/softFixtures";
 
 /**
  * Invalid simulated material and prototype records refuse without selecting an arbitrary definition.
@@ -23,11 +31,18 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  */
 export function test_render_simulated_invalid_inputs(): void {
   const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
-  const bareRecipe: typeof leaflessPlantingRecipeFixture = leaflessPlantingRecipeFixture;
+  const bareRecipe: typeof leaflessPlantingRecipeFixture =
+    leaflessPlantingRecipeFixture;
 
-  const BRANCH: { vertices: number; triangles: number } = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
-  const LEAF: { vertices: number; triangles: number } = { vertices: 4, triangles: 2 };
+  const LEAF: { vertices: number; triangles: number } = {
+    vertices: 4,
+    triangles: 2,
+  };
 
   // A leafy cluster submits a second batch and pays a second material; a
   // leafless one pays for neither.
@@ -43,7 +58,10 @@ export function test_render_simulated_invalid_inputs(): void {
   });
 
   /** One cluster whose branch prototype carries the stated cost. */
-  const prototyped: (branch: { vertices: number; triangles: number }) => IAutoMovieRenderSubject = (branch: {
+  const prototyped: (branch: {
+    vertices: number;
+    triangles: number;
+  }) => IAutoMovieRenderSubject = (branch: {
     vertices: number;
     triangles: number;
   }): IAutoMovieRenderSubject => ({
@@ -163,7 +181,8 @@ export function test_render_simulated_invalid_inputs(): void {
         "fractional prototype",
         (): boolean =>
           throwsError(
-            (): IAutoMovieRenderInventory => measure(prototyped({ vertices: 1.5, triangles: 1 })),
+            (): IAutoMovieRenderInventory =>
+              measure(prototyped({ vertices: 1.5, triangles: 1 })),
             "vertices must be a safe integer",
           ),
       ],
@@ -171,7 +190,8 @@ export function test_render_simulated_invalid_inputs(): void {
         "negative prototype",
         (): boolean =>
           throwsError(
-            (): IAutoMovieRenderInventory => measure(prototyped({ vertices: 1, triangles: -1 })),
+            (): IAutoMovieRenderInventory =>
+              measure(prototyped({ vertices: 1, triangles: -1 })),
             "triangles must be a safe integer",
           ),
       ],

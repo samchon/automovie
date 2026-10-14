@@ -1,12 +1,18 @@
-import { IAutoMovieSceneNode, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import {
+  IAutoMovieSceneNode,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
 import { assertAutoMovieSemanticMaskCapacity } from "../../../../packages/engine/src/render/assertAutoMovieSemanticMaskCapacity";
 import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../../../../packages/engine/src/render/constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
 import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
-import { TestValidator } from "@nestia/e2e";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
 import { throwsError } from "../internal/predicates";
 import { modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 /**
  * The actual producer's admission accepts 65536 entity claims and rejects 65537 without truncation. Counts are nonnegative safe integers supplied by the producer's claim-array length.
  *
@@ -40,7 +46,14 @@ export function test_render_semantic_mask_capacity(): void {
         [`needs ${entities} entries`, "above the bounded maximum 65536"],
       ),
     );
-  const { bulk }: { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } = createSemanticMaskTestInputs();
+  const {
+    bulk,
+  }: {
+    subject: () => IAutoMovieRenderSubject;
+    bulk: (semantic: string) => IAutoMovieSceneNode;
+    broken: (owner: string) => IAutoMovieSemanticMask;
+    cyclic: () => IAutoMovieSemanticMask;
+  } = createSemanticMaskTestInputs();
   const empty: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({
     scene: { ...sceneFixture(), nodes: [] },
     models: modelsFixture(),
@@ -53,7 +66,9 @@ export function test_render_semantic_mask_capacity(): void {
     "the real producer reaches admission and retains supported populations",
     {
       empty: empty.entries,
-      singleIds: single.entries.map((entry: IAutoMovieSemanticMaskEntry): string => entry.id),
+      singleIds: single.entries.map(
+        (entry: IAutoMovieSemanticMaskEntry): string => entry.id,
+      ),
       gaps: single.unaddressed,
     },
     { empty: [], singleIds: ["node:one"], gaps: [] },

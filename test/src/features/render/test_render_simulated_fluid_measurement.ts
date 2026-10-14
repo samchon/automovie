@@ -1,10 +1,15 @@
+import type {
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderAnalysisGap, IAutoMovieRenderInventory, IAutoMovieRenderTarget } from "@automovie/interface";
-import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
-import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRenderBudgetFixture";
+import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
+import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
 
 /**
  * Measured, unmeasured and explicitly counted fluid resources retain distinct admission states.
@@ -20,7 +25,8 @@ import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRen
  */
 export function test_render_simulated_fluid_measurement(): void {
   const target: IAutoMovieRenderTarget = simulatedRenderTargetFixture();
-  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
+  const subject: typeof simulatedRenderSubjectFixture =
+    simulatedRenderSubjectFixture;
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
   // reports the conservative one-frame peak rather than the beauty pass alone.
@@ -72,7 +78,10 @@ export function test_render_simulated_fluid_measurement(): void {
       unbound: [
         unbound.totals.fluidCells,
         unbound.totals.fluidParticles,
-        unbound.gaps.map((gap: IAutoMovieRenderAnalysisGap): string[] => [gap.metric, gap.status]),
+        unbound.gaps.map((gap: IAutoMovieRenderAnalysisGap): string[] => [
+          gap.metric,
+          gap.status,
+        ]),
         report(unbound, budget(), target).status,
       ],
       counted: [counted.totals.fluidCells, counted.totals.fluidParticles],

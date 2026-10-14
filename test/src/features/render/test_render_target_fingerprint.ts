@@ -1,4 +1,3 @@
-import type { IAutoMovieRenderTargetDrift } from "./../../../../packages/engine/src/render/IAutoMovieRenderTargetDrift";
 import {
   autoMovieRenderDigest,
   autoMovieRenderTargetAssets,
@@ -7,15 +6,17 @@ import {
   compareAutoMovieRenderTarget,
   sealAutoMovieRenderTarget,
 } from "@automovie/engine";
-import { IAutoMovieRenderTargetAsset,
+import {
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 import { namedFacts, throwsError } from "../internal/predicates";
+import type { IAutoMovieRenderTargetDrift } from "./../../../../packages/engine/src/render/IAutoMovieRenderTargetDrift";
 
 /**
  * A report is evidence only while the target it measured is still the target in
@@ -66,7 +67,7 @@ export function test_render_target_fingerprint(): void {
   ];
   TestValidator.equals(
     "the engine's own SHA-256 agrees with node:crypto on every boundary",
-    samples.map((text: string) : string => autoMovieRenderDigest(text)),
+    samples.map((text: string): string => autoMovieRenderDigest(text)),
     samples.map(oracle),
   );
 
@@ -95,7 +96,10 @@ export function test_render_target_fingerprint(): void {
     toneMapping: "acesFilmic",
     exposure: 1.2,
   };
-  const seal: (override?: Partial<IAutoMovieRenderTargetSettings>, assets?: Array<{ path: string; digest: `sha256:${string}`; }>) => IAutoMovieRenderTarget = (
+  const seal: (
+    override?: Partial<IAutoMovieRenderTargetSettings>,
+    assets?: Array<{ path: string; digest: `sha256:${string}` }>,
+  ) => IAutoMovieRenderTarget = (
     override?: Partial<IAutoMovieRenderTargetSettings>,
     assets?: Array<{ path: string; digest: `sha256:${string}` }>,
   ): IAutoMovieRenderTarget =>
@@ -111,24 +115,39 @@ export function test_render_target_fingerprint(): void {
     });
   const sealed: IAutoMovieRenderTarget = seal();
   const rendererTupleLeft: IAutoMovieRenderTarget = sealAutoMovieRenderTarget({
-    renderer: { api: "webgl2\tx", vendor: "y", device: "gpu" }, settings, assets: [],
+    renderer: { api: "webgl2\tx", vendor: "y", device: "gpu" },
+    settings,
+    assets: [],
   });
   const rendererTupleRight: IAutoMovieRenderTarget = sealAutoMovieRenderTarget({
-    renderer: { api: "webgl2", vendor: "x\ty", device: "gpu" }, settings, assets: [],
+    renderer: { api: "webgl2", vendor: "x\ty", device: "gpu" },
+    settings,
+    assets: [],
   });
-  TestValidator.predicate("embedded renderer tabs preserve tuple identity", () : boolean => rendererTupleLeft.digest !== rendererTupleRight.digest);
-  const oneEmbeddedRow: IAutoMovieRenderTarget = seal(undefined, [{
-    path: `a\tsha256:${"a".repeat(64)}\nasset\tb`, digest: `sha256:${"b".repeat(64)}`,
-  }]);
+  TestValidator.predicate(
+    "embedded renderer tabs preserve tuple identity",
+    (): boolean => rendererTupleLeft.digest !== rendererTupleRight.digest,
+  );
+  const oneEmbeddedRow: IAutoMovieRenderTarget = seal(undefined, [
+    {
+      path: `a\tsha256:${"a".repeat(64)}\nasset\tb`,
+      digest: `sha256:${"b".repeat(64)}`,
+    },
+  ]);
   const twoAssetRows: IAutoMovieRenderTarget = seal(undefined, [
     { path: "a", digest: `sha256:${"a".repeat(64)}` },
     { path: "b", digest: `sha256:${"b".repeat(64)}` },
   ]);
-  TestValidator.predicate("one path containing a row cannot alias two assets", () : boolean => oneEmbeddedRow.digest !== twoAssetRows.digest);
+  TestValidator.predicate(
+    "one path containing a row cannot alias two assets",
+    (): boolean => oneEmbeddedRow.digest !== twoAssetRows.digest,
+  );
   TestValidator.equals(
     "sealing normalizes asset order and repeats byte for byte",
     {
-      paths: sealed.assets.map((asset: IAutoMovieRenderTargetAsset) : string => asset.path),
+      paths: sealed.assets.map(
+        (asset: IAutoMovieRenderTargetAsset): string => asset.path,
+      ),
       stable: seal().digest === sealed.digest,
       shuffled:
         seal(undefined, [
@@ -144,9 +163,9 @@ export function test_render_target_fingerprint(): void {
     namedFacts([
       [
         "blank api",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: " ", vendor: "acme", device: "gpu-1" },
                 settings,
@@ -157,9 +176,9 @@ export function test_render_target_fingerprint(): void {
       ],
       [
         "blank vendor",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: "webgl2", vendor: "", device: "gpu-1" },
                 settings,
@@ -170,9 +189,9 @@ export function test_render_target_fingerprint(): void {
       ],
       [
         "blank device",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: "webgl2", vendor: "acme", device: "" },
                 settings,
@@ -183,37 +202,58 @@ export function test_render_target_fingerprint(): void {
       ],
       [
         "fractional width",
-        () : boolean => throwsError(() : IAutoMovieRenderTarget => seal({ width: 10.5 }), "settings.width"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ width: 10.5 }),
+            "settings.width",
+          ),
       ],
       [
         "zero height",
-        () : boolean => throwsError(() : IAutoMovieRenderTarget => seal({ height: 0 }), "settings.height"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ height: 0 }),
+            "settings.height",
+          ),
       ],
       [
         "zero ratio",
-        () : boolean => throwsError(() : IAutoMovieRenderTarget => seal({ pixelRatio: 0 }), "settings.pixelRatio"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ pixelRatio: 0 }),
+            "settings.pixelRatio",
+          ),
       ],
       [
         "infinite exposure",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget => seal({ exposure: Number.POSITIVE_INFINITY }),
+            (): IAutoMovieRenderTarget =>
+              seal({ exposure: Number.POSITIVE_INFINITY }),
             "settings.exposure",
           ),
       ],
       [
         "shadows on with no filter",
-        () : boolean => throwsError(() : IAutoMovieRenderTarget => seal({ shadowType: "none" }), "contradicts"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ shadowType: "none" }),
+            "contradicts",
+          ),
       ],
       [
         "shadows off with a filter",
-        () : boolean => throwsError(() : IAutoMovieRenderTarget => seal({ shadows: false }), "contradicts"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ shadows: false }),
+            "contradicts",
+          ),
       ],
       [
         "blank asset path",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget =>
+            (): IAutoMovieRenderTarget =>
               seal(undefined, [
                 { path: " ", digest: `sha256:${"a".repeat(64)}` },
               ]),
@@ -222,9 +262,9 @@ export function test_render_target_fingerprint(): void {
       ],
       [
         "duplicated asset",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget =>
+            (): IAutoMovieRenderTarget =>
               seal(undefined, [
                 { path: "a.png", digest: `sha256:${"a".repeat(64)}` },
                 { path: "a.png", digest: `sha256:${"a".repeat(64)}` },
@@ -234,9 +274,10 @@ export function test_render_target_fingerprint(): void {
       ],
       [
         "malformed digest",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieRenderTarget => seal(undefined, [{ path: "a.png", digest: "sha256:zz" }]),
+            (): IAutoMovieRenderTarget =>
+              seal(undefined, [{ path: "a.png", digest: "sha256:zz" }]),
             "exact lowercase SHA-256",
           ),
       ],
@@ -269,11 +310,13 @@ export function test_render_target_fingerprint(): void {
     target,
     digest: `sha256:${"0".repeat(64)}`,
   });
-  const drifted: (current: IAutoMovieRenderTarget) => string[] = (current: IAutoMovieRenderTarget): string[] =>
+  const drifted: (current: IAutoMovieRenderTarget) => string[] = (
+    current: IAutoMovieRenderTarget,
+  ): string[] =>
     compareAutoMovieRenderTarget({
       report: carrying(sealed),
       current,
-    }).drift.map((entry: IAutoMovieRenderTargetDrift) : string => entry.field);
+    }).drift.map((entry: IAutoMovieRenderTargetDrift): string => entry.field);
 
   TestValidator.equals(
     "every kind of drift is detected and named",

@@ -1,9 +1,15 @@
-import { IAutoMovieSceneNode, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import {
+  IAutoMovieSceneNode,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
 import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
 import { resolveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/resolveAutoMovieSemanticMask";
-import { TestValidator } from "@nestia/e2e";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
+
 /**
  * Unknown colour keys and broken ownership chains do not fabricate an ancestor or alternate drawable in the selected lookups.
  *
@@ -17,33 +23,43 @@ import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTest
  * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_lookup_boundaries owns its cases. Portable direct lookup over resident mask records, with no sampled pixel, renderer or dynamic test registry.
  */
 export function test_render_semantic_mask_lookup_boundaries(): void {
-  const { subject, broken, cyclic }: { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } = createSemanticMaskTestInputs();
+  const {
+    subject,
+    broken,
+    cyclic,
+  }: {
+    subject: () => IAutoMovieRenderSubject;
+    bulk: (semantic: string) => IAutoMovieSceneNode;
+    broken: (owner: string) => IAutoMovieSemanticMask;
+    cyclic: () => IAutoMovieSemanticMask;
+  } = createSemanticMaskTestInputs();
 
   const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject());
 
   const leaf: IAutoMovieSemanticMaskEntry = mask.entries.find(
-      (entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "element:tower/hall-door-leaf",
-    )!;
+    (entry: IAutoMovieSemanticMaskEntry): boolean =>
+      entry.id === "element:tower/hall-door-leaf",
+  )!;
 
   TestValidator.equals(
-      "a colour nobody claimed, a dangling owner and a cycle never invent an answer",
-      {
-        unknown: resolveAutoMovieSemanticMask(mask, "#123456"),
-        lowercase: resolveAutoMovieSemanticMask(mask, leaf.color.toLowerCase())!
-          .entry.id,
-        dangling: resolveAutoMovieSemanticMask(
-          broken("space:tower/vanished"),
-          "#ABCDEF",
-        )!.ancestors.length,
-        cyclic: resolveAutoMovieSemanticMask(cyclic(), "#ABCDEF")!.ancestors.map(
-          (entry: IAutoMovieSemanticMaskEntry): string => entry.id,
-        ),
-      },
-      {
-        unknown: null,
-        lowercase: "element:tower/hall-door-leaf",
-        dangling: 0,
-        cyclic: ["b"],
-      },
-    );
+    "a colour nobody claimed, a dangling owner and a cycle never invent an answer",
+    {
+      unknown: resolveAutoMovieSemanticMask(mask, "#123456"),
+      lowercase: resolveAutoMovieSemanticMask(mask, leaf.color.toLowerCase())!
+        .entry.id,
+      dangling: resolveAutoMovieSemanticMask(
+        broken("space:tower/vanished"),
+        "#ABCDEF",
+      )!.ancestors.length,
+      cyclic: resolveAutoMovieSemanticMask(cyclic(), "#ABCDEF")!.ancestors.map(
+        (entry: IAutoMovieSemanticMaskEntry): string => entry.id,
+      ),
+    },
+    {
+      unknown: null,
+      lowercase: "element:tower/hall-door-leaf",
+      dangling: 0,
+      cyclic: ["b"],
+    },
+  );
 }

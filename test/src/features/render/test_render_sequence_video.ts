@@ -1,12 +1,21 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieSequenceRenderAdapters } from "../../../../packages/render/src/IAutoMovieSequenceRenderAdapters";
 import { IAutoMovieSequenceRenderAndSeeResult } from "../../../../packages/render/src/IAutoMovieSequenceRenderAndSeeResult";
 import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
-import { IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { IAutoMovieSequenceRenderAdapters } from "../../../../packages/render/src/IAutoMovieSequenceRenderAdapters";
 import { renderSequenceAndSee } from "../../../../packages/render/src/renderSequenceAndSee";
-import { TestValidator } from "@nestia/e2e";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose } from "../internal/predicates";
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -66,7 +75,9 @@ export async function test_render_sequence_video(): Promise<void> {
   }> = [];
   const encoded: Array<{ args: string[]; outputPath: string }> = [];
   const adapters: IAutoMovieSequenceRenderAdapters = {
-    captureFrame: async (frame: IAutoMovieSequenceRenderFrame): Promise<string> => {
+    captureFrame: async (
+      frame: IAutoMovieSequenceRenderFrame,
+    ): Promise<string> => {
       captured.push({
         index: frame.index,
         shot: frame.shot,
@@ -82,20 +93,29 @@ export async function test_render_sequence_video(): Promise<void> {
     },
   };
 
-  const result: IAutoMovieSequenceRenderAndSeeResult = await renderSequenceAndSee({
-    sequence: SEQUENCE,
-    shots: SHOTS,
-    spec: SPEC,
-    frameDir: "frames/seq",
-    outputPath: "out/seq.mp4",
-    adapters,
-  });
+  const result: IAutoMovieSequenceRenderAndSeeResult =
+    await renderSequenceAndSee({
+      sequence: SEQUENCE,
+      shots: SHOTS,
+      spec: SPEC,
+      frameDir: "frames/seq",
+      outputPath: "out/seq.mp4",
+      adapters,
+    });
 
   // 1. capture order and returned frame paths
   TestValidator.equals("frame count", result.frameCount, 14);
   TestValidator.equals(
     "capture order",
-    captured.map((frame: { index: number; shot: string; time: number; blend: string | null; alpha: number | null; }): number => frame.index),
+    captured.map(
+      (frame: {
+        index: number;
+        shot: string;
+        time: number;
+        blend: string | null;
+        alpha: number | null;
+      }): number => frame.index,
+    ),
     Array.from({ length: 14 }, (_: unknown, i: number): number => i),
   );
   TestValidator.equals(
@@ -116,7 +136,10 @@ export async function test_render_sequence_video(): Promise<void> {
       ["capturedShotShot", (): boolean => captured[6]!.shot === "shot:b"],
       ["ncloseCapturedTime", (): boolean => nclose(captured[6]!.time, 1)],
       ["capturedBlendShot", (): boolean => captured[6]!.blend === "shot:a"],
-      ["ncloseCapturedAlpha", (): boolean => nclose(captured[6]!.alpha ?? -1, 0)],
+      [
+        "ncloseCapturedAlpha",
+        (): boolean => nclose(captured[6]!.alpha ?? -1, 0),
+      ],
     ]),
     {
       capturedShotShot: true,
@@ -131,7 +154,10 @@ export async function test_render_sequence_video(): Promise<void> {
       ["capturedShotShot", (): boolean => captured[7]!.shot === "shot:b"],
       ["ncloseCapturedTime", (): boolean => nclose(captured[7]!.time, 1.25)],
       ["capturedBlendShot", (): boolean => captured[7]!.blend === "shot:a"],
-      ["ncloseCapturedAlpha", (): boolean => nclose(captured[7]!.alpha ?? -1, 0.5)],
+      [
+        "ncloseCapturedAlpha",
+        (): boolean => nclose(captured[7]!.alpha ?? -1, 0.5),
+      ],
     ]),
     {
       capturedShotShot: true,
@@ -144,11 +170,17 @@ export async function test_render_sequence_video(): Promise<void> {
 
   // 3. encode and artifact metadata
   TestValidator.equals("encoded output", result.output, "encoded:out/seq.mp4");
-  TestValidator.predicate("sequence identity", filmEffectValuesClose(result.sequence, {
-    id: SEQUENCE.id,
-    fps: 24,
-  }));
-  TestValidator.predicate("spec snapshot", filmEffectValuesClose(result.spec, SPEC));
+  TestValidator.predicate(
+    "sequence identity",
+    filmEffectValuesClose(result.sequence, {
+      id: SEQUENCE.id,
+      fps: 24,
+    }),
+  );
+  TestValidator.predicate(
+    "spec snapshot",
+    filmEffectValuesClose(result.spec, SPEC),
+  );
   TestValidator.equals(
     "encode output path",
     encoded[0]?.outputPath,

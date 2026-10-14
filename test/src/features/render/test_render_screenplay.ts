@@ -1,6 +1,8 @@
-import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
-import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
 import { TestValidator } from "@nestia/e2e";
+
+import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
+
 /**
  * The screenplay document: the tree renders depth-first with the documented plain-text convention (slug, direction, indented dialogue with anchors, bracketed captions), and the same script yields the same bytes.
  *

@@ -1,11 +1,15 @@
 import { plantingBudget } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingDomain,
+  IAutoMovieRenderInventory,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMoviePlantingDomain, IAutoMovieRenderInventory } from "@automovie/interface";
-import { modelsFixture } from "../internal/renderFixtures";
-import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+
 import { leaflessPlantingRecipeFixture } from "../internal/leaflessPlantingRecipeFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
 /**
  * A leaf-bearing planting recipe pays a second batch and prototype storage.
@@ -21,20 +25,28 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  */
 export function test_render_simulated_foliage_cost(): void {
   const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
-  const bareRecipe: typeof leaflessPlantingRecipeFixture = leaflessPlantingRecipeFixture;
+  const bareRecipe: typeof leaflessPlantingRecipeFixture =
+    leaflessPlantingRecipeFixture;
 
   // A complete two-child tree of three levels is 1 + 2 + 4 branches, and the
   // cluster places six members of it.
   const BRANCH_INSTANCES: number = 7 * 6;
 
-  const BRANCH: { vertices: number; triangles: number } = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
-  const LEAF: { vertices: number; triangles: number } = { vertices: 4, triangles: 2 };
+  const LEAF: { vertices: number; triangles: number } = {
+    vertices: 4,
+    triangles: 2,
+  };
 
   const BRANCH_BYTES: number =
     BRANCH.vertices * (12 + 12 + 8) + BRANCH.triangles * 3 * 4;
 
-  const LEAF_BYTES: number = LEAF.vertices * (12 + 12 + 8) + LEAF.triangles * 3 * 4;
+  const LEAF_BYTES: number =
+    LEAF.vertices * (12 + 12 + 8) + LEAF.triangles * 3 * 4;
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
   // reports the conservative one-frame peak rather than the beauty pass alone.

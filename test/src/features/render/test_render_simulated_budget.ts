@@ -1,7 +1,11 @@
+import type {
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderOwnerCost,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieRenderInventory, IAutoMovieRenderOwnerCost } from "@automovie/interface";
-import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
 
 /**
  * Cloth, planting and water retain their independently calculated geometry and frame-pass costs.
@@ -16,14 +20,16 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  * @evidence contracts/testing.md#execution-ownership The exported test_render_simulated_budget entry measures numerical domain and prototype records synchronously without solving a frame, creating native geometry, installing a consumer or starting a renderer; it owns the two complete-result assertions.
  */
 export function test_render_simulated_budget(): void {
-  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
+  const subject: typeof simulatedRenderSubjectFixture =
+    simulatedRenderSubjectFixture;
 
   // A 4 x 3 curtain: 12 particles, 3 x 2 quads, two triangles each.
   const PANEL_VERTICES: 12 = 12 as const;
 
   const PANEL_TRIANGLES: 12 = 12 as const;
 
-  const PANEL_BYTES: number = PANEL_VERTICES * (12 + 12 + 8) + PANEL_TRIANGLES * 3 * 4;
+  const PANEL_BYTES: number =
+    PANEL_VERTICES * (12 + 12 + 8) + PANEL_TRIANGLES * 3 * 4;
 
   // A 3 x 2 basin: 6 cells, 2 x 1 quads, two triangles each; a water vertex
   // carries the flow vector a ripple scrolls along beside position, normal and
@@ -39,7 +45,10 @@ export function test_render_simulated_budget(): void {
   // cluster places six members of it.
   const BRANCH_INSTANCES: number = 7 * 6;
 
-  const BRANCH: { vertices: number; triangles: number } = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
   const BRANCH_BYTES: number =
     BRANCH.vertices * (12 + 12 + 8) + BRANCH.triangles * 3 * 4;
@@ -90,8 +99,16 @@ export function test_render_simulated_budget(): void {
   TestValidator.equals(
     "every simulated cost is attributed and only the repeated pass is classified as pass work",
     inventory.owners
-      .filter((entry: IAutoMovieRenderOwnerCost): boolean => entry.metric === "triangles" && entry.cost !== 0)
-      .map((entry: IAutoMovieRenderOwnerCost): unknown[] => [entry.owner, entry.source, entry.cost, entry.kind]),
+      .filter(
+        (entry: IAutoMovieRenderOwnerCost): boolean =>
+          entry.metric === "triangles" && entry.cost !== 0,
+      )
+      .map((entry: IAutoMovieRenderOwnerCost): unknown[] => [
+        entry.owner,
+        entry.source,
+        entry.cost,
+        entry.kind,
+      ]),
     [
       [
         "planting:atrium-bed",

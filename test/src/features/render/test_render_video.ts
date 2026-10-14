@@ -1,6 +1,7 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
 import { IAutoMovieRenderAdapters, renderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
+
 import { nclose } from "../internal/predicates";
 
 const SPEC: IAutoMovieRenderSpec = {
@@ -13,7 +14,10 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /** Await the supplied operation and require every diagnostic fragment on its Error. */
-const rejectsError: (task: () => Promise<unknown>, messageIncludes?: string | readonly string[]) => Promise<boolean> = async (
+const rejectsError: (
+  task: () => Promise<unknown>,
+  messageIncludes?: string | readonly string[],
+) => Promise<boolean> = async (
   task: () => Promise<unknown>,
   messageIncludes: string | readonly string[] = [],
 ): Promise<boolean> => {
@@ -25,7 +29,9 @@ const rejectsError: (task: () => Promise<unknown>, messageIncludes?: string | re
   } catch (error) {
     return (
       error instanceof Error &&
-      fragments.every((fragment: string): boolean => error.message.includes(fragment))
+      fragments.every((fragment: string): boolean =>
+        error.message.includes(fragment),
+      )
     );
   }
 };
@@ -49,7 +55,11 @@ export async function test_render_video(): Promise<void> {
   let encodeArgs: string[] | null = null;
 
   const adapters: IAutoMovieRenderAdapters = {
-    captureFrame: async (timeSeconds: number, index: number, dir: string): Promise<string> => {
+    captureFrame: async (
+      timeSeconds: number,
+      index: number,
+      dir: string,
+    ): Promise<string> => {
       captured.push({ t: timeSeconds, i: index });
       return `${dir}/frame_${index}.png`;
     },
@@ -59,7 +69,13 @@ export async function test_render_video(): Promise<void> {
     },
   };
 
-  const result: Awaited<ReturnType<typeof renderVideo>> = await renderVideo(SPEC, 1, "/tmp/x", "/tmp/out.mp4", adapters);
+  const result: Awaited<ReturnType<typeof renderVideo>> = await renderVideo(
+    SPEC,
+    1,
+    "/tmp/x",
+    "/tmp/out.mp4",
+    adapters,
+  );
 
   TestValidator.equals("24 frames captured", result.frameCount, 24);
   TestValidator.equals("schedule length", result.times.length, 24);
@@ -70,15 +86,26 @@ export async function test_render_video(): Promise<void> {
     result.inputPattern,
     "/tmp/x/frame_%05d.png",
   );
-  TestValidator.predicate("first frame artifact", Object.keys(result.frames[0]!).length === 3 && result.frames[0]!.index === 0 &&
-    nclose(result.frames[0]!.timeSeconds, 0, 0) && result.frames[0]!.path === "/tmp/x/frame_0.png");
-  TestValidator.predicate("last frame artifact", Object.keys(result.frames[23]!).length === 3 && result.frames[23]!.index === 23 &&
-    nclose(result.frames[23]!.timeSeconds, 23 / 24, 0) && result.frames[23]!.path === "/tmp/x/frame_23.png");
+  TestValidator.predicate(
+    "first frame artifact",
+    Object.keys(result.frames[0]!).length === 3 &&
+      result.frames[0]!.index === 0 &&
+      nclose(result.frames[0]!.timeSeconds, 0, 0) &&
+      result.frames[0]!.path === "/tmp/x/frame_0.png",
+  );
+  TestValidator.predicate(
+    "last frame artifact",
+    Object.keys(result.frames[23]!).length === 3 &&
+      result.frames[23]!.index === 23 &&
+      nclose(result.frames[23]!.timeSeconds, 23 / 24, 0) &&
+      result.frames[23]!.path === "/tmp/x/frame_23.png",
+  );
   TestValidator.equals("captured every frame in order", captured.length, 24);
   TestValidator.equals("first capture index 0", captured[0]!.i, 0);
   TestValidator.equals("last capture index 23", captured[23]!.i, 23);
-  const matchesFfmpegInvocation: (args: string[] | null) => boolean = (args: string[] | null): boolean =>
-    args !== null && args[0] === "-y" && args.includes("libx264");
+  const matchesFfmpegInvocation: (args: string[] | null) => boolean = (
+    args: string[] | null,
+  ): boolean => args !== null && args[0] === "-y" && args.includes("libx264");
   TestValidator.predicate(
     "encode received the ffmpeg args",
     matchesFfmpegInvocation(encodeArgs),
