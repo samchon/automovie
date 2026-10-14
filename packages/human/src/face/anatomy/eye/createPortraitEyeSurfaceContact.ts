@@ -1,14 +1,5 @@
 import type { IPortraitFinalSurfaceHost } from "../../surface/structures/IPortraitFinalSurfaceHost";
 
-/**
- * Final skin-contact provider used by the eye component after shared refinement.
- * Rebuild the same fixed optical/canthal support used for drawing, measure
- * complete triangle deficits along the observation ray in engine metres, then
- * return head-millimetre proposals without mutating the supplied final mesh.
- * Geodesic skin propagation follows the joint minimum-travel targets. Closed
- * rim correspondences share the foremost result before proposals are returned.
- * This establishes directional clearance, not anatomical section shape.
- */
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -24,6 +15,9 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 
 /**
  * Resolve final shared skin against this eye's actual optical volume.
+ * The eye component calls this provider after shared refinement. Directional
+ * contact and geodesic propagation establish clearance proposals rather than
+ * anatomical section shape.
  * Closed margins share the foremost correction along the observation ray,
  * so independent triangle contacts cannot reopen their coincident seam.
  *

@@ -7,15 +7,6 @@ import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTi
 import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
 import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
 
-/**
- * Admit and detach numerical inputs before createPortraitEyeComponent fits a
- * host. Dimensions use construction millimetres, sampling values are counts,
- * and performance uses bounded closure fractions and degrees. Optical modes
- * are checked together before copying profiles and creating tissue samplers.
- * The returned shape/socket/performance belong to this component instance;
- * later caller edits cannot change its fit. Host topology and combined surface
- * feasibility belong to the fit/attachment consumers, after this local gate.
- */
 import { assertPortraitEyebrowProfile } from "../brow/assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "../brow/portraitEyebrowProfile";
 import { assertPortraitEyelashProfile } from "../lash/assertPortraitEyelashProfile";
@@ -31,6 +22,12 @@ import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 /**
  * Own and validate one eye's numerical inputs before any host is fitted.
  * Optional profile samplers retain their own copied station populations.
+ * Dimensions use construction millimetres, sampling values are counts, and
+ * performance uses closure fractions and degrees. Compatible optical modes
+ * are checked together. Socket arrays, sampling, brow, lash, roll and tissue
+ * controls are copied; raw lid profiles and iris pigment remain borrowed,
+ * while consumed lid samplers own their snapshots. Host topology and combined
+ * surface feasibility remain obligations of fit and attachment consumers.
  *
  * @evidence contracts/common.md#principled-implementation Compatible optical/attachment modes and finite dimensions admit one detached component input population before host fitting.
  * @evidence contracts/common.md#clear-and-simple-design Socket/shape/performance copies and canonical profile/fibre/tissue samplers expose each responsibility without duplicating their validation.

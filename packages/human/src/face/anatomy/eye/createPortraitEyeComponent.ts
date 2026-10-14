@@ -12,16 +12,6 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 
 
 
-/**
- * Orchestrate the replaceable eye's fit, attachment and refined finish.
- * Inputs describe an observed aperture in head millimetres (+Z anterior).
- * Input admission owns copies; eyeSupport fixes optical identity before blink.
- * Shared lid sections bridge performed inner contact to original host skin.
- * Attachment mutates only the supplied assembly cage; finalSurface proposes
- * common skin targets after refinement, then eyeInterior draws the same support.
- * Gaze cannot refit identity or move the outer attachment. A changed identity
- * invalidates every downstream contact and interior; no stage certifies likeness.
- */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point, IAutoMovieModelPart } from "@automovie/interface";
 
@@ -58,6 +48,13 @@ export { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
 export { buildPortraitEye } from "./buildPortraitEye";
 /**
  * Fit one replaceable eye and expose its actual outer lid as the skin seam.
+ * Inputs describe an observed aperture in head millimetres, with +Z anterior.
+ * Admission snapshots consumed geometry controls before optical identity is
+ * fitted and blink moves the inner margins. Shared sections bridge that contact
+ * to the host skin. Attachment mutates the supplied assembly cage; finalSurface
+ * proposes common skin targets after refinement, then finish draws the same
+ * support. Gaze cannot refit identity or move the outer attachment. Changing
+ * identity requires a new component and fit; no phase establishes likeness.
  *
  * @evidence contracts/common.md#principled-implementation Observed aperture shaping precedes fixed optical identity, performed lid contact, source skin attachment and refined metric emission.
  * @evidence contracts/common.md#clear-and-simple-design Fit/attach/finalSurface/finish expose the shared component phases; one admitted socket/shape and actual support drive every phase.
