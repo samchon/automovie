@@ -6,9 +6,9 @@ import { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPredicate
 /**
  * Measurements that grade one shot contract against its compiled scene and motion. Failure records preserve missing measurements instead of treating contract prose as execution evidence.
  *
- * @evidence contracts/common.md#principled-implementation Opening and closing predicates sample zero and duration, events use their authoritative source times, camera checks sample review instants with current bounds and depth precision, and formations compare designed counts, chunks and promoted hero placement.
+ * @evidence contracts/common.md#principled-implementation Opening/closing predicates sample zero/duration, events check supplied sample times, and camera checks add review times to both boundaries. Formations compare counts and contiguous chunk coverage; hero placement is checked only with nonnull production, using 1e-9 component/quaternion-dot tolerances under unit-quaternion premises. Camera intersection and depth precision establish no occlusion or rendered-pixel verdict.
  * @evidence contracts/common.md#clear-and-simple-design Separate outcome lists keep state predicates, event timing, camera readability and population integrity attributable to their owning contract clause while sharing the scalar predicate result representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Echoed ids or authored prose cannot satisfy a realization; unresolvable subjects fail their outcome, and sampled moving-camera placements override the staging input rather than grading a camera that did not render.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolvable subjects fail and moving-camera samples record their resolved placement. State/event predicate lists must be nonempty by caller admission because every accepts empty lists; formation failure rows can carry zero placeholder bounds, so consumers must read passed rather than interpreting every recorded corner as a measured extent.
  * @evidence contracts/common.md#meaningful-documentation States authoritative sampling times, per-outcome pass semantics, camera placement omission, depth precision, required/resolved/readable counts and formation count and bounds units.
  * @author Samchon
  */
@@ -108,7 +108,7 @@ export interface IAutoMovieCompiledContractRealization {
     /** World-space maximum bound. */
     max: IAutoMovieVector3;
 
-    /** Whether count, slots, hero ids and placement passed. */
+    /** Whether count and chunk coverage passed, plus promoted hero placement when the grading call supplied nonnull production. */
     passed: boolean;
   }>;
 }

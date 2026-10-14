@@ -7,7 +7,7 @@ import { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
  *
  * @evidence contracts/common.md#principled-implementation Joint-angle reads degrees on a declared rig bone and semantic axis, position reads one world-meter coordinate, and distance takes the Euclidean norm between spatial operands; all compose with the shared absolute-tolerance comparison.
  * @evidence contracts/common.md#clear-and-simple-design Three discriminated measurement arms reuse one scalar comparison contract, keeping operand-specific fields required only where their measurement consumes them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing nodes, rigs, bones, motions or formations produce a failing null measurement; a missing pose joint means zero rest only after the rig's bone existence is verified.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing nodes, rigs, bones, motions or formations, nonfinite measurements and any measurement exception produce a failing null result; the broad catch does not identify the underlying cause. A missing pose joint means zero rest only after the rig's bone existence is verified.
  * @evidence contracts/common.md#meaningful-documentation Defines each measurement family, typed operands, joint axis and degree or world-meter units inherited by the scalar expectation.
  * @author Samchon
  */
