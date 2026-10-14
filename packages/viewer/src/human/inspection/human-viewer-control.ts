@@ -11,7 +11,7 @@ import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanView
 import { planHumanViewerControl } from "@automovie/viewer/human/inspection/planHumanViewerControl";
 import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 /**
- * `node src/human/inspection/human-viewer-control.ts <status|stop>` from `packages/playground/`.
+ * `node src/human/inspection/human-viewer-control.ts <status|stop>` from `packages/viewer/`.
  * Reads the resident viewer's health and this checkout's process record, asks
  * `planHumanViewerControl` what to do and does exactly that. It runs under
  * plain Node, with no `ttsx` project check, so it still works while the working
@@ -25,7 +25,6 @@ import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
  */
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 const command: string = process.argv[2];
 if (command !== "status" && command !== "stop")
@@ -33,10 +32,7 @@ if (command !== "status" && command !== "stop")
 const instance: IHumanViewerInstance = humanViewerInstance(
   process.env.HUMAN_VIEWER_PORT,
 );
-const root: string = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../..",
-);
+const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
 const record: string = path.join(
   humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT),
   instance.record,

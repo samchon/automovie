@@ -13,15 +13,15 @@ import { parseHumanViewerAddress } from "@automovie/viewer/human/inspection/pars
 import { serializeHumanViewerAddress } from "@automovie/viewer/human/inspection/serializeHumanViewerAddress";
 
 import { humanViewerDefaultDocument } from "../examples/humanViewerDefaultDocument.js";
-import type { IHumanViewerCandidateHold } from "./IHumanViewerCandidateHold";
-import type { IHumanViewerFrameMessage } from "./IHumanViewerFrameMessage";
-import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
-import { createHumanViewerHostAdmission } from "./createHumanViewerHostAdmission";
-import { createHumanViewerHostHandle } from "./createHumanViewerHostHandle";
-import { createHumanViewerHostProgress } from "./createHumanViewerHostProgress";
-import { loadHumanViewerReferenceInfo } from "./loadHumanViewerReferenceInfo";
+import type { IHumanViewerCandidateHold } from "@automovie/viewer/human/inspection/IHumanViewerCandidateHold";
+import type { IHumanViewerFrameMessage } from "@automovie/viewer/human/inspection/IHumanViewerFrameMessage";
+import { createHumanViewerGeneration } from "@automovie/viewer/human/inspection/createHumanViewerGeneration";
+import { createHumanViewerHostAdmission } from "@automovie/viewer/human/inspection/createHumanViewerHostAdmission";
+import { createHumanViewerHostHandle } from "@automovie/viewer/human/inspection/createHumanViewerHostHandle";
+import { createHumanViewerHostProgress } from "@automovie/viewer/human/inspection/createHumanViewerHostProgress";
+import { loadHumanViewerReferenceInfo } from "@automovie/viewer/human/inspection/loadHumanViewerReferenceInfo";
 import { mountHumanViewerControls } from "./mountHumanViewerControls";
-import { openHumanViewerCandidateHold } from "./openHumanViewerCandidateHold";
+import { openHumanViewerCandidateHold } from "@automovie/viewer/human/inspection/openHumanViewerCandidateHold";
 
 type Child = Window & IHumanViewerWindow;
 let closed: boolean = false;

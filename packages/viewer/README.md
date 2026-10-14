@@ -15,8 +15,11 @@ npm install @automovie/viewer three
 | `@automovie/viewer` | Scene, model, material and light construction (`buildScene`, `buildModel`, `buildMaterial`), playback (`AutoMoviePlayer`, `applyPose`, `applyExpression`), render passes (`applyRenderMode`, `applyAutoMovieSemanticMask`), transitions (`renderAutoMovieFilmFrame`), instanced formations, effects and fluids, texture-budget facts for `@automovie/render`, subject framing and capture (`mountViewer`, `captureViewerSnapshot`) |
 | `@automovie/viewer/human/*` | Face and body viewports over `@automovie/human` runtimes, observation and asset decoding |
 | `@automovie/viewer/human/inspection/*` | The Human inspection server, its numerical source and capture publication |
+| `@automovie/viewer/node` | Node-only browser capture sessions |
 | `@automovie/viewer/process/ProcessOwnership` | Node-only discovery and termination of the services the viewer starts |
 
 ## Ownership
+
+The Human inspection command loads the application's HTML directory and example factories from the module selected by `HUMAN_VIEWER_APPLICATION`; `HUMAN_VIEWER_ROOT` selects its working directory. Checkout execution uses the checked source compiler. Installed execution runs published JavaScript directly and records its byte witnesses without loading a source compiler. Playground supplies its existing application binding through `pnpm --filter @automovie/playground human:viewer`.
 
 The viewer releases what it creates and leaves what the caller passes in. `dispose` functions free viewer-owned geometry, materials, textures and compositor targets, never a caller's renderer, scene or numerical source. Render-budget hosts read texture and render-target facts from the actual objects (`AutoMovieTextureCache.describeSources`, `readAutoMovieRenderTextureTarget`) and pass them to `assessAutoMovieRenderBudget`, which refuses a frame whose memory it cannot bound.

@@ -20,7 +20,7 @@ export function readHumanViewerNodeInputs(
   files: readonly string[],
 ): Record<string, string> {
   const selected: Set<string> = new Set(files);
-  for (const file of readViewerMaintainedSourceFiles(root, directories)) {
+  for (const file of directories.length === 0 ? [] : readViewerMaintainedSourceFiles(root, directories)) {
     if (/\.(?:ts|mts|cts|js|mjs|cjs|json|glsl|wgsl)$/.test(file))
       selected.add(file);
   }

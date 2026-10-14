@@ -1,5 +1,5 @@
-import type { IHumanViewerHealthQueue } from "./IHumanViewerHealthQueue";
-import type { IHumanViewerHostProgress } from "./IHumanViewerHostProgress";
+import type { IHumanViewerHealthQueue } from "@automovie/viewer/human/inspection/IHumanViewerHealthQueue";
+import type { IHumanViewerHostProgress } from "@automovie/viewer/human/inspection/IHumanViewerHostProgress";
 
 /**
  * Own the host page's progress line: once a second it says what is being built, for how long, and how many requests wait in the local service's numeric queue counters. `settle` stops it and clears the line. Polls do not overlap within one build; beginning another build or settling aborts its previous health request. Elapsed wall-clock seconds are telemetry, not a timeout or acceptance rule. Transport, JSON decoding and thrown property access report unavailable telemetry; successful JSON is not schema-validated, so malformed counter values need not throw and can produce nonnumeric text.

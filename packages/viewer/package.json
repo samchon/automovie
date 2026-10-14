@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./node": "./src/node/index.ts",
     "./human/*": "./src/human/*.ts",
     "./package.json": "./package.json",
     "./process/ProcessOwnership": "./src/process/ProcessOwnership.ts",
@@ -36,6 +37,10 @@
       ".": {
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
+      },
+      "./node": {
+        "types": "./lib/node/index.d.ts",
+        "default": "./lib/node/index.js"
       },
       "./package.json": "./package.json",
       "./process/ProcessOwnership": {
@@ -97,6 +102,8 @@
     }
   },
   "scripts": {
+    "human:viewer": "ttsx -P tsconfig.json src/human/inspection/human-shot.ts",
+    "human:viewer:control": "node src/human/inspection/human-viewer-control.ts",
     "build": "rimraf lib && ttsc",
     "prepack": "pnpm run build",
     "evidence": "evidence"

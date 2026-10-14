@@ -1,12 +1,10 @@
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import type { HumanViewerAddress } from "@automovie/viewer/human/inspection/HumanViewerAddress";
-import type { HumanViewerLane } from "@automovie/viewer/human/inspection/HumanViewerLane";
 import type { HumanViewerMiddleware } from "@automovie/viewer/human/inspection/HumanViewerMiddleware";
 import type { HumanViewerWork } from "@automovie/viewer/human/inspection/HumanViewerWork";
 import type { IHumanViewerAdmissionBridge } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionBridge";
 import type { IHumanViewerAdmissionReply } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionReply";
 import type { IHumanViewerAdmissionWindow } from "@automovie/viewer/human/inspection/IHumanViewerAdmissionWindow";
-import type { IHumanViewerCaptureStage } from "@automovie/viewer/human/inspection/IHumanViewerCaptureStage";
 import type { IHumanViewerCaptureStatus } from "@automovie/viewer/human/inspection/IHumanViewerCaptureStatus";
 import type { IHumanViewerCatalogue } from "@automovie/viewer/human/inspection/IHumanViewerCatalogue";
 import type { IHumanViewerEdit } from "@automovie/viewer/human/inspection/IHumanViewerEdit";
@@ -14,11 +12,8 @@ import type { IHumanViewerHealth } from "@automovie/viewer/human/inspection/IHum
 import type { IHumanViewerHeap } from "@automovie/viewer/human/inspection/IHumanViewerHeap";
 import type { IHumanViewerHeapUsage } from "@automovie/viewer/human/inspection/IHumanViewerHeapUsage";
 import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
-import type { IHumanViewerNumericalRequest } from "@automovie/viewer/human/inspection/IHumanViewerNumericalRequest";
 import type { IHumanViewerPageState } from "@automovie/viewer/human/inspection/IHumanViewerPageState";
-import type { IHumanViewerPersistenceCommand } from "@automovie/viewer/human/inspection/IHumanViewerPersistenceCommand";
 import type { IHumanViewerPhases } from "@automovie/viewer/human/inspection/IHumanViewerPhases";
-import type { IHumanViewerQueueStatus } from "@automovie/viewer/human/inspection/IHumanViewerQueueStatus";
 import type { IHumanViewerResidentTrimReading } from "@automovie/viewer/human/inspection/IHumanViewerResidentTrimReading";
 import type { IHumanViewerWarming } from "@automovie/viewer/human/inspection/IHumanViewerWarming";
 import type { IHumanViewerWindow } from "@automovie/viewer/human/inspection/IHumanViewerWindow";
@@ -52,48 +47,19 @@ import { startHumanViewerServer } from "@automovie/viewer/human/inspection/start
 import { waitForHumanViewerGeneration } from "@automovie/viewer/human/inspection/waitForHumanViewerGeneration";
 import { warmHumanViewerRevision } from "@automovie/viewer/human/inspection/warmHumanViewerRevision";
 import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-/**
- * Loopback-only resident GPU server, started as an attached session job:
- * `pnpm exec ttsx -P src/human/inspection/tsconfig.json src/human/inspection/server.ts`.
- * Vite transforms working-tree source; one real Chromium page serializes
- * capture requests. `HUMAN_VIEWER_PORT` selects the port (default 5175) and
- * the per-port process record, so viewers of several sessions can coexist.
- * Numerical disk payloads and PID ownership use the resolved mutable storage.
- * Local photographs remain read-only at their existing location. Last-good PNGs
- * retain their source identity; HTTP failures include a cause.
- * `HUMAN_VIEWER_AUTO_WARM=off` disables automatic thumbnail warming only;
- * unset, empty or `on` retains it. Explicit document requests still perform
- * their normal admission, numerical build and hardware capture checks.
- * This composition root binds source authority, document admission, capture
- * queue and warming. The catalogue controller owns publication and selected
- * settlement; residency owns browser state and recovery; middleware owns
- * routing, and the server lifetime owns watching, listening and shutdown.
- */
+/** Loopback GPU service composed from caller-owned pages/examples and Viewer runtime owners. */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createHumanViewerReferenceFaceDocument } from "../examples/createHumanViewerReferenceFaceDocument.js";
-import { readHumanViewerStandardPeople } from "../examples/readHumanViewerStandardPeople.js";
-import { readHumanViewerSubjectPeople } from "../examples/readHumanViewerSubjectPeople.js";
 import { createHumanViewerViteServer } from "./createHumanViewerViteServer.js";
 import { humanViewerCompileGate } from "./humanViewerCompileGate.js";
+import { readHumanViewerApplication } from "./readHumanViewerApplication.js";
+import { readHumanViewerAutomaticWarm } from "./readHumanViewerAutomaticWarm.js";
 
-const applicationDirectory: string = path.dirname(
-  fileURLToPath(import.meta.url),
-);
-// Live source inspection uses the declared workspace entry. A packaged runtime
-// resolves its own compiled entry and is a different consumer contract; it must
-// not be guessed into this checkout's source workers and source-only aliases.
-const runtimeEntry: string = fileURLToPath(
-  import.meta
-    .resolve("@automovie/viewer/human/inspection/createHumanViewerSource"),
-);
-if (!runtimeEntry.endsWith(".ts"))
-  throw new Error(
-    "Live Human inspection requires the declared workspace source entry.",
-  );
-const directory: string = path.dirname(runtimeEntry);
+const application: Awaited<ReturnType<typeof readHumanViewerApplication>> = await readHumanViewerApplication();
+const applicationDirectory: string = application.directory;
+const directory: string = path.dirname(fileURLToPath(import.meta.url));
 /** The launcher that owns this server's port and record, or null when it was started directly. */
 const owner: number | null =
   process.env[humanViewerLaunch.ownerVariable] === undefined
@@ -103,32 +69,15 @@ const owner: number | null =
 const instance: IHumanViewerInstance = humanViewerInstance(
   process.env.HUMAN_VIEWER_PORT,
 );
-const automaticWarmSetting: string | undefined =
-  process.env.HUMAN_VIEWER_AUTO_WARM;
-if (
-  automaticWarmSetting !== undefined &&
-  automaticWarmSetting !== "" &&
-  automaticWarmSetting !== "on" &&
-  automaticWarmSetting !== "off"
-)
-  throw new Error("HUMAN_VIEWER_AUTO_WARM must be on or off when set.");
-const automaticWarm: boolean = automaticWarmSetting !== "off";
+const automaticWarm: boolean = readHumanViewerAutomaticWarm(process.env.HUMAN_VIEWER_AUTO_WARM);
 console.log("human-viewer automatic warm: " + (automaticWarm ? "on" : "off"));
 const source: ReturnType<typeof createHumanViewerSource> =
-  createHumanViewerSource(directory, applicationDirectory, {
-    documentsFile: path.resolve(applicationDirectory, "../examples/faces.json"),
-    bodyExamplesFile: path.resolve(
-      applicationDirectory,
-      "../examples/bodies.json",
-    ),
-    cameraPosesFile: path.resolve(
-      applicationDirectory,
-      "../examples/cameras/poses-lens-frame.json",
-    ),
-    reference: createHumanViewerReferenceFaceDocument,
-    standardPeople: readHumanViewerStandardPeople,
-    subjectPeople: readHumanViewerSubjectPeople,
-  });
+  createHumanViewerSource(
+    directory,
+    applicationDirectory,
+    application.examples,
+    path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd()),
+  );
 const {
   root,
   storage,

@@ -6,7 +6,7 @@ import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanVie
 import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
 import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 /**
- * `node src/human/inspection/human-viewer-launcher.ts` from `packages/playground/`: the
+ * `node src/human/inspection/human-viewer-launcher.ts` from `packages/viewer/`: the
  * starting owner of one resident viewer. It runs under plain Node, so it
  * starts at once, before the project type check and build that `ttsx` runs
  * for the server (ten seconds to minutes, depending on what changed and on
@@ -36,7 +36,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
-const root: string = path.resolve(directory, "../../../../..");
+const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
 const storage: string = humanViewerStorage(
   root,
   process.env.HUMAN_VIEWER_STORAGE_ROOT,
@@ -175,20 +175,21 @@ front.listen(
       const require: NodeJS.Require = createRequire(
         path.join(directory, "server.ts"),
       );
-      const ttsx: string = path.join(
+      const source: boolean = import.meta.url.endsWith(".ts");
+      const ttsx: string | undefined = source ? path.join(
         path.dirname(require.resolve("ttsc/package.json")),
         "lib/launcher/ttsx.js",
-      );
+      ) : undefined;
       child = spawn(
         process.execPath,
-        [
-          ttsx,
+        source ? [
+          ttsx!,
           "-P",
-          path.join(directory, "tsconfig.json"),
+          path.resolve(directory, "../../../tsconfig.json"),
           path.join(directory, "server.ts"),
-        ],
+        ] : [path.join(directory, "server.js")],
         {
-          cwd: path.resolve(directory, "../../.."),
+          cwd: root,
           env: {
             ...process.env,
             [humanViewerLaunch.ownerVariable]: String(process.pid),

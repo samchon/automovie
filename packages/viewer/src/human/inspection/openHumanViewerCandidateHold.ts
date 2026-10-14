@@ -1,4 +1,4 @@
-import type { IHumanViewerCandidateHold } from "./IHumanViewerCandidateHold";
+import type { IHumanViewerCandidateHold } from "@automovie/viewer/human/inspection/IHumanViewerCandidateHold";
 
 /**
  * Open a hold for one candidate: a request to `/generation/hold` that stays open while the candidate loads, so the server holds compile withdrawal for it. Releasing aborts the request, which closes the window, and then asks for the label the server gave it. A failed label request reads as null (unproven), never as a revision. The returned handle transfers its live hold request to the host, which must release it on candidate loading, refusal or removal. Missing opening token refuses and aborts immediately; repeated release calls share one completion.

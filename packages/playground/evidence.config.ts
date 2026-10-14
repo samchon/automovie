@@ -11,8 +11,6 @@ export default {
         "src/**/*.ts",
         // A global augmentation the TypeScript adapter cannot address.
         "!src/viewer/page.ts",
-        // A default-export Vite configuration the TypeScript adapter cannot address.
-        "!src/human/inspection/vite.config.ts",
       ],
       symbol: ["type", "function"],
       reference: {

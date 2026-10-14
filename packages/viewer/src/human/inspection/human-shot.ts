@@ -38,7 +38,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
-const root: string = path.resolve(directory, "../../../../..");
+const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
 const storage: string = humanViewerStorage(
   root,
   process.env.HUMAN_VIEWER_STORAGE_ROOT,

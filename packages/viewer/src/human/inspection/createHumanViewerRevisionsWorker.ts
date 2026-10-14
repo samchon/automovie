@@ -35,6 +35,7 @@ export function createHumanViewerRevisionsWorker(
   const init: IHumanViewerRevisionsWorkerInit = {
     checkedInputs: props.checkedInputs,
     root: props.root,
+    runtimeRoots: props.runtimeRoots,
     entries: props.entries,
     extra: [...props.extra],
     bases: props.bases(),

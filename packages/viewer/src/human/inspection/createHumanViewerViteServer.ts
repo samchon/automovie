@@ -1,7 +1,7 @@
 import type { HumanViewerMiddleware } from "@automovie/viewer/human/inspection/HumanViewerMiddleware";
 import { type ViteDevServer, createServer } from "vite";
 
-import viewerConfig from "./vite.config.js";
+import { humanViewerViteConfig } from "./humanViewerViteConfig.js";
 
 /**
  * Create the viewer's development server with the host's HTTP routes in front of Vite's own. The configuration is passed as a value, not as a config file: Vite restarts a server whose config file or any module it imports changes, and a restart replaces the file watcher the host subscribed to, so every later source edit would be silently lost while health still read current. Server-side viewer code takes effect when the server is started again.
@@ -14,9 +14,11 @@ import viewerConfig from "./vite.config.js";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Server acquisition is an effect and this factory promises no reuse across mounts; the calling lifetime owns the one created server instance.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned ViteDevServer transfers watcher and listening lifetime to its caller, which must invoke close on startup refusal and shutdown; this factory opens no independent timer or worker.
  */
-export function createHumanViewerViteServer(
+export async function createHumanViewerViteServer(
   middleware: HumanViewerMiddleware,
 ): Promise<ViteDevServer> {
+  const viewerConfig: Awaited<ReturnType<typeof humanViewerViteConfig>> =
+    await humanViewerViteConfig();
   return createServer({
     ...viewerConfig,
     configFile: false,

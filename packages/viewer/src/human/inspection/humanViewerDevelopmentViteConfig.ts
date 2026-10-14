@@ -25,8 +25,11 @@ import {
 } from "vite";
 
 import { humanViewerCompileGate } from "./humanViewerCompileGate.js";
+import { readHumanViewerApplication } from "./readHumanViewerApplication.js";
 
-const directory: string = path.dirname(fileURLToPath(import.meta.url));
+const application: Awaited<ReturnType<typeof readHumanViewerApplication>> = await readHumanViewerApplication();
+const directory: string = application.directory;
+const root: string = path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd());
 // This configuration serves live checkout source. Packed runtime exports own
 // a separate compiled-module contract and cannot stand in for source workers.
 const runtimeEntry: string = fileURLToPath(
@@ -38,9 +41,9 @@ if (!runtimeEntry.endsWith(".ts"))
     "Live Human inspection requires the declared workspace source entry.",
   );
 const runtimeDirectory: string = path.dirname(runtimeEntry);
-const human: string = path.resolve(directory, "../../../../../packages/human");
+const human: string = path.dirname(fileURLToPath(import.meta.resolve("@automovie/human/package.json")));
 const outputDirectory: string = humanViewerStorage(
-  path.resolve(directory, "../../../../.."),
+  root,
   process.env.HUMAN_VIEWER_STORAGE_ROOT,
 );
 let server: ViteDevServer;
@@ -65,8 +68,8 @@ if (compilationProcessStartedAt === null)
 /** Workspace source imports resolved from cached listings instead of a realpath per import. */
 const sourceResolver: ReturnType<typeof createHumanViewerSourceResolver> =
   createHumanViewerSourceResolver([
-    path.resolve(directory, "../../../../../packages"),
-    path.resolve(directory, "../../../../.."),
+    path.join(root, "packages"),
+    root,
   ]);
 /** Paths the compile inputs already added to the watcher. */
 const watching: Set<string> = new Set<string>();
@@ -128,7 +131,7 @@ const compilation: ReturnType<typeof createHumanViewerCompilation> =
  *
  * Module-owned compilation/source-resolution state and the set of discovered watched paths remain shared for this module instance; the set has no local count cap. Actual child compilation, source IO and server watcher lifetimes stay with their existing owners. This record describes requested configuration and does not prove a running server adopted it, source transformation succeeded or displayed geometry is healthy.
  */
-export const humanViewerViteConfig: UserConfig = defineConfig({
+export const humanViewerDevelopmentViteConfig: UserConfig = defineConfig({
   root: directory,
   plugins: [
     {
@@ -184,19 +187,11 @@ export const humanViewerViteConfig: UserConfig = defineConfig({
       { find: "/human-runtime", replacement: runtimeDirectory },
       {
         find: /^@automovie\/human$/,
-        replacement: path.resolve(
-          directory,
-          "../../../../..",
-          "packages/human/src/index.ts",
-        ),
+        replacement: path.join(human, "src/index.ts"),
       },
       {
         find: /^@automovie\/human\/(.*)$/,
-        replacement: path.resolve(
-          directory,
-          "../../../../..",
-          "packages/human/src/$1",
-        ),
+        replacement: path.join(human, "src/$1"),
       },
     ],
   },
@@ -221,6 +216,6 @@ export const humanViewerViteConfig: UserConfig = defineConfig({
     watch: {
       ignored: ["**/packages/*/.tmp/**"],
     },
-    fs: { allow: [path.resolve(directory, "../../../../..")] },
+    fs: { allow: [root, directory] },
   },
 });

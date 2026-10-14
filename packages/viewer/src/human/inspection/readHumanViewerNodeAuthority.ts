@@ -7,11 +7,11 @@ import type { IHumanViewerNodeAuthority } from "./IHumanViewerNodeAuthority.js";
 import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js";
 
 /**
- * Rehash supplied source inputs after the checked loader admits this realm and refuse changed bytes. Node and installed-compiler versions come from this execution. The project path is derived relative to the entry rather than independently read from the loader's selected configuration, and input membership is the supplied startup witness.
+ * Rehash supplied inputs after this numerical entry loads and refuse changed bytes. Source execution records its installed compiler and entry-relative project; published JavaScript records native Node execution with no compiler or project receipt. Input membership is the supplied startup witness.
  *
- * @evidence contracts/common.md#principled-implementation Rehashes every supplied input after loading and refuses changed bytes; returns actual Node/installed-compiler versions and an entry-relative project path, which is not an independently observed loader-selected configuration receipt.
+ * @evidence contracts/common.md#principled-implementation Rehashes every supplied input after loading and refuses changed bytes; source entries report their compiler metadata while JavaScript entries report native Node with null compiler/project.
  * @evidence contracts/common.md#clear-and-simple-design One fresh input map and byte comparison separate executed Node authority from browser compile-label observations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed source cannot pass by copying an old browser stamp; an installed compiler without string version refuses its metadata authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Changed bytes cannot pass by copying an old browser stamp; source compiler metadata must contain a version and published execution never claims a checked loader.
  * @evidence contracts/common.md#meaningful-documentation The comment assigns byte confirmation to the actual checked realm and distinguishes Node/runtime facts from browser identity.
  * @evidence contracts/performance.md#efficient-algorithms Each selected file is read and SHA-256 hashed once, then key comparison is linear in selected input count.
  * @evidence contracts/performance.md#reuse-equivalent-work Fresh hashes are compared with this realm's startup witness rather than cached as another generation's success.
@@ -35,17 +35,18 @@ export function readHumanViewerNodeAuthority(
         changed.join(", "),
     );
   const require: ReturnType<typeof createRequire> = createRequire(input.entry);
-  const compiler: Record<string, unknown> = JSON.parse(
+  const source: boolean = input.entry.endsWith(".ts");
+  const compiler: Record<string, unknown> = source ? JSON.parse(
     fs.readFileSync(require.resolve("ttsc/package.json"), "utf8"),
-  ) as Record<string, unknown>;
-  if (typeof compiler.version !== "string")
+  ) as Record<string, unknown> : {};
+  if (source && typeof compiler.version !== "string")
     throw new Error("The installed Node compiler has no version authority.");
   return {
     revision: input.revision,
-    loader: "ttsc/register",
-    project: path.resolve(path.dirname(input.entry), "../../../tsconfig.json"),
+    loader: source ? "ttsc/register" : "node",
+    project: source ? path.resolve(path.dirname(input.entry), "../../../tsconfig.json") : null,
     node: process.version,
-    compiler: compiler.version,
+    compiler: source ? compiler.version as string : null,
     inputs,
   };
 }

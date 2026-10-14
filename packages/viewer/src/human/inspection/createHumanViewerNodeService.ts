@@ -46,7 +46,8 @@ export function createHumanViewerNodeService(
     { worker: ChildProcess | undefined; completion: Promise<void> }
   > = new Map();
   const closedWorkers: WeakSet<ChildProcess> = new WeakSet();
-  const entry: string = path.join(props.directory, "numerical-worker.ts");
+  const source: boolean = import.meta.url.endsWith(".ts");
+  const entry: string = path.join(props.directory, source ? "numerical-worker.ts" : "numerical-worker.js");
   const require: ReturnType<typeof createRequire> = createRequire(entry);
   const close: (id: string) => Promise<void> = (id: string): Promise<void> => {
     const existing:
@@ -126,7 +127,7 @@ export function createHumanViewerNodeService(
       );
       const worker: ChildProcess = fork(entry, [], {
         env: environment,
-        execArgv: ["--require", require.resolve("ttsc/register")],
+        execArgv: source ? ["--require", require.resolve("ttsc/register")] : [],
         serialization: "advanced",
         stdio: ["ignore", "inherit", "pipe", "ipc"],
       });
