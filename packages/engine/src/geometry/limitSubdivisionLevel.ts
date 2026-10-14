@@ -72,9 +72,8 @@ export const limitSubdivisionLevel = (
       ring = stepSubdivisionRing(ring);
     const limit: { position: number[]; normals: number[][]; sectors: number[] } =
       limitSubdivisionRing(ring, v);
-    positions[v * 3] = limit.position[0]!;
-    positions[v * 3 + 1] = limit.position[1]!;
-    positions[v * 3 + 2] = limit.position[2]!;
+    for (let axis: number = 0; axis < 3; ++axis)
+      positions[v * 3 + axis] = limit.position[axis]!;
     const base: number = normals.length / 3;
     for (const normal of limit.normals) normals.push(...normal);
     corners.forEach((c: number, i: number): void => {

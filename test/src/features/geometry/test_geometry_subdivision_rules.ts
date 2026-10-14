@@ -7,6 +7,7 @@ import { type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { subdivisionEdgeOrder } from "../internal/subdivisionEdgeOrder";
 import { subdivisionFan } from "../internal/subdivisionFan";
 import { subdivisionPoint } from "../internal/subdivisionPoint";
 import { vclose } from "../internal/vclose";
@@ -106,23 +107,6 @@ const catmullClarkVertex: (
   return scale(sum([f, scale(r, 2), scale(p, n - 3)]), 1 / n);
 };
 
-/** Undirected cage edges in order of first appearance walking faces and corners. */
-const edgesInOrder: (cage: IAutoMovieSubdivisionCage) => [number, number][] = (
-  cage: IAutoMovieSubdivisionCage,
-): [number, number][] => {
-  const seen: Set<string> = new Set<string>();
-  const edges: [number, number][] = [];
-  for (const face of cage.faces)
-    face.forEach((a: number, k: number): void => {
-      const b: number = face[(k + 1) % face.length]!;
-      const key: string = `${Math.min(a, b)}-${Math.max(a, b)}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      edges.push([a, b]);
-    });
-  return edges;
-};
-
 /** Whether every refined quad of a closed convex surface about the origin faces outward. */
 const facesOutward: (surface: IAutoMovieSubdivisionSurface) => boolean = (
   surface: IAutoMovieSubdivisionSurface,
@@ -173,7 +157,7 @@ export function test_geometry_subdivision_rules(): void {
     cage: CUBE,
     levels: 1,
   });
-  const edges: [number, number][] = edgesInOrder(CUBE);
+  const edges: [number, number][] = subdivisionEdgeOrder(CUBE);
   TestValidator.predicate(
     "a cube refines to 26 vertices and 24 quads",
     cube.positions.length === 26 * 3 && cube.faces.length === 24 * 4,
