@@ -26,7 +26,6 @@ import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
 import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
 import { buildHorse } from "./buildHorse";
 import { buildKnight } from "./buildKnight";
-import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
   location.search,
@@ -255,11 +254,9 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(
 // ── clip selector ────────────────────────────────────────────────────────────
 const bar: HTMLDivElement | null =
   document.querySelector<HTMLDivElement>("#clips");
-let selectedClip: string = clipName;
 const selectClip: (name: string) => void = (name: string): void => {
   horseClip = horseClips[name]!;
   horsePlayer.setMotion(horseClip);
-  selectedClip = name;
   if (bar !== null)
     for (const el of bar.children)
       el.className = el.textContent === name ? "on" : "";
@@ -275,11 +272,6 @@ if (bar !== null) {
     bar.appendChild(b);
   }
 }
-registerViewerSelection({
-  names: Object.keys(horseClips),
-  read: (): string => selectedClip,
-  select: selectClip,
-});
 
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,

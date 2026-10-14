@@ -8,8 +8,6 @@
 node_modules/
 packages/cli/.cache/
 packages/template/.cache/
-packages/human/.human-build-*/
-packages/human/.human-build.lock
 lib/
 dist/
 

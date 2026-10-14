@@ -44,7 +44,6 @@ import { performances } from "./film/performances";
 // ── the coding-agent-authored stage values ──────────────────────────────────
 import { script } from "./film/script";
 import { staging } from "./film/staging";
-import { registerFilmViewerApplication } from "./viewer/registerFilmViewerApplication";
 
 const {
   staged,
@@ -491,35 +490,6 @@ if (freezeAt !== null && Number.isFinite(freezeAt)) draw(freezeAt);
     __afSeekSequenceShot: (sample: SequenceRenderShotSample) => void;
   }
 ).__afSeekSequenceShot = renderShotOnly;
-registerFilmViewerApplication({
-  capture: (): {
-    frame: SequenceRenderFrameSample | null;
-    pass: AutoMovieGuidePass;
-  } => ({ frame: lastSequenceFrame, pass: completedPass }),
-  shots: new Set(shotById.keys()),
-  restore: (
-    frame: {
-      shot: string;
-      shotTimeSeconds: number;
-      blend: { shot: string; shotTimeSeconds: number; alpha: number } | null;
-    } | null,
-    pass: AutoMovieGuidePass,
-  ): void => {
-    if (frame !== null) drawSequenceFrame(frame, pass);
-    else {
-      renderAutoMovieScenePass(
-        renderer,
-        scene,
-        camera,
-        staged.scene.environment,
-        pass,
-      );
-      completedPass = pass;
-      completedFrame = { scene, camera, pass };
-      handle.completeFrame();
-    }
-  },
-});
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,
   duration: FILM_DURATION,

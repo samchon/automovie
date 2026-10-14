@@ -2,9 +2,6 @@ import {
   AutoMovieTextureCache,
   createAutoMovieResourceRetirement,
 } from "@automovie/viewer";
-import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
-import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
-import { createHumanResidentWorker } from "@automovie/viewer/human/common/createHumanResidentWorker";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -19,18 +16,15 @@ import { throwsError } from "../internal/predicates";
  * 3. Pending and reentrant host decodes remain owned until they independently settle; closure is shared and new work is immediately refused.
  * 4. A synchronous decode failure is named without losing its healthy neighbour; empty and successful caches close once through the same public lifetime.
  * 5. A generic resource completion starts all independent owners before waiting, keeps primary and original ordered causes, and is shared during reentry.
- * 6. Existing primitive number-message transports retain termination failures with their request cause, settle all pending work and refuse later allocation or another native termination attempt; a healthy port forwards its value.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises real texture wrappers through cache/resource retirement and the existing primitive-message resident port seam. Assertions observe completion identity, actual disposal events, pending settlement and failed-owner allocation refusal; they do not inspect source text or declare native GPU bytes freed.
- * @evidence contracts/testing.md#independent-expectations One-attempt ownership and independent retirement require each supplied owner to be called once despite another failure, with original causes retained. Controlled existing ports supply their own numerical values independently of the coordinator; exact promise/error identities verify completion sharing rather than snapshots of derived geometry.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty/healthy/failing/aliased and pending/reentrant texture scopes, synchronous decode refusal, multi-owner asynchronous retirement and existing healthy/failing primitive ports. Failed termination must remain terminal and retain both causes; texture pipeline/viewer appearance are owned by other cases and are not certified here.
- * @evidence contracts/testing.md#execution-ownership The exported named unit entry uses portable promise semantics, public three.js Texture disposal events and the existing caller-owned number-message port callbacks. It installs no browser, native worker, process, renderer or GPU and adds no Human figure/probe/mock asset or validation driver.
+ * @evidence contracts/testing.md#behavioral-verification Exercises real texture wrappers through cache/resource retirement. Assertions observe completion identity, actual disposal events and pending settlement; they do not inspect source text or declare native GPU bytes freed.
+ * @evidence contracts/testing.md#independent-expectations One-attempt ownership and independent retirement require each supplied owner to be called once despite another failure, with original causes retained. Exact promise/error identities verify completion sharing rather than snapshots of derived geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty/healthy/failing/aliased and pending/reentrant texture scopes, synchronous decode refusal and multi-owner asynchronous retirement. Texture pipeline/viewer appearance are owned by other cases and are not certified here.
+ * @evidence contracts/testing.md#execution-ownership The exported named unit entry uses portable promise semantics and public three.js Texture disposal events. It installs no browser, native worker, process, renderer or GPU and adds no Human figure/probe/mock asset or validation driver.
  */
 export async function test_viewer_texture_cache_disposal_recovery(): Promise<void> {
   /** Completion observation keeps a native rejection value without coercion. */
   type Outcome = { passed: boolean; error: unknown };
-  /** An existing primitive port supplies its own value or original refusal. */
-  type NumericOutcome = { value: number | undefined; error: unknown };
   const make: () => THREE.DataTexture = (): THREE.DataTexture =>
     new THREE.DataTexture(new Uint8Array(4), 1, 1);
   const attempts: string[] = [];
@@ -483,234 +477,4 @@ export async function test_viewer_texture_cache_disposal_recovery(): Promise<voi
   );
   finishIndependent();
   await waitingCompletion;
-
-  const terminateFailure: Error = new Error(
-    "owned numeric transport termination",
-  );
-  let terminationAttempts: number = 0;
-  const disposedMessages: { id: number; input: number }[] = [];
-  const disposedPort: HumanResidentPort<number, number> = {
-    onmessage: null,
-    onerror: null,
-    postMessage: (message: IHumanResidentRequest<number>): void => {
-      disposedMessages.push(message);
-    },
-    terminate: (): never => {
-      terminationAttempts++;
-      throw terminateFailure;
-    },
-  };
-  const disposedConnection: {
-    request: (input: number) => { result: Promise<number>; cancel: () => void };
-    dispose: () => void;
-  } = createHumanResidentWorker(
-    (): HumanResidentPort<number, number> => disposedPort,
-  );
-  const disposedRequestA: { result: Promise<number>; cancel: () => void } =
-    disposedConnection.request(11);
-  const disposedRequestB: { result: Promise<number>; cancel: () => void } =
-    disposedConnection.request(22);
-  const disposedOutcomeA: Promise<NumericOutcome> = disposedRequestA.result
-    .then((value: number): { value: number; error: undefined } => ({
-      value,
-      error: undefined,
-    }))
-    .catch((error: unknown): { value: undefined; error: unknown } => ({
-      value: undefined,
-      error,
-    }));
-  const disposedOutcomeB: Promise<NumericOutcome> = disposedRequestB.result
-    .then((value: number): { value: number; error: undefined } => ({
-      value,
-      error: undefined,
-    }))
-    .catch((error: unknown): { value: undefined; error: unknown } => ({
-      value: undefined,
-      error,
-    }));
-  let originalTermination: unknown;
-  try {
-    disposedConnection.dispose();
-  } catch (error) {
-    originalTermination = error;
-  }
-  for (const message of disposedMessages)
-    disposedPort.onmessage?.({
-      data: { id: message.id, success: true, value: message.input },
-    });
-  disposedRequestA.cancel();
-  disposedRequestB.cancel();
-  const disposedResults: [NumericOutcome, NumericOutcome] = await Promise.all([
-    disposedOutcomeA,
-    disposedOutcomeB,
-  ]);
-  TestValidator.predicate(
-    "owned host failure retains disposal and termination causes",
-    originalTermination instanceof AggregateError &&
-      originalTermination.errors.length === 2 &&
-      originalTermination.errors[0] instanceof Error &&
-      originalTermination.errors[0].message.includes("disposed") &&
-      originalTermination.errors[1] === terminateFailure,
-  );
-  TestValidator.predicate(
-    "termination failure cannot leave either request pending",
-    disposedResults.every(
-      (result: NumericOutcome): boolean => result.error === originalTermination,
-    ),
-  );
-  let repeatedTermination: unknown;
-  try {
-    disposedConnection.dispose();
-  } catch (error) {
-    repeatedTermination = error;
-  }
-  TestValidator.predicate(
-    "repeat disposal preserves its failed completion",
-    repeatedTermination === originalTermination,
-  );
-  TestValidator.equals(
-    "repeat disposal cannot reterminate the withdrawn connection",
-    terminationAttempts,
-    1,
-  );
-  const refusedDisposedRequest: Outcome = await outcome(
-    disposedConnection.request(33).result.then((): undefined => undefined),
-  );
-  TestValidator.predicate(
-    "disposed request owner refuses new work",
-    refusedDisposedRequest.error === originalTermination,
-  );
-
-  const healthyPort: HumanResidentPort<number, number> = {
-    onmessage: null,
-    onerror: null,
-    postMessage: ({ id, input }: IHumanResidentRequest<number>): void => {
-      healthyPort.onmessage?.({
-        data: { id, success: true, value: input * 2 },
-      });
-    },
-    terminate: (): void => {
-      terminationAttempts++;
-    },
-  };
-  const healthyConnection: {
-    request: (input: number) => { result: Promise<number>; cancel: () => void };
-    dispose: () => void;
-  } = createHumanResidentWorker(
-    (): HumanResidentPort<number, number> => healthyPort,
-  );
-  TestValidator.equals(
-    "supported primitive transport returns its actual value",
-    await healthyConnection.request(7).result,
-    14,
-  );
-  healthyConnection.dispose();
-
-  let connections: number = 0;
-  const postFailure: Error = new Error("primitive transport lost");
-  let failPost: boolean = false;
-  const brokenMessages: { id: number; input: number }[] = [];
-  const brokenPort: HumanResidentPort<number, number> = {
-    onmessage: null,
-    onerror: null,
-    postMessage: (message: IHumanResidentRequest<number>): void => {
-      if (failPost) throw postFailure;
-      brokenMessages.push(message);
-    },
-    terminate: (): never => {
-      terminationAttempts++;
-      throw terminateFailure;
-    },
-  };
-  const recoveredPort: HumanResidentPort<number, number> = {
-    onmessage: null,
-    onerror: null,
-    postMessage: ({ id, input }: IHumanResidentRequest<number>): void => {
-      recoveredPort.onmessage?.({
-        data: { id, success: true, value: input + 1 },
-      });
-    },
-    terminate: (): void => {
-      terminationAttempts++;
-    },
-  };
-  const recoverable: {
-    request: (input: number) => { result: Promise<number>; cancel: () => void };
-    dispose: () => void;
-  } = createHumanResidentWorker(
-    (): HumanResidentPort<number, number> =>
-      ++connections === 1 ? brokenPort : recoveredPort,
-  );
-  const waitingA: { result: Promise<number>; cancel: () => void } =
-    recoverable.request(1);
-  const waitingB: { result: Promise<number>; cancel: () => void } =
-    recoverable.request(2);
-  const waitingResults: Promise<NumericOutcome>[] = [waitingA, waitingB].map(
-    (request: {
-      result: Promise<number>;
-      cancel: () => void;
-    }): Promise<NumericOutcome> =>
-      request.result
-        .then((value: number): { value: number; error: undefined } => ({
-          value,
-          error: undefined,
-        }))
-        .catch((error: unknown): { value: undefined; error: unknown } => ({
-          value: undefined,
-          error,
-        })),
-  );
-  failPost = true;
-  const postOutcome: NumericOutcome = await recoverable
-    .request(3)
-    .result.then(
-      (value: number): NumericOutcome => ({ value, error: undefined }),
-    )
-    .catch((error: unknown): NumericOutcome => ({ value: undefined, error }));
-  const transportTermination: unknown = postOutcome.error;
-  brokenPort.onerror?.({ message: "stale primitive transport event" });
-  for (const message of brokenMessages)
-    brokenPort.onmessage?.({
-      data: { id: message.id, success: true, value: message.input },
-    });
-  waitingA.cancel();
-  waitingB.cancel();
-  TestValidator.predicate(
-    "transport-failure termination retains both original causes",
-    transportTermination instanceof AggregateError &&
-      transportTermination.errors.length === 2 &&
-      transportTermination.errors[0] instanceof Error &&
-      transportTermination.errors[0].message === "primitive transport lost" &&
-      transportTermination.errors[0].cause === postFailure &&
-      transportTermination.errors[1] === terminateFailure,
-  );
-  TestValidator.predicate(
-    "transport loss settles all correlated pending requests",
-    (await Promise.all(waitingResults)).every(
-      (result: NumericOutcome): boolean =>
-        result.error === transportTermination,
-    ),
-  );
-  const refusedReplacement: Outcome = await outcome(
-    recoverable.request(8).result.then((): undefined => undefined),
-  );
-  TestValidator.predicate(
-    "failed termination refuses a replacement with its original completion",
-    refusedReplacement.error === transportTermination,
-  );
-  TestValidator.equals(
-    "failed transport retains exactly one supplied owner",
-    connections,
-    1,
-  );
-  let repeatedTransportTermination: unknown;
-  try {
-    recoverable.dispose();
-  } catch (error) {
-    repeatedTransportTermination = error;
-  }
-  TestValidator.predicate(
-    "final disposal retains the failed transport completion",
-    repeatedTransportTermination === transportTermination,
-  );
 }
