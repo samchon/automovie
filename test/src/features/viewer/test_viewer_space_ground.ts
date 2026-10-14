@@ -31,9 +31,9 @@ const spaceOf: (surfaces: IAutoMovieSpace["surfaces"]) => IAutoMovieSpace = (
 
 const sceneOf: (
   space: IAutoMovieSpace | null | undefined,
-) => import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject = (
+) => import("@automovie/viewer").IAutoMovieSceneObject = (
   space: IAutoMovieSpace | null | undefined,
-): import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =>
+): import("@automovie/viewer").IAutoMovieSceneObject =>
   buildScene(
     {
       id: "scene-1",
@@ -59,7 +59,7 @@ const sceneOf: (
       ],
       space,
     },
-    (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
+    (): import("@automovie/viewer").IAutoMovieModelObject =>
       buildModel({ ...createModel(), id: "model-a" }),
   );
 
@@ -111,7 +111,7 @@ const faceNormal: (triangle: THREE.Vector3[]) => THREE.Vector3 = (
  */
 export function test_viewer_space_ground(): void {
   // 1. the group, its placement, and its naming.
-  const floor: import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =
+  const floor: import("@automovie/viewer").IAutoMovieSceneObject =
     sceneOf(
       spaceOf([
         {
@@ -158,7 +158,7 @@ export function test_viewer_space_ground(): void {
   );
 
   // 3. the ramp: height interpolated per vertex, one plane normal.
-  const ramp: import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =
+  const ramp: import("@automovie/viewer").IAutoMovieSceneObject =
     sceneOf(
       spaceOf([
         {
@@ -200,7 +200,7 @@ export function test_viewer_space_ground(): void {
   );
 
   // 4. heightfield relief reaches an internal viewer vertex.
-  const relief: import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =
+  const relief: import("@automovie/viewer").IAutoMovieSceneObject =
     sceneOf(
       spaceOf([
         {
@@ -244,7 +244,7 @@ export function test_viewer_space_ground(): void {
   );
 
   // 5. a degenerate footprint contributes nothing.
-  const collinear: import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =
+  const collinear: import("@automovie/viewer").IAutoMovieSceneObject =
     sceneOf(
       spaceOf([
         {
@@ -291,7 +291,7 @@ export function test_viewer_space_ground(): void {
   const beauty:
     | THREE.Material<THREE.MaterialEventMap>
     | THREE.Material<THREE.MaterialEventMap>[] = groundMesh.material;
-  const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+  const handle: import("@automovie/viewer").IAutoMovieRenderModeHandle =
     applyRenderMode(floor.scene, "depth");
   TestValidator.predicate(
     "the depth pass overrides the ground's material too",

@@ -93,9 +93,9 @@ export function test_viewer_subject_page_framing(): void {
   // 3. Declared-cell framing shifts the aim and reduces the subject's angular extent.
   //----
   const viewpoint: IAutoMovieViewerViewpoint = plan[3]!;
-  const fromContent: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+  const fromContent: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(content, viewpoint, LENS);
-  const fromDeclared: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+  const fromDeclared: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(declared, viewpoint, LENS);
   TestValidator.equals(
     "the declared cell moves the aim off the contents and shrinks them",

@@ -39,7 +39,7 @@ export function test_viewer_vertex_colour(): void {
       shape: { type: "box", width: 1, height: 1, depth: 1 },
     },
   });
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+  const built: import("@automovie/viewer").IAutoMovieModelObject =
     buildModel(model);
   const parts: THREE.Mesh<
     THREE.BufferGeometry<

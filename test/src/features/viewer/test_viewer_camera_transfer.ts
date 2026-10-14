@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import * as THREE from "three";
 
 import type { IViewerCameraStateSnapshot } from "../../../../packages/viewer/src/IViewerCameraStateSnapshot";
-import { createViewerCameraState } from "../../../../packages/viewer/src/createViewerCameraState";
+import { createViewerCameraState } from "@automovie/viewer";
 import { nclose } from "../internal/predicates";
 
 /**

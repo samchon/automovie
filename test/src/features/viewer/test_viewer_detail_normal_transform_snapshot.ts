@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createDetailNormalShaderPatch } from "../../../../packages/viewer/src/detailNormalShading/createDetailNormalShaderPatch";
+import { createDetailNormalShaderPatch } from "@automovie/viewer";
 import { nclose } from "../internal/predicates";
 
 /**

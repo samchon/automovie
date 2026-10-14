@@ -9,7 +9,7 @@ import { type IAutoMovieRenderTextureResidency } from "../../../../packages/engi
 import { IAutoMovieRenderTextureSource } from "../../../../packages/engine/src/render/IAutoMovieRenderTextureSource";
 import { autoMovieRenderTextureDigest } from "../../../../packages/engine/src/render/autoMovieRenderTextureDigest";
 import { measureAutoMovieRenderTextureClosure } from "../../../../packages/engine/src/render/measureAutoMovieRenderTextureClosure";
-import { readAutoMovieTextureSource } from "../../../../packages/viewer/src/readAutoMovieTextureSource";
+import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { throwsError } from "../internal/predicates";
 import { material } from "../internal/renderFixtures";
 

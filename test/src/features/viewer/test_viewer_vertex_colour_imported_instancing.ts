@@ -28,7 +28,7 @@ export function test_viewer_vertex_colour_imported_instancing(): void {
     colors: _colors,
     ...bare
   }: import("@automovie/interface").IAutoMovieMesh = colored;
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+  const built: import("@automovie/viewer").IAutoMovieModelObject =
     buildModel(vertexColourModel([colored, colored, bare]));
   const parts: THREE.Mesh<
     THREE.BufferGeometry<

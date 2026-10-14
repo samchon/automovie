@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
+import { buildMaterial } from "@automovie/viewer";
 import { createModel } from "../internal/fixtures";
 import { hasViolation, nclose } from "../internal/predicates";
 

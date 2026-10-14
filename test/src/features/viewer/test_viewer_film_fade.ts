@@ -1,10 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import type { AutoMovieFilmBeautyComposition } from "../../../../packages/viewer/src/AutoMovieFilmBeautyComposition";
-import { disposeFadeToBlack } from "../../../../packages/viewer/src/disposeFadeToBlack";
-import { renderFadeToBlackFrame } from "../../../../packages/viewer/src/renderFadeToBlackFrame";
-import { resolveAutoMovieFilmBeautyComposition } from "../../../../packages/viewer/src/resolveAutoMovieFilmBeautyComposition";
+import type { AutoMovieFilmBeautyComposition } from "@automovie/viewer";
+import { disposeFadeToBlack } from "@automovie/viewer";
+import { renderFadeToBlackFrame } from "@automovie/viewer";
+import { resolveAutoMovieFilmBeautyComposition } from "@automovie/viewer";
 import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
 import { namedFacts, nclose } from "../internal/predicates";
 

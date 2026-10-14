@@ -1,11 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { disposeCrossDissolve } from "../../../../packages/viewer/src/disposeCrossDissolve";
-import { disposeFadeToBlack } from "../../../../packages/viewer/src/disposeFadeToBlack";
-import { readAutoMovieDisplayDestinationEncoding } from "../../../../packages/viewer/src/readAutoMovieDisplayDestinationEncoding";
-import { renderCrossDissolveFrames } from "../../../../packages/viewer/src/renderCrossDissolveFrames";
-import { renderFadeToBlackFrame } from "../../../../packages/viewer/src/renderFadeToBlackFrame";
+import { disposeCrossDissolve } from "@automovie/viewer";
+import { disposeFadeToBlack } from "@automovie/viewer";
+import { readAutoMovieDisplayDestinationEncoding } from "@automovie/viewer";
+import { renderCrossDissolveFrames } from "@automovie/viewer";
+import { renderFadeToBlackFrame } from "@automovie/viewer";
 import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
 import { nclose } from "../internal/predicates";
 
