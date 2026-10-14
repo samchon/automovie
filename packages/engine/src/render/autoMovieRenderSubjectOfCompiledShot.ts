@@ -1,8 +1,17 @@
-import { IAutoMovieWaterFeature, IAutoMovieSoftFurnishing, IAutoMoviePlantingInstallation, IAutoMoviePlantingDomain, IAutoMovieFluidDomain, IAutoMovieSoftBodyDomain, IAutoMoviePlantingCluster, IAutoMovieCompiledShotSource } from "@automovie/interface";
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFluidDomain,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieWaterFeature,
+} from "@automovie/interface";
 
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
+import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { autoMovieRenderSubjectOfShot } from "./autoMovieRenderSubjectOfShot";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -37,7 +46,11 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Each binding/recipe index is built once per conversion and used by all related rows; mutable compiled artifacts and host texture observations prevent a cross-call identity-only cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned rows reference compiled laws and host facts rather than owning simulations; local indices disappear after completion/failure and no renderer handle is retained.
  */
-export const autoMovieRenderSubjectOfCompiledShot: (props: { compiled: IAutoMovieCompiledShotSource; textures?: readonly IAutoMovieRenderTextureSource[]; textureResidency?: IAutoMovieRenderTextureResidency; }) => IAutoMovieRenderSubject = (props: {
+export const autoMovieRenderSubjectOfCompiledShot: (props: {
+  compiled: IAutoMovieCompiledShotSource;
+  textures?: readonly IAutoMovieRenderTextureSource[];
+  textureResidency?: IAutoMovieRenderTextureResidency;
+}) => IAutoMovieRenderSubject = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Actual host-decoded upload and sharing facts for resolved source assets. */
@@ -45,66 +58,116 @@ export const autoMovieRenderSubjectOfCompiledShot: (props: { compiled: IAutoMovi
   /** Other live scopes and context-retained texture storage, when not fresh. */
   textureResidency?: IAutoMovieRenderTextureResidency;
 }): IAutoMovieRenderSubject => {
-  const { compiled }: { compiled: IAutoMovieCompiledShotSource; textures?: readonly IAutoMovieRenderTextureSource[]; textureResidency?: IAutoMovieRenderTextureResidency; } = props;
+  const {
+    compiled,
+  }: {
+    compiled: IAutoMovieCompiledShotSource;
+    textures?: readonly IAutoMovieRenderTextureSource[];
+    textureResidency?: IAutoMovieRenderTextureResidency;
+  } = props;
   const waterOwner: Map<string, IAutoMovieWaterFeature> = bindingOf(
     compiled.waterFeatures ?? [],
-    (feature: IAutoMovieWaterFeature) : string => feature.domain,
+    (feature: IAutoMovieWaterFeature): string => feature.domain,
   );
   const softOwner: Map<string, IAutoMovieSoftFurnishing> = bindingOf(
     compiled.softFurnishings ?? [],
-    (furnishing: IAutoMovieSoftFurnishing) : string => furnishing.domain,
+    (furnishing: IAutoMovieSoftFurnishing): string => furnishing.domain,
   );
   const plantingOwner: Map<string, IAutoMoviePlantingInstallation> = bindingOf(
     compiled.plantingInstallations ?? [],
-    (installation: IAutoMoviePlantingInstallation) : string => installation.cluster,
+    (installation: IAutoMoviePlantingInstallation): string =>
+      installation.cluster,
   );
   const recipes: Map<string, IAutoMoviePlantingDomain> = new Map(
-    (compiled.plantingDomains ?? []).map((domain: IAutoMoviePlantingDomain) : [string, IAutoMoviePlantingDomain] => [domain.id, domain]),
+    (compiled.plantingDomains ?? []).map(
+      (
+        domain: IAutoMoviePlantingDomain,
+      ): [string, IAutoMoviePlantingDomain] => [domain.id, domain],
+    ),
   );
   return autoMovieRenderSubjectOfShot({
     compiled,
     textures: props.textures,
     textureResidency: props.textureResidency,
-    waterBodies: (compiled.fluidDomains ?? []).map((domain: IAutoMovieFluidDomain) : { id: string; owner: string | null; nodes: never[]; domain: IAutoMovieFluidDomain; cells: null; particles: null; material: string | null; } => {
-      const feature: IAutoMovieWaterFeature | undefined = waterOwner.get(domain.id);
-      return {
-        id: domain.id,
-        owner: spaceOwner(feature?.environment, feature?.space),
-        // The bound domain draws its own free surface, which the mask joins by
-        // the viewer's name for it. Naming a scene node here as well would bill
-        // the same water twice.
-        nodes: [],
-        domain,
-        cells: null,
-        particles: null,
-        material: feature?.material ?? null,
-      };
-    }),
-    softBodies: (compiled.softBodyDomains ?? []).map((domain: IAutoMovieSoftBodyDomain) : { domain: IAutoMovieSoftBodyDomain; owner: string | null; material: string | null; } => {
-      const furnishing: IAutoMovieSoftFurnishing | undefined = softOwner.get(domain.id);
-      return {
-        domain,
-        owner: spaceOwner(furnishing?.environment, furnishing?.space),
-        material: furnishing?.material ?? null,
-      };
-    }),
-    plantings: (compiled.plantingClusters ?? []).map((cluster: IAutoMoviePlantingCluster) : { domain: IAutoMoviePlantingDomain; cluster: IAutoMoviePlantingCluster; owner: string | null; branchMaterial: string | null; leafMaterial: string | null; branch: null; leaf: null; } => {
-      const domain: IAutoMoviePlantingDomain | undefined = recipes.get(cluster.domain);
-      if (domain === undefined)
-        throw new Error(
-          `render subject cannot stage planting cluster "${cluster.id}": recipe "${cluster.domain}" is absent from the compiled shot`,
+    waterBodies: (compiled.fluidDomains ?? []).map(
+      (
+        domain: IAutoMovieFluidDomain,
+      ): {
+        id: string;
+        owner: string | null;
+        nodes: never[];
+        domain: IAutoMovieFluidDomain;
+        cells: null;
+        particles: null;
+        material: string | null;
+      } => {
+        const feature: IAutoMovieWaterFeature | undefined = waterOwner.get(
+          domain.id,
         );
-      const installation: IAutoMoviePlantingInstallation | undefined = plantingOwner.get(cluster.id);
-      return {
-        domain,
-        cluster,
-        owner: spaceOwner(installation?.environment, installation?.space),
-        branchMaterial: installation?.branchMaterial ?? null,
-        leafMaterial: installation?.leafMaterial ?? null,
-        branch: null,
-        leaf: null,
-      };
-    }),
+        return {
+          id: domain.id,
+          owner: spaceOwner(feature?.environment, feature?.space),
+          // The bound domain draws its own free surface, which the mask joins by
+          // the viewer's name for it. Naming a scene node here as well would bill
+          // the same water twice.
+          nodes: [],
+          domain,
+          cells: null,
+          particles: null,
+          material: feature?.material ?? null,
+        };
+      },
+    ),
+    softBodies: (compiled.softBodyDomains ?? []).map(
+      (
+        domain: IAutoMovieSoftBodyDomain,
+      ): {
+        domain: IAutoMovieSoftBodyDomain;
+        owner: string | null;
+        material: string | null;
+      } => {
+        const furnishing: IAutoMovieSoftFurnishing | undefined = softOwner.get(
+          domain.id,
+        );
+        return {
+          domain,
+          owner: spaceOwner(furnishing?.environment, furnishing?.space),
+          material: furnishing?.material ?? null,
+        };
+      },
+    ),
+    plantings: (compiled.plantingClusters ?? []).map(
+      (
+        cluster: IAutoMoviePlantingCluster,
+      ): {
+        domain: IAutoMoviePlantingDomain;
+        cluster: IAutoMoviePlantingCluster;
+        owner: string | null;
+        branchMaterial: string | null;
+        leafMaterial: string | null;
+        branch: null;
+        leaf: null;
+      } => {
+        const domain: IAutoMoviePlantingDomain | undefined = recipes.get(
+          cluster.domain,
+        );
+        if (domain === undefined)
+          throw new Error(
+            `render subject cannot stage planting cluster "${cluster.id}": recipe "${cluster.domain}" is absent from the compiled shot`,
+          );
+        const installation: IAutoMoviePlantingInstallation | undefined =
+          plantingOwner.get(cluster.id);
+        return {
+          domain,
+          cluster,
+          owner: spaceOwner(installation?.environment, installation?.space),
+          branchMaterial: installation?.branchMaterial ?? null,
+          leafMaterial: installation?.leafMaterial ?? null,
+          branch: null,
+          leaf: null,
+        };
+      },
+    ),
   });
 };
 
@@ -116,12 +179,15 @@ export const autoMovieRenderSubjectOfCompiledShot: (props: { compiled: IAutoMovi
  * of array order, or two runs of the same shot would attribute one pond to two
  * rooms and derive two different palettes for one frame.
  */
-const bindingOf: <Entry extends { id: string; }>(entries: readonly Entry[], drawable: (entry: Entry) => string) => Map<string, Entry> = <Entry extends { id: string }>(
+const bindingOf: <Entry extends { id: string }>(
+  entries: readonly Entry[],
+  drawable: (entry: Entry) => string,
+) => Map<string, Entry> = <Entry extends { id: string }>(
   entries: readonly Entry[],
   drawable: (entry: Entry) => string,
 ): Map<string, Entry> => {
   const index: Map<string, Entry> = new Map<string, Entry>();
-  for (const entry of [...entries].sort((left: Entry, right: Entry) : number =>
+  for (const entry of [...entries].sort((left: Entry, right: Entry): number =>
     compareAutoMovieRenderIds(left.id, right.id),
   ))
     if (!index.has(drawable(entry))) index.set(drawable(entry), entry);
@@ -129,7 +195,10 @@ const bindingOf: <Entry extends { id: string; }>(entries: readonly Entry[], draw
 };
 
 /** The semantic id of the building space a binding hangs its drawable in. */
-const spaceOwner: (environment: string | undefined, space: string | undefined) => string | null = (
+const spaceOwner: (
+  environment: string | undefined,
+  space: string | undefined,
+) => string | null = (
   environment: string | undefined,
   space: string | undefined,
 ): string | null =>

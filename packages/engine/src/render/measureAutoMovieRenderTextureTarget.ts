@@ -1,6 +1,6 @@
 import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTarget";
-import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
+import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 
 /**
  * Bound resolved color mips and color/depth sample attachments across target faces.
@@ -17,21 +17,41 @@ import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
  * @evidence contracts/performance.md#reuse-equivalent-work The shared storage/format owners are reused for color/depth terms; target values are cheap mutable facts and no persistent cache assumes stable attachment profiles.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar/null escapes; no framebuffer, texture, native allocation or measurement task is retained.
  */
-export function measureAutoMovieRenderTextureTarget(target: IAutoMovieRenderTextureTarget): number | null {
-  if (!Number.isSafeInteger(target.samples) || target.samples < 0 || target.formats.length === 0 ||
-      target.depthBytesPerTexel === null || !Number.isSafeInteger(target.depthBytesPerTexel) || target.depthBytesPerTexel < 0 ||
-      (target.faces !== undefined && target.faces !== 1 && target.faces !== 6)) return null;
+export function measureAutoMovieRenderTextureTarget(
+  target: IAutoMovieRenderTextureTarget,
+): number | null {
+  if (
+    !Number.isSafeInteger(target.samples) ||
+    target.samples < 0 ||
+    target.formats.length === 0 ||
+    target.depthBytesPerTexel === null ||
+    !Number.isSafeInteger(target.depthBytesPerTexel) ||
+    target.depthBytesPerTexel < 0 ||
+    (target.faces !== undefined && target.faces !== 1 && target.faces !== 6)
+  )
+    return null;
   let total: number = 0;
   for (const format of target.formats) {
     const bytesPerTexel: number | null = autoMovieTextureFormatBytes(format);
-    const resolved: number | null = measureAutoMovieTextureStorage({ ...target, bytesPerTexel });
-    const base: number | null = measureAutoMovieTextureStorage({ ...target, bytesPerTexel, mipmapped: false });
+    const resolved: number | null = measureAutoMovieTextureStorage({
+      ...target,
+      bytesPerTexel,
+    });
+    const base: number | null = measureAutoMovieTextureStorage({
+      ...target,
+      bytesPerTexel,
+      mipmapped: false,
+    });
     if (resolved === null || base === null) return null;
     total += resolved + base * target.samples;
     if (!Number.isSafeInteger(total)) return null;
   }
   if (target.depthBytesPerTexel !== 0) {
-    const depth: number | null = measureAutoMovieTextureStorage({ ...target, bytesPerTexel: target.depthBytesPerTexel, mipmapped: false });
+    const depth: number | null = measureAutoMovieTextureStorage({
+      ...target,
+      bytesPerTexel: target.depthBytesPerTexel,
+      mipmapped: false,
+    });
     if (depth === null) return null;
     total += depth * (1 + target.samples);
   }

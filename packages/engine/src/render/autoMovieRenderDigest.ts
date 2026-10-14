@@ -30,8 +30,9 @@
  * @evidence contracts/performance.md#reuse-equivalent-work One schedule buffer is reused across blocks within a call; equal content can be hashed by multiple owners but no cache is retained over arbitrary input strings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Bytes, padding, schedule and state are call-owned; only the digest string escapes, with no crypto handle, worker or background promise.
  */
-export const autoMovieRenderDigest: (text: string) => string = (text: string): string =>
-  `sha256:${sha256Hex(utf8Bytes(text))}`;
+export const autoMovieRenderDigest: (text: string) => string = (
+  text: string,
+): string => `sha256:${sha256Hex(utf8Bytes(text))}`;
 
 const ROUND_CONSTANTS: readonly number[] = [
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
@@ -47,11 +48,15 @@ const ROUND_CONSTANTS: readonly number[] = [
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ] as const;
 
-const rotateRight: (value: number, bits: number) => number = (value: number, bits: number): number =>
-  ((value >>> bits) | (value << (32 - bits))) >>> 0;
+const rotateRight: (value: number, bits: number) => number = (
+  value: number,
+  bits: number,
+): number => ((value >>> bits) | (value << (32 - bits))) >>> 0;
 
 /** Hash a byte sequence and return the lowercase hexadecimal digest. */
-const sha256Hex: (bytes: readonly number[]) => string = (bytes: readonly number[]): string => {
+const sha256Hex: (bytes: readonly number[]) => string = (
+  bytes: readonly number[],
+): string => {
   const state: number[] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c,
     0x1f83d9ab, 0x5be0cd19,
@@ -99,7 +104,16 @@ const sha256Hex: (bytes: readonly number[]) => string = (bytes: readonly number[
       schedule[word] =
         (schedule[word - 16]! + s0 + schedule[word - 7]! + s1) >>> 0;
     }
-    let [a, b, c, d, e, f, g, h]: [number, number, number, number, number, number, number, number] = state as [
+    let [a, b, c, d, e, f, g, h]: [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ] = state as [
       number,
       number,
       number,
@@ -133,5 +147,7 @@ const sha256Hex: (bytes: readonly number[]) => string = (bytes: readonly number[
       state[index] = (state[index]! + round[index]!) >>> 0;
   }
 
-  return state.map((word: number) : string => word.toString(16).padStart(8, "0")).join("");
+  return state
+    .map((word: number): string => word.toString(16).padStart(8, "0"))
+    .join("");
 };

@@ -1,4 +1,5 @@
-import type { IAutoMovieConstraintViolation,
+import type {
+  IAutoMovieConstraintViolation,
   IAutoMovieLight,
   IAutoMovieSceneEnvironment,
 } from "@automovie/interface";
@@ -29,19 +30,40 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
 export function resolveAutoMovieShadowProfile(props: {
   lights: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];
   shadows?: IAutoMovieSceneEnvironment["shadows"] | null;
-}) : { success: false; violations: IAutoMovieConstraintViolation[]; enabled?: undefined; type?: undefined; casters?: undefined; } | { success: true; enabled: boolean; type: "pcf" | "vsm"; casters: { light: string; depthFaces: number; filterDraws: number; }[]; violations?: undefined; } {
-  const policy: { enabled: boolean; type: "pcf" | "pcfSoft" | "vsm"; } = props.shadows ?? { enabled: true, type: "pcf" };
+}):
+  | {
+      success: false;
+      violations: IAutoMovieConstraintViolation[];
+      enabled?: undefined;
+      type?: undefined;
+      casters?: undefined;
+    }
+  | {
+      success: true;
+      enabled: boolean;
+      type: "pcf" | "vsm";
+      casters: { light: string; depthFaces: number; filterDraws: number }[];
+      violations?: undefined;
+    } {
+  const policy: { enabled: boolean; type: "pcf" | "pcfSoft" | "vsm" } =
+    props.shadows ?? { enabled: true, type: "pcf" };
   const type: "pcf" | "vsm" = normalizeAutoMovieShadowFilter(policy.type);
   const out: ViolationCollector = new ViolationCollector();
   if (policy.enabled && type === "vsm")
-    props.lights.forEach((light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">, index: number) : void => {
-      if (light?.type === "point" && light.castShadow === true)
-        out.push(
-          "type", `$input.lights[${index}].castShadow`,
-          `Point light "${light.id}" cannot cast a VSM shadow in the supported WebGL profile; use PCF or disable its shadow.`,
-          light.castShadow,
-        );
-    });
+    props.lights.forEach(
+      (
+        light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">,
+        index: number,
+      ): void => {
+        if (light?.type === "point" && light.castShadow === true)
+          out.push(
+            "type",
+            `$input.lights[${index}].castShadow`,
+            `Point light "${light.id}" cannot cast a VSM shadow in the supported WebGL profile; use PCF or disable its shadow.`,
+            light.castShadow,
+          );
+      },
+    );
   if (out.items.length !== 0)
     return { success: false as const, violations: out.items };
   return {
@@ -49,11 +71,20 @@ export function resolveAutoMovieShadowProfile(props: {
     enabled: policy.enabled,
     type,
     casters: props.lights
-      .filter((light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">) : boolean => policy.enabled && light?.type !== "area" && light?.castShadow === true)
-      .map((light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">) : { light: string; depthFaces: number; filterDraws: number; } => ({
-        light: light.id,
-        depthFaces: light.type === "point" ? 6 : 1,
-        filterDraws: type === "vsm" ? 2 : 0,
-      })),
+      .filter(
+        (light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">): boolean =>
+          policy.enabled &&
+          light?.type !== "area" &&
+          light?.castShadow === true,
+      )
+      .map(
+        (
+          light: Pick<IAutoMovieLight, "id" | "type" | "castShadow">,
+        ): { light: string; depthFaces: number; filterDraws: number } => ({
+          light: light.id,
+          depthFaces: light.type === "point" ? 6 : 1,
+          filterDraws: type === "vsm" ? 2 : 0,
+        }),
+      ),
   };
 }

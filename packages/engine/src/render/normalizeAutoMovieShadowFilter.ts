@@ -18,8 +18,11 @@ export function normalizeAutoMovieShadowFilter(
 ): "pcf" | "vsm" {
   switch (type) {
     case "pcf":
-    case "pcfSoft": return "pcf";
-    case "vsm": return "vsm";
-    default: throw new Error("Unsupported shadow filter: " + String(type));
+    case "pcfSoft":
+      return "pcf";
+    case "vsm":
+      return "vsm";
+    default:
+      throw new Error("Unsupported shadow filter: " + String(type));
   }
 }

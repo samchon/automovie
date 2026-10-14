@@ -15,12 +15,15 @@
  * @evidence contracts/performance.md#reuse-equivalent-work SHA and FNV share this encoding law, while each arbitrary string call creates fresh bytes rather than retaining a content cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned byte array escapes; no encoder instance, native buffer handle or asynchronous task is acquired.
  */
-export const utf8Bytes: (text: string) => number[] = (text: string): number[] => {
+export const utf8Bytes: (text: string) => number[] = (
+  text: string,
+): number[] => {
   const bytes: number[] = [];
   for (let index: number = 0; index < text.length; ++index) {
     let point: number = text.charCodeAt(index);
     if (point >= 0xd800 && point <= 0xdbff) {
-      const low: number = index + 1 < text.length ? text.charCodeAt(index + 1) : 0;
+      const low: number =
+        index + 1 < text.length ? text.charCodeAt(index + 1) : 0;
       if (low >= 0xdc00 && low <= 0xdfff) {
         point = 0x10000 + ((point - 0xd800) << 10) + (low - 0xdc00);
         ++index;

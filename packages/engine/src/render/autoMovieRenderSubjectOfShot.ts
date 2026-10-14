@@ -3,8 +3,8 @@ import { IAutoMovieCompiledShotSource } from "@automovie/interface";
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
+import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 
 /**
@@ -23,7 +23,14 @@ import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical compiled conversion shares this field projection; result references intentionally track input arrays, so caching would not create an immutable subject snapshot.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned subject owns its wrapper and defaults while input arrays remain caller-owned; no domain solver, texture handle or task is retained.
  */
-export const autoMovieRenderSubjectOfShot: (props: { compiled: IAutoMovieCompiledShotSource; waterBodies?: readonly IAutoMovieRenderWaterBody[]; softBodies?: readonly IAutoMovieRenderSoftPanel[]; plantings?: readonly IAutoMovieRenderPlanting[]; textures?: readonly IAutoMovieRenderTextureSource[]; textureResidency?: IAutoMovieRenderTextureResidency; }) => IAutoMovieRenderSubject = (props: {
+export const autoMovieRenderSubjectOfShot: (props: {
+  compiled: IAutoMovieCompiledShotSource;
+  waterBodies?: readonly IAutoMovieRenderWaterBody[];
+  softBodies?: readonly IAutoMovieRenderSoftPanel[];
+  plantings?: readonly IAutoMovieRenderPlanting[];
+  textures?: readonly IAutoMovieRenderTextureSource[];
+  textureResidency?: IAutoMovieRenderTextureResidency;
+}) => IAutoMovieRenderSubject = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Declared water bodies, if the production has any. */

@@ -1,6 +1,7 @@
-import { IAutoMovieRenderTargetAsset,
+import {
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
 } from "@automovie/interface";
 
 import { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift";
@@ -24,7 +25,10 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Asset maps serve all lookups in one comparison and each caller reuses the returned drift; no persistent cache assumes mutable sealed records remain unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only drift rows transfer to the caller; target assets remain borrowed and no asset handle, renderer or asynchronous work is retained.
  */
-export const compareAutoMovieRenderTarget: (props: { report: IAutoMovieRenderReport; current: IAutoMovieRenderTarget; }) => { fresh: boolean; drift: IAutoMovieRenderTargetDrift[]; } = (props: {
+export const compareAutoMovieRenderTarget: (props: {
+  report: IAutoMovieRenderReport;
+  current: IAutoMovieRenderTarget;
+}) => { fresh: boolean; drift: IAutoMovieRenderTargetDrift[] } = (props: {
   /** The report being re-used as evidence. */
   report: IAutoMovieRenderReport;
   /** The target a consumer is about to render with. */
@@ -38,12 +42,20 @@ export const compareAutoMovieRenderTarget: (props: { report: IAutoMovieRenderRep
   const reported: IAutoMovieRenderTarget = props.report.target;
   const current: IAutoMovieRenderTarget = props.current;
   const drift: IAutoMovieRenderTargetDrift[] = [];
-  const compare: (field: string, left: unknown, right: unknown) => void = (field: string, left: unknown, right: unknown): void => {
+  const compare: (field: string, left: unknown, right: unknown) => void = (
+    field: string,
+    left: unknown,
+    right: unknown,
+  ): void => {
     if (String(left) !== String(right))
       drift.push({ field, reported: String(left), current: String(right) });
   };
   compare("protocol", reported.protocol, current.protocol);
-  compare("textureDigest", reported.textureDigest ?? "absent", current.textureDigest ?? "absent");
+  compare(
+    "textureDigest",
+    reported.textureDigest ?? "absent",
+    current.textureDigest ?? "absent",
+  );
   compare("renderer.api", reported.renderer.api, current.renderer.api);
   compare("renderer.vendor", reported.renderer.vendor, current.renderer.vendor);
   compare("renderer.device", reported.renderer.device, current.renderer.device);
@@ -58,7 +70,12 @@ export const compareAutoMovieRenderTarget: (props: { report: IAutoMovieRenderRep
   ] as const)
     compare(`settings.${key}`, reported.settings[key], current.settings[key]);
   const currentAssets: Map<string, string> = new Map(
-    current.assets.map((asset: IAutoMovieRenderTargetAsset) : [string, string] => [asset.path, asset.digest]),
+    current.assets.map(
+      (asset: IAutoMovieRenderTargetAsset): [string, string] => [
+        asset.path,
+        asset.digest,
+      ],
+    ),
   );
   for (const asset of reported.assets)
     compare(
@@ -67,7 +84,12 @@ export const compareAutoMovieRenderTarget: (props: { report: IAutoMovieRenderRep
       currentAssets.get(asset.path) ?? "absent",
     );
   const reportedAssets: Map<string, string> = new Map(
-    reported.assets.map((asset: IAutoMovieRenderTargetAsset) : [string, string] => [asset.path, asset.digest]),
+    reported.assets.map(
+      (asset: IAutoMovieRenderTargetAsset): [string, string] => [
+        asset.path,
+        asset.digest,
+      ],
+    ),
   );
   for (const asset of current.assets)
     if (!reportedAssets.has(asset.path))
@@ -76,8 +98,11 @@ export const compareAutoMovieRenderTarget: (props: { report: IAutoMovieRenderRep
         reported: "absent",
         current: asset.digest,
       });
-  drift.sort((left: IAutoMovieRenderTargetDrift, right: IAutoMovieRenderTargetDrift) : number =>
-    compareAutoMovieRenderIds(left.field, right.field),
+  drift.sort(
+    (
+      left: IAutoMovieRenderTargetDrift,
+      right: IAutoMovieRenderTargetDrift,
+    ): number => compareAutoMovieRenderIds(left.field, right.field),
   );
   return { fresh: drift.length === 0, drift };
 };

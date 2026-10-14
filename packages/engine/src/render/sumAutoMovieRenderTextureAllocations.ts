@@ -13,7 +13,9 @@ import type { IAutoMovieRenderTextureCost } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Inventory reuses the completed closure rows instead of recounting native objects; changed rows require a new sum with no persistent cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number/null escapes, with no texture row history, handle or background task retained.
  */
-export const sumAutoMovieRenderTextureAllocations: (textures: readonly IAutoMovieRenderTextureCost[]) => number | null = (
+export const sumAutoMovieRenderTextureAllocations: (
+  textures: readonly IAutoMovieRenderTextureCost[],
+) => number | null = (
   textures: readonly IAutoMovieRenderTextureCost[],
 ): number | null => {
   let sum: number = 0;

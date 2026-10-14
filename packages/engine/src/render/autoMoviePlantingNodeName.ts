@@ -8,5 +8,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Group construction and mask derivation reuse the same name law; strings require no retained cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string owns no branches, leaves, group handle or lifecycle task.
  */
-export const autoMoviePlantingNodeName: (cluster: string) => string = (cluster: string): string =>
-  `planting:${cluster}`;
+export const autoMoviePlantingNodeName: (cluster: string) => string = (
+  cluster: string,
+): string => `planting:${cluster}`;

@@ -1,4 +1,7 @@
-import type { AutoMovieTextureBinding, IAutoMovieTextureReference } from "@automovie/interface";
+import type {
+  AutoMovieTextureBinding,
+  IAutoMovieTextureReference,
+} from "@automovie/interface";
 
 /**
  * Identify binding-controlled GPU upload state independently of shader UVs.
@@ -21,12 +24,24 @@ export function autoMovieTextureBindingStateKey(
   sourceSampler?: IAutoMovieTextureReference["sampler"],
   sourceSamplerState?: string | null,
 ): string {
-  const reference: IAutoMovieTextureReference | undefined = typeof binding === "string" ? undefined : binding;
-  const sampler: { wrapS: "clamp" | "repeat" | "mirror"; wrapT: "clamp" | "repeat" | "mirror"; minFilter: "nearest" | "linear" | "nearestMipmapLinear" | "linearMipmapLinear"; magFilter: "nearest" | "linear"; } | undefined = reference?.sampler ?? sourceSampler;
+  const reference: IAutoMovieTextureReference | undefined =
+    typeof binding === "string" ? undefined : binding;
+  const sampler:
+    | {
+        wrapS: "clamp" | "repeat" | "mirror";
+        wrapT: "clamp" | "repeat" | "mirror";
+        minFilter:
+          | "nearest"
+          | "linear"
+          | "nearestMipmapLinear"
+          | "linearMipmapLinear";
+        magFilter: "nearest" | "linear";
+      }
+    | undefined = reference?.sampler ?? sourceSampler;
   return JSON.stringify([
     reference?.colorSpace ?? legacyColorSpace,
-    sampler === undefined ? sourceSamplerState ?? "source-sampler" : [
-      sampler.wrapS, sampler.wrapT, sampler.minFilter, sampler.magFilter,
-    ],
+    sampler === undefined
+      ? (sourceSamplerState ?? "source-sampler")
+      : [sampler.wrapS, sampler.wrapT, sampler.minFilter, sampler.magFilter],
   ]);
 }

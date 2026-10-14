@@ -1,10 +1,11 @@
-import type { ITessellation } from "./../geometry/ITessellation";
-import { IAutoMovieMesh,
+import {
+  IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
 import { tessellate } from "../geometry/tessellate";
+import type { ITessellation } from "./../geometry/ITessellation";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
@@ -29,7 +30,11 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * @evidence contracts/performance.md#reuse-equivalent-work One inventory-owned cache shares prototype measurement across nodes, prototypes and tiers; it is never reused across a different mutable subject or model definition.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The cache owner releases all cost rows at request end; temporary tessellations are not retained, and this function opens no native geometry handle.
  */
-export const measure: (model: IAutoMovieModel, cache: Map<string, IAutoMovieRenderModelCost>, tier?: "hero" | "near" | "far") => IAutoMovieRenderModelCost = (
+export const measure: (
+  model: IAutoMovieModel,
+  cache: Map<string, IAutoMovieRenderModelCost>,
+  tier?: "hero" | "near" | "far",
+) => IAutoMovieRenderModelCost = (
   model: IAutoMovieModel,
   cache: Map<string, IAutoMovieRenderModelCost>,
   tier?: "hero" | "near" | "far",

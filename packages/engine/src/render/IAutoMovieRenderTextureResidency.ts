@@ -1,7 +1,7 @@
+import type { AutoMovieBuiltinTexturePurpose } from "./AutoMovieBuiltinTexturePurpose";
 import type { IAutoMovieRenderTextureResident } from "./IAutoMovieRenderTextureResident";
 import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTarget";
-import type { AutoMovieBuiltinTexturePurpose } from "./AutoMovieBuiltinTexturePurpose";
 
 /**
  * Capture-host residency beyond the current shot. Live scopes retain their own
@@ -47,7 +47,11 @@ export interface IAutoMovieRenderTextureResidency {
    * source display copies and one last-completed display, all RGBA8 without
    * mip levels. Disposal removes its row rather than keeping a lifetime count.
    */
-  displayCompositors?: readonly { owner: string; width: number; height: number }[];
+  displayCompositors?: readonly {
+    owner: string;
+    width: number;
+    height: number;
+  }[];
 
   /**
    * Actual retained renderer data textures, such as formation cycle tables.

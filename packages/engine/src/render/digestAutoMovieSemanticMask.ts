@@ -1,6 +1,4 @@
-import {
-  IAutoMovieSemanticMask,
-} from "@automovie/interface";
+import { IAutoMovieSemanticMask } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { canonicalAutoMovieSemanticMaskPayload } from "./canonicalAutoMovieSemanticMaskPayload";
@@ -21,7 +19,9 @@ import { canonicalAutoMovieSemanticMaskPayload } from "./canonicalAutoMovieSeman
  * @evidence contracts/performance.md#reuse-equivalent-work Digest and sidecar share the projector; mutable mask fields mean received evidence is rehashed rather than reused by object identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the digest string escapes; payload records and bytes are call-local and no file/crypto handle or worker is retained.
  */
-export const digestAutoMovieSemanticMask: (mask: Omit<IAutoMovieSemanticMask, "digest">) => string = (
+export const digestAutoMovieSemanticMask: (
   mask: Omit<IAutoMovieSemanticMask, "digest">,
-): string =>
-  autoMovieRenderDigest(JSON.stringify(canonicalAutoMovieSemanticMaskPayload(mask)));
+) => string = (mask: Omit<IAutoMovieSemanticMask, "digest">): string =>
+  autoMovieRenderDigest(
+    JSON.stringify(canonicalAutoMovieSemanticMaskPayload(mask)),
+  );

@@ -13,7 +13,16 @@ import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSou
  * @evidence contracts/performance.md#reuse-equivalent-work Source and target measurements reuse this canonical layout mapping; immutable enum values require no retained memoization.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No decoded pixels, texture object, handle or asynchronous work is retained.
  */
-export function autoMovieTextureFormatBytes(format: IAutoMovieRenderTextureSource["format"]): number | null {
-  return format === "r16f" ? 2 : format === "rgba8" || format === "rg16f" ? 4 :
-    format === "rgba16f" ? 8 : format === "rgba32f" ? 16 : null;
+export function autoMovieTextureFormatBytes(
+  format: IAutoMovieRenderTextureSource["format"],
+): number | null {
+  return format === "r16f"
+    ? 2
+    : format === "rgba8" || format === "rg16f"
+      ? 4
+      : format === "rgba16f"
+        ? 8
+        : format === "rgba32f"
+          ? 16
+          : null;
 }

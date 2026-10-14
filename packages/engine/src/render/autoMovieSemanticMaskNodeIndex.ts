@@ -18,10 +18,15 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work A viewer pass builds the index once and reuses it for all meshes; changed mask entries/ownership require rebuilding rather than caching by mutable object identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the map for its pass lifetime and entries remain mask-owned; no renderer object or disposal handle is retained.
  */
-export const autoMovieSemanticMaskNodeIndex: (mask: IAutoMovieSemanticMask) => Map<string, IAutoMovieSemanticMaskEntry> = (
+export const autoMovieSemanticMaskNodeIndex: (
+  mask: IAutoMovieSemanticMask,
+) => Map<string, IAutoMovieSemanticMaskEntry> = (
   mask: IAutoMovieSemanticMask,
 ): Map<string, IAutoMovieSemanticMaskEntry> => {
-  const index: Map<string, IAutoMovieSemanticMaskEntry> = new Map<string, IAutoMovieSemanticMaskEntry>();
+  const index: Map<string, IAutoMovieSemanticMaskEntry> = new Map<
+    string,
+    IAutoMovieSemanticMaskEntry
+  >();
   for (const entry of mask.entries) {
     for (const node of entry.nodes) index.set(node, entry);
     // An instance set's viewer group carries the entry's own id as its name,

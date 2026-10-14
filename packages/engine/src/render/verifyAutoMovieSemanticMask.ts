@@ -25,9 +25,9 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * @evidence contracts/performance.md#reuse-equivalent-work The verifier reuses canonical payload and digest owners; mutable supplied masks are rehashed on each evidence admission instead of trusting cached identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Verification retains no mask or bytes after success/failure; the catcher owns errors, and no pixel buffer, renderer resource or task is opened.
  */
-export const verifyAutoMovieSemanticMask: (mask: IAutoMovieSemanticMask) => void = (
+export const verifyAutoMovieSemanticMask: (
   mask: IAutoMovieSemanticMask,
-): void => {
+) => void = (mask: IAutoMovieSemanticMask): void => {
   const record: Record<string, unknown> = semanticMaskRecord(mask, "mask");
   if (
     Object.hasOwn(record, "version") === false ||
@@ -53,16 +53,24 @@ export const verifyAutoMovieSemanticMask: (mask: IAutoMovieSemanticMask) => void
 };
 
 /** Refuse unknown or missing fields before canonical projection can erase them. */
-const verifySemanticMaskSchema: (mask: Record<string, unknown>) => void = (mask: Record<string, unknown>): void => {
+const verifySemanticMaskSchema: (mask: Record<string, unknown>) => void = (
+  mask: Record<string, unknown>,
+): void => {
   exactSemanticMaskKeys(
     mask,
     ["version", "protocol", "background", "entries", "unaddressed", "digest"],
     "mask",
   );
   const entries: unknown[] = semanticMaskArray(mask.entries, "entries");
-  const unaddressed: unknown[] = semanticMaskArray(mask.unaddressed, "unaddressed gaps");
+  const unaddressed: unknown[] = semanticMaskArray(
+    mask.unaddressed,
+    "unaddressed gaps",
+  );
   for (const [index, value] of entries.entries()) {
-    const entry: Record<string, unknown> = semanticMaskRecord(value, `entry ${index}`);
+    const entry: Record<string, unknown> = semanticMaskRecord(
+      value,
+      `entry ${index}`,
+    );
     exactSemanticMaskKeys(
       entry,
       ["id", "kind", "label", "color", "owner", "nodes", "slot"],
@@ -88,14 +96,20 @@ const verifySemanticMaskSchema: (mask: Record<string, unknown>) => void = (mask:
 };
 
 /** Read one runtime semantic collection without letting a cast erase shape. */
-const semanticMaskArray: (value: unknown, name: string) => unknown[] = (value: unknown, name: string): unknown[] => {
+const semanticMaskArray: (value: unknown, name: string) => unknown[] = (
+  value: unknown,
+  name: string,
+): unknown[] => {
   if (!Array.isArray(value))
     invalidSemanticMask(`semantic mask ${name} must be an array`);
   return value as unknown[];
 };
 
 /** Read one runtime semantic value as an exact record. */
-const semanticMaskRecord: (value: unknown, name: string) => Record<string, unknown> = (
+const semanticMaskRecord: (
+  value: unknown,
+  name: string,
+) => Record<string, unknown> = (
   value: unknown,
   name: string,
 ): Record<string, unknown> => {
@@ -105,7 +119,11 @@ const semanticMaskRecord: (value: unknown, name: string) => Record<string, unkno
 };
 
 /** Compare one semantic record's complete key set without normalizing it. */
-const exactSemanticMaskKeys: (value: Record<string, unknown>, expected: readonly string[], name: string) => void = (
+const exactSemanticMaskKeys: (
+  value: Record<string, unknown>,
+  expected: readonly string[],
+  name: string,
+) => void = (
   value: Record<string, unknown>,
   expected: readonly string[],
   name: string,
@@ -114,7 +132,9 @@ const exactSemanticMaskKeys: (value: Record<string, unknown>, expected: readonly
   const canonical: string[] = [...expected].sort(compareAutoMovieRenderIds);
   if (
     actual.length !== canonical.length ||
-    actual.some((key: string, index: number) : boolean => key !== canonical[index])
+    actual.some(
+      (key: string, index: number): boolean => key !== canonical[index],
+    )
   )
     invalidSemanticMask(
       `semantic mask ${name} keys are invalid; expected ${canonical.join(", ")}`,
@@ -122,6 +142,8 @@ const exactSemanticMaskKeys: (value: Record<string, unknown>, expected: readonly
 };
 
 /** Raise one typed current-schema refusal. */
-const invalidSemanticMask: (message: string) => never = (message: string): never => {
+const invalidSemanticMask: (message: string) => never = (
+  message: string,
+): never => {
   throw new AutoMovieSemanticMaskVerificationError("invalid", message);
 };

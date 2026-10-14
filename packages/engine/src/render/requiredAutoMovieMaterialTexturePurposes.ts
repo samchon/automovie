@@ -1,4 +1,7 @@
-import type { IAutoMovieMaterialOverlay, IAutoMovieMaterial } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
+} from "@automovie/interface";
 
 import type { AutoMovieBuiltinTexturePurpose } from "./AutoMovieBuiltinTexturePurpose";
 
@@ -22,16 +25,25 @@ export function requiredAutoMovieMaterialTexturePurposes(props: {
   defaultPbr: boolean;
   areaLights: boolean;
 }): AutoMovieBuiltinTexturePurpose[] {
-  const purposes: Set<AutoMovieBuiltinTexturePurpose> = new Set<AutoMovieBuiltinTexturePurpose>();
+  const purposes: Set<AutoMovieBuiltinTexturePurpose> =
+    new Set<AutoMovieBuiltinTexturePurpose>();
   for (const material of props.materials) {
     if (material.subsurfaceRadius !== undefined) purposes.add("subsurface-lut");
-    if ((material.normalTexture === null || material.normalTexture === undefined) &&
-        (material.detailNormalTexture === null || material.detailNormalTexture === undefined) &&
-        material.overlays?.some((overlay: IAutoMovieMaterialOverlay) : boolean => overlay.normalTexture !== null && overlay.normalTexture !== undefined) === true)
+    if (
+      (material.normalTexture === null ||
+        material.normalTexture === undefined) &&
+      (material.detailNormalTexture === null ||
+        material.detailNormalTexture === undefined) &&
+      material.overlays?.some(
+        (overlay: IAutoMovieMaterialOverlay): boolean =>
+          overlay.normalTexture !== null && overlay.normalTexture !== undefined,
+      ) === true
+    )
       purposes.add("overlay-flat-normal");
   }
   if (props.areaLights && (props.defaultPbr || props.materials.length !== 0)) {
-    purposes.add("area-ltc-1"); purposes.add("area-ltc-2");
+    purposes.add("area-ltc-1");
+    purposes.add("area-ltc-2");
   }
   return [...purposes];
 }

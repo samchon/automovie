@@ -13,7 +13,8 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Every render ordering consumer shares this comparison law; immutable strings require no retained memoization.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number returns, with no id population, locale object, handle or task retained.
  */
-export const compareAutoMovieRenderIds: (left: string, right: string) => number = (
+export const compareAutoMovieRenderIds: (
   left: string,
   right: string,
-): number => (left < right ? -1 : left > right ? 1 : 0);
+) => number = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0;

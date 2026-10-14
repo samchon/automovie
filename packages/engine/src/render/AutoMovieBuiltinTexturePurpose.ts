@@ -8,4 +8,8 @@
  * @evidence contracts/performance.md#reuse-equivalent-work The same role spelling is reused by actual producers and closure consumers; the type owns no cached allocation result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No texture object or native allocation is retained by this type; host context disposal remains the resource owner.
  */
-export type AutoMovieBuiltinTexturePurpose = "subsurface-lut" | "overlay-flat-normal" | "area-ltc-1" | "area-ltc-2";
+export type AutoMovieBuiltinTexturePurpose =
+  | "subsurface-lut"
+  | "overlay-flat-normal"
+  | "area-ltc-1"
+  | "area-ltc-2";

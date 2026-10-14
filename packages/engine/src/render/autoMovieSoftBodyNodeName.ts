@@ -14,5 +14,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Panel construction and mask derivation reuse the naming law; no geometry or mutable state result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the immutable name transfers, with no soft simulation state, mesh handle or task retained.
  */
-export const autoMovieSoftBodyNodeName: (domain: string) => string = (domain: string): string =>
-  `soft:${domain}`;
+export const autoMovieSoftBodyNodeName: (domain: string) => string = (
+  domain: string,
+): string => `soft:${domain}`;

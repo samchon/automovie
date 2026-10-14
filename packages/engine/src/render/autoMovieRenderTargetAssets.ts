@@ -1,6 +1,4 @@
-import {
-  IAutoMovieRenderTargetAsset,
-} from "@automovie/interface";
+import { IAutoMovieRenderTargetAsset } from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -14,9 +12,14 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Digest values are reused as supplied; no asset read or hash repeats here, and changed input records require a new ordered list.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the resulting array/records; local key storage is released and no file handle or asynchronous asset task is opened.
  */
-export const autoMovieRenderTargetAssets: (entries: Readonly<Record<string, string>>) => IAutoMovieRenderTargetAsset[] = (
+export const autoMovieRenderTargetAssets: (
+  entries: Readonly<Record<string, string>>,
+) => IAutoMovieRenderTargetAsset[] = (
   entries: Readonly<Record<string, string>>,
 ): IAutoMovieRenderTargetAsset[] =>
   Object.keys(entries)
     .sort(compareAutoMovieRenderIds)
-    .map((path: string) : { path: string; digest: string; } => ({ path, digest: entries[path]! }));
+    .map((path: string): { path: string; digest: string } => ({
+      path,
+      digest: entries[path]!,
+    }));

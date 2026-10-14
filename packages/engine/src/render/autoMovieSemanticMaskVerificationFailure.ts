@@ -14,7 +14,9 @@ import { AutoMovieSemanticMaskVerificationError } from "./AutoMovieSemanticMaskV
  * @evidence contracts/performance.md#reuse-equivalent-work All consumers reuse the same canonical class and classification law; no mutable error outcome is stored across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a string discriminant or null escapes; the error, its stack and any native resources remain owned by the caller.
  */
-export const autoMovieSemanticMaskVerificationFailure: (error: unknown) => "unsupported" | "invalid" | "digest-mismatch" | null = (
+export const autoMovieSemanticMaskVerificationFailure: (
+  error: unknown,
+) => "unsupported" | "invalid" | "digest-mismatch" | null = (
   error: unknown,
 ): "unsupported" | "invalid" | "digest-mismatch" | null =>
   error instanceof AutoMovieSemanticMaskVerificationError ? error.reason : null;

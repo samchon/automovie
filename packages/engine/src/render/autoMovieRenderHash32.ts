@@ -16,7 +16,9 @@ import { utf8Bytes } from "./utf8Bytes";
  * @evidence contracts/performance.md#reuse-equivalent-work Digest and palette owners share UTF-8 encoding, while the hash value is recomputed per semantic id without a persistent identity cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number escapes; the encoded bytes become collectable and no palette registry or native resource is retained.
  */
-export const autoMovieRenderHash32: (text: string) => number = (text: string): number => {
+export const autoMovieRenderHash32: (text: string) => number = (
+  text: string,
+): number => {
   let hash: number = 0x811c9dc5;
   const bytes: number[] = utf8Bytes(text);
   for (const byte of bytes) {

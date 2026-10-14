@@ -24,9 +24,9 @@ import { verifyAutoMovieSemanticMask } from "./verifyAutoMovieSemanticMask";
  * @evidence contracts/performance.md#reuse-equivalent-work Hash and sidecar share the canonical projection law; no mutable payload cache is retained and the serializer does not skip revalidation by trusting a prior digest string.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned text and writes/releases any file; projected objects/bytes are call-local and no file handle or renderer task is opened.
  */
-export const renderAutoMovieSemanticMaskSidecar: (mask: IAutoMovieSemanticMask) => string = (
+export const renderAutoMovieSemanticMaskSidecar: (
   mask: IAutoMovieSemanticMask,
-): string => {
+) => string = (mask: IAutoMovieSemanticMask): string => {
   verifyAutoMovieSemanticMask(mask);
   return `${JSON.stringify(
     { ...canonicalAutoMovieSemanticMaskPayload(mask), digest: mask.digest },

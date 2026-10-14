@@ -13,7 +13,9 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work All texture consumers share the slot enumeration owner; no list cache survives mutable material bindings or overlays.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new id array and the set is temporary; no decoded image, file handle or texture object is retained.
  */
-export const texturesOf: (material: IAutoMovieMaterial) => string[] = (material: IAutoMovieMaterial): string[] => {
+export const texturesOf: (material: IAutoMovieMaterial) => string[] = (
+  material: IAutoMovieMaterial,
+): string[] => {
   const assets: Set<string> = new Set<string>();
   for (const { binding } of materialTextureSlots(material))
     assets.add(typeof binding === "string" ? binding : binding.asset);

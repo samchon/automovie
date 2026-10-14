@@ -1,4 +1,3 @@
-import type { ITessellation } from "./../geometry/ITessellation";
 /**
  * Count scene nodes, ground and compact instance populations for inventory.
  * The inventory supplies the model cache, owned resource sets and row appender.
@@ -8,14 +7,18 @@ import type { ITessellation } from "./../geometry/ITessellation";
  * Scene, ground, instance-set and formation order is retained because later
  * resource measurement relies on this complete drawn/flattened model closure.
  */
-import type { IAutoMovieSpace, IAutoMovieSemanticMaskEntry, IAutoMovieCompiledInstancePrototype,
+import type {
   AutoMovieRenderMetric,
+  IAutoMovieCompiledInstancePrototype,
   IAutoMovieModel,
   IAutoMovieRenderModelCost,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSpace,
 } from "@automovie/interface";
 
 import { tessellateSurface } from "../geometry/tessellateSurface";
+import type { ITessellation } from "./../geometry/ITessellation";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import type { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
@@ -34,7 +37,7 @@ import { measure } from "./measure";
  * @evidence contracts/performance.md#reuse-equivalent-work Each canonical model is measured once per request and reused across nodes/tier citations; drawn/flattened sets share complete resource closure with subsequent material/geometry phases.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The orchestrator owns mutable caches/sets/rows through the request; only scalar cumulative counts return and no renderer geometry handle or population expansion is retained.
  */
-export const measureRenderPopulation: (props: { subject: IAutoMovieRenderSubject; nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>; model: (id: string, cited: string) => IAutoMovieModel; costs: Map<string, IAutoMovieRenderModelCost>; drawnModels: Set<string>; flattenedModels: Set<string>; add: (owner: string, source: string, metric: AutoMovieRenderMetric, cost: number, kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>) => void; }) => { triangles: number; vertices: number; drawCalls: number; space: IAutoMovieSpace | null; groundBytes: number; instanceSlots: number; instanceChunks: number; simulatedNodes: number; } = (props: {
+export const measureRenderPopulation: (props: {
   subject: IAutoMovieRenderSubject;
   nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
   model: (id: string, cited: string) => IAutoMovieModel;
@@ -48,7 +51,39 @@ export const measureRenderPopulation: (props: { subject: IAutoMovieRenderSubject
     cost: number,
     kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
   ) => void;
-}) : { triangles: number; vertices: number; drawCalls: number; space: IAutoMovieSpace | null; groundBytes: number; instanceSlots: number; instanceChunks: number; simulatedNodes: number; } => {
+}) => {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  space: IAutoMovieSpace | null;
+  groundBytes: number;
+  instanceSlots: number;
+  instanceChunks: number;
+  simulatedNodes: number;
+} = (props: {
+  subject: IAutoMovieRenderSubject;
+  nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
+  model: (id: string, cited: string) => IAutoMovieModel;
+  costs: Map<string, IAutoMovieRenderModelCost>;
+  drawnModels: Set<string>;
+  flattenedModels: Set<string>;
+  add: (
+    owner: string,
+    source: string,
+    metric: AutoMovieRenderMetric,
+    cost: number,
+    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+  ) => void;
+}): {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  space: IAutoMovieSpace | null;
+  groundBytes: number;
+  instanceSlots: number;
+  instanceChunks: number;
+  simulatedNodes: number;
+} => {
   const {
     subject,
     nodeIndex,
@@ -57,18 +92,37 @@ export const measureRenderPopulation: (props: { subject: IAutoMovieRenderSubject
     drawnModels,
     flattenedModels,
     add,
-  }: { subject: IAutoMovieRenderSubject; nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>; model: (id: string, cited: string) => IAutoMovieModel; costs: Map<string, IAutoMovieRenderModelCost>; drawnModels: Set<string>; flattenedModels: Set<string>; add: (owner: string, source: string, metric: AutoMovieRenderMetric, cost: number, kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>) => void; } = props;
+  }: {
+    subject: IAutoMovieRenderSubject;
+    nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
+    model: (id: string, cited: string) => IAutoMovieModel;
+    costs: Map<string, IAutoMovieRenderModelCost>;
+    drawnModels: Set<string>;
+    flattenedModels: Set<string>;
+    add: (
+      owner: string,
+      source: string,
+      metric: AutoMovieRenderMetric,
+      cost: number,
+      kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+    ) => void;
+  } = props;
   // --- ordinary scene nodes -------------------------------------------------
   let triangles: number = 0;
   let vertices: number = 0;
   let drawCalls: number = 0;
   for (const node of subject.scene.nodes) {
-    const cost: IAutoMovieRenderModelCost = measure(model(node.model, `scene node "${node.id}"`), costs);
+    const cost: IAutoMovieRenderModelCost = measure(
+      model(node.model, `scene node "${node.id}"`),
+      costs,
+    );
     drawnModels.add(cost.model);
     triangles += cost.triangles;
     vertices += cost.vertices;
     drawCalls += cost.parts;
-    const entry: IAutoMovieSemanticMaskEntry | undefined = nodeIndex.get(node.id);
+    const entry: IAutoMovieSemanticMaskEntry | undefined = nodeIndex.get(
+      node.id,
+    );
     const owner: string = entry === undefined ? `node:${node.id}` : entry.id;
     // A staged prop is edited in the scene; a lowered building element is
     // edited in the building that produced it. Keying off the entry's KIND and
@@ -123,15 +177,16 @@ export const measureRenderPopulation: (props: { subject: IAutoMovieRenderSubject
   let instanceSlots: number = 0;
   let instanceChunks: number = 0;
   for (const instanceSet of subject.instanceSets ?? []) {
-    const prototypes: IAutoMovieCompiledInstancePrototype[] = instanceSet.prototypes ?? [
-      {
-        id: "default",
-        modelRecipe: instanceSet.modelRecipe,
-        weight: 1,
-        lod: instanceSet.lod,
-        projectionRadius: instanceSet.projectionRadius,
-      },
-    ];
+    const prototypes: IAutoMovieCompiledInstancePrototype[] =
+      instanceSet.prototypes ?? [
+        {
+          id: "default",
+          modelRecipe: instanceSet.modelRecipe,
+          weight: 1,
+          lod: instanceSet.lod,
+          projectionRadius: instanceSet.projectionRadius,
+        },
+      ];
     let worstTriangles: number = 0;
     let worstVertices: number = 0;
     let partsPerChunk: number = 0;
@@ -204,7 +259,8 @@ export const measureRenderPopulation: (props: { subject: IAutoMovieRenderSubject
     }
     const owner: string = `formation:${formation.id}`;
     const source: string = `formations["${formation.id}"]`;
-    const formationTriangles: number = formation.anonymousCount * worstTriangles;
+    const formationTriangles: number =
+      formation.anonymousCount * worstTriangles;
     const formationVertices: number = formation.anonymousCount * worstVertices;
     const formationDraws: number = formation.chunks.length * worstParts;
     triangles += formationTriangles;

@@ -21,11 +21,15 @@ export function measureAutoMovieTextureStorage(props: {
   mipmapped: boolean;
 }): number | null {
   if (
-    !Number.isSafeInteger(props.width) || props.width <= 0 ||
-    !Number.isSafeInteger(props.height) || props.height <= 0 ||
+    !Number.isSafeInteger(props.width) ||
+    props.width <= 0 ||
+    !Number.isSafeInteger(props.height) ||
+    props.height <= 0 ||
     props.bytesPerTexel === null ||
-    !Number.isSafeInteger(props.bytesPerTexel) || props.bytesPerTexel <= 0
-  ) return null;
+    !Number.isSafeInteger(props.bytesPerTexel) ||
+    props.bytesPerTexel <= 0
+  )
+    return null;
   let width: number = props.width;
   let height: number = props.height;
   let bytes: number = 0;

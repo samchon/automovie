@@ -1,4 +1,3 @@
-import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 /**
  * Add bounded effects, cloth, planting and water to the render inventory.
  * Inputs include the cumulative population counts; local accumulation continues
@@ -9,10 +8,14 @@ import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * final metrics null. A one-cell surface has no quad and creates no visible draw.
  * This phase must precede material closure, geometry memory and frame-wide passes.
  */
-import type { IAutoMovieSoftBodyBudget, IAutoMoviePlantingBudget, IAutoMovieFluidBudget, IAutoMovieFluidGrid,
+import type {
   AutoMovieRenderMetric,
+  IAutoMovieFluidBudget,
+  IAutoMovieFluidGrid,
+  IAutoMoviePlantingBudget,
   IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieSoftBodyBudget,
 } from "@automovie/interface";
 
 import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
@@ -20,6 +23,7 @@ import { plantingBudget } from "../soft/plantingBudget";
 import { softBodyBudget } from "../soft/softBodyBudget";
 import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
+import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_FLOW_BYTES } from "./constants/AUTOMOVIE_FLOW_BYTES";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
@@ -38,7 +42,7 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * @evidence contracts/performance.md#reuse-equivalent-work Each domain budget is read once for its drawable and per-batch prototype storage is counted once, not per instance; no cross-call result cache assumes mutable topology/host prototype facts remain equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The orchestrator owns callbacks and rows for the synchronous request; this phase returns counts/gap ids and retains no simulation buffers, native geometry or task.
  */
-export const measureRenderSimulation: (props: { subject: IAutoMovieRenderSubject; triangles: number; vertices: number; drawCalls: number; instanceSlots: number; simulatedNodes: number; gaps: IAutoMovieRenderAnalysisGap[]; add: (owner: string, source: string, metric: AutoMovieRenderMetric, cost: number, kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>) => void; cite: (material: string | null, owner: string, source: string, cited: string) => void; }) => { triangles: number; vertices: number; drawCalls: number; instanceSlots: number; simulatedNodes: number; simulatedBytes: number; fluidCells: number; fluidParticles: number; unmeasured: string[]; unsolved: IAutoMovieRenderWaterBody[]; } = (props: {
+export const measureRenderSimulation: (props: {
   subject: IAutoMovieRenderSubject;
   triangles: number;
   vertices: number;
@@ -59,9 +63,105 @@ export const measureRenderSimulation: (props: { subject: IAutoMovieRenderSubject
     source: string,
     cited: string,
   ) => void;
-}) : { triangles: number; vertices: number; drawCalls: number; instanceSlots: number; simulatedNodes: number; simulatedBytes: number; fluidCells: number; fluidParticles: number; unmeasured: string[]; unsolved: IAutoMovieRenderWaterBody[]; } => {
-  const { subject, gaps, add, cite }: { subject: IAutoMovieRenderSubject; triangles: number; vertices: number; drawCalls: number; instanceSlots: number; simulatedNodes: number; gaps: IAutoMovieRenderAnalysisGap[]; add: (owner: string, source: string, metric: AutoMovieRenderMetric, cost: number, kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>) => void; cite: (material: string | null, owner: string, source: string, cited: string) => void; } = props;
-  let { triangles, vertices, drawCalls, instanceSlots, simulatedNodes }: { subject: IAutoMovieRenderSubject; triangles: number; vertices: number; drawCalls: number; instanceSlots: number; simulatedNodes: number; gaps: IAutoMovieRenderAnalysisGap[]; add: (owner: string, source: string, metric: AutoMovieRenderMetric, cost: number, kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>) => void; cite: (material: string | null, owner: string, source: string, cited: string) => void; } = props;
+}) => {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  instanceSlots: number;
+  simulatedNodes: number;
+  simulatedBytes: number;
+  fluidCells: number;
+  fluidParticles: number;
+  unmeasured: string[];
+  unsolved: IAutoMovieRenderWaterBody[];
+} = (props: {
+  subject: IAutoMovieRenderSubject;
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  instanceSlots: number;
+  simulatedNodes: number;
+  gaps: IAutoMovieRenderAnalysisGap[];
+  add: (
+    owner: string,
+    source: string,
+    metric: AutoMovieRenderMetric,
+    cost: number,
+    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+  ) => void;
+  cite: (
+    material: string | null,
+    owner: string,
+    source: string,
+    cited: string,
+  ) => void;
+}): {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  instanceSlots: number;
+  simulatedNodes: number;
+  simulatedBytes: number;
+  fluidCells: number;
+  fluidParticles: number;
+  unmeasured: string[];
+  unsolved: IAutoMovieRenderWaterBody[];
+} => {
+  const {
+    subject,
+    gaps,
+    add,
+    cite,
+  }: {
+    subject: IAutoMovieRenderSubject;
+    triangles: number;
+    vertices: number;
+    drawCalls: number;
+    instanceSlots: number;
+    simulatedNodes: number;
+    gaps: IAutoMovieRenderAnalysisGap[];
+    add: (
+      owner: string,
+      source: string,
+      metric: AutoMovieRenderMetric,
+      cost: number,
+      kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+    ) => void;
+    cite: (
+      material: string | null,
+      owner: string,
+      source: string,
+      cited: string,
+    ) => void;
+  } = props;
+  let {
+    triangles,
+    vertices,
+    drawCalls,
+    instanceSlots,
+    simulatedNodes,
+  }: {
+    subject: IAutoMovieRenderSubject;
+    triangles: number;
+    vertices: number;
+    drawCalls: number;
+    instanceSlots: number;
+    simulatedNodes: number;
+    gaps: IAutoMovieRenderAnalysisGap[];
+    add: (
+      owner: string,
+      source: string,
+      metric: AutoMovieRenderMetric,
+      cost: number,
+      kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+    ) => void;
+    cite: (
+      material: string | null,
+      owner: string,
+      source: string,
+      cited: string,
+    ) => void;
+  } = props;
   let simulatedBytes: number = 0;
   // --- bounded billboard effects ------------------------------------------
   // The viewer uploads one four-vertex plane and instances it up to the
@@ -158,7 +258,12 @@ export const measureRenderSimulation: (props: { subject: IAutoMovieRenderSubject
     // per-instance geometry is a renderer fact and not a recipe fact. Stating
     // it is what turns the geometry metrics from unmeasured into measured, and
     // withholding it leaves them unmeasured rather than guessed.
-    const batches: { part: string; instances: number; material: string | null; cost: IAutoMovieRenderPrototypeCost | null; }[] = [
+    const batches: {
+      part: string;
+      instances: number;
+      material: string | null;
+      cost: IAutoMovieRenderPrototypeCost | null;
+    }[] = [
       {
         part: "branch",
         instances: budget.worstCaseBranchInstances,
@@ -233,9 +338,11 @@ export const measureRenderSimulation: (props: { subject: IAutoMovieRenderSubject
       });
 
   // --- water ----------------------------------------------------------------
-  const bodies: readonly IAutoMovieRenderWaterBody[] = subject.waterBodies ?? [];
+  const bodies: readonly IAutoMovieRenderWaterBody[] =
+    subject.waterBodies ?? [];
   const unsolved: IAutoMovieRenderWaterBody[] = bodies.filter(
-    (body: IAutoMovieRenderWaterBody) : boolean => body.domain === null && body.cells === null,
+    (body: IAutoMovieRenderWaterBody): boolean =>
+      body.domain === null && body.cells === null,
   );
   if (unsolved.length !== 0)
     for (const metric of ["fluidCells", "fluidParticles"] as const)
@@ -315,7 +422,8 @@ export const measureRenderSimulation: (props: { subject: IAutoMovieRenderSubject
  * states cells and faces but not the surface it draws, so this is derived here
  * from the grid the surface geometry reads.
  */
-const quads: (count: number) => number = (count: number): number => (count > 1 ? count - 1 : 0);
+const quads: (count: number) => number = (count: number): number =>
+  count > 1 ? count - 1 : 0;
 
 /**
  * Read one stated prototype cost, refusing a value no renderer could hold.
@@ -324,7 +432,10 @@ const quads: (count: number) => number = (count: number): number => (count > 1 ?
  * multiplying one by ten thousand instances would put a fabricated number into
  * the one report that exists to hold real ones.
  */
-const statedPrototype: (cost: IAutoMovieRenderPrototypeCost | null, cited: string) => IAutoMovieRenderPrototypeCost | null = (
+const statedPrototype: (
+  cost: IAutoMovieRenderPrototypeCost | null,
+  cited: string,
+) => IAutoMovieRenderPrototypeCost | null = (
   cost: IAutoMovieRenderPrototypeCost | null,
   cited: string,
 ): IAutoMovieRenderPrototypeCost | null => {
@@ -341,7 +452,9 @@ const statedPrototype: (cost: IAutoMovieRenderPrototypeCost | null, cited: strin
 };
 
 /** Device bytes one instanced prototype's own buffers occupy. */
-const prototypeBytes: (cost: IAutoMovieRenderPrototypeCost) => number = (cost: IAutoMovieRenderPrototypeCost): number =>
+const prototypeBytes: (cost: IAutoMovieRenderPrototypeCost) => number = (
+  cost: IAutoMovieRenderPrototypeCost,
+): number =>
   cost.vertices *
     (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES + AUTOMOVIE_UV_BYTES) +
   cost.triangles * 3 * AUTOMOVIE_INDEX_BYTES;

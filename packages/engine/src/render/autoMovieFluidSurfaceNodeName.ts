@@ -8,5 +8,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Surface producer and mask consumer share the naming law; no mutable object or allocation result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the immutable name transfers to the caller; no fluid state or renderer resource is retained.
  */
-export const autoMovieFluidSurfaceNodeName: (domain: string) => string = (domain: string): string =>
-  `water:${domain}`;
+export const autoMovieFluidSurfaceNodeName: (domain: string) => string = (
+  domain: string,
+): string => `water:${domain}`;

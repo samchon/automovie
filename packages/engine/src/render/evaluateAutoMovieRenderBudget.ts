@@ -1,5 +1,6 @@
-import { IAutoMovieRenderAnalysisGap,
+import {
   AutoMovieRenderMetric,
+  IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderBudget,
   IAutoMovieRenderContributor,
   IAutoMovieRenderFinding,
@@ -55,7 +56,13 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * @evidence contracts/performance.md#reuse-equivalent-work Each metric's one rank supplies contributors, omitted totals and pass recovery together; the mutable inventory/budget prevents identity-only report caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the report/findings and borrowed target; rank maps/text are call-local, with no retained scene, resource handle or evaluation task.
  */
-export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; mask: IAutoMovieSemanticMask; target: IAutoMovieRenderTarget; maxContributors?: number; }) => IAutoMovieRenderReport = (props: {
+export const evaluateAutoMovieRenderBudget: (props: {
+  inventory: IAutoMovieRenderInventory;
+  budget: IAutoMovieRenderBudget | null;
+  mask: IAutoMovieSemanticMask;
+  target: IAutoMovieRenderTarget;
+  maxContributors?: number;
+}) => IAutoMovieRenderReport = (props: {
   /** Measured cost of the artifact. */
   inventory: IAutoMovieRenderInventory;
   /** Declared limits, or `null` for a production that declares none. */
@@ -67,7 +74,18 @@ export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRende
   /** Dominant-owner bound; defaults to the exported maximum. */
   maxContributors?: number;
 }): IAutoMovieRenderReport => {
-  const { inventory, budget, mask, target }: { inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; mask: IAutoMovieSemanticMask; target: IAutoMovieRenderTarget; maxContributors?: number; } = props;
+  const {
+    inventory,
+    budget,
+    mask,
+    target,
+  }: {
+    inventory: IAutoMovieRenderInventory;
+    budget: IAutoMovieRenderBudget | null;
+    mask: IAutoMovieSemanticMask;
+    target: IAutoMovieRenderTarget;
+    maxContributors?: number;
+  } = props;
   const limit: number =
     props.maxContributors ?? AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS;
   if (!Number.isSafeInteger(limit) || limit < 1)
@@ -80,14 +98,43 @@ export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRende
         `render budget limit for "${metric}" must be a safe integer at or above zero, but was ${value}`,
       );
 
-  const gaps: Map<AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap> = new Map(inventory.gaps.map((gap: IAutoMovieRenderAnalysisGap) : [AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap] => [gap.metric, gap]));
-  const findings: IAutoMovieRenderFinding[] = AUTOMOVIE_RENDER_METRICS.map((metric: "triangles" | "vertices" | "drawCalls" | "materials" | "textures" | "textureBytes" | "geometryBytes" | "lights" | "shadowMaps" | "nodes" | "instanceSets" | "instanceSlots" | "instanceChunks" | "fluidCells" | "fluidParticles") : IAutoMovieRenderFinding =>
-    evaluate({ metric, inventory, budget, gap: gaps.get(metric), limit }),
+  const gaps: Map<AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap> = new Map(
+    inventory.gaps.map(
+      (
+        gap: IAutoMovieRenderAnalysisGap,
+      ): [AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap] => [
+        gap.metric,
+        gap,
+      ],
+    ),
   );
-  const status: "within" | "over" | "incomplete" = findings.some((finding: IAutoMovieRenderFinding) : boolean => finding.status === "over")
+  const findings: IAutoMovieRenderFinding[] = AUTOMOVIE_RENDER_METRICS.map(
+    (
+      metric:
+        | "triangles"
+        | "vertices"
+        | "drawCalls"
+        | "materials"
+        | "textures"
+        | "textureBytes"
+        | "geometryBytes"
+        | "lights"
+        | "shadowMaps"
+        | "nodes"
+        | "instanceSets"
+        | "instanceSlots"
+        | "instanceChunks"
+        | "fluidCells"
+        | "fluidParticles",
+    ): IAutoMovieRenderFinding =>
+      evaluate({ metric, inventory, budget, gap: gaps.get(metric), limit }),
+  );
+  const status: "within" | "over" | "incomplete" = findings.some(
+    (finding: IAutoMovieRenderFinding): boolean => finding.status === "over",
+  )
     ? "over"
     : findings.some(
-          (finding: IAutoMovieRenderFinding) : boolean =>
+          (finding: IAutoMovieRenderFinding): boolean =>
             finding.status === "unsupported" || finding.status === "not-run",
         )
       ? "incomplete"
@@ -105,21 +152,25 @@ export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRende
         "automovie.render-report.v1",
         budget === null ? "unbudgeted" : budget.tier,
         status,
-        findings.map((finding: IAutoMovieRenderFinding): unknown[] =>
-          [
-            finding.metric,
-            finding.status,
-            finding.measured,
-            finding.limit,
-            finding.excess,
-            finding.contributors.map(
-              (contributor: IAutoMovieRenderContributor): [string, string, number] => [contributor.owner, contributor.source, contributor.cost],
-            ),
-            finding.omittedContributors,
-            finding.omittedCost,
-            finding.recovery,
-          ],
-        ),
+        findings.map((finding: IAutoMovieRenderFinding): unknown[] => [
+          finding.metric,
+          finding.status,
+          finding.measured,
+          finding.limit,
+          finding.excess,
+          finding.contributors.map(
+            (
+              contributor: IAutoMovieRenderContributor,
+            ): [string, string, number] => [
+              contributor.owner,
+              contributor.source,
+              contributor.cost,
+            ],
+          ),
+          finding.omittedContributors,
+          finding.omittedCost,
+          finding.recovery,
+        ]),
         mask.digest,
         target.digest,
       ]),
@@ -127,17 +178,42 @@ export const evaluateAutoMovieRenderBudget: (props: { inventory: IAutoMovieRende
   };
 };
 
-const evaluate: (props: { metric: AutoMovieRenderMetric; inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; gap: IAutoMovieRenderInventory["gaps"][number] | undefined; limit: number; }) => IAutoMovieRenderFinding = (props: {
+const evaluate: (props: {
+  metric: AutoMovieRenderMetric;
+  inventory: IAutoMovieRenderInventory;
+  budget: IAutoMovieRenderBudget | null;
+  gap: IAutoMovieRenderInventory["gaps"][number] | undefined;
+  limit: number;
+}) => IAutoMovieRenderFinding = (props: {
   metric: AutoMovieRenderMetric;
   inventory: IAutoMovieRenderInventory;
   budget: IAutoMovieRenderBudget | null;
   gap: IAutoMovieRenderInventory["gaps"][number] | undefined;
   limit: number;
 }): IAutoMovieRenderFinding => {
-  const { metric, inventory, budget, gap }: { metric: AutoMovieRenderMetric; inventory: IAutoMovieRenderInventory; budget: IAutoMovieRenderBudget | null; gap: IAutoMovieRenderInventory["gaps"][number] | undefined; limit: number; } = props;
+  const {
+    metric,
+    inventory,
+    budget,
+    gap,
+  }: {
+    metric: AutoMovieRenderMetric;
+    inventory: IAutoMovieRenderInventory;
+    budget: IAutoMovieRenderBudget | null;
+    gap: IAutoMovieRenderInventory["gaps"][number] | undefined;
+    limit: number;
+  } = props;
   const measured: number | null = inventory.totals[metric];
   const declared: number | null = budget?.limits[metric] ?? null;
-  const { passes, ...ranked }: { contributors: IAutoMovieRenderContributor[]; omittedContributors: number; omittedCost: number; passes: { cost: number; dominant: IAutoMovieRenderContributor; } | null; } = rank(inventory, metric, props.limit);
+  const {
+    passes,
+    ...ranked
+  }: {
+    contributors: IAutoMovieRenderContributor[];
+    omittedContributors: number;
+    omittedCost: number;
+    passes: { cost: number; dominant: IAutoMovieRenderContributor } | null;
+  } = rank(inventory, metric, props.limit);
 
   if (gap !== undefined)
     return {
@@ -228,7 +304,16 @@ const evaluate: (props: { metric: AutoMovieRenderMetric; inventory: IAutoMovieRe
  * not change: a resident cost is allocated once and reused by every pass, so no
  * pass row exists to outrank the drawable that owns it.
  */
-const rank: (inventory: IAutoMovieRenderInventory, metric: AutoMovieRenderMetric, limit: number) => { contributors: IAutoMovieRenderContributor[]; omittedContributors: number; omittedCost: number; passes: { cost: number; dominant: IAutoMovieRenderContributor; } | null; } = (
+const rank: (
+  inventory: IAutoMovieRenderInventory,
+  metric: AutoMovieRenderMetric,
+  limit: number,
+) => {
+  contributors: IAutoMovieRenderContributor[];
+  omittedContributors: number;
+  omittedCost: number;
+  passes: { cost: number; dominant: IAutoMovieRenderContributor } | null;
+} = (
   inventory: IAutoMovieRenderInventory,
   metric: AutoMovieRenderMetric,
   limit: number,
@@ -238,13 +323,29 @@ const rank: (inventory: IAutoMovieRenderInventory, metric: AutoMovieRenderMetric
   omittedCost: number;
   passes: { cost: number; dominant: IAutoMovieRenderContributor } | null;
 } => {
-  const totals: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
-  const passes: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
-  const runtime: Map<string, IAutoMovieRenderContributor> = new Map<string, IAutoMovieRenderContributor>();
+  const totals: Map<string, IAutoMovieRenderContributor> = new Map<
+    string,
+    IAutoMovieRenderContributor
+  >();
+  const passes: Map<string, IAutoMovieRenderContributor> = new Map<
+    string,
+    IAutoMovieRenderContributor
+  >();
+  const runtime: Map<string, IAutoMovieRenderContributor> = new Map<
+    string,
+    IAutoMovieRenderContributor
+  >();
   for (const entry of inventory.owners) {
     if (entry.metric !== metric) continue;
-    const into: Map<string, IAutoMovieRenderContributor> = entry.kind === "pass" ? passes : entry.kind === "runtime" ? runtime : totals;
-    const current: IAutoMovieRenderContributor | undefined = into.get(entry.owner);
+    const into: Map<string, IAutoMovieRenderContributor> =
+      entry.kind === "pass"
+        ? passes
+        : entry.kind === "runtime"
+          ? runtime
+          : totals;
+    const current: IAutoMovieRenderContributor | undefined = into.get(
+      entry.owner,
+    );
     if (current === undefined)
       into.set(entry.owner, {
         owner: entry.owner,
@@ -253,21 +354,43 @@ const rank: (inventory: IAutoMovieRenderInventory, metric: AutoMovieRenderMetric
       });
     else current.cost += entry.cost;
   }
-  const order: (left: IAutoMovieRenderContributor, right: IAutoMovieRenderContributor) => number = (
+  const order: (
+    left: IAutoMovieRenderContributor,
+    right: IAutoMovieRenderContributor,
+  ) => number = (
     left: IAutoMovieRenderContributor,
     right: IAutoMovieRenderContributor,
   ): number =>
     right.cost - left.cost ||
     compareAutoMovieRenderIds(left.owner, right.owner);
-  const ordered: IAutoMovieRenderContributor[] = [...totals.values()].sort(order);
-  const orderedPasses: IAutoMovieRenderContributor[] = [...passes.values()].sort(order);
-  const passCost: number = orderedPasses.reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0);
-  const runtimeCost: number = [...runtime.values()].reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0);
+  const ordered: IAutoMovieRenderContributor[] = [...totals.values()].sort(
+    order,
+  );
+  const orderedPasses: IAutoMovieRenderContributor[] = [
+    ...passes.values(),
+  ].sort(order);
+  const passCost: number = orderedPasses.reduce(
+    (sum: number, entry: IAutoMovieRenderContributor): number =>
+      sum + entry.cost,
+    0,
+  );
+  const runtimeCost: number = [...runtime.values()].reduce(
+    (sum: number, entry: IAutoMovieRenderContributor): number =>
+      sum + entry.cost,
+    0,
+  );
   const omitted: IAutoMovieRenderContributor[] = ordered.slice(limit);
   return {
     contributors: ordered.slice(0, limit),
     omittedContributors: omitted.length + orderedPasses.length + runtime.size,
-    omittedCost: omitted.reduce((sum: number, entry: IAutoMovieRenderContributor) : number => sum + entry.cost, 0) + passCost + runtimeCost,
+    omittedCost:
+      omitted.reduce(
+        (sum: number, entry: IAutoMovieRenderContributor): number =>
+          sum + entry.cost,
+        0,
+      ) +
+      passCost +
+      runtimeCost,
     // A pass that costs nothing is a pass over an empty frame, and naming it
     // would answer a question nobody asked.
     passes:

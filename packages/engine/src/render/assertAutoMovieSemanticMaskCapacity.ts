@@ -16,7 +16,9 @@ import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./constants/AUTOMOVIE_SEMAN
  * @evidence contracts/performance.md#reuse-equivalent-work All entity claims share this capacity owner; no prior admission is cached across a changed claim population.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The guard retains no palette or task and opens no handle; a caller catching failure owns the error lifetime.
  */
-export const assertAutoMovieSemanticMaskCapacity: (entities: number) => void = (entities: number): void => {
+export const assertAutoMovieSemanticMaskCapacity: (entities: number) => void = (
+  entities: number,
+): void => {
   if (entities > AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES)
     throw new Error(
       `semantic mask needs ${entities} entries, above the bounded maximum ${AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES}; derive one mask per building unit instead of one for the whole work`,

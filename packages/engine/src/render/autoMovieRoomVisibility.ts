@@ -1,5 +1,8 @@
-import { IAutoMovieBuiltSpace, IAutoMovieBuiltOpening, IAutoMovieConnectorLanding,
+import {
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConnectorLanding,
   IAutoMovieRoomVisibility,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -61,30 +64,44 @@ const EXTERIOR: string = " exterior";
  * @evidence contracts/performance.md#reuse-equivalent-work Parent, open-boundary and edge indices are built once per request; no graph cache assumes mutable environments, openings or camera position remain equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Graph/queue/indices are call-owned and returned id arrays contain only report values; no camera, scene object, handle or background culler is retained.
  */
-export const autoMovieRoomVisibility: (props: { environment: IAutoMovieBuiltEnvironment; camera: IAutoMovieVector3; }) => IAutoMovieRoomVisibility = (props: {
+export const autoMovieRoomVisibility: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  camera: IAutoMovieVector3;
+}) => IAutoMovieRoomVisibility = (props: {
   /** Building whose spaces are being culled. */
   environment: IAutoMovieBuiltEnvironment;
   /** World-space camera position. */
   camera: IAutoMovieVector3;
 }): IAutoMovieRoomVisibility => {
-  const { environment, camera }: { environment: IAutoMovieBuiltEnvironment; camera: IAutoMovieVector3; } = props;
+  const {
+    environment,
+    camera,
+  }: { environment: IAutoMovieBuiltEnvironment; camera: IAutoMovieVector3 } =
+    props;
   const all: string[] = environment.spaces
-    .map((space: IAutoMovieBuiltSpace) : string => space.id)
+    .map((space: IAutoMovieBuiltSpace): string => space.id)
     .sort(compareAutoMovieRenderIds);
   const parents: Set<string> = new Set(
     environment.spaces
-      .map((space: IAutoMovieBuiltSpace) : string | null => space.parent)
+      .map((space: IAutoMovieBuiltSpace): string | null => space.parent)
       .filter((parent: string | null): parent is string => parent !== null),
   );
-  const leaves: IAutoMovieBuiltSpace[] = environment.spaces.filter((space: IAutoMovieBuiltSpace) : boolean => !parents.has(space.id));
+  const leaves: IAutoMovieBuiltSpace[] = environment.spaces.filter(
+    (space: IAutoMovieBuiltSpace): boolean => !parents.has(space.id),
+  );
 
   const cellless: string[] = leaves
-    .filter((space: IAutoMovieBuiltSpace) : boolean => builtSpaceStatesVolume(space) === false)
-    .map((space: IAutoMovieBuiltSpace) : string => space.id)
+    .filter(
+      (space: IAutoMovieBuiltSpace): boolean =>
+        builtSpaceStatesVolume(space) === false,
+    )
+    .map((space: IAutoMovieBuiltSpace): string => space.id)
     .sort(compareAutoMovieRenderIds);
   const containing: string[] = leaves
-    .filter((space: IAutoMovieBuiltSpace) : boolean => builtSpaceContainsPoint(space, camera))
-    .map((space: IAutoMovieBuiltSpace) : string => space.id)
+    .filter((space: IAutoMovieBuiltSpace): boolean =>
+      builtSpaceContainsPoint(space, camera),
+    )
+    .map((space: IAutoMovieBuiltSpace): string => space.id)
     .sort(compareAutoMovieRenderIds);
   if (containing.length === 0)
     // With an unknown extent in the building the camera may be standing in it,
@@ -135,8 +152,8 @@ export const autoMovieRoomVisibility: (props: { environment: IAutoMovieBuiltEnvi
     version: 1,
     camera: origin,
     cameraPlacement: "interior",
-    hidden: all.filter((id: string) : boolean => !reachable.has(id)),
-    visible: all.filter((id: string) : boolean => reachable.has(id)),
+    hidden: all.filter((id: string): boolean => !reachable.has(id)),
+    visible: all.filter((id: string): boolean => reachable.has(id)),
     inconclusive: null,
   };
 };
@@ -150,21 +167,34 @@ export const autoMovieRoomVisibility: (props: { environment: IAutoMovieBuiltEnvi
  * through it: making a container a routing node would let sight pass between
  * two sealed rooms merely because they share a floor.
  */
-const reach: (environment: IAutoMovieBuiltEnvironment, origin: string) => Set<string> = (
+const reach: (
+  environment: IAutoMovieBuiltEnvironment,
+  origin: string,
+) => Set<string> = (
   environment: IAutoMovieBuiltEnvironment,
   origin: string,
 ): Set<string> => {
   const parentOf: Map<string, string | null> = new Map(
-    environment.spaces.map((space: IAutoMovieBuiltSpace) : [string, string | null] => [space.id, space.parent]),
+    environment.spaces.map(
+      (space: IAutoMovieBuiltSpace): [string, string | null] => [
+        space.id,
+        space.parent,
+      ],
+    ),
   );
   const edges: Map<string, Set<string>> = new Map<string, Set<string>>();
-  const join: (from: string, to: string) => void = (from: string, to: string): void => {
+  const join: (from: string, to: string) => void = (
+    from: string,
+    to: string,
+  ): void => {
     const bucket: Set<string> | undefined = edges.get(from);
     if (bucket === undefined) edges.set(from, new Set([to]));
     else bucket.add(to);
   };
   const openBoundaries: Set<string> = new Set(
-    environment.openings.map((opening: IAutoMovieBuiltOpening) : string => opening.boundary),
+    environment.openings.map(
+      (opening: IAutoMovieBuiltOpening): string => opening.boundary,
+    ),
   );
   for (const boundary of environment.boundaries) {
     if (!openBoundaries.has(boundary.id)) continue;
@@ -187,7 +217,9 @@ const reach: (environment: IAutoMovieBuiltEnvironment, origin: string) => Set<st
   for (const connector of environment.connectors) {
     const stops: string[] = [
       connector.from,
-      ...(connector.landings ?? []).map((landing: IAutoMovieConnectorLanding) : string => landing.space),
+      ...(connector.landings ?? []).map(
+        (landing: IAutoMovieConnectorLanding): string => landing.space,
+      ),
       connector.to,
     ];
     for (const from of stops)

@@ -24,15 +24,31 @@ import { IAutoMovieSemanticMaskResolution } from "./IAutoMovieSemanticMaskResolu
  * @evidence contracts/performance.md#reuse-equivalent-work The mask's own entry records are reused without copying; no persistent cache assumes mutable entries/ownership remain equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the ancestor array while entries remain mask-owned; local maps/seen set are released and no pixel buffer or native resource is retained.
  */
-export const resolveAutoMovieSemanticMask: (mask: IAutoMovieSemanticMask, color: string) => IAutoMovieSemanticMaskResolution | null = (
+export const resolveAutoMovieSemanticMask: (
+  mask: IAutoMovieSemanticMask,
+  color: string,
+) => IAutoMovieSemanticMaskResolution | null = (
   mask: IAutoMovieSemanticMask,
   color: string,
 ): IAutoMovieSemanticMaskResolution | null => {
   const normalized: string = color.toUpperCase();
-  const byColor: Map<string, IAutoMovieSemanticMaskEntry> = new Map(mask.entries.map((entry: IAutoMovieSemanticMaskEntry) : [string, IAutoMovieSemanticMaskEntry] => [entry.color, entry]));
-  const entry: IAutoMovieSemanticMaskEntry | undefined = byColor.get(normalized);
+  const byColor: Map<string, IAutoMovieSemanticMaskEntry> = new Map(
+    mask.entries.map(
+      (
+        entry: IAutoMovieSemanticMaskEntry,
+      ): [string, IAutoMovieSemanticMaskEntry] => [entry.color, entry],
+    ),
+  );
+  const entry: IAutoMovieSemanticMaskEntry | undefined =
+    byColor.get(normalized);
   if (entry === undefined) return null;
-  const byId: Map<string, IAutoMovieSemanticMaskEntry> = new Map(mask.entries.map((item: IAutoMovieSemanticMaskEntry) : [string, IAutoMovieSemanticMaskEntry] => [item.id, item]));
+  const byId: Map<string, IAutoMovieSemanticMaskEntry> = new Map(
+    mask.entries.map(
+      (
+        item: IAutoMovieSemanticMaskEntry,
+      ): [string, IAutoMovieSemanticMaskEntry] => [item.id, item],
+    ),
+  );
   const ancestors: IAutoMovieSemanticMaskEntry[] = [];
   const seen: Set<string> = new Set<string>([entry.id]);
   let owner: string | null = entry.owner;

@@ -9,8 +9,8 @@ import {
 
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
+import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 
 /**

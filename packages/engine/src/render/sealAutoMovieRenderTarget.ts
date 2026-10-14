@@ -5,10 +5,10 @@ import {
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
-import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
  * Seal one render target: the renderer, its settings, and the exact asset bytes
@@ -32,7 +32,12 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidence contracts/performance.md#reuse-equivalent-work Normalization, digest syntax and hash owners are shared; each seal rechecks current fields because mutable renderer/assets cannot be cached by object identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The target wrapper/settings/ordered array transfer to the caller while renderer and asset records remain borrowed; no file bytes, GPU handle or sealing task is retained.
  */
-export const sealAutoMovieRenderTarget: (props: { renderer: IAutoMovieRenderTargetRenderer; settings: IAutoMovieRenderTargetSettings; assets: readonly IAutoMovieRenderTargetAsset[]; textureDigest?: string; }) => IAutoMovieRenderTarget = (props: {
+export const sealAutoMovieRenderTarget: (props: {
+  renderer: IAutoMovieRenderTargetRenderer;
+  settings: IAutoMovieRenderTargetSettings;
+  assets: readonly IAutoMovieRenderTargetAsset[];
+  textureDigest?: string;
+}) => IAutoMovieRenderTarget = (props: {
   /** Who draws the frame. */
   renderer: IAutoMovieRenderTargetRenderer;
   /** Configuration that changes what a frame costs. */
@@ -42,9 +47,29 @@ export const sealAutoMovieRenderTarget: (props: { renderer: IAutoMovieRenderTarg
   /** Canonical host-decoded upload facts, when measured by the current host. */
   textureDigest?: string;
 }): IAutoMovieRenderTarget => {
-  const { renderer }: { renderer: IAutoMovieRenderTargetRenderer; settings: IAutoMovieRenderTargetSettings; assets: readonly IAutoMovieRenderTargetAsset[]; textureDigest?: string; } = props;
-  const settings: { shadowType: "pcf" | "vsm" | "none"; width: number; height: number; pixelRatio: number; shadows: boolean; toneMapping: "none" | "acesFilmic"; exposure: number; } = { ...props.settings, shadowType: props.settings.shadowType === "none"
-    ? "none" as const : normalizeAutoMovieShadowFilter(props.settings.shadowType) };
+  const {
+    renderer,
+  }: {
+    renderer: IAutoMovieRenderTargetRenderer;
+    settings: IAutoMovieRenderTargetSettings;
+    assets: readonly IAutoMovieRenderTargetAsset[];
+    textureDigest?: string;
+  } = props;
+  const settings: {
+    shadowType: "pcf" | "vsm" | "none";
+    width: number;
+    height: number;
+    pixelRatio: number;
+    shadows: boolean;
+    toneMapping: "none" | "acesFilmic";
+    exposure: number;
+  } = {
+    ...props.settings,
+    shadowType:
+      props.settings.shadowType === "none"
+        ? ("none" as const)
+        : normalizeAutoMovieShadowFilter(props.settings.shadowType),
+  };
   for (const [field, value] of [
     ["api", renderer.api],
     ["vendor", renderer.vendor],
@@ -72,8 +97,11 @@ export const sealAutoMovieRenderTarget: (props: { renderer: IAutoMovieRenderTarg
     throw new Error(
       `render target settings.shadowType "${settings.shadowType}" contradicts shadows=${settings.shadows}`,
     );
-  const assets: IAutoMovieRenderTargetAsset[] = [...props.assets].sort((left: IAutoMovieRenderTargetAsset, right: IAutoMovieRenderTargetAsset) : number =>
-    compareAutoMovieRenderIds(left.path, right.path),
+  const assets: IAutoMovieRenderTargetAsset[] = [...props.assets].sort(
+    (
+      left: IAutoMovieRenderTargetAsset,
+      right: IAutoMovieRenderTargetAsset,
+    ): number => compareAutoMovieRenderIds(left.path, right.path),
   );
   const paths: Set<string> = new Set<string>();
   for (const asset of assets) {
@@ -89,12 +117,22 @@ export const sealAutoMovieRenderTarget: (props: { renderer: IAutoMovieRenderTarg
         `render target asset "${asset.path}" must carry one exact lowercase SHA-256 digest, but carried "${asset.digest}"`,
       );
   }
-  if (props.textureDigest !== undefined && SHA256_DIGEST_PATTERN.test(props.textureDigest) === false)
-    throw new Error("render target textureDigest must carry one exact lowercase SHA-256 digest");
-  const protocol: "automovie.render-target.v1" | "automovie.render-target.v2" = props.textureDigest === undefined ? "automovie.render-target.v1" : "automovie.render-target.v2";
+  if (
+    props.textureDigest !== undefined &&
+    SHA256_DIGEST_PATTERN.test(props.textureDigest) === false
+  )
+    throw new Error(
+      "render target textureDigest must carry one exact lowercase SHA-256 digest",
+    );
+  const protocol: "automovie.render-target.v1" | "automovie.render-target.v2" =
+    props.textureDigest === undefined
+      ? "automovie.render-target.v1"
+      : "automovie.render-target.v2";
   return {
     protocol,
-    ...(props.textureDigest === undefined ? {} : { textureDigest: props.textureDigest }),
+    ...(props.textureDigest === undefined
+      ? {}
+      : { textureDigest: props.textureDigest }),
     renderer,
     settings,
     assets,
@@ -102,9 +140,19 @@ export const sealAutoMovieRenderTarget: (props: { renderer: IAutoMovieRenderTarg
       JSON.stringify([
         protocol,
         [renderer.api, renderer.vendor, renderer.device],
-        [settings.width, settings.height, settings.pixelRatio, settings.shadows,
-          settings.shadowType, settings.toneMapping, settings.exposure],
-        assets.map((asset: IAutoMovieRenderTargetAsset) : string[] => [asset.path, asset.digest]),
+        [
+          settings.width,
+          settings.height,
+          settings.pixelRatio,
+          settings.shadows,
+          settings.shadowType,
+          settings.toneMapping,
+          settings.exposure,
+        ],
+        assets.map((asset: IAutoMovieRenderTargetAsset): string[] => [
+          asset.path,
+          asset.digest,
+        ]),
         props.textureDigest ?? null,
       ]),
     ),
