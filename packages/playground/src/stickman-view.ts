@@ -17,6 +17,8 @@ import {
   applyCaptureCanvasSize,
   applyRenderMode,
   buildModel,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
   mountViewer,
 } from "@automovie/viewer";
 import * as THREE from "three";
@@ -48,7 +50,7 @@ const jointAxes: typeof HUMANOID_JOINT_AXES | typeof QUADRUPED_JOINT_AXES = isCa
 const defaultClip: "idle" | "jumpingJack" = isCat ? "idle" : "jumpingJack";
 
 const clipName: string =
-  params.get("clip") !== null && params.get("clip")! in clips
+  params.get("clip") !== null && Object.hasOwn(clips, params.get("clip")!)
     ? params.get("clip")!
     : defaultClip;
 const restFrames: typeof HUMANOID_REST_FRAME | typeof QUADRUPED_REST_FRAME = isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
@@ -299,7 +301,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(
     if (!capMode && freezeAt === null) frame(elapsed);
   },
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
-  // guide passes read back crisp and byte-stable across hosts.
+  // guide passes avoid antialiasing and device-pixel-ratio variation. These
+  // settings do not establish identical native pixels across browser/GPU hosts.
   { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
     completedFrame: (): { scene: THREE.Scene<THREE.Object3DEventMap>; camera: THREE.PerspectiveCamera; pass: AutoMovieGuidePass; } => ({ scene, camera, pass: observedPass }) },
 );
@@ -307,6 +310,9 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(
   t: number,
 ): void => {
   frame(t);
+  // Refuse an uncertain original scene/context owner before publishing a draw.
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };
@@ -317,6 +323,10 @@ let passHandle: IAutoMovieRenderModeHandle | null = null;
 (
   window as unknown as { __afPass: (pass: AutoMovieGuidePass) => void }
 ).__afPass = (pass: AutoMovieGuidePass): void => {
+  // Keep the persistent pass owner and its restoration order; failed ownership
+  // must refuse before another pass installs materials on this same scene.
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   passHandle?.restore();
   passHandle = applyRenderMode(scene, pass);
   observedPass = pass;

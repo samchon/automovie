@@ -17,7 +17,10 @@ import type { IBodyContactWatchProps } from "./IBodyContactWatchProps";
  * @evidence contracts/performance.md#bound-retention-and-release-resources One watch retains at most one timer, one delayed document and one active reading. Replacement and cancellation clear and settle the delay; active frames retire before completion, and idempotent close withdraws reporting and awaits the active task.
  */
 export function createBodyContactWatch<
-  Model extends { crossings?: IAutoMovieModelCrossing[] | null },
+  Model extends {
+    /** Returned triangle-crossing observations; absence/null means this prepared model supplies no reading. */
+    crossings?: IAutoMovieModelCrossing[] | null;
+  },
 >(props: IBodyContactWatchProps<Model>): IBodyContactWatch {
   let closed: boolean = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -35,7 +38,7 @@ export function createBodyContactWatch<
     reading === null || reading === undefined
       ? null
       : reading.length === 0
-        ? "No skin segment crosses itself or another in this pose."
+        ? "No triangle crossings were returned for the inspected skin segments in this pose."
         : "Crossing segments: " +
           reading.map((entry: IAutoMovieModelCrossing): string =>
             `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`,

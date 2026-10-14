@@ -98,10 +98,10 @@ export interface IBodyMeasuredControlsProps {
   ) => Promise<IConnectedBodyMeasurement>;
 
   /**
-   * Ask the panel to commit the solved document under its reserved ticket; resolve whether admission and publication succeed.
+   * Submit the solved document under its reserved ticket. True means current publication, which the person consumer can classify as an accepted person or a labelled construction draft; false includes failed settlement after earlier publication and promises no rollback.
    *
    * @evidence contracts/common.md#principled-implementation The solved weights enter the same ticketed body-document transaction as other authored changes, preserving shared admission and history.
-   * @evidence contracts/common.md#clear-and-simple-design A boolean completion lets the row append achieved readback only after a successful panel transaction.
+   * @evidence contracts/common.md#clear-and-simple-design A boolean publication completion lets the row append the shape-only solver reading while parent state retains accepted-versus-draft history authority.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical inverse completion alone does not bypass document admission or imply that the body was committed.
    * @evidence contracts/common.md#meaningful-documentation The member distinguishes commit request, reserved ticket and the transaction's successful completion result.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This commit callback selects no history, frame-build or publication implementation.
@@ -127,12 +127,12 @@ export interface IBodyMeasuredControlsProps {
   busy: (text: string) => void;
 
   /**
-   * Append the shape-only solver's achieved reading after a still-current commit succeeds. Authored anatomy can be reapplied by admission, so this is not an independent final-body measurement.
+   * Append the shape-only solver reading after current publication, without certifying accepted history. Authored anatomy can be reapplied by the complete transaction, so this is not an independent displayed-person measurement.
    *
-   * @evidence contracts/common.md#principled-implementation Readback reports the solver's measured shape outcome after commitment rather than echoing the target or claiming a new final-body measurement after authored anatomy reapplication.
+   * @evidence contracts/common.md#principled-implementation Readback reports the actual shape-only solver outcome after current publication, separately from requested targets, accepted-history state and final-person measurement after anatomy reapplication.
    * @evidence contracts/common.md#clear-and-simple-design The row supplies its numerical status line while the parent determines how that line joins the body status.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed or superseded commits do not receive a success readback through this notification path.
-   * @evidence contracts/common.md#meaningful-documentation The comment identifies the solver reading's provenance, current successful commitment and limitation when admission reapplies authored anatomy.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies shape-only readback, current publication including labelled drafts, and the separate effects of complete-document anatomy and accepted-history classification.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This append-report declaration chooses no formatting or status-history algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Commit readback is an observable effect and is not shared merely because displayed numbers match.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Report retention belongs to the parent status implementation, with no resources acquired by this member.

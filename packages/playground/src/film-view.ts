@@ -35,8 +35,8 @@ import { registerFilmViewerApplication } from "./viewer/registerFilmViewerApplic
 // a coding agent authors (script → staging → blocking → performance → assemble),
 // consumed by the engine's film compilers, played back through the sequence
 // resolver: real gait travel, a follow camera compiled from a `frame` verb,
-// a hard cut onto an orbiting close-up. Deterministic via `renderAt(t)`, so
-// capture-shots.ts bakes the identical film every run.
+// a cross-dissolve into an orbiting full shot. Explicit seeks replay the same
+// source timeline; native rasterization still depends on the browser/GPU host.
 
 // ── the coding-agent-authored stage values ──────────────────────────────────
 import {script} from "./film/script";
@@ -269,7 +269,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(
     return drawFrame(elapsed % (FILM_DURATION + 0.8));
   },
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
-  // guide passes read back crisp and byte-stable across hosts.
+  // guide passes avoid antialiasing and device-pixel-ratio variation. These
+  // settings do not establish identical native pixels across browser/GPU hosts.
   { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
     completedFrame: (): Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined => completedFrame,
     redrawCompleted: (): void => {
@@ -289,7 +290,9 @@ const cameraDepthPrecision: ReturnType<typeof assertAutoMovieViewerCameraDepthPr
 });
 const draw: (t: number) => void = (t: number): void => {
   if (!drawFrame(t, t)) {
-    renderer.render(scene, camera);
+    // The empty-sequence fallback shares the same failed-retirement admission
+    // and reversible beauty environment as the page's other scene draws.
+    renderAutoMovieScenePass(renderer, scene, camera, staged.scene.environment, "beauty");
     completedPass = "beauty";
     completedFrame = { scene, camera, pass: completedPass };
     handle.completeFrame(t);

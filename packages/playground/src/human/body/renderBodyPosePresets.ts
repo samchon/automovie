@@ -5,7 +5,7 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
- * Render the body editor's pose presets. A preset replaces the document's whole joint list in one edit, as the specification states, but for the standing joints (`standing`, the trunk's joints the age posture bends), whose rows it keeps unless it names them: a pose does not straighten an old body's back. A fixed preset applies at once. A solved preset (`armsDown`) asks the worker to solve it on the current body with every other joint at rest, the list it will replace, and applies the answer only while it is still the latest intent: a slider moved during the solve supersedes it, and a refusal leaves the committed body as it was with the reason on the status line.
+ * Render the body editor's pose presets. A preset replaces joint rows while keeping unnamed standing-posture rows. Fixed presets submit immediately. The existing sampled armsDown solve starts from those kept rows, and the worker preserves supplied non-arm rows while replacing the arm goals. Its answer is submitted only under the current intent; a later edit supersedes it. Numerical refusal preserves the display, while cleanup refusal can follow an earlier publication and promises no rollback.
  *
  * @evidence contracts/common.md#principled-implementation Fixed presets replace authored coordinate groups while preserving unnamed standing joints; solved presets evaluate the captured body and retain result authority only under the shared current intent.
  * @evidence contracts/common.md#clear-and-simple-design The renderer creates buttons and composes documents, delegating body-specific arms-down solving and final document admission to the supplied owners.

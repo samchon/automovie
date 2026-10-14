@@ -11,7 +11,7 @@ import {
   IAutoMovieMotion,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMoviePlayer, buildModel, mountViewer } from "@automovie/viewer";
+import { AutoMoviePlayer, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
 import * as THREE from "three";
 import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
@@ -32,7 +32,7 @@ const knightObj: ReturnType<typeof buildModel> = buildModel(knight.model);
 
 const horseClips: Record<string, IAutoMovieMotion> = HORSE_CLIPS(horse.skeleton.id);
 const clipName: string =
-  params.get("clip") !== null && params.get("clip")! in horseClips
+  params.get("clip") !== null && Object.hasOwn(horseClips, params.get("clip")!)
     ? params.get("clip")!
     : "performance";
 let horseClip: IAutoMovieMotion = horseClips[clipName]!;
@@ -207,6 +207,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
   t: number,
 ): void => {
   step(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

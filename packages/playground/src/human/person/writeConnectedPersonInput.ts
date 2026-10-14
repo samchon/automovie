@@ -3,7 +3,7 @@ import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 /**
  * Return an independent copy of a person document with one catalogue input written or removed; the caller's document is unchanged. Paths are literal segments supplied by the catalogue, and values retain their precision without range validation.
  *
- * Writing creates missing ancestor records. A supplied owner default is cloned only at its exact seedPath, preserving neighboring members of an omitted population. Removal prunes empty ancestors while retaining face/body roots and their required shape records. Completeness, supported keys and ranges are the generation owner's admission decision.
+ * Writing traverses only own ancestors and creates ordinary enumerable data properties, preserving supported literal source ids even when they name a prototype member. A supplied owner default is cloned only at its exact seedPath, preserving neighboring members of an omitted population. Removal prunes empty ancestors while retaining face/body roots and their required shape records. Completeness, supported keys and ranges remain the generation owner's admission decision.
  *
  * @evidence contracts/common.md#principled-implementation Cloning separates edits from the current draft; literal path traversal preserves authored identifiers, exact seed-prefix matching inserts owner defaults and empty-record pruning restores omission without deleting required document roots.
  * @evidence contracts/common.md#clear-and-simple-design One copied document and an ancestor chain serve both writing and removal; defaults are supplied by their owner rather than derived by this generic editor.
@@ -30,7 +30,7 @@ export function writeConnectedPersonInput(
   ];
   for (const key of path.slice(0, -1)) {
     const parent: Record<string, unknown> = chain[chain.length - 1];
-    const child: unknown = parent[key];
+    const child: unknown = Object.hasOwn(parent, key) ? parent[key] : undefined;
     if (typeof child === "object" && child !== null)
       chain.push(child as Record<string, unknown>);
     else if (value === undefined) return next;
@@ -42,13 +42,17 @@ export function writeConnectedPersonInput(
         seedPath.every((member: string, index: number): boolean => path[index] === member)
           ? (structuredClone(seed) as Record<string, unknown>)
           : {};
-      parent[key] = created;
+      Object.defineProperty(parent, key, {
+        value: created, enumerable: true, configurable: true, writable: true,
+      });
       chain.push(created);
     }
   }
   const leaf: string = path[path.length - 1];
   if (value !== undefined) {
-    chain[chain.length - 1][leaf] = value;
+    Object.defineProperty(chain[chain.length - 1], leaf, {
+      value, enumerable: true, configurable: true, writable: true,
+    });
     return next;
   }
   delete chain[chain.length - 1][leaf];

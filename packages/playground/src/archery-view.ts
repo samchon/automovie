@@ -15,7 +15,7 @@ import {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer } from "@automovie/viewer";
+import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_HORSE } from "./DEFAULT_HORSE";
@@ -27,9 +27,10 @@ import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
 
 // ── Parthian shot, at the gallop: two knights charge across the field (camera
 // tracking), the lead archer twists back in the saddle and looses an arrow at
-// his pursuer. The arrow is a real ballistic projectile; the hit is DETECTED
-// (in the moving target's frame), and the detected contact unhorses him: his
-// horse gallops on while he tumbles to the turf and recedes. ~10s. ────────────
+// his pursuer. The arrow follows the ballistic owner; contact is queried in
+// the moving target's frame. The fall starts at that contact time or at the
+// authored flight-time fallback when no hit is returned. His horse gallops
+// on while he tumbles to the turf and recedes. The authored loop is 9 seconds.
 const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
 
 const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
@@ -158,7 +159,7 @@ const hit: ReturnType<typeof projectileSphereHit> = projectileSphereHit(
 );
 const FLIGHT: number = hit ? hit.time : TAU;
 const HIT_AT: number = RELEASE + FLIGHT;
-const hitWorldZ: number = B0.z + V * FLIGHT; // where the (moving) target is struck
+const hitWorldZ: number = B0.z + V * FLIGHT; // target position at queried contact or fallback time
 // world launch velocity = relative aim + the rider's forward carry
 const arrowVel: IAutoMovieVector3 = v(relVel.x, relVel.y, relVel.z + V);
 console.log(
@@ -316,6 +317,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
   t: number,
 ): void => {
   step(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

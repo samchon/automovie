@@ -1,16 +1,9 @@
 import type { IHumanViewerReferenceInfo } from "@automovie/viewer/human/inspection/IHumanViewerReferenceInfo";
 import type { HumanViewerHandle } from "@automovie/viewer/human/inspection/HumanViewerHandle";
 /**
- * Keep the committed viewport visible while a source generation prepares off
- * screen. Interactive swaps require a completed model and GPU finish; the
- * resident service initially publishes a checked empty bridge, then restores
- * only a previously successful display before replacing its source generation.
- * Failed source candidates leave the old frame; a failed selected-document
- * restore publishes a checked empty bridge with that document's cause.
- * The old source digest prevents HTTP capture of it as new work.
- * Iframe removal releases its worker
- * and WebGL context, including all scene residents. The page hash holds the
- * display address; the controls above the viewport show it and change it.
+ * Keep the committed viewport visible while a source generation prepares off screen. Interactive swaps require a completed model and GPU finish; the resident service initially publishes a checked empty bridge, then restores only a previously successful display before replacing its source generation. Failed source candidates leave the old frame; a failed selected-document restore publishes a checked empty bridge with that document's cause. The old source digest prevents HTTP capture of it as new work.
+ *
+ * Iframe removal withdraws that browser realm. Child owners carry worker and WebGL cleanup responsibilities; removal provides no acknowledgment of physical OS/GPU release. The page hash holds the display address, which the controls above the viewport show and change.
  */
 import type { HumanViewerAddress } from "@automovie/viewer/human/inspection/HumanViewerAddress";
 import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/HumanViewerCatalogue";
@@ -113,14 +106,20 @@ const controls: { navigate: (address: HumanViewerAddress) => void; catalogue: (c
     }
   },
 });
-/** Ask whether a local photograph exists for the displayed document. */
+/** Withdraw old photo authority, then apply metadata only to the same displayed generation/document. */
 const loadPhoto: (doc: string) => Promise<void> = async (doc: string): Promise<void> => {
-  controls.photo(await loadHumanViewerReferenceInfo(doc));
+  const owner: ReturnType<typeof createHumanViewerGeneration> | undefined = committed;
+  const frame: HTMLIFrameElement | undefined = active;
+  if (closed || owner === undefined || owner.handle.address().doc !== doc) return;
+  controls.photo({ available: false, camera: null });
+  const info: IHumanViewerReferenceInfo = await loadHumanViewerReferenceInfo(doc);
+  if (closed || owner !== committed || frame !== active || owner.handle.address().doc !== doc) return;
+  controls.photo(info);
 };
-const refreshCatalogue: () => Promise<void> = async (): Promise<void> => {
-  controls.catalogue(
-    (await (await fetch("/docs")).json()) as HumanViewerCatalogue,
-  );
+/** An uncancelled catalogue fetch may settle late but cannot repaint a retired generation. */
+const refreshCatalogue: (owner: ReturnType<typeof createHumanViewerGeneration>) => Promise<void> = async (owner: ReturnType<typeof createHumanViewerGeneration>): Promise<void> => {
+  const catalogue: HumanViewerCatalogue = (await (await fetch("/docs")).json()) as HumanViewerCatalogue;
+  if (!closed && owner === committed) controls.catalogue(catalogue);
 };
 const banner: HTMLElement = document.querySelector<HTMLElement>("#banner")!;
 const auto: HTMLInputElement = document.querySelector<HTMLInputElement>("#auto")!;
@@ -323,6 +322,7 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>): voi
   committed = createHumanViewerGeneration(
     (active.contentWindow as Child).__humanViewer,
   );
+  const owner: ReturnType<typeof createHumanViewerGeneration> = committed;
   const handle: HumanViewerHandle = createHumanViewerHostHandle(committed.handle);
   Object.assign(window, { __humanViewer: handle });
   // The revision this generation's code is, as its window proved it, or
@@ -337,13 +337,13 @@ addEventListener("message", (event: MessageEvent<IHumanViewerFrameMessage>): voi
     console.log("HUMAN_RESTORE_FAILED " + event.data.restoreError);
   }
   followUp();
-  void refreshCatalogue()
+  void refreshCatalogue(owner)
     .then((): Promise<void> | undefined => {
-      if (resident) return;
+      if (closed || owner !== committed || resident) return;
       controls.show(handle.address(), handle.parts());
       return loadPhoto(handle.address().doc);
     })
-    .catch((failure: unknown): void => showError(String(failure)));
+    .catch((failure: unknown): void => { if (!closed && owner === committed) showError(String(failure)); });
 }, { signal: listeners.signal });
 addEventListener("hashchange", (event: HashChangeEvent): void => {
   if (active === undefined) return;

@@ -12,14 +12,20 @@ import { buildStickman } from "./buildStickman";
  * @evidence contracts/common.md#meaningful-documentation The comment identifies changed material, preserved eyes/pupils, shared skeleton and authored palette provenance.
  * @evidence contracts/performance.md#efficient-algorithms Fresh fixed-size stick construction and one material pass dominate assembly; later primitive tessellation, upload and animation belong to the viewer and retain their cost.
  * @evidence contracts/performance.md#reuse-equivalent-work One fresh stick result supplies geometry/bones and unaffected materials within a call; mutable models are not cached across distinct page actors.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returned model/skeleton data belong to the page, with no producer-owned GPU handle, timer or worker. The viewer owns uploads and disposal, while non-ink material records remain borrowed from this call's fresh stick model.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned model/skeleton data belong to the page, with no producer-owned GPU handle, timer or worker. The page owns resources realized by buildModel and must retire them separately from mountViewer's renderer; non-ink material records remain borrowed from this call's fresh stick model.
  *
  * @author Samchon
  */
 export function buildSparBoxer(
   id: string,
   rgb: [number, number, number],
-): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } {
+): {
+  /** Actor-identified wrapper shared with model.skeleton, borrowing this call's fresh stick bone array. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh tint-adjusted document; the page owns its later realized geometry and materials. */
+  model: IAutoMovieModel;
+} {
   const built: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
   const skeleton: IAutoMovieSkeleton = { ...built.skeleton, id };
   return {

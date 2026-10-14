@@ -1,14 +1,9 @@
 import type { IConnectedPersonUndescribedInput } from "./IConnectedPersonUndescribedInput";
 
 /**
- * Neutral numerical inputs of the person document whose owners publish no
- * range descriptor the page can read yet. The catalogue names them and where
- * they are edited instead of listing them with bounds of its own.
+ * Neutral numerical inputs of the person document whose owners publish no range descriptor the page can read yet. The catalogue names them and where they are edited instead of listing them with bounds of its own.
  *
- * Each entry leaves this list when its owner's descriptor reaches the page;
- * the catalogue then lists its members from that descriptor. Units are the
- * ones the document type states. Motion inputs (pose, expression and the
- * performed fractions) are outside this list by scope.
+ * Each entry leaves this list when its owner's descriptor reaches the page; the catalogue then lists its members from that descriptor. Units are the ones the document type states. Motion inputs (pose, expression and the performed fractions) are outside this list by scope.
  *
  * @author Samchon
  */
@@ -42,17 +37,17 @@ export const CONNECTED_PERSON_UNDESCRIBED_INPUTS: IConnectedPersonUndescribedInp
     },
     {
       paths: "face.oral.{teeth,maxillary,mandibular,space,tongue}.*",
-      unit: "mm",
+      unit: "authored dimensions in mm; crown presence is a separate closed choice",
       edited: "Oral assembly",
     },
     {
-      paths: "body.humeralHeads.{left,right}",
+      paths: "body.humeralHeads.{leftRadiusMillimetres,rightRadiusMillimetres}",
       unit: "mm",
       edited: "Humeral heads",
     },
     {
       paths: "body.anatomy.surface.* (bound exterior targets)",
-      unit: "mm",
+      unit: "metres in the document; the controls display mm",
       edited: "Body control group Anatomy",
     },
     {
@@ -78,8 +73,13 @@ export const CONNECTED_PERSON_UNDESCRIBED_INPUTS: IConnectedPersonUndescribedInp
       edited: "Complete document only",
     },
     {
-      paths: "body.underwear, body.anatomicalInspection",
+      paths: "body.underwear",
       unit: "closed choices",
       edited: "Complete document only",
+    },
+    {
+      paths: "body.anatomicalInspection",
+      unit: "source-registered reference atlas identities",
+      edited: "Body control group Pose: Reference atlas inspection",
     },
   ];

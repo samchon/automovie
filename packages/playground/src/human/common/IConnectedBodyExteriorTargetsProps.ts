@@ -6,7 +6,7 @@ import type {
 /**
  * What the anatomical target rows render into and call: the container, the body view within its reach, the search, the parent's drafts and intent tickets, and the panel's transaction, status and refusal owners.
  *
- * Targets are edited in millimetres in the controls and stored in metres at their anatomical request path. Text drafts remain uncommitted, and the shared intent must still be current before a successful build can clear them or report an achieved transaction.
+ * Targets are edited in millimetres and stored in metres at their anatomical request path. Text drafts remain outside the document until submission; current publication can clear them and report the stated target, while parent state separately identifies accepted history or labelled construction draft.
  *
  * @evidence contracts/common.md#principled-implementation Evaluable basis reach, request-path text drafts and shared intent tickets keep anatomical target authoring separate from the numerical channel binding and committed document.
  * @evidence contracts/common.md#clear-and-simple-design The row renderer receives DOM, draft and transaction seams while the parent owns status, history, publication and numerical admission.
@@ -74,11 +74,11 @@ export interface IConnectedBodyExteriorTargetsProps {
   isCurrent: (ticket: number) => boolean;
 
   /**
-   * Submit the edited document under its reserved ticket; true means admitted, while false keeps a refused or superseded transaction from reporting success.
+   * Submit the edited document under its reserved ticket. True means current publication, including an accepted person or a labelled construction draft in the person consumer. False includes refusal, supersession, closure or failed settlement after earlier publication; it promises no rollback.
    *
-   * @evidence contracts/common.md#principled-implementation The Human builder solves authored anatomy and the parent's ticket admits the complete document and prepared frame together.
+   * @evidence contracts/common.md#principled-implementation The Human owner evaluates authored anatomy, while the parent's current ticket authorizes complete-document publication and its own state classifies accepted history versus labelled draft.
    * @evidence contracts/common.md#clear-and-simple-design A boolean asynchronous transaction leaves inverse evaluation, history and publication with the parent.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Submission is not treated as success before its admission promise returns true.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Submission does not certify acceptance; true publication can remain a labelled construction draft and failed settlement does not imply that no frame was published.
    * @evidence contracts/common.md#meaningful-documentation The callback documents ticket-bound submission and refused or superseded false outcomes.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This commit signature chooses no anatomical solver or frame construction algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Effectful document admission declares no merging of independent user intents.
@@ -103,12 +103,12 @@ export interface IConnectedBodyExteriorTargetsProps {
   busy: (text: string) => void;
 
   /**
-   * Append a still-current successful target or clearing report to parent status.
+   * Append a current stated-target or clearing report after publication; it is not independently achieved readback or accepted history.
    *
-   * @evidence contracts/common.md#principled-implementation Success reporting follows true admission and a current ticket so older target work cannot claim the newer document's state.
+   * @evidence contracts/common.md#principled-implementation Reports follow true publication under the current ticket, with requested-target text distinct from independently achieved readback and accepted-history classification.
    * @evidence contracts/common.md#clear-and-simple-design The row supplies one report line while the parent controls status presentation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reporting a stated and solved target does not establish clinical or acquisition validity.
-   * @evidence contracts/common.md#meaningful-documentation The member locates reporting after current successful admission or clearing.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A stated target report is not independent achieved readback, accepted history or clinical acquisition validity.
+   * @evidence contracts/common.md#meaningful-documentation The member locates requested-target or clearing reports after current publication, whose accepted-or-draft classification remains panel state.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This report signature selects no string accumulation algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Visible report publication is an effect with no numerical cache identity.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The parent owns report text lifetime and no external resource is acquired here.

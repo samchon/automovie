@@ -3,14 +3,9 @@ import type { IAutoMovieHumanPersonHeadShapeFieldSource } from "@automovie/human
 import type { IConnectedPersonHeadShapeControlsProps } from "./IConnectedPersonHeadShapeControlsProps";
 
 /**
- * Edit registered source-relative head traits by anatomical group.
- * The head view supplies every available trait, unit and signed source envelope;
- * these are authored differences rather than clinical measurements. Blank input
- * stays absent until Apply, and Remove restores omission. No zero, mean or fitted
- * value is inserted. Raw body-channel authorship remains independent and a
- * duplicate is reported without silently deleting either input. The shared
- * person transaction owns geometry admission, intent ordering and history, so
- * failures retain the last valid document and save/export continue to use it.
+ * Edit registered source-relative head traits by anatomical group. The head view supplies every available trait, unit and signed source envelope; these are authored differences rather than clinical measurements. Blank input stays absent until Apply, and Remove restores omission. No zero, mean or fitted value is inserted. Raw body-channel authorship remains independent and a duplicate is reported without silently deleting either input.
+ *
+ * The shared person transaction owns geometry admission, intent ordering and history, so the panel distinguishes accepted history from labelled refused construction drafts. Build refusal preserves the display; cleanup refusal can follow publication. Save and qualified export use the actual displayed state rather than this control's Boolean as an acceptance verdict.
  *
  * @evidence contracts/common.md#principled-implementation Only source-registered anatomical trait ids and signed unit/envelope metadata are offered, with latest complete-person composition and shared intent-bound transaction for apply/remove.
  * @evidence contracts/common.md#clear-and-simple-design Group/member inputs stay in this section while generation registration, raw-channel ownership and numerical admission/history remain existing owners.

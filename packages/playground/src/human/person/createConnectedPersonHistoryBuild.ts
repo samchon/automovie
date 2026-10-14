@@ -6,11 +6,8 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
 
 /**
- * Own the one accepted construction handed into history and the original
- * admission of a rebuilt history entry. A handoff is consumed once; restoring
- * without one constructs the complete document through the same viewport.
- * Refused frames retire before rejection, retaining the original admission
- * cause together with any resource-retirement failure.
+ * Own the one accepted construction handed into history and the original admission of a rebuilt history entry. A handoff is consumed once; restoring without one constructs the complete document through the same viewport. Refused frames retire before rejection, retaining the original admission cause together with any resource-retirement failure.
+ *
  * The panel supplies an already accepted handoff for exactly the next matching document; this adapter does not independently compare documents or re-admit that handoff. The ordinary caller consumes it immediately through editor.edit, and the viewport owns final retirement of prepared frames.
  *
  * @evidence contracts/common.md#principled-implementation A one-use matching accepted construction enters history without a second build, while actual history restoration constructs through the same viewport and retains refused-admission cause plus independent retirement failures.
@@ -34,6 +31,7 @@ export function createConnectedPersonHistoryBuild<
 }): {
   /** Supply the accepted frame for exactly the next matching document build. */
   handoff: (model: Model) => void;
+
   /** Consume the supplied frame once, otherwise construct and admit the requested history entry. */
   build: (document: IAutoMovieHumanPersonDocument) => Promise<Model>;
 } {

@@ -5,13 +5,8 @@ import type { IConnectedPersonAdmissionView } from "./IConnectedPersonAdmissionV
 /**
  * Show the admission report of the person on screen and save it on request.
  *
- * The report is written as the owner's object, unsummarized: `accepted`,
- * every failure, and the clearance and part readings when the measuring
- * owners attach them. The saved file adds only the identities of the
- * evaluation (document and both basis revisions) and whether the person was
- * accepted or a draft. The panel supplies the view after each state change;
- * this owner evaluates nothing and keeps no report of its own beyond the one
- * it is showing.
+ * The report is written as the owner's object, unsummarized: `accepted`, every failure, and the clearance and part readings when the measuring owners attach them. The saved wrapper adds the material-region count and identities of the evaluation (document and both basis revisions) and whether the person was accepted or a draft. The panel supplies the view after each state change; this owner evaluates nothing and keeps no report of its own beyond the one it is showing.
+ *
  * The active view is borrowed and serialized at paint/save time, not deep-copied. The parent clears this view and removes its DOM on close; externally retained mounted handles/elements remain caller-owned. Browser download completion is not physical disk-save acknowledgment.
  *
  * @evidence contracts/common.md#principled-implementation Show preserves accepted/draft mode and the numerical owner's unsummarized admission, while save adds supplied document/basis identities without changing failures or diagnostic readings.

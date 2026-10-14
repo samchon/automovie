@@ -85,9 +85,21 @@ const rod: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3,
  *
  * @author Samchon
  */
-export const buildStickman: (p: IStickmanParams) => { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } = (
+export const buildStickman: (p: IStickmanParams) => {
+  /** Caller-owned rig wrapper shared with model.skeleton; constraint rows borrow the engine's default table. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document, whose later realized geometry/materials require caller retirement. */
+  model: IAutoMovieModel;
+} = (
   p: IStickmanParams,
-): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } => {
+): {
+  /** Caller-owned rig wrapper shared with model.skeleton; constraint rows borrow the engine's default table. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document, whose later realized geometry/materials require caller retirement. */
+  model: IAutoMovieModel;
+} => {
   const bones: IAutoMovieBone[] = [
     bone("hips", null, at(v(0, p.hipHeight, 0))),
     bone("spine", "hips", at(v(0, p.pelvisToSpine, 0))),

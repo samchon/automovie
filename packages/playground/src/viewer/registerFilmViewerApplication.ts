@@ -3,9 +3,9 @@ import { isGuidePass } from "@automovie/render";
 import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 
 /**
- * Restore a film owner's captured completed shot/blend sample and actual guide pass through its original draw. Shot identities must be known, local seconds finite/nonnegative and outgoing blend alpha within [0,1]. Null frame requests the owner's current scene. Local time is not bounded by shot duration here, and failed draws can leave the candidate changed without rolling back the retained prior page.
+ * Restore a film owner's captured completed shot/blend sample and actual guide pass through its original draw. Shot identities must be known, local seconds finite/nonnegative and incoming-layer blend alpha within [0,1]. Null frame requests the owner's current scene. Local time is not bounded by shot duration here, and failed draws can leave the candidate changed without rolling back the retained prior page.
  *
- * @evidence contracts/common.md#principled-implementation Known-shot membership, finite sample quantities and canonical runtime guide-pass validation precede the original restoration call; optional blend data carries its actual outgoing weight rather than inferring a transition.
+ * @evidence contracts/common.md#principled-implementation Known-shot membership, finite sample quantities and canonical runtime guide-pass validation precede the original restoration call; optional blend data identifies the outgoing sample and carries the incoming layer's weight rather than inferring a transition.
  * @evidence contracts/common.md#clear-and-simple-design One application registration validates only transfer shape/quantities and delegates scene evaluation, clock and completed-frame production to the film owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shot-time duration bounds and atomic draw rollback are absent rather than assumed, and restored sample readiness does not certify hardware completion or film appearance.
  * @evidence contracts/common.md#meaningful-documentation The comment defines second/alpha units, known identities, null scene meaning and retained-page versus candidate-mutation failure behavior.
@@ -38,7 +38,7 @@ export function registerFilmViewerApplication(props: {
       /** Finite nonnegative local time in the outgoing shot, in seconds. */
       shotTimeSeconds: number;
 
-      /** Outgoing-layer weight in [0,1], as consumed by the film compositor. */
+      /** Incoming-layer weight in [0,1]; the outgoing layer receives one minus this value. */
       alpha: number
     } | null
   } | null,

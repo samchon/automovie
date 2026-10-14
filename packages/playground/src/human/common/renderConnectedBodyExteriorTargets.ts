@@ -10,7 +10,7 @@ import { writeConnectedBodyAnatomyTarget } from "./writeConnectedBodyAnatomyTarg
 /**
  * Render one row per anatomical surface target the body can answer (`HUMAN_BODY_EXTERIOR_TARGETS`), labelled by its request path, such as `surface.rightUpperLimb.upperArm.midUpperArmGirth`.
  *
- * The row is the anatomical name of a measurement, not a morph slider: a target in millimetres is written to the body document's `anatomy` at its request path (`writeConnectedBodyAnatomyTarget`), the document's only record of it, and the builder solves the binding's channel so the binding's rule, oriented to its side, reads the target on the rest skin; the right arm's girth moves only the right arm. An empty entry clears the target. The row shows the document's stated value, and the binding's protocol sentence states how the instrument departs from the survey definition. A binding whose channel the generation cannot evaluate is listed disabled with that channel named; a target the builder cannot meet is refused with the path named and the last committed person stays. The parent owns uncommitted text by path so a redraw cannot erase a value being typed.
+ * Millimetre targets are stored in metres at their authored anatomy request paths. Human owns the side-bound channel inverse and its rest-skin rule; this row shows only the stated document target and supplied protocol qualification, with no independent achieved readback. Blank clears the target. Missing evaluable channels receive disabled rows. The shared person consumer can publish a labelled refused construction draft, while cleanup refusal can follow publication; parent state identifies accepted history and recovery. Uncommitted text remains parent-owned across redraw.
  *
  * @evidence contracts/common.md#principled-implementation Authored catalogue paths bind metre targets to supported channels, millimetre entry crosses that unit boundary once, and current tickets gate successful text-draft clearing and transaction reports.
  * @evidence contracts/common.md#clear-and-simple-design The renderer owns target text and conversion, shared path helpers own leaf editing, Human owns anatomy inversion, and the parent owns document admission and persistent draft text.
@@ -82,7 +82,7 @@ export function renderConnectedBodyExteriorTargets(
           props.report(
             metres === undefined
               ? `${target.path}: cleared.`
-              : `${target.path}: ${mm(metres)} stated in the document and solved along ${target.channel}.`,
+              : `${target.path}: ${mm(metres)} stated in the displayed document; binding channel ${target.channel}.`,
           );
         }
       } catch (error) {

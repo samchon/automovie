@@ -30,38 +30,14 @@ import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonE
 type PersonEditor<Model extends IConnectedPersonModel> = ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>>;
 
 /**
- * Mount the connected person editor: one working person document, one
- * viewport and one accepted history, with the body editor's measured, joint
- * and pose controls editing the body subtree and the face editor's shape and
- * expression controls editing the face subtree.
+ * Mount the connected person editor: one working person document, one viewport and one accepted history, with the body editor's measured, joint and pose controls editing the body subtree and the face editor's shape and expression controls editing the face subtree.
  *
- * Every edit, from either subtree, from the document text or from a loaded
- * file, is one construction of the whole working document, which always
- * answers with a model and its owner's admission report. An accepted
- * construction is committed to the one `createHumanFaceEditor` history, so
- * undo, redo and reset traverse both subtrees; the first accepted document
- * founds that history, whenever it arrives. A construction its owner refused
- * is displayed as a draft with the whole report and stays editable, saved and
- * encoded only as a draft; it never enters the history and the screen never
- * calls it committed. A request that produces no model (a schema, range or
- * registration refusal) changes nothing: the displayed person, the working
- * document and the history stay, and the status says so.
+ * Every edit from either subtree, document text or a loaded file constructs the whole working document. An accepted construction is committed to the one `createHumanFaceEditor` history, so undo, redo and reset traverse both subtrees; the first accepted document founds that history, whenever it arrives. A construction its owner refused is displayed as a draft with the whole report and stays editable, saved and encoded only as a draft; it never enters the history and the screen never calls it committed. A request that produces no model (a schema, range or registration refusal) changes nothing: the displayed person, the working document and the history stay, and the status says so.
  *
- * Accepted display publication and leaving a draft run synchronously inside
- * the history owner's commit, so a newer intent cannot separate the displayed
- * frame and draft state from their committed document/model pair. Discard
- * rebuilds that current pair without adding an undo entry.
+ * Accepted display publication and leaving a draft run synchronously inside the history owner's commit, so a newer intent cannot separate the displayed frame and draft state from their committed document/model pair. Discard rebuilds that current pair without adding an undo entry.
  *
- * The status line, the admission report and every button state are drawn
- * from the session state and the history (`describeConnectedPersonStatus`),
- * never written directly, and only the latest request may change that state
- * (`createBodyIntentGate`). Save and Export act on the displayed person, not
- * on unapplied document text. The face controls list the head view's
- * channels without its driver channels, which the body owns. The body
- * controls show every body view channel: one with an unavailable endpoint is
- * listed disabled with the missing target named, and an envelope-limited
- * channel's row states where its reach ends and why. The panel evaluates
- * nothing itself.
+ * The status line, admission report and button states come from session state and history (`describeConnectedPersonStatus`), and only the latest request may change that state (`createBodyIntentGate`). Save and Export act on the displayed person, not on unapplied document text. The face controls list the head view's channels without its driver channels, which the body owns. Body controls show unavailable endpoints disabled with the missing target named, and an envelope-limited channel's row states where its reach ends and why. The panel evaluates no geometry itself.
+ *
  * True change completion includes either accepted publication or a labelled construction draft; false can follow supersession, closure, refusal or cleanup failure after an earlier publication. Initial ready observes the first transaction's settlement rather than independently proving an accepted model. Close withdraws intent and independently closes the viewport while awaiting initial settlement, then clears history/session/report references and mounted DOM.
  *
  * @evidence contracts/common.md#principled-implementation Shared current-intent construction publishes accepted frames into one atomic document/history transaction or preserves labelled construction drafts with their original admission, while no-model failures restore the actual displayed document.
@@ -79,10 +55,15 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   props: IConnectedPersonPanelProps<Model>,
 ): {
   /** Settlement of the initial transaction, including refusal or supersession. */ ready: Promise<void>;
+
   /** Withdraw owned work and await viewport/reference/DOM retirement. */ close: () => Promise<void>;
+
   /** Accepted history snapshot, absent before acceptance and after close. */ snapshot: () => ReturnType<PersonEditor<Model>["snapshot"]> | undefined;
+
   /** Session state identifying pending work and displayed construction draft. */ session: () => ReturnType<ReturnType<typeof createConnectedPersonSession<Model>>["snapshot"]>;
+
   /** Parse and submit document text under a new intent; admission state remains panel-owned. */ load: (text: string) => Promise<void>;
+
   /** Publish the current accepted or labelled draft transaction; true is not alone accepted history. */ change: (document: IAutoMovieHumanPersonDocument) => Promise<boolean>;
 } {
   const dom: Document = app.ownerDocument;
@@ -410,8 +391,8 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
         session.rest();
         session.note(
           crossings.length === 0
-            ? "The posed body skin crosses nowhere."
-            : `The posed body skin crosses in ${crossings.length} places.`,
+            ? "The posed body skin inspection reports no crossing pairs."
+            : `The posed body skin inspection reports ${crossings.length} crossing pairs.`,
         );
       }
       for (const line of [anatomy, ground])

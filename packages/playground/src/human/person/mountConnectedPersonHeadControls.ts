@@ -4,25 +4,12 @@ import { HUMAN_PERSON_HEAD_SOLVE } from "@automovie/human/human/constants/HUMAN_
 import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadControlsProps";
 
 /**
- * Render the head measurement controls: one row per measurement of
- * `HUMAN_PERSON_HEAD_SOLVE`, each with the committed person's current reading
- * and a target in millimetres, and one action that solves the head.
+ * Render the head measurement controls: one row per measurement of `HUMAN_PERSON_HEAD_SOLVE`, each with the displayed person's current reading and a target in millimetres, and one action that solves the head.
  *
- * The met measurements need a target; head circumference is optional and is
- * pursued only within the freedom they leave. The solve runs in the
- * measurement worker and commits the solved person through the panel's
- * transaction under a fresh intent ticket, the same path as the girth and
- * stature rows; a newer intent discards the reply. The report states, per
- * measurement, the target and what the final skin measures, the circumference
- * miss when a target was given, the departure from the standard head and
- * every channel value the solve set. A refusal (a target beyond the channels'
- * reach together, a missing target, an unreadable skin) keeps the committed
- * person and shows the worker's text, which names the closest readings and the
- * channels at their limits.
+ * The met measurements need a target; head circumference is optional and is pursued only within the freedom they leave. The solve runs in the measurement worker and submits the solved candidate through the panel's transaction under a fresh intent ticket, the same path as the girth and stature rows; a newer intent discards the reply. The report states, per measurement, the target and what the final skin measures, the circumference miss when a target was given, the departure from the standard head and every channel value the solve set. A refusal (a target beyond the channels' reach together, a missing target, an unreadable skin) keeps the committed person and shows the worker's text, which names the closest readings and the channels at their limits. The panel separately classifies accepted history versus labelled draft publication; cleanup refusal can follow a display and implies no rollback.
  *
- * The note distinguishes earlier cranial-source faults from current-source
- * qualification. The solve may use any value in a channel's envelope; the
- * report shows every value so its source endpoints can be inspected.
+ * The note distinguishes earlier cranial-source faults from current-source qualification. The solve may use any value in a channel's envelope; the report shows every value so its source endpoints can be inspected.
+ *
  * The departure report is the independent-channel endpoint RMS objective, not a measured displacement of the composed skin. Refresh schedules one actual worker read, returning before settlement; its numeric latest-read guard has no explicit precision-exhaustion check.
  *
  * @evidence contracts/common.md#principled-implementation Registered primary/secondary head rules and metre targets flow through the numerical owner, then current whole-person intent authorizes complete-candidate transaction and truthful final-skin/proxy reporting.

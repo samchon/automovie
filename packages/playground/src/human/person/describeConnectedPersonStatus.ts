@@ -4,14 +4,10 @@ import type { IConnectedPersonSessionState } from "./IConnectedPersonSessionStat
 import type { IConnectedPersonStatus } from "./IConnectedPersonStatus";
 
 /**
- * Derive the person editor's status line from its session state and the
- * accepted person, if one exists.
+ * Derive the person editor's status line from its session state and the accepted person, if one exists.
  *
- * A pending intent is stated alone. Otherwise the line names what is on
- * screen: a draft with every failure of its admission report, in the report's
- * own words and order, or the committed person, or nothing. A refusal is
- * stated first and followed by what stayed on screen, so a refused edit never
- * reads as a change. A draft is never described as committed.
+ * A pending intent is stated alone. Otherwise the line names what is on screen: a draft with every failure of its admission report, in the report's own words and order, or the committed person, or nothing. A refusal is stated first and followed by the current display; cleanup refusal may follow an earlier publication and promises no rollback. A draft is never described as committed.
+ *
  * Notes come from the session without additional filtering; the caller's current-intent discipline and next begin determine their provenance and retirement.
  *
  * @evidence contracts/common.md#principled-implementation Pending work wins, then current refusal, draft/accepted/empty display and notes are formatted from session plus separate accepted history, preserving all admission failures in owner order.
@@ -52,7 +48,7 @@ export function describeConnectedPersonStatus<
   const lines: string[] =
     state.refusal === null
       ? shown
-      : [state.refusal, "Unchanged on screen:", ...shown];
+      : [state.refusal, "Current display:", ...shown];
   return {
     text: [...lines, ...state.notes].join(String.fromCharCode(10)),
     state:

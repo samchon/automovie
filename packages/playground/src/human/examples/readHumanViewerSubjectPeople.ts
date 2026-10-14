@@ -5,7 +5,7 @@ import { humanViewerPersonKey } from "@automovie/viewer/human/inspection/humanVi
 import { humanViewerPublishedBasis } from "@automovie/viewer/human/inspection/humanViewerPublishedBasis";
 
 /**
- * Each published subject on the neutral body, `person:<subject>`. These stay on the legacy published face and body bases because their face documents use the population macros the one-skin generation does not carry. The token names both basis files' bytes and the key both digests and all three source digests.
+ * Each published subject on the neutral body, `person:<subject>`. These stay on the legacy published face and body bases because their face documents use the population macros the one-skin generation does not carry. The transport token uses 12-hex-character prefixes of both basis digests, which do not exclude prefix collisions; the numerical key includes both full digests and all three source digests.
  *
  * The supplied face JSON remains unexamined catalogue data and ordinary numerical admission can refuse it; composing a subject id does not establish personal geometry or clinical validity.
  *

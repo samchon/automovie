@@ -3,20 +3,10 @@ import { HUMAN_PERSON_MEASUREMENTS } from "@automovie/human/human/constants/HUMA
 import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMeasuredControlsProps";
 
 /**
- * Render one row per person measurement (`HUMAN_PERSON_MEASUREMENTS`): a
- * girth whose site crosses the head/body cut, or the stature of the closed
- * skin, read on the whole person at rest and solved along its body channel in
- * the measurement worker. Each row's label names its kind.
+ * Render one row per person measurement (`HUMAN_PERSON_MEASUREMENTS`): a girth whose site crosses the head/body cut, or the stature of the closed skin, read on the whole person at rest and solved along its body channel in the measurement worker. Each row's label names its kind.
  *
- * Each row shows the committed person's current reading, takes a target in
- * millimetres, and commits the solved person through the panel's transaction
- * under a fresh intent ticket; a newer intent discards the reply. The report
- * line states the requested and the remeasured value and whether the target
- * lies within the source sample; a target outside it is solved and marked,
- * not refused. A refusal (outside the channel's reach, an unreadable skin, a
- * generation that lacks the channel's head rows) keeps the committed person.
- * `refresh` re-reads the current values after a commit; only the latest read
- * is shown.
+ * Each row shows the displayed person's current reading, takes a target in millimetres, and submits the solved candidate through the panel's transaction under a fresh intent ticket; a newer intent discards the reply. The report line states the requested and the remeasured value and whether the target lies within the source sample; a target outside it is solved and marked, not refused. A refusal (outside the channel's reach, an unreadable skin, a generation that lacks the channel's head rows) keeps the committed person. `refresh` re-reads the current values after a commit; only the latest read is shown. The panel identifies accepted history versus labelled draft publication; cleanup refusal can follow an earlier display and does not imply rollback.
+ *
  * Refresh schedules one worker read per registered row and returns before numerical settlement. Its numeric generation guard suppresses older paints but has no explicit precision-exhaustion check; the resident transport owns cancellation and resource close.
  *
  * @evidence contracts/common.md#principled-implementation Registered whole-person rest-skin instruments and metre targets flow through the shared intent-bound worker solve and panel transaction, with current-ticket reporting and latest-generation read presentation.

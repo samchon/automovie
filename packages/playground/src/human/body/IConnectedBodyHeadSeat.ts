@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 
 /**
- * Display-only companion seating owned by the body page. Calls supersede older head requests; null hides the companion. Close permanently withdraws publication and waits for pending work before retiring numerical and GPU ownership.
+ * Display-only companion seating owned by the body page. Calls supersede older head requests; null hides the companion. Close permanently withdraws publication and starts numerical disposal independently; pending-frame settlement precedes GPU companion closure.
  *
  * @evidence contracts/common.md#principled-implementation A callable seating operation carries the body document independently of the displayed model, while explicit closure supplies the page-owned companion's final lifetime boundary.
  * @evidence contracts/common.md#clear-and-simple-design The existing seat callback remains callable and gains one close operation, avoiding a second head-control or document-transaction layer.

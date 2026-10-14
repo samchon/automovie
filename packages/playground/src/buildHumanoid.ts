@@ -104,9 +104,21 @@ const blob: (id: string, boneName: AutoMovieHumanoidBone, shape: AutoMoviePrimit
  *
  * @author Samchon
  */
-export const buildHumanoid: (p: IHumanoidParams) => { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } = (
+export const buildHumanoid: (p: IHumanoidParams) => {
+  /** Caller-owned conventional rig wrapper shared with model.skeleton; bone constraints are absent. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; this data does not own the viewer's later realized resources. */
+  model: IAutoMovieModel;
+} = (
   p: IHumanoidParams,
-): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } => {
+): {
+  /** Caller-owned conventional rig wrapper shared with model.skeleton; bone constraints are absent. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; this data does not own the viewer's later realized resources. */
+  model: IAutoMovieModel;
+} => {
   const spineLen: number = p.torsoLength * 0.4;
   const chestLen: number = p.torsoLength * 0.35;
   const armY: number = p.torsoLength * 0.25; // shoulder height above chest origin

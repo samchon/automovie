@@ -30,6 +30,7 @@ const element: <T extends HTMLElement>(id: string) => T = <T extends HTMLElement
  * @evidence contracts/performance.md#bound-retention-and-release-resources The mount retains one current and pending address plus catalogue ids and reported names; row replacement releases old listeners, and close aborts static/row listener ownership, withdraws pending composition and closes child lighting. In-flight navigation tasks remain host-owned until settlement.
  */
 export function mountHumanViewerControls(props: {
+  /** Submit the composed display address; settlement acknowledges this intent, while the host reports any refusal. */
   navigate: (address: HumanViewerAddress) => Promise<void>;
 }): {
   /** Route an address through the same pending-intent composition as control gestures. */

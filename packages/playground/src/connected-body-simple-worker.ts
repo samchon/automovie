@@ -6,18 +6,9 @@ import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/struc
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human/body/structures/IAutoMovieHumanBodySimpleShape";
 import type { IAutoMovieHumanBodyMeasuredChannelSolution } from "@automovie/human/body/structures/IAutoMovieHumanBodyMeasuredChannelSolution";
 /**
- * A worker that owns the body editor's simple tier: it loads the body
- * partition view of the published person generation once and answers expansion, projection and one measured detailed
- * channel target. Each runs the package's measured inversions (dozens of full
- * shape evaluations), which would hold the page's main thread for seconds,
- * so they run here and the page stays responsive while they solve. Every
- * detailed body inversion brackets within the body reach the panel shows
- * (`connectedBodyReach`). Simple expansion instead uses the whole reader's
- * paired endpoint support, so its stature and mass samples remain inside
- * both views' actual domains. Stature and mass are
- * read on the whole person (`createConnectedBodySimpleWhole`), with the head
- * the page shows. Its whole-person reader and detailed-channel reach share
- * the same loaded body view.
+ * A worker that owns the body editor's simple tier: it loads the body partition view of the published person generation once and answers expansion, projection and one measured detailed channel target. Projection reads effective shape after optional anatomy resolution; expansion and channel solving retain their actual trial-build and inverse costs. The numerical branches run in this worker rather than the page; no current host latency or interaction timing is measured here.
+ *
+ * Every detailed body inversion brackets within the body reach the panel shows (`connectedBodyReach`). Simple expansion instead uses the whole reader's paired endpoint support, so its stature and mass samples remain inside both views' actual domains. Stature and mass are read on the whole person (`createConnectedBodySimpleWhole`), with the head the page shows. Its whole-person reader and detailed-channel reach share the same loaded body view.
  */
 import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
 import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";

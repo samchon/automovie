@@ -80,7 +80,7 @@ export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
       number.max = String(range.max);
       slider.max = number.max;
       note.textContent =
-        `clinical range ${range.min}° to ${range.max}°, rest ${joint.neutral[axis].toFixed(2)}°` +
+        `source-rig range ${range.min}° to ${range.max}°, rest ${joint.neutral[axis].toFixed(2)}°` +
         (constraint?.swingDeg !== undefined &&
         constraint?.swingDeg !== null &&
         axis !== "twist"

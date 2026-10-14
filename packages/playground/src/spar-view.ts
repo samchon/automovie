@@ -1,7 +1,7 @@
 import type { IAutoMovieSkeleton, IAutoMovieModel } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
-import { AutoMoviePlayer, buildModel, mountViewer } from "@automovie/viewer";
+import { AutoMoviePlayer, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { SPAR_DURATION } from "./SPAR_DURATION";
@@ -93,6 +93,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
   t: number,
 ): void => {
   step(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

@@ -14,18 +14,25 @@
 export interface IHorseParams {
   /** Height of the back line (withers/croup) off the floor. */
   backHeight: number;
+
   /** Hips → chest body length (the horizontal barrel). */
   trunkLength: number;
+
   /** Half the track width between the left/right legs. */
   legHalf: number;
+
   /** Upper-leg (shoulder/hip → knee) length. */
   upperLeg: number;
+
   /** Lower-leg (knee → hoof) length. */
   lowerLeg: number;
+
   /** Head sphere radius. */
   headRadius: number;
+
   /** Radius of a leg rod. */
   rodRadius: number;
+
   /** Radius of the barrel (spine) rods. */
   trunkRadius: number;
 }

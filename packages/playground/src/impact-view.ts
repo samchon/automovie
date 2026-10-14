@@ -14,7 +14,7 @@ import {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer } from "@automovie/viewer";
+import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
@@ -23,8 +23,8 @@ import { buildStickman } from "./buildStickman";
 // ── collision-response demo: projectiles strike a braced stick figure; the
 // engine's resolveImpact decides bounce / embed / knock-back (and the ball's
 // rebound), and impactRecoil drives the figure's flinch, bounded by joint ROM,
-// the overflow becoming a root stagger. The engine computes the reaction; the
-// view just plays it. ─────────────────────────────────────────────────────────
+// plus an authored root stagger scaled from the full impulse magnitude. The
+// root motion is not a measurement of momentum left over after joint recoil.
 const params: URLSearchParams = new URLSearchParams(location.search);
 const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
 const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
@@ -115,7 +115,8 @@ const SHOTS: Shot[] = [
 ];
 const DUR: number = 9;
 
-// resolve each strike once (deterministic): time of contact + the impact result
+// Resolve each strike once: queried contact or authored 0.3-second fallback,
+// with the torso centre as the fallback response point when no hit is returned.
 /**
  * One strike's precomputed contact time, point and impact response.
  *
@@ -190,7 +191,7 @@ const envelope: (t: number, hitT: number) => number = (t: number, hitT: number):
 };
 
 const step: (t: number) => void = (t: number): void => {
-  // accumulate the recoil (flinch + stagger) from any strike currently landing
+  // Accumulate root stagger; the last active strike supplies the joint flinch.
   let flinch: IAutoMovieJointPose[] = [];
   let staggerZ: number = 0;
   let staggerDip: number = 0;
@@ -212,7 +213,7 @@ const step: (t: number) => void = (t: number): void => {
       0.7,
     );
     flinch = recoil.joints;
-    // the momentum the joints can't absorb staggers the whole body back
+    // Authored root response to full impulse magnitude, independently of ROM.
     staggerZ -= Math.min(mag * 0.012, 0.5) * env;
     staggerDip -= Math.min(mag * 0.004, 0.12) * env;
   }
@@ -293,6 +294,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
   t: number,
 ): void => {
   step(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

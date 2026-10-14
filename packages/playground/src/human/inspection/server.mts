@@ -413,7 +413,10 @@ async function main(): Promise<void> {
         pruneThumbnails();
       },
       error: residency.error,
-      reached: (): void => { windows.edited(); void numerical.shutdown(); },
+      reached: (): void => {
+        windows.edited();
+        void numerical.shutdown().catch((error: unknown): void => residency.error(error));
+      },
     },
     inventory: (): IHumanViewerCatalogue => inventory,
     openPage: residency.open,

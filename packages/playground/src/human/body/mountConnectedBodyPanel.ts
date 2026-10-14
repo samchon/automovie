@@ -47,12 +47,16 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
 ): {
   /** Settles after initial admission or its reported refusal. */
   ready: Promise<void>;
+
   /** Release this panel and its acquired viewport, preserving cleanup failures. */
   close: () => Promise<void>;
+
   /** Admitted history state, absent before initialization or after close. */
   snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>>["snapshot"]> | undefined;
-  /** Submit a document under a fresh intent; false means refused, closed or superseded. */
+
+  /** Submit a document under a fresh intent; false includes refusal, closure, supersession or failed retirement after publication. */
   change: (document: IAutoMovieHumanBodyBasisDocument) => Promise<boolean>;
+
   /** Parse and submit document text, reporting admission refusal in the panel. */
   load: (text: string) => Promise<void>;
 } {
@@ -365,7 +369,8 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  // The basis neutral rest has no crossings; some combined shaped rests do.
+  // Inspect combined shaped rests rather than assuming a neutral basis's
+  // previous contact observation also holds for the current selected source.
   // The reading is absolute for the committed document: any entry is a
   // finding, and a segment named twice passes through itself.
   element("body-contacts").onclick = async (): Promise<void> => {

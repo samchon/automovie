@@ -22,7 +22,7 @@ import { preserveCleanupFailure } from "./preserveCleanupFailure";
  * - `text=FILE` puts the file's text in Complete document and applies it;
  * - `set=PATH:NUMBER` applies one input catalogue row, and `remove=PATH`
  *   removes it; `PATH` is the row's document path with `/` between segments;
- * - `click=undo|redo|reset|discard|save|glb` presses that toolbar button.;
+ * - `click=undo|redo|reset|discard|save|glb` presses that toolbar button;
  * - `wait` does nothing and records the page once it has settled.
  *
  * After each step the tool polls until the status line no longer says an intent is pending or the `wait` patience interval expires. It records status/state, disabled buttons, document textarea text (which may be unapplied), the unapplied-text indicator, displayed admission JSON, saved downloads with SHA-256 and step elapsed time. The first entry is the page state once controls are available without awaiting the first build; that build may already have settled.
@@ -155,7 +155,7 @@ const act: (page: Page, step: string) => Promise<void> = async (page: Page, step
     if (kind === "set")
       await target.locator("input[type=number]").fill(value.slice(colon + 1));
     await target
-      .locator("button", { hasText: kind === "set" ? "Apply" : "Remove" })
+      .locator("button", { hasText: kind === "set" ? /^Apply$/ : /^Remove(?: record)?$/ })
       .click();
     return;
   }

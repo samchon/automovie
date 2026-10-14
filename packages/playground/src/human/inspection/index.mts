@@ -1,12 +1,7 @@
 import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 import type { IHumanViewerRejectedInput } from "@automovie/viewer/human/inspection/IHumanViewerRejectedInput";
 /**
- * The viewer's entry page for a person: every published face, every standard
- * body state and every hand-written input as a card that opens the navigable
- * viewer with one click. Thumbnails are the resident server's own small clay
- * front renders, requested one at a time and only for cards that scroll into
- * view, so browsing never floods the GPU queue other sessions share. A
- * thumbnail comes from the shared lazy loader, which caches it by revision.
+ * The viewer's entry page for a person: every published face, every standard body state and every hand-written input as a card that opens the navigable viewer with one click. Thumbnails are the resident server's own small clay front renders, requested in at most two browser fetch slots and only for cards that scroll into view. The shared lazy loader caches response bytes by their actual revision; server queue scheduling remains server-owned.
  */
 import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/HumanViewerCatalogue";
 import { createHumanViewerThumbnails } from "./createHumanViewerThumbnails";

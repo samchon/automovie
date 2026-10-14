@@ -10,7 +10,7 @@ import {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer } from "@automovie/viewer";
+import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
@@ -182,6 +182,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
   t: number,
 ): void => {
   step(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

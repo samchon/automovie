@@ -36,12 +36,40 @@ import type { IAutoMoviePlaygroundSequenceRenderArtifact } from "./IAutoMoviePla
  *
  * @author Samchon
  */
-export const verifyPlaygroundSequenceDissolvePixels: (props: { captured: Map<number, string>; frames: IAutoMovieSequenceRenderFrame[]; transitions: IAutoMovieSequenceRenderPlan["transitionSpans"]; captureShot(sample: { shot: string; shotTimeSeconds: number; }): Promise<Uint8Array>; }) => Promise<IAutoMovieSequenceDissolvePixelCheck[]> = async (props: {
+export const verifyPlaygroundSequenceDissolvePixels: (props: {
+  /** Saved mixed-frame PNG paths keyed by their canonical sequence frame index. */
   captured: Map<number, string>;
+
+  /** Canonical sampled sequence frames used to choose the nearest midpoint blend. */
   frames: IAutoMovieSequenceRenderFrame[];
+
+  /** Declared transition spans whose sampled blends receive diagnostic observations. */
   transitions: IAutoMovieSequenceRenderPlan["transitionSpans"];
+
+  /** Draw and return an isolated original shot PNG through the borrowed capture session. */
   captureShot(sample: {
+    /** Known shot identity from the compiled page metadata. */
     shot: string;
+
+    /** Shot-local time in seconds, matching the chosen mixed frame's sample. */
+    shotTimeSeconds: number;
+  }): Promise<Uint8Array>;
+}) => Promise<IAutoMovieSequenceDissolvePixelCheck[]> = async (props: {
+  /** Saved mixed-frame PNG paths keyed by their canonical sequence frame index. */
+  captured: Map<number, string>;
+
+  /** Canonical sampled sequence frames used to choose the nearest midpoint blend. */
+  frames: IAutoMovieSequenceRenderFrame[];
+
+  /** Declared transition spans whose sampled blends receive diagnostic observations. */
+  transitions: IAutoMovieSequenceRenderPlan["transitionSpans"];
+
+  /** Draw and return an isolated original shot PNG through the borrowed capture session. */
+  captureShot(sample: {
+    /** Known shot identity from the compiled page metadata. */
+    shot: string;
+
+    /** Shot-local time in seconds, matching the chosen mixed frame's sample. */
     shotTimeSeconds: number;
   }): Promise<Uint8Array>;
 }): Promise<IAutoMovieSequenceDissolvePixelCheck[]> => {

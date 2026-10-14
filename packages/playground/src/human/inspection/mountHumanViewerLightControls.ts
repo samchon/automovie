@@ -14,11 +14,22 @@ import { parseHumanViewerLight } from "@automovie/viewer/human/inspection/parseH
  * @evidence contracts/performance.md#bound-retention-and-release-resources One AbortController owns two native listener registrations until close aborts their signal; elements and displayed values stay caller-owned and no scene/GPU resources are acquired.
  */
 export function mountHumanViewerLightControls(props: {
+  /** Borrowed form that owns the submit event and is hidden when lighting is unsupported. */
   form: HTMLFormElement;
+
+  /** Borrowed selector populated with the supported studio-light names. */
   name: HTMLSelectElement;
+
+  /** Borrowed raw X/Y/Z direction inputs; the viewport owns normalization after URL admission. */
   components: readonly [HTMLInputElement, HTMLInputElement, HTMLInputElement];
+
+  /** Borrowed button that explicitly clears the light override. */
   reset: HTMLButtonElement;
+
+  /** Borrowed destination for invalid-input status, cleared by valid submission or display restoration. */
   error: HTMLElement;
+
+  /** Submit an admitted override, or null to restore the viewport's default light. */
   navigate: (light: HumanViewerAddress["light"]) => void;
 }): {
   /** Restore observed light state and capability without submitting navigation. */

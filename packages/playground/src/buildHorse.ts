@@ -76,9 +76,21 @@ const rod: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3,
  *
  * @author Samchon
  */
-export const buildHorse: (p: IHorseParams) => { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; } = (
+export const buildHorse: (p: IHorseParams) => {
+  /** Caller-owned rig wrapper, also referenced by model.skeleton; constraints borrow HORSE_ROM rows. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; its shared skeleton is not a realized renderer resource. */
+  model: IAutoMovieModel;
+} = (
   p: IHorseParams,
-): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } => {
+): {
+  /** Caller-owned rig wrapper, also referenced by model.skeleton; constraints borrow HORSE_ROM rows. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; its shared skeleton is not a realized renderer resource. */
+  model: IAutoMovieModel;
+} => {
   const H: number = p.backHeight;
   const t1: number = p.trunkLength * 0.5; // hips→spine and spine→chest
   const lh: number = p.legHalf;
@@ -215,7 +227,7 @@ export const buildHorse: (p: IHorseParams) => { skeleton: IAutoMovieSkeleton; mo
       "pupil",
       v(-0.11, 0.05, p.headRadius * 0.78),
     ),
-    // mane: a row of plates riding the neck
+    // mane: a row of spherical knobs riding the neck
     knob(
       "mane1",
       "neck",

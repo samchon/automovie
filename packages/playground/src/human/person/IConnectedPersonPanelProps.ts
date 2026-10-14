@@ -55,7 +55,7 @@ export interface IConnectedPersonPanelProps<
   /** The paired generation's solve support and named limits, without rewriting the body view. */
   bodyReach: IAutoMovieHumanPersonBodyReach;
 
-  /** The document the page opens with and Reset returns to. */
+  /** Requested opening document; Reset returns to the first accepted history state, which may differ after refusal or supersession of this request. */
   initial: IAutoMovieHumanPersonDocument;
 
   /**

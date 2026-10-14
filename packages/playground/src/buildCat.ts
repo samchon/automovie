@@ -64,9 +64,21 @@ const rod: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3,
  *
  * @author Samchon
  */
-export const buildCat: (p: ICatParams) => { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; } = (
+export const buildCat: (p: ICatParams) => {
+  /** Caller-owned rig wrapper, also referenced by model.skeleton; constraints borrow CAT_ROM rows. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; its shared skeleton is not a realized renderer resource. */
+  model: IAutoMovieModel;
+} = (
   p: ICatParams,
-): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } => {
+): {
+  /** Caller-owned rig wrapper, also referenced by model.skeleton; constraints borrow CAT_ROM rows. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh rigid primitive document; its shared skeleton is not a realized renderer resource. */
+  model: IAutoMovieModel;
+} => {
   const H: number = p.backHeight;
   const t1: number = p.trunkLength * 0.5; // hips→spine and spine→chest
   const lh: number = p.legHalf;

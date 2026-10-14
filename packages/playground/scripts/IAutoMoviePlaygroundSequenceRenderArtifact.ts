@@ -25,11 +25,20 @@ export interface IAutoMoviePlaygroundSequenceRenderArtifact extends IAutoMovieSe
   encoder: "h264-mp4-encoder";
 
   /** Pixel dimensions supplied to both the browser viewport and render plan. */
-  viewport: { width: number; height: number };
+  viewport: {
+    /** Requested browser and render-plan width, in pixels. */
+    width: number;
+
+    /** Requested browser and render-plan height, in pixels. */
+    height: number;
+  };
 
   /** Minimal page facts needed to interpret the captured sequence. */
   page: {
+    /** Page-reported sequence runtime in seconds, rather than an observed encoded duration. */
     duration: number;
+
+    /** Page-reported shot ids in authored order. */
     shots: string[];
   };
 

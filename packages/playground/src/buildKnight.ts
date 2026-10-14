@@ -46,10 +46,25 @@ const mat: (id: string, r: number, g: number, b: number, roughness?: number, met
  *
  * @author Samchon
  */
-export const buildKnight: (opts?: { lance?: boolean }) => { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } = (
-  opts: { lance?: boolean } = {},
-): {
+export const buildKnight: (opts?: {
+  /** Include the three-part lance unless explicitly false; helmet, plume and shield remain present. */
+  lance?: boolean;
+}) => {
+  /** Knight-identified wrapper shared with model.skeleton, borrowing this call's fresh stick bone array. */
   skeleton: IAutoMovieSkeleton;
+
+  /** Fresh authored actor and prop document; its later realized resources belong to the consuming page. */
+  model: IAutoMovieModel;
+} = (
+  opts: {
+    /** Include the three-part lance unless explicitly false; helmet, plume and shield remain present. */
+    lance?: boolean;
+  } = {},
+): {
+  /** Knight-identified wrapper shared with model.skeleton, borrowing this call's fresh stick bone array. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh authored actor and prop document; its later realized resources belong to the consuming page. */
   model: IAutoMovieModel;
 } => {
   const withLance: boolean = opts.lance !== false;

@@ -14,6 +14,7 @@ import type { HumanViewerHandle } from "@automovie/viewer/human/inspection/Human
 export function createHumanViewerGeneration(viewer: HumanViewerHandle): {
   /** Observation and wrapped asynchronous operations bound to this generation's handle. */
   handle: HumanViewerHandle;
+
   /** Reject waiting wrapped requests permanently; the host separately removes the iframe. */
   retire: () => void;
 } {

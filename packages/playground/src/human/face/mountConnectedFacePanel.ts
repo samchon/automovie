@@ -29,10 +29,13 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
 ): {
   /** Settles after the first admission or its panel-reported refusal. */
   ready: Promise<void>;
+
   /** Await pending viewport retirement and remove this panel's controls. */
   close: () => Promise<void>;
+
   /** Admitted editor state, absent before initialization and after close. */
   snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanFaceBasisDocument>>["snapshot"]> | undefined;
+
   /** Parse and submit text; settlement can include reported refusal or closed-state withdrawal. */
   load: (text: string) => Promise<void>;
 } {
@@ -117,7 +120,7 @@ Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${contact.int
             .filter((entry: NonNullable<Model["contact"]>["resolved"][number]): boolean => entry.vertices > 0)
             .map(
               (entry: NonNullable<Model["contact"]>["resolved"][number]): string =>
-                ` · ${entry.surface}: ${entry.vertices} vertices held out of the teeth (${(entry.maxDepthMetres * 1000).toFixed(2)} mm)`,
+                ` · ${entry.surface}: ${entry.vertices} shared skin groups directly held out of the teeth (${(entry.maxDepthMetres * 1000).toFixed(2)} mm)`,
             )
             .join("");
     status(
@@ -251,9 +254,9 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       button.disabled = false;
     }
   };
-  // Crossing surfaces are read against the source neutral, not against zero.
-  // These counts include internal tissues. Differences from the source neutral
-  // measure triangle incidence, not penetration depth or anatomical validity.
+  // Crossing surfaces are compared with props.initial, which may be an authored
+  // state rather than the source neutral. Counts can include internal tissues;
+  // their differences measure triangle incidence, not depth or anatomical validity.
   // The reading costs seconds, so it runs on request instead of on every edit.
   let rest: IAutoMovieModelCrossing[] | undefined;
   element("face-contacts").onclick = async (): Promise<void> => {

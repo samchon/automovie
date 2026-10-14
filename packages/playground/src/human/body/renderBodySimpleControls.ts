@@ -297,7 +297,8 @@ export function renderBodySimpleControls(
         try {
           projected = await props.project(target);
         } catch (error) {
-          if (first) props.onPreparing(false);
+          if (first && ticket === generation && sameShape(props.current(), target))
+            props.onPreparing(false);
           if (
             ticket === generation &&
             sameShape(props.current(), target) &&

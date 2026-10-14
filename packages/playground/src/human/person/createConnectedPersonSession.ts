@@ -2,10 +2,8 @@ import type { IConnectedPersonSession } from "./IConnectedPersonSession";
 import type { IConnectedPersonSessionState } from "./IConnectedPersonSessionState";
 
 /**
- * Own the person editor's session state: the pending intent, the last
- * refusal, the readings of the settled intent and the draft on screen. It
- * draws nothing and evaluates nothing. A refusal leaves the draft as it was,
- * because a refused request produced no model to replace it with.
+ * Own the person editor's session state: the pending intent, the last refusal, the readings of the settled intent and the draft on screen. It draws nothing and evaluates nothing. A refusal preserves the draft present when it is reported, including a draft already published before cleanup failed.
+ *
  * Snapshots copy the state and notes array while borrowing the draft object. This owner checks no intent ticket and retires no frames; the panel authorizes transitions and clears draft state on close after retiring the viewport.
  *
  * @evidence contracts/common.md#principled-implementation Begin clears old refusal/notes, settle records accepted-versus-draft display, and refuse/rest retain prior draft and notes, keeping presentation separate from accepted editor history.

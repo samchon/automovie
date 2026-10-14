@@ -15,6 +15,12 @@ import { buildSparBoxer } from "./buildSparBoxer";
  *
  * @author Samchon
  */
-export function buildRedBoxer(): { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } {
+export function buildRedBoxer(): {
+  /** Red actor's rig wrapper, shared with model.skeleton and independently constructed from the blue actor. */
+  skeleton: IAutoMovieSkeleton;
+
+  /** Fresh red-tinted document; the consuming page owns its later realized resources. */
+  model: IAutoMovieModel;
+} {
   return buildSparBoxer("boxerRed", [0.66, 0.18, 0.18]);
 }

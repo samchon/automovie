@@ -1,5 +1,5 @@
 /**
- * Read the physical rotation represented by one unit of a selected basis's mandibular or ocular performance channel. This is a unit conversion for the fine editor: the saved document still stores its basis weight, while a human reads and enters degrees. Kim et al. measured ocular duction ranges in 261 healthy people aged 5–91 by a modified limbus test (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/); the current basis reaches only about 10–15 degrees per gaze endpoint, not that study's full observed range. Demer and Clark found gaze-dependent translation and a varying rotation centre (https://pubmed.ncbi.nlm.nih.gov/31239125/), so displaying source degrees does not certify its fitted trajectory. The jaw similarly couples its authored angular endpoint to translation; Lindauer et al. observed both components (https://pubmed.ncbi.nlm.nih.gov/7771361/) but this conversion does not extend that observation to the whole path.
+ * Read the physical rotation represented by one unit of a selected basis's mandibular or ocular performance channel. This is a unit conversion for the fine editor: the saved document still stores its basis weight, while a human reads and enters degrees. Kim et al. measured ocular duction ranges in 261 healthy people aged 5–91 by a modified limbus test (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/); this function instead reads the caller-selected source endpoint and does not substitute that population's observed range. Demer and Clark found gaze-dependent translation and a varying rotation centre (https://pubmed.ncbi.nlm.nih.gov/31239125/), so displaying source degrees does not certify its fitted trajectory. The jaw similarly couples its authored angular endpoint to translation; Lindauer et al. observed both components (https://pubmed.ncbi.nlm.nih.gov/7771361/) but this conversion does not extend that observation to the whole path.
  *
  * @evidence contracts/common.md#principled-implementation The selected source channel supplies signed nonzero degrees per authored endpoint weight; absent articulation or an unmatched channel has no conversion, while a matched nonfinite or zero angle refuses division into an invalid unit.
  * @evidence contracts/common.md#clear-and-simple-design One metadata reader supplies the fine editor's display conversion without changing canonical weights or implementing ocular/jaw trajectories.
@@ -11,9 +11,31 @@
  */
 export function connectedFaceArticulationDegrees(
   basis: {
+    /** Optional selected-source rigid articulation metadata; omission leaves every channel unconverted. */
     articulation?: {
-      jaw: { opening: { channel: string; degrees: number } };
-      eyes: { gaze: { channel: string; degrees: number }[] }[];
+      /** Mandibular opening endpoint, resolved before ocular channels. */
+      jaw: {
+        /** Source opening channel and signed endpoint angle. */
+        opening: {
+          /** Exact source channel identity. */
+          channel: string;
+
+          /** Signed degrees at unit weight; a matched zero or nonfinite value refuses. */
+          degrees: number;
+        };
+      };
+
+      /** Ordered source eyes; the first matching gaze channel supplies its conversion. */
+      eyes: {
+        /** Source gaze endpoints, without an inferred population range. */
+        gaze: {
+          /** Exact source channel identity. */
+          channel: string;
+
+          /** Signed degrees at unit weight; a matched zero or nonfinite value refuses. */
+          degrees: number;
+        }[];
+      }[];
     };
   },
   channel: string,

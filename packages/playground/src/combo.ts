@@ -6,7 +6,7 @@ import { run } from "./run";
 import { kick } from "./kick";
 
 /**
- * Concatenate two walks, two runs, one jumping jack and one kick into the existing looping routine, all targeting the caller's compatible stick rig. Component spans sum to 5.2 seconds. Component legacy angles remain unchanged; sequencing validates timing/skeleton consistency, not clinical ROM, contact or observed appearance.
+ * Concatenate two walks, two runs, one jumping jack and one kick into the existing looping routine, all targeting the caller's compatible stick rig. Component spans sum to 5.2 seconds. Component legacy angles remain unchanged; sequencing requires positive finite component durations and matching skeleton ids, without validating every keyframe time, clinical ROM, contact or observed appearance.
  *
  * @evidence contracts/common.md#principled-implementation The canonical sequenceMotion owner shifts six parts onto one clock, preserving incoming seam easing while dropping duplicated later time-zero frames.
  * @evidence contracts/common.md#clear-and-simple-design The wrapper names only the authored part order and loop choice; component construction and the engine's sequencing remain their existing owners.

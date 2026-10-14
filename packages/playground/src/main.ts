@@ -8,6 +8,9 @@ import {
   applyPose,
   buildModel,
   mountViewer,
+  collectAutoMovieOwnedResources,
+  createAutoMovieResourceRetirement,
+  reportAutoMovieResourceRetirement,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -32,9 +35,33 @@ interface JointState {
 const pose: Partial<Record<AutoMovieHumanoidBone, JointState>> = {};
 
 let object: IAutoMovieModelObject;
+let objectOwned: boolean = false;
 let skeleton: IAutoMovieSkeleton;
 let player: AutoMoviePlayer | null = null;
 let playing: boolean = false;
+let closed: boolean = false;
+let viewer: ReturnType<typeof mountViewer> | undefined;
+/** Failed disposals remain owned and are not retried as known-released resources. */
+const retiring: Set<{ dispose(): void }> = new Set();
+const uncertain: Set<{ dispose(): void }> = new Set();
+let retirementFailure: { error: unknown } | undefined;
+/** Retire each fresh owned identity independently, preserving uncertain identities and causes. */
+const retireOwned: () => void = (): void => {
+  try {
+    reportAutoMovieResourceRetirement(
+      [...retiring].filter((resource: { dispose(): void }): boolean => !uncertain.has(resource))
+        .map((resource: { dispose(): void }): (() => void) => (): void => {
+          try { resource.dispose(); }
+          catch (error) { uncertain.add(resource); throw error; }
+          retiring.delete(resource);
+        }),
+      retirementFailure,
+    );
+  } catch (error) {
+    retirementFailure = { error };
+    throw error;
+  }
+};
 
 const currentPose: () => IAutoMoviePose = (): IAutoMoviePose => {
   const joints: IAutoMovieJointPose[] = Object.entries(pose).map(
@@ -110,10 +137,19 @@ camera.position.set(0.2, 1.25, 3.1);
 camera.lookAt(0, 1.0, 0);
 
 const rebuild: () => void = (): void => {
+  if (closed) throw new Error("The humanoid editor is closed.");
+  if (retirementFailure !== undefined) throw retirementFailure.error;
   const built: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; } = buildHumanoid(params);
   skeleton = built.skeleton;
+  if (objectOwned)
+    for (const resource of collectAutoMovieOwnedResources(object.object))
+      retiring.add(resource);
+  objectOwned = false;
   figure.clear();
+  try { retireOwned(); }
+  catch (error) { reportAutoMovieResourceRetirement([(): void => viewer?.stop()], { error }); }
   object = buildModel(built.model);
+  objectOwned = true;
   figure.add(object.object);
   player = new AutoMoviePlayer(
     object,
@@ -263,6 +299,7 @@ const mountSliders: (host: HTMLElement, specs: SliderSpec[]) => void = (host: HT
     const input: HTMLInputElement = row.querySelector("input")!;
     const out: Element = row.querySelector(".v")!;
     input.addEventListener("input", (): void => {
+      if (closed || retirementFailure !== undefined) return;
       const n: number = Number(input.value);
       s.set(n);
       out.textContent = value(n);
@@ -276,6 +313,7 @@ mountSliders(document.querySelector("#poses")!, poseSliders);
 
 const playBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>("#play")!;
 playBtn.addEventListener("click", (): void => {
+  if (closed || retirementFailure !== undefined) return;
   playing = !playing;
   playBtn.textContent = playing ? "⏸ Pause" : "▶ Play wave";
   if (!playing)
@@ -292,12 +330,38 @@ playBtn.addEventListener("click", (): void => {
 rebuild();
 
 const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
-mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (playing && player !== null) player.update(elapsed);
+const close: () => Promise<void> = createAutoMovieResourceRetirement([
+  (): void => { closed = true; playing = false; player = null; },
+  (): void => viewer?.stop(),
+  (): void => {
+    if (objectOwned)
+      for (const resource of collectAutoMovieOwnedResources(object.object)) retiring.add(resource);
+    objectOwned = false;
+    retiring.add(grid.geometry);
+    for (const material of Array.isArray(grid.material) ? grid.material : [grid.material]) retiring.add(material);
+    figure.clear();
+    retireOwned();
+  },
+]);
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (!event.persisted)
+    void close().catch((error: unknown): void => console.error("PLAYGROUND_RETIREMENT_ERROR", error));
 });
+try {
+  viewer = mountViewer(canvas, scene, camera, (elapsed: number): void => {
+    if (retirementFailure !== undefined) throw retirementFailure.error;
+    if (playing && player !== null) player.update(elapsed);
+  });
+} catch (error) {
+  // Report cleanup separately while retaining the original synchronous startup cause.
+  void close().catch((failure: unknown): void => console.error("PLAYGROUND_RETIREMENT_ERROR", failure));
+  throw error;
+}
 registerPlaygroundViewerApplication({
   ready: Promise.resolve(), capture: (): { params: { hipHeight: number; torsoLength: number; neckLength: number; shoulderWidth: number; hipWidth: number; upperArmLength: number; lowerArmLength: number; thighLength: number; shinLength: number; limbRadius: number; headRadius: number; }; pose: Partial<Record<AutoMovieHumanoidBone, JointState>>; playing: boolean; } => ({ params: { ...params }, pose: structuredClone(pose), playing }),
   restore: async (state: unknown): Promise<void> => {
+    if (closed) throw new Error("The humanoid editor is closed.");
+    if (retirementFailure !== undefined) throw retirementFailure.error;
     if (state === null || typeof state !== "object") throw new Error("Humanoid transfer has no editor state.");
     const values: unknown = Reflect.get(state, "params"), joints: unknown = Reflect.get(state, "pose");
     const playback: unknown = Reflect.get(state, "playing");

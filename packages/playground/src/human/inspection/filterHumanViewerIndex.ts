@@ -13,7 +13,13 @@ import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
  */
 export function filterHumanViewerIndex(
   entries: readonly IHumanViewerIndexEntry[],
-  filter: { text: string; domain: "all" | "face" | "body" | "person" },
+  filter: {
+    /** Whitespace-separated navigation words, matched case-insensitively against label, id and section. */
+    text: string;
+
+    /** Exact domain restriction, or all to keep every supported numerical domain. */
+    domain: "all" | "face" | "body" | "person";
+  },
 ): IHumanViewerIndexEntry[] {
   const words: string[] = filter.text
     .toLowerCase()

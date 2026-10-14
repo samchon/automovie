@@ -4,7 +4,7 @@ import type {
 } from "@automovie/human";
 
 /**
- * What the eye-region controls render into and call: the container, the current person, the panel's intent tickets, and the panel's transaction, status and refusal owners. The optional registered face owner supplies omitted periocular defaults. Numerical geometry and complete-person admission remain downstream; false transaction completion is not an accepted history commit.
+ * What the eye-region controls render into and call: the container, the current person, the panel's intent tickets, and the panel's transaction, status and refusal owners. The optional registered face owner supplies omitted periocular defaults. Numerical geometry and complete-person admission remain downstream; a false transaction result does not determine whether an earlier publication or accepted history change occurred.
  *
  * @evidence contracts/common.md#principled-implementation Eye edits compose against the current complete draft and share the panel's intent authority with body, face and history actions.
  * @evidence contracts/common.md#clear-and-simple-design DOM and optional face-default authority are borrowed while complete-document transaction, status and refusal stay with the panel.
@@ -99,8 +99,8 @@ export interface IConnectedPersonEyeControlsProps {
    *
    * @evidence contracts/common.md#principled-implementation Eye consumers report only after true completion while their ticket remains current.
    * @evidence contracts/common.md#clear-and-simple-design The section composes the line and the panel retains report presentation and history state.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale or refused eye transactions do not receive a successful report.
-   * @evidence contracts/common.md#meaningful-documentation The member names current successful completion as the report precondition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts False or superseded completions do not append this report; a true labelled construction draft retains its refusal qualification and is not promoted to accepted history by reporting.
+   * @evidence contracts/common.md#meaningful-documentation The member requires current true publication and leaves accepted-versus-construction-draft classification with the panel.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The callback selects no string accumulation or rendering algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reports are authored presentation effects without numerical cache identity.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retained report text belongs to the panel rather than this signature.

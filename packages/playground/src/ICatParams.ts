@@ -14,20 +14,28 @@
 export interface ICatParams {
   /** Height of the back (hip/shoulder line) off the floor. */
   backHeight: number;
+
   /** Hips → chest body length (the horizontal trunk). */
   trunkLength: number;
+
   /** Half the track width between the left/right legs. */
   legHalf: number;
+
   /** Upper-leg (shoulder/hip → knee) length, both ends. */
   upperLeg: number;
+
   /** Lower-leg (knee → paw) length. */
   lowerLeg: number;
+
   /** Retained metre input currently ignored by buildCat's fixed neck/head offsets. */
   neckLength: number;
+
   /** Head sphere radius. */
   headRadius: number;
+
   /** Radius of a leg rod: the limb "thickness". */
   rodRadius: number;
+
   /** Radius of the trunk (spine) rods: a chunkier body. */
   trunkRadius: number;
 }

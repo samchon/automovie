@@ -24,5 +24,11 @@ export interface IAutoMoviePlaygroundRenderAndSeeArtifact extends IAutoMovieRend
   encoder: "h264-mp4-encoder";
 
   /** Pixel dimensions applied to both the browser viewport and render spec. */
-  viewport: { width: number; height: number };
+  viewport: {
+    /** Requested canvas and browser viewport width, in pixels. */
+    width: number;
+
+    /** Requested canvas and browser viewport height, in pixels. */
+    height: number;
+  };
 }

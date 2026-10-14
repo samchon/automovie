@@ -20,6 +20,8 @@ import {
   assertAutoMovieViewerCameraDepthPrecision,
   buildModel,
   mountViewer,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -322,6 +324,8 @@ const cameraDepthPrecision: ReturnType<typeof assertAutoMovieViewerCameraDepthPr
   t: number,
 ): void => {
   renderAt(t);
+  guardAutoMovieSceneShadowRetirement(scene, handle.renderer);
+  guardAutoMovieRenderModeRetirement(scene);
   handle.renderer.render(scene, camera);
   handle.completeFrame(t);
 };

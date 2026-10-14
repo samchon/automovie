@@ -4,9 +4,7 @@ import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/d
 import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
- * The body editor's pose presets, in button order. Angles are clinical
- * degrees; "Arms down" is solved on the current body, each arm hanging as low
- * as its skin lets it.
+ * The body editor's pose presets, in button order. Angles are clinical degrees; "Arms down" uses the current body's finite sampled skin-clearance solve, rather than a claim of the globally lowest admissible arm position.
  *
  * @author Samchon
  */

@@ -160,9 +160,9 @@ export function mountConnectedFaceHair(
         else delete item.rootRegion;
       });
     labelled(entries, "Localize roots", roots);
-    // The guide hierarchy integrates an eighth of the roots and grows the
-    // rest from their four nearest same-side guides, the ratio a production
-    // groom uses; the fields below edit both once it is on.
+    // This authored starting choice integrates an eighth of the roots and
+    // grows the rest from four nearest same-side guides; it is not a universal
+    // groom ratio. The fields below edit both values once guidance is on.
     const guides: HTMLInputElement = dom.createElement("input");
     guides.id = "hair-guides";
     guides.type = "checkbox";
@@ -252,7 +252,7 @@ export function mountConnectedFaceHair(
     gathering.append(gatheringTitle);
     const guidance: HTMLParagraphElement = dom.createElement("p");
     guidance.textContent =
-      "Set the tie position and tail together. Every root must have enough length to reach the tie. Applying gathering sets the guide fraction to one. Tail radius and reach may both be left blank.";
+      "Set the tie position and tail together. Every root must have enough length to reach the tie. Applying gathering sets an existing guide fraction to one. Tail radius and reach may both be left blank.";
     gathering.append(guidance);
     const saved: IAutoMovieHumanFaceHair.Layer["gather"] = layer.gather;
     const values: Record<string, string> = {

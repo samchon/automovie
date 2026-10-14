@@ -95,7 +95,7 @@ export interface IConnectedPersonBodyControlsProps {
    *
    * @evidence contracts/common.md#principled-implementation Complete person admission combines candidate body fields with current face/context under shared intent authority.
    * @evidence contracts/common.md#clear-and-simple-design One body handoff keeps whole-person history and document/model agreement in the panel.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A solved body shape cannot bypass complete person admission or be reported as committed before true completion.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Solved weights still pass complete-person evaluation; true publication may be a labelled refused draft, so report text cannot independently certify accepted history.
    * @evidence contracts/common.md#meaningful-documentation The member explains optional ticket ownership and refusal/supersession false outcomes.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The transaction implementation owns person construction and history algorithms.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Effectful admissions retain distinct user intent rather than merging equal-looking bodies.
@@ -125,7 +125,7 @@ export interface IConnectedPersonBodyControlsProps {
    * @evidence contracts/common.md#principled-implementation Reports follow current successful transaction authority and preserve the numerical reading's actual provenance.
    * @evidence contracts/common.md#clear-and-simple-design The section composes a line while parent status owns presentation and history.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Report text does not promote a shape-only inverse reading into an unperformed final-person measurement.
-   * @evidence contracts/common.md#meaningful-documentation The member states current admission and reading provenance required for reporting.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies current accepted-or-draft publication and the solver reading's separate provenance, with history classification left to the panel.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This report signature chooses no string accumulation algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Report publication is an effect rather than cached numerical computation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The parent owns retained report text and this callback acquires no running task.

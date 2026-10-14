@@ -144,13 +144,13 @@ export const compilePursuitFilm: ICompilePursuitFilm = (props: ICompilePursuitFi
       entries: shots.map((s: IAutoMovieShot, i: number): IAutoMovieEditEntry => ({
         shot: s.id,
         trim: null,
-        // dissolve the approach into the face-off close-up (a soft reveal); the
+        // dissolve the approach into the face-off full shot (a soft reveal); the
         // first entry has nothing to transition from.
         transition:
           i === 1 ? { kind: "crossDissolve" as const, duration: 0.6 } : null,
       })),
-      pacing: "the walk dissolves into the face-off close-up.",
-      continuity: "the walker ends where the close-up finds him.",
+      pacing: "the walk dissolves into the face-off full shot.",
+      continuity: "the walker ends where the face-off shot finds him.",
     },
     shots,
   );

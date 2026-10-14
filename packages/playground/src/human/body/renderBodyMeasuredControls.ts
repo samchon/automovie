@@ -11,11 +11,11 @@ import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
  *
  * Source endpoints describe supported reach, while displayed population bands are descriptive and never clamp entry. The worker inverts one bounded channel with the other weights held; missing sections, reversal or unreachable targets refuse and preserve the committed body.
  *
- * The parent retains typed targets by channel across redraws without serializing them. Shared intent tickets discard replies after any newer body edit, and the solver's achieved length is reported only after a still-current successful commit. That shape-only solver reading is not a second measurement of the final committed body: authored anatomy can be reapplied during admission.
+ * The parent retains target text across redraws outside the document. Shared intent gates result reports after current publication, which the person consumer can classify as a labelled refused construction draft. The shape-only solver reading precedes complete-document anatomy reapplication and is not an independent measurement of the displayed person; parent state identifies accepted history.
  *
  * @evidence contracts/common.md#principled-implementation Only channels admitted by the shared own-measurement predicate receive targets, millimetre text is converted to metres at the solver boundary, and shared intent tickets gate numerical result and status effects.
  * @evidence contracts/common.md#clear-and-simple-design The renderer owns measured rows and input conversion while the Human inverse owns shape evaluation and the panel owns draft persistence, document admission and history.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Population bands remain descriptive instead of input clamps, missing measurements receive no fabricated controls, and a still-current successful commit reports the solver reading without falsely claiming a final-body measurement after anatomy reapplication.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Population bands remain descriptive instead of input clamps, missing measurements receive no fabricated controls, and current publication reports the shape-only solver reading separately from panel admission/history and any final-body reading after anatomy reapplication.
  * @evidence contracts/common.md#meaningful-documentation The comment distinguishes physical measurements from displacement statistics, supported reach from clinical limits, parent-owned text drafts and stale-result or numerical refusal behavior.
  * @evidence contracts/performance.md#efficient-algorithms One scan of c channels creates a rows with constant metadata and map lookups per row, using O(a) DOM and listener storage without an intermediate filtered array; inverse evaluation cost remains with the off-thread solver.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This mount coordinates no repeated numerical result cache; parent-owned text drafts survive redraw while each actual Apply reserves a distinct intent.
@@ -75,7 +75,7 @@ export function renderBodyMeasuredControls(
         );
         if (success && props.isCurrent(ticket))
           props.report(
-            `${channel.id}: solver read ${(result.actualMetres * 1000).toFixed(1)} mm; document committed.`,
+            `${channel.id}: solver read ${(result.actualMetres * 1000).toFixed(1)} mm; document displayed, with admission identified by the panel.`,
           );
       } catch (error) {
         if (props.isCurrent(ticket)) props.refuse(error);

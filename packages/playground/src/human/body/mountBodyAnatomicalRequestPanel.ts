@@ -22,10 +22,12 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
 export function mountBodyAnatomicalRequestPanel<
   Model extends IBodyAnatomicalRequestModel,
 >(app: HTMLElement, props: IBodyAnatomicalRequestPanelProps<Model>): {
-  /** Submit text under a fresh intent, or a caller-reserved one; false means refused, closed or superseded. */
+  /** Submit text under a fresh or caller-reserved intent; false includes refusal, closure, supersession or failed retirement after publication. */
   apply: (value: string, ticket?: number) => Promise<boolean>;
+
   /** Current admitted editor state, or undefined before admission and after close. */
   snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>>["snapshot"]> | undefined;
+
   /** Withdraw intent and remove controls; the owning page separately closes the borrowed viewport. */
   close: () => void;
 } {

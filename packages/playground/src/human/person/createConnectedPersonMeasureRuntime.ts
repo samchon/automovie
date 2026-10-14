@@ -29,28 +29,16 @@ import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasure
 import { prepareConnectedPersonEvaluator } from "./prepareConnectedPersonEvaluator";
 
 /**
- * Answer the person editor's measurement requests against the head and body
- * views the resident person worker already read. It answers nine kinds:
+ * Answer the person editor's measurement requests against the head and body views the resident person worker already read. It answers nine kinds:
  *
- * - `solveMeasurement` solves a measured body channel for a target length
- *   within the reach the body view can evaluate.
- * - `readPersonMeasurement` reads a person measurement (a site that crosses
- *   the head/body cut) on the person's final skin at rest, and
- *   `solvePersonMeasurement` solves it along its body channel.
- * - `readPersonHead` reads every head measurement and `solvePersonHead` solves
- *   the head channels for head measurement targets.
- * - `readFaceMeasurements` reads every registered face measurement on the
- *   final whole-person model and `solveFaceMeasurement` solves one target onto
- *   the channels it lists and records it.
+ * - `solveMeasurement` solves a measured body channel for a target length within the reach the body view can evaluate.
+ * - `readPersonMeasurement` reads a person measurement (a site that crosses the head/body cut) on the person's final skin at rest, and `solvePersonMeasurement` solves it along its body channel.
+ * - `readPersonHead` reads every head measurement and `solvePersonHead` solves the head channels for head measurement targets.
+ * - `readFaceMeasurements` reads every registered face measurement on the final whole-person model and `solveFaceMeasurement` solves one target onto the channels it lists and records it.
  * - `projectPersonSimple` and `expandPersonSimple` use the exact person's own rest skin and canonical body anatomy, with paired support for expansion.
  *
- * The person kinds evaluate whole people, so the one-skin evaluator is
- * compiled the first time a person kind arrives. The views are the worker's
- * one copy: a second worker reading them again exceeded what one page can
- * hold on a large generation. Every whole-person evaluation reports a stage,
- * so a solve that evaluates many people is never mistaken for a lost worker.
- * A refusal is returned as the reply of its own request; any other kind is
- * refused by name.
+ * The person kinds evaluate whole people, so the one-skin evaluator is compiled the first time a person kind arrives. The runtime borrows the resident worker's shared views rather than loading a second copy. Whole-person evaluations report diagnostic stages without request correlation; these signals establish no deadline, completion or protection against a lost worker. A refusal is returned as the reply of its own request; any other kind is refused by name.
+ *
  * The body shape-only inverse returns a solver reading before complete-person admission. Numerical candidates and progress stages do not establish accepted editor history or clinical validity; the enclosing resident worker owns runtime/evaluator teardown.
  *
  * @evidence contracts/common.md#principled-implementation Operation-specific dispatch preserves paired shape reach versus complete-person rest construction, registered measurement units/targets, one-use correlated refusals and exact-person simple projection/expansion.
