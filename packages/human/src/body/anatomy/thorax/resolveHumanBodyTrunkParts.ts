@@ -1,11 +1,11 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyTrunkMeasurements } from "./IAutoMovieHumanBodyTrunkMeasurements";
+import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
 import type { IAutoMovieHumanBodySpineMeasurements } from "./IAutoMovieHumanBodySpineMeasurements";
 import type { IAutoMovieHumanBodyThoracicCageMeasurements } from "./IAutoMovieHumanBodyThoracicCageMeasurements";
+import type { IAutoMovieHumanBodyTrunkMeasurements } from "./IAutoMovieHumanBodyTrunkMeasurements";
 import type { IAutoMovieHumanBodyTrunkMusclesMeasurements } from "./IAutoMovieHumanBodyTrunkMusclesMeasurements";
-import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
 
 /**
  * Answer the trunk's vertebrae, sternum, ribs, costal cartilages, trunk muscles, external oblique aponeuroses and abdominal visceral adipose.
@@ -24,90 +24,109 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyTrunkParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const trunk: IAutoMovieHumanBodyTrunkMeasurements | undefined = input.targets?.trunk;
+  const trunk: IAutoMovieHumanBodyTrunkMeasurements | undefined =
+    input.targets?.trunk;
   const spine: IAutoMovieHumanBodySpineMeasurements | undefined = trunk?.spine;
-  const cage: IAutoMovieHumanBodyThoracicCageMeasurements | undefined = trunk?.thoracicCage;
-  const curvature: readonly unknown[] = [spine?.thoracicKyphosis, spine?.lumbarLordosis];
-  const whole: readonly unknown[] = [cage?.maximumTransverseBreadth, cage?.sternalAngleDepth];
-  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-bone-landmark";
-  const tissue: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
+  const cage: IAutoMovieHumanBodyThoracicCageMeasurements | undefined =
+    trunk?.thoracicCage;
+  const curvature: readonly unknown[] = [
+    spine?.thoracicKyphosis,
+    spine?.lumbarLordosis,
+  ];
+  const whole: readonly unknown[] = [
+    cage?.maximumTransverseBreadth,
+    cage?.sternalAngleDepth,
+  ];
+  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-bone-landmark";
+  const tissue: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
   const sides: readonly ["left", "right"] = ["left", "right"];
-  const ribs: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const ribs: readonly [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+  ];
   return [
-    ...([1, 2, 3, 4, 5, 6, 7] as const).map((n: 1 | 2 | 3 | 4 | 5 | 6 | 7): IAutoMovieHumanBodyPartResolution =>
-      humanBodyUnavailablePart(
-        `c${n}` as const,
-        [spine?.cervical?.[`c${n}`], curvature],
-        bone,
-      ),
+    ...([1, 2, 3, 4, 5, 6, 7] as const).map(
+      (n: 1 | 2 | 3 | 4 | 5 | 6 | 7): IAutoMovieHumanBodyPartResolution =>
+        humanBodyUnavailablePart(
+          `c${n}` as const,
+          [spine?.cervical?.[`c${n}`], curvature],
+          bone,
+        ),
     ),
-    ...ribs.map((n: typeof ribs[number]): IAutoMovieHumanBodyPartResolution =>
-      humanBodyUnavailablePart(
-        `t${n}` as const,
-        [spine?.thoracic?.[`t${n}`], curvature],
-        bone,
-      ),
+    ...ribs.map(
+      (n: (typeof ribs)[number]): IAutoMovieHumanBodyPartResolution =>
+        humanBodyUnavailablePart(
+          `t${n}` as const,
+          [spine?.thoracic?.[`t${n}`], curvature],
+          bone,
+        ),
     ),
-    ...([1, 2, 3, 4, 5] as const).map((n: 1 | 2 | 3 | 4 | 5): IAutoMovieHumanBodyPartResolution =>
-      humanBodyUnavailablePart(
-        `l${n}` as const,
-        [spine?.lumbar?.[`l${n}`], curvature],
-        bone,
-      ),
+    ...([1, 2, 3, 4, 5] as const).map(
+      (n: 1 | 2 | 3 | 4 | 5): IAutoMovieHumanBodyPartResolution =>
+        humanBodyUnavailablePart(
+          `l${n}` as const,
+          [spine?.lumbar?.[`l${n}`], curvature],
+          bone,
+        ),
     ),
     humanBodyUnavailablePart("sternum", [cage?.sternum, whole], bone),
-    ...sides.flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-      const muscles: IAutoMovieHumanBodyTrunkMusclesMeasurements | undefined = trunk?.[`${side}Muscles`];
-      return [
-        ...ribs.map((n: typeof ribs[number]): IAutoMovieHumanBodyPartResolution =>
-          humanBodyUnavailablePart(
-            `${side}Rib${n}` as const,
-            [cage?.[`${side}Ribs`]?.[`rib${n}`], whole],
-            bone,
+    ...sides.flatMap(
+      (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+        const muscles: IAutoMovieHumanBodyTrunkMusclesMeasurements | undefined =
+          trunk?.[`${side}Muscles`];
+        return [
+          ...ribs.map(
+            (n: (typeof ribs)[number]): IAutoMovieHumanBodyPartResolution =>
+              humanBodyUnavailablePart(
+                `${side}Rib${n}` as const,
+                [cage?.[`${side}Ribs`]?.[`rib${n}`], whole],
+                bone,
+              ),
           ),
-        ),
-        humanBodyUnavailablePart(
-          `${side}CostalCartilages` as const,
-          cage?.[`${side}CostalCartilages`],
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}PectoralisMajor` as const,
-          muscles?.pectoralisMajor,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}RectusAbdominis` as const,
-          muscles?.rectusAbdominis,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}ExternalOblique` as const,
-          muscles?.externalOblique,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}InternalOblique` as const,
-          muscles?.internalOblique,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}LatissimusDorsi` as const,
-          muscles?.latissimusDorsi,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}Trapezius` as const,
-          muscles?.trapezius,
-          tissue,
-        ),
-        humanBodyUnavailablePart(
-          `${side}ExternalObliqueAponeurosis` as const,
-          muscles?.externalObliqueAponeurosis,
-          tissue,
-        ),
-      ];
-    }),
+          humanBodyUnavailablePart(
+            `${side}CostalCartilages` as const,
+            cage?.[`${side}CostalCartilages`],
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}PectoralisMajor` as const,
+            muscles?.pectoralisMajor,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}RectusAbdominis` as const,
+            muscles?.rectusAbdominis,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}ExternalOblique` as const,
+            muscles?.externalOblique,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}InternalOblique` as const,
+            muscles?.internalOblique,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}LatissimusDorsi` as const,
+            muscles?.latissimusDorsi,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}Trapezius` as const,
+            muscles?.trapezius,
+            tissue,
+          ),
+          humanBodyUnavailablePart(
+            `${side}ExternalObliqueAponeurosis` as const,
+            muscles?.externalObliqueAponeurosis,
+            tissue,
+          ),
+        ];
+      },
+    ),
     humanBodyUnavailablePart(
       "abdominalVisceralAdipose",
       trunk?.abdominalAdipose,

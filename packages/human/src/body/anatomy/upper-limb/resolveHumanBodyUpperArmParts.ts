@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyUpperArmMeasurements } from "./IAutoMovieHumanBodyUpperArmMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyUpperArmMeasurements } from "./IAutoMovieHumanBodyUpperArmMeasurements";
 
 /**
  * Answer each side's humerus, biceps brachii, brachialis and triceps brachii.
@@ -21,30 +21,34 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyUpperArmParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
-  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-    const arm: IAutoMovieHumanBodyUpperArmMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.upperArm;
-    return [
-      humanBodyUnavailablePart(
-        `${side}Humerus` as const,
-        arm?.humerus,
-        "missing-bone-landmark",
-      ),
-      humanBodyUnavailablePart(
-        `${side}BicepsBrachii` as const,
-        arm?.bicepsBrachii,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Brachialis` as const,
-        arm?.brachialis,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}TricepsBrachii` as const,
-        arm?.tricepsBrachii,
-        muscle,
-      ),
-    ];
-  });
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+      const arm: IAutoMovieHumanBodyUpperArmMeasurements | undefined =
+        input.targets?.[`${side}UpperLimb`]?.upperArm;
+      return [
+        humanBodyUnavailablePart(
+          `${side}Humerus` as const,
+          arm?.humerus,
+          "missing-bone-landmark",
+        ),
+        humanBodyUnavailablePart(
+          `${side}BicepsBrachii` as const,
+          arm?.bicepsBrachii,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Brachialis` as const,
+          arm?.brachialis,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}TricepsBrachii` as const,
+          arm?.tricepsBrachii,
+          muscle,
+        ),
+      ];
+    },
+  );
 }

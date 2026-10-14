@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyHandMeasurements } from "./IAutoMovieHumanBodyHandMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyHandMeasurements } from "./IAutoMovieHumanBodyHandMeasurements";
 
 /**
  * Answer each side's thumb and finger bones: the thumb's first metacarpal, proximal and distal phalanges, and each finger's metacarpal and three phalanges.
@@ -21,54 +21,63 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyDigitParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const reason: AutoMovieHumanBodyAnatomicalUnavailableReason = "geometry-not-validated";
-  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-    const hand: IAutoMovieHumanBodyHandMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.hand;
-    return [
-      humanBodyUnavailablePart(
-        `${side}ThumbFirstMetacarpal` as const,
-        hand?.thumb?.firstMetacarpal,
-        reason,
-      ),
-      humanBodyUnavailablePart(
-        `${side}ThumbProximalPhalanx` as const,
-        hand?.thumb?.proximalPhalanx,
-        reason,
-      ),
-      humanBodyUnavailablePart(
-        `${side}ThumbDistalPhalanx` as const,
-        hand?.thumb?.distalPhalanx,
-        reason,
-      ),
-      ...(
-        [
-          ["IndexFinger", "indexFinger"],
-          ["MiddleFinger", "middleFinger"],
-          ["RingFinger", "ringFinger"],
-          ["LittleFinger", "littleFinger"],
-        ] as const
-      ).flatMap(([name, key]: readonly ["IndexFinger" | "MiddleFinger" | "RingFinger" | "LittleFinger", "indexFinger" | "middleFinger" | "ringFinger" | "littleFinger"]): IAutoMovieHumanBodyPartResolution[] => [
+  const reason: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "geometry-not-validated";
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+      const hand: IAutoMovieHumanBodyHandMeasurements | undefined =
+        input.targets?.[`${side}UpperLimb`]?.hand;
+      return [
         humanBodyUnavailablePart(
-          `${side}${name}Metacarpal` as const,
-          hand?.[key]?.metacarpal,
+          `${side}ThumbFirstMetacarpal` as const,
+          hand?.thumb?.firstMetacarpal,
           reason,
         ),
         humanBodyUnavailablePart(
-          `${side}${name}ProximalPhalanx` as const,
-          hand?.[key]?.proximalPhalanx,
+          `${side}ThumbProximalPhalanx` as const,
+          hand?.thumb?.proximalPhalanx,
           reason,
         ),
         humanBodyUnavailablePart(
-          `${side}${name}MiddlePhalanx` as const,
-          hand?.[key]?.middlePhalanx,
+          `${side}ThumbDistalPhalanx` as const,
+          hand?.thumb?.distalPhalanx,
           reason,
         ),
-        humanBodyUnavailablePart(
-          `${side}${name}DistalPhalanx` as const,
-          hand?.[key]?.distalPhalanx,
-          reason,
+        ...(
+          [
+            ["IndexFinger", "indexFinger"],
+            ["MiddleFinger", "middleFinger"],
+            ["RingFinger", "ringFinger"],
+            ["LittleFinger", "littleFinger"],
+          ] as const
+        ).flatMap(
+          ([name, key]: readonly [
+            "IndexFinger" | "MiddleFinger" | "RingFinger" | "LittleFinger",
+            "indexFinger" | "middleFinger" | "ringFinger" | "littleFinger",
+          ]): IAutoMovieHumanBodyPartResolution[] => [
+            humanBodyUnavailablePart(
+              `${side}${name}Metacarpal` as const,
+              hand?.[key]?.metacarpal,
+              reason,
+            ),
+            humanBodyUnavailablePart(
+              `${side}${name}ProximalPhalanx` as const,
+              hand?.[key]?.proximalPhalanx,
+              reason,
+            ),
+            humanBodyUnavailablePart(
+              `${side}${name}MiddlePhalanx` as const,
+              hand?.[key]?.middlePhalanx,
+              reason,
+            ),
+            humanBodyUnavailablePart(
+              `${side}${name}DistalPhalanx` as const,
+              hand?.[key]?.distalPhalanx,
+              reason,
+            ),
+          ],
         ),
-      ]),
-    ];
-  });
+      ];
+    },
+  );
 }

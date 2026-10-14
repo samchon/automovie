@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyForearmMeasurements } from "./IAutoMovieHumanBodyForearmMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyForearmMeasurements } from "./IAutoMovieHumanBodyForearmMeasurements";
 
 /**
  * Answer each side's radius, ulna, brachioradialis, flexor digitorum superficialis and extensor digitorum.
@@ -21,35 +21,39 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyForearmParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
-  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-    const forearm: IAutoMovieHumanBodyForearmMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.forearm;
-    return [
-      humanBodyUnavailablePart(
-        `${side}Radius` as const,
-        forearm?.radius,
-        "missing-bone-landmark",
-      ),
-      humanBodyUnavailablePart(
-        `${side}Ulna` as const,
-        forearm?.ulna,
-        "missing-bone-landmark",
-      ),
-      humanBodyUnavailablePart(
-        `${side}Brachioradialis` as const,
-        forearm?.brachioradialis,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}FlexorDigitorumSuperficialis` as const,
-        forearm?.flexorDigitorumSuperficialis,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}ExtensorDigitorum` as const,
-        forearm?.extensorDigitorum,
-        muscle,
-      ),
-    ];
-  });
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+      const forearm: IAutoMovieHumanBodyForearmMeasurements | undefined =
+        input.targets?.[`${side}UpperLimb`]?.forearm;
+      return [
+        humanBodyUnavailablePart(
+          `${side}Radius` as const,
+          forearm?.radius,
+          "missing-bone-landmark",
+        ),
+        humanBodyUnavailablePart(
+          `${side}Ulna` as const,
+          forearm?.ulna,
+          "missing-bone-landmark",
+        ),
+        humanBodyUnavailablePart(
+          `${side}Brachioradialis` as const,
+          forearm?.brachioradialis,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}FlexorDigitorumSuperficialis` as const,
+          forearm?.flexorDigitorumSuperficialis,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}ExtensorDigitorum` as const,
+          forearm?.extensorDigitorum,
+          muscle,
+        ),
+      ];
+    },
+  );
 }

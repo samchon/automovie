@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { IAutoMovieHumanBodyPelvisMeasurements } from "./IAutoMovieHumanBodyPelvisMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyPelvisMeasurements } from "./IAutoMovieHumanBodyPelvisMeasurements";
 
 /**
  * Answer the pelvic bones, ligaments, gluteal and iliopsoas muscles.
@@ -20,7 +20,8 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyPelvisParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const pelvis: IAutoMovieHumanBodyPelvisMeasurements | undefined = input.targets?.pelvis;
+  const pelvis: IAutoMovieHumanBodyPelvisMeasurements | undefined =
+    input.targets?.pelvis;
   const breadth: readonly unknown[] = [
     pelvis?.interAnteriorSuperiorIliacSpineDistance,
     pelvis?.anteriorPosteriorIliacSpineMidpointDepth,

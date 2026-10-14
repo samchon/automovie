@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyCarpusMeasurements } from "./IAutoMovieHumanBodyCarpusMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyCarpusMeasurements } from "./IAutoMovieHumanBodyCarpusMeasurements";
 
 /**
  * Answer each side's eight carpal bones.
@@ -21,42 +21,54 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyCarpusParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-bone-landmark";
-  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-    const carpus: IAutoMovieHumanBodyCarpusMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.hand?.carpus;
-    return [
-      humanBodyUnavailablePart(
-        `${side}Scaphoid` as const,
-        carpus?.scaphoid,
-        bone,
-      ),
-      humanBodyUnavailablePart(`${side}Lunate` as const, carpus?.lunate, bone),
-      humanBodyUnavailablePart(
-        `${side}Triquetrum` as const,
-        carpus?.triquetrum,
-        bone,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Pisiform` as const,
-        carpus?.pisiform,
-        bone,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Trapezium` as const,
-        carpus?.trapezium,
-        bone,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Trapezoid` as const,
-        carpus?.trapezoid,
-        bone,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Capitate` as const,
-        carpus?.capitate,
-        bone,
-      ),
-      humanBodyUnavailablePart(`${side}Hamate` as const, carpus?.hamate, bone),
-    ];
-  });
+  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-bone-landmark";
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+      const carpus: IAutoMovieHumanBodyCarpusMeasurements | undefined =
+        input.targets?.[`${side}UpperLimb`]?.hand?.carpus;
+      return [
+        humanBodyUnavailablePart(
+          `${side}Scaphoid` as const,
+          carpus?.scaphoid,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Lunate` as const,
+          carpus?.lunate,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Triquetrum` as const,
+          carpus?.triquetrum,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Pisiform` as const,
+          carpus?.pisiform,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Trapezium` as const,
+          carpus?.trapezium,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Trapezoid` as const,
+          carpus?.trapezoid,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Capitate` as const,
+          carpus?.capitate,
+          bone,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Hamate` as const,
+          carpus?.hamate,
+          bone,
+        ),
+      ];
+    },
+  );
 }
