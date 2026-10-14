@@ -126,21 +126,17 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Draw one fade or two complementary sources and restore host state even if
-   * a source, copy, composite or restoration fails. All restoration operations
-   * are attempted, and an aggregate retains the original failure first.
-   * The previous canvas picture is retained before any source draw and restored
-   * after a failed composition, so partial sources never replace a valid display.
-   * Caller callbacks must keep this owner and borrowed renderer alive through
-   * the call; a previously closed owner refuses before any native observation.
+   * Draw one fade or two complementary sources, independently attempting host-state restoration after source, copy or composite failure. An aggregate retains the original failure first. The previous canvas picture is saved before source drawing and its restoration is attempted after failed composition; a failed restoration cannot guarantee the previous display survives.
+   *
+   * Caller callbacks keep this owner and borrowed renderer alive through the call; a previously closed owner refuses before native observation.
    *
    * @evidence contracts/common.md#principled-implementation Saves canvas bytes before drawing callbacks, composes quantized straight display channels with alpha association and destination sRGB correction, then independently restores framebuffer and renderer state; Float32 rounding is the documented precision limit.
    * @evidence contracts/common.md#clear-and-simple-design Source rendering stays in callbacks, copy synchronization stays in copyDisplay and shared restoration aggregation preserves the primary error before cleanup causes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Source callbacks must return on the default framebuffer; the renderer's public reset boundary synchronizes native texture units without patching foreign methods or private cache entries.
-   * @evidence contracts/common.md#meaningful-documentation Describes fade versus two-source draws, complete restoration attempts and preservation of the previous valid canvas after composition failure.
+   * @evidence contracts/common.md#meaningful-documentation Describes fade versus two-source draws, independent restoration attempts and the saved-canvas recovery attempt without guaranteeing that recovery succeeds when its native draw fails.
    * @evidence contracts/performance.md#efficient-algorithms Performs one backing copy, one or two source renders and one full-screen blend over width times height pixels, avoiding CPU readback; restoration can add one backing draw.
    * @evidence contracts/performance.md#reuse-equivalent-work Uses the instance's persistent copies and shader for every frame; each callback is invoked because its effects and newly sampled pixels cannot be shared merely by matching alpha.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows renderer and destination without disposing them, retains only the instance's three copies, and restores target, viewport, scissor, clear and tone state after both success and failure.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows renderer and destination without disposing them and retains the instance's three copies. Independently attempts target, viewport, scissor, clear and tone restoration after success or failure; a restoration failure remains visible and may leave partial host state.
    */
   public render(renderer: THREE.WebGLRenderer, outgoing: () => void, incoming: (() => void) | null, alpha: number): void {
     this.assertOpen();

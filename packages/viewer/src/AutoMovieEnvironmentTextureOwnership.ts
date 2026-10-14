@@ -10,17 +10,11 @@ type State = {
 };
 
 /**
- * Own the exclusive scene handoff and immutable allocation inputs of an image.
- * Public disposal ends any earlier native cube/PMREM conversion before a new
- * tuple is certified. Unchanged application retains those caches. This stores
- * factual owned inputs, never SDK cache keys, GPU handles or byte estimates.
- * A failed retirement stays unknown. An in-place capacity mutation invalidates
- * its decoded Source until the owner supplies a new Texture and Source.
- * For cache-issued clones, the allocation owner acknowledges only a successful
- * same-capacity retirement completion. Source detachment and unrelated original
- * or issued-wrapper uncertainty remain outside that recovery receipt.
+ * Own the exclusive scene handoff and immutable allocation inputs of an image. Public disposal requests withdrawal of earlier native cube/PMREM conversions before a new tuple is certified; failed retirement stays unknown and unchanged application retains those caches. This stores factual owned inputs, never SDK cache keys, GPU handles or byte estimates. Capacity drift detected by prepare invalidates that wrapper and, when its Source is unchanged, marks the Source invalid. The read-only current query does not record drift, and changes fully restored between prepare calls are not independently detected here.
  *
- * @evidence contracts/common.md#principled-implementation Texture identity establishes exclusive scene ownership, while fixed capacity and mutable conversion-input tuples distinguish safe reuse from replacement; failed disposal leaves authority unknown and capacity mutation requires a fresh Source.
+ * For cache-issued clones, the allocation owner acknowledges only a successful same-capacity retirement completion. Source detachment and unrelated original or issued-wrapper uncertainty remain outside that recovery receipt.
+ *
+ * @evidence contracts/common.md#principled-implementation Texture identity establishes exclusive scene ownership, while observed capacity and conversion-input tuples distinguish reuse from replacement; failed disposal leaves authority unknown and prepare-observed capacity drift marks wrapper/Source validity as described above, without intercepting every external property write.
  * @evidence contracts/common.md#clear-and-simple-design Scene ownership stays separate from cache allocation authority because a scene owns conversion retirement while a cache owns original and issued wrappers; receipts acknowledge only that wrapper's supported transition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared LTC textures are refused because RectAreaLightUniformsLib owns them; material aliases are detected through real scene slots, uniforms and plain nested records without replacing SDK methods or inspecting native handles.
  * @evidence contracts/common.md#meaningful-documentation Describes exclusive wrapper handoff, immutable capacity, failure uncertainty and the limited same-capacity acknowledgement available to cache-issued clones; public methods state their read or mutation effects.
@@ -58,7 +52,7 @@ export class AutoMovieEnvironmentTextureOwnership {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses shared LTC tables and current material references because their owners need independent wrappers; changed capacity is rejected rather than laundered through repeated disposal.
    * @evidence contracts/common.md#meaningful-documentation Describes the pre-scene-mutation claim; class documentation details immutable capacity, dedicated ownership and failed retirement effects.
    * @evidence contracts/performance.md#efficient-algorithms Scans scene materials and nested plain uniform records for actual aliases, then compares fixed-size capacity and conversion tuples; recursive seen sets terminate cyclic records.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returns without disposal only when owned capacity and configured inputs match and allocation authority confirms this wrapper's stable state.
+   * @evidence contracts/performance.md#reuse-equivalent-work Returns without disposal when installed capacity/inputs match and allocation authority confirms stability; the new colorSpace argument is not separately compared on that path. applySceneEnvironment derives it from the unchanged component type, while a direct caller requesting another decoding must not assume that argument alone refreshes the wrapper.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Installs one texture-owned invalidation listener on first claim, uses weak registry keys and disposes previous cube/PMREM storage before changing mapping or decoding.
    */
   public static prepare(scene: THREE.Scene, texture: THREE.Texture, colorSpace: THREE.ColorSpace): void {
@@ -102,7 +96,7 @@ export class AutoMovieEnvironmentTextureOwnership {
    *
    * @evidence contracts/common.md#principled-implementation Owned authority requires a known matching capacity and conversion tuple with no material alias; unowned equirectangular mappings remain unknown because no scene owner certified their conversion history.
    * @evidence contracts/common.md#clear-and-simple-design A boolean observation lets readAutoMovieTextureSource combine environment and cache authority without exposing mutable ownership records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalidated decoded Sources stay unknown even if texture properties are restored, preventing a current tuple from certifying discarded allocation history.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Sources marked invalid by prepare stay unknown after property restoration; this query only reads current tuples and does not itself remember a mismatch or prove that no intermediate external mutation occurred.
    * @evidence contracts/common.md#meaningful-documentation Explicitly promises an observation without metadata writes, texture mutation or GPU lifetime changes.
    * @evidence contracts/performance.md#efficient-algorithms Unowned textures need fixed membership/mapping checks; owned textures compare constant-size tuples and scan current scene materials only after those checks succeed.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Scene material graphs can change between observations, so alias detection reads current state instead of caching a boolean.

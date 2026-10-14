@@ -33,16 +33,9 @@ import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCach
  * owns once and preserves failed retirement, however many times it is called. A
  * cache that has been disposed refuses further work rather than quietly
  * decoding into a bucket nobody will empty.
- * The first issuance fixes the original's inputs before native copy starts and
- * verifies its successful or failed completion. Later original
- * or uncontrolled issued-wrapper changes make its facts uncertified, even after
- * properties are restored. Normal material and exclusive environment owners
- * acknowledge their own supported transitions. A different live cache cannot
- * acquire this cache's original or issued wrapper; distinct wrappers may still
- * share decoded pixels. A detached Source can leave an earlier native upload
- * alive after public disposal and therefore makes completion indeterminate.
- * An issued binding wrapper cannot return through the loader as a decoder
- * original, including an alias inside this same cache.
+ * The first issuance fixes the original's inputs before native copy starts and verifies its successful or failed completion. Later observed original or uncontrolled issued-wrapper changes make its facts uncertified, even after properties are restored. Unobserved round trips between checks are not detected. Normal material and exclusive environment owners acknowledge their own supported transitions.
+ *
+ * A different live cache cannot acquire this cache's original or issued wrapper; distinct wrappers may still share decoded pixels. A detached Source can leave an earlier native upload alive after public disposal and therefore makes completion indeterminate. An issued binding wrapper cannot return through the loader as a decoder original, including an alias inside this same cache.
  *
  * @evidence contracts/common.md#principled-implementation Asset-keyed decode promises feed binding-private Texture clones sharing decoded Source pixels; allocation authority records original and clone input history, and disposal drains pending loads before independent retirement attempts.
  * @evidence contracts/common.md#clear-and-simple-design Prime owns asynchronous decoding, resolve supplies synchronous per-binding wrappers and disposal owns shot teardown; allocation receipts keep certification history separate from loading and sampling.

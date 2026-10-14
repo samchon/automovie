@@ -29,9 +29,11 @@ type BindingWrites = { colorSpace: THREE.ColorSpace; sampler?: {
  * A binding-issued wrapper cannot become a decoder original, including within
  * its own cache; this prevents an alias from laundering its earlier history.
  *
+ * History is observed at these transition/read boundaries, not by intercepting every texture write. A mutation fully restored between observations is not detected; only observed drift becomes sticky uncertainty.
+ *
  * @evidence contracts/common.md#principled-implementation Weak identity registries bind decoded originals to one cache and issued wrappers to one original claim; fixed, sampling and version tuples preserve sticky mutation/detachment history without treating shared Source.version as private wrapper state.
  * @evidence contracts/common.md#clear-and-simple-design Begin/finish receipts isolate issuance, ordinary binding and exclusive environment transitions, while retirement records close ownership; native keys, handles and byte pricing remain outside this factual input owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A wrapper cannot become a decoder original, uncontrolled mutation cannot be undone by restoring current fields, and Source detachment remains uncertified after public disposal because prior native storage may survive.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A wrapper cannot become a decoder original, observed uncontrolled drift stays uncertain after fields are restored, and observed Source detachment remains uncertified after public disposal because prior native storage may survive. Unobserved mutation/restoration between boundaries is not detected by this tuple observer.
  * @evidence contracts/common.md#meaningful-documentation Explains decoded-source sharing, input-history authority, limited binding/environment acknowledgement and detached-Source retirement uncertainty; each public transition documents its ordering role.
  * @evidence contracts/performance.md#efficient-algorithms Registry lookups are constant expected time; tuple capture is fixed-size except copied manual mip references, and original current observation visits every issued wrapper because any one can invalidate its aggregate authority.
  * @evidence contracts/performance.md#reuse-equivalent-work Receipts share the recorded pre-transition tuple with completion checks and stable wrappers reuse their accepted baseline; equivalence includes actual object references, per-wrapper version and all allocation/sampling inputs.
@@ -44,10 +46,10 @@ export class AutoMovieTextureCacheAllocationAuthority {
   /**
    * Transfer a returned original once, before a decode becomes cache-owned.
    *
-   * @evidence contracts/common.md#principled-implementation Establishes exclusive cache ownership by Texture identity before loading publishes it, rejecting issued wrappers and originals owned by another or closed cache.
+   * @evidence contracts/common.md#principled-implementation Establishes exclusive cache ownership by Texture identity before loading publishes it, rejecting issued wrappers and originals owned by another cache. Reclaiming for the same owner returns its existing claim even after retirement; the cache caller owns live-work admission.
    * @evidence contracts/common.md#clear-and-simple-design A single original claim stores owner, initial Source and disposal invalidation; subsequent issuance records its immutable baseline separately.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Returning an alias from a loader cannot launder an issued binding wrapper into a new decoded original.
-   * @evidence contracts/common.md#meaningful-documentation Specifies that transfer precedes cache-owned decode publication and happens only once per original wrapper.
+   * @evidence contracts/common.md#meaningful-documentation Specifies transfer before cache-owned decode publication, one claim per original wrapper and the caller's separate live-work admission responsibility.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Two weak registry lookups and one claim/listener allocation are fixed-size ownership bookkeeping.
    * @evidence contracts/performance.md#reuse-equivalent-work Reclaiming the same original for the same owner preserves its existing claim instead of installing another listener or baseline.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The texture owns its invalidation listener; the weak original registry does not extend an otherwise unreachable texture lifetime.
