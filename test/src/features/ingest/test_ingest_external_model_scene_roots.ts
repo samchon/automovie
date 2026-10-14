@@ -1,4 +1,3 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { AutoMovieExternalModelIngestProfile } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
@@ -7,6 +6,7 @@ import {
   inspectExternalModelHierarchyFixture,
 } from "../internal/externalModelHierarchyFixture";
 import { throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Scene selections reference unique roots of the already validated node forest. Sharing a root between scenes does not give the node another parent.
@@ -30,18 +30,23 @@ export function test_ingest_external_model_scene_roots(): void {
     "vrm-humanoid-v1",
   ];
   for (const profile of profiles) {
-    const fixture: ReturnType<typeof createExternalModelHierarchyFixture> = createExternalModelHierarchyFixture();
+    const fixture: ReturnType<typeof createExternalModelHierarchyFixture> =
+      createExternalModelHierarchyFixture();
     fixture.document.nodes.push({ mesh: 0, name: "Instance" });
     fixture.document.scenes = [{ nodes: [0, 1, 2] }, { nodes: [0, 2] }];
     for (const scene of [undefined, 0, 1]) {
       fixture.document.scene = scene;
-      const accepted: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = inspectExternalModelHierarchyFixture(fixture, profile);
-      TestValidator.predicate(`${profile}: mesh instances remain distinct`, test12ValuesClose(accepted.counts, {
+      const accepted: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+        inspectExternalModelHierarchyFixture(fixture, profile);
+      TestValidator.predicate(
+        `${profile}: mesh instances remain distinct`,
+        test12ValuesClose(accepted.counts, {
           nodes: 3,
           meshes: 1,
           skins: 1,
           animations: 1,
-        }));
+        }),
+      );
     }
 
     fixture.document.scene = 0;
@@ -49,7 +54,8 @@ export function test_ingest_external_model_scene_roots(): void {
     TestValidator.predicate(
       `${profile}: repeated root in unselected scene`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, profile),
+        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[1].nodes[1] repeats root node 0.",
       ),
     );
@@ -58,17 +64,25 @@ export function test_ingest_external_model_scene_roots(): void {
     TestValidator.predicate(
       `${profile}: a parented node is not a scene root`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, profile),
+        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[0].nodes[1] references non-root node 1.",
       ),
     );
     fixture.document.scenes = [{ nodes: [0, 2] }];
-    TestValidator.predicate(`${profile}: root-only scene repairs the declaration`, test12ValuesClose(inspectExternalModelHierarchyFixture(fixture, profile).profile, profile));
+    TestValidator.predicate(
+      `${profile}: root-only scene repairs the declaration`,
+      test12ValuesClose(
+        inspectExternalModelHierarchyFixture(fixture, profile).profile,
+        profile,
+      ),
+    );
     fixture.document.scenes = [{ nodes: [3] }];
     TestValidator.predicate(
       `${profile}: scene root index must resolve`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, profile),
+        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[0].nodes[0] does not resolve inside its declared inventory.",
       ),
     );
@@ -79,24 +93,38 @@ export function test_ingest_external_model_scene_roots(): void {
       TestValidator.predicate(
         `${profile}: invalid default scene ${scene}`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, profile),
+          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+            inspectExternalModelHierarchyFixture(fixture, profile),
           "scene does not resolve inside its declared inventory.",
         ),
       );
     }
     fixture.document.scene = 0;
-    TestValidator.predicate(`${profile}: scene with no roots`, test12ValuesClose(inspectExternalModelHierarchyFixture(fixture, profile).profile, profile));
+    TestValidator.predicate(
+      `${profile}: scene with no roots`,
+      test12ValuesClose(
+        inspectExternalModelHierarchyFixture(fixture, profile).profile,
+        profile,
+      ),
+    );
     for (const scenes of [undefined, []]) {
       fixture.document.scenes = scenes;
       TestValidator.predicate(
         `${profile}: selected scene requires an inventory`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, profile),
+          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+            inspectExternalModelHierarchyFixture(fixture, profile),
           "scene does not resolve inside its declared inventory.",
         ),
       );
       fixture.document.scene = undefined;
-      TestValidator.predicate(`${profile}: unselected scene library`, test12ValuesClose(inspectExternalModelHierarchyFixture(fixture, profile).profile, profile));
+      TestValidator.predicate(
+        `${profile}: unselected scene library`,
+        test12ValuesClose(
+          inspectExternalModelHierarchyFixture(fixture, profile).profile,
+          profile,
+        ),
+      );
       fixture.document.scene = 0;
     }
   }

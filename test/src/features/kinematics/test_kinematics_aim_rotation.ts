@@ -1,11 +1,13 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
 import { TestValidator } from "@nestia/e2e";
-import { qclose } from "../internal/qclose";
+
+import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
+
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const nX: IAutoMovieVector3 = { x: -1, y: 0, z: 0 };
@@ -95,7 +97,10 @@ export function test_kinematics_aim_rotation(): void {
   //    the old cos > 0.999999 snap would have left at 0).
   const from: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
   const to: IAutoMovieVector3 = { x: Math.sin(TINY), y: 0, z: -Math.cos(TINY) };
-  const aimed: IAutoMovieVector3 = Quaternion.rotateVector(aimRotation(from, to), from);
+  const aimed: IAutoMovieVector3 = Quaternion.rotateVector(
+    aimRotation(from, to),
+    from,
+  );
   TestValidator.predicate(
     "0.05° off-axis is aimed exactly (no deadzone snap)",
     vclose(aimed, to),
@@ -105,7 +110,10 @@ export function test_kinematics_aim_rotation(): void {
     aimed.x > 1e-4,
   );
   for (const slope of [1e-14, -1e-14, 1e-200]) {
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(aimRotation(X, { x: 1, y: slope, z: 0 }), X);
+    const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+      aimRotation(X, { x: 1, y: slope, z: 0 }),
+      X,
+    );
     TestValidator.predicate(
       "every representable nonzero turn remains active below former sine thresholds",
       nclose(turned.y, slope, Math.abs(slope) * 1e-14),

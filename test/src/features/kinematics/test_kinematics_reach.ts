@@ -1,12 +1,20 @@
-import { IAutoMovieTransform, IAutoMovieSkeleton, IAutoMoviePose, IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBone,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { TestValidator } from "@nestia/e2e";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { createSkeleton } from "../internal/createSkeleton";
 import { vclose } from "../internal/vclose";
+
 const idTransform: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -28,7 +36,8 @@ const handAt: (pose: IAutoMoviePose) => IAutoMovieVector3 = (
     createSkeleton(),
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
-  ).find((b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand")!.worldPosition;
+  ).find((b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand")!
+    .worldPosition;
 
 /**
  * `reachPose`: analytic two-bone arm IK. The contract is the FK oracle: pose

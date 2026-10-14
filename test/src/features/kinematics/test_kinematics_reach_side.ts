@@ -1,7 +1,9 @@
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { createSkeleton } from "../internal/createSkeleton";
+
 const withRightHand: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => {
   const skeleton: IAutoMovieSkeleton = createSkeleton();
   skeleton.bones.push({
@@ -41,7 +43,9 @@ export function test_kinematics_reach_side(): void {
     reachPose(skeleton, "right", target) !== null,
   );
 
-  const invalidSide: "left" | "right" = "center" as Parameters<typeof reachPose>[1];
+  const invalidSide: "left" | "right" = "center" as Parameters<
+    typeof reachPose
+  >[1];
   TestValidator.predicate(
     "invalid side returns null",
     reachPose(skeleton, invalidSide, target) === null,

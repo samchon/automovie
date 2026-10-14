@@ -1,9 +1,16 @@
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
 import { TestValidator } from "@nestia/e2e";
+
+import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import {
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+  type IAutoMovieSubjectDiff,
+} from "../../../../packages/interface/src/index";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
-import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoMovieSubjectChange, type IAutoMovieModel } from "../../../../packages/interface/src/index";
+
 /**
  * Structural comparison applies one visible inclusive tolerance to geometry,
  * placement, and quaternion orientation.
@@ -25,7 +32,12 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoM
  */
 export function test_inspection_subject_diff_tolerance(): void {
   const tolerance: number = 1e-6;
-  const baseline: IAutoMovieSubjectArtifact = artifact(0, 1, { x: 0, y: 0, z: 0, w: 1 });
+  const baseline: IAutoMovieSubjectArtifact = artifact(0, 1, {
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 1,
+  });
   const boundary: IAutoMovieSubjectDiff = diffAutoMovieSubjects(
     baseline,
     artifact(tolerance, 1 + tolerance, { x: 0, y: 0, z: 0, w: -1 }),
@@ -67,8 +79,12 @@ export function test_inspection_subject_diff_tolerance(): void {
   TestValidator.equals(
     "differences above the boundary are classified",
     {
-      moved: above.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
-      reshaped: above.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
+      moved: above.moved.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
+      reshaped: above.reshaped.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
     },
     {
       moved: ["element:subject"],
@@ -90,12 +106,19 @@ export function test_inspection_subject_diff_tolerance(): void {
     "zero quaternion fallback remains finite and inclusive",
     {
       boundaryMoved: zeroBoundary.moved.length,
-      aboveMoved: zeroAbove.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
+      aboveMoved: zeroAbove.moved.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
     },
     { boundaryMoved: 0, aboveMoved: ["element:subject"] },
   );
 
-  const addedPartArtifact: IAutoMovieSubjectArtifact = artifact(0, 1, { x: 0, y: 0, z: 0, w: 1 });
+  const addedPartArtifact: IAutoMovieSubjectArtifact = artifact(0, 1, {
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 1,
+  });
   addedPartArtifact.compiled.models[0]!.parts.push({
     ...structuredClone(addedPartArtifact.compiled.models[0]!.parts[0]!),
     id: "second",
@@ -107,16 +130,22 @@ export function test_inspection_subject_diff_tolerance(): void {
   );
   TestValidator.equals(
     "a changed part-array length reshapes the reusable prototype",
-    partCount.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
+    partCount.reshaped.map(
+      (change: IAutoMovieSubjectChange): string => change.id,
+    ),
     ["element:subject", "prototype:subject"],
   );
 }
 
-const artifact: (translationX: number, meshMaxX: number, rotation: { x: number; y: number; z: number; w: number; }) => IAutoMovieSubjectArtifact = (
+const artifact: (
   translationX: number,
   meshMaxX: number,
   rotation: { x: number; y: number; z: number; w: number },
-): IAutoMovieSubjectArtifact  => {
+) => IAutoMovieSubjectArtifact = (
+  translationX: number,
+  meshMaxX: number,
+  rotation: { x: number; y: number; z: number; w: number },
+): IAutoMovieSubjectArtifact => {
   const model: IAutoMovieModel = subjectInspectionModel({
     id: "subject",
     min: { x: 0, y: 0, z: 0 },

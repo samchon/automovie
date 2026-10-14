@@ -1,14 +1,16 @@
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts } from "../internal/namedFacts";
-import { vclose } from "../internal/vclose";
-import { nclose } from "../internal/nclose";
-import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+
+import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
 import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
+import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
+
 const DEFAULT_AXES: IAutoMovieJointAxes = {
   flexion: { x: 1, y: 0, z: 0 },
   abduction: { x: 0, y: 0, z: 1 },
@@ -29,11 +31,14 @@ const PROBES: IAutoMovieVector3[] = [
 ];
 
 /** Compare both rotations' action on every fixed probe within 1e-4 per coordinate. */
-const rotationsMatch: (q: ReturnType<typeof jointToQuaternion>, r: ReturnType<typeof jointToQuaternion>) => boolean = (
+const rotationsMatch: (
+  q: ReturnType<typeof jointToQuaternion>,
+  r: ReturnType<typeof jointToQuaternion>,
+) => boolean = (
   q: ReturnType<typeof jointToQuaternion>,
   r: ReturnType<typeof jointToQuaternion>,
 ): boolean =>
-  PROBES.every((v: IAutoMovieVector3): boolean  =>
+  PROBES.every((v: IAutoMovieVector3): boolean =>
     vclose(Quaternion.rotateVector(q, v), Quaternion.rotateVector(r, v), 1e-4),
   );
 
@@ -62,7 +67,7 @@ const rotationsMatch: (q: ReturnType<typeof jointToQuaternion>, r: ReturnType<ty
  * @evidence contracts/testing.md#execution-ownership The test runner discovers this exported CPU entry; local probe arrays and actual math/kinematics source run without a native solver, Human asset, process, browser or GPU.
  */
 export function test_kinematics_decompose_joint(): void {
-  const triples: { flexion: number; abduction: number; twist: number; }[] = [
+  const triples: { flexion: number; abduction: number; twist: number }[] = [
     { flexion: 40, abduction: 0, twist: 0 },
     { flexion: 0, abduction: 35, twist: 0 },
     { flexion: 0, abduction: 0, twist: 55 },
@@ -74,7 +79,10 @@ export function test_kinematics_decompose_joint(): void {
   for (const axes of [ARM_AXES, DEFAULT_AXES])
     for (const t of triples) {
       const q: IAutoMovieQuaternion = jointToQuaternion(t, axes);
-      const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(q, axes);
+      const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+        q,
+        axes,
+      );
       const q2: IAutoMovieQuaternion = jointToQuaternion(back, axes);
       TestValidator.predicate(
         `round-trips ${JSON.stringify(t)} (${axes === ARM_AXES ? "arm" : "default"})`,
@@ -88,16 +96,20 @@ export function test_kinematics_decompose_joint(): void {
       { flexion: 20, abduction, twist: 30 },
       ARM_AXES,
     );
-    const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(q, ARM_AXES);
+    const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      q,
+      ARM_AXES,
+    );
     TestValidator.equals(
       `gimbal ${abduction}° pins flexion 0, keeps abduction`,
       namedFacts([
-        ["backFlexion", (): boolean  => nclose(back.flexion, 0, 0)],
+        ["backFlexion", (): boolean => nclose(back.flexion, 0, 0)],
         [
           "absAbsBack",
-          (): boolean  =>
+          (): boolean =>
             nclose(back.flexion, 0, 0) &&
-            nclose(Math.abs(back.abduction), 90, 1e-6) && Math.abs(Math.abs(back.abduction) - 90) < 1e-6,
+            nclose(Math.abs(back.abduction), 90, 1e-6) &&
+            Math.abs(Math.abs(back.abduction) - 90) < 1e-6,
         ],
       ]),
       { backFlexion: true, absAbsBack: true },
@@ -116,9 +128,21 @@ export function test_kinematics_decompose_joint(): void {
   TestValidator.equals(
     "a pure 40° flexion decomposes back to (40, 0, 0)",
     namedFacts([
-      ["MathAbsPure", (): boolean  => nclose(pure.flexion, 40, 1e-4) && Math.abs(pure.flexion - 40) < 1e-4],
-      ["MathAbsPure2", (): boolean  => nclose(pure.abduction, 0, 1e-4) && Math.abs(pure.abduction) < 1e-4],
-      ["MathAbsPure3", (): boolean  => nclose(pure.twist, 0, 1e-4) && Math.abs(pure.twist) < 1e-4],
+      [
+        "MathAbsPure",
+        (): boolean =>
+          nclose(pure.flexion, 40, 1e-4) && Math.abs(pure.flexion - 40) < 1e-4,
+      ],
+      [
+        "MathAbsPure2",
+        (): boolean =>
+          nclose(pure.abduction, 0, 1e-4) && Math.abs(pure.abduction) < 1e-4,
+      ],
+      [
+        "MathAbsPure3",
+        (): boolean =>
+          nclose(pure.twist, 0, 1e-4) && Math.abs(pure.twist) < 1e-4,
+      ],
     ]),
     { MathAbsPure: true, MathAbsPure2: true, MathAbsPure3: true },
   );

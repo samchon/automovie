@@ -1,8 +1,10 @@
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { TestValidator } from "@nestia/e2e";
+
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
 import { qclose } from "../internal/qclose";
 import { qunit } from "../internal/qunit";
-import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+
 /**
  * When more than one axis is articulated, `jointToQuaternion` composes them in
  * the default proximal order (twist ∘ abduction ∘ flexion), and this test's

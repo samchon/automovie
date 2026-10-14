@@ -18,20 +18,23 @@ import { throwsError } from "../internal/predicates";
 export function test_ingest_face_template_no_morphs(): void {
   const doc: Document = new Document();
   const buffer: import("@gltf-transform/core").Buffer = doc.createBuffer();
-  const prim: import("@gltf-transform/core").Primitive = doc.createPrimitive().setAttribute(
-    "POSITION",
-    doc
-      .createAccessor()
-      .setType("VEC3")
-      .setArray(new Float32Array([0, 0, 0]))
-      .setBuffer(buffer),
-  );
+  const prim: import("@gltf-transform/core").Primitive = doc
+    .createPrimitive()
+    .setAttribute(
+      "POSITION",
+      doc
+        .createAccessor()
+        .setType("VEC3")
+        .setArray(new Float32Array([0, 0, 0]))
+        .setBuffer(buffer),
+    );
   doc.createMesh("prop").addPrimitive(prim);
 
   TestValidator.predicate(
     "no morphed primitive throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(doc),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(doc),
       "document has no primitive with morph targets",
     ),
   );

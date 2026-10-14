@@ -1,15 +1,26 @@
+import {
+  type IAutoMovieBuiltEnvironment,
+  type IAutoMovieSubjectArtifact,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentUnclaimedElements } from "../../../../packages/engine/src/architecture/builtEnvironmentUnclaimedElements";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
 import { describeAutoMovieSubjects } from "../../../../packages/engine/src/describeAutoMovieSubjects";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { type IAutoMovieBuiltEnvironment, type IAutoMovieSubjectArtifact } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import {
+  type IAutoMovieBuiltElement,
+  type IAutoMovieBuiltSpace,
+  type IAutoMovieModel,
+  type IAutoMovieSubjectDescription,
+  type IAutoMovieTransform,
+} from "../../../../packages/interface/src/index";
 import { makeProp } from "../internal/makeProp";
-import { primitivePart } from "../internal/primitivePart";
 import { namedFacts } from "../internal/namedFacts";
+import { primitivePart } from "../internal/primitivePart";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
-import { type IAutoMovieSubjectDescription, type IAutoMovieBuiltSpace, type IAutoMovieBuiltElement, type IAutoMovieTransform, type IAutoMovieModel } from "../../../../packages/interface/src/index";
+
 /**
  * A walk that knows no key reaches every element, and names none it cannot open.
  *
@@ -116,7 +127,9 @@ export function test_inspection_subject_group_reach(): void {
     describeAutoMovieSubject(
       artifact,
       "space:residence/great-hall",
-    ).members.items.filter((id: string): boolean  => opens(artifact, id) === false),
+    ).members.items.filter(
+      (id: string): boolean => opens(artifact, id) === false,
+    ),
     [],
   );
 
@@ -134,9 +147,10 @@ export function test_inspection_subject_group_reach(): void {
     namedFacts([
       [
         "it carries the groups the builder drew nothing for",
-        (): boolean  => {
+        (): boolean => {
           const ids: string[] = describeAutoMovieSubjects(artifact).map(
-            (description: IAutoMovieSubjectDescription): string  => description.id,
+            (description: IAutoMovieSubjectDescription): string =>
+              description.id,
           );
           return (
             ids.includes("element:residence/residence-root") &&
@@ -146,14 +160,17 @@ export function test_inspection_subject_group_reach(): void {
       ],
       [
         "and still carries the elements it did draw",
-        (): boolean  =>
+        (): boolean =>
           describeAutoMovieSubjects(artifact)
-            .map((description: IAutoMovieSubjectDescription): string  => description.id)
+            .map(
+              (description: IAutoMovieSubjectDescription): string =>
+                description.id,
+            )
             .includes("element:residence/outer-wall"),
       ],
       [
         "while an id no element answers for is still refused",
-        (): boolean  => opens(artifact, "element:residence/nowhere") === false,
+        (): boolean => opens(artifact, "element:residence/nowhere") === false,
       ],
     ]),
     {
@@ -165,7 +182,10 @@ export function test_inspection_subject_group_reach(): void {
 }
 
 /** Whether this surface answers for one id at all. */
-const opens: (artifact: IAutoMovieSubjectArtifact, id: string) => boolean = (artifact: IAutoMovieSubjectArtifact, id: string): boolean => {
+const opens: (artifact: IAutoMovieSubjectArtifact, id: string) => boolean = (
+  artifact: IAutoMovieSubjectArtifact,
+  id: string,
+): boolean => {
   try {
     describeAutoMovieSubject(artifact, id);
     return true;
@@ -180,16 +200,22 @@ const opens: (artifact: IAutoMovieSubjectArtifact, id: string) => boolean = (art
  * The index is the spaces no other space parents plus the elements nothing else
  * reaches, which is exactly what a reviewer sees before naming anything.
  */
-const walk: (record: IAutoMovieBuiltEnvironment, artifact: IAutoMovieSubjectArtifact) => { refused: string[]; unreached: string[]; } = (
+const walk: (
+  record: IAutoMovieBuiltEnvironment,
+  artifact: IAutoMovieSubjectArtifact,
+) => { refused: string[]; unreached: string[] } = (
   record: IAutoMovieBuiltEnvironment,
   artifact: IAutoMovieSubjectArtifact,
 ): { refused: string[]; unreached: string[] } => {
   const queue: string[] = [
     ...record.spaces
-      .filter((space: IAutoMovieBuiltSpace): boolean  => space.parent === null)
-      .map((space: IAutoMovieBuiltSpace): string  => `space:${record.id}/${space.id}`),
+      .filter((space: IAutoMovieBuiltSpace): boolean => space.parent === null)
+      .map(
+        (space: IAutoMovieBuiltSpace): string =>
+          `space:${record.id}/${space.id}`,
+      ),
     ...builtEnvironmentUnclaimedElements(record).map(
-      (node: string): string  => `element:${node}`,
+      (node: string): string => `element:${node}`,
     ),
   ];
   const seen: Set<string> = new Set<string>();
@@ -208,8 +234,11 @@ const walk: (record: IAutoMovieBuiltEnvironment, artifact: IAutoMovieSubjectArti
   return {
     refused,
     unreached: record.elements
-      .map((element: IAutoMovieBuiltElement): string  => `element:${record.id}/${element.id}`)
-      .filter((id: string): boolean  => seen.has(id) === false),
+      .map(
+        (element: IAutoMovieBuiltElement): string =>
+          `element:${record.id}/${element.id}`,
+      )
+      .filter((id: string): boolean => seen.has(id) === false),
   };
 };
 
@@ -228,21 +257,35 @@ const models: IAutoMovieModel[] = [
 ];
 
 /** The compiled artifact staging exactly the elements that carry a model. */
-const residenceArtifact: (record: IAutoMovieBuiltEnvironment) => IAutoMovieSubjectArtifact = (
+const residenceArtifact: (
+  record: IAutoMovieBuiltEnvironment,
+) => IAutoMovieSubjectArtifact = (
   record: IAutoMovieBuiltEnvironment,
 ): IAutoMovieSubjectArtifact =>
   subjectInspectionArtifact({
     models,
     environment: record,
     nodes: record.elements
-      .filter((element: IAutoMovieBuiltElement): boolean  => element.model !== null)
-      .map((element: IAutoMovieBuiltElement): { id: string; model: string; transform: IAutoMovieTransform; motion: null; pose: null; }  => ({
-        id: `${record.id}/${element.id}`,
-        model: element.model!,
-        transform: subjectInspectionIdentityTransform(),
-        motion: null,
-        pose: null,
-      })),
+      .filter(
+        (element: IAutoMovieBuiltElement): boolean => element.model !== null,
+      )
+      .map(
+        (
+          element: IAutoMovieBuiltElement,
+        ): {
+          id: string;
+          model: string;
+          transform: IAutoMovieTransform;
+          motion: null;
+          pose: null;
+        } => ({
+          id: `${record.id}/${element.id}`,
+          model: element.model!,
+          transform: subjectInspectionIdentityTransform(),
+          motion: null,
+          pose: null,
+        }),
+      ),
   });
 
 /**
@@ -252,81 +295,82 @@ const residenceArtifact: (record: IAutoMovieBuiltEnvironment) => IAutoMovieSubje
  * nothing under it, `great-hall-chair` a group whose only child is drawn, and
  * `garden-wall-root` a root no space claims at all.
  */
-const environment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "residence",
-  units: "meter",
-  buildings: [
-    { id: "residence", element: "residence-root", space: "great-hall" },
-    { id: "garden", element: "garden-wall-root", space: "garden" },
-  ],
-  models,
-  modelReferences: [],
-  elements: [
-    {
-      id: "residence-root",
-      kind: "building",
-      parent: null,
-      transform: subjectInspectionIdentityTransform(),
-      model: null,
-      space: "great-hall",
-    },
-    {
-      id: "great-hall-chair",
-      kind: "furniture",
-      parent: "residence-root",
-      transform: subjectInspectionIdentityTransform(),
-      model: null,
-      space: "great-hall",
-    },
-    {
-      id: "great-hall-chair-seat",
-      kind: "furniture",
-      parent: "great-hall-chair",
-      transform: subjectInspectionIdentityTransform(),
-      model: "cube-model",
-      space: null,
-    },
-    {
-      id: "chapel-altar",
-      kind: "furniture",
-      parent: "residence-root",
-      transform: subjectInspectionIdentityTransform(),
-      model: null,
-      space: "great-hall",
-    },
-    {
-      id: "outer-wall",
-      kind: "wall",
-      parent: "residence-root",
-      transform: subjectInspectionIdentityTransform(),
-      model: "cube-model",
-      space: null,
-    },
-    {
-      id: "garden-wall-root",
-      kind: "building",
-      parent: null,
-      transform: subjectInspectionIdentityTransform(),
-      model: null,
-      space: null,
-    },
-    {
-      id: "garden-wall",
-      kind: "wall",
-      parent: "garden-wall-root",
-      transform: subjectInspectionIdentityTransform(),
-      model: "cube-model",
-      space: null,
-    },
-  ],
-  spaces: [
-    { id: "great-hall", kind: "room", parent: null, cells: [] },
-    { id: "garden", kind: "room", parent: null, cells: [] },
-  ],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+const environment: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "residence",
+    units: "meter",
+    buildings: [
+      { id: "residence", element: "residence-root", space: "great-hall" },
+      { id: "garden", element: "garden-wall-root", space: "garden" },
+    ],
+    models,
+    modelReferences: [],
+    elements: [
+      {
+        id: "residence-root",
+        kind: "building",
+        parent: null,
+        transform: subjectInspectionIdentityTransform(),
+        model: null,
+        space: "great-hall",
+      },
+      {
+        id: "great-hall-chair",
+        kind: "furniture",
+        parent: "residence-root",
+        transform: subjectInspectionIdentityTransform(),
+        model: null,
+        space: "great-hall",
+      },
+      {
+        id: "great-hall-chair-seat",
+        kind: "furniture",
+        parent: "great-hall-chair",
+        transform: subjectInspectionIdentityTransform(),
+        model: "cube-model",
+        space: null,
+      },
+      {
+        id: "chapel-altar",
+        kind: "furniture",
+        parent: "residence-root",
+        transform: subjectInspectionIdentityTransform(),
+        model: null,
+        space: "great-hall",
+      },
+      {
+        id: "outer-wall",
+        kind: "wall",
+        parent: "residence-root",
+        transform: subjectInspectionIdentityTransform(),
+        model: "cube-model",
+        space: null,
+      },
+      {
+        id: "garden-wall-root",
+        kind: "building",
+        parent: null,
+        transform: subjectInspectionIdentityTransform(),
+        model: null,
+        space: null,
+      },
+      {
+        id: "garden-wall",
+        kind: "wall",
+        parent: "garden-wall-root",
+        transform: subjectInspectionIdentityTransform(),
+        model: "cube-model",
+        space: null,
+      },
+    ],
+    spaces: [
+      { id: "great-hall", kind: "room", parent: null, cells: [] },
+      { id: "garden", kind: "room", parent: null, cells: [] },
+    ],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });

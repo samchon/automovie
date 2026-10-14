@@ -1,9 +1,10 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts } from "../internal/predicates";
+
 import { externalModelValidationFacts1 } from "../internal/ingestMatrix/externalModelValidationFacts1";
 import { externalModelValidationFacts2 } from "../internal/ingestMatrix/externalModelValidationFacts2";
 import { externalModelValidationFacts3 } from "../internal/ingestMatrix/externalModelValidationFacts3";
+import { namedFacts } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Pin external-model structural, payload and humanoid boundaries without host processes.
@@ -22,10 +23,21 @@ import { externalModelValidationFacts3 } from "../internal/ingestMatrix/external
  * @evidence contracts/testing.md#execution-ownership The discoverable test function runs synchronous portable inspector semantics with resident synthetic bytes; internal fact factories preserve all dynamically registered cases without processes or GPU.
  */
 export function test_ingest_external_model_validation_matrix(): void {
- const facts: [string, () => boolean][] = [
-  ...externalModelValidationFacts1(),
-  ...externalModelValidationFacts2(),
-  ...externalModelValidationFacts3(),
- ];
- TestValidator.predicate("external model validation facts", test12ValuesClose(namedFacts(facts), Object.fromEntries(facts.map(([name]: [string, () => boolean]): [string, boolean] => [name, true]))));
+  const facts: [string, () => boolean][] = [
+    ...externalModelValidationFacts1(),
+    ...externalModelValidationFacts2(),
+    ...externalModelValidationFacts3(),
+  ];
+  TestValidator.predicate(
+    "external model validation facts",
+    test12ValuesClose(
+      namedFacts(facts),
+      Object.fromEntries(
+        facts.map(([name]: [string, () => boolean]): [string, boolean] => [
+          name,
+          true,
+        ]),
+      ),
+    ),
+  );
 }

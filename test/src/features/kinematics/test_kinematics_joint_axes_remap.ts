@@ -1,27 +1,37 @@
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
 import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { TestValidator } from "@nestia/e2e";
+import {
+  type IAutoMoviePose,
+  type IAutoMovieQuaternion,
+} from "../../../../packages/interface/src/index";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
-import { type IAutoMovieQuaternion, type IAutoMoviePose } from "../../../../packages/interface/src/index";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-const X: { x: number; y: number; z: number; } = { x: 1, y: 0, z: 0 };
-const Y: { x: number; y: number; z: number; } = { x: 0, y: 1, z: 0 };
-const Z: { x: number; y: number; z: number; } = { x: 0, y: 0, z: 1 };
 
-const localOf: (pose: Parameters<typeof resolvePose>[0], bone: string, jointAxes?: Parameters<typeof resolvePose>[2]) => IAutoMovieQuaternion = (
+const X: { x: number; y: number; z: number } = { x: 1, y: 0, z: 0 };
+const Y: { x: number; y: number; z: number } = { x: 0, y: 1, z: 0 };
+const Z: { x: number; y: number; z: number } = { x: 0, y: 0, z: 1 };
+
+const localOf: (
   pose: Parameters<typeof resolvePose>[0],
   bone: string,
   jointAxes?: Parameters<typeof resolvePose>[2],
-): IAutoMovieQuaternion  =>
-  resolvePose(pose, createSkeleton(), jointAxes).find((r: IAutoMovieResolvedBone): boolean  => r.bone === bone)!
-    .localRotation;
+) => IAutoMovieQuaternion = (
+  pose: Parameters<typeof resolvePose>[0],
+  bone: string,
+  jointAxes?: Parameters<typeof resolvePose>[2],
+): IAutoMovieQuaternion =>
+  resolvePose(pose, createSkeleton(), jointAxes).find(
+    (r: IAutoMovieResolvedBone): boolean => r.bone === bone,
+  )!.localRotation;
 
 /**
  * Per-bone clinical-axis remapping (`IAutoMovieJointAxes` /
@@ -78,7 +88,11 @@ export function test_kinematics_joint_axes_remap(): void {
   );
 
   // 2. explicit axes override
-  const armBasis: { flexion: { x: number; y: number; z: number; }; abduction: { x: number; y: number; z: number; }; twist: { x: number; y: number; z: number; }; } = { flexion: Y, abduction: Z, twist: X };
+  const armBasis: {
+    flexion: { x: number; y: number; z: number };
+    abduction: { x: number; y: number; z: number };
+    twist: { x: number; y: number; z: number };
+  } = { flexion: Y, abduction: Z, twist: X };
   TestValidator.predicate(
     "flexion under arm basis rotates about Y",
     qclose(
@@ -107,7 +121,9 @@ export function test_kinematics_joint_axes_remap(): void {
   );
 
   // 4. resolvePose opt-in: arm remapped, leg untouched, default reproduced
-  const armPose: IAutoMoviePose = makePose([joint("leftUpperArm", { flexion: 40 })]);
+  const armPose: IAutoMoviePose = makePose([
+    joint("leftUpperArm", { flexion: 40 }),
+  ]);
   TestValidator.predicate(
     "resolve arm flexion with table ⇒ about Y",
     qclose(
@@ -119,7 +135,9 @@ export function test_kinematics_joint_axes_remap(): void {
     "resolve arm flexion without table ⇒ about X (default)",
     qclose(localOf(armPose, "leftUpperArm"), expectedAxisRotation(X, 40)),
   );
-  const legPose: IAutoMoviePose = makePose([joint("leftUpperLeg", { flexion: 40 })]);
+  const legPose: IAutoMoviePose = makePose([
+    joint("leftUpperLeg", { flexion: 40 }),
+  ]);
   TestValidator.predicate(
     "resolve leg flexion with table ⇒ still about X (omitted)",
     qclose(
@@ -130,8 +148,16 @@ export function test_kinematics_joint_axes_remap(): void {
 }
 
 /** Independent half-angle formula for the unit Cartesian axes used by this fixture. */
-function expectedAxisRotation(axis: { x: number; y: number; z: number }, degrees: number): { x: number; y: number; z: number; w: number } {
-  const half: number = degrees * Math.PI / 360;
+function expectedAxisRotation(
+  axis: { x: number; y: number; z: number },
+  degrees: number,
+): { x: number; y: number; z: number; w: number } {
+  const half: number = (degrees * Math.PI) / 360;
   const sine: number = Math.sin(half);
-  return { x: axis.x * sine, y: axis.y * sine, z: axis.z * sine, w: Math.cos(half) };
+  return {
+    x: axis.x * sine,
+    y: axis.y * sine,
+    z: axis.z * sine,
+    w: Math.cos(half),
+  };
 }

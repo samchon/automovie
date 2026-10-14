@@ -1,14 +1,24 @@
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
 import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../../../../packages/engine/src/rom/toClinicalAngle";
 import { toRigAngle } from "../../../../packages/engine/src/rom/toRigAngle";
-import { TestValidator } from "@nestia/e2e";
+import {
+  type IAutoMovieJointPose,
+  type IAutoMoviePose,
+  type IAutoMovieQuaternion,
+  type IAutoMovieSkeleton,
+  type IAutoMovieVector3,
+} from "../../../../packages/interface/src/index";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
@@ -16,9 +26,7 @@ import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
-import { type IAutoMovieQuaternion, type IAutoMovieSkeleton, type IAutoMovieVector3, type IAutoMoviePose, type IAutoMovieJointPose } from "../../../../packages/interface/src/index";
-import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+
 /**
  * The rest-frame angle maps that let a pose be authored in one **clinical**
  * convention (e.g. +abduction raises either arm) while the rig articulates in
@@ -107,15 +115,27 @@ export function test_kinematics_rest_frame_angles(): void {
   );
 
   // 3. decompose round-trips the clinical angles through the frame
-  const c: { flexion: number; abduction: number; twist: number; } = { flexion: 20, abduction: 150, twist: 10 };
-  const q: IAutoMovieQuaternion = jointToQuaternion(c, DEFAULT_JOINT_AXES, frame);
-  const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(q, DEFAULT_JOINT_AXES, frame);
+  const c: { flexion: number; abduction: number; twist: number } = {
+    flexion: 20,
+    abduction: 150,
+    twist: 10,
+  };
+  const q: IAutoMovieQuaternion = jointToQuaternion(
+    c,
+    DEFAULT_JOINT_AXES,
+    frame,
+  );
+  const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    q,
+    DEFAULT_JOINT_AXES,
+    frame,
+  );
   TestValidator.equals(
     "decompose lifts back to the clinical angles",
     namedFacts([
-      ["ncloseBackFlexion", (): boolean  => nclose(back.flexion, 20, 1e-6)],
-      ["ncloseBackAbduction", (): boolean  => nclose(back.abduction, 150, 1e-6)],
-      ["ncloseBackTwist", (): boolean  => nclose(back.twist, 10, 1e-6)],
+      ["ncloseBackFlexion", (): boolean => nclose(back.flexion, 20, 1e-6)],
+      ["ncloseBackAbduction", (): boolean => nclose(back.abduction, 150, 1e-6)],
+      ["ncloseBackTwist", (): boolean => nclose(back.twist, 10, 1e-6)],
     ]),
     {
       ncloseBackFlexion: true,
@@ -135,7 +155,11 @@ export function test_kinematics_rest_frame_angles(): void {
     DEFAULT_JOINT_AXES,
     frame,
   );
-  const gBack: IAutoMovieResolvedJointAngles = decomposeJointRotation(gimbal, DEFAULT_JOINT_AXES, frame);
+  const gBack: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    gimbal,
+    DEFAULT_JOINT_AXES,
+    frame,
+  );
   TestValidator.predicate(
     "the gimbal case lifts abduction back to clinical 0",
     nclose(gBack.abduction, 0, 1e-6),
@@ -154,12 +178,16 @@ export function test_kinematics_rest_frame_angles(): void {
     skel,
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
-  ).find((b: IAutoMovieResolvedBone): boolean  => b.bone === "leftHand")!.worldPosition;
+  ).find(
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand",
+  )!.worldPosition;
   const handRig: IAutoMovieVector3 = resolvePose(
     makePose([joint("leftUpperArm", { abduction: 30 })]),
     skel,
     HUMANOID_JOINT_AXES,
-  ).find((b: IAutoMovieResolvedBone): boolean  => b.bone === "leftHand")!.worldPosition;
+  ).find(
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand",
+  )!.worldPosition;
   TestValidator.predicate(
     "resolvePose(clinical, frames) == resolvePose(pre-converted rig)",
     vclose(handClinical, handRig, 1e-9),
@@ -180,36 +208,48 @@ export function test_kinematics_rest_frame_angles(): void {
   // What the frame DOES guarantee is pinned instead: a rest frame changes the
   // representation, never the geometry. The offset law itself stays pinned in
   // scenarios 1-3, on a fixed rotation, which is where it is a theorem.
-  const target: { x: number; y: number; z: number; } = { x: 0.45, y: 1.3, z: 0.3 };
-  const reachClinical: IAutoMoviePose | null = reachPose(skel, "left", target, HUMANOID_REST_FRAME);
+  const target: { x: number; y: number; z: number } = {
+    x: 0.45,
+    y: 1.3,
+    z: 0.3,
+  };
+  const reachClinical: IAutoMoviePose | null = reachPose(
+    skel,
+    "left",
+    target,
+    HUMANOID_REST_FRAME,
+  );
   const reachRig: IAutoMoviePose | null = reachPose(skel, "left", target, {});
   TestValidator.equals(
     "reachPose returns a pose both ways",
     namedFacts([
-      ["reachClinical", (): boolean  => reachClinical !== null],
-      ["reachRig", (): boolean  => reachClinical !== null && reachRig !== null],
+      ["reachClinical", (): boolean => reachClinical !== null],
+      ["reachRig", (): boolean => reachClinical !== null && reachRig !== null],
     ]),
     { reachClinical: true, reachRig: true },
   );
   if (reachClinical !== null && reachRig !== null) {
-    const handOf: (pose: NonNullable<ReturnType<typeof reachPose>>, frames: Parameters<typeof reachPose>[3]) => IAutoMovieVector3 = (
+    const handOf: (
       pose: NonNullable<ReturnType<typeof reachPose>>,
       frames: Parameters<typeof reachPose>[3],
-    ): IAutoMovieVector3  =>
+    ) => IAutoMovieVector3 = (
+      pose: NonNullable<ReturnType<typeof reachPose>>,
+      frames: Parameters<typeof reachPose>[3],
+    ): IAutoMovieVector3 =>
       resolvePose(pose, skel, HUMANOID_JOINT_AXES, frames).find(
-        (b: IAutoMovieResolvedBone): boolean  => b.bone === "leftHand",
+        (b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand",
       )!.worldPosition;
     TestValidator.equals(
       "each frame's pose lands the hand on the target, read in its own space",
       namedFacts([
         [
           "vcloseHandOfReachClinical",
-          (): boolean  =>
+          (): boolean =>
             vclose(handOf(reachClinical, HUMANOID_REST_FRAME), target, 1e-9),
         ],
         [
           "vcloseHandOfReachRig",
-          (): boolean  => vclose(handOf(reachRig, {}), target, 1e-9),
+          (): boolean => vclose(handOf(reachRig, {}), target, 1e-9),
         ],
       ]),
       { vcloseHandOfReachClinical: true, vcloseHandOfReachRig: true },
@@ -219,8 +259,12 @@ export function test_kinematics_rest_frame_angles(): void {
     TestValidator.predicate(
       "and the elbow's hinge angle is identical across the two frames",
       nclose(
-        reachClinical.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!.flexion!,
-        reachRig.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!.flexion!,
+        reachClinical.joints.find(
+          (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+        )!.flexion!,
+        reachRig.joints.find(
+          (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+        )!.flexion!,
         1e-12,
       ),
     );
@@ -235,21 +279,29 @@ export function test_kinematics_rest_frame_angles(): void {
   const reachDefault: IAutoMoviePose | null = reachPose(skel, "left", target);
   TestValidator.predicate(
     "an omitted rest frame is the canonical humanoid one, not raw rig space",
-    reachDefault !== null && reachClinical !== null &&
+    reachDefault !== null &&
+      reachClinical !== null &&
       reachDefault.skeleton === reachClinical.skeleton &&
-      reachDefault.root === null && reachClinical.root === null &&
+      reachDefault.root === null &&
+      reachClinical.root === null &&
       reachDefault.joints.length === reachClinical.joints.length &&
-      reachDefault.joints.every((value: IAutoMovieJointPose, index: number): boolean => {
-        const expected: IAutoMovieJointPose = reachClinical.joints[index]!;
-        return value.bone === expected.bone &&
-          sameAngle(value.flexion, expected.flexion) &&
-          sameAngle(value.abduction, expected.abduction) &&
-          sameAngle(value.twist, expected.twist);
-      }),
+      reachDefault.joints.every(
+        (value: IAutoMovieJointPose, index: number): boolean => {
+          const expected: IAutoMovieJointPose = reachClinical.joints[index]!;
+          return (
+            value.bone === expected.bone &&
+            sameAngle(value.flexion, expected.flexion) &&
+            sameAngle(value.abduction, expected.abduction) &&
+            sameAngle(value.twist, expected.twist)
+          );
+        },
+      ),
   );
 }
 
 /** Null means an undriven axis; numeric parity retains the exact default-frame result. */
 function sameAngle(actual: number | null, expected: number | null): boolean {
-  return actual === null || expected === null ? actual === expected : nclose(actual, expected, 0);
+  return actual === null || expected === null
+    ? actual === expected
+    : nclose(actual, expected, 0);
 }

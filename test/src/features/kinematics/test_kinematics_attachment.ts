@@ -1,11 +1,18 @@
-import { IAutoMovieSkeleton, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieAttachment, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieAttachment,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { TestValidator } from "@nestia/e2e";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
@@ -13,6 +20,7 @@ import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
+
 /**
  * `resolveAttachment`: the cross-skeleton joint that fixes a child model's root
  * into a bone of a posed parent (a rider in a horse's saddle). It runs FK on
@@ -99,7 +107,10 @@ export function test_kinematics_attachment(): void {
 
   // 3. yaw the whole rig via the pose root: child inherits the bone's world
   //    rotation and the offset is carried into that frame
-  const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
   const yawed: IAutoMoviePose = makePose([], {
     translation: { x: 0, y: 0, z: 0 },
     rotation: yaw,
@@ -115,18 +126,9 @@ export function test_kinematics_attachment(): void {
   TestValidator.equals(
     "offset translation carried into the rotated frame",
     namedFacts([
-      [
-        "ncloseR3Translation",
-        (): boolean => nclose(r3.translation.x, 0.1),
-      ],
-      [
-        "ncloseR3Translation2",
-        (): boolean => nclose(r3.translation.y, 1.45),
-      ],
-      [
-        "ncloseR3Translation3",
-        (): boolean => nclose(r3.translation.z, 0),
-      ],
+      ["ncloseR3Translation", (): boolean => nclose(r3.translation.x, 0.1)],
+      ["ncloseR3Translation2", (): boolean => nclose(r3.translation.y, 1.45)],
+      ["ncloseR3Translation3", (): boolean => nclose(r3.translation.z, 0)],
     ]),
     {
       ncloseR3Translation: true,
@@ -160,7 +162,9 @@ export function test_kinematics_attachment(): void {
   );
 
   // 5. clinical parent pose → same FK path as the renderer/player
-  const raised: IAutoMoviePose = makePose([joint("leftUpperArm", { abduction: 180 })]);
+  const raised: IAutoMoviePose = makePose([
+    joint("leftUpperArm", { abduction: 180 }),
+  ]);
   const framed: IAutoMovieTransform = resolveAttachment(
     raised,
     skeleton,

@@ -1,4 +1,3 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { resolvePose } from "@automovie/engine";
 import { humanoidSkeleton } from "@automovie/ingest";
 import { IAutoMovieBone } from "@automovie/interface";
@@ -6,9 +5,15 @@ import { Document, Node as GLTFNode } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const find: (bones: IAutoMovieBone[], bone: string) => IAutoMovieBone = (bones: IAutoMovieBone[], bone: string): IAutoMovieBone => {
-  const b: IAutoMovieBone | undefined = bones.find((x: IAutoMovieBone): boolean => x.bone === bone);
+const find: (bones: IAutoMovieBone[], bone: string) => IAutoMovieBone = (
+  bones: IAutoMovieBone[],
+  bone: string,
+): IAutoMovieBone => {
+  const b: IAutoMovieBone | undefined = bones.find(
+    (x: IAutoMovieBone): boolean => x.bone === bone,
+  );
   if (b === undefined) throw new Error(`bone ${bone} missing`);
   return b;
 };
@@ -40,18 +45,26 @@ export function test_ingest_humanoid_skeleton(): void {
   // 1. no skin
   const noSkin: Document = new Document();
   noSkin.createScene().addChild(noSkin.createNode("mixamorig:Hips"));
-  TestValidator.predicate("no skin → null", test12ValuesClose(humanoidSkeleton(noSkin), null));
+  TestValidator.predicate(
+    "no skin → null",
+    test12ValuesClose(humanoidSkeleton(noSkin), null),
+  );
 
   // 2. skin without hips
   const noHips: Document = new Document();
   const spineOnly: GLTFNode = noHips.createNode("mixamorig:Spine");
   noHips.createSkin("s").addJoint(spineOnly);
   noHips.createScene().addChild(spineOnly);
-  TestValidator.predicate("no hips → null", test12ValuesClose(humanoidSkeleton(noHips), null));
+  TestValidator.predicate(
+    "no hips → null",
+    test12ValuesClose(humanoidSkeleton(noHips), null),
+  );
 
   // 3-5. full rig
   const doc: Document = new Document();
-  const hips: GLTFNode = doc.createNode("mixamorig:Hips").setTranslation([0, 1, 0]);
+  const hips: GLTFNode = doc
+    .createNode("mixamorig:Hips")
+    .setTranslation([0, 1, 0]);
   const helper: GLTFNode = doc.createNode("HelperBone");
   const spine: GLTFNode = doc.createNode("mixamorig:Spine");
   const arm: GLTFNode = doc.createNode("mixamorig:LeftArm");
@@ -72,36 +85,68 @@ export function test_ingest_humanoid_skeleton(): void {
     .addJoint(junk);
   doc.createScene().addChild(hips);
 
-  const skel: import("@automovie/interface").IAutoMovieSkeleton | null = humanoidSkeleton(doc, "human");
+  const skel: import("@automovie/interface").IAutoMovieSkeleton | null =
+    humanoidSkeleton(doc, "human");
   if (skel === null) throw new Error("expected a skeleton");
 
   TestValidator.predicate("skeleton id", test12ValuesClose(skel.id, "human"));
-  TestValidator.predicate("three mapped bones", test12ValuesClose(skel.bones.length, 3));
-  TestValidator.predicate("hips is root", test12ValuesClose(find(skel.bones, "hips").parent, null));
-  TestValidator.predicate("spine parents hips through the helper", test12ValuesClose(find(skel.bones, "spine").parent, "hips"));
-  TestValidator.predicate("left arm parents spine", test12ValuesClose(find(skel.bones, "leftUpperArm").parent, "spine"));
+  TestValidator.predicate(
+    "three mapped bones",
+    test12ValuesClose(skel.bones.length, 3),
+  );
+  TestValidator.predicate(
+    "hips is root",
+    test12ValuesClose(find(skel.bones, "hips").parent, null),
+  );
+  TestValidator.predicate(
+    "spine parents hips through the helper",
+    test12ValuesClose(find(skel.bones, "spine").parent, "hips"),
+  );
+  TestValidator.predicate(
+    "left arm parents spine",
+    test12ValuesClose(find(skel.bones, "leftUpperArm").parent, "spine"),
+  );
   TestValidator.predicate(
     "hips rest translation carried",
     nclose(find(skel.bones, "hips").rest.translation.y, 1),
   );
 
   // 6. a translated helper's offset survives into the emitted rest
-  const restPose: (id: string) => { skeleton: string; root: null; joints: never[]; } = (id: string): { skeleton: string; root: null; joints: never[]; } => ({ skeleton: id, root: null, joints: [] });
-  const worldOf: (skeleton: { id: string; bones: IAutoMovieBone[]; }, bone: string) => import("@automovie/engine").IAutoMovieResolvedBone = (
+  const restPose: (id: string) => {
+    skeleton: string;
+    root: null;
+    joints: never[];
+  } = (id: string): { skeleton: string; root: null; joints: never[] } => ({
+    skeleton: id,
+    root: null,
+    joints: [],
+  });
+  const worldOf: (
+    skeleton: { id: string; bones: IAutoMovieBone[] },
+    bone: string,
+  ) => import("@automovie/engine").IAutoMovieResolvedBone = (
     skeleton: { id: string; bones: IAutoMovieBone[] },
     bone: string,
   ): import("@automovie/engine").IAutoMovieResolvedBone =>
-    resolvePose(restPose(skeleton.id), skeleton).find((r: import("@automovie/engine").IAutoMovieResolvedBone): boolean => r.bone === bone)!;
+    resolvePose(restPose(skeleton.id), skeleton).find(
+      (r: import("@automovie/engine").IAutoMovieResolvedBone): boolean =>
+        r.bone === bone,
+    )!;
 
   const shifted: Document = new Document();
   const sHips: GLTFNode = shifted.createNode("Hips").setTranslation([0, 1, 0]);
-  const sHelper: GLTFNode = shifted.createNode("Helper").setTranslation([0, 0.1, 0]);
-  const sSpine: GLTFNode = shifted.createNode("Spine").setTranslation([0, 0.05, 0]);
+  const sHelper: GLTFNode = shifted
+    .createNode("Helper")
+    .setTranslation([0, 0.1, 0]);
+  const sSpine: GLTFNode = shifted
+    .createNode("Spine")
+    .setTranslation([0, 0.05, 0]);
   sHips.addChild(sHelper);
   sHelper.addChild(sSpine);
   shifted.createSkin("skin").addJoint(sHips).addJoint(sHelper).addJoint(sSpine);
   shifted.createScene().addChild(sHips);
-  const shiftedSkel: import("@automovie/interface").IAutoMovieSkeleton = humanoidSkeleton(shifted, "shifted")!;
+  const shiftedSkel: import("@automovie/interface").IAutoMovieSkeleton =
+    humanoidSkeleton(shifted, "shifted")!;
   TestValidator.predicate(
     "a translated helper's offset composes into the child's rest",
     nclose(find(shiftedSkel.bones, "spine").rest.translation.y, 0.15),
@@ -119,26 +164,44 @@ export function test_ingest_humanoid_skeleton(): void {
   const sq: number = Math.SQRT1_2;
   const rolled: Document = new Document();
   const rHips: GLTFNode = rolled.createNode("Hips").setTranslation([0, 1, 0]);
-  const rHelper: GLTFNode = rolled.createNode("Roll").setRotation([0, 0, sq, sq]);
-  const rSpine: GLTFNode = rolled.createNode("Spine").setTranslation([0, 0.2, 0]);
+  const rHelper: GLTFNode = rolled
+    .createNode("Roll")
+    .setRotation([0, 0, sq, sq]);
+  const rSpine: GLTFNode = rolled
+    .createNode("Spine")
+    .setTranslation([0, 0.2, 0]);
   rHips.addChild(rHelper);
   rHelper.addChild(rSpine);
   rolled.createSkin("skin").addJoint(rHips).addJoint(rHelper).addJoint(rSpine);
   rolled.createScene().addChild(rHips);
-  const rolledSkel: import("@automovie/interface").IAutoMovieSkeleton = humanoidSkeleton(rolled, "rolled")!;
+  const rolledSkel: import("@automovie/interface").IAutoMovieSkeleton =
+    humanoidSkeleton(rolled, "rolled")!;
   const rolledSpine: IAutoMovieBone = find(rolledSkel.bones, "spine");
-  TestValidator.predicate("a rotated helper rotates the child's rest offset and rolls its rotation", test12ValuesClose(namedFacts([
-      [
-        "vcloseRolledSpineRest",
-        (): boolean => vclose(rolledSpine.rest.translation, { x: -0.2, y: 0, z: 0 }),
-      ],
-      ["ncloseRolledSpineRest", (): boolean => nclose(rolledSpine.rest.rotation.z, sq)],
-      ["ncloseRolledSpineRest2", (): boolean => nclose(rolledSpine.rest.rotation.w, sq)],
-    ]), {
-      vcloseRolledSpineRest: true,
-      ncloseRolledSpineRest: true,
-      ncloseRolledSpineRest2: true,
-    }));
+  TestValidator.predicate(
+    "a rotated helper rotates the child's rest offset and rolls its rotation",
+    test12ValuesClose(
+      namedFacts([
+        [
+          "vcloseRolledSpineRest",
+          (): boolean =>
+            vclose(rolledSpine.rest.translation, { x: -0.2, y: 0, z: 0 }),
+        ],
+        [
+          "ncloseRolledSpineRest",
+          (): boolean => nclose(rolledSpine.rest.rotation.z, sq),
+        ],
+        [
+          "ncloseRolledSpineRest2",
+          (): boolean => nclose(rolledSpine.rest.rotation.w, sq),
+        ],
+      ]),
+      {
+        vcloseRolledSpineRest: true,
+        ncloseRolledSpineRest: true,
+        ncloseRolledSpineRest2: true,
+      },
+    ),
+  );
   TestValidator.predicate(
     "FK lands the rolled spine beside the hips",
     vclose(worldOf(rolledSkel, "spine").worldPosition, { x: -0.2, y: 1, z: 0 }),
@@ -146,14 +209,19 @@ export function test_ingest_humanoid_skeleton(): void {
 
   // 8. a root bone keeps its own local rest: the armature is not composed
   const wrapped: Document = new Document();
-  const armature: GLTFNode = wrapped.createNode("Armature").setTranslation([5, 0, 0]);
+  const armature: GLTFNode = wrapped
+    .createNode("Armature")
+    .setTranslation([5, 0, 0]);
   const wHips: GLTFNode = wrapped.createNode("Hips").setTranslation([0, 1, 0]);
-  const wSpine: GLTFNode = wrapped.createNode("Spine").setTranslation([0, 0.3, 0]);
+  const wSpine: GLTFNode = wrapped
+    .createNode("Spine")
+    .setTranslation([0, 0.3, 0]);
   armature.addChild(wHips);
   wHips.addChild(wSpine);
   wrapped.createSkin("skin").addJoint(wHips).addJoint(wSpine);
   wrapped.createScene().addChild(armature);
-  const wrappedSkel: import("@automovie/interface").IAutoMovieSkeleton = humanoidSkeleton(wrapped, "wrapped")!;
+  const wrappedSkel: import("@automovie/interface").IAutoMovieSkeleton =
+    humanoidSkeleton(wrapped, "wrapped")!;
   TestValidator.predicate(
     "a root bone keeps its local rest without the armature transform",
     vclose(find(wrappedSkel.bones, "hips").rest.translation, {
@@ -178,10 +246,20 @@ export function test_ingest_humanoid_skeleton(): void {
     .addJoint(s02)
     .addJoint(s03);
   ue.createScene().addChild(pelvis);
-  const ueSkel: import("@automovie/interface").IAutoMovieSkeleton = humanoidSkeleton(ue, "ue")!;
-  TestValidator.predicate("UE-mannequin spine chain maps hips/spine/chest/upperChest in-chain", test12ValuesClose(["hips", "spine", "chest", "upperChest"].map(
-      (b: string): import("@automovie/interface").AutoMovieHumanoidBone | null => find(ueSkel.bones, b).parent,
-    ), [null, "hips", "spine", "chest"]));
+  const ueSkel: import("@automovie/interface").IAutoMovieSkeleton =
+    humanoidSkeleton(ue, "ue")!;
+  TestValidator.predicate(
+    "UE-mannequin spine chain maps hips/spine/chest/upperChest in-chain",
+    test12ValuesClose(
+      ["hips", "spine", "chest", "upperChest"].map(
+        (
+          b: string,
+        ): import("@automovie/interface").AutoMovieHumanoidBone | null =>
+          find(ueSkel.bones, b).parent,
+      ),
+      [null, "hips", "spine", "chest"],
+    ),
+  );
 
   // 10. a prototype member name is not an alias
   const inherited: Document = new Document();
@@ -190,7 +268,13 @@ export function test_ingest_humanoid_skeleton(): void {
   iHips.addChild(iOther);
   inherited.createSkin("skin").addJoint(iHips).addJoint(iOther);
   inherited.createScene().addChild(iHips);
-  TestValidator.predicate("a joint named after an Object.prototype member maps to no slot", test12ValuesClose(humanoidSkeleton(inherited, "inherited")?.bones.map(
-      (bone: IAutoMovieBone): string => bone.bone,
-    ), ["hips"]));
+  TestValidator.predicate(
+    "a joint named after an Object.prototype member maps to no slot",
+    test12ValuesClose(
+      humanoidSkeleton(inherited, "inherited")?.bones.map(
+        (bone: IAutoMovieBone): string => bone.bone,
+      ),
+      ["hips"],
+    ),
+  );
 }

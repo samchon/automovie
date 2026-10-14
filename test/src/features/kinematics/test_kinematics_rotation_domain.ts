@@ -1,13 +1,15 @@
-import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { type IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
+import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
-import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
-import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
+
 /**
  * A quaternion's principal Euler chart need not belong to its joint domain.
  * Independent rotations about one declared axis fix the known clinical value;
@@ -39,11 +41,19 @@ export function test_kinematics_rotation_domain(): void {
       abduction: null,
       twist: null,
     };
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.flexion, 125);
-    const restored: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, undefined, {
-      bone: "leftLowerArm",
-      constraint,
-    });
+    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      axes.flexion,
+      125,
+    );
+    const restored: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      rotation,
+      axes,
+      undefined,
+      {
+        bone: "leftLowerArm",
+        constraint,
+      },
+    );
     TestValidator.predicate(
       "distal hinge retains 125 degrees",
       nclose(restored.flexion, 125, 1e-10),
@@ -61,11 +71,19 @@ export function test_kinematics_rotation_domain(): void {
       qclose(jointToQuaternion(restored, axes), rotation, 1e-12),
     );
 
-    const principal: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes);
-    const unconstrained: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, undefined, {
-      bone: "leftLowerArm",
-      constraint: null,
-    });
+    const principal: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      rotation,
+      axes,
+    );
+    const unconstrained: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      rotation,
+      axes,
+      undefined,
+      {
+        bone: "leftLowerArm",
+        constraint: null,
+      },
+    );
     TestValidator.predicate(
       "principal distal flexion uses its 55 degree branch",
       nclose(principal.flexion, 55, 1e-10),
@@ -76,15 +94,23 @@ export function test_kinematics_rotation_domain(): void {
     );
 
     axes.twistPlacement = "proximal";
-    const abducted: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.abduction, 125);
-    const swing: IAutoMovieResolvedJointAngles = decomposeJointRotation(abducted, axes, undefined, {
-      bone: "leftUpperArm",
-      constraint: {
-        flexion: null,
-        abduction: { min: 0, max: 140 },
-        twist: null,
+    const abducted: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      axes.abduction,
+      125,
+    );
+    const swing: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      abducted,
+      axes,
+      undefined,
+      {
+        bone: "leftUpperArm",
+        constraint: {
+          flexion: null,
+          abduction: { min: 0, max: 140 },
+          twist: null,
+        },
       },
-    });
+    );
     TestValidator.predicate(
       "proximal swing retains 125 degrees",
       nclose(swing.abduction, 125, 1e-10),
@@ -105,16 +131,26 @@ export function test_kinematics_rotation_domain(): void {
     twist: { x: 0, y: 0, z: 1 },
     twistPlacement: "distal",
   };
-  const frame: { flexion: { sign: -1; neutral: number; }; } = { flexion: { sign: -1 as const, neutral: 20 } };
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.flexion, 125);
-  const clinical: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, frame, {
-    bone: "leftLowerArm",
-    constraint: {
-      flexion: { min: -110, max: 20 },
-      abduction: null,
-      twist: null,
+  const frame: { flexion: { sign: -1; neutral: number } } = {
+    flexion: { sign: -1 as const, neutral: 20 },
+  };
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    axes.flexion,
+    125,
+  );
+  const clinical: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    rotation,
+    axes,
+    frame,
+    {
+      bone: "leftLowerArm",
+      constraint: {
+        flexion: { min: -110, max: 20 },
+        abduction: null,
+        twist: null,
+      },
     },
-  });
+  );
   TestValidator.predicate(
     "sign and neutral retain clinical -105 degrees",
     nclose(clinical.flexion, -105, 1e-10),

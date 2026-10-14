@@ -1,12 +1,17 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { atLeast, flatBasin } from "../internal/fluidFixtures";
 import { nclose } from "../internal/predicates";
 
 /** Construct the same original basin with only the east wall/open condition and explanatory id switched; both twins keep identical initial water and solver settings. */
-const spillway: (open: boolean) => IAutoMovieFluidDomain = (open: boolean): IAutoMovieFluidDomain =>
+const spillway: (open: boolean) => IAutoMovieFluidDomain = (
+  open: boolean,
+): IAutoMovieFluidDomain =>
   flatBasin({
     columns: 8,
     rows: 2,
@@ -51,23 +56,69 @@ const spillway: (open: boolean) => IAutoMovieFluidDomain = (open: boolean): IAut
 export function test_fluid_open_outflow(): void {
   const open: ReturnType<typeof spillway> = spillway(true);
   const authored: number = open.depth.reduce(
-    (sum: number, value: number): number => sum + value * open.grid.cellX * open.grid.cellZ,
+    (sum: number, value: number): number =>
+      sum + value * open.grid.cellX * open.grid.cellZ,
     0,
   );
-  const states: IAutoMovieFluidState[] = [1, 40, 200, 600].map((step: number): ReturnType<typeof simulateFluidDomain> =>
-    simulateFluidDomain(open, step),
+  const states: IAutoMovieFluidState[] = [1, 40, 200, 600].map(
+    (step: number): ReturnType<typeof simulateFluidDomain> =>
+      simulateFluidDomain(open, step),
   );
   const last: IAutoMovieFluidState = states[states.length - 1];
 
-  TestValidator.predicate("authored basin holds two cubic metres", nclose(authored, 2, 1e-12));
-  TestValidator.predicate("open rim loses more than half its water", last.volume < authored * 0.5);
-  TestValidator.predicate("open rim books positive outflow", last.outflowVolume > 0);
-  TestValidator.predicate("open-rim mass balance", states.every((state: IAutoMovieFluidState): boolean => nclose(state.volume, authored + state.sourceVolume - state.drainVolume - state.outflowVolume, 1e-9)));
-  TestValidator.predicate("open rim invents no source or drain", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.sourceVolume, 0) && nclose(state.sourceVolume, 0, 0) && Object.is(state.drainVolume, 0) && nclose(state.drainVolume, 0, 0)));
-  TestValidator.predicate("open-rim sampled depths stay nonnegative", states.every((state: IAutoMovieFluidState): boolean => atLeast(state.depth, 0)));
+  TestValidator.predicate(
+    "authored basin holds two cubic metres",
+    nclose(authored, 2, 1e-12),
+  );
+  TestValidator.predicate(
+    "open rim loses more than half its water",
+    last.volume < authored * 0.5,
+  );
+  TestValidator.predicate(
+    "open rim books positive outflow",
+    last.outflowVolume > 0,
+  );
+  TestValidator.predicate(
+    "open-rim mass balance",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      nclose(
+        state.volume,
+        authored + state.sourceVolume - state.drainVolume - state.outflowVolume,
+        1e-9,
+      ),
+    ),
+  );
+  TestValidator.predicate(
+    "open rim invents no source or drain",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(state.sourceVolume, 0) &&
+        nclose(state.sourceVolume, 0, 0) &&
+        Object.is(state.drainVolume, 0) &&
+        nclose(state.drainVolume, 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "open-rim sampled depths stay nonnegative",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      atLeast(state.depth, 0),
+    ),
+  );
 
-  const walled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(spillway(false), 600);
-  TestValidator.predicate("walled twin books zero outflow", Object.is(walled.outflowVolume, 0) && nclose(walled.outflowVolume, 0, 0));
-  TestValidator.predicate("walled twin retains authored volume", nclose(walled.volume, authored, 1e-12));
-  TestValidator.predicate("walled twin retains its uniform depth", walled.depth.every((value: number): boolean => nclose(value, 0.5, 0)));
+  const walled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    spillway(false),
+    600,
+  );
+  TestValidator.predicate(
+    "walled twin books zero outflow",
+    Object.is(walled.outflowVolume, 0) && nclose(walled.outflowVolume, 0, 0),
+  );
+  TestValidator.predicate(
+    "walled twin retains authored volume",
+    nclose(walled.volume, authored, 1e-12),
+  );
+  TestValidator.predicate(
+    "walled twin retains its uniform depth",
+    walled.depth.every((value: number): boolean => nclose(value, 0.5, 0)),
+  );
 }

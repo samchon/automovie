@@ -1,7 +1,8 @@
-import {simulateFluidDomain} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
+import { simulateFluidDomain } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
+
+import { flatBasin } from "../internal/fluidFixtures";
 import { nclose } from "../internal/predicates";
-import {flatBasin} from "../internal/fluidFixtures";
 
 /**
  * The positivity limiter books only the water actually held by the one-cell sump; a later absolute seek cannot draw below its sill.
@@ -42,10 +43,28 @@ export function test_fluid_drain_positivity_ledger(): void {
       ],
     },
   });
-  const emptied: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(overEager, 1);
-  const stayed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(overEager, 200);
-  TestValidator.predicate("first step empties exactly the held water", Object.is(emptied.depth[0], 0) && nclose(emptied.depth[0], 0, 0));
-  TestValidator.predicate("first step books exactly half a cubic metre", Object.is(emptied.drainVolume, 0.5) && nclose(emptied.drainVolume, 0.5, 0));
-  TestValidator.predicate("later sump stays empty", Object.is(stayed.depth[0], 0) && nclose(stayed.depth[0], 0, 0));
-  TestValidator.predicate("later drain booking does not grow", Object.is(stayed.drainVolume, 0.5) && nclose(stayed.drainVolume, 0.5, 0));
+  const emptied: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    overEager,
+    1,
+  );
+  const stayed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    overEager,
+    200,
+  );
+  TestValidator.predicate(
+    "first step empties exactly the held water",
+    Object.is(emptied.depth[0], 0) && nclose(emptied.depth[0], 0, 0),
+  );
+  TestValidator.predicate(
+    "first step books exactly half a cubic metre",
+    Object.is(emptied.drainVolume, 0.5) && nclose(emptied.drainVolume, 0.5, 0),
+  );
+  TestValidator.predicate(
+    "later sump stays empty",
+    Object.is(stayed.depth[0], 0) && nclose(stayed.depth[0], 0, 0),
+  );
+  TestValidator.predicate(
+    "later drain booking does not grow",
+    Object.is(stayed.drainVolume, 0.5) && nclose(stayed.drainVolume, 0.5, 0),
+  );
 }

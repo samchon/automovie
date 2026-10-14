@@ -1,12 +1,23 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { atLeast, flatBasin } from "../internal/fluidFixtures";
 import { nclose } from "../internal/predicates";
 
 /** Build the original one-row strand from borrowed bed/depth arrays with the optional dry threshold; the owning cases derive reachable and blocked cells from these authored levels. */
-const strand: (props: { bed: number[]; depth: number[]; dryDepth?: number }) => IAutoMovieFluidDomain = (props: { bed: number[]; depth: number[]; dryDepth?: number }): IAutoMovieFluidDomain =>
+const strand: (props: {
+  bed: number[];
+  depth: number[];
+  dryDepth?: number;
+}) => IAutoMovieFluidDomain = (props: {
+  bed: number[];
+  depth: number[];
+  dryDepth?: number;
+}): IAutoMovieFluidDomain =>
   flatBasin({
     columns: props.bed.length,
     rows: 1,
@@ -53,30 +64,66 @@ const strand: (props: { bed: number[]; depth: number[]; dryDepth?: number }) => 
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns these portable absolute CPU field observations with existing fixtures; assertions do not observe every future step or GPU projection.
  */
 export function test_fluid_dry_cell_wetting(): void {
-  const spreading: ReturnType<typeof strand> = strand({ bed: [0, 0, 0, 0], depth: [0.5, 0, 0, 0] });
+  const spreading: ReturnType<typeof strand> = strand({
+    bed: [0, 0, 0, 0],
+    depth: [0.5, 0, 0, 0],
+  });
   const authored: number = 0.5 * 0.25;
-  const states: IAutoMovieFluidState[] = [1, 20, 120, 600].map((step: number): ReturnType<typeof simulateFluidDomain> =>
-    simulateFluidDomain(spreading, step),
+  const states: IAutoMovieFluidState[] = [1, 20, 120, 600].map(
+    (step: number): ReturnType<typeof simulateFluidDomain> =>
+      simulateFluidDomain(spreading, step),
   );
   const settled: IAutoMovieFluidState = states[states.length - 1];
-  TestValidator.predicate("reachable cells become wet", settled.depth.every((value: number): boolean => value > 0));
-  TestValidator.predicate("reachable wetting preserves authored volume", nclose(settled.volume, authored, 1e-12));
-  TestValidator.predicate("sampled depths remain nonnegative", states.every((state: IAutoMovieFluidState): boolean => atLeast(state.depth, 0)));
+  TestValidator.predicate(
+    "reachable cells become wet",
+    settled.depth.every((value: number): boolean => value > 0),
+  );
+  TestValidator.predicate(
+    "reachable wetting preserves authored volume",
+    nclose(settled.volume, authored, 1e-12),
+  );
+  TestValidator.predicate(
+    "sampled depths remain nonnegative",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      atLeast(state.depth, 0),
+    ),
+  );
 
   const stepped: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
     strand({ bed: [0, 0, 2, 2], depth: [0.5, 0.5, 0, 0] }),
     600,
   );
-  TestValidator.predicate("raised shore stays dry", Object.is(stepped.depth[2], 0) && nclose(stepped.depth[2], 0, 0));
-  TestValidator.predicate("far raised shore stays dry", Object.is(stepped.depth[3], 0) && nclose(stepped.depth[3], 0, 0));
-  TestValidator.predicate("raised-shore face stays silent", Object.is(stepped.velocityX[2], 0) && nclose(stepped.velocityX[2], 0, 0));
-  TestValidator.predicate("raised shore preserves volume", nclose(stepped.volume, 0.25, 1e-12));
+  TestValidator.predicate(
+    "raised shore stays dry",
+    Object.is(stepped.depth[2], 0) && nclose(stepped.depth[2], 0, 0),
+  );
+  TestValidator.predicate(
+    "far raised shore stays dry",
+    Object.is(stepped.depth[3], 0) && nclose(stepped.depth[3], 0, 0),
+  );
+  TestValidator.predicate(
+    "raised-shore face stays silent",
+    Object.is(stepped.velocityX[2], 0) && nclose(stepped.velocityX[2], 0, 0),
+  );
+  TestValidator.predicate(
+    "raised shore preserves volume",
+    nclose(stepped.volume, 0.25, 1e-12),
+  );
 
   const filmed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
     strand({ bed: [0, 0, 0, 0], depth: [0.5, 0.05, 0, 0], dryDepth: 0.1 }),
     1,
   );
-  TestValidator.predicate("sub-threshold film receives upstream water", filmed.depth[1] > 0.05);
-  TestValidator.predicate("sub-threshold film does not wet its neighbour", Object.is(filmed.depth[2], 0) && nclose(filmed.depth[2], 0, 0));
-  TestValidator.predicate("sub-threshold film has no outgoing face speed", Object.is(filmed.velocityX[2], 0) && nclose(filmed.velocityX[2], 0, 0));
+  TestValidator.predicate(
+    "sub-threshold film receives upstream water",
+    filmed.depth[1] > 0.05,
+  );
+  TestValidator.predicate(
+    "sub-threshold film does not wet its neighbour",
+    Object.is(filmed.depth[2], 0) && nclose(filmed.depth[2], 0, 0),
+  );
+  TestValidator.predicate(
+    "sub-threshold film has no outgoing face speed",
+    Object.is(filmed.velocityX[2], 0) && nclose(filmed.velocityX[2], 0, 0),
+  );
 }

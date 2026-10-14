@@ -1,16 +1,20 @@
-import { test12MotionInspect } from "../internal/test12Motion/test12MotionInspect";
-import { test12MotionFixture } from "../internal/test12Motion/test12MotionFixture";
-import { test12MotionDocument } from "../internal/test12Motion/test12MotionDocument";
-import { test12MotionSkeleton } from "../internal/test12Motion/test12MotionSkeleton";
-import { test12MotionAdoptionRefusalFacts1 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts1";
-import { test12MotionAdoptionRefusalFacts2 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts2";
-import { test12MotionAdoptionRefusalFacts3 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts3";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
-import { type AutoMovieExternalMotionAdoptionDecision, type IAutoMovieExternalMotionRetargetDecision, adoptAutoMovieExternalMotion } from "@automovie/ingest";
+import {
+  type AutoMovieExternalMotionAdoptionDecision,
+  type IAutoMovieExternalMotionRetargetDecision,
+  adoptAutoMovieExternalMotion,
+} from "@automovie/ingest";
 import type { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
+import { test12MotionAdoptionRefusalFacts1 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts1";
+import { test12MotionAdoptionRefusalFacts2 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts2";
+import { test12MotionAdoptionRefusalFacts3 } from "../internal/test12Motion/test12MotionAdoptionRefusalFacts3";
+import { test12MotionDocument } from "../internal/test12Motion/test12MotionDocument";
+import { test12MotionFixture } from "../internal/test12Motion/test12MotionFixture";
+import { test12MotionInspect } from "../internal/test12Motion/test12MotionInspect";
+import { test12MotionSkeleton } from "../internal/test12Motion/test12MotionSkeleton";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * External motion bytes normalize deterministically, and adoption preserves the author's native or retarget choice without provider access or rig guessing.
@@ -29,11 +33,16 @@ import { namedFacts, throwsError } from "../internal/predicates";
  */
 export function test_ingest_external_motion_adoption(): void {
   const fixture: ReturnType<typeof test12MotionFixture> = test12MotionFixture();
-  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = test12MotionInspect(fixture);
-  const motion: import("../../../../packages/ingest/src/IAutoMovieExternalMotionInspection").IAutoMovieExternalMotionInspection | undefined = inspection.motion;
+  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+    test12MotionInspect(fixture);
+  const motion:
+    | import("../../../../packages/ingest/src/IAutoMovieExternalMotionInspection").IAutoMovieExternalMotionInspection
+    | undefined = inspection.motion;
   TestValidator.predicate("motion inspection is present", motion !== undefined);
   if (motion === undefined) return;
-  const expectedMotion: NonNullable<ReturnType<typeof test12MotionInspect>["motion"]> = {
+  const expectedMotion: NonNullable<
+    ReturnType<typeof test12MotionInspect>["motion"]
+  > = {
     path: "public/motion/walk.gltf",
     byteLength: fixture.bytes.byteLength,
     interpretation: "gltf-2.0-meter-right-handed-y-up",
@@ -106,72 +115,124 @@ export function test_ingest_external_motion_adoption(): void {
       },
     ],
   };
-  TestValidator.predicate("normalized motion inventory", test12ValuesClose(motion, expectedMotion));
-  const weightsDocument: ReturnType<typeof test12MotionDocument> = test12MotionDocument();
+  TestValidator.predicate(
+    "normalized motion inventory",
+    test12ValuesClose(motion, expectedMotion),
+  );
+  const weightsDocument: ReturnType<typeof test12MotionDocument> =
+    test12MotionDocument();
   weightsDocument.animations[0]!.channels = [
     { sampler: 2, target: { node: 2, path: "weights" } },
   ];
   weightsDocument.accessors[3]!.type = "SCALAR";
-  TestValidator.predicate("weight tracks use scalar source samples", test12ValuesClose(test12MotionInspect(test12MotionFixture(weightsDocument)).motion?.takes[0]?.tracks[0]
-      ?.channel, { kind: "node", node: "node_2", path: "weights" }));
-  const unnamedDocument: ReturnType<typeof test12MotionDocument> = test12MotionDocument();
+  TestValidator.predicate(
+    "weight tracks use scalar source samples",
+    test12ValuesClose(
+      test12MotionInspect(test12MotionFixture(weightsDocument)).motion?.takes[0]
+        ?.tracks[0]?.channel,
+      { kind: "node", node: "node_2", path: "weights" },
+    ),
+  );
+  const unnamedDocument: ReturnType<typeof test12MotionDocument> =
+    test12MotionDocument();
   unnamedDocument.animations[0]!.name = "";
-  TestValidator.predicate("empty animation names normalize to null", test12ValuesClose(test12MotionInspect(test12MotionFixture(unnamedDocument)).motion?.takes[0]?.name, null));
-  const absentNameDocument: ReturnType<typeof test12MotionDocument> = test12MotionDocument();
+  TestValidator.predicate(
+    "empty animation names normalize to null",
+    test12ValuesClose(
+      test12MotionInspect(test12MotionFixture(unnamedDocument)).motion?.takes[0]
+        ?.name,
+      null,
+    ),
+  );
+  const absentNameDocument: ReturnType<typeof test12MotionDocument> =
+    test12MotionDocument();
   delete (absentNameDocument.animations[0]! as { name?: string }).name;
-  TestValidator.predicate("absent animation names normalize to null", test12ValuesClose(test12MotionInspect(test12MotionFixture(absentNameDocument)).motion?.takes[0]?.name, null));
+  TestValidator.predicate(
+    "absent animation names normalize to null",
+    test12ValuesClose(
+      test12MotionInspect(test12MotionFixture(absentNameDocument)).motion
+        ?.takes[0]?.name,
+      null,
+    ),
+  );
 
-  const source: { path: string; digest: `sha256:${string}`; byteLength: number; } = {
+  const source: {
+    path: string;
+    digest: `sha256:${string}`;
+    byteLength: number;
+  } = {
     path: "public/motion/walk.gltf",
     digest: `sha256:${"a".repeat(64)}` as const,
     byteLength: fixture.bytes.byteLength,
   };
   const sourceRig: IAutoMovieSkeleton = test12MotionSkeleton();
-  const mapping: ({ node: string; bone: "chest"; } | { node: string; bone: "hips"; })[] = [
+  const mapping: (
+    | { node: string; bone: "chest" }
+    | { node: string; bone: "hips" }
+  )[] = [
     { node: "node_2", bone: "chest" as const },
     { node: "node_0", bone: "hips" as const },
   ];
-  const nativeDecision: { mode: "native"; take: string; sourceRig: IAutoMovieSkeleton; mapping: ({ node: string; bone: "chest"; } | { node: string; bone: "hips"; })[]; } = {
+  const nativeDecision: {
+    mode: "native";
+    take: string;
+    sourceRig: IAutoMovieSkeleton;
+    mapping: (
+      | { node: string; bone: "chest" }
+      | { node: string; bone: "hips" }
+    )[];
+  } = {
     mode: "native" as const,
     take: "clip_0",
     sourceRig,
     mapping,
   };
-  const native: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption = adoptAutoMovieExternalMotion({
-    inspection,
-    source,
-    decision: nativeDecision,
-  });
+  const native: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+    adoptAutoMovieExternalMotion({
+      inspection,
+      source,
+      decision: nativeDecision,
+    });
   native.take.tracks[0]!.times[0] = 99;
-  const nativeAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption = adoptAutoMovieExternalMotion({
-    inspection,
-    source,
-    decision: nativeDecision,
-  });
-  TestValidator.predicate("native adoption is stable and defensive", test12ValuesClose(nativeAgain, {
-    source,
-    mode: "native",
-    take: expectedMotion.takes[0]!,
-    handoff: {
+  const nativeAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+    adoptAutoMovieExternalMotion({
+      inspection,
+      source,
+      decision: nativeDecision,
+    });
+  TestValidator.predicate(
+    "native adoption is stable and defensive",
+    test12ValuesClose(nativeAgain, {
+      source,
       mode: "native",
-      sourceRig,
-      mapping: [
+      take: expectedMotion.takes[0]!,
+      handoff: {
+        mode: "native",
+        sourceRig,
+        mapping: [
+          { node: "node_0", bone: "hips" },
+          { node: "node_2", bone: "chest" },
+        ],
+      },
+    }),
+  );
+  TestValidator.predicate(
+    "an already canonical native map stays canonical",
+    test12ValuesClose(
+      adoptAutoMovieExternalMotion({
+        inspection,
+        source,
+        decision: {
+          ...nativeDecision,
+          mapping: [...mapping].reverse(),
+        },
+      }).handoff.mapping,
+      [
         { node: "node_0", bone: "hips" },
         { node: "node_2", bone: "chest" },
       ],
-    },
-  }));
-  TestValidator.predicate("an already canonical native map stays canonical", test12ValuesClose(adoptAutoMovieExternalMotion({
-      inspection,
-      source,
-      decision: {
-        ...nativeDecision,
-        mapping: [...mapping].reverse(),
-      },
-    }).handoff.mapping, [
-      { node: "node_0", bone: "hips" },
-      { node: "node_2", bone: "chest" },
-    ]));
+    ),
+  );
 
   const retargetDecision: IAutoMovieExternalMotionRetargetDecision = {
     mode: "retarget",
@@ -181,109 +242,143 @@ export function test_ingest_external_motion_adoption(): void {
     translationScale: 1.25,
     target: "actor/main",
   };
-  const retargeted: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption = adoptAutoMovieExternalMotion({
-    inspection,
-    source,
-    decision: retargetDecision,
-  });
+  const retargeted: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+    adoptAutoMovieExternalMotion({
+      inspection,
+      source,
+      decision: retargetDecision,
+    });
   retargeted.handoff.sourceRig.bones[1]!.rest.translation.y = 99;
   retargeted.handoff.sourceRig.bones[1]!.constraint!.flexion!.max = 99;
   retargeted.handoff.mapping[0]!.node = "mutated";
-  const retargetedAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption = adoptAutoMovieExternalMotion({
-    inspection,
-    source,
-    decision: retargetDecision,
-  });
+  const retargetedAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+    adoptAutoMovieExternalMotion({
+      inspection,
+      source,
+      decision: retargetDecision,
+    });
   TestValidator.predicate(
     "retarget handoff remains discriminated",
     retargetedAgain.handoff.mode === "retarget",
   );
   if (retargetedAgain.handoff.mode !== "retarget") return;
-  TestValidator.predicate("retarget handoff is canonical and defensive", test12ValuesClose({
-      mode: retargetedAgain.mode,
-      mapping: retargetedAgain.handoff.mapping,
-      translationScale: retargetedAgain.handoff.translationScale,
-      target: retargetedAgain.handoff.target,
-      chestRestY:
-        retargetedAgain.handoff.sourceRig.bones[1]?.rest.translation.y,
-      chestRestRotation:
-        retargetedAgain.handoff.sourceRig.bones[1]?.rest.rotation,
-      chestRestScale: retargetedAgain.handoff.sourceRig.bones[1]?.rest.scale,
-      chestFlexionMax:
-        retargetedAgain.handoff.sourceRig.bones[1]?.constraint?.flexion?.max,
-    }, {
-      mode: "retarget",
-      mapping: [
-        { node: "node_0", bone: "hips" },
-        { node: "node_2", bone: "chest" },
-      ],
-      target: "actor/main",
-      translationScale: 1.25,
-      chestRestY: -1.25,
-      chestRestRotation: { x: 0, y: 0, z: 1, w: 0 },
-      chestRestScale: { x: 1, y: 1, z: 1 },
-      chestFlexionMax: 45,
-    }));
+  TestValidator.predicate(
+    "retarget handoff is canonical and defensive",
+    test12ValuesClose(
+      {
+        mode: retargetedAgain.mode,
+        mapping: retargetedAgain.handoff.mapping,
+        translationScale: retargetedAgain.handoff.translationScale,
+        target: retargetedAgain.handoff.target,
+        chestRestY:
+          retargetedAgain.handoff.sourceRig.bones[1]?.rest.translation.y,
+        chestRestRotation:
+          retargetedAgain.handoff.sourceRig.bones[1]?.rest.rotation,
+        chestRestScale: retargetedAgain.handoff.sourceRig.bones[1]?.rest.scale,
+        chestFlexionMax:
+          retargetedAgain.handoff.sourceRig.bones[1]?.constraint?.flexion?.max,
+      },
+      {
+        mode: "retarget",
+        mapping: [
+          { node: "node_0", bone: "hips" },
+          { node: "node_2", bone: "chest" },
+        ],
+        target: "actor/main",
+        translationScale: 1.25,
+        chestRestY: -1.25,
+        chestRestRotation: { x: 0, y: 0, z: 1, w: 0 },
+        chestRestScale: { x: 1, y: 1, z: 1 },
+        chestFlexionMax: 45,
+      },
+    ),
+  );
 
-  TestValidator.predicate("malformed motion and adoption decisions are refused", test12ValuesClose(namedFacts([...test12MotionAdoptionRefusalFacts1(),
-...test12MotionAdoptionRefusalFacts2({ inspection, motion, source, sourceRig, nativeDecision, retargetDecision, rejectsAdoption, rejectsRetarget }),
-...test12MotionAdoptionRefusalFacts3({ inspection, motion, source, sourceRig, nativeDecision, retargetDecision, rejectsAdoption, rejectsRetarget })]), Object.fromEntries(
-      [
-        "motionProfileNeedsAnimation",
-        "animationNeedsSampler",
-        "animationNeedsChannel",
-        "samplerIndexMustResolve",
-        "targetMustBeObject",
-        "targetNodeMustResolve",
-        "targetPathMustBeSupported",
-        "targetMustBeUnique",
-        "samplerInputMustResolve",
-        "samplerOutputMustResolve",
-        "interpolationMustBeSupported",
-        "inputMustBeFloatScalar",
-        "outputMustBeExpectedShape",
-        "sparseMotionIsRefused",
-        "nonFiniteSampleIsRefused",
-        "negativeTimeIsRefused",
-        "repeatedTimeIsRefused",
-        "outputArityIsChecked",
-        "weightOutputArityIsChecked",
-        "unitRotationIsRequired",
-        "animationNameMustBeString",
-        "missingMotion",
-        "motionProfileIsRequired",
-        "motionInterpretationIsRequired",
-        "blankSourcePath",
-        "sourcePathMismatch",
-        "nonIntegerByteLength",
-        "nonPositiveByteLength",
-        "mismatchedByteLength",
-        "digestMustBeSha256",
-        "takeMustExist",
-        "modeMustBeSupported",
-        "sourceRigIdMustExist",
-        "targetMustExist",
-        "sourceRigNeedsBones",
-        "sourceRigBonesMustBeUnique",
-        "sourceRigNeedsHips",
-        "sourceRigParentMustMatchInspectedHierarchy",
-        "sourceRigRestMustMatchInspectedTrs",
-        "sourceRigRotationMustMatchInspectedTrs",
-        "sourceRigScaleMustMatchInspectedTrs",
-        "mappingMustNotBeEmpty",
-        "translationScaleMustBeFinite",
-        "translationScaleMustBePositive",
-        "mappingNodeMustExist",
-        "mappingBoneMustExist",
-        "mappingNodesMustBeUnique",
-        "mappingBonesMustBeUnique",
-        "everyTrackNeedsMapping",
-        "translationMustMapToHips",
-        "pointerTracksAreRefused",
-        "scaleTracksAreRefused",
-        "weightTracksAreRefused",
-      ].map((name: string): [string, true] => [name, true]),
-    )));
+  TestValidator.predicate(
+    "malformed motion and adoption decisions are refused",
+    test12ValuesClose(
+      namedFacts([
+        ...test12MotionAdoptionRefusalFacts1(),
+        ...test12MotionAdoptionRefusalFacts2({
+          inspection,
+          motion,
+          source,
+          sourceRig,
+          nativeDecision,
+          retargetDecision,
+          rejectsAdoption,
+          rejectsRetarget,
+        }),
+        ...test12MotionAdoptionRefusalFacts3({
+          inspection,
+          motion,
+          source,
+          sourceRig,
+          nativeDecision,
+          retargetDecision,
+          rejectsAdoption,
+          rejectsRetarget,
+        }),
+      ]),
+      Object.fromEntries(
+        [
+          "motionProfileNeedsAnimation",
+          "animationNeedsSampler",
+          "animationNeedsChannel",
+          "samplerIndexMustResolve",
+          "targetMustBeObject",
+          "targetNodeMustResolve",
+          "targetPathMustBeSupported",
+          "targetMustBeUnique",
+          "samplerInputMustResolve",
+          "samplerOutputMustResolve",
+          "interpolationMustBeSupported",
+          "inputMustBeFloatScalar",
+          "outputMustBeExpectedShape",
+          "sparseMotionIsRefused",
+          "nonFiniteSampleIsRefused",
+          "negativeTimeIsRefused",
+          "repeatedTimeIsRefused",
+          "outputArityIsChecked",
+          "weightOutputArityIsChecked",
+          "unitRotationIsRequired",
+          "animationNameMustBeString",
+          "missingMotion",
+          "motionProfileIsRequired",
+          "motionInterpretationIsRequired",
+          "blankSourcePath",
+          "sourcePathMismatch",
+          "nonIntegerByteLength",
+          "nonPositiveByteLength",
+          "mismatchedByteLength",
+          "digestMustBeSha256",
+          "takeMustExist",
+          "modeMustBeSupported",
+          "sourceRigIdMustExist",
+          "targetMustExist",
+          "sourceRigNeedsBones",
+          "sourceRigBonesMustBeUnique",
+          "sourceRigNeedsHips",
+          "sourceRigParentMustMatchInspectedHierarchy",
+          "sourceRigRestMustMatchInspectedTrs",
+          "sourceRigRotationMustMatchInspectedTrs",
+          "sourceRigScaleMustMatchInspectedTrs",
+          "mappingMustNotBeEmpty",
+          "translationScaleMustBeFinite",
+          "translationScaleMustBePositive",
+          "mappingNodeMustExist",
+          "mappingBoneMustExist",
+          "mappingNodesMustBeUnique",
+          "mappingBonesMustBeUnique",
+          "everyTrackNeedsMapping",
+          "translationMustMapToHips",
+          "pointerTracksAreRefused",
+          "scaleTracksAreRefused",
+          "weightTracksAreRefused",
+        ].map((name: string): [string, true] => [name, true]),
+      ),
+    ),
+  );
 
   function rejectsAdoption(
     candidateSource: typeof source,

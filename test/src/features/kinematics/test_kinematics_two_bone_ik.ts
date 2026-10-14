@@ -1,8 +1,10 @@
-import { solveTwoBoneIK } from "../../../../packages/engine/src/kinematics/solveTwoBoneIK";
-import { ITwoBoneIK } from "../../../../packages/engine/src/kinematics/ITwoBoneIK";
 import { TestValidator } from "@nestia/e2e";
+
+import { ITwoBoneIK } from "../../../../packages/engine/src/kinematics/ITwoBoneIK";
+import { solveTwoBoneIK } from "../../../../packages/engine/src/kinematics/solveTwoBoneIK";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
+
 /**
  * Analytic two-bone IK (law of cosines). Pinned against hand geometry.
  *
@@ -82,10 +84,33 @@ export function test_kinematics_two_bone_ik(): void {
     ),
   );
   for (const scale of [1e-200, 1e200]) {
-    const similar: ITwoBoneIK = solveTwoBoneIK(scale, scale, Math.SQRT2 * scale);
-    TestValidator.predicate(`finite right-triangle angles at scale ${scale}`, nclose(similar.bend, 90) && nclose(similar.lift, 45));
-    TestValidator.equals(`similar triangle remains reachable at ${scale}`, similar.clamped, false);
+    const similar: ITwoBoneIK = solveTwoBoneIK(
+      scale,
+      scale,
+      Math.SQRT2 * scale,
+    );
+    TestValidator.predicate(
+      `finite right-triangle angles at scale ${scale}`,
+      nclose(similar.bend, 90) && nclose(similar.lift, 45),
+    );
+    TestValidator.equals(
+      `similar triangle remains reachable at ${scale}`,
+      similar.clamped,
+      false,
+    );
   }
-  TestValidator.predicate("unrepresentable side ratio refuses", throwsError((): ITwoBoneIK => solveTwoBoneIK(1e-300, 1e300, 1e300), ["two-bone IK", "ratios", "precision"]));
-  TestValidator.predicate("nonzero goal ratio cannot underflow to root convention", throwsError((): ITwoBoneIK => solveTwoBoneIK(1e300, 1e300, 1e-300), ["two-bone IK", "ratios", "precision"]));
+  TestValidator.predicate(
+    "unrepresentable side ratio refuses",
+    throwsError(
+      (): ITwoBoneIK => solveTwoBoneIK(1e-300, 1e300, 1e300),
+      ["two-bone IK", "ratios", "precision"],
+    ),
+  );
+  TestValidator.predicate(
+    "nonzero goal ratio cannot underflow to root convention",
+    throwsError(
+      (): ITwoBoneIK => solveTwoBoneIK(1e300, 1e300, 1e-300),
+      ["two-bone IK", "ratios", "precision"],
+    ),
+  );
 }

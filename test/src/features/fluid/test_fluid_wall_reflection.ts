@@ -1,24 +1,28 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
 import { nclose } from "../internal/predicates";
 
 /** A basin with a symmetric bump, walled all round. */
-const sloshingBasin: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
-  const columns: number = 8;
-  const rows: number = 1;
-  const depth: number[] = new Array<number>(columns * rows).fill(0.25);
-  depth[3] = 0.5;
-  depth[4] = 0.5;
-  return flatBasin({
-    columns,
-    rows,
-    depth: 0.25,
-    overrides: { id: "sloshing", depth },
-  });
-};
+const sloshingBasin: () => IAutoMovieFluidDomain =
+  (): IAutoMovieFluidDomain => {
+    const columns: number = 8;
+    const rows: number = 1;
+    const depth: number[] = new Array<number>(columns * rows).fill(0.25);
+    depth[3] = 0.5;
+    depth[4] = 0.5;
+    return flatBasin({
+      columns,
+      rows,
+      depth: 0.25,
+      overrides: { id: "sloshing", depth },
+    });
+  };
 
 /**
  * A disturbed walled basin has zero boundary-normal velocity and mirror-symmetric depths at the selected integration steps.
@@ -44,18 +48,65 @@ const sloshingBasin: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => 
 export function test_fluid_wall_reflection(): void {
   const domain: ReturnType<typeof sloshingBasin> = sloshingBasin();
   const authoredVolume: number = domain.depth.reduce(
-    (sum: number, value: number): number => sum + value * domain.grid.cellX * domain.grid.cellZ,
+    (sum: number, value: number): number =>
+      sum + value * domain.grid.cellX * domain.grid.cellZ,
     0,
   );
-  const samples: IAutoMovieFluidState[] = [40, 160, 400].map((step: number): ReturnType<typeof simulateFluidDomain> =>
-    simulateFluidDomain(domain, step),
+  const samples: IAutoMovieFluidState[] = [40, 160, 400].map(
+    (step: number): ReturnType<typeof simulateFluidDomain> =>
+      simulateFluidDomain(domain, step),
   );
 
-  TestValidator.predicate("both X wall faces stay pinned", samples.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityX[0], 0) && nclose(state.velocityX[0], 0, 0) && Object.is(state.velocityX[state.velocityX.length - 1], 0) && nclose(state.velocityX[state.velocityX.length - 1], 0, 0)));
-  TestValidator.predicate("all one-row Z wall faces stay pinned", samples.every((state: IAutoMovieFluidState): boolean => state.velocityZ.every((value: number): boolean => nclose(value, 0, 0))));
-  TestValidator.predicate("closed ledger stays empty", samples.every((state: IAutoMovieFluidState): boolean => Object.is(state.sourceVolume, 0) && nclose(state.sourceVolume, 0, 0) && Object.is(state.drainVolume, 0) && nclose(state.drainVolume, 0, 0) && Object.is(state.outflowVolume, 0) && nclose(state.outflowVolume, 0, 0)));
-  TestValidator.predicate("sampled volumes remain conserved", samples.every((state: IAutoMovieFluidState): boolean => nclose(state.volume, authoredVolume, 1e-12)));
+  TestValidator.predicate(
+    "both X wall faces stay pinned",
+    samples.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(state.velocityX[0], 0) &&
+        nclose(state.velocityX[0], 0, 0) &&
+        Object.is(state.velocityX[state.velocityX.length - 1], 0) &&
+        nclose(state.velocityX[state.velocityX.length - 1], 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "all one-row Z wall faces stay pinned",
+    samples.every((state: IAutoMovieFluidState): boolean =>
+      state.velocityZ.every((value: number): boolean => nclose(value, 0, 0)),
+    ),
+  );
+  TestValidator.predicate(
+    "closed ledger stays empty",
+    samples.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(state.sourceVolume, 0) &&
+        nclose(state.sourceVolume, 0, 0) &&
+        Object.is(state.drainVolume, 0) &&
+        nclose(state.drainVolume, 0, 0) &&
+        Object.is(state.outflowVolume, 0) &&
+        nclose(state.outflowVolume, 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "sampled volumes remain conserved",
+    samples.every((state: IAutoMovieFluidState): boolean =>
+      nclose(state.volume, authoredVolume, 1e-12),
+    ),
+  );
 
-  TestValidator.predicate("sampled depths remain exactly mirrored", samples.every((state: IAutoMovieFluidState): boolean => state.depth.every((value: number, index: number): boolean => Object.is(value, state.depth[state.depth.length - 1 - index]) && nclose(value, state.depth[state.depth.length - 1 - index], 0))));
-  TestValidator.predicate("the field moved at step 40", samples[0].depth.some((value: number, index: number): boolean => nclose(value, domain.depth[index], 0) === false));
+  TestValidator.predicate(
+    "sampled depths remain exactly mirrored",
+    samples.every((state: IAutoMovieFluidState): boolean =>
+      state.depth.every(
+        (value: number, index: number): boolean =>
+          Object.is(value, state.depth[state.depth.length - 1 - index]) &&
+          nclose(value, state.depth[state.depth.length - 1 - index], 0),
+      ),
+    ),
+  );
+  TestValidator.predicate(
+    "the field moved at step 40",
+    samples[0].depth.some(
+      (value: number, index: number): boolean =>
+        nclose(value, domain.depth[index], 0) === false,
+    ),
+  );
 }

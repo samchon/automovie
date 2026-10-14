@@ -1,4 +1,3 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -6,6 +5,7 @@ import {
   inspectExternalModelHierarchyFixture,
 } from "../internal/externalModelHierarchyFixture";
 import { throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Source node depth is graph data, so static admission walks parents without consuming one JavaScript call frame per node.
@@ -21,15 +21,23 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_deep_static entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  */
 export function test_ingest_external_model_hierarchy_deep_static(): void {
-  const fixture: ReturnType<typeof createExternalModelHierarchyChain> = createExternalModelHierarchyChain(16_384);
-  TestValidator.predicate("deep static hierarchy inventory", test12ValuesClose(inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1").counts
-      .nodes, 16_384));
+  const fixture: ReturnType<typeof createExternalModelHierarchyChain> =
+    createExternalModelHierarchyChain(16_384);
+  TestValidator.predicate(
+    "deep static hierarchy inventory",
+    test12ValuesClose(
+      inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1").counts
+        .nodes,
+      16_384,
+    ),
+  );
   fixture.document.nodes[0]!.children = [16_383];
   fixture.document.scenes = undefined;
   TestValidator.predicate(
     "deep static cycle retains its cause",
     throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1"),
+      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),
   );

@@ -1,8 +1,9 @@
-import {simulateFluidDomain} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
+import { simulateFluidDomain } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
+
+import { FOUNTAIN_LEDGER_SOURCE as SOURCE } from "../internal/FOUNTAIN_LEDGER_SOURCE";
+import { createFountainLedgerDomain as fountain } from "../internal/createFountainLedgerDomain";
 import { nclose } from "../internal/predicates";
-import {createFountainLedgerDomain as fountain} from "../internal/createFountainLedgerDomain";
-import {FOUNTAIN_LEDGER_SOURCE as SOURCE} from "../internal/FOUNTAIN_LEDGER_SOURCE";
 
 /**
  * The source activity window owns its opening and closing clock independently of momentum and drain behavior.
@@ -19,15 +20,33 @@ import {FOUNTAIN_LEDGER_SOURCE as SOURCE} from "../internal/FOUNTAIN_LEDGER_SOUR
 export function test_fluid_source_window_ledger(): void {
   const steps: number = 400;
   const dt: number = fountain({}).solver.fixedStepSeconds;
-  const windowed: ReturnType<typeof fountain> = fountain({ sources: [{ ...SOURCE, end: 1 }] });
-  const atClose: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(windowed, Math.round(1 / dt));
-  const later: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(windowed, steps);
+  const windowed: ReturnType<typeof fountain> = fountain({
+    sources: [{ ...SOURCE, end: 1 }],
+  });
+  const atClose: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    windowed,
+    Math.round(1 / dt),
+  );
+  const later: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    windowed,
+    steps,
+  );
   const notYet: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
     fountain({ sources: [{ ...SOURCE, start: 1_000 }] }),
     steps,
   );
 
-  TestValidator.predicate("closed source adds no later volume", Object.is(later.sourceVolume, atClose.sourceVolume) && nclose(later.sourceVolume, atClose.sourceVolume, 0));
-  TestValidator.predicate("source delivers while open", atClose.sourceVolume > 0);
-  TestValidator.predicate("future source adds no volume", Object.is(notYet.sourceVolume, 0) && nclose(notYet.sourceVolume, 0, 0));
+  TestValidator.predicate(
+    "closed source adds no later volume",
+    Object.is(later.sourceVolume, atClose.sourceVolume) &&
+      nclose(later.sourceVolume, atClose.sourceVolume, 0),
+  );
+  TestValidator.predicate(
+    "source delivers while open",
+    atClose.sourceVolume > 0,
+  );
+  TestValidator.predicate(
+    "future source adds no volume",
+    Object.is(notYet.sourceVolume, 0) && nclose(notYet.sourceVolume, 0, 0),
+  );
 }

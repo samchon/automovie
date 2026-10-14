@@ -18,14 +18,18 @@ import { throwsError } from "../internal/predicates";
 export function test_ingest_face_template_unnamed_target(): void {
   const doc: Document = new Document();
   const buffer: import("@gltf-transform/core").Buffer = doc.createBuffer();
-  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (array: number[]): import("@gltf-transform/core").Accessor =>
+  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (
+    array: number[],
+  ): import("@gltf-transform/core").Accessor =>
     doc
       .createAccessor()
       .setType("VEC3")
       .setArray(new Float32Array(array))
       .setBuffer(buffer);
 
-  const prim: import("@gltf-transform/core").Primitive = doc.createPrimitive().setAttribute("POSITION", acc([0, 0, 0]));
+  const prim: import("@gltf-transform/core").Primitive = doc
+    .createPrimitive()
+    .setAttribute("POSITION", acc([0, 0, 0]));
   prim.addTarget(
     doc.createPrimitiveTarget().setAttribute("POSITION", acc([1, 0, 0])),
   );
@@ -33,6 +37,10 @@ export function test_ingest_face_template_unnamed_target(): void {
 
   TestValidator.predicate(
     "unnameable target throws",
-    throwsError((): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(doc), "morph target #0 has no name"),
+    throwsError(
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(doc),
+      "morph target #0 has no name",
+    ),
   );
 }

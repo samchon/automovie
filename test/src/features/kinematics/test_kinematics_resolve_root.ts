@@ -1,17 +1,24 @@
-import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { type IAutoMovieSkeleton } from "../../../../packages/interface/src/index";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { createSkeleton } from "../internal/createSkeleton";
 import { makePose } from "../internal/makePose";
 import { vclose } from "../internal/vclose";
-import { type IAutoMovieSkeleton } from "../../../../packages/interface/src/index";
-const at: (rs: IAutoMovieResolvedBone[], b: AutoMovieHumanoidBone) => IAutoMovieResolvedBone = (
+
+const at: (
+  rs: IAutoMovieResolvedBone[],
+  b: AutoMovieHumanoidBone,
+) => IAutoMovieResolvedBone = (
   rs: IAutoMovieResolvedBone[],
   b: AutoMovieHumanoidBone,
 ): IAutoMovieResolvedBone => {
-  const r: IAutoMovieResolvedBone | undefined = rs.find((x: IAutoMovieResolvedBone): boolean  => x.bone === b);
+  const r: IAutoMovieResolvedBone | undefined = rs.find(
+    (x: IAutoMovieResolvedBone): boolean => x.bone === b,
+  );
   if (r === undefined) throw new Error(`bone ${b} not resolved`);
   return r;
 };

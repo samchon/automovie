@@ -34,13 +34,15 @@ export function test_ingest_face_template_no_resting_position(): void {
   TestValidator.predicate(
     "primitive without POSITION throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(doc),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(doc),
       "morphed primitive has no POSITION attribute",
     ),
   );
 
   const noRestData: Document = new Document();
-  const noRestDataBuffer: import("@gltf-transform/core").Buffer = noRestData.createBuffer();
+  const noRestDataBuffer: import("@gltf-transform/core").Buffer =
+    noRestData.createBuffer();
   const noRestDataPrim: import("@gltf-transform/core").Primitive = noRestData
     .createPrimitive()
     .setAttribute(
@@ -62,7 +64,8 @@ export function test_ingest_face_template_no_resting_position(): void {
   TestValidator.predicate(
     "primitive POSITION without array throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(noRestData),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(noRestData),
       ["morphed primitive POSITION accessor", "no array data"],
     ),
   );

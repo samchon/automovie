@@ -1,24 +1,45 @@
-import { twoBoneChainArticulation } from "../../../../packages/engine/src/kinematics/twoBoneChainArticulation";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieTwoBoneArticulation } from "../../../../packages/engine/src/kinematics/IAutoMovieTwoBoneArticulation";
+import { twoBoneChainArticulation } from "../../../../packages/engine/src/kinematics/twoBoneChainArticulation";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieTwoBoneArticulation } from "../../../../packages/engine/src/kinematics/IAutoMovieTwoBoneArticulation";
-const IDENTITY: { x: number; y: number; z: number; w: number; } = { x: 0, y: 0, z: 0, w: 1 };
 
-const at: (position: IAutoMovieVector3) => { worldPosition: IAutoMovieVector3; worldRotation: { x: number; y: number; z: number; w: number; }; } = (position: IAutoMovieVector3): { worldPosition: IAutoMovieVector3; worldRotation: { x: number; y: number; z: number; w: number; }; }  => ({
+const IDENTITY: { x: number; y: number; z: number; w: number } = {
+  x: 0,
+  y: 0,
+  z: 0,
+  w: 1,
+};
+
+const at: (position: IAutoMovieVector3) => {
+  worldPosition: IAutoMovieVector3;
+  worldRotation: { x: number; y: number; z: number; w: number };
+} = (
+  position: IAutoMovieVector3,
+): {
+  worldPosition: IAutoMovieVector3;
+  worldRotation: { x: number; y: number; z: number; w: number };
+} => ({
   worldPosition: position,
   worldRotation: IDENTITY,
 });
 
 /** A 0.3 + 0.25 chain hanging straight down from the origin, like a leg. */
-const leg: (overrides: { upper?: IAutoMovieVector3; lower?: IAutoMovieVector3; end?: IAutoMovieVector3; target: IAutoMovieVector3; bendNormal?: IAutoMovieVector3; }) => IAutoMovieTwoBoneArticulation | null = (overrides: {
+const leg: (overrides: {
   upper?: IAutoMovieVector3;
   lower?: IAutoMovieVector3;
   end?: IAutoMovieVector3;
   target: IAutoMovieVector3;
   bendNormal?: IAutoMovieVector3;
-}): IAutoMovieTwoBoneArticulation | null  =>
+}) => IAutoMovieTwoBoneArticulation | null = (overrides: {
+  upper?: IAutoMovieVector3;
+  lower?: IAutoMovieVector3;
+  end?: IAutoMovieVector3;
+  target: IAutoMovieVector3;
+  bendNormal?: IAutoMovieVector3;
+}): IAutoMovieTwoBoneArticulation | null =>
   twoBoneChainArticulation({
     upper: at(overrides.upper ?? { x: 0, y: 0, z: 0 }),
     lower: at(overrides.lower ?? { x: 0, y: -0.3, z: 0 }),
@@ -62,14 +83,16 @@ const leg: (overrides: { upper?: IAutoMovieVector3; lower?: IAutoMovieVector3; e
  */
 export function test_kinematics_two_bone_chain_articulation(): void {
   // 1. an ordinary solve
-  const solved: IAutoMovieTwoBoneArticulation | null = leg({ target: { x: 0.2, y: -0.4, z: 0.1 } });
+  const solved: IAutoMovieTwoBoneArticulation | null = leg({
+    target: { x: 0.2, y: -0.4, z: 0.1 },
+  });
   TestValidator.equals(
     "a reachable target solves into two unit deltas",
     namedFacts([
-      ["solved", (): boolean  => solved !== null],
+      ["solved", (): boolean => solved !== null],
       [
         "ncloseMathHypot",
-        (): boolean  =>
+        (): boolean =>
           solved !== null &&
           nclose(
             Math.hypot(
@@ -84,7 +107,7 @@ export function test_kinematics_two_bone_chain_articulation(): void {
       ],
       [
         "ncloseMathHypot2",
-        (): boolean  =>
+        (): boolean =>
           solved !== null &&
           nclose(
             Math.hypot(
@@ -119,11 +142,11 @@ export function test_kinematics_two_bone_chain_articulation(): void {
   TestValidator.equals(
     "the two hinge branches are genuinely different solves",
     namedFacts([
-      ["plus", (): boolean  => plus !== null],
-      ["minus", (): boolean  => minus !== null],
+      ["plus", (): boolean => plus !== null],
+      ["minus", (): boolean => minus !== null],
       [
         "nclosePlusUpper",
-        (): boolean  =>
+        (): boolean =>
           plus !== null &&
           minus !== null &&
           Number.isFinite(plus.upper.x) &&

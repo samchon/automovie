@@ -18,35 +18,41 @@ import { throwsError } from "../internal/predicates";
 export function test_ingest_face_template_no_position(): void {
   const doc: Document = new Document();
   const buffer: import("@gltf-transform/core").Buffer = doc.createBuffer();
-  const prim: import("@gltf-transform/core").Primitive = doc.createPrimitive().setAttribute(
-    "POSITION",
-    doc
-      .createAccessor()
-      .setType("VEC3")
-      .setArray(new Float32Array([0, 0, 0]))
-      .setBuffer(buffer),
-  );
+  const prim: import("@gltf-transform/core").Primitive = doc
+    .createPrimitive()
+    .setAttribute(
+      "POSITION",
+      doc
+        .createAccessor()
+        .setType("VEC3")
+        .setArray(new Float32Array([0, 0, 0]))
+        .setBuffer(buffer),
+    );
   prim.addTarget(doc.createPrimitiveTarget("identity"));
   doc.createMesh("face").addPrimitive(prim);
 
   TestValidator.predicate(
     "target without deltas throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(doc),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(doc),
       'morph target "identity" has no POSITION deltas',
     ),
   );
 
   const noDeltaData: Document = new Document();
-  const noDeltaDataBuffer: import("@gltf-transform/core").Buffer = noDeltaData.createBuffer();
-  const noDeltaDataPrim: import("@gltf-transform/core").Primitive = noDeltaData.createPrimitive().setAttribute(
-    "POSITION",
-    noDeltaData
-      .createAccessor()
-      .setType("VEC3")
-      .setArray(new Float32Array([0, 0, 0]))
-      .setBuffer(noDeltaDataBuffer),
-  );
+  const noDeltaDataBuffer: import("@gltf-transform/core").Buffer =
+    noDeltaData.createBuffer();
+  const noDeltaDataPrim: import("@gltf-transform/core").Primitive = noDeltaData
+    .createPrimitive()
+    .setAttribute(
+      "POSITION",
+      noDeltaData
+        .createAccessor()
+        .setType("VEC3")
+        .setArray(new Float32Array([0, 0, 0]))
+        .setBuffer(noDeltaDataBuffer),
+    );
   noDeltaDataPrim.addTarget(
     noDeltaData
       .createPrimitiveTarget("identity")
@@ -63,7 +69,8 @@ export function test_ingest_face_template_no_position(): void {
   TestValidator.predicate(
     "target without delta array throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(noDeltaData),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(noDeltaData),
       ['morph target "identity"', "POSITION accessor", "no array data"],
     ),
   );

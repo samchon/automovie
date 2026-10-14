@@ -1,10 +1,19 @@
-import { resolveAutoMovieSubjectReviewUnit } from "../../../../packages/engine/src/resolveAutoMovieSubjectReviewUnit";
-import { IAutoMovieSubjectDescription, IAutoMovieSubjectReviewUnit } from "@automovie/interface";
+import {
+  IAutoMovieSubjectDescription,
+  IAutoMovieSubjectReviewUnit,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
+
+import { resolveAutoMovieSubjectReviewUnit } from "../../../../packages/engine/src/resolveAutoMovieSubjectReviewUnit";
+import {
+  type AutoMovieSubjectKind,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectReviewTarget,
+} from "../../../../packages/interface/src/index";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
-import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectReviewTarget, type AutoMovieSubjectKind } from "../../../../packages/interface/src/index";
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Subject review resolves the compiled subject identity instead of rebuilding
  * a parallel element, part, prototype, instance, or space index.
@@ -45,27 +54,46 @@ export function test_inspection_subject_review_identity(): void {
     "instance:banner-field:slot:000001",
     "space:castle/hall",
   ];
-  const units: (IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; })[] = ids
-    .map((subject: string): IAutoMovieSubjectReviewUnit  =>
-      resolveAutoMovieSubjectReviewUnit(artifact, {
-        shot: "inspection-shot",
-        subject,
-      }),
+  const units: (IAutoMovieSubjectReviewUnit & {
+    description: IAutoMovieSubjectDescription;
+  })[] = ids
+    .map(
+      (subject: string): IAutoMovieSubjectReviewUnit =>
+        resolveAutoMovieSubjectReviewUnit(artifact, {
+          shot: "inspection-shot",
+          subject,
+        }),
     )
     .filter(isStructuralSubjectReviewUnit);
   TestValidator.equals(
     "review units preserve the shared compiled-subject identities",
-    units.map((unit: IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; }): { version: 1; target: IAutoMovieSubjectReviewTarget; revision: string; kind: AutoMovieSubjectKind; prototype: string | null; placement: string | null; owner: string | null; viewpointOwner: "inspection"; deliveryEvidenceEligible: false; }  => ({
-      version: unit.version,
-      target: unit.target,
-      revision: unit.description.revision,
-      kind: unit.description.kind,
-      prototype: unit.description.prototype,
-      placement: unit.description.placement,
-      owner: unit.description.owner,
-      viewpointOwner: unit.viewpointOwner,
-      deliveryEvidenceEligible: unit.deliveryEvidenceEligible,
-    })),
+    units.map(
+      (
+        unit: IAutoMovieSubjectReviewUnit & {
+          description: IAutoMovieSubjectDescription;
+        },
+      ): {
+        version: 1;
+        target: IAutoMovieSubjectReviewTarget;
+        revision: string;
+        kind: AutoMovieSubjectKind;
+        prototype: string | null;
+        placement: string | null;
+        owner: string | null;
+        viewpointOwner: "inspection";
+        deliveryEvidenceEligible: false;
+      } => ({
+        version: unit.version,
+        target: unit.target,
+        revision: unit.description.revision,
+        kind: unit.description.kind,
+        prototype: unit.description.prototype,
+        placement: unit.description.placement,
+        owner: unit.description.owner,
+        viewpointOwner: unit.viewpointOwner,
+        deliveryEvidenceEligible: unit.deliveryEvidenceEligible,
+      }),
+    ),
     [
       {
         version: 1,
@@ -128,7 +156,7 @@ export function test_inspection_subject_review_identity(): void {
   TestValidator.equals(
     "a missing compiled subject cannot become a review unit",
     throwsError(
-      (): IAutoMovieSubjectReviewUnit  =>
+      (): IAutoMovieSubjectReviewUnit =>
         resolveAutoMovieSubjectReviewUnit(artifact, {
           shot: "inspection-shot",
           subject: "element:castle/missing",
@@ -146,7 +174,11 @@ export function test_inspection_subject_review_identity(): void {
  * answering a structural-identity assertion: a formation unit drops out of the
  * projected array and the comparison fails on the missing entry.
  */
-const isStructuralSubjectReviewUnit: (unit: IAutoMovieSubjectReviewUnit) => unit is IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; } = (
+const isStructuralSubjectReviewUnit: (
+  unit: IAutoMovieSubjectReviewUnit,
+) => unit is IAutoMovieSubjectReviewUnit & {
+  description: IAutoMovieSubjectDescription;
+} = (
   unit: IAutoMovieSubjectReviewUnit,
 ): unit is IAutoMovieSubjectReviewUnit & {
   description: IAutoMovieSubjectDescription;

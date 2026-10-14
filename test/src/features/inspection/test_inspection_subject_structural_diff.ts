@@ -1,13 +1,21 @@
-import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
 import { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
+
+import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
+import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import {
+  type IAutoMovieCompiledInstanceSet,
+  type IAutoMovieSceneNode,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+  type IAutoMovieSubjectDiff,
+} from "../../../../packages/interface/src/index";
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
-import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoMovieSubjectChange, type IAutoMovieCompiledInstanceSet, type IAutoMovieSceneNode } from "../../../../packages/interface/src/index";
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Structural diff classifies stable subjects without conflating placement and
  * reusable geometry.
@@ -55,16 +63,26 @@ export function test_inspection_subject_structural_diff(): void {
       version: diff.version,
       revisions: [diff.fromRevision, diff.toRevision],
       tolerance: nclose(diff.tolerance, 1e-6, 0),
-      added: diff.added.map((change: IAutoMovieSubjectChange): string  => change.id),
+      added: diff.added.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
       addedNulls: diff.added.every(
-        (change: IAutoMovieSubjectChange): boolean  => change.before === null && change.after !== null,
+        (change: IAutoMovieSubjectChange): boolean =>
+          change.before === null && change.after !== null,
       ),
-      removed: diff.removed.map((change: IAutoMovieSubjectChange): string  => change.id),
+      removed: diff.removed.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
       removedNulls: diff.removed.every(
-        (change: IAutoMovieSubjectChange): boolean  => change.before !== null && change.after === null,
+        (change: IAutoMovieSubjectChange): boolean =>
+          change.before !== null && change.after === null,
       ),
-      moved: diff.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
-      reshaped: diff.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
+      moved: diff.moved.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
+      reshaped: diff.reshaped.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
       unchanged: diff.unchanged,
     },
     {
@@ -94,8 +112,14 @@ export function test_inspection_subject_structural_diff(): void {
     },
   );
 
-  const environmentOwned: (model: IAutoMovieModel) => IAutoMovieSubjectArtifact = (model: IAutoMovieModel): IAutoMovieSubjectArtifact  => {
-    const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({ models: [model] });
+  const environmentOwned: (
+    model: IAutoMovieModel,
+  ) => IAutoMovieSubjectArtifact = (
+    model: IAutoMovieModel,
+  ): IAutoMovieSubjectArtifact => {
+    const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({
+      models: [model],
+    });
     return {
       ...artifact,
       compiled: { ...artifact.compiled, models: [] },
@@ -107,7 +131,7 @@ export function test_inspection_subject_structural_diff(): void {
   );
   TestValidator.equals(
     "a reshaped model owned only by a built environment is reported reshaped",
-    owned.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
+    owned.reshaped.map((change: IAutoMovieSubjectChange): string => change.id),
     ["prototype-part:chair/body", "prototype:chair"],
   );
 
@@ -130,8 +154,12 @@ export function test_inspection_subject_structural_diff(): void {
   TestValidator.equals(
     "a set with placement and population-law edits belongs to both categories",
     {
-      moved: both.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
-      reshaped: both.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
+      moved: both.moved.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
+      reshaped: both.reshaped.map(
+        (change: IAutoMovieSubjectChange): string => change.id,
+      ),
     },
     {
       moved: ["instance-set:both"],
@@ -154,7 +182,10 @@ export function test_inspection_subject_structural_diff(): void {
   );
   TestValidator.equals(
     "an added compact set has no cross-revision prototype selection count",
-    addedSet.added.find((change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:both")?.fanout,
+    addedSet.added.find(
+      (change: IAutoMovieSubjectChange): boolean =>
+        change.id === "instance-set:both",
+    )?.fanout,
     {
       elements: 0,
       instances: 0,
@@ -167,11 +198,12 @@ export function test_inspection_subject_structural_diff(): void {
     "invalid tolerances are refused",
     {
       negative: throwsError(
-        (): IAutoMovieSubjectDiff  => diffAutoMovieSubjects(before, after, -1),
+        (): IAutoMovieSubjectDiff => diffAutoMovieSubjects(before, after, -1),
         "finite and non-negative",
       ),
       infinite: throwsError(
-        (): IAutoMovieSubjectDiff  => diffAutoMovieSubjects(before, after, Number.POSITIVE_INFINITY),
+        (): IAutoMovieSubjectDiff =>
+          diffAutoMovieSubjects(before, after, Number.POSITIVE_INFINITY),
         "finite and non-negative",
       ),
       default: nclose(AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE, 1e-6, 0),
@@ -180,14 +212,20 @@ export function test_inspection_subject_structural_diff(): void {
   );
 }
 
-const box: (id: string, height: number) => IAutoMovieModel = (id: string, height: number): IAutoMovieModel =>
+const box: (id: string, height: number) => IAutoMovieModel = (
+  id: string,
+  height: number,
+): IAutoMovieModel =>
   subjectInspectionModel({
     id,
     min: { x: -0.5, y: 0, z: -0.5 },
     max: { x: 0.5, y: height, z: 0.5 },
   });
 
-const node: (id: string, x: number) => IAutoMovieSceneNode = (id: string, x: number): IAutoMovieSceneNode  => ({
+const node: (id: string, x: number) => IAutoMovieSceneNode = (
+  id: string,
+  x: number,
+): IAutoMovieSceneNode => ({
   id,
   model: id,
   transform: {
@@ -198,42 +236,49 @@ const node: (id: string, x: number) => IAutoMovieSceneNode = (id: string, x: num
   pose: null,
 });
 
-const compactSet: (id: string, x: number, spacing: number) => IAutoMovieCompiledInstanceSet = (id: string, x: number, spacing: number): IAutoMovieCompiledInstanceSet  =>
-  ({
-    version: 1,
-    id,
-    count: 2,
-    modelRecipe: "stable",
-    layout: {
-      kind: "grid",
-      rows: 1,
-      columns: 2,
-      spacing: { x: spacing, z: 1 },
+const compactSet: (
+  id: string,
+  x: number,
+  spacing: number,
+) => IAutoMovieCompiledInstanceSet = (
+  id: string,
+  x: number,
+  spacing: number,
+): IAutoMovieCompiledInstanceSet => ({
+  version: 1,
+  id,
+  count: 2,
+  modelRecipe: "stable",
+  layout: {
+    kind: "grid",
+    rows: 1,
+    columns: 2,
+    spacing: { x: spacing, z: 1 },
+  },
+  route: null,
+  anchor: { x, y: 0, z: 0 },
+  facingDeg: 0,
+  seed: 1,
+  variation: {
+    scale: { min: 1, max: 1 },
+    palette: ["#ffffff"],
+    traits: [],
+  },
+  bounds: {
+    min: { x: x - spacing / 2, y: 0, z: 0 },
+    max: { x: x + spacing / 2, y: 0, z: 0 },
+  },
+  centroid: { x, y: 0, z: 0 },
+  projectionRadius: 1,
+  chunks: [],
+  lod: [
+    {
+      tier: "near",
+      maxDistance: null,
+      recipe: "stable",
+      recipeDigest: `sha256:${"4".repeat(64)}`,
+      model: "stable",
     },
-    route: null,
-    anchor: { x, y: 0, z: 0 },
-    facingDeg: 0,
-    seed: 1,
-    variation: {
-      scale: { min: 1, max: 1 },
-      palette: ["#ffffff"],
-      traits: [],
-    },
-    bounds: {
-      min: { x: x - spacing / 2, y: 0, z: 0 },
-      max: { x: x + spacing / 2, y: 0, z: 0 },
-    },
-    centroid: { x, y: 0, z: 0 },
-    projectionRadius: 1,
-    chunks: [],
-    lod: [
-      {
-        tier: "near",
-        maxDistance: null,
-        recipe: "stable",
-        recipeDigest: `sha256:${"4".repeat(64)}`,
-        model: "stable",
-      },
-    ],
-    digest: `sha256:${"5".repeat(64)}`,
-  });
+  ],
+  digest: `sha256:${"5".repeat(64)}`,
+});

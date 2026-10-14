@@ -1,7 +1,8 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { ingestFaceTemplate } from "@automovie/ingest";
 import { Document } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
+
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Many exporters (and three.js) leave glTF morph targets unnamed and put the names in `mesh.extras.targetNames` instead. The import must fall back to that convention per index, while a target that does carry its own name keeps it over the extras entry.
@@ -17,14 +18,18 @@ import { TestValidator } from "@nestia/e2e";
 export function test_ingest_face_template_extras_names(): void {
   const doc: Document = new Document();
   const buffer: import("@gltf-transform/core").Buffer = doc.createBuffer();
-  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (array: number[]): import("@gltf-transform/core").Accessor =>
+  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (
+    array: number[],
+  ): import("@gltf-transform/core").Accessor =>
     doc
       .createAccessor()
       .setType("VEC3")
       .setArray(new Float32Array(array))
       .setBuffer(buffer);
 
-  const prim: import("@gltf-transform/core").Primitive = doc.createPrimitive().setAttribute("POSITION", acc([0, 0, 0]));
+  const prim: import("@gltf-transform/core").Primitive = doc
+    .createPrimitive()
+    .setAttribute("POSITION", acc([0, 0, 0]));
   prim.addTarget(
     doc.createPrimitiveTarget().setAttribute("POSITION", acc([1, 0, 0])),
   );
@@ -38,6 +43,15 @@ export function test_ingest_face_template_extras_names(): void {
     .addPrimitive(prim)
     .setExtras({ targetNames: ["identity", "WRONG"] });
 
-  const template: import("@automovie/interface").IAutoMovieFaceTemplate = ingestFaceTemplate(doc);
-  TestValidator.predicate("extras fallback + own-name precedence", test12ValuesClose(Object.keys(template.targets).sort((a: string, b: string): number => a.localeCompare(b)), ["identity", "jawWidth"]));
+  const template: import("@automovie/interface").IAutoMovieFaceTemplate =
+    ingestFaceTemplate(doc);
+  TestValidator.predicate(
+    "extras fallback + own-name precedence",
+    test12ValuesClose(
+      Object.keys(template.targets).sort((a: string, b: string): number =>
+        a.localeCompare(b),
+      ),
+      ["identity", "jawWidth"],
+    ),
+  );
 }

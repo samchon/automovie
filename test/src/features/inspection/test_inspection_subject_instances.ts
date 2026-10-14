@@ -1,13 +1,20 @@
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
 import { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
-import { vclose } from "../internal/vclose";
+
+import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
+import {
+  type IAutoMovieCompiledInstancePrototype,
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectDescription,
+} from "../../../../packages/interface/src/index";
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
-import { type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDescription, type IAutoMovieCompiledInstancePrototype } from "../../../../packages/interface/src/index";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
+
 /**
  * Compact set descriptions regenerate every supported placement law on demand
  * while keeping ordinary membership output bounded.
@@ -129,11 +136,13 @@ export function test_inspection_subject_instances(): void {
     "compact membership stays bounded while the last grid slot remains addressable",
     {
       members: setDescription.members,
-      setBounds: setDescription.bounds.content !== null &&
+      setBounds:
+        setDescription.bounds.content !== null &&
         vclose(setDescription.bounds.content.min, { x: -32, y: 0, z: 0 }, 0) &&
         vclose(setDescription.bounds.content.max, { x: 32, y: 0, z: 0 }, 0),
       lastId: lastGrid.id,
-      lastPosition: lastGrid.transform !== null &&
+      lastPosition:
+        lastGrid.transform !== null &&
         vclose(lastGrid.transform.translation, { x: 32, y: 0, z: 0 }, 0),
       lastPrototype: lastGrid.prototype,
     },
@@ -143,7 +152,8 @@ export function test_inspection_subject_instances(): void {
         offset: 0,
         items: Array.from(
           { length: 64 },
-          (_: unknown, slot: number): string  => `instance:grid:slot:${String(slot).padStart(6, "0")}`,
+          (_: unknown, slot: number): string =>
+            `instance:grid:slot:${String(slot).padStart(6, "0")}`,
         ),
         omitted: 1,
       },
@@ -159,17 +169,31 @@ export function test_inspection_subject_instances(): void {
     "instance:lattice:slot:000001",
     "instance:explicit:oak",
     "instance:along:slot:000000",
-  ].map((id: string): IAutoMovieSubjectDescription  => describeAutoMovieSubject(artifact, id));
+  ].map(
+    (id: string): IAutoMovieSubjectDescription =>
+      describeAutoMovieSubject(artifact, id),
+  );
   TestValidator.equals(
     "every compiled layout regenerates a finite addressable world placement",
-    placements.map((description: IAutoMovieSubjectDescription): { id: string; finite: boolean; model: string | null; owner: string | null; }  => ({
-      id: description.id,
-      finite: Object.keys(description.transform!.translation).length === 3 && Object.values(description.transform!.translation).every(
-        Number.isFinite,
-      ),
-      model: description.model,
-      owner: description.owner,
-    })),
+    placements.map(
+      (
+        description: IAutoMovieSubjectDescription,
+      ): {
+        id: string;
+        finite: boolean;
+        model: string | null;
+        owner: string | null;
+      } => ({
+        id: description.id,
+        finite:
+          Object.keys(description.transform!.translation).length === 3 &&
+          Object.values(description.transform!.translation).every(
+            Number.isFinite,
+          ),
+        model: description.model,
+        owner: description.owner,
+      }),
+    ),
     [
       {
         id: "instance:scatter:slot:000000",
@@ -200,15 +224,29 @@ export function test_inspection_subject_instances(): void {
   TestValidator.equals(
     "an explicit instance keeps its exact scale and selected prototype geometry",
     {
-      transform: placements[2]!.transform !== null &&
-        vclose(placements[2]!.transform!.translation, { x: 12, y: 1, z: -7 }, 0) &&
+      transform:
+        placements[2]!.transform !== null &&
+        vclose(
+          placements[2]!.transform!.translation,
+          { x: 12, y: 1, z: -7 },
+          0,
+        ) &&
         nclose(placements[2]!.transform!.rotation.x, 0, 0) &&
-        nclose(placements[2]!.transform!.rotation.y, Math.sin(Math.PI / 4), 0) &&
+        nclose(
+          placements[2]!.transform!.rotation.y,
+          Math.sin(Math.PI / 4),
+          0,
+        ) &&
         nclose(placements[2]!.transform!.rotation.z, 0, 0) &&
-        nclose(placements[2]!.transform!.rotation.w, Math.cos(Math.PI / 4), 0) &&
+        nclose(
+          placements[2]!.transform!.rotation.w,
+          Math.cos(Math.PI / 4),
+          0,
+        ) &&
         vclose(placements[2]!.transform!.scale, { x: 2, y: 1, z: 2 }, 0),
       prototype: placements[2]!.prototype,
-      bounds: placements[2]!.bounds.content !== null &&
+      bounds:
+        placements[2]!.bounds.content !== null &&
         vclose(placements[2]!.bounds.content!.min, { x: 11, y: 1, z: -8 }, 0) &&
         vclose(placements[2]!.bounds.content!.max, { x: 13, y: 5, z: -6 }, 0),
     },
@@ -223,15 +261,17 @@ export function test_inspection_subject_instances(): void {
     "invalid compiled instance addresses and laws fail explicitly",
     {
       malformed: throwsError(
-        (): IAutoMovieSubjectDescription  => describeAutoMovieSubject(artifact, "instance:grid:slot:64"),
+        (): IAutoMovieSubjectDescription =>
+          describeAutoMovieSubject(artifact, "instance:grid:slot:64"),
         "does not exist",
       ),
       outside: throwsError(
-        (): IAutoMovieSubjectDescription  => describeAutoMovieSubject(artifact, "instance:grid:slot:000065"),
+        (): IAutoMovieSubjectDescription =>
+          describeAutoMovieSubject(artifact, "instance:grid:slot:000065"),
         "does not exist",
       ),
       missingRoute: throwsError(
-        (): IAutoMovieSubjectDescription  =>
+        (): IAutoMovieSubjectDescription =>
           describeAutoMovieSubject(
             artifactWithSet({ ...along, route: null, id: "missing-route" }),
             "instance:missing-route:slot:000000",
@@ -239,7 +279,7 @@ export function test_inspection_subject_instances(): void {
         "unavailable route",
       ),
       zeroRoute: throwsError(
-        (): IAutoMovieSubjectDescription  =>
+        (): IAutoMovieSubjectDescription =>
           describeAutoMovieSubject(
             artifactWithSet({
               ...along,
@@ -259,7 +299,7 @@ export function test_inspection_subject_instances(): void {
         "finite non-zero length",
       ),
       missingPrototype: throwsError(
-        (): IAutoMovieSubjectDescription  =>
+        (): IAutoMovieSubjectDescription =>
           describeAutoMovieSubject(
             artifactWithSet({
               ...explicit,
@@ -286,7 +326,15 @@ export function test_inspection_subject_instances(): void {
   );
 }
 
-const compiledPrototype: (id: string, model: string, weight: number) => IAutoMovieCompiledInstancePrototype = (id: string, model: string, weight: number): IAutoMovieCompiledInstancePrototype  => ({
+const compiledPrototype: (
+  id: string,
+  model: string,
+  weight: number,
+) => IAutoMovieCompiledInstancePrototype = (
+  id: string,
+  model: string,
+  weight: number,
+): IAutoMovieCompiledInstancePrototype => ({
   id,
   modelRecipe: model,
   weight,
@@ -302,7 +350,11 @@ const compiledPrototype: (id: string, model: string, weight: number) => IAutoMov
   projectionRadius: 1,
 });
 
-const artifactWithSet: (set: IAutoMovieCompiledInstanceSet) => IAutoMovieSubjectArtifact = (set: IAutoMovieCompiledInstanceSet): IAutoMovieSubjectArtifact  =>
+const artifactWithSet: (
+  set: IAutoMovieCompiledInstanceSet,
+) => IAutoMovieSubjectArtifact = (
+  set: IAutoMovieCompiledInstanceSet,
+): IAutoMovieSubjectArtifact =>
   subjectInspectionArtifact({
     models: [
       subjectInspectionModel({
@@ -328,7 +380,13 @@ const artifactWithSet: (set: IAutoMovieCompiledInstanceSet) => IAutoMovieSubject
  * transform instead of narrowing it back out of a compiled union, which needed
  * an unreachable fallback branch to type-check.
  */
-const OAK_TRANSFORM: { id: string; translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; prototype: string; } = {
+const OAK_TRANSFORM: {
+  id: string;
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+  prototype: string;
+} = {
   id: "oak",
   translation: { x: 7, y: 1, z: 2 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },

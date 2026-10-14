@@ -1,12 +1,18 @@
-import { IAutoMovieTransform, AutoMovieHumanoidBone, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "../../../../packages/engine/src/kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../../../../packages/engine/src/kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { TestValidator } from "@nestia/e2e";
 import { makePose } from "../internal/makePose";
 import { throwsError } from "../internal/throwsError";
+
 const rest: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -24,7 +30,7 @@ const rest: IAutoMovieTransform = {
  *
  * `hips`(root)→`spine`→`chest` are reachable; `leftHand`→`leftLowerArm` is
  * orphaned (`leftLowerArm` is not declared).
-  *
+ *
  * @evidence contracts/testing.md#behavioral-verification Exercises topology indexing, reachableBoneNames and resolvePose, asserting root-only reachability, snapshot behavior and a named duplicate-bone refusal before recursion.
  * @evidence contracts/testing.md#independent-expectations Declared parent links independently imply exactly chest, hips and spine are reachable; mutation adds spine only to a rebuilt topology, and repeated hips violates unique identity.
  * @evidence contracts/testing.md#distinguishing-cases Covers orphaned and fully reachable skeletons, explicit versus rebuilt topology, caller mutation and a duplicate identity cycle; rootless/cycle tests own detached hierarchies.
@@ -43,7 +49,9 @@ export function test_kinematics_resolve_orphan(): void {
 
   const resolved: AutoMovieHumanoidBone[] = resolvePose(makePose([]), skeleton)
     .map((r: IAutoMovieResolvedBone): AutoMovieHumanoidBone => r.bone)
-    .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number => a.localeCompare(b));
+    .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+      a.localeCompare(b),
+    );
   TestValidator.equals(
     "resolvePose returns exactly the root-anchored sub-tree, omitting the orphan",
     resolved,
@@ -53,7 +61,10 @@ export function test_kinematics_resolve_orphan(): void {
   const reachable: Set<AutoMovieHumanoidBone> = reachableBoneNames(skeleton);
   TestValidator.equals(
     "reachableBoneNames agrees with the FK walk, bone-for-bone",
-    [...reachable].sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number => a.localeCompare(b)),
+    [...reachable].sort(
+      (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+        a.localeCompare(b),
+    ),
     ["chest", "hips", "spine"],
   );
   TestValidator.predicate(
@@ -70,7 +81,9 @@ export function test_kinematics_resolve_orphan(): void {
     topology,
   )
     .map((r: IAutoMovieResolvedBone): AutoMovieHumanoidBone => r.bone)
-    .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number => a.localeCompare(b));
+    .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+      a.localeCompare(b),
+    );
   TestValidator.equals(
     "explicit topology drives the same FK walk as the default path",
     resolvedFromTopology,
@@ -78,8 +91,9 @@ export function test_kinematics_resolve_orphan(): void {
   );
   TestValidator.equals(
     "reachableBoneNames can reuse the same topology source as resolvePose",
-    [...reachableBoneNames(skeleton, topology)].sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
-      a.localeCompare(b),
+    [...reachableBoneNames(skeleton, topology)].sort(
+      (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+        a.localeCompare(b),
     ),
     resolved,
   );
@@ -88,13 +102,16 @@ export function test_kinematics_resolve_orphan(): void {
     id: "mutable",
     bones: [{ bone: "hips", parent: null, rest, constraint: null }],
   };
-  const oldTopology: IAutoMovieSkeletonTopology = indexSkeletonTopology(mutable);
+  const oldTopology: IAutoMovieSkeletonTopology =
+    indexSkeletonTopology(mutable);
   mutable.bones.push({ bone: "spine", parent: "hips", rest, constraint: null });
   TestValidator.equals(
     "default resolvePose rebuilds topology after skeleton mutation",
     resolvePose(makePose([]), mutable)
       .map((r: IAutoMovieResolvedBone): AutoMovieHumanoidBone => r.bone)
-      .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number => a.localeCompare(b)),
+      .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+        a.localeCompare(b),
+      ),
     ["hips", "spine"],
   );
   TestValidator.equals(
@@ -127,6 +144,9 @@ export function test_kinematics_resolve_orphan(): void {
   };
   TestValidator.predicate(
     "ambiguous identities refuse before recursive topology traversal",
-    throwsError((): IAutoMovieSkeletonTopology => indexSkeletonTopology(duplicated), 'duplicate bone "hips"'),
+    throwsError(
+      (): IAutoMovieSkeletonTopology => indexSkeletonTopology(duplicated),
+      'duplicate bone "hips"',
+    ),
   );
 }

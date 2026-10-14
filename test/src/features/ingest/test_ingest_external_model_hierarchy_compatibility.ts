@@ -1,4 +1,3 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -7,6 +6,7 @@ import {
   inspectExternalModelHierarchyFixture,
 } from "../internal/externalModelHierarchyFixture";
 import { throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Forest admission does not impose the motion profile's rest-transform subset on static model bytes, nor require a scene graph for a mesh library.
@@ -36,31 +36,55 @@ export function test_ingest_external_model_hierarchy_compatibility(): void {
       message: "nodes[0].scale must contain only positive values.",
     },
   ]) {
-    const fixture: ReturnType<typeof createExternalModelHierarchyFixture> = createExternalModelHierarchyFixture();
+    const fixture: ReturnType<typeof createExternalModelHierarchyFixture> =
+      createExternalModelHierarchyFixture();
     Object.assign(fixture.document.nodes[0]!, transform.node);
     fixture.document.animations[0]!.channels[0]!.target.node = 1;
-    TestValidator.predicate("static hierarchy accepts the declared transform", test12ValuesClose(inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1").profile, "gltf-static-v1"));
+    TestValidator.predicate(
+      "static hierarchy accepts the declared transform",
+      test12ValuesClose(
+        inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1").profile,
+        "gltf-static-v1",
+      ),
+    );
     TestValidator.predicate(
       "motion retains its explicit transform restriction",
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
+        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
         transform.message,
       ),
     );
   }
 
-  const single: ReturnType<typeof createExternalModelHierarchyChain> = createExternalModelHierarchyChain(1);
-  TestValidator.predicate("single root", test12ValuesClose(inspectExternalModelHierarchyFixture(single, "gltf-static-v1").counts.nodes, 1));
+  const single: ReturnType<typeof createExternalModelHierarchyChain> =
+    createExternalModelHierarchyChain(1);
+  TestValidator.predicate(
+    "single root",
+    test12ValuesClose(
+      inspectExternalModelHierarchyFixture(single, "gltf-static-v1").counts
+        .nodes,
+      1,
+    ),
+  );
   single.document.nodes[0]!.children = [0];
   TestValidator.predicate(
     "single node self-cycle",
     throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection => inspectExternalModelHierarchyFixture(single, "gltf-static-v1"),
+      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        inspectExternalModelHierarchyFixture(single, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),
   );
   single.document.nodes = [];
   single.document.scenes = [{}];
   single.document.animations = [];
-  TestValidator.predicate("empty node forest in a mesh library", test12ValuesClose(inspectExternalModelHierarchyFixture(single, "gltf-static-v1").counts.nodes, 0));
+  TestValidator.predicate(
+    "empty node forest in a mesh library",
+    test12ValuesClose(
+      inspectExternalModelHierarchyFixture(single, "gltf-static-v1").counts
+        .nodes,
+      0,
+    ),
+  );
 }

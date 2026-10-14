@@ -1,4 +1,3 @@
-import { runFluidDomainPopulationCases } from "../internal/runFluidDomainPopulationCases";
 import {
   FLUID_MAX_CELLS,
   FLUID_MAX_STEPS,
@@ -14,13 +13,20 @@ import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+import { runFluidDomainPopulationCases } from "../internal/runFluidDomainPopulationCases";
 
 /** Construct the original 4x4 quarter-metre-deep basin and apply only each admission case's authored overrides. */
-const basin: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (overrides: Partial<IAutoMovieFluidDomain> = {}): IAutoMovieFluidDomain =>
+const basin: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
+  overrides: Partial<IAutoMovieFluidDomain> = {},
+): IAutoMovieFluidDomain =>
   flatBasin({ columns: 4, rows: 4, depth: 0.25, overrides });
 
 /** Original valid jet whose individual fields are replaced by located source-refusal cases; construction performs no admission. */
-const source: (overrides?: Partial<IAutoMovieFluidSource>) => IAutoMovieFluidSource = (
+const source: (
+  overrides?: Partial<IAutoMovieFluidSource>,
+) => IAutoMovieFluidSource = (
   overrides: Partial<IAutoMovieFluidSource> = {},
 ): IAutoMovieFluidSource => ({
   id: "jet",
@@ -33,7 +39,9 @@ const source: (overrides?: Partial<IAutoMovieFluidSource>) => IAutoMovieFluidSou
 });
 
 /** Original valid return whose fields are replaced by drain window, rate and sill admission cases. */
-const drain: (overrides?: Partial<IAutoMovieFluidDrain>) => IAutoMovieFluidDrain = (
+const drain: (
+  overrides?: Partial<IAutoMovieFluidDrain>,
+) => IAutoMovieFluidDrain = (
   overrides: Partial<IAutoMovieFluidDrain> = {},
 ): IAutoMovieFluidDrain => ({
   id: "return",
@@ -47,7 +55,9 @@ const drain: (overrides?: Partial<IAutoMovieFluidDrain>) => IAutoMovieFluidDrain
 });
 
 /** Original valid mist whose overridden fields independently exercise the spray population and scalar admission rules. */
-const spray: (overrides?: Partial<IAutoMovieFluidSpray>) => IAutoMovieFluidSpray = (
+const spray: (
+  overrides?: Partial<IAutoMovieFluidSpray>,
+) => IAutoMovieFluidSpray = (
   overrides: Partial<IAutoMovieFluidSpray> = {},
 ): IAutoMovieFluidSpray => ({
   id: "mist",
@@ -132,7 +142,10 @@ export function test_fluid_domain_validation(): void {
     "identity and schema are refused when wrong",
     namedFacts([
       ["id", (): boolean => hasViolation(schema, "type", "$input.id")],
-      ["version", (): boolean => hasViolation(schema, "type", "$input.version")],
+      [
+        "version",
+        (): boolean => hasViolation(schema, "type", "$input.version"),
+      ],
       ["units", (): boolean => hasViolation(schema, "type", "$input.units")],
     ]),
     { id: true, version: true, units: true },
@@ -165,42 +178,63 @@ export function test_fluid_domain_validation(): void {
   });
   // Both side lengths are perfectly legal safe integers; only their product,
   // 2⁶⁰ cells, is unaffordable, and it is past `Number.MAX_SAFE_INTEGER`.
-  const overflowing: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({
-      grid: {
-        columns: 2 ** 30,
-        rows: 2 ** 30,
-        cellX: 1,
-        cellZ: 1,
-        origin: { x: 0, y: 0, z: 0 },
-      },
-    }),
-  });
+  const overflowing: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        grid: {
+          columns: 2 ** 30,
+          rows: 2 ** 30,
+          cellX: 1,
+          cellZ: 1,
+          origin: { x: 0, y: 0, z: 0 },
+        },
+      }),
+    });
   // The twin one property away: a side that is not a number at all has no
   // countable product, so it is named as the side it is rather than dressed up
   // as a budget the author could have met with a smaller grid.
-  const boundless: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({
-      grid: {
-        columns: Number.POSITIVE_INFINITY,
-        rows: 4,
-        cellX: 1,
-        cellZ: 1,
-        origin: { x: 0, y: 0, z: 0 },
-      },
-    }),
-  });
+  const boundless: ReturnType<typeof validateFluidDomain> = validateFluidDomain(
+    {
+      domain: basin({
+        grid: {
+          columns: Number.POSITIVE_INFINITY,
+          rows: 4,
+          cellX: 1,
+          cellZ: 1,
+          origin: { x: 0, y: 0, z: 0 },
+        },
+      }),
+    },
+  );
   TestValidator.equals(
     "the lattice must be a whole, positive, affordable grid",
     namedFacts([
-      ["columns", (): boolean => hasViolation(lattice, "type", "$input.grid.columns")],
-      ["rows", (): boolean => hasViolation(lattice, "type", "$input.grid.rows")],
-      ["cellX", (): boolean => hasViolation(lattice, "range", "$input.grid.cellX")],
-      ["cellZ", (): boolean => hasViolation(lattice, "range", "$input.grid.cellZ")],
-      ["origin", (): boolean => hasViolation(lattice, "range", "$input.grid.origin.y")],
+      [
+        "columns",
+        (): boolean => hasViolation(lattice, "type", "$input.grid.columns"),
+      ],
+      [
+        "rows",
+        (): boolean => hasViolation(lattice, "type", "$input.grid.rows"),
+      ],
+      [
+        "cellX",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.cellX"),
+      ],
+      [
+        "cellZ",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.cellZ"),
+      ],
+      [
+        "origin",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.origin.y"),
+      ],
       ["budget", (): boolean => hasViolation(huge, "range", "$input.grid")],
       ["budgetValue", (): boolean => FLUID_MAX_CELLS === 65_536],
-      ["overflow", (): boolean => hasViolation(overflowing, "range", "$input.grid")],
+      [
+        "overflow",
+        (): boolean => hasViolation(overflowing, "range", "$input.grid"),
+      ],
       [
         "overflowSides",
         (): boolean =>
@@ -213,7 +247,8 @@ export function test_fluid_domain_validation(): void {
       ],
       [
         "boundlessNotBudget",
-        (): boolean => hasViolation(boundless, "range", "$input.grid") === false,
+        (): boolean =>
+          hasViolation(boundless, "range", "$input.grid") === false,
       ],
     ]),
     {
@@ -248,16 +283,30 @@ export function test_fluid_domain_validation(): void {
     namedFacts([
       [
         "step",
-        (): boolean => hasViolation(solver, "range", "$input.solver.fixedStepSeconds"),
+        (): boolean =>
+          hasViolation(solver, "range", "$input.solver.fixedStepSeconds"),
       ],
-      ["gravity", (): boolean => hasViolation(solver, "range", "$input.solver.gravity")],
-      ["drag", (): boolean => hasViolation(solver, "range", "$input.solver.drag")],
-      ["dry", (): boolean => hasViolation(solver, "range", "$input.solver.dryDepth")],
+      [
+        "gravity",
+        (): boolean => hasViolation(solver, "range", "$input.solver.gravity"),
+      ],
+      [
+        "drag",
+        (): boolean => hasViolation(solver, "range", "$input.solver.drag"),
+      ],
+      [
+        "dry",
+        (): boolean => hasViolation(solver, "range", "$input.solver.dryDepth"),
+      ],
       [
         "reference",
-        (): boolean => hasViolation(solver, "range", "$input.solver.referenceDepth"),
+        (): boolean =>
+          hasViolation(solver, "range", "$input.solver.referenceDepth"),
       ],
-      ["steps", (): boolean => hasViolation(solver, "type", "$input.solver.maxSteps")],
+      [
+        "steps",
+        (): boolean => hasViolation(solver, "type", "$input.solver.maxSteps"),
+      ],
     ]),
     {
       step: true,
@@ -310,25 +359,27 @@ export function test_fluid_domain_validation(): void {
       },
     }),
   });
-  const nonFiniteCourant: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: Number.NaN,
-        drag: 0,
-        dryDepth: 0,
-        referenceDepth: 2,
-        maxSteps: 100,
-      },
-    }),
-  });
+  const nonFiniteCourant: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: Number.NaN,
+          drag: 0,
+          dryDepth: 0,
+          referenceDepth: 2,
+          maxSteps: 100,
+        },
+      }),
+    });
   TestValidator.equals(
     "the Courant condition is the stability gate, and it has both sides",
     namedFacts([
       ["stable", (): boolean => stable.success === true],
       [
         "unstable",
-        (): boolean => hasViolation(unstable, "range", "$input.solver.fixedStepSeconds"),
+        (): boolean =>
+          hasViolation(unstable, "range", "$input.solver.fixedStepSeconds"),
       ],
       [
         "nonFinite",
@@ -346,18 +397,19 @@ export function test_fluid_domain_validation(): void {
 
   // Every input is a legal finite number, but g·H overflows: the Courant
   // number is infinite, which is unstable rather than unmeasured.
-  const overflowingCourant: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
-    domain: basin({
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: 1e200,
-        drag: 0,
-        dryDepth: 0,
-        referenceDepth: 1e200,
-        maxSteps: 100,
-      },
-    }),
-  });
+  const overflowingCourant: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: 1e200,
+          drag: 0,
+          dryDepth: 0,
+          referenceDepth: 1e200,
+          maxSteps: 100,
+        },
+      }),
+    });
   TestValidator.equals(
     "a Courant number that overflows from legal inputs is refused as unstable",
     namedFacts([
@@ -375,8 +427,11 @@ export function test_fluid_domain_validation(): void {
         (): boolean =>
           hasViolation(overflowingCourant, "range", "$input.solver.gravity") ===
             false &&
-          hasViolation(overflowingCourant, "range", "$input.solver.referenceDepth") ===
-            false,
+          hasViolation(
+            overflowingCourant,
+            "range",
+            "$input.solver.referenceDepth",
+          ) === false,
       ],
     ]),
     { refusedAtTheStep: true, inputsThemselvesAccepted: true },

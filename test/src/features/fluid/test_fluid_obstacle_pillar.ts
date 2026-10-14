@@ -1,5 +1,8 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
@@ -62,17 +65,93 @@ const withPillar: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
  */
 export function test_fluid_obstacle_pillar(): void {
   const domain: ReturnType<typeof withPillar> = withPillar();
-  const authored: number = domain.depth.reduce((sum: number, value: number): number => sum + value * 0.25, 0);
-  const states: IAutoMovieFluidState[] = [1, 60, 400].map((step: number): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, step));
+  const authored: number = domain.depth.reduce(
+    (sum: number, value: number): number => sum + value * 0.25,
+    0,
+  );
+  const states: IAutoMovieFluidState[] = [1, 60, 400].map(
+    (step: number): ReturnType<typeof simulateFluidDomain> =>
+      simulateFluidDomain(domain, step),
+  );
   const last: IAutoMovieFluidState = states[states.length - 1];
   const behind: number = PILLAR_ROW * COLUMNS + PILLAR_COLUMN + 1;
 
-  TestValidator.predicate("pillar stays exactly dry", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.depth[PILLAR], 0) && nclose(state.depth[PILLAR], 0, 0)));
-  TestValidator.predicate("pillar west face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN], 0) && nclose(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN], 0, 0)));
-  TestValidator.predicate("pillar east face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1], 0) && nclose(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1], 0, 0)));
-  TestValidator.predicate("pillar south face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0) && nclose(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0, 0)));
-  TestValidator.predicate("pillar north face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN], 0) && nclose(state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN], 0, 0)));
-  TestValidator.predicate("water raises the downstream cell", last.depth[behind] > 0.25);
-  TestValidator.predicate("sampled pillar-basin mass balance", states.every((state: IAutoMovieFluidState): boolean => nclose(state.volume, authored + state.sourceVolume - state.drainVolume, 1e-9)));
-  TestValidator.predicate("walled pillar basin books zero outflow", Object.is(last.outflowVolume, 0) && nclose(last.outflowVolume, 0, 0));
+  TestValidator.predicate(
+    "pillar stays exactly dry",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(state.depth[PILLAR], 0) && nclose(state.depth[PILLAR], 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "pillar west face stays still",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(
+          state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN],
+          0,
+        ) &&
+        nclose(
+          state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN],
+          0,
+          0,
+        ),
+    ),
+  );
+  TestValidator.predicate(
+    "pillar east face stays still",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(
+          state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1],
+          0,
+        ) &&
+        nclose(
+          state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1],
+          0,
+          0,
+        ),
+    ),
+  );
+  TestValidator.predicate(
+    "pillar south face stays still",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0) &&
+        nclose(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "pillar north face stays still",
+    states.every(
+      (state: IAutoMovieFluidState): boolean =>
+        Object.is(
+          state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN],
+          0,
+        ) &&
+        nclose(
+          state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN],
+          0,
+          0,
+        ),
+    ),
+  );
+  TestValidator.predicate(
+    "water raises the downstream cell",
+    last.depth[behind] > 0.25,
+  );
+  TestValidator.predicate(
+    "sampled pillar-basin mass balance",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      nclose(
+        state.volume,
+        authored + state.sourceVolume - state.drainVolume,
+        1e-9,
+      ),
+    ),
+  );
+  TestValidator.predicate(
+    "walled pillar basin books zero outflow",
+    Object.is(last.outflowVolume, 0) && nclose(last.outflowVolume, 0, 0),
+  );
 }

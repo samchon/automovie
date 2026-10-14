@@ -1,12 +1,19 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { atLeast, flatBasin } from "../internal/fluidFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /** Construct the original six-cell descending bed and initially dry lower reach, shallowly applying only the two malformed-state overrides when requested. */
-const ledge: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (overrides: Partial<IAutoMovieFluidDomain> = {}): IAutoMovieFluidDomain =>
+const ledge: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
+  overrides: Partial<IAutoMovieFluidDomain> = {},
+): IAutoMovieFluidDomain =>
   flatBasin({
     columns: 6,
     rows: 1,
@@ -52,15 +59,40 @@ const ledge: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDoma
 export function test_fluid_waterfall_ledge(): void {
   const domain: ReturnType<typeof ledge> = ledge();
   const authored: number = 3 * 0.5 * 0.25;
-  const states: IAutoMovieFluidState[] = [1, 60, 400].map((step: number): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, step));
+  const states: IAutoMovieFluidState[] = [1, 60, 400].map(
+    (step: number): ReturnType<typeof simulateFluidDomain> =>
+      simulateFluidDomain(domain, step),
+  );
   const last: IAutoMovieFluidState = states[states.length - 1];
-  TestValidator.predicate("authored ledge volume", nclose(authored, 0.375, 1e-15));
-  TestValidator.predicate("lower ledge cells become wet", last.depth[3] > 0 && last.depth[5] > 0);
+  TestValidator.predicate(
+    "authored ledge volume",
+    nclose(authored, 0.375, 1e-15),
+  );
+  TestValidator.predicate(
+    "lower ledge cells become wet",
+    last.depth[3] > 0 && last.depth[5] > 0,
+  );
   TestValidator.predicate("upper pool loses depth", last.depth[0] < 0.5);
-  TestValidator.predicate("lip velocity points downhill", last.velocityX[3] > 0);
-  TestValidator.predicate("sampled ledge volumes remain conserved", states.every((state: IAutoMovieFluidState): boolean => nclose(state.volume, authored, 1e-12)));
-  TestValidator.predicate("sampled ledge depths stay nonnegative", states.every((state: IAutoMovieFluidState): boolean => atLeast(state.depth, 0)));
-  TestValidator.predicate("closed ledge books zero outflow", Object.is(last.outflowVolume, 0) && nclose(last.outflowVolume, 0, 0));
+  TestValidator.predicate(
+    "lip velocity points downhill",
+    last.velocityX[3] > 0,
+  );
+  TestValidator.predicate(
+    "sampled ledge volumes remain conserved",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      nclose(state.volume, authored, 1e-12),
+    ),
+  );
+  TestValidator.predicate(
+    "sampled ledge depths stay nonnegative",
+    states.every((state: IAutoMovieFluidState): boolean =>
+      atLeast(state.depth, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "closed ledge books zero outflow",
+    Object.is(last.outflowVolume, 0) && nclose(last.outflowVolume, 0, 0),
+  );
 
   TestValidator.equals(
     "a non-finite state is named at the step it appeared",

@@ -1,14 +1,25 @@
-import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieArmChainFault } from "../../../../packages/engine/src/kinematics/IAutoMovieArmChainFault";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { armChainFault } from "../../../../packages/engine/src/kinematics/armChainFault";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
 import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, translation: IAutoMovieVector3) => IAutoMovieBone = (
+
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  translation: IAutoMovieVector3,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   translation: IAutoMovieVector3,
@@ -31,8 +42,12 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, 
  *
  * One property apart, which is what makes the pair a twin.
  */
-const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (direction: "down" | "out"): IAutoMovieSkeleton => {
-  const step: (length: number) => IAutoMovieVector3 = (length: number): IAutoMovieVector3 =>
+const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (
+  direction: "down" | "out",
+): IAutoMovieSkeleton => {
+  const step: (length: number) => IAutoMovieVector3 = (
+    length: number,
+  ): IAutoMovieVector3 =>
     direction === "down"
       ? { x: 0, y: -length, z: 0 }
       : { x: -length, y: 0, z: 0 };
@@ -50,7 +65,10 @@ const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (direction: "d
 };
 
 /** Shoulder-to-hand distance at one elbow flexion angle. */
-const spanAt: (skeleton: IAutoMovieSkeleton, flexion: number) => number = (skeleton: IAutoMovieSkeleton, flexion: number): number => {
+const spanAt: (skeleton: IAutoMovieSkeleton, flexion: number) => number = (
+  skeleton: IAutoMovieSkeleton,
+  flexion: number,
+): number => {
   const resolved: IAutoMovieResolvedBone[] = resolvePose(
     {
       skeleton: skeleton.id,
@@ -63,7 +81,9 @@ const spanAt: (skeleton: IAutoMovieSkeleton, flexion: number) => number = (skele
   const shoulder: IAutoMovieVector3 = resolved.find(
     (b: IAutoMovieResolvedBone): boolean => b.bone === "rightUpperArm",
   )!.worldPosition;
-  const hand: IAutoMovieVector3 = resolved.find((b: IAutoMovieResolvedBone): boolean => b.bone === "rightHand")!.worldPosition;
+  const hand: IAutoMovieVector3 = resolved.find(
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "rightHand",
+  )!.worldPosition;
   return Math.hypot(
     hand.x - shoulder.x,
     hand.y - shoulder.y,
@@ -153,7 +173,10 @@ export function test_kinematics_arm_chain_fault(): void {
     "and that sweep really moves: 0.600000 at 0 deg down to 0.160026 at 150",
     namedFacts([
       ["ncloseSpanAtOut", (): boolean => nclose(spanAt(out, 0), 0.6, 1e-9)],
-      ["ncloseSpanAtOut2", (): boolean => nclose(spanAt(out, 150), 0.160026, 1e-6)],
+      [
+        "ncloseSpanAtOut2",
+        (): boolean => nclose(spanAt(out, 150), 0.160026, 1e-6),
+      ],
     ]),
     { ncloseSpanAtOut: true, ncloseSpanAtOut2: true },
   );
@@ -164,7 +187,10 @@ export function test_kinematics_arm_chain_fault(): void {
     "the arms-down rig is faulted, at its elbow, with a reason that says why",
     namedFacts([
       ["fault", (): boolean => fault !== null],
-      ["faultSideRight", (): boolean => fault !== null && fault.side === "right"],
+      [
+        "faultSideRight",
+        (): boolean => fault !== null && fault.side === "right",
+      ],
       [
         "faultBoneRightLowerArm",
         (): boolean => fault !== null && fault.bone === "rightLowerArm",
@@ -213,8 +239,14 @@ export function test_kinematics_arm_chain_fault(): void {
   TestValidator.equals(
     "a mixed rig faults only the hanging side",
     namedFacts([
-      ["armChainFaultMixedRight", (): boolean => armChainFault(mixed, "right") !== null],
-      ["armChainFaultMixedLeft", (): boolean => armChainFault(mixed, "left") === null],
+      [
+        "armChainFaultMixedRight",
+        (): boolean => armChainFault(mixed, "right") !== null,
+      ],
+      [
+        "armChainFaultMixedLeft",
+        (): boolean => armChainFault(mixed, "left") === null,
+      ],
     ]),
     { armChainFaultMixedRight: true, armChainFaultMixedLeft: true },
   );
@@ -222,7 +254,9 @@ export function test_kinematics_arm_chain_fault(): void {
   // 6. BOUNDARY: an absent chain is a different fact from an unbendable one.
   const handless: IAutoMovieSkeleton = {
     id: "rig-handless",
-    bones: armRig("down").bones.filter((b: IAutoMovieBone): boolean => b.bone !== "rightHand"),
+    bones: armRig("down").bones.filter(
+      (b: IAutoMovieBone): boolean => b.bone !== "rightHand",
+    ),
   };
   TestValidator.equals(
     "a rig with no hand bone is not a convention fault",
@@ -242,10 +276,11 @@ export function test_kinematics_arm_chain_fault(): void {
   // can actually decide.
   const collapsed: IAutoMovieSkeleton = {
     id: "rig-collapsed",
-    bones: armRig("down").bones.map((b: IAutoMovieBone): IAutoMovieBone =>
-      b.bone === "rightHand"
-        ? { ...b, rest: { ...b.rest, translation: { x: 0, y: 0, z: 0 } } }
-        : b,
+    bones: armRig("down").bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "rightHand"
+          ? { ...b, rest: { ...b.rest, translation: { x: 0, y: 0, z: 0 } } }
+          : b,
     ),
   };
   TestValidator.equals(
@@ -272,10 +307,13 @@ export function test_kinematics_arm_chain_fault(): void {
 
   // 8. BOUNDARY: a hand that does not hang from the lower arm breaks the chain
   // both functions read, so neither may treat its offset as the forearm.
-  const misparented: (rig: IAutoMovieSkeleton) => IAutoMovieSkeleton = (rig: IAutoMovieSkeleton): IAutoMovieSkeleton => ({
+  const misparented: (rig: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
+    rig: IAutoMovieSkeleton,
+  ): IAutoMovieSkeleton => ({
     ...rig,
-    bones: rig.bones.map((b: IAutoMovieBone): IAutoMovieBone =>
-      b.bone === "rightHand" ? { ...b, parent: "rightUpperArm" } : b,
+    bones: rig.bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "rightHand" ? { ...b, parent: "rightUpperArm" } : b,
     ),
   });
   TestValidator.equals(
@@ -290,10 +328,17 @@ export function test_kinematics_arm_chain_fault(): void {
   );
   const large: IAutoMovieSkeleton = {
     ...out,
-    bones: out.bones.map((entry: IAutoMovieBone): IAutoMovieBone =>
-      entry.bone === "rightHand"
-        ? { ...entry, rest: { ...entry.rest, translation: { x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 } } }
-        : entry,
+    bones: out.bones.map(
+      (entry: IAutoMovieBone): IAutoMovieBone =>
+        entry.bone === "rightHand"
+          ? {
+              ...entry,
+              rest: {
+                ...entry.rest,
+                translation: { x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 },
+              },
+            }
+          : entry,
     ),
   };
   TestValidator.equals(

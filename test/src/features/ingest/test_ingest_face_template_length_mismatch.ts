@@ -18,14 +18,18 @@ import { throwsError } from "../internal/predicates";
 export function test_ingest_face_template_length_mismatch(): void {
   const doc: Document = new Document();
   const buffer: import("@gltf-transform/core").Buffer = doc.createBuffer();
-  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (array: number[]): import("@gltf-transform/core").Accessor =>
+  const acc: (array: number[]) => import("@gltf-transform/core").Accessor = (
+    array: number[],
+  ): import("@gltf-transform/core").Accessor =>
     doc
       .createAccessor()
       .setType("VEC3")
       .setArray(new Float32Array(array))
       .setBuffer(buffer);
 
-  const prim: import("@gltf-transform/core").Primitive = doc.createPrimitive().setAttribute("POSITION", acc([0, 0, 0]));
+  const prim: import("@gltf-transform/core").Primitive = doc
+    .createPrimitive()
+    .setAttribute("POSITION", acc([0, 0, 0]));
   prim.addTarget(
     doc
       .createPrimitiveTarget("identity")
@@ -36,7 +40,8 @@ export function test_ingest_face_template_length_mismatch(): void {
   TestValidator.predicate(
     "mismatched delta length throws",
     throwsError(
-      (): import("@automovie/interface").IAutoMovieFaceTemplate => ingestFaceTemplate(doc),
+      (): import("@automovie/interface").IAutoMovieFaceTemplate =>
+        ingestFaceTemplate(doc),
       ['morph target "identity"', "6 components", "expected 3"],
     ),
   );

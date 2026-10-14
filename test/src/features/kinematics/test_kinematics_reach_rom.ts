@@ -1,26 +1,41 @@
+import {
+  IAutoMovieJointConstraint,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
-import { IAutoMovieJointConstraint, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import {
+  type IAutoMovieBone,
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieJointPose,
+  type IAutoMoviePose,
+  type IAutoMovieValidation,
+} from "../../../../packages/interface/src/index";
 import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 import { violationCount } from "../internal/violationCount";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { type IAutoMovieBone, type IAutoMoviePose, type IAutoMovieJointPose, type IAutoMovieValidation, type IAutoMovieConstraintViolation } from "../../../../packages/interface/src/index";
+
 const SHOULDER: IAutoMovieVector3 = { x: 0.2, y: 1.4, z: 0 };
 
 /** Where the left hand lands, read back through the frame the pose is in. */
-const handAt: (skeleton: IAutoMovieSkeleton, pose: NonNullable<ReturnType<typeof reachPose>>) => IAutoMovieVector3 = (
+const handAt: (
+  skeleton: IAutoMovieSkeleton,
+  pose: NonNullable<ReturnType<typeof reachPose>>,
+) => IAutoMovieVector3 = (
   skeleton: IAutoMovieSkeleton,
   pose: NonNullable<ReturnType<typeof reachPose>>,
 ): IAutoMovieVector3 =>
   resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).find(
-    (b: IAutoMovieResolvedBone): boolean  => b.bone === "leftHand",
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "leftHand",
   )!.worldPosition;
 
 /**
@@ -51,14 +66,17 @@ const FUSED: IAutoMovieJointConstraint = {
   twist: null,
 };
 
-const withElbow: (constraint: IAutoMovieJointConstraint) => IAutoMovieSkeleton = (
+const withElbow: (
+  constraint: IAutoMovieJointConstraint,
+) => IAutoMovieSkeleton = (
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieSkeleton => {
   const skeleton: IAutoMovieSkeleton = createSkeleton();
   return {
     ...skeleton,
-    bones: skeleton.bones.map((bone: IAutoMovieBone): IAutoMovieBone  =>
-      bone.bone === "leftLowerArm" ? { ...bone, constraint } : bone,
+    bones: skeleton.bones.map(
+      (bone: IAutoMovieBone): IAutoMovieBone =>
+        bone.bone === "leftLowerArm" ? { ...bone, constraint } : bone,
     ),
   };
 };
@@ -129,7 +147,9 @@ export function test_kinematics_reach_rom(): void {
     // Zero tolerance, so this is an exact assertion, but written through
     // `nclose` because the decomposition yields a signed zero on the abduction
     // axis and `-0` is numerically the required 0.
-    const elbow: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!;
+    const elbow: IAutoMovieJointPose = pose.joints.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+    )!;
     TestValidator.predicate(
       `the elbow abducts exactly 0 for ${JSON.stringify(target)}`,
       nclose(elbow.abduction!, 0, 0),
@@ -159,17 +179,33 @@ export function test_kinematics_reach_rom(): void {
   // already abducted), which is what HUMANOID_REST_FRAME's neutral states.
   const restTarget: IAutoMovieVector3 = { x: 0.75, y: 1.4, z: 0 };
   const rest: IAutoMoviePose = reachPose(skeleton, "left", restTarget)!;
-  const restUpper: IAutoMovieJointPose = rest.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftUpperArm")!;
-  const restLower: IAutoMovieJointPose = rest.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!;
+  const restUpper: IAutoMovieJointPose = rest.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftUpperArm",
+  )!;
+  const restLower: IAutoMovieJointPose = rest.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!;
   TestValidator.equals(
     "the rest-pose target returns the identity articulation",
     namedFacts([
-      ["ncloseRestUpperFlexion", (): boolean  => nclose(restUpper.flexion!, 0, 0)],
-      ["ncloseRestUpperAbduction", (): boolean  => nclose(restUpper.abduction!, 90, 0)],
-      ["ncloseRestUpperTwist", (): boolean  => nclose(restUpper.twist!, 0, 0)],
-      ["ncloseRestLowerFlexion", (): boolean  => nclose(restLower.flexion!, 0, 0)],
-      ["ncloseRestLowerAbduction", (): boolean  => nclose(restLower.abduction!, 0, 0)],
-      ["ncloseRestLowerTwist", (): boolean  => nclose(restLower.twist!, 0, 0)],
+      [
+        "ncloseRestUpperFlexion",
+        (): boolean => nclose(restUpper.flexion!, 0, 0),
+      ],
+      [
+        "ncloseRestUpperAbduction",
+        (): boolean => nclose(restUpper.abduction!, 90, 0),
+      ],
+      ["ncloseRestUpperTwist", (): boolean => nclose(restUpper.twist!, 0, 0)],
+      [
+        "ncloseRestLowerFlexion",
+        (): boolean => nclose(restLower.flexion!, 0, 0),
+      ],
+      [
+        "ncloseRestLowerAbduction",
+        (): boolean => nclose(restLower.abduction!, 0, 0),
+      ],
+      ["ncloseRestLowerTwist", (): boolean => nclose(restLower.twist!, 0, 0)],
     ]),
     {
       ncloseRestUpperFlexion: true,
@@ -189,7 +225,7 @@ export function test_kinematics_reach_rom(): void {
   // 5. BOUNDARY: past the shell, the arm extends along the ray and stops on it.
   const far: IAutoMovieVector3 = { x: 0.2, y: 3.6, z: 0 };
   const farPose: IAutoMoviePose = reachPose(skeleton, "left", far)!;
-  const ray: { x: number; y: number; z: number; } = {
+  const ray: { x: number; y: number; z: number } = {
     x: far.x - SHOULDER.x,
     y: far.y - SHOULDER.y,
     z: far.z - SHOULDER.z,
@@ -221,13 +257,14 @@ export function test_kinematics_reach_rom(): void {
   TestValidator.equals(
     "a fused elbow still fails the ROM gate, naming its flexion",
     namedFacts([
-      ["refused", (): boolean  => fusedResult.success === false],
+      ["refused", (): boolean => fusedResult.success === false],
       [
         "violated",
-        (): boolean  =>
+        (): boolean =>
           fusedResult.success === false &&
           fusedResult.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean  => v.kind === "rom" && v.path.endsWith(".flexion"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "rom" && v.path.endsWith(".flexion"),
           ),
       ],
     ]),

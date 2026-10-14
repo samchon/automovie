@@ -1,7 +1,9 @@
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { TestValidator } from "@nestia/e2e";
-import { qclose } from "../internal/qclose";
+
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { qclose } from "../internal/qclose";
+
 /**
  * `jointToQuaternion` turns the semantic angles an LLM emits (flexion /
  * abduction / twist) into a bone-local quaternion, mapping each clinical axis
@@ -36,23 +38,29 @@ export function test_kinematics_joint_axes(): void {
 
   TestValidator.predicate(
     "flexion about X",
-    qclose(
-      jointToQuaternion({ flexion: 90, abduction: null, twist: null }),
-      { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
-    ),
+    qclose(jointToQuaternion({ flexion: 90, abduction: null, twist: null }), {
+      x: Math.SQRT1_2,
+      y: 0,
+      z: 0,
+      w: Math.SQRT1_2,
+    }),
   );
   TestValidator.predicate(
     "abduction about Z",
-    qclose(
-      jointToQuaternion({ flexion: null, abduction: 90, twist: null }),
-      { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
-    ),
+    qclose(jointToQuaternion({ flexion: null, abduction: 90, twist: null }), {
+      x: 0,
+      y: 0,
+      z: Math.SQRT1_2,
+      w: Math.SQRT1_2,
+    }),
   );
   TestValidator.predicate(
     "twist about Y",
-    qclose(
-      jointToQuaternion({ flexion: null, abduction: null, twist: 90 }),
-      { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-    ),
+    qclose(jointToQuaternion({ flexion: null, abduction: null, twist: 90 }), {
+      x: 0,
+      y: Math.SQRT1_2,
+      z: 0,
+      w: Math.SQRT1_2,
+    }),
   );
 }

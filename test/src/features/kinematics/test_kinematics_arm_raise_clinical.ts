@@ -1,11 +1,18 @@
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+
 /**
  * The engine's named clinical-angle convention on a code-authored T-pose rig.
  * Its lengths and identity rest rotations are conventional test inputs, not
@@ -39,7 +46,11 @@ import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kin
 export function test_kinematics_arm_raise_clinical(): void {
   // A minimal T-pose-arm rig matching the stickman's arm geometry: identity rest
   // rotations, the shoulder raised off the chest, each arm reaching out along ±x.
-  const bone: (b: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, t: [number, number, number]) => IAutoMovieBone = (
+  const bone: (
+    b: AutoMovieHumanoidBone,
+    parent: AutoMovieHumanoidBone | null,
+    t: [number, number, number],
+  ) => IAutoMovieBone = (
     b: AutoMovieHumanoidBone,
     parent: AutoMovieHumanoidBone | null,
     t: [number, number, number],
@@ -68,12 +79,17 @@ export function test_kinematics_arm_raise_clinical(): void {
     ],
   };
 
-  const pose: (joints: IAutoMoviePose["joints"]) => IAutoMoviePose = (joints: IAutoMoviePose["joints"]): IAutoMoviePose => ({
+  const pose: (joints: IAutoMoviePose["joints"]) => IAutoMoviePose = (
+    joints: IAutoMoviePose["joints"],
+  ): IAutoMoviePose => ({
     skeleton: skeleton.id,
     root: null,
     joints,
   });
-  const arm: (bone: "leftUpperArm" | "rightUpperArm", abduction: number) => IAutoMoviePose["joints"][number] = (
+  const arm: (
+    bone: "leftUpperArm" | "rightUpperArm",
+    abduction: number,
+  ) => IAutoMoviePose["joints"][number] = (
     bone: "leftUpperArm" | "rightUpperArm",
     abduction: number,
   ): IAutoMoviePose["joints"][number] => ({
@@ -82,7 +98,11 @@ export function test_kinematics_arm_raise_clinical(): void {
     abduction,
     twist: null,
   });
-  const yOf: (p: IAutoMoviePose, b: AutoMovieHumanoidBone, frames?: boolean) => number = (
+  const yOf: (
+    p: IAutoMoviePose,
+    b: AutoMovieHumanoidBone,
+    frames?: boolean,
+  ) => number = (
     p: IAutoMoviePose,
     b: AutoMovieHumanoidBone,
     frames: boolean = false,
@@ -92,7 +112,8 @@ export function test_kinematics_arm_raise_clinical(): void {
       skeleton,
       HUMANOID_JOINT_AXES,
       frames ? HUMANOID_REST_FRAME : undefined,
-    ).find((r: IAutoMovieResolvedBone): boolean  => r.bone === b)!.worldPosition.y;
+    ).find((r: IAutoMovieResolvedBone): boolean => r.bone === b)!.worldPosition
+      .y;
 
   const shoulderL: number = yOf(pose([]), "leftUpperArm");
   const shoulderR: number = yOf(pose([]), "rightUpperArm");
@@ -103,11 +124,11 @@ export function test_kinematics_arm_raise_clinical(): void {
     namedFacts([
       [
         "ncloseYOfPose",
-        (): boolean  => nclose(yOf(pose([]), "leftHand"), shoulderL, 1e-9),
+        (): boolean => nclose(yOf(pose([]), "leftHand"), shoulderL, 1e-9),
       ],
       [
         "ncloseYOfPose2",
-        (): boolean  => nclose(yOf(pose([]), "rightHand"), shoulderR, 1e-9),
+        (): boolean => nclose(yOf(pose([]), "rightHand"), shoulderR, 1e-9),
       ],
     ]),
     { ncloseYOfPose: true, ncloseYOfPose2: true },
@@ -115,23 +136,38 @@ export function test_kinematics_arm_raise_clinical(): void {
 
   // 2. clinical abduction 180 raises BOTH arms overhead with the same value; 0
   //    drops both: the no-mirror semantic the flip delivers.
-  const up: IAutoMoviePose = pose([arm("leftUpperArm", 180), arm("rightUpperArm", 180)]);
+  const up: IAutoMoviePose = pose([
+    arm("leftUpperArm", 180),
+    arm("rightUpperArm", 180),
+  ]);
   TestValidator.equals(
     "clinical abduction 180 lifts both hands overhead (same value, no mirror)",
     namedFacts([
-      ["yOfUpLeftHand", (): boolean  => yOf(up, "leftHand", true) > shoulderL + 0.3],
-      ["yOfUpRightHand", (): boolean  => yOf(up, "rightHand", true) > shoulderR + 0.3],
+      [
+        "yOfUpLeftHand",
+        (): boolean => yOf(up, "leftHand", true) > shoulderL + 0.3,
+      ],
+      [
+        "yOfUpRightHand",
+        (): boolean => yOf(up, "rightHand", true) > shoulderR + 0.3,
+      ],
     ]),
     { yOfUpLeftHand: true, yOfUpRightHand: true },
   );
-  const down: IAutoMoviePose = pose([arm("leftUpperArm", 0), arm("rightUpperArm", 0)]);
+  const down: IAutoMoviePose = pose([
+    arm("leftUpperArm", 0),
+    arm("rightUpperArm", 0),
+  ]);
   TestValidator.equals(
     "clinical abduction 0 lets both hands hang below the shoulders",
     namedFacts([
-      ["yOfDownLeftHand", (): boolean  => yOf(down, "leftHand", true) < shoulderL - 0.3],
+      [
+        "yOfDownLeftHand",
+        (): boolean => yOf(down, "leftHand", true) < shoulderL - 0.3,
+      ],
       [
         "yOfDownRightHand",
-        (): boolean  => yOf(down, "rightHand", true) < shoulderR - 0.3,
+        (): boolean => yOf(down, "rightHand", true) < shoulderR - 0.3,
       ],
     ]),
     { yOfDownLeftHand: true, yOfDownRightHand: true },

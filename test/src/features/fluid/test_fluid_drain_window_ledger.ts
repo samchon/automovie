@@ -1,8 +1,9 @@
-import {simulateFluidDomain} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
+import { simulateFluidDomain } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
+
+import { FOUNTAIN_LEDGER_DRAIN as DRAIN } from "../internal/FOUNTAIN_LEDGER_DRAIN";
+import { createFountainLedgerDomain as fountain } from "../internal/createFountainLedgerDomain";
 import { nclose } from "../internal/predicates";
-import {createFountainLedgerDomain as fountain} from "../internal/createFountainLedgerDomain";
-import {FOUNTAIN_LEDGER_DRAIN as DRAIN} from "../internal/FOUNTAIN_LEDGER_DRAIN";
 
 /**
  * The drain activity window gates booked removal at the authored opening and closing times.
@@ -19,15 +20,31 @@ import {FOUNTAIN_LEDGER_DRAIN as DRAIN} from "../internal/FOUNTAIN_LEDGER_DRAIN"
 export function test_fluid_drain_window_ledger(): void {
   const steps: number = 400;
   const dt: number = fountain({}).solver.fixedStepSeconds;
-  const windowedDrain: ReturnType<typeof fountain> = fountain({ drains: [{ ...DRAIN, end: 1 }] });
-  const drainAtClose: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(windowedDrain, Math.round(1 / dt));
-  const drainLater: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(windowedDrain, steps);
-  const drainNotYet: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
-    fountain({ drains: [{ ...DRAIN, start: 1_000 }] }),
-    steps,
-  );
+  const windowedDrain: ReturnType<typeof fountain> = fountain({
+    drains: [{ ...DRAIN, end: 1 }],
+  });
+  const drainAtClose: ReturnType<typeof simulateFluidDomain> =
+    simulateFluidDomain(windowedDrain, Math.round(1 / dt));
+  const drainLater: ReturnType<typeof simulateFluidDomain> =
+    simulateFluidDomain(windowedDrain, steps);
+  const drainNotYet: ReturnType<typeof simulateFluidDomain> =
+    simulateFluidDomain(
+      fountain({ drains: [{ ...DRAIN, start: 1_000 }] }),
+      steps,
+    );
 
-  TestValidator.predicate("closed drain books no later removal", Object.is(drainLater.drainVolume, drainAtClose.drainVolume) && nclose(drainLater.drainVolume, drainAtClose.drainVolume, 0));
-  TestValidator.predicate("drain removes water while open", drainAtClose.drainVolume > 0);
-  TestValidator.predicate("future drain removes no volume", Object.is(drainNotYet.drainVolume, 0) && nclose(drainNotYet.drainVolume, 0, 0));
+  TestValidator.predicate(
+    "closed drain books no later removal",
+    Object.is(drainLater.drainVolume, drainAtClose.drainVolume) &&
+      nclose(drainLater.drainVolume, drainAtClose.drainVolume, 0),
+  );
+  TestValidator.predicate(
+    "drain removes water while open",
+    drainAtClose.drainVolume > 0,
+  );
+  TestValidator.predicate(
+    "future drain removes no volume",
+    Object.is(drainNotYet.drainVolume, 0) &&
+      nclose(drainNotYet.drainVolume, 0, 0),
+  );
 }

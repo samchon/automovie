@@ -1,8 +1,8 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * External model inspection binds exact containers, profiles and sidecars.
@@ -22,29 +22,33 @@ import { namedFacts, throwsError } from "../internal/predicates";
 export function test_inspect_external_model_bytes(): void {
   const source: ReturnType<typeof modelDocument> = modelDocument();
   const gltf: Buffer<ArrayBuffer> = Buffer.from(JSON.stringify(source), "utf8");
-  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = inspectAutoMovieExternalModelBytes({
-    path: "public/models/actor.gltf",
-    bytes: gltf,
-    profile: "gltf-static-v1",
-    resolveResource: (uri: string): Buffer<ArrayBufferLike> | null =>
-      uri === "actor.bin"
-        ? modelPayload()
-        : uri === "actor.png"
-          ? Buffer.from([1])
-          : null,
-  });
-  TestValidator.predicate("glTF inventory", test12ValuesClose(inspection, {
-    profile: "gltf-static-v1",
-    format: "gltf",
-    version: "2.0",
-    counts: { nodes: 2, meshes: 1, skins: 1, animations: 0 },
-    extensions: [],
-    resources: [
-      { uri: "actor.bin", kind: "buffer", byteLength: 60 },
-      { uri: "actor.png", kind: "image", byteLength: null },
-    ],
-    humanoidBones: [],
-  }));
+  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+    inspectAutoMovieExternalModelBytes({
+      path: "public/models/actor.gltf",
+      bytes: gltf,
+      profile: "gltf-static-v1",
+      resolveResource: (uri: string): Buffer<ArrayBufferLike> | null =>
+        uri === "actor.bin"
+          ? modelPayload()
+          : uri === "actor.png"
+            ? Buffer.from([1])
+            : null,
+    });
+  TestValidator.predicate(
+    "glTF inventory",
+    test12ValuesClose(inspection, {
+      profile: "gltf-static-v1",
+      format: "gltf",
+      version: "2.0",
+      counts: { nodes: 2, meshes: 1, skins: 1, animations: 0 },
+      extensions: [],
+      resources: [
+        { uri: "actor.bin", kind: "buffer", byteLength: 60 },
+        { uri: "actor.png", kind: "image", byteLength: null },
+      ],
+      humanoidBones: [],
+    }),
+  );
 
   const vrm: Buffer<ArrayBufferLike> = glb({
     ...source,
@@ -70,7 +74,11 @@ export function test_inspect_external_model_bytes(): void {
             : null,
     }).format === "vrm",
   );
-  const inspectStaticGlb: (paddingByte: number) => import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = (paddingByte: number): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+  const inspectStaticGlb: (
+    paddingByte: number,
+  ) => import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = (
+    paddingByte: number,
+  ): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
     inspectAutoMovieExternalModelBytes({
       path: "public/models/actor.glb",
       bytes: glb(source, paddingByte),
@@ -82,7 +90,10 @@ export function test_inspect_external_model_bytes(): void {
             ? Buffer.from([1])
             : null,
     });
-  TestValidator.predicate("GLB JSON chunks accept mandatory space padding", test12ValuesClose(inspectStaticGlb(0x20).format, "glb"));
+  TestValidator.predicate(
+    "GLB JSON chunks accept mandatory space padding",
+    test12ValuesClose(inspectStaticGlb(0x20).format, "glb"),
+  );
   let nulPaddingError: string | null = null;
   try {
     inspectStaticGlb(0x00);
@@ -106,99 +117,191 @@ export function test_inspect_external_model_bytes(): void {
             ? Buffer.from([1])
             : null,
     }).humanoidBones.some(
-      (mapping: { bone: import("@automovie/interface").AutoMovieHumanoidBone; node: number; weighted: boolean; }): boolean =>
+      (mapping: {
+        bone: import("@automovie/interface").AutoMovieHumanoidBone;
+        node: number;
+        weighted: boolean;
+      }): boolean =>
         mapping.bone === "hips" && mapping.node === 1 && mapping.weighted,
     ),
   );
-  TestValidator.predicate("malformed bytes, unsupported profiles and missing rigs are refused", test12ValuesClose(namedFacts([
-      [
-        "truncatedGlbLength",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.glb",
-              bytes: vrm.subarray(0, vrm.length - 1),
-              profile: "vrm-humanoid-v1",
-            }), "GLB declared length does not match resident bytes."),
-      ],
-      [
-        "unsupportedProfile",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.gltf",
-              bytes: gltf,
-              profile: "future-profile",
-            }), "Unsupported external-model ingest profile"),
-      ],
-      [
-        "missingHumanoidRig",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.gltf",
-              bytes: Buffer.from(
-                JSON.stringify({
-                  ...source,
-                  nodes: [{ mesh: 0, name: "Actor" }],
-                  skins: undefined,
-                  scenes: [{ nodes: [0] }],
+  TestValidator.predicate(
+    "malformed bytes, unsupported profiles and missing rigs are refused",
+    test12ValuesClose(
+      namedFacts([
+        [
+          "truncatedGlbLength",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.glb",
+                  bytes: vrm.subarray(0, vrm.length - 1),
+                  profile: "vrm-humanoid-v1",
                 }),
-              ),
-              profile: "gltf-humanoid-v1",
-              resolveResource: (uri: string): Buffer<ArrayBufferLike> =>
-                uri === "actor.bin" ? modelPayload() : Buffer.from([1]),
-            }), "Profile \"gltf-humanoid-v1\" requires a skin and a normalized hips/pelvis joint."),
-      ],
-      [
-        "shortBufferSidecar",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.gltf",
-              bytes: gltf,
-              profile: "gltf-static-v1",
-              resolveResource: (uri: string): Buffer<ArrayBuffer> =>
-                uri === "actor.bin" ? Buffer.alloc(1) : Buffer.from([1]),
-            }), "External buffer \"actor.bin\" has 1 bytes, not declared byteLength 60."),
-      ],
-      [
-        "missingBinPayload",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.glb",
-              bytes: glb({
-                ...source,
-                buffers: [{ byteLength: 60 }],
-                images: [],
-              }),
-              profile: "gltf-static-v1",
-            }), "buffers[0] declares 60 bytes but the GLB has no BIN chunk."),
-      ],
-      [
-        "zeroSkinInfluences",
-        (): boolean =>
-          throwsError((): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
-              path: "public/models/actor.gltf",
-              bytes: gltf,
-              profile: "gltf-humanoid-v1",
-              resolveResource: (uri: string): Buffer<ArrayBuffer> =>
-                uri === "actor.bin" ? Buffer.alloc(60) : Buffer.from([1]),
-            }), "Skinned primitive 0:0 vertex 0 has no positive skin weight."),
-      ],
-    ]), {
-      truncatedGlbLength: true,
-      unsupportedProfile: true,
-      missingHumanoidRig: true,
-      shortBufferSidecar: true,
-      missingBinPayload: true,
-      zeroSkinInfluences: true,
-    }));
+              "GLB declared length does not match resident bytes.",
+            ),
+        ],
+        [
+          "unsupportedProfile",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.gltf",
+                  bytes: gltf,
+                  profile: "future-profile",
+                }),
+              "Unsupported external-model ingest profile",
+            ),
+        ],
+        [
+          "missingHumanoidRig",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.gltf",
+                  bytes: Buffer.from(
+                    JSON.stringify({
+                      ...source,
+                      nodes: [{ mesh: 0, name: "Actor" }],
+                      skins: undefined,
+                      scenes: [{ nodes: [0] }],
+                    }),
+                  ),
+                  profile: "gltf-humanoid-v1",
+                  resolveResource: (uri: string): Buffer<ArrayBufferLike> =>
+                    uri === "actor.bin" ? modelPayload() : Buffer.from([1]),
+                }),
+              'Profile "gltf-humanoid-v1" requires a skin and a normalized hips/pelvis joint.',
+            ),
+        ],
+        [
+          "shortBufferSidecar",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.gltf",
+                  bytes: gltf,
+                  profile: "gltf-static-v1",
+                  resolveResource: (uri: string): Buffer<ArrayBuffer> =>
+                    uri === "actor.bin" ? Buffer.alloc(1) : Buffer.from([1]),
+                }),
+              'External buffer "actor.bin" has 1 bytes, not declared byteLength 60.',
+            ),
+        ],
+        [
+          "missingBinPayload",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.glb",
+                  bytes: glb({
+                    ...source,
+                    buffers: [{ byteLength: 60 }],
+                    images: [],
+                  }),
+                  profile: "gltf-static-v1",
+                }),
+              "buffers[0] declares 60 bytes but the GLB has no BIN chunk.",
+            ),
+        ],
+        [
+          "zeroSkinInfluences",
+          (): boolean =>
+            throwsError(
+              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+                inspectAutoMovieExternalModelBytes({
+                  path: "public/models/actor.gltf",
+                  bytes: gltf,
+                  profile: "gltf-humanoid-v1",
+                  resolveResource: (uri: string): Buffer<ArrayBuffer> =>
+                    uri === "actor.bin" ? Buffer.alloc(60) : Buffer.from([1]),
+                }),
+              "Skinned primitive 0:0 vertex 0 has no positive skin weight.",
+            ),
+        ],
+      ]),
+      {
+        truncatedGlbLength: true,
+        unsupportedProfile: true,
+        missingHumanoidRig: true,
+        shortBufferSidecar: true,
+        missingBinPayload: true,
+        zeroSkinInfluences: true,
+      },
+    ),
+  );
 }
 
-const modelDocument: () => { asset: { version: string; }; buffers: { byteLength: number; uri: string; }[]; bufferViews: { buffer: number; byteOffset: number; byteLength: number; }[]; accessors: ({ bufferView: number; componentType: number; count: number; type: string; normalized?: undefined; } | { bufferView: number; componentType: number; normalized: boolean; count: number; type: string; })[]; images: { uri: string; }[]; meshes: { primitives: { attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number; }; }[]; }[]; nodes: ({ mesh: number; skin: number; name: string; } | { name: string; mesh?: undefined; skin?: undefined; })[]; skins: { joints: number[]; }[]; scenes: { nodes: number[]; }[]; } = (): { asset: { version: string; }; buffers: { byteLength: number; uri: string; }[]; bufferViews: { buffer: number; byteOffset: number; byteLength: number; }[]; accessors: ({ bufferView: number; componentType: number; count: number; type: string; normalized?: undefined; } | { bufferView: number; componentType: number; normalized: boolean; count: number; type: string; })[]; images: { uri: string; }[]; meshes: { primitives: { attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number; }; }[]; }[]; nodes: ({ mesh: number; skin: number; name: string; } | { name: string; mesh?: undefined; skin?: undefined; })[]; skins: { joints: number[]; }[]; scenes: { nodes: number[]; }[]; } => ({
+const modelDocument: () => {
+  asset: { version: string };
+  buffers: { byteLength: number; uri: string }[];
+  bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+  accessors: (
+    | {
+        bufferView: number;
+        componentType: number;
+        count: number;
+        type: string;
+        normalized?: undefined;
+      }
+    | {
+        bufferView: number;
+        componentType: number;
+        normalized: boolean;
+        count: number;
+        type: string;
+      }
+  )[];
+  images: { uri: string }[];
+  meshes: {
+    primitives: {
+      attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number };
+    }[];
+  }[];
+  nodes: (
+    | { mesh: number; skin: number; name: string }
+    | { name: string; mesh?: undefined; skin?: undefined }
+  )[];
+  skins: { joints: number[] }[];
+  scenes: { nodes: number[] }[];
+} = (): {
+  asset: { version: string };
+  buffers: { byteLength: number; uri: string }[];
+  bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+  accessors: (
+    | {
+        bufferView: number;
+        componentType: number;
+        count: number;
+        type: string;
+        normalized?: undefined;
+      }
+    | {
+        bufferView: number;
+        componentType: number;
+        normalized: boolean;
+        count: number;
+        type: string;
+      }
+  )[];
+  images: { uri: string }[];
+  meshes: {
+    primitives: {
+      attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number };
+    }[];
+  }[];
+  nodes: (
+    | { mesh: number; skin: number; name: string }
+    | { name: string; mesh?: undefined; skin?: undefined }
+  )[];
+  skins: { joints: number[] }[];
+  scenes: { nodes: number[] }[];
+} => ({
   asset: { version: "2.0" },
   buffers: [{ byteLength: 60, uri: "actor.bin" }],
   bufferViews: [
@@ -240,14 +343,24 @@ const modelDocument: () => { asset: { version: string; }; buffers: { byteLength:
 
 const modelPayload: () => Buffer = (): Buffer => {
   const bytes: Buffer<ArrayBuffer> = Buffer.alloc(60);
-  for (let vertex: number = 0; vertex < 3; ++vertex) bytes[48 + vertex * 4] = 255;
+  for (let vertex: number = 0; vertex < 3; ++vertex)
+    bytes[48 + vertex * 4] = 255;
   return bytes;
 };
 
-const glb: (document: object, paddingByte?: number) => Buffer = (document: object, paddingByte: number = 0x20): Buffer => {
-  const source: Buffer<ArrayBuffer> = Buffer.from(JSON.stringify(document), "utf8");
+const glb: (document: object, paddingByte?: number) => Buffer = (
+  document: object,
+  paddingByte: number = 0x20,
+): Buffer => {
+  const source: Buffer<ArrayBuffer> = Buffer.from(
+    JSON.stringify(document),
+    "utf8",
+  );
   const padding: number = 4 - (source.length % 4);
-  const json: Buffer<ArrayBuffer> = Buffer.concat([source, Buffer.alloc(padding, paddingByte)]);
+  const json: Buffer<ArrayBuffer> = Buffer.concat([
+    source,
+    Buffer.alloc(padding, paddingByte),
+  ]);
   const output: Buffer<ArrayBuffer> = Buffer.alloc(20 + json.length);
   output.writeUInt32LE(0x46546c67, 0);
   output.writeUInt32LE(2, 4);

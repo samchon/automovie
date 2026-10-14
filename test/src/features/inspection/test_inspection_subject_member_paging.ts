@@ -1,14 +1,21 @@
+import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
 import { describeAutoMovieSubjects } from "../../../../packages/engine/src/describeAutoMovieSubjects";
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import {
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectDescription,
+  type IAutoMovieSubjectMemberSummary,
+  type IAutoMovieTransform,
+} from "../../../../packages/interface/src/index";
 import { namedFacts } from "../internal/namedFacts";
-import { throwsError } from "../internal/throwsError";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
-import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectMemberSummary, type IAutoMovieSubjectDescription, type IAutoMovieTransform } from "../../../../packages/interface/src/index";
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Membership beyond the first page is still addressable.
  *
@@ -64,33 +71,40 @@ export function test_inspection_subject_member_paging(): void {
         .items,
     );
   const walked: string[] = pages.flat();
-  const first: IAutoMovieSubjectMemberSummary = describeAutoMovieSubject(artifact, root).members;
+  const first: IAutoMovieSubjectMemberSummary = describeAutoMovieSubject(
+    artifact,
+    root,
+  ).members;
 
   TestValidator.equals(
     "paging a crowded parent reaches every child exactly once",
     namedFacts([
       [
         "the first page is bounded by the limit",
-        (): boolean  => first.items.length === AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+        (): boolean =>
+          first.items.length === AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
       ],
       [
         "and says so rather than pretending it is everything",
-        (): boolean  =>
+        (): boolean =>
           first.total === CHILDREN &&
           first.offset === 0 &&
           first.omitted === CHILDREN - AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
       ],
-      ["the walk names every child", (): boolean  => walked.length === CHILDREN],
-      ["each exactly once", (): boolean  => new Set(walked).size === CHILDREN],
+      ["the walk names every child", (): boolean => walked.length === CHILDREN],
+      ["each exactly once", (): boolean => new Set(walked).size === CHILDREN],
       [
         "in the order the census sorts them",
-        (): boolean  => walked.every((id: string, index: number): boolean  => id === expectedChild(index)),
+        (): boolean =>
+          walked.every(
+            (id: string, index: number): boolean => id === expectedChild(index),
+          ),
       ],
       [
         "and the total never moved under it",
-        (): boolean  =>
+        (): boolean =>
           [0, 64, 128].every(
-            (offset: number): boolean  =>
+            (offset: number): boolean =>
               describeAutoMovieSubject(artifact, root, { memberOffset: offset })
                 .members.total === CHILDREN,
           ),
@@ -106,18 +120,22 @@ export function test_inspection_subject_member_paging(): void {
     },
   );
 
-  const past: IAutoMovieSubjectMemberSummary = describeAutoMovieSubject(artifact, root, {
-    memberOffset: CHILDREN + AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
-  }).members;
+  const past: IAutoMovieSubjectMemberSummary = describeAutoMovieSubject(
+    artifact,
+    root,
+    {
+      memberOffset: CHILDREN + AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+    },
+  ).members;
   TestValidator.equals(
     "a page past the end stops rather than failing",
     namedFacts([
-      ["it names nothing", (): boolean  => past.items.length === 0],
+      ["it names nothing", (): boolean => past.items.length === 0],
       // Clamped to the total rather than echoed, so a caller looping while
       // `offset + items.length < total` terminates instead of spinning on a
       // rank that will never be reached.
-      ["it reports where it stopped", (): boolean  => past.offset === CHILDREN],
-      ["and still states the whole", (): boolean  => past.total === CHILDREN],
+      ["it reports where it stopped", (): boolean => past.offset === CHILDREN],
+      ["and still states the whole", (): boolean => past.total === CHILDREN],
     ]),
     {
       "it names nothing": true,
@@ -131,17 +149,19 @@ export function test_inspection_subject_member_paging(): void {
     namedFacts([
       [
         "a negative rank",
-        (): boolean  =>
-          throwsError((): IAutoMovieSubjectDescription  =>
-            describeAutoMovieSubject(artifact, root, { memberOffset: -1 }),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieSubjectDescription =>
+              describeAutoMovieSubject(artifact, root, { memberOffset: -1 }),
             "Subject member offset must be a whole number of members from the first",
           ),
       ],
       [
         "a fractional rank",
-        (): boolean  =>
-          throwsError((): IAutoMovieSubjectDescription  =>
-            describeAutoMovieSubject(artifact, root, { memberOffset: 1.5 }),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieSubjectDescription =>
+              describeAutoMovieSubject(artifact, root, { memberOffset: 1.5 }),
             "Subject member offset must be a whole number of members from the first",
           ),
       ],
@@ -164,15 +184,23 @@ export function test_inspection_subject_member_paging(): void {
   TestValidator.equals(
     "a compact set pages the slots it names",
     namedFacts([
-      ["the walk names every instance", (): boolean  => instances.length === SET_COUNT],
-      ["each exactly once", (): boolean  => new Set(instances).size === SET_COUNT],
+      [
+        "the walk names every instance",
+        (): boolean => instances.length === SET_COUNT,
+      ],
+      [
+        "each exactly once",
+        (): boolean => new Set(instances).size === SET_COUNT,
+      ],
       [
         "the pages do not overlap",
-        (): boolean  =>
-          setPages.every((page: string[], index: number): boolean  =>
+        (): boolean =>
+          setPages.every((page: string[], index: number): boolean =>
             page.every(
-              (id: string): boolean  =>
-                setPages.findIndex((other: string[]): boolean  => other.includes(id)) === index,
+              (id: string): boolean =>
+                setPages.findIndex((other: string[]): boolean =>
+                  other.includes(id),
+                ) === index,
             ),
           ),
       ],
@@ -184,23 +212,37 @@ export function test_inspection_subject_member_paging(): void {
     },
   );
 
-  const census: IAutoMovieSubjectDescription[] = describeAutoMovieSubjects(artifact);
+  const census: IAutoMovieSubjectDescription[] =
+    describeAutoMovieSubjects(artifact);
   TestValidator.equals(
     "the whole-inventory census is unchanged by any of this",
     namedFacts([
       [
         "every summary starts at the first member",
-        (): boolean  => census.every((entry: IAutoMovieSubjectDescription): boolean  => entry.members.offset === 0),
+        (): boolean =>
+          census.every(
+            (entry: IAutoMovieSubjectDescription): boolean =>
+              entry.members.offset === 0,
+          ),
       ],
       // The census being uncapped is why nothing was ever lost, only unreachable
       // by descent, and it is the property a paging change could quietly break.
       [
         "and it still names every child subject",
-        (): boolean  =>
-          new Set(census.map((entry: IAutoMovieSubjectDescription): string  => entry.id)).size >= CHILDREN &&
-          Array.from({ length: CHILDREN }, (_: unknown, index: number): string  =>
-            expectedChild(index),
-          ).every((id: string): boolean  => census.some((entry: IAutoMovieSubjectDescription): boolean  => entry.id === id)),
+        (): boolean =>
+          new Set(
+            census.map(
+              (entry: IAutoMovieSubjectDescription): string => entry.id,
+            ),
+          ).size >= CHILDREN &&
+          Array.from(
+            { length: CHILDREN },
+            (_: unknown, index: number): string => expectedChild(index),
+          ).every((id: string): boolean =>
+            census.some(
+              (entry: IAutoMovieSubjectDescription): boolean => entry.id === id,
+            ),
+          ),
       ],
     ]),
     {
@@ -230,8 +272,8 @@ const expectedChild: (index: number) => string = (index: number): string =>
  * node, so this exercises the element hierarchy rather than the scene walk, and
  * the scene walk is not what truncated.
  */
-const crowdedEnvironment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
-  ({
+const crowdedEnvironment: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
     version: 1,
     id: ENVIRONMENT,
     units: "meter",
@@ -247,14 +289,27 @@ const crowdedEnvironment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuilt
         model: null,
         space: "hall",
       },
-      ...Array.from({ length: CHILDREN }, (_: unknown, index: number): { id: string; kind: string; parent: string; transform: IAutoMovieTransform; model: null; space: null; }  => ({
-        id: `${ROOT}-child-${String(index).padStart(3, "0")}`,
-        kind: "wall-infill",
-        parent: ROOT,
-        transform: subjectInspectionIdentityTransform(),
-        model: null,
-        space: null,
-      })),
+      ...Array.from(
+        { length: CHILDREN },
+        (
+          _: unknown,
+          index: number,
+        ): {
+          id: string;
+          kind: string;
+          parent: string;
+          transform: IAutoMovieTransform;
+          model: null;
+          space: null;
+        } => ({
+          id: `${ROOT}-child-${String(index).padStart(3, "0")}`,
+          kind: "wall-infill",
+          parent: ROOT,
+          transform: subjectInspectionIdentityTransform(),
+          model: null,
+          space: null,
+        }),
+      ),
     ],
     spaces: [{ id: "hall", kind: "room", parent: null, cells: [] }],
     boundaries: [],

@@ -1,10 +1,19 @@
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
 import { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import {
+  type IAutoMovieCompiledInstancePrototype,
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+  type IAutoMovieSubjectDiff,
+  type IAutoMovieSubjectDiffFanout,
+} from "../../../../packages/interface/src/index";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
-import { type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoMovieSubjectChange, type IAutoMovieSubjectDiffFanout, type IAutoMovieCompiledInstancePrototype } from "../../../../packages/interface/src/index";
+
 /**
  * Prototype and instance-selection changes remain bounded aggregate records.
  *
@@ -70,10 +79,14 @@ export function test_inspection_subject_diff_fanout(): void {
   const fanout: IAutoMovieSubjectDiff = diffAutoMovieSubjects(before, after);
   TestValidator.equals(
     "one prototype reshape summarizes all 2392 instance uses",
-    fanout.reshaped.map((change: IAutoMovieSubjectChange): { id: string; fanout: IAutoMovieSubjectDiffFanout; }  => ({
-      id: change.id,
-      fanout: change.fanout,
-    })),
+    fanout.reshaped.map(
+      (
+        change: IAutoMovieSubjectChange,
+      ): { id: string; fanout: IAutoMovieSubjectDiffFanout } => ({
+        id: change.id,
+        fanout: change.fanout,
+      }),
+    ),
     [
       {
         id: "prototype-part:tile/body",
@@ -112,7 +125,9 @@ export function test_inspection_subject_diff_fanout(): void {
       ...fanout.removed,
       ...fanout.moved,
       ...fanout.reshaped,
-    ].some((change: IAutoMovieSubjectChange): boolean  => change.kind === "instance"),
+    ].some(
+      (change: IAutoMovieSubjectChange): boolean => change.kind === "instance",
+    ),
     false,
   );
 
@@ -126,8 +141,12 @@ export function test_inspection_subject_diff_fanout(): void {
     min: { x: -1, y: 0, z: -1 },
     max: { x: 1, y: 3, z: 1 },
   });
-  const explicitBefore: IAutoMovieCompiledInstanceSet = explicitSet("grove", ["default"]);
-  const explicitAfter: IAutoMovieCompiledInstanceSet = explicitSet("grove", ["tall"]);
+  const explicitBefore: IAutoMovieCompiledInstanceSet = explicitSet("grove", [
+    "default",
+  ]);
+  const explicitAfter: IAutoMovieCompiledInstanceSet = explicitSet("grove", [
+    "tall",
+  ]);
   const selection: IAutoMovieSubjectDiff = diffAutoMovieSubjects(
     subjectInspectionArtifact({
       models: [treeA, treeB],
@@ -142,9 +161,11 @@ export function test_inspection_subject_diff_fanout(): void {
       environment: null,
     }),
   );
-  const setChange: IAutoMovieSubjectChange | undefined = selection.reshaped.find(
-    (change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:grove",
-  );
+  const setChange: IAutoMovieSubjectChange | undefined =
+    selection.reshaped.find(
+      (change: IAutoMovieSubjectChange): boolean =>
+        change.id === "instance-set:grove",
+    );
   TestValidator.equals(
     "one explicit prototype reassignment is one compact changed-selection count",
     setChange?.fanout,
@@ -172,8 +193,10 @@ export function test_inspection_subject_diff_fanout(): void {
   );
   TestValidator.equals(
     "an added slot contributes one prototype selection change",
-    countChange.reshaped.find((change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:counted")
-      ?.fanout.prototypeChanges,
+    countChange.reshaped.find(
+      (change: IAutoMovieSubjectChange): boolean =>
+        change.id === "instance-set:counted",
+    )?.fanout.prototypeChanges,
     1,
   );
 
@@ -205,17 +228,20 @@ export function test_inspection_subject_diff_fanout(): void {
   );
   TestValidator.equals(
     "missing explicit and zero-weight fallback selections compare deterministically",
-    irregular.reshaped.find((change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:irregular")
-      ?.fanout.prototypeChanges,
+    irregular.reshaped.find(
+      (change: IAutoMovieSubjectChange): boolean =>
+        change.id === "instance-set:irregular",
+    )?.fanout.prototypeChanges,
     1,
   );
 
-  const noLodBefore: IAutoMovieCompiledInstanceSet = subjectInspectionInstanceSet({
-    id: "no-lod",
-    model: "tree-a",
-    count: 1,
-    overrides: { lod: [] },
-  });
+  const noLodBefore: IAutoMovieCompiledInstanceSet =
+    subjectInspectionInstanceSet({
+      id: "no-lod",
+      model: "tree-a",
+      count: 1,
+      overrides: { lod: [] },
+    });
   const noLodAfter: IAutoMovieCompiledInstanceSet = {
     ...structuredClone(noLodBefore),
     anchor: { x: 1, y: 0, z: 0 },
@@ -236,13 +262,19 @@ export function test_inspection_subject_diff_fanout(): void {
   );
   TestValidator.equals(
     "a legacy set with no runtime LOD still compares one stable null selection",
-    noLod.moved.find((change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:no-lod")?.fanout
-      .prototypeChanges,
+    noLod.moved.find(
+      (change: IAutoMovieSubjectChange): boolean =>
+        change.id === "instance-set:no-lod",
+    )?.fanout.prototypeChanges,
     0,
   );
 }
 
-const explicitSet: (id: string, selected: Array<string | undefined>, prototypes?: IAutoMovieCompiledInstancePrototype[]) => IAutoMovieCompiledInstanceSet = (
+const explicitSet: (
+  id: string,
+  selected: Array<string | undefined>,
+  prototypes?: IAutoMovieCompiledInstancePrototype[],
+) => IAutoMovieCompiledInstanceSet = (
   id: string,
   selected: Array<string | undefined>,
   prototypes: IAutoMovieCompiledInstancePrototype[] = [
@@ -261,13 +293,24 @@ const explicitSet: (id: string, selected: Array<string | undefined>, prototypes?
     prototypes,
     layout: {
       kind: "explicit",
-      transforms: selected.map((choice: string | undefined, slot: number): { prototype?: string | undefined; id: string; translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; }  => ({
-        id: `tree-${slot}`,
-        translation: { x: slot, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-        ...(choice === undefined ? {} : { prototype: choice }),
-      })),
+      transforms: selected.map(
+        (
+          choice: string | undefined,
+          slot: number,
+        ): {
+          prototype?: string | undefined;
+          id: string;
+          translation: { x: number; y: number; z: number };
+          rotation: { x: number; y: number; z: number; w: number };
+          scale: { x: number; y: number; z: number };
+        } => ({
+          id: `tree-${slot}`,
+          translation: { x: slot, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+          ...(choice === undefined ? {} : { prototype: choice }),
+        }),
+      ),
     },
     bounds: {
       min: { x: 0, y: 0, z: 0 },
@@ -276,7 +319,15 @@ const explicitSet: (id: string, selected: Array<string | undefined>, prototypes?
   };
 };
 
-const prototype: (id: string, model: string, weight: number) => IAutoMovieCompiledInstancePrototype = (id: string, model: string, weight: number): IAutoMovieCompiledInstancePrototype  => ({
+const prototype: (
+  id: string,
+  model: string,
+  weight: number,
+) => IAutoMovieCompiledInstancePrototype = (
+  id: string,
+  model: string,
+  weight: number,
+): IAutoMovieCompiledInstancePrototype => ({
   id,
   modelRecipe: model,
   weight,

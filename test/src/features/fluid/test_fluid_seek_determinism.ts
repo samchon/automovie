@@ -1,13 +1,13 @@
-import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import {
   fluidStateDigest,
   sampleFluidDomain,
   simulateFluidDomain,
 } from "@automovie/engine";
+import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { exactArray, flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, throwsError, nclose } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /** Build the original disturbed 6x4 domain with live source, drain and drag, capped at step 64; the owning entry observes order, repeat and seek-boundary behavior. */
 const seekable: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
@@ -69,10 +69,14 @@ const seekable: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
  */
 export function test_fluid_seek_determinism(): void {
   const domain: ReturnType<typeof seekable> = seekable();
-  const ascending: string[] = Array.from({ length: 17 }, (_: unknown, step: number): string =>
-    fluidStateDigest(simulateFluidDomain(domain, step)),
+  const ascending: string[] = Array.from(
+    { length: 17 },
+    (_: unknown, step: number): string =>
+      fluidStateDigest(simulateFluidDomain(domain, step)),
   );
-  const scrambled: number[] = [13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14];
+  const scrambled: number[] = [
+    13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
+  ];
   TestValidator.equals(
     "an absolute seek does not care what was sampled before it",
     namedFacts([
@@ -85,28 +89,81 @@ export function test_fluid_seek_determinism(): void {
               ascending[step],
           ),
       ],
-      ["digestsMove", (): boolean => new Set(ascending).size === ascending.length],
+      [
+        "digestsMove",
+        (): boolean => new Set(ascending).size === ascending.length,
+      ],
     ]),
     { digestsMatch: true, digestsMove: true },
   );
 
-  const once: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 40);
-  const twice: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 40);
-  TestValidator.predicate("repeat seek preserves exact depth", exactArray(once.depth, twice.depth) && once.depth.every((value: number, index: number): boolean => nclose(value, twice.depth[index]!, 0)));
-  TestValidator.predicate("repeat seek preserves exact X velocity", exactArray(once.velocityX, twice.velocityX) && once.velocityX.every((value: number, index: number): boolean => nclose(value, twice.velocityX[index]!, 0)));
-  TestValidator.predicate("repeat seek preserves exact Z velocity", exactArray(once.velocityZ, twice.velocityZ) && once.velocityZ.every((value: number, index: number): boolean => nclose(value, twice.velocityZ[index]!, 0)));
-  TestValidator.predicate("repeat seek preserves exact volume", Object.is(once.volume, twice.volume) && nclose(once.volume, twice.volume, 0));
-  TestValidator.predicate("repeat seek preserves exact source booking", Object.is(once.sourceVolume, twice.sourceVolume) && nclose(once.sourceVolume, twice.sourceVolume, 0));
-  TestValidator.predicate("repeat seek preserves exact drain booking", Object.is(once.drainVolume, twice.drainVolume) && nclose(once.drainVolume, twice.drainVolume, 0));
-  TestValidator.predicate("repeat seek preserves exact outflow booking", Object.is(once.outflowVolume, twice.outflowVolume) && nclose(once.outflowVolume, twice.outflowVolume, 0));
-  TestValidator.equals("repeat seek preserves digest", fluidStateDigest(once), fluidStateDigest(twice));
+  const once: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    40,
+  );
+  const twice: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    40,
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact depth",
+    exactArray(once.depth, twice.depth) &&
+      once.depth.every((value: number, index: number): boolean =>
+        nclose(value, twice.depth[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact X velocity",
+    exactArray(once.velocityX, twice.velocityX) &&
+      once.velocityX.every((value: number, index: number): boolean =>
+        nclose(value, twice.velocityX[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact Z velocity",
+    exactArray(once.velocityZ, twice.velocityZ) &&
+      once.velocityZ.every((value: number, index: number): boolean =>
+        nclose(value, twice.velocityZ[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact volume",
+    Object.is(once.volume, twice.volume) &&
+      nclose(once.volume, twice.volume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact source booking",
+    Object.is(once.sourceVolume, twice.sourceVolume) &&
+      nclose(once.sourceVolume, twice.sourceVolume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact drain booking",
+    Object.is(once.drainVolume, twice.drainVolume) &&
+      nclose(once.drainVolume, twice.drainVolume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact outflow booking",
+    Object.is(once.outflowVolume, twice.outflowVolume) &&
+      nclose(once.outflowVolume, twice.outflowVolume, 0),
+  );
+  TestValidator.equals(
+    "repeat seek preserves digest",
+    fluidStateDigest(once),
+    fluidStateDigest(twice),
+  );
 
   const dt: number = domain.solver.fixedStepSeconds;
   TestValidator.equals(
     "a shot second snaps down to its fixed step",
     namedFacts([
-      ["inside", (): boolean => sampleFluidDomain(domain, dt * 9.75).step === 9],
-      ["boundary", (): boolean => sampleFluidDomain(domain, dt * 10).step === 10],
+      [
+        "inside",
+        (): boolean => sampleFluidDomain(domain, dt * 9.75).step === 9,
+      ],
+      [
+        "boundary",
+        (): boolean => sampleFluidDomain(domain, dt * 10).step === 10,
+      ],
       ["negative", (): boolean => sampleFluidDomain(domain, -5).step === 0],
       ["zero", (): boolean => sampleFluidDomain(domain, 0).step === 0],
       [
@@ -132,7 +189,8 @@ export function test_fluid_seek_determinism(): void {
         "fractional",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, 1.5),
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, 1.5),
             ["seekable", "non-negative integer"],
           ),
       ],
@@ -140,7 +198,8 @@ export function test_fluid_seek_determinism(): void {
         "negativeStep",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, -1),
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, -1),
             ["seekable", "non-negative integer"],
           ),
       ],
@@ -148,7 +207,8 @@ export function test_fluid_seek_determinism(): void {
         "pastBudget",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, 65),
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, 65),
             ["seekable", "budget stops at 64"],
           ),
       ],
@@ -157,7 +217,8 @@ export function test_fluid_seek_determinism(): void {
         "nonFiniteTime",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof sampleFluidDomain> => sampleFluidDomain(domain, Number.NaN),
+            (): ReturnType<typeof sampleFluidDomain> =>
+              sampleFluidDomain(domain, Number.NaN),
             ["seekable", "non-finite time"],
           ),
       ],

@@ -1,4 +1,3 @@
-import type { IAutoMovieFluidSpray, IAutoMovieFluidState } from "@automovie/interface";
 import {
   fluidCourantNumber,
   fluidDomainBudget,
@@ -6,6 +5,10 @@ import {
   simulateFluidDomain,
   validateWaterFeatures,
 } from "@automovie/engine";
+import type {
+  IAutoMovieFluidSpray,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -16,7 +19,10 @@ import {
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** Construct the original valid emitter with the requested identity and cap; the owning budget entry sums the two authored caps independently. */
-const emitter: (id: string, maxParticles: number) => IAutoMovieFluidSpray = (id: string, maxParticles: number): IAutoMovieFluidSpray => ({
+const emitter: (id: string, maxParticles: number) => IAutoMovieFluidSpray = (
+  id: string,
+  maxParticles: number,
+): IAutoMovieFluidSpray => ({
   id,
   column: 0,
   row: 0,
@@ -67,7 +73,8 @@ export function test_fluid_budget_report(): void {
       sprays: [emitter("mist", 128), emitter("veil", 64)],
     },
   });
-  const budget: ReturnType<typeof fluidDomainBudget> = fluidDomainBudget(domain);
+  const budget: ReturnType<typeof fluidDomainBudget> =
+    fluidDomainBudget(domain);
   TestValidator.equals(
     "the lattice states its own bounded cost",
     namedFacts([
@@ -78,7 +85,8 @@ export function test_fluid_budget_report(): void {
       ["maxSteps", (): boolean => budget.maxSteps === domain.solver.maxSteps],
       [
         "worstCase",
-        (): boolean => budget.worstCaseCellUpdates === 24 * domain.solver.maxSteps,
+        (): boolean =>
+          budget.worstCaseCellUpdates === 24 * domain.solver.maxSteps,
       ],
       ["sprayCap", (): boolean => budget.sprayParticleCap === 192],
     ]),
@@ -100,13 +108,30 @@ export function test_fluid_budget_report(): void {
       1 / (domain.grid.cellX * domain.grid.cellX) +
         1 / (domain.grid.cellZ * domain.grid.cellZ),
     );
-  const bare: ReturnType<typeof fluidDomainBudget> = fluidDomainBudget(fluidDomain());
-  TestValidator.predicate("budget reports the derived Courant number", nclose(budget.courant, expectedCourant, 0));
-  TestValidator.predicate("Courant function evaluates the same contract", nclose(fluidCourantNumber(domain), expectedCourant, 0));
-  TestValidator.predicate("authored clock remains within the Courant bound", budget.courant <= 1);
-  TestValidator.equals("bare domain has no spray and two cells", { sprayParticleCap: bare.sprayParticleCap, cells: bare.cells }, { sprayParticleCap: 0, cells: 2 });
+  const bare: ReturnType<typeof fluidDomainBudget> =
+    fluidDomainBudget(fluidDomain());
+  TestValidator.predicate(
+    "budget reports the derived Courant number",
+    nclose(budget.courant, expectedCourant, 0),
+  );
+  TestValidator.predicate(
+    "Courant function evaluates the same contract",
+    nclose(fluidCourantNumber(domain), expectedCourant, 0),
+  );
+  TestValidator.predicate(
+    "authored clock remains within the Courant bound",
+    budget.courant <= 1,
+  );
+  TestValidator.equals(
+    "bare domain has no spray and two cells",
+    { sprayParticleCap: bare.sprayParticleCap, cells: bare.cells },
+    { sprayParticleCap: 0, cells: 2 },
+  );
 
-  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 12);
+  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    12,
+  );
   const nudged: IAutoMovieFluidState = {
     ...state,
     depth: state.depth.map((value: number, index: number): number =>
@@ -124,7 +149,10 @@ export function test_fluid_budget_report(): void {
           fluidStateDigest(state) ===
           fluidStateDigest(simulateFluidDomain(domain, 12)),
       ],
-      ["sensitive", (): boolean => fluidStateDigest(state) !== fluidStateDigest(nudged)],
+      [
+        "sensitive",
+        (): boolean => fluidStateDigest(state) !== fluidStateDigest(nudged),
+      ],
       [
         "stepSensitive",
         (): boolean =>

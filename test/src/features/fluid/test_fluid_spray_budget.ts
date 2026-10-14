@@ -1,7 +1,9 @@
-import type { IAutoMovieFluidDomain, IAutoMovieFluidSpray, IAutoMovieFluidSprayParticle } from "@automovie/interface";
-
 import { sampleFluidSpray, simulateFluidDomain } from "@automovie/engine";
-
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidSpray,
+  IAutoMovieFluidSprayParticle,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { fluidDomain } from "../internal/fluidFixtures";
@@ -28,7 +30,9 @@ const JET: IAutoMovieFluidSpray = {
 };
 
 /** Borrow the supplied emitter list in the original raised 4x4 flat-water domain; its authored nozzle position and dyadic clock make the ballistic expectation hand-computable. */
-const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (sprays: IAutoMovieFluidSpray[]): IAutoMovieFluidDomain =>
+const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
+  sprays: IAutoMovieFluidSpray[],
+): IAutoMovieFluidDomain =>
   fluidDomain({
     id: "jet-basin",
     grid: {
@@ -98,10 +102,17 @@ const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (spray
  */
 export function test_fluid_spray_budget(): void {
   const domain: ReturnType<typeof misted> = misted([JET]);
-  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 64);
-  const sample: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({ domain, state });
-  TestValidator.predicate("the fixed-step sample time", (): boolean =>
-    Object.is(state.time, 1) && nclose(state.time, 1, 0),
+  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    64,
+  );
+  const sample: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+    domain,
+    state,
+  });
+  TestValidator.predicate(
+    "the fixed-step sample time",
+    (): boolean => Object.is(state.time, 1) && nclose(state.time, 1, 0),
   );
   TestValidator.predicate("the hand-computed ballistic position", (): boolean =>
     vclose(sample.particles[5].position, { x: 2.75, y: 2.25, z: -2.25 }),
@@ -112,8 +123,12 @@ export function test_fluid_spray_budget(): void {
   TestValidator.predicate("the authored particle size", (): boolean =>
     nclose(sample.particles[5].size, 0.1),
   );
-  TestValidator.predicate("sampling leaves water depths unchanged", (): boolean =>
-    state.depth.every((value: number): boolean => value === 0.5 && nclose(value, 0.5, 0)),
+  TestValidator.predicate(
+    "sampling leaves water depths unchanged",
+    (): boolean =>
+      state.depth.every(
+        (value: number): boolean => value === 0.5 && nclose(value, 0.5, 0),
+      ),
   );
   TestValidator.equals(
     "the live set is the ballistic arc the emitter declared",
@@ -122,7 +137,10 @@ export function test_fluid_spray_budget(): void {
       [
         "ascending",
         (): boolean =>
-          sample.particles.every((particle: IAutoMovieFluidSprayParticle, at: number): boolean => particle.index === at + 1),
+          sample.particles.every(
+            (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
+              particle.index === at + 1,
+          ),
       ],
       ["emitter", (): boolean => sample.particles[5].spray === "jet"],
       ["step", (): boolean => sample.step === 64],
@@ -150,11 +168,14 @@ export function test_fluid_spray_budget(): void {
     state,
     cameraDistance: 25,
   });
-  TestValidator.predicate("LOD positions repeat without dropping particles", (): boolean =>
-    thinnedAgain.particles.length === thinned.particles.length &&
-    thinnedAgain.particles.every((particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
-      vclose(particle.position, thinned.particles[at].position, 0),
-    ),
+  TestValidator.predicate(
+    "LOD positions repeat without dropping particles",
+    (): boolean =>
+      thinnedAgain.particles.length === thinned.particles.length &&
+      thinnedAgain.particles.every(
+        (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
+          vclose(particle.position, thinned.particles[at].position, 0),
+      ),
   );
   TestValidator.equals(
     "the engine, not the renderer, enforces the cap and the LOD",
@@ -162,14 +183,22 @@ export function test_fluid_spray_budget(): void {
       [
         "cap",
         (): boolean =>
-          capped.particles.map((particle: IAutoMovieFluidSprayParticle): number => particle.index).join(",") ===
-          "6,7,8",
+          capped.particles
+            .map(
+              (particle: IAutoMovieFluidSprayParticle): number =>
+                particle.index,
+            )
+            .join(",") === "6,7,8",
       ],
       [
         "lod",
         (): boolean =>
-          thinned.particles.map((particle: IAutoMovieFluidSprayParticle): number => particle.index).join(",") ===
-          "3,6",
+          thinned.particles
+            .map(
+              (particle: IAutoMovieFluidSprayParticle): number =>
+                particle.index,
+            )
+            .join(",") === "3,6",
       ],
       [
         "negativeDistanceThinsNothing",
@@ -196,23 +225,30 @@ export function test_fluid_spray_budget(): void {
     "a spread jet still launches on the unit sphere",
     (): boolean =>
       spread.particles.length === sample.particles.length &&
-          spread.particles.every((particle: IAutoMovieFluidSprayParticle): boolean => {
-            const age: number = particle.ageRatio;
-            const dx: number = particle.position.x - 2.75;
-            const dy: number = particle.position.y - 1.5 + 0.5 * 8 * age * age;
-            const dz: number = particle.position.z + 2.25;
-            return nclose(
-              Math.sqrt(dx * dx + dy * dy + dz * dz),
-              4 * age,
-              1e-9,
-            );
-          }) &&
-      spread.particles.some((particle: IAutoMovieFluidSprayParticle): boolean => particle.position.x !== 2.75),
+      spread.particles.every(
+        (particle: IAutoMovieFluidSprayParticle): boolean => {
+          const age: number = particle.ageRatio;
+          const dx: number = particle.position.x - 2.75;
+          const dy: number = particle.position.y - 1.5 + 0.5 * 8 * age * age;
+          const dz: number = particle.position.z + 2.25;
+          return nclose(Math.sqrt(dx * dx + dy * dy + dz * dz), 4 * age, 1e-9);
+        },
+      ) &&
+      spread.particles.some(
+        (particle: IAutoMovieFluidSprayParticle): boolean =>
+          particle.position.x !== 2.75,
+      ),
   );
 
   const bare: ReturnType<typeof misted> = misted([]);
-  const early: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 16);
-  const twoEmitters: ReturnType<typeof misted> = misted([JET, { ...JET, id: "mist", column: 2, row: 2 }]);
+  const early: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    16,
+  );
+  const twoEmitters: ReturnType<typeof misted> = misted([
+    JET,
+    { ...JET, id: "mist", column: 2, row: 2 },
+  ]);
   TestValidator.equals(
     "the boundaries of the emitter budget",
     namedFacts([
@@ -228,21 +264,27 @@ export function test_fluid_spray_budget(): void {
         "beforeFirstLifetime",
         (): boolean =>
           sampleFluidSpray({ domain, state: early })
-            .particles.map((particle: IAutoMovieFluidSprayParticle): number => particle.index)
+            .particles.map(
+              (particle: IAutoMovieFluidSprayParticle): number =>
+                particle.index,
+            )
             .join(",") === "0,1,2",
       ],
       [
         "twoEmitters",
         (): boolean =>
           sampleFluidSpray({ domain: twoEmitters, state }).particles.filter(
-            (particle: IAutoMovieFluidSprayParticle): boolean => particle.spray === "mist",
+            (particle: IAutoMovieFluidSprayParticle): boolean =>
+              particle.spray === "mist",
           ).length === 8,
       ],
     ]),
     { noEmitter: true, beforeFirstLifetime: true, twoEmitters: true },
   );
 
-  const foreign: ReturnType<typeof fluidDomain> = fluidDomain({ id: "other-basin" });
+  const foreign: ReturnType<typeof fluidDomain> = fluidDomain({
+    id: "other-basin",
+  });
   TestValidator.equals(
     "an unsamplable request is named, never answered with an empty jet",
     namedFacts([
@@ -295,7 +337,10 @@ export function test_fluid_spray_budget(): void {
             state,
             cameraDistance: 70,
           })
-            .particles.map((particle: IAutoMovieFluidSprayParticle): number => particle.index)
+            .particles.map(
+              (particle: IAutoMovieFluidSprayParticle): number =>
+                particle.index,
+            )
             .join(",") === "8",
       ],
     ]),
@@ -309,31 +354,37 @@ export function test_fluid_spray_budget(): void {
 
   // An axis whose squared length overflows or underflows is still a direction:
   // compare both particle count and positions with the unit-axis sample.
-  const unit: IAutoMovieFluidSprayParticle[] = sampleFluidSpray({ domain, state }).particles;
+  const unit: IAutoMovieFluidSprayParticle[] = sampleFluidSpray({
+    domain,
+    state,
+  }).particles;
   /** Change only the positive Y-axis magnitude and sample against the original valid state; the unit-axis sample is a scale-invariance twin, not a random-distribution oracle. */
-  const scaled: (factor: number) => IAutoMovieFluidSprayParticle[] = (factor: number): IAutoMovieFluidSprayParticle[] =>
+  const scaled: (factor: number) => IAutoMovieFluidSprayParticle[] = (
+    factor: number,
+  ): IAutoMovieFluidSprayParticle[] =>
     sampleFluidSpray({
-      domain: misted([
-        { ...JET, direction: { x: 0, y: factor, z: 0 } },
-      ]),
+      domain: misted([{ ...JET, direction: { x: 0, y: factor, z: 0 } }]),
       state: simulateFluidDomain(misted([JET]), 64),
     }).particles;
   const huge: IAutoMovieFluidSprayParticle[] = scaled(1e200);
   const tiny: IAutoMovieFluidSprayParticle[] = scaled(1e-200);
   TestValidator.predicate(
     "an enormous finite axis launches along its direction",
-    (): boolean => huge.length === unit.length &&
-          huge.every(
-            (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
-              Number.isFinite(particle.position.y) &&
-              vclose(particle.position, unit[at]!.position),
-          ),
+    (): boolean =>
+      huge.length === unit.length &&
+      huge.every(
+        (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
+          Number.isFinite(particle.position.y) &&
+          vclose(particle.position, unit[at]!.position),
+      ),
   );
   TestValidator.predicate(
     "a tiny finite axis launches along its direction",
-    (): boolean => tiny.length === unit.length &&
-          tiny.every((particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
-            vclose(particle.position, unit[at]!.position),
-          ),
+    (): boolean =>
+      tiny.length === unit.length &&
+      tiny.every(
+        (particle: IAutoMovieFluidSprayParticle, at: number): boolean =>
+          vclose(particle.position, unit[at]!.position),
+      ),
   );
 }

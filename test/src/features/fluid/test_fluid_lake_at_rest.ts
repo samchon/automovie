@@ -1,5 +1,5 @@
-import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
+import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { exactArray, fluidDomain } from "../internal/fluidFixtures";
@@ -13,10 +13,14 @@ const BED: number[] = [
 /** Authored common free-surface elevation of wet cells in metres. */
 const LEVEL: number = 0.5;
 /** Independently authored level-minus-bed wet depth, with zero on tied or higher shore. */
-const DEPTH: number[] = BED.map((bed: number): number => (bed < LEVEL ? LEVEL - bed : 0));
+const DEPTH: number[] = BED.map((bed: number): number =>
+  bed < LEVEL ? LEVEL - bed : 0,
+);
 
 /** Construct the original stepped pond, borrowing either the level depths or the owning entry's one-cell disturbance without running the solver. */
-const restingPond: (depth?: number[]) => IAutoMovieFluidDomain = (depth: number[] = DEPTH): IAutoMovieFluidDomain =>
+const restingPond: (depth?: number[]) => IAutoMovieFluidDomain = (
+  depth: number[] = DEPTH,
+): IAutoMovieFluidDomain =>
   fluidDomain({
     id: "still-pond",
     grid: {
@@ -73,19 +77,69 @@ const restingPond: (depth?: number[]) => IAutoMovieFluidDomain = (depth: number[
  */
 export function test_fluid_lake_at_rest(): void {
   const domain: ReturnType<typeof restingPond> = restingPond();
-  const settled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 300);
-  TestValidator.predicate("step 300 unchanged depth", exactArray(settled.depth, DEPTH) && settled.depth.every((value: number, index: number): boolean => nclose(value, DEPTH[index]!, 0)));
-  TestValidator.predicate("step 300 X faces at rest", settled.velocityX.every((value: number): boolean => Object.is(value, 0) && nclose(value, 0, 0)));
-  TestValidator.predicate("step 300 Z faces at rest", settled.velocityZ.every((value: number): boolean => Object.is(value, 0) && nclose(value, 0, 0)));
-  TestValidator.predicate("step 300 hand-summed volume", Object.is(settled.volume, 0.5625) && nclose(settled.volume, 0.5625, 0));
-  TestValidator.predicate("step 300 empty outflow ledger", Object.is(settled.outflowVolume, 0) && nclose(settled.outflowVolume, 0, 0));
-  TestValidator.predicate("step 300 empty source ledger", Object.is(settled.sourceVolume, 0) && nclose(settled.sourceVolume, 0, 0));
-  TestValidator.predicate("step 300 empty drain ledger", Object.is(settled.drainVolume, 0) && nclose(settled.drainVolume, 0, 0));
+  const settled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    300,
+  );
+  TestValidator.predicate(
+    "step 300 unchanged depth",
+    exactArray(settled.depth, DEPTH) &&
+      settled.depth.every((value: number, index: number): boolean =>
+        nclose(value, DEPTH[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "step 300 X faces at rest",
+    settled.velocityX.every(
+      (value: number): boolean => Object.is(value, 0) && nclose(value, 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "step 300 Z faces at rest",
+    settled.velocityZ.every(
+      (value: number): boolean => Object.is(value, 0) && nclose(value, 0, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "step 300 hand-summed volume",
+    Object.is(settled.volume, 0.5625) && nclose(settled.volume, 0.5625, 0),
+  );
+  TestValidator.predicate(
+    "step 300 empty outflow ledger",
+    Object.is(settled.outflowVolume, 0) && nclose(settled.outflowVolume, 0, 0),
+  );
+  TestValidator.predicate(
+    "step 300 empty source ledger",
+    Object.is(settled.sourceVolume, 0) && nclose(settled.sourceVolume, 0, 0),
+  );
+  TestValidator.predicate(
+    "step 300 empty drain ledger",
+    Object.is(settled.drainVolume, 0) && nclose(settled.drainVolume, 0, 0),
+  );
 
   const tilted: number[] = DEPTH.slice();
   tilted[0] = DEPTH[0] + 0.0625;
-  const disturbed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(restingPond(tilted), 1);
-  TestValidator.predicate("disturbed depth moves at step 1", (exactArray(disturbed.depth, tilted) && disturbed.depth.every((value: number, index: number): boolean => nclose(value, tilted[index]!, 0))) === false);
-  TestValidator.predicate("disturbed X velocity moves at step 1", disturbed.velocityX.some((value: number): boolean => nclose(value, 0, 0) === false));
-  TestValidator.predicate("disturbed Z velocity moves at step 1", disturbed.velocityZ.some((value: number): boolean => nclose(value, 0, 0) === false));
+  const disturbed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    restingPond(tilted),
+    1,
+  );
+  TestValidator.predicate(
+    "disturbed depth moves at step 1",
+    (exactArray(disturbed.depth, tilted) &&
+      disturbed.depth.every((value: number, index: number): boolean =>
+        nclose(value, tilted[index]!, 0),
+      )) === false,
+  );
+  TestValidator.predicate(
+    "disturbed X velocity moves at step 1",
+    disturbed.velocityX.some(
+      (value: number): boolean => nclose(value, 0, 0) === false,
+    ),
+  );
+  TestValidator.predicate(
+    "disturbed Z velocity moves at step 1",
+    disturbed.velocityZ.some(
+      (value: number): boolean => nclose(value, 0, 0) === false,
+    ),
+  );
 }

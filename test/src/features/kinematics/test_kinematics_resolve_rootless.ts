@@ -1,9 +1,15 @@
-import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { makePose } from "../internal/makePose";
-const rest: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
+
+const rest: {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },

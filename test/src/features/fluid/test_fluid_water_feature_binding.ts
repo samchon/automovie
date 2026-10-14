@@ -1,22 +1,30 @@
-import { createFluidBindingPondDomain as pondDomain } from "../internal/createFluidBindingPondDomain";
-import type { IAutoMovieConstraintViolation, IAutoMovieFluidDomain, IAutoMovieValidation } from "@automovie/interface";
-
-import { createNotchedFluidBasinEnvironment as notchedEnvironment } from "../internal/createNotchedFluidBasinEnvironment";
-import { createVolumeLessFluidBasinEnvironment as withoutCells } from "../internal/createVolumeLessFluidBasinEnvironment";
 import { lowerWaterFeature, validateWaterFeatures } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieFluidDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createFluidBindingPondDomain as pondDomain } from "../internal/createFluidBindingPondDomain";
+import { createNotchedFluidBasinEnvironment as notchedEnvironment } from "../internal/createNotchedFluidBasinEnvironment";
+import { createVolumeLessFluidBasinEnvironment as withoutCells } from "../internal/createVolumeLessFluidBasinEnvironment";
+import { basinEnvironment, waterFeature } from "../internal/fluidFixtures";
 import {
-  basinEnvironment,
-  waterFeature,
-} from "../internal/fluidFixtures";
-import { hasViolation, namedFacts, nclose, throwsError } from "../internal/predicates";
-
-
+  hasViolation,
+  namedFacts,
+  nclose,
+  throwsError,
+} from "../internal/predicates";
 
 /** A 4×4 lattice of the given cell size, cornered on the given origin. */
-const placed: (props: { cell: number; x: number }) => IAutoMovieFluidDomain = (props: { cell: number; x: number }): IAutoMovieFluidDomain =>
+const placed: (props: {
+  cell: number;
+  x: number;
+}) => IAutoMovieFluidDomain = (props: {
+  cell: number;
+  x: number;
+}): IAutoMovieFluidDomain =>
   pondDomain({
     grid: {
       columns: 4,
@@ -89,36 +97,44 @@ export function test_fluid_water_feature_binding(): void {
     true,
   );
 
-  const names: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [
-      waterFeature({ id: "foreign", environment: "somewhere-else" }),
-      waterFeature({ id: "ghost-space", space: "no-such-room" }),
-      waterFeature({ id: "ghost-domain", domain: "no-such-domain" }),
-      waterFeature({ id: "ghost-rim", boundaries: ["no-such-rim"] }),
-      waterFeature({ id: "wrong-rim", boundaries: ["elsewhere"] }),
-    ],
-    domains: [domain],
-  });
+  const names: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures(
+    {
+      environment,
+      features: [
+        waterFeature({ id: "foreign", environment: "somewhere-else" }),
+        waterFeature({ id: "ghost-space", space: "no-such-room" }),
+        waterFeature({ id: "ghost-domain", domain: "no-such-domain" }),
+        waterFeature({ id: "ghost-rim", boundaries: ["no-such-rim"] }),
+        waterFeature({ id: "wrong-rim", boundaries: ["elsewhere"] }),
+      ],
+      domains: [domain],
+    },
+  );
   TestValidator.equals(
     "every repeated name must resolve to the thing it claims",
     namedFacts([
       [
         "environment",
-        (): boolean => hasViolation(names, "type", "$input.features[0].environment"),
+        (): boolean =>
+          hasViolation(names, "type", "$input.features[0].environment"),
       ],
-      ["space", (): boolean => hasViolation(names, "type", "$input.features[1].space")],
+      [
+        "space",
+        (): boolean => hasViolation(names, "type", "$input.features[1].space"),
+      ],
       [
         "domain",
         (): boolean => hasViolation(names, "type", "$input.features[2].domain"),
       ],
       [
         "rimMissing",
-        (): boolean => hasViolation(names, "type", "$input.features[3].boundaries[0]"),
+        (): boolean =>
+          hasViolation(names, "type", "$input.features[3].boundaries[0]"),
       ],
       [
         "rimElsewhere",
-        (): boolean => hasViolation(names, "type", "$input.features[4].boundaries[0]"),
+        (): boolean =>
+          hasViolation(names, "type", "$input.features[4].boundaries[0]"),
       ],
     ]),
     {
@@ -130,18 +146,19 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const identity: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [
-      waterFeature({ id: "  " }),
-      waterFeature({ id: "twin" }),
-      waterFeature({ id: "twin" }),
-      waterFeature({ id: "double-rim", boundaries: ["coping", "coping"] }),
-      waterFeature({ id: "blank-material", material: "  " }),
-      waterFeature({ id: "named-material", material: "water-glass" }),
-    ],
-    domains: [domain, { ...domain }],
-  });
+  const identity: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [
+        waterFeature({ id: "  " }),
+        waterFeature({ id: "twin" }),
+        waterFeature({ id: "twin" }),
+        waterFeature({ id: "double-rim", boundaries: ["coping", "coping"] }),
+        waterFeature({ id: "blank-material", material: "  " }),
+        waterFeature({ id: "named-material", material: "water-glass" }),
+      ],
+      domains: [domain, { ...domain }],
+    });
   TestValidator.equals(
     "identity is enforced across features, rims and domains",
     namedFacts([
@@ -164,7 +181,8 @@ export function test_fluid_water_feature_binding(): void {
       ],
       [
         "blankMaterial",
-        (): boolean => hasViolation(identity, "type", "$input.features[4].material"),
+        (): boolean =>
+          hasViolation(identity, "type", "$input.features[4].material"),
       ],
       [
         "namedMaterial",
@@ -183,59 +201,69 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const vocabulary: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [
-      waterFeature({
-        kind: "lava" as unknown as "pond",
-        mode: "boiling" as unknown as "static",
-      }),
-    ],
-    domains: [domain],
-  });
-  const broken: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [waterFeature()],
-    domains: [pondDomain({ depth: new Array<number>(16).fill(-1) })],
-  });
-  const unstable: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [waterFeature()],
-    domains: [
-      pondDomain({
-        solver: {
-          fixedStepSeconds: 1,
-          gravity: 8,
-          drag: 0,
-          dryDepth: 0,
-          referenceDepth: 2,
-          maxSteps: 100,
-        },
-      }),
-    ],
-  });
-  TestValidator.predicate("the binding reports the independently computed Courant overshoot", (): boolean =>
-    unstable.success === false && unstable.violations.some(
-      (item: IAutoMovieConstraintViolation): boolean =>
-        item.path === "$input.domains[0].solver.fixedStepSeconds" &&
-        item.kind === "range" && item.severity === "error" &&
-        nclose(item.overshoot ?? -1, 1 * 4 * Math.sqrt(8) - 1, 1e-9),
-    ),
+  const vocabulary: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [
+        waterFeature({
+          kind: "lava" as unknown as "pond",
+          mode: "boiling" as unknown as "static",
+        }),
+      ],
+      domains: [domain],
+    });
+  const broken: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [waterFeature()],
+      domains: [pondDomain({ depth: new Array<number>(16).fill(-1) })],
+    });
+  const unstable: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [waterFeature()],
+      domains: [
+        pondDomain({
+          solver: {
+            fixedStepSeconds: 1,
+            gravity: 8,
+            drag: 0,
+            dryDepth: 0,
+            referenceDepth: 2,
+            maxSteps: 100,
+          },
+        }),
+      ],
+    });
+  TestValidator.predicate(
+    "the binding reports the independently computed Courant overshoot",
+    (): boolean =>
+      unstable.success === false &&
+      unstable.violations.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.domains[0].solver.fixedStepSeconds" &&
+          item.kind === "range" &&
+          item.severity === "error" &&
+          nclose(item.overshoot ?? -1, 1 * 4 * Math.sqrt(8) - 1, 1e-9),
+      ),
   );
   TestValidator.equals(
     "closed vocabularies stay closed and a broken domain breaks its binding",
     namedFacts([
       [
         "kind",
-        (): boolean => hasViolation(vocabulary, "type", "$input.features[0].kind"),
+        (): boolean =>
+          hasViolation(vocabulary, "type", "$input.features[0].kind"),
       ],
       [
         "mode",
-        (): boolean => hasViolation(vocabulary, "type", "$input.features[0].mode"),
+        (): boolean =>
+          hasViolation(vocabulary, "type", "$input.features[0].mode"),
       ],
       [
         "domainViolations",
-        (): boolean => hasViolation(broken, "range", "$input.domains[0].depth[0]"),
+        (): boolean =>
+          hasViolation(broken, "range", "$input.domains[0].depth[0]"),
       ],
     ]),
     {
@@ -245,42 +273,45 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const outside: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [waterFeature()],
-    domains: [
-      pondDomain({
-        grid: {
-          columns: 4,
-          rows: 4,
-          cellX: 0.5,
-          cellZ: 0.5,
-          origin: { x: 100, y: 0, z: 0 },
-        },
-      }),
-    ],
-  });
-  const semantic: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment: withoutCells(),
-    features: [waterFeature()],
-    domains: [
-      pondDomain({
-        grid: {
-          columns: 4,
-          rows: 4,
-          cellX: 0.5,
-          cellZ: 0.5,
-          origin: { x: 100, y: 0, z: 0 },
-        },
-      }),
-    ],
-  });
+  const outside: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [waterFeature()],
+      domains: [
+        pondDomain({
+          grid: {
+            columns: 4,
+            rows: 4,
+            cellX: 0.5,
+            cellZ: 0.5,
+            origin: { x: 100, y: 0, z: 0 },
+          },
+        }),
+      ],
+    });
+  const semantic: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment: withoutCells(),
+      features: [waterFeature()],
+      domains: [
+        pondDomain({
+          grid: {
+            columns: 4,
+            rows: 4,
+            cellX: 0.5,
+            cellZ: 0.5,
+            origin: { x: 100, y: 0, z: 0 },
+          },
+        }),
+      ],
+    });
   TestValidator.equals(
     "a lattice must sit in its basin, unless the basin states no volume",
     namedFacts([
       [
         "outside",
-        (): boolean => hasViolation(outside, "type", "$input.features[0].domain"),
+        (): boolean =>
+          hasViolation(outside, "type", "$input.features[0].domain"),
       ],
       ["semanticContainer", (): boolean => semantic.success === true],
     ]),
@@ -291,67 +322,89 @@ export function test_fluid_water_feature_binding(): void {
   // Flat bed Y=0 is between floor -1 and ceiling 4; only the centre Y=100
   // violates the same ceiling. Domain shape and every other value stay equal.
   const flatInterior: IAutoMovieFluidDomain = pondDomain({
-    grid: { columns: 3, rows: 3, cellX: 0.5, cellZ: 0.5,
-      origin: { x: -0.75, y: 0, z: -0.75 } },
+    grid: {
+      columns: 3,
+      rows: 3,
+      cellX: 0.5,
+      cellZ: 0.5,
+      origin: { x: -0.75, y: 0, z: -0.75 },
+    },
     bed: new Array<number>(9).fill(0),
     depth: new Array<number>(9).fill(0.25),
     solid: new Array<boolean>(9).fill(false),
   });
-  TestValidator.equals("the flat 3x3 bed fits its convex basin", validateWaterFeatures({
-    environment, features: [waterFeature()], domains: [flatInterior],
-  }).success, true);
+  TestValidator.equals(
+    "the flat 3x3 bed fits its convex basin",
+    validateWaterFeatures({
+      environment,
+      features: [waterFeature()],
+      domains: [flatInterior],
+    }).success,
+    true,
+  );
   const raisedInterior: IAutoMovieFluidDomain = {
     ...flatInterior,
-    bed: flatInterior.bed.map((height: number, index: number): number => index === 4 ? 100 : height),
+    bed: flatInterior.bed.map((height: number, index: number): number =>
+      index === 4 ? 100 : height,
+    ),
   };
   const interiorRefusal: IAutoMovieValidation = validateWaterFeatures({
-    environment, features: [waterFeature()], domains: [raisedInterior],
+    environment,
+    features: [waterFeature()],
+    domains: [raisedInterior],
   });
-  TestValidator.predicate("an outside interior bed is refused even with inside corner beds",
-    hasViolation(interiorRefusal, "type", "$input.features[0].domain"));
+  TestValidator.predicate(
+    "an outside interior bed is refused even with inside corner beds",
+    hasViolation(interiorRefusal, "type", "$input.features[0].domain"),
+  );
 
   // Cell centres −0.75, −0.25, 0.25, 0.75: the two ends stand in the two halves
   // of the notched basin while the middle two stand over the notch, so the
   // lattice's own corners say nothing about where its water is.
   const notched: ReturnType<typeof notchedEnvironment> = notchedEnvironment();
-  const bridging: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment: notched,
-    features: [waterFeature()],
-    domains: [placed({ cell: 0.5, x: -1 })],
-  });
+  const bridging: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment: notched,
+      features: [waterFeature()],
+      domains: [placed({ cell: 0.5, x: -1 })],
+    });
   // Centres −1.75, −1.5, −1.25, −1: wholly inside the west half.
-  const seated: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment: notched,
-    features: [waterFeature()],
-    domains: [placed({ cell: 0.25, x: -1.875 })],
-  });
-  const unsound: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
-    environment,
-    features: [waterFeature()],
-    domains: [
-      pondDomain({
-        depth: new Array<number>(16).fill(-1),
-        grid: {
-          columns: 4,
-          rows: 4,
-          cellX: 0.5,
-          cellZ: 0.5,
-          origin: { x: 100, y: 0, z: 0 },
-        },
-      }),
-    ],
-  });
+  const seated: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment: notched,
+      features: [waterFeature()],
+      domains: [placed({ cell: 0.25, x: -1.875 })],
+    });
+  const unsound: ReturnType<typeof validateWaterFeatures> =
+    validateWaterFeatures({
+      environment,
+      features: [waterFeature()],
+      domains: [
+        pondDomain({
+          depth: new Array<number>(16).fill(-1),
+          grid: {
+            columns: 4,
+            rows: 4,
+            cellX: 0.5,
+            cellZ: 0.5,
+            origin: { x: 100, y: 0, z: 0 },
+          },
+        }),
+      ],
+    });
   TestValidator.equals(
     "a basin split into convex cells is measured cell by cell",
     namedFacts([
       [
         "bridgesTheNotch",
-        (): boolean => hasViolation(bridging, "type", "$input.features[0].domain"),
+        (): boolean =>
+          hasViolation(bridging, "type", "$input.features[0].domain"),
       ],
       ["seatedInOneHalf", (): boolean => seated.success === true],
       [
         "unsoundDomainReported",
-        (): boolean => hasViolation(unsound, "range", "$input.domains[0].depth[0]"),
+        (): boolean =>
+          hasViolation(unsound, "range", "$input.domains[0].depth[0]"),
       ],
       [
         "unsoundDomainNotPlaced",
@@ -385,25 +438,36 @@ export function test_fluid_water_feature_binding(): void {
   });
   TestValidator.predicate(
     "one frame carries the state, the surface and the spray together",
-    (): boolean => still.state.step === 0 &&
-      Object.is(still.state.sourceVolume, 0) && nclose(still.state.sourceVolume, 0, 0) &&
+    (): boolean =>
+      still.state.step === 0 &&
+      Object.is(still.state.sourceVolume, 0) &&
+      nclose(still.state.sourceVolume, 0, 0) &&
       solved.state.step === Math.round(4 / domain.solver.fixedStepSeconds) &&
-      solved.state.sourceVolume > 0 && flowing.state.step === solved.state.step &&
-      solved.feature === "atrium-pond" && solved.surface.step === solved.state.step &&
+      solved.state.sourceVolume > 0 &&
+      flowing.state.step === solved.state.step &&
+      solved.feature === "atrium-pond" &&
+      solved.surface.step === solved.state.step &&
       solved.surface.bounds !== null &&
-          nclose(
-            solved.surface.bounds.max.y,
-            Math.max(...solved.state.depth),
-            1e-12,
-          ) && solved.spray.particles.length > 0 &&
+      nclose(
+        solved.surface.bounds.max.y,
+        Math.max(...solved.state.depth),
+        1e-12,
+      ) &&
+      solved.spray.particles.length > 0 &&
       solved.spray.step === solved.state.step,
   );
 
-  TestValidator.predicate("a feature names the domain it refuses", (): boolean =>
-    throwsError((): ReturnType<typeof lowerWaterFeature> => lowerWaterFeature({
-      feature: waterFeature({ domain: `${domain.id}-elsewhere` }),
-      domain,
-      time: 4,
-    }), ["atrium-pond", `${domain.id}-elsewhere`, domain.id]),
+  TestValidator.predicate(
+    "a feature names the domain it refuses",
+    (): boolean =>
+      throwsError(
+        (): ReturnType<typeof lowerWaterFeature> =>
+          lowerWaterFeature({
+            feature: waterFeature({ domain: `${domain.id}-elsewhere` }),
+            domain,
+            time: 4,
+          }),
+        ["atrium-pond", `${domain.id}-elsewhere`, domain.id],
+      ),
   );
 }
