@@ -48,13 +48,15 @@ import { withRetargetReachElbowConstraint as withReachElbowConstraint } from "..
  *    hinge (#1345); it used to need the target to widen that axis.
  * 4. Missing required bones and invalid explicit root scale return field-located
  *    validation failures instead of throwing.
+ * 5. A duplicate source or target bone returns null motion and a located finding
+ *    before rest-pose FK; the original bone population remains unchanged.
  *
  * The original explicit-option and combined malformed-input observations remain within these scenarios. Facing is asserted as a policy label; the complete root-rotation population is not compared here.
  *
  * @evidence contracts/testing.md#behavioral-verification Retargets travelled walk, explicit-option wave, sampled wave and reach clips; checks target identities/bindings/policies, root displacement, raised-hand inequality and proportional hand position. It also observes missing bone/zero scale and combined source/target/mapping/rest-frame diagnostics without changing their original paths.
  * @evidence contracts/testing.md#independent-expectations The copied factor-two rest offsets independently require root/hand scaling by two; literal binding ids, policy strings, hand-above-shoulder margin 0.45 and diagnostic paths constrain returned results. ReachPose and FK are shared product producers/consumers rather than independent anatomical or global IK oracles. The default reach observation is deliberately only absence of one elbow-abduction violation, not whole-result admission.
  * @evidence contracts/testing.md#distinguishing-cases Retains implicit/explicit scale and id/bindings/tables, walk/wave/reach, default reach versus the original elbow override, absent required hand, zero scale, rootless/duplicate/missing-parent rigs, blank maps, malformed axes and invalid rest sign/neutral. All existing values, case order and predicate tolerances remain unchanged.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all product calls and returned failure observations, with seven file-owned fixture operations moved without new cases. Helpers register no extra tests and start no imported-asset loader, viewer, process or native artifact.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all product calls and returned failure observations, including isolated source/target duplicates. Helpers register no extra tests and start no imported-asset loader, viewer, process or native artifact.
  */
 export function test_motion_retarget_humanoid(): void {
   const source: IAutoMovieSkeleton = sourceSkeleton();
@@ -421,4 +423,29 @@ export function test_motion_retarget_humanoid(): void {
       "$input.targetRestFrames.rightUpperArm.abduction.neutral",
     ),
   );
+
+  for (const side of ["source", "target"] as const) {
+    const original: IAutoMovieSkeleton = side === "source" ? source : target;
+    const duplicate: IAutoMovieSkeleton = {
+      ...original,
+      bones: [...original.bones, original.bones[0]!],
+    };
+    const refused: ReturnType<typeof retargetHumanoidMotion> =
+      retargetHumanoidMotion({ motion: wave, source, target, [side]: duplicate });
+    TestValidator.predicate(
+      `${side} duplicate returns a located refusal before FK`,
+      refused.motion === null &&
+        refused.characterization === null &&
+        hasViolation(
+          refused.validation,
+          "type",
+          `$input.${side}.bones[${original.bones.length}].bone`,
+        ),
+    );
+    TestValidator.predicate(
+      `${side} duplicate input remains intact`,
+      duplicate.bones.length === original.bones.length + 1 &&
+        duplicate.bones[original.bones.length] === original.bones[0],
+    );
+  }
 }
