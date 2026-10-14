@@ -3,16 +3,19 @@ import { humanViewerChoices } from "./humanViewerChoices.js";
 import { parseHumanViewerLight } from "./parseHumanViewerLight.js";
 
 /**
- * Admit the same fields from a bookmark hash or an HTTP query. Refuse unknown
- * fields and malformed numeric values before touching a resident viewport.
- * Defaults are protocol choices, not anatomical measurements. The caller owns
- * catalogue admission: parsing a document name does not assert it exists.
- * A missing document needs an explicit caller-supplied default; the library
- * does not choose a named example.
+ * Admit the same fields from a bookmark hash or an HTTP query. Refuse unknown fields and malformed numeric values before touching a resident viewport. Defaults are protocol choices, not anatomical measurements. The caller owns catalogue admission: parsing a document name does not assert it exists. A missing document needs an explicit caller-supplied default; the library does not choose a named example.
+ *
+ * @evidence contracts/common.md#principled-implementation Unknown/repeated fields, finite bounded numbers and supported protocol choices are admitted before viewport mutation.
+ * @evidence contracts/common.md#clear-and-simple-design One query record and numeric helper assemble a complete address using only the explicit caller document fallback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Parsed document or mesh text is not catalogue/anatomy admission, and protocol defaults are not invented measurements.
+ * @evidence contracts/common.md#meaningful-documentation Documentation defines hash/query parity, pre-viewport refusal and caller ownership of document existence.
+ * @evidence contracts/performance.md#efficient-algorithms Field and tuple parsing scale with address text using fixed choice lists, without geometry or catalogue traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Bookmarks and HTTP requests share one parser and therefore the same protocol field admission.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned arrays and strings belong to the address caller and acquire no viewport or source-window lifetime.
  */
 export function parseHumanViewerAddress(input: string, defaultDocument?: string): HumanViewerAddress {
-  const fields = new URLSearchParams(input.replace(/^[#?]/, ""));
-  const allowed = [
+  const fields: URLSearchParams = new URLSearchParams(input.replace(/^[#?]/, ""));
+  const allowed: readonly string[] = [
     "doc",
     "operation",
     "parts",
@@ -39,46 +42,46 @@ export function parseHumanViewerAddress(input: string, defaultDocument?: string)
     if (fields.getAll(key).length !== 1)
       throw new Error(`Repeated display field: ${key}`);
   }
-  const view = fields.get("view") ?? "front";
-  const operation = fields.get("operation") ?? "preview";
+  const view: string = fields.get("view") ?? "front";
+  const operation: string = fields.get("operation") ?? "preview";
   if (operation !== "preview" && operation !== "construct")
     throw new Error("Unknown human operation: " + operation);
-  const pass = fields.get("pass") ?? "beauty";
+  const pass: string = fields.get("pass") ?? "beauty";
   if (!(humanViewerChoices.views as readonly string[]).includes(view))
     throw new Error(`Unknown view: ${view}`);
   if (!(humanViewerChoices.passes as readonly string[]).includes(pass))
     throw new Error(`Unknown pass: ${pass}`);
-  const number = (
+  const number: (key: string, fallback: number, min: number, max: number) => number = (
     key: string,
     fallback: number,
     min: number,
     max: number,
   ): number => {
-    const text = fields.get(key);
-    const value =
+    const text: string | null = fields.get(key);
+    const value: number =
       text === null ? fallback : text.trim() === "" ? NaN : Number(text);
     if (!Number.isFinite(value) || value < min || value > max)
       throw new Error(`Invalid ${key}`);
     return value;
   };
-  const size = number("size", 900, 32, 2048);
+  const size: number = number("size", 900, 32, 2048);
   if (!Number.isInteger(size)) throw new Error("size must be an integer");
-  const frameText = fields.get("frame");
+  const frameText: string | null = fields.get("frame");
   let frame: HumanViewerAddress["frame"] = null;
   if (frameText !== null) {
-    const values = frameText
+    const values: number[] = frameText
       .split(",")
-      .map((text) => (text.trim() === "" ? NaN : Number(text)));
+      .map((text: string): number => (text.trim() === "" ? NaN : Number(text)));
     if (values.length !== 4 || !values.every(Number.isFinite) || values[3] <= 0)
       throw new Error("frame requires a finite centre and positive radius");
     frame = values as NonNullable<typeof frame>;
   }
-  const lookText = fields.get("look");
+  const lookText: string | null = fields.get("look");
   let look: HumanViewerAddress["look"] = null;
   if (lookText !== null) {
-    const values = lookText
+    const values: number[] = lookText
       .split(",")
-      .map((text) => (text.trim() === "" ? NaN : Number(text)));
+      .map((text: string): number => (text.trim() === "" ? NaN : Number(text)));
     if (
       (values.length !== 6 && values.length !== 7) ||
       !values.every(Number.isFinite) ||
@@ -94,40 +97,40 @@ export function parseHumanViewerAddress(input: string, defaultDocument?: string)
       HumanViewerAddress["look"]
     >;
   }
-  const ao = fields.get("ao") ?? "off";
+  const ao: string = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
-  const shadows = fields.get("shadows") ?? "on";
+  const shadows: string = fields.get("shadows") ?? "on";
   if (shadows !== "on" && shadows !== "off")
     throw new Error("shadows must be on or off");
-  const landmarks = fields.get("landmarks") ?? "off";
+  const landmarks: string = fields.get("landmarks") ?? "off";
   if (landmarks !== "off" && landmarks !== "on")
     throw new Error("landmarks must be on or off");
-  const calibrate = fields.get("calibrate") ?? "off";
+  const calibrate: string = fields.get("calibrate") ?? "off";
   if (calibrate !== "off" && calibrate !== "on")
     throw new Error("calibrate must be on or off");
-  const light = fields.get("light");
+  const light: string | null = fields.get("light");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
     throw new Error("Only PNG is supported");
-  const ref = fields.get("ref");
+  const ref: string | null = fields.get("ref");
   if (ref !== null && !["split", "overlay", "swipe"].includes(ref))
     throw new Error("Unknown reference mode");
-  const doc = fields.get("doc") ?? defaultDocument;
+  const doc: string | undefined = fields.get("doc") ?? defaultDocument;
   if (doc === undefined || doc.trim() === "") throw new Error("doc must name a published document");
-  const parts = fields.get("parts");
+  const parts: string | null = fields.get("parts");
   if (
     parts !== null &&
-    (parts === "" || parts.split(",").some((part) => part.trim() === ""))
+    (parts === "" || parts.split(",").some((part: string): boolean => part.trim() === ""))
   )
     throw new Error("parts must contain mesh names");
-  const hide = fields.get("hide");
+  const hide: string | null = fields.get("hide");
   if (
     hide !== null &&
-    (hide === "" || hide.split(",").some((part) => part.trim() === ""))
+    (hide === "" || hide.split(",").some((part: string): boolean => part.trim() === ""))
   )
     throw new Error("hide must contain mesh names");
   return {
     doc,
-    operation: operation as HumanViewerAddress["operation"],
+    operation,
     parts: parts === null ? [] : parts.split(","),
     hide: hide === null ? [] : hide.split(","),
     zoom: number("zoom", 1, 0.2, 8),

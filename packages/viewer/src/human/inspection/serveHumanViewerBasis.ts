@@ -5,24 +5,25 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js
 import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.js";
 
 /**
- * Answer `/basis/face`, `/basis/body` and `/basis/person` with the basis a
- * document is built on: the published face or body basis (`?digest=<hex>`)
- * or a candidate beside a hand-written input (`?candidate=<name>@<digest>`,
- * `<name>.basis.json.gz`, or `<name>.person.json.gz` for a person, which has
- * no published basis). Every request must name the bytes its document was
- * keyed with: without a digest it is refused with 400, changed bytes with
- * 409; an unknown domain, malformed candidate or missing file is 404.
- * Returns whether the path was a basis route.
+ * Serve supported published face/body bases or plain-named input candidates using the requested digest prefix. Person uses candidate .person.json.gz rather than a published basis. Missing digest is 400, mismatching current prefix 409 and unsupported domain/candidate or absent file 404. Prefix equality does not exclude changed bytes with a colliding prefix. Return false for paths outside the basis routes.
  *
- * These refusals concern the selected local basis digest and current response bytes. They do not establish a complete frame dependency or receipt closure.
+ * The server compares the requested 12-to-64-hex prefix with the current bytes' SHA-256 digest and sends those same bytes. A prefix collision can accept changed bytes; local selection and byte checks do not establish complete frame dependency or receipt closure.
+ *
+ * @evidence contracts/common.md#principled-implementation Selects only supported published or plain-named candidate basis files and requires the caller's digest prefix before the verified-file owner checks current bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Route selection and HTTP refusal remain here while content hashing and streaming are delegated to the shared verified-file owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or prefix-mismatching basis refuses without asset substitution; collisions can accept changed bytes and this local check is not a complete rendered-frame dependency receipt.
+ * @evidence contracts/common.md#meaningful-documentation Documentation names candidate naming, required digest, supported domains and 400/404/409 outcomes.
+ * @evidence contracts/performance.md#efficient-algorithms Path and digest admission use bounded adapter checks; delegated file hashing/streaming is linear in compressed basis bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The expected digest names the bytes used by the document's key, and current bytes are checked per request instead of trusting a prior availability check.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The route borrows response and inventory, while the verified-file owner acquires/releases its readers; no basis buffer or stream is cached here.
  */
 export function serveHumanViewerBasis(
   props: IServeHumanViewerDataProps,
 ): boolean {
-  const { url, response } = props;
+  const { url, response }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
   if (!url.pathname.startsWith("/basis/")) return false;
-  const domain = url.pathname.slice(7);
-  const candidate = url.searchParams.get("candidate");
+  const domain: string = url.pathname.slice(7);
+  const candidate: string | null = url.searchParams.get("candidate");
   if (
     (domain !== "face" && domain !== "body" && domain !== "person") ||
     (domain === "person" && candidate === null) ||
@@ -32,8 +33,8 @@ export function serveHumanViewerBasis(
     response.end();
     return true;
   }
-  const [name, digest] = (candidate ?? "").split("@");
-  const file =
+  const [name, digest]: (string | undefined)[] = (candidate ?? "").split("@");
+  const file: string =
     candidate === null
       ? props.basisFiles[domain as "face" | "body"]
       : path.join(
@@ -45,7 +46,7 @@ export function serveHumanViewerBasis(
     response.end();
     return true;
   }
-  const expected =
+  const expected: string | undefined =
     candidate === null ? (url.searchParams.get("digest") ?? undefined) : digest;
   if (expected === undefined || !/^[0-9a-f]{12,64}$/.test(expected)) {
     response.statusCode = 400;

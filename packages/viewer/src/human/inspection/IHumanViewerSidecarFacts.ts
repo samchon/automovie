@@ -2,7 +2,15 @@ import type { IHumanViewerPacketIdentities } from "./IHumanViewerPacketIdentitie
 import type { IHumanViewerPersonSidecar } from "./IHumanViewerPersonSidecar.js";
 
 /**
- * What the input reader learned from one sidecar file, kept until the file's stamp changes so a rescan neither rereads nor rehashes unchanged bytes.
+ * What the input reader learned from one sidecar file, reused while its provider stamp matches. The current mtime/size provider can miss a byte rewrite preserving both values; stamp equality is not fresh-byte proof.
+ *
+ * @evidence contracts/common.md#principled-implementation File-stamped facts separate compressed-byte digest from basis, person-packet and generation-view identities, with explicit parse/read failure.
+ * @evidence contracts/common.md#clear-and-simple-design One small record exposes the metadata catalogue admission needs while keeping large sidecar bytes outside catalogue reads.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Identities are scanned from the supplied file rather than inferred from file names; failure remains available instead of being hidden.
+ * @evidence contracts/common.md#meaningful-documentation Members explain the stamp, SHA-256 bytes, kind-specific nullable identities and nullable failure cause.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The metadata shape implements no inflation or structural scan; createHumanViewerSidecarFacts owns those costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equal provider stamps reuse facts; a changed stamp starts a new read and rejects superseded publication. The current mtime/size provider cannot distinguish rewrites preserving both stamp values.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The facts owner retains one metadata entry per encountered filename without an eviction bound; this record retains no compressed or inflated buffers.
  *
  * @author Samchon
  */

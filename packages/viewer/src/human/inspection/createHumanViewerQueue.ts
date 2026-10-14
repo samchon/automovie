@@ -7,28 +7,22 @@ import type { IHumanViewerQueueStatus } from "./IHumanViewerQueueStatus.js";
 const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
 
 /**
- * The one GPU page every request shares, served in three lanes: `ui` for a
- * person waiting on the screen, `cli` for scripted captures and `bulk` for
- * thumbnails and pre-building. A request in a higher lane starts before every
- * waiting request of a lower one, and requests of a lane run in arrival
- * order; a running request is never cut off. So that a busy person cannot
- * starve the scripts, after `patience` consecutive `ui` starts a waiting `cli`
- * request goes next. A request that finds `limit` others already waiting in
- * its lane is refused at once with the reason instead of joining a line no one
- * can see the end of. A `bulk` request is also held back until no `ui` or
- * `cli` request has arrived or finished for `quietMs`, so background work
- * never starts in front of a person or script that is about to ask: a script
- * whose own capture ran longer than `quietMs` would otherwise find a bulk
- * build started in the few milliseconds before its next request, and wait
- * for that whole build. The status names the running request and each lane's
- * length so a stalled server can be told from a busy one.
- * A cancelled waiting entry is removed before its callback starts. Cancelling
- * a running requester rejects its result but retains the GPU slot until the
- * actual task settles; rejecting a promise does not stop work on the page.
+ * The one GPU page every request shares, served in three lanes: `ui` for a person waiting on the screen, `cli` for scripted captures and `bulk` for thumbnails and pre-building. A request in a higher lane starts before every waiting request of a lower one, and requests of a lane run in arrival order; a running request is never cut off. So that a busy person cannot starve the scripts, after `patience` consecutive `ui` starts a waiting `cli` request goes next. A request that finds `limit` others already waiting in its lane is refused at once with the reason instead of joining a line no one can see the end of. A `bulk` request is also held back until no `ui` or `cli` request has arrived or finished for `quietMs`, so background work never starts in front of a person or script that is about to ask: a script whose own capture ran longer than `quietMs` would otherwise find a bulk build started in the few milliseconds before its next request, and wait for that whole build. The status names the running request and each lane's length so a stalled server can be told from a busy one. A cancelled waiting entry is removed before its callback starts. Cancelling a running requester rejects its result but retains the GPU slot until the actual task settles; rejecting a promise does not stop work on the page.
  *
  * Capacity bounds cover waiting requests per lane and one physically unsettled callback. This scheduler supplies neither a production claim wait graph nor storage or network credit policy.
+ *
+ * @evidence contracts/common.md#principled-implementation Bounded FIFO lanes select UI/CLI work by patience and gate bulk work on foreground quiet time; cancelling running results retains the slot until actual task settlement.
+ * @evidence contracts/common.md#clear-and-simple-design Three waiting arrays, one running record and one quiet timer express scheduling while each entry owns its abort listener and deferred task.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Waiting cancellation removes the actual entry and running cancellation never pretends to stop page work; invalid limit and patience refuse before admission.
+ * @evidence contracts/common.md#meaningful-documentation Documentation explains lane ordering, CLI starvation relief, bulk quiet time, visible queue status and physical versus promise cancellation.
+ * @evidence contracts/performance.md#efficient-algorithms Picking scans three fixed lanes; FIFO shift and waiting cancellation splice cost linear work in a lane bounded by limit, while one unsettled callback owns the GPU slot.
+ * @evidence contracts/performance.md#reuse-equivalent-work Requests retain their own task and cancellation authority and are never merged merely by equal labels; one pending quiet timer coalesces scheduler wakeups.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each lane retains at most limit waiting entries plus one actual unsettled task; settled or cancelled waiting entries remove abort listeners, one bulk wakeup may remain pending and this adapter has no separate shutdown/cancel-all seam.
  */
-export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
+export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps): {
+  run: <T>(label: string, task: () => Promise<T>, lane?: HumanViewerLane, signal?: AbortSignal) => Promise<T>;
+  status: () => IHumanViewerQueueStatus;
+} {
   if (!Number.isInteger(props.limit) || props.limit < 1)
     throw new Error("The queue limit must be a positive integer");
   if (!Number.isInteger(props.patience) || props.patience < 1)
@@ -49,14 +43,14 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
   };
   let running: IHumanViewerQueueRunning | null = null;
   let last: IHumanViewerQueueStatus["last"] = null;
-  let streak = 0;
-  let foregroundAt = Number.NEGATIVE_INFINITY;
-  let timer = false;
-  const quiet = (): boolean =>
+  let streak: number = 0;
+  let foregroundAt: number = Number.NEGATIVE_INFINITY;
+  let timer: boolean = false;
+  const quiet: () => boolean = (): boolean =>
     (props.quietMs ?? 0) <= 0 ||
     props.now() - foregroundAt >= (props.quietMs ?? 0);
-  const pick = (): IEntry | undefined => {
-    const order =
+  const pick: () => IEntry | undefined = (): IEntry | undefined => {
+    const order: readonly HumanViewerLane[] =
       streak >= props.patience && lines.cli.length !== 0
         ? (["cli", "ui", "bulk"] as const)
         : LANES;
@@ -67,15 +61,15 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
       }
     return undefined;
   };
-  const drain = (): void => {
+  const drain: () => void = (): void => {
     if (running !== null) return;
-    const entry = pick();
+    const entry: IEntry | undefined = pick();
     if (entry !== undefined) void entry.start();
     else if (lines.bulk.length !== 0 && !timer) {
       // Only gated bulk work waits: look again when the quiet period can end.
       timer = true;
-      (props.later ?? ((run, ms) => void setTimeout(run, ms)))(
-        () => {
+      (props.later ?? ((run: () => void, ms: number): void => { setTimeout(run, ms); }))(
+        (): void => {
           timer = false;
           drain();
         },
@@ -98,19 +92,19 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
           ),
         );
       if (lane !== "bulk") foregroundAt = props.now();
-      return new Promise<T>((resolve, reject) => {
-        let started = false;
-        let cancelled = false;
+      return new Promise<T>((resolve: (value: T | PromiseLike<T>) => void, reject: (error: unknown) => void): void => {
+        let started: boolean = false;
+        let cancelled: boolean = false;
         const entry: IEntry = {
           label,
-          start: async () => {
+          start: async (): Promise<void> => {
             started = true;
-            const start = props.now();
+            const start: number = props.now();
             running = { label, start };
-            let failed = true;
+            let failed: boolean = true;
             try {
               signal?.throwIfAborted();
-              const result = await task();
+              const result: T = await task();
               if (!cancelled) {
                 resolve(result);
                 failed = false;
@@ -126,7 +120,7 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps) {
             }
           },
         };
-        const abort = (): void => {
+        const abort: () => void = (): void => {
           cancelled = true;
           reject(signal!.reason);
           if (!started) {

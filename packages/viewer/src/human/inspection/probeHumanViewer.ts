@@ -6,18 +6,22 @@ import { humanViewerErrorCode } from "./humanViewerErrorCode.js";
 import { humanViewerProtocol } from "./humanViewerProtocol.js";
 
 /**
- * Ask the port for health. A refused connection is an absent viewer (null).
- * Any other failure to get a complete answer, a timeout, a reset or a cut
- * body while the server starts or restarts, is an unanswered port
- * (undefined): something listens, and the caller waits rather than starting
- * or killing anything. Only an answering foreign program is an error.
+ * Ask the port for health. A refused connection is an absent viewer (null). Any other failure to get a complete answer, a timeout, a reset or a cut body while the server starts or restarts, is an unanswered port (undefined): it supplies no presence or absence proof, and the caller waits rather than starting or killing anything. Only an answering foreign program is an error.
+ *
+ * @evidence contracts/common.md#principled-implementation One timed health fetch distinguishes ECONNREFUSED absence from incomplete transport answers, then checks answering service/protocol/storage identity.
+ * @evidence contracts/common.md#clear-and-simple-design Fetch/JSON parsing and service checks separate unanswered-port classification from foreign-program refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Accepted silence cannot authorize startup or kill, and arbitrary JSON is not sufficient owned health identity.
+ * @evidence contracts/common.md#meaningful-documentation The comment describes absence, timeout/reset/body silence and answering-program errors.
+ * @evidence contracts/performance.md#efficient-algorithms Network/text/JSON work follows response bytes and the supplied abort timeout bounds the attempt.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each probe observes current health while wrapped-code inspection has its own bounded diagnostic traversal.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Response bytes and the timeout signal live through the attempt, with no persistent connection, process or watcher acquired.
  */
 export async function probeHumanViewer(
   context: IHumanShotContext,
 ): Promise<IHumanViewerProbe> {
   let text: string;
   try {
-    const response = await fetch(context.origin + "/health", {
+    const response: Response = await fetch(context.origin + "/health", {
       signal: AbortSignal.timeout(context.probeMs),
     });
     text = await response.text();

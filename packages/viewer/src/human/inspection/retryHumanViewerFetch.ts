@@ -1,26 +1,29 @@
 /** The socket error codes a loaded server produces when it resets a kept-alive connection. */
-const RESET_CODES = ["ECONNRESET", "UND_ERR_SOCKET", "EPIPE"];
+const RESET_CODES: readonly string[] = ["ECONNRESET", "UND_ERR_SOCKET", "EPIPE"];
 
 /**
- * Run one HTTP request again when the connection was reset under it. A server
- * stalled by a long rebuild or a saturated machine closes its kept-alive
- * sockets, and the next request on such a socket fails with a reset although
- * the server is alive and the request never ran, so asking again is safe for
- * every route the viewer serves (all are idempotent reads or captures). Only a
- * reset is retried, at most `attempts` times with a growing pause; a refused
- * connection (no server) and every other failure return at once, unchanged.
+ * Repeat the capture caller's HTTP request for supported connection-reset failures, up to its explicit attempt limit with a growing pause. A reset does not prove the server never ran the request, so the caller must allow repeated read/capture effects. Refused connections and unrelated errors propagate unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation Repeats fetch only for the existing connection-reset code set read through the bounded safe cause-chain decoder, with the existing attempt limit and delay.
+ * @evidence contracts/common.md#clear-and-simple-design Transport retry classification is shared with error-code ownership while request execution and response interpretation stay with the caller.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null or unprintable thrown values do not mask their original failure through unsafe cause property access, and nonreset refusals are not retried.
+ * @evidence contracts/common.md#meaningful-documentation Documentation identifies reset-only retry, bounded attempts and original unrelated failure propagation.
+ * @evidence contracts/performance.md#efficient-algorithms Each attempt performs one fetch and bounded eight-link cause inspection; the supported retry count bounds sequential operations and delay tasks.
+ * @evidence contracts/performance.md#reuse-equivalent-work A reset initiates a new transport attempt; responses are not memoized because equal URLs do not establish equivalent server source state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The call awaits its retry delay and fetch attempts; response-body/transport lifetime remains with fetch and the consuming caller.
  */
 export async function retryHumanViewerFetch<T>(
   request: () => Promise<T>,
   props: { attempts: number; pause: (ms: number) => Promise<void> },
 ): Promise<T> {
-  for (let attempt = 1; ; ++attempt) {
+  for (let attempt: number = 1; ; ++attempt) {
     try {
       return await request();
     } catch (error) {
-      const code = (error as { cause?: { code?: string } }).cause?.code ?? "";
+      const code: string = humanViewerErrorCode(error) ?? "";
       if (attempt >= props.attempts || !RESET_CODES.includes(code)) throw error;
       await props.pause(500 * attempt);
     }
   }
 }
+import { humanViewerErrorCode } from "./humanViewerErrorCode.js";

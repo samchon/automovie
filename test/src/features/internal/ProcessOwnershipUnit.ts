@@ -11,7 +11,7 @@ type Controller = Pick<typeof ProcessOwnership, "read" | "stop"> & {
   stopChild(child: ChildObservation): void;
 };
 type TransportResult = Pick<SpawnSyncReturns<string>, "error" | "status" | "stdout" | "stderr">;
-const directory = path.resolve(__dirname, "../../../../packages/viewer/src/process/internal");
+const directory: string = path.resolve(__dirname, "../../../../packages/viewer/src/process/internal");
 
 /**
  * Typed access to the production facade's private process owners through the
@@ -20,7 +20,13 @@ const directory = path.resolve(__dirname, "../../../../packages/viewer/src/proce
  * package export, fake ChildProcess method or OS effect is installed.
  * The ordinary test project remains the execution owner of these scenarios.
  */
-export const ProcessOwnershipUnit = {
+export const ProcessOwnershipUnit: {
+  Controller: new (host: ReturnType<typeof createProcessOwnershipHostFacts>["host"]) => Controller;
+  windowsResult: (result: TransportResult) => unknown;
+  posixIdentity: (result: TransportResult) => string | null;
+  linuxIdentity: (boot: string, stat: string) => string;
+  readFailure: (error: unknown) => null;
+} = {
   Controller: loadSourceModule<{
     ProcessOwnershipController: new (
       host: ReturnType<typeof createProcessOwnershipHostFacts>["host"],

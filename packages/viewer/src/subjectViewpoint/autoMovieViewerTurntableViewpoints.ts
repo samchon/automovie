@@ -2,20 +2,17 @@ import type { IAutoMovieViewerTurntableOptions } from "./IAutoMovieViewerTurntab
 import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 
 /**
- * Lay out a deterministic ring of viewpoints around a subject.
+ * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded whole-degree ids. Positive integer count, a nonempty ring list, positive multiplier and duplicate ids are checked; finite angles/multiplier and a practical output bound remain caller premises.
  *
- * Cheap and reproducible beats complete: a horizontal sweep at a couple of
- * elevations shows a proportion, a missing head, and a brace running at the
- * wrong angle, which is what the defects that survived one whole campaign
- * actually were. The identities are derived from the angles, so the same
- * options always name the same viewpoints and a coverage record can say which
- * of them an inspection reached.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Evenly spaces azimuths over 360 degrees and uses a Set to refuse duplicate rounded ids; default distance1.25 is a conventional context margin, not a measured visual quality guarantee.
+ * @evidence contracts/common.md#clear-and-simple-design One plan loop owns names/order; actual subject bounds, lens, rendering and coverage observation stay downstream.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate labels refuse rather than silently dropping an observation; rounded labels do not distinguish every distinct angle and no scene-specific samples are injected.
+ * @evidence contracts/common.md#meaningful-documentation Documents ordering, default margin, rounded-name refusal and incomplete finite/population admission.
+ * @evidence contracts/performance.md#efficient-algorithms Creates O(E*A) records and identity-set entries for E rings and A azimuths; no redundant search over prior records is needed.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each invocation generates fresh records deterministically from its options; a caller can retain an unchanged plan but no render result is reused.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary uniqueness Set leaves scope after return; consumer retention grows with E*A and there is no configured plan-size cap or native handle.
  */
-export const autoMovieViewerTurntableViewpoints = (
-  options: IAutoMovieViewerTurntableOptions,
-): IAutoMovieViewerViewpoint[] => {
+export function autoMovieViewerTurntableViewpoints(options: IAutoMovieViewerTurntableOptions): IAutoMovieViewerViewpoint[] {
   if (
     Number.isInteger(options.azimuthCount) === false ||
     options.azimuthCount < 1
@@ -25,17 +22,17 @@ export const autoMovieViewerTurntableViewpoints = (
     );
   if (options.elevationsDeg.length === 0)
     throw new RangeError("turntable plan needs at least one elevation ring");
-  const distanceFactor = options.distanceFactor ?? 1.25;
+  const distanceFactor: number = options.distanceFactor ?? 1.25;
   if (distanceFactor <= 0)
     throw new RangeError(
       `turntable distance factor must be positive, not ${distanceFactor}`,
     );
   const viewpoints: IAutoMovieViewerViewpoint[] = [];
-  const taken = new Set<string>();
+  const taken: Set<string> = new Set<string>();
   for (const elevationDeg of options.elevationsDeg)
-    for (let index = 0; index < options.azimuthCount; index++) {
-      const azimuthDeg = (360 / options.azimuthCount) * index;
-      const id = `az${degreeLabel(azimuthDeg)}-el${degreeLabel(elevationDeg)}`;
+    for (let index: number = 0; index < options.azimuthCount; index++) {
+      const azimuthDeg: number = (360 / options.azimuthCount) * index;
+      const id: string = `az${degreeLabel(azimuthDeg)}-el${degreeLabel(elevationDeg)}`;
       // Two rings rounding to one label would give one plan two viewpoints
       // under one name, and a coverage tally could then never say which of
       // them was observed.
@@ -47,11 +44,11 @@ export const autoMovieViewerTurntableViewpoints = (
       viewpoints.push({ id, azimuthDeg, elevationDeg, distanceFactor });
     }
   return viewpoints;
-};
+}
 
 /** Signed whole degrees as a fixed-width label, so ids sort as they read. */
-const degreeLabel = (degrees: number): string => {
-  const rounded = Math.round(degrees);
-  const magnitude = Math.abs(rounded).toString().padStart(3, "0");
+function degreeLabel(degrees: number): string {
+  const rounded: number = Math.round(degrees);
+  const magnitude: string = Math.abs(rounded).toString().padStart(3, "0");
   return rounded < 0 ? `n${magnitude}` : magnitude;
-};
+}

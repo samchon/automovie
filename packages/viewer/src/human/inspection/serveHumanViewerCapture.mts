@@ -12,6 +12,10 @@ import { PNG } from "pngjs";
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
 import type { HumanViewerLane } from "./HumanViewerLane.js";
 import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstructionPartsResponse.js";
+import type { IHumanViewerConstructionReadout } from "./IHumanViewerConstructionReadout.js";
+import type { IHumanViewerConstructionTransfer } from "./IHumanViewerConstructionTransfer.js";
+import type { IHumanViewerQueuedRequest } from "./IHumanViewerQueuedRequest.js";
+import type { HumanViewerHandle } from "./HumanViewerHandle.js";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps.js";
 import { applyHumanViewerPose } from "./applyHumanViewerPose.js";
@@ -28,41 +32,39 @@ import { sendHumanViewerPng } from "./sendHumanViewerPng.js";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
 import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail.js";
 
-const ROUTES = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-construction"];
+const ROUTES: readonly string[] = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-construction"];
 
 /**
- * Answer one GPU route, or return false when the path is not one. A bulk
- * `/render` is served from the thumbnail store when the current revision has
- * drawn it, else from the last good thumbnail marked stale, else drawn. A
- * drawn response names its revision, whether that revision is stale, the
- * renderer, the pass's reading limit, its queue position and wait, and
- * whether the model was cached or built. A frame whose generation changed
- * while it was drawn is refused, never answered as current.
- * `/export-construction` encodes the displayed paired Person through its
- * product viewport and returns binary GLB with the original admission headers.
- * The full admission remains available from `/parts` on the same construction;
- * exporting a refused draft never turns it into an admitted preview.
+ * Answer one GPU route, or return false when the path is not one. A bulk `/render` is served from the thumbnail store when the current revision has drawn it, else from the last good thumbnail marked stale, else drawn. A drawn response names its revision, whether that revision is stale, the renderer, the pass's reading limit, its queue position and wait, and whether the model was cached or built. A frame whose generation changed while it was drawn is refused, never answered as current. `/export-construction` encodes the displayed paired Person through its product viewport and returns binary GLB with the original admission headers. The full admission remains available from `/parts` on the same construction; exporting a refused draft never turns it into an admitted preview.
+ *
+ * @evidence contracts/common.md#principled-implementation Admits existing GPU routes and selected documents before queuing, then uses guarded resident capture with final generation/address checks and unchanged product construction admission.
+ * @evidence contracts/common.md#clear-and-simple-design The public dispatcher owns route/lane/selected-document admission while the private dispatcher composes queue, lifetime, PNG, sheet and construction response owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown inputs refuse before waiting, stale thumbnails are labeled, source transitions alone are retried and exporting a rejected construction preserves its refusal.
+ * @evidence contracts/common.md#meaningful-documentation Documentation identifies lane admission, current/stale thumbnails, reading limits, paired-Person export and final source checks; mesh parts remain observation names rather than anatomical partitions.
+ * @evidence contracts/performance.md#efficient-algorithms Admission scans catalogue entries and actual route work costs selected pixels/cells/parts or exported GLB bytes; one queue slot serializes resident-page effects and composition necessarily reads its requested frames.
+ * @evidence contracts/performance.md#reuse-equivalent-work Bulk thumbnails require current query/revision/document authority or are explicitly stale; numerical/resident reuse stays with capture ownership and exports remain individual guarded effects.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Client binding and logical queue-slot ownership last through guarded task settlement; host-reported lifetime signals are not independent OS/GPU termination proof. Temporary PNG/base64/GLB buffers last through response and have no independent aggregate-byte cap here.
  */
 export function serveHumanViewerCapture(
   props: IServeHumanViewerCaptureProps,
 ): boolean {
-  const { url, response, json } = props;
+  const { url, response, json }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
   if (!ROUTES.includes(url.pathname)) return false;
-  const start = performance.now();
-  const lane =
+  const start: number = performance.now();
+  const lane: string =
     url.searchParams.get("lane") ?? (url.pathname === "/warm" ? "bulk" : "cli");
   if (lane !== "ui" && lane !== "cli" && lane !== "bulk") {
     response.statusCode = 422;
     json({ error: "lane must be ui, cli or bulk" });
     return true;
   }
-  const wanted = [url.searchParams.get("doc"), url.searchParams.get("against")]
-    .filter((doc): doc is string => doc !== null);
+  const wanted: string[] = [url.searchParams.get("doc"), url.searchParams.get("against")]
+    .filter((doc: string | null): doc is string => doc !== null);
   if (props.settleDocument !== undefined && wanted.length !== 0) {
-    const settleDocument = props.settleDocument;
-    void Promise.all([...new Set(wanted)].map((doc) => settleDocument(doc)))
-      .then(() => dispatchHumanViewerCapture(props, start, lane))
-      .catch((error: unknown) => {
+    const settleDocument: NonNullable<IServeHumanViewerCaptureProps["settleDocument"]> = props.settleDocument;
+    void Promise.all([...new Set(wanted)].map((doc: string): ReturnType<typeof settleDocument> => settleDocument(doc)))
+      .then((): boolean => dispatchHumanViewerCapture(props, start, lane))
+      .catch((error: unknown): void => {
         response.statusCode = 503;
         json({ error: error instanceof Error ? error.message : String(error) });
       });
@@ -77,20 +79,20 @@ function dispatchHumanViewerCapture(
   start: number,
   lane: HumanViewerLane,
 ): boolean {
-  const { url, response, json } = props;
-  const inventory = props.inventory();
+  const { url, response, json }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
+  const inventory: ReturnType<IServeHumanViewerCaptureProps["inventory"]> = props.inventory();
   // A misspelled document fails here, not after a wait in the queue.
   for (const name of ["doc", "against"]) {
-    const wanted = url.searchParams.get(name);
+    const wanted: string | null = url.searchParams.get(name);
     if (
       wanted !== null &&
       url.searchParams.get("axes") === null &&
-      !inventory.documents.some((entry) => entry.id === wanted)
+      !inventory.documents.some((entry: (typeof inventory.documents)[number]): boolean => entry.id === wanted)
     ) {
       // A document awaiting admission (its key moved with the source) is
       // not unknown: it comes back once a page on the current code judges it.
-      const pending = inventory.rejected.find(
-        (entry) => entry.pending && entry.id === wanted,
+      const pending: (typeof inventory.rejected)[number] | undefined = inventory.rejected.find(
+        (entry: (typeof inventory.rejected)[number]): boolean | undefined => entry.pending && entry.id === wanted,
       );
       if (pending !== undefined) {
         response.statusCode = 503;
@@ -108,13 +110,13 @@ function dispatchHumanViewerCapture(
     }
   }
   if (url.pathname === "/export-construction" &&
-      !inventory.documents.some((entry) => entry.id === url.searchParams.get("doc") && entry.domain === "person")) {
+      !inventory.documents.some((entry: (typeof inventory.documents)[number]): boolean => entry.id === url.searchParams.get("doc") && entry.domain === "person")) {
     response.statusCode = 422;
     json({ error: "Construction export requires a registered paired Person document." });
     return true;
   }
   if (url.pathname === "/render" && lane === "bulk") {
-    const file = props.thumbnailFile(url.search);
+    const file: string | null = props.thumbnailFile(url.search);
     if (file !== null && fs.existsSync(file)) {
       sendHumanViewerPng(response, file, {
         "X-Human-Build": "thumbnail-cache",
@@ -124,7 +126,7 @@ function dispatchHumanViewerCapture(
       return true;
     }
     // The new revision has not drawn it yet: show the last good picture, dimmed.
-    const older =
+    const older: string | null =
       file === null ? null : props.thumbnails.stale(file, inventory.revision);
     if (older !== null) {
       sendHumanViewerPng(response, older, {
@@ -134,41 +136,41 @@ function dispatchHumanViewerCapture(
       return true;
     }
   }
-  const received = performance.now();
-  const ahead = humanViewerQueuePosition(props.queue.status(), lane);
-  let settledMs = 0;
+  const received: number = performance.now();
+  const ahead: number = humanViewerQueuePosition(props.queue.status(), lane);
+  let settledMs: number = 0;
   void queueHumanViewerRequest({
     queue: props.queue,
     response,
     label: url.pathname + url.search,
     lane,
-    task: (request) =>
+    task: (request: IHumanViewerQueuedRequest): Promise<void> =>
       retryAcrossHumanViewerGeneration(
-        async () => {
-          const requestCapture = (address: HumanViewerAddress) =>
-            request.run(() => props.capture.capture(address));
-          const queued = performance.now() - received;
+        async (): Promise<void> => {
+          const requestCapture: (address: HumanViewerAddress) => Promise<Buffer> = (address: HumanViewerAddress): Promise<Buffer> =>
+            request.run((): Promise<Buffer> => props.capture.capture(address));
+          const queued: number = performance.now() - received;
           // A request that meets a rebuild waits for the settled generation
           // instead of drawing on the one being replaced. With no generation
           // ready at all (starting, reloading, relaunching) it is refused as
           // starting at once instead.
-          const serving = props.readyRevision();
+          const serving: string = props.readyRevision();
           if (serving !== "" && serving !== props.inventory().revision) {
-            const began = performance.now();
-            await request.run(() => props.settle());
+            const began: number = performance.now();
+            await request.run((): Promise<void> => props.settle());
             settledMs += performance.now() - began;
           }
-          const current = props.inventory();
-          const fields = new URLSearchParams(url.search);
+          const current: ReturnType<IServeHumanViewerCaptureProps["inventory"]> = props.inventory();
+          const fields: URLSearchParams = new URLSearchParams(url.search);
           if (url.pathname === "/export-construction") fields.set("operation", "construct");
           fields.delete("lane");
-          const axes = fields.get("axes");
+          const axes: string | null = fields.get("axes");
           fields.delete("axes");
-          const against = fields.get("against");
+          const against: string | null = fields.get("against");
           fields.delete("against");
           if (url.pathname === "/sheet" && !fields.has("size"))
             fields.set("size", "320");
-          applyHumanViewerPose(fields, (file) =>
+          applyHumanViewerPose(fields, (file: string): string =>
             fs.readFileSync(
               path.join(
                 props.cameraPosesDirectory,
@@ -177,14 +179,14 @@ function dispatchHumanViewerCapture(
               "utf8",
             ),
           );
-          const address = parseHumanViewerAddress(fields.toString(), current.documents[0]?.id);
-          const ready = props.readyRevision();
-          const selectedRevision = ready === "" ? current.revision : ready;
+          const address: HumanViewerAddress = parseHumanViewerAddress(fields.toString(), current.documents[0]?.id);
+          const ready: string = props.readyRevision();
+          const selectedRevision: string = ready === "" ? current.revision : ready;
           let png: Buffer;
           if (url.pathname === "/sheet") {
             if (axes === null) throw new Error("A sheet requires review axes");
-            png = await request.run(() =>
-              props.lifetime.run(() =>
+            png = await request.run((): Promise<Buffer> =>
+              props.lifetime.run((): Promise<Buffer> =>
                 renderHumanViewerSheet({
                   page: props.page(),
                   capture: requestCapture,
@@ -192,17 +194,17 @@ function dispatchHumanViewerCapture(
                   cells: planHumanViewerSheet(
                     address,
                     axes,
-                    current.documents.map((entry) => entry.id),
+                    current.documents.map((entry: (typeof current.documents)[number]): string => entry.id),
                   ),
                 }),
               ),
             );
           } else if (url.pathname === "/warm") {
-            const warmed = [];
+            const warmed: { document: string; ms: number }[] = [];
             for (const entry of current.documents.filter(
-              (entry) => entry.domain === "face",
+              (entry: (typeof current.documents)[number]): boolean => entry.domain === "face",
             )) {
-              const before = performance.now();
+              const before: number = performance.now();
               await requestCapture({ ...address, doc: entry.id });
               warmed.push({
                 document: entry.id,
@@ -218,21 +220,21 @@ function dispatchHumanViewerCapture(
           } else if (url.pathname === "/compare") {
             if (against === null)
               throw new Error("A comparison requires an against document");
-            const first = PNG.sync.read(
+            const first: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
               await requestCapture(
                 forHumanViewerComparison(address, address.doc),
               ),
             );
-            const second = PNG.sync.read(
+            const second: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
               await requestCapture(forHumanViewerComparison(address, against)),
             );
-            const compared = composeHumanViewerPixels(
+            const compared: ReturnType<typeof composeHumanViewerPixels> = composeHumanViewerPixels(
               first.width,
               first.height,
               first.data,
               second.data,
             );
-            const composed = new PNG({
+            const composed: PNG = new PNG({
               width: compared.width,
               height: compared.height,
             });
@@ -264,38 +266,48 @@ function dispatchHumanViewerCapture(
           );
           response.setHeader("X-Human-Build", props.capture.build());
           if (url.pathname === "/export-construction") {
-            const asset = await request.run(() =>
-              props.lifetime.run(() => props.page().evaluate(async () => {
-                const result = await (window as unknown as IHumanViewerWindow)
-                  .__humanViewer.exportConstruction();
+            const asset: IHumanViewerConstructionTransfer = await request.run((): Promise<IHumanViewerConstructionTransfer> =>
+              props.lifetime.run((): Promise<IHumanViewerConstructionTransfer> => props.page().evaluate(async (): Promise<IHumanViewerConstructionTransfer> => {
+                const viewer: HumanViewerHandle = (window as unknown as IHumanViewerWindow).__humanViewer;
+                const before: IHumanViewerConstructionTransfer["before"] = {
+                  address: structuredClone(viewer.address()), revision: viewer.revision(),
+                };
+                const result: Awaited<ReturnType<HumanViewerHandle["exportConstruction"]>> = await viewer.exportConstruction();
                 // FileReader carries bytes through the browser bridge without
                 // expanding one GLB into a JavaScript array of numbers.
-                const dataUrl = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
+                const dataUrl: string = await new Promise<string>((resolve: (value: string) => void, reject: (error: unknown) => void): void => {
+                  const reader: FileReader = new FileReader();
+                  reader.onload = (): void => {
                     if (typeof reader.result !== "string") {
                       reject(new Error("The exported construction has no binary data URL."));
                       return;
                     }
                     resolve(reader.result);
                   };
-                  reader.onerror = () => reject(reader.error ?? new Error("Construction byte transfer failed."));
+                  reader.onerror = (): void => reject(reader.error ?? new Error("Construction byte transfer failed."));
                   reader.readAsDataURL(new Blob([result.glb], { type: "model/gltf-binary" }));
                 });
-                return { dataUrl, admission: result.admission };
+                return {
+                  dataUrl, admission: result.admission, before,
+                  after: { address: structuredClone(viewer.address()), revision: viewer.revision() },
+                };
               })),
             );
-            if (props.readyRevision() !== selectedRevision)
+            if (props.readyRevision() !== selectedRevision ||
+                asset.before.revision !== selectedRevision || asset.after.revision !== selectedRevision)
               throw new Error("Source changed during request");
+            if ([asset.before.address, asset.after.address].some((observed: HumanViewerAddress): boolean =>
+                serializeHumanViewerAddress(observed) !== serializeHumanViewerAddress(address)))
+              throw new Error("Displayed selection changed during construction export.");
             response.setHeader(
               "X-Human-Stale",
               String(selectedRevision !== props.inventory().revision),
             );
             request.check();
-            const prefix = "data:model/gltf-binary;base64,";
+            const prefix: string = "data:model/gltf-binary;base64,";
             if (!asset.dataUrl.startsWith(prefix))
               throw new Error("Construction export did not return its binary GLB.");
-            const glb = Buffer.from(asset.dataUrl.slice(prefix.length), "base64");
+            const glb: Buffer = Buffer.from(asset.dataUrl.slice(prefix.length), "base64");
             response.setHeader("X-Human-Construction-Accepted", String(asset.admission.accepted));
             response.setHeader("X-Human-Construction-Failures", String(asset.admission.failures.length));
             response.setHeader("Content-Type", "model/gltf-binary");
@@ -308,10 +320,10 @@ function dispatchHumanViewerCapture(
             if (url.pathname === "/parts") {
               // Read the completed resident's identity, admission and values
               // together. A page or selection changed after capture refuses.
-              const readings = await request.run(() =>
-                props.lifetime.run(() =>
-                  props.page().evaluate(() => {
-                    const viewer = (window as unknown as IHumanViewerWindow)
+              const readings: IHumanViewerConstructionReadout = await request.run((): Promise<IHumanViewerConstructionReadout> =>
+                props.lifetime.run((): Promise<IHumanViewerConstructionReadout> =>
+                  props.page().evaluate((): IHumanViewerConstructionReadout => {
+                    const viewer: HumanViewerHandle = (window as unknown as IHumanViewerWindow)
                       .__humanViewer;
                     return {
                       revision: viewer.revision(),
@@ -342,11 +354,11 @@ function dispatchHumanViewerCapture(
               };
               return json(parts);
             }
-            const admission = await request.run(() =>
-              props.lifetime.run(() =>
+            const admission: ReturnType<HumanViewerHandle["admission"]> = await request.run((): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
+              props.lifetime.run((): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
                 props
                   .page()
-                  .evaluate(() =>
+                  .evaluate((): ReturnType<HumanViewerHandle["admission"]> =>
                     (
                       window as unknown as IHumanViewerWindow
                     ).__humanViewer.admission(),
@@ -357,6 +369,9 @@ function dispatchHumanViewerCapture(
               throw new Error(
                 "Construction observation is missing its admission report.",
               );
+            if (props.readyRevision() !== selectedRevision)
+              throw new Error("Source changed during request");
+            request.check();
             response.setHeader(
               "X-Human-Construction-Accepted",
               String(admission.accepted),
@@ -371,11 +386,11 @@ function dispatchHumanViewerCapture(
             (performance.now() - start).toFixed(1),
           );
           if (url.pathname === "/parts") {
-            const parts = await request.run(() =>
-              props.lifetime.run(() =>
+            const parts: string[] = await request.run((): Promise<string[]> =>
+              props.lifetime.run((): Promise<string[]> =>
                 props
                   .page()
-                  .evaluate(() =>
+                  .evaluate((): string[] =>
                     (
                       window as unknown as IHumanViewerWindow
                     ).__humanViewer.parts(),
@@ -387,7 +402,7 @@ function dispatchHumanViewerCapture(
             request.check();
             response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
             return json(
-              parts.map((name) => ({
+              parts.map((name: string): { name: string; limitation: string } => ({
                 name,
                 limitation:
                   "Displayed mesh/material region, not an anatomical partition",
@@ -399,7 +414,7 @@ function dispatchHumanViewerCapture(
             lane === "bulk" &&
             selectedRevision === props.inventory().revision
           ) {
-            const file = props.thumbnailFile(url.search);
+            const file: string | null = props.thumbnailFile(url.search);
             if (file !== null) await writeHumanViewerThumbnail(file, png);
           }
           if (props.readyRevision() !== selectedRevision)
@@ -408,10 +423,10 @@ function dispatchHumanViewerCapture(
           // Final async work may have observed an inventory edit while the
           // same last-good page remains drawable. Label that page truthfully.
           response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
-          const before = performance.now();
+          const before: number = performance.now();
           response.setHeader("Content-Type", "image/png");
           response.end(png);
-          const phases = props.capture.responded({
+          const phases: ReturnType<IServeHumanViewerCaptureProps["capture"]["responded"]> = props.capture.responded({
             queueMs: queued,
             responseMs: performance.now() - before,
             totalMs: performance.now() - received,
@@ -424,18 +439,18 @@ function dispatchHumanViewerCapture(
               Object.fromEntries(
                 Object.entries(phases)
                   .filter(
-                    (entry): entry is [string, number] =>
+                    (entry: [string, unknown]): entry is [string, number] =>
                       typeof entry[1] === "number",
                   )
-                  .map(([key, value]) => [key, Math.round(value)]),
+                  .map(([key, value]: [string, number]): [string, number] => [key, Math.round(value)]),
               ),
             ),
           );
         },
         {
-          settle: async () => {
-            const began = performance.now();
-            await request.run(() => props.settle());
+          settle: async (): Promise<void> => {
+            const began: number = performance.now();
+            await request.run((): Promise<void> => props.settle());
             settledMs += performance.now() - began;
           },
           attempts: 4,

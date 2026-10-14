@@ -1,28 +1,27 @@
 import type { IHumanViewerJsonConvertible } from "./IHumanViewerJsonConvertible.js";
 import type { IHumanViewerPreviewProjection } from "./IHumanViewerPreviewProjection.js";
+import { isHumanViewerPreviewProjection } from "./isHumanViewerPreviewProjection.js";
 
 /** Target size of one piece, in UTF-16 code units. */
-const BLOCK = 65536;
+const BLOCK: number = 65536;
 
 /**
- * Numerical cache JSON in bounded, Unicode-safe pieces. The scene can give
- * these pieces to Blob without retaining a full JSON string or copies of all
- * typed-array elements in its renderer heap. The field projection and JSON
- * value semantics are shared with the legacy string encoder.
- */
-
-/**
- * Encode the numerical preview projection without a whole-array conversion.
- * Pieces end between JSON tokens or Unicode code points, so encoding each
- * piece as UTF-8 preserves surrogate pairs. Typed arrays keep the existing
- * Float32/Uint32 tags; ordinary JSON objects retain their property order.
+ * Encode the numerical preview projection without a whole-array conversion. Pieces end between JSON tokens or Unicode code points, so encoding each piece as UTF-8 preserves surrogate pairs. Typed arrays keep the existing Float32/Uint32 tags; ordinary JSON objects retain their property order.
+ *
+ * @evidence contracts/common.md#principled-implementation The shared preview guard admits the numerical envelope and a fixed field projection traverses JSON values, toJSON hooks and tagged geometry arrays with ancestor-cycle refusal.
+ * @evidence contracts/common.md#clear-and-simple-design Number formatting, omission/preparation, string tokens and recursive value writing feed one outer piece accumulator without whole typed-array conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown BigInt/circular data refuses, native wrapper slot readers avoid spoofed tags, and reference/photo fields never enter the fixed numerical projection.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies Unicode-safe token boundaries, existing typed-array tags, ordinary property order and transport chunking rather than domain-model validation.
+ * @evidence contracts/performance.md#efficient-algorithms Values are visited once apart from JSON key/string processing, numeric arrays accumulate blocks without per-element generator steps and Unicode strings yield per-code-point tokens to preserve surrogate pairs.
+ * @evidence contracts/performance.md#reuse-equivalent-work The encoder reads existing array views and JSON hooks without copying every geometry element to another array; cache identity and reuse of completed encodings remain with persistence callers.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Accumulation targets 65536 UTF-16 units with a possible one-number overflow; ancestor tracking follows active recursion and clears in finally, nesting has no explicit depth cap and callers may retain every emitted piece for a complete payload.
  */
 export function* encodeHumanViewerPreviewChunks(
   value: IHumanViewerPreviewProjection,
 ): Generator<string> {
-  if (value.operation !== "preview" || value.model === undefined)
+  if (!isHumanViewerPreviewProjection(value))
     throw new Error("Only numerical previews are cached");
-  const projection = {
+  const projection: IHumanViewerPreviewProjection = {
     operation: "preview",
     model: value.model,
     articulation: value.articulation,
@@ -31,22 +30,22 @@ export function* encodeHumanViewerPreviewChunks(
     extras: value.extras,
     anatomy: value.anatomy,
   };
-  const ancestors = new Set<object>();
+  const ancestors: Set<object> = new Set();
   /** JSON's number text: finite numbers as `String` writes them, others as null. */
-  const number = (value: number): string =>
+  const number: (value: number) => string = (value: number): string =>
     Number.isFinite(value) ? String(value) : "null";
-  const omitted = (entry: unknown): boolean =>
+  const omitted: (entry: unknown) => boolean = (entry: unknown): boolean =>
     entry === undefined ||
     typeof entry === "function" ||
     typeof entry === "symbol";
-  const prepare = (entry: unknown, key: string): unknown => {
+  const prepare: (entry: unknown, key: string) => unknown = (entry: unknown, key: string): unknown => {
     if (
       entry !== null &&
       (typeof entry === "object" ||
         typeof entry === "function" ||
         typeof entry === "bigint")
     ) {
-      const json = (entry as IHumanViewerJsonConvertible).toJSON;
+      const json: IHumanViewerJsonConvertible["toJSON"] = (entry as IHumanViewerJsonConvertible).toJSON;
       if (typeof json === "function") return json.call(entry, key);
     }
     return entry;
@@ -103,7 +102,7 @@ export function* encodeHumanViewerPreviewChunks(
     }
     if (typeof entry === "bigint")
       throw new TypeError("Cannot serialize BigInt");
-    const object = entry as object;
+    const object: object = entry as object;
     if (ancestors.has(object))
       throw new TypeError("Converting circular structure to JSON");
     ancestors.add(object);
@@ -114,8 +113,8 @@ export function* encodeHumanViewerPreviewChunks(
           : '{"$array":"Uint32","values":[';
         // Typed elements are always numbers: write them in blocks, without a
         // generator step per element.
-        let text = "";
-        for (let at = 0; at < entry.length; ++at) {
+        let text: string = "";
+        for (let at: number = 0; at < entry.length; ++at) {
           text += (at === 0 ? "" : ",") + number(entry[at]);
           if (text.length >= BLOCK) {
             yield text;
@@ -126,14 +125,14 @@ export function* encodeHumanViewerPreviewChunks(
       } else if (Array.isArray(entry)) {
         yield "[";
         // Snapshot LengthOfArrayLike once, including Proxy/boxed coercion.
-        const numericLength = +entry.length;
-        const length =
+        const numericLength: number = +entry.length;
+        const length: number =
           Number.isNaN(numericLength) || numericLength <= 0
             ? 0
             : Math.min(Math.trunc(numericLength), Number.MAX_SAFE_INTEGER);
-        let text = "";
-        for (let at = 0; at < length; ++at) {
-          const item = entry[at];
+        let text: string = "";
+        for (let at: number = 0; at < length; ++at) {
+          const item: unknown = entry[at];
           // A primitive number, the bulk of a model, needs no toJSON or
           // wrapper handling; anything else takes the general path.
           if (typeof item === "number") {
@@ -149,15 +148,15 @@ export function* encodeHumanViewerPreviewChunks(
             yield text;
             text = "";
           }
-          const prepared = prepare(item, String(at));
+          const prepared: unknown = prepare(item, String(at));
           yield* write(omitted(prepared) ? null : prepared);
         }
         yield text + "]";
       } else {
         yield "{";
-        let first = true;
+        let first: boolean = true;
         for (const key of Object.keys(object)) {
-          const item = prepare((object as Record<string, unknown>)[key], key);
+          const item: unknown = prepare((object as Record<string, unknown>)[key], key);
           if (omitted(item)) continue;
           if (!first) yield ",";
           first = false;
@@ -171,7 +170,7 @@ export function* encodeHumanViewerPreviewChunks(
       ancestors.delete(object);
     }
   }
-  let chunk = "";
+  let chunk: string = "";
   for (const token of write(projection)) {
     if (chunk.length + token.length > BLOCK) {
       if (chunk !== "") yield chunk;

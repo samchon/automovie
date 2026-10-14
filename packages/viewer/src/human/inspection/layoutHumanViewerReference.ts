@@ -4,19 +4,15 @@ import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.
 
 
 /**
- * The pixel layout of a capture that shows a reference photograph beside or
- * over the render. The display page draws the photograph as a DOM layer above
- * the canvas, so the canvas alone never contains it. This layout is the same
- * composition in pixels, so a PNG captured for `ref` shows what the page shows.
- * Units are capture pixels. The photograph is fitted inside its square cell
- * without cropping, centred, as CSS `object-fit: contain` places it. `split`
- * widens the capture to two cells with the render left and the photograph
- * right. `overlay` draws the photograph over the render at opacity
- * `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows
- * the photograph only right of the `opacity` fraction of the width.
- * Landmarks are observed on the photograph in unit image coordinates, so each
- * marker lands inside the photograph's fitted box, whichever mode places it.
- * The plan reads no image bytes and records no file name or path.
+ * The pixel layout of a capture that shows a reference photograph beside or over the render. The display page draws the photograph as a DOM layer above the canvas, so the canvas alone never contains it. This layout is the same composition in pixels, so a PNG captured for `ref` shows what the page shows. Units are capture pixels. The photograph is fitted inside its square cell without cropping, centred, as CSS `object-fit: contain` places it. `split` widens the capture to two cells with the render left and the photograph right. `overlay` draws the photograph over the render at opacity `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows the photograph only right of the `opacity` fraction of the width. Landmarks are observed on the photograph in unit image coordinates, so each marker lands inside the photograph's fitted box, whichever mode places it. The plan reads no image bytes and records no file name or path.
+ *
+ * @evidence contracts/common.md#principled-implementation Aspect-preserving contain placement and the declared split/overlay/swipe layer rules derive pixel boxes, clips and photograph-coordinate markers without changing numerical geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Shared fitted/place helpers produce one render layer and one photo layer with explicit alpha/clip semantics for each presentation mode.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonpositive sizes and out-of-range opacity refuse; only supplied landmark coordinates are projected and image paths/bytes cannot enter the public layout.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines capture-pixel units, contain fitting, render-share opacity, swipe clipping and observed unit-image landmark placement.
+ * @evidence contracts/performance.md#efficient-algorithms Box/layer work is fixed arithmetic and marker placement traverses supplied landmarks once, without pixel decoding or image sampling.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same layout owner serves screen and PNG composition so their fitted coordinates share one calculation rather than separately cached geometry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Two layer descriptions and one marker per supplied landmark remain in the result; no image, canvas or filesystem resource is retained by the planner.
  *
  * @param mode Presentation mode.
  * @param size Square cell side in pixels, positive.
@@ -41,20 +37,20 @@ export function layoutHumanViewerReference(
     throw new Error("Reference layout needs positive sizes");
   if (!(opacity >= 0 && opacity <= 1))
     throw new Error("Reference opacity must lie between zero and one");
-  const scale = Math.min(size / photo.width, size / photo.height);
-  const w = photo.width * scale;
-  const h = photo.height * scale;
-  const fitted = (left: number): IHumanViewerReferenceBox => ({
+  const scale: number = Math.min(size / photo.width, size / photo.height);
+  const w: number = photo.width * scale;
+  const h: number = photo.height * scale;
+  const fitted: (left: number) => IHumanViewerReferenceBox = (left: number): IHumanViewerReferenceBox => ({
     x: left + (size - w) / 2,
     y: (size - h) / 2,
     w,
     h,
   });
-  const cell = { x: 0, y: 0, w: size, h: size };
-  const place = (left: number) => {
-    const box = fitted(left);
+  const cell: IHumanViewerReferenceBox = { x: 0, y: 0, w: size, h: size };
+  const place: (left: number) => { markers: IHumanViewerReferenceMarker[]; markerRadius: number } = (left: number): { markers: IHumanViewerReferenceMarker[]; markerRadius: number } => {
+    const box: IHumanViewerReferenceBox = fitted(left);
     return {
-      markers: landmarks.map((point) => ({
+      markers: landmarks.map((point: typeof landmarks[number]): IHumanViewerReferenceMarker => ({
         x: box.x + point.x * box.w,
         y: box.y + point.y * box.h,
         group: point.group,
