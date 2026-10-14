@@ -1,5 +1,8 @@
 import { Quaternion, locomoteMotion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
@@ -54,7 +57,13 @@ export function test_motion_locomote(): void {
   );
 
   // 1. 6 m at 1 m/s on a 1 s gait → 6 cycles, ~6 m of +Z travel
-  const stroll: ReturnType<typeof locomoteMotion> = locomoteMotion("stroll", gait, 6, 1, { x: 0, y: 0, z: 1 });
+  const stroll: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "stroll",
+    gait,
+    6,
+    1,
+    { x: 0, y: 0, z: 1 },
+  );
   TestValidator.predicate(
     "duration = 6 cycles × 1 s",
     nclose(stroll.duration, 6),
@@ -64,14 +73,26 @@ export function test_motion_locomote(): void {
   TestValidator.predicate("travelled ≈ 6 m forward", nclose(lastZ, 6, 0.001));
 
   // 2. unnormalised direction is normalised (a (0,0,5) dir still travels at speed)
-  const diag: ReturnType<typeof locomoteMotion> = locomoteMotion("d", gait, 4, 2, { x: 0, y: 0, z: 5 });
+  const diag: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "d",
+    gait,
+    4,
+    2,
+    { x: 0, y: 0, z: 5 },
+  );
   const dz: number =
     diag.keyframes[diag.keyframes.length - 1]!.pose.root!.translation.z;
   // 4 m at 2 m/s on a 1 s gait → round(2) = 2 cycles → 2 s → 2 × 2 = 4 m
   TestValidator.predicate("normalised: ≈ 4 m at 2 m/s", nclose(dz, 4, 0.001));
 
   // 3. sub-half-stride distance compresses the cycle to floor the speed (#1065)
-  const tiny: ReturnType<typeof locomoteMotion> = locomoteMotion("t", gait, 0.2, 1, { x: 0, y: 0, z: 1 });
+  const tiny: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "t",
+    gait,
+    0.2,
+    1,
+    { x: 0, y: 0, z: 1 },
+  );
   TestValidator.predicate(
     "one compressed cycle spans 2·distance/speed = 0.4 s",
     nclose(tiny.duration, 0.4),
@@ -105,7 +126,13 @@ export function test_motion_locomote(): void {
     { tinyGaitCycle: true, tinyGaitCycle2: true, ncloseTinyGaitCycle: true },
   );
   // negative twin: past the half-stride point the cycle stays uncompressed
-  const halfStride: ReturnType<typeof locomoteMotion> = locomoteMotion("h", gait, 0.6, 1, { x: 0, y: 0, z: 1 });
+  const halfStride: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "h",
+    gait,
+    0.6,
+    1,
+    { x: 0, y: 0, z: 1 },
+  );
   TestValidator.predicate(
     "a 0.6 m ask keeps the full 1 s cycle",
     nclose(halfStride.duration, 1),
@@ -119,12 +146,25 @@ export function test_motion_locomote(): void {
   );
 
   // 4. faceTravel turns the body toward the heading
-  const strafe: ReturnType<typeof locomoteMotion> = locomoteMotion("s", gait, 4, 1, { x: 1, y: 0, z: 0 });
+  const strafe: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "s",
+    gait,
+    4,
+    1,
+    { x: 1, y: 0, z: 0 },
+  );
   TestValidator.predicate(
     "default keeps rest facing (identity root rotation)",
     nclose(strafe.keyframes[1]!.pose.root!.rotation.w, 1),
   );
-  const turned: ReturnType<typeof locomoteMotion> = locomoteMotion("f", gait, 4, 1, { x: 1, y: 0, z: 0 }, true);
+  const turned: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "f",
+    gait,
+    4,
+    1,
+    { x: 1, y: 0, z: 0 },
+    true,
+  );
   const rot: IAutoMovieQuaternion =
     turned.keyframes[turned.keyframes.length - 1]!.pose.root!.rotation;
   TestValidator.predicate(
@@ -180,7 +220,13 @@ export function test_motion_locomote(): void {
     );
 
   // 6. a fractional ask arrives exactly
-  const fractional: ReturnType<typeof locomoteMotion> = locomoteMotion("fr", gait, 3.49, 1, { x: 0, y: 0, z: 1 });
+  const fractional: ReturnType<typeof locomoteMotion> = locomoteMotion(
+    "fr",
+    gait,
+    3.49,
+    1,
+    { x: 0, y: 0, z: 1 },
+  );
   TestValidator.predicate(
     "3.49 m rounds to 3 cycles",
     nclose(fractional.duration, 3),

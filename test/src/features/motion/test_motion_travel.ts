@@ -1,6 +1,9 @@
-import type { IAutoMovieMotion, IAutoMovieKeyframe, IAutoMovieTransform } from "@automovie/interface";
 import { travelMotion } from "@automovie/engine";
-
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
@@ -42,7 +45,11 @@ export function test_motion_travel(): void {
     1,
     true,
   );
-  const travelled: IAutoMovieMotion = travelMotion("stroll", base, 3, { x: 0, y: 0, z: 0.5 });
+  const travelled: IAutoMovieMotion = travelMotion("stroll", base, 3, {
+    x: 0,
+    y: 0,
+    z: 0.5,
+  });
 
   TestValidator.equals(
     "3 cycles, seams dropped → 4 keyframes",
@@ -61,21 +68,23 @@ export function test_motion_travel(): void {
   );
 
   // times are 0, 1, 2, 3 and root Z = 0.5 × time at each
-  const times: number[] = travelled.keyframes.map((k: IAutoMovieKeyframe) : number => k.time);
+  const times: number[] = travelled.keyframes.map(
+    (k: IAutoMovieKeyframe): number => k.time,
+  );
   TestValidator.predicate(
     "times are 0,1,2,3",
-    times.every((t: number, i: number) : boolean => nclose(t, i)),
+    times.every((t: number, i: number): boolean => nclose(t, i)),
   );
   TestValidator.predicate(
     "root Z = velocity × time at every keyframe",
-    travelled.keyframes.every((k: IAutoMovieKeyframe) : boolean =>
+    travelled.keyframes.every((k: IAutoMovieKeyframe): boolean =>
       nclose(k.pose.root!.translation.z, 0.5 * k.time),
     ),
   );
   TestValidator.predicate(
     "no travel on unused axes",
     travelled.keyframes.every(
-      (k: IAutoMovieKeyframe) : boolean =>
+      (k: IAutoMovieKeyframe): boolean =>
         nclose(k.pose.root!.translation.x, 0) &&
         nclose(k.pose.root!.translation.y, 0),
     ),
@@ -95,7 +104,11 @@ export function test_motion_travel(): void {
     1,
     true,
   );
-  const t2: IAutoMovieMotion = travelMotion("hopAcross", withRoot, 2, { x: 1, y: 0, z: 0 });
+  const t2: IAutoMovieMotion = travelMotion("hopAcross", withRoot, 2, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
   const k1: IAutoMovieKeyframe = t2.keyframes[1]!; // at global time 1
   TestValidator.predicate(
     "base bob Y preserved",
@@ -115,7 +128,7 @@ export function test_motion_travel(): void {
   TestValidator.predicate(
     "root Z strictly increasing across seams",
     travelled.keyframes.every(
-      (k: IAutoMovieKeyframe, i: number) : boolean =>
+      (k: IAutoMovieKeyframe, i: number): boolean =>
         i === 0 ||
         k.pose.root!.translation.z >
           travelled.keyframes[i - 1]!.pose.root!.translation.z,
@@ -123,8 +136,19 @@ export function test_motion_travel(): void {
   );
 
   // 4. facing composes onto the base root rotation (45° yaw + 90° yaw = 135°)
-  const yaw90: { x: number; y: number; z: number; w: number; } = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
-  const faced: IAutoMovieMotion = travelMotion("turn", withRoot, 2, { x: 1, y: 0, z: 0 }, yaw90);
+  const yaw90: { x: number; y: number; z: number; w: number } = {
+    x: 0,
+    y: Math.SQRT1_2,
+    z: 0,
+    w: Math.SQRT1_2,
+  };
+  const faced: IAutoMovieMotion = travelMotion(
+    "turn",
+    withRoot,
+    2,
+    { x: 1, y: 0, z: 0 },
+    yaw90,
+  );
   TestValidator.predicate(
     "facing ∘ base yaw = 135° (w = cos 67.5°)",
     nclose(
@@ -137,12 +161,12 @@ export function test_motion_travel(): void {
   for (const cycles of invalidCycles)
     TestValidator.predicate(
       `rejects invalid cycles ${cycles}`,
-      throwsError(() : void => {
+      throwsError((): void => {
         travelMotion("badCycles", base, cycles, { x: 0, y: 0, z: 1 });
       }),
     );
 
-  const invalidVelocities: { x: number; y: number; z: number; }[] = [
+  const invalidVelocities: { x: number; y: number; z: number }[] = [
     { x: Number.NaN, y: 0, z: 1 },
     { x: 0, y: Infinity, z: 1 },
     { x: 0, y: 0, z: -Infinity },
@@ -150,12 +174,12 @@ export function test_motion_travel(): void {
   for (const velocity of invalidVelocities)
     TestValidator.predicate(
       "rejects non-finite velocity",
-      throwsError(() : void => {
+      throwsError((): void => {
         travelMotion("badVelocity", base, 1, velocity);
       }),
     );
 
-  const invalidFacings: { x: number; y: number; z: number; w: number; }[] = [
+  const invalidFacings: { x: number; y: number; z: number; w: number }[] = [
     { x: Number.NaN, y: 0, z: 0, w: 1 },
     { x: 0, y: Infinity, z: 0, w: 1 },
     { x: 0, y: 0, z: -Infinity, w: 1 },
@@ -164,13 +188,18 @@ export function test_motion_travel(): void {
   for (const facing of invalidFacings)
     TestValidator.predicate(
       "rejects non-finite facing",
-      throwsError(() : void => {
+      throwsError((): void => {
         travelMotion("badFacing", base, 1, { x: 0, y: 0, z: 1 }, facing);
       }),
     );
 
   // 5. a model-frame lateral sway rotates with the facing before travel adds
-  const yaw90b: { x: number; y: number; z: number; w: number; } = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
+  const yaw90b: { x: number; y: number; z: number; w: number } = {
+    x: 0,
+    y: Math.SQRT1_2,
+    z: 0,
+    w: Math.SQRT1_2,
+  };
   const swayRoot: IAutoMovieTransform = {
     translation: { x: 0.1, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -196,11 +225,13 @@ export function test_motion_travel(): void {
     namedFacts([
       [
         "ncloseSwayFacedKeyframes",
-        () : boolean => nclose(swayFaced.keyframes[1]!.pose.root!.translation.z, -0.1),
+        (): boolean =>
+          nclose(swayFaced.keyframes[1]!.pose.root!.translation.z, -0.1),
       ],
       [
         "ncloseSwayFacedKeyframes2",
-        () : boolean => nclose(swayFaced.keyframes[1]!.pose.root!.translation.x, 1),
+        (): boolean =>
+          nclose(swayFaced.keyframes[1]!.pose.root!.translation.x, 1),
       ],
     ]),
     { ncloseSwayFacedKeyframes: true, ncloseSwayFacedKeyframes2: true },
@@ -219,7 +250,11 @@ export function test_motion_travel(): void {
   );
   travelled.keyframes[0]!.pose.root!.rotation.w = 0;
   travelled.keyframes[0]!.pose.root!.scale.x = 9;
-  const fresh: IAutoMovieMotion = travelMotion("fresh", base, 1, { x: 0, y: 0, z: 0.5 });
+  const fresh: IAutoMovieMotion = travelMotion("fresh", base, 1, {
+    x: 0,
+    y: 0,
+    z: 0.5,
+  });
   TestValidator.predicate(
     "fallback identity is isolated between frames and invocations",
     nclose(travelled.keyframes[1]!.pose.root!.rotation.w, 1) &&
@@ -229,20 +264,50 @@ export function test_motion_travel(): void {
   );
   TestValidator.predicate(
     "unsafe integer cycle count refuses before repetition",
-    throwsError(() : IAutoMovieMotion => travelMotion("unsafe", base, Number.MAX_SAFE_INTEGER + 1, { x: 0, y: 0, z: 0 }), "travel cycles"),
+    throwsError(
+      (): IAutoMovieMotion =>
+        travelMotion("unsafe", base, Number.MAX_SAFE_INTEGER + 1, {
+          x: 0,
+          y: 0,
+          z: 0,
+        }),
+      "travel cycles",
+    ),
   );
-  const huge: IAutoMovieMotion = makeMotion([keyframe(0, makePose([])), keyframe(1e308, makePose([]))], 1e308);
+  const huge: IAutoMovieMotion = makeMotion(
+    [keyframe(0, makePose([])), keyframe(1e308, makePose([]))],
+    1e308,
+  );
   TestValidator.predicate(
     "finite base duration refuses overflowing composite duration",
-    throwsError(() : IAutoMovieMotion => travelMotion("durationOverflow", huge, 2, { x: 0, y: 0, z: 0 }), "travel duration"),
+    throwsError(
+      (): IAutoMovieMotion =>
+        travelMotion("durationOverflow", huge, 2, { x: 0, y: 0, z: 0 }),
+      "travel duration",
+    ),
   );
   TestValidator.predicate(
     "finite velocity and time refuse overflowing root coordinates",
-    throwsError(() : IAutoMovieMotion => travelMotion("positionOverflow", huge, 1, { x: 2, y: 0, z: 0 }), "travel root translation"),
+    throwsError(
+      (): IAutoMovieMotion =>
+        travelMotion("positionOverflow", huge, 1, { x: 2, y: 0, z: 0 }),
+      "travel root translation",
+    ),
   );
-  const dense: IAutoMovieMotion = makeMotion([keyframe(0, makePose([])), keyframe(1, makePose([])), keyframe(1e16, makePose([]))], 1e16);
+  const dense: IAutoMovieMotion = makeMotion(
+    [
+      keyframe(0, makePose([])),
+      keyframe(1, makePose([])),
+      keyframe(1e16, makePose([])),
+    ],
+    1e16,
+  );
   TestValidator.predicate(
     "finite cycle offsets refuse a lost interior clock increment",
-    throwsError(() : IAutoMovieMotion => travelMotion("lostIncrement", dense, 2, { x: 0, y: 0, z: 0 }), "travel keyframe times"),
+    throwsError(
+      (): IAutoMovieMotion =>
+        travelMotion("lostIncrement", dense, 2, { x: 0, y: 0, z: 0 }),
+      "travel keyframe times",
+    ),
   );
 }

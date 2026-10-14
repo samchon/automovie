@@ -1,11 +1,18 @@
 import { arrangeMotion, holdMotion } from "@automovie/engine";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const spine: (m: IAutoMoviePose) => IAutoMovieJointPose | undefined = (m: IAutoMoviePose): IAutoMovieJointPose | undefined =>
+const spine: (m: IAutoMoviePose) => IAutoMovieJointPose | undefined = (
+  m: IAutoMoviePose,
+): IAutoMovieJointPose | undefined =>
   m.joints.find((x: IAutoMovieJointPose): boolean => x.bone === "spine");
 
 /**
@@ -86,9 +93,10 @@ export function test_motion_arrange(): void {
   ]);
   TestValidator.predicate(
     "times are 0,1,2,3 (gap held, seam dropped)",
-    gapped.keyframes.length === 4 && gapped.keyframes
-      .map((k: IAutoMovieKeyframe): number => k.time)
-      .every((t: number, i: number): boolean => nclose(t, [0, 1, 2, 3][i]!)),
+    gapped.keyframes.length === 4 &&
+      gapped.keyframes
+        .map((k: IAutoMovieKeyframe): number => k.time)
+        .every((t: number, i: number): boolean => nclose(t, [0, 1, 2, 3][i]!)),
   );
   TestValidator.predicate(
     "duration is the last placement end",
@@ -111,9 +119,10 @@ export function test_motion_arrange(): void {
   ]);
   TestValidator.predicate(
     "contiguous times 0,1,2",
-    back2back.keyframes.length === 3 && back2back.keyframes
-      .map((k: IAutoMovieKeyframe): number => k.time)
-      .every((t: number, i: number): boolean => nclose(t, [0, 1, 2][i]!)),
+    back2back.keyframes.length === 3 &&
+      back2back.keyframes
+        .map((k: IAutoMovieKeyframe): number => k.time)
+        .every((t: number, i: number): boolean => nclose(t, [0, 1, 2][i]!)),
   );
   TestValidator.predicate(
     "contiguous duration 2",
@@ -124,7 +133,8 @@ export function test_motion_arrange(): void {
     TestValidator.predicate(
       `hold rejects invalid duration ${duration}`,
       throwsError(
-        (): IAutoMovieMotion => holdMotion("badHold", "skeleton-1", makePose([]), duration),
+        (): IAutoMovieMotion =>
+          holdMotion("badHold", "skeleton-1", makePose([]), duration),
         "hold duration must be finite and positive",
       ),
     );
@@ -136,7 +146,8 @@ export function test_motion_arrange(): void {
     TestValidator.predicate(
       `arrange rejects invalid start ${start}`,
       throwsError(
-        (): IAutoMovieMotion => arrangeMotion("badArrange", [{ start, motion: A }]),
+        (): IAutoMovieMotion =>
+          arrangeMotion("badArrange", [{ start, motion: A }]),
         message,
       ),
     );

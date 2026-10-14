@@ -19,7 +19,10 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], constraint: IAutoMovieBone["constraint"]) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   constraint: IAutoMovieBone["constraint"],
 ): IAutoMovieBone => ({ bone: name, parent: null, rest, constraint });
@@ -36,7 +39,9 @@ const skeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const sp: (p: IAutoMoviePose) => IAutoMovieJointPose = (p: IAutoMoviePose): IAutoMovieJointPose =>
+const sp: (p: IAutoMoviePose) => IAutoMovieJointPose = (
+  p: IAutoMoviePose,
+): IAutoMovieJointPose =>
   p.joints.find((x: IAutoMovieJointPose): boolean => x.bone === "spine")!;
 
 const throws: (task: () => void) => boolean = (task: () => void): boolean => {
@@ -84,9 +89,18 @@ export function test_motion_react(): void {
   TestValidator.equals(
     "times 0, peak, duration",
     namedFacts([
-      ["ncloseClipKeyframes", (): boolean => nclose(clip.keyframes[0]!.time, 0)],
-      ["ncloseClipKeyframes2", (): boolean => nclose(clip.keyframes[1]!.time, 0.2)],
-      ["ncloseClipKeyframes3", (): boolean => nclose(clip.keyframes[2]!.time, 1.0)],
+      [
+        "ncloseClipKeyframes",
+        (): boolean => nclose(clip.keyframes[0]!.time, 0),
+      ],
+      [
+        "ncloseClipKeyframes2",
+        (): boolean => nclose(clip.keyframes[1]!.time, 0.2),
+      ],
+      [
+        "ncloseClipKeyframes3",
+        (): boolean => nclose(clip.keyframes[2]!.time, 1.0),
+      ],
     ]),
     {
       ncloseClipKeyframes: true,
@@ -104,7 +118,9 @@ export function test_motion_react(): void {
   TestValidator.predicate(
     "null-override chest clamps to the default humanoid ROM minimum",
     nclose(
-      clip.keyframes[1]!.pose.joints.find((x: IAutoMovieJointPose): boolean => x.bone === "chest")!.flexion!,
+      clip.keyframes[1]!.pose.joints.find(
+        (x: IAutoMovieJointPose): boolean => x.bone === "chest",
+      )!.flexion!,
       -20,
     ),
   );
@@ -150,11 +166,13 @@ export function test_motion_react(): void {
     namedFacts([
       [
         "zeroExcludingKeyframesPose",
-        (): boolean => zeroExcluding.keyframes[0]!.pose.joints[0]!.flexion === null,
+        (): boolean =>
+          zeroExcluding.keyframes[0]!.pose.joints[0]!.flexion === null,
       ],
       [
         "zeroExcludingKeyframesPose2",
-        (): boolean => zeroExcluding.keyframes[2]!.pose.joints[0]!.abduction === null,
+        (): boolean =>
+          zeroExcluding.keyframes[2]!.pose.joints[0]!.abduction === null,
       ],
       [
         "validationHasNoWarningsZeroExcluding",
@@ -208,12 +226,21 @@ export function test_motion_react(): void {
   TestValidator.equals(
     "a 0.1 s duration scales the default peak to 0.04",
     namedFacts([
-      ["ncloseQuickKeyframes", (): boolean => nclose(quick.keyframes[1]!.time, 0.04)],
+      [
+        "ncloseQuickKeyframes",
+        (): boolean => nclose(quick.keyframes[1]!.time, 0.04),
+      ],
       ["ncloseQuickDuration", (): boolean => nclose(quick.duration, 0.1)],
     ]),
     { ncloseQuickKeyframes: true, ncloseQuickDuration: true },
   );
-  const long: ReturnType<typeof reactMotion> = reactMotion("long", skeleton, { flexion: -10 }, ["spine"], 0.5);
+  const long: ReturnType<typeof reactMotion> = reactMotion(
+    "long",
+    skeleton,
+    { flexion: -10 },
+    ["spine"],
+    0.5,
+  );
   TestValidator.predicate(
     "durations ≥ 0.4 s keep the exact 0.16 s default peak",
     nclose(long.keyframes[1]!.time, 0.16),

@@ -1,5 +1,6 @@
 import { ease } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
 import { throwsError } from "../internal/throwsError";
 
 /**
@@ -18,6 +19,9 @@ import { throwsError } from "../internal/throwsError";
 export function test_motion_easing_invalid_curve(): void {
   TestValidator.predicate(
     "unknown easing curve rejects",
-    throwsError((): number => ease("elastic" as never, 0.5), 'unknown easing curve "elastic"'),
+    throwsError(
+      (): number => ease("elastic" as never, 0.5),
+      'unknown easing curve "elastic"',
+    ),
   );
 }

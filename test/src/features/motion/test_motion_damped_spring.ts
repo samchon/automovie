@@ -24,17 +24,35 @@ import { nclose, throwsError } from "../internal/predicates";
  */
 export function test_motion_damped_spring(): void {
   // 1. at rest on target
-  const a: ReturnType<typeof dampedSpring> = dampedSpring(5, 0, 5, { stiffness: 50, damping: 8 }, 0.1);
+  const a: ReturnType<typeof dampedSpring> = dampedSpring(
+    5,
+    0,
+    5,
+    { stiffness: 50, damping: 8 },
+    0.1,
+  );
   TestValidator.predicate("rest value holds", nclose(a.value, 5));
   TestValidator.predicate("rest velocity holds", nclose(a.velocity, 0));
 
   // 2. pulled toward a higher target
-  const b: ReturnType<typeof dampedSpring> = dampedSpring(0, 0, 10, { stiffness: 20, damping: 4 }, 0.1);
+  const b: ReturnType<typeof dampedSpring> = dampedSpring(
+    0,
+    0,
+    10,
+    { stiffness: 20, damping: 4 },
+    0.1,
+  );
   TestValidator.predicate("velocity = k·Δ·dt", nclose(b.velocity, 20));
   TestValidator.predicate("value = v·dt", nclose(b.value, 2));
 
   // 3. pure damping kills velocity
-  const c: ReturnType<typeof dampedSpring> = dampedSpring(0, 50, 0, { stiffness: 0, damping: 10 }, 0.1);
+  const c: ReturnType<typeof dampedSpring> = dampedSpring(
+    0,
+    50,
+    0,
+    { stiffness: 0, damping: 10 },
+    0.1,
+  );
   TestValidator.predicate("damped velocity → 0", nclose(c.velocity, 0));
   TestValidator.predicate("value unchanged", nclose(c.value, 0));
 
@@ -54,43 +72,64 @@ export function test_motion_damped_spring(): void {
   const invalidScalars: [string, () => ReturnType<typeof dampedSpring>][] = [
     [
       "current",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(Number.NaN, 0, 1, { stiffness: 10, damping: 2 }, 0.1),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(Number.NaN, 0, 1, { stiffness: 10, damping: 2 }, 0.1),
     ],
     [
       "velocity",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(0, Infinity, 1, { stiffness: 10, damping: 2 }, 0.1),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, Infinity, 1, { stiffness: 10, damping: 2 }, 0.1),
     ],
     [
       "target",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, -Infinity, { stiffness: 10, damping: 2 }, 0.1),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, -Infinity, { stiffness: 10, damping: 2 }, 0.1),
     ],
     [
       "stiffness",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: Number.NaN, damping: 2 }, 0.1),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, 1, { stiffness: Number.NaN, damping: 2 }, 0.1),
     ],
     [
       "damping",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: 10, damping: Infinity }, 0.1),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, 1, { stiffness: 10, damping: Infinity }, 0.1),
     ],
     [
       "dt",
-      (): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: 10, damping: 2 }, Number.NaN),
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, 1, { stiffness: 10, damping: 2 }, Number.NaN),
     ],
   ];
   for (const [name, task] of invalidScalars)
-    TestValidator.predicate(`rejects non-finite ${name}`, throwsError(task, `spring ${name} must be finite`));
+    TestValidator.predicate(
+      `rejects non-finite ${name}`,
+      throwsError(task, `spring ${name} must be finite`),
+    );
 
   TestValidator.predicate(
     "rejects negative stiffness",
-    throwsError((): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: -1, damping: 2 }, 0.1), "spring stiffness must be non-negative"),
+    throwsError(
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, 1, { stiffness: -1, damping: 2 }, 0.1),
+      "spring stiffness must be non-negative",
+    ),
   );
   TestValidator.predicate(
     "rejects negative damping",
-    throwsError((): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: 10, damping: -1 }, 0.1), "spring damping must be non-negative"),
+    throwsError(
+      (): ReturnType<typeof dampedSpring> =>
+        dampedSpring(0, 0, 1, { stiffness: 10, damping: -1 }, 0.1),
+      "spring damping must be non-negative",
+    ),
   );
   for (const dt of [0, -0.1])
     TestValidator.predicate(
       `rejects non-positive dt ${dt}`,
-      throwsError((): ReturnType<typeof dampedSpring> => dampedSpring(0, 0, 1, { stiffness: 10, damping: 2 }, dt), "spring dt must be positive"),
+      throwsError(
+        (): ReturnType<typeof dampedSpring> =>
+          dampedSpring(0, 0, 1, { stiffness: 10, damping: 2 }, dt),
+        "spring dt must be positive",
+      ),
     );
 }

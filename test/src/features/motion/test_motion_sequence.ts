@@ -1,11 +1,16 @@
 import { sequenceMotion } from "@automovie/engine";
-import type { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
-const errorMessage: (task: () => void) => string | null = (task: () => void): string | null => {
+const errorMessage: (task: () => void) => string | null = (
+  task: () => void,
+): string | null => {
   try {
     task();
     return null;
@@ -71,7 +76,8 @@ export function test_motion_sequence(): void {
   TestValidator.predicate(
     "strictly increasing times",
     seq.keyframes.every(
-      (k: IAutoMovieKeyframe, i: number): boolean => i === 0 || k.time > seq.keyframes[i - 1]!.time,
+      (k: IAutoMovieKeyframe, i: number): boolean =>
+        i === 0 || k.time > seq.keyframes[i - 1]!.time,
     ),
   );
   TestValidator.equals("skeleton id from first part", seq.skeleton, A.skeleton);
@@ -92,16 +98,18 @@ export function test_motion_sequence(): void {
   );
   TestValidator.equals(
     "mixed skeleton sequence rejects",
-    errorMessage((): IAutoMovieMotion =>
-      sequenceMotion("mixed", [A, { ...B, skeleton: "skeleton-2" }]),
+    errorMessage(
+      (): IAutoMovieMotion =>
+        sequenceMotion("mixed", [A, { ...B, skeleton: "skeleton-2" }]),
     ),
     "sequence part skeletons must match",
   );
   for (const duration of [Number.NaN, 0, -1])
     TestValidator.equals(
       `invalid part duration ${duration} rejects`,
-      errorMessage((): IAutoMovieMotion =>
-        sequenceMotion("badDuration", [{ ...A, duration }, B]),
+      errorMessage(
+        (): IAutoMovieMotion =>
+          sequenceMotion("badDuration", [{ ...A, duration }, B]),
       ),
       "sequence part duration must be finite and positive",
     );

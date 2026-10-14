@@ -76,11 +76,17 @@ export function test_motion_cubic_bezier(): void {
   // 5. invalid scalars reject; finite out-of-range progress still clamps
   TestValidator.predicate(
     "ease rejects nan progress",
-    throwsError((): number => ease("linear", Number.NaN), "easing progress must be finite"),
+    throwsError(
+      (): number => ease("linear", Number.NaN),
+      "easing progress must be finite",
+    ),
   );
   TestValidator.predicate(
     "bezier rejects nan progress",
-    throwsError((): number => cubicBezierEasing([0, 0, 1, 1], Number.NaN), "easing progress must be finite"),
+    throwsError(
+      (): number => cubicBezierEasing([0, 0, 1, 1], Number.NaN),
+      "easing progress must be finite",
+    ),
   );
   const invalidControls: [string, [number, number, number, number]][] = [
     ["x1", [Number.NaN, 0, 1, 1]],
@@ -91,7 +97,10 @@ export function test_motion_cubic_bezier(): void {
   for (const [name, control] of invalidControls)
     TestValidator.predicate(
       `bezier rejects non-finite ${name}`,
-      throwsError((): number => cubicBezierEasing(control, 0.5), "cubic bezier control points must be finite"),
+      throwsError(
+        (): number => cubicBezierEasing(control, 0.5),
+        "cubic bezier control points must be finite",
+      ),
     );
   TestValidator.predicate(
     "ease clamps finite low",
