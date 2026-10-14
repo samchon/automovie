@@ -8,7 +8,7 @@ import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieH
 /**
  * Admit the body document's exact schema and finite scalars for loading and saving.
  *
- * Named shape weights, generic pose and TT goals, colour/detail/material scalars must be finite; supplied humeral-head radii in millimetres must be positive. Identities are nonempty, shoulder planes lie in [-180,180), and generic pose, shoulder, thigh-goal and anatomical coordinate rows have unique authorities. Generic upper-arm Euler requests refuse rather than replacing TT shoulder coordinates. Basis channel/joint existence and clinical ranges remain the compiled builder's decision, allowing a document to be saved before its basis is loaded.
+ * Named shape weights, generic pose, toe flexion/abduction and TT goals, colour/detail/material scalars must be finite; supplied humeral-head radii in millimetres must be positive. Identities are nonempty, shoulder planes lie in [-180,180), and generic pose, shoulder, thigh-goal and anatomical coordinate rows have unique authorities. Generic upper-arm Euler requests refuse rather than replacing TT shoulder coordinates. Basis channel/joint existence and clinical ranges remain the compiled builder's decision, allowing a document to be saved before its basis is loaded.
  *
  * Anatomical measurements pass their shared scalar and registered-consumer admission. Optional source context must name the exact document basis; a neutral-only source refuses performance rows and ground placement. Actual registered quantity observations remain acquisition records rather than inferred personal tissue shape. The returned document is the admitted input object, not an owned clone, and validation does not mutate it or perform geometry.
  *
@@ -51,6 +51,10 @@ export function admitHumanBodyBasisDocument(
       if (angle !== null) values.push(angle);
   for (const shoulder of document.shoulders ?? [])
     values.push(shoulder.plane, shoulder.elevation, shoulder.axialRotation);
+  for (const toe of document.toes ?? []) {
+    values.push(toe.flexion);
+    if (toe.abduction !== undefined) values.push(toe.abduction);
+  }
   for (const goal of document.thighGoals ?? [])
     values.push(goal.flexion, goal.abduction, goal.twist);
   for (const goal of document.anatomicalMotion ?? []) values.push(goal.value);
