@@ -1,5 +1,5 @@
-import { BOX_VERTICES } from "./BOX_VERTICES";
 import { BOX_INDICES } from "./BOX_INDICES";
+import { BOX_VERTICES } from "./BOX_VERTICES";
 
 /**
  * The fixture's box storage: position and normal triples plus 32-bit indices.

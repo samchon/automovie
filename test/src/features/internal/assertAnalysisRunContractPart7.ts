@@ -1,7 +1,11 @@
-import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
-import type { IAutoMovieAnalysisRun, IAutoMovieAnalysisReport } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisReport,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError, namedFacts } from "./predicates";
+
+import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
+import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.
  *
@@ -11,8 +15,10 @@ import { throwsError, namedFacts } from "./predicates";
  * The report contract requires a nonblank revision, at least one known domain, a positive safe-integer gap bound, unique run ids and a readable seal. Each authored violation supplies its declared error fragment; no current report output generates the expected messages.
  * Blank revision, empty/unknown domains, fractional/zero gap limits, duplicated runs and an edited run digest throw. Earlier parts own coherent rollup arithmetic and precedence; the parent owns missing resident-record and comparison refusal propagation.
  */
-export function assertAnalysisRunContractPart7(digest: (fill: string) => `sha256:${string}`, clean: IAutoMovieAnalysisRun): void {
-
+export function assertAnalysisRunContractPart7(
+  digest: (fill: string) => `sha256:${string}`,
+  clean: IAutoMovieAnalysisRun,
+): void {
   TestValidator.equals(
     "a report over nothing, or over a run that cannot be read, does not exist",
     namedFacts([

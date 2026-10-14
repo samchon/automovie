@@ -1,7 +1,8 @@
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieAnalysisWorkplane } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisWorkplane";
 import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/analysis/IAutoMovieDaylightRequest";
-import { TestValidator } from "@nestia/e2e";
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, throwsError } from "./predicates";
 
@@ -15,8 +16,15 @@ import { namedFacts, throwsError } from "./predicates";
  * Equality/inequality between specified repeat/change pairs is the deterministic provenance contract; it does not prove injectivity for all inputs or external geometry contents. Nonblank identifiers, known instants, finite geometry, independent in-plane axes, sample bounds and target uniqueness supply the refusal expectations.
  * Stable replay contrasts with three specified settings changes. Blank ids/models, wrong context version, unknown instant, zero extent/axis, fractional/excess counts, nonfinite origin/axis/light, parallel axes, duplicate lights/targets and malformed shade planes are refused. Earlier parts own illuminance arithmetic, not this metadata/refusal part.
  */
-export function assertAnalysisDaylightWorkplanePart3(upward: IAutoMovieAnalysisWorkplane, study: (overrides?: Partial<IAutoMovieDaylightRequest>) => IAutoMovieAnalysisRun, noon: IAutoMovieAnalysisRun, afternoon: IAutoMovieAnalysisRun, shaded: IAutoMovieAnalysisRun): void {
-
+export function assertAnalysisDaylightWorkplanePart3(
+  upward: IAutoMovieAnalysisWorkplane,
+  study: (
+    overrides?: Partial<IAutoMovieDaylightRequest>,
+  ) => IAutoMovieAnalysisRun,
+  noon: IAutoMovieAnalysisRun,
+  afternoon: IAutoMovieAnalysisRun,
+  shaded: IAutoMovieAnalysisRun,
+): void {
   TestValidator.equals(
     "identical studies digest identically and any change digests differently",
     {
@@ -35,14 +43,24 @@ export function assertAnalysisDaylightWorkplanePart3(upward: IAutoMovieAnalysisW
     },
   );
 
-
   TestValidator.equals(
     "every malformed study is refused at its own message",
     namedFacts([
-      ["blank id", (): boolean => throwsError((): IAutoMovieAnalysisRun => study({ id: " " }), "non-blank id")],
+      [
+        "blank id",
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieAnalysisRun => study({ id: " " }),
+            "non-blank id",
+          ),
+      ],
       [
         "blank sky model",
-        (): boolean => throwsError((): IAutoMovieAnalysisRun => study({ sky: "" }), "non-blank sky model"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieAnalysisRun => study({ sky: "" }),
+            "non-blank sky model",
+          ),
       ],
       [
         "invalid context",
@@ -67,7 +85,8 @@ export function assertAnalysisDaylightWorkplanePart3(upward: IAutoMovieAnalysisW
         "non-positive extent",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ workplane: { ...upward, sizeU: 0 } }),
+            (): IAutoMovieAnalysisRun =>
+              study({ workplane: { ...upward, sizeU: 0 } }),
             "workplane sizeU must be a finite number above zero",
           ),
       ],
@@ -75,7 +94,8 @@ export function assertAnalysisDaylightWorkplanePart3(upward: IAutoMovieAnalysisW
         "fractional cell count",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ workplane: { ...upward, countV: 1.5 } }),
+            (): IAutoMovieAnalysisRun =>
+              study({ workplane: { ...upward, countV: 1.5 } }),
             "workplane countV must be a whole number",
           ),
       ],
@@ -83,7 +103,8 @@ export function assertAnalysisDaylightWorkplanePart3(upward: IAutoMovieAnalysisW
         "a grid past the sample bound",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ workplane: { ...upward, countU: 65, countV: 64 } }),
+            (): IAutoMovieAnalysisRun =>
+              study({ workplane: { ...upward, countU: 65, countV: 64 } }),
             "exceeds the 4096-sample bound",
           ),
       ],

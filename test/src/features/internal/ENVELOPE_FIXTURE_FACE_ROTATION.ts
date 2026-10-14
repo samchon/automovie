@@ -15,7 +15,14 @@ const QUARTER: number = 0.7071067811865476;
  *
  * Six distinct axis directions separate front/back, left/right and roof/floor orientation without sampling arbitrary rotations or proving renderer winding. This portable internal declaration is reached through explicit imports or the compatibility barrel, registers no dynamic case, installs no consumer and starts no process, browser, native artifact build or GPU.
  */
-export const ENVELOPE_FIXTURE_FACE_ROTATION: { readonly keepZ: { x: number; y: number; z: number; w: number; }; readonly halfTurnY: { x: number; y: number; z: number; w: number; }; readonly quarterY: { x: number; y: number; z: number; w: number; }; readonly quarterMinusY: { x: number; y: number; z: number; w: number; }; readonly quarterMinusX: { x: number; y: number; z: number; w: number; }; readonly quarterX: { x: number; y: number; z: number; w: number; }; } = {
+export const ENVELOPE_FIXTURE_FACE_ROTATION: {
+  readonly keepZ: { x: number; y: number; z: number; w: number };
+  readonly halfTurnY: { x: number; y: number; z: number; w: number };
+  readonly quarterY: { x: number; y: number; z: number; w: number };
+  readonly quarterMinusY: { x: number; y: number; z: number; w: number };
+  readonly quarterMinusX: { x: number; y: number; z: number; w: number };
+  readonly quarterX: { x: number; y: number; z: number; w: number };
+} = {
   /** Local `+Z` stays world `+Z`. */
   keepZ: { x: 0, y: 0, z: 0, w: 1 } satisfies IAutoMovieQuaternion,
   /** Half turn about `+Y`: local `+Z` becomes world `-Z`. */

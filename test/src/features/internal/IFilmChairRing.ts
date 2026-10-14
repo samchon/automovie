@@ -1,7 +1,7 @@
-import type { IAutoMoviePropSpec, IAutoMovieStageSetPiece } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
 
 /**
  * Original chair registry and corresponding staged placements, owned by the caller and mutable within its isolated case.

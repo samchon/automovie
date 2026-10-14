@@ -1,5 +1,9 @@
-import type { IAutoMovieBuiltPopulation, IAutoMovieInstanceSetDesign } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltPopulation,
+  IAutoMovieInstanceSetDesign,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_built_population_refusals.
@@ -12,9 +16,18 @@ import { namedFacts } from "./predicates";
  * @evidence contracts/testing.md#distinguishing-cases Zero/nonfinite minima/maxima and inverted scale intervals contrast with the ordinary population baseline; yaw/pitch/roll endpoint and ordering mutations are checked separately. Layout capacity and explicit transform records belong to Parts3/4.
  * @evidence contracts/testing.md#execution-ownership assertArchitectureBuiltPopulationRefusalsPart2 is a synchronous portable assertion part directly imported and called by its test-01 parent; it is not a discoverable test, registers no dynamic case and starts no process, browser, artifact build or GPU. Returned locals and captured fixture closures stay request-owned until the parent returns.
  */
-export function assertArchitectureBuiltPopulationRefusalsPart2(population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string, prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieBuiltPopulation, refuses: (populations: IAutoMovieBuiltPopulation[], path: string, kind?: "type" | "range") => boolean): void {
-
-
+export function assertArchitectureBuiltPopulationRefusalsPart2(
+  population: (
+    input?: Partial<IAutoMovieInstanceSetDesign>,
+    space?: string,
+    prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
+  ) => IAutoMovieBuiltPopulation,
+  refuses: (
+    populations: IAutoMovieBuiltPopulation[],
+    path: string,
+    kind?: "type" | "range",
+  ) => boolean,
+): void {
   TestValidator.equals(
     "scale and rotation ranges used by bounds are positive, finite, and ordered",
     namedFacts([

@@ -21,10 +21,20 @@ export interface IExternalModelHierarchyFixture {
     bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
 
     /** Original typed sample declarations. */
-    accessors: { bufferView: number; componentType: number; count: number; type: string; normalized?: boolean }[];
+    accessors: {
+      bufferView: number;
+      componentType: number;
+      count: number;
+      type: string;
+      normalized?: boolean;
+    }[];
 
     /** Weighted triangle's attribute references. */
-    meshes: { primitives: { attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number } }[] }[];
+    meshes: {
+      primitives: {
+        attributes: { POSITION: number; JOINTS_0: number; WEIGHTS_0: number };
+      }[];
+    }[];
 
     /** Flat node inventory whose edges define the tested forest. */
     nodes: IExternalModelHierarchyNode[];

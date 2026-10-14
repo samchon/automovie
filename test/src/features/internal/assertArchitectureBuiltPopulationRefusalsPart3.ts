@@ -1,6 +1,13 @@
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieInstanceSetDesign, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieConstraintViolation,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_built_population_refusals.
@@ -14,9 +21,21 @@ import { hasViolation, namedFacts } from "./predicates";
  * @evidence contracts/testing.md#distinguishing-cases Grid row/column, X/Z spacing and capacity mutations contrast with the ordinary baseline; negative lattice layers, zero Y spacing and insufficient lattice capacity cover the extra axis. Jitter is not mutated here. Part4 owns explicit blocks and the positive queried population.
  * @evidence contracts/testing.md#execution-ownership assertArchitectureBuiltPopulationRefusalsPart3 is a synchronous portable assertion part directly imported and called by its test-01 parent; it is not a discoverable test, registers no dynamic case and starts no process, browser, artifact build or GPU. Returned locals and captured fixture closures stay request-owned until the parent returns.
  */
-export function assertArchitectureBuiltPopulationRefusalsPart3(population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string, prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieBuiltPopulation, work: (populations: IAutoMovieBuiltPopulation[]) => IAutoMovieBuiltEnvironment, refuses: (populations: IAutoMovieBuiltPopulation[], path: string, kind?: "type" | "range") => boolean): void {
-
-
+export function assertArchitectureBuiltPopulationRefusalsPart3(
+  population: (
+    input?: Partial<IAutoMovieInstanceSetDesign>,
+    space?: string,
+    prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
+  ) => IAutoMovieBuiltPopulation,
+  work: (
+    populations: IAutoMovieBuiltPopulation[],
+  ) => IAutoMovieBuiltEnvironment,
+  refuses: (
+    populations: IAutoMovieBuiltPopulation[],
+    path: string,
+    kind?: "type" | "range",
+  ) => boolean,
+): void {
   TestValidator.equals(
     "a grid's own lattice is checked, capacity included",
     namedFacts([

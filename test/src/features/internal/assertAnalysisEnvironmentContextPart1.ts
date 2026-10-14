@@ -1,9 +1,14 @@
+import type {
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieHalfSpacePlane,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieAnalysisSolid } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisSolid";
 import { autoMovieContextSolids } from "../../../../packages/engine/src/analysis/autoMovieContextSolids";
 import { autoMovieEnvironmentInstant } from "../../../../packages/engine/src/analysis/autoMovieEnvironmentInstant";
 import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
-import type { IAutoMovieHalfSpacePlane, IAutoMovieEnvironmentInstant, IAutoMovieEnvironmentContext } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { analysisContext, boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, nclose } from "./predicates";
 
@@ -18,49 +23,71 @@ import { hasViolation, namedFacts, nclose } from "./predicates";
  * The independently authored site fields are the valid baseline, exact id lookup returns its named instant or null, and solid projection preserves id plus plane count while dropping kind. Version/unit/nonblank/finite/range/time-order requirements determine each located mutation fault; no external weather or ownership is inferred from copied metadata.
  * Valid site, present/absent instant and one declared neighbouring box contrast with wrong version/units, blank/duplicate ids, zero/nonfinite axes, invalid elevation/time/illuminance/temperature/humidity. Later parts own reserved ids, horizon and analytic rays; the parent owns resident-slot regressions.
  */
-export function assertAnalysisEnvironmentContextPart1(): { context: IAutoMovieEnvironmentContext; neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[]; }; occluded: IAutoMovieEnvironmentContext; broken: (overrides: Partial<IAutoMovieEnvironmentContext>) => ReturnType<typeof validateAutoMovieEnvironmentContext>; instantOf: (index: number, patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>) => IAutoMovieEnvironmentContext["instants"]; } {
+export function assertAnalysisEnvironmentContextPart1(): {
+  context: IAutoMovieEnvironmentContext;
+  neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[] };
+  occluded: IAutoMovieEnvironmentContext;
+  broken: (
+    overrides: Partial<IAutoMovieEnvironmentContext>,
+  ) => ReturnType<typeof validateAutoMovieEnvironmentContext>;
+  instantOf: (
+    index: number,
+    patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
+  ) => IAutoMovieEnvironmentContext["instants"];
+} {
   const context: IAutoMovieEnvironmentContext = analysisContext();
   TestValidator.equals(
     "the declared site validates clean",
     validateAutoMovieEnvironmentContext({ context }),
     { success: true },
   );
-  TestValidator.equals("an instant is found by id and absent ids read as null", [
+  TestValidator.equals(
+    "an instant is found by id and absent ids read as null",
+    [
       autoMovieEnvironmentInstant(context, "noon")?.label,
       autoMovieEnvironmentInstant(context, "dawn"),
-    ], ["equinox-1200", null]);
-
-  const neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[]; } = boxSolid(
-    "neighbour",
-    { x: 2, y: 0, z: -2 },
-    { x: 4, y: 10, z: 2 },
+    ],
+    ["equinox-1200", null],
   );
+
+  const neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[] } =
+    boxSolid("neighbour", { x: 2, y: 0, z: -2 }, { x: 4, y: 10, z: 2 });
   const occluded: IAutoMovieEnvironmentContext = analysisContext({
     occluders: [{ ...neighbour, kind: "neighbour-tower" }],
   });
   TestValidator.predicate(
     "context occluders convert to analysis solids without gaining ownership",
-    (() : boolean => {
-      const observed: (string | number)[][] = autoMovieContextSolids(occluded).map((solid: IAutoMovieAnalysisSolid): (string | number)[] => [
-      solid.id,
-      solid.planes.length,
-    ]);
+    ((): boolean => {
+      const observed: (string | number)[][] = autoMovieContextSolids(
+        occluded,
+      ).map((solid: IAutoMovieAnalysisSolid): (string | number)[] => [
+        solid.id,
+        solid.planes.length,
+      ]);
       return (
-        Array.isArray(observed) && observed.length === 1 &&
-        Array.isArray(observed[0]!) && observed[0]!.length === 2 &&
+        Array.isArray(observed) &&
+        observed.length === 1 &&
+        Array.isArray(observed[0]!) &&
+        observed[0]!.length === 2 &&
         observed[0]![0] === "neighbour" &&
-        typeof observed[0]![1]! === "number" && nclose(observed[0]![1]!, 6)
+        typeof observed[0]![1]! === "number" &&
+        nclose(observed[0]![1]!, 6)
       );
     })(),
   );
 
-  const broken: (overrides: Partial<IAutoMovieEnvironmentContext>) => ReturnType<typeof validateAutoMovieEnvironmentContext> = (
+  const broken: (
+    overrides: Partial<IAutoMovieEnvironmentContext>,
+  ) => ReturnType<typeof validateAutoMovieEnvironmentContext> = (
     overrides: Partial<IAutoMovieEnvironmentContext>,
   ): ReturnType<typeof validateAutoMovieEnvironmentContext> =>
     validateAutoMovieEnvironmentContext({
       context: analysisContext(overrides),
     });
-  const instantOf: (index: number, patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>) => IAutoMovieEnvironmentContext["instants"] = (
+  const instantOf: (
+    index: number,
+    patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
+  ) => IAutoMovieEnvironmentContext["instants"] = (
     index: number,
     patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
   ): IAutoMovieEnvironmentContext["instants"] => {

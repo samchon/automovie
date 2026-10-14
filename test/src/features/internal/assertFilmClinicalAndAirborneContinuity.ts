@@ -21,7 +21,12 @@ import { namedFacts, validationHasNoWarnings } from "./predicates";
 export function assertFilmClinicalAndAirborneContinuity(
   input: IFilmDefinedShotContinuityInputs,
 ): void {
-  const { rig, groundedStage, compileWalk, restAt }: IFilmDefinedShotContinuityInputs = input;
+  const {
+    rig,
+    groundedStage,
+    compileWalk,
+    restAt,
+  }: IFilmDefinedShotContinuityInputs = input;
   const clinicalRig: IAutoMovieSkeleton = {
     id: "skeleton-1",
     bones: [
@@ -52,14 +57,18 @@ export function assertFilmClinicalAndAirborneContinuity(
     ],
   };
   const kneeRestFlexion: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-  const clinicalJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {
+  const clinicalJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = {
     leftLowerLeg: {
       flexion: { x: -1, y: 0, z: 0 },
       abduction: { x: 0, y: 0, z: 1 },
       twist: { x: 0, y: -1, z: 0 },
     },
   };
-  const clinicalRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {
+  const clinicalRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = {
     leftLowerLeg: {
       flexion: { sign: -1, neutral: kneeRestFlexion },
     },
@@ -104,9 +113,10 @@ export function assertFilmClinicalAndAirborneContinuity(
   const clinicalMotion: IAutoMovieMotion = clinical.source.motions.find(
     (motion: IAutoMovieMotion): boolean => (motion.gaitCycle ?? null) !== null,
   )!;
-  const clinicalPlants: IAutoMovieBeatEndFootPlant[] | null | undefined = clinical.continuity.closing.actors.find(
-    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
-  )?.footPlants;
+  const clinicalPlants: IAutoMovieBeatEndFootPlant[] | null | undefined =
+    clinical.continuity.closing.actors.find(
+      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+    )?.footPlants;
   TestValidator.equals(
     "defined-shot planting preserves the actor clinical rig mappings",
     namedFacts([
@@ -132,11 +142,17 @@ export function assertFilmClinicalAndAirborneContinuity(
             validateFootSkate({
               motion: clinicalMotion,
               skeleton: clinicalRig,
-              contacts: clinicalPlants.map((plant: IAutoMovieBeatEndFootPlant): NonNullable<Parameters<typeof validateFootSkate>[0]["contacts"]>[number] => ({
-                bone: plant.foot,
-                start: plant.start,
-                end: plant.end,
-              })),
+              contacts: clinicalPlants.map(
+                (
+                  plant: IAutoMovieBeatEndFootPlant,
+                ): NonNullable<
+                  Parameters<typeof validateFootSkate>[0]["contacts"]
+                >[number] => ({
+                  bone: plant.foot,
+                  start: plant.start,
+                  end: plant.end,
+                }),
+              ),
               jointAxes: clinicalJointAxes,
               restFrames: clinicalRestFrames,
             }),
@@ -152,10 +168,12 @@ export function assertFilmClinicalAndAirborneContinuity(
   );
 
   const airborneStage: ReturnType<typeof makeStagingWrite> = makeStagingWrite({
-    actors: groundedStage.actors.map((actor: IAutoMovieStageActor): IAutoMovieStageActor => ({
-      ...actor,
-      position: { ...actor.position, y: 1 },
-    })),
+    actors: groundedStage.actors.map(
+      (actor: IAutoMovieStageActor): IAutoMovieStageActor => ({
+        ...actor,
+        position: { ...actor.position, y: 1 },
+      }),
+    ),
     space: {
       id: "flat-ground",
       surfaces: [
@@ -195,7 +213,8 @@ export function assertFilmClinicalAndAirborneContinuity(
         (): boolean =>
           airborne.success &&
           airborne.continuity.closing.actors.find(
-            (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+            (actor: IAutoMovieBeatEndActorState): boolean =>
+              actor.node === "knightA",
           )?.footPlants === null,
       ],
     ]),

@@ -1,11 +1,17 @@
 import { IAutoMovieSkeleton } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { type IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, validSynthesizer } from "./filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  validSynthesizer,
+} from "./filmFixtures";
 import { createSkeleton } from "./fixtures";
 import { hasViolation, namedFacts } from "./predicates";
+
 /** Run the existing non-frame camera actor, object actor and null list-entry cases against the supplied staged set. test_film_perform_shot_bad_refs owns these portable real performShot refusals and their exact actor paths; namedFacts stops within a group at the first false guard, and this helper creates no host or dynamically registered test. */
 export function assertFilmNonFrameActorShapes(
   staged: IAutoMovieStagedSet.ISuccess,
@@ -34,7 +40,8 @@ export function assertFilmNonFrameActorShapes(
       ["refused", (): boolean => cameraGesture.success === false],
       [
         "violated",
-        (): boolean => hasViolation(cameraGesture, "type", "$input.draft[0].actor"),
+        (): boolean =>
+          hasViolation(cameraGesture, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
@@ -65,7 +72,8 @@ export function assertFilmNonFrameActorShapes(
       ["refused", (): boolean => objectActor.success === false],
       [
         "violated",
-        (): boolean => hasViolation(objectActor, "type", "$input.draft[0].actor"),
+        (): boolean =>
+          hasViolation(objectActor, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },

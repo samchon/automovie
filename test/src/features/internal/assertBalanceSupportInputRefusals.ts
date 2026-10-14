@@ -194,21 +194,22 @@ export function assertBalanceSupportInputRefusals(
     1,
   );
 
-  const invalidNonFiniteMarginOnly: IAutoMovieValidation = validateBalanceSupport({
-    motion: motion(defaultCenter),
-    skeleton: defaultCenter,
-    supports: [
-      {
-        centerBone: "spine",
-        supportBones: ["leftFoot"],
-        start: 0,
-        end: 1,
-        margin: Number.POSITIVE_INFINITY,
-      },
-    ],
-    sampleRate: 1,
-    path: "$nonFiniteMarginOnly",
-  });
+  const invalidNonFiniteMarginOnly: IAutoMovieValidation =
+    validateBalanceSupport({
+      motion: motion(defaultCenter),
+      skeleton: defaultCenter,
+      supports: [
+        {
+          centerBone: "spine",
+          supportBones: ["leftFoot"],
+          start: 0,
+          end: 1,
+          margin: Number.POSITIVE_INFINITY,
+        },
+      ],
+      sampleRate: 1,
+      path: "$nonFiniteMarginOnly",
+    });
   TestValidator.predicate(
     "invalid non-finite margin-only support",
     hasViolation(

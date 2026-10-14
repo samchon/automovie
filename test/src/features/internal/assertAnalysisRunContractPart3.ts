@@ -1,5 +1,11 @@
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.
@@ -11,8 +17,22 @@ import { hasViolation, namedFacts } from "./predicates";
  * Absence requires an unsupported/not-run status, reason/remedy and no target/comparison; a finite measurement requires no gap and must agree with inclusive at-most/at-least bounds. The authored scalar comparisons and field paths determine verdicts without running a scientific solver.
  * Complete gaps contrast with claimed verdicts, missing/blank remedies and forbidden targets; measured values contrast with nonfinite values, inconsistent statuses, attached gaps, missing target/direction and nonfinite targets. Samples/warnings belong to Part4, and the parent separately rejects unknown comparison strings.
  */
-export function assertAnalysisRunContractPart3(measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric, solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation, gap: { reason: string; remedy: string; }, absent: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric): { at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample; } {
-
+export function assertAnalysisRunContractPart3(
+  measured: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric,
+  solved: (
+    metrics: IAutoMovieAnalysisMetric[],
+    samples?: IAutoMovieAnalysisSample[],
+    warnings?: IAutoMovieAnalysisWarning[],
+  ) => IAutoMovieValidation,
+  gap: { reason: string; remedy: string },
+  absent: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric,
+): {
+  at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample;
+} {
   TestValidator.equals(
     "an absent measurement must stay visibly absent",
     namedFacts([
@@ -222,7 +242,11 @@ export function assertAnalysisRunContractPart3(measured: (overrides?: Partial<IA
     },
   );
 
-  const at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample = (
+  const at: (
+    id: string,
+    key: string,
+    value?: number,
+  ) => IAutoMovieAnalysisSample = (
     id: string,
     key: string,
     value: number = 1,

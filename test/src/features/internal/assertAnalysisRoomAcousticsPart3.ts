@@ -1,7 +1,8 @@
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.
@@ -12,9 +13,11 @@ import { namedFacts, throwsError } from "./predicates";
  * Nonblank unique ids, positive finite volume/areas, absorption in [0,1], nonnegative finite loss, finite source/receiver positions and distinct source-receiver points define request admission. The sample-limit case uses the published bound and the stated 4096 message, while other numeric accuracy belongs to Part1.
  * Blank/duplicate surface, partition, source and receiver ids; zero/negative geometry; invalid absorption/loss/power/positions; empty surfaces; excess receivers; coincident source/receiver; and duplicate target keys are refused beside the earlier valid room. This does not enumerate every possible unknown JSON shape.
  */
-export function assertAnalysisRoomAcousticsPart3(study: (overrides?: Partial<IAutoMovieAcousticRequest>) => IAutoMovieAnalysisRun): void {
-
-
+export function assertAnalysisRoomAcousticsPart3(
+  study: (
+    overrides?: Partial<IAutoMovieAcousticRequest>,
+  ) => IAutoMovieAnalysisRun,
+): void {
   TestValidator.equals(
     "every malformed room is refused at its own message",
     namedFacts([
@@ -46,7 +49,8 @@ export function assertAnalysisRoomAcousticsPart3(study: (overrides?: Partial<IAu
         "blank surface id",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ surfaces: [{ id: "", area: 1, absorption: 0.5 }] }),
+            (): IAutoMovieAnalysisRun =>
+              study({ surfaces: [{ id: "", area: 1, absorption: 0.5 }] }),
             "surface must carry a non-blank id",
           ),
       ],
@@ -68,7 +72,8 @@ export function assertAnalysisRoomAcousticsPart3(study: (overrides?: Partial<IAu
         "non-positive surface area",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ surfaces: [{ id: "s", area: 0, absorption: 0.5 }] }),
+            (): IAutoMovieAnalysisRun =>
+              study({ surfaces: [{ id: "s", area: 0, absorption: 0.5 }] }),
             "area must be a finite number above zero",
           ),
       ],
@@ -76,7 +81,8 @@ export function assertAnalysisRoomAcousticsPart3(study: (overrides?: Partial<IAu
         "out of range absorption",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => study({ surfaces: [{ id: "s", area: 1, absorption: 1.2 }] }),
+            (): IAutoMovieAnalysisRun =>
+              study({ surfaces: [{ id: "s", area: 1, absorption: 1.2 }] }),
             "absorption must be a fraction within [0, 1]",
           ),
       ],
@@ -248,7 +254,13 @@ export function assertAnalysisRoomAcousticsPart3(study: (overrides?: Partial<IAu
               study({
                 receivers: Array.from(
                   { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
-                  (_: unknown, index: number): { id: string; position: { x: number; y: number; z: number; }; } => ({
+                  (
+                    _: unknown,
+                    index: number,
+                  ): {
+                    id: string;
+                    position: { x: number; y: number; z: number };
+                  } => ({
                     id: `r${index}`,
                     position: { x: index + 1, y: 0, z: 0 },
                   }),

@@ -1,6 +1,11 @@
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieInstanceSetDesign } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieInstanceSetDesign,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_built_population_refusals.
@@ -17,7 +22,21 @@ import { hasViolation, namedFacts } from "./predicates";
  * @evidence contracts/testing.md#distinguishing-cases Unknown space, blank/duplicate set id, along-route layout, inverted/nonfinite bounds, fractional/zero count, nonfinite anchor/heading and scatter radius zero contrast with admitted point bounds. Nonfinite scatter radius is not a separate case here; later parts own variation ranges, lattice capacity and explicit transforms.
  * @evidence contracts/testing.md#execution-ownership assertArchitectureBuiltPopulationRefusalsPart1 is a synchronous portable assertion part directly imported and called by its test-01 parent; it is not a discoverable test, registers no dynamic case and starts no process, browser, artifact build or GPU. Returned locals and captured fixture closures stay request-owned until the parent returns.
  */
-export function assertArchitectureBuiltPopulationRefusalsPart1(population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string, prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieBuiltPopulation, work: (populations: IAutoMovieBuiltPopulation[]) => IAutoMovieBuiltEnvironment, refuses: (populations: IAutoMovieBuiltPopulation[], path: string, kind?: "type" | "range") => boolean): void {
+export function assertArchitectureBuiltPopulationRefusalsPart1(
+  population: (
+    input?: Partial<IAutoMovieInstanceSetDesign>,
+    space?: string,
+    prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
+  ) => IAutoMovieBuiltPopulation,
+  work: (
+    populations: IAutoMovieBuiltPopulation[],
+  ) => IAutoMovieBuiltEnvironment,
+  refuses: (
+    populations: IAutoMovieBuiltPopulation[],
+    path: string,
+    kind?: "type" | "range",
+  ) => boolean,
+): void {
   TestValidator.equals(
     "a population must name a space the record declares, once",
     namedFacts([
@@ -118,11 +137,13 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(population: (inpu
     namedFacts([
       [
         "fractionalCount",
-        (): boolean => refuses([population({ count: 2.5 })], "populations[0].set.count"),
+        (): boolean =>
+          refuses([population({ count: 2.5 })], "populations[0].set.count"),
       ],
       [
         "emptyCount",
-        (): boolean => refuses([population({ count: 0 })], "populations[0].set.count"),
+        (): boolean =>
+          refuses([population({ count: 0 })], "populations[0].set.count"),
       ],
       [
         "nonFiniteAnchor",

@@ -1,26 +1,34 @@
+import {
+  AutoMovieSurfaceKind,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieHeightRule,
+  IAutoMovieQuantityFinding,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
+import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
+import { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
+import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
+import { propSupportGap } from "../../../../packages/engine/src/film/propSupportGap";
+import { ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { tessellateSurface } from "../../../../packages/engine/src/geometry/tessellateSurface";
+import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
 import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
 import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
 import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
 import { footprintRingPlacement } from "../../../../packages/engine/src/space/footprintRingPlacement";
-import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
-import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
-import { propSupportGap } from "../../../../packages/engine/src/film/propSupportGap";
 import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
 import { surfaceHeightAt } from "../../../../packages/engine/src/space/surfaceHeightAt";
-import { tessellateSurface } from "../../../../packages/engine/src/geometry/tessellateSurface";
 import { validateSpace } from "../../../../packages/engine/src/validation/validateSpace";
-import { TestValidator } from "@nestia/e2e";
 import { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";
 import { namedFacts, nclose } from "./predicates";
-import { ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
-import { IAutoMovieVector3, IAutoMovieBuiltEnvironment, IAutoMovieQuantityFinding, AutoMovieSurfaceKind, IAutoMovieHeightRule } from "@automovie/interface";
-import { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
-import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
+
 /** Assert emitted triangles, area, degeneracy, relief, prop support and quantity results for the owning test's authored regions; these are CPU consumer observations rather than rendered appearance. */
-export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) => void = (
+export const assertFootprintVoidGeometry: (
   props: IFootprintVoidGeometryProps,
-): void => {
+) => void = (props: IFootprintVoidGeometryProps): void => {
   const {
     holed,
     holedSpace,
@@ -123,7 +131,9 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
     },
   );
 
-  const diamondPieces: IAutoMovieVector3[][] = footprintConvexPieces(surfaceFootprint(diamond));
+  const diamondPieces: IAutoMovieVector3[][] = footprintConvexPieces(
+    surfaceFootprint(diamond),
+  );
   TestValidator.equals(
     "a band that closes to a point is the triangle it is",
     namedFacts([
@@ -131,7 +141,11 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
         "piecesSumToTheDiamondLessItsVoid",
         (): boolean =>
           nclose(
-            diamondPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
+            diamondPieces.reduce(
+              (sum: number, piece: IAutoMovieVector3[]): number =>
+                sum + pieceArea(piece),
+              0,
+            ),
             32 - 4,
           ),
       ],
@@ -141,7 +155,9 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
           diamondPieces.some(
             (piece: IAutoMovieVector3[]): boolean =>
               piece.length === 3 &&
-              piece.filter((point: IAutoMovieVector3): boolean => nclose(point.x, 0)).length === 1,
+              piece.filter((point: IAutoMovieVector3): boolean =>
+                nclose(point.x, 0),
+              ).length === 1,
           ),
       ],
       [
@@ -150,7 +166,9 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
           diamondPieces.some(
             (piece: IAutoMovieVector3[]): boolean =>
               piece.length === 3 &&
-              piece.filter((point: IAutoMovieVector3): boolean => nclose(point.x, 8)).length === 1,
+              piece.filter((point: IAutoMovieVector3): boolean =>
+                nclose(point.x, 8),
+              ).length === 1,
           ),
       ],
       [
@@ -159,8 +177,16 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
           diamondPieces.every((piece: IAutoMovieVector3[]): boolean =>
             footprintContains(
               surfaceFootprint(diamond),
-              piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.x, 0) / piece.length,
-              piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.z, 0) / piece.length,
+              piece.reduce(
+                (sum: number, point: IAutoMovieVector3): number =>
+                  sum + point.x,
+                0,
+              ) / piece.length,
+              piece.reduce(
+                (sum: number, point: IAutoMovieVector3): number =>
+                  sum + point.z,
+                0,
+              ) / piece.length,
             ),
           ),
       ],
@@ -180,16 +206,18 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
       [
         "everyVertexReadsTheEnginesOwnHeight",
         (): boolean =>
-          Array.from({ length: relieved.positions.length / 3 }, (_: unknown, index: number): boolean =>
-            nclose(
-              relieved.positions[index * 3 + 1]!,
-              surfaceHeightAt(
-                relief,
-                relieved.positions[index * 3]!,
-                relieved.positions[index * 3 + 2]!,
+          Array.from(
+            { length: relieved.positions.length / 3 },
+            (_: unknown, index: number): boolean =>
+              nclose(
+                relieved.positions[index * 3 + 1]!,
+                surfaceHeightAt(
+                  relief,
+                  relieved.positions[index * 3]!,
+                  relieved.positions[index * 3 + 2]!,
+                ),
+                1e-12,
               ),
-              1e-12,
-            ),
           ).every(Boolean),
       ],
       [
@@ -222,7 +250,19 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
     target: { kind: "surface", environment: "gallery", surface: "plate" },
     environments: [environment],
   })!;
-  const crate: (x: number, z: number) => { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; } = (x: number, z: number): { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; } => ({
+  const crate: (
+    x: number,
+    z: number,
+  ) => {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  } = (
+    x: number,
+    z: number,
+  ): {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  } => ({
     min: { x: x - 0.5, y: 3, z: z - 0.5 },
     max: { x: x + 0.5, y: 4, z: z + 0.5 },
   });
@@ -232,7 +272,8 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
       ["theFaceCarriesTheVoid", (): boolean => face.polygon.holes.length === 1],
       [
         "aCrateOverAnArmBears",
-        (): boolean => nclose(propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
+        (): boolean =>
+          nclose(propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
       ],
       [
         "aCrateOverTheAtriumBearsOnNothing",
@@ -265,7 +306,8 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
         (): boolean =>
           nclose(
             measureAutoMovieQuantities({ environment }).findings.find(
-              (entry: IAutoMovieQuantityFinding): boolean => entry.subject === "space-floor-area",
+              (entry: IAutoMovieQuantityFinding): boolean =>
+                entry.subject === "space-floor-area",
             )!.total,
             48,
             1e-6,
@@ -273,7 +315,8 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
       ],
       [
         "aPatchIsNotAVolume",
-        (): boolean => builtEnvironmentSpaceFidelity(environment, "hall") === "unstated",
+        (): boolean =>
+          builtEnvironmentSpaceFidelity(environment, "hall") === "unstated",
       ],
     ]),
     {
@@ -298,7 +341,11 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
         "itStillSumsToTheRegion",
         (): boolean =>
           nclose(
-            skewedPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
+            skewedPieces.reduce(
+              (sum: number, piece: IAutoMovieVector3[]): number =>
+                sum + pieceArea(piece),
+              0,
+            ),
             12 + 1e-10,
             1e-12,
           ),
@@ -306,14 +353,21 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
       [
         "thePositiveThinBandSurvives",
         (): boolean =>
-          skewedPieces.some(
-            (piece: IAutoMovieVector3[]): boolean => {
-              const width: number = Math.max(...piece.map((point: IAutoMovieVector3): number => point.x)) - Math.min(...piece.map((point: IAutoMovieVector3): number => point.x));
-              return width > 0 && width <= 1e-9 && pieceArea(piece) > 0;
-            },
-          ),
+          skewedPieces.some((piece: IAutoMovieVector3[]): boolean => {
+            const width: number =
+              Math.max(
+                ...piece.map((point: IAutoMovieVector3): number => point.x),
+              ) -
+              Math.min(
+                ...piece.map((point: IAutoMovieVector3): number => point.x),
+              );
+            return width > 0 && width <= 1e-9 && pieceArea(piece) > 0;
+          }),
       ],
-      ["theNotchIsStillOut", (): boolean => footprintContains(skewed, 3, 3) === false],
+      [
+        "theNotchIsStillOut",
+        (): boolean => footprintContains(skewed, 3, 3) === false,
+      ],
     ]),
     {
       itStillSumsToTheRegion: true,
@@ -322,25 +376,35 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
     },
   );
 
-  const crossing: { polygon: IAutoMovieVector3[]; id: string; kind: AutoMovieSurfaceKind; holes?: IAutoMovieVector3[][] | undefined; height?: IAutoMovieHeightRule | undefined; anchor?: IAutoMovieVector3 | undefined; rampTo?: IAutoMovieVector3 | null | undefined; } = { ...ell, polygon: [v(0, 0), v(4, 4), v(4, 0), v(0, 6)] };
+  const crossing: {
+    polygon: IAutoMovieVector3[];
+    id: string;
+    kind: AutoMovieSurfaceKind;
+    holes?: IAutoMovieVector3[][] | undefined;
+    height?: IAutoMovieHeightRule | undefined;
+    anchor?: IAutoMovieVector3 | undefined;
+    rampTo?: IAutoMovieVector3 | null | undefined;
+  } = { ...ell, polygon: [v(0, 0), v(4, 4), v(4, 0), v(0, 6)] };
   const bowtie: IAutoMovieFootprint = surfaceFootprint(crossing);
   TestValidator.equals(
     "a ring that crosses itself is refused, not resolved",
     namedFacts([
       [
         "validationRefusesIt",
-        (): boolean => validateSpace({ space: spaceOf(crossing) }).success === false,
+        (): boolean =>
+          validateSpace({ space: spaceOf(crossing) }).success === false,
       ],
       [
         "theDecompositionStaysFinite",
         (): boolean =>
-          footprintConvexPieces(bowtie).every((piece: IAutoMovieVector3[]): boolean =>
-            piece.every(
-              (point: IAutoMovieVector3): boolean =>
-                Number.isFinite(point.x) &&
-                Number.isFinite(point.z) &&
-                Number.isFinite(point.y),
-            ),
+          footprintConvexPieces(bowtie).every(
+            (piece: IAutoMovieVector3[]): boolean =>
+              piece.every(
+                (point: IAutoMovieVector3): boolean =>
+                  Number.isFinite(point.x) &&
+                  Number.isFinite(point.z) &&
+                  Number.isFinite(point.y),
+              ),
           ),
       ],
       [

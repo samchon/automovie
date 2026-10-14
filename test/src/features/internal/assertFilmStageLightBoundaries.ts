@@ -1,6 +1,11 @@
-import type { IAutoMovieValidation, IAutoMovieColor, IAutoMovieStageLight } from "@automovie/interface";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import type {
+  IAutoMovieColor,
+  IAutoMovieStageLight,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import type { IFilmStageLightBoundaryInputs } from "./IFilmStageLightBoundaryInputs";
 import { hasViolation, namedFacts } from "./predicates";
 
@@ -37,7 +42,9 @@ export function assertFilmStageLightBoundaries(
     ),
   );
   /** Stage the original spot operands with one supplied cone angle. */
-  const spotAt: (coneAngle: number) => IAutoMovieStagedSet = (coneAngle: number): IAutoMovieStagedSet =>
+  const spotAt: (coneAngle: number) => IAutoMovieStagedSet = (
+    coneAngle: number,
+  ): IAutoMovieStagedSet =>
     stageLights([
       {
         node: "lamp",
@@ -58,7 +65,8 @@ export function assertFilmStageLightBoundaries(
     namedFacts([
       [
         "hasViolationFailureSpotAt",
-        (): boolean => hasViolation(failure(spotAt(90.0001)), "range", "coneAngle"),
+        (): boolean =>
+          hasViolation(failure(spotAt(90.0001)), "range", "coneAngle"),
       ],
       [
         "hasViolationFailureSpotAt2",
@@ -66,7 +74,8 @@ export function assertFilmStageLightBoundaries(
       ],
       [
         "hasViolationFailureSpotAt3",
-        (): boolean => hasViolation(failure(spotAt(Number.NaN)), "range", "coneAngle"),
+        (): boolean =>
+          hasViolation(failure(spotAt(Number.NaN)), "range", "coneAngle"),
       ],
     ]),
     {
@@ -151,7 +160,9 @@ export function assertFilmStageLightBoundaries(
   // 8. the color's own totality and its alpha, the rule the scene artifact
   //     validator applies one rung later
   /** Stage an isolated unknown color payload through the original typed ingress and read its validation result. */
-  const withColor: (color: unknown) => IAutoMovieValidation = (color: unknown): IAutoMovieValidation =>
+  const withColor: (color: unknown) => IAutoMovieValidation = (
+    color: unknown,
+  ): IAutoMovieValidation =>
     failure(
       stageLights([
         {
@@ -167,7 +178,8 @@ export function assertFilmStageLightBoundaries(
     namedFacts([
       [
         "nullColorRefused",
-        (): boolean => hasViolation(withColor(null), "type", "$input.lights[0].color"),
+        (): boolean =>
+          hasViolation(withColor(null), "type", "$input.lights[0].color"),
       ],
       [
         "arrayColorRefused",

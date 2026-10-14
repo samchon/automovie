@@ -1,7 +1,12 @@
+import type {
+  IAutoMovieActionTarget,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieActionTarget, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { FilmLaunchPerformer } from "./FilmLaunchPerformer";
 import { namedFacts } from "./predicates";
 
@@ -55,7 +60,11 @@ export function assertFilmLaunchTargetHandoffs(
         onHit: { force: 0.6 },
       },
     ],
-    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => ({ x: 6 - seconds, y: 1.2, z: 0 }),
+    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => ({
+      x: 6 - seconds,
+      y: 1.2,
+      z: 0,
+    }),
   );
   TestValidator.equals(
     "a launch samples its live bone target while solving the intercept",
@@ -83,7 +92,11 @@ export function assertFilmLaunchTargetHandoffs(
         onHit: { force: 0.6 },
       },
     ],
-    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 | null => (seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null),
+    (
+      _target: IAutoMovieActionTarget,
+      seconds: number,
+    ): IAutoMovieVector3 | null =>
+      seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null,
   );
   TestValidator.equals(
     "a missing live bone sample falls back to the validated target",

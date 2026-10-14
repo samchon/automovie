@@ -1,5 +1,6 @@
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { IAutoMovieActionCall } from "@automovie/interface";
+
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 
 /**
  * Original positional-target performance and diagnostic readers.

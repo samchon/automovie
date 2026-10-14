@@ -1,9 +1,16 @@
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
 import { isAutoMovieAnalysisDomain } from "../../../../packages/engine/src/analysis/isAutoMovieAnalysisDomain";
 import { sealAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/sealAutoMovieAnalysisRun";
 import { validateAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/validateAutoMovieAnalysisRun";
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieValidation } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { hasViolation, throwsError } from "./predicates";
 
@@ -16,10 +23,29 @@ import { hasViolation, throwsError } from "./predicates";
  * A run sealed through the public builder must validate and reseal identically; independently editing covered fields while retaining its seal must refuse it. Moving newline or pipe characters between named fields must not collapse the canonical field boundaries. Recomputing fixture seals isolates contents rules and is not an independent SHA-256 oracle.
  * Working seal, reseal, changed digest/contents, unknown domain and separator-relocation pairs distinguish integrity from structural admission. Later parts own detailed identity, metric, sample, warning and summary rules.
  */
-export function assertAnalysisRunContractPart1(): { digest: (fill: string) => `sha256:${string}`; measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric; draft: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => Omit<IAutoMovieAnalysisRun, "digest">; check: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => IAutoMovieValidation; solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation; } {
-  const digest: (fill: string) => `sha256:${string}` = (fill: string): `sha256:${string}` =>
-    `sha256:${fill.repeat(64)}`;
-  const measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric = (
+export function assertAnalysisRunContractPart1(): {
+  digest: (fill: string) => `sha256:${string}`;
+  measured: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric;
+  draft: (
+    overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+  ) => Omit<IAutoMovieAnalysisRun, "digest">;
+  check: (
+    overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+  ) => IAutoMovieValidation;
+  solved: (
+    metrics: IAutoMovieAnalysisMetric[],
+    samples?: IAutoMovieAnalysisSample[],
+    warnings?: IAutoMovieAnalysisWarning[],
+  ) => IAutoMovieValidation;
+} {
+  const digest: (fill: string) => `sha256:${string}` = (
+    fill: string,
+  ): `sha256:${string}` => `sha256:${fill.repeat(64)}`;
+  const measured: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric = (
     overrides: Partial<IAutoMovieAnalysisMetric> = {},
   ): IAutoMovieAnalysisMetric => ({
     key: "room.reverberationTime",
@@ -31,7 +57,9 @@ export function assertAnalysisRunContractPart1(): { digest: (fill: string) => `s
     gap: null,
     ...overrides,
   });
-  const draft: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => Omit<IAutoMovieAnalysisRun, "digest"> = (
+  const draft: (
+    overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+  ) => Omit<IAutoMovieAnalysisRun, "digest"> = (
     overrides: Partial<Omit<IAutoMovieAnalysisRun, "digest">> = {},
   ): Omit<IAutoMovieAnalysisRun, "digest"> => ({
     version: 1,
@@ -50,11 +78,17 @@ export function assertAnalysisRunContractPart1(): { digest: (fill: string) => `s
     },
     ...overrides,
   });
-  const check: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => IAutoMovieValidation = (
+  const check: (
+    overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+  ) => IAutoMovieValidation = (
     overrides: Partial<Omit<IAutoMovieAnalysisRun, "digest">> = {},
   ): IAutoMovieValidation =>
     validateAutoMovieAnalysisRun({ run: sealedAnalysisRun(draft(overrides)) });
-  const solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation = (
+  const solved: (
+    metrics: IAutoMovieAnalysisMetric[],
+    samples?: IAutoMovieAnalysisSample[],
+    warnings?: IAutoMovieAnalysisWarning[],
+  ) => IAutoMovieValidation = (
     metrics: IAutoMovieAnalysisMetric[],
     samples: IAutoMovieAnalysisSample[] = [],
     warnings: IAutoMovieAnalysisWarning[] = [],

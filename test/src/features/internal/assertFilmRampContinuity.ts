@@ -5,7 +5,14 @@ import {
   sampleMotion,
   spaceGround,
 } from "@automovie/engine";
-import type { IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieStageActor, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieStageActor,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";
@@ -16,35 +23,42 @@ import { namedFacts, nclose, vclose } from "./predicates";
 export function assertFilmRampContinuity(
   input: IFilmDefinedShotContinuityInputs,
 ): boolean {
-  const { rig, groundedStage, compileWalk }: IFilmDefinedShotContinuityInputs = input;
-  const slopeSpace: NonNullable<ReturnType<typeof makeStagingWrite>["space"]> = {
-    id: "rising-ground",
-    surfaces: [
-      {
-        id: "ramp",
-        kind: "ramp",
-        polygon: [
-          { x: 0, y: 0, z: 0 },
-          { x: 8, y: 0, z: 0 },
-          { x: 8, y: 0, z: 8 },
-          { x: 0, y: 0, z: 8 },
-        ],
-        anchor: { x: 0, y: 0, z: 0 },
-        rampTo: { x: 8, y: 0.4, z: 0 },
-      },
-    ],
-    walkable: ["ramp"],
-  };
+  const { rig, groundedStage, compileWalk }: IFilmDefinedShotContinuityInputs =
+    input;
+  const slopeSpace: NonNullable<ReturnType<typeof makeStagingWrite>["space"]> =
+    {
+      id: "rising-ground",
+      surfaces: [
+        {
+          id: "ramp",
+          kind: "ramp",
+          polygon: [
+            { x: 0, y: 0, z: 0 },
+            { x: 8, y: 0, z: 0 },
+            { x: 8, y: 0, z: 8 },
+            { x: 0, y: 0, z: 8 },
+          ],
+          anchor: { x: 0, y: 0, z: 0 },
+          rampTo: { x: 8, y: 0.4, z: 0 },
+        },
+      ],
+      walkable: ["ramp"],
+    };
   const rampGround: ReturnType<typeof spaceGround> = spaceGround(slopeSpace);
-  TestValidator.predicate("the authored ramp rises one metre per twenty horizontal metres", nclose(rampGround(3.25, 4), 0.1625, 1e-12));
+  TestValidator.predicate(
+    "the authored ramp rises one metre per twenty horizontal metres",
+    nclose(rampGround(3.25, 4), 0.1625, 1e-12),
+  );
   const slopeStage: ReturnType<typeof makeStagingWrite> = makeStagingWrite({
-    actors: groundedStage.actors.map((actor: IAutoMovieStageActor): IAutoMovieStageActor => ({
-      ...actor,
-      position: {
-        ...actor.position,
-        y: rampGround(actor.position.x, actor.position.z),
-      },
-    })),
+    actors: groundedStage.actors.map(
+      (actor: IAutoMovieStageActor): IAutoMovieStageActor => ({
+        ...actor,
+        position: {
+          ...actor.position,
+          y: rampGround(actor.position.x, actor.position.z),
+        },
+      }),
+    ),
     space: slopeSpace,
   });
   const slopeFirstTarget: IAutoMovieVector3 = {
@@ -63,7 +77,8 @@ export function assertFilmRampContinuity(
     slopeFirst.success === false
       ? null
       : slopeFirst.continuity.closing.actors.find(
-          (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+          (actor: IAutoMovieBeatEndActorState): boolean =>
+            actor.node === "knightA",
         )!;
   TestValidator.equals(
     "a translated and rotated gait reaches its ramp target and plant",
@@ -81,7 +96,8 @@ export function assertFilmRampContinuity(
         (): boolean =>
           slopeFirstActor !== null &&
           slopeFirstActor.footPlants?.some(
-            (plant: IAutoMovieBeatEndFootPlant): boolean => plant.foot === "leftFoot",
+            (plant: IAutoMovieBeatEndFootPlant): boolean =>
+              plant.foot === "leftFoot",
           ) === true,
       ],
     ]),
@@ -114,18 +130,22 @@ export function assertFilmRampContinuity(
   const slopeSecondNode: IAutoMovieSceneNode | null =
     slopeSecond.success === false
       ? null
-      : slopeSecond.source.scene.nodes.find((node: IAutoMovieSceneNode): boolean => node.id === "knightA")!;
+      : slopeSecond.source.scene.nodes.find(
+          (node: IAutoMovieSceneNode): boolean => node.id === "knightA",
+        )!;
   const slopeSecondMotion: IAutoMovieMotion | null =
     slopeSecond.success === false
       ? null
       : slopeSecond.source.motions.find(
-          (motion: IAutoMovieMotion): boolean => (motion.gaitCycle ?? null) !== null,
+          (motion: IAutoMovieMotion): boolean =>
+            (motion.gaitCycle ?? null) !== null,
         )!;
   const slopeSecondActor: IAutoMovieBeatEndActorState | null =
     slopeSecond.success === false
       ? null
       : slopeSecond.continuity.closing.actors.find(
-          (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+          (actor: IAutoMovieBeatEndActorState): boolean =>
+            actor.node === "knightA",
         )!;
   const slopeSecondFoot: IAutoMovieVector3 | null =
     slopeSecondNode === null || slopeSecondMotion === null
@@ -135,7 +155,8 @@ export function assertFilmRampContinuity(
           Quaternion.rotateVector(
             slopeSecondNode.transform.rotation,
             resolvePose(sampleMotion(slopeSecondMotion, 0).pose, rig).find(
-              (bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === "leftFoot",
+              (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+                bone.bone === "leftFoot",
             )!.worldPosition,
           ),
         );
@@ -144,7 +165,9 @@ export function assertFilmRampContinuity(
     namedFacts([
       [
         "MathAbsSlopePin",
-        (): boolean => nclose(slopePin.y, rampGround(slopePin.x, slopePin.z), 1e-6) && nclose(slopePin.y, slopePin.x / 20, 1e-6),
+        (): boolean =>
+          nclose(slopePin.y, rampGround(slopePin.x, slopePin.z), 1e-6) &&
+          nclose(slopePin.y, slopePin.x / 20, 1e-6),
       ],
       ["slopeSecondSuccess", (): boolean => slopeSecond.success],
       ["slopeSecondNode", (): boolean => slopeSecondNode !== null],

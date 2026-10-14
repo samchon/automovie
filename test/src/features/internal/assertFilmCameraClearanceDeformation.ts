@@ -1,8 +1,18 @@
-import type { IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieTrack, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IFilmCameraClearanceDeformationInputs } from "./IFilmCameraClearanceDeformationInputs";
 import type { IFilmCameraClearanceAdapterResult } from "./IFilmCameraClearanceAdapterResult";
+import type { IFilmCameraClearanceDeformationInputs } from "./IFilmCameraClearanceDeformationInputs";
 import { createModel, createSkeleton } from "./fixtures";
 
 /** Run the original articulated reach, unsupported deformation and motion boundary assertions. */
@@ -22,23 +32,32 @@ export function assertFilmCameraClearanceDeformation(
     offClockCameraMotion,
     runtime,
   }: IFilmCameraClearanceDeformationInputs = input;
-  const [actorNode, actorMotion]: [string, IAutoMovieMotion] = Object.entries(performed.motions)[0]!;
+  const [actorNode, actorMotion]: [string, IAutoMovieMotion] = Object.entries(
+    performed.motions,
+  )[0]!;
   const foldedSkeleton: IAutoMovieSkeleton = createSkeleton();
-  foldedSkeleton.bones = foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-    bone.bone === "leftUpperArm"
-      ? { ...bone, rest: identity(2) }
-      : bone.bone === "leftLowerArm"
-        ? { ...bone, rest: identity(-2) }
-        : bone,
+  foldedSkeleton.bones = foldedSkeleton.bones.map(
+    (
+      bone: IAutoMovieSkeleton["bones"][number],
+    ): IAutoMovieSkeleton["bones"][number] =>
+      bone.bone === "leftUpperArm"
+        ? { ...bone, rest: identity(2) }
+        : bone.bone === "leftLowerArm"
+          ? { ...bone, rest: identity(-2) }
+          : bone,
   );
   const foldedRigModel: IAutoMovieModel = {
     ...createModel(foldedSkeleton),
     id: "folded-rig",
     parts: [
-      ...createModel(foldedSkeleton).parts.map((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"][number] => ({
-        ...part,
-        attachedBone: "leftLowerArm" as const,
-      })),
+      ...createModel(foldedSkeleton).parts.map(
+        (
+          part: IAutoMovieModel["parts"][number],
+        ): IAutoMovieModel["parts"][number] => ({
+          ...part,
+          attachedBone: "leftLowerArm" as const,
+        }),
+      ),
       {
         id: "folded-skin",
         name: null,
@@ -91,7 +110,13 @@ export function assertFilmCameraClearanceDeformation(
       ),
   );
 
-  const malformedRig: (id: string, bones: IAutoMovieSkeleton["bones"]) => IFilmCameraClearanceAdapterResult = (id: string, bones: IAutoMovieSkeleton["bones"]): IFilmCameraClearanceAdapterResult => {
+  const malformedRig: (
+    id: string,
+    bones: IAutoMovieSkeleton["bones"],
+  ) => IFilmCameraClearanceAdapterResult = (
+    id: string,
+    bones: IAutoMovieSkeleton["bones"],
+  ): IFilmCameraClearanceAdapterResult => {
     const model: IAutoMovieModel = {
       ...foldedRigModel,
       id,
@@ -106,71 +131,92 @@ export function assertFilmCameraClearanceDeformation(
   };
   const cyclicRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "cyclic-rig",
-    foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-      bone.bone === "hips" ? { ...bone, parent: "spine" as const } : bone,
+    foldedSkeleton.bones.map(
+      (
+        bone: IAutoMovieSkeleton["bones"][number],
+      ): IAutoMovieSkeleton["bones"][number] =>
+        bone.bone === "hips" ? { ...bone, parent: "spine" as const } : bone,
     ),
   );
   const absentParentRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "absent-parent-rig",
-    foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-      bone.bone === "hips"
-        ? {
-            ...bone,
-            parent: "missingBone" as (typeof bone)["parent"],
-          }
-        : bone,
+    foldedSkeleton.bones.map(
+      (
+        bone: IAutoMovieSkeleton["bones"][number],
+      ): IAutoMovieSkeleton["bones"][number] =>
+        bone.bone === "hips"
+          ? {
+              ...bone,
+              parent: "missingBone" as (typeof bone)["parent"],
+            }
+          : bone,
     ),
   );
   const nonFiniteRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "non-finite-rig",
-    foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-      bone.bone === "hips"
-        ? { ...bone, rest: identity(Number.POSITIVE_INFINITY) }
-        : bone,
+    foldedSkeleton.bones.map(
+      (
+        bone: IAutoMovieSkeleton["bones"][number],
+      ): IAutoMovieSkeleton["bones"][number] =>
+        bone.bone === "hips"
+          ? { ...bone, rest: identity(Number.POSITIVE_INFINITY) }
+          : bone,
     ),
   );
   const overflowingRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "overflowing-rig",
-    foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-      bone.bone === "hips" || bone.bone === "spine"
-        ? { ...bone, rest: identity(Number.MAX_VALUE) }
-        : bone,
+    foldedSkeleton.bones.map(
+      (
+        bone: IAutoMovieSkeleton["bones"][number],
+      ): IAutoMovieSkeleton["bones"][number] =>
+        bone.bone === "hips" || bone.bone === "spine"
+          ? { ...bone, rest: identity(Number.MAX_VALUE) }
+          : bone,
     ),
   );
   const radiusOverflowRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "radius-overflow-rig",
-    foldedSkeleton.bones.map((bone: IAutoMovieSkeleton["bones"][number]): IAutoMovieSkeleton["bones"][number] =>
-      bone.bone === "leftLowerArm"
-        ? { ...bone, rest: identity(Number.MAX_VALUE * 0.4) }
-        : bone.bone === "leftUpperArm"
-          ? { ...bone, rest: identity() }
-          : bone,
+    foldedSkeleton.bones.map(
+      (
+        bone: IAutoMovieSkeleton["bones"][number],
+      ): IAutoMovieSkeleton["bones"][number] =>
+        bone.bone === "leftLowerArm"
+          ? { ...bone, rest: identity(Number.MAX_VALUE * 0.4) }
+          : bone.bone === "leftUpperArm"
+            ? { ...bone, rest: identity() }
+            : bone,
     ),
   );
-  const duplicatedRig: IFilmCameraClearanceAdapterResult = malformedRig("duplicated-rig", [
-    ...foldedSkeleton.bones,
-    foldedSkeleton.bones[0]!,
-  ]);
+  const duplicatedRig: IFilmCameraClearanceAdapterResult = malformedRig(
+    "duplicated-rig",
+    [...foldedSkeleton.bones, foldedSkeleton.bones[0]!],
+  );
   TestValidator.predicate(
     "malformed or overflowing public rig bounds are addressed at their staged obstacle",
-    ([
-      [cyclicRig, "exactly one root"],
-      [absentParentRig, "is not a bone"],
-      [nonFiniteRig, "non-finite"],
-      [overflowingRig, "overflows"],
-      [radiusOverflowRig, "deformation radius"],
-      [duplicatedRig, "must be unique"],
-    ] satisfies Array<[IFilmCameraClearanceAdapterResult, string]>).every(([result, expected]: [IFilmCameraClearanceAdapterResult, string]): boolean => {
-      const inspected: IFilmCameraClearanceAdapterResult = result;
-      return (
-        inspected.reports === undefined &&
-        inspected.out.items.some(
-          (item: IAutoMovieConstraintViolation): boolean =>
-            item.path.endsWith(".model") &&
-            item.expected.includes(expected),
-        )
-      );
-    }),
+    (
+      [
+        [cyclicRig, "exactly one root"],
+        [absentParentRig, "is not a bone"],
+        [nonFiniteRig, "non-finite"],
+        [overflowingRig, "overflows"],
+        [radiusOverflowRig, "deformation radius"],
+        [duplicatedRig, "must be unique"],
+      ] satisfies Array<[IFilmCameraClearanceAdapterResult, string]>
+    ).every(
+      ([result, expected]: [
+        IFilmCameraClearanceAdapterResult,
+        string,
+      ]): boolean => {
+        const inspected: IFilmCameraClearanceAdapterResult = result;
+        return (
+          inspected.reports === undefined &&
+          inspected.out.items.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.path.endsWith(".model") && item.expected.includes(expected),
+          )
+        );
+      },
+    ),
   );
 
   const morphRefusal: IFilmCameraClearanceAdapterResult = inspectAdapter({
@@ -211,24 +257,32 @@ export function assertFilmCameraClearanceDeformation(
       ),
   );
 
-  const actorLoop: (firstRoot: IAutoMovieTransform | null, lastRoot: IAutoMovieTransform | null) => IAutoMovieMotion = (
+  const actorLoop: (
+    firstRoot: IAutoMovieTransform | null,
+    lastRoot: IAutoMovieTransform | null,
+  ) => IAutoMovieMotion = (
     firstRoot: IAutoMovieTransform | null,
     lastRoot: IAutoMovieTransform | null,
   ): IAutoMovieMotion => ({
     ...actorMotion,
     loop: true,
-    keyframes: actorMotion.keyframes.map((keyframe: IAutoMovieMotion["keyframes"][number], index: number): IAutoMovieMotion["keyframes"][number] => ({
-      ...keyframe,
-      pose: {
-        ...keyframe.pose,
-        root:
-          index === 0
-            ? firstRoot
-            : index === actorMotion.keyframes.length - 1
-              ? lastRoot
-              : keyframe.pose.root,
-      },
-    })),
+    keyframes: actorMotion.keyframes.map(
+      (
+        keyframe: IAutoMovieMotion["keyframes"][number],
+        index: number,
+      ): IAutoMovieMotion["keyframes"][number] => ({
+        ...keyframe,
+        pose: {
+          ...keyframe.pose,
+          root:
+            index === 0
+              ? firstRoot
+              : index === actorMotion.keyframes.length - 1
+                ? lastRoot
+                : keyframe.pose.root,
+        },
+      }),
+    ),
   });
   const closedActorLoop: IFilmCameraClearanceAdapterResult = inspectAdapter({
     motions: {
@@ -260,16 +314,23 @@ export function assertFilmCameraClearanceDeformation(
   TestValidator.predicate(
     "only closed actor root and clearance-radius loops are sampled",
     [closedActorLoop, nullActorLoop].every(
-      ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean => reports !== undefined && out.items.length === 0,
+      ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean =>
+        reports !== undefined && out.items.length === 0,
     ) &&
       [openActorLoop, mixedActorLoop, emptyActorLoop].every(
         ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean =>
           reports === undefined &&
-          out.items.some((item: IAutoMovieConstraintViolation): boolean => item.expected.includes("loop seam")),
+          out.items.some((item: IAutoMovieConstraintViolation): boolean =>
+            item.expected.includes("loop seam"),
+          ),
       ),
   );
 
-  const objectLoop: (id: string, values: number[], interpolation?: "linear" | "cubicspline") => IFilmCameraClearanceAdapterResult = (
+  const objectLoop: (
+    id: string,
+    values: number[],
+    interpolation?: "linear" | "cubicspline",
+  ) => IFilmCameraClearanceAdapterResult = (
     id: string,
     values: number[],
     interpolation: "linear" | "cubicspline" = "linear",
@@ -336,11 +397,14 @@ export function assertFilmCameraClearanceDeformation(
       [openObjectLoop, malformedObjectLoop].every(
         ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean =>
           reports === undefined &&
-          out.items.some((item: IAutoMovieConstraintViolation): boolean => item.expected.includes("loop seam")),
+          out.items.some((item: IAutoMovieConstraintViolation): boolean =>
+            item.expected.includes("loop seam"),
+          ),
       ) &&
       cubicObjectLoop.reports === undefined &&
-      cubicObjectLoop.out.items.some((item: IAutoMovieConstraintViolation): boolean =>
-        item.expected.includes("cubicspline"),
+      cubicObjectLoop.out.items.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.expected.includes("cubicspline"),
       ),
   );
 
@@ -349,14 +413,18 @@ export function assertFilmCameraClearanceDeformation(
       ...performed.motions,
       [actorNode]: {
         ...actorMotion,
-        keyframes: actorMotion.keyframes.map((keyframe: IAutoMovieMotion["keyframes"][number], index: number): IAutoMovieMotion["keyframes"][number] =>
-          index === 0
-            ? {
-                ...keyframe,
-                easing: "cubicBezier" as const,
-                bezier: [0.25, -2, 0.75, 2] as const,
-              }
-            : keyframe,
+        keyframes: actorMotion.keyframes.map(
+          (
+            keyframe: IAutoMovieMotion["keyframes"][number],
+            index: number,
+          ): IAutoMovieMotion["keyframes"][number] =>
+            index === 0
+              ? {
+                  ...keyframe,
+                  easing: "cubicBezier" as const,
+                  bezier: [0.25, -2, 0.75, 2] as const,
+                }
+              : keyframe,
         ),
       },
     },
@@ -366,10 +434,12 @@ export function assertFilmCameraClearanceDeformation(
       camera: heroCamera,
       motion: {
         ...offClockCameraMotion,
-        tracks: offClockCameraMotion.tracks.map((track: IAutoMovieTrack): IAutoMovieTrack => ({
-          ...track,
-          interpolation: "cubicspline" as const,
-        })),
+        tracks: offClockCameraMotion.tracks.map(
+          (track: IAutoMovieTrack): IAutoMovieTrack => ({
+            ...track,
+            interpolation: "cubicspline" as const,
+          }),
+        ),
       },
     },
   });
@@ -384,12 +454,14 @@ export function assertFilmCameraClearanceDeformation(
       camera: heroCamera,
       motion: {
         ...offClockCameraMotion,
-        tracks: offClockCameraMotion.tracks.map((track: IAutoMovieTrack): IAutoMovieTrack => ({
-          ...track,
-          values: track.values.map((value: number, index: number): number =>
-            index >= track.values.length - 3 ? value + 1 : value,
-          ),
-        })),
+        tracks: offClockCameraMotion.tracks.map(
+          (track: IAutoMovieTrack): IAutoMovieTrack => ({
+            ...track,
+            values: track.values.map((value: number, index: number): number =>
+              index >= track.values.length - 3 ? value + 1 : value,
+            ),
+          }),
+        ),
       },
     },
   });
@@ -398,15 +470,21 @@ export function assertFilmCameraClearanceDeformation(
     [cubicActor, cubicCamera, invalidSequence, openLoop].every(
       ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean =>
         reports === undefined &&
-        out.items.some((item: IAutoMovieConstraintViolation): boolean => item.path.endsWith(".clearance")),
+        out.items.some((item: IAutoMovieConstraintViolation): boolean =>
+          item.path.endsWith(".clearance"),
+        ),
     ) &&
-      cubicActor.out.items.some((item: IAutoMovieConstraintViolation): boolean =>
-        item.expected.includes("cubicBezier"),
+      cubicActor.out.items.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.expected.includes("cubicBezier"),
       ) &&
-      cubicCamera.out.items.some((item: IAutoMovieConstraintViolation): boolean =>
-        item.expected.includes("cubicspline"),
+      cubicCamera.out.items.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.expected.includes("cubicspline"),
       ) &&
-      openLoop.out.items.some((item: IAutoMovieConstraintViolation): boolean => item.expected.includes("loop seam")),
+      openLoop.out.items.some((item: IAutoMovieConstraintViolation): boolean =>
+        item.expected.includes("loop seam"),
+      ),
   );
 
   const evaluatorFault: IFilmCameraClearanceAdapterResult = inspectAdapter({
@@ -421,7 +499,9 @@ export function assertFilmCameraClearanceDeformation(
           item.expected.includes("sample rate"),
       ),
   );
-  const invalidDuration: IFilmCameraClearanceAdapterResult = inspectAdapter({ duration: -1 });
+  const invalidDuration: IFilmCameraClearanceAdapterResult = inspectAdapter({
+    duration: -1,
+  });
   TestValidator.predicate(
     "an invalid shot duration is returned at the declaring envelope",
     invalidDuration.reports === undefined &&
@@ -431,11 +511,14 @@ export function assertFilmCameraClearanceDeformation(
           item.expected.includes("duration"),
       ),
   );
-  const hostileMotion: IAutoMovieClip = new Proxy(performed.shot.cameraMotion!, {
-    get: (): never => {
-      throw new Error("hostile camera motion");
+  const hostileMotion: IAutoMovieClip = new Proxy(
+    performed.shot.cameraMotion!,
+    {
+      get: (): never => {
+        throw new Error("hostile camera motion");
+      },
     },
-  });
+  );
   const hostile: IFilmCameraClearanceAdapterResult = inspectAdapter({
     hero: { camera: heroCamera, motion: hostileMotion },
   });
@@ -444,11 +527,14 @@ export function assertFilmCameraClearanceDeformation(
       throw new Error("hostile diagnostic coercion");
     },
   };
-  const hostileCoercionMotion: IAutoMovieClip = new Proxy(performed.shot.cameraMotion!, {
-    get: (): never => {
-      throw hostileThrownValue;
+  const hostileCoercionMotion: IAutoMovieClip = new Proxy(
+    performed.shot.cameraMotion!,
+    {
+      get: (): never => {
+        throw hostileThrownValue;
+      },
     },
-  });
+  );
   const hostileCoercion: IFilmCameraClearanceAdapterResult = inspectAdapter({
     hero: { camera: heroCamera, motion: hostileCoercionMotion },
   });

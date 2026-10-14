@@ -1,29 +1,49 @@
-import { type IAutoMovieFormationPlacement, formationSlotPosition, placeFormationSlot, sampleFormationSlotMotion } from "@automovie/engine";
+import {
+  type IAutoMovieFormationPlacement,
+  formationSlotPosition,
+  placeFormationSlot,
+  sampleFormationSlotMotion,
+} from "@automovie/engine";
 import type { IAutoMovieFormationSlotMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { formationSlotMotionFixtures } from "./formationSlotMotionFixtures";
+
 import { filmEffectValuesClose } from "./filmEffectValuesClose";
+import { formationSlotMotionFixtures } from "./formationSlotMotionFixtures";
 import { namedFacts } from "./namedFacts";
 
 /** Run the original seventh formation-slot case after the original sampling, placement, ground and admission cases. Local serialized-size comparisons describe only the fixture representation; actual behavior is observed through the sampler, placement and cue gate. */
 export function assertFormationSlotMotionSparsePopulation(): void {
-  const { unit, leaves, compiled, held, steps, cueCodes }: typeof formationSlotMotionFixtures = formationSlotMotionFixtures;
+  const {
+    unit,
+    leaves,
+    compiled,
+    held,
+    steps,
+    cueCodes,
+  }: typeof formationSlotMotionFixtures = formationSlotMotionFixtures;
   // Written as a function of the crowd rather than as a literal, so a channel
   // that ever grew a per-member field would show up here as a longer record.
-  const evacuate: (crowd: IAutoMovieFormationPlacement, departing: number) => IAutoMovieFormationSlotMotion[] = (
+  const evacuate: (
+    crowd: IAutoMovieFormationPlacement,
+    departing: number,
+  ) => IAutoMovieFormationSlotMotion[] = (
     crowd: IAutoMovieFormationPlacement,
     departing: number,
   ): IAutoMovieFormationSlotMotion[] => [
     leaves(
-      Array.from({ length: departing }, (_: unknown, index: number): number => index),
+      Array.from(
+        { length: departing },
+        (_: unknown, index: number): number => index,
+      ),
       2,
       `${crowd.id}-departure`,
     ),
   ];
   const small: IAutoMovieFormationPlacement = unit(9);
   const vast: IAutoMovieFormationPlacement = unit(100_000);
-  const bytes: (cues: readonly IAutoMovieFormationSlotMotion[]) => number = (cues: readonly IAutoMovieFormationSlotMotion[]): number =>
-    JSON.stringify(cues).length;
+  const bytes: (cues: readonly IAutoMovieFormationSlotMotion[]) => number = (
+    cues: readonly IAutoMovieFormationSlotMotion[],
+  ): number => JSON.stringify(cues).length;
   TestValidator.equals(
     "the channel costs the exceptions it names and not the crowd it names them in",
     namedFacts([
@@ -51,7 +71,8 @@ export function assertFormationSlotMotionSparsePopulation(): void {
       ],
       [
         "theSameDesignAndCuesReproduceTheSamePlacement",
-        (): boolean => filmEffectValuesClose(
+        (): boolean =>
+          filmEffectValuesClose(
             placeFormationSlot({
               position: formationSlotPosition(vast, 4),
               facingDeg: vast.facingDeg,

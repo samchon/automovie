@@ -1,6 +1,6 @@
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";
 import { namedFacts } from "./predicates";
 
@@ -10,7 +10,8 @@ import { namedFacts } from "./predicates";
 export function assertFilmPositionalTargetKinds(
   input: IFilmPositionalTargetAssertionsInput,
 ): void {
-  const { perform, says, silentAt }: IFilmPositionalTargetAssertionsInput = input;
+  const { perform, says, silentAt }: IFilmPositionalTargetAssertionsInput =
+    input;
   // 3. the counter-cases one property away: a valid node target of either
   // placed flavour is not over-rejected.
   TestValidator.equals(
@@ -57,19 +58,31 @@ export function assertFilmPositionalTargetKinds(
       "$input.draft[0].to.nodes[0]",
       "must name a staged placement",
       '"ghost"',
-    ) && says(unplacedGroup, "$input.draft[0].to.nodes[1]", '"wraith"', "must name a staged placement"),
+    ) &&
+      says(
+        unplacedGroup,
+        "$input.draft[0].to.nodes[1]",
+        '"wraith"',
+        "must name a staged placement",
+      ),
   );
   TestValidator.predicate(
     "a mixed group refuses the missing member instead of changing its centroid",
-    says(perform([
-      {
-        verb: "lookAt",
-        actor: "knightA",
-        start: 0,
-        duration: 1,
-        to: { kind: "group", nodes: ["knightB", "ghost"] },
-      },
-    ]), "$input.draft[0].to.nodes[1]", '"ghost"', "must name a staged placement", "centroid"),
+    says(
+      perform([
+        {
+          verb: "lookAt",
+          actor: "knightA",
+          start: 0,
+          duration: 1,
+          to: { kind: "group", nodes: ["knightB", "ghost"] },
+        },
+      ]),
+      "$input.draft[0].to.nodes[1]",
+      '"ghost"',
+      "must name a staged placement",
+      "centroid",
+    ),
   );
   TestValidator.predicate(
     "an empty group says it names no members",
@@ -206,9 +219,10 @@ export function assertFilmPositionalTargetKinds(
     namedFacts([
       [
         "refused",
-        () : boolean => says(cameraActor, "$input.draft[0].actor", "is a camera"),
+        (): boolean =>
+          says(cameraActor, "$input.draft[0].actor", "is a camera"),
       ],
-      ["violated", () : boolean => silentAt(cameraActor, "$input.draft[0].at")],
+      ["violated", (): boolean => silentAt(cameraActor, "$input.draft[0].at")],
     ]),
     { refused: true, violated: true },
   );

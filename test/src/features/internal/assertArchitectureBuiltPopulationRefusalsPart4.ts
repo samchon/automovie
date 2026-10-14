@@ -1,7 +1,12 @@
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { builtEnvironmentSpacePopulations } from "../../../../packages/engine/src/architecture/builtEnvironmentSpacePopulations";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieInstanceSetDesign } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieInstanceSetDesign,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { builtEnvironmentSpacePopulations } from "../../../../packages/engine/src/architecture/builtEnvironmentSpacePopulations";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_built_population_refusals.
@@ -15,9 +20,21 @@ import { namedFacts, throwsError } from "./predicates";
  * @evidence contracts/testing.md#distinguishing-cases Too few transforms, nonfinite translation, nonunit rotation and nonpositive scale contrast with the well-formed set. The positive fixture validates and its owning space reports one set, while an undeclared query id throws; procedural layouts and shared identity fields belong to earlier parts.
  * @evidence contracts/testing.md#execution-ownership assertArchitectureBuiltPopulationRefusalsPart4 is a synchronous portable assertion part directly imported and called by its test-01 parent; it is not a discoverable test, registers no dynamic case and starts no process, browser, artifact build or GPU. Returned locals and captured fixture closures stay request-owned until the parent returns.
  */
-export function assertArchitectureBuiltPopulationRefusalsPart4(population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string, prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieBuiltPopulation, work: (populations: IAutoMovieBuiltPopulation[]) => IAutoMovieBuiltEnvironment, refuses: (populations: IAutoMovieBuiltPopulation[], path: string, kind?: "type" | "range") => boolean): void {
-
-
+export function assertArchitectureBuiltPopulationRefusalsPart4(
+  population: (
+    input?: Partial<IAutoMovieInstanceSetDesign>,
+    space?: string,
+    prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
+  ) => IAutoMovieBuiltPopulation,
+  work: (
+    populations: IAutoMovieBuiltPopulation[],
+  ) => IAutoMovieBuiltEnvironment,
+  refuses: (
+    populations: IAutoMovieBuiltPopulation[],
+    path: string,
+    kind?: "type" | "range",
+  ) => boolean,
+): void {
   TestValidator.equals(
     "an explicit block states one finite transform per slot",
     namedFacts([

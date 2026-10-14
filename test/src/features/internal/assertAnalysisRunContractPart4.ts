@@ -1,7 +1,13 @@
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.
@@ -13,8 +19,27 @@ import { hasViolation, namedFacts } from "./predicates";
  * A sample must name a measured metric, have a distinct nonblank id and finite position/value; a warning requires nonblank code/detail and a null or nonblank subject. These authored schema requirements determine the exact type/range paths. The sample-limit case is relative to the published bound and does not independently pin its numeric value.
  * Two valid samples contrast with gapped/unknown metric keys, blank/duplicate ids, nonfinite coordinates/values and one sample beyond the bound. Complete warnings with null/named subjects contrast with each blank field. This part returns the warning sink and metric-builder closure; later parts own builder target semantics and summary results.
  */
-export function assertAnalysisRunContractPart4(measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric, solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation, absent: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric, at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample): { warnings: IAutoMovieAnalysisWarning[]; build: (value: number | null, targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"], extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>) => IAutoMovieAnalysisMetric; } {
-
+export function assertAnalysisRunContractPart4(
+  measured: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric,
+  solved: (
+    metrics: IAutoMovieAnalysisMetric[],
+    samples?: IAutoMovieAnalysisSample[],
+    warnings?: IAutoMovieAnalysisWarning[],
+  ) => IAutoMovieValidation,
+  absent: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric,
+  at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample,
+): {
+  warnings: IAutoMovieAnalysisWarning[];
+  build: (
+    value: number | null,
+    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
+    extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+  ) => IAutoMovieAnalysisMetric;
+} {
   TestValidator.equals(
     "a field may only be drawn for a metric that produced a value",
     namedFacts([
@@ -110,7 +135,8 @@ export function assertAnalysisRunContractPart4(measured: (overrides?: Partial<IA
               [measured()],
               Array.from(
                 { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
-                (_: unknown, index: number): IAutoMovieAnalysisSample => at(`s${index}`, "room.reverberationTime"),
+                (_: unknown, index: number): IAutoMovieAnalysisSample =>
+                  at(`s${index}`, "room.reverberationTime"),
               ),
             ),
             "range",
@@ -207,7 +233,11 @@ export function assertAnalysisRunContractPart4(measured: (overrides?: Partial<IA
   );
 
   const warnings: IAutoMovieAnalysisWarning[] = [];
-  const build: (value: number | null, targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"], extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>) => IAutoMovieAnalysisMetric = (
+  const build: (
+    value: number | null,
+    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
+    extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+  ) => IAutoMovieAnalysisMetric = (
     value: number | null,
     targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
     extra: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]> = {},

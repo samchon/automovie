@@ -1,9 +1,22 @@
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieDesignEvidence,
+  IAutoMovieDesignReference,
+  IAutoMovieGeneratedAcquisition,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { validateDesignEvidence } from "../../../../packages/engine/src/architecture/validateDesignEvidence";
 import { validateDesignReference } from "../../../../packages/engine/src/architecture/validateDesignReference";
 import { validateGeneratedAcquisition } from "../../../../packages/engine/src/architecture/validateGeneratedAcquisition";
-import type { IAutoMovieValidation, IAutoMovieConstraintViolation, IAutoMovieDesignEvidence, IAutoMovieDesignReference, IAutoMovieGeneratedAcquisition } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { hasViolation, namedFacts, validationHasWarning, validationHasWarningCount, violationCount } from "./predicates";
+import {
+  hasViolation,
+  namedFacts,
+  validationHasWarning,
+  validationHasWarningCount,
+  violationCount,
+} from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_design_reference.
  *
@@ -24,7 +37,13 @@ import { hasViolation, namedFacts, validationHasWarning, validationHasWarningCou
  * Authored reference/provenance fields define version/media/digest spelling, required reproduction-seed metadata and safe-integer seed admission. Matching/mismatching supplied output-digest strings and citation identities determine the located results; no provider execution, asset-byte read or replay is an independent expectation here.
  * Observed/generated provenance, omitted optional prompt/request, reproducible missing/present seed, irreproducible seed warning, negative and malformed seeds, digest mismatch/null-after-processing, individual malformed acquisition fields and citation resolution/empty ledger retain their distinct outcomes. Parts2/3 own malformed reference mutations.
  */
-export function assertArchitectureDesignReferencePart1(PLAN_DIGEST: string, STUDY_DIGEST: string, observation: () => IAutoMovieDesignReference, generated: () => IAutoMovieGeneratedAcquisition, evidence: () => IAutoMovieDesignEvidence[]): void {
+export function assertArchitectureDesignReferencePart1(
+  PLAN_DIGEST: string,
+  STUDY_DIGEST: string,
+  observation: () => IAutoMovieDesignReference,
+  generated: () => IAutoMovieGeneratedAcquisition,
+  evidence: () => IAutoMovieDesignEvidence[],
+): void {
   const source: IAutoMovieDesignReference = observation();
   TestValidator.equals(
     "an observed pavilion sheet validates as evidence",
@@ -127,7 +146,10 @@ export function assertArchitectureDesignReferencePart1(PLAN_DIGEST: string, STUD
     TestValidator.equals(
       `${name} on an irreproducible generation fails outright rather than warning`,
       namedFacts([
-        ["refused", (): boolean => hasViolation(irreproducible, "range", "$input.seed")],
+        [
+          "refused",
+          (): boolean => hasViolation(irreproducible, "range", "$input.seed"),
+        ],
         ["onlyViolation", (): boolean => violationCount(irreproducible) === 1],
       ]),
       { refused: true, onlyViolation: true },
@@ -164,35 +186,69 @@ export function assertArchitectureDesignReferencePart1(PLAN_DIGEST: string, STUD
   const acquisitionRefusals: ReadonlyArray<
     readonly [string, (value: IAutoMovieGeneratedAcquisition) => void, string]
   > = [
-    ["blank provider", (value: IAutoMovieGeneratedAcquisition): string => (value.provider = "  "), "$input.provider"],
-    ["blank model", (value: IAutoMovieGeneratedAcquisition): string => (value.model = ""), "$input.model"],
-    ["blank request id", (value: IAutoMovieGeneratedAcquisition): string => (value.request = " "), "$input.request"],
-    ["blank prompt", (value: IAutoMovieGeneratedAcquisition): string => (value.prompt = " "), "$input.prompt"],
+    [
+      "blank provider",
+      (value: IAutoMovieGeneratedAcquisition): string =>
+        (value.provider = "  "),
+      "$input.provider",
+    ],
+    [
+      "blank model",
+      (value: IAutoMovieGeneratedAcquisition): string => (value.model = ""),
+      "$input.model",
+    ],
+    [
+      "blank request id",
+      (value: IAutoMovieGeneratedAcquisition): string => (value.request = " "),
+      "$input.request",
+    ],
+    [
+      "blank prompt",
+      (value: IAutoMovieGeneratedAcquisition): string => (value.prompt = " "),
+      "$input.prompt",
+    ],
     [
       "malformed prompt digest",
-      (value: IAutoMovieGeneratedAcquisition): string => (value.promptDigest = "sha256:zz" as string),
+      (value: IAutoMovieGeneratedAcquisition): string =>
+        (value.promptDigest = "sha256:zz" as string),
       "$input.promptDigest",
     ],
     [
       "malformed output digest",
-      (value: IAutoMovieGeneratedAcquisition): string => (value.outputDigest = "md5:abc" as string),
+      (value: IAutoMovieGeneratedAcquisition): string =>
+        (value.outputDigest = "md5:abc" as string),
       "$input.outputDigest",
     ],
-    ["blank input path", (value: IAutoMovieGeneratedAcquisition): string => (value.inputs[0] = ""), "$input.inputs[0]"],
-    ["missing resident input path", (value: IAutoMovieGeneratedAcquisition): string[] => (value.inputs = new Array<string>(1)), "$input.inputs[0]"],
+    [
+      "blank input path",
+      (value: IAutoMovieGeneratedAcquisition): string => (value.inputs[0] = ""),
+      "$input.inputs[0]",
+    ],
+    [
+      "missing resident input path",
+      (value: IAutoMovieGeneratedAcquisition): string[] =>
+        (value.inputs = new Array<string>(1)),
+      "$input.inputs[0]",
+    ],
   ];
-  acquisitionRefusals.forEach(([name, mutate, path]: readonly [string, (value: IAutoMovieGeneratedAcquisition) => void, string]): void => {
-    const value: IAutoMovieGeneratedAcquisition = generated();
-    mutate(value);
-    TestValidator.predicate(
-      `${name} is refused at ${path}`,
-      hasViolation(
-        validateGeneratedAcquisition({ acquisition: value, digest: null }),
-        "type",
-        path,
-      ),
-    );
-  });
+  acquisitionRefusals.forEach(
+    ([name, mutate, path]: readonly [
+      string,
+      (value: IAutoMovieGeneratedAcquisition) => void,
+      string,
+    ]): void => {
+      const value: IAutoMovieGeneratedAcquisition = generated();
+      mutate(value);
+      TestValidator.predicate(
+        `${name} is refused at ${path}`,
+        hasViolation(
+          validateGeneratedAcquisition({ acquisition: value, digest: null }),
+          "type",
+          path,
+        ),
+      );
+    },
+  );
 
   // 9. Citations.
   TestValidator.equals(
@@ -223,48 +279,61 @@ export function assertArchitectureDesignReferencePart1(PLAN_DIGEST: string, STUD
     ],
     [
       "dangling document",
-      (value: IAutoMovieDesignEvidence[]): string => (value[0]!.document = "ghost-sheet"),
+      (value: IAutoMovieDesignEvidence[]): string =>
+        (value[0]!.document = "ghost-sheet"),
       "$input.evidence[0].document",
     ],
     [
       "no cited candidate",
-      (value: IAutoMovieDesignEvidence[]): never[] => (value[0]!.candidates = []),
+      (value: IAutoMovieDesignEvidence[]): never[] =>
+        (value[0]!.candidates = []),
       "$input.evidence[0].candidates",
     ],
     [
       "dangling candidate",
-      (value: IAutoMovieDesignEvidence[]): string => (value[0]!.candidates[0] = "wall-ghost"),
+      (value: IAutoMovieDesignEvidence[]): string =>
+        (value[0]!.candidates[0] = "wall-ghost"),
       "$input.evidence[0].candidates[0]",
     ],
     [
       "repeated candidate for one subject",
-      (value: IAutoMovieDesignEvidence[]): number => value[1]!.candidates.push("wall-north-outer"),
+      (value: IAutoMovieDesignEvidence[]): number =>
+        value[1]!.candidates.push("wall-north-outer"),
       "$input.evidence[1].candidates[2]",
     ],
   ];
-  evidenceRefusals.forEach(([name, mutate, path]: readonly [string, (value: IAutoMovieDesignEvidence[]) => void, string]): void => {
-    const value: IAutoMovieDesignEvidence[] = evidence();
-    mutate(value);
-    const validation: IAutoMovieValidation = validateDesignEvidence({
-      references: [source],
-      evidence: value,
-    });
-    TestValidator.equals(
-      `${name} evidence is refused at ${path}`,
-      namedFacts([
-        ["refused", (): boolean => validation.success === false],
-        [
-          "atPath",
-          (): boolean =>
-            // The `success` comparison is restated only to narrow the union
-            // inside this closure.
-            validation.success === false &&
-            validation.violations.some((violation: IAutoMovieConstraintViolation): boolean => violation.path === path),
-        ],
-      ]),
-      { refused: true, atPath: true },
-    );
-  });
+  evidenceRefusals.forEach(
+    ([name, mutate, path]: readonly [
+      string,
+      (value: IAutoMovieDesignEvidence[]) => void,
+      string,
+    ]): void => {
+      const value: IAutoMovieDesignEvidence[] = evidence();
+      mutate(value);
+      const validation: IAutoMovieValidation = validateDesignEvidence({
+        references: [source],
+        evidence: value,
+      });
+      TestValidator.equals(
+        `${name} evidence is refused at ${path}`,
+        namedFacts([
+          ["refused", (): boolean => validation.success === false],
+          [
+            "atPath",
+            (): boolean =>
+              // The `success` comparison is restated only to narrow the union
+              // inside this closure.
+              validation.success === false &&
+              validation.violations.some(
+                (violation: IAutoMovieConstraintViolation): boolean =>
+                  violation.path === path,
+              ),
+          ],
+        ]),
+        { refused: true, atPath: true },
+      );
+    },
+  );
   TestValidator.equals(
     "two documents sharing one id pool their candidates for citation",
     validateDesignEvidence({

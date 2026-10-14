@@ -1,8 +1,13 @@
-import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
+import type {
+  IAutoMovieEnvironmentContext,
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { assertAutoMovieAnalysisSolids } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisSolids";
 import { autoMovieSolidBlocks } from "../../../../packages/engine/src/analysis/autoMovieSolidBlocks";
-import type { IAutoMovieHalfSpacePlane, IAutoMovieEnvironmentContext, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
 import { boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, throwsError } from "./predicates";
 
@@ -17,9 +22,21 @@ import { hasViolation, namedFacts, throwsError } from "./predicates";
  * A positive sun-up dot product permits a beam and a nonpositive one does not; independently authored reserved ids define ownership collisions. Unit-box inequalities determine inside/ahead/behind, parallel, tangent and finite-distance ray outcomes. Plane-field checks establish numeric admission, not nonempty bounded closure of every arbitrary plane set.
  * Below-horizon beam/no beam and above-horizon beam separate the horizon rule. Context/instant/occluder collisions, too few planes, zero normals and nonfinite offsets contrast with the valid box; ray starts and distance boundaries separate clipping decisions. Part3 owns scaled normals and sampling.
  */
-export function assertAnalysisEnvironmentContextPart2(context: IAutoMovieEnvironmentContext, neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[]; }, occluded: IAutoMovieEnvironmentContext, broken: (overrides: Partial<IAutoMovieEnvironmentContext>) => ReturnType<typeof validateAutoMovieEnvironmentContext>, instantOf: (index: number, patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>) => IAutoMovieEnvironmentContext["instants"]): { cube: { id: string; planes: IAutoMovieHalfSpacePlane[]; }; rising: IAutoMovieVector3; } {
-
-
+export function assertAnalysisEnvironmentContextPart2(
+  context: IAutoMovieEnvironmentContext,
+  neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[] },
+  occluded: IAutoMovieEnvironmentContext,
+  broken: (
+    overrides: Partial<IAutoMovieEnvironmentContext>,
+  ) => ReturnType<typeof validateAutoMovieEnvironmentContext>,
+  instantOf: (
+    index: number,
+    patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
+  ) => IAutoMovieEnvironmentContext["instants"],
+): {
+  cube: { id: string; planes: IAutoMovieHalfSpacePlane[] };
+  rising: IAutoMovieVector3;
+} {
   TestValidator.equals(
     "a sun under the horizon may not declare a beam, and the same sun without one may",
     {
@@ -243,8 +260,16 @@ export function assertAnalysisEnvironmentContextPart2(context: IAutoMovieEnviron
 
   // A unit cube from (0,0,0) to (1,1,1), read from points whose relationship to
   // it is decided by hand rather than by running the routine.
-  const cube: { id: string; planes: IAutoMovieHalfSpacePlane[]; } = boxSolid("cube", { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 });
-  const shoot: (origin: IAutoMovieVector3, direction: IAutoMovieVector3, maxDistance?: number) => boolean = (
+  const cube: { id: string; planes: IAutoMovieHalfSpacePlane[] } = boxSolid(
+    "cube",
+    { x: 0, y: 0, z: 0 },
+    { x: 1, y: 1, z: 1 },
+  );
+  const shoot: (
+    origin: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    maxDistance?: number,
+  ) => boolean = (
     origin: IAutoMovieVector3,
     direction: IAutoMovieVector3,
     maxDistance: number = Infinity,

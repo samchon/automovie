@@ -10,6 +10,11 @@ import type { IAutoMovieWorldRoute } from "@automovie/interface";
  */
 export const INSTANCE_SLOT_TEST_ROAD: IAutoMovieWorldRoute = {
   id: "road",
-  waypoints: [{ x: 0, z: 0 }, { x: 10, z: 0 }, { x: 10, z: 10 }, { x: 0, z: 10 }],
+  waypoints: [
+    { x: 0, z: 0 },
+    { x: 10, z: 0 },
+    { x: 10, z: 10 },
+    { x: 0, z: 10 },
+  ],
   allowedFormationWidth: 4,
 };

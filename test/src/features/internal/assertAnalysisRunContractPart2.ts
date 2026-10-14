@@ -1,5 +1,12 @@
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.
@@ -10,9 +17,24 @@ import { hasViolation, namedFacts } from "./predicates";
  * Schema version 1, the v1 protocol, known domains, nonblank identity/solver fields and SHA-256 spelling supply the literal refusal paths. A solved result requires a metric population and unique keys. Authored malformed records are deliberately resealed by the fixture so a digest mismatch cannot explain a contents failure.
  * Each identity field has its own changed twin; unknown outcome status, missing refusal reason/remedy, empty solved metrics, duplicate keys and blank metric keys/units are located faults beside the fully stated not-run result. The returned gap and absent-metric factory are inputs for Part3, which owns their value/status/target consistency.
  */
-export function assertAnalysisRunContractPart2(measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric, check: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => IAutoMovieValidation, solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation): { gap: { reason: string; remedy: string; }; absent: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric; } {
-
-
+export function assertAnalysisRunContractPart2(
+  measured: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric,
+  check: (
+    overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+  ) => IAutoMovieValidation,
+  solved: (
+    metrics: IAutoMovieAnalysisMetric[],
+    samples?: IAutoMovieAnalysisSample[],
+    warnings?: IAutoMovieAnalysisWarning[],
+  ) => IAutoMovieValidation,
+): {
+  gap: { reason: string; remedy: string };
+  absent: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric;
+} {
   TestValidator.equals(
     "every identity field of a run has a refusing twin",
     namedFacts([
@@ -37,10 +59,14 @@ export function assertAnalysisRunContractPart2(measured: (overrides?: Partial<IA
             "$input.protocol",
           ),
       ],
-      ["blank id", (): boolean => hasViolation(check({ id: " " }), "type", "$input.id")],
+      [
+        "blank id",
+        (): boolean => hasViolation(check({ id: " " }), "type", "$input.id"),
+      ],
       [
         "blank subject",
-        (): boolean => hasViolation(check({ subject: "" }), "type", "$input.subject"),
+        (): boolean =>
+          hasViolation(check({ subject: "" }), "type", "$input.subject"),
       ],
       [
         "blank revision",
@@ -153,7 +179,8 @@ export function assertAnalysisRunContractPart2(measured: (overrides?: Partial<IA
       ],
       [
         "no metric at all",
-        (): boolean => hasViolation(solved([]), "range", "$input.outcome.metrics"),
+        (): boolean =>
+          hasViolation(solved([]), "range", "$input.outcome.metrics"),
       ],
       [
         "duplicate metric key",
@@ -205,8 +232,13 @@ export function assertAnalysisRunContractPart2(measured: (overrides?: Partial<IA
     },
   );
 
-  const gap: { reason: string; remedy: string; } = { reason: "no solver", remedy: "bind one" };
-  const absent: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric = (
+  const gap: { reason: string; remedy: string } = {
+    reason: "no solver",
+    remedy: "bind one",
+  };
+  const absent: (
+    overrides?: Partial<IAutoMovieAnalysisMetric>,
+  ) => IAutoMovieAnalysisMetric = (
     overrides: Partial<IAutoMovieAnalysisMetric> = {},
   ): IAutoMovieAnalysisMetric =>
     measured({ value: null, status: "not-run", gap, ...overrides });

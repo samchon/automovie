@@ -1,8 +1,11 @@
-import type { IAutoMovieConstraintViolation, IAutoMoviePropSpec } from "@automovie/interface";
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import type { IFilmImportedLodInputs } from "./IFilmImportedLodInputs";
 import { namedFacts } from "./predicates";
 
@@ -10,16 +13,21 @@ import { namedFacts } from "./predicates";
 export function assertFilmImportedLodClosure(
   input: IFilmImportedLodInputs,
 ): void {
-  const { createImportedPropSpec, refuses, tolerated, digest, SIDECAR_BYTES }: IFilmImportedLodInputs =
-    input;
+  const {
+    createImportedPropSpec,
+    refuses,
+    tolerated,
+    digest,
+    SIDECAR_BYTES,
+  }: IFilmImportedLodInputs = input;
   TestValidator.equals(
     "the LOD closure answers for its own levels and for the hero",
     namedFacts([
       [
         "duplicatedLevel",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : number =>
+            (spec: IAutoMoviePropSpec): number =>
               spec.model.imported!.lod.push({
                 ...spec.model.imported!.lod[0]!,
               }),
@@ -29,9 +37,9 @@ export function assertFilmImportedLodClosure(
       ],
       [
         "levelProfileDisagreement",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : string =>
+            (spec: IAutoMoviePropSpec): string =>
               (spec.model.imported!.lod[0]!.profile = "gltf-humanoid-v1"),
             "$input.model.imported.lod[0].profile",
             "every level of one appearance shares its profile",
@@ -39,32 +47,34 @@ export function assertFilmImportedLodClosure(
       ],
       [
         "malformedLevelDigest",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : string => (spec.model.imported!.lod[0]!.digest = "sha256:"),
+            (spec: IAutoMoviePropSpec): string =>
+              (spec.model.imported!.lod[0]!.digest = "sha256:"),
             "$input.model.imported.lod[0].digest",
             "64 lowercase hexadecimal digits",
           ),
       ],
       [
         "levelDisagreesWithTheLedgerDigest",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : `sha256:${string}` => (spec.model.imported!.lod[0]!.digest = digest("c")),
+            (spec: IAutoMoviePropSpec): `sha256:${string}` =>
+              (spec.model.imported!.lod[0]!.digest = digest("c")),
             "$input.model.imported.lod[0].digest",
             "while the sealed ledger carries",
           ),
       ],
       [
         "aMalformedDigestIsNotAlsoALedgerDisagreement",
-        () : boolean => {
+        (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.imported!.lod[0]!.digest = "sha256:";
           const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
-              (item: IAutoMovieConstraintViolation) : boolean =>
+              (item: IAutoMovieConstraintViolation): boolean =>
                 !item.expected.includes("while the sealed ledger carries"),
             )
           );
@@ -72,9 +82,9 @@ export function assertFilmImportedLodClosure(
       ],
       [
         "levelOutsideTheLedger",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : number =>
+            (spec: IAutoMoviePropSpec): number =>
               spec.model.imported!.lod.push({
                 level: "far",
                 asset: "assets/chair-far.glb",
@@ -88,41 +98,44 @@ export function assertFilmImportedLodClosure(
       ],
       [
         "noHeroAtAll",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : never[] => (spec.model.imported!.lod = []),
+            (spec: IAutoMoviePropSpec): never[] =>
+              (spec.model.imported!.lod = []),
             "$input.model.imported.lod",
             "needs a hero LOD",
           ),
       ],
       [
         "aNonHeroLevelIsStillNotAHero",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : string => (spec.model.imported!.lod[0]!.level = "near"),
+            (spec: IAutoMoviePropSpec): string =>
+              (spec.model.imported!.lod[0]!.level = "near"),
             "$input.model.imported.lod",
             "needs a hero LOD",
           ),
       ],
       [
         "heroBindingOtherBytes",
-        () : boolean =>
+        (): boolean =>
           refuses(
-            (spec: IAutoMoviePropSpec) : string => (spec.model.imported!.lod[0]!.asset = SIDECAR_BYTES),
+            (spec: IAutoMoviePropSpec): string =>
+              (spec.model.imported!.lod[0]!.asset = SIDECAR_BYTES),
             "$input.model.imported.lod",
             "one appearance is one set of bytes",
           ),
       ],
       [
         "aNullAssetIsNotAlsoAHeroMismatch",
-        () : boolean => {
+        (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.asset = null;
           const result: IAutoMovieForgedProp = forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
-              (item: IAutoMovieConstraintViolation) : boolean =>
+              (item: IAutoMovieConstraintViolation): boolean =>
                 !item.expected.includes("one appearance is one set of bytes"),
             )
           );
@@ -130,8 +143,8 @@ export function assertFilmImportedLodClosure(
       ],
       [
         "aSecondSealedLevelIsAccepted",
-        () : boolean =>
-          tolerated((spec: IAutoMoviePropSpec) : void => {
+        (): boolean =>
+          tolerated((spec: IAutoMoviePropSpec): void => {
             spec.model.imported!.assets.push({
               path: "assets/chair-far.glb",
               digest: digest("e"),

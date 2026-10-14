@@ -1,4 +1,8 @@
-import { IAutoMovieClip, IAutoMoviePropSpec, IAutoMovieStage } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMoviePropSpec,
+  IAutoMovieStage,
+} from "@automovie/interface";
 
 /**
  * What one door-fixture compile varies.

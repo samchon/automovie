@@ -1,5 +1,8 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
-import type { IAutoMovieVector3, IAutoMovieSpaceShell } from "@automovie/interface";
+import type {
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
@@ -12,10 +15,12 @@ import { hasViolation, namedFacts } from "./predicates";
  * A watertight outward cube is valid; schema index ranges, nondegenerate facets, paired edges and signed outward orientation independently determine located type/range failures. The helper requires the shell path but permits other validation findings.
  * Whole cube contrasts with simultaneous spellings, too few vertices/faces, ragged/fractional/unknown indices, repeated/degenerate facets, unmatched edges, inward winding and a nonfinite vertex. The parent owns point containment, volume and drawing behavior.
  */
-export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => void = (
+export const assertBuiltSpaceShellTestRefusals: (
   cube: IAutoMovieSpaceShell,
-): void => {
-  const refuse: (shell: IAutoMovieSpaceShell) => boolean = (shell: IAutoMovieSpaceShell): boolean =>
+) => void = (cube: IAutoMovieSpaceShell): void => {
+  const refuse: (shell: IAutoMovieSpaceShell) => boolean = (
+    shell: IAutoMovieSpaceShell,
+  ): boolean =>
     hasViolation(
       validateBuiltEnvironment({ environment: work({ shell }) }),
       "range",
@@ -64,7 +69,8 @@ export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => 
       ],
       [
         "tooFewTriangles",
-        (): boolean => refuse({ ...cube, triangles: cube.triangles.slice(0, 9) }),
+        (): boolean =>
+          refuse({ ...cube, triangles: cube.triangles.slice(0, 9) }),
       ],
       [
         "aRaggedIndexCount",
@@ -75,8 +81,8 @@ export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => 
         (): boolean =>
           refuse({
             ...cube,
-            triangles: cube.triangles.map((index: number, at: number): number =>
-              at === 0 ? 99 : index,
+            triangles: cube.triangles.map(
+              (index: number, at: number): number => (at === 0 ? 99 : index),
             ),
           }),
       ],
@@ -85,8 +91,8 @@ export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => 
         (): boolean =>
           refuse({
             ...cube,
-            triangles: cube.triangles.map((index: number, at: number): number =>
-              at === 0 ? 0.5 : index,
+            triangles: cube.triangles.map(
+              (index: number, at: number): number => (at === 0 ? 0.5 : index),
             ),
           }),
       ],
@@ -95,14 +101,15 @@ export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => 
         (): boolean =>
           refuse({
             ...cube,
-            triangles: cube.triangles.map((index: number, at: number): number =>
-              at === 1 ? 0 : index,
+            triangles: cube.triangles.map(
+              (index: number, at: number): number => (at === 1 ? 0 : index),
             ),
           }),
       ],
       [
         "anUnmatchedEdge",
-        (): boolean => refuse({ ...cube, triangles: cube.triangles.slice(0, 33) }),
+        (): boolean =>
+          refuse({ ...cube, triangles: cube.triangles.slice(0, 33) }),
       ],
       [
         "aDoubledFacet",
@@ -122,8 +129,9 @@ export const assertBuiltSpaceShellTestRefusals: (cube: IAutoMovieSpaceShell) => 
         (): boolean =>
           refuse({
             ...cube,
-            vertices: cube.vertices.map((vertex: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
-              at === 0 ? { ...vertex, y: Number.NaN } : vertex,
+            vertices: cube.vertices.map(
+              (vertex: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
+                at === 0 ? { ...vertex, y: Number.NaN } : vertex,
             ),
           }),
       ],

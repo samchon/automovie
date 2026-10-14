@@ -3,14 +3,19 @@ import type { IAutoMovieSpaceShell } from "@automovie/interface";
 import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
 
 /** One shell holding two, the inner one wound inward so it reads as a void. */
-const merge: (outer: IAutoMovieSpaceShell, inner: IAutoMovieSpaceShell) => IAutoMovieSpaceShell = (
+const merge: (
+  outer: IAutoMovieSpaceShell,
+  inner: IAutoMovieSpaceShell,
+) => IAutoMovieSpaceShell = (
   outer: IAutoMovieSpaceShell,
   inner: IAutoMovieSpaceShell,
 ): IAutoMovieSpaceShell => ({
   vertices: [...outer.vertices, ...inner.vertices],
   triangles: [
     ...outer.triangles,
-    ...inner.triangles.map((index: number): number => index + outer.vertices.length),
+    ...inner.triangles.map(
+      (index: number): number => index + outer.vertices.length,
+    ),
   ],
 });
 

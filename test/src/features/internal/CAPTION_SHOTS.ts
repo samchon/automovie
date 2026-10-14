@@ -1,4 +1,5 @@
 import type { IAutoMovieShot } from "@automovie/interface";
+
 import { createCaptionShot } from "./createCaptionShot";
 
 /** Original two- and three-second caption shots, shared by reference between sidecar and slicing tests; variations use fresh shot records. */

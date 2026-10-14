@@ -1,10 +1,15 @@
-import { autoMovieSolidBlocks } from "../../../../packages/engine/src/analysis/autoMovieSolidBlocks";
+import type {
+  IAutoMovieEnvironmentContext,
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { autoMovieHemisphereDirections } from "../../../../packages/engine/src/analysis/autoMovieHemisphereDirections";
 import { autoMovieRayObstructed } from "../../../../packages/engine/src/analysis/autoMovieRayObstructed";
 import { autoMovieSkyward } from "../../../../packages/engine/src/analysis/autoMovieSkyward";
-import type { IAutoMovieHalfSpacePlane, IAutoMovieEnvironmentContext, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError, nclose } from "./predicates";
+import { autoMovieSolidBlocks } from "../../../../packages/engine/src/analysis/autoMovieSolidBlocks";
+import { namedFacts, nclose, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_environment_context.
  *
@@ -17,8 +22,12 @@ import { namedFacts, throwsError, nclose } from "./predicates";
  * Positive rescaling of a half-space preserves its analytic inequality; the authored box planes determine ray obstruction, and the sign of the ground-up dot product determines the horizon. Sample directions must have unit norm within 1e-9 and positive normal projection. These invariants and deterministic replay do not establish cosine-distribution integration accuracy.
  * Unit/short plane normals share the same blocker; missing, present and empty unions distinguish obstruction. Up/down/grazing rays distinguish the horizon, while positive/negative/oblique normals and a singleton distinguish sampling orientation. Fractional/zero counts and zero/nonfinite normals must throw; other context schema cases belong to earlier parts.
  */
-export function assertAnalysisEnvironmentContextPart3(context: IAutoMovieEnvironmentContext, neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[]; }, cube: { id: string; planes: IAutoMovieHalfSpacePlane[]; }, rising: IAutoMovieVector3): void {
-
+export function assertAnalysisEnvironmentContextPart3(
+  context: IAutoMovieEnvironmentContext,
+  neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[] },
+  cube: { id: string; planes: IAutoMovieHalfSpacePlane[] },
+  rising: IAutoMovieVector3,
+): void {
   const slab: (scale: number) => boolean = (scale: number): boolean =>
     autoMovieSolidBlocks({
       origin: { x: 0, y: 0, z: 0 },
@@ -72,8 +81,14 @@ export function assertAnalysisEnvironmentContextPart3(context: IAutoMovieEnviron
     { up: true, down: false, grazing: false },
   );
 
-  const sampled: (normal: IAutoMovieVector3, count: number) => boolean = (normal: IAutoMovieVector3, count: number): boolean => {
-    const directions: IAutoMovieVector3[] = autoMovieHemisphereDirections({ normal, count });
+  const sampled: (normal: IAutoMovieVector3, count: number) => boolean = (
+    normal: IAutoMovieVector3,
+    count: number,
+  ): boolean => {
+    const directions: IAutoMovieVector3[] = autoMovieHemisphereDirections({
+      normal,
+      count,
+    });
     return (
       directions.length === count &&
       directions.every(

@@ -1,11 +1,17 @@
-import { sameProductData } from "./sameProductData";
-import { nclose } from "./nclose";
+import type {
+  IAutoMovieDesignPromotion,
+  IAutoMovieDesignReference,
+  IAutoMovieDesignSourceFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { designFrameScale } from "../../../../packages/engine/src/architecture/designFrameScale";
 import { designReferenceWorldPoint } from "../../../../packages/engine/src/architecture/designReferenceWorldPoint";
 import { promoteDesignObservations } from "../../../../packages/engine/src/architecture/promoteDesignObservations";
-import type { IAutoMovieDesignPromotion, IAutoMovieVector3, IAutoMovieDesignReference, IAutoMovieDesignSourceFrame } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { nclose } from "./nclose";
 import { namedFacts, throwsError, vclose } from "./predicates";
+import { sameProductData } from "./sameProductData";
 
 /** Execute the next ordered assertions of test_architecture_design_observation_promotion.
  *
@@ -33,9 +39,21 @@ import { namedFacts, throwsError, vclose } from "./predicates";
  * Authored frame scales, local coordinates and placements independently determine promoted world endpoints; declared confidence floors, conflict groups, unresolved scale and open occlusion issues determine eligibility. Replay and source nonmutation compare plain data relations, not external drawing interpretation or provider accuracy.
  * Competing centre lines, low certainty, occlusion and unsettled section scale remain withheld; lowering the floor or resolving the specific blocking issue releases only the eligible candidate. Explicit placement, a degenerate authored axis, missing/unsettled scale, invalid reference and confidence floor, zero-floor release, replay and unchanged source records retain their original cases; actual image parsing is outside this CPU seam.
  */
-export function assertArchitectureDesignObservationPromotionPart1(planFrame: () => IAutoMovieDesignSourceFrame, sectionFrame: () => IAutoMovieDesignSourceFrame, observation: () => IAutoMovieDesignReference, verdicts: (mutate: (value: IAutoMovieDesignReference) => void, minimumConfidence?: number) => { promoted: string[]; withheld: string[]; skipped: string[]; }): void {
-  const base: { promoted: string[]; withheld: string[]; skipped: string[]; } = verdicts((): void => {});
-  TestValidator.equals("one clean run promotes and every other reading is withheld with its reason", base, {
+export function assertArchitectureDesignObservationPromotionPart1(
+  planFrame: () => IAutoMovieDesignSourceFrame,
+  sectionFrame: () => IAutoMovieDesignSourceFrame,
+  observation: () => IAutoMovieDesignReference,
+  verdicts: (
+    mutate: (value: IAutoMovieDesignReference) => void,
+    minimumConfidence?: number,
+  ) => { promoted: string[]; withheld: string[]; skipped: string[] },
+): void {
+  const base: { promoted: string[]; withheld: string[]; skipped: string[] } =
+    verdicts((): void => {});
+  TestValidator.equals(
+    "one clean run promotes and every other reading is withheld with its reason",
+    base,
+    {
       promoted: ["wall-west"],
       withheld: [
         "wall-north-outer:ambiguous-candidate",
@@ -45,19 +63,33 @@ export function assertArchitectureDesignObservationPromotionPart1(planFrame: () 
         "stray-reading:unobserved",
       ],
       skipped: ["opening-detection:unsupported", "storey-datum:not-run"],
-    });
+    },
+  );
 
-  TestValidator.equals("the two competing centrelines are still both withheld at a floor they both clear", verdicts((): void => {}, 0.5).withheld.slice(0, 2), [
+  TestValidator.equals(
+    "the two competing centrelines are still both withheld at a floor they both clear",
+    verdicts((): void => {}, 0.5).withheld.slice(0, 2),
+    [
       "wall-north-outer:ambiguous-candidate",
       "wall-north-inner:ambiguous-candidate",
-    ]);
+    ],
+  );
 
-  const unopposed: (value: IAutoMovieDesignReference) => void = (value: IAutoMovieDesignReference): void => {
+  const unopposed: (value: IAutoMovieDesignReference) => void = (
+    value: IAutoMovieDesignReference,
+  ): void => {
     value.candidates[1]!.alternatives = [];
     value.candidates[2]!.alternatives = [];
   };
-  TestValidator.equals("an unopposed 0.6 reading still fails the default certainty floor", verdicts(unopposed).withheld.slice(0, 2), ["wall-north-outer:low-confidence", "wall-north-inner:open-issue"]);
-  TestValidator.equals("lowering the floor on purpose releases the unopposed, unblocked reading only", verdicts(unopposed, 0.5), {
+  TestValidator.equals(
+    "an unopposed 0.6 reading still fails the default certainty floor",
+    verdicts(unopposed).withheld.slice(0, 2),
+    ["wall-north-outer:low-confidence", "wall-north-inner:open-issue"],
+  );
+  TestValidator.equals(
+    "lowering the floor on purpose releases the unopposed, unblocked reading only",
+    verdicts(unopposed, 0.5),
+    {
       promoted: ["wall-west", "wall-north-outer"],
       withheld: [
         "wall-north-inner:open-issue",
@@ -66,44 +98,80 @@ export function assertArchitectureDesignObservationPromotionPart1(planFrame: () 
         "stray-reading:unobserved",
       ],
       skipped: ["opening-detection:unsupported", "storey-datum:not-run"],
-    });
-  TestValidator.equals("closing the occlusion issue releases exactly the candidate it blocked", verdicts((value: IAutoMovieDesignReference): void => {
+    },
+  );
+  TestValidator.equals(
+    "closing the occlusion issue releases exactly the candidate it blocked",
+    verdicts((value: IAutoMovieDesignReference): void => {
       unopposed(value);
       value.issues[0]!.open = false;
-    }, 0.5).promoted, ["wall-west", "wall-north-outer", "wall-north-inner"]);
-  TestValidator.equals("settling the section scale releases the section line and nothing else", verdicts((value: IAutoMovieDesignReference): string => (value.frames[1]!.scale = "fifty")).promoted, ["wall-west", "section-wall-line"]);
-  TestValidator.equals("claiming the stray reading turns it from unobserved into a promotion", verdicts((value: IAutoMovieDesignReference): number | undefined =>
+    }, 0.5).promoted,
+    ["wall-west", "wall-north-outer", "wall-north-inner"],
+  );
+  TestValidator.equals(
+    "settling the section scale releases the section line and nothing else",
+    verdicts(
+      (value: IAutoMovieDesignReference): string =>
+        (value.frames[1]!.scale = "fifty"),
+    ).promoted,
+    ["wall-west", "section-wall-line"],
+  );
+  TestValidator.equals(
+    "claiming the stray reading turns it from unobserved into a promotion",
+    verdicts((value: IAutoMovieDesignReference): number | undefined =>
       value.analyses[0]!.outcome.status === "observed"
         ? value.analyses[0]!.outcome.candidates.push("stray-reading")
         : undefined,
-    ).promoted, ["wall-west", "stray-reading"]);
+    ).promoted,
+    ["wall-west", "stray-reading"],
+  );
 
   // 7. Determinism and non-mutation.
   const source: IAutoMovieDesignReference = observation();
-  const first: IAutoMovieDesignPromotion = promoteDesignObservations({ reference: source });
-  const second: IAutoMovieDesignPromotion = promoteDesignObservations({ reference: source });
-  TestValidator.predicate("the same reference promotes to the same metres twice", sameProductData(first, second));
-  TestValidator.predicate("promotion leaves the observation exactly as it was read", sameProductData(source, observation()));
+  const first: IAutoMovieDesignPromotion = promoteDesignObservations({
+    reference: source,
+  });
+  const second: IAutoMovieDesignPromotion = promoteDesignObservations({
+    reference: source,
+  });
+  TestValidator.predicate(
+    "the same reference promotes to the same metres twice",
+    sameProductData(first, second),
+  );
+  TestValidator.predicate(
+    "promotion leaves the observation exactly as it was read",
+    sameProductData(source, observation()),
+  );
   TestValidator.equals(
     "the promoted west run is the hand-computed metric polyline",
     namedFacts([
-      ["vertexCount", (): boolean => first.promoted[0]!.outlines[0]!.length === 3],
+      [
+        "vertexCount",
+        (): boolean => first.promoted[0]!.outlines[0]!.length === 3,
+      ],
       [
         "start",
-        (): boolean => vclose(first.promoted[0]!.outlines[0]![0]!, { x: 1, y: 0, z: 1 }),
+        (): boolean =>
+          vclose(first.promoted[0]!.outlines[0]![0]!, { x: 1, y: 0, z: 1 }),
       ],
       [
         "corner",
-        (): boolean => vclose(first.promoted[0]!.outlines[0]![1]!, { x: 1, y: 0, z: 5 }),
+        (): boolean =>
+          vclose(first.promoted[0]!.outlines[0]![1]!, { x: 1, y: 0, z: 5 }),
       ],
       [
         "end",
-        (): boolean => vclose(first.promoted[0]!.outlines[0]![2]!, { x: 3, y: 0, z: 5 }),
+        (): boolean =>
+          vclose(first.promoted[0]!.outlines[0]![2]!, { x: 3, y: 0, z: 5 }),
       ],
     ]),
     { vertexCount: true, start: true, corner: true, end: true },
   );
-  TestValidator.equals("the promoted reading carries the candidate's own semantic label", first.promoted[0]!.semantic, "wall-centerline");
+  TestValidator.equals(
+    "the promoted reading carries the candidate's own semantic label",
+    first.promoted[0]!.semantic,
+    "wall-centerline",
+  );
 
   // 8. The sheet-to-world mapping.
   TestValidator.predicate(
@@ -154,21 +222,24 @@ export function assertArchitectureDesignObservationPromotionPart1(planFrame: () 
   TestValidator.predicate(
     "an unsettled scale refuses to produce a world position at all",
     throwsError(
-      (): IAutoMovieVector3 => designReferenceWorldPoint(sectionFrame(), { x: 1, y: 1 }),
+      (): IAutoMovieVector3 =>
+        designReferenceWorldPoint(sectionFrame(), { x: 1, y: 1 }),
       ["section-1", "no settled scale"],
     ),
   );
   TestValidator.predicate(
     "a settled frame reports its metres per unit and an unsettled one reports none",
-    (() : boolean => {
+    ((): boolean => {
       const observed: (number | null)[] = [
-      designFrameScale(planFrame()),
-      designFrameScale(sectionFrame()),
-      designFrameScale({ ...sectionFrame(), scale: "ghost" }),
-    ];
+        designFrameScale(planFrame()),
+        designFrameScale(sectionFrame()),
+        designFrameScale({ ...sectionFrame(), scale: "ghost" }),
+      ];
       return (
-        Array.isArray(observed) && observed.length === 3 &&
-        typeof observed[0]! === "number" && nclose(observed[0]!, 0.01) &&
+        Array.isArray(observed) &&
+        observed.length === 3 &&
+        typeof observed[0]! === "number" &&
+        nclose(observed[0]!, 0.01) &&
         observed[1] === null &&
         observed[2] === null
       );
@@ -197,8 +268,12 @@ export function assertArchitectureDesignObservationPromotionPart1(planFrame: () 
       ),
     ),
   );
-  TestValidator.equals("a floor of zero promotes every unopposed, unblocked, scaled reading", verdicts((value: IAutoMovieDesignReference): void => {
+  TestValidator.equals(
+    "a floor of zero promotes every unopposed, unblocked, scaled reading",
+    verdicts((value: IAutoMovieDesignReference): void => {
       unopposed(value);
       value.issues[0]!.open = false;
-    }, 0).promoted, ["wall-west", "wall-north-outer", "wall-north-inner"]);
+    }, 0).promoted,
+    ["wall-west", "wall-north-outer", "wall-north-inner"],
+  );
 }

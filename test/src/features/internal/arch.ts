@@ -13,7 +13,14 @@ import { rectangle } from "./rectangle";
  *
  * Work/output grow with segment count, with one fixed-size extrusion per member and one final merge. Fresh arrays and assembly belong to the caller; no fixture, measurement or host resource persists between calls.
  */
-export const arch: (props: { span: number; rise: number; thickness: number; depth: number; springing: number; segments: number; }) => { assembly: IAutoMovieMeshAssembly; volume: number; } = (props: {
+export const arch: (props: {
+  span: number;
+  rise: number;
+  thickness: number;
+  depth: number;
+  springing: number;
+  segments: number;
+}) => { assembly: IAutoMovieMeshAssembly; volume: number } = (props: {
   span: number;
   rise: number;
   thickness: number;
@@ -23,7 +30,9 @@ export const arch: (props: { span: number; rise: number; thickness: number; dept
 }): { assembly: IAutoMovieMeshAssembly; volume: number } => {
   const inner: number = props.span / 2;
   const outer: number = inner + props.thickness;
-  const at: (step: number) => [IAutoMovieProfilePoint, IAutoMovieProfilePoint] = (
+  const at: (
+    step: number,
+  ) => [IAutoMovieProfilePoint, IAutoMovieProfilePoint] = (
     step: number,
   ): [IAutoMovieProfilePoint, IAutoMovieProfilePoint] => {
     const angle: number = (step / props.segments) * Math.PI;
@@ -41,9 +50,18 @@ export const arch: (props: { span: number; rise: number; thickness: number; dept
   const parts: IAutoMovieMeshPart[] = [];
   let volume: number = 0;
   for (let step: number = 0; step < props.segments; ++step) {
-    const [innerFrom, outerFrom]: [IAutoMovieProfilePoint, IAutoMovieProfilePoint] = at(step);
-    const [innerTo, outerTo]: [IAutoMovieProfilePoint, IAutoMovieProfilePoint] = at(step + 1);
-    const quad: IAutoMovieProfilePoint[] = [innerFrom, innerTo, outerTo, outerFrom];
+    const [innerFrom, outerFrom]: [
+      IAutoMovieProfilePoint,
+      IAutoMovieProfilePoint,
+    ] = at(step);
+    const [innerTo, outerTo]: [IAutoMovieProfilePoint, IAutoMovieProfilePoint] =
+      at(step + 1);
+    const quad: IAutoMovieProfilePoint[] = [
+      innerFrom,
+      innerTo,
+      outerTo,
+      outerFrom,
+    ];
     volume += area(quad) * props.depth;
     parts.push({
       id: `voussoir-${step + 1}`,
@@ -55,7 +73,12 @@ export const arch: (props: { span: number; rise: number; thickness: number; dept
       ["left", -outer],
       ["right", inner],
     ] as const) {
-      const pier: IAutoMovieProfilePoint[] = rectangle(left, 0, props.thickness, props.springing);
+      const pier: IAutoMovieProfilePoint[] = rectangle(
+        left,
+        0,
+        props.thickness,
+        props.springing,
+      );
       volume += area(pier) * props.depth;
       parts.push({
         id: `pier-${name}`,

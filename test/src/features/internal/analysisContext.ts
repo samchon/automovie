@@ -12,7 +12,9 @@ import type { IAutoMovieEnvironmentContext } from "@automovie/interface";
  * The authored noon/afternoon/night directions, illuminances, temperatures and humidities are study inputs, not returned measurements; consumers derive cosine and heat/air expectations separately. The site ids and labels declare metadata and do not load external weather records.
  * Each call creates the same three ordered instants with an empty occluder list, then applies the caller's overrides. Consumers own valid contexts, individual malformed fields, missing resident slots and changed context premises; this builder validates none of them.
  */
-export const analysisContext: (overrides?: Partial<IAutoMovieEnvironmentContext>) => IAutoMovieEnvironmentContext = (
+export const analysisContext: (
+  overrides?: Partial<IAutoMovieEnvironmentContext>,
+) => IAutoMovieEnvironmentContext = (
   overrides: Partial<IAutoMovieEnvironmentContext> = {},
 ): IAutoMovieEnvironmentContext => ({
   version: 1,

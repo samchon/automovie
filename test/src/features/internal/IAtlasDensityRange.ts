@@ -1,5 +1,3 @@
-
-
 /**
  * Caller-owned atlas-area observer output, with dimensionless extrema over retained triangles and a count of omitted small-surface triangles. Empty/no-retained input keeps +Infinity/-Infinity extrema; malformed or overflowing arithmetic can propagate NaN, so this record is not a mesh-validity verdict.
  *

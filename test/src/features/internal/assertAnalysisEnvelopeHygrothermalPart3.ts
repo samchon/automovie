@@ -1,13 +1,17 @@
-import type { IAutoMovieAnalysisRun, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisRun,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieEnvelopeAssembly } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeAssembly";
+import type { IAutoMovieEnvelopeLayer } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeLayer";
 import type { IAutoMovieEnvelopeRequest } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeRequest";
 import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/analysis/IAutoMovieSpaceAirRequest";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { autoMovieDewPoint } from "../../../../packages/engine/src/analysis/autoMovieDewPoint";
-import { TestValidator } from "@nestia/e2e";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, nclose, throwsError } from "./predicates";
-import type { IAutoMovieEnvelopeLayer } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeLayer";
 
 /** Execute the next ordered assertions of test_analysis_envelope_hygrothermal.
  *
@@ -17,21 +21,38 @@ import type { IAutoMovieEnvelopeLayer } from "../../../../packages/engine/src/an
  * The declared request requires nonblank identities, known context instants, finite positive areas/conductivity/volume, nonnegative flow/generation and bounded samples. Authored single-field mutations determine message fragments. Direct dew-point input failures follow finite temperature and humidity in (0,1], without validating arbitrary unknown containers.
  * Empty/excess/duplicate/blank assemblies and layers, missing boundary, invalid films/area/conductivity/position, blank/duplicate/unresolved bridges, invalid bridge transmittance/length, malformed context/instant and duplicate targets are refused. Ventilation has blank-id, volume, flow, occupancy, generation and outdoor-concentration twins; direct dew point distinguishes zero humidity, nonfinite temperature and saturated air. Earlier parts own thermal and air arithmetic.
  */
-export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelopeAssembly, study: (overrides?: Partial<IAutoMovieEnvelopeRequest>) => { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; }, air: (overrides?: Partial<IAutoMovieSpaceAirRequest>) => IAutoMovieAnalysisRun): void {
-
-
+export function assertAnalysisEnvelopeHygrothermalPart3(
+  wall: IAutoMovieEnvelopeAssembly,
+  study: (overrides?: Partial<IAutoMovieEnvelopeRequest>) => {
+    thermal: IAutoMovieAnalysisRun;
+    moisture: IAutoMovieAnalysisRun;
+  },
+  air: (
+    overrides?: Partial<IAutoMovieSpaceAirRequest>,
+  ) => IAutoMovieAnalysisRun,
+): void {
   TestValidator.equals(
     "every malformed study is refused at its own message",
     namedFacts([
       [
         "blank envelope id",
-        (): boolean => throwsError((): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ id: "" }), "non-blank id"),
+        (): boolean =>
+          throwsError(
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ id: "" }),
+            "non-blank id",
+          ),
       ],
       [
         "invalid context",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 context: analysisContext({
                   units: "foot" as unknown as "meter",
@@ -44,7 +65,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "unknown instant",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ instant: "dawn" }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ instant: "dawn" }),
             "which the environment context does not declare",
           ),
       ],
@@ -52,7 +76,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-finite indoor temperature",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 indoor: { airTemperature: Number.NaN, relativeHumidity: 0.5 },
               }),
@@ -63,7 +90,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "out of range indoor humidity",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 indoor: { airTemperature: 20, relativeHumidity: 1.2 },
               }),
@@ -74,7 +104,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "no assembly",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ assemblies: [], bridges: [] }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ assemblies: [], bridges: [] }),
             "at least one assembly",
           ),
       ],
@@ -82,11 +115,25 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "too many assemblies",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: Array.from(
                   { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
-                  (_: unknown, index: number): { id: string; boundary: string; layers: readonly IAutoMovieEnvelopeLayer[]; interiorFilm: number; exteriorFilm: number; area: number; position: IAutoMovieVector3; } => ({ ...wall, id: `wall-${index}` }),
+                  (
+                    _: unknown,
+                    index: number,
+                  ): {
+                    id: string;
+                    boundary: string;
+                    layers: readonly IAutoMovieEnvelopeLayer[];
+                    interiorFilm: number;
+                    exteriorFilm: number;
+                    area: number;
+                    position: IAutoMovieVector3;
+                  } => ({ ...wall, id: `wall-${index}` }),
                 ),
                 bridges: [],
               }),
@@ -97,7 +144,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "blank assembly id",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ assemblies: [{ ...wall, id: " " }], bridges: [] }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ assemblies: [{ ...wall, id: " " }], bridges: [] }),
             "assembly must carry a non-blank id",
           ),
       ],
@@ -105,7 +155,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "duplicated assembly",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ assemblies: [wall, wall], bridges: [] }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ assemblies: [wall, wall], bridges: [] }),
             'envelope assembly "wall" is declared twice',
           ),
       ],
@@ -113,7 +166,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "assembly without a boundary",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({ assemblies: [{ ...wall, boundary: "" }], bridges: [] }),
             "must name the boundary it realizes",
           ),
@@ -122,7 +178,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-positive film resistance",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: [{ ...wall, interiorFilm: 0 }],
                 bridges: [],
@@ -134,7 +193,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-positive area",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ assemblies: [{ ...wall, area: -1 }], bridges: [] }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ assemblies: [{ ...wall, area: -1 }], bridges: [] }),
             "area must be a finite number above zero",
           ),
       ],
@@ -142,7 +204,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-finite assembly position",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: [
                   { ...wall, position: { x: 0, y: 0, z: Number.NaN } },
@@ -156,7 +221,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "no layer",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } => study({ assemblies: [{ ...wall, layers: [] }], bridges: [] }),
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } => study({ assemblies: [{ ...wall, layers: [] }], bridges: [] }),
             "must declare at least one layer",
           ),
       ],
@@ -164,7 +232,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "blank layer id",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: [
                   {
@@ -181,7 +252,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "duplicated layer",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: [
                   {
@@ -201,7 +275,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-positive conductivity",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 assemblies: [
                   {
@@ -218,7 +295,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "blank bridge id",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 bridges: [
                   {
@@ -236,7 +316,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "duplicated bridge",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 bridges: [
                   {
@@ -260,7 +343,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "bridge on nothing",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 bridges: [
                   {
@@ -278,7 +364,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "negative bridge transmittance",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 bridges: [
                   {
@@ -296,7 +385,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "non-positive bridge length",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 bridges: [
                   {
@@ -314,7 +406,10 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "duplicated envelope target",
         (): boolean =>
           throwsError(
-            (): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } =>
+            (): {
+              thermal: IAutoMovieAnalysisRun;
+              moisture: IAutoMovieAnalysisRun;
+            } =>
               study({
                 targets: [
                   {
@@ -336,7 +431,11 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
       ],
       [
         "blank ventilation id",
-        (): boolean => throwsError((): IAutoMovieAnalysisRun => air({ subject: " " }), "non-blank subject"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieAnalysisRun => air({ subject: " " }),
+            "non-blank subject",
+          ),
       ],
       [
         "non-positive volume",
@@ -374,7 +473,8 @@ export function assertAnalysisEnvelopeHygrothermalPart3(wall: IAutoMovieEnvelope
         "negative outdoor concentration",
         (): boolean =>
           throwsError(
-            (): IAutoMovieAnalysisRun => air({ outdoorCarbonDioxide: Number.NaN }),
+            (): IAutoMovieAnalysisRun =>
+              air({ outdoorCarbonDioxide: Number.NaN }),
             "outdoorCarbonDioxide must be a finite number at or above zero",
           ),
       ],

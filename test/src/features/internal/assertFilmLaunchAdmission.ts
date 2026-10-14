@@ -1,7 +1,11 @@
+import type {
+  AutoMovieInteractionEventKind,
+  IAutoMovieConstraintViolation,
+  IAutoMovieInteractionEvent,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieConstraintViolation, IAutoMovieInteractionEvent, AutoMovieInteractionEventKind } from "@automovie/interface";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { FilmLaunchPerformer } from "./FilmLaunchPerformer";
 
 /**
@@ -24,7 +28,9 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
   if (unstaged.success === false)
     TestValidator.predicate(
       "the violation names the projectile",
-      unstaged.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".projectile")),
+      unstaged.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".projectile"),
+      ),
     );
 
   // 3. the aim must resolve to a point
@@ -43,7 +49,9 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
   if (relative.success === false)
     TestValidator.predicate(
       "the violation names the target",
-      relative.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".at")),
+      relative.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".at"),
+      ),
     );
 
   // 4. the speed itself must be positive
@@ -63,7 +71,8 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     TestValidator.predicate(
       "the violation names the non-positive speed",
       stopped.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".speed"),
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.kind === "range" && v.path.includes(".speed"),
       ),
     );
 
@@ -117,7 +126,8 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     TestValidator.predicate(
       "the violation names the onHit force",
       heavyHit.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".onHit.force"),
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.kind === "range" && v.path.includes(".onHit.force"),
       ),
     );
 
@@ -137,7 +147,9 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
   if (short.success === false)
     TestValidator.predicate(
       "the violation names the speed",
-      short.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".speed")),
+      short.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".speed"),
+      ),
     );
 
   // 8. a bare-point aim flies but schedules no reaction (no actor to recoil)
@@ -170,7 +182,10 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     );
     TestValidator.equals(
       "the point aim records contact but no hit",
-      (pointed.shot.events ?? []).map((event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind => event.kind),
+      (pointed.shot.events ?? []).map(
+        (event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind =>
+          event.kind,
+      ),
       ["contact"],
     );
     TestValidator.equals(
@@ -198,7 +213,8 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     TestValidator.predicate(
       "the violation names the speed/timing",
       late.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".speed"),
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.kind === "range" && v.path.includes(".speed"),
       ),
     );
 
@@ -223,7 +239,8 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     TestValidator.predicate(
       "the violation names the projectile",
       projectileActor.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.kind === "type" && v.path.includes(".projectile"),
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.kind === "type" && v.path.includes(".projectile"),
       ),
     );
 
@@ -248,7 +265,8 @@ export function assertFilmLaunchAdmission(perform: FilmLaunchPerformer): void {
     TestValidator.predicate(
       "the violation names the target",
       selfTarget.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.kind === "type" && v.path.includes(".at"),
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.kind === "type" && v.path.includes(".at"),
       ),
     );
 }

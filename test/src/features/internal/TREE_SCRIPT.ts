@@ -1,6 +1,8 @@
 import { IAutoMovieScript } from "@automovie/interface";
+
 import { screenplayBeat } from "./screenplayBeat";
 import { screenplayNode } from "./screenplayNode";
+
 /** The original shared intent, act, scene, group and two-beat tree with its dialogue and caption values; consumers borrow this module-owned record and clone fields before variations. */
 export const TREE_SCRIPT: IAutoMovieScript = {
   logline: "flat logline (ignored when a tree exists)",
