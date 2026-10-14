@@ -1,9 +1,13 @@
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtConvexCellVertices } from "../../../../packages/engine/src/architecture/builtConvexCellVertices";
 import { builtSpaceVolumeBounds } from "../../../../packages/engine/src/architecture/builtSpaceVolumeBounds";
-import type { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { boxCell } from "../internal/envelopeFixtures";
+import { nclose } from "../internal/nclose";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
@@ -24,46 +28,79 @@ import { namedFacts, vclose } from "../internal/predicates";
 export function test_architecture_convex_cell_vertices(): void {
   TestValidator.predicate(
     "a unit cube's planes cut exactly its own eight corners",
-    (() : boolean => {
+    ((): boolean => {
       const observed: [number, number, number][] = ordered(
-      builtConvexCellVertices(
-        boxCell("cube", { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }),
-      ),
-    );
+        builtConvexCellVertices(
+          boxCell("cube", { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }),
+        ),
+      );
       return (
-        Array.isArray(observed) && observed.length === 8 &&
-        Array.isArray(observed[0]!) && observed[0]!.length === 3 &&
-        typeof observed[0]![0]! === "number" && nclose(observed[0]![0]!, 0, 5e-10) &&
-        typeof observed[0]![1]! === "number" && nclose(observed[0]![1]!, 0, 5e-10) &&
-        typeof observed[0]![2]! === "number" && nclose(observed[0]![2]!, 0, 5e-10) &&
-        Array.isArray(observed[1]!) && observed[1]!.length === 3 &&
-        typeof observed[1]![0]! === "number" && nclose(observed[1]![0]!, 0, 5e-10) &&
-        typeof observed[1]![1]! === "number" && nclose(observed[1]![1]!, 0, 5e-10) &&
-        typeof observed[1]![2]! === "number" && nclose(observed[1]![2]!, 1, 5e-10) &&
-        Array.isArray(observed[2]!) && observed[2]!.length === 3 &&
-        typeof observed[2]![0]! === "number" && nclose(observed[2]![0]!, 0, 5e-10) &&
-        typeof observed[2]![1]! === "number" && nclose(observed[2]![1]!, 1, 5e-10) &&
-        typeof observed[2]![2]! === "number" && nclose(observed[2]![2]!, 0, 5e-10) &&
-        Array.isArray(observed[3]!) && observed[3]!.length === 3 &&
-        typeof observed[3]![0]! === "number" && nclose(observed[3]![0]!, 0, 5e-10) &&
-        typeof observed[3]![1]! === "number" && nclose(observed[3]![1]!, 1, 5e-10) &&
-        typeof observed[3]![2]! === "number" && nclose(observed[3]![2]!, 1, 5e-10) &&
-        Array.isArray(observed[4]!) && observed[4]!.length === 3 &&
-        typeof observed[4]![0]! === "number" && nclose(observed[4]![0]!, 1, 5e-10) &&
-        typeof observed[4]![1]! === "number" && nclose(observed[4]![1]!, 0, 5e-10) &&
-        typeof observed[4]![2]! === "number" && nclose(observed[4]![2]!, 0, 5e-10) &&
-        Array.isArray(observed[5]!) && observed[5]!.length === 3 &&
-        typeof observed[5]![0]! === "number" && nclose(observed[5]![0]!, 1, 5e-10) &&
-        typeof observed[5]![1]! === "number" && nclose(observed[5]![1]!, 0, 5e-10) &&
-        typeof observed[5]![2]! === "number" && nclose(observed[5]![2]!, 1, 5e-10) &&
-        Array.isArray(observed[6]!) && observed[6]!.length === 3 &&
-        typeof observed[6]![0]! === "number" && nclose(observed[6]![0]!, 1, 5e-10) &&
-        typeof observed[6]![1]! === "number" && nclose(observed[6]![1]!, 1, 5e-10) &&
-        typeof observed[6]![2]! === "number" && nclose(observed[6]![2]!, 0, 5e-10) &&
-        Array.isArray(observed[7]!) && observed[7]!.length === 3 &&
-        typeof observed[7]![0]! === "number" && nclose(observed[7]![0]!, 1, 5e-10) &&
-        typeof observed[7]![1]! === "number" && nclose(observed[7]![1]!, 1, 5e-10) &&
-        typeof observed[7]![2]! === "number" && nclose(observed[7]![2]!, 1, 5e-10)
+        Array.isArray(observed) &&
+        observed.length === 8 &&
+        Array.isArray(observed[0]!) &&
+        observed[0]!.length === 3 &&
+        typeof observed[0]![0]! === "number" &&
+        nclose(observed[0]![0]!, 0, 5e-10) &&
+        typeof observed[0]![1]! === "number" &&
+        nclose(observed[0]![1]!, 0, 5e-10) &&
+        typeof observed[0]![2]! === "number" &&
+        nclose(observed[0]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[1]!) &&
+        observed[1]!.length === 3 &&
+        typeof observed[1]![0]! === "number" &&
+        nclose(observed[1]![0]!, 0, 5e-10) &&
+        typeof observed[1]![1]! === "number" &&
+        nclose(observed[1]![1]!, 0, 5e-10) &&
+        typeof observed[1]![2]! === "number" &&
+        nclose(observed[1]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[2]!) &&
+        observed[2]!.length === 3 &&
+        typeof observed[2]![0]! === "number" &&
+        nclose(observed[2]![0]!, 0, 5e-10) &&
+        typeof observed[2]![1]! === "number" &&
+        nclose(observed[2]![1]!, 1, 5e-10) &&
+        typeof observed[2]![2]! === "number" &&
+        nclose(observed[2]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[3]!) &&
+        observed[3]!.length === 3 &&
+        typeof observed[3]![0]! === "number" &&
+        nclose(observed[3]![0]!, 0, 5e-10) &&
+        typeof observed[3]![1]! === "number" &&
+        nclose(observed[3]![1]!, 1, 5e-10) &&
+        typeof observed[3]![2]! === "number" &&
+        nclose(observed[3]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[4]!) &&
+        observed[4]!.length === 3 &&
+        typeof observed[4]![0]! === "number" &&
+        nclose(observed[4]![0]!, 1, 5e-10) &&
+        typeof observed[4]![1]! === "number" &&
+        nclose(observed[4]![1]!, 0, 5e-10) &&
+        typeof observed[4]![2]! === "number" &&
+        nclose(observed[4]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[5]!) &&
+        observed[5]!.length === 3 &&
+        typeof observed[5]![0]! === "number" &&
+        nclose(observed[5]![0]!, 1, 5e-10) &&
+        typeof observed[5]![1]! === "number" &&
+        nclose(observed[5]![1]!, 0, 5e-10) &&
+        typeof observed[5]![2]! === "number" &&
+        nclose(observed[5]![2]!, 1, 5e-10) &&
+        Array.isArray(observed[6]!) &&
+        observed[6]!.length === 3 &&
+        typeof observed[6]![0]! === "number" &&
+        nclose(observed[6]![0]!, 1, 5e-10) &&
+        typeof observed[6]![1]! === "number" &&
+        nclose(observed[6]![1]!, 1, 5e-10) &&
+        typeof observed[6]![2]! === "number" &&
+        nclose(observed[6]![2]!, 0, 5e-10) &&
+        Array.isArray(observed[7]!) &&
+        observed[7]!.length === 3 &&
+        typeof observed[7]![0]! === "number" &&
+        nclose(observed[7]![0]!, 1, 5e-10) &&
+        typeof observed[7]![1]! === "number" &&
+        nclose(observed[7]![1]!, 1, 5e-10) &&
+        typeof observed[7]![2]! === "number" &&
+        nclose(observed[7]![2]!, 1, 5e-10)
       );
     })(),
   );
@@ -195,7 +232,9 @@ export function test_architecture_convex_cell_vertices(): void {
 /**
  * Raw solved coordinates in lexicographic order for the unit-box corner oracle; the caller compares metres with a half-nanometre tolerance.
  */
-const ordered: (vertices: readonly IAutoMovieVector3[]) => Array<[number, number, number]> = (
+const ordered: (
+  vertices: readonly IAutoMovieVector3[],
+) => Array<[number, number, number]> = (
   vertices: readonly IAutoMovieVector3[],
 ): Array<[number, number, number]> =>
   vertices
@@ -205,6 +244,9 @@ const ordered: (vertices: readonly IAutoMovieVector3[]) => Array<[number, number
       vertex.z,
     ])
     .sort(
-      (left: [number, number, number], right: [number, number, number]): number =>
+      (
+        left: [number, number, number],
+        right: [number, number, number],
+      ): number =>
         left[0] - right[0] || left[1] - right[1] || left[2] - right[2],
     );

@@ -53,11 +53,12 @@ export function test_architecture_envelope_faces(): void {
     true,
   );
 
-  const faces: IAutoMovieBuiltEnvelopeFace[] = builtEnvironmentEnvelopeFaces(record);
+  const faces: IAutoMovieBuiltEnvelopeFace[] =
+    builtEnvironmentEnvelopeFaces(record);
 
   TestValidator.equals(
     "every enclosing separation is an exposed face, in boundary order",
-    faces.map((face: IAutoMovieBuiltEnvelopeFace) : string[] => [
+    faces.map((face: IAutoMovieBuiltEnvelopeFace): string[] => [
       face.boundary,
       face.aspect,
       face.building,
@@ -73,14 +74,17 @@ export function test_architecture_envelope_faces(): void {
     ],
   );
 
-  const east: IAutoMovieBuiltEnvelopeFace | undefined = faces.find((face: IAutoMovieBuiltEnvelopeFace) : boolean => face.boundary === "wall-east");
+  const east: IAutoMovieBuiltEnvelopeFace | undefined = faces.find(
+    (face: IAutoMovieBuiltEnvelopeFace): boolean =>
+      face.boundary === "wall-east",
+  );
 
   TestValidator.equals(
     "the east wall is placed and turned exactly as its frame says",
     namedFacts([
       [
         "its outline runs from the north-east corner to the south-east one",
-        () : boolean =>
+        (): boolean =>
           east !== undefined &&
           east.vertices.length === 4 &&
           vclose(east.vertices[0]!, { x: 4, y: 0, z: 6 }) &&
@@ -90,17 +94,20 @@ export function test_architecture_envelope_faces(): void {
       ],
       [
         "its centroid is the middle of that rectangle",
-        () : boolean =>
+        (): boolean =>
           east !== undefined && vclose(east.centroid, { x: 4, y: 1.5, z: 3 }),
       ],
       [
         "and it faces away from the hall",
-        () : boolean => east !== undefined && vclose(east.normal, { x: 1, y: 0, z: 0 }),
+        (): boolean =>
+          east !== undefined && vclose(east.normal, { x: 1, y: 0, z: 0 }),
       ],
       [
         "carrying its own kind and thickness",
-        () : boolean =>
-          east !== undefined && east.kind === "wall" && nclose(east.thickness, 0.2, 0),
+        (): boolean =>
+          east !== undefined &&
+          east.kind === "wall" &&
+          nclose(east.thickness, 0.2, 0),
       ],
     ]),
     {
@@ -116,21 +123,33 @@ export function test_architecture_envelope_faces(): void {
     namedFacts([
       [
         "the ceiling slab's normal is world up",
-        () : boolean =>
-          vclose(faces.find((face: IAutoMovieBuiltEnvelopeFace) : boolean => face.boundary === "roof-top")!.normal, {
-            x: 0,
-            y: 1,
-            z: 0,
-          }),
+        (): boolean =>
+          vclose(
+            faces.find(
+              (face: IAutoMovieBuiltEnvelopeFace): boolean =>
+                face.boundary === "roof-top",
+            )!.normal,
+            {
+              x: 0,
+              y: 1,
+              z: 0,
+            },
+          ),
       ],
       [
         "the ground slab's normal is world down",
-        () : boolean =>
-          vclose(faces.find((face: IAutoMovieBuiltEnvelopeFace) : boolean => face.boundary === "floor-slab")!.normal, {
-            x: 0,
-            y: -1,
-            z: 0,
-          }),
+        (): boolean =>
+          vclose(
+            faces.find(
+              (face: IAutoMovieBuiltEnvelopeFace): boolean =>
+                face.boundary === "floor-slab",
+            )!.normal,
+            {
+              x: 0,
+              y: -1,
+              z: 0,
+            },
+          ),
       ],
     ]),
     {
@@ -139,11 +158,12 @@ export function test_architecture_envelope_faces(): void {
     },
   );
 
-  const odd: IAutoMovieBuiltEnvelopeFace[] = builtEnvironmentEnvelopeFaces(oddBoundaries());
+  const odd: IAutoMovieBuiltEnvelopeFace[] =
+    builtEnvironmentEnvelopeFaces(oddBoundaries());
 
   TestValidator.equals(
     "only the two exposed separations of the odd record are faces",
-    odd.map((face: IAutoMovieBuiltEnvelopeFace) : string => face.boundary),
+    odd.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
     ["degenerate", "flipped"],
   );
 
@@ -152,21 +172,33 @@ export function test_architecture_envelope_faces(): void {
     namedFacts([
       [
         "the inward-wound face points out of the hall",
-        () : boolean =>
-          vclose(odd.find((face: IAutoMovieBuiltEnvelopeFace) : boolean => face.boundary === "flipped")!.normal, {
-            x: 0,
-            y: 0,
-            z: 1,
-          }),
+        (): boolean =>
+          vclose(
+            odd.find(
+              (face: IAutoMovieBuiltEnvelopeFace): boolean =>
+                face.boundary === "flipped",
+            )!.normal,
+            {
+              x: 0,
+              y: 0,
+              z: 1,
+            },
+          ),
       ],
       [
         "the arealess face reports the mean of its own points",
-        () : boolean =>
-          vclose(odd.find((face: IAutoMovieBuiltEnvelopeFace) : boolean => face.boundary === "degenerate")!.centroid, {
-            x: 1,
-            y: 0,
-            z: 6,
-          }),
+        (): boolean =>
+          vclose(
+            odd.find(
+              (face: IAutoMovieBuiltEnvelopeFace): boolean =>
+                face.boundary === "degenerate",
+            )!.centroid,
+            {
+              x: 1,
+              y: 0,
+              z: 6,
+            },
+          ),
       ],
     ]),
     {
@@ -181,131 +213,134 @@ export function test_architecture_envelope_faces(): void {
  *
  * It includes an unknown space and an unowned separation, so no scenario asks this extraction-only fixture to pass validation. Four omitted separations and two awkward exposed faces distinguish membership, orientation and centroid behavior.
  */
-const oddBoundaries: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "odd",
-  units: "meter",
-  buildings: [{ id: "house", element: "house-root", space: "hall" }],
-  models: [],
-  modelReferences: [],
-  elements: [
-    {
-      id: "house-root",
-      kind: "building",
-      parent: null,
-      transform: originTransform(),
-      model: null,
-      space: "hall",
-    },
-  ],
-  spaces: [
-    {
-      id: "hall",
-      kind: "room",
-      parent: null,
-      cells: [boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-    },
-    {
-      id: "annex",
-      kind: "room",
-      parent: "hall",
-      cells: [
-        boxCell("annex-cell", { x: 4, y: 0, z: 0 }, { x: 6, y: 3, z: 6 }),
-      ],
-    },
-  ],
-  boundaries: [
-    {
-      id: "partition",
-      kind: "wall",
-      spaces: ["hall", "annex"],
-      elements: [],
-      face: {
-        origin: { x: 4, y: 0, z: 6 },
-        rotation: FACE_ROTATION.quarterY,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 6, y: 0 },
-          { x: 6, y: 3 },
-          { x: 0, y: 3 },
-        ],
-        thickness: 0.2,
+const oddBoundaries: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "odd",
+    units: "meter",
+    buildings: [{ id: "house", element: "house-root", space: "hall" }],
+    models: [],
+    modelReferences: [],
+    elements: [
+      {
+        id: "house-root",
+        kind: "building",
+        parent: null,
+        transform: originTransform(),
+        model: null,
+        space: "hall",
       },
-    },
-    {
-      id: "logical",
-      kind: "threshold",
-      spaces: ["hall"],
-      elements: [],
-    },
-    {
-      id: "unbounded",
-      kind: "wall",
-      spaces: [],
-      elements: [],
-      face: {
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.keepZ,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 1, y: 0 },
-          { x: 1, y: 1 },
+    ],
+    spaces: [
+      {
+        id: "hall",
+        kind: "room",
+        parent: null,
+        cells: [
+          boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
         ],
-        thickness: 0.2,
       },
-    },
-    {
-      id: "orphan",
-      kind: "wall",
-      spaces: ["ghost"],
-      elements: [],
-      face: {
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.keepZ,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 1, y: 0 },
-          { x: 1, y: 1 },
+      {
+        id: "annex",
+        kind: "room",
+        parent: "hall",
+        cells: [
+          boxCell("annex-cell", { x: 4, y: 0, z: 0 }, { x: 6, y: 3, z: 6 }),
         ],
-        thickness: 0.2,
       },
-    },
-    {
-      id: "flipped",
-      kind: "wall",
-      spaces: ["hall"],
-      elements: [],
-      face: {
-        origin: { x: 4, y: 0, z: 6 },
-        rotation: FACE_ROTATION.halfTurnY,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 4, y: 0 },
-          { x: 4, y: 3 },
-          { x: 0, y: 3 },
-        ],
-        thickness: 0.2,
+    ],
+    boundaries: [
+      {
+        id: "partition",
+        kind: "wall",
+        spaces: ["hall", "annex"],
+        elements: [],
+        face: {
+          origin: { x: 4, y: 0, z: 6 },
+          rotation: FACE_ROTATION.quarterY,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 6, y: 0 },
+            { x: 6, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          thickness: 0.2,
+        },
       },
-    },
-    {
-      id: "degenerate",
-      kind: "wall",
-      spaces: ["hall"],
-      elements: [],
-      face: {
-        origin: { x: 0, y: 0, z: 6 },
-        rotation: FACE_ROTATION.keepZ,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 1, y: 0 },
-          { x: 2, y: 0 },
-        ],
-        thickness: 0.2,
+      {
+        id: "logical",
+        kind: "threshold",
+        spaces: ["hall"],
+        elements: [],
       },
-    },
-  ],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+      {
+        id: "unbounded",
+        kind: "wall",
+        spaces: [],
+        elements: [],
+        face: {
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.keepZ,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+          ],
+          thickness: 0.2,
+        },
+      },
+      {
+        id: "orphan",
+        kind: "wall",
+        spaces: ["ghost"],
+        elements: [],
+        face: {
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.keepZ,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+          ],
+          thickness: 0.2,
+        },
+      },
+      {
+        id: "flipped",
+        kind: "wall",
+        spaces: ["hall"],
+        elements: [],
+        face: {
+          origin: { x: 4, y: 0, z: 6 },
+          rotation: FACE_ROTATION.halfTurnY,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 4, y: 0 },
+            { x: 4, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          thickness: 0.2,
+        },
+      },
+      {
+        id: "degenerate",
+        kind: "wall",
+        spaces: ["hall"],
+        elements: [],
+        face: {
+          origin: { x: 0, y: 0, z: 6 },
+          rotation: FACE_ROTATION.keepZ,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 2, y: 0 },
+          ],
+          thickness: 0.2,
+        },
+      },
+    ],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });

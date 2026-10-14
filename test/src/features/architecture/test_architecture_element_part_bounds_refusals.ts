@@ -1,6 +1,11 @@
-import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
-import type { IAutoMovieSubjectBox, IAutoMovieBuiltEnvironment, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieModel,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
 import { originTransform } from "../internal/envelopeFixtures";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
@@ -20,12 +25,16 @@ import { namedFacts, vclose } from "../internal/predicates";
  */
 export function test_architecture_element_part_bounds_refusals(): void {
   const record: IAutoMovieBuiltEnvironment = pair();
-  const drawn: IAutoMovieSubjectBox[] | null = builtEnvironmentElementPartBounds(record, "crate");
+  const drawn: IAutoMovieSubjectBox[] | null =
+    builtEnvironmentElementPartBounds(record, "crate");
 
   TestValidator.equals(
     "a placed unit box reports the one box its own part fills",
     namedFacts([
-      ["it reports one part", (): boolean => drawn !== null && drawn.length === 1],
+      [
+        "it reports one part",
+        (): boolean => drawn !== null && drawn.length === 1,
+      ],
       [
         "reaching half a metre either side of its placement",
         (): boolean =>
@@ -51,42 +60,43 @@ export function test_architecture_element_part_bounds_refusals(): void {
 }
 
 /** One unit box model, placed once under a group that draws nothing itself. */
-const pair: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "yard",
-  units: "meter",
-  buildings: [{ id: "yard", element: "yard-root", space: "yard-space" }],
-  models: [box("crate-model")],
-  modelReferences: [],
-  elements: [
-    {
-      id: "yard-root",
-      kind: "building",
-      parent: null,
-      transform: originTransform(),
-      model: null,
-      space: "yard-space",
-    },
-    {
-      id: "crate",
-      kind: "prop",
-      parent: "yard-root",
-      transform: {
-        translation: { x: 2, y: 0, z: 3 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
+const pair: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "yard",
+    units: "meter",
+    buildings: [{ id: "yard", element: "yard-root", space: "yard-space" }],
+    models: [box("crate-model")],
+    modelReferences: [],
+    elements: [
+      {
+        id: "yard-root",
+        kind: "building",
+        parent: null,
+        transform: originTransform(),
+        model: null,
+        space: "yard-space",
       },
-      model: "crate-model",
-      space: null,
-    },
-  ],
-  spaces: [{ id: "yard-space", kind: "zone", parent: null, cells: [] }],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+      {
+        id: "crate",
+        kind: "prop",
+        parent: "yard-root",
+        transform: {
+          translation: { x: 2, y: 0, z: 3 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        model: "crate-model",
+        space: null,
+      },
+    ],
+    spaces: [{ id: "yard-space", kind: "zone", parent: null, cells: [] }],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });
 
 /** A one-metre cube whose single part is named for readable expectations. */
 const box: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({

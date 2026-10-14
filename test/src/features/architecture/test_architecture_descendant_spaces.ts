@@ -1,6 +1,7 @@
-import { builtEnvironmentDescendantSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentDescendantSpaces";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { builtEnvironmentDescendantSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentDescendantSpaces";
 import { boxCell, originTransform } from "../internal/envelopeFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
@@ -22,7 +23,11 @@ import { namedFacts, throwsError } from "../internal/predicates";
 export function test_architecture_descendant_spaces(): void {
   const record: IAutoMovieBuiltEnvironment = storeys();
 
-  TestValidator.equals("a root names its whole subtree in code-unit order", builtEnvironmentDescendantSpaces(record, "house"), ["attic", "gallery", "hall", "house", "upper", "wing"]);
+  TestValidator.equals(
+    "a root names its whole subtree in code-unit order",
+    builtEnvironmentDescendantSpaces(record, "house"),
+    ["attic", "gallery", "hall", "house", "upper", "wing"],
+  );
 
   TestValidator.equals(
     "descent has a floor and a middle, and refuses what it does not hold",
@@ -61,39 +66,40 @@ export function test_architecture_descendant_spaces(): void {
  *
  * `wing` and `hall` sit directly under the root, `upper` above `hall`, and `attic` and `gallery` above `upper`, so a fold that stopped at one level or kept authored order would answer differently from this one.
  */
-const storeys: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "storeys",
-  units: "meter",
-  buildings: [{ id: "house", element: "house-root", space: "house" }],
-  models: [],
-  modelReferences: [],
-  elements: [
-    {
-      id: "house-root",
-      kind: "building",
-      parent: null,
-      transform: originTransform(),
-      model: null,
-      space: "house",
-    },
-  ],
-  spaces: [
-    { id: "wing", kind: "zone", parent: "house", cells: [] },
-    { id: "gallery", kind: "room", parent: "upper", cells: [] },
-    { id: "attic", kind: "room", parent: "upper", cells: [] },
-    {
-      id: "house",
-      kind: "building",
-      parent: null,
-      cells: [boxCell("shell", { x: 0, y: 0, z: 0 }, { x: 8, y: 9, z: 8 })],
-    },
-    { id: "upper", kind: "storey", parent: "hall", cells: [] },
-    { id: "hall", kind: "storey", parent: "house", cells: [] },
-  ],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+const storeys: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "storeys",
+    units: "meter",
+    buildings: [{ id: "house", element: "house-root", space: "house" }],
+    models: [],
+    modelReferences: [],
+    elements: [
+      {
+        id: "house-root",
+        kind: "building",
+        parent: null,
+        transform: originTransform(),
+        model: null,
+        space: "house",
+      },
+    ],
+    spaces: [
+      { id: "wing", kind: "zone", parent: "house", cells: [] },
+      { id: "gallery", kind: "room", parent: "upper", cells: [] },
+      { id: "attic", kind: "room", parent: "upper", cells: [] },
+      {
+        id: "house",
+        kind: "building",
+        parent: null,
+        cells: [boxCell("shell", { x: 0, y: 0, z: 0 }, { x: 8, y: 9, z: 8 })],
+      },
+      { id: "upper", kind: "storey", parent: "hall", cells: [] },
+      { id: "hall", kind: "storey", parent: "house", cells: [] },
+    ],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });

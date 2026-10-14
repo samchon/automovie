@@ -1,9 +1,21 @@
+import type {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
 import { builtEnvironmentEnvelopeCorners } from "../../../../packages/engine/src/architecture/builtEnvironmentEnvelopeCorners";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieTransform, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieQuaternion } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { FACE_ROTATION, boxCell, lFootprintBuilding, originTransform, rectangularBuilding } from "../internal/envelopeFixtures";
+import {
+  FACE_ROTATION,
+  boxCell,
+  lFootprintBuilding,
+  originTransform,
+  rectangularBuilding,
+} from "../internal/envelopeFixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
 /**
@@ -24,14 +36,23 @@ import { namedFacts, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_envelope_corners imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
 export function test_architecture_envelope_corners(): void {
-  const rectangle: IAutoMovieBuiltEnvelopeCorner[] = builtEnvironmentEnvelopeCorners(rectangularBuilding());
+  const rectangle: IAutoMovieBuiltEnvelopeCorner[] =
+    builtEnvironmentEnvelopeCorners(rectangularBuilding());
 
-  TestValidator.equals("the rectangle owes one corner per pair of meeting walls", rectangle.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [corner.id, corner.kind, corner.building]), [
+  TestValidator.equals(
+    "the rectangle owes one corner per pair of meeting walls",
+    rectangle.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [
+      corner.id,
+      corner.kind,
+      corner.building,
+    ]),
+    [
       ["wall-east+wall-north", "exterior", "house"],
       ["wall-east+wall-south", "exterior", "house"],
       ["wall-north+wall-west", "exterior", "house"],
       ["wall-south+wall-west", "exterior", "house"],
-    ]);
+    ],
+  );
 
   TestValidator.equals(
     "the north-east corner stands where its two walls meet",
@@ -71,24 +92,38 @@ export function test_architecture_envelope_corners(): void {
     true,
   );
 
-  const notched: IAutoMovieBuiltEnvelopeCorner[] = builtEnvironmentEnvelopeCorners(wing);
+  const notched: IAutoMovieBuiltEnvelopeCorner[] =
+    builtEnvironmentEnvelopeCorners(wing);
 
-  TestValidator.equals("its notch is the one corner an observer walks into", notched.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [corner.id, corner.kind]), [
+  TestValidator.equals(
+    "its notch is the one corner an observer walks into",
+    notched.map((corner: IAutoMovieBuiltEnvelopeCorner): string[] => [
+      corner.id,
+      corner.kind,
+    ]),
+    [
       ["wall-0+wall-1", "exterior"],
       ["wall-0+wall-5", "exterior"],
       ["wall-1+wall-2", "exterior"],
       ["wall-2+wall-3", "reentrant"],
       ["wall-3+wall-4", "exterior"],
       ["wall-4+wall-5", "exterior"],
-    ]);
+    ],
+  );
 
   TestValidator.equals(
     "the re-entrant corner stands at the inside angle of the footprint",
-    vclose(notched.find((corner: IAutoMovieBuiltEnvelopeCorner): boolean => corner.kind === "reentrant")!.position, {
-      x: 2,
-      y: 1.5,
-      z: 2,
-    }),
+    vclose(
+      notched.find(
+        (corner: IAutoMovieBuiltEnvelopeCorner): boolean =>
+          corner.kind === "reentrant",
+      )!.position,
+      {
+        x: 2,
+        y: 1.5,
+        z: 2,
+      },
+    ),
     true,
   );
 
@@ -97,11 +132,13 @@ export function test_architecture_envelope_corners(): void {
     namedFacts([
       [
         "two units touching at a point share no corner",
-        (): boolean => builtEnvironmentEnvelopeCorners(differentUnits()).length === 0,
+        (): boolean =>
+          builtEnvironmentEnvelopeCorners(differentUnits()).length === 0,
       ],
       [
         "a facade standing on its own meeting point contributes none",
-        (): boolean => builtEnvironmentEnvelopeCorners(pointlessFacade()).length === 0,
+        (): boolean =>
+          builtEnvironmentEnvelopeCorners(pointlessFacade()).length === 0,
       ],
       [
         "and a meeting that turns neither way contributes none",
@@ -117,7 +154,13 @@ export function test_architecture_envelope_corners(): void {
 }
 
 /** One enclosing separation with a hand-written face frame. */
-const facade: (props: { id: string; space: string; origin: { x: number; y: number; z: number; }; rotation: IAutoMovieQuaternion; outline: Array<{ x: number; y: number; }>; }) => IAutoMovieBuiltBoundary = (props: {
+const facade: (props: {
+  id: string;
+  space: string;
+  origin: { x: number; y: number; z: number };
+  rotation: IAutoMovieQuaternion;
+  outline: Array<{ x: number; y: number }>;
+}) => IAutoMovieBuiltBoundary = (props: {
   id: string;
   space: string;
   origin: { x: number; y: number; z: number };
@@ -137,7 +180,10 @@ const facade: (props: { id: string; space: string; origin: { x: number; y: numbe
 });
 
 /** The rectangle outline every small fixture below reuses. */
-const panel: (width: number, height: number) => Array<{ x: number; y: number; }> = (
+const panel: (
+  width: number,
+  height: number,
+) => Array<{ x: number; y: number }> = (
   width: number,
   height: number,
 ): Array<{ x: number; y: number }> => [
@@ -148,7 +194,12 @@ const panel: (width: number, height: number) => Array<{ x: number; y: number; }>
 ];
 
 /** One record shell holding hand-written spaces and boundaries. */
-const shell: (props: { id: string; units: Array<{ id: string; space: string; }>; spaces: IAutoMovieBuiltEnvironment["spaces"]; boundaries: IAutoMovieBuiltBoundary[]; }) => IAutoMovieBuiltEnvironment = (props: {
+const shell: (props: {
+  id: string;
+  units: Array<{ id: string; space: string }>;
+  spaces: IAutoMovieBuiltEnvironment["spaces"];
+  boundaries: IAutoMovieBuiltBoundary[];
+}) => IAutoMovieBuiltEnvironment = (props: {
   id: string;
   units: Array<{ id: string; space: string }>;
   spaces: IAutoMovieBuiltEnvironment["spaces"];
@@ -157,21 +208,38 @@ const shell: (props: { id: string; units: Array<{ id: string; space: string; }>;
   version: 1,
   id: props.id,
   units: "meter",
-  buildings: props.units.map((unit: { id: string; space: string; }): { id: string; element: string; space: string; } => ({
-    id: unit.id,
-    element: `${unit.id}-root`,
-    space: unit.space,
-  })),
+  buildings: props.units.map(
+    (unit: {
+      id: string;
+      space: string;
+    }): { id: string; element: string; space: string } => ({
+      id: unit.id,
+      element: `${unit.id}-root`,
+      space: unit.space,
+    }),
+  ),
   models: [],
   modelReferences: [],
-  elements: props.units.map((unit: { id: string; space: string; }): { id: string; kind: string; parent: null; transform: IAutoMovieTransform; model: null; space: string; } => ({
-    id: `${unit.id}-root`,
-    kind: "building",
-    parent: null,
-    transform: originTransform(),
-    model: null,
-    space: unit.space,
-  })),
+  elements: props.units.map(
+    (unit: {
+      id: string;
+      space: string;
+    }): {
+      id: string;
+      kind: string;
+      parent: null;
+      transform: IAutoMovieTransform;
+      model: null;
+      space: string;
+    } => ({
+      id: `${unit.id}-root`,
+      kind: "building",
+      parent: null,
+      transform: originTransform(),
+      model: null,
+      space: unit.space,
+    }),
+  ),
   spaces: props.spaces,
   boundaries: props.boundaries,
   openings: [],
@@ -185,121 +253,130 @@ const shell: (props: { id: string; units: Array<{ id: string; space: string; }>;
  *
  * A corner belongs to one envelope, so two works standing against each other share a seam rather than a corner, and neither owes the other's observation.
  */
-const differentUnits: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
-  shell({
-    id: "neighbours",
-    units: [
-      { id: "a", space: "a-hall" },
-      { id: "b", space: "b-hall" },
-    ],
-    spaces: [
-      {
-        id: "a-hall",
-        kind: "room",
-        parent: null,
-        cells: [boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-      },
-      {
-        id: "b-hall",
-        kind: "room",
-        parent: null,
-        cells: [
-          boxCell("b-cell", { x: -4, y: 0, z: -6 }, { x: 0, y: 3, z: 0 }),
-        ],
-      },
-    ],
-    boundaries: [
-      facade({
-        id: "north-a",
-        space: "a-hall",
-        origin: { x: 4, y: 0, z: 0 },
-        rotation: FACE_ROTATION.halfTurnY,
-        outline: panel(4, 3),
-      }),
-      facade({
-        id: "west-b",
-        space: "b-hall",
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.quarterY,
-        outline: panel(6, 3),
-      }),
-    ],
-  });
+const differentUnits: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment =>
+    shell({
+      id: "neighbours",
+      units: [
+        { id: "a", space: "a-hall" },
+        { id: "b", space: "b-hall" },
+      ],
+      spaces: [
+        {
+          id: "a-hall",
+          kind: "room",
+          parent: null,
+          cells: [
+            boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+          ],
+        },
+        {
+          id: "b-hall",
+          kind: "room",
+          parent: null,
+          cells: [
+            boxCell("b-cell", { x: -4, y: 0, z: -6 }, { x: 0, y: 3, z: 0 }),
+          ],
+        },
+      ],
+      boundaries: [
+        facade({
+          id: "north-a",
+          space: "a-hall",
+          origin: { x: 4, y: 0, z: 0 },
+          rotation: FACE_ROTATION.halfTurnY,
+          outline: panel(4, 3),
+        }),
+        facade({
+          id: "west-b",
+          space: "b-hall",
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.quarterY,
+          outline: panel(6, 3),
+        }),
+      ],
+    });
 
 /**
  * One arealess separation sharing a point with a real one.
  *
  * Its own centroid is the meeting point, so nothing states which way its body lies and the meeting cannot be classified either way.
  */
-const pointlessFacade: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
-  shell({
-    id: "pointless",
-    units: [{ id: "a", space: "a-hall" }],
-    spaces: [
-      {
-        id: "a-hall",
-        kind: "room",
-        parent: null,
-        cells: [boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-      },
-    ],
-    boundaries: [
-      facade({
-        id: "flat-x",
-        space: "a-hall",
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.quarterMinusY,
-        outline: panel(6, 3),
-      }),
-      facade({
-        id: "pointless",
-        space: "a-hall",
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.halfTurnY,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 0, y: 0 },
-          { x: 0, y: 0 },
-        ],
-      }),
-    ],
-  });
+const pointlessFacade: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment =>
+    shell({
+      id: "pointless",
+      units: [{ id: "a", space: "a-hall" }],
+      spaces: [
+        {
+          id: "a-hall",
+          kind: "room",
+          parent: null,
+          cells: [
+            boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+          ],
+        },
+      ],
+      boundaries: [
+        facade({
+          id: "flat-x",
+          space: "a-hall",
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.quarterMinusY,
+          outline: panel(6, 3),
+        }),
+        facade({
+          id: "pointless",
+          space: "a-hall",
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.halfTurnY,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+        }),
+      ],
+    });
 
 /**
  * Two separations meeting with the second's body on the first's outward plane.
  *
  * The triangular face's centroid sits directly below the shared point, so the direction from the corner into it is perpendicular to the other facade's normal and the meeting turns neither out of nor into the envelope.
  */
-const flatTurn: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
-  shell({
-    id: "flat",
-    units: [{ id: "a", space: "a-hall" }],
-    spaces: [
-      {
-        id: "a-hall",
-        kind: "room",
-        parent: null,
-        cells: [boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-      },
-    ],
-    boundaries: [
-      facade({
-        id: "flat-x",
-        space: "a-hall",
-        origin: { x: 0, y: 0, z: 0 },
-        rotation: FACE_ROTATION.quarterMinusY,
-        outline: panel(6, 3),
-      }),
-      facade({
-        id: "tri-z",
-        space: "a-hall",
-        origin: { x: 1, y: 0, z: 0 },
-        rotation: FACE_ROTATION.halfTurnY,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 2, y: 0 },
-          { x: 1, y: 3 },
-        ],
-      }),
-    ],
-  });
+const flatTurn: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment =>
+    shell({
+      id: "flat",
+      units: [{ id: "a", space: "a-hall" }],
+      spaces: [
+        {
+          id: "a-hall",
+          kind: "room",
+          parent: null,
+          cells: [
+            boxCell("a-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+          ],
+        },
+      ],
+      boundaries: [
+        facade({
+          id: "flat-x",
+          space: "a-hall",
+          origin: { x: 0, y: 0, z: 0 },
+          rotation: FACE_ROTATION.quarterMinusY,
+          outline: panel(6, 3),
+        }),
+        facade({
+          id: "tri-z",
+          space: "a-hall",
+          origin: { x: 1, y: 0, z: 0 },
+          rotation: FACE_ROTATION.halfTurnY,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 2, y: 0 },
+            { x: 1, y: 3 },
+          ],
+        }),
+      ],
+    });

@@ -1,9 +1,12 @@
-import { type IAutoMovieSpaceObservationStation, builtSpaceObservationStations } from "@automovie/engine";
+import {
+  type IAutoMovieSpaceObservationStation,
+  builtSpaceObservationStations,
+} from "@automovie/engine";
 import type {
-  IAutoMovieVector3,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieBuiltSpace,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -83,7 +86,7 @@ export function test_architecture_space_station_placement(): void {
     namedFacts([
       [
         "a space narrowing toward its floor keeps its box centre",
-        () : boolean =>
+        (): boolean =>
           vclose(
             builtSpaceObservationStations(room(wedge()), "hall")[0]!.pose!
               .position,
@@ -92,7 +95,7 @@ export function test_architecture_space_station_placement(): void {
       ],
       [
         "a space whose box centre is in its own notch uses its first cell",
-        () : boolean =>
+        (): boolean =>
           vclose(
             builtSpaceObservationStations(room(notched()), "hall")[0]!.pose!
               .position,
@@ -106,26 +109,52 @@ export function test_architecture_space_station_placement(): void {
     },
   );
 
-  const point: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(room(pointVolume()), "hall");
-  TestValidator.equals("a point volume retains four centres and four corners", [point.length, point.filter((station: IAutoMovieSpaceObservationStation): boolean => station.role === "center").length, point.filter((station: IAutoMovieSpaceObservationStation): boolean => station.role === "corner").length], [8, 4, 4]);
+  const point: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(room(pointVolume()), "hall");
+  TestValidator.equals(
+    "a point volume retains four centres and four corners",
+    [
+      point.length,
+      point.filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "center",
+      ).length,
+      point.filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "corner",
+      ).length,
+    ],
+    [8, 4, 4],
+  );
 
   TestValidator.equals(
     "a point-sized volume looks outward from itself and never at itself",
     namedFacts([
       [
         "its centre stations have poses and the positive-X target is one millimetre away",
-        () : boolean =>
+        (): boolean =>
           point
-            .filter((station: IAutoMovieSpaceObservationStation) : boolean => station.role === "center")
-            .every((station: IAutoMovieSpaceObservationStation) : boolean => station.pose !== null) &&
-          vclose(point[1]!.pose!.target, { x: 0.001, y: 0, z: 0 }),
+            .filter(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.role === "center",
+            )
+            .every(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.pose !== null,
+            ) && vclose(point[1]!.pose!.target, { x: 0.001, y: 0, z: 0 }),
       ],
       [
         "and its corner stations have nothing to aim at",
-        () : boolean =>
+        (): boolean =>
           point
-            .filter((station: IAutoMovieSpaceObservationStation) : boolean => station.role === "corner")
-            .every((station: IAutoMovieSpaceObservationStation) : boolean => station.pose === null),
+            .filter(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.role === "corner",
+            )
+            .every(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.pose === null,
+            ),
       ],
     ]),
     {
@@ -134,13 +163,29 @@ export function test_architecture_space_station_placement(): void {
     },
   );
 
-  const faceless: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(withFacelessOpening(), "hall");
+  const faceless: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(withFacelessOpening(), "hall");
 
   TestValidator.equals(
     "an unreachable opening keeps its threshold station, unplaced",
     faceless
-      .filter((station: IAutoMovieSpaceObservationStation) : boolean => station.role === "threshold")
-      .map((station: IAutoMovieSpaceObservationStation) : (string | { position: IAutoMovieVector3; direction: IAutoMovieVector3; target: IAutoMovieVector3; } | null)[] => [station.id, station.pose]),
+      .filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "threshold",
+      )
+      .map(
+        (
+          station: IAutoMovieSpaceObservationStation,
+        ): (
+          | string
+          | {
+              position: IAutoMovieVector3;
+              direction: IAutoMovieVector3;
+              target: IAutoMovieVector3;
+            }
+          | null
+        )[] => [station.id, station.pose],
+      ),
     [
       ["threshold-distant-gap", null],
       ["threshold-gap", null],
@@ -149,34 +194,44 @@ export function test_architecture_space_station_placement(): void {
 }
 
 /** One located separation on the north side of the four-by-six hall. */
-const locatedWall: () => IAutoMovieBuiltEnvironment["boundaries"][number] = (): IAutoMovieBuiltEnvironment["boundaries"][number] => ({
-  id: "located",
-  kind: "wall",
-  spaces: ["hall"],
-  elements: [],
-  face: {
-    origin: { x: 0, y: 0, z: 6 },
-    rotation: FACE_ROTATION.keepZ,
-    outline: [
-      { x: 0, y: 0 },
-      { x: 4, y: 0 },
-      { x: 4, y: 3 },
-      { x: 0, y: 3 },
-    ],
-    thickness: 0.2,
-  },
-});
+const locatedWall: () => IAutoMovieBuiltEnvironment["boundaries"][number] =
+  (): IAutoMovieBuiltEnvironment["boundaries"][number] => ({
+    id: "located",
+    kind: "wall",
+    spaces: ["hall"],
+    elements: [],
+    face: {
+      origin: { x: 0, y: 0, z: 6 },
+      rotation: FACE_ROTATION.keepZ,
+      outline: [
+        { x: 0, y: 0 },
+        { x: 4, y: 0 },
+        { x: 4, y: 3 },
+        { x: 0, y: 3 },
+      ],
+      thickness: 0.2,
+    },
+  });
 
 /** How many stations came back and how many of them found a place to stand. */
-const unplaced: (stations: ReadonlyArray<{ pose: unknown; }>) => { count: number; placed: number; } = (
+const unplaced: (stations: ReadonlyArray<{ pose: unknown }>) => {
+  count: number;
+  placed: number;
+} = (
   stations: ReadonlyArray<{ pose: unknown }>,
 ): { count: number; placed: number } => ({
   count: stations.length,
-  placed: stations.filter((station: { pose: unknown; }) : boolean => station.pose !== null).length,
+  placed: stations.filter(
+    (station: { pose: unknown }): boolean => station.pose !== null,
+  ).length,
 });
 
 /** One building unit wrapped around one hand-written logical space. */
-const room: (space: IAutoMovieBuiltSpace, openings?: IAutoMovieBuiltOpening[], boundaries?: IAutoMovieBuiltEnvironment["boundaries"]) => IAutoMovieBuiltEnvironment = (
+const room: (
+  space: IAutoMovieBuiltSpace,
+  openings?: IAutoMovieBuiltOpening[],
+  boundaries?: IAutoMovieBuiltEnvironment["boundaries"],
+) => IAutoMovieBuiltEnvironment = (
   space: IAutoMovieBuiltSpace,
   openings: IAutoMovieBuiltOpening[] = [],
   boundaries: IAutoMovieBuiltEnvironment["boundaries"] = [],
@@ -284,37 +339,40 @@ const pointVolume: () => IAutoMovieBuiltSpace = (): IAutoMovieBuiltSpace => ({
  * mouth is real and every step of the ladder toward the room's centre is still
  * outside the room.
  */
-const withFacelessOpening: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment =>
-  room(
-    {
-      id: "hall",
-      kind: "room",
-      parent: null,
-      cells: [boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-    },
-    [
-      { id: "gap", kind: "passage", boundary: "logical", fill: null },
-      { id: "distant-gap", kind: "passage", boundary: "distant", fill: null },
-    ],
-    [
-      { id: "logical", kind: "threshold", spaces: ["hall"], elements: [] },
-      locatedWall(),
+const withFacelessOpening: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment =>
+    room(
       {
-        id: "distant",
-        kind: "wall",
-        spaces: ["hall"],
-        elements: [],
-        face: {
-          origin: { x: 50, y: 0, z: 0 },
-          rotation: FACE_ROTATION.keepZ,
-          outline: [
-            { x: 0, y: 0 },
-            { x: 4, y: 0 },
-            { x: 4, y: 3 },
-            { x: 0, y: 3 },
-          ],
-          thickness: 0.2,
-        },
+        id: "hall",
+        kind: "room",
+        parent: null,
+        cells: [
+          boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+        ],
       },
-    ],
-  );
+      [
+        { id: "gap", kind: "passage", boundary: "logical", fill: null },
+        { id: "distant-gap", kind: "passage", boundary: "distant", fill: null },
+      ],
+      [
+        { id: "logical", kind: "threshold", spaces: ["hall"], elements: [] },
+        locatedWall(),
+        {
+          id: "distant",
+          kind: "wall",
+          spaces: ["hall"],
+          elements: [],
+          face: {
+            origin: { x: 50, y: 0, z: 0 },
+            rotation: FACE_ROTATION.keepZ,
+            outline: [
+              { x: 0, y: 0 },
+              { x: 4, y: 0 },
+              { x: 4, y: 3 },
+              { x: 0, y: 3 },
+            ],
+            thickness: 0.2,
+          },
+        },
+      ],
+    );

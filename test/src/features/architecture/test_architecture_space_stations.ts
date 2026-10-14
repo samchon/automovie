@@ -4,8 +4,8 @@ import {
   builtSpaceObservationStations,
 } from "@automovie/engine";
 import type {
-  IAutoMovieBuiltSpace,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -49,11 +49,18 @@ import { namedFacts, throwsError, vclose } from "../internal/predicates";
 export function test_architecture_space_stations(): void {
   const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
   const hall: IAutoMovieBuiltSpace = record.spaces[0]!;
-  const stations: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(record, "hall");
+  const stations: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(record, "hall");
 
   TestValidator.equals(
     "the hall owes its nine interior stations in a fixed order",
-    stations.map((station: IAutoMovieSpaceObservationStation) : (string | null)[] => [station.id, station.role, station.opening]),
+    stations.map(
+      (station: IAutoMovieSpaceObservationStation): (string | null)[] => [
+        station.id,
+        station.role,
+        station.opening,
+      ],
+    ),
     [
       ["center-x-minus", "center", null],
       ["center-x-plus", "center", null],
@@ -96,7 +103,7 @@ export function test_architecture_space_stations(): void {
   TestValidator.equals(
     "and every one of them stands inside the hall itself",
     stations.every(
-      (station: IAutoMovieSpaceObservationStation) : boolean =>
+      (station: IAutoMovieSpaceObservationStation): boolean =>
         station.pose !== null &&
         builtSpaceContainsPoint(hall, station.pose.position),
     ),
@@ -108,19 +115,19 @@ export function test_architecture_space_stations(): void {
     namedFacts([
       [
         "the centre station aimed at decreasing x reaches past the west wall",
-        () : boolean =>
+        (): boolean =>
           vclose(stations[0]!.pose!.direction, { x: -1, y: 0, z: 0 }) &&
           vclose(stations[0]!.pose!.target, { x: -4, y: 1.5, z: 3 }),
       ],
       [
         "the centre station aimed at increasing z reaches past the north wall",
-        () : boolean =>
+        (): boolean =>
           vclose(stations[3]!.pose!.direction, { x: 0, y: 0, z: 1 }) &&
           vclose(stations[3]!.pose!.target, { x: 2, y: 1.5, z: 9 }),
       ],
       [
         "the south-west corner looks diagonally across the room",
-        () : boolean =>
+        (): boolean =>
           vclose(stations[4]!.pose!.direction, {
             x: 2 / Math.hypot(2, 3),
             y: 0,
@@ -129,7 +136,8 @@ export function test_architecture_space_stations(): void {
       ],
       [
         "and the doorway looks straight into it",
-        () : boolean => vclose(stations[8]!.pose!.direction, { x: 0, y: 0, z: 1 }),
+        (): boolean =>
+          vclose(stations[8]!.pose!.direction, { x: 0, y: 0, z: 1 }),
       ],
     ]),
     {
@@ -140,13 +148,19 @@ export function test_architecture_space_stations(): void {
     },
   );
 
-  const sideStations: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(withSideHatch(), "hall");
-  TestValidator.equals("a second opening adds one station to the full population", sideStations.length, 10);
+  const sideStations: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(withSideHatch(), "hall");
+  TestValidator.equals(
+    "a second opening adds one station to the full population",
+    sideStations.length,
+    10,
+  );
   TestValidator.equals(
     "a second opening adds its own threshold, placed from its host face",
     placedAt(
       sideStations.filter(
-        (station: IAutoMovieSpaceObservationStation) : boolean => station.role === "threshold",
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "threshold",
       ),
       [
         { x: 2, y: 1.5, z: 0.15 },
@@ -190,15 +204,16 @@ export function test_architecture_space_stations(): void {
     namedFacts([
       [
         "a purely semantic container has no interior population",
-        () : boolean =>
+        (): boolean =>
           builtSpaceObservationStations(withNamedWing(), "west-wing").length ===
           0,
       ],
       [
         "and a space the record does not hold is named in the refusal",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieSpaceObservationStation[] => builtSpaceObservationStations(record, "cellar"),
+            (): IAutoMovieSpaceObservationStation[] =>
+              builtSpaceObservationStations(record, "cellar"),
             ["hall-house", "cellar"],
           ),
       ],
@@ -215,7 +230,13 @@ export function test_architecture_space_stations(): void {
  *
  * Positions are building metres and use the shared vector comparison. Null expects a station present with no pose; the owning entry separately requires the full named population, so a missing station cannot pass by an empty iteration.
  */
-const placedAt: (stations: ReadonlyArray<{ id: string; pose: { position: IAutoMovieVector3; } | null; }>, expected: ReadonlyArray<IAutoMovieVector3 | null>) => Record<string, boolean> = (
+const placedAt: (
+  stations: ReadonlyArray<{
+    id: string;
+    pose: { position: IAutoMovieVector3 } | null;
+  }>,
+  expected: ReadonlyArray<IAutoMovieVector3 | null>,
+) => Record<string, boolean> = (
   stations: ReadonlyArray<{
     id: string;
     pose: { position: IAutoMovieVector3 } | null;
@@ -224,44 +245,52 @@ const placedAt: (stations: ReadonlyArray<{ id: string; pose: { position: IAutoMo
 ): Record<string, boolean> =>
   namedFacts(
     stations.map(
-      (station: { id: string; pose: { position: IAutoMovieVector3; } | null; }, index: number) : readonly [string, () => boolean] =>
+      (
+        station: { id: string; pose: { position: IAutoMovieVector3 } | null },
+        index: number,
+      ): readonly [string, () => boolean] =>
         [
           station.id,
-          () : boolean => {
+          (): boolean => {
             const want: IAutoMovieVector3 | null = expected[index] ?? null;
-            return stations.length === expected.length && (want === null
-              ? station.pose === null
-              : station.pose !== null && vclose(station.pose.position, want));
+            return (
+              stations.length === expected.length &&
+              (want === null
+                ? station.pose === null
+                : station.pose !== null && vclose(station.pose.position, want))
+            );
           },
         ] as const,
     ),
   );
 
 /** The hall with one uncut passage added through its east wall. */
-const withSideHatch: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
-  return {
-    ...record,
-    openings: [
-      ...record.openings,
-      {
-        id: "hatch-east",
-        kind: "passage",
-        boundary: "wall-east",
-        fill: null,
-      },
-    ],
+const withSideHatch: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
+    return {
+      ...record,
+      openings: [
+        ...record.openings,
+        {
+          id: "hatch-east",
+          kind: "passage",
+          boundary: "wall-east",
+          fill: null,
+        },
+      ],
+    };
   };
-};
 
 /** The hall with one child space that carries a name and no volume. */
-const withNamedWing: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
-  return {
-    ...record,
-    spaces: [
-      ...record.spaces,
-      { id: "west-wing", kind: "zone", parent: "hall", cells: [] },
-    ],
+const withNamedWing: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
+    return {
+      ...record,
+      spaces: [
+        ...record.spaces,
+        { id: "west-wing", kind: "zone", parent: "hall", cells: [] },
+      ],
+    };
   };
-};

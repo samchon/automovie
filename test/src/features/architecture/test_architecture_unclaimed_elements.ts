@@ -54,28 +54,28 @@ export function test_architecture_unclaimed_elements(): void {
     namedFacts([
       [
         "a root a space claims is not left over",
-        () : boolean =>
+        (): boolean =>
           builtEnvironmentUnclaimedElements(record).includes(
             "residence/residence-root",
           ) === false,
       ],
       [
         "an unassigned element under a drawn parent is not left over",
-        () : boolean =>
+        (): boolean =>
           builtEnvironmentUnclaimedElements(record).includes(
             "residence/wall-buttress",
           ) === false,
       ],
       [
         "an unassigned element under a group is not left over either",
-        () : boolean =>
+        (): boolean =>
           builtEnvironmentUnclaimedElements(record).includes(
             "residence/great-hall-chair-seat",
           ) === false,
       ],
       [
         "and neither is an element a space claims outright",
-        () : boolean =>
+        (): boolean =>
           builtEnvironmentUnclaimedElements(record).includes(
             "residence/great-hall-chair",
           ) === false,
@@ -90,13 +90,19 @@ export function test_architecture_unclaimed_elements(): void {
   );
 }
 
-const place: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const place: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const boxModel: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({
+const boxModel: (id: string) => IAutoMovieModel = (
+  id: string,
+): IAutoMovieModel => ({
   ...makeProp([
     primitivePart(`${id}-box`, { type: "box", width: 1, height: 1, depth: 1 }),
   ]),
@@ -108,81 +114,82 @@ const boxModel: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel 
  *
  * The residence root is claimed by the great hall, while the garden root carries no space. Both are transform-only groups; descendants distinguish hierarchy reach from direct logical-space assignment and drawn-model membership.
  */
-const environment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "residence",
-  units: "meter",
-  buildings: [
-    { id: "residence", element: "residence-root", space: "great-hall" },
-    { id: "garden", element: "garden-wall-root", space: "garden" },
-  ],
-  models: [boxModel("cube-model")],
-  modelReferences: [],
-  elements: [
-    {
-      id: "residence-root",
-      kind: "building",
-      parent: null,
-      transform: place(0, 0, 0),
-      model: null,
-      space: "great-hall",
-    },
-    {
-      id: "great-hall-chair",
-      kind: "furniture",
-      parent: "residence-root",
-      transform: place(1, 0, 0),
-      model: null,
-      space: "great-hall",
-    },
-    {
-      id: "great-hall-chair-seat",
-      kind: "furniture",
-      parent: "great-hall-chair",
-      transform: place(1, 0.5, 0),
-      model: "cube-model",
-      space: null,
-    },
-    {
-      id: "outer-wall",
-      kind: "wall",
-      parent: "residence-root",
-      transform: place(3, 0.5, 0),
-      model: "cube-model",
-      space: null,
-    },
-    {
-      id: "wall-buttress",
-      kind: "structure",
-      parent: "outer-wall",
-      transform: place(4, 0.5, 0),
-      model: "cube-model",
-      space: null,
-    },
-    {
-      id: "garden-wall-root",
-      kind: "building",
-      parent: null,
-      transform: place(10, 0, 0),
-      model: null,
-      space: null,
-    },
-    {
-      id: "garden-wall",
-      kind: "wall",
-      parent: "garden-wall-root",
-      transform: place(10, 0.5, 0),
-      model: "cube-model",
-      space: null,
-    },
-  ],
-  spaces: [
-    { id: "great-hall", kind: "room", parent: null, cells: [] },
-    { id: "garden", kind: "room", parent: null, cells: [] },
-  ],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+const environment: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "residence",
+    units: "meter",
+    buildings: [
+      { id: "residence", element: "residence-root", space: "great-hall" },
+      { id: "garden", element: "garden-wall-root", space: "garden" },
+    ],
+    models: [boxModel("cube-model")],
+    modelReferences: [],
+    elements: [
+      {
+        id: "residence-root",
+        kind: "building",
+        parent: null,
+        transform: place(0, 0, 0),
+        model: null,
+        space: "great-hall",
+      },
+      {
+        id: "great-hall-chair",
+        kind: "furniture",
+        parent: "residence-root",
+        transform: place(1, 0, 0),
+        model: null,
+        space: "great-hall",
+      },
+      {
+        id: "great-hall-chair-seat",
+        kind: "furniture",
+        parent: "great-hall-chair",
+        transform: place(1, 0.5, 0),
+        model: "cube-model",
+        space: null,
+      },
+      {
+        id: "outer-wall",
+        kind: "wall",
+        parent: "residence-root",
+        transform: place(3, 0.5, 0),
+        model: "cube-model",
+        space: null,
+      },
+      {
+        id: "wall-buttress",
+        kind: "structure",
+        parent: "outer-wall",
+        transform: place(4, 0.5, 0),
+        model: "cube-model",
+        space: null,
+      },
+      {
+        id: "garden-wall-root",
+        kind: "building",
+        parent: null,
+        transform: place(10, 0, 0),
+        model: null,
+        space: null,
+      },
+      {
+        id: "garden-wall",
+        kind: "wall",
+        parent: "garden-wall-root",
+        transform: place(10, 0.5, 0),
+        model: "cube-model",
+        space: null,
+      },
+    ],
+    spaces: [
+      { id: "great-hall", kind: "room", parent: null, cells: [] },
+      { id: "garden", kind: "room", parent: null, cells: [] },
+    ],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });
