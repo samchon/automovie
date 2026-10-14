@@ -29,9 +29,6 @@ npm run evidence
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
 | [`@automovie/render`](./packages/render) | Frame, sequence, and video render planning |
-| [`@automovie/production`](./packages/production) | Production compilation, capture, inspection, and render jobs |
-| [`@automovie/evidence`](./packages/evidence) | A production's evidence graph from its typed declaration |
-| [`@automovie/mcp`](./packages/mcp) | Read-only Markdown navigation of a production |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
 | [`@automovie/playground`](./packages/playground) | Browser demonstrations and the Human inspection application |

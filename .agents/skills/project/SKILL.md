@@ -30,9 +30,8 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 - `interface` is the pure-type authoring AST; `engine` owns deterministic computation and runtime admission.
 - `viewer` is the only library importing `three.js` (GPU display, capture, inspection transport); `playground` mounts it and owns the Human inspection application and example parameter sets.
 - `human` owns numerical human capability and basis assets.
-- `production` orchestrates engine, evidence, and render with no network authoring surface; `mcp` only reads production Markdown.
 - `archetypes` owns the shipped figure and prop catalogue; a customer's own content stays in its production.
-- `template/scaffold` owns the generated harness; `cli` installs it; `evidence` builds a production's contract graph.
+- `template/scaffold` owns the generated harness; `cli` installs it.
 - The four productions under `experimental/` feed the public website and are not disposable.
 
 ## Commands
