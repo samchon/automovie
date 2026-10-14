@@ -1,8 +1,10 @@
+import {
+  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
+  type IAutoMovieAcousticRequest,
+} from "@automovie/engine";
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.

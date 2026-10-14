@@ -1,10 +1,11 @@
+import {
+  type IAutoMovieLightPointer,
+  LIGHT_CHANNEL_PROPERTIES,
+  formatLightPointer,
+  isLightProperty,
+  parseLightPointer,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieLightPointer } from "../../../../packages/engine/src/resolve/IAutoMovieLightPointer";
-import { LIGHT_CHANNEL_PROPERTIES } from "../../../../packages/engine/src/resolve/constants/LIGHT_CHANNEL_PROPERTIES";
-import { formatLightPointer } from "../../../../packages/engine/src/resolve/formatLightPointer";
-import { isLightProperty } from "../../../../packages/engine/src/resolve/isLightProperty";
-import { parseLightPointer } from "../../../../packages/engine/src/resolve/parseLightPointer";
 
 /** `parse` reduced to a comparable shape: `"<light>|<property>"` or `null`. */
 const parsed: (pointer: unknown) => string | null = (

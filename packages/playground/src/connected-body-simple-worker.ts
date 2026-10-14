@@ -5,6 +5,7 @@
  * Every detailed body inversion brackets within the body reach the panel shows (`connectedBodyReach`). Simple expansion instead uses the whole reader's paired endpoint support, so its stature and mass samples remain inside both views' actual domains. Stature and mass are read on the whole person (`createConnectedBodySimpleWhole`), with the head the page shows. Its whole-person reader and detailed-channel reach share the same loaded body view.
  */
 import { resolveHumanBodyAnatomy } from "@automovie/human/body/anatomy/resolveHumanBodyAnatomy";
+import { connectedBodyReach } from "@automovie/human/body/measure/connectedBodyReach";
 import { solveHumanBodyMeasuredChannel } from "@automovie/human/body/measure/solveHumanBodyMeasuredChannel";
 import { expandHumanBodySimpleShape } from "@automovie/human/body/simple/expandHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "@automovie/human/body/simple/projectHumanBodySimpleShape";
@@ -21,7 +22,6 @@ import type { IBodySimpleProjectMessage } from "./human/body/IBodySimpleProjectM
 import type { IBodySimpleSolveMessage } from "./human/body/IBodySimpleSolveMessage";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
-import { connectedBodyReach } from "./human/common/connectedBodyReach";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
 const scope: DedicatedWorkerGlobalScope =

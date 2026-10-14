@@ -1,3 +1,12 @@
+import {
+  builtEnvironmentElementPartBounds,
+  builtEnvironmentPlacementBounds,
+  builtEnvironmentPlacementOverlap,
+  builtEnvironmentPlacementOverlapSweep,
+  builtEnvironmentSupportStatus,
+  builtEnvironmentSupportSweep,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -12,13 +21,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
-import { builtEnvironmentPlacementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementBounds";
-import { builtEnvironmentPlacementOverlap } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlap";
-import { builtEnvironmentPlacementOverlapSweep } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlapSweep";
-import { builtEnvironmentSupportStatus } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportStatus";
-import { builtEnvironmentSupportSweep } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportSweep";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 

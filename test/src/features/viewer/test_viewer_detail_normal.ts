@@ -3,10 +3,10 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
+import { buildMaterial } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { createModel } from "../internal/fixtures";
 import { hasViolation, nclose } from "../internal/predicates";
 

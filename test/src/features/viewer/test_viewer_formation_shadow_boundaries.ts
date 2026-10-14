@@ -2,11 +2,10 @@ import type {
   IAutoMovieCompiledFormationLod,
   IAutoMovieFormationMotion,
 } from "@automovie/interface";
+import { buildInstancedFormation, formationCycleOf } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { buildInstancedFormation } from "../../../../packages/viewer/src/buildInstancedFormation";
-import { formationCycleOf } from "../../../../packages/viewer/src/formationCycleOf";
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { throwsError } from "../internal/predicates";
 

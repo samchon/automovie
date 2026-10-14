@@ -21,6 +21,8 @@ import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/comm
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 import { humanPersonBodyReach } from "@automovie/human/human/measure/humanPersonBodyReach";
+import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
+import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body/createConnectedBodyBrowserViewport";
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
@@ -34,8 +36,6 @@ import { createHumanWorker } from "./human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
 import type { ConnectedPersonWorkerEnd } from "./human/person/ConnectedPersonWorkerEnd";
 import type { IConnectedPersonFaceSolution } from "./human/person/IConnectedPersonFaceSolution";
-import type { IConnectedPersonHeadSolution } from "./human/person/IConnectedPersonHeadSolution";
-import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonSourceUrls } from "./human/person/IConnectedPersonSourceUrls";
 import type { IConnectedPersonWorkerShare } from "./human/person/IConnectedPersonWorkerShare";
 import { connectedPersonExpressionPresets } from "./human/person/connectedPersonExpressionPresets";

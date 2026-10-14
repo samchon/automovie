@@ -1,9 +1,9 @@
+import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
 } from "@automovie/interface";
 
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
 import { assertAnalysisRoomAcousticsPart1 } from "../internal/assertAnalysisRoomAcousticsPart1";
 import { assertAnalysisRoomAcousticsPart2 } from "../internal/assertAnalysisRoomAcousticsPart2";
 import { assertAnalysisRoomAcousticsPart3 } from "../internal/assertAnalysisRoomAcousticsPart3";

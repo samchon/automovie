@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieProfilePoint,
   buildAutoMoviePolyhedron,
   extrudeAutoMovieRegion,
   loftAutoMovieSections,
@@ -7,7 +8,6 @@ import {
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */

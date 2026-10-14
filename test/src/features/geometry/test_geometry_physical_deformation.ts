@@ -1,15 +1,17 @@
 import {
+  type IAutoMovieMeshDeformationInfluence,
+  createAutoMovieMeshDeformer,
+  createMeshPhysicalPartitionMatcher,
+  mergeAutoMovieMeshes,
+  resolveAutoMovieMeshPhysicalVertices,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
+import {
   type IAutoMovieMesh,
   type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
-import { mergeAutoMovieMeshes } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshes";
-import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
-import { createMeshPhysicalPartitionMatcher } from "../../../../packages/engine/src/math/createMeshPhysicalPartitionMatcher";
-import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";
 

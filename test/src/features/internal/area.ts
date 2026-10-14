@@ -1,4 +1,4 @@
-import { IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { IAutoMovieProfilePoint } from "@automovie/engine";
 
 /**
  * Sum the cyclic shoelace cross-products and return unsigned area of the caller's simple planar ring, in squared coordinate units. The arch fixture supplies its authored quad/pier coordinates, so this is independent of production mesh-volume accumulation but cannot catch a common ring-construction error; no polygon admission occurs here and an empty ring returns zero.

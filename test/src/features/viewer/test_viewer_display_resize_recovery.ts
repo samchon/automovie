@@ -1,9 +1,11 @@
+import {
+  disposeCrossDissolve,
+  readAutoMovieFilmDisplayTextureResidency,
+  renderCrossDissolveFrames,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
-import { disposeCrossDissolve } from "../../../../packages/viewer/src/disposeCrossDissolve";
-import { readAutoMovieFilmDisplayTextureResidency } from "../../../../packages/viewer/src/readAutoMovieFilmDisplayTextureResidency";
-import { renderCrossDissolveFrames } from "../../../../packages/viewer/src/renderCrossDissolveFrames";
 import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
 
 /**

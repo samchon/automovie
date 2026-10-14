@@ -32,7 +32,7 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
   for (const profile of profiles) {
     const fixture: ReturnType<typeof createExternalModelHierarchyFixture> =
       createExternalModelHierarchyFixture();
-    const baseline: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+    const baseline: import("@automovie/ingest").IAutoMovieExternalModelInspection =
       inspectExternalModelHierarchyFixture(fixture, profile);
     TestValidator.predicate(
       `${profile}: baseline profile`,
@@ -57,7 +57,7 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
 
     fixture.document.nodes[1]!.children = [0];
     fixture.document.scenes = [{ nodes: [1] }];
-    const parented: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+    const parented: import("@automovie/ingest").IAutoMovieExternalModelInspection =
       inspectExternalModelHierarchyFixture(fixture, profile);
     TestValidator.predicate(
       `${profile}: child zero is valid`,
@@ -69,7 +69,7 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
         test12ValuesClose(
           parented.motion?.nodes.map(
             (
-              node: import("../../../../packages/ingest/src/IAutoMovieExternalMotionNodeInspection").IAutoMovieExternalMotionNodeInspection,
+              node: import("@automovie/ingest").IAutoMovieExternalMotionNodeInspection,
             ): string | null => node.parent,
           ),
           ["node_1", null],
@@ -114,7 +114,7 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
       TestValidator.predicate(
         `${profile}: ${invalid.message}`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
             inspectExternalModelHierarchyFixture(candidate, profile),
           invalid.message,
         ),
@@ -128,7 +128,7 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
       TestValidator.predicate(
         `${profile}: invalid child index ${index}`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
             inspectExternalModelHierarchyFixture(candidate, profile),
           "nodes[0].children[0] does not resolve inside its declared inventory.",
         ),

@@ -1,13 +1,15 @@
+import {
+  type IAutoMoviePropSupportFace,
+  propSupportFace,
+  propSupportGap,
+  surfaceHeightAt,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltSurface,
   IAutoMoviePropBox,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
-import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
-import { propSupportGap } from "../../../../packages/engine/src/film/propSupportGap";
-import { surfaceHeightAt } from "../../../../packages/engine/src/space/surfaceHeightAt";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
 import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
 import { namedFacts, nclose } from "./predicates";

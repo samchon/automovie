@@ -1,10 +1,10 @@
+import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
   IAutoMovieInstanceSetDesign,
 } from "@automovie/interface";
 
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { assertArchitectureBuiltPopulationRefusalsPart1 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart1";
 import { assertArchitectureBuiltPopulationRefusalsPart2 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart2";
 import { assertArchitectureBuiltPopulationRefusalsPart3 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart3";

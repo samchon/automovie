@@ -1,4 +1,10 @@
 import {
+  type IAutoMovieAuthoringDiagnostic,
+  compileDefinedShot,
+  defineShot,
+  suggestCollisionResponse,
+} from "@automovie/engine";
+import {
   IAutoMovieBeatEndActorState,
   IAutoMovieCompiledContractRealization,
   IAutoMovieDefinedShot,
@@ -7,10 +13,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
-import { defineShot } from "../../../../packages/engine/src/film/defineShot";
-import { suggestCollisionResponse } from "../../../../packages/engine/src/physics/suggestCollisionResponse";
 import {
   makeBlockingWrite,
   makePerformanceWrite,

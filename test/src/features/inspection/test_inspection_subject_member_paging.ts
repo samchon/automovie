@@ -1,15 +1,17 @@
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
-import { describeAutoMovieSubjects } from "../../../../packages/engine/src/describeAutoMovieSubjects";
 import {
+  AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+  describeAutoMovieSubject,
+  describeAutoMovieSubjects,
+} from "@automovie/engine";
+import {
+  IAutoMovieBuiltEnvironment,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectDescription,
   type IAutoMovieSubjectMemberSummary,
   type IAutoMovieTransform,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { namedFacts } from "../internal/namedFacts";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";

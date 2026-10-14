@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieProfilePoint,
   buildAutoMoviePolyhedron,
   buildAutoMovieWall,
   extrudeAutoMovieProfile,
@@ -13,7 +14,6 @@ import {
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { makeProp } from "../internal/fixtures";
 import {
   hasViolation,

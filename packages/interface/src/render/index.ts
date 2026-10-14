@@ -24,7 +24,5 @@ export * from "./IAutoMovieRenderTextureCost";
 export * from "./IAutoMovieRenderTotals";
 export * from "./IAutoMovieSemanticMaskCoverage";
 export * from "./IAutoMovieSemanticMaskEntry";
-export * from "./IAutoMovieSemanticMaskEvidence";
 export * from "./IAutoMovieSemanticMaskGap";
-export * from "./IAutoMovieSemanticMaskReceipt";
 export * from "./IAutoMovieSemanticMaskSlot";

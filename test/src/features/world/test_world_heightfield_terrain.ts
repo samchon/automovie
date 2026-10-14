@@ -1,12 +1,14 @@
+import {
+  worldGroundHeight,
+  worldGroundSurface,
+  worldHeightfield,
+  worldRamp,
+  worldSurfaceHeight,
+  worldTerrain,
+} from "@automovie/engine";
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { worldGroundHeight } from "../../../../packages/engine/src/worldGroundHeight";
-import { worldGroundSurface } from "../../../../packages/engine/src/worldGroundSurface";
-import { worldHeightfield } from "../../../../packages/engine/src/worldHeightfield";
-import { worldRamp } from "../../../../packages/engine/src/worldRamp";
-import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurfaceHeight";
-import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 

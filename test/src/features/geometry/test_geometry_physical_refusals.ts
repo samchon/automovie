@@ -1,4 +1,8 @@
 import {
+  resolveAutoMovieMeshPhysicalVertices,
+  validateMeshTopology,
+} from "@automovie/engine";
+import {
   type IAutoMovieConstraintViolation,
   type IAutoMovieMesh,
   type IAutoMovieMeshPhysicalSource,
@@ -6,8 +10,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 
 /**

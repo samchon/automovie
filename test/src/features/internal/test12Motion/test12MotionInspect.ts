@@ -7,7 +7,7 @@ import { test12MotionFixture } from "./test12MotionFixture";
  */
 export function test12MotionInspect(
   fixture: ReturnType<typeof test12MotionFixture>,
-): import("../../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection {
+): import("@automovie/ingest").IAutoMovieExternalModelInspection {
   return inspectAutoMovieExternalModelBytes({
     path: "public/motion/walk.gltf",
     bytes: fixture.bytes,

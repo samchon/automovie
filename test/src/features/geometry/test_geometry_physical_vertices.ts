@@ -1,8 +1,8 @@
+import { type IAutoMovieResolvedPhysicalVertices } from "@automovie/engine";
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedPhysicalVertices } from "../../../../packages/engine/src/math/IAutoMovieResolvedPhysicalVertices";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 
 /**

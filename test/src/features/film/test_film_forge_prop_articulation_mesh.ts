@@ -1,14 +1,16 @@
 import {
+  IAutoMovieForgedProp,
+  forgeProp,
+  placementChildNode,
+  sceneToNodes,
+} from "@automovie/engine";
+import {
   IAutoMovieConstraintViolation,
   IAutoMovieNode,
   IAutoMoviePropSpec,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
-import { placementChildNode } from "../../../../packages/engine/src/resolve/placementChildNode";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { hasViolation, namedFacts } from "../internal/predicates";
 

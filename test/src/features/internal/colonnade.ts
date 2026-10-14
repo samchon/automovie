@@ -1,11 +1,12 @@
 import {
+  IAutoMovieMeshAssembly,
+  mergeAutoMovieMeshParts,
+  revolveAutoMovieProfile,
+} from "@automovie/engine";
+import {
   type IAutoMovieMesh,
   type IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
-import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
-import { revolveAutoMovieProfile } from "../../../../packages/engine/src/geometry/revolveAutoMovieProfile";
 
 /**
  * Build the architecture test's centred X row of faceted shafts, using one metre-based revolve profile and placements spaced by the authored distance. Callers supply positive integral count, positive radius/height/spacing and a supported segment count; production revolve/merge own their refusals.

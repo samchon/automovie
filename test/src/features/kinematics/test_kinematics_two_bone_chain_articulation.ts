@@ -1,8 +1,10 @@
+import {
+  type IAutoMovieTwoBoneArticulation,
+  twoBoneChainArticulation,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieTwoBoneArticulation } from "../../../../packages/engine/src/kinematics/IAutoMovieTwoBoneArticulation";
-import { twoBoneChainArticulation } from "../../../../packages/engine/src/kinematics/twoBoneChainArticulation";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

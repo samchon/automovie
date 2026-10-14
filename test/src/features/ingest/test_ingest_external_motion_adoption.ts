@@ -33,10 +33,10 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_ingest_external_motion_adoption(): void {
   const fixture: ReturnType<typeof test12MotionFixture> = test12MotionFixture();
-  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+  const inspection: import("@automovie/ingest").IAutoMovieExternalModelInspection =
     test12MotionInspect(fixture);
   const motion:
-    | import("../../../../packages/ingest/src/IAutoMovieExternalMotionInspection").IAutoMovieExternalMotionInspection
+    | import("@automovie/ingest").IAutoMovieExternalMotionInspection
     | undefined = inspection.motion;
   TestValidator.predicate("motion inspection is present", motion !== undefined);
   if (motion === undefined) return;
@@ -187,14 +187,14 @@ export function test_ingest_external_motion_adoption(): void {
     sourceRig,
     mapping,
   };
-  const native: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+  const native: import("@automovie/ingest").IAutoMovieExternalMotionAdoption =
     adoptAutoMovieExternalMotion({
       inspection,
       source,
       decision: nativeDecision,
     });
   native.take.tracks[0]!.times[0] = 99;
-  const nativeAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+  const nativeAgain: import("@automovie/ingest").IAutoMovieExternalMotionAdoption =
     adoptAutoMovieExternalMotion({
       inspection,
       source,
@@ -242,7 +242,7 @@ export function test_ingest_external_motion_adoption(): void {
     translationScale: 1.25,
     target: "actor/main",
   };
-  const retargeted: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+  const retargeted: import("@automovie/ingest").IAutoMovieExternalMotionAdoption =
     adoptAutoMovieExternalMotion({
       inspection,
       source,
@@ -251,7 +251,7 @@ export function test_ingest_external_motion_adoption(): void {
   retargeted.handoff.sourceRig.bones[1]!.rest.translation.y = 99;
   retargeted.handoff.sourceRig.bones[1]!.constraint!.flexion!.max = 99;
   retargeted.handoff.mapping[0]!.node = "mutated";
-  const retargetedAgain: import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =
+  const retargetedAgain: import("@automovie/ingest").IAutoMovieExternalMotionAdoption =
     adoptAutoMovieExternalMotion({
       inspection,
       source,
@@ -386,7 +386,7 @@ export function test_ingest_external_motion_adoption(): void {
     message: string,
   ): boolean {
     return throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+      (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
         adoptAutoMovieExternalMotion({
           inspection,
           source: candidateSource,

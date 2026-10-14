@@ -1,3 +1,15 @@
+import {
+  type IAutoMovieSubjectContribution,
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentBuildingOfSpace,
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceConnectors,
+  builtEnvironmentSpaceNodes,
+  builtEnvironmentSpaceSurfaces,
+  lowerBuiltEnvironment,
+  mergeAutoMovieSpaces,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -10,16 +22,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
-import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
-import { builtEnvironmentBuildingOfSpace } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingOfSpace";
-import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
-import { builtEnvironmentSpaceConnectors } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceConnectors";
-import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
-import { builtEnvironmentSpaceSurfaces } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceSurfaces";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { mergeAutoMovieSpaces } from "../../../../packages/engine/src/architecture/mergeAutoMovieSpaces";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestBuilding as building } from "../internal/builtEnvironmentTestBuilding";
 import { builtEnvironmentTestCampus as campus } from "../internal/builtEnvironmentTestCampus";

@@ -1,10 +1,10 @@
+import { designLineageImpact } from "@automovie/engine";
 import type {
   IAutoMovieDesignImpact,
   IAutoMovieDesignLineage,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineageImpact } from "../../../../packages/engine/src/architecture/designLineageImpact";
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 

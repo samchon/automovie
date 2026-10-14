@@ -1,15 +1,17 @@
+import {
+  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
+  type IAutoMovieEnvelopeAssembly,
+  type IAutoMovieEnvelopeLayer,
+  type IAutoMovieEnvelopeRequest,
+  type IAutoMovieSpaceAirRequest,
+  autoMovieDewPoint,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisRun,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieEnvelopeAssembly } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeAssembly";
-import type { IAutoMovieEnvelopeLayer } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeLayer";
-import type { IAutoMovieEnvelopeRequest } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeRequest";
-import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/analysis/IAutoMovieSpaceAirRequest";
-import { autoMovieDewPoint } from "../../../../packages/engine/src/analysis/autoMovieDewPoint";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, nclose, throwsError } from "./predicates";
 

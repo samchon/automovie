@@ -1,12 +1,14 @@
 import { AutoMovieGuidePass } from "@automovie/interface";
+import {
+  AUTOMOVIE_GUIDE_PASSES,
+  IAutoMovieGuidePassOutput,
+  guidePassFrameName,
+  guidePassFramePattern,
+  isGuidePass,
+  planGuidePassOutputs,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { AUTOMOVIE_GUIDE_PASSES } from "../../../../packages/render/src/AUTOMOVIE_GUIDE_PASSES";
-import { IAutoMovieGuidePassOutput } from "../../../../packages/render/src/IAutoMovieGuidePassOutput";
-import { guidePassFrameName } from "../../../../packages/render/src/guidePassFrameName";
-import { guidePassFramePattern } from "../../../../packages/render/src/guidePassFramePattern";
-import { isGuidePass } from "../../../../packages/render/src/isGuidePass";
-import { planGuidePassOutputs } from "../../../../packages/render/src/planGuidePassOutputs";
 import { throwsError } from "../internal/predicates";
 
 /**

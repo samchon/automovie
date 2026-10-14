@@ -1,8 +1,10 @@
+import {
+  pointSegmentDistance,
+  segmentSegmentDistance,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { pointSegmentDistance } from "../../../../packages/engine/src/math/pointSegmentDistance";
-import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
 import { nclose } from "../internal/predicates";
 
 /**

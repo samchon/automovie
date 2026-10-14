@@ -1,3 +1,4 @@
+import { validateBuiltEnvironment } from "@automovie/engine";
 import {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -7,7 +8,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { builtOpeningTestPartition } from "../internal/builtOpeningTestPartition";
 
 /**

@@ -1,4 +1,4 @@
-import { planHumanViewerThumbnailRevision } from "./planHumanViewerThumbnailRevision";
+import { planHumanViewerThumbnailRevision } from "@automovie/viewer/human/inspection/planHumanViewerThumbnailRevision";
 
 /**
  * Load visible gallery thumbnails with at most two concurrent browser render fetches in the server's bulk lane. Server job scheduling and retirement remain with the server, and a card that leaves view before acquiring a slot waits for its next visit.

@@ -1,9 +1,10 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
+import { IAutoMovieResolvedBone, resolvePose } from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { type IAutoMovieSkeleton } from "../../../../packages/interface/src/index";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";

@@ -1,10 +1,10 @@
+import { verifyProductionFilmEffectPopulation } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
 import {
   filmEffectRefusal,
   filmEffectTimeline,

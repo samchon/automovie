@@ -52,7 +52,7 @@ const sceneOf: () => THREE.Scene<THREE.Object3DEventMap> =
         ],
         space: SPACE,
       },
-      (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
+      (): import("@automovie/viewer").IAutoMovieModelObject =>
         buildModel({ ...createModel(), id: "model-a" }),
     ).scene;
 

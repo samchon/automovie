@@ -19,8 +19,8 @@
     "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.ts --",
     "observe:person": "ttsx --no-plugins scripts/observe-connected-person.ts --",
     "evidence": "evidence",
-    "human:viewer": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P src/human/inspection/tsconfig.json src/human/inspection/human-shot.ts",
-    "human:viewer:control": "node src/human/inspection/human-viewer-control.ts"
+    "human:viewer": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P src/human/inspection/tsconfig.json src/human/inspection/humanViewerCommand.ts",
+    "human:viewer:control": "node src/human/inspection/humanViewerControlCommand.ts"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -49,5 +49,10 @@
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
     "@ttsc/evidence": "catalog:samchon"
+  },
+  "exports": {
+    "./film/ICompilePursuitFilm": "./src/film/ICompilePursuitFilm.ts",
+    "./film/compilePursuitFilm": "./src/film/compilePursuitFilm.ts",
+    "./viewer/readPlaygroundViewerPublishedSource": "./src/viewer/readPlaygroundViewerPublishedSource.ts"
   }
 }

@@ -4,6 +4,7 @@ import {
   IAutoMovieModelPart,
   IAutoMovieTransform,
 } from "@automovie/interface";
+import { exportModelToGLB } from "@automovie/render/node";
 import {
   Document,
   Material,
@@ -14,8 +15,6 @@ import {
   Root,
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
-
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
 
 const T: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 1, z: 0 },

@@ -1,7 +1,7 @@
+import type { IScaffoldPosixConstants } from "@automovie/template/IScaffoldPosixConstants";
+import { resolveScaffoldPosixConstants } from "@automovie/template/resolveScaffoldPosixConstants";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IScaffoldPosixConstants } from "../../../../packages/template/src/IScaffoldPosixConstants";
-import { resolveScaffoldPosixConstants } from "../../../../packages/template/src/resolveScaffoldPosixConstants";
 import { throwsError } from "../internal/predicates";
 
 /**

@@ -1,10 +1,12 @@
+import {
+  type AutoMovieSectionPlaneState,
+  IAutoMovieSectionPlane,
+  autoMovieSectionPlaneDistance,
+  autoMovieSectionPlanesKeepPoint,
+  classifyAutoMovieSectionPlaneBox,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { AutoMovieSectionPlaneState } from "../../../../packages/engine/src/film/AutoMovieSectionPlaneState";
-import { IAutoMovieSectionPlane } from "../../../../packages/engine/src/film/IAutoMovieSectionPlane";
-import { autoMovieSectionPlaneDistance } from "../../../../packages/engine/src/film/autoMovieSectionPlaneDistance";
-import { autoMovieSectionPlanesKeepPoint } from "../../../../packages/engine/src/film/autoMovieSectionPlanesKeepPoint";
-import { classifyAutoMovieSectionPlaneBox } from "../../../../packages/engine/src/film/classifyAutoMovieSectionPlaneBox";
 import { nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 

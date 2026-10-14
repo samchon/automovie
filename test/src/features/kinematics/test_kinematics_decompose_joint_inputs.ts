@@ -1,8 +1,10 @@
+import {
+  type IAutoMovieResolvedJointAngles,
+  Quaternion,
+  decomposeJointRotation,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

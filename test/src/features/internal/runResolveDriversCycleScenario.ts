@@ -1,10 +1,10 @@
+import { resolveDrivers } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   type IAutoMovieNode,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
 import { createCopyDriver as copy } from "./createCopyDriver";
 import { createDriverNode as node } from "./createDriverNode";
 import { createDriverSamples as seed } from "./createDriverSamples";

@@ -1,24 +1,26 @@
-import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
-import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { toClinicalAngle } from "../../../../packages/engine/src/rom/toClinicalAngle";
-import { toRigAngle } from "../../../../packages/engine/src/rom/toRigAngle";
+import {
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
+  decomposeJointRotation,
+  jointToQuaternion,
+  reachPose,
+  resolvePose,
+  toClinicalAngle,
+  toRigAngle,
+} from "@automovie/engine";
 import {
   type IAutoMovieJointPose,
   type IAutoMoviePose,
   type IAutoMovieQuaternion,
   type IAutoMovieSkeleton,
   type IAutoMovieVector3,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";

@@ -1,4 +1,9 @@
 import {
+  type IAutoMovieMeshDeformationInfluence,
+  createAutoMovieMeshDeformer,
+} from "@automovie/engine";
+import { assertAutoMovieDeformedTriangles } from "@automovie/engine/geometry/assertAutoMovieDeformedTriangles";
+import {
   type IAutoMovieMesh,
   type IAutoMovieMeshDeformationField,
   type IAutoMovieMeshPhysicalVertices,
@@ -6,9 +11,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
-import { assertAutoMovieDeformedTriangles } from "../../../../packages/engine/src/geometry/assertAutoMovieDeformedTriangles";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

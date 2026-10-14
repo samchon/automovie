@@ -1,7 +1,6 @@
+import { validateRange } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateRange } from "../../../../packages/engine/src/validation/validateRange";
 
 /**
  * Exercise independently open and closed scalar endpoints while preserving finite-value admission and legacy default bounds.

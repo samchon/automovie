@@ -8,12 +8,14 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
+import {
+  IAutoMoviePoseKeypointFrame,
+  IAutoMoviePoseKeypointSidecar,
+  planPoseKeypointSidecar,
+  renderPoseKeypointSidecar,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePoseKeypointFrame } from "../../../../packages/render/src/IAutoMoviePoseKeypointFrame";
-import { IAutoMoviePoseKeypointSidecar } from "../../../../packages/render/src/IAutoMoviePoseKeypointSidecar";
-import { planPoseKeypointSidecar } from "../../../../packages/render/src/planPoseKeypointSidecar";
-import { renderPoseKeypointSidecar } from "../../../../packages/render/src/renderPoseKeypointSidecar";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {
   createSkeleton,

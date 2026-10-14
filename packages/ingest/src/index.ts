@@ -1,7 +1,6 @@
 export * from "./audio";
 export * from "./ingestDocument";
 export * from "./humanoidSkeleton";
-export * from "./ingestFaceTemplate";
 export * from "./IAutoMovieExternalModelResource";
 export * from "./IAutoMovieExternalModelInspection";
 export * from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";

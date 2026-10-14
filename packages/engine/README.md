@@ -24,5 +24,5 @@ Every public function takes typed records and returns either a result or a viola
 | `perform`, `film`, `scene`, `resolve` | Performance synthesis, staging, blocking, shots, edits, and film grammar |
 | `physics`, `soft`, `fluid` | Rigid impacts, soft bodies, and bounded fluid solves |
 | `architecture`, `space`, `service`, `drawing`, `analysis` | Built environments, spaces, service networks, drawings, and environmental analyses |
-| `render`, `effectRuntime`, `populationRuntime`, `sound`, `text`, `face` | Render facts, runtime effects and populations, sound, text, and facial morphs |
+| `render`, `effectRuntime`, `populationRuntime`, `sound`, `text` | Render facts, runtime effects and populations, sound and text |
 | `validation`, `constants` | Shared admission and constants |

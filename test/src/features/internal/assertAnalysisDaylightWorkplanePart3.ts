@@ -1,8 +1,10 @@
+import type {
+  IAutoMovieAnalysisWorkplane,
+  IAutoMovieDaylightRequest,
+} from "@automovie/engine";
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAnalysisWorkplane } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisWorkplane";
-import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/analysis/IAutoMovieDaylightRequest";
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, throwsError } from "./predicates";
 

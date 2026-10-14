@@ -1,10 +1,12 @@
+import {
+  type IAutoMovieBuildingObservationCensus,
+  type IAutoMovieBuiltEnvelopeCorner,
+  type IAutoMovieBuiltEnvelopeFace,
+  builtEnvironmentBuildingCensus,
+} from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieBuildingObservationCensus } from "../../../../packages/engine/src/architecture/IAutoMovieBuildingObservationCensus";
-import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
-import type { IAutoMovieBuiltEnvelopeFace } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeFace";
-import { builtEnvironmentBuildingCensus } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingCensus";
 import {
   FACE_ROTATION,
   boxCell,

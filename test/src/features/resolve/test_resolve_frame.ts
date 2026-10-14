@@ -1,3 +1,4 @@
+import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
@@ -9,8 +10,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

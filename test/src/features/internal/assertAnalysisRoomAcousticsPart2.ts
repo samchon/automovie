@@ -1,11 +1,10 @@
+import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
   IAutoMovieAnalysisWarning,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.
  *

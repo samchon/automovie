@@ -1,12 +1,14 @@
 import {
+  type IAutoMovieMeshSeparationQuery,
+  type IAutoMovieMeshSeparationResult,
+  createAutoMovieMeshSeparationQuery,
+} from "@automovie/engine";
+import {
   type IAutoMovieMesh,
   type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
 import { nclose } from "../internal/nclose";
 
 /**

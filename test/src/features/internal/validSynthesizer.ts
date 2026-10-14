@@ -1,4 +1,5 @@
-import type { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import type { IAutoMovieActionSynthesizer } from "@automovie/engine";
+
 import { FIXTURE_BONE } from "./FIXTURE_BONE";
 import { fixtureRegionDrivesBone } from "./fixtureRegionDrivesBone";
 import { joint, keyframe, makeMotion, makePose } from "./fixtures";

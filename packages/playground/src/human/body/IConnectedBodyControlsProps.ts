@@ -3,9 +3,9 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanBodyChannelScale,
 } from "@automovie/human";
+import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import type { IConnectedBodyReach } from "../common/IConnectedBodyReach";
 import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 
 /**

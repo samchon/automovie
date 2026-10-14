@@ -1,3 +1,4 @@
+import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMaterial,
@@ -7,7 +8,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 

@@ -56,7 +56,7 @@ const built: () => { scene: THREE.Scene; patch: THREE.Mesh } = (): {
 } => {
   const scene: THREE.Scene<THREE.Object3DEventMap> = buildScene(
     DESIGN,
-    (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
+    (): import("@automovie/viewer").IAutoMovieModelObject =>
       buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
   return {
@@ -142,7 +142,7 @@ export function test_viewer_space_ground_beauty(): void {
   );
 
   for (const mode of ["depth", "normal", "outline", "mask"] as const) {
-    const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+    const handle: import("@automovie/viewer").IAutoMovieRenderModeHandle =
       applyRenderMode(direct.scene, mode);
     TestValidator.predicate(
       `${mode} gives the support patch a structural material`,
@@ -167,7 +167,7 @@ export function test_viewer_space_ground_beauty(): void {
     }),
     { unresolved: [], unaddressed: 0 },
   );
-  const semantic: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =
+  const semantic: import("@automovie/viewer").IAutoMovieSemanticMaskHandle =
     applyAutoMovieSemanticMask({
       scene: direct.scene,
       design: DESIGN,
@@ -190,7 +190,7 @@ export function test_viewer_space_ground_beauty(): void {
     direct.patch.material === beautyMaterial,
   );
 
-  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+  const beauty: import("@automovie/viewer").IAutoMovieRenderModeHandle =
     applyRenderMode(direct.scene, "beauty");
   TestValidator.predicate(
     "beauty leaves the non-writing material in place",

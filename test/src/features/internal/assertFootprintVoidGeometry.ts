@@ -1,4 +1,21 @@
 import {
+  IAutoMovieFootprint,
+  IAutoMoviePropSupportFace,
+  ITessellation,
+  builtEnvironmentSpaceFidelity,
+  footprintContains,
+  footprintConvexPieces,
+  footprintRing,
+  footprintRingPlacement,
+  measureAutoMovieQuantities,
+  propSupportFace,
+  propSupportGap,
+  surfaceFootprint,
+  surfaceHeightAt,
+  tessellateSurface,
+  validateSpace,
+} from "@automovie/engine";
+import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
   IAutoMovieHeightRule,
@@ -7,21 +24,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
-import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
-import { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
-import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
-import { propSupportGap } from "../../../../packages/engine/src/film/propSupportGap";
-import { ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
-import { tessellateSurface } from "../../../../packages/engine/src/geometry/tessellateSurface";
-import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
-import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
-import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
-import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
-import { footprintRingPlacement } from "../../../../packages/engine/src/space/footprintRingPlacement";
-import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
-import { surfaceHeightAt } from "../../../../packages/engine/src/space/surfaceHeightAt";
-import { validateSpace } from "../../../../packages/engine/src/validation/validateSpace";
 import { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";
 import { namedFacts, nclose } from "./predicates";
 

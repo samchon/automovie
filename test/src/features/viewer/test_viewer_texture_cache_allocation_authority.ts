@@ -11,10 +11,10 @@ import {
   buildMaterial,
   readAutoMovieTextureSource,
 } from "@automovie/viewer";
+import { AutoMovieResourceRetirementScope } from "@automovie/viewer/AutoMovieResourceRetirementScope";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { AutoMovieResourceRetirementScope } from "../../../../packages/viewer/src/AutoMovieResourceRetirementScope";
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
 import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
 
@@ -53,9 +53,9 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     });
   const inspect: (
     cache: AutoMovieTextureCache,
-  ) => import("../../../../packages/render/src/index").IAutoMovieRenderBudgetAssessment = (
+  ) => import("@automovie/render").IAutoMovieRenderBudgetAssessment = (
     cache: AutoMovieTextureCache,
-  ): import("../../../../packages/render/src/index").IAutoMovieRenderBudgetAssessment =>
+  ): import("@automovie/render").IAutoMovieRenderBudgetAssessment =>
     assessAutoMovieRenderBudget({
       compiled,
       shot: "owned-cache",
@@ -77,7 +77,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     assessment: ReturnType<
       (
         cache: AutoMovieTextureCache,
-      ) => import("../../../../packages/render/src/index").IAutoMovieRenderBudgetAssessment
+      ) => import("@automovie/render").IAutoMovieRenderBudgetAssessment
     >,
   ) => string | null = (
     assessment: ReturnType<typeof inspect>,
@@ -181,7 +181,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
       ),
     [(16 + 4 + 1) * 4, (16 + 4 + 1) * 4],
   );
-  const supported: import("../../../../packages/render/src/index").IAutoMovieRenderBudgetAssessment =
+  const supported: import("@automovie/render").IAutoMovieRenderBudgetAssessment =
     inspect(cache);
   TestValidator.equals(
     "supported first preflight bounds source and lookup",
@@ -195,7 +195,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     [first.map!.generateMipmaps, second.map!.generateMipmaps],
     [true, true],
   );
-  const uncertain: import("../../../../packages/render/src/index").IAutoMovieRenderBudgetAssessment =
+  const uncertain: import("@automovie/render").IAutoMovieRenderBudgetAssessment =
     inspect(cache);
   TestValidator.equals(
     "mutable-original witness has no byte or count claim",

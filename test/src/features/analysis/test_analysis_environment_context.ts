@@ -1,3 +1,7 @@
+import {
+  assertAutoMovieAnalysisSolids,
+  validateAutoMovieEnvironmentContext,
+} from "@automovie/engine";
 import type {
   IAutoMovieContextOccluder,
   IAutoMovieEnvironmentContext,
@@ -7,8 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertAutoMovieAnalysisSolids } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisSolids";
-import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
 import { analysisContext } from "../internal/analysisContext";
 import { assertAnalysisEnvironmentContextPart1 } from "../internal/assertAnalysisEnvironmentContextPart1";
 import { assertAnalysisEnvironmentContextPart2 } from "../internal/assertAnalysisEnvironmentContextPart2";

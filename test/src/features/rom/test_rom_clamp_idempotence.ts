@@ -1,3 +1,4 @@
+import { clampPose } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -6,7 +7,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { clampPose } from "../../../../packages/engine/src/rom/clampPose";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidPose } from "../internal/createValidPose";
 import { joint } from "../internal/joint";

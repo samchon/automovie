@@ -1,11 +1,13 @@
+import {
+  disposeCrossDissolve,
+  disposeFadeToBlack,
+  readAutoMovieFilmDisplayTextureResidency,
+  renderAutoMovieFilmFrame,
+  renderFadeToBlackFrame,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { disposeCrossDissolve } from "../../../../packages/viewer/src/disposeCrossDissolve";
-import { disposeFadeToBlack } from "../../../../packages/viewer/src/disposeFadeToBlack";
-import { readAutoMovieFilmDisplayTextureResidency } from "../../../../packages/viewer/src/readAutoMovieFilmDisplayTextureResidency";
-import { renderAutoMovieFilmFrame } from "../../../../packages/viewer/src/renderAutoMovieFilmFrame";
-import { renderFadeToBlackFrame } from "../../../../packages/viewer/src/renderFadeToBlackFrame";
 import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
 import { nclose } from "../internal/predicates";
 

@@ -50,7 +50,7 @@ export function test_ingest_external_model_hierarchy_compatibility(): void {
     TestValidator.predicate(
       "motion retains its explicit transform restriction",
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
           inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
         transform.message,
       ),
@@ -71,7 +71,7 @@ export function test_ingest_external_model_hierarchy_compatibility(): void {
   TestValidator.predicate(
     "single node self-cycle",
     throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(single, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

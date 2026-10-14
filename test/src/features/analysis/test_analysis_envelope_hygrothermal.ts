@@ -1,11 +1,13 @@
 import type {
+  IAutoMovieEnvelopeAssembly,
+  IAutoMovieEnvelopeRequest,
+  IAutoMovieSpaceAirRequest,
+} from "@automovie/engine";
+import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
 } from "@automovie/interface";
 
-import type { IAutoMovieEnvelopeAssembly } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeAssembly";
-import type { IAutoMovieEnvelopeRequest } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeRequest";
-import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/analysis/IAutoMovieSpaceAirRequest";
 import { assertAnalysisEnvelopeHygrothermalPart1 } from "../internal/assertAnalysisEnvelopeHygrothermalPart1";
 import { assertAnalysisEnvelopeHygrothermalPart2 } from "../internal/assertAnalysisEnvelopeHygrothermalPart2";
 import { assertAnalysisEnvelopeHygrothermalPart3 } from "../internal/assertAnalysisEnvelopeHygrothermalPart3";

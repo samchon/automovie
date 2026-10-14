@@ -1,15 +1,17 @@
-import { IAutoMovieModel } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
-import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import {
+  AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
+  diffAutoMovieSubjects,
+} from "@automovie/engine";
 import {
   type IAutoMovieCompiledInstanceSet,
+  IAutoMovieModel,
   type IAutoMovieSceneNode,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectChange,
   type IAutoMovieSubjectDiff,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";

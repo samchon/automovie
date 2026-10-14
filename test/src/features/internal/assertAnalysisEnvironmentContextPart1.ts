@@ -1,3 +1,9 @@
+import {
+  type IAutoMovieAnalysisSolid,
+  autoMovieContextSolids,
+  autoMovieEnvironmentInstant,
+  validateAutoMovieEnvironmentContext,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieEnvironmentInstant,
@@ -5,10 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAnalysisSolid } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisSolid";
-import { autoMovieContextSolids } from "../../../../packages/engine/src/analysis/autoMovieContextSolids";
-import { autoMovieEnvironmentInstant } from "../../../../packages/engine/src/analysis/autoMovieEnvironmentInstant";
-import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
 import { analysisContext, boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, nclose } from "./predicates";
 

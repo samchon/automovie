@@ -1,23 +1,23 @@
 import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  reachPose,
+  resolvePose,
+  validatePoseResult,
+} from "@automovie/engine";
+import {
+  type IAutoMovieBone,
+  type IAutoMovieConstraintViolation,
   IAutoMovieJointConstraint,
+  type IAutoMovieJointPose,
+  type IAutoMoviePose,
   IAutoMovieSkeleton,
+  type IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
-import {
-  type IAutoMovieBone,
-  type IAutoMovieConstraintViolation,
-  type IAutoMovieJointPose,
-  type IAutoMoviePose,
-  type IAutoMovieValidation,
-} from "../../../../packages/interface/src/index";
 import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

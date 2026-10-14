@@ -1,12 +1,14 @@
+import {
+  type IAutoMoviePassageBlockage,
+  propAnchorFrame,
+  propBlockedPassages,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePassageBlockage } from "../../../../packages/engine/src/film/IAutoMoviePassageBlockage";
-import { propAnchorFrame } from "../../../../packages/engine/src/film/propAnchorFrame";
-import { propBlockedPassages } from "../../../../packages/engine/src/film/propBlockedPassages";
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
 import { namedFacts, vclose } from "./predicates";
 import { propRegistry, propSet } from "./propPlacementFixtures";

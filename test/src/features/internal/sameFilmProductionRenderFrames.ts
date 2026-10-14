@@ -1,4 +1,5 @@
-import type { IAutoMovieProductionRenderFrame } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderFrame";
+import type { IAutoMovieProductionRenderFrame } from "@automovie/engine";
+
 import { nclose } from "./nclose";
 import { sameFilmProductionRenderLayers } from "./sameFilmProductionRenderLayers";
 

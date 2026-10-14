@@ -1,7 +1,6 @@
+import { actionRegion, bodyRegionBones } from "@automovie/engine";
 import { IAutoMovieActionCall } from "@automovie/interface";
 
-import { actionRegion } from "../../../../packages/engine/src/perform/actionRegion";
-import { bodyRegionBones } from "../../../../packages/engine/src/perform/bodyRegionBones";
 import { FIXTURE_BONE } from "./FIXTURE_BONE";
 
 /**

@@ -1,4 +1,10 @@
 import {
+  type IAutoMovieMeshSeparationQuery,
+  type IAutoMovieMeshSeparationResult,
+  boundAutoMovieTriangleAttachmentContact,
+  createAutoMovieMeshSeparationQuery,
+} from "@automovie/engine";
+import {
   type IAutoMovieMesh,
   type IAutoMovieMeshPhysicalVertices,
   type IAutoMovieMeshSkin,
@@ -6,10 +12,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

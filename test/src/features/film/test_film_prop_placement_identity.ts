@@ -1,3 +1,4 @@
+import { validatePropPlacements } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -9,7 +10,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validatePropPlacements } from "../../../../packages/engine/src/film/validatePropPlacements";
 import { createFilmPropPlacementIdentityCases } from "../internal/createFilmPropPlacementIdentityCases";
 import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
 import { namedFacts } from "../internal/predicates";

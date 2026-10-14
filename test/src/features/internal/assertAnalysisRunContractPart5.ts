@@ -1,3 +1,8 @@
+import {
+  assertAutoMovieAnalysisTargets,
+  autoMovieAnalysisMetric,
+  summarizeAutoMovieAnalysis,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisReport,
@@ -6,9 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertAutoMovieAnalysisTargets } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisTargets";
-import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
-import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { namedFacts, throwsError } from "./predicates";
 import { sameProductData } from "./sameProductData";

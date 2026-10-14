@@ -1,3 +1,4 @@
+import { validateSoftBodyDomain } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -5,7 +6,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateSoftBodyDomain } from "../../../../packages/engine/src/soft/validateSoftBodyDomain";
 import { hasViolation } from "../internal/hasViolation";
 import { softPanel } from "../internal/softFixtures";
 

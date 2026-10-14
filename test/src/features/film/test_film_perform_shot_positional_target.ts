@@ -1,3 +1,4 @@
+import { IAutoMoviePerformedShot } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
@@ -5,7 +6,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
 import { createFilmPositionalLocomote as locomote } from "../internal/createFilmPositionalLocomote";
 import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";

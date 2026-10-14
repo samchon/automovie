@@ -1,4 +1,10 @@
 import {
+  Matrix4,
+  Quaternion,
+  childrenIndex,
+  resolveWorldDrivers,
+} from "@automovie/engine";
+import {
   IAutoMovieAimDriver,
   type IAutoMovieDriver,
   IAutoMovieIKDriver,
@@ -8,10 +14,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { childrenIndex } from "../../../../packages/engine/src/resolve/childrenIndex";
-import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 

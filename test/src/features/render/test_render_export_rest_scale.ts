@@ -1,8 +1,8 @@
 import { IAutoMovieModel } from "@automovie/interface";
+import { exportModelToGLB } from "@automovie/render/node";
 import { Document, Node, NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 
 /** A rig whose hips rest carries a non-unit scale (a common VRM import). */

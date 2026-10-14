@@ -1,10 +1,12 @@
+import {
+  mergeAutoMovieMeshes,
+  resolveAutoMovieMeshPhysicalVertices,
+  transformAutoMovieMesh,
+  validateMeshTopology,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { mergeAutoMovieMeshes } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshes";
-import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
-import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";
 

@@ -40,7 +40,7 @@ export function test_viewer_silent_skip_guards(): void {
   TestValidator.predicate(
     "an unresolvable scene node throws with its ids",
     throwsError(
-      (): import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =>
+      (): import("@automovie/viewer").IAutoMovieSceneObject =>
         buildScene(
           {
             id: "scene-1",
@@ -65,7 +65,7 @@ export function test_viewer_silent_skip_guards(): void {
 
   // 2. applyPose reports the bones the model map does not carry
   const hipsOnly: THREE.Object3D<THREE.Object3DEventMap> = new THREE.Object3D();
-  const partial: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+  const partial: import("@automovie/viewer").IAutoMovieModelObject =
     createImportedModelObject({
       object: new THREE.Object3D(),
       bones: { hips: hipsOnly },
@@ -80,7 +80,7 @@ export function test_viewer_silent_skip_guards(): void {
     applyPose(partial, pose, TWO_BONES),
     ["head"],
   );
-  const full: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+  const full: import("@automovie/viewer").IAutoMovieModelObject =
     createImportedModelObject({
       object: new THREE.Object3D(),
       bones: { hips: new THREE.Object3D(), head: new THREE.Object3D() },

@@ -3,11 +3,12 @@ import {
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
+import {
+  IAutoMovieRenderChunkPlan,
+  planChunkedSequenceRender,
+  planSequenceRender,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieRenderChunkPlan } from "../../../../packages/render/src/IAutoMovieRenderChunkPlan";
-import { planChunkedSequenceRender } from "../../../../packages/render/src/planChunkedSequenceRender";
-import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
 
 const shot: IAutoMovieShot = {
   id: "shot:a",

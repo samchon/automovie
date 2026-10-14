@@ -20,7 +20,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_deep_cycle entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  */
 export function test_ingest_external_model_hierarchy_deep_cycle(): void {
-  const accepted: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+  const accepted: import("@automovie/ingest").IAutoMovieExternalModelInspection =
     inspectExternalModelHierarchyFixture(
       createExternalModelHierarchyChain(2),
       "gltf-motion-v1",
@@ -44,7 +44,7 @@ export function test_ingest_external_model_hierarchy_deep_cycle(): void {
   TestValidator.predicate(
     "deep motion cycle retains its cause",
     throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

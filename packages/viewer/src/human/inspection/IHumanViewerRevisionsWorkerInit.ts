@@ -21,6 +21,9 @@ export interface IHumanViewerRevisionsWorkerInit {
   /** Repository root with forward slashes. */
   root: string;
 
+  /** Explicit physical installed-package roots allowed by the host's revision IO. */
+  runtimeRoots?: readonly string[];
+
   /** Entry files of each digest's import graph. */
   entries: IHumanViewerRevisionsEntries;
 

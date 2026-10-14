@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieRenderTargetDrift,
   autoMovieRenderDigest,
   autoMovieRenderTargetAssets,
   autoMovieRenderTargetSummary,
@@ -16,7 +17,6 @@ import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 import { namedFacts, throwsError } from "../internal/predicates";
-import type { IAutoMovieRenderTargetDrift } from "./../../../../packages/engine/src/render/IAutoMovieRenderTargetDrift";
 
 /**
  * A report is evidence only while the target it measured is still the target in

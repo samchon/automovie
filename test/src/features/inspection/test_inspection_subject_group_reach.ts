@@ -1,20 +1,20 @@
 import {
-  type IAutoMovieBuiltEnvironment,
-  type IAutoMovieSubjectArtifact,
+  builtEnvironmentUnclaimedElements,
+  describeAutoMovieSubject,
+  describeAutoMovieSubjects,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieModel,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectDescription,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentUnclaimedElements } from "../../../../packages/engine/src/architecture/builtEnvironmentUnclaimedElements";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
-import { describeAutoMovieSubjects } from "../../../../packages/engine/src/describeAutoMovieSubjects";
-import {
-  type IAutoMovieBuiltElement,
-  type IAutoMovieBuiltSpace,
-  type IAutoMovieModel,
-  type IAutoMovieSubjectDescription,
-  type IAutoMovieTransform,
-} from "../../../../packages/interface/src/index";
 import { makeProp } from "../internal/makeProp";
 import { namedFacts } from "../internal/namedFacts";
 import { primitivePart } from "../internal/primitivePart";

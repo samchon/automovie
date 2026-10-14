@@ -1,7 +1,7 @@
+import { resolveAutoMovieMaterial } from "@automovie/engine";
 import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveAutoMovieMaterial } from "../../../../packages/engine/src/render/resolveAutoMovieMaterial";
 import { throwsError } from "../internal/predicates";
 import { boxModel, material } from "../internal/renderFixtures";
 
