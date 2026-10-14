@@ -1,19 +1,51 @@
+import {
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieBlocking,
+  IAutoMovieBlockingCoverage,
+  IAutoMovieCameraAction,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieShotCoverage,
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMoviePose, IAutoMovieMotion, IAutoMovieScript, IAutoMovieCameraAction, IAutoMovieSkeleton, IAutoMovieShotPerformance, IAutoMovieSceneNode, IAutoMovieShotCoverage, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBlocking, IAutoMovieBlockingCoverage, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { FIXTURE_BONE, fixtureRegionDrivesBone, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
-import { createSkeleton, joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import {
+  FIXTURE_BONE,
+  fixtureRegionDrivesBone,
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
+import {
+  createSkeleton,
+  joint,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "../internal/fixtures";
 import { namedFacts, vclose, violationCount } from "../internal/predicates";
+
 type ICoverage = IAutoMovieBlockingCoverage;
 
 /**
  * A pose marching the root along model +X, with an elbow key only when the existing region fixture enables it. The locomote fixture omits elbow keys; this scenario observes the carried root displacement.
  */
-const march: (x: number, drivesBone: boolean) => IAutoMoviePose = (x: number, drivesBone: boolean): IAutoMoviePose =>
+const march: (x: number, drivesBone: boolean) => IAutoMoviePose = (
+  x: number,
+  drivesBone: boolean,
+): IAutoMoviePose =>
   makePose(drivesBone ? [joint(FIXTURE_BONE, { flexion: 10 + x * 10 })] : [], {
     translation: { x, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -26,7 +58,10 @@ const march: (x: number, drivesBone: boolean) => IAutoMoviePose = (x: number, dr
  * gets the shared elbow clip. The last part is the point: a host synthesizer
  * answers for whatever actor id the engine hands it.
  */
-const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null => {
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null => {
   if (action.verb === "launch") return null;
   if (actor === "foe") {
     const driven: boolean = fixtureRegionDrivesBone(action);
@@ -54,49 +89,51 @@ const script: IAutoMovieScript = makeScriptWrite({
   ],
 });
 
-const staged: IAutoMovieStagedSet.ISuccess = ((): IAutoMovieStagedSet.ISuccess => {
-  const result: IAutoMovieStagedSet = stageScene(
-    script,
-    makeStagingWrite({
-      actors: [
-        { node: "archer", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
-        { node: "foe", position: { x: 6, y: 0, z: 0 }, facingDeg: 180 },
-        { node: "arrow", position: { x: 0, y: 1.4, z: 0 }, facingDeg: 0 },
-      ],
-      cameras: [
-        {
-          node: "cam-main",
-          position: { x: 3, y: 1.6, z: 4 },
-          lookAt: { kind: "node", node: "foe" },
-          fovDeg: 45,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-alt",
-          position: { x: 0, y: 1.6, z: -4 },
-          lookAt: { kind: "node", node: "foe" },
-          fovDeg: 45,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-cover",
-          position: { x: -4, y: 1.6, z: 0 },
-          lookAt: { kind: "node", node: "foe" },
-          fovDeg: 45,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(
+      script,
+      makeStagingWrite({
+        actors: [
+          { node: "archer", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
+          { node: "foe", position: { x: 6, y: 0, z: 0 }, facingDeg: 180 },
+          { node: "arrow", position: { x: 0, y: 1.4, z: 0 }, facingDeg: 0 },
+        ],
+        cameras: [
+          {
+            node: "cam-main",
+            position: { x: 3, y: 1.6, z: 4 },
+            lookAt: { kind: "node", node: "foe" },
+            fovDeg: 45,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-alt",
+            position: { x: 0, y: 1.6, z: -4 },
+            lookAt: { kind: "node", node: "foe" },
+            fovDeg: 45,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-cover",
+            position: { x: -4, y: 1.6, z: 0 },
+            lookAt: { kind: "node", node: "foe" },
+            fovDeg: 45,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+      }),
+    );
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
 
 /**
  * A loose down the lens. It carries NO `onHit`: a camera is a place to shoot
@@ -114,7 +151,10 @@ const looseAtCamera: IAutoMovieActionCall = {
   speed: 22,
 };
 
-const frame: (actor: string, on: string) => IAutoMovieCameraAction & { verb: "frame"; } = (
+const frame: (
+  actor: string,
+  on: string,
+) => IAutoMovieCameraAction & { verb: "frame" } = (
   actor: string,
   on: string,
 ): IAutoMovieActionCall & { verb: "frame" } => ({
@@ -128,7 +168,9 @@ const frame: (actor: string, on: string) => IAutoMovieCameraAction & { verb: "fr
 });
 
 /** A blocking whose hero intent matches the `frame` fixture above. */
-const blockingWith: (coverage: IAutoMovieBlockingCoverage[]) => IAutoMovieBlocking = (coverage: ICoverage[]): IAutoMovieBlocking => ({
+const blockingWith: (
+  coverage: IAutoMovieBlockingCoverage[],
+) => IAutoMovieBlocking = (coverage: ICoverage[]): IAutoMovieBlocking => ({
   beat: "beat-1",
   analysis: "the loose must read as aimed at the lens.",
   rationale: "a wide follow keeps the flight and the impact in frame.",
@@ -142,7 +184,16 @@ const blockingWith: (coverage: IAutoMovieBlockingCoverage[]) => IAutoMovieBlocki
   duration: 2,
 });
 
-const perform: (draft: IAutoMovieActionCall[], coverage?: IAutoMovieBlockingCoverage[] | undefined, targetAt?: ((target: IAutoMovieActionTarget, seconds: number) => IAutoMovieVector3 | null) | undefined) => IAutoMoviePerformedShot = (
+const perform: (
+  draft: IAutoMovieActionCall[],
+  coverage?: IAutoMovieBlockingCoverage[] | undefined,
+  targetAt?:
+    | ((
+        target: IAutoMovieActionTarget,
+        seconds: number,
+      ) => IAutoMovieVector3 | null)
+    | undefined,
+) => IAutoMoviePerformedShot = (
   draft: IAutoMovieActionCall[],
   coverage?: ICoverage[],
   targetAt?: (
@@ -168,12 +219,19 @@ const perform: (draft: IAutoMovieActionCall[], coverage?: IAutoMovieBlockingCove
   });
 
 /** Every translation key of a compiled camera clip, as points. */
-const keysOf: (values: readonly number[]) => { x: number; y: number; z: number; }[] = (values: readonly number[]): { x: number; y: number; z: number; }[] =>
-  Array.from({ length: values.length / 3 }, (_: unknown, k: number): { x: number; y: number; z: number; } => ({
-    x: values[k * 3]!,
-    y: values[k * 3 + 1]!,
-    z: values[k * 3 + 2]!,
-  }));
+const keysOf: (
+  values: readonly number[],
+) => { x: number; y: number; z: number }[] = (
+  values: readonly number[],
+): { x: number; y: number; z: number }[] =>
+  Array.from(
+    { length: values.length / 3 },
+    (_: unknown, k: number): { x: number; y: number; z: number } => ({
+      x: values[k * 3]!,
+      y: values[k * 3 + 1]!,
+      z: values[k * 3 + 2]!,
+    }),
+  );
 
 /**
  * Camera, bone, actor and projectile subjects reach their intended numerical framing paths.
@@ -190,7 +248,10 @@ const keysOf: (values: readonly number[]) => { x: number; y: number; z: number; 
  */
 export function test_film_perform_shot_camera_subject(): void {
   // 1. the hero take: an animated, facing-less subject holds still.
-  const hero: IAutoMoviePerformedShot = perform([looseAtCamera, frame("cam-alt", "cam-main")]);
+  const hero: IAutoMoviePerformedShot = perform([
+    looseAtCamera,
+    frame("cam-alt", "cam-main"),
+  ]);
   TestValidator.equals("a camera subject performs", hero.success, true);
   if (hero.success !== true) return;
   TestValidator.equals(
@@ -202,14 +263,21 @@ export function test_film_perform_shot_camera_subject(): void {
   // 2. no camera performs, in the motion map or in the shot.
   TestValidator.equals(
     "a camera never reaches the compiled motions",
-    Object.keys(hero.motions).filter((node: string): boolean => node.startsWith("cam-")),
+    Object.keys(hero.motions).filter((node: string): boolean =>
+      node.startsWith("cam-"),
+    ),
     [],
   );
   TestValidator.equals(
     "every performance names a staged scene node",
     hero.shot.performances
       .map((entry: IAutoMovieShotPerformance): string => entry.node)
-      .filter((node: string): boolean => !staged.scene.nodes.some((n: IAutoMovieSceneNode): boolean => n.id === node)),
+      .filter(
+        (node: string): boolean =>
+          !staged.scene.nodes.some(
+            (n: IAutoMovieSceneNode): boolean => n.id === node,
+          ),
+      ),
     [],
   );
 
@@ -233,7 +301,9 @@ export function test_film_perform_shot_camera_subject(): void {
   if (covered.success !== true) return;
   TestValidator.equals(
     "an alternate camera may frame another camera",
-    covered.shot.coverage!.map((take: IAutoMovieShotCoverage): string => take.camera),
+    covered.shot.coverage!.map(
+      (take: IAutoMovieShotCoverage): string => take.camera,
+    ),
     ["cam-cover"],
   );
   TestValidator.equals(
@@ -264,7 +334,14 @@ export function test_film_perform_shot_camera_subject(): void {
       },
     ],
     undefined,
-    (_target: IAutoMovieActionTarget, seconds: number): { x: number; y: number; z: number; } => ({ x: 6 + seconds, y: 1.2, z: 0 }),
+    (
+      _target: IAutoMovieActionTarget,
+      seconds: number,
+    ): { x: number; y: number; z: number } => ({
+      x: 6 + seconds,
+      y: 1.2,
+      z: 0,
+    }),
   );
   TestValidator.equals(
     "a moving bone drives both the follow subject and camera intent focus",
@@ -284,11 +361,12 @@ export function test_film_perform_shot_camera_subject(): void {
   );
   TestValidator.predicate(
     "the live bone supplies the authored initial focus",
-    boneFrame.success === true && vclose(boneFrame.shot.cameraIntent![0]!.focus!, {
-      x: 6,
-      y: 1.2,
-      z: 0,
-    }),
+    boneFrame.success === true &&
+      vclose(boneFrame.shot.cameraIntent![0]!.focus!, {
+        x: 6,
+        y: 1.2,
+        z: 0,
+      }),
   );
   const fallbackBoneFrame: IAutoMoviePerformedShot = perform(
     [
@@ -303,7 +381,11 @@ export function test_film_perform_shot_camera_subject(): void {
       },
     ],
     undefined,
-    (_target: IAutoMovieActionTarget, seconds: number): { x: number; y: number; z: number; } | null => (seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null),
+    (
+      _target: IAutoMovieActionTarget,
+      seconds: number,
+    ): { x: number; y: number; z: number } | null =>
+      seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null,
   );
   TestValidator.equals(
     "a missing later live sample falls back to the validated bone point",
@@ -330,7 +412,9 @@ export function test_film_perform_shot_camera_subject(): void {
     violationCount(tracking),
     0,
   );
-  const keys: { x: number; y: number; z: number; }[] = keysOf(tracking.shot.cameraMotion!.tracks[0]!.values);
+  const keys: { x: number; y: number; z: number }[] = keysOf(
+    tracking.shot.cameraMotion!.tracks[0]!.values,
+  );
   TestValidator.equals(
     "a follow on a placed actor keys the whole span",
     keys.length > 1,
@@ -341,21 +425,22 @@ export function test_film_perform_shot_camera_subject(): void {
     !vclose(keys[0]!, keys[keys.length - 1]!),
   );
 
-  const projectile: IAutoMoviePerformedShot = perform([looseAtCamera, frame("cam-alt", "arrow")]);
+  const projectile: IAutoMoviePerformedShot = perform([
+    looseAtCamera,
+    frame("cam-alt", "arrow"),
+  ]);
   TestValidator.equals(
     "a follow on a launched prop performs",
     projectile.success,
     true,
   );
   if (projectile.success !== true) return;
-  const projectileKeys: { x: number; y: number; z: number; }[] = keysOf(
+  const projectileKeys: { x: number; y: number; z: number }[] = keysOf(
     projectile.shot.cameraMotion!.tracks[0]!.values,
   );
   TestValidator.predicate(
     "the launch trajectory moves the prop-follow camera",
-    projectileKeys.length > 1 && !vclose(
-      projectileKeys[0]!,
-      projectileKeys[projectileKeys.length - 1]!,
-    ),
+    projectileKeys.length > 1 &&
+      !vclose(projectileKeys[0]!, projectileKeys[projectileKeys.length - 1]!),
   );
 }

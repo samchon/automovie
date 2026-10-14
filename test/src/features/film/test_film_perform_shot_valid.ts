@@ -1,10 +1,14 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieShotPerformance, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import {
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -28,7 +32,10 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_valid unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_valid(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const performed: IAutoMoviePerformedShot = performShot({
@@ -83,7 +90,10 @@ export function test_film_perform_shot_valid(): void {
       p.motion,
       performed.motions[p.node]!.id,
     );
-    TestValidator.predicate(`start offset of ${p.node}`, nclose(p.startOffset, 0));
+    TestValidator.predicate(
+      `start offset of ${p.node}`,
+      nclose(p.startOffset, 0),
+    );
   }
 
   const repeated: IAutoMoviePerformedShot = performShot({

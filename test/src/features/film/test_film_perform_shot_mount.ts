@@ -1,27 +1,12 @@
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
-  IAutoMovieActionCall,
   AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   IAutoMovieClip,
-  IAutoMovieMotion,
   IAutoMovieConstraintViolation,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotion,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
   IAutoMovieTrack,
@@ -30,6 +15,21 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
+import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
 import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
 import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
@@ -51,17 +51,24 @@ import { nclose, vclose } from "../internal/predicates";
 /**
  * The horse animates its own walk; every other actor uses the shared clip.
  */
-const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   actor === "horse" ? horseWalk : validSynthesizer(action, actor);
 
-const CUSTOM_MOUNT_JOINT_AXES: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {
+const CUSTOM_MOUNT_JOINT_AXES: Partial<
+  Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+> = {
   hips: {
     flexion: { x: 0, y: 0, z: 1 },
     abduction: { x: 1, y: 0, z: 0 },
     twist: { x: 0, y: 1, z: 0 },
   },
 };
-const CUSTOM_MOUNT_REST_FRAMES: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {
+const CUSTOM_MOUNT_REST_FRAMES: Partial<
+  Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+> = {
   hips: { flexion: { sign: 1 as const, neutral: 15 } },
 };
 const clinicalHorseWalk: IAutoMovieMotion = makeMotion(
@@ -85,10 +92,16 @@ const clinicalHorseWalk: IAutoMovieMotion = makeMotion(
   ],
   2,
 );
-const clinicalSynth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+const clinicalSynth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   actor === "horse" ? clinicalHorseWalk : validSynthesizer(action, actor);
 
-const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (clip: IAutoMovieClip, t: number): IAutoMovieVector3 => {
+const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
+  clip: IAutoMovieClip,
+  t: number,
+): IAutoMovieVector3 => {
   const v: number[] = sampleClip(clip, t).get("node:rider:translation")!.value;
   return { x: v[0]!, y: v[1]!, z: v[2]! };
 };
@@ -117,7 +130,9 @@ export function test_film_perform_shot_mount(): void {
     { node: "rider", binding: { parent: "horse", bone: "spine" } },
   ]);
 
-  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
+  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (
+    draft: IAutoMovieActionCall[],
+  ): IAutoMoviePerformedShot =>
     performShot({
       script: scriptOf(),
       staged,
@@ -138,7 +153,9 @@ export function test_film_perform_shot_mount(): void {
   TestValidator.equals("the mount performs", ok.success, true);
   if (ok.success !== true) return;
 
-  const follow: IAutoMovieClip | undefined = ok.shot.objectMotions.find((c: IAutoMovieClip): boolean => c.id === "attach:rider");
+  const follow: IAutoMovieClip | undefined = ok.shot.objectMotions.find(
+    (c: IAutoMovieClip): boolean => c.id === "attach:rider",
+  );
   TestValidator.predicate("a rider follow clip is baked", follow !== undefined);
   TestValidator.equals(
     "the follow's translation and rotation tracks drive the rider node",
@@ -160,7 +177,9 @@ export function test_film_perform_shot_mount(): void {
 
   // Shared-FK reference: resolveAttachment on the COMPILED horse motion
   // (what compileAttach sampled) composed with the horse's staged transform.
-  const horse: IAutoMovieSceneNode = staged.scene.nodes.find((n: IAutoMovieSceneNode): boolean => n.id === "horse")!;
+  const horse: IAutoMovieSceneNode = staged.scene.nodes.find(
+    (n: IAutoMovieSceneNode): boolean => n.id === "horse",
+  )!;
   const horseMotion: IAutoMovieMotion = ok.motions["horse"]!;
   const localAtEnd: IAutoMovieTransform = resolveAttachment(
     sampleMotion(horseMotion, 2).pose,
@@ -195,10 +214,14 @@ export function test_film_perform_shot_mount(): void {
     beat: "beat-1",
     scene: staged.scene,
     shot: ok.shot,
-    motions: Object.entries(ok.motions).map(([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m),
+    motions: Object.entries(ok.motions).map(
+      ([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m,
+    ),
     mounts: staged.mounts,
   });
-  const riderEnd: IAutoMovieBeatEndActorState = beatEnd.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "rider")!;
+  const riderEnd: IAutoMovieBeatEndActorState = beatEnd.actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "rider",
+  )!;
   TestValidator.predicate(
     "the rider's beat-end sits at the saddle, following the horse",
     vclose(riderEnd.transform.translation, expectedEnd, 1e-9),
@@ -210,8 +233,10 @@ export function test_film_perform_shot_mount(): void {
   TestValidator.predicate(
     "the rider inherits the horse's trailing velocity (nonzero +x)",
     riderEnd.rootVelocity!.x > 0.5 &&
-      nclose(riderEnd.rootVelocity!.y, 0, 1e-6) && Math.abs(riderEnd.rootVelocity!.y) < 1e-6 &&
-      nclose(riderEnd.rootVelocity!.z, 0, 1e-6) && Math.abs(riderEnd.rootVelocity!.z) < 1e-6,
+      nclose(riderEnd.rootVelocity!.y, 0, 1e-6) &&
+      Math.abs(riderEnd.rootVelocity!.y) < 1e-6 &&
+      nclose(riderEnd.rootVelocity!.z, 0, 1e-6) &&
+      Math.abs(riderEnd.rootVelocity!.z) < 1e-6,
   );
   TestValidator.equals("the mount binding is carried", riderEnd.mount, {
     parent: "horse",
@@ -232,12 +257,16 @@ export function test_film_perform_shot_mount(): void {
       ],
     },
     motions: [
-      ...Object.entries(ok.motions).map(([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m),
+      ...Object.entries(ok.motions).map(
+        ([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m,
+      ),
       { ...horseWalk, id: "horse-walk" },
     ],
     mounts: staged.mounts,
   });
-  const riderAtStart: IAutoMovieBeatEndActorState = endStart.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "rider")!;
+  const riderAtStart: IAutoMovieBeatEndActorState = endStart.actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "rider",
+  )!;
   TestValidator.predicate(
     "a rider mounted at local time 0 has an empty velocity window (zero)",
     vclose(riderAtStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
@@ -258,10 +287,16 @@ export function test_film_perform_shot_mount(): void {
     }),
     synthesize: clinicalSynth,
     skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-    jointAxes: (node: string): Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined =>
-      node === "horse" ? CUSTOM_MOUNT_JOINT_AXES : undefined,
-    restFrames: (node: string): Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined =>
-      node === "horse" ? CUSTOM_MOUNT_REST_FRAMES : undefined,
+    jointAxes: (
+      node: string,
+    ):
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined => (node === "horse" ? CUSTOM_MOUNT_JOINT_AXES : undefined),
+    restFrames: (
+      node: string,
+    ):
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+      | undefined => (node === "horse" ? CUSTOM_MOUNT_REST_FRAMES : undefined),
   });
   TestValidator.equals("the clinical mount performs", clinical.success, true);
   if (clinical.success === true) {
@@ -325,7 +360,9 @@ export function test_film_perform_shot_mount(): void {
   if (beatTwo.success === true)
     TestValidator.predicate(
       "the same staging retains the mount without re-declaration",
-      beatTwo.shot.objectMotions.some((c: IAutoMovieClip): boolean => c.id === "attach:rider"),
+      beatTwo.shot.objectMotions.some(
+        (c: IAutoMovieClip): boolean => c.id === "attach:rider",
+      ),
     );
 
   // 5. an explicit attachTo for the rider this beat overrides its mount.
@@ -344,8 +381,9 @@ export function test_film_perform_shot_mount(): void {
   if (overridden.success === true)
     TestValidator.equals(
       "one rider follow clip, the explicit attachTo, not a second from the mount",
-      overridden.shot.objectMotions.filter((c: IAutoMovieClip): boolean => c.id === "attach:rider")
-        .length,
+      overridden.shot.objectMotions.filter(
+        (c: IAutoMovieClip): boolean => c.id === "attach:rider",
+      ).length,
       1,
     );
 
@@ -408,7 +446,8 @@ export function test_film_perform_shot_mount(): void {
     }),
     synthesize: synth,
     // horse has no rig now: the mount cannot ride a bone of it.
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "horse" ? null : createSkeleton()),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "horse" ? null : createSkeleton(),
   });
   TestValidator.equals(
     "a rig-less mount parent fails",
@@ -418,7 +457,10 @@ export function test_film_perform_shot_mount(): void {
   if (riglessParent.success === false)
     TestValidator.predicate(
       "the violation names the mounts",
-      riglessParent.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path === "$staged.mounts"),
+      riglessParent.violations.some(
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.path === "$staged.mounts",
+      ),
     );
 
   const badBone: IAutoMovieStagedSet = stageScene(
@@ -472,7 +514,8 @@ export function test_film_perform_shot_mount(): void {
     TestValidator.predicate(
       "the violation names the bone via the mounts path",
       missingBone.violations.some(
-        (v: IAutoMovieConstraintViolation): boolean => v.path === "$staged.mounts" && `${v.value}` === "rightHand",
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.path === "$staged.mounts" && `${v.value}` === "rightHand",
       ),
     );
 }

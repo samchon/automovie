@@ -1,23 +1,23 @@
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
   IAutoMovieConstraintViolation,
   IAutoMovieExpression,
-  IAutoMovieMotion,
-  IAutoMovieKeyframe,
   IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -72,7 +72,9 @@ const HAPPY: IAutoMovieExpression = {
   blendshapes: null,
 };
 
-const rootAt: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
+const rootAt: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -81,17 +83,27 @@ const rootAt: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransf
 /**
  * A two-keyframe clip over `bones`, optionally carrying a root / expression.
  */
-const clip: (props: { bones: AutoMovieHumanoidBone[]; root?: boolean; expression?: boolean }) => IAutoMovieMotion = (props: {
+const clip: (props: {
+  bones: AutoMovieHumanoidBone[];
+  root?: boolean;
+  expression?: boolean;
+}) => IAutoMovieMotion = (props: {
   bones: AutoMovieHumanoidBone[];
   root?: boolean;
   expression?: boolean;
 }): IAutoMovieMotion => {
-  const pose: (flexion: number) => IAutoMoviePose = (flexion: number): IAutoMoviePose =>
+  const pose: (flexion: number) => IAutoMoviePose = (
+    flexion: number,
+  ): IAutoMoviePose =>
     makePose(
-      props.bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => joint(bone, { flexion })),
+      props.bones.map(
+        (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
+          joint(bone, { flexion }),
+      ),
       props.root === true ? rootAt(flexion / 20) : null,
     );
-  const expression: IAutoMovieExpression | null = props.expression === true ? HAPPY : null;
+  const expression: IAutoMovieExpression | null =
+    props.expression === true ? HAPPY : null;
   return makeMotion(
     [
       keyframe(0, pose(0), "linear", expression),
@@ -101,7 +113,9 @@ const clip: (props: { bones: AutoMovieHumanoidBone[]; root?: boolean; expression
   );
 };
 
-const gait: (region?: IAutoMovieActionCall["region"]) => IAutoMovieActionCall = (
+const gait: (
+  region?: IAutoMovieActionCall["region"],
+) => IAutoMovieActionCall = (
   region?: IAutoMovieActionCall["region"],
 ): IAutoMovieActionCall => ({
   verb: "locomote",
@@ -123,8 +137,16 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const bonesOf: (motion: IAutoMovieMotion) => Set<AutoMovieHumanoidBone> = (motion: IAutoMovieMotion): Set<AutoMovieHumanoidBone> =>
-  new Set(motion.keyframes.flatMap((k: IAutoMovieKeyframe): AutoMovieHumanoidBone[] => k.pose.joints.map((j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone)));
+const bonesOf: (motion: IAutoMovieMotion) => Set<AutoMovieHumanoidBone> = (
+  motion: IAutoMovieMotion,
+): Set<AutoMovieHumanoidBone> =>
+  new Set(
+    motion.keyframes.flatMap((k: IAutoMovieKeyframe): AutoMovieHumanoidBone[] =>
+      k.pose.joints.map(
+        (j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone,
+      ),
+    ),
+  );
 
 /**
  * Performs synthesized clips through region masks and checks located dropped-bone/root/expression diagnoses, surviving channels and actor-ordered reports.
@@ -142,9 +164,15 @@ const bonesOf: (motion: IAutoMovieMotion) => Set<AutoMovieHumanoidBone> = (motio
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_masked_channels unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_masked_channels(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
-  const perform: (draft: IAutoMovieActionCall[], synthesize: IAutoMovieActionSynthesizer) => IAutoMoviePerformedShot = (
+  const perform: (
+    draft: IAutoMovieActionCall[],
+    synthesize: IAutoMovieActionSynthesizer,
+  ) => IAutoMoviePerformedShot = (
     draft: IAutoMovieActionCall[],
     synthesize: IAutoMovieActionSynthesizer,
   ): IAutoMoviePerformedShot =>
@@ -163,7 +191,10 @@ export function test_film_perform_shot_masked_channels(): void {
 
   // 1. positive: an explicitly narrow region cannot carry the fore legs
   const quadruped: IAutoMovieMotion = clip({ bones: QUADRUPED });
-  const dropped: IAutoMoviePerformedShot = perform([gait("lowerBody"), frame], (): IAutoMovieMotion => quadruped);
+  const dropped: IAutoMoviePerformedShot = perform(
+    [gait("lowerBody"), frame],
+    (): IAutoMovieMotion => quadruped,
+  );
   TestValidator.equals(
     "a gait reaching outside its region fails the shot",
     dropped.success,
@@ -194,7 +225,10 @@ export function test_film_perform_shot_masked_channels(): void {
   );
 
   // 2. negative twin: the default full-body gait owns every authored bone
-  const widened: IAutoMoviePerformedShot = perform([gait(), frame], (): IAutoMovieMotion => quadruped);
+  const widened: IAutoMoviePerformedShot = perform(
+    [gait(), frame],
+    (): IAutoMovieMotion => quadruped,
+  );
   TestValidator.equals(
     "the same gait on fullBody performs",
     widened.success,
@@ -209,8 +243,9 @@ export function test_film_perform_shot_masked_channels(): void {
   );
 
   // 3. boundary: hips is the lowerBody member a leg gait sits next to
-  const clean: IAutoMoviePerformedShot = perform([gait("lowerBody"), frame], (): IAutoMovieMotion =>
-    clip({ bones: INSIDE_LOWER }),
+  const clean: IAutoMoviePerformedShot = perform(
+    [gait("lowerBody"), frame],
+    (): IAutoMovieMotion => clip({ bones: INSIDE_LOWER }),
   );
   TestValidator.equals(
     "a gait entirely inside its region performs",
@@ -300,7 +335,10 @@ export function test_film_perform_shot_masked_channels(): void {
   TestValidator.equals(
     "a unison action reports each masked actor, ordered by actor id",
     unison.success === false
-      ? unison.violations.map((v: IAutoMovieConstraintViolation): string => v.expected.split("'s clip")[0]!)
+      ? unison.violations.map(
+          (v: IAutoMovieConstraintViolation): string =>
+            v.expected.split("'s clip")[0]!,
+        )
       : [],
     ["knightA", "knightB"],
   );

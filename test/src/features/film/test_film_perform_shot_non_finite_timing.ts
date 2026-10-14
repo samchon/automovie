@@ -1,7 +1,3 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   IAutoMovieActionCall,
   IAutoMoviePerformance,
@@ -9,6 +5,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -18,7 +18,9 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const gesture: (partial?: Partial<IAutoMovieActionCall & { verb: "gesture" }>) => IAutoMovieActionCall & { verb: "gesture" } = (
+const gesture: (
+  partial?: Partial<IAutoMovieActionCall & { verb: "gesture" }>,
+) => IAutoMovieActionCall & { verb: "gesture" } = (
   partial: Partial<IAutoMovieActionCall & { verb: "gesture" }> = {},
 ): IAutoMovieActionCall & { verb: "gesture" } => ({
   verb: "gesture",
@@ -29,8 +31,15 @@ const gesture: (partial?: Partial<IAutoMovieActionCall & { verb: "gesture" }>) =
   ...partial,
 });
 
-const run: (partial: Partial<IAutoMoviePerformance>) => IAutoMoviePerformedShot = (partial: Partial<IAutoMoviePerformance>): IAutoMoviePerformedShot => {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+const run: (
+  partial: Partial<IAutoMoviePerformance>,
+) => IAutoMoviePerformedShot = (
+  partial: Partial<IAutoMoviePerformance>,
+): IAutoMoviePerformedShot => {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
   return performShot({
     script: makeScriptWrite(),

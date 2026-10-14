@@ -1,13 +1,14 @@
-import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
 import type { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts } from "../internal/predicates";
-import { createDoorPropSpec } from "../internal/createDoorPropSpec";
+
+import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
+import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { HINGE } from "../internal/HINGE";
-import { swingClip } from "../internal/swingClip";
 import { compileDoorShot } from "../internal/compileDoorShot";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
+import { namedFacts } from "../internal/predicates";
+import { swingClip } from "../internal/swingClip";
 
 /**
  * Compiles the same staged duel with no authored motion, a prop-hinge rotation and a set-panel rotation; returned clip identities, channel addresses and sceneToNodes membership prove accepted authored motion survives beside the baked torch follow.
@@ -22,14 +23,17 @@ import { compileDoorShot } from "../internal/compileDoorShot";
  * @evidence contracts/testing.md#distinguishing-cases Covers empty authored clips, one articulated joint and a set piece whose model is absent from the prop registry, while the door remains registered. The paired object_motion_gates test owns invalid addresses, authority conflicts, travel violations and interpolated quaternion limits; no rejection assertions are removed here.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_perform_shot_object_motions; its helper compiles portable in-memory TypeScript data through defineShot and compileDefinedShot, and this function owns three cases without a browser, native renderer or external consumer.
  */
-export function test_film_perform_shot_object_motions (): void {
+export function test_film_perform_shot_object_motions(): void {
   const silent: IAutoMovieCompiledDefinedShot = compileDoorShot();
   TestValidator.equals(
     "a shot that authors no object motion carries only what the engine baked",
     silent.success === true
-      ? silent.source.shot.objectMotions.map((clip: IAutoMovieClip) : string => clip.id)
+      ? silent.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): string => clip.id,
+        )
       : silent.diagnostics.map(
-          (diagnostic: IAutoMovieAuthoringDiagnostic) : string => `${diagnostic.path} ${diagnostic.fact}`,
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string =>
+            `${diagnostic.path} ${diagnostic.fact}`,
         ),
     ["attach:torch"],
   );
@@ -40,16 +44,20 @@ export function test_film_perform_shot_object_motions (): void {
   TestValidator.equals(
     "the authored swing reaches the compiled shot, beside the baked follow",
     swung.success === true
-      ? swung.source.shot.objectMotions.map((clip: IAutoMovieClip) : (string | null)[] => [
-          clip.id,
-          clip.tracks[0]!.channel.kind === "node"
-            ? clip.tracks[0]!.channel.node
-            : null,
-        ])
-      : swung.diagnostics.map((diagnostic: IAutoMovieAuthoringDiagnostic) : string[] => [
-          diagnostic.path,
-          diagnostic.fact,
-        ]),
+      ? swung.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): (string | null)[] => [
+            clip.id,
+            clip.tracks[0]!.channel.kind === "node"
+              ? clip.tracks[0]!.channel.node
+              : null,
+          ],
+        )
+      : swung.diagnostics.map(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string[] => [
+            diagnostic.path,
+            diagnostic.fact,
+          ],
+        ),
     [
       ["attach:torch", "torch"],
       ["door-swing", HINGE],
@@ -58,17 +66,17 @@ export function test_film_perform_shot_object_motions (): void {
   TestValidator.equals(
     "the driven node is the one the compiled artifact lowers the hinge under",
     namedFacts([
-      ["compiled", () : boolean => swung.success === true],
+      ["compiled", (): boolean => swung.success === true],
       [
         "lowersTheDrivenNode",
-        () : boolean =>
+        (): boolean =>
           swung.success === true &&
           sceneToNodes({
             scene: swung.source.scene,
             props: { door: createDoorPropSpec() },
             allowPartialModels: true,
           })
-            .map((node: IAutoMovieNode) : string => node.id)
+            .map((node: IAutoMovieNode): string => node.id)
             .includes(HINGE),
       ],
     ]),
@@ -81,8 +89,13 @@ export function test_film_perform_shot_object_motions (): void {
   TestValidator.equals(
     "a staged set piece is drivable on the same channel",
     panel.success === true
-      ? panel.source.shot.objectMotions.map((clip: IAutoMovieClip) : string => clip.id)
-      : panel.diagnostics.map((diagnostic: IAutoMovieAuthoringDiagnostic) : string => diagnostic.fact),
+      ? panel.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): string => clip.id,
+        )
+      : panel.diagnostics.map(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string =>
+            diagnostic.fact,
+        ),
     ["attach:torch", "panel-swing"],
   );
 }

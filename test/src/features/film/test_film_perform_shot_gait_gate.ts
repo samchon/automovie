@@ -1,7 +1,3 @@
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
@@ -10,6 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -19,7 +19,9 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const locomote: (gait: string) => IAutoMovieActionCall = (gait: string): IAutoMovieActionCall => ({
+const locomote: (gait: string) => IAutoMovieActionCall = (
+  gait: string,
+): IAutoMovieActionCall => ({
   verb: "locomote",
   actor: "knightA",
   start: 0,
@@ -38,14 +40,20 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const run: (gait: string, gaits: ((node: string) => readonly string[] | undefined) | undefined) => IAutoMoviePerformedShot = (
+const run: (
+  gait: string,
+  gaits: ((node: string) => readonly string[] | undefined) | undefined,
+) => IAutoMoviePerformedShot = (
   gait: string,
   gaits: ((node: string) => readonly string[] | undefined) | undefined,
 ): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
     staged: ((): IAutoMovieStagedSet.ISuccess => {
-      const s: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+      const s: IAutoMovieStagedSet = stageScene(
+        makeScriptWrite(),
+        makeStagingWrite(),
+      );
       if (s.success !== true) throw new Error("staging must succeed");
       return s;
     })(),
@@ -75,11 +83,17 @@ const run: (gait: string, gaits: ((node: string) => readonly string[] | undefine
  */
 export function test_film_perform_shot_gait_gate(): void {
   // (a) gait present in the supplied set → no gait violation
-  const present: IAutoMoviePerformedShot = run("walk", (): string[] => ["walk", "run"]);
+  const present: IAutoMoviePerformedShot = run("walk", (): string[] => [
+    "walk",
+    "run",
+  ]);
   TestValidator.equals("supplied gait passes the gate", present.success, true);
 
   // (b) gait absent, actor supplies some gaits → violation names them
-  const absent: IAutoMoviePerformedShot = run("march", (): string[] => ["walk", "run"]);
+  const absent: IAutoMoviePerformedShot = run("march", (): string[] => [
+    "walk",
+    "run",
+  ]);
   TestValidator.equals("unsupplied gait fails the gate", absent.success, false);
   TestValidator.predicate(
     "unsupplied gait is reported on $input.draft[0].gait",
@@ -133,7 +147,10 @@ export function test_film_perform_shot_gait_gate(): void {
   );
 
   // (d') lookup present but returns undefined for the actor → also skipped
-  const unknownActor: IAutoMoviePerformedShot = run("march", (): undefined => undefined);
+  const unknownActor: IAutoMoviePerformedShot = run(
+    "march",
+    (): undefined => undefined,
+  );
   TestValidator.equals(
     "an undefined gait set for the actor skips the gate",
     unknownActor.success,

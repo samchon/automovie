@@ -1,10 +1,10 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -27,7 +27,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  */
 export function test_film_perform_shot_nonempty_refs(): void {
   const baseScript: IAutoMovieScript = makeScriptWrite();
-  const baseStaged: IAutoMovieStagedSet = stageScene(baseScript, makeStagingWrite());
+  const baseStaged: IAutoMovieStagedSet = stageScene(
+    baseScript,
+    makeStagingWrite(),
+  );
   if (baseStaged.success !== true) throw new Error("staging must succeed");
 
   const script: IAutoMovieScript = makeScriptWrite({

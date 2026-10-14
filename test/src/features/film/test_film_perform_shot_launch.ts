@@ -1,15 +1,9 @@
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
+  AutoMovieInteractionEventKind,
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
   IAutoMovieClip,
   IAutoMovieInteractionEvent,
-  AutoMovieInteractionEventKind,
   IAutoMovieMotion,
   IAutoMovieScript,
   IAutoMovieShotPerformance,
@@ -21,9 +15,15 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import type { FilmLaunchPerformer } from "../internal/FilmLaunchPerformer";
 import { assertFilmLaunchAdmission } from "../internal/assertFilmLaunchAdmission";
 import { assertFilmLaunchTargetHandoffs } from "../internal/assertFilmLaunchTargetHandoffs";
-import type { FilmLaunchPerformer } from "../internal/FilmLaunchPerformer";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -41,7 +41,10 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
 /**
  * Like the shared content seam, but a `launch` produces no actor motion: it animates the projectile object and schedules a react, not the shooter.
  */
-const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   action.verb === "launch" ? null : validSynthesizer(action, actor);
 
 const scriptOf: () => IAutoMovieScript = (): IAutoMovieScript =>
@@ -119,7 +122,8 @@ export function test_film_perform_shot_launch(): void {
         duration: 2,
       }),
       synthesize: synth,
-      skeleton: (node: string): IAutoMovieSkeleton | null => (node === "arrow" ? null : createSkeleton()),
+      skeleton: (node: string): IAutoMovieSkeleton | null =>
+        node === "arrow" ? null : createSkeleton(),
       targetAt,
     });
 
@@ -161,7 +165,9 @@ export function test_film_perform_shot_launch(): void {
   );
   TestValidator.equals(
     "the flight drives the arrow node",
-    flight.tracks.map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.node : "")),
+    flight.tracks.map((t: IAutoMovieTrack): string =>
+      t.channel.kind === "node" ? t.channel.node : "",
+    ),
     ["arrow", "arrow"],
   );
   const vals: number[] = flight.tracks[0]!.values;
@@ -178,7 +184,10 @@ export function test_film_perform_shot_launch(): void {
   // (0.2 s), spans the shot, and, via sampleClip's clamp, holds at the arrow's
   // staged origin before the loose rather than starting mid-air at shot t = 0.
   const times: number[] = flight.tracks[0]!.times;
-  TestValidator.predicate("the flight spans the shot", nclose(flight.duration, 2));
+  TestValidator.predicate(
+    "the flight spans the shot",
+    nclose(flight.duration, 2),
+  );
   TestValidator.predicate(
     "the flight launches at the action's start",
     nclose(times[0]!, 0.2),
@@ -187,7 +196,9 @@ export function test_film_perform_shot_launch(): void {
     "and lands within the shot",
     times[times.length - 1]! > 0.2 && times[times.length - 1]! < 2,
   );
-  const preLaunch: number[] = sampleClip(flight, 0).get("node:arrow:translation")!.value;
+  const preLaunch: number[] = sampleClip(flight, 0).get(
+    "node:arrow:translation",
+  )!.value;
   TestValidator.predicate(
     "before the loose the arrow holds at its staged origin",
     vclose(
@@ -205,7 +216,10 @@ export function test_film_perform_shot_launch(): void {
   const launchEvents: IAutoMovieInteractionEvent[] = ok.shot.events ?? [];
   TestValidator.equals(
     "the shot carries contact, hit, and fall events",
-    launchEvents.map((event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind => event.kind),
+    launchEvents.map(
+      (event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind =>
+        event.kind,
+    ),
     ["contact", "hit", "fall"],
   );
   TestValidator.equals(
@@ -215,9 +229,18 @@ export function test_film_perform_shot_launch(): void {
         "launchEventsSourceCollisionSolver",
         (): boolean => launchEvents[0]!.source === "collisionSolver",
       ],
-      ["launchEventsActionIndex", (): boolean => launchEvents[0]!.actionIndex === 0],
-      ["launchEventsTargetFoe", (): boolean => launchEvents[0]!.target === "foe"],
-      ["launchEventsObjectArrow", (): boolean => launchEvents[0]!.object === "arrow"],
+      [
+        "launchEventsActionIndex",
+        (): boolean => launchEvents[0]!.actionIndex === 0,
+      ],
+      [
+        "launchEventsTargetFoe",
+        (): boolean => launchEvents[0]!.target === "foe",
+      ],
+      [
+        "launchEventsObjectArrow",
+        (): boolean => launchEvents[0]!.object === "arrow",
+      ],
     ]),
     {
       launchEventsSourceCollisionSolver: true,
@@ -226,7 +249,10 @@ export function test_film_perform_shot_launch(): void {
       launchEventsObjectArrow: true,
     },
   );
-  TestValidator.predicate("the contact clock matches the flight end", nclose(launchEvents[0]!.time, times[times.length - 1]!));
+  TestValidator.predicate(
+    "the contact clock matches the flight end",
+    nclose(launchEvents[0]!.time, times[times.length - 1]!),
+  );
   TestValidator.equals(
     "the hit event drives the downstream reaction",
     namedFacts([
@@ -234,8 +260,14 @@ export function test_film_perform_shot_launch(): void {
         "launchEventsSourceImpactOutput",
         (): boolean => launchEvents[1]!.source === "impactOutput",
       ],
-      ["launchEventsReactionFoe", (): boolean => launchEvents[1]!.reaction === "foe"],
-      ["launchEventsActionIndex", (): boolean => launchEvents[1]!.actionIndex === 0],
+      [
+        "launchEventsReactionFoe",
+        (): boolean => launchEvents[1]!.reaction === "foe",
+      ],
+      [
+        "launchEventsActionIndex",
+        (): boolean => launchEvents[1]!.actionIndex === 0,
+      ],
     ]),
     {
       launchEventsSourceImpactOutput: true,
@@ -243,13 +275,19 @@ export function test_film_perform_shot_launch(): void {
       launchEventsActionIndex: true,
     },
   );
-  TestValidator.predicate("the hit clock matches the flight end", nclose(launchEvents[1]!.time, times[times.length - 1]!));
+  TestValidator.predicate(
+    "the hit clock matches the flight end",
+    nclose(launchEvents[1]!.time, times[times.length - 1]!),
+  );
   TestValidator.equals(
     "the fall event records the unbalance response",
     namedFacts([
       ["launchEventsKindFall", (): boolean => launchEvents[2]!.kind === "fall"],
       ["launchEventsActorFoe", (): boolean => launchEvents[2]!.actor === "foe"],
-      ["launchEventsReactionFoe", (): boolean => launchEvents[2]!.reaction === "foe"],
+      [
+        "launchEventsReactionFoe",
+        (): boolean => launchEvents[2]!.reaction === "foe",
+      ],
     ]),
     {
       launchEventsKindFall: true,
@@ -271,8 +309,12 @@ export function test_film_perform_shot_launch(): void {
   ]);
   TestValidator.equals("a faster hit still performs", faster.success, true);
   if (faster.success === true) {
-    const fastHit: IAutoMovieInteractionEvent = faster.shot.events!.find((event: IAutoMovieInteractionEvent): boolean => event.kind === "hit")!;
-    const okHit: IAutoMovieInteractionEvent = launchEvents.find((event: IAutoMovieInteractionEvent): boolean => event.kind === "hit")!;
+    const fastHit: IAutoMovieInteractionEvent = faster.shot.events!.find(
+      (event: IAutoMovieInteractionEvent): boolean => event.kind === "hit",
+    )!;
+    const okHit: IAutoMovieInteractionEvent = launchEvents.find(
+      (event: IAutoMovieInteractionEvent): boolean => event.kind === "hit",
+    )!;
     TestValidator.predicate(
       "changing hit time moves the reaction event",
       fastHit.time < okHit.time,
@@ -285,7 +327,9 @@ export function test_film_perform_shot_launch(): void {
           "violated",
           (): boolean =>
             fastHit.reaction === "foe" &&
-            faster.shot.performances.some((p: IAutoMovieShotPerformance): boolean => p.node === "foe"),
+            faster.shot.performances.some(
+              (p: IAutoMovieShotPerformance): boolean => p.node === "foe",
+            ),
         ],
       ]),
       { refused: true, violated: true },
@@ -298,12 +342,17 @@ export function test_film_perform_shot_launch(): void {
   // carries root travel); performShot resolves its animated world position and
   // leads the aim, so the flight lands short of the foe's staged x = 6 (the
   // foe, facing 180, advances toward the archer as the arrow flies).
-  const rootAt: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
+  const rootAt: (x: number) => IAutoMovieTransform = (
+    x: number,
+  ): IAutoMovieTransform => ({
     translation: { x, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   });
-  const movingSynth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+  const movingSynth: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+    actor: string,
+  ): IAutoMovieMotion | null =>
     action.verb === "launch"
       ? null
       : action.verb === "locomote" && actor === "foe"
@@ -344,7 +393,8 @@ export function test_film_perform_shot_launch(): void {
       duration: 2,
     }),
     synthesize: movingSynth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "arrow" ? null : createSkeleton()),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "arrow" ? null : createSkeleton(),
   });
   TestValidator.equals("the leading launch performs", led.success, true);
   if (led.success === true) {
@@ -356,7 +406,9 @@ export function test_film_perform_shot_launch(): void {
     );
     TestValidator.predicate(
       "the led shot still contains the struck foe's performance",
-      led.shot.performances.some((p: IAutoMovieShotPerformance): boolean => p.node === "foe"),
+      led.shot.performances.some(
+        (p: IAutoMovieShotPerformance): boolean => p.node === "foe",
+      ),
     );
   }
 
@@ -394,7 +446,8 @@ export function test_film_perform_shot_launch(): void {
       duration: 2,
     }),
     synthesize: movingSynth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "arrow" ? null : createSkeleton()),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "arrow" ? null : createSkeleton(),
   });
   TestValidator.equals(
     "actor-list moving target launch performs",

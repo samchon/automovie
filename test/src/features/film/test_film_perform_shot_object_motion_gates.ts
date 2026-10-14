@@ -1,38 +1,45 @@
-import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import { IAutoMovieClip, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createDoorPropSpec as doorSpec } from "../internal/createDoorPropSpec";
+import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
+import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
 import { HINGE } from "../internal/HINGE";
 import { IDoorShotProps } from "../internal/IDoorShotProps";
 import { compileDoorShot } from "../internal/compileDoorShot";
+import { createDoorPropSpec as doorSpec } from "../internal/createDoorPropSpec";
 import { swingClip } from "../internal/swingClip";
 import { yQuat } from "../internal/yQuat";
 
 /**
  * Compiles the existing door fixture and projects all diagnostic path/fact text, or the compiled sentinel; authored profiles and addresses supply the owning gate expectations.
  */
-function refusal (props: IDoorShotProps): string {
+function refusal(props: IDoorShotProps): string {
   const compiled: IAutoMovieCompiledDefinedShot = compileDoorShot(props);
   return compiled.success === true
     ? "compiled"
     : compiled.diagnostics
-        .map((diagnostic: IAutoMovieAuthoringDiagnostic) : string => `${diagnostic.path} ${diagnostic.fact}`)
+        .map(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string =>
+            `${diagnostic.path} ${diagnostic.fact}`,
+        )
         .join(" | ");
 }
 
 /**
  * Rejects the compiled sentinel and checks all authored diagnosis fragments from refusal; it distinguishes located admission explanations without an independent numerical profile solver.
  */
-function refusedWith (
+function refusedWith(
   clips: readonly IAutoMovieClip[],
   ...fragments: readonly string[]
 ): boolean {
   const facts: string = refusal({ objectMotions: clips });
   return (
     facts !== "compiled" &&
-    fragments.every((fragment: string) : boolean => facts.includes(fragment))
+    fragments.every((fragment: string): boolean => facts.includes(fragment))
   );
 }
 
@@ -53,26 +60,89 @@ function refusedWith (
  * @evidence contracts/testing.md#distinguishing-cases Covers the listed identity, authority, clock, track and travel refusals with in-range swing, untouched-channel, legal set-piece and interpolation neighbours. The two symmetric-angle families distinguish spherical and near-angle normalized interpolation, including short loops and later equal-start authority. Exactly-once counting concerns one driven channel; nonlinear drivers and arbitrary quaternion paths are outside these authored cases.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns its mutation cases and numerical compilation assertions; portable shared door fixtures call engine source without a renderer, process or dynamic scenario registration.
  */
-export function test_film_perform_shot_object_motion_gates (): void {
+export function test_film_perform_shot_object_motion_gates(): void {
   for (const id of ["constructor", "__proto__", "toString"]) {
     const prop: IAutoMoviePropSpec = doorSpec();
     prop.node = id;
     prop.model.id = id;
-    TestValidator.equals(`reserved dictionary spelling ${id} still lowers its joint`, refusal({ props: [prop], extraSet: [{ node: "indexedDoor", model: id, position: { x: 2, y: 0, z: 0 } }], objectMotions: [swingClip("indexed-swing", "indexedDoor/hinge", 20)] }), "compiled");
+    TestValidator.equals(
+      `reserved dictionary spelling ${id} still lowers its joint`,
+      refusal({
+        props: [prop],
+        extraSet: [
+          { node: "indexedDoor", model: id, position: { x: 2, y: 0, z: 0 } },
+        ],
+        objectMotions: [swingClip("indexed-swing", "indexedDoor/hinge", 20)],
+      }),
+      "compiled",
+    );
   }
-  for (const [degrees, bound] of [[90, 0.8], [1, 0.99999]] as const) {
+  for (const [degrees, bound] of [
+    [90, 0.8],
+    [1, 0.99999],
+  ] as const) {
     const spec: IAutoMoviePropSpec = doorSpec();
-    if (spec.articulation === null) throw new Error("Door fixture must articulate");
+    if (spec.articulation === null)
+      throw new Error("Door fixture must articulate");
     spec.articulation.profile.drivers = [];
-    spec.articulation.profile.limits = [{ channel: { kind: "node", node: "pivot", path: "rotation" }, min: null, max: [null, null, null, bound] }];
-    const clip: IAutoMovieClip = swingClip(`symmetric-${degrees}`, HINGE, -degrees, { times: [0, 2], values: [...yQuat(-degrees), ...yQuat(degrees)] });
-    TestValidator.predicate(`linear rotation ${degrees} refuses its internal w peak`, refusal({ props: [spec], objectMotions: [clip] }).includes(`drives "node:${HINGE}:rotation" past the travel profile "door-profile"`));
-    TestValidator.predicate(`short repeated rotation ${degrees} retains the same internal refusal`, refusal({ props: [spec], objectMotions: [{ ...clip, duration: 0.001, loop: true, tracks: [{ ...clip.tracks[0]!, times: [0, 0.001] }] }] }).includes("past the travel profile"));
-    TestValidator.equals(`step rotation ${degrees} stays at legal endpoints`, refusal({ props: [spec], objectMotions: [{ ...clip, tracks: [{ ...clip.tracks[0]!, interpolation: "step" }] }] }), "compiled");
+    spec.articulation.profile.limits = [
+      {
+        channel: { kind: "node", node: "pivot", path: "rotation" },
+        min: null,
+        max: [null, null, null, bound],
+      },
+    ];
+    const clip: IAutoMovieClip = swingClip(
+      `symmetric-${degrees}`,
+      HINGE,
+      -degrees,
+      { times: [0, 2], values: [...yQuat(-degrees), ...yQuat(degrees)] },
+    );
+    TestValidator.predicate(
+      `linear rotation ${degrees} refuses its internal w peak`,
+      refusal({ props: [spec], objectMotions: [clip] }).includes(
+        `drives "node:${HINGE}:rotation" past the travel profile "door-profile"`,
+      ),
+    );
+    TestValidator.predicate(
+      `short repeated rotation ${degrees} retains the same internal refusal`,
+      refusal({
+        props: [spec],
+        objectMotions: [
+          {
+            ...clip,
+            duration: 0.001,
+            loop: true,
+            tracks: [{ ...clip.tracks[0]!, times: [0, 0.001] }],
+          },
+        ],
+      }).includes("past the travel profile"),
+    );
+    TestValidator.equals(
+      `step rotation ${degrees} stays at legal endpoints`,
+      refusal({
+        props: [spec],
+        objectMotions: [
+          { ...clip, tracks: [{ ...clip.tracks[0]!, interpolation: "step" }] },
+        ],
+      }),
+      "compiled",
+    );
     spec.articulation.profile.limits[0]!.max = [null, null, null, 1];
-    TestValidator.equals(`linear rotation ${degrees} permits the exact component boundary`, refusal({ props: [spec], objectMotions: [clip] }), "compiled");
+    TestValidator.equals(
+      `linear rotation ${degrees} permits the exact component boundary`,
+      refusal({ props: [spec], objectMotions: [clip] }),
+      "compiled",
+    );
     spec.articulation.profile.limits[0]!.max = [null, null, null, bound];
-    TestValidator.equals(`later equal-start authority hides the rotation ${degrees} peak`, refusal({ props: [spec], objectMotions: [clip, swingClip(`cover-${degrees}`, HINGE, -degrees)] }), "compiled");
+    TestValidator.equals(
+      `later equal-start authority hides the rotation ${degrees} peak`,
+      refusal({
+        props: [spec],
+        objectMotions: [clip, swingClip(`cover-${degrees}`, HINGE, -degrees)],
+      }),
+      "compiled",
+    );
   }
   TestValidator.predicate(
     "a node this shot never staged is refused",
@@ -264,16 +334,17 @@ export function test_film_perform_shot_object_motion_gates (): void {
       ...spec,
       articulation: {
         ...spec.articulation!,
-        nodes: spec.articulation!.nodes.map((node: IAutoMovieNode) : IAutoMovieNode =>
-          node.id === "hinge"
-            ? {
-                ...node,
-                transform: {
-                  ...node.transform,
-                  rotation: { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-                },
-              }
-            : node,
+        nodes: spec.articulation!.nodes.map(
+          (node: IAutoMovieNode): IAutoMovieNode =>
+            node.id === "hinge"
+              ? {
+                  ...node,
+                  transform: {
+                    ...node.transform,
+                    rotation: { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
+                  },
+                }
+              : node,
         ),
       },
     };

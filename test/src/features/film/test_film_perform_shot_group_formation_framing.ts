@@ -1,18 +1,18 @@
-import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import {
   IAutoMovieActionCall,
-  IAutoMovieFormationMotion,
   IAutoMovieCompiledFormation,
+  IAutoMovieFormationMotion,
   IAutoMovieModel,
   IAutoMovieScript,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
 import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
 import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
 import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";
@@ -53,12 +53,16 @@ const DURATION: number = 2;
  *
  * A box tessellates about its centre, so lifting it by half its height puts its floor at zero and its top at {@link MEMBER_HEIGHT}. Every number below is read off that rather than out of the measurement under test.
  */
-const memberModel: IAutoMovieModel = createFilmFormationMemberModel(MEMBER_HEIGHT);
+const memberModel: IAutoMovieModel =
+  createFilmFormationMemberModel(MEMBER_HEIGHT);
 
 /**
  * One compiled unit of `count` members in a single rank, on the origin.
  */
-const unit: (id: string, count: number) => IAutoMovieCompiledFormation = (id: string, count: number): IAutoMovieCompiledFormation =>
+const unit: (id: string, count: number) => IAutoMovieCompiledFormation = (
+  id: string,
+  count: number,
+): IAutoMovieCompiledFormation =>
   materializeCompiledFormation({
     formation: {
       id,
@@ -122,37 +126,41 @@ const script: IAutoMovieScript = makeScriptWrite({
 /**
  * One camera stating a 90 degree vertical field of view, so `tan(fovY / 2) = 1` and every solved distance below is exactly half its visible span. The one staged node stands well behind the lens, so what the camera looks at is never the thing a case has it frame.
  */
-const staged: IAutoMovieStagedSet.ISuccess = ((): IAutoMovieStagedSet.ISuccess => {
-  const result: IAutoMovieStagedSet = stageScene(
-    script,
-    makeStagingWrite({
-      scene: { id: "scene-mark", name: "the mark" },
-      plan: "the camera stands back from the mark; the performer stands behind it.",
-      actors: [
-        {
-          node: "performer",
-          position: { x: 0, y: 0, z: NODE_Z },
-          facingDeg: 0,
-        },
-      ],
-      cameras: [
-        {
-          node: "cam",
-          position: { x: 0, y: MEMBER_HEIGHT / 2, z: 20 },
-          lookAt: { kind: "node", node: "performer" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(
+      script,
+      makeStagingWrite({
+        scene: { id: "scene-mark", name: "the mark" },
+        plan: "the camera stands back from the mark; the performer stands behind it.",
+        actors: [
+          {
+            node: "performer",
+            position: { x: 0, y: 0, z: NODE_Z },
+            facingDeg: 0,
+          },
+        ],
+        cameras: [
+          {
+            node: "cam",
+            position: { x: 0, y: MEMBER_HEIGHT / 2, z: 20 },
+            lookAt: { kind: "node", node: "performer" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+      }),
+    );
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
 
-const frame: (props: IFilmFormationFrameInput) => IAutoMovieActionCall = (props: IFilmFormationFrameInput): IAutoMovieActionCall => ({
+const frame: (props: IFilmFormationFrameInput) => IAutoMovieActionCall = (
+  props: IFilmFormationFrameInput,
+): IAutoMovieActionCall => ({
   verb: "frame",
   actor: "cam",
   start: 0,
@@ -166,7 +174,11 @@ const frame: (props: IFilmFormationFrameInput) => IAutoMovieActionCall = (props:
   },
 });
 
-const perform: (props: IFilmFormationPerformanceInput) => IAutoMoviePerformedShot = (props: IFilmFormationPerformanceInput): IAutoMoviePerformedShot =>
+const perform: (
+  props: IFilmFormationPerformanceInput,
+) => IAutoMoviePerformedShot = (
+  props: IFilmFormationPerformanceInput,
+): IAutoMoviePerformedShot =>
   performShot({
     script,
     staged,
@@ -186,21 +198,28 @@ const perform: (props: IFilmFormationPerformanceInput) => IAutoMoviePerformedSho
 /**
  * Every translation key of a compiled camera clip, as points.
  */
-const keysOf: (performed: IAutoMoviePerformedShot) => IAutoMovieVector3[] = (performed: IAutoMoviePerformedShot): IAutoMovieVector3[] => {
+const keysOf: (performed: IAutoMoviePerformedShot) => IAutoMovieVector3[] = (
+  performed: IAutoMoviePerformedShot,
+): IAutoMovieVector3[] => {
   if (performed.success !== true) return [];
   const values: number[] = performed.shot.cameraMotion!.tracks[0]!.values;
-  return Array.from({ length: values.length / 3 }, (_unused: unknown, k: number): IAutoMovieVector3 => ({
-    x: values[k * 3]!,
-    y: values[k * 3 + 1]!,
-    z: values[k * 3 + 2]!,
-  }));
+  return Array.from(
+    { length: values.length / 3 },
+    (_unused: unknown, k: number): IAutoMovieVector3 => ({
+      x: values[k * 3]!,
+      y: values[k * 3 + 1]!,
+      z: values[k * 3 + 2]!,
+    }),
+  );
 };
 
 /**
  * How far the solve stood the camera from the aim point it framed.
  */
-const standoff: (key: IAutoMovieVector3, aim: IAutoMovieVector3) => number = (key: IAutoMovieVector3, aim: IAutoMovieVector3): number =>
-  Math.hypot(key.x - aim.x, key.y - aim.y, key.z - aim.z);
+const standoff: (key: IAutoMovieVector3, aim: IAutoMovieVector3) => number = (
+  key: IAutoMovieVector3,
+  aim: IAutoMovieVector3,
+): number => Math.hypot(key.x - aim.x, key.y - aim.y, key.z - aim.z);
 
 /**
  * `wide` shows four times the subject, and aims at half its height.
@@ -211,8 +230,10 @@ const AIMED: number = 0.5;
 /**
  * How far the framing grammar stands back from a subject of this shape.
  */
-const solved: (height: number, radius: number) => number = (height: number, radius: number): number =>
-  Math.max((height * SHOWN) / 2, (radius * 2 * SHOWN) / 2);
+const solved: (height: number, radius: number) => number = (
+  height: number,
+  radius: number,
+): number => Math.max((height * SHOWN) / 2, (radius * 2 * SHOWN) / 2);
 
 /**
  * Half the wide unit's own reach, from its layout alone.
@@ -276,7 +297,8 @@ export function test_film_perform_shot_group_formation_framing(): void {
   const wideDistance: number = solved(MEMBER_HEIGHT, WIDE_RADIUS);
   TestValidator.predicate(
     "a formation named as a group subject is framed at its own extent",
-    framed.success === true && framedKeys.length === 1 &&
+    framed.success === true &&
+      framedKeys.length === 1 &&
       vclose(WIDE_UNIT.bounds.min, { x: -REACH, y: 0, z: 0 }) &&
       vclose(WIDE_UNIT.bounds.max, { x: REACH, y: 0, z: 0 }) &&
       nclose(WIDE_UNIT.projectionRadius, PAD) &&
@@ -291,7 +313,9 @@ export function test_film_perform_shot_group_formation_framing(): void {
   );
 
   // 2. the same grammar on one body, which is what the mass is measured against.
-  const body: IAutoMoviePerformedShot = perform({ action: frame({ nodes: ["performer"] }) });
+  const body: IAutoMoviePerformedShot = perform({
+    action: frame({ nodes: ["performer"] }),
+  });
   const bodyKeys: IAutoMovieVector3[] = keysOf(body);
   TestValidator.predicate(
     "a group of one staged node is still framed as a body",
@@ -311,7 +335,8 @@ export function test_film_perform_shot_group_formation_framing(): void {
   const unionDistance: number = solved(MEMBER_HEIGHT, UNION_RADIUS);
   TestValidator.predicate(
     "a group carrying a node and a unit is framed at the union of both",
-    togetherKeys.length === 1 && unionDistance > wideDistance &&
+    togetherKeys.length === 1 &&
+      unionDistance > wideDistance &&
       nclose(standoff(togetherKeys[0]!, UNION_AIM), unionDistance) &&
       vclose(togetherKeys[0]!, {
         x: UNION_AIM.x,
@@ -334,15 +359,22 @@ export function test_film_perform_shot_group_formation_framing(): void {
   const unmeasuredKeys: IAutoMovieVector3[] = keysOf(unmeasured);
   TestValidator.predicate(
     "a narrow unit is framed by the height its member model really draws",
-    measuredKeys.length === 1 && unmeasuredKeys.length === 1 &&
+    measuredKeys.length === 1 &&
+      unmeasuredKeys.length === 1 &&
       // The pair must measure height, rather than its unchanged footprint.
       (MEMBER_HEIGHT * SHOWN) / 2 > (LONE_RADIUS * 2 * SHOWN) / 2 &&
-      nclose(standoff(measuredKeys[0]!, WIDE_AIM), solved(MEMBER_HEIGHT, LONE_RADIUS)) &&
-      nclose(standoff(unmeasuredKeys[0]!, {
-        x: 0,
-        y: STAND_IN_HEIGHT * AIMED,
-        z: 0,
-      }), solved(STAND_IN_HEIGHT, LONE_RADIUS)) &&
+      nclose(
+        standoff(measuredKeys[0]!, WIDE_AIM),
+        solved(MEMBER_HEIGHT, LONE_RADIUS),
+      ) &&
+      nclose(
+        standoff(unmeasuredKeys[0]!, {
+          x: 0,
+          y: STAND_IN_HEIGHT * AIMED,
+          z: 0,
+        }),
+        solved(STAND_IN_HEIGHT, LONE_RADIUS),
+      ) &&
       nclose(measuredKeys[0]!.z, unmeasuredKeys[0]!.z, 1e-6) === false,
   );
 
@@ -361,7 +393,9 @@ export function test_film_perform_shot_group_formation_framing(): void {
   const followedKeys: IAutoMovieVector3[] = keysOf(followed);
   TestValidator.predicate(
     "a cue is what lets a follow track a mass, and its absence is what holds one still",
-    followed.success === true && held.success === true && followedKeys.length > 1 &&
+    followed.success === true &&
+      held.success === true &&
+      followedKeys.length > 1 &&
       vclose(followedKeys[0]!, {
         x: WIDE_AIM.x,
         y: WIDE_AIM.y,
@@ -371,6 +405,7 @@ export function test_film_perform_shot_group_formation_framing(): void {
         x: WIDE_AIM.x + CARRY_METRES,
         y: WIDE_AIM.y,
         z: WIDE_AIM.z + wideDistance,
-      }) && keysOf(held).length === 1,
+      }) &&
+      keysOf(held).length === 1,
   );
 }

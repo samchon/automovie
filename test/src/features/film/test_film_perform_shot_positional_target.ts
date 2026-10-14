@@ -1,20 +1,26 @@
-import { filmPositionalTargetSays as says } from "../internal/filmPositionalTargetSays";
-import { filmPositionalTargetSilentAt as silentAt } from "../internal/filmPositionalTargetSilentAt";
-import { createFilmPositionalLocomote as locomote } from "../internal/createFilmPositionalLocomote";
-import type { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieConstraintViolation } from "@automovie/interface";
-
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";
+import { createFilmPositionalLocomote as locomote } from "../internal/createFilmPositionalLocomote";
 import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
+import { filmPositionalTargetSays as says } from "../internal/filmPositionalTargetSays";
+import { filmPositionalTargetSilentAt as silentAt } from "../internal/filmPositionalTargetSilentAt";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
  * Shared staged actor and one-second span; each case changes its target or verb.
  */
-const TIMING: { actor: string; start: number; duration: number } = { actor: "knightA", start: 0, duration: 1 };
+const TIMING: { actor: string; start: number; duration: number } = {
+  actor: "knightA",
+  start: 0,
+  duration: 1,
+};
 
 /**
  * One unresolved-target probe per verb that routes through the helper.
@@ -216,8 +222,9 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
  * @evidence contracts/testing.md#distinguishing-cases Covers camera/actor/set subjects, missing nodes, malformed and relative targets, empty/all-missing/mixed groups, unstaged bones, non-finite points, vertical-only and in-place travel, epsilon-boundary displacement and resumed/live targets; launch-specific recoil admission has a separate test.
  * @evidence contracts/testing.md#execution-ownership This portable unit entry owns the table-driven verb cases and invokes assertFilmPositionalTargetKinds for the delegated kind cases; both reach engine source without a browser, process or native build.
  */
-export function test_film_perform_shot_positional_target (): void {
-  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer();
+export function test_film_perform_shot_positional_target(): void {
+  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot =
+    createFilmPositionalTargetPerformer();
 
   // 1. every positional verb accepts a staged camera.
   for (const [label, action] of CAMERA_BY_VERB) {
@@ -237,7 +244,7 @@ export function test_film_perform_shot_positional_target (): void {
       namedFacts([
         [
           "namesTheUnplacedId",
-          () : boolean =>
+          (): boolean =>
             says(
               performed,
               path,
@@ -245,16 +252,17 @@ export function test_film_perform_shot_positional_target (): void {
               "is not placed in the staged scene",
             ),
         ],
-        ["refused", () : boolean => performed.success === false],
+        ["refused", (): boolean => performed.success === false],
         // the failure check is restated because the earlier fact's narrowing of
         // the result union does not reach inside this closure, and only the
         // failed arm carries `violations`.
         [
           "neverEchoesTheDiscriminator",
-          () : boolean =>
+          (): boolean =>
             performed.success === false &&
             performed.violations.every(
-              (item: IAutoMovieConstraintViolation) : boolean => !item.expected.includes('not "node"'),
+              (item: IAutoMovieConstraintViolation): boolean =>
+                !item.expected.includes('not "node"'),
             ),
         ],
       ]),
@@ -335,7 +343,9 @@ export function test_film_perform_shot_positional_target (): void {
     ]).success,
     true,
   );
-  const resumedPerform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
+  const resumedPerform: (
+    draft: IAutoMovieActionCall[],
+  ) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
     undefined,
     {
       beat: "beat-0",
@@ -409,8 +419,13 @@ export function test_film_perform_shot_positional_target (): void {
   );
 
   const sampledAt: number[] = [];
-  const livePerform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
-    (_target: IAutoMovieActionTarget, seconds: number) : { x: number; y: number; z: number; } => {
+  const livePerform: (
+    draft: IAutoMovieActionCall[],
+  ) => IAutoMoviePerformedShot = createFilmPositionalTargetPerformer(
+    (
+      _target: IAutoMovieActionTarget,
+      seconds: number,
+    ): { x: number; y: number; z: number } => {
       sampledAt.push(seconds);
       return { x: 1, y: 1.4, z: 1 };
     },
@@ -436,6 +451,16 @@ export function test_film_perform_shot_positional_target (): void {
     { kind: "direction", headingDeg: 90 },
     { kind: "offscreen", edge: "left" },
   ] satisfies IAutoMovieActionTarget[])
-    TestValidator.equals("a live resolver cannot admit a malformed or unstaged target", livePerform([{ verb: "lookAt", actor: "knightA", start: 0, duration: 1, to: target }]).success, false);
-  TestValidator.equals("invalid target payloads never reach the live resolver", sampledAt, []);
+    TestValidator.equals(
+      "a live resolver cannot admit a malformed or unstaged target",
+      livePerform([
+        { verb: "lookAt", actor: "knightA", start: 0, duration: 1, to: target },
+      ]).success,
+      false,
+    );
+  TestValidator.equals(
+    "invalid target payloads never reach the live resolver",
+    sampledAt,
+    [],
+  );
 }

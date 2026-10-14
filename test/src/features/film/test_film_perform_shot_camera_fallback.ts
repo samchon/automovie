@@ -1,12 +1,25 @@
+import {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieCameraDepthPrecisionConstraint,
+  IAutoMoviePerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMoviePerformance, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieCameraDepthPrecisionConstraint, IAutoMovieCameraClearanceEnvelope } from "@automovie/interface";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+
 /**
  * A frameless take selects the first staged camera and requires its own usable id.
  *
@@ -34,7 +47,10 @@ export function test_film_perform_shot_camera_fallback(): void {
     revise: { review: "unchanged.", final: null },
   });
 
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
   const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
@@ -61,11 +77,25 @@ export function test_film_perform_shot_camera_fallback(): void {
   //    non-empty contract every other route to that field already carries.
   //    stageScene refuses an empty node id, so this is the shape only an
   //    EXPLICIT staged set can present.
-  const withCameraIds: (...ids: string[]) => IAutoMovieStagedSet.ISuccess = (...ids: string[]): typeof staged => ({
+  const withCameraIds: (...ids: string[]) => IAutoMovieStagedSet.ISuccess = (
+    ...ids: string[]
+  ): typeof staged => ({
     ...staged,
     scene: {
       ...staged.scene,
-      cameras: ids.map((id: string): { id: string; transform: IAutoMovieTransform; fovY: number; near: number; far: number; depthPrecision: IAutoMovieCameraDepthPrecisionConstraint; clearance?: IAutoMovieCameraClearanceEnvelope | undefined; } => ({ ...staged.scene.cameras[0]!, id })),
+      cameras: ids.map(
+        (
+          id: string,
+        ): {
+          id: string;
+          transform: IAutoMovieTransform;
+          fovY: number;
+          near: number;
+          far: number;
+          depthPrecision: IAutoMovieCameraDepthPrecisionConstraint;
+          clearance?: IAutoMovieCameraClearanceEnvelope | undefined;
+        } => ({ ...staged.scene.cameras[0]!, id }),
+      ),
     },
   });
   const emptyFirst: IAutoMoviePerformedShot = performShot({
@@ -100,7 +130,10 @@ export function test_film_perform_shot_camera_fallback(): void {
     true,
   );
 
-  const bare: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite({ cameras: [] }));
+  const bare: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite({ cameras: [] }),
+  );
   if (bare.success !== true) throw new Error("bare staging must succeed");
   const unframed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),

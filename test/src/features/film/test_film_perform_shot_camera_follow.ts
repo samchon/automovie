@@ -1,12 +1,25 @@
+import {
+  IAutoMovieCameraAction,
+  IAutoMovieMotion,
+  IAutoMoviePerformance,
+  IAutoMoviePose,
+  IAutoMovieTrack,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMoviePerformance, IAutoMoviePose, IAutoMovieMotion, IAutoMovieTrack, IAutoMovieCameraAction } from "@automovie/interface";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
+
 const followFrame: IAutoMovieCameraAction = {
   verb: "frame",
   actor: "cam-main",
@@ -17,7 +30,9 @@ const followFrame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const performance: (frame: IAutoMovieCameraAction) => IAutoMoviePerformance = (frame: IAutoMovieCameraAction): IAutoMoviePerformance =>
+const performance: (frame: IAutoMovieCameraAction) => IAutoMoviePerformance = (
+  frame: IAutoMovieCameraAction,
+): IAutoMoviePerformance =>
   makePerformanceWrite({
     draft: [
       {
@@ -58,7 +73,10 @@ const marchSynth: () => IAutoMovieMotion = (): IAutoMovieMotion =>
  * @evidence contracts/testing.md#execution-ownership This portable discoverable unit owns its camera compilation cases and reads arrays only, starting no browser, viewer or GPU. Numerical camera keys prove no final framing appearance.
  */
 export function test_film_perform_shot_camera_follow(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const marching: IAutoMoviePerformedShot = performShot({

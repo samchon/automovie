@@ -1,10 +1,13 @@
+import {
+  IAutoMovieCameraAction,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMovieCameraAction, IAutoMovieSkeleton } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -14,7 +17,9 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const frame: (overrides: Partial<IAutoMovieCameraAction>) => IAutoMovieCameraAction = (
+const frame: (
+  overrides: Partial<IAutoMovieCameraAction>,
+) => IAutoMovieCameraAction = (
   overrides: Partial<IAutoMovieCameraAction>,
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -44,7 +49,10 @@ const frame: (overrides: Partial<IAutoMovieCameraAction>) => IAutoMovieCameraAct
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_frame_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_frame_gates(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const directed: IAutoMoviePerformedShot = performShot({
@@ -62,7 +70,10 @@ export function test_film_perform_shot_frame_gates(): void {
     "non-positional frame subject rejected",
     namedFacts([
       ["refused", (): boolean => directed.success === false],
-      ["violated", (): boolean => hasViolation(directed, "type", "$input.draft[0].on")],
+      [
+        "violated",
+        (): boolean => hasViolation(directed, "type", "$input.draft[0].on"),
+      ],
     ]),
     { refused: true, violated: true },
   );
@@ -110,7 +121,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => sameStart.success === false],
       [
         "violated",
-        (): boolean => hasViolation(sameStart, "range", "$input.draft[1].start"),
+        (): boolean =>
+          hasViolation(sameStart, "range", "$input.draft[1].start"),
       ],
     ]),
     { refused: true, violated: true },
@@ -137,7 +149,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => invalidFraming.success === false],
       [
         "violated",
-        (): boolean => hasViolation(invalidFraming, "type", "$input.draft[0].framing"),
+        (): boolean =>
+          hasViolation(invalidFraming, "type", "$input.draft[0].framing"),
       ],
     ]),
     { refused: true, violated: true },
@@ -164,7 +177,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => invalidMove.success === false],
       [
         "violated",
-        (): boolean => hasViolation(invalidMove, "type", "$input.draft[0].move"),
+        (): boolean =>
+          hasViolation(invalidMove, "type", "$input.draft[0].move"),
       ],
     ]),
     { refused: true, violated: true },
@@ -186,7 +200,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => malformedActor.success === false],
       [
         "violated",
-        (): boolean => hasViolation(malformedActor, "type", "$input.draft[0].actor"),
+        (): boolean =>
+          hasViolation(malformedActor, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
@@ -208,7 +223,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => missingTarget.success === false],
       [
         "violated",
-        (): boolean => hasViolation(missingTarget, "type", "$input.draft[0].on"),
+        (): boolean =>
+          hasViolation(missingTarget, "type", "$input.draft[0].on"),
       ],
     ]),
     { refused: true, violated: true },
@@ -234,7 +250,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => malformedGroup.success === false],
       [
         "violated",
-        (): boolean => hasViolation(malformedGroup, "type", "$input.draft[0].on.nodes"),
+        (): boolean =>
+          hasViolation(malformedGroup, "type", "$input.draft[0].on.nodes"),
       ],
     ]),
     { refused: true, violated: true },
@@ -256,7 +273,8 @@ export function test_film_perform_shot_frame_gates(): void {
       ["refused", (): boolean => malformedKind.success === false],
       [
         "violated",
-        (): boolean => hasViolation(malformedKind, "type", "$input.draft[0].on"),
+        (): boolean =>
+          hasViolation(malformedKind, "type", "$input.draft[0].on"),
       ],
     ]),
     { refused: true, violated: true },

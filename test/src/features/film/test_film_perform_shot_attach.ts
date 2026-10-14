@@ -1,20 +1,37 @@
-import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import {
+  AutoMovieHumanoidBone,
+  AutoMovieInteractionEventKind,
+  IAutoMovieActionCall,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieSkeleton, IAutoMovieClip, IAutoMovieTrack, IAutoMovieShotPerformance, IAutoMovieInteractionEvent, AutoMovieInteractionEventKind, IAutoMovieMotion, AutoMovieHumanoidBone, IAutoMovieSceneNode, IAutoMovieTransform, IAutoMovieConstraintViolation, IAutoMovieBeatEndState, IAutoMovieBeatEndActorState, IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { FILM_ATTACH_JOINT_AXES as CUSTOM_JOINT_AXES } from "../internal/FILM_ATTACH_JOINT_AXES";
 import { createFilmAttachRaisedMotion } from "../internal/createFilmAttachRaisedMotion";
 import { createFilmAttachScript as scriptOf } from "../internal/createFilmAttachScript";
@@ -23,6 +40,7 @@ import { filmAttachSynthesizer as synth } from "../internal/filmAttachSynthesize
 import { makePerformanceWrite } from "../internal/filmFixtures";
 import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
+
 /**
  * Performed attachments bake bone-follow clips and resumable handoff state.
  *
@@ -40,7 +58,9 @@ export function test_film_perform_shot_attach(): void {
   const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
+  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (
+    draft: IAutoMovieActionCall[],
+  ): IAutoMoviePerformedShot =>
     performShot({
       script: scriptOf(),
       staged,
@@ -87,17 +107,27 @@ export function test_film_perform_shot_attach(): void {
 
   TestValidator.equals(
     "two object motions, the sword's and the shield's follows",
-    ok.shot.objectMotions.map((c: IAutoMovieClip): string => c.id).sort((a: string, b: string): number => a.localeCompare(b)),
+    ok.shot.objectMotions
+      .map((c: IAutoMovieClip): string => c.id)
+      .sort((a: string, b: string): number => a.localeCompare(b)),
     ["attach:shield", "attach:sword"],
   );
-  const follow: IAutoMovieClip = ok.shot.objectMotions.find((c: IAutoMovieClip): boolean => c.id === "attach:sword")!;
+  const follow: IAutoMovieClip = ok.shot.objectMotions.find(
+    (c: IAutoMovieClip): boolean => c.id === "attach:sword",
+  )!;
   TestValidator.equals(
     "the follow drives the sword node",
-    follow.tracks.map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.node : "")),
+    follow.tracks.map((t: IAutoMovieTrack): string =>
+      t.channel.kind === "node" ? t.channel.node : "",
+    ),
     ["sword", "sword"],
   );
-  const posAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
-    const v: number[] = sampleClip(follow, t).get("node:sword:translation")!.value;
+  const posAt: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => {
+    const v: number[] = sampleClip(follow, t).get(
+      "node:sword:translation",
+    )!.value;
     return { x: v[0]!, y: v[1]!, z: v[2]! };
   };
   TestValidator.predicate(
@@ -113,7 +143,10 @@ export function test_film_perform_shot_attach(): void {
   const attachEvents: IAutoMovieInteractionEvent[] = ok.shot.events ?? [];
   TestValidator.equals(
     "the attach handoff emits grab/attach/detach/release events",
-    attachEvents.map((event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind => event.kind),
+    attachEvents.map(
+      (event: IAutoMovieInteractionEvent): AutoMovieInteractionEventKind =>
+        event.kind,
+    ),
     [
       "grab",
       "grab",
@@ -126,7 +159,8 @@ export function test_film_perform_shot_attach(): void {
     ],
   );
   const swordAttach: IAutoMovieInteractionEvent = attachEvents.find(
-    (event: IAutoMovieInteractionEvent): boolean => event.kind === "attach" && event.object === "sword",
+    (event: IAutoMovieInteractionEvent): boolean =>
+      event.kind === "attach" && event.object === "sword",
   )!;
   TestValidator.equals(
     "the sword attach event points at the parent action",
@@ -136,7 +170,10 @@ export function test_film_perform_shot_attach(): void {
         (): boolean => swordAttach.source === "scriptedCue",
       ],
       ["swordAttachActorSword", (): boolean => swordAttach.actor === "sword"],
-      ["swordAttachTargetKnight", (): boolean => swordAttach.target === "knight"],
+      [
+        "swordAttachTargetKnight",
+        (): boolean => swordAttach.target === "knight",
+      ],
       ["swordAttachActionIndex", (): boolean => swordAttach.actionIndex === 1],
     ]),
     {
@@ -146,26 +183,42 @@ export function test_film_perform_shot_attach(): void {
       swordAttachActionIndex: true,
     },
   );
-  TestValidator.predicate("the sword attaches at the authored start", nclose(swordAttach.time, 0));
+  TestValidator.predicate(
+    "the sword attaches at the authored start",
+    nclose(swordAttach.time, 0),
+  );
   const shieldRelease: IAutoMovieInteractionEvent = attachEvents.find(
-    (event: IAutoMovieInteractionEvent): boolean => event.kind === "release" && event.object === "shield",
+    (event: IAutoMovieInteractionEvent): boolean =>
+      event.kind === "release" && event.object === "shield",
   )!;
   TestValidator.equals(
     "the shield release event marks the auto-duration handoff end",
     namedFacts([
-      ["shieldReleaseTargetKnight", (): boolean => shieldRelease.target === "knight"],
-      ["shieldReleaseActionIndex", (): boolean => shieldRelease.actionIndex === 2],
+      [
+        "shieldReleaseTargetKnight",
+        (): boolean => shieldRelease.target === "knight",
+      ],
+      [
+        "shieldReleaseActionIndex",
+        (): boolean => shieldRelease.actionIndex === 2,
+      ],
     ]),
     {
       shieldReleaseTargetKnight: true,
       shieldReleaseActionIndex: true,
     },
   );
-  TestValidator.predicate("the shield releases at the auto-duration end", nclose(shieldRelease.time, 2));
+  TestValidator.predicate(
+    "the shield releases at the auto-duration end",
+    nclose(shieldRelease.time, 2),
+  );
 
   // 2. custom jointAxes and restFrames reach the baked objectMotion FK.
   const raisedMotion: IAutoMovieMotion = createFilmAttachRaisedMotion();
-  const clinicalSynth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+  const clinicalSynth: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+    actor: string,
+  ): IAutoMovieMotion | null =>
     actor === "knight" && action.verb === "gesture"
       ? raisedMotion
       : synth(action, actor);
@@ -198,9 +251,74 @@ export function test_film_perform_shot_attach(): void {
       duration: 1,
     }),
     synthesize: clinicalSynth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "knight" ? createSkeleton() : null),
-    jointAxes: (node: string): { leftUpperArm: IAutoMovieJointAxes; hips?: IAutoMovieJointAxes | undefined; spine?: IAutoMovieJointAxes | undefined; chest?: IAutoMovieJointAxes | undefined; upperChest?: IAutoMovieJointAxes | undefined; neck?: IAutoMovieJointAxes | undefined; head?: IAutoMovieJointAxes | undefined; leftEye?: IAutoMovieJointAxes | undefined; rightEye?: IAutoMovieJointAxes | undefined; jaw?: IAutoMovieJointAxes | undefined; leftShoulder?: IAutoMovieJointAxes | undefined; leftLowerArm?: IAutoMovieJointAxes | undefined; leftHand?: IAutoMovieJointAxes | undefined; rightShoulder?: IAutoMovieJointAxes | undefined; rightUpperArm?: IAutoMovieJointAxes | undefined; rightLowerArm?: IAutoMovieJointAxes | undefined; rightHand?: IAutoMovieJointAxes | undefined; leftUpperLeg?: IAutoMovieJointAxes | undefined; leftLowerLeg?: IAutoMovieJointAxes | undefined; leftFoot?: IAutoMovieJointAxes | undefined; leftToes?: IAutoMovieJointAxes | undefined; rightUpperLeg?: IAutoMovieJointAxes | undefined; rightLowerLeg?: IAutoMovieJointAxes | undefined; rightFoot?: IAutoMovieJointAxes | undefined; rightToes?: IAutoMovieJointAxes | undefined; leftThumbMetacarpal?: IAutoMovieJointAxes | undefined; leftThumbProximal?: IAutoMovieJointAxes | undefined; leftThumbDistal?: IAutoMovieJointAxes | undefined; leftIndexProximal?: IAutoMovieJointAxes | undefined; leftIndexIntermediate?: IAutoMovieJointAxes | undefined; leftIndexDistal?: IAutoMovieJointAxes | undefined; leftMiddleProximal?: IAutoMovieJointAxes | undefined; leftMiddleIntermediate?: IAutoMovieJointAxes | undefined; leftMiddleDistal?: IAutoMovieJointAxes | undefined; leftRingProximal?: IAutoMovieJointAxes | undefined; leftRingIntermediate?: IAutoMovieJointAxes | undefined; leftRingDistal?: IAutoMovieJointAxes | undefined; leftLittleProximal?: IAutoMovieJointAxes | undefined; leftLittleIntermediate?: IAutoMovieJointAxes | undefined; leftLittleDistal?: IAutoMovieJointAxes | undefined; rightThumbMetacarpal?: IAutoMovieJointAxes | undefined; rightThumbProximal?: IAutoMovieJointAxes | undefined; rightThumbDistal?: IAutoMovieJointAxes | undefined; rightIndexProximal?: IAutoMovieJointAxes | undefined; rightIndexIntermediate?: IAutoMovieJointAxes | undefined; rightIndexDistal?: IAutoMovieJointAxes | undefined; rightMiddleProximal?: IAutoMovieJointAxes | undefined; rightMiddleIntermediate?: IAutoMovieJointAxes | undefined; rightMiddleDistal?: IAutoMovieJointAxes | undefined; rightRingProximal?: IAutoMovieJointAxes | undefined; rightRingIntermediate?: IAutoMovieJointAxes | undefined; rightRingDistal?: IAutoMovieJointAxes | undefined; rightLittleProximal?: IAutoMovieJointAxes | undefined; rightLittleIntermediate?: IAutoMovieJointAxes | undefined; rightLittleDistal?: IAutoMovieJointAxes | undefined; } | undefined => (node === "knight" ? CUSTOM_JOINT_AXES : undefined),
-    restFrames: (node: string): Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined => (node === "knight" ? HUMANOID_REST_FRAME : undefined),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "knight" ? createSkeleton() : null,
+    jointAxes: (
+      node: string,
+    ):
+      | {
+          leftUpperArm: IAutoMovieJointAxes;
+          hips?: IAutoMovieJointAxes | undefined;
+          spine?: IAutoMovieJointAxes | undefined;
+          chest?: IAutoMovieJointAxes | undefined;
+          upperChest?: IAutoMovieJointAxes | undefined;
+          neck?: IAutoMovieJointAxes | undefined;
+          head?: IAutoMovieJointAxes | undefined;
+          leftEye?: IAutoMovieJointAxes | undefined;
+          rightEye?: IAutoMovieJointAxes | undefined;
+          jaw?: IAutoMovieJointAxes | undefined;
+          leftShoulder?: IAutoMovieJointAxes | undefined;
+          leftLowerArm?: IAutoMovieJointAxes | undefined;
+          leftHand?: IAutoMovieJointAxes | undefined;
+          rightShoulder?: IAutoMovieJointAxes | undefined;
+          rightUpperArm?: IAutoMovieJointAxes | undefined;
+          rightLowerArm?: IAutoMovieJointAxes | undefined;
+          rightHand?: IAutoMovieJointAxes | undefined;
+          leftUpperLeg?: IAutoMovieJointAxes | undefined;
+          leftLowerLeg?: IAutoMovieJointAxes | undefined;
+          leftFoot?: IAutoMovieJointAxes | undefined;
+          leftToes?: IAutoMovieJointAxes | undefined;
+          rightUpperLeg?: IAutoMovieJointAxes | undefined;
+          rightLowerLeg?: IAutoMovieJointAxes | undefined;
+          rightFoot?: IAutoMovieJointAxes | undefined;
+          rightToes?: IAutoMovieJointAxes | undefined;
+          leftThumbMetacarpal?: IAutoMovieJointAxes | undefined;
+          leftThumbProximal?: IAutoMovieJointAxes | undefined;
+          leftThumbDistal?: IAutoMovieJointAxes | undefined;
+          leftIndexProximal?: IAutoMovieJointAxes | undefined;
+          leftIndexIntermediate?: IAutoMovieJointAxes | undefined;
+          leftIndexDistal?: IAutoMovieJointAxes | undefined;
+          leftMiddleProximal?: IAutoMovieJointAxes | undefined;
+          leftMiddleIntermediate?: IAutoMovieJointAxes | undefined;
+          leftMiddleDistal?: IAutoMovieJointAxes | undefined;
+          leftRingProximal?: IAutoMovieJointAxes | undefined;
+          leftRingIntermediate?: IAutoMovieJointAxes | undefined;
+          leftRingDistal?: IAutoMovieJointAxes | undefined;
+          leftLittleProximal?: IAutoMovieJointAxes | undefined;
+          leftLittleIntermediate?: IAutoMovieJointAxes | undefined;
+          leftLittleDistal?: IAutoMovieJointAxes | undefined;
+          rightThumbMetacarpal?: IAutoMovieJointAxes | undefined;
+          rightThumbProximal?: IAutoMovieJointAxes | undefined;
+          rightThumbDistal?: IAutoMovieJointAxes | undefined;
+          rightIndexProximal?: IAutoMovieJointAxes | undefined;
+          rightIndexIntermediate?: IAutoMovieJointAxes | undefined;
+          rightIndexDistal?: IAutoMovieJointAxes | undefined;
+          rightMiddleProximal?: IAutoMovieJointAxes | undefined;
+          rightMiddleIntermediate?: IAutoMovieJointAxes | undefined;
+          rightMiddleDistal?: IAutoMovieJointAxes | undefined;
+          rightRingProximal?: IAutoMovieJointAxes | undefined;
+          rightRingIntermediate?: IAutoMovieJointAxes | undefined;
+          rightRingDistal?: IAutoMovieJointAxes | undefined;
+          rightLittleProximal?: IAutoMovieJointAxes | undefined;
+          rightLittleIntermediate?: IAutoMovieJointAxes | undefined;
+          rightLittleDistal?: IAutoMovieJointAxes | undefined;
+        }
+      | undefined => (node === "knight" ? CUSTOM_JOINT_AXES : undefined),
+    restFrames: (
+      node: string,
+    ):
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+      | undefined => (node === "knight" ? HUMANOID_REST_FRAME : undefined),
   });
   TestValidator.equals("the rest-framed attach performs", framed.success, true);
   if (framed.success !== true) return;
@@ -210,8 +328,14 @@ export function test_film_perform_shot_attach(): void {
   const framedPos: number[] = sampleClip(framedFollow, 0.5).get(
     "node:sword:translation",
   )!.value;
-  const framedVec: { x: number; y: number; z: number; } = { x: framedPos[0]!, y: framedPos[1]!, z: framedPos[2]! };
-  const parent: IAutoMovieSceneNode = staged.scene.nodes.find((n: IAutoMovieSceneNode): boolean => n.id === "knight")!;
+  const framedVec: { x: number; y: number; z: number } = {
+    x: framedPos[0]!,
+    y: framedPos[1]!,
+    z: framedPos[2]!,
+  };
+  const parent: IAutoMovieSceneNode = staged.scene.nodes.find(
+    (n: IAutoMovieSceneNode): boolean => n.id === "knight",
+  )!;
   const local: IAutoMovieTransform = resolveAttachment(
     sampleMotion(raisedMotion, 0.5).pose,
     createSkeleton(),
@@ -254,7 +378,9 @@ export function test_film_perform_shot_attach(): void {
   if (noParent.success === false)
     TestValidator.predicate(
       "the violation names the parent",
-      noParent.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".parent")),
+      noParent.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".parent"),
+      ),
     );
 
   // 4. the parent must have a rig
@@ -272,7 +398,9 @@ export function test_film_perform_shot_attach(): void {
   if (noRig.success === false)
     TestValidator.predicate(
       "the violation names the parent",
-      noRig.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".parent")),
+      noRig.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".parent"),
+      ),
     );
 
   // 5. the bone must be on the parent's skeleton
@@ -290,7 +418,9 @@ export function test_film_perform_shot_attach(): void {
   if (noBone.success === false)
     TestValidator.predicate(
       "the violation names the bone",
-      noBone.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".bone")),
+      noBone.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".bone"),
+      ),
     );
 
   // 6. the child and parent must be different nodes
@@ -308,7 +438,9 @@ export function test_film_perform_shot_attach(): void {
   if (selfAttach.success === false)
     TestValidator.predicate(
       "the violation names the child actor",
-      selfAttach.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".actor")),
+      selfAttach.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".actor"),
+      ),
     );
 
   // 7. a handoff bakes unique ids and the beat end follows the latest coupling
@@ -352,8 +484,12 @@ export function test_film_perform_shot_attach(): void {
   const second: IAutoMovieClip = handoff.shot.objectMotions.find(
     (c: IAutoMovieClip): boolean => c.id === "attach:sword:2",
   )!;
-  const clipEnd: (clip: IAutoMovieClip) => IAutoMovieVector3 = (clip: typeof second): IAutoMovieVector3 => {
-    const v: number[] = sampleClip(clip, 2).get("node:sword:translation")!.value;
+  const clipEnd: (clip: IAutoMovieClip) => IAutoMovieVector3 = (
+    clip: typeof second,
+  ): IAutoMovieVector3 => {
+    const v: number[] = sampleClip(clip, 2).get(
+      "node:sword:translation",
+    )!.value;
     return { x: v[0]!, y: v[1]!, z: v[2]! };
   };
   const ended: IAutoMovieBeatEndState = resolveBeatEnd({
@@ -362,7 +498,9 @@ export function test_film_perform_shot_attach(): void {
     shot: handoff.shot,
     motions: Object.values(handoff.motions),
   });
-  const endedSword: IAutoMovieBeatEndActorState = ended.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "sword")!;
+  const endedSword: IAutoMovieBeatEndActorState = ended.actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "sword",
+  )!;
   TestValidator.predicate(
     "the beat end follows the LATEST coupling without a staged mount",
     vclose(endedSword.transform.translation, clipEnd(second)),
@@ -391,7 +529,9 @@ export function test_film_perform_shot_attach(): void {
     ]),
     { velocityRead: true, velocityFinite: true },
   );
-  const endedKnight: IAutoMovieBeatEndActorState = ended.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "knight")!;
+  const endedKnight: IAutoMovieBeatEndActorState = ended.actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "knight",
+  )!;
   TestValidator.predicate(
     "a never-coupled actor keeps the staged/pose-root path",
     vclose(endedKnight.transform.translation, { x: 0, y: 0, z: 0 }),
@@ -416,7 +556,9 @@ export function test_film_perform_shot_attach(): void {
   TestValidator.predicate(
     "an id no producer writes does not change which clip owns the end",
     vclose(
-      renamed.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "sword")!.transform.translation,
+      renamed.actors.find(
+        (a: IAutoMovieBeatEndActorState): boolean => a.node === "sword",
+      )!.transform.translation,
       clipEnd(second),
     ),
   );
@@ -445,6 +587,8 @@ export function test_film_perform_shot_attach(): void {
   if (zeroSpan.success === false)
     TestValidator.predicate(
       "the violation names the zero-span duration",
-      zeroSpan.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path.includes(".duration")),
+      zeroSpan.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.path.includes(".duration"),
+      ),
     );
 }

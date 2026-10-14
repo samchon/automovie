@@ -1,13 +1,34 @@
+import {
+  IAutoMovieBlockingCoverage,
+  IAutoMovieCameraIntent,
+  IAutoMovieClip,
+  IAutoMovieShotCoverage,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieSkeleton, IAutoMovieShotCoverage, IAutoMovieTrack, IAutoMovieClip, IAutoMovieBlockingCoverage, IAutoMovieCameraIntent } from "@automovie/interface";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
-import { createSkeleton } from "../internal/fixtures";
-import { hasViolation, nclose, qclose, vclose, violationCount } from "../internal/predicates";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  makeBlockingWrite,
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
+import { createSkeleton } from "../internal/fixtures";
+import {
+  hasViolation,
+  nclose,
+  qclose,
+  vclose,
+  violationCount,
+} from "../internal/predicates";
+
 type ICoverage = IAutoMovieBlockingCoverage;
 
 /**
@@ -16,47 +37,53 @@ type ICoverage = IAutoMovieBlockingCoverage;
  * `medium` shows 0.62 × 1.2 m = 0.744 m, and `tan(45°) = 1` makes the framed
  * distance 0.744 / 2 = 0.372 m along the staged bearing.
  */
-const staged: IAutoMovieStagedSet.ISuccess = ((): IAutoMovieStagedSet.ISuccess => {
-  const result: IAutoMovieStagedSet = stageScene(
-    makeScriptWrite(),
-    makeStagingWrite({
-      cameras: [
-        {
-          node: "cam-main",
-          position: { x: 2, y: 0.864, z: 0 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-alt",
-          position: { x: 0, y: 0.864, z: -2 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-wide",
-          position: { x: -2, y: 0.864, z: 0 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(
+      makeScriptWrite(),
+      makeStagingWrite({
+        cameras: [
+          {
+            node: "cam-main",
+            position: { x: 2, y: 0.864, z: 0 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-alt",
+            position: { x: 0, y: 0.864, z: -2 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-wide",
+            position: { x: -2, y: 0.864, z: 0 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+      }),
+    );
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
 
 /** One valid coverage intent: cam-alt holds a medium static on knightA. */
-const coverage: (over?: Partial<IAutoMovieBlockingCoverage>) => IAutoMovieBlockingCoverage = (over: Partial<ICoverage> = {}): ICoverage => ({
+const coverage: (
+  over?: Partial<IAutoMovieBlockingCoverage>,
+) => IAutoMovieBlockingCoverage = (
+  over: Partial<ICoverage> = {},
+): ICoverage => ({
   camera: "cam-alt",
   framing: "medium",
   move: "static",
@@ -65,7 +92,9 @@ const coverage: (over?: Partial<IAutoMovieBlockingCoverage>) => IAutoMovieBlocki
 });
 
 /** Perform the beat-1 duel fixture under a blocking carrying `list`. */
-const perform: (list?: IAutoMovieBlockingCoverage[] | undefined) => IAutoMoviePerformedShot = (list?: ICoverage[]): IAutoMoviePerformedShot =>
+const perform: (
+  list?: IAutoMovieBlockingCoverage[] | undefined,
+) => IAutoMoviePerformedShot = (list?: ICoverage[]): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
     staged,
@@ -79,7 +108,13 @@ const perform: (list?: IAutoMovieBlockingCoverage[] | undefined) => IAutoMoviePe
   });
 
 /** The first translation key of a compiled camera clip. */
-const firstKey: (values: readonly number[], k?: number) => { x: number; y: number; z: number; } = (values: readonly number[], k: number = 0): { x: number; y: number; z: number; } => ({
+const firstKey: (
+  values: readonly number[],
+  k?: number,
+) => { x: number; y: number; z: number } = (
+  values: readonly number[],
+  k: number = 0,
+): { x: number; y: number; z: number } => ({
   x: values[k * 3]!,
   y: values[k * 3 + 1]!,
   z: values[k * 3 + 2]!,
@@ -129,7 +164,8 @@ export function test_film_perform_shot_coverage(): void {
   );
   TestValidator.predicate(
     "a static alternate keys once",
-    take.cameraMotion!.tracks[0]!.times.length === 1 && nclose(take.cameraMotion!.tracks[0]!.times[0]!, 0),
+    take.cameraMotion!.tracks[0]!.times.length === 1 &&
+      nclose(take.cameraMotion!.tracks[0]!.times[0]!, 0),
   );
   TestValidator.predicate(
     "the alternate frames from its own staged bearing",
@@ -182,7 +218,9 @@ export function test_film_perform_shot_coverage(): void {
   if (several.success !== true) return;
   TestValidator.equals(
     "takes ride in blocking order",
-    several.shot.coverage!.map((entry: IAutoMovieShotCoverage): string => entry.camera),
+    several.shot.coverage!.map(
+      (entry: IAutoMovieShotCoverage): string => entry.camera,
+    ),
     ["cam-alt", "cam-wide"],
   );
   const dolly: IAutoMovieClip = several.shot.coverage![1]!.cameraMotion!;
@@ -229,11 +267,16 @@ export function test_film_perform_shot_coverage(): void {
   );
   TestValidator.predicate(
     "coverage never re-enters the hero solve",
-    filmEffectValuesClose(omitted.success === true ? omitted.shot.cameraMotion : null, single.shot.cameraMotion),
+    filmEffectValuesClose(
+      omitted.success === true ? omitted.shot.cameraMotion : null,
+      single.shot.cameraMotion,
+    ),
   );
 
   // 4. gates.
-  const ghost: IAutoMoviePerformedShot = perform([coverage({ camera: "cam-ghost" })]);
+  const ghost: IAutoMoviePerformedShot = perform([
+    coverage({ camera: "cam-ghost" }),
+  ]);
   TestValidator.predicate(
     "an unstaged coverage camera is a type violation",
     hasViolation(ghost, "type", "$blocking.coverage[0].camera"),
@@ -243,7 +286,9 @@ export function test_film_perform_shot_coverage(): void {
     "an empty coverage camera id is a type violation",
     hasViolation(blank, "type", "$blocking.coverage[0].camera"),
   );
-  const hero: IAutoMoviePerformedShot = perform([coverage({ camera: "cam-main" })]);
+  const hero: IAutoMoviePerformedShot = perform([
+    coverage({ camera: "cam-main" }),
+  ]);
   TestValidator.predicate(
     "covering with the live camera is a type violation",
     hasViolation(hero, "type", "$blocking.coverage[0].camera"),
@@ -253,17 +298,23 @@ export function test_film_perform_shot_coverage(): void {
     "a repeated coverage camera is a type violation at the later entry",
     hasViolation(repeated, "type", "$blocking.coverage[1].camera"),
   );
-  const badFraming: IAutoMoviePerformedShot = perform([coverage({ framing: "dutch" as never })]);
+  const badFraming: IAutoMoviePerformedShot = perform([
+    coverage({ framing: "dutch" as never }),
+  ]);
   TestValidator.predicate(
     "a forged coverage framing is a type violation",
     hasViolation(badFraming, "type", "$blocking.coverage[0].framing"),
   );
-  const badMove: IAutoMoviePerformedShot = perform([coverage({ move: "dolly" as never })]);
+  const badMove: IAutoMoviePerformedShot = perform([
+    coverage({ move: "dolly" as never }),
+  ]);
   TestValidator.predicate(
     "a forged coverage move is a type violation",
     hasViolation(badMove, "type", "$blocking.coverage[0].move"),
   );
-  const stranger: IAutoMoviePerformedShot = perform([coverage({ on: { kind: "node", node: "ghost" } })]);
+  const stranger: IAutoMoviePerformedShot = perform([
+    coverage({ on: { kind: "node", node: "ghost" } }),
+  ]);
   TestValidator.predicate(
     "an unresolvable coverage subject is a type violation",
     hasViolation(stranger, "type", "$blocking.coverage[0].on"),

@@ -1,19 +1,46 @@
+import {
+  IAutoMovieActionCall,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+  IAutoMovieStage,
+  IAutoMovieStageCamera,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieScript, IAutoMovieStageCamera, IAutoMovieSkeleton, IAutoMovieSceneNode, IAutoMovieConstraintViolation, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieMotion, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieStage, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
-import { IDENTITY_TRANSFORM, createSkeleton, keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
+import {
+  IDENTITY_TRANSFORM,
+  createSkeleton,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
+
 /** The dragon strides +x by 2 m over the 2 s shot (root translation only). */
 const dragonWalk: IAutoMovieMotion = makeMotion(
   [
@@ -38,7 +65,10 @@ const dragonWalk: IAutoMovieMotion = makeMotion(
 );
 
 /** The dragon animates its stride; launch/attach fatten objects, not rigs. */
-const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   action.verb === "launch" || action.verb === "attachTo"
     ? null
     : actor === "dragon"
@@ -63,17 +93,18 @@ const scriptOf: () => IAutoMovieScript = (): IAutoMovieScript =>
     ],
   });
 
-const cameraOf: () => IAutoMovieStageCamera[] = (): IAutoMovieStage["cameras"] => [
-  {
-    node: "cam",
-    position: { x: 4, y: 2, z: 4 },
-    lookAt: { kind: "node", node: "dragon" },
-    fovDeg: 45,
-    near: 0.1,
-    far: 1000,
-    depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-  },
-];
+const cameraOf: () => IAutoMovieStageCamera[] =
+  (): IAutoMovieStage["cameras"] => [
+    {
+      node: "cam",
+      position: { x: 4, y: 2, z: 4 },
+      lookAt: { kind: "node", node: "dragon" },
+      fovDeg: 45,
+      near: 0.1,
+      far: 1000,
+      depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+    },
+  ];
 
 /**
  * Every intermediate parent is staged at a decoy coordinate the chain must
@@ -102,17 +133,26 @@ const stagingOf: () => IAutoMovieStage = (): IAutoMovieStage =>
     cameras: cameraOf(),
   });
 
-const posAt: (clip: IAutoMovieClip, node: string, t: number) => IAutoMovieVector3 = (
+const posAt: (
+  clip: IAutoMovieClip,
+  node: string,
+  t: number,
+) => IAutoMovieVector3 = (
   clip: IAutoMovieClip,
   node: string,
   t: number,
 ): IAutoMovieVector3 => {
-  const v: number[] = sampleClip(clip, t).get(`node:${node}:translation`)!.value;
+  const v: number[] = sampleClip(clip, t).get(
+    `node:${node}:translation`,
+  )!.value;
   return { x: v[0]!, y: v[1]!, z: v[2]! };
 };
 
 /** Compose `local` onto a parent world frame: compileAttach's composition. */
-const composed: (parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }, local: IAutoMovieTransform) => { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = (
+const composed: (
+  parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
+  local: IAutoMovieTransform,
+) => { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion } = (
   parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
   local: IAutoMovieTransform,
 ): { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => ({
@@ -167,13 +207,16 @@ export function test_film_perform_shot_coupling_chain(): void {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "sword" ? null : skeleton,
   });
   TestValidator.equals("the chained shot performs", ok.success, true);
   if (ok.success !== true) return;
   TestValidator.equals(
     "every coupling bakes a follow clip",
-    ok.shot.objectMotions.map((c: IAutoMovieClip): string => c.id).sort((a: string, b: string): number => a.localeCompare(b)),
+    ok.shot.objectMotions
+      .map((c: IAutoMovieClip): string => c.id)
+      .sort((a: string, b: string): number => a.localeCompare(b)),
     ["attach:horse", "attach:rider", "attach:sword"],
   );
 
@@ -187,9 +230,16 @@ export function test_film_perform_shot_coupling_chain(): void {
   const dragonStaged: IAutoMovieTransform = staged.scene.nodes.find(
     (n: IAutoMovieSceneNode): boolean => n.id === "dragon",
   )!.transform;
-  const swordClip: IAutoMovieClip = ok.shot.objectMotions.find((c: IAutoMovieClip): boolean => c.id === "attach:sword")!;
-  const expectedSwordAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
-    const horse: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = composed(
+  const swordClip: IAutoMovieClip = ok.shot.objectMotions.find(
+    (c: IAutoMovieClip): boolean => c.id === "attach:sword",
+  )!;
+  const expectedSwordAt: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => {
+    const horse: {
+      translation: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+    } = composed(
       dragonStaged,
       resolveAttachment(
         sampleMotion(ok.motions["dragon"]!, t).pose,
@@ -198,7 +248,10 @@ export function test_film_perform_shot_coupling_chain(): void {
         HUMANOID_JOINT_AXES,
       ),
     );
-    const rider: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = composed(
+    const rider: {
+      translation: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+    } = composed(
       horse,
       resolveAttachment(
         rest,
@@ -297,7 +350,8 @@ export function test_film_perform_shot_coupling_chain(): void {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "sword" ? null : skeleton,
   });
   TestValidator.equals(
     "a mount cycle fails the shot",
@@ -307,11 +361,15 @@ export function test_film_perform_shot_coupling_chain(): void {
   if (cycleShot.success === false)
     TestValidator.predicate(
       "the violation names the cycle",
-      cycleShot.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("cycle")),
+      cycleShot.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.expected.includes("cycle"),
+      ),
     );
 
   // 5. a mutual per-beat attachTo violates the same way.
-  const mutual: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
+  const mutual: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (
+    draft: IAutoMovieActionCall[],
+  ): IAutoMoviePerformedShot =>
     performShot({
       script: scriptOf(),
       staged,
@@ -322,7 +380,8 @@ export function test_film_perform_shot_coupling_chain(): void {
         duration: 2,
       }),
       synthesize: synth,
-      skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
+      skeleton: (node: string): IAutoMovieSkeleton | null =>
+        node === "sword" ? null : skeleton,
     });
   const grip: IAutoMoviePerformedShot = mutual([
     {
@@ -346,7 +405,9 @@ export function test_film_perform_shot_coupling_chain(): void {
   if (grip.success === false)
     TestValidator.predicate(
       "the mutual grip violation names the cycle",
-      grip.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("cycle")),
+      grip.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+        v.expected.includes("cycle"),
+      ),
     );
 
   // 6. a rig-less intermediate parent still reports the mount-rig violation.
@@ -379,7 +440,10 @@ export function test_film_perform_shot_coupling_chain(): void {
   if (riglessLink.success === false)
     TestValidator.predicate(
       "the chain does not mask the mount-rig violation",
-      riglessLink.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path === "$staged.mounts"),
+      riglessLink.violations.some(
+        (v: IAutoMovieConstraintViolation): boolean =>
+          v.path === "$staged.mounts",
+      ),
     );
 
   // 7. a parent coupled only from t = 1 stands staged before it.
@@ -417,7 +481,8 @@ export function test_film_perform_shot_coupling_chain(): void {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
+      node === "sword" ? null : skeleton,
   });
   TestValidator.equals("the late coupling performs", late.success, true);
   if (late.success !== true) return;
@@ -427,7 +492,10 @@ export function test_film_perform_shot_coupling_chain(): void {
   const lateSword: IAutoMovieClip = late.shot.objectMotions.find(
     (c: IAutoMovieClip): boolean => c.id === "attach:sword",
   )!;
-  const handAt: (parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }) => IAutoMovieVector3 = (parent: {
+  const handAt: (parent: {
+    translation: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+  }) => IAutoMovieVector3 = (parent: {
     translation: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
   }): IAutoMovieVector3 =>
@@ -447,11 +515,15 @@ export function test_film_perform_shot_coupling_chain(): void {
   const riderClip: IAutoMovieClip = late.shot.objectMotions.find(
     (c: IAutoMovieClip): boolean => c.id === "attach:rider",
   )!;
-  const riderAt: (t: number) => IAutoMovieTransform = (t: number): IAutoMovieTransform => {
-    const p: number[] = sampleClip(riderClip, t).get("node:rider:translation")!
-      .value;
-    const q: number[] = sampleClip(riderClip, t).get("node:rider:rotation")!
-      .value;
+  const riderAt: (t: number) => IAutoMovieTransform = (
+    t: number,
+  ): IAutoMovieTransform => {
+    const p: number[] = sampleClip(riderClip, t).get(
+      "node:rider:translation",
+    )!.value;
+    const q: number[] = sampleClip(riderClip, t).get(
+      "node:rider:rotation",
+    )!.value;
     return {
       translation: { x: p[0]!, y: p[1]!, z: p[2]! },
       rotation: { x: q[0]!, y: q[1]!, z: q[2]!, w: q[3]! },

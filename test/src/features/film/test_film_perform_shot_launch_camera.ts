@@ -1,13 +1,20 @@
-import type { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieConstraintViolation, IAutoMovieOnHitReaction, IAutoMovieScript, IAutoMovieShotPerformance, IAutoMovieSkeleton, IAutoMovieStage } from "@automovie/interface";
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieConstraintViolation,
+  IAutoMovieOnHitReaction,
+  IAutoMovieScript,
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieStage,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
-
-import { TestValidator } from "@nestia/e2e";
-
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -28,12 +35,12 @@ const staging: IAutoMovieStage = makeStagingWrite({
 /**
  * Stages the authored launch-camera fixture, refuses an invalid fixture before use and returns the real performShot draft consumer; it owns no assertion by itself.
  */
-function performing (): ((
+function performing(): (
   draft: IAutoMovieActionCall[],
-) => IAutoMoviePerformedShot) {
+) => IAutoMoviePerformedShot {
   const staged: IAutoMovieStagedSet = stageScene(script, staging);
   if (staged.success !== true) throw new Error("staging fixture must succeed");
-  return (draft: IAutoMovieActionCall[]) : IAutoMoviePerformedShot =>
+  return (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
     performShot({
       script,
       staged,
@@ -42,40 +49,48 @@ function performing (): ((
         revise: { review: "unchanged.", final: null },
       }),
       synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     });
 }
 
 /**
  * Builds the existing pebble launch while varying aim and optional onHit; authored speed, clock and projectile remain fixed so the owning comparisons isolate target admission.
  */
-function throwAt (
+function throwAt(
   at: IAutoMovieActionTarget,
   onHit?: IAutoMovieOnHitReaction,
-): IAutoMovieActionCall { return ({
-  verb: "launch",
-  actor: "knightA",
-  start: 0,
-  duration: 1,
-  projectile: "pebble",
-  speed: 20,
-  at,
-  onHit,
-}); }
+): IAutoMovieActionCall {
+  return {
+    verb: "launch",
+    actor: "knightA",
+    start: 0,
+    duration: 1,
+    projectile: "pebble",
+    speed: 20,
+    at,
+    onHit,
+  };
+}
 
 /**
  * Requires a refused result and one located diagnostic containing every supplied fragment; this diagnostic observer cannot independently validate the gate's underlying geometry.
  */
-function says (
+function says(
   result: IAutoMoviePerformedShot,
   path: string,
   ...fragments: string[]
-): boolean { return result.success === false &&
-  result.violations.some(
-    (item: IAutoMovieConstraintViolation) : boolean =>
-      item.path === path &&
-      fragments.every((fragment: string) : boolean => item.expected.includes(fragment)),
-  ); }
+): boolean {
+  return (
+    result.success === false &&
+    result.violations.some(
+      (item: IAutoMovieConstraintViolation): boolean =>
+        item.path === path &&
+        fragments.every((fragment: string): boolean =>
+          item.expected.includes(fragment),
+        ),
+    )
+  );
+}
 
 /**
  * Runs stageScene and performShot with launch drafts; verifies a camera can be aimed at without performing, an actor receives its injected reaction, and camera/point/group onHit requests receive a located refusal instead of silently omitting or misassigning the recoil.
@@ -92,19 +107,24 @@ function says (
  * @evidence contracts/testing.md#distinguishing-cases Pairs the same launch with and without onHit for cameras, points and groups, retains the valid staged actor recoil, and covers unbalance before a camera fall could be emitted; unreachable flights and timing bounds belong to the broader perform-shot launch test.
  * @evidence contracts/testing.md#execution-ownership The unit entry owns every scenario through portable stage and performance functions with the shared deterministic fixture synthesizer; it opens no host or renderer.
  */
-export function test_film_perform_shot_launch_camera (): void {
-  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = performing();
+export function test_film_perform_shot_launch_camera(): void {
+  const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot =
+    performing();
   /**
- * Reads successful performance node ids and sorts them by code units, or returns an empty list on refusal; the owning entry independently supplies expected staged actor identities.
- */
-function performers (result: IAutoMoviePerformedShot): string[] { return result.success === true
+   * Reads successful performance node ids and sorts them by code units, or returns an empty list on refusal; the owning entry independently supplies expected staged actor identities.
+   */
+  function performers(result: IAutoMoviePerformedShot): string[] {
+    return result.success === true
       ? result.shot.performances
-          .map((entry: IAutoMovieShotPerformance) : string => entry.node)
+          .map((entry: IAutoMovieShotPerformance): string => entry.node)
           .sort(compareCodeUnits)
-      : []; }
+      : [];
+  }
 
   // 1. shooting at the lens is legal.
-  const atLens: IAutoMoviePerformedShot = perform([throwAt({ kind: "node", node: "cam-main" })]);
+  const atLens: IAutoMoviePerformedShot = perform([
+    throwAt({ kind: "node", node: "cam-main" }),
+  ]);
   TestValidator.equals(
     "a launch at a staged camera performs",
     atLens.success,
@@ -175,7 +195,12 @@ function performers (result: IAutoMoviePerformedShot): string[] { return result.
   ] satisfies IAutoMovieActionTarget[]) {
     TestValidator.predicate(
       `${aim.kind} cannot silently omit a requested recoil`,
-      says(perform([throwAt(aim, { force: 0.5 })]), "$input.draft[0].at", "onHit requires", "identifies no struck actor"),
+      says(
+        perform([throwAt(aim, { force: 0.5 })]),
+        "$input.draft[0].at",
+        "onHit requires",
+        "identifies no struck actor",
+      ),
     );
     TestValidator.equals(
       `${aim.kind} without onHit still flies`,

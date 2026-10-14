@@ -1,12 +1,23 @@
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSkeleton,
+  IAutoMovieStage,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieStage, IAutoMovieSkeleton, IAutoMovieConstraintViolation } from "@automovie/interface";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+
 /**
  * A performed take elects one staged camera with a scalar frame actor.
  *
@@ -41,7 +52,29 @@ export function test_film_perform_shot_camera_conflict(): void {
   );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const frame: (actor: string, start: number) => { readonly verb: "frame"; readonly actor: string; readonly start: number; readonly duration: "auto"; readonly framing: "medium"; readonly move: "static"; readonly on: { readonly kind: "node"; readonly node: "knightA"; }; } = (actor: string, start: number): { readonly verb: "frame"; readonly actor: string; readonly start: number; readonly duration: "auto"; readonly framing: "medium"; readonly move: "static"; readonly on: { readonly kind: "node"; readonly node: "knightA"; }; } =>
+  const frame: (
+    actor: string,
+    start: number,
+  ) => {
+    readonly verb: "frame";
+    readonly actor: string;
+    readonly start: number;
+    readonly duration: "auto";
+    readonly framing: "medium";
+    readonly move: "static";
+    readonly on: { readonly kind: "node"; readonly node: "knightA" };
+  } = (
+    actor: string,
+    start: number,
+  ): {
+    readonly verb: "frame";
+    readonly actor: string;
+    readonly start: number;
+    readonly duration: "auto";
+    readonly framing: "medium";
+    readonly move: "static";
+    readonly on: { readonly kind: "node"; readonly node: "knightA" };
+  } =>
     ({
       verb: "frame",
       actor,
@@ -90,7 +123,9 @@ export function test_film_perform_shot_camera_conflict(): void {
         "performedViolationsV",
         (): boolean =>
           performed.success === false &&
-          performed.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "cam-b"),
+          performed.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean => v.value === "cam-b",
+          ),
       ],
     ]),
     {

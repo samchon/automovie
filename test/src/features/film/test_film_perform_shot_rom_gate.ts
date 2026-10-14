@@ -1,10 +1,14 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieConstraintViolation, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -31,7 +35,10 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_rom_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_rom_gate(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const performed: IAutoMoviePerformedShot = performShot({

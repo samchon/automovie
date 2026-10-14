@@ -1,13 +1,20 @@
 import { IAutoMovieSkeleton } from "@automovie/interface";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
 import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+
 /**
  * Performance input gates return located referential, timing and verb-field faults.
  *
@@ -22,7 +29,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns its original cases and delegates existing malformed actor cases to assertFilmNonFrameActorShapes, not a new driver; source validation runs in memory without a process or renderer.
  */
 export function test_film_perform_shot_bad_refs(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const performed: IAutoMoviePerformedShot = performShot({
@@ -50,7 +60,10 @@ export function test_film_perform_shot_bad_refs(): void {
     "unknown beat",
     namedFacts([
       ["refused", (): boolean => performed.success === false],
-      ["violated", (): boolean => hasViolation(performed, "type", "$input.beat")],
+      [
+        "violated",
+        (): boolean => hasViolation(performed, "type", "$input.beat"),
+      ],
     ]),
     { refused: true, violated: true },
   );
@@ -58,7 +71,10 @@ export function test_film_perform_shot_bad_refs(): void {
     "zero duration",
     namedFacts([
       ["refused", (): boolean => performed.success === false],
-      ["violated", (): boolean => hasViolation(performed, "range", "$input.duration")],
+      [
+        "violated",
+        (): boolean => hasViolation(performed, "range", "$input.duration"),
+      ],
     ]),
     { refused: true, violated: true },
   );
@@ -79,7 +95,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        (): boolean => hasViolation(performed, "range", "$input.draft[0].start"),
+        (): boolean =>
+          hasViolation(performed, "range", "$input.draft[0].start"),
       ],
     ]),
     { refused: true, violated: true },
@@ -176,7 +193,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => zeroRepeat.success === false],
       [
         "violated",
-        (): boolean => hasViolation(zeroRepeat, "range", "$input.draft[0].repeat"),
+        (): boolean =>
+          hasViolation(zeroRepeat, "range", "$input.draft[0].repeat"),
       ],
     ]),
     { refused: true, violated: true },
@@ -207,7 +225,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => fractionalRepeat.success === false],
       [
         "violated",
-        (): boolean => hasViolation(fractionalRepeat, "range", "$input.draft[0].repeat"),
+        (): boolean =>
+          hasViolation(fractionalRepeat, "range", "$input.draft[0].repeat"),
       ],
     ]),
     { refused: true, violated: true },
@@ -237,7 +256,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => emptyActorList.success === false],
       [
         "violated",
-        (): boolean => hasViolation(emptyActorList, "type", "$input.draft[0].actor"),
+        (): boolean =>
+          hasViolation(emptyActorList, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
@@ -267,7 +287,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => duplicateActor.success === false],
       [
         "violated",
-        (): boolean => hasViolation(duplicateActor, "type", "$input.draft[0].actor[1]"),
+        (): boolean =>
+          hasViolation(duplicateActor, "type", "$input.draft[0].actor[1]"),
       ],
     ]),
     { refused: true, violated: true },
@@ -298,7 +319,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => oversizedReact.success === false],
       [
         "violated",
-        (): boolean => hasViolation(oversizedReact, "range", "$input.draft[0].force"),
+        (): boolean =>
+          hasViolation(oversizedReact, "range", "$input.draft[0].force"),
       ],
     ]),
     { refused: true, violated: true },
@@ -361,7 +383,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => relativeReach.success === false],
       [
         "violated",
-        (): boolean => hasViolation(relativeReach, "type", "$input.draft[0].to"),
+        (): boolean =>
+          hasViolation(relativeReach, "type", "$input.draft[0].to"),
       ],
     ]),
     { refused: true, violated: true },
@@ -421,7 +444,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => untargetedPoint.success === false],
       [
         "violated",
-        (): boolean => hasViolation(untargetedPoint, "type", "$input.draft[0].at"),
+        (): boolean =>
+          hasViolation(untargetedPoint, "type", "$input.draft[0].at"),
       ],
     ]),
     { refused: true, violated: true },
@@ -452,7 +476,8 @@ export function test_film_perform_shot_bad_refs(): void {
       ["refused", (): boolean => relativeStrike.success === false],
       [
         "violated",
-        (): boolean => hasViolation(relativeStrike, "type", "$input.draft[0].at"),
+        (): boolean =>
+          hasViolation(relativeStrike, "type", "$input.draft[0].at"),
       ],
     ]),
     { refused: true, violated: true },
@@ -489,7 +514,8 @@ export function test_film_perform_shot_bad_refs(): void {
         ["refused", (): boolean => unresolvedReact.success === false],
         [
           "violated",
-          (): boolean => hasViolation(unresolvedReact, "type", "$input.draft[0].from"),
+          (): boolean =>
+            hasViolation(unresolvedReact, "type", "$input.draft[0].from"),
         ],
       ]),
       { refused: true, violated: true },

@@ -1,20 +1,50 @@
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieAttachAction,
+  IAutoMovieBlocking,
+  IAutoMovieConstraintViolation,
+  IAutoMovieEmoteAction,
+  IAutoMovieEnactAction,
+  IAutoMovieGestureAction,
+  IAutoMovieHoldAction,
+  IAutoMovieLaunchAction,
+  IAutoMovieLocomoteAction,
+  IAutoMovieLookAtAction,
+  IAutoMoviePerformance,
+  IAutoMovieReachAction,
+  IAutoMovieReactAction,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieBlocking, IAutoMoviePerformance, IAutoMovieSkeleton, IAutoMovieConstraintViolation, IAutoMovieActionCall, IAutoMovieLocomoteAction, IAutoMovieGestureAction, IAutoMovieReachAction, IAutoMovieLookAtAction, IAutoMovieAttachAction, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieEmoteAction, IAutoMovieHoldAction, IAutoMovieEnactAction } from "@automovie/interface";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makeBlockingWrite,
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
-const run: (blocking: IAutoMovieBlocking, performance?: IAutoMoviePerformance) => IAutoMoviePerformedShot = (
+
+const run: (
+  blocking: IAutoMovieBlocking,
+  performance?: IAutoMoviePerformance,
+) => IAutoMoviePerformedShot = (
   blocking: ReturnType<typeof makeBlockingWrite>,
   performance: IAutoMoviePerformance = makePerformanceWrite(),
 ): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
     staged: ((): IAutoMovieStagedSet.ISuccess => {
-      const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+      const staged: IAutoMovieStagedSet = stageScene(
+        makeScriptWrite(),
+        makeStagingWrite(),
+      );
       if (staged.success !== true) throw new Error("staging must succeed");
       return staged;
     })(),
@@ -69,7 +99,9 @@ export function test_film_perform_shot_blocked(): void {
   );
   TestValidator.equals("aligned blocking passes", aligned.success, true);
 
-  const wrongBeat: IAutoMoviePerformedShot = run(makeBlockingWrite({ beat: "beat-99" }));
+  const wrongBeat: IAutoMoviePerformedShot = run(
+    makeBlockingWrite({ beat: "beat-99" }),
+  );
   TestValidator.equals(
     "beat mismatch rejected",
     namedFacts([
@@ -84,7 +116,9 @@ export function test_film_perform_shot_blocked(): void {
     { refused: true, violated: true },
   );
 
-  const wrongDuration: IAutoMoviePerformedShot = run(makeBlockingWrite({ duration: 3 }));
+  const wrongDuration: IAutoMoviePerformedShot = run(
+    makeBlockingWrite({ duration: 3 }),
+  );
   TestValidator.equals(
     "duration mismatch rejected",
     namedFacts([
@@ -169,7 +203,21 @@ export function test_film_perform_shot_blocked(): void {
       },
     }),
     makePerformanceWrite({
-      draft: makePerformanceWrite().draft.filter((a: IAutoMovieActionCall): a is IAutoMovieLocomoteAction | IAutoMovieGestureAction | IAutoMovieReachAction | IAutoMovieLookAtAction | IAutoMovieAttachAction | IAutoMovieLaunchAction | IAutoMovieReactAction | IAutoMovieEmoteAction | IAutoMovieHoldAction | IAutoMovieEnactAction => a.verb !== "frame"),
+      draft: makePerformanceWrite().draft.filter(
+        (
+          a: IAutoMovieActionCall,
+        ): a is
+          | IAutoMovieLocomoteAction
+          | IAutoMovieGestureAction
+          | IAutoMovieReachAction
+          | IAutoMovieLookAtAction
+          | IAutoMovieAttachAction
+          | IAutoMovieLaunchAction
+          | IAutoMovieReactAction
+          | IAutoMovieEmoteAction
+          | IAutoMovieHoldAction
+          | IAutoMovieEnactAction => a.verb !== "frame",
+      ),
       revise: { review: "unchanged.", final: null },
     }),
   );
@@ -181,8 +229,9 @@ export function test_film_perform_shot_blocked(): void {
         "violated",
         (): boolean =>
           unframed.success === false &&
-          unframed.violations.some((v: IAutoMovieConstraintViolation): boolean =>
-            String(v.expected).includes('asks for a "follow" camera'),
+          unframed.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              String(v.expected).includes('asks for a "follow" camera'),
           ),
       ],
     ]),

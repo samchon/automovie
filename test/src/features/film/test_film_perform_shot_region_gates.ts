@@ -1,8 +1,3 @@
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
@@ -12,6 +7,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -36,7 +36,9 @@ const locomote: IAutoMovieActionCall = {
   to: { kind: "point", point: { x: 0, y: 0, z: 0.25 } },
 };
 
-const lookAt: (start: number) => IAutoMovieActionCall = (start: number): IAutoMovieActionCall => ({
+const lookAt: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "lookAt",
   actor: "knightA",
   start,
@@ -44,7 +46,9 @@ const lookAt: (start: number) => IAutoMovieActionCall = (start: number): IAutoMo
   to: { kind: "node", node: "knightB" },
 });
 
-const emote: (start: number) => IAutoMovieActionCall = (start: number): IAutoMovieActionCall => ({
+const emote: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "emote",
   actor: "knightA",
   start,
@@ -53,7 +57,9 @@ const emote: (start: number) => IAutoMovieActionCall = (start: number): IAutoMov
   intensity: 0.5,
 });
 
-const fullBody: (start: number) => IAutoMovieActionCall = (start: number): IAutoMovieActionCall => ({
+const fullBody: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "gesture",
   kind: "jump",
   region: "fullBody",
@@ -88,7 +94,10 @@ const frame: IAutoMovieCameraAction = {
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_region_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_region_gates(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   // Both clips carry the same arm but return it to rest at their boundary, so
@@ -281,7 +290,10 @@ export function test_film_perform_shot_region_gates(): void {
   );
 
   let synthesisCalls: number = 0;
-  const countedSynth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null => {
+  const countedSynth: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+    actor: string,
+  ): IAutoMovieMotion | null => {
     ++synthesisCalls;
     return validSynthesizer(action, actor);
   };

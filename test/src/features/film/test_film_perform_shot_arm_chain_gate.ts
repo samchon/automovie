@@ -1,12 +1,31 @@
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieBone,
+  IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieConstraintViolation, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieBone, IAutoMovieCameraAction, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, translation: IAutoMovieVector3) => IAutoMovieBone = (
+
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  translation: IAutoMovieVector3,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   translation: IAutoMovieVector3,
@@ -26,8 +45,13 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, 
  * One direction parameter changes both lower-arm and hand rest offsets, keeping
  * lengths, hierarchy and the remaining rig fields fixed.
  */
-const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (direction: "down" | "out"): IAutoMovieSkeleton => {
-  const step: (length: number, sign: number) => IAutoMovieVector3 = (length: number, sign: number): IAutoMovieVector3 =>
+const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (
+  direction: "down" | "out",
+): IAutoMovieSkeleton => {
+  const step: (length: number, sign: number) => IAutoMovieVector3 = (
+    length: number,
+    sign: number,
+  ): IAutoMovieVector3 =>
     direction === "down"
       ? { x: 0, y: -length, z: 0 }
       : { x: sign * length, y: 0, z: 0 };
@@ -66,11 +90,20 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const run: (rig: IAutoMovieSkeleton | null, actions: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (rig: IAutoMovieSkeleton | null, actions: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
+const run: (
+  rig: IAutoMovieSkeleton | null,
+  actions: IAutoMovieActionCall[],
+) => IAutoMoviePerformedShot = (
+  rig: IAutoMovieSkeleton | null,
+  actions: IAutoMovieActionCall[],
+): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
     staged: ((): IAutoMovieStagedSet.ISuccess => {
-      const s: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+      const s: IAutoMovieStagedSet = stageScene(
+        makeScriptWrite(),
+        makeStagingWrite(),
+      );
       if (s.success !== true) throw new Error("staging must succeed");
       return s;
     })(),
@@ -143,7 +176,9 @@ export function test_film_perform_shot_arm_chain_gate(): void {
       kind,
       at: { kind: "point", point: { x: 0, y: 1.1, z: 0.3 } },
     };
-    const gestureRefused: IAutoMoviePerformedShot = run(armRig("down"), [gesture]);
+    const gestureRefused: IAutoMoviePerformedShot = run(armRig("down"), [
+      gesture,
+    ]);
     TestValidator.equals(
       `a ${kind} gesture on an unbendable arm is refused at its kind field`,
       namedFacts([

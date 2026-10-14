@@ -1,10 +1,10 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { IAutoMovieShotPerformance } from "@automovie/interface";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -24,7 +24,10 @@ import {
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_revised unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_revised(): void {
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const performed: IAutoMoviePerformedShot = performShot({
@@ -78,7 +81,9 @@ export function test_film_perform_shot_revised(): void {
   if (performed.success !== true) return;
   TestValidator.equals(
     "final list performed",
-    performed.shot.performances.map((p: IAutoMovieShotPerformance): string => p.node),
+    performed.shot.performances.map(
+      (p: IAutoMovieShotPerformance): string => p.node,
+    ),
     ["knightA"],
   );
   TestValidator.equals("live camera", performed.shot.camera, "cam-main");

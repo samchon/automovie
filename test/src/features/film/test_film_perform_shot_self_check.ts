@@ -1,10 +1,15 @@
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMovieScene, IAutoMovieScript, IAutoMoviePerformance, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  IAutoMoviePerformance,
+  IAutoMovieScene,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -16,11 +21,13 @@ import { throwsError } from "../internal/predicates";
 
 const script: IAutoMovieScript = makeScriptWrite();
 
-const staged: IAutoMovieStagedSet.ISuccess = ((): IAutoMovieStagedSet.ISuccess => {
-  const result: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
 
 const performance: IAutoMoviePerformance = makePerformanceWrite({
   draft: [
@@ -29,7 +36,9 @@ const performance: IAutoMoviePerformance = makePerformanceWrite({
   revise: { review: "unchanged.", final: null },
 });
 
-const perform: (set: IAutoMovieStagedSet.ISuccess) => IAutoMoviePerformedShot = (set: typeof staged): IAutoMoviePerformedShot =>
+const perform: (
+  set: IAutoMovieStagedSet.ISuccess,
+) => IAutoMoviePerformedShot = (set: typeof staged): IAutoMoviePerformedShot =>
   performShot({
     script,
     staged: set,
@@ -62,7 +71,10 @@ export function test_film_perform_shot_self_check(): void {
   };
   TestValidator.predicate(
     "an unguarded empty scene id is caught by the producer's self-check",
-    throwsError((): IAutoMoviePerformedShot => perform(emptySceneId), ["$input.scene", "engine defect"]),
+    throwsError(
+      (): IAutoMoviePerformedShot => perform(emptySceneId),
+      ["$input.scene", "engine defect"],
+    ),
   );
   TestValidator.predicate(
     "the counter-case one property away still performs",

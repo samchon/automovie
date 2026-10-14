@@ -1,11 +1,17 @@
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieActionCall, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -15,7 +21,10 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   action.verb === "launch" || action.verb === "attachTo"
     ? null
     : validSynthesizer(action, actor);
@@ -33,7 +42,10 @@ const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor:
  */
 export function test_film_perform_shot_secondary_nonempty_refs(): void {
   const script: IAutoMovieScript = makeScriptWrite();
-  const baseStaged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
+  const baseStaged: IAutoMovieStagedSet = stageScene(
+    script,
+    makeStagingWrite(),
+  );
   if (baseStaged.success !== true) throw new Error("staging must succeed");
 
   const blankTarget: IAutoMovieSceneNode = {
