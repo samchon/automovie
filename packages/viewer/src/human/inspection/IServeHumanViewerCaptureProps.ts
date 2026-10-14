@@ -94,7 +94,7 @@ export interface IServeHumanViewerCaptureProps {
    * Return the renderer identity reported by the resident page for capture metadata.
    *
    * @evidence contracts/common.md#principled-implementation Renderer metadata comes from the resident page's actual context report rather than from configured launch flags.
-   * @evidence contracts/common.md#clear-and-simple-design The route borrows one renderer-identity accessor and leaves hardware admission with residency.
+   * @evidence contracts/common.md#clear-and-simple-design The route borrows residency's reported renderer text; the capture owner and startup use judgeViewerRenderer for classification. Independent hardware and displayed-image observation remain separate obligations.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested hardware backend is not substituted for the renderer actually observed by the page.
    * @evidence contracts/common.md#meaningful-documentation The comment identifies observed renderer identity and its capture-metadata use.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The renderer-string accessor implements no GPU capability probe or rendering algorithm.

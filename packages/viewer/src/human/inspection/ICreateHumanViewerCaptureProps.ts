@@ -100,7 +100,7 @@ export interface ICreateHumanViewerCaptureProps {
   lifetime: ReturnType<typeof createHumanViewerCaptureLifetime>;
 
   /**
-   * Keep the renderer's heap under its limit after a capture.
+   * Attempt to reduce the renderer's heap after a capture; non-evictable residents and borrowed workers can leave it above the limit.
    *
    * @evidence contracts/common.md#principled-implementation Runs the host's existing post-capture heap trimming under capture lifetime and stage tracking.
    * @evidence contracts/common.md#clear-and-simple-design Keeps renderer budget policy outside frame telemetry while awaiting its actual completion before final revision admission.
