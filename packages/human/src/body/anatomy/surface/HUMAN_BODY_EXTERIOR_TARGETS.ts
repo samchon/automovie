@@ -37,8 +37,8 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
     },
     // upper arm (#2718); one authored left rule, read on each side
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorTarget[] => {
-        const suffix = side === "left" ? "Left" : "Right";
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorTarget[] => {
+        const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
         return [
           {
             path: `surface.${side}UpperLimb.upperArm.midUpperArmGirth`,
@@ -61,8 +61,8 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
     ),
     // hand (#2719); one authored left rule, read on each side
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorTarget[] => {
-        const suffix = side === "left" ? "Left" : "Right";
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorTarget[] => {
+        const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
         return [
           {
             path: `surface.${side}UpperLimb.hand.length`,
@@ -85,8 +85,8 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
     ),
     // forearm (#2710); one authored left rule, read on each side
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorTarget[] => {
-        const suffix = side === "left" ? "Left" : "Right";
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorTarget[] => {
+        const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
         return [
           {
             path: `surface.${side}UpperLimb.forearm.wristGirth`,
@@ -117,8 +117,8 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
     ),
     // foot (#2711); one authored left rule, read on each side
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorTarget[] => {
-        const suffix = side === "left" ? "Left" : "Right";
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorTarget[] => {
+        const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
         return [
           {
             path: `surface.${side}LowerLimb.foot.length`,
@@ -163,8 +163,8 @@ export const HUMAN_BODY_EXTERIOR_TARGETS: readonly IAutoMovieHumanBodyExteriorTa
     },
     // thigh, knee and shank (#2716, #2712, #2714); one authored left rule, read on each side
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorTarget[] => {
-        const suffix = side === "left" ? "Left" : "Right";
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorTarget[] => {
+        const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
         return [
           {
             path: `surface.${side}LowerLimb.thigh.midThighGirth`,
