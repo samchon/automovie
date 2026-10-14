@@ -5,7 +5,7 @@ import ts from "typescript-compiler";
  *
  * @evidence contracts/common.md#principled-implementation TypeScript AST inspection rejects export and public-member forms that native Evidence cannot name; parsing is syntactic and does not prove runtime behavior.
  * @evidence contracts/common.md#clear-and-simple-design Export admission stays with the source population before host selection, including local aliases and class or interface members.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Default exports, re-exports, accessors, computed names, namespaces and enums are rejected uniformly rather than hidden from coverage.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Default expressions/aliases and anonymous declarations refuse; named default class/function declarations pass, while cross-module re-exports, accessors, computed names, namespaces and enums refuse.
  * @evidence contracts/common.md#meaningful-documentation The refusal identifies the source-relative path, unsupported syntax and a stable named replacement.
  * @evidence contracts/performance.md#efficient-algorithms Parsing and member traversal scale with source bytes and AST nodes; the local declaration set avoids rescanning names for each export.
  * @evidence contracts/performance.md#reuse-equivalent-work One parsed AST and local declaration set serve this admission; other host checks currently parse the same file again.

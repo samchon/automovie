@@ -30,7 +30,7 @@ function screenplayRevisionLineage(graph: IAutoMovieEvidenceConfigProps, symbol:
  *
  * The graph factory uses this same pure assembly after validating stages and physical hosts, so file identity and unit-level expression remain distinct.
  *
- * @evidence contracts/common.md#principled-implementation Final screenplay files and H2/H3 units retain unique construction lineage and answer the audience-language naturalness checklists.
+ * @evidence contracts/common.md#principled-implementation Final screenplay files and canonical H2/H3/H4 units retain unique construction lineage and answer the audience-language naturalness checklists.
  * @evidence contracts/common.md#clear-and-simple-design Expression revision has its own branch while the same pure builder serves compiler graph and manifest projection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Evidence and review activate structural duties equally; native review freshness remains false and no lexical score is produced.
  * @evidence contracts/common.md#meaningful-documentation The builder assumes stage and physical counterpart admission are performed by the graph factory.

@@ -7,9 +7,7 @@ import { compareCodeUnits } from "./readAutoMovieProductionEvidenceInternal/comp
 /**
  * Resolve manifest globs within the production's controlled source or document tree.
  *
- * A manifest's reference root is an addressing base, not its physical host
- * population. A source claim rooted at the project still owns only `src`;
- * vendored package links and tool-created artifacts do not become evidence.
+ * A manifest's reference root is an addressing base, not its physical host population. A source claim rooted at the project still owns only `src`; vendored package links and tool-created artifacts do not become evidence.
  *
  *
  * @evidence contracts/common.md#principled-implementation Controlled src or docs enumeration is intersected with exact manifest glob matches resolved against the declaration's addressing root.

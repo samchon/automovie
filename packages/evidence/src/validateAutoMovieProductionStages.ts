@@ -11,9 +11,9 @@ import { requiresEvidence } from "./requiresEvidence";
 import { revisionStage } from "./revisionStage";
 
 /**
- * Refuse an active child whose parent has not completed.
+ * Refuse an active child whose parent does not declare evidence or review stage.
  *
- * A layer completes at `evidence`: its claims are active and paid, and no review fingerprint is owed. `review` remains an accepted later stage, so it also counts as complete.
+ * This function compares declared stages only. Evidence and review enable the parent at this boundary; physical populations and actual acknowledgment coverage are checked by separate graph and native gates.
  */
 function requireCompletedParent(childName: string, child: AutoMovieEvidenceStage, parentName: string, parent: AutoMovieEvidenceStage): void {
   if (isActive(child) && !requiresEvidence(parent))
@@ -23,13 +23,13 @@ function requireCompletedParent(childName: string, child: AutoMovieEvidenceStage
 }
 
 /**
- * Refuse a design layer that completes over an active but incomplete foundation.
+ * Refuse evidence/review stage over an active foundation that still declares draft.
  *
- * `designFoundations` contributes a foundation's units only once that foundation is itself complete, so a host completed ahead of its foundation pays nothing for it and reads complete. A production could therefore finish `spaces` against a `draft` `maps` with zero map references demanded, and collect that debt only later, when the parent caught up. The window is a false completion rather than permanent unsoundness, which is exactly the kind of gap a stage is supposed to close.
+ * Foundation references are selected only for evidence/review parents, so this stage rule prevents declaring a dependent layer complete while its draft foundation would contribute no target units. It compares declarations without evaluating physical files or acknowledgment coverage.
  *
- * The gate is on entering evidence rather than on entering draft, because `DESIGN_FOUNDATIONS` is not a tree. `motions` and `systems` name each other, so a draft-entry rule would deadlock the pair with no legal order. Gating completion lets both sit in draft while they are written against one another and then promote together in one declaration, which is the only honest way to complete a mutual dependency: each pays for the other's completed units.
+ * DESIGN_FOUNDATIONS contains mutual dependencies, including motions and systems. Both may declare draft before simultaneous promotion; a parent-before-draft requirement would prevent either from starting.
  *
- * An inactive foundation is skipped rather than demanded. A library that delivers spaces without a map branch owes no map references, and forcing one would manufacture an owner for a decision the production never made.
+ * Disabled foundations are skipped, preserving the library's selected design branches instead of requiring an unrelated map owner.
  */
 function requireCompletedFoundations(graph: IAutoMovieEvidenceConfigProps): void {
   for (const [name, foundations] of Object.entries(DESIGN_FOUNDATIONS) as [

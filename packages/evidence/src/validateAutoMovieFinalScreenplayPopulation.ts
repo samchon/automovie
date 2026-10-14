@@ -7,10 +7,7 @@ import type { IAutoMovieScreenplayDocumentIdentity } from "./IAutoMovieScreenpla
 /**
  * Protect the construction population while final audience language changes.
  *
- * Physical enumeration and Markdown parsing belong to the graph factory.
- * These comparisons decide population identity, counterpart selection, and draft admission;
- * literal content and mechanical-clause fidelity still require author review.
- *
+ * Physical enumeration and Markdown parsing belong to the graph factory. These comparisons decide population identity, counterpart selection, and draft admission; literal content and mechanical-clause fidelity still require author review.
  *
  * @evidence contracts/common.md#principled-implementation Ordered final files and H1/headings must match construction identity; existing construction citations must select their exact counterpart, and draft hosts carry no evidence tags.
  * @evidence contracts/common.md#clear-and-simple-design Physical enumeration and parsing belong to the graph factory while this validator owns final/construction identity and draft admission.

@@ -14,7 +14,7 @@ import path from "node:path";
 import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
 
-const identity = loadSourceModule<{
+const identity: { authoringEvidenceFingerprintFields(evidence: IAutoMovieProductionEvidence | undefined): IAutoMovieFingerprintField[]; contentFingerprintFields(inputs: readonly IAutoMovieProductionContentInput[]): IAutoMovieFingerprintField[]; productionBuildInputFingerprint(productionId: string, graph: IAutoMovieProductionDesignGraph, sourceFields: readonly IAutoMovieFingerprintField[], contentFields: readonly IAutoMovieFingerprintField[]): string; } = loadSourceModule<{
   authoringEvidenceFingerprintFields(
     evidence: IAutoMovieProductionEvidence | undefined,
   ): IAutoMovieFingerprintField[];
@@ -34,9 +34,9 @@ const identity = loadSourceModule<{
   ),
 );
 
-const OPENING = "export const opening = { beats: 3 };\n";
-const WINDOWS = "D:\\a\\x";
-const POSIX = "/home/b/x";
+const OPENING: string = "export const opening = { beats: 3 };\n";
+const WINDOWS: string = "D:\\a\\x";
+const POSIX: string = "/home/b/x";
 
 const graph: IAutoMovieProductionDesignGraph = {
   production: null,
@@ -47,7 +47,7 @@ const graph: IAutoMovieProductionDesignGraph = {
   acceptance: new Map(),
 };
 
-const evidenceAt = (
+const evidenceAt: (root: string, anchor?: string) => IAutoMovieProductionEvidence = (
   root: string,
   anchor: string = "opening",
 ): IAutoMovieProductionEvidence => ({
@@ -93,7 +93,7 @@ const evidenceAt = (
   contractRules: [],
 });
 
-const fingerprint = (props: {
+const fingerprint: (props: { production: string; root: string; anchor?: string; crlf?: boolean; }) => string = (props: {
   production: string;
   root: string;
   anchor?: string;
@@ -126,8 +126,8 @@ const fingerprint = (props: {
     ]),
   );
 
-const encoded = (fields: readonly IAutoMovieFingerprintField[]): string[][] =>
-  fields.map((field) => [
+const encoded: (fields: readonly IAutoMovieFingerprintField[]) => string[][] = (fields: readonly IAutoMovieFingerprintField[]): string[][] =>
+  fields.map((field: IAutoMovieFingerprintField): string[] => [
     field.role,
     field.kind,
     Buffer.from(field.payload).toString("utf8"),
@@ -136,12 +136,7 @@ const encoded = (fields: readonly IAutoMovieFingerprintField[]): string[][] =>
 /**
  * A timed input identity is checkout-independent and namespace-bound.
  *
- * Film and brief compilation share one builder identity. It already binds the
- * production namespace and reads authoring evidence only through the
- * graph-selected owner edges, so the checkout root and declaration location
- * never reach it. This pins that shape beside the library identity, because a
- * later change to either must keep both answering the same two questions the
- * same way: is this the same work, and is it the same namespace.
+ * Film and brief compilation share one builder identity. It already binds the production namespace and reads authoring evidence only through the graph-selected owner edges, so the checkout root and declaration location never reach it. This pins that shape beside the library identity, because a later change to either must keep both answering the same two questions the same way: is this the same work, and is it the same namespace.
  *
  * Scenarios:
  *
@@ -153,19 +148,24 @@ const encoded = (fields: readonly IAutoMovieFingerprintField[]): string[][] =>
  * 3. Owner-binding fields read from evidence at `D:\a\x` and `/home/b/x` are the
  *    same bytes and give the same fingerprint, while a changed owner anchor
  *    gives another.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Computes timed build identity and evidence-field encodings, catching checkout-dependent identity or omission of the production namespace and exact owner anchor.
+ * @evidence contracts/testing.md#independent-expectations Contract-derived equality under checkout and line-ending changes and inequality under namespace or owner changes are independent expectations; reused fingerprint helpers provide no independent digest-algorithm oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Covers repeat identity, CRLF/BOM source normalization, Windows and POSIX path spellings, changed namespace and changed owner anchor; library input identity and real filesystem ownership are covered elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns its namedFacts callbacks over resident inputs and existing source-module fixtures without installation, native build or a production host.
  */
-export const test_production_timed_input_identity = (): void => {
-  const base = fingerprint({ production: "harbor", root: WINDOWS });
+export function test_production_timed_input_identity(): void {
+  const base: string = fingerprint({ production: "harbor", root: WINDOWS });
   TestValidator.equals(
     "one timed input identity for one input",
     namedFacts([
       [
         "repeated",
-        () => fingerprint({ production: "harbor", root: WINDOWS }) === base,
+        (): boolean => fingerprint({ production: "harbor", root: WINDOWS }) === base,
       ],
       [
         "crlfCheckout",
-        () =>
+        (): boolean =>
           fingerprint({ production: "harbor", root: WINDOWS, crlf: true }) ===
           base,
       ],
@@ -196,4 +196,4 @@ export const test_production_timed_input_identity = (): void => {
     },
     { posixCheckout: true, ownerAnchor: true },
   );
-};
+}

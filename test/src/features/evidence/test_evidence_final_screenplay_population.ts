@@ -1,5 +1,6 @@
 import {
   type IAutoMovieScreenplayDocumentIdentity,
+  projectAutoMovieMarkdownSyntax,
   validateAutoMovieFinalScreenplayPopulation,
 } from "@automovie/evidence";
 import { TestValidator } from "@nestia/e2e";
@@ -14,8 +15,15 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Draft annotations refuse and evidence-stage citations cannot swap parents.
  * 5. Later-stage annotations and revised body language preserve identity;
  *    group titles remain exact in every stage.
+ * 6. A tab after zero through three spaces is indented code; evidence examples
+ *    neither forbid a draft nor create headings or evidence hosts.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises final/construction identity and draft citation admission, and observes Markdown visibility and carrier hosts so code examples cannot become live declarations.
+ * @evidence contracts/testing.md#independent-expectations Literal file identities, heading tuples and counterpart paths follow the final-pass contract; CommonMark tab stops at column four make the independently authored indented examples code, with an empty visible line and no carrier.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps all population, nesting, title, stage and counterpart refusals; distinguishes tab-only, mixed space/tab and four-space code from an adjacent live heading and annotation. It does not claim complete CommonMark conformance.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit invokes actual source functions over resident documents and injected readers; it starts no filesystem, consumer, process or parser host.
  */
-export const test_evidence_final_screenplay_population = (): void => {
+export function test_evidence_final_screenplay_population(): void {
   const document: IAutoMovieScreenplayDocumentIdentity = {
     title: "Arrival",
     source: "# Arrival\n\n## Gate {#gate}\n\nThe door is shut.\n",
@@ -30,18 +38,18 @@ export const test_evidence_final_screenplay_population = (): void => {
       },
     ],
   };
-  const files = ["001-part/001-arrival.md", "002-part/001-return.md"];
+  const files: string[] = ["001-part/001-arrival.md", "002-part/001-return.md"];
   const base: Parameters<typeof validateAutoMovieFinalScreenplayPopulation>[0] =
     {
       stage: "draft",
       residents: files,
       files,
-      construction: new Map(files.map((file) => [file, document])),
-      readFinal: () => document,
-      readGroupTitles: () => ({ construction: "Part", final: "Part" }),
+      construction: new Map(files.map((file: string): [string, IAutoMovieScreenplayDocumentIdentity] => [file, document])),
+      readFinal: (): IAutoMovieScreenplayDocumentIdentity => document,
+      readGroupTitles: (): { construction: string; final: string } => ({ construction: "Part", final: "Part" }),
     };
-  const refuse = (overrides: Partial<typeof base>, reason: string): void => {
-    let message = "";
+  const refuse: (overrides: Partial<typeof base>, reason: string) => void = (overrides: Partial<typeof base>, reason: string): void => {
+    let message: string = "";
     try {
       validateAutoMovieFinalScreenplayPopulation({ ...base, ...overrides });
     } catch (error) {
@@ -49,14 +57,14 @@ export const test_evidence_final_screenplay_population = (): void => {
     }
     TestValidator.predicate(reason, message.includes(reason));
   };
-  let reads = 0;
+  let reads: number = 0;
   validateAutoMovieFinalScreenplayPopulation({
     ...base,
     stage: "disabled",
     residents: [],
     files: [],
     construction: new Map(),
-    readFinal: () => {
+    readFinal: (): IAutoMovieScreenplayDocumentIdentity => {
       reads++;
       return document;
     },
@@ -72,7 +80,7 @@ export const test_evidence_final_screenplay_population = (): void => {
   ])
     refuse({ files: changed }, "filenames must exactly preserve");
   refuse(
-    { readFinal: () => ({ ...document, title: "Departure" }) },
+    { readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({ ...document, title: "Departure" }) },
     "H1 title",
   );
   for (const units of [
@@ -84,26 +92,26 @@ export const test_evidence_final_screenplay_population = (): void => {
       { anchor: "changed" },
       { lineage: "other/gate" },
       { title: "Other title" },
-    ].map((change) => [
+    ].map((change: Partial<IAutoMovieScreenplayDocumentIdentity["units"][number]>): IAutoMovieScreenplayDocumentIdentity["units"] => [
       { ...document.units[0]!, ...change },
       ...document.units.slice(1),
     ]),
   ])
     refuse(
-      { readFinal: () => ({ ...document, units }) },
+      { readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({ ...document, units }) },
       "headings, identity, nesting, and order",
     );
-  const annotated = {
+  const annotated: IAutoMovieScreenplayDocumentIdentity = {
     ...document,
     source:
       "<!--\n@evidence screenplays/001-part/001-arrival.md Exact construction file.\n-->\n" +
       document.source,
   };
-  refuse({ readFinal: () => annotated }, "before evidence tags are authored");
+  refuse({ readFinal: (): IAutoMovieScreenplayDocumentIdentity => annotated }, "before evidence tags are authored");
   refuse(
     {
       stage: "evidence",
-      readFinal: () => ({
+      readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({
         ...document,
         source:
           "<!-- @evidence screenplays/002-part/001-return.md Wrong construction file. -->\n" +
@@ -116,7 +124,7 @@ export const test_evidence_final_screenplay_population = (): void => {
     validateAutoMovieFinalScreenplayPopulation({
       ...base,
       stage,
-      readFinal: (relative) => ({
+      readFinal: (relative: string): IAutoMovieScreenplayDocumentIdentity => ({
         ...document,
         source:
           `<!-- @evidence screenplays/${relative} Exact construction file. -->\n` +
@@ -133,7 +141,7 @@ export const test_evidence_final_screenplay_population = (): void => {
     refuse(
       {
         stage: "evidence",
-        readFinal: () => ({
+        readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({
           ...document,
           source: document.source + `\n<!-- ${citation} -->\n`,
         }),
@@ -141,17 +149,17 @@ export const test_evidence_final_screenplay_population = (): void => {
       "exact construction counterpart",
     );
   refuse(
-    { readGroupTitles: () => ({ construction: "Part", final: "Other" }) },
+    { readGroupTitles: (): { construction: string; final: string } => ({ construction: "Part", final: "Other" }) },
     "delivery-group H1 title",
   );
   const groups: string[] = [];
   validateAutoMovieFinalScreenplayPopulation({
     ...base,
-    readFinal: () => ({
+    readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({
       ...document,
       source: document.source + '\n"Come in."\n',
     }),
-    readGroupTitles: (group) => {
+    readGroupTitles: (group: string): { construction: string; final: string } => {
       groups.push(group);
       return { construction: "Part", final: "Part" };
     },
@@ -160,4 +168,24 @@ export const test_evidence_final_screenplay_population = (): void => {
     "001-part",
     "002-part",
   ]);
-};
+  for (const indentation of ["\t", " \t", "  \t", "   \t", "    "]) {
+    const example: string = `${document.source}\n${indentation}<!-- @evidence screenplays/other.md Code example. -->\n`;
+    validateAutoMovieFinalScreenplayPopulation({
+      ...base,
+      readFinal: (): IAutoMovieScreenplayDocumentIdentity => ({ ...document, source: example }),
+    });
+    const projection: ReturnType<typeof projectAutoMovieMarkdownSyntax> = projectAutoMovieMarkdownSyntax({
+      path: "docs/final/screenplays/001-part/001-arrival.md",
+      source: `# Arrival\n\n${indentation}## Hidden {#hidden}\n${indentation}<!-- @evidence screenplays/other.md Code example. -->\n\n## Gate {#gate}\n\n<!-- @evidence screenplays/001-part/001-arrival.md#gate Live counterpart. -->\n`,
+    });
+    TestValidator.equals("indented examples remain invisible without changing the adjacent live host", {
+      headingLine: projection.visibleLines[2],
+      exampleLine: projection.visibleLines[3],
+      hosts: projection.annotations.map((annotation: ReturnType<typeof projectAutoMovieMarkdownSyntax>["annotations"][number]): string => annotation.host),
+    }, {
+      headingLine: "",
+      exampleLine: "",
+      hosts: ["docs/final/screenplays/001-part/001-arrival.md#gate"],
+    });
+  }
+}

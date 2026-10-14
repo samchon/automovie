@@ -14,6 +14,8 @@ import type { ITtscEvidenceGraphClaim } from "@ttsc/evidence";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; local claim constructors allocate records and validateAutoMovieLocalContractClaims reconstructs their bindings, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; local claim constructors allocate records and validateAutoMovieLocalContractClaims reconstructs their bindings, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; local claim constructors allocate records and validateAutoMovieLocalContractClaims reconstructs their bindings, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export type AutoMovieProductionContractClaim = Extract<ITtscEvidenceGraphClaim, { type: "markdown" }> & {
   /** AutoMovie identity validated and removed before native graph evaluation. */

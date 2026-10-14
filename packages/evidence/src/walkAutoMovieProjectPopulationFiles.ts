@@ -8,14 +8,13 @@ const projectPopulationBoundaryDiagnostic: string =
 
 
 /**
- * Walk one project-local evidence population without following filesystem
- * indirection or accepting an entry the graph cannot inventory.
+ * Walk one project-local evidence population without following filesystem indirection or accepting an entry the graph cannot inventory.
  *
  * @author Samchon
  *
  *
  * @evidence contracts/common.md#principled-implementation Resolved population roots must remain inside the resolved project; lstat traversal admits directories and singly linked regular files without following links, with deterministic code-unit order.
- * @evidence contracts/common.md#clear-and-simple-design One controlled walker owns physical population admission while fixed manifest admission remains a separate policy.
+ * @evidence contracts/common.md#clear-and-simple-design One controlled walker owns project-bound recursion and delegates regular-file admission to the shared single-link physical predicate before returning selected paths.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Aliases, special entries and out-of-root roots refuse; only project-root node_modules is skipped as dependency material, and no fallback repairs an unsafe path.
  * @evidence contracts/common.md#meaningful-documentation The comment states project-local admission; missing requested ancestry yields an empty population while later traversal failures propagate.
  * @evidence contracts/performance.md#efficient-algorithms For F entries with directory fanouts d, lstat traversal is O(F) plus sum O(d log d) sorting; the synchronous inventory has no declared file-count or byte cap.

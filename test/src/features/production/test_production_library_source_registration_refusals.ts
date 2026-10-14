@@ -1,5 +1,6 @@
 import type { IAutoMovieProductionEvidenceSourceOwnerBinding } from "@automovie/evidence";
 import type {
+  IAutoMovieDiagnostic,
   IAutoMovieLibraryBuildContext,
 } from "@automovie/interface";
 import {
@@ -10,18 +11,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
-const SOURCE = "src/libraries/lantern.ts";
+const SOURCE: string = "src/libraries/lantern.ts";
 const SOURCE_DIGEST: string = `sha256:${"0".repeat(64)}`;
-const DOCUMENT = "docs/settings/delivery.md";
-const DESIGN = `${DOCUMENT}#delivery`;
-const EMPTY = { environments: [], models: [] };
+const DOCUMENT: string = "docs/settings/delivery.md";
+const DESIGN: string = `${DOCUMENT}#delivery`;
+const EMPTY: { environments: never[]; models: never[]; } = { environments: [], models: [] };
 
 /** Throw an authored value that is not an Error, as a library module may. */
-const thrown = (value: unknown): never => {
+const thrown: (value: unknown) => never = (value: unknown): never => {
   throw value;
 };
 
-const context = (design: string): IAutoMovieLibraryBuildContext | null =>
+const context: (design: string) => IAutoMovieLibraryBuildContext | null = (design: string): IAutoMovieLibraryBuildContext | null =>
   design === DESIGN
     ? {
         production: "plaza",
@@ -32,7 +33,7 @@ const context = (design: string): IAutoMovieLibraryBuildContext | null =>
       }
     : null;
 
-const binding = (
+const binding: (exportName: string) => IAutoMovieProductionEvidenceSourceOwnerBinding = (
   exportName: string,
 ): IAutoMovieProductionEvidenceSourceOwnerBinding => ({
   branch: "productionSources",
@@ -47,8 +48,8 @@ const binding = (
   targetAnchor: "delivery",
 });
 
-const admitWith =
-  (bound: readonly string[]) => (exportName: string, design: string) =>
+const admitWith: (bound: readonly string[]) => (exportName: string, design: string) => { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string; } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null; } =
+  (bound: readonly string[]): (exportName: string, design: string) => { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string; } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null; } => (exportName: string, design: string): { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string; } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null; } =>
     resolveAutoMovieSourceOwnerBinding({
       bindings: bound.map(binding),
       branch: "productionSources",
@@ -59,10 +60,10 @@ const admitWith =
       requireReviewed: false,
     });
 
-const collect = (
+const collect: (load: () => Readonly<Record<string, unknown>>, bound: readonly string[]) => ReturnType<typeof collectLibrarySourceRegistrations> = (
   load: () => Readonly<Record<string, unknown>>,
   bound: readonly string[],
-) =>
+): ReturnType<typeof collectLibrarySourceRegistrations> =>
   collectLibrarySourceRegistrations({
     path: SOURCE,
     load,
@@ -70,33 +71,24 @@ const collect = (
     admit: admitWith(bound),
   });
 
-const shape = (result: ReturnType<typeof collect>) => ({
-  registered: result.registrations.map((registration) => registration.export),
-  refused: result.diagnostics.map((diagnostic) => [
+const shape: (result: ReturnType<typeof collect>) => { registered: string[]; refused: (string | null)[][]; } = (result: ReturnType<typeof collect>): { registered: string[]; refused: (string | null)[][]; } => ({
+  registered: result.registrations.map((registration: ReturnType<typeof collect>["registrations"][number]): string => registration.export),
+  refused: result.diagnostics.map((diagnostic: IAutoMovieDiagnostic): (string | null)[] => [
     diagnostic.code,
     diagnostic.target,
     diagnostic.path,
   ]),
 });
 
-const failures = (result: ReturnType<typeof collect>) =>
+const failures: (result: ReturnType<typeof collect>) => string[] = (result: ReturnType<typeof collect>): string[] =>
   result.diagnostics
-    .filter((diagnostic) => diagnostic.code === "source-execution-failed")
-    .map((diagnostic) => diagnostic.message);
+    .filter((diagnostic: IAutoMovieDiagnostic): boolean => diagnostic.code === "source-execution-failed")
+    .map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.message);
 
 /**
- * One evaluated library module yields exactly the owners it registers, and
- * every way an export can fail to become one is refused at that export.
+ * One evaluated library module yields exactly the owners it registers, and every way an export can fail to become one is refused at that export.
  *
- * The builder cannot know an owner's export name in advance, so the collector
- * discovers owners by shape. A value that is not an object naming a string
- * `design`, or one that names a design with neither `build` nor
- * `derivedArtifact`, is a helper rather than an owner and must stay silent.
- * An owner the authoring declaration does not know, an owner edge the graph
- * did not select, and an asynchronous result are each refused before anything
- * is registered. Evaluation or a build that throws abandons every registration
- * from that module, because a partially evaluated module is not a result, while
- * refusals already recorded stay visible beside the failure.
+ * The builder cannot know an owner's export name in advance, so the collector discovers owners by shape. A value that is not an object naming a string `design`, or one that names a design with neither `build` nor `derivedArtifact`, is a helper rather than an owner and must stay silent. An owner the authoring declaration does not know, an owner edge the graph did not select, and an asynchronous result are each refused before anything is registered. Evaluation or a build that throws abandons every registration from that module, because a partially evaluated module is not a result, while refusals already recorded stay visible beside the failure.
  *
  * Scenarios:
  *
@@ -118,22 +110,26 @@ const failures = (result: ReturnType<typeof collect>) =>
  * 6. `buildLibrarySource` evaluates a real module through Node's loader: this
  *    scenario's own file carries no owner and yields nothing, and a path that
  *    does not exist is refused as a module evaluation failure.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Collects evaluated exports and checks exact registrations, normalization and per-export refusals, catching helpers registered as owners or partial registrations surviving evaluation failure.
+ * @evidence contracts/testing.md#independent-expectations Literal accepted export names, refusal codes and target paths derive from owner shape, graph admission and synchronous contribution requirements; substring checks limit the oracle for full failure wording.
+ * @evidence contracts/testing.md#distinguishing-cases Covers helper shapes, malformed artifact selection, unknown and unbound owners, Promise results, omitted and empty contexts, thrown Error/string/object values, a real module with no owners and an absent module path; derived JSON duplication belongs to its adjacent test.
+ * @evidence contracts/testing.md#execution-ownership This named unit entry owns all collector callbacks and an in-process Node module evaluation of its own fixture plus a missing path; it installs no consumer, builds no native artifact and starts no separate host.
  */
-export const test_production_library_source_registration_refusals =
-  (): void => {
+export function test_production_library_source_registration_refusals(): void {
     // 1. Discovery by shape and deterministic order.
     TestValidator.equals(
       "only design owners with a build or derived form are discovered",
       shape(
         collect(
-          () => ({
-            zeta: { design: DESIGN, build: () => EMPTY },
-            alpha: { design: DESIGN, build: () => EMPTY },
-            helper: () => EMPTY,
+          (): { zeta: { design: string; build: () => { environments: never[]; models: never[]; }; }; alpha: { design: string; build: () => { environments: never[]; models: never[]; }; }; helper: () => { environments: never[]; models: never[]; }; constant: number; nothing: null; noDesign: { build: () => { environments: never[]; models: never[]; }; }; numericDesign: { design: number; build: () => { environments: never[]; models: never[]; }; }; inert: { design: string; }; } => ({
+            zeta: { design: DESIGN, build: (): { environments: never[]; models: never[]; } => EMPTY },
+            alpha: { design: DESIGN, build: (): { environments: never[]; models: never[]; } => EMPTY },
+            helper: (): { environments: never[]; models: never[]; } => EMPTY,
             constant: 3,
             nothing: null,
-            noDesign: { build: () => EMPTY },
-            numericDesign: { design: 4, build: () => EMPTY },
+            noDesign: { build: (): { environments: never[]; models: never[]; } => EMPTY },
+            numericDesign: { design: 4, build: (): { environments: never[]; models: never[]; } => EMPTY },
             inert: { design: DESIGN },
           }),
           ["alpha", "zeta"],
@@ -143,15 +139,15 @@ export const test_production_library_source_registration_refusals =
     );
 
     // 2. A non-string derived selection is a null selection.
-    const nonString = collect(
-      () => ({ lantern: { design: DESIGN, derivedArtifact: 7 } }),
+    const nonString: ReturnType<typeof collectLibrarySourceRegistrations> = collect(
+      (): { lantern: { design: string; derivedArtifact: number; }; } => ({ lantern: { design: DESIGN, derivedArtifact: 7 } }),
       ["lantern"],
     );
     TestValidator.equals(
       "a non-string derived selection is refused at the source",
       [
         shape(nonString),
-        nonString.diagnostics.every((diagnostic) =>
+        nonString.diagnostics.every((diagnostic: IAutoMovieDiagnostic): boolean =>
           diagnostic.message.includes("Received null."),
         ),
       ],
@@ -175,13 +171,13 @@ export const test_production_library_source_registration_refusals =
       "each admission failure is refused at its export",
       shape(
         collect(
-          () => ({
+          (): { asynchronous: { design: string; build: () => Promise<{ environments: never[]; models: never[]; }>; }; unbound: { design: string; build: () => { environments: never[]; models: never[]; }; }; unknown: { design: string; build: () => { environments: never[]; models: never[]; }; }; } => ({
             asynchronous: {
               design: DESIGN,
-              build: () => Promise.resolve(EMPTY),
+              build: (): Promise<{ environments: never[]; models: never[]; }> => Promise.resolve(EMPTY),
             },
-            unbound: { design: DESIGN, build: () => EMPTY },
-            unknown: { design: "docs/settings/other.md#x", build: () => EMPTY },
+            unbound: { design: DESIGN, build: (): { environments: never[]; models: never[]; } => EMPTY },
+            unknown: { design: "docs/settings/other.md#x", build: (): { environments: never[]; models: never[]; } => EMPTY },
           }),
           ["asynchronous", "unknown"],
         ),
@@ -205,7 +201,7 @@ export const test_production_library_source_registration_refusals =
     );
 
     // 4. Explicit and omitted contexts normalize alike.
-    const normalized = {
+    const normalized: { registrations: { export: string; design: string; contribution: { environments: never[]; models: never[]; contexts: never[]; }; }[]; diagnostics: never[]; } = {
       registrations: [
         {
           export: "lantern",
@@ -219,16 +215,16 @@ export const test_production_library_source_registration_refusals =
       "contexts normalize to one list",
       [
         collect(
-          () => ({
+          (): { lantern: { design: string; build: () => { contexts: never[]; environments: never[]; models: never[]; }; }; } => ({
             lantern: {
               design: DESIGN,
-              build: () => ({ ...EMPTY, contexts: [] }),
+              build: (): { contexts: never[]; environments: never[]; models: never[]; } => ({ ...EMPTY, contexts: [] }),
             },
           }),
           ["lantern"],
         ),
         collect(
-          () => ({ lantern: { design: DESIGN, build: () => EMPTY } }),
+          (): { lantern: { design: string; build: () => { environments: never[]; models: never[]; }; }; } => ({ lantern: { design: DESIGN, build: (): { environments: never[]; models: never[]; } => EMPTY } }),
           ["lantern"],
         ),
       ],
@@ -236,18 +232,18 @@ export const test_production_library_source_registration_refusals =
     );
 
     // 5. Evaluation failures abandon registrations and keep refusals.
-    const evaluation = collect(() => thrown(new Error("module exploded")), []);
-    const thrownString = collect(
-      () => ({
-        a: { design: DESIGN, build: () => EMPTY },
-        b: { design: "docs/settings/other.md#x", build: () => EMPTY },
-        c: { design: DESIGN, build: () => thrown("string failure") },
+    const evaluation: ReturnType<typeof collectLibrarySourceRegistrations> = collect((): never => thrown(new Error("module exploded")), []);
+    const thrownString: ReturnType<typeof collectLibrarySourceRegistrations> = collect(
+      (): { a: { design: string; build: () => { environments: never[]; models: never[]; }; }; b: { design: string; build: () => { environments: never[]; models: never[]; }; }; c: { design: string; build: () => never; }; } => ({
+        a: { design: DESIGN, build: (): { environments: never[]; models: never[]; } => EMPTY },
+        b: { design: "docs/settings/other.md#x", build: (): { environments: never[]; models: never[]; } => EMPTY },
+        c: { design: DESIGN, build: (): never => thrown("string failure") },
       }),
       ["a", "c"],
     );
-    const thrownObject = collect(
-      () => ({
-        lantern: { design: DESIGN, build: () => thrown({ reason: 1 }) },
+    const thrownObject: ReturnType<typeof collectLibrarySourceRegistrations> = collect(
+      (): { lantern: { design: string; build: () => never; }; } => ({
+        lantern: { design: DESIGN, build: (): never => thrown({ reason: 1 }) },
       }),
       ["lantern"],
     );
@@ -282,33 +278,33 @@ export const test_production_library_source_registration_refusals =
     );
     TestValidator.predicate(
       "each failure names where evaluation stopped and what was thrown",
-      failures(evaluation).every((message) =>
+      failures(evaluation).every((message: string): boolean =>
         message.startsWith(
           `Library source the module in ${SOURCE} failed while building its contribution: module exploded.`,
         ),
       ) &&
-        failures(thrownString).every((message) =>
+        failures(thrownString).every((message: string): boolean =>
           message.startsWith(
             `Library source export "c" in ${SOURCE} failed while building its contribution: string failure.`,
           ),
         ) &&
-        failures(thrownObject).every((message) =>
+        failures(thrownObject).every((message: string): boolean =>
           message.startsWith(
             `Library source export "lantern" in ${SOURCE} failed while building its contribution: [object Object].`,
           ),
         ) &&
         [evaluation, thrownString, thrownObject].every(
-          (result) => failures(result).length === 1,
+          (result: ReturnType<typeof collectLibrarySourceRegistrations>): boolean => failures(result).length === 1,
         ),
     );
 
     // 6. The real loader boundary.
-    const sourceRoot = path.resolve(__dirname, "../../..");
-    const self = path
+    const sourceRoot: string = path.resolve(__dirname, "../../..");
+    const self: string = path
       .relative(sourceRoot, __filename)
       .split(path.sep)
       .join("/");
-    const absent = "src/features/production/__absent_library_source__.ts";
+    const absent: string = "src/features/production/__absent_library_source__.ts";
     TestValidator.equals(
       "the loader hands a real module's exports to the collector",
       [
@@ -339,4 +335,4 @@ export const test_production_library_source_registration_refusals =
         },
       ],
     );
-  };
+  }

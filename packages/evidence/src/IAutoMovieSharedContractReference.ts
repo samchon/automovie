@@ -10,6 +10,8 @@ import type { AutoMovieContractDomain } from "./AutoMovieContractDomain";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; EXPECTED_CONTRACTS retains bounded route records used by validateContracts and sharedReference, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; EXPECTED_CONTRACTS retains bounded route records used by validateContracts and sharedReference, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; EXPECTED_CONTRACTS retains bounded route records used by validateContracts and sharedReference, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export type IAutoMovieSharedContractReference = {
   /** Semantic route domain, separate from the directory's duty family. */

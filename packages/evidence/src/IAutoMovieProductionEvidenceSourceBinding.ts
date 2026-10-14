@@ -10,7 +10,7 @@
  * @evidence contracts/common.md#meaningful-documentation Members state exact globs, symbols and existing selected project-relative paths.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased lineage interface creates no source population; sourceBindingOf gathers selector/path arrays and transfers the binding through readAutoMovieProductionEvidence to the observation caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased lineage interface creates no source population. The supplying observation owns its selectors and paths; librarySnapshotActivePaths shares active supplied paths during acquisition and librarySnapshotCanonicalSourceBinding copies selected records into the attempt-owned authoring snapshot.
  *
  * @author Samchon
  */

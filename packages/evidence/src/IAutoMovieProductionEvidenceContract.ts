@@ -10,7 +10,7 @@ import type { IAutoMovieProductionEvidenceUnit } from "./IAutoMovieProductionEvi
  * @evidence contracts/common.md#meaningful-documentation Members state docs/contracts path and exact item ordering.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased contract record acquires no state or handle; readAutoMovieProductionEvidence projects readMarkdownDocument results into path/title/H2 inventories retained by the observation caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased contract record acquires no state or handle. The observation supplier owns its path/title/H2 inventory; compileAutoMovieLibrary's snapshotAuthoring spread preserves the supplied contracts array by reference while replacing the snapshot's selected design/source fields, without independently reading contract files.
  *
  * @author Samchon
  */

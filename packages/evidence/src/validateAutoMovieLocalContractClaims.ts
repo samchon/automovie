@@ -10,11 +10,7 @@ import { createAutoMovieProductionPrincipleClaim } from "./createAutoMovieProduc
 /**
  * Refuses a local binding whose native claim disagrees with its typed owner.
  *
- * Principle and account policy are reconstructed through their public factories
- * so a caller cannot retain admission metadata while narrowing or disabling its
- * duty, including through native claim-level severity.
- * Native claims with no AutoMovie binding remain additive native claims.
- *
+ * Principle and account policy are reconstructed through their public factories so a caller cannot retain admission metadata while narrowing or disabling its duty, including through native claim-level severity. Native claims with no AutoMovie binding remain additive native claims.
  *
  * @evidence contracts/common.md#principled-implementation Binding layer, stage, pass, scope and disposition must agree with the graph, then canonical factories reconstruct principle or obligation references for exact structural comparison.
  * @evidence contracts/common.md#clear-and-simple-design Typed AutoMovie ownership is validated before native projection; unbound additive native claims remain outside this product-specific policy.

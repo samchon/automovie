@@ -5,15 +5,10 @@ import type { AutoMovieProductionKind } from "./AutoMovieProductionKind";
 /**
  * Selects shared contracts by the work an authored layer actually produces.
  *
- * Construction principles govern the narrative ladder's meaning and form.
- * Audience-language naturalness rules are deferred to screenplay
- * naturalness. Research, settings, and design select their technical contracts
- * in every production shape. The complete inventory still ships with every
- * production.
- *
+ * Construction principles govern the narrative ladder's meaning and form. Audience-language naturalness rules are deferred to screenplay naturalness. Research, settings, and design select technical contracts in every production shape. Graph admission requires the complete resident inventory; this selector does not supply documents and the current blank scaffold ships none.
  *
  * @evidence contracts/common.md#principled-implementation Layer role selects core, story, delivery or design discovery, principle and obligation paths, with film settings receiving the subject obligation.
- * @evidence contracts/common.md#clear-and-simple-design One selector owns the concrete shipped contract inventory by authored work type.
+ * @evidence contracts/common.md#clear-and-simple-design One selector owns the required logical contract routes by authored work type while the graph caller supplies the physical documents.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Narrative audience-language naturalness is deferred to final screenplay rules; no private fixture path changes selection.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies narrative and technical branch policy while the return separates discovery, principles and obligations.
  * @evidence contracts/performance.md#efficient-algorithms Fixed layer tests and small path arrays require O(1) work relative to production file population.

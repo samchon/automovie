@@ -11,7 +11,7 @@ import type { IAutoMovieProductionEvidenceSourceBinding } from "./IAutoMovieProd
  * @evidence contracts/common.md#meaningful-documentation Members state graph-selected path, sole H1 and ordered denominator.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased owner shape performs no read or retention; readAutoMovieProductionEvidence shares each parsed document's H2 units and its branch source binding into owner records whose lifetime belongs to the result caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased owner shape performs no read or retention. Observation suppliers own its unit and source-binding records; library snapshot acquisition copies identity records and createAutoMovieLibraryOwnerContexts indexes their supplied path/anchor addresses for one compile attempt.
  *
  * @author Samchon
  */

@@ -14,8 +14,13 @@ import { namedFacts } from "../internal/predicates";
  *    fail with distinct reasons.
  * 3. A path alias and a same-named export from another branch cannot borrow the
  *    completed edge.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves an executed export to an exact graph-selected source owner and asserts success or distinct missing, ambiguous, owner, digest and review reasons, catching borrowed or stale execution identity.
+ * @evidence contracts/testing.md#independent-expectations Literal boolean facts and refusal categories derive from unique completed enforced ownership and exact source identity; supplied digest strings test matching rather than independently verifying source bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty and absent carriers, duplicate and adjacent targets, swapped owner, stale digest, unfinished and evidence stages, path aliases and another branch; source acquisition owns actual byte observations.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns every namedFacts callback and invokes the actual resolver on resident bindings without installing or starting a production host.
  */
-export const test_production_source_owner_binding = (): void => {
+export function test_production_source_owner_binding(): void {
   const binding: IAutoMovieProductionEvidenceSourceOwnerBinding = {
     branch: "spaceSources",
     stage: "review",
@@ -29,11 +34,11 @@ export const test_production_source_owner_binding = (): void => {
     targetPath: "docs/spaces/hall.md",
     targetAnchor: "hall",
   };
-  const resolve = (
+  const resolve: (overrides?: Partial<Parameters<typeof resolveAutoMovieSourceOwnerBinding>[0]>) => { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string; } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null; } = (
     overrides: Partial<
       Parameters<typeof resolveAutoMovieSourceOwnerBinding>[0]
     > = {},
-  ) =>
+  ): { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string; } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null; } =>
     resolveAutoMovieSourceOwnerBinding({
       bindings: [binding],
       branch: binding.branch,
@@ -44,7 +49,7 @@ export const test_production_source_owner_binding = (): void => {
       requireReviewed: true,
       ...overrides,
     });
-  const adjacent = {
+  const adjacent: { targetAnchor: string; branch: string; stage: string; enforced: boolean; relationship: "lineage"; sourcePath: string; exportName: string; symbolKind: "function" | "property" | "type"; sourceDigest: string; targetPath: string; } = {
     ...binding,
     targetAnchor: "annex",
   };
@@ -52,57 +57,57 @@ export const test_production_source_owner_binding = (): void => {
   TestValidator.equals(
     "source owner binding admits exactly one current completed edge",
     namedFacts([
-      ["exactEdgeResolves", () => resolve().success],
+      ["exactEdgeResolves", (): boolean => resolve().success],
       [
         "shotEntryUsesSelectedOwnerWithoutRuntimeClaim",
-        () => resolve({ owner: undefined }).success,
+        (): boolean => resolve({ owner: undefined }).success,
       ],
       [
         "missingEdgeIsDistinct",
-        () => resolve({ bindings: [] }).reason === "missing",
+        (): boolean => resolve({ bindings: [] }).reason === "missing",
       ],
       [
         "missingCarrierFailsWithoutThrowing",
-        () => resolve({ bindings: undefined }).reason === "missing",
+        (): boolean => resolve({ bindings: undefined }).reason === "missing",
       ],
       [
         "ambiguousEdgeIsDistinct",
-        () => resolve({ bindings: [binding, binding] }).reason === "ambiguous",
+        (): boolean => resolve({ bindings: [binding, binding] }).reason === "ambiguous",
       ],
       [
         "runtimeOwnerCannotDisambiguateSeveralTargets",
-        () => resolve({ bindings: [binding, adjacent] }).reason === "ambiguous",
+        (): boolean => resolve({ bindings: [binding, adjacent] }).reason === "ambiguous",
       ],
       [
         "swappedOwnerIsDistinct",
-        () =>
+        (): boolean =>
           resolve({ owner: "docs/spaces/annex.md#annex" }).reason === "owner",
       ],
       [
         "staleSourceIsDistinct",
-        () => resolve({ sourceDigest: "sha256:changed" }).reason === "digest",
+        (): boolean => resolve({ sourceDigest: "sha256:changed" }).reason === "digest",
       ],
       [
         "incompleteEdgeBlocksAdmission",
-        () =>
+        (): boolean =>
           resolve({ bindings: [{ ...binding, stage: "draft" }] }).reason ===
           "review",
       ],
       [
         "evidenceStageCompletesWithoutCompanionReview",
-        () =>
+        (): boolean =>
           resolve({
             bindings: [{ ...binding, stage: "evidence" }],
           }).success,
       ],
       [
         "pathAliasCannotBorrowEdge",
-        () =>
+        (): boolean =>
           resolve({ sourcePath: "src/spaces/./hall.ts" }).reason === "missing",
       ],
       [
         "otherBranchCannotBorrowEdge",
-        () => resolve({ branch: "modelSources" }).reason === "missing",
+        (): boolean => resolve({ branch: "modelSources" }).reason === "missing",
       ],
     ]),
     {
@@ -120,4 +125,4 @@ export const test_production_source_owner_binding = (): void => {
       otherBranchCannotBorrowEdge: true,
     },
   );
-};
+}

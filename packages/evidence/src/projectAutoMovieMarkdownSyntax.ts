@@ -77,7 +77,7 @@ function visibleMarkdownLines(source: string): string[] {
       output.push("");
       continue;
     }
-    if (/^(?: {4}|\t)/u.test(sourceLines[index]!)) {
+    if (/^(?: {4}| {0,3}\t)/u.test(sourceLines[index]!)) {
       output.push("");
       continue;
     }

@@ -10,7 +10,7 @@
  * @evidence contracts/common.md#meaningful-documentation Members state graph activation, symbol kind, normalized source digest and exact target address.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased export-to-target edge acquires nothing; sourceOwnerBindingsOf constructs string/digest records for the observation caller and keeps parsed ASTs and source text within its inspection call.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased export-to-target edge acquires nothing. The observation supplier owns its string/digest records; resolveAutoMovieSourceOwnerBinding returns one admitted supplied edge by reference and library snapshot acquisition copies enforced edges into an attempt-owned identity, without this type owning source bytes or an AST.
  *
  * @author Samchon
  */

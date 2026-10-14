@@ -1,10 +1,24 @@
 import { type IAutoMovieEvidenceSyntaxDocument } from "./IAutoMovieEvidenceSyntaxDocument";
 import { parseAutoMovieEvidenceSyntax } from "./parseAutoMovieEvidenceSyntax";
 
+/**
+ * Parsed declaration fields used by syntax-only duplicate and prior-acknowledgement checks.
+ *
+ * The optional fingerprint is retained from the native review grammar; target graph resolution remains outside this private record.
+ *
+ * @author Samchon
+ */
 interface IParsedAnnotation {
+  /** Whether the declaration excludes its addressed checklist target. */
   exclusion: boolean;
+
+  /** Native review token, or null for an acknowledgement. */
   fingerprint: string | null;
+
+  /** Grammar branch that determines the required prior declaration. */
   kind: "acknowledgement" | "review";
+
+  /** Unresolved Markdown address checked for canonical relative spelling. */
   target: string;
 }
 
@@ -16,9 +30,7 @@ const FINGERPRINT_TOKEN: RegExp = /(?:^|\s)#[0-9a-f]{7}(?=\s|$)/gu;
 /**
  * Refuses deterministic contradictions in native evidence declarations.
  *
- * Graph resolution remains `@wrtnlabs/evidence`'s authority. This preflight owns
- * only syntax facts that can otherwise produce a false carrier, a conflicting
- * acknowledgement, or a review with no declaration to review.
+ * Graph resolution remains `@wrtnlabs/evidence`'s authority. This preflight owns only syntax facts that can otherwise produce a false carrier, a conflicting acknowledgement, or a review with no declaration to review.
  *
  * Every detected defect is collected into one Error with document, line and host addresses. Review rows require a prior matching acknowledgement; target syntax is checked without resolving whether the addressed Markdown unit exists.
  *

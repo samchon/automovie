@@ -52,7 +52,7 @@ export function markdownCommentRegions(source: string): ICommentRegion[] {
         absolute += raw.length;
         continue;
       }
-      if (/^(?: {4}|\t)/u.test(content)) {
+      if (/^(?: {4}| {0,3}\t)/u.test(content)) {
         absolute += raw.length;
         continue;
       }

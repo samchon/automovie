@@ -6,7 +6,7 @@ import { ANNOTATION } from "./parseAutoMovieEvidenceSyntaxInternal/ANNOTATION";
 /**
  * Removes only structural evidence comments from authored Markdown.
  *
- * General HTML comments, headings, prose, punctuation, and source line endings remain protected. Retained-pilot receipts use this authored-body identity separately from their evidence declaration identity.
+ * General HTML comments, including comments that mix evidence and another tag, remain protected with headings, prose, punctuation and source line endings. Retained-pilot receipts use this authored-body identity separately from their evidence declaration identity.
  *
  *
  * @evidence contracts/common.md#principled-implementation Only closed comments composed of structural evidence rows and their continuations are removed; original nonmetadata text and line endings remain unchanged.
@@ -46,7 +46,7 @@ function isEvidenceComment(comment: string): boolean {
     if (ANNOTATION.test(line)) {
       continuation = true;
       found = true;
-    } else if (!continuation) return false;
+    } else if (!continuation || /^@\S/u.test(line)) return false;
   }
   return found;
 }

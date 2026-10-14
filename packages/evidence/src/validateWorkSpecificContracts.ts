@@ -33,7 +33,7 @@ const EVIDENCE_TARGET: RegExp = /@evidence[A-Za-z]*\s+([^\s]+)/gu;
  * @evidence contracts/common.md#clear-and-simple-design Discovery carriers and canonical annotations are checked here before target coverage admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nested or non-contract entries, active layers without a rule or ledger and discovery carriers in the wrong document are rejected.
  * @evidence contracts/common.md#meaningful-documentation Checks concern retained rule ownership, annotation addresses and H1 form; this function does not grade substantive prose.
- * @evidence contracts/performance.md#efficient-algorithms Directory enumeration is linear in entries, with annotation and heading parsing proportional to total local contract bytes.
+ * @evidence contracts/performance.md#efficient-algorithms Directory enumeration is linear in entries; each file separately projects annotations and headings, including up to O(C L+C H) repeated text copies/heading searches for L text, C comments and H headings, plus carrier scans.
  * @evidence contracts/performance.md#reuse-equivalent-work One annotations array per file serves carrier checks; heading parsing currently performs a separate read.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Read buffers and annotation arrays are released after the synchronous pass; no discovery ledger cache or task is retained.
  */

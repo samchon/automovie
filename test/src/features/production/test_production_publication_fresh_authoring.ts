@@ -9,7 +9,19 @@ import path from "node:path";
 import { loadSourceModule } from "../internal/loadSourceModule";
 import { throwsError } from "../internal/predicates";
 
-const runtime = loadSourceModule<{
+const runtime: {
+  readProductionPublicationInputFingerprint: <Authoring>(props: {
+    snapshot: Readonly<Record<string, unknown>>;
+    currentAuthoringEvidence?: () => Authoring;
+    compile: (
+      authoring: Authoring | undefined,
+      current: (() => Authoring) | undefined,
+    ) => Pick<
+      IAutoMovieBuildProjectOutput,
+      "success" | "builder" | "diagnostics"
+    >;
+  }) => string;
+} = loadSourceModule<{
   readProductionPublicationInputFingerprint: <Authoring>(props: {
     snapshot: Readonly<Record<string, unknown>>;
     currentAuthoringEvidence?: () => Authoring;
@@ -134,7 +146,7 @@ export function test_production_publication_fresh_authoring(): void {
   TestValidator.equals(
     "reader failure propagates",
     throwsError(
-      () =>
+      (): string =>
         runtime.readProductionPublicationInputFingerprint({
           snapshot: {},
           currentAuthoringEvidence: (): never => {

@@ -8,7 +8,7 @@ import type { IAutoMovieProductionEvidenceContract } from "./IAutoMovieProductio
 
 
 /**
- * The project-owned authoring identity derived from one evidence declaration.
+ * A caller-supplied project authoring observation tied to one evidence declaration.
  *
  * @evidence contracts/common.md#principled-implementation Tracked configuration and its derived manifest define complete package, design, source-owner and local contract observation.
  * @evidence contracts/common.md#clear-and-simple-design One graph-backed DTO retains actual authoring identity without a prose alarm or lexical measurement subsystem.
@@ -16,13 +16,13 @@ import type { IAutoMovieProductionEvidenceContract } from "./IAutoMovieProductio
  * @evidence contracts/common.md#meaningful-documentation Members state root, package description fallback, graph authority and selected inventories.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased aggregate type neither opens the project nor retains an observation; readAutoMovieProductionEvidence creates manifests and inventories, shares the supplied configuration, and transfers the resulting arrays and strings to its caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased aggregate type acquires no observation or handle. The caller supplies it to production builders and contexts; captureAutoMovieLibraryAuthoringSnapshot copies its configuration and selected identity records into an attempt-owned snapshot, while timed identity and publication readers consume current caller-supplied observations.
  *
  * @author Samchon
  */
 export interface IAutoMovieProductionEvidence {
 
-  /** Absolute generated-project root inspected by the reader. */
+  /** Absolute generated-project root identified by the supplying observation. */
   root: string;
 
   /** Package identity from the tracked manifest. */
@@ -31,7 +31,7 @@ export interface IAutoMovieProductionEvidence {
   /** Trimmed package description, or an empty string when absent. */
   description: string;
 
-  /** The exact tracked declaration supplied to lint and this reader. */
+  /** The exact tracked declaration represented by this supplied observation. */
   configuration: IAutoMovieEvidenceConfigProps;
 
   /** Shape-aware binding manifest derived by the evidence factory. */

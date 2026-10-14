@@ -1,8 +1,14 @@
 import type { AutoMovieAuthoredDocumentLayer } from "./AutoMovieAuthoredDocumentLayer";
 
+/**
+ * Keep a layer's selected authored depths together with its collective obligation eligibility.
+ *
+ * @author Samchon
+ */
 interface IAutoMovieAuthoredEvidencePopulation {
   /** Authored depths required in every selected unit file. */
   headings: readonly (2 | 3 | 4)[];
+
   /** Whether this layer participates in shared distributed obligation coverage. */
   obligation: boolean;
 }

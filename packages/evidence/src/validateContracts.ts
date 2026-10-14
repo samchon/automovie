@@ -34,9 +34,9 @@ function walkFiles(root: string, extension: ".md" | ".ts"): string[] {
 }
 
 /**
- * Compare the exact bundled file and H2 inventory, then reject duplicate target anchors or normalized titles and validate structured language routing.
+ * Compare the required project-owned file and H2 inventory, then reject duplicate target anchors or normalized titles and validate structured language routing.
  *
- * @evidence contracts/common.md#principled-implementation Compare the exact bundled file and H2 inventory, then reject duplicate target anchors or normalized titles and validate structured language routing.
+ * @evidence contracts/common.md#principled-implementation Resident file and H2 inventories must equal the configured contract addresses before unique identities and structured language routes are admitted.
  * @evidence contracts/common.md#clear-and-simple-design The returned identity registry lets production-only targets extend the same uniqueness pass.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Inventory constants define supported contracts rather than expected test answers; title normalization is identity admission, not prose grading.
  * @evidence contracts/common.md#meaningful-documentation The gate throws on missing, extra or malformed targets and checks route metadata rather than arbitrary narrative semantics.
@@ -103,8 +103,8 @@ export function validateContracts(location: string, language: AutoMovieProductio
       );
   }
   validateStructuredSharedRules(root);
-  // An unrendered scaffold has no pack to validate; every other declaration
-  // reached this point with a supported module and owes the complete pack.
+  // The retained blank-state exception can bypass language membership, after
+  // the shared resident inventory has already been required above.
   if (isAutoMovieProductionLanguage(language))
     validateLanguageContract(root, language);
   return { anchors, titles };

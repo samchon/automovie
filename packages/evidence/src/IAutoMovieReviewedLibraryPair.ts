@@ -4,8 +4,7 @@
 /**
  * One completed design/source pair carried by a library pilot receipt.
  *
- * The type name preserves the version-1 receipt API; completion occurs at
- * evidence, with review retained as a compatible declaration.
+ * The type name preserves the version-1 receipt API; completion occurs at evidence, with review retained as a compatible declaration.
  *
  * @evidence contracts/common.md#principled-implementation Closed design and source unions describe one recorded library pair; runtime reset validation checks that the two selected names are the recognized matching pair.
  * @evidence contracts/common.md#clear-and-simple-design The pair record isolates library branch correspondence from film ladder and delivery-group semantics.

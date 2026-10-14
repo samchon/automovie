@@ -11,6 +11,8 @@ import type { ITtscEvidenceGraphClaim } from "@ttsc/evidence";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; branchClaims allocates binding pairs consumed by graph and manifest assembly, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; branchClaims allocates binding pairs consumed by graph and manifest assembly, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; branchClaims allocates binding pairs consumed by graph and manifest assembly, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieEvidenceBranchClaim {
   /** Declared stage owner used by manifest projection. */

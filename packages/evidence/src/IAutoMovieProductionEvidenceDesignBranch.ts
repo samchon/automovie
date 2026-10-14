@@ -10,7 +10,7 @@ import type { IAutoMovieProductionEvidenceSourceBinding } from "./IAutoMovieProd
  * @evidence contracts/common.md#meaningful-documentation Members state design stage and null-before-start source binding.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased branch declaration allocates no inventory; readAutoMovieProductionEvidence creates stage/lineage records, including empty branches, and transfers them to the observation caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased branch declaration creates no inventory. The observation supplier owns its stage and lineage records; captureAutoMovieLibraryAuthoringSnapshot and librarySnapshotSortedDesignBranches copy their selected identity into the compile attempt's snapshot, including empty branches.
  *
  * @author Samchon
  */

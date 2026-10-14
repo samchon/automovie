@@ -2,15 +2,11 @@
 
 
 /**
- * Its role is limited to evidence tag starts, with carrier ownership decided by the parser.
+ * Recognize evidence row starts inside an admitted comment carrier.
  *
- * An anchored structural tag prefix identifies native evidence row starts within an already admitted comment carrier.
- * One fixed token recognizer serves wrapped-row parsing and structural-comment projection.
- * This regex recognizes syntax only and never judges prose quality or production subject matter.
- * Its role is limited to evidence tag starts, with carrier ownership decided by the parser.
- * Matching one line prefix is O(prefix length) and retains fixed regex state.
- * Both carrier helpers share the same structural tag grammar.
- * Only a module-owned pattern persists without source buffers or handles.
+ * Wrapped-row parsing and structural-comment projection share this anchored native tag prefix. The parser decides carrier ownership; the regex recognizes syntax without judging prose quality or production subject matter.
+ *
+ * Matching inspects the row prefix, with time proportional to its matched prefix length and fixed pattern state. One module-owned regex is reused without retaining source buffers, project results or handles.
  *
  * @author Samchon
  */

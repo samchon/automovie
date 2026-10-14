@@ -15,6 +15,8 @@ import type { ITtscEvidenceGraphClaim } from "@ttsc/evidence";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; createAutoMovieEvidenceConfig validates the caller-owned project declaration, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; createAutoMovieEvidenceConfig validates the caller-owned project declaration, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; createAutoMovieEvidenceConfig validates the caller-owned project declaration, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieEvidenceConfigProps {
   /** Absolute generated-project root whose physical populations are validated. */
@@ -23,7 +25,7 @@ export interface IAutoMovieEvidenceConfigProps {
   /** Mutually exclusive production shape, or null before selection. */
   kind: AutoMovieProductionKind | null;
 
-  /** Exact bundled language contract selected for authored documents. */
+  /** Supported audience-language identity; graph callers must supply its resident project-owned contract pack. */
   language: AutoMovieProductionLanguage;
 
   /** Exact complete, first-pilot, or post-pilot-reset host population. */

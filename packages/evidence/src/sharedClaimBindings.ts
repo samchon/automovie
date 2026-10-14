@@ -169,7 +169,7 @@ enabled: requiresEvidence(stage)
  * Concatenate authored, screenplay revision and source claims while preserving their owning branch and policy order.
  *
  * @evidence contracts/common.md#principled-implementation Concatenate authored, screenplay revision and source claims while preserving their owning branch and policy order.
- * @evidence contracts/common.md#clear-and-simple-design Pure shared assembly is reused by both graph publication and route manifests after independent admission.
+ * @evidence contracts/common.md#clear-and-simple-design Both graph publication and route manifests share this assembly after independent admission; foundation references synchronously walk current physical populations through referencesPerFile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Discovery remains on adopted local contracts or the negative ledger; source cardinality and no-exclusion duties remain explicit.
  * @evidence contracts/common.md#meaningful-documentation Returned records include disabled branches; review freshness is false in current assembled references.
  * @evidence contracts/performance.md#efficient-algorithms Supported branches and depths are fixed, but foundation references can walk physical populations repeatedly; output grows with selected files.

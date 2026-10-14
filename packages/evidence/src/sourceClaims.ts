@@ -35,7 +35,7 @@ function sourceUnitPrinciples(shared: string, review: boolean): ITtscEvidenceGra
  * Construct named source-owner realization and unit obligations for design sources, shots, production serialization and film assembly.
  *
  * @evidence contracts/common.md#principled-implementation Construct named source-owner realization and unit obligations for design sources, shots, production serialization and film assembly.
- * @evidence contracts/common.md#clear-and-simple-design Source population metadata owns globs, required owner kinds and design correspondence; pure claim assembly preserves those responsibilities.
+ * @evidence contracts/common.md#clear-and-simple-design Source population metadata owns globs, owner kinds and design correspondence; assembly additionally walks current settings files through referencesPerFile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One-target owner cardinality and no-exclusion H2 realization stay explicit; current source references do not claim review receipts.
  * @evidence contracts/common.md#meaningful-documentation Disabled follows evidence completion, with film shot targets using final screenplays and brief targets using brief shots.
  * @evidence contracts/performance.md#efficient-algorithms The source family count is fixed, while settings per-file references trigger physical walks and output proportional to selected settings files.

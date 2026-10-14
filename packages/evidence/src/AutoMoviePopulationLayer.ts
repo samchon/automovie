@@ -1,9 +1,7 @@
 /**
- * An authored film layer whose unit-file population can participate in a
- * vertical-slice authoring scope.
+ * An authored film layer whose unit-file population can participate in a vertical-slice authoring scope.
  *
- * Treatments remain flat because they own no delivery partition. Scripts
- * design that partition, and screenplays inherit it exactly.
+ * Treatments remain flat because they own no delivery partition. Scripts design that partition, and screenplays inherit it exactly.
  *
  * @evidence contracts/common.md#principled-implementation The three literal narrative families distinguish flat treatments from scripts and screenplays whose populations can be narrowed by a delivery partition.
  * @evidence contracts/common.md#clear-and-simple-design This narrow population-layer union keeps pilot selectors separate from the wider authored Markdown family registry.

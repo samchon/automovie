@@ -30,6 +30,7 @@ import { validateAutoMoviePopulationAccountHosts } from "./validateAutoMoviePopu
 export function validateAutoMovieEvidenceAccounts(graph: IAutoMovieEvidenceConfigProps, input: {
     /** Docs-relative physical account files discovered by the population owner. */
     residents: readonly string[];
+
     /** Synchronous target read using a project-relative path; undefined means missing. */
     readH2Count: (projectRelative: string) => number | undefined;
   }): void {

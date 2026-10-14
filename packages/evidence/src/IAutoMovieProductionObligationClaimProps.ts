@@ -12,6 +12,8 @@ import type { IAutoMovieProductionContractClaimProps } from "./IAutoMovieProduct
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; createAutoMovieProductionObligationClaim derives scoped selectors and an account claim, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; createAutoMovieProductionObligationClaim derives scoped selectors and an account claim, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; createAutoMovieProductionObligationClaim derives scoped selectors and an account claim, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieProductionObligationClaimProps extends Omit<
   IAutoMovieProductionContractClaimProps,

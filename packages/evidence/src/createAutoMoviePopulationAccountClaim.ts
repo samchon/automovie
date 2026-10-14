@@ -7,7 +7,7 @@ import type { ITtscEvidenceGraphClaim, ITtscEvidenceGraphMarkdownReference } fro
  * Callers validate the shared or production-local path declaration. Each target needs positive evidence from a relevant host in the selected layer. The aggregate account is an available host for a population-wide conclusion.
  *
  * @evidence contracts/common.md#principled-implementation One aggregate account and its authored H2 population collectively cover an obligation's H2 targets.
- * @evidence contracts/common.md#clear-and-simple-design The constructor is shared by bundled obligations and production-local obligation declarations.
+ * @evidence contracts/common.md#clear-and-simple-design The constructor is shared by required resident obligations and production-local obligation declarations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts noEvidenceExclude remains true and requireReview is false; path validation is owned by the shared or local caller.
  * @evidence contracts/common.md#meaningful-documentation The account is a docs-relative optional aggregate host; disabled follows enabled and does not change cardinality.
  * @evidence contracts/performance.md#efficient-algorithms Copying population selectors is linear in their count; one claim and one reference are allocated.
@@ -17,14 +17,19 @@ import type { ITtscEvidenceGraphClaim, ITtscEvidenceGraphMarkdownReference } fro
 export function createAutoMoviePopulationAccountClaim(props: {
   /** Diagnostic identity of this collective obligation. */
   name: string;
+
   /** Docs-relative aggregate host address placed before authored selectors. */
   account: string;
+
   /** One target document path resolved below documentRoot. */
   document: string;
+
   /** Native root owning the obligation target document. */
   documentRoot: string;
+
   /** Docs-relative authored H2 selector population. */
   populationFiles: readonly string[];
+
   /** Whether this declared collective claim currently enforces coverage. */
   enabled: boolean;
 }): Extract<ITtscEvidenceGraphClaim, { type: "markdown" }> & {

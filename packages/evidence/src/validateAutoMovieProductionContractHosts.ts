@@ -18,10 +18,13 @@ import { requirePositivePopulation } from "./requirePositivePopulation";
 export function validateAutoMovieProductionContractHosts(props: {
   /** Required docs host root, with undefined rejected at this boundary. */
   root: string | undefined;
+
   /** Ordered positive or negative host glob selectors. */
   files: readonly string[];
+
   /** Authored branch allowed to own these selectors. */
   layer: AutoMovieProductionContractLayer;
+
   /** Construction or final screenplay naturalness host population. */
   pass: AutoMovieProductionContractPass;
 }): void {

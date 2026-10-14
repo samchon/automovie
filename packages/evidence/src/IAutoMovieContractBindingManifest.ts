@@ -25,12 +25,14 @@ import type { ITtscEvidenceGraphReference } from "@ttsc/evidence";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; createAutoMovieContractBindingManifest allocates branch and route arrays for its inspection caller, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; createAutoMovieContractBindingManifest allocates branch and route arrays for its inspection caller, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; createAutoMovieContractBindingManifest allocates branch and route arrays for its inspection caller, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieContractBindingManifest {
   /** Selected production shape, or null before any branch can be active. */
   kind: AutoMovieProductionKind | null;
 
-  /** Exact project-local language module shipped with this production. */
+  /** Selected language identity whose required pack is supplied by the graph caller's project. */
   language: AutoMovieProductionLanguage;
 
   /** Exact authored population selected by the project declaration. */
@@ -40,6 +42,7 @@ export interface IAutoMovieContractBindingManifest {
   branches: readonly {
     /** Current graph branch identity. */
     name: AutoMovieEvidenceBranch;
+
     /** Declared lifecycle stage of the owning branch. */
     stage: AutoMovieEvidenceStage;
   }[];
@@ -48,6 +51,7 @@ export interface IAutoMovieContractBindingManifest {
   bindings: readonly {
     /** Authored or source branch that owns this relationship. */
     branch: AutoMovieEvidenceBranch;
+
     /** Declared lifecycle stage of the owning branch. */
     stage: AutoMovieEvidenceStage;
 
@@ -56,6 +60,7 @@ export interface IAutoMovieContractBindingManifest {
 
     /** Stable graph diagnostic that owns the host population. */
     claim: string;
+
     /** Manifest classification of native host-to-target cardinality. */
     relationship: AutoMovieContractRelationship;
 
@@ -64,39 +69,50 @@ export interface IAutoMovieContractBindingManifest {
 
     /** Whether this reference currently asks for native review freshness. */
     requireReview?: boolean;
+
     /** The branch-owned native declaration population. */
     host: {
       /** Native population kind, or the manifest's contract-versus-population target discriminator. */
       type: "markdown" | "typescript";
+
       /** Configuration-relative population root used by native evaluation. */
       root: string;
+
       /** Ordered population selectors copied into this manifest. */
       files: readonly string[];
+
       /** Selected native address levels copied as an array. */
       symbols: readonly string[];
     };
-    /** Logical bundled contract route or independently addressed population. */
+
+    /** Logical project-owned contract route or independently addressed population. */
     target:
       | {
           /** Native population kind, or the manifest's contract-versus-population target discriminator. */
           type: "contract";
-          /** Duty family used to resolve the bundled route. */
+
+          /** Duty family used to resolve the resident contract route. */
           family: AutoMovieContractFamily;
+
           /** Semantic domain associated with the contract inventory entry. */
           domain: AutoMovieContractDomain;
 
           /** Logical family/domain path, not a legacy flat package address. */
           path: string;
+
           /** Contract H2 target identities in canonical order. */
           anchors: readonly string[];
         }
       | {
           /** Native population kind, or the manifest's contract-versus-population target discriminator. */
           type: "population";
+
           /** Configuration-relative population root used by native evaluation. */
           root: string;
+
           /** Ordered population selectors copied into this manifest. */
           files: readonly string[];
+
           /** Selected native address levels copied as an array. */
           symbols: readonly string[];
         };
@@ -112,10 +128,13 @@ export interface IAutoMovieContractBindingManifest {
   topology: {
     /** Current active provider and consumer identities used by the topology audit. */
     branches: readonly IAutoMovieEvidenceTopologyBranch[];
+
     /** Canonical provider-consumer dependencies, including simultaneous pairs. */
     expected: readonly IAutoMovieEvidenceTopologyEdge[];
+
     /** Factory-derived uses or inapplicable decisions for the selected branches. */
     declarations: readonly IAutoMovieEvidenceTopologyDeclaration[];
+
     /** Deterministic dependency audit results for this selected topology. */
     diagnostics: readonly IAutoMovieEvidenceTopologyDiagnostic[];
   };

@@ -1,3 +1,4 @@
+import { sourceSnapshotLibraryEvidence } from "../internal/sourceSnapshotLibraryEvidence";
 import {
   type IAutoMovieProductionEvidence,
   type IAutoMovieProductionEvidenceSourceOwnerBinding,
@@ -23,7 +24,7 @@ import {
   textDigest,
 } from "./sourceStatusFixtures";
 
-const { acquireAutoMovieProductionSourceSnapshot } = loadSourceModule<{
+const { acquireAutoMovieProductionSourceSnapshot }: { acquireAutoMovieProductionSourceSnapshot(props: { project: object; authoring: IAutoMovieProductionEvidence | undefined; documents: readonly string[]; listFiles: (root: string) => string[]; }): ISourceStatusSnapshot | null; } = loadSourceModule<{
   acquireAutoMovieProductionSourceSnapshot(props: {
     project: object;
     authoring: IAutoMovieProductionEvidence | undefined;
@@ -31,7 +32,7 @@ const { acquireAutoMovieProductionSourceSnapshot } = loadSourceModule<{
     listFiles: (root: string) => string[];
   }): ISourceStatusSnapshot | null;
 }>(productionModule("acquireAutoMovieProductionSourceSnapshot.ts"));
-const identity = loadSourceModule<{
+const identity: { authoringEvidenceFingerprintFields(evidence: IAutoMovieProductionEvidence | undefined): IAutoMovieFingerprintField[]; contentFingerprintFields(inputs: readonly IAutoMovieProductionContentInput[]): IAutoMovieFingerprintField[]; productionBuildInputFingerprint(productionId: string, graph: IAutoMovieProductionDesignGraph, sourceFields: readonly IAutoMovieFingerprintField[], contentFields: readonly IAutoMovieFingerprintField[]): string; } = loadSourceModule<{
   authoringEvidenceFingerprintFields(
     evidence: IAutoMovieProductionEvidence | undefined,
   ): IAutoMovieFingerprintField[];
@@ -45,28 +46,28 @@ const identity = loadSourceModule<{
     contentFields: readonly IAutoMovieFingerprintField[],
   ): string;
 }>(productionModule("productionBuildIdentity.ts"));
-const { captureAutoMovieLibraryAuthoringSnapshot } = loadSourceModule<{
+const { captureAutoMovieLibraryAuthoringSnapshot }: { captureAutoMovieLibraryAuthoringSnapshot(props: { root: string; evidence: IAutoMovieProductionEvidence; readSource: (path: string) => Uint8Array; }): { digest: string; }; } = loadSourceModule<{
   captureAutoMovieLibraryAuthoringSnapshot(props: {
     root: string;
     evidence: IAutoMovieProductionEvidence;
     readSource: (path: string) => Uint8Array;
   }): { digest: string };
 }>(productionModule("libraryAuthoringSnapshot.ts"));
-const { libraryBuildInputFingerprint } = loadSourceModule<{
+const { libraryBuildInputFingerprint }: { libraryBuildInputFingerprint(props: { production: string; snapshot: { digest: string; }; derivedFields: readonly IAutoMovieFingerprintField[]; }): string; } = loadSourceModule<{
   libraryBuildInputFingerprint(props: {
     production: string;
     snapshot: { digest: string };
     derivedFields: readonly IAutoMovieFingerprintField[];
   }): string;
 }>(productionModule("libraryBuildInputFingerprint.ts"));
-const { canonicalizeAutoMovieJson } = loadSourceModule<{
+const { canonicalizeAutoMovieJson }: { canonicalizeAutoMovieJson(value: unknown): string; } = loadSourceModule<{
   canonicalizeAutoMovieJson(value: unknown): string;
 }>(productionModule("contentIdentity.ts"));
 
-const ROOT = path.join(path.parse(process.cwd()).root, "workspace", "harbor");
-const OPENING = "export const opening = defineShot({ beats: 3 });\n";
-const HALL = "export const hall = { width: 4 };\n";
-const HALL_EDITED = "export const hall = { width: 5 };\n";
+const ROOT: string = path.join(path.parse(process.cwd()).root, "workspace", "harbor");
+const OPENING: string = "export const opening = defineShot({ beats: 3 });\n";
+const HALL: string = "export const hall = { width: 4 };\n";
+const HALL_EDITED: string = "export const hall = { width: 5 };\n";
 
 const CONTENT: IAutoMovieProductionContentInput[] = [
   {
@@ -100,22 +101,22 @@ const GRAPH: IAutoMovieProductionDesignGraph = {
   acceptance: new Map(),
 };
 
-const SCREENPLAY_INDEX = {
+const SCREENPLAY_INDEX: { version: number; treatment: { path: string; sequences: never[]; }; } = {
   version: 1,
   treatment: { path: "docs/treatment.md", sequences: [] },
 };
 
-const DOCUMENTS = new Map<string, string>([
+const DOCUMENTS: Map<string, string> = new Map<string, string>([
   ["docs/screenplays/001-harbor.md", "INT. HARBOR - NIGHT"],
   ["docs/treatment.md", "A harbor at night."],
 ]);
 
-const GENERATED = new Map<string, Uint8Array>([
+const GENERATED: Map<string, Uint8Array<ArrayBufferLike>> = new Map<string, Uint8Array>([
   ["shots/opening.json", Buffer.from("compiled opening", "utf8")],
   ["manifests/compile.json", Buffer.from("compiled registry", "utf8")],
 ]);
 
-const manifestOf = (): IAutoMovieGeneratedManifest => ({
+const manifestOf: () => IAutoMovieGeneratedManifest = (): IAutoMovieGeneratedManifest => ({
   version: 1,
   builder: { packageVersion: "0.1.0", protocolVersion: "unit" },
   inputFingerprint: textDigest("an earlier compile"),
@@ -129,7 +130,7 @@ const manifestOf = (): IAutoMovieGeneratedManifest => ({
   ],
 });
 
-const sourceOwner = (props: {
+const sourceOwner: (props: { branch: string; text: string; sourcePath: string; exportName: string; targetPath: string; }) => IAutoMovieProductionEvidenceSourceOwnerBinding = (props: {
   branch: string;
   text: string;
   sourcePath: string;
@@ -148,7 +149,7 @@ const sourceOwner = (props: {
   targetAnchor: props.exportName,
 });
 
-const filmEvidenceOf = (): IAutoMovieProductionEvidence => ({
+const filmEvidenceOf: () => IAutoMovieProductionEvidence = (): IAutoMovieProductionEvidence => ({
   root: ROOT,
   packageName: "harbor",
   description: "",
@@ -186,92 +187,29 @@ const filmEvidenceOf = (): IAutoMovieProductionEvidence => ({
   contractRules: [],
 });
 
-const libraryEvidenceOf = (root: string): IAutoMovieProductionEvidence => {
-  const sourceBinding = {
-    branch: "spaceSources",
-    stage: "review",
-    enforced: true,
-    root: ".",
-    files: ["src/spaces/**/*.ts"],
-    symbols: ["property"],
-    paths: ["src/spaces/hall.ts"],
-  };
-  return {
-    root,
-    packageName: "harbor",
-    description: "",
-    configuration: {
-      ...createBlankAutoMovieProductionEvidence(root, "english"),
-      kind: "library",
-      settings: "review",
-      spaces: "review",
-      spaceSources: "review",
-    },
-    manifest: {
-      kind: "library",
-      language: "english",
-      populationScope: { mode: "complete-production" },
-      branches: [
-        { name: "settings", stage: "review" },
-        { name: "spaces", stage: "review" },
-        { name: "spaceSources", stage: "review" },
-      ],
-      bindings: [],
-      localBindings: [],
-      localAudits: [],
-      topology: {
-        branches: [],
-        expected: [],
-        declarations: [],
-        diagnostics: [],
-      },
-    },
-    designBranches: [
-      { branch: "spaces", designStage: "review", sourceBinding },
-    ],
-    designOwners: [
-      {
-        branch: "spaces",
-        path: "docs/spaces/hall.md",
-        title: "Hall",
-        units: [{ anchor: "hall", title: "Hall", digest: "a".repeat(64) }],
-        sourceBinding,
-      },
-    ],
-    sourceOwners: [
-      sourceOwner({
-        branch: "spaceSources",
-        text: HALL,
-        sourcePath: "src/spaces/hall.ts",
-        exportName: "hall",
-        targetPath: "docs/spaces/hall.md",
-      }),
-    ],
-    contracts: [],
-    contractRules: [],
-  };
-};
+const libraryEvidenceOf: (root: string) => IAutoMovieProductionEvidence = (root: string): IAutoMovieProductionEvidence =>
+  sourceSnapshotLibraryEvidence(root, HALL, sourceOwner);
 
-const projectOf = (overrides: Record<string, unknown> = {}) => ({
+const projectOf: (overrides?: Record<string, unknown>) => { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => {}; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } = (overrides: Record<string, unknown> = {}): { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => {}; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } => ({
   root: ROOT,
   productionId: "harbor",
   archetypes: undefined,
-  revision: () => 3,
-  graph: () => GRAPH,
+  revision: (): number => 3,
+  graph: (): IAutoMovieProductionDesignGraph => GRAPH,
   readSource: (file: string): Uint8Array => {
     if (file === "src/shots/opening.ts") return Buffer.from(OPENING, "utf8");
     if (file === "src/spaces/hall.ts") return Buffer.from(HALL, "utf8");
     throw new Error(`Source "${file}" does not exist.`);
   },
-  contentInputs: () => CONTENT,
-  manifest: () => ({}),
-  screenplayIndex: () => SCREENPLAY_INDEX,
+  contentInputs: (): IAutoMovieProductionContentInput[] => CONTENT,
+  manifest: (): {} => ({}),
+  screenplayIndex: (): { version: number; treatment: { path: string; sequences: never[]; }; } => SCREENPLAY_INDEX,
   readProseDocument: (file: string): string | null =>
     DOCUMENTS.get(file) ?? null,
-  generatedManifest: () => manifestOf(),
-  generatedRoot: () => path.join(ROOT, "generated", "harbor"),
+  generatedManifest: (): IAutoMovieGeneratedManifest => manifestOf(),
+  generatedRoot: (): string => path.join(ROOT, "generated", "harbor"),
   readGeneratedFile: (file: string): Uint8Array => {
-    const bytes = GENERATED.get(file);
+    const bytes: Uint8Array<ArrayBufferLike> | undefined = GENERATED.get(file);
     if (bytes === undefined)
       throw new Error(`Generated file "${file}" is a symlink or junction.`);
     return bytes;
@@ -279,22 +217,15 @@ const projectOf = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const listed = (root: string): string[] =>
-  ["shots/opening.json", "stray.lnk", "manifests/compile.json"].map((file) =>
+const listed: (root: string) => string[] = (root: string): string[] =>
+  ["shots/opening.json", "stray.lnk", "manifests/compile.json"].map((file: string): string =>
     path.join(root, ...file.split("/")),
   );
 
 /**
  * A fresh source snapshot names every input a gate answer depends on.
  *
- * Nothing is executed. A timed production's input identity must be the
- * builder's own field projection over the current evidence, design, source and
- * content, and a library's must be its namespace-bound identity over the
- * resident authoring snapshot and content closure, with the resident digest
- * beside it. The screenplay index, requested documents and every entry under the
- * builder-owned root are read as they stand. A revision that moves during the
- * read, or an identity that cannot be derived, leaves no snapshot, and a read
- * the project handle refuses propagates.
+ * Nothing is executed. A timed production's input identity must be the builder's own field projection over the current evidence, design, source and content, and a library's must be its namespace-bound identity over the resident authoring snapshot and content closure, with the resident digest beside it. The screenplay index, requested documents and every entry under the builder-owned root are read as they stand. A revision that moves during the read, or an identity that cannot be derived, leaves no snapshot, and a read the project handle refuses propagates.
  *
  * Scenarios:
  *
@@ -313,11 +244,16 @@ const listed = (root: string): string[] =>
  *    identity over that snapshot and content. Another namespace moves only the
  *    identity, a source edit moves both, and evidence from another checkout is
  *    refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Acquires current timed and library source snapshots and checks their revision, identity and observed document/generated digests, catching missing inputs, moving revisions and swallowed refused reads.
+ * @evidence contracts/testing.md#independent-expectations Literal revision, sorted paths, null absence and refusal outcomes derive from the snapshot contract; expected digests and builder fingerprints reuse production helpers, so this checks composition and change sensitivity rather than independent hashing correctness.
+ * @evidence contracts/testing.md#distinguishing-cases Covers duplicate and absent documents, unreadable generated entries, absent evidence/index/manifest, moving revision, unreadable design, propagated incarnation refusal, namespace changes, edited source and mismatched checkout evidence; actual filesystem descriptor safety belongs to owning project tests.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns all supplied project/list/read callbacks and uses resident bytes through existing source-module fixtures; it installs no consumer and starts no native artifact or production host.
  */
-export const test_production_source_snapshot_acquisition = (): void => {
-  const filmEvidence = filmEvidenceOf();
-  const manifest = manifestOf();
-  const timed = acquireAutoMovieProductionSourceSnapshot({
+export function test_production_source_snapshot_acquisition(): void {
+  const filmEvidence: IAutoMovieProductionEvidence = filmEvidenceOf();
+  const manifest: IAutoMovieGeneratedManifest = manifestOf();
+  const timed: ISourceStatusSnapshot | null = acquireAutoMovieProductionSourceSnapshot({
     project: projectOf(),
     authoring: filmEvidence,
     documents: [
@@ -374,7 +310,7 @@ export const test_production_source_snapshot_acquisition = (): void => {
       project: projectOf(),
       authoring: undefined,
       documents: [],
-      listFiles: () => [],
+      listFiles: (): never[] => [],
     })?.inputFingerprint,
     identity.productionBuildInputFingerprint(
       "harbor",
@@ -391,14 +327,14 @@ export const test_production_source_snapshot_acquisition = (): void => {
     ),
   );
 
-  const bare = acquireAutoMovieProductionSourceSnapshot({
+  const bare: ISourceStatusSnapshot | null = acquireAutoMovieProductionSourceSnapshot({
     project: projectOf({
-      screenplayIndex: () => null,
-      generatedManifest: () => null,
+      screenplayIndex: (): null => null,
+      generatedManifest: (): null => null,
     }),
     authoring: filmEvidence,
     documents: [],
-    listFiles: () => [],
+    listFiles: (): never[] => [],
   });
   TestValidator.equals(
     "a production without screenplay or output reports both absent",
@@ -409,19 +345,19 @@ export const test_production_source_snapshot_acquisition = (): void => {
     },
   );
 
-  const revisions = [3, 4];
+  const revisions: number[] = [3, 4];
   TestValidator.equals(
     "a moving revision or an underivable identity leaves no snapshot",
     {
       movingRevision: acquireAutoMovieProductionSourceSnapshot({
-        project: projectOf({ revision: () => revisions.shift() }),
+        project: projectOf({ revision: (): number | undefined => revisions.shift() }),
         authoring: filmEvidence,
         documents: [],
         listFiles: listed,
       }),
       unreadableDesign: acquireAutoMovieProductionSourceSnapshot({
         project: projectOf({
-          graph: () => {
+          graph: (): never => {
             throw new Error("Shot contract opening fails its schema.");
           },
         }),
@@ -435,10 +371,10 @@ export const test_production_source_snapshot_acquisition = (): void => {
   TestValidator.equals(
     "a refused read propagates its own error",
     throwsError(
-      () =>
+      (): ISourceStatusSnapshot | null =>
         acquireAutoMovieProductionSourceSnapshot({
           project: projectOf({
-            screenplayIndex: () => {
+            screenplayIndex: (): never => {
               throw new Error("Production state incarnation changed.");
             },
           }),
@@ -451,7 +387,7 @@ export const test_production_source_snapshot_acquisition = (): void => {
     true,
   );
 
-  const library = (
+  const library: (overrides: Record<string, unknown>, evidence?: IAutoMovieProductionEvidence) => ISourceStatusSnapshot = (
     overrides: Record<string, unknown>,
     evidence: IAutoMovieProductionEvidence = libraryEvidenceOf(ROOT),
   ): ISourceStatusSnapshot =>
@@ -461,11 +397,11 @@ export const test_production_source_snapshot_acquisition = (): void => {
       documents: [],
       listFiles: listed,
     })!;
-  const libraryIdentity = (production: string, hall: string) => {
-    const snapshot = captureAutoMovieLibraryAuthoringSnapshot({
+  const libraryIdentity: (production: string, hall: string) => { resident: string; inputFingerprint: string; } = (production: string, hall: string): { resident: string; inputFingerprint: string; } => {
+    const snapshot: { digest: string; } = captureAutoMovieLibraryAuthoringSnapshot({
       root: ROOT,
       evidence: libraryEvidenceOf(ROOT),
-      readSource: () => Buffer.from(hall, "utf8"),
+      readSource: (): Buffer<ArrayBuffer> => Buffer.from(hall, "utf8"),
     });
     return {
       resident: snapshot.digest,
@@ -476,14 +412,14 @@ export const test_production_source_snapshot_acquisition = (): void => {
       }),
     };
   };
-  const base = library({});
-  const annex = library({ productionId: "harbor-annex" });
-  const edited = library({
-    readSource: () => Buffer.from(HALL_EDITED, "utf8"),
+  const base: ISourceStatusSnapshot = library({});
+  const annex: ISourceStatusSnapshot = library({ productionId: "harbor-annex" });
+  const edited: ISourceStatusSnapshot = library({
+    readSource: (): Buffer<ArrayBuffer> => Buffer.from(HALL_EDITED, "utf8"),
   });
   TestValidator.equals(
     "a library snapshot carries its resident guard and namespace-bound identity",
-    [base, annex, edited].map((snapshot) => ({
+    [base, annex, edited].map((snapshot: ISourceStatusSnapshot): { resident: string | null; inputFingerprint: string; } => ({
       resident: snapshot.resident,
       inputFingerprint: snapshot.inputFingerprint,
     })),
@@ -511,7 +447,7 @@ export const test_production_source_snapshot_acquisition = (): void => {
   TestValidator.equals(
     "library evidence from another checkout is refused",
     throwsError(
-      () =>
+      (): ISourceStatusSnapshot =>
         library(
           {},
           libraryEvidenceOf(
@@ -522,4 +458,4 @@ export const test_production_source_snapshot_acquisition = (): void => {
     ),
     true,
   );
-};
+}

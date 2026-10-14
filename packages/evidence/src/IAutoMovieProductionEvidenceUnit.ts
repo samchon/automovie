@@ -10,7 +10,7 @@
  * @evidence contracts/common.md#meaningful-documentation Members state anchor form and SHA-256 span denominator.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural declaration selects no runtime algorithm; its producer owns parsing and traversal costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares representation without coordinating completed or in-flight operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased H2 identity type holds no content itself; readMarkdownDocument produces anchor/title/digest strings and the design-owner or contract inventory caller owns their retained records.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased H2 identity declaration allocates no content. Observation suppliers own its anchor/title/digest strings; library owner-context construction indexes supplied design-unit addresses for one attempt, while compileAutoMovieLibrary preserves the supplied contracts inventory by reference in its snapshotAuthoring aggregate.
  *
  * @author Samchon
  */

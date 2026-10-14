@@ -10,6 +10,8 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration is erased; markdownHeadings creates visible heading records for identity admission, which owns the runtime algorithm and allocation cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no effects; markdownHeadings creates visible heading records for identity admission, which owns any valid reuse or recomputation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema acquires no resources; markdownHeadings creates visible heading records for identity admission, while the caller or module owns the lifetime of its values.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieEvidenceMarkdownHeading {
   /** Terminal explicit anchor, or undefined before identity admission. */

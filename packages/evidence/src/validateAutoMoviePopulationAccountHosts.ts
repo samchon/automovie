@@ -3,9 +3,7 @@ import type { AutoMovieEvidenceStage } from "./AutoMovieEvidenceStage";
 /**
  * Validates declared optional account paths and active obligation targets.
  *
- * The reader returns a contract's H2 count or undefined for a missing target.
- * Authored H2s and aggregate accounts share ordinary coverage in native lint.
- *
+ * The reader returns a contract's H2 count or undefined for a missing target. Authored H2s and aggregate accounts share ordinary coverage in native lint.
  *
  * @evidence contracts/common.md#principled-implementation Declared accounts and supplemental owners populate one stage map; residents must have active owners and enabled accounts must reference existing nonempty H2 obligations.
  * @evidence contracts/common.md#clear-and-simple-design This validator owns account identity and active target presence while native coverage owns authored H2s and aggregate account relationships.

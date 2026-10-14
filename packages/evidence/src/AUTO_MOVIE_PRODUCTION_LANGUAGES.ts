@@ -2,13 +2,9 @@
 /**
  * Supported production-authoring language identities. The selected project's contract pack is validated separately and is not supplied by this registry.
  *
- * Four literal language identities form the supported production-language registry; admitting a name does not supply the project-owned contract pack that graph validation separately requires.
- * One language registry supplies both the closed language type and the runtime language predicate.
- * Language names are protocol values rather than translated prose or a production-specific whitelist.
- * The comment identifies supported language selection; contract-pack presence remains a project validation obligation rather than a bundled-data claim.
- * The supported-language registry initializes four constant strings and performs no per-project search.
- * The language predicate and language type share this tuple rather than constructing separate membership lists.
- * One module-level four-entry tuple lives for the process lifetime without retaining a production root or language document.
+ * Four literal protocol values supply the closed language type and runtime membership predicate. Production titles and translated prose do not add names; selecting one identity leaves the project-owned contract pack to separate graph admission.
+ *
+ * Initialization retains one process-owned four-entry tuple of constant strings. Type and predicate consumers share that tuple without per-project searches, source buffers or handles.
  */
 export const AUTO_MOVIE_PRODUCTION_LANGUAGES: readonly ["chinese", "english", "japanese", "korean"] = [
   "chinese",

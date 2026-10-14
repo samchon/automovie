@@ -5,7 +5,7 @@ import { selectAutoMovieScreenplayNaturalnessContractFiles } from "./selectAutoM
 /** Binds every final screenplay unit to every selected naturalness target.
  *
  * @evidence contracts/common.md#principled-implementation Each selected final-screenplay contract becomes an H2 checklist requiring every target without evidence exclusions and without companion review rows.
- * @evidence contracts/common.md#clear-and-simple-design The reference producer owns naturalness checklist policy; its file selector owns the shipped inventory.
+ * @evidence contracts/common.md#clear-and-simple-design The reference producer owns naturalness checklist policy; its file selector owns required routes to project-owned resident documents without supplying their content.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No unused review input remains; the constructor preserves every selected target and disables native companion requirements explicitly.
  * @evidence contracts/common.md#meaningful-documentation The comment states every final unit's target relationship and the returned native references carry explicit root and checklist fields.
  * @evidence contracts/performance.md#efficient-algorithms Three selected paths become three records in O(1) work relative to production size.

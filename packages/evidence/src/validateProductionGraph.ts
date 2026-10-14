@@ -102,9 +102,9 @@ function validatePopulationScope(graph: IAutoMovieEvidenceConfigProps): void {
 }
 
 /**
- * Whether a declaration is the shipped scaffold before creation rendered it.
+ * Recognize the retained fully unselected declaration exception for unsupported language values.
  *
- * The scaffold's tracked `lint.config.ts` is a render template: creation substitutes the selected language and materializes its pack under `docs/language`. Before that, the file still has to evaluate, because the scaffold's own scripts import it and the repository that ships it compiles those scripts in place. The state is recognizable without knowing the placeholder's spelling: no production kind, every branch disabled, no local claim, the default population scope, and no language pack on disk. A declaration that selects anything, or that sits beside a materialized pack, is a production and must name one module.
+ * The predicate requires no production kind, every branch disabled, no local claim, complete-production scope and no docs/language directory. It does not identify a generator: the current scaffold uses ordinary source lint and ships no graph declaration or contract pack. Recognition only bypasses language membership; validateContracts still demands the shared resident inventory later, so this exception does not make an empty project a valid graph.
  */
 function isUnrenderedScaffoldDeclaration(graph: IAutoMovieEvidenceConfigProps): boolean {
   return graph.kind === null &&
@@ -234,7 +234,7 @@ function resetTransitionHosts(graph: IAutoMovieEvidenceConfigProps): readonly { 
  *
  * @evidence contracts/common.md#principled-implementation Admit declaration shape, physical boundaries, annotation syntax, shared contracts, stages, reset receipt and all host or target relationships in order.
  * @evidence contracts/common.md#clear-and-simple-design One synchronous boundary is reused before graph and manifest publication; syntax checking is independent of authored prose judgment.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The unrendered scaffold placeholder is admitted only in its explicit blank state; reset exceptions require the canonical transition owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The retained blank-state predicate can bypass language membership but never the resident shared inventory; it is not a current scaffold producer, and reset exceptions use the canonical transition owner.
  * @evidence contracts/common.md#meaningful-documentation The first rejection throws and the returned registry contains admitted shared and local target identities.
  * @evidence contracts/performance.md#efficient-algorithms The aggregate cost includes repeated filesystem walks, Markdown parsing and TypeScript AST admission, plus local claim validation.
  * @evidence contracts/performance.md#reuse-equivalent-work A target registry is reused through shared and production target admission; independent factory calls intentionally revalidate current mutable files.
