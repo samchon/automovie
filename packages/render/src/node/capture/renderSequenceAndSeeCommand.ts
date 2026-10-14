@@ -1,41 +1,34 @@
-import { AutoMovieGuidePass, IAutoMovieRenderSpec } from "@automovie/interface";
-import {
-  IAutoMovieRenderAdapters,
-  IAutoMovieRenderAndSeeResult,
-  createHeadlessCaptureAdapter,
-  frameTimes,
-  normalizeGuidePasses,
-  renderAndSee,
-} from "@automovie/render";
-import * as HME from "h264-mp4-encoder";
-import fs from "node:fs/promises";
 import path from "node:path";
-import { type Page, chromium } from "playwright-core";
-import { PNG } from "pngjs";
-
-import { DEFAULT_CHROME_EXECUTABLE } from "../DEFAULT_CHROME_EXECUTABLE";
-import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "../IAutoMoviePlaygroundRenderAndSeeArtifact";
-import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "../IAutoMoviePlaygroundRenderAndSeeOptions";
-import { captureRenderAndSee } from "../captureRenderAndSee.ts";
-import { preserveCleanupFailure } from "../preserveCleanupFailure";
+import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE.js";
+import type { IAutoMoviePageSequenceRenderArtifact } from "./IAutoMoviePageSequenceRenderArtifact.js";
+import type { IAutoMoviePageSequenceRenderOptions } from "./IAutoMoviePageSequenceRenderOptions.js";
+import { captureSequenceRenderAndSee } from "./captureSequenceRenderAndSee.js";
 
 const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
 
 /**
  * Parse this existing capture CLI's arguments and print its completed artifact summary. Help returns before capture; invalid numeric options or capture failures reject. Relative destinations resolve against the existing repository-root convention, and the default base URL is read once when this module loads.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation CLI flags configure the canonical sequence capture, with finite positive fps and positive even dimensions checked before loading the page.
+ * @evidence contracts/common.md#clear-and-simple-design The command handles CLI input and summary output while captureSequenceRenderAndSee owns metadata, browser capture and encoding.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Help performs no capture, invalid numbers reject, and null target resolves from the actual page metadata.
+ * @evidence contracts/common.md#meaningful-documentation The help states defaults, destinations and sequence target behavior; cwd resolution is documented on the command.
+ * @evidence contracts/performance.md#efficient-algorithms Argument parsing is O(A); sequence capture and encoding dominate subsequent work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The command parses once and prints the completed artifact including its existing dissolve observations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed values and the artifact reference live through this invocation; the delegated capture owns resource teardown and persistent output files.
  */
-export const main: (argv?: string[]) => Promise<void> = async (
+export const renderSequenceAndSeeCommand: (argv?: string[]) => Promise<void> = async (
   argv: string[] = process.argv.slice(2),
 ): Promise<void> => {
-  const options: IAutoMoviePlaygroundRenderAndSeeOptions | null =
+  const options: IAutoMoviePageSequenceRenderOptions | null =
     parseArgs(argv);
   if (options === null) {
     printHelp();
     return;
   }
-  const artifact: IAutoMoviePlaygroundRenderAndSeeArtifact =
-    await captureRenderAndSee(options);
+  const artifact: IAutoMoviePageSequenceRenderArtifact =
+    await captureSequenceRenderAndSee(options);
   console.log(
     JSON.stringify(
       {
@@ -43,6 +36,7 @@ export const main: (argv?: string[]) => Promise<void> = async (
         json: artifact.jsonPath,
         frames: artifact.frameCount,
         route: artifact.route,
+        dissolveChecks: artifact.dissolveChecks,
       },
       null,
       2,
@@ -52,15 +46,15 @@ export const main: (argv?: string[]) => Promise<void> = async (
 
 const parseArgs: (
   argv: string[],
-) => IAutoMoviePlaygroundRenderAndSeeOptions | null = (
+) => IAutoMoviePageSequenceRenderOptions | null = (
   argv: string[],
-): IAutoMoviePlaygroundRenderAndSeeOptions | null => {
+): IAutoMoviePageSequenceRenderOptions | null => {
   if (argv.includes("--help") || argv.includes("-h")) return null;
   const flags: Record<string, string | undefined> = readFlags(argv);
   const root: string = repoRoot();
   const outputPath: string = resolveFromRoot(
     root,
-    flags.out ?? ".shots/_render-see/stickman-walk.mp4",
+    flags.out ?? ".shots/_render-see/film-sequence.mp4",
   );
   const stem: string = path.basename(outputPath, path.extname(outputPath));
   const frameDir: string = resolveFromRoot(
@@ -72,20 +66,17 @@ const parseArgs: (
     flags.json ?? path.join(".shots/_render-see", `${stem}.json`),
   );
   return {
-    page: flags.page ?? "stickman.html",
-    query: flags.query ?? "char=human&clip=walk&az=80",
+    page: flags.page ?? "film.html",
+    query: flags.query ?? "",
     base: flags.base ?? DEFAULT_BASE,
     chrome: flags.chrome ?? DEFAULT_CHROME_EXECUTABLE,
-    durationSeconds: positiveNumber(flags.duration, 1, "--duration"),
     fps: positiveNumber(flags.fps, 12, "--fps"),
     width: positiveEvenInteger(flags.width, 640, "--width"),
     height: positiveEvenInteger(flags.height, 360, "--height"),
-    target: flags.target ?? stem,
+    target: flags.target ?? null,
     outputPath,
     frameDir,
     jsonPath,
-    // normalizeGuidePasses validates + de-dups and throws on an unknown name.
-    passes: normalizeGuidePasses(flags.passes?.split(",") ?? ["beauty"]),
   };
 };
 
@@ -141,7 +132,7 @@ const positiveEvenInteger: (
 
 const repoRoot: () => string = (): string => {
   const cwd: string = process.cwd();
-  return path.basename(cwd) === "playground" &&
+  return ["playground", "render"].includes(path.basename(cwd)) &&
     path.basename(path.dirname(cwd)) === "packages"
     ? path.resolve(cwd, "../..")
     : cwd;
@@ -154,22 +145,19 @@ const resolveFromRoot: (root: string, value: string) => string = (
 
 const printHelp: () => void = (): void => {
   console.log(`Usage:
-  pnpm render:see -- [options]
+  pnpm render:sequence -- [options]
 
 Options:
-  --page <file>       Playground page, default stickman.html
-  --query <query>     Query string without cap=1, default human walk
-  --duration <sec>    Duration in seconds, default 1
+  --page <file>       Viewer page, default film.html
+  --query <query>     Query string without cap=1
   --fps <number>      Frames per second, default 12
   --width <px>        Viewport width, default 640
   --height <px>       Viewport height, default 360
-  --out <path>        MP4 output, default .shots/_render-see/stickman-walk.mp4
+  --out <path>        MP4 output, default .shots/_render-see/film-sequence.mp4
   --frames <path>     PNG frame directory
   --json <path>       JSON artifact path
-  --target <id>       Render target id recorded in the artifact
+  --target <id>       Render target id, default sequence id exposed by the page
   --base <url>        Dev server base, default ${DEFAULT_BASE}
   --chrome <path>     Chrome executable, default from CHROME/env platform
-  --passes <list>     Comma-separated guide passes (beauty,depth,mask,normal,outline,pose)
-                      captured per frame; default beauty only
 `);
 };

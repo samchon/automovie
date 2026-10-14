@@ -1,34 +1,40 @@
-import { AutoMovieGuidePass, IAutoMovieRenderSpec } from "@automovie/interface";
+import { IAutoMovieRenderSpec } from "@automovie/interface";
 import {
   IAutoMovieRenderAdapters,
   IAutoMovieRenderAndSeeResult,
   createHeadlessCaptureAdapter,
   frameTimes,
-  normalizeGuidePasses,
   renderAndSee,
-} from "@automovie/render";
+} from "../../index.js";
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
-import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "./IAutoMoviePlaygroundRenderAndSeeArtifact";
-import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "./IAutoMoviePlaygroundRenderAndSeeOptions";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
+import type { IAutoMoviePageRenderAndSeeArtifact } from "./IAutoMoviePageRenderAndSeeArtifact.js";
+import type { IAutoMoviePageRenderAndSeeOptions } from "./IAutoMoviePageRenderAndSeeOptions.js";
+import { preserveCleanupFailure } from "./preserveCleanupFailure.js";
 
 /**
  * Capture the existing route through the canonical headless adapter and renderAndSee schedule, save PNG frames, encode the current H.264 preview and write the augmented JSON artifact. The requested interval/rate and captured guide files are observations of this route rather than a clinical, geometry-health or photographic-fidelity certificate.
  *
  *
+ *
+ * @evidence contracts/common.md#principled-implementation The canonical renderAndSee schedule drives a Viewer capture adapter and PNG-backed H264 encoding; explicit sample times determine captured frames.
+ * @evidence contracts/common.md#clear-and-simple-design Viewer owns browser pixel transport while Render owns frame naming, file writes, scheduling, encoding and JSON output.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The original route hooks and H264 codec are used without scene-specific retries or fabricated quality claims.
+ * @evidence contracts/common.md#meaningful-documentation The comment describes PNG, MP4 and JSON outputs and limits of guide observations; options document units and destinations.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames, P passes and W by H pixels, capture performs O(FP) screenshots and encoding scans O(FWH) pixels; frame paths retain O(F) entries.
+ * @evidence contracts/performance.md#reuse-equivalent-work One loaded page and session serve all frames; the canonical schedule is reused for ordered PNG encoding, while distinct frame effects are not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Browser, page/session and encoder are closed or deleted in finally paths, preserving cleanup failures. Captured files persist at caller destinations and O(F) path entries live until the call ends.
  * @author Samchon
  */
 export const captureRenderAndSee: (
-  options: IAutoMoviePlaygroundRenderAndSeeOptions,
-) => Promise<IAutoMoviePlaygroundRenderAndSeeArtifact> = async (
-  options: IAutoMoviePlaygroundRenderAndSeeOptions,
-): Promise<IAutoMoviePlaygroundRenderAndSeeArtifact> => {
+  options: IAutoMoviePageRenderAndSeeOptions,
+) => Promise<IAutoMoviePageRenderAndSeeArtifact> = async (
+  options: IAutoMoviePageRenderAndSeeOptions,
+): Promise<IAutoMoviePageRenderAndSeeArtifact> => {
   const route: string = routeUrl(
     options.base,
     options.page,
@@ -106,7 +112,7 @@ export const captureRenderAndSee: (
             }),
           },
         });
-        const artifact: IAutoMoviePlaygroundRenderAndSeeArtifact = {
+        const artifact: IAutoMoviePageRenderAndSeeArtifact = {
           ...result,
           route,
           jsonPath: options.jsonPath,

@@ -1,36 +1,23 @@
-import {
-  IAutoMovieRenderSpec,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
-import {
-  IAutoMovieSequenceRenderAdapters,
-  IAutoMovieSequenceRenderAndSeeResult,
-  IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-  IAutoMovieSequenceRenderTransitionSpan,
-  renderSequenceAndSee,
-} from "@automovie/render";
-import * as HME from "h264-mp4-encoder";
+import type { IAutoMovieSequenceRenderFrame, IAutoMovieSequenceRenderPlan, IAutoMovieSequenceRenderTransitionSpan } from "../../index.js";
 import fs from "node:fs/promises";
-import path from "node:path";
-import { type Locator, type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
-
-import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import type { IAutoMoviePlaygroundSequenceMetadata } from "./IAutoMoviePlaygroundSequenceMetadata";
-import type { IAutoMoviePlaygroundSequenceRenderArtifact } from "./IAutoMoviePlaygroundSequenceRenderArtifact";
-import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
-import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
+import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck.js";
 
 /**
  * Observe each declared dissolve using the sampled blend nearest alpha 0.5, the existing saved PNG and two isolated-shot PNGs at their local times. Mean absolute RGB byte distances use the existing baseline>0.1 and probe-distance>0.01/<baseline predicate; alpha/distance reports round to three decimals. False observations carry a reason and do not throw merely because the heuristic fails.
  *
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Each transition selects its sampled blend nearest alpha 0.5, decodes the mixed and two isolated PNGs, and compares mean absolute RGB distances using the documented predicate.
+ * @evidence contracts/common.md#clear-and-simple-design One observation per transition keeps failed conditions and measured distances visible without changing sequence rendering.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The thresholds are the existing diagnostic heuristic, not an exact compositor oracle; failed observations retain a reason rather than throwing as a quality verdict.
+ * @evidence contracts/common.md#meaningful-documentation The comment specifies midpoint selection, thresholds, rounding and the distinction between false observations and I/O or dimension failures.
+ * @evidence contracts/performance.md#efficient-algorithms For T transitions and F frames, sample selection costs O(TF); each selected check scans three W by H decoded images, O(TWH) pixel work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The observer reads the existing mixed-frame PNG and asks the borrowed session only for the two isolated shots; it does not recapture mixed frames.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns saved PNGs and the borrowed session; each iteration retains three decoded images until its check completes and the returned O(T) array holds numeric metadata only.
  * @author Samchon
  */
-export const verifyPlaygroundSequenceDissolvePixels: (props: {
+export const verifySequenceDissolvePixels: (props: {
   /** Saved mixed-frame PNG paths keyed by their canonical sequence frame index. */
   captured: Map<number, string>;
 

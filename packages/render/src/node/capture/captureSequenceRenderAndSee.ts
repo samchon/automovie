@@ -1,4 +1,6 @@
+import { createViewerCaptureSession, type IViewerCaptureSession } from "@automovie/viewer/node";
 import {
+  AutoMovieGuidePass,
   IAutoMovieRenderSpec,
   IAutoMovieSequence,
   IAutoMovieShot,
@@ -7,27 +9,23 @@ import {
   IAutoMovieSequenceRenderAdapters,
   IAutoMovieSequenceRenderAndSeeResult,
   IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-  IAutoMovieSequenceRenderTransitionSpan,
   renderSequenceAndSee,
-} from "@automovie/render";
+} from "../../index.js";
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type Locator, type Page, chromium } from "playwright-core";
+import { type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
-import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import type { IAutoMoviePlaygroundSequenceMetadata } from "./IAutoMoviePlaygroundSequenceMetadata";
-import type { IAutoMoviePlaygroundSequenceRenderArtifact } from "./IAutoMoviePlaygroundSequenceRenderArtifact";
-import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
-import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
-import { verifyPlaygroundSequenceDissolvePixels as verifyDissolvePixels } from "./verifyPlaygroundSequenceDissolvePixels.ts";
+import type { IAutoMoviePageSequenceMetadata } from "./IAutoMoviePageSequenceMetadata.js";
+import type { IAutoMoviePageSequenceRenderArtifact } from "./IAutoMoviePageSequenceRenderArtifact.js";
+import type { IAutoMoviePageSequenceRenderOptions } from "./IAutoMoviePageSequenceRenderOptions.js";
+import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck.js";
+import { preserveCleanupFailure } from "./preserveCleanupFailure.js";
+import { verifySequenceDissolvePixels as verifyDissolvePixels } from "./verifySequenceDissolvePixels.js";
 
 interface SequenceCaptureSession {
-  metadata: IAutoMoviePlaygroundSequenceMetadata;
-  view: Locator;
+  metadata: IAutoMoviePageSequenceMetadata;
   captureFrame: IAutoMovieSequenceRenderAdapters["captureFrame"];
   captureShot(sample: {
     shot: string;
@@ -40,13 +38,21 @@ interface SequenceCaptureSession {
  * Capture the page's compiled sequence through its existing seek hooks, canonical renderSequenceAndSee plan and existing H.264 encoder; save source PNGs, MP4 and the augmented JSON artifact. Existing isolated-shot RGB distance observations are diagnostic checks, not an exact compositor oracle or model-health claim.
  *
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Canonical sequence planning supplies shot-local samples and blends to the Viewer capture session; saved mixed frames and isolated samples feed the existing dissolve heuristic.
+ * @evidence contracts/common.md#clear-and-simple-design Viewer owns seek/screenshot/close, while Render owns metadata admission, sequence planning, PNG writing, H264 encoding and diagnostics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller receives failed dissolve observations with reasons; the implementation does not fake healthy geometry or replace the canonical compositor.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies MP4, PNG and JSON outputs and distinguishes heuristic observations from compositor or model-health proof.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames of W by H pixels and T transitions, encoding scans O(FWH) pixels; diagnostics scan frames per transition and decode three PNGs per selected transition.
+ * @evidence contracts/performance.md#reuse-equivalent-work One browser page and metadata snapshot serve the sequence; saved mixed-frame PNGs are reused by encoding and diagnostics instead of recapturing mixed frames.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Browser, page/session and encoder release in finally paths preserve operation and cleanup causes. Output files persist; frame-path maps grow O(F), and each diagnostic releases its decoded images after use.
  * @author Samchon
  */
 export const captureSequenceRenderAndSee: (
-  options: IAutoMoviePlaygroundSequenceRenderOptions,
-) => Promise<IAutoMoviePlaygroundSequenceRenderArtifact> = async (
-  options: IAutoMoviePlaygroundSequenceRenderOptions,
-): Promise<IAutoMoviePlaygroundSequenceRenderArtifact> => {
+  options: IAutoMoviePageSequenceRenderOptions,
+) => Promise<IAutoMoviePageSequenceRenderArtifact> = async (
+  options: IAutoMoviePageSequenceRenderOptions,
+): Promise<IAutoMoviePageSequenceRenderArtifact> => {
   const route: string = routeUrl(
     options.base,
     options.page,
@@ -116,7 +122,7 @@ export const captureSequenceRenderAndSee: (
             transitions: result.plan.transitionSpans,
             captureShot: session.captureShot,
           });
-        const artifact: IAutoMoviePlaygroundSequenceRenderArtifact = {
+        const artifact: IAutoMoviePageSequenceRenderArtifact = {
           ...result,
           route,
           jsonPath: options.jsonPath,
@@ -180,106 +186,43 @@ const openSequenceCaptureSession: (options: {
     frame: IAutoMovieSequenceRenderFrame,
   ) => Promise<void>;
 }): Promise<SequenceCaptureSession> => {
-  await options.page.goto(options.url, { waitUntil: "load" });
+  const session: IViewerCaptureSession = await createViewerCaptureSession({
+    page: options.page,
+    url: options.url,
+    passes: ["beauty"],
+    seekFunction: "__afSeekSequenceFrame",
+  });
   await options.page.waitForFunction((): boolean => {
-    const host: Record<string, unknown> = globalThis as unknown as Record<
-      string,
-      unknown
-    >;
-    const metadata: { ready?: boolean } | undefined = host.__automovie as
-      | { ready?: boolean }
-      | undefined;
-    return (
-      metadata?.ready === true &&
-      typeof host.__afSeekSequenceFrame === "function" &&
-      typeof host.__afSeekSequenceShot === "function"
-    );
+    const host: Record<string, unknown> = globalThis as unknown as Record<string, unknown>;
+    return (host.__automovie as { ready?: boolean } | undefined)?.ready === true &&
+      typeof host.__afSeekSequenceShot === "function";
   });
-  await options.page.addStyleTag({
-    content: "#clips{display:none!important}",
-  });
-  const view: Locator = options.page.locator("#view");
-  const metadata: IAutoMoviePlaygroundSequenceMetadata =
+  const metadata: IAutoMoviePageSequenceMetadata =
     await readSequenceMetadata(options.page);
   return {
     metadata,
-    view,
-    captureFrame: async (
-      frame: IAutoMovieSequenceRenderFrame,
-    ): Promise<string> => {
-      await options.page.evaluate(
-        (
-          sample: Pick<
-            IAutoMovieSequenceRenderFrame,
-            "shot" | "shotTimeSeconds" | "blend"
-          >,
-        ): void => {
-          const seek: (
-            frame: Pick<
-              IAutoMovieSequenceRenderFrame,
-              "shot" | "shotTimeSeconds" | "blend"
-            >,
-          ) => void = (
-            globalThis as unknown as {
-              __afSeekSequenceFrame: (
-                frame: Pick<
-                  IAutoMovieSequenceRenderFrame,
-                  "shot" | "shotTimeSeconds" | "blend"
-                >,
-              ) => void;
-            }
-          ).__afSeekSequenceFrame;
-          seek(sample);
-        },
-        toHostFrame(frame),
-      );
-      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({
-        type: "png",
+    captureFrame: async (frame: IAutoMovieSequenceRenderFrame): Promise<string> => {
+      await session.capture(toHostFrame(frame), async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
+        await options.writeFrame(frame.path, bytes, frame);
       });
-      if (bytes.byteLength === 0)
-        throw new Error(`captured sequence frame ${frame.index} is empty`);
-      await options.writeFrame(frame.path, bytes, frame);
       return frame.path;
     },
-    captureShot: async (sample: {
-      shot: string;
-      shotTimeSeconds: number;
-    }): Promise<Buffer<ArrayBufferLike>> => {
-      await options.page.evaluate(
-        (shotSample: { shot: string; shotTimeSeconds: number }): void => {
-          const seek: (sample: {
-            shot: string;
-            shotTimeSeconds: number;
-          }) => void = (
-            globalThis as unknown as {
-              __afSeekSequenceShot: (sample: {
-                shot: string;
-                shotTimeSeconds: number;
-              }) => void;
-            }
-          ).__afSeekSequenceShot;
-          seek(shotSample);
-        },
-        sample,
-      );
-      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({
-        type: "png",
-      });
-      if (bytes.byteLength === 0)
-        throw new Error(`captured sequence probe ${sample.shot} is empty`);
-      return bytes;
+    captureShot: async (sample: { shot: string; shotTimeSeconds: number }): Promise<Uint8Array> => {
+      let captured: Uint8Array = new Uint8Array();
+      await session.capture(sample, async (_pass: AutoMovieGuidePass, bytes: Uint8Array): Promise<void> => {
+        captured = bytes;
+      }, "__afSeekSequenceShot");
+      return captured;
     },
-    close: async (): Promise<void> => {
-      await options.page.close();
-    },
+    close: (): Promise<void> => session.close(),
   };
 };
 
 const readSequenceMetadata: (
   page: Page,
-) => Promise<IAutoMoviePlaygroundSequenceMetadata> = async (
+) => Promise<IAutoMoviePageSequenceMetadata> = async (
   page: Page,
-): Promise<IAutoMoviePlaygroundSequenceMetadata> => {
+): Promise<IAutoMoviePageSequenceMetadata> => {
   const metadata: unknown = await page.evaluate((): unknown => {
     const data:
       | {
@@ -314,8 +257,8 @@ const readSequenceMetadata: (
     throw new Error(
       "sequence render route must expose __automovie { ready, duration, sequence, shots }",
     );
-  const typed: IAutoMoviePlaygroundSequenceMetadata =
-    metadata as IAutoMoviePlaygroundSequenceMetadata;
+  const typed: IAutoMoviePageSequenceMetadata =
+    metadata as IAutoMoviePageSequenceMetadata;
   return {
     ...typed,
     shotIds: Array.isArray(typed.shotIds)
