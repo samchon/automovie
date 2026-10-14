@@ -7,7 +7,7 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  *
  * @evidence contracts/common.md#principled-implementation A protocol-derived seed, copied recipe and emitter bounds, half-open cue window and fixed simulation step define a repeatable stream; its digest hashes every other field through canonical JSON and pure SHA-256.
  * @evidence contracts/common.md#clear-and-simple-design The compiled record resolves recipe and zone references once and carries the inputs needed by both visual sampling and numerical effect queries, leaving film-global ownership to its separate envelope.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No viewer chooses a new random seed or mutable world recipe, and missing source references are refused by owner validation before stream materialization rather than replaced by an empty-world preset.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The stream carries copied recipe and bounds rather than consulting mutable world data. Shot materialization drops unresolved references unless a host separately validates them; film materialization explicitly refuses them. Sampling assumes admitted recipe ranges and step and does not authenticate this record's digest itself.
  * @evidence contracts/common.md#meaningful-documentation Gives recipe and zone authority, world bounds, deterministic seed, half-open second interval, intensity envelope, optional event binding, fixed step and digest coverage.
  * @author Samchon
  */
