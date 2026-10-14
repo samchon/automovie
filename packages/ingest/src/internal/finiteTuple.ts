@@ -3,8 +3,6 @@
 /**
  * Read a finite numeric tuple with a glTF default when omitted.
  *
- * Undefined copies the fixed fallback; supplied arrays must match its length and contain only finite numbers.
- *
  * @evidence contracts/common.md#principled-implementation Undefined copies the fixed fallback; supplied arrays must match its length and contain only finite numbers.
  * @evidence contracts/common.md#clear-and-simple-design The tuple gate owns numeric/arity admission while motion-node interpretation chooses translation, scale and quaternion defaults.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Wrong lengths and nonfinite values throw; supplied tuples are not normalized or padded to hide defects.

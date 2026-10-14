@@ -11,16 +11,16 @@ import { accessorValues } from "./internal/accessorValues";
  *
  * Structural defects make the asset unusable for deterministic morphing, so they throw rather than degrade: no morphed primitive, a morphed primitive without `POSITION` data, a target that cannot be named, two targets with one name, a target without `POSITION` delta data, or a delta array whose length differs from the resting face.
  *
- * @param doc Parsed document; it is only read.
+ * @param doc Parsed document with finite VEC3 POSITION and delta accessors; this mapper reads it without validating component finiteness or accessor layout.
  * @returns A new template whose arrays the caller owns.
  *
  * @evidence contracts/common.md#principled-implementation The first morphed primitive's POSITION and each target's POSITION deltas become flat arrays through `accessorValues`, which decodes normalized quantized accessors, and names come from the target or the `extras.targetNames` convention exporters write; `Object.fromEntries` makes every name an own key.
  * @evidence contracts/common.md#clear-and-simple-design The exported function only finds the first morphed primitive and `templateOf` turns it into the template; accessor decoding is the shared internal helper also used by node import.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every structural defect throws rather than degrading, duplicate names are refused instead of last-wins, and a target named `__proto__` is stored as data instead of replacing the record's prototype.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing storage, missing or duplicate names and unequal delta lengths throw; finite components and VEC3 accessor layout are caller premises, while `__proto__` remains an own data key.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the primitive selection order, that later morphed primitives are ignored, the naming fallback, quantized decoding, own-key storage, every refusal, and caller ownership of the arrays.
- * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the resting position components times one plus the target count, each accessor copied once; the scan stops at the first morphed primitive.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one document once and shares nothing across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only the name index map and entry list are temporary and die with the call; the returned arrays, proportional to vertices times targets, are new and owned by the caller.
+ * @evidence contracts/performance.md#efficient-algorithms Work follows materialized mesh and visited primitive/target lists, resting components, all copied delta components and target-name text; selection stops at the first morphed primitive, and malformed delta data is copied before its length is refused.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Calls have no shared execution or retained cache over mutable Document data, and each returned template requires independently owned arrays.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh, primitive and target list copies, the name map and entry list are temporary; new position/delta arrays transfer to the caller, with malformed arrays collectable on refusal and no retained Document reference.
  * @author Samchon
  */
 export const ingestFaceTemplate: (doc: Document) => IAutoMovieFaceTemplate = (doc: Document): IAutoMovieFaceTemplate => {

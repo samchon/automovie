@@ -3,8 +3,6 @@
 /**
  * Compare two exact strings in deterministic JavaScript code-unit order.
  *
- * Relational string comparison produces negative, zero or positive ordering without locale-dependent collation.
- *
  * @evidence contracts/common.md#principled-implementation Relational string comparison produces negative, zero or positive ordering without locale-dependent collation.
  * @evidence contracts/common.md#clear-and-simple-design One shared comparator serves canonical resource, extension and semantic-mapping inventories.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No locale, case folding or numeric-suffix convention changes identifier identity.

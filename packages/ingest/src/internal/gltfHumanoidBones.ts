@@ -7,13 +7,11 @@ import { humanoidBoneOfName } from "../internal/humanoidBoneOfName";
 /**
  * Resolve first-claim glTF skin joints to recognized humanoid naming slots.
  *
- * Skin joint indices define eligible nodes and normalized aliases assign at most one source-order node per semantic slot.
- *
  * @evidence contracts/common.md#principled-implementation Skin joint indices define eligible nodes and normalized aliases assign at most one source-order node per semantic slot.
- * @evidence contracts/common.md#clear-and-simple-design Skin membership and slot claiming stay here while the shared name helper owns published spelling conventions.
+ * @evidence contracts/common.md#clear-and-simple-design Skin membership and slot claiming stay here while the shared name helper owns this importer's supported naming vocabulary.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrecognized names and repeated slots remain unmapped instead of overwriting first ownership or inferring missing anatomy.
  * @evidence contracts/common.md#meaningful-documentation Comments state node-order first claim, skin-only eligibility and the distinction from actual weight coverage.
- * @evidence contracts/performance.md#efficient-algorithms Skin-joint population plus node count drives O(J+N) expected time with joint/used-slot hash sets.
+ * @evidence contracts/performance.md#efficient-algorithms Work follows skins, their joint entries, nodes and eligible node-name text, with expected constant-time membership and slot lookups.
  * @evidence contracts/performance.md#reuse-equivalent-work Each eligible node name is resolved once; the inspector separately shares mesh/skin weight checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary membership sets die with the call; returned slot records are bounded by the recognized humanoid vocabulary.
  * @author Samchon

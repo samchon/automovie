@@ -14,7 +14,7 @@ import { accessorReader } from "./accessorReader";
  * @evidence contracts/common.md#clear-and-simple-design Mesh/skin pairs own weight admission, while the shared accessor reader owns stride, numeric decoding and resident views.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Negative weights cannot be hidden by cancellation with positive weights; malformed bindings throw without guessed or clamped influences.
  * @evidence contracts/common.md#meaningful-documentation Prose states nonnegative influence admission, positive finite total and the unresolved normalization/additional-set limits of this coverage pass.
- * @evidence contracts/performance.md#efficient-algorithms Cost is O(N plus unique bound mesh/skin vertex counts), with four influence reads per vertex and constant-time membership sets.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is O(N plus unique bound mesh/skin vertex counts), with four weight reads and up to four joint-index reads per vertex, using expected constant-time membership sets.
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated nodes binding the identical mesh/skin pair reuse completed checks within immutable synchronous inspection only.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The per-call pair set and weighted-joint set scale with bindings and joints; no mesh bytes or running resources survive.
  * @author Samchon

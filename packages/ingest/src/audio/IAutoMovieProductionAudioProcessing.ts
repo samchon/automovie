@@ -3,11 +3,11 @@
  *
  * @evidence contracts/common.md#principled-implementation The lineage records exactly the two operations the decoder performs, a fixed-coefficient downmix and a rate change, so a plan reproduces the conversion from `kind`, `matrix` and `outputSampleRate` without trusting the samples.
  * @evidence contracts/common.md#clear-and-simple-design One flat record names the stage combination and its parameters; the render package's wave identity validator reads these four fields and nothing else.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `outputChannels` is the literal `1` and `kind` a closed union, so the type admits no layout or stage the decoder does not produce instead of widening for presumed formats.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Literal channel and stage vocabulary constrain names, but independent fields and numeric arrays do not enforce stage/rate/matrix correlation; the decoder produces those relations and the render wave-identity validator checks them.
  * @evidence contracts/common.md#meaningful-documentation The comments give the stage order, the output channel and rate meaning, and the row-by-column orientation and only values of the downmix matrix.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; the conversion it describes runs in `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The lineage record is written once per decode and read by plan validation, with no computation of its own to reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds a one-row matrix of at most two numbers and owns no handle or task.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; decoder-produced records carry one matrix row of one or two numbers, while the structural array type itself imposes no size bound or resource lifetime.
  * @author Samchon
  */
 export interface IAutoMovieProductionAudioProcessing {

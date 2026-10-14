@@ -3,8 +3,6 @@
 /**
  * Require an actual JSON array at a named external-document path.
  *
- * Array.isArray admits only array values; rejected inputs report their owning JSON path.
- *
  * @evidence contracts/common.md#principled-implementation Array.isArray admits only array values; rejected inputs report their owning JSON path.
  * @evidence contracts/common.md#clear-and-simple-design One shape gate centralizes array identity for structural, motion and skin inspection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Objects, null and array-looking values are refused rather than coerced into synthetic inventories.

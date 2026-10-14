@@ -3,8 +3,6 @@
 /**
  * Admit an optional or required index into an already declared inventory.
  *
- * Safe integer identity and the half-open zero-to-length range establish resolvable references; omission is accepted only when optional.
- *
  * @evidence contracts/common.md#principled-implementation Safe integer identity and the half-open zero-to-length range establish resolvable references; omission is accepted only when optional.
  * @evidence contracts/common.md#clear-and-simple-design One gate owns reference existence semantics while callers supply the appropriate inventory and field path.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Undefined required values, negatives, fractions and out-of-range indices throw instead of selecting a nearby element.

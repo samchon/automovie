@@ -3,8 +3,6 @@
 /**
  * Require a positive safe-integer glTF count or declared byte length.
  *
- * Type, safe-integer and strict-positive checks reject nonnumeric, fractional, zero and unsafe values before range arithmetic.
- *
  * @evidence contracts/common.md#principled-implementation Type, safe-integer and strict-positive checks reject nonnumeric, fractional, zero and unsafe values before range arithmetic.
  * @evidence contracts/common.md#clear-and-simple-design The scalar gate is shared by buffer lengths, view lengths and accessor counts.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A count is not rounded, clamped or silently replaced with a default value.

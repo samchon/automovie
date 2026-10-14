@@ -3,8 +3,6 @@
 /**
  * Read an omitted or nonblank-string glTF extension inventory.
  *
- * Omission produces an empty array; supplied arrays must contain only nonblank strings with path/index diagnostics.
- *
  * @evidence contracts/common.md#principled-implementation Omission produces an empty array; supplied arrays must contain only nonblank strings with path/index diagnostics.
  * @evidence contracts/common.md#clear-and-simple-design Optional-array identity is delegated and this owner adds extension-name element admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names are not trimmed or case-folded, preserving exact identifiers after nonblank validation.

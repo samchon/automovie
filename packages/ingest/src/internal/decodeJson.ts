@@ -3,8 +3,6 @@
 /**
  * Decode strict UTF-8 JSON and refuse duplicate decoded member names.
  *
- * JSON.parse admits syntax before an iterative container/name scan rejects escaped-equivalent duplicates without recursion depth limits.
- *
  * @evidence contracts/common.md#principled-implementation JSON.parse admits syntax before an iterative container/name scan rejects escaped-equivalent duplicates without recursion depth limits.
  * @evidence contracts/common.md#clear-and-simple-design UTF-8, syntax and duplicate-member admission form one byte ingress shared by glTF and GLB.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Last-wins duplicate keys cannot hide a competing loader interpretation, and invalid UTF-8 is not repaired.

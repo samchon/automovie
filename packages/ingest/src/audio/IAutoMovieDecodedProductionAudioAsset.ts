@@ -8,7 +8,7 @@ import type { IAutoMovieProductionWaveSourceFormat } from "./IAutoMovieProductio
  *
  * @evidence contracts/common.md#principled-implementation The record separates the source envelope facts from the conversion lineage and the converted samples, so a consumer can verify the samples' rate and channel count from `processing` against the declared `sourceFormat`.
  * @evidence contracts/common.md#clear-and-simple-design Source facts, processing and samples are three named parts of one decoder result instead of separate return paths, and the render package reuses the two nested types as its wave identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The source fields repeat parts of `sourceFormat` for direct reading, and the decoder fills both from the same parsed values, so neither can disagree with the other.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder fills repeated source fields and `sourceFormat` from the same parsed values; this structural type neither correlates independently supplied records nor authenticates mutable sample bytes.
  * @evidence contracts/common.md#meaningful-documentation The comments state which fields describe the file and which the output, the units of rate and duration, and that samples are finite mono values at the requested rate.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; decoding cost belongs to `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The decoded-asset record is produced fresh by each decode call and carries no shared computation; caching decoded assets would be the caller's choice.

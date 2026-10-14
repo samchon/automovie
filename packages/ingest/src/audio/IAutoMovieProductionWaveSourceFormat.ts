@@ -5,7 +5,7 @@
  *
  * @evidence contracts/common.md#principled-implementation Each field mirrors a WAVEFORMATEX or WAVEFORMATEXTENSIBLE field the decoder reads, with the layout source and mask recording whether the speakers came from `dwChannelMask` or from the legacy default.
  * @evidence contracts/common.md#clear-and-simple-design One record keeps the envelope facts apart from the processing lineage, which lets the render plan validate a source identity separately from the conversion applied to it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The unions list only the supported encodings, bit depths and layouts, so no unsupported declaration can be represented as if it were decoded.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Closed unions constrain each vocabulary independently, while numeric ranges and encoding/precision/channel/layout/GUID relations remain producer invariants checked by the decoder and render wave-identity validator, not guarantees of this erased type.
  * @evidence contracts/common.md#meaningful-documentation The comments state where each fact comes from, which header spelling sets the mask and GUID, and that the literal unions are the supported subset.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; parsing happens in `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Parsed envelope facts are copied from one decode into one plan identity, so no work exists here to share.

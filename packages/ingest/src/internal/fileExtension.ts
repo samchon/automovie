@@ -3,8 +3,6 @@
 /**
  * Read the case-insensitive suffix of the final project-relative path component.
  *
- * The last forward slash selects the contract's project-path basename and the last dot selects its extension.
- *
  * @evidence contracts/common.md#principled-implementation The last forward slash selects the contract's project-path basename and the last dot selects its extension.
  * @evidence contracts/common.md#clear-and-simple-design Suffix interpretation stays separate from container decoding and profile selection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No suffix is inferred from byte content and a basename without a dot stays extensionless.

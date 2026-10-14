@@ -5,8 +5,6 @@ import { finiteTuple } from "./finiteTuple";
 /**
  * Read glTF motion nodes as finite canonical local TRS records.
  *
- * Three/four-component tuples use glTF defaults; positive scale and unit-quaternion tolerance precede rotation normalization.
- *
  * @evidence contracts/common.md#principled-implementation Three/four-component tuples use glTF defaults; positive scale and unit-quaternion tolerance precede rotation normalization.
  * @evidence contracts/common.md#clear-and-simple-design Node interpretation owns stable index ids, parent ids and local transforms, separate from animation channel decoding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Matrix transforms are refused rather than decomposed; rig names do not invent skeletal semantics.

@@ -38,19 +38,17 @@ import { validateHumanoidSkinning } from "./internal/validateHumanoidSkinning";
  *
  * Under `vrm-humanoid-v1`, `VRMC_vrm` is read with VRM 1.0 bone names, so a 1.0-beta file that still writes thumbs the VRM 0.x way is read as 1.0.
  *
- * @param props.path Project-relative source path; its suffix selects the
- * container.
+ * @param props.path Project-relative source path; its suffix selects the container.
  * @param props.bytes Resident container bytes; they are only read.
  * @param props.profile Caller-selected profile, refused unless supported.
- * @param props.resolveResource Returns a sidecar's bytes for a URI, or `null`
- * when the builder has none; it is called once per buffer and image URI entry.
+ * @param props.resolveResource Returns a sidecar's bytes for a URI, or `null` when unavailable; it is called once per external buffer and image URI entry, with caller-owned cost and effects.
  * @returns New facts that hold no reference to the input bytes.
  *
  * @evidence contracts/common.md#principled-implementation The inspector follows the glTF 2.0 and GLB container rules: strict UTF-8 JSON with duplicate members refused by an iterative scan, index validation for the structural and profile fields it reads, forest and cycle checks by iterative parent walks, accessor and sparse ranges from component sizes with matrix column padding, payload lengths against declared buffers, and VRM 0.x thumbs migrated to VRM 1.0 slots by the published rename; the selected profile does not prove complete glTF validity, normalized complete skinning or anatomical correctness, and `VRMC_vrm` 1.0-beta thumb names are read as 1.0.
  * @evidence contracts/common.md#clear-and-simple-design The exported orchestrator sequences structural, payload and profile owners; source-preserving internal splits keep each concern within the file/export limits, while public result types have independent file-named owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Profiles and container suffixes are contract constants, no model or path is special-cased, the alias table is a `Map` so inherited names never resolve, and every refusal is the first violation found rather than a repaired value.
  * @evidence contracts/common.md#meaningful-documentation The documentation states how the container is chosen, every structural requirement, the duplicate-member reason, the no-guess no-repair rule, the VRM 1.0-beta limitation, each parameter's role and call frequency, and that the result holds no byte reference.
- * @evidence contracts/performance.md#efficient-algorithms Cost is linear in container bytes for the UTF-8 decode, the JSON parse and one duplicate scan, plus the declared array sizes, plus skinned vertices for weight checks and keyframe values for motion, with O(U log U) sorting for U distinct resource URIs and O(X log X) sorting for X distinct extension names; each accessor's view, stride and `DataView` are resolved once per accessor read instead of once per component, and the GLB bytes are no longer copied.
+ * @evidence contracts/performance.md#efficient-algorithms Work follows container bytes for UTF-8/JSON and duplicate scanning, declared entries and name text, skinned components, motion values and encoded data URIs, plus full caller resolver work per external URI entry; resource/extension sorting uses O(U log U) and O(X log X) prefix-scanning comparisons. Per-accessor readers resolve views/strides once, and the BIN slice borrows container storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one inspection, a motion accessor is decoded once per accessor and type and shared by every channel that cites it, each track receiving its own copy, and a mesh and skin pair bound on several nodes is weight-checked once; the key is the accessor index or pair, which is valid because the document is immutable during the synchronous call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The decoded JSON, payload list, readers and caches live only for the call and are released on return or throw; the result retains copies proportional to resources, slots and motion data, and keeps neither the container nor sidecar bytes.
  * @author Samchon

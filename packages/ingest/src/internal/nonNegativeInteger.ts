@@ -3,8 +3,6 @@
 /**
  * Require a safe nonnegative glTF byte offset.
  *
- * Number type, safe-integer identity and nonnegative sign protect subsequent declared-range arithmetic.
- *
  * @evidence contracts/common.md#principled-implementation Number type, safe-integer identity and nonnegative sign protect subsequent declared-range arithmetic.
  * @evidence contracts/common.md#clear-and-simple-design One shared scalar rule serves buffer/accessor offsets without embedding range ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Fractions, negative offsets and unsafe integers throw rather than being truncated or clamped.

@@ -4,8 +4,6 @@ import { accessorElementByteLength } from "./accessorElementByteLength";
 /**
  * Admit one accessor's dense byte extent using its component shape and stride.
  *
- * Count, zero-default byte offset and padded element size determine final extent; validated buffer views bound the resulting range.
- *
  * @evidence contracts/common.md#principled-implementation Count, zero-default byte offset and padded element size determine final extent; validated buffer views bound the resulting range.
  * @evidence contracts/common.md#clear-and-simple-design Dense range arithmetic belongs here and shared element sizing supplies matrix-column padding without another table.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An accessor lacking both a buffer view and sparse payload is refused; no fallback data is synthesized.

@@ -4,8 +4,6 @@ import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 /**
  * Compute glTF accessor element storage including matrix-column padding.
  *
- * Component byte width and logical shape count define dense size; MAT2/MAT3 narrow components pad each column to four bytes.
- *
  * @evidence contracts/common.md#principled-implementation Component byte width and logical shape count define dense size; MAT2/MAT3 narrow components pad each column to four bytes.
  * @evidence contracts/common.md#clear-and-simple-design One sizing owner serves dense, sparse and reader stride defaults so storage alignment rules have one representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Padded matrix cases are glTF layout contracts rather than fixture corrections; shape/type admission is a required caller premise.

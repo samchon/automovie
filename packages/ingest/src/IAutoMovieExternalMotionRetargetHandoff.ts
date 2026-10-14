@@ -2,7 +2,7 @@ import type { IAutoMovieSkeleton } from "@automovie/interface";
 import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMotionBoneMapping";
 
 /**
- * Validated inputs a retarget adoption hands to the engine-owned retarget pass; source conversion and source-target compatibility are checked there.
+ * Inputs copied after adoption's mapped-basis and retarget-field checks; the engine-owned retarget pass still admits source conversion and source-target compatibility.
  *
  * @evidence contracts/common.md#principled-implementation Besides the copied rig and sorted mapping, the retarget handoff forwards the validated multiplier and target unchanged, which is all the engine retarget pass needs from ingest.
  * @evidence contracts/common.md#clear-and-simple-design Its fields mirror the retarget decision minus the take id, so the receipt's take field is the single place the selected clip lives.

@@ -3,8 +3,6 @@
 /**
  * Read an absent optional JSON array as an empty inventory.
  *
- * Undefined alone produces an empty array; supplied values must pass the common Array.isArray gate.
- *
  * @evidence contracts/common.md#principled-implementation Undefined alone produces an empty array; supplied values must pass the common Array.isArray gate.
  * @evidence contracts/common.md#clear-and-simple-design The wrapper owns omission while requiredArray owns shape admission and named-path diagnostics.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null, strings and array-like objects are refused rather than being treated as missing inventories.

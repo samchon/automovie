@@ -7,8 +7,6 @@ import { accessorElementByteLength } from "./accessorElementByteLength";
 /**
  * Resolve one admitted accessor's resident component reader.
  *
- * Validated offsets/stride and unsigned byte/short or FLOAT formats define little-endian reads; normalized integers scale by their exact maximum.
- *
  * @evidence contracts/common.md#principled-implementation Validated offsets/stride and unsigned byte/short or FLOAT formats define little-endian reads; normalized integers scale by their exact maximum.
  * @evidence contracts/common.md#clear-and-simple-design One closure owns DataView and addressing, shared by weight coverage and motion FLOAT decoding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sparse overrides and unsupported component formats throw instead of being treated as dense data of another type.

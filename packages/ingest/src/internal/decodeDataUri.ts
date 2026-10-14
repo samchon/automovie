@@ -9,7 +9,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One decoder owns both data-URI payload lanes shared by buffer and image closure.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed base64 and incomplete escapes throw with the field path instead of permissive byte repair.
  * @evidence contracts/common.md#meaningful-documentation Prose explains metadata/base64 selection, percent octets, Unicode literals and caller-owned output.
- * @evidence contracts/performance.md#efficient-algorithms Payload length drives O(N) decoding time; percent chunks plus their final concatenation retain O(N) temporary bytes.
+ * @evidence contracts/performance.md#efficient-algorithms Metadata and payload text drive O(N) work over URI length; percent chunks plus final concatenation retain O(N) temporary bytes, while base64 also creates an intermediate binary string.
  * @evidence contracts/performance.md#reuse-equivalent-work Each declared data URI is decoded during its own payload admission; resolver effects and mutable sources are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Decoded arrays transfer to the inspector's call-local payload owner; chunk arrays and encoded literals die on return.
  * @author Samchon

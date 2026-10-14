@@ -4,8 +4,6 @@ import { integerIndex } from "./integerIndex";
 /**
  * Validate every index in an optional glTF reference array.
  *
- * Undefined allows omitted references; a supplied array delegates each element's safe in-range admission with an indexed path.
- *
  * @evidence contracts/common.md#principled-implementation Undefined allows omitted references; a supplied array delegates each element's safe in-range admission with an indexed path.
  * @evidence contracts/common.md#clear-and-simple-design Array shape belongs to requiredArray and each index predicate to integerIndex, leaving this owner only enumeration.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed references are neither skipped nor coerced, so the first failing index remains observable.

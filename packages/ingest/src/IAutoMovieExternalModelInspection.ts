@@ -10,7 +10,7 @@ import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMot
  *
  * @evidence contracts/common.md#principled-implementation The record reports only facts read from the declared JSON and checked against resident bytes: counts of the top-level arrays, the extension union, sidecar URIs, profile-proved humanoid slots with weight usage, and motion takes when the motion profile ran.
  * @evidence contracts/common.md#clear-and-simple-design One inspection result serves every profile, with `humanoidBones` empty and `motion` absent where a profile does not compute them, so the production inventory reads one shape.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `format` reports `vrm` from declared VRM extensions rather than trusting the suffix, and the documentation says so instead of implying the suffix decides.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `format` is a family label: a `.vrm` suffix or declared VRM extension produces `vrm`, while `vrm-humanoid-v1` separately checks VRM metadata; the label alone certifies no rig.
  * @evidence contracts/common.md#meaningful-documentation The comments state why inspection is synchronous, that hosts still load the render mesh themselves, how `format` is decided, the order of `extensions` and `resources`, how each profile fills `humanoidBones`, and when `motion` is present.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the inspector's result and has no code; inspection cost is answered on `inspectAutoMovieExternalModelBytes`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain result record has nothing to share between consumers.
@@ -21,7 +21,7 @@ export interface IAutoMovieExternalModelInspection {
   /** Profile the caller selected and the inspection enforced. */
   profile: AutoMovieExternalModelIngestProfile;
 
-  /** Container family: `vrm` whenever `VRM` or `VRMC_vrm` appears among the extensions, whatever the file suffix, otherwise `gltf` or `glb` by suffix. */
+  /** Container family: `vrm` for a `.vrm` suffix or an extension union containing `VRM` or `VRMC_vrm`, otherwise `gltf` or `glb` by suffix; this label alone does not prove VRM metadata. */
   format: "gltf" | "glb" | "vrm";
 
   /** GlTF asset version; only 2.0 is accepted. */

@@ -3,8 +3,6 @@
 /**
  * Recognize a safe integer inside a zero-based inventory.
  *
- * Number type, safe-integer identity and half-open bounds determine resolvable node or array references.
- *
  * @evidence contracts/common.md#principled-implementation Number type, safe-integer identity and half-open bounds determine resolvable node or array references.
  * @evidence contracts/common.md#clear-and-simple-design The boolean predicate separates recognition from integerIndex's field-specific throwing behavior.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonnumeric, negative, fractional and unsafe values remain false without coercion or fallback.

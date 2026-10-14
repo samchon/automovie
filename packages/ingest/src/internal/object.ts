@@ -3,8 +3,6 @@
 /**
  * Require a non-null non-array JSON record at its owning path.
  *
- * Runtime type and null/array exclusions establish an object shape before fields are read.
- *
  * @evidence contracts/common.md#principled-implementation Runtime type and null/array exclusions establish an object shape before fields are read.
  * @evidence contracts/common.md#clear-and-simple-design One shared JSON record gate keeps identical error semantics across structural, payload and profile consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is cast into a usable record until the object predicate succeeds, and malformed inputs are not repaired.

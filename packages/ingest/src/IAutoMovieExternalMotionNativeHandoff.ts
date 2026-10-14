@@ -4,7 +4,7 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
 /**
  * Validated inputs a native adoption hands to the motion builder, which still decides whether the take's interpolation and channel coverage can become clinical motion.
  *
- * @evidence contracts/common.md#principled-implementation The handoff carries the validated rig and a node-sorted mapping, a canonical order that makes two receipts for the same decision compare equal regardless of the author's row order.
+ * @evidence contracts/common.md#principled-implementation The handoff carries a rig whose mapped bones matched the inspected basis and a node-sorted mapping, a canonical order that makes two receipts for the same decision compare equal regardless of the author's row order.
  * @evidence contracts/common.md#clear-and-simple-design A separate handoff type keeps the builder's input apart from the author's decision, so the builder never sees the unvalidated take id field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The handoff states that interpolation and channel coverage remain the builder's decision instead of claiming ingest proved the take convertible.
  * @evidence contracts/common.md#meaningful-documentation The comments state that the rig is a deep copy and that the mapping is sorted by node id in code-unit order.

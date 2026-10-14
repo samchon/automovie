@@ -13,7 +13,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The closed alias vocabulary is a naming convention supported by this mapper rather than an anatomical inference, and both callers keep their own first-claim rule instead of the helper guessing between duplicates.
  * @evidence contracts/common.md#meaningful-documentation The documentation states the normalization steps with an example, the covered conventions, the unmapped finger, eye and jaw slots, and what `undefined` means.
  * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the name length for two regular-expression passes and one lowercase copy, then one hash lookup.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each caller resolves each eligible joint once per import, and this helper introduces no cross-call cache for mutable source revisions.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each invocation normalizes its supplied name; a joint shared by several skins may be revisited, and this helper retains no cache over mutable source revisions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module-level table is a fixed forty-entry constant; a call retains nothing.
  * @author Samchon
  */

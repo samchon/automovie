@@ -3,8 +3,6 @@
 /**
  * Read an absent optional JSON object as an empty record.
  *
- * Undefined alone means omitted; a supplied value must pass the shared non-null non-array object gate.
- *
  * @evidence contracts/common.md#principled-implementation Undefined alone means omitted; a supplied value must pass the shared non-null non-array object gate.
  * @evidence contracts/common.md#clear-and-simple-design This wrapper owns omission semantics while object identity and path diagnostics stay in the required-object helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null or arrays do not silently become empty optional objects, preserving malformed input distinctions.

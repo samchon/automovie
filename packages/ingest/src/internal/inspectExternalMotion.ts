@@ -29,8 +29,6 @@ const MOTION_OUTPUT_TYPES: Readonly<
 /**
  * Normalize glTF animation samplers into deterministic node tracks.
  *
- * Validated FLOAT accessors, strictly increasing nonnegative times, supported interpolation and target-specific arity determine copied clips.
- *
  * @evidence contracts/common.md#principled-implementation Validated FLOAT accessors, strictly increasing nonnegative times, supported interpolation and target-specific arity determine copied clips.
  * @evidence contracts/common.md#clear-and-simple-design Motion normalization owns sampler/channel relationships while hierarchy, node TRS and byte readers remain separate owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate targets, nonfinite values and nonunit quaternion keyframes throw; profile limitations never become guessed channels.
@@ -61,9 +59,8 @@ export const inspectExternalMotion: (props: {
   const nodeIds: string[] = nodes.map(
     (node: IAutoMovieExternalMotionNodeInspection): string => node.id,
   );
-  // Exporters commonly share one keyframe-time accessor across channels, so
-  // each accessor is decoded and checked once per inspection; every track
-  // still receives its own copy.
+  // Shared accessors reuse finite FLOAT decoding; each track owns a copy and
+  // still checks its times, interpolation-specific arity and quaternion values.
   const decoded: Map<string, number[]> = new Map<string, number[]>();
   const readOnce: (accessorIndex: number, expectedType: "SCALAR" | "VEC3" | "VEC4", path: string) => number[] = (
     accessorIndex: number,

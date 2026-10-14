@@ -7,8 +7,6 @@ import { accessorReader } from "./accessorReader";
 /**
  * Read a finite non-sparse FLOAT accessor into caller-owned motion values.
  *
- * Shape and FLOAT storage are checked before stride-aware component reads; every copied numeric value must be finite.
- *
  * @evidence contracts/common.md#principled-implementation Shape and FLOAT storage are checked before stride-aware component reads; every copied numeric value must be finite.
  * @evidence contracts/common.md#clear-and-simple-design Motion-specific shape admission stays here while shared reader code owns buffer view, stride and little-endian decoding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sparse or normalized integer motion data is not coerced into the profile's exact FLOAT interpretation.

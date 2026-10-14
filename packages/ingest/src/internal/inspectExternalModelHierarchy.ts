@@ -4,8 +4,6 @@ import { optionalArray } from "./optionalArray";
 /**
  * Establish a unique-parent acyclic glTF node forest.
  *
- * Index-validated child edges fill one parent table; iterative three-state walks detect cycles and mark completed root paths.
- *
  * @evidence contracts/common.md#principled-implementation Index-validated child edges fill one parent table; iterative three-state walks detect cycles and mark completed root paths.
  * @evidence contracts/common.md#clear-and-simple-design Hierarchy admission runs before profile dispatch so static, humanoid and motion consumers share one forest contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate children, multiple parents and parent cycles throw without rewriting the graph or dropping links.
