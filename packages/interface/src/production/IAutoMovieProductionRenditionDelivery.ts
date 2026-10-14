@@ -4,9 +4,9 @@ import { IAutoMovieRepaintSequenceObservation } from "./IAutoMovieRepaintSequenc
 /**
  * Ordered visual-source and aggregate observation provenance for a feature delivery.
  *
- * @evidence contracts/common.md#principled-implementation The ordered occurrence population receives a canonical member-set digest, with current selected repaint identities and a passing aggregate sequence observation when any occurrence is repainted; final validation reconstructs and compares that population.
+ * @evidence contracts/common.md#principled-implementation A versioned record carries ordered occurrence provenance, its claimed member-set digest and an optional aggregate observation; this representation does not compute digests or reconstruct delivered sources.
  * @evidence contracts/common.md#clear-and-simple-design One versioned visual-lanes record composes lane-specific occurrence records and their shared sequence observation, covering mixed and homogeneous delivery without a separate repaint-only ledger.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts All-deterministic delivery has null observation identity and payload; repaint delivery requires the current matching observation and selected receipt population, not whichever candidates remain on disk.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Observation fields are independently nullable and the type does not enforce their agreement with shot lanes; no maintained runtime consumer verifies this retained rendered-deliverable DTO against files or selection receipts.
  * @evidence contracts/common.md#meaningful-documentation Defines ordered occurrence membership, canonical digest, lane protocol and observation presence or null meaning.
  * @author Samchon
  */

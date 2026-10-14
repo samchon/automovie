@@ -2,9 +2,9 @@
 /**
  * The deterministic renderer lane of one delivered occurrence.
  *
- * @evidence contracts/common.md#principled-implementation Explicit deterministic selection binds the current deterministic source identity while fixing repaint receipt and selection digests to null; final lane validation compares this with the current plan's deterministic source.
+ * @evidence contracts/common.md#principled-implementation The deterministic discriminant pairs a declared source digest with null receipt and selection digests, expressing absence of repaint lineage without reading a render plan.
  * @evidence contracts/common.md#clear-and-simple-design This lane arm contributes only deterministic identity to the shared occurrence record, making repaint-only provenance structurally unavailable.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Resident repaint candidates cannot change the selected lane or populate its null lineage fields; deterministic identity is checked against the current compile and occurrence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null lineage fields exclude repaint receipts structurally; the plain source string neither validates digest syntax nor proves correspondence to a current compile, and no maintained delivery validator consumes this DTO.
  * @evidence contracts/common.md#meaningful-documentation Defines deterministic source selection and the required absence of repaint receipt and active-selection provenance.
  * @author Samchon
  */

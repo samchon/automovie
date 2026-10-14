@@ -2,9 +2,9 @@
 /**
  * The selected-repaint lane of one delivered occurrence, bound to one immutable successful attempt.
  *
- * @evidence contracts/common.md#principled-implementation Source, candidate receipt and active selection digests join the current selected repaint's request and successful attempt; final validation reopens that immutable lineage and compares every field before feature delivery.
+ * @evidence contracts/common.md#principled-implementation The repainted discriminant requires source, receipt, selection, request and attempt identifiers together, representing a claimed selection lineage without reopening immutable artifacts.
  * @evidence contracts/common.md#clear-and-simple-design Repaint-specific identity is one lane arm beside shared occurrence and file fields, so deterministic delivery need not carry meaningless request or attempt ids.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unselected or failed candidate cannot become the feature source, and sourceDigest must equal the selected output identity rather than another file with a similar name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Required string fields prevent omitted lineage in typed values but cannot establish successful attempts or source equality; no maintained delivery consumer verifies these claims against candidate bytes or selection records.
  * @evidence contracts/common.md#meaningful-documentation Defines candidate output, immutable receipt, active selection and exact request/attempt identity used by delivered provenance.
  * @author Samchon
  */
