@@ -30,6 +30,7 @@ export * from "./unsupportedAutoMovieMaterialExtensions";
 export * from "./validateArrayArtifact";
 export * from "./validateBalanceSupport";
 export * from "./validateCapsule";
+export type { IAutoMovieCapsuleProxy } from "@automovie/interface";
 export * from "./validateClipArtifact";
 export * from "./validateColor";
 export * from "./validateContinuity";
