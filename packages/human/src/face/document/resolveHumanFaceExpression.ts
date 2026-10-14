@@ -23,16 +23,20 @@ export function resolveHumanFaceExpression(
     ? number
     : { right: number; left: number };
 }> {
-  const output: ReturnType<typeof resolveHumanFaceExpression> = {} as ReturnType<typeof resolveHumanFaceExpression>;
+  const output: ReturnType<typeof resolveHumanFaceExpression> =
+    {} as ReturnType<typeof resolveHumanFaceExpression>;
   for (const key of Object.keys(input))
     if (
       !humanFaceExpressionDefinitions.some(
-        (definition: (typeof humanFaceExpressionDefinitions)[number]): boolean  => definition.id === key,
+        (
+          definition: (typeof humanFaceExpressionDefinitions)[number],
+        ): boolean => definition.id === key,
       )
     )
       throw new Error(`Unknown face expression: ${key}.`);
   for (const definition of humanFaceExpressionDefinitions) {
-    const value: number | { right?: number; left?: number } | undefined = input[definition.id];
+    const value: number | { right?: number; left?: number } | undefined =
+      input[definition.id];
     const admit: (number: number) => number = (number: number): number => {
       if (
         !Number.isFinite(number) ||
@@ -50,12 +54,16 @@ export function resolveHumanFaceExpression(
         (value === null ||
           typeof value !== "object" ||
           Array.isArray(value) ||
-          Object.keys(value).some((key: string): boolean  => key !== "right" && key !== "left"))
+          Object.keys(value).some(
+            (key: string): boolean => key !== "right" && key !== "left",
+          ))
       )
         throw new Error(
           `${definition.id} must use explicit anatomical right/left channels.`,
         );
-      const pair: { right?: number; left?: number; } | undefined = value as { right?: number; left?: number } | undefined;
+      const pair: { right?: number; left?: number } | undefined = value as
+        | { right?: number; left?: number }
+        | undefined;
       output[definition.id] = {
         right: admit(pair?.right === undefined ? 0 : pair.right),
         left: admit(pair?.left === undefined ? 0 : pair.left),

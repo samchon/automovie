@@ -25,7 +25,9 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * @evidence contracts/performance.md#reuse-equivalent-work Row/column constants and ring-station implementation match the builder; no mesh scan or result cache is needed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One scalar is returned without retaining mesh buffers, callbacks or handles.
  */
-export const portraitTongueStation: (vertex: number) => number = (vertex: number): number =>
+export const portraitTongueStation: (vertex: number) => number = (
+  vertex: number,
+): number =>
   vertex === 0
     ? 0
     : vertex === 1 + (portraitTongueRows - 1) * portraitTongueColumns

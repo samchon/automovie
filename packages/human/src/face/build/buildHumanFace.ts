@@ -1,6 +1,16 @@
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieMaterial as IAutoMovieMaterialImported, IAutoMovieModelPart as IAutoMovieModelPartImported, IAutoMovieMesh as IAutoMovieMeshImported, IAutoMovieValidation as IAutoMovieValidationImported } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial as IAutoMovieMaterialImported,
+  IAutoMovieMesh as IAutoMovieMeshImported,
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+  IAutoMovieValidation as IAutoMovieValidationImported,
+} from "@automovie/interface";
 
+import type {
+  IPortraitComponent as IPortraitComponentImported,
+  IPortraitSurfaceLayer as IPortraitSurfaceLayerImported,
+} from "../../index";
 import { createPortraitCheekLayer } from "../anatomy/cheek/createPortraitCheekLayer";
 import { buildPortraitEars } from "../anatomy/cranium/buildPortraitEars";
 import { buildPortraitHead } from "../anatomy/cranium/buildPortraitHead";
@@ -19,10 +29,6 @@ import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitT
 import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
-import type { IPortraitComponent as IPortraitComponentImported, IPortraitSurfaceLayer as IPortraitSurfaceLayerImported } from "../../index";
-
-
-
 
 /**
  * Construct one resident anatomical face from a standalone numerical document.
@@ -48,21 +54,34 @@ export function buildHumanFace(
   document: IAutoMovieHumanFaceDocument,
   subdivisionRounds: number = 2,
 ): IAutoMovieModel {
-  const face: ReturnType<typeof resolveHumanFaceDocument> = resolveHumanFaceDocument(document);
-  const { host, bindings, recipe, expression, observation }: ReturnType<typeof resolveHumanFaceDocument> = face;
-  const { parts: hair, materials }: ReturnType<typeof buildPortraitHairGroom> = buildPortraitHairGroom({
-    hair: recipe.hair,
-    layers: recipe.hairLayers,
-    materials: face.materials,
-  });
-  const makeComponents: (expression: typeof face.expression) => IPortraitComponentImported[] = (expression: typeof face.expression): IPortraitComponentImported[]  => [
-    ...(["right", "left"] as const).map((side: "left" | "right"): IPortraitComponentImported  =>
-      createPortraitEyeComponent(bindings.eyes[side], face[side].eye, {
-        blink: expression.blink[side],
-        observedBlink: observation.blink[side],
-        yaw: expression.gazeYaw[side] - observation.gazeYaw[side],
-        pitch: expression.gazePitch[side] - observation.gazePitch[side],
-      }),
+  const face: ReturnType<typeof resolveHumanFaceDocument> =
+    resolveHumanFaceDocument(document);
+  const {
+    host,
+    bindings,
+    recipe,
+    expression,
+    observation,
+  }: ReturnType<typeof resolveHumanFaceDocument> = face;
+  const { parts: hair, materials }: ReturnType<typeof buildPortraitHairGroom> =
+    buildPortraitHairGroom({
+      hair: recipe.hair,
+      layers: recipe.hairLayers,
+      materials: face.materials,
+    });
+  const makeComponents: (
+    expression: typeof face.expression,
+  ) => IPortraitComponentImported[] = (
+    expression: typeof face.expression,
+  ): IPortraitComponentImported[] => [
+    ...(["right", "left"] as const).map(
+      (side: "left" | "right"): IPortraitComponentImported =>
+        createPortraitEyeComponent(bindings.eyes[side], face[side].eye, {
+          blink: expression.blink[side],
+          observedBlink: observation.blink[side],
+          yaw: expression.gazeYaw[side] - observation.gazeYaw[side],
+          pitch: expression.gazePitch[side] - observation.gazePitch[side],
+        }),
     ),
     createPortraitNoseComponent(bindings.nose, recipe.nose),
     createPortraitMouthComponent(bindings.mouth, recipe.mouth, {
@@ -140,38 +159,50 @@ export function buildHumanFace(
       : createPortraitSkinColour(host, recipe.skinColour);
   const layers: IPortraitSurfaceLayerImported[] = [
     createPortraitSkinLayer(bindings, recipe.skin!, expression),
-    ...(["right", "left"] as const).flatMap((side: "left" | "right"): IPortraitSurfaceLayerImported[]  =>
-      face[side].cheek === undefined
-        ? []
-        : [createPortraitCheekLayer(bindings.cheeks![side], face[side].cheek!)],
+    ...(["right", "left"] as const).flatMap(
+      (side: "left" | "right"): IPortraitSurfaceLayerImported[] =>
+        face[side].cheek === undefined
+          ? []
+          : [
+              createPortraitCheekLayer(
+                bindings.cheeks![side],
+                face[side].cheek!,
+              ),
+            ],
     ),
   ];
-  const head: ReturnType<typeof buildPortraitHead> = buildPortraitHead(host, components, subdivisionRounds, layers, {
-    cranium: recipe.cranium,
-    neck: recipe.neck,
-    performance: createPortraitJawContinuation(
-      host,
-      bindings,
-      observation,
-      expression,
-      recipe.neck!,
-    ),
-    appearance:
-      colour === undefined
-        ? undefined
-        : {
-            host,
-            components: makeComponents(observation),
-            performance: createPortraitJawContinuation(
+  const head: ReturnType<typeof buildPortraitHead> = buildPortraitHead(
+    host,
+    components,
+    subdivisionRounds,
+    layers,
+    {
+      cranium: recipe.cranium,
+      neck: recipe.neck,
+      performance: createPortraitJawContinuation(
+        host,
+        bindings,
+        observation,
+        expression,
+        recipe.neck!,
+      ),
+      appearance:
+        colour === undefined
+          ? undefined
+          : {
               host,
-              bindings,
-              observation,
-              observation,
-              recipe.neck!,
-            ),
-            sample: colour,
-          },
-  });
+              components: makeComponents(observation),
+              performance: createPortraitJawContinuation(
+                host,
+                bindings,
+                observation,
+                observation,
+                recipe.neck!,
+              ),
+              sample: colour,
+            },
+    },
+  );
   const skin: IAutoMovieMeshImported = createMetricMeshPart(
     "temporal-attachment",
     {
@@ -197,21 +228,45 @@ export function buildHumanFace(
           },
           "skin",
         ).geometry.mesh;
-  const ears: (IAutoMovieModelPartImported & { geometry: { type: "mesh"; mesh: IAutoMovieMeshImported; }; })[] = (["right", "left"] as const).flatMap((side: "left" | "right"): (IAutoMovieModelPartImported & { geometry: { type: "mesh"; mesh: IAutoMovieMeshImported; }; })[]  => {
-    const parts: (IAutoMovieModelPartImported & { geometry: { type: "mesh"; mesh: IAutoMovieMeshImported; }; })[] = buildPortraitEars(skin, face[side].ear, side);
-    if (referenceSkin !== undefined) {
-      const originals: (IAutoMovieModelPartImported & { geometry: { type: "mesh"; mesh: IAutoMovieMeshImported; }; })[] = buildPortraitEars(referenceSkin, face[side].ear, side);
-      parts.forEach((part: IAutoMovieModelPartImported & { geometry: { type: "mesh"; mesh: IAutoMovieMeshImported; }; }, index: number): void  => {
-        const positions: number[] = originals[index].geometry.mesh.positions;
-        part.geometry.mesh.colors = [];
-        for (let i: number = 0; i < positions.length; i += 3)
-          part.geometry.mesh.colors.push(
-            ...colour!(positions.slice(i, i + 3).map((v: number): number  => v * 1000)),
-          );
-      });
-    }
-    return parts;
-  });
+  const ears: (IAutoMovieModelPartImported & {
+    geometry: { type: "mesh"; mesh: IAutoMovieMeshImported };
+  })[] = (["right", "left"] as const).flatMap(
+    (
+      side: "left" | "right",
+    ): (IAutoMovieModelPartImported & {
+      geometry: { type: "mesh"; mesh: IAutoMovieMeshImported };
+    })[] => {
+      const parts: (IAutoMovieModelPartImported & {
+        geometry: { type: "mesh"; mesh: IAutoMovieMeshImported };
+      })[] = buildPortraitEars(skin, face[side].ear, side);
+      if (referenceSkin !== undefined) {
+        const originals: (IAutoMovieModelPartImported & {
+          geometry: { type: "mesh"; mesh: IAutoMovieMeshImported };
+        })[] = buildPortraitEars(referenceSkin, face[side].ear, side);
+        parts.forEach(
+          (
+            part: IAutoMovieModelPartImported & {
+              geometry: { type: "mesh"; mesh: IAutoMovieMeshImported };
+            },
+            index: number,
+          ): void => {
+            const positions: number[] =
+              originals[index].geometry.mesh.positions;
+            part.geometry.mesh.colors = [];
+            for (let i: number = 0; i < positions.length; i += 3)
+              part.geometry.mesh.colors.push(
+                ...colour!(
+                  positions
+                    .slice(i, i + 3)
+                    .map((v: number): number => v * 1000),
+                ),
+              );
+          },
+        );
+      }
+      return parts;
+    },
+  );
   const model: IAutoMovieModel = {
     id: face.document.id,
     name: face.document.name,
@@ -219,7 +274,10 @@ export function buildHumanFace(
     parts: [...resolvePortraitOralContact(head.parts), ...hair, ...ears],
     materials: [
       ...materials,
-      ...components.flatMap((component: IPortraitComponentImported): IAutoMovieMaterialImported[]  => component.materials ?? []),
+      ...components.flatMap(
+        (component: IPortraitComponentImported): IAutoMovieMaterialImported[] =>
+          component.materials ?? [],
+      ),
     ],
     skeleton: null,
     body: null,

@@ -1,4 +1,7 @@
-import type { IAutoMovieModel, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 import { WebIO } from "@gltf-transform/core";
 
 import type { IAutoMovieHumanGltfExport } from "../../common/export/IAutoMovieHumanGltfExport";
@@ -6,8 +9,6 @@ import { createGltfDocument } from "../../common/export/createGltfDocument";
 import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
 import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHumanFaceOralExportQualification";
 import { writeHumanFaceOralExportQualification } from "./writeHumanFaceOralExportQualification";
-
-
 
 /**
  * Serialize an admitted static face to GLB and glTF with resident resources.
@@ -32,16 +33,26 @@ export async function exportHumanFace(
   model: IAutoMovieModel,
   oral?: IAutoMovieHumanFaceOralExportQualification,
 ): Promise<IAutoMovieHumanGltfExport> {
-  if (oral === undefined && model.parts.some((part: IAutoMovieModelPartImported): boolean  => /^oral:/.test(part.id)))
+  if (
+    oral === undefined &&
+    model.parts.some((part: IAutoMovieModelPartImported): boolean =>
+      /^oral:/.test(part.id),
+    )
+  )
     throw new Error(
       "Generated oral static export needs its canonical source and clinical qualification.",
     );
-  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(model, {
-    sourcePartIdentity: oral !== undefined,
-  });
+  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(
+    model,
+    {
+      sourcePartIdentity: oral !== undefined,
+    },
+  );
   if (oral !== undefined) writeHumanFaceOralExportQualification(document, oral);
   const writer: WebIO = new WebIO().registerExtensions(gltfMaterialExtensions);
-  const glb: Awaited<ReturnType<WebIO["writeBinary"]>> = await writer.writeBinary(document);
-  const gltf: Awaited<ReturnType<WebIO["writeJSON"]>> = await writer.writeJSON(document);
+  const glb: Awaited<ReturnType<WebIO["writeBinary"]>> =
+    await writer.writeBinary(document);
+  const gltf: Awaited<ReturnType<WebIO["writeJSON"]>> =
+    await writer.writeJSON(document);
   return { glb, gltf };
 }

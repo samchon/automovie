@@ -6,25 +6,32 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IPortraitHairCard } from "../anatomy/hair/IPortraitHairCard";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
 import type { IAutoMovieHumanFaceGroomCard } from "../structures/IAutoMovieHumanFaceGroomCard";
-import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 
 /** How many triangles a mesh holds, counting consecutive triples when unindexed. */
-const triangleCount: (mesh: IAutoMovieMesh) => number = (mesh: IAutoMovieMesh): number =>
+const triangleCount: (mesh: IAutoMovieMesh) => number = (
+  mesh: IAutoMovieMesh,
+): number =>
   (mesh.indices === null ? mesh.positions.length / 3 : mesh.indices.length) / 3;
 
 /** Corner positions of one triangle of a part's own index buffer. */
-const seatTriangle: (mesh: IAutoMovieMesh, ordinal: number, positions?: readonly number[]) => IAutoMovieVector3[] = (
+const seatTriangle: (
+  mesh: IAutoMovieMesh,
+  ordinal: number,
+  positions?: readonly number[],
+) => IAutoMovieVector3[] = (
   mesh: IAutoMovieMesh,
   ordinal: number,
   positions: readonly number[] = mesh.positions,
 ): IAutoMovieVector3[] =>
-  [0, 1, 2].map((corner: number): IAutoMovieVector3  => {
+  [0, 1, 2].map((corner: number): IAutoMovieVector3 => {
     const slot: number = ordinal * 3 + corner;
-    const vertex: number = (mesh.indices === null ? slot : mesh.indices[slot]) * 3;
+    const vertex: number =
+      (mesh.indices === null ? slot : mesh.indices[slot]) * 3;
     return Vector3.create(
       positions[vertex],
       positions[vertex + 1],
@@ -82,12 +89,23 @@ export function resolveHumanFaceGroom(props: {
   groom: IAutoMovieHumanFaceGroom;
   model: IAutoMovieModel;
 }): IPortraitHairShape {
-  const meshes: Map<string, { source: IAutoMovieMesh; transform: IAutoMovieModelPart["transform"] }> = new Map();
+  const meshes: Map<
+    string,
+    { source: IAutoMovieMesh; transform: IAutoMovieModelPart["transform"] }
+  > = new Map();
   const worlds: Map<string, IAutoMovieMesh> = new Map();
   for (const part of props.model.parts)
-    if (part.geometry.type === "mesh") meshes.set(part.id, { source: part.geometry.mesh, transform: part.transform });
-  const resolve: (card: IAutoMovieHumanFaceGroomCard) => IPortraitHairCard = (card: IAutoMovieHumanFaceGroomCard): IPortraitHairCard => {
-    const part: { source: IAutoMovieMesh; transform: IAutoMovieModelPart["transform"]; } | undefined = meshes.get(card.part);
+    if (part.geometry.type === "mesh")
+      meshes.set(part.id, {
+        source: part.geometry.mesh,
+        transform: part.transform,
+      });
+  const resolve: (card: IAutoMovieHumanFaceGroomCard) => IPortraitHairCard = (
+    card: IAutoMovieHumanFaceGroomCard,
+  ): IPortraitHairCard => {
+    const part:
+      | { source: IAutoMovieMesh; transform: IAutoMovieModelPart["transform"] }
+      | undefined = meshes.get(card.part);
     if (part === undefined)
       throw new Error(
         "A seated hair lock names a surface this face does not have: " +
@@ -111,11 +129,18 @@ export function resolveHumanFaceGroom(props: {
     }
     // Seat weights and the first edge retain the original source corner order.
     // The published triangle order supplies outward winding after reflection.
-    const [a, b, c]: IAutoMovieVector3[] = seatTriangle(part.source, card.triangle, world.positions);
+    const [a, b, c]: IAutoMovieVector3[] = seatTriangle(
+      part.source,
+      card.triangle,
+      world.positions,
+    );
     const published: IAutoMovieVector3[] = seatTriangle(world, card.triangle);
     const edge: IAutoMovieVector3 = Vector3.subtract(b, a);
     const reach: IAutoMovieVector3 = Vector3.subtract(c, a);
-    const normal: IAutoMovieVector3 = Vector3.cross(Vector3.subtract(published[1], published[0]), Vector3.subtract(published[2], published[0]));
+    const normal: IAutoMovieVector3 = Vector3.cross(
+      Vector3.subtract(published[1], published[0]),
+      Vector3.subtract(published[2], published[0]),
+    );
     if (!(Vector3.length(normal) > 0))
       throw new Error(
         "A seated hair lock rests on a collapsed triangle: " +
@@ -135,16 +160,24 @@ export function resolveHumanFaceGroom(props: {
         Vector3.scale(reach, card.weights[1]),
       ),
     );
-    const spread: (local: readonly [number, number, number]) => IAutoMovieVector3 = (
+    const spread: (
+      local: readonly [number, number, number],
+    ) => IAutoMovieVector3 = (
       local: readonly [number, number, number],
     ): IAutoMovieVector3 =>
       axes.reduce(
-        (total: IAutoMovieVector3, axis: IAutoMovieVector3, index: number): IAutoMovieVector3  =>
+        (
+          total: IAutoMovieVector3,
+          axis: IAutoMovieVector3,
+          index: number,
+        ): IAutoMovieVector3 =>
           Vector3.add(total, Vector3.scale(axis, local[index])),
         Vector3.create(0, 0, 0),
       );
     // Local metres ride the live frame; the tessellator reads millimetres.
-    const millimetres: (point: IAutoMovieVector3) => [number, number, number] = (
+    const millimetres: (
+      point: IAutoMovieVector3,
+    ) => [number, number, number] = (
       point: IAutoMovieVector3,
     ): [number, number, number] => [
       point.x * 1000,
@@ -152,18 +185,23 @@ export function resolveHumanFaceGroom(props: {
       point.z * 1000,
     ];
     return {
-      guide: card.guide.map((local: readonly [number, number, number]): [number, number, number]  =>
-        millimetres(Vector3.add(seat, spread(local))),
+      guide: card.guide.map(
+        (local: readonly [number, number, number]): [number, number, number] =>
+          millimetres(Vector3.add(seat, spread(local))),
       ),
       // Across vectors are directions, so they ride the frame without the seat.
-      across: card.across.map((local: readonly [number, number, number]): [number, number, number]  => {
-        const direction: IAutoMovieVector3 = spread(local);
-        return [direction.x, direction.y, direction.z] as [
-          number,
-          number,
-          number,
-        ];
-      }),
+      across: card.across.map(
+        (
+          local: readonly [number, number, number],
+        ): [number, number, number] => {
+          const direction: IAutoMovieVector3 = spread(local);
+          return [direction.x, direction.y, direction.z] as [
+            number,
+            number,
+            number,
+          ];
+        },
+      ),
       width: card.width * 1000,
     };
   };

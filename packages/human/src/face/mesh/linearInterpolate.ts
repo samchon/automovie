@@ -9,5 +9,8 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share the formula and directly evaluate current inputs without retaining memoized scalar populations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number transfers and no bytes, state, task or handle is retained.
  */
-export const linearInterpolate: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number =>
-  a + (b - a) * t;
+export const linearInterpolate: (a: number, b: number, t: number) => number = (
+  a: number,
+  b: number,
+  t: number,
+): number => a + (b - a) * t;

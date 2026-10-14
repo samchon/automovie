@@ -1,7 +1,7 @@
-import { millimetrePoint as p } from "./millimetrePoint";
-import { Point } from "./structures/Point";
 import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
 
+import { millimetrePoint as p } from "./millimetrePoint";
+import { Point } from "./structures/Point";
 
 /**
  * Intersect a measured camera ray with a continuous finite Z surface, in mm.
@@ -20,7 +20,12 @@ import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/
  * @evidence contracts/performance.md#reuse-equivalent-work Endpoint residuals carry into each retained bracket half and one ray formula serves all samples; a changed/effectful field is not an equivalent cached root.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fresh point transfers and bracket scalars/local closures release; no surface/history, callback task or external handle is retained.
  */
-export const intersectRayWithHeightField: (origin: Point, direction: Point, height: (x: number, y: number) => number, interval: [number, number]) => Point = (
+export const intersectRayWithHeightField: (
+  origin: Point,
+  direction: Point,
+  height: (x: number, y: number) => number,
+  interval: [number, number],
+) => Point = (
   origin: Point,
   direction: Point,
   height: (x: number, y: number) => number,
@@ -47,7 +52,10 @@ export const intersectRayWithHeightField: (origin: Point, direction: Point, heig
   if (right === 0) return at(high);
   if (Math.sign(left) === Math.sign(right))
     throw new Error("A surface intersection needs finite bracketed endpoints.");
-  const midpoint: (first: number, second: number) => number = (first: number, second: number): number => {
+  const midpoint: (first: number, second: number) => number = (
+    first: number,
+    second: number,
+  ): number => {
     const sum: number = first + second;
     return Number.isFinite(sum) ? sum / 2 : first / 2 + second / 2;
   };

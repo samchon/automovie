@@ -51,7 +51,11 @@ export function assertHumanFaceEditableDetail(
     return equal;
   };
   const active: WeakSet<object> = new WeakSet<object>();
-  const visit: (value: unknown, source: unknown, path: string) => void = (value: unknown, source: unknown, path: string): void => {
+  const visit: (value: unknown, source: unknown, path: string) => void = (
+    value: unknown,
+    source: unknown,
+    path: string,
+  ): void => {
     if (value === null || typeof value !== "object") return;
     if (Array.isArray(value)) {
       if (value.length === 0) return;
@@ -74,7 +78,9 @@ export function assertHumanFaceEditableDetail(
       )
         return;
       if (path === "detail.hairLayers") {
-        const sourceLayers: readonly { id?: string }[] = Array.isArray(source) ? source : [];
+        const sourceLayers: readonly { id?: string }[] = Array.isArray(source)
+          ? source
+          : [];
         for (const [index, layer] of value.entries()) {
           if (
             layer === null ||
@@ -84,9 +90,9 @@ export function assertHumanFaceEditableDetail(
             throw new Error(
               "Editable facial hair layers need an object profile.",
             );
-          const current: { id?: string; } = layer as { id?: string };
-          const original: { id?: string; } | undefined = sourceLayers.find(
-            (one: { id?: string }): boolean  => one.id === current.id,
+          const current: { id?: string } = layer as { id?: string };
+          const original: { id?: string } | undefined = sourceLayers.find(
+            (one: { id?: string }): boolean => one.id === current.id,
           );
           visit(layer, original, path + "[" + index + "]");
         }

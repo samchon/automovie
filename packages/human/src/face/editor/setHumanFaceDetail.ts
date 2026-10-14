@@ -1,10 +1,9 @@
+import type { IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported } from "../../index";
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertDetailValue } from "./assertDetailValue";
 import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
 import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
-import type { IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported } from "../../index";
-
 
 /**
  * Write or remove one exact scalar override without flattening the rest of a
@@ -29,7 +28,8 @@ export function setHumanFaceDetail(
   side?: "right" | "left",
 ): IAutoMovieHumanFaceDocument {
   assertHumanFaceEditableDetail(document);
-  const definition: IAutoMovieHumanFaceDetailChannelImported = humanFaceDetailDefinition(id);
+  const definition: IAutoMovieHumanFaceDetailChannelImported =
+    humanFaceDetailDefinition(id);
   assertDetailValue(definition, value);
   if (
     side !== undefined &&

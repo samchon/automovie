@@ -24,14 +24,13 @@ export function parseHumanFaceDocument(
   text: string,
 ): IAutoMovieHumanFaceDocument {
   assertTextSize(text);
-  const document: IAutoMovieHumanFaceDocument = typia.assertEquals<IAutoMovieHumanFaceDocument>(
-    JSON.parse(text),
-  );
+  const document: IAutoMovieHumanFaceDocument =
+    typia.assertEquals<IAutoMovieHumanFaceDocument>(JSON.parse(text));
   assertFinite(document);
   assertHumanFaceEditableDetail(document);
   if (
     [document.id, document.name, document.basis.id].some(
-      (value: string): boolean  => value.trim().length === 0,
+      (value: string): boolean => value.trim().length === 0,
     )
   )
     throw new Error("Face and basis identities must be nonempty.");

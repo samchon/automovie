@@ -17,7 +17,11 @@ import { admitHumanFaceBasisDocument } from "./admitHumanFaceBasisDocument";
 export function serializeHumanFaceBasisDocument(
   document: IAutoMovieHumanFaceBasisDocument,
 ): string {
-  const text: string = JSON.stringify(admitHumanFaceBasisDocument(document), null, 2);
+  const text: string = JSON.stringify(
+    admitHumanFaceBasisDocument(document),
+    null,
+    2,
+  );
   // Measure the actual escaped, formatted representation. Otherwise a valid
   // in-memory edit could save successfully but exceed the loader's envelope.
   assertTextSize(text);

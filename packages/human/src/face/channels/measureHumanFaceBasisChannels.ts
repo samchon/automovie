@@ -1,12 +1,19 @@
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
+
 import { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
+import type {
+  IAutoMovieHumanFaceBasisArticulation as IAutoMovieHumanFaceBasisArticulationImported,
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisEyeGaze as IAutoMovieHumanFaceBasisEyeGazeImported,
+  IAutoMovieHumanFaceBasisEye as IAutoMovieHumanFaceBasisEyeImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported,
+} from "../../index";
 import { evaluateHumanFaceRest } from "../basis/evaluateHumanFaceRest";
 import { poseHumanFaceSurface } from "../basis/poseHumanFaceSurface";
 import { resolveHumanFaceArticulation } from "../basis/resolveHumanFaceArticulation";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import { IAutoMovieHumanFaceChannelScale } from "../structures/IAutoMovieHumanFaceChannelScale";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisArticulation as IAutoMovieHumanFaceBasisArticulationImported, IAutoMovieHumanFaceBasisEye as IAutoMovieHumanFaceBasisEyeImported, IAutoMovieHumanFaceBasisEyeGaze as IAutoMovieHumanFaceBasisEyeGazeImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported } from "../../index";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
-
 
 /**
  * Measure every channel's metric effect on an admitted connected facial basis.
@@ -52,13 +59,15 @@ export function measureHumanFaceBasisChannels(
   basis: IAutoMovieHumanFaceBasis,
 ): IAutoMovieHumanFaceChannelScale[] {
   const resident: number = basis.surfaces.reduce(
-    (total: number, surface: IAutoMovieHumanFaceBasisSurfaceImported): number  => total + surface.positions.length / 3,
+    (total: number, surface: IAutoMovieHumanFaceBasisSurfaceImported): number =>
+      total + surface.positions.length / 3,
     0,
   );
   if (resident === 0)
     throw new Error("A facial basis needs resident vertices to measure.");
   const articulated: Map<string, string> = new Map<string, string>();
-  const articulation: IAutoMovieHumanFaceBasisArticulationImported | undefined = basis.articulation;
+  const articulation: IAutoMovieHumanFaceBasisArticulationImported | undefined =
+    basis.articulation;
   if (articulation !== undefined) {
     const { jaw }: IAutoMovieHumanFaceBasisArticulationImported = articulation;
     for (const channel of [
@@ -66,12 +75,19 @@ export function measureHumanFaceBasisChannels(
       jaw.protrusion.channel,
       jaw.laterotrusion.left.channel,
       jaw.laterotrusion.right.channel,
-      ...articulation.eyes.flatMap((eye: IAutoMovieHumanFaceBasisEyeImported): string[]  =>
-        eye.gaze.map((gaze: IAutoMovieHumanFaceBasisEyeGazeImported): string  => gaze.channel),
+      ...articulation.eyes.flatMap(
+        (eye: IAutoMovieHumanFaceBasisEyeImported): string[] =>
+          eye.gaze.map(
+            (gaze: IAutoMovieHumanFaceBasisEyeGazeImported): string =>
+              gaze.channel,
+          ),
       ),
     ])
       articulated.set(
-        basis.channels.find((one: IAutoMovieHumanFaceBasisChannelImported): boolean  => one.id === channel)!.positive,
+        basis.channels.find(
+          (one: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+            one.id === channel,
+        )!.positive,
         channel,
       );
   }
@@ -85,12 +101,16 @@ export function measureHumanFaceBasisChannels(
   // sparse row is cheaper than taking its length for every row. A joint's
   // channel is instead posed through the same attachment blend the builder
   // uses, and measured vertex by vertex against the neutral.
-  const measure: (name: string) => IAutoMovieHumanEndpointScale = (name: string): IAutoMovieHumanEndpointScale => {
+  const measure: (name: string) => IAutoMovieHumanEndpointScale = (
+    name: string,
+  ): IAutoMovieHumanEndpointScale => {
     let sumOfSquares: number = 0;
     let largestSquare: number = 0;
     let rowCount: number = 0;
     const channel: string | undefined = articulated.get(name);
-    const motions: Map<string, IAutoMovieHumanFaceRigidMotionImported> | undefined =
+    const motions:
+      | Map<string, IAutoMovieHumanFaceRigidMotionImported>
+      | undefined =
       channel === undefined
         ? undefined
         : resolveHumanFaceArticulation(
@@ -106,7 +126,11 @@ export function measureHumanFaceBasisChannels(
           for (let i: number = 0; i < rows.length; i += 4)
             for (let axis: number = 0; axis < 3; axis++)
               rest[rows[i] * 3 + axis] += rows[i + axis + 1];
-        const posed: number[] = poseHumanFaceSurface(rest, surface.attachments!, motions);
+        const posed: number[] = poseHumanFaceSurface(
+          rest,
+          surface.attachments!,
+          motions,
+        );
         for (let v: number = 0; v * 3 < posed.length; v++) {
           const square: number =
             (posed[3 * v] - surface.positions[3 * v]) ** 2 +
@@ -136,10 +160,19 @@ export function measureHumanFaceBasisChannels(
       vertices: rowCount,
     };
   };
-  return basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): { id: string; kind: "shape" | "expression"; positive: IAutoMovieHumanEndpointScale; negative: IAutoMovieHumanEndpointScale | null; }  => ({
-    id: channel.id,
-    kind: channel.kind,
-    positive: measure(channel.positive),
-    negative: channel.negative === null ? null : measure(channel.negative),
-  }));
+  return basis.channels.map(
+    (
+      channel: IAutoMovieHumanFaceBasisChannelImported,
+    ): {
+      id: string;
+      kind: "shape" | "expression";
+      positive: IAutoMovieHumanEndpointScale;
+      negative: IAutoMovieHumanEndpointScale | null;
+    } => ({
+      id: channel.id,
+      kind: channel.kind,
+      positive: measure(channel.positive),
+      negative: channel.negative === null ? null : measure(channel.negative),
+    }),
+  );
 }

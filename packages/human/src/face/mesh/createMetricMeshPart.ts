@@ -16,7 +16,13 @@ import { millimetrePoint as p } from "./millimetrePoint";
  * @evidence contracts/performance.md#reuse-equivalent-work Numerical components share this unit owner; distinct mutable source meshes require distinct output buffers and no transformed result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh arrays/part transfer, sources remain borrowed, and no task/handle or retained transform cache is acquired.
  */
-export const createMetricMeshPart: (id: string, mesh: IAutoMovieMesh, finish: string) => IAutoMovieModelPart & { geometry: { type: "mesh"; mesh: IAutoMovieMesh; }; } = (
+export const createMetricMeshPart: (
+  id: string,
+  mesh: IAutoMovieMesh,
+  finish: string,
+) => IAutoMovieModelPart & {
+  geometry: { type: "mesh"; mesh: IAutoMovieMesh };
+} = (
   id: string,
   mesh: IAutoMovieMesh,
   finish: string,

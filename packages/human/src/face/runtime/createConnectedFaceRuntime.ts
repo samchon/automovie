@@ -13,7 +13,6 @@ import { exportHumanFace } from "../export/exportHumanFace";
 import type { IAutoMovieHumanFaceBasisBuilder } from "../structures/IAutoMovieHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceConstruction } from "../structures/IAutoMovieHumanFaceConstruction";
-
 import type { ConnectedFaceRequest } from "./ConnectedFaceRequest";
 import type { ConnectedFaceResult } from "./ConnectedFaceResult";
 import type { IConnectedFaceRuntimeProps } from "./IConnectedFaceRuntimeProps";
@@ -83,10 +82,11 @@ export function createConnectedFaceRuntime(
   // The builder that also bakes the face's ambient occlusion, made on the
   // first request that asks for it.
   let occluded: ReturnType<typeof createHumanFaceBasisBuilder> | undefined;
-  return async (request: ConnectedFaceRequest): Promise<ConnectedFaceResult> => {
-    const document: IAutoMovieHumanFaceBasisDocument = parseHumanFaceBasisDocument(
-      request.document,
-    );
+  return async (
+    request: ConnectedFaceRequest,
+  ): Promise<ConnectedFaceResult> => {
+    const document: IAutoMovieHumanFaceBasisDocument =
+      parseHumanFaceBasisDocument(request.document);
     const builder: IAutoMovieHumanFaceBasisBuilder =
       request.occlusion === true
         ? (occluded ??= createHumanFaceBasisBuilder(props.basis, {
@@ -96,9 +96,8 @@ export function createConnectedFaceRuntime(
           }))
         : evaluate;
     if (request.operation === "construct") {
-      const construction: IAutoMovieHumanFaceConstruction = builder.construct(
-        document,
-      );
+      const construction: IAutoMovieHumanFaceConstruction =
+        builder.construct(document);
       return {
         operation: "construct" as const,
         model: construction.model,
@@ -109,7 +108,10 @@ export function createConnectedFaceRuntime(
             readHumanFacePartCensus(construction.model),
         },
         periocularMappings: construction.periocularMappings,
-        articulation: summarizeHumanFaceArticulation(props.basis, resolveHumanFaceAppearanceDocument(props.basis, document)),
+        articulation: summarizeHumanFaceArticulation(
+          props.basis,
+          resolveHumanFaceAppearanceDocument(props.basis, document),
+        ),
         // Construction publishes no success-only contact observer. Its
         // complete measured relations remain in the owner's admission.
         contact: null,
@@ -134,7 +136,10 @@ export function createConnectedFaceRuntime(
     return {
       operation: "preview" as const,
       model,
-      articulation: summarizeHumanFaceArticulation(props.basis, resolveHumanFaceAppearanceDocument(props.basis, document)),
+      articulation: summarizeHumanFaceArticulation(
+        props.basis,
+        resolveHumanFaceAppearanceDocument(props.basis, document),
+      ),
       contact,
       crossings:
         request.measure === true ? measureAutoMovieModelCrossings(model) : null,

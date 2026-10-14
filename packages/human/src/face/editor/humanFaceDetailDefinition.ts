@@ -19,9 +19,10 @@ import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanF
 export function humanFaceDetailDefinition(
   id: string,
 ): IAutoMovieHumanFaceDetailChannel {
-  const definition: IAutoMovieHumanFaceDetailChannel | undefined = humanFaceDetailChannels.find(
-    (channel: IAutoMovieHumanFaceDetailChannel): boolean  => channel.id === id,
-  );
+  const definition: IAutoMovieHumanFaceDetailChannel | undefined =
+    humanFaceDetailChannels.find(
+      (channel: IAutoMovieHumanFaceDetailChannel): boolean => channel.id === id,
+    );
   if (definition === undefined)
     throw new Error(`Unknown anatomical detail: ${id}.`);
   return definition;

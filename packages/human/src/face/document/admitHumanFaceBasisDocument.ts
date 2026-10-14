@@ -3,13 +3,13 @@ import typia from "typia";
 import { assertPortraitEyebrowProfile } from "../anatomy/brow/assertPortraitEyebrowProfile";
 import { createPortraitIrisMaterials } from "../anatomy/eye/createPortraitIrisMaterials";
 import { resolveHumanFaceOpticalProfile } from "../anatomy/eye/resolveHumanFaceOpticalProfile";
-import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { assertHumanFaceFacialHair } from "../anatomy/hair/assertHumanFaceFacialHair";
+import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { assertHumanFaceLashPopulation } from "../anatomy/lash/assertHumanFaceLashPopulation";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IAutoMovieHumanFacePeriocularTissueSection } from "../structures/IAutoMovieHumanFacePeriocularTissueSection";
 import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../structures/IAutoMovieHumanFaceLidSectionDisplacement";
+import type { IAutoMovieHumanFacePeriocularTissueSection } from "../structures/IAutoMovieHumanFacePeriocularTissueSection";
 import { assertFinite } from "./assertFinite";
 
 /**
@@ -32,7 +32,8 @@ import { assertFinite } from "./assertFinite";
 export function admitHumanFaceBasisDocument(
   input: unknown,
 ): IAutoMovieHumanFaceBasisDocument {
-  const document: IAutoMovieHumanFaceBasisDocument = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
+  const document: IAutoMovieHumanFaceBasisDocument =
+    typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
   assertFinite(document);
   if (document.hair !== undefined && document.hair !== null)
     assertHumanFaceHair(document.hair);
@@ -69,7 +70,9 @@ export function admitHumanFaceBasisDocument(
     document.periocularTissues?.left,
     document.periocularTissues?.right,
   ])
-    for (const section of Object.values<IAutoMovieHumanFacePeriocularTissueSection | undefined>(side ?? {}))
+    for (const section of Object.values<
+      IAutoMovieHumanFacePeriocularTissueSection | undefined
+    >(side ?? {}))
       if (
         section !== undefined &&
         ![section.inwardOffsetMm, section.thicknessMm].every(
@@ -80,7 +83,10 @@ export function admitHumanFaceBasisDocument(
           "Periocular tissue dimensions need positive finite millimetres.",
         );
   for (const side of [document.eyelids?.left, document.eyelids?.right])
-    for (const section of Object.values(side ?? {}) as (IAutoMovieHumanFaceLidSectionDisplacement | undefined)[])
+    for (const section of Object.values(side ?? {}) as (
+      | IAutoMovieHumanFaceLidSectionDisplacement
+      | undefined
+    )[])
       if (
         section !== undefined &&
         ![section.elevationMm, section.projectionMm].every(Number.isFinite)
@@ -93,8 +99,12 @@ export function admitHumanFaceBasisDocument(
     if (shape !== undefined) {
       if (
         !(Object.values(shape) as (number | undefined)[])
-          .filter((value: number | undefined): value is number => value !== undefined)
-          .every((value: number): boolean => Number.isFinite(value) && value >= 0)
+          .filter(
+            (value: number | undefined): value is number => value !== undefined,
+          )
+          .every(
+            (value: number): boolean => Number.isFinite(value) && value >= 0,
+          )
       )
         throw new Error(
           "Ocular surface dimensions need nonnegative finite millimetres.",
@@ -108,7 +118,9 @@ export function admitHumanFaceBasisDocument(
         );
     }
   if (
-    [document.id, document.name, document.basis].some((id: string): boolean  => id.trim() === "")
+    [document.id, document.name, document.basis].some(
+      (id: string): boolean => id.trim() === "",
+    )
   )
     throw new Error(
       "Facial edits need finite numbers and nonempty identities.",

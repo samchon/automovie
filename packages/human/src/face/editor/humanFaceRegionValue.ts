@@ -4,7 +4,6 @@ import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFac
 import { assertRegion } from "./assertRegion";
 import { humanFaceRegions } from "./humanFaceRegions";
 
-
 /**
  * Read the actual combined profile, including an explicitly requested side.
  * Missing optional profiles remain absent rather than becoming invented data.
@@ -25,7 +24,8 @@ export function humanFaceRegionValue<
   side?: "right" | "left",
 ): IAutoMovieHumanFaceRecipe[K] {
   assertRegion(region, side);
-  const face: ReturnType<typeof resolveHumanFaceDocument> = resolveHumanFaceDocument(document);
+  const face: ReturnType<typeof resolveHumanFaceDocument> =
+    resolveHumanFaceDocument(document);
   if (
     side !== undefined &&
     (region === "eye" || region === "ear" || region === "cheek")

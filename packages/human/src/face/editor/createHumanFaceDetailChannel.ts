@@ -13,7 +13,19 @@ import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanF
  * @evidence contracts/performance.md#reuse-equivalent-work Catalogue definitions use one identity/ownership constructor; each distinct row is built once at catalogue initialization and no geometry/result cache is implemented here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh row/path array transfers to the static catalogue; borrowed strings retain only actual metadata and no renderer/resource/task is acquired.
  */
-export const createHumanFaceDetailChannel: (region: Exclude<IAutoMovieHumanFaceDetailChannel["region"], "hairLayers" | "skinColour">, path: string, meaning: string, unit: string, minimum: number, maximum: number, step: number, effect: string) => IAutoMovieHumanFaceDetailChannel = (
+export const createHumanFaceDetailChannel: (
+  region: Exclude<
+    IAutoMovieHumanFaceDetailChannel["region"],
+    "hairLayers" | "skinColour"
+  >,
+  path: string,
+  meaning: string,
+  unit: string,
+  minimum: number,
+  maximum: number,
+  step: number,
+  effect: string,
+) => IAutoMovieHumanFaceDetailChannel = (
   region: Exclude<
     IAutoMovieHumanFaceDetailChannel["region"],
     "hairLayers" | "skinColour"

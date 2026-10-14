@@ -47,14 +47,18 @@ export function replaceHumanFaceRegion<
   const document: IAutoMovieHumanFaceDocument = structuredClone(props.document);
   const value: typeof props.value = structuredClone(props.value);
   if (props.side !== undefined) {
-    const asymmetry: NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]> = (document.asymmetry ??= {});
-    const selected: NonNullable<NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]>["left"]> = (asymmetry[props.side] ??= {});
+    const asymmetry: NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]> =
+      (document.asymmetry ??= {});
+    const selected: NonNullable<
+      NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]>["left"]
+    > = (asymmetry[props.side] ??= {});
     // assertRegion restricts this owner to the three independently paired profiles.
     Object.assign(selected, { [props.region]: value });
     if (value === undefined)
       delete selected[props.region as "eye" | "ear" | "cheek"];
   } else {
-    const detail: NonNullable<IAutoMovieHumanFaceDocument["detail"]> = (document.detail ??= {});
+    const detail: NonNullable<IAutoMovieHumanFaceDocument["detail"]> =
+      (document.detail ??= {});
     Object.assign(detail, { [props.region]: value });
     if (value === undefined) delete detail[props.region];
   }

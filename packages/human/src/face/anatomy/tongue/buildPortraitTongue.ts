@@ -35,7 +35,7 @@ export function buildPortraitTongue(
   assertPortraitTongueShape(shape);
   if (
     ![performance.raise, performance.advance].every(
-      (v: number): boolean  => Number.isFinite(v) && Math.abs(v) <= 16,
+      (v: number): boolean => Number.isFinite(v) && Math.abs(v) <= 16,
     )
   )
     throw new Error(

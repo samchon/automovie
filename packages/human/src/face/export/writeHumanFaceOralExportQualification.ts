@@ -2,11 +2,13 @@ import type { Document, Mesh, Primitive } from "@gltf-transform/core";
 import typia from "typia";
 
 import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
+import type {
+  IAutoMovieHumanFaceOralExportPartQualification as IAutoMovieHumanFaceOralExportPartQualificationImported,
+  IAutoMovieHumanStaticPartInterval as IAutoMovieHumanStaticPartIntervalImported,
+} from "../../index";
 import { isHumanFaceOralSourceSha256 } from "../anatomy/oral/isHumanFaceOralSourceSha256";
 import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHumanFaceOralExportQualification";
 import { readHumanFaceOralAssetCorrespondence } from "./readHumanFaceOralAssetCorrespondence";
-import type { IAutoMovieHumanFaceOralExportPartQualification as IAutoMovieHumanFaceOralExportPartQualificationImported, IAutoMovieHumanStaticPartInterval as IAutoMovieHumanStaticPartIntervalImported } from "../../index";
-
 
 /**
  * Join coarse oral qualification to the same actual static source intervals.
@@ -34,26 +36,41 @@ export function writeHumanFaceOralExportQualification(
     report.generation.trim() === "" ||
     !isHumanFaceOralSourceSha256(report.dentalNativeSha256) ||
     report.sourceSha256.length === 0 ||
-    report.sourceSha256.some((hash: string): boolean  => !isHumanFaceOralSourceSha256(hash)) ||
+    report.sourceSha256.some(
+      (hash: string): boolean => !isHumanFaceOralSourceSha256(hash),
+    ) ||
     report.clinicalGaps.length === 0 ||
     report.tonguePartIds.length === 0 ||
     new Set(report.tonguePartIds).size !== report.tonguePartIds.length ||
-    report.tonguePartIds.some((id: string): boolean  => id.trim() === "")
+    report.tonguePartIds.some((id: string): boolean => id.trim() === "")
   )
     throw new Error(
       "Oral static qualification needs canonical provenance and explicit clinical gaps.",
     );
-  const records: Map<string, IAutoMovieHumanFaceOralExportPartQualificationImported> = new Map(report.parts.map((part: IAutoMovieHumanFaceOralExportPartQualificationImported): [string, IAutoMovieHumanFaceOralExportPartQualificationImported]  => [part.id, part]));
+  const records: Map<
+    string,
+    IAutoMovieHumanFaceOralExportPartQualificationImported
+  > = new Map(
+    report.parts.map(
+      (
+        part: IAutoMovieHumanFaceOralExportPartQualificationImported,
+      ): [string, IAutoMovieHumanFaceOralExportPartQualificationImported] => [
+        part.id,
+        part,
+      ],
+    ),
+  );
   const primitives: Primitive[] = document
     .getRoot()
     .listMeshes()
     .flatMap((mesh: Mesh): Primitive[] => mesh.listPrimitives());
   const actual: IAutoMovieHumanStaticPartIntervalImported[] = primitives
     .flatMap(
-      (primitive: Primitive): IAutoMovieHumanStaticPartIntervalImported[]  => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+      (primitive: Primitive): IAutoMovieHumanStaticPartIntervalImported[] =>
+        readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
     )
     .filter(
-      (part: IAutoMovieHumanStaticPartIntervalImported): boolean  =>
+      (part: IAutoMovieHumanStaticPartIntervalImported): boolean =>
         /^(face:)?oral:/.test(part.id) ||
         report.tonguePartIds.includes(part.id),
     );
@@ -61,19 +78,32 @@ export function writeHumanFaceOralExportQualification(
     records.size === 0 ||
     records.size !== report.parts.length ||
     actual.length !== records.size ||
-    new Set(actual.map((part: IAutoMovieHumanStaticPartIntervalImported): string  => part.id)).size !== records.size ||
-    actual.some((part: IAutoMovieHumanStaticPartIntervalImported): boolean  => !records.has(part.id)) ||
-    report.tonguePartIds.some((id: string): boolean  => !records.has(id))
+    new Set(
+      actual.map(
+        (part: IAutoMovieHumanStaticPartIntervalImported): string => part.id,
+      ),
+    ).size !== records.size ||
+    actual.some(
+      (part: IAutoMovieHumanStaticPartIntervalImported): boolean =>
+        !records.has(part.id),
+    ) ||
+    report.tonguePartIds.some((id: string): boolean => !records.has(id))
   )
     throw new Error(
       "Oral qualification must identify every actual generated oral source part exactly once.",
     );
   for (const primitive of primitives) {
     const parts: IAutoMovieHumanFaceOralExportPartQualificationImported[] =
-      readHumanStaticPartCorrespondence(primitive)?.parts.flatMap((part: IAutoMovieHumanStaticPartIntervalImported): IAutoMovieHumanFaceOralExportPartQualificationImported[]  => {
-        const record: IAutoMovieHumanFaceOralExportPartQualificationImported | undefined = records.get(part.id);
-        return record === undefined ? [] : [structuredClone(record)];
-      }) ?? [];
+      readHumanStaticPartCorrespondence(primitive)?.parts.flatMap(
+        (
+          part: IAutoMovieHumanStaticPartIntervalImported,
+        ): IAutoMovieHumanFaceOralExportPartQualificationImported[] => {
+          const record:
+            | IAutoMovieHumanFaceOralExportPartQualificationImported
+            | undefined = records.get(part.id);
+          return record === undefined ? [] : [structuredClone(record)];
+        },
+      ) ?? [];
     if (parts.length === 0) continue;
     const qualification: IAutoMovieHumanFaceOralExportQualification = {
       ...structuredClone(report),

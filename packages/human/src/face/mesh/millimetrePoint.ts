@@ -13,7 +13,11 @@ import type { Point } from "./structures/Point";
  * @evidence contracts/performance.md#reuse-equivalent-work Independently owned points share constructor semantics without a coordinate cache/source lookup.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fresh record transfers; no input/state/handle/buffer/task is retained.
  */
-export const millimetrePoint: (x: number, y: number, z: number) => Point = (x: number, y: number, z: number): Point => ({
+export const millimetrePoint: (x: number, y: number, z: number) => Point = (
+  x: number,
+  y: number,
+  z: number,
+): Point => ({
   x,
   y,
   z,

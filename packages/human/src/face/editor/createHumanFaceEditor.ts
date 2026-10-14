@@ -33,7 +33,17 @@ import { IAutoMovieHumanFaceEditorSnapshot } from "../structures/IAutoMovieHuman
 export function createHumanFaceEditor<
   Model,
   Document = IAutoMovieHumanFaceDocument,
->(props: IAutoMovieHumanFaceEditorProps<Model, Document>): { snapshot: () => IAutoMovieHumanFaceEditorSnapshot<Model, Document>; edit: (next: Document) => Promise<boolean>; cancel: () => void; reset: () => Promise<boolean>; restore: () => Promise<boolean>; undo: () => Promise<boolean>; redo: () => Promise<boolean>; }  {
+>(
+  props: IAutoMovieHumanFaceEditorProps<Model, Document>,
+): {
+  snapshot: () => IAutoMovieHumanFaceEditorSnapshot<Model, Document>;
+  edit: (next: Document) => Promise<boolean>;
+  cancel: () => void;
+  reset: () => Promise<boolean>;
+  restore: () => Promise<boolean>;
+  undo: () => Promise<boolean>;
+  redo: () => Promise<boolean>;
+} {
   const initial: Document = structuredClone(props.document);
   let document: Document = structuredClone(initial);
   let model: Model = props.model;
@@ -42,7 +52,11 @@ export function createHumanFaceEditor<
   let generation: number = 0;
   let status: "ready" | "building" | "error" = "ready";
   let error: string | null = null;
-  const request: (next: Document, nextPast: Document[], nextFuture: Document[]) => Promise<boolean> = async (
+  const request: (
+    next: Document,
+    nextPast: Document[],
+    nextFuture: Document[],
+  ) => Promise<boolean> = async (
     next: Document,
     nextPast: Document[],
     nextFuture: Document[],
@@ -52,7 +66,9 @@ export function createHumanFaceEditor<
     status = "building";
     error = null;
     try {
-      const built: Awaited<Model> = await props.build(structuredClone(candidate));
+      const built: Awaited<Model> = await props.build(
+        structuredClone(candidate),
+      );
       if (ticket !== generation) {
         props.dispose?.(built);
         return false;
@@ -76,8 +92,9 @@ export function createHumanFaceEditor<
       return false;
     }
   };
-  const edit: (next: Document) => Promise<boolean> = (next: Document): Promise<boolean> =>
-    request(next, [...past, document], []);
+  const edit: (next: Document) => Promise<boolean> = (
+    next: Document,
+  ): Promise<boolean> => request(next, [...past, document], []);
   return {
     /** A caller may edit the returned document without mutating committed state. */
     snapshot: (): IAutoMovieHumanFaceEditorSnapshot<Model, Document> => ({

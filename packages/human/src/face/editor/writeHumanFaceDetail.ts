@@ -26,7 +26,10 @@ export function writeHumanFaceDetail(
   path: readonly string[],
   value: number | undefined,
 ): IAutoMovieHumanFaceDocument {
-  let object: Record<string, unknown> = next as unknown as Record<string, unknown>;
+  let object: Record<string, unknown> = next as unknown as Record<
+    string,
+    unknown
+  >;
   const ancestors: { object: Record<string, unknown>; key: string }[] = [];
   for (const key of path.slice(0, -1)) {
     if (object[key] === undefined) {
@@ -35,7 +38,9 @@ export function writeHumanFaceDetail(
     } else {
       // structuredClone preserves aliases. Detach only the containers on this
       // path so a selected side/layer cannot also edit its basis or sibling.
-      const child: unknown[] | Record<string, unknown> = object[key] as Record<string, unknown> | unknown[];
+      const child: unknown[] | Record<string, unknown> = object[key] as
+        | Record<string, unknown>
+        | unknown[];
       object[key] = Array.isArray(child) ? [...child] : { ...child };
     }
     ancestors.push({ object, key });

@@ -16,7 +16,12 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Each exact id/colour key gathers once per region; regions share the source field but require separately owned compact outputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Output attributes transfer, local O(I) map releases, and no region history/GPU handle/task is retained.
  */
-export const extractTriangleRegion: (positions: number[], normals: number[], indices: number[], cornerColors?: readonly (readonly number[])[]) => IAutoMovieMesh = (
+export const extractTriangleRegion: (
+  positions: number[],
+  normals: number[],
+  indices: number[],
+  cornerColors?: readonly (readonly number[])[],
+) => IAutoMovieMesh = (
   positions: number[],
   normals: number[],
   indices: number[],
@@ -26,15 +31,20 @@ export const extractTriangleRegion: (positions: number[], normals: number[], ind
     cornerColors !== undefined &&
     (cornerColors.length !== indices.length ||
       cornerColors.some(
-        (rgb: readonly number[]): boolean  =>
+        (rgb: readonly number[]): boolean =>
           rgb.length !== 3 ||
-          rgb.some((v: number): boolean  => !Number.isFinite(v) || v < 0 || v > 1),
+          rgb.some(
+            (v: number): boolean => !Number.isFinite(v) || v < 0 || v > 1,
+          ),
       ))
   )
     throw new Error(
       "Portrait corner colours need one finite RGB triple in [0,1] per triangle corner.",
     );
-  const vertices: Map<string | number, number> = new Map<number | string, number>();
+  const vertices: Map<string | number, number> = new Map<
+    number | string,
+    number
+  >();
   const output: IAutoMovieMesh = {
     positions: [],
     normals: [],
@@ -45,7 +55,8 @@ export const extractTriangleRegion: (positions: number[], normals: number[], ind
   };
   for (const [corner, old] of indices.entries()) {
     const color: readonly number[] | undefined = cornerColors?.[corner];
-    const key: string | number = color === undefined ? old : `${old}/${color.join("/")}`;
+    const key: string | number =
+      color === undefined ? old : `${old}/${color.join("/")}`;
     let next: number | undefined = vertices.get(key);
     if (next === undefined) {
       next = vertices.size;

@@ -2,11 +2,14 @@ import type { Primitive } from "@gltf-transform/core";
 import typia from "typia";
 
 import { readHumanStaticPartCorrespondence } from "../../common/export/readHumanStaticPartCorrespondence";
+import type {
+  IAutoMovieHumanFaceOralExportPartQualification as IAutoMovieHumanFaceOralExportPartQualificationImported,
+  IAutoMovieHumanStaticPartCorrespondence as IAutoMovieHumanStaticPartCorrespondenceImported,
+  IAutoMovieHumanStaticPartInterval as IAutoMovieHumanStaticPartIntervalImported,
+} from "../../index";
 import { isHumanFaceOralSourceSha256 } from "../anatomy/oral/isHumanFaceOralSourceSha256";
 import type { IAutoMovieHumanFaceOralAssetCorrespondence } from "./IAutoMovieHumanFaceOralAssetCorrespondence";
 import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHumanFaceOralExportQualification";
-import type { IAutoMovieHumanStaticPartCorrespondence as IAutoMovieHumanStaticPartCorrespondenceImported, IAutoMovieHumanStaticPartInterval as IAutoMovieHumanStaticPartIntervalImported, IAutoMovieHumanFaceOralExportPartQualification as IAutoMovieHumanFaceOralExportPartQualificationImported } from "../../index";
-
 
 /**
  * Read coarse oral qualification on the actual reimported static primitive.
@@ -33,32 +36,40 @@ export function readHumanFaceOralAssetCorrespondence(
     typia.assertEquals<IAutoMovieHumanFaceOralExportQualification>(
       extras.automovieOralQualification,
     );
-  const geometry: IAutoMovieHumanStaticPartCorrespondenceImported | undefined = readHumanStaticPartCorrespondence(primitive);
+  const geometry: IAutoMovieHumanStaticPartCorrespondenceImported | undefined =
+    readHumanStaticPartCorrespondence(primitive);
   const ids: string[] | undefined = geometry?.parts
     .filter(
-      (part: IAutoMovieHumanStaticPartIntervalImported): boolean  =>
+      (part: IAutoMovieHumanStaticPartIntervalImported): boolean =>
         /^(face:)?oral:/.test(part.id) ||
         qualification.tonguePartIds.includes(part.id),
     )
-    .map((part: IAutoMovieHumanStaticPartIntervalImported): string  => part.id);
+    .map((part: IAutoMovieHumanStaticPartIntervalImported): string => part.id);
   if (
     geometry === undefined ||
     ids === undefined ||
     ids.length === 0 ||
     qualification.parts.length !== ids.length ||
-    qualification.parts.some((part: IAutoMovieHumanFaceOralExportPartQualificationImported, at: number): boolean  => part.id !== ids[at]) ||
+    qualification.parts.some(
+      (
+        part: IAutoMovieHumanFaceOralExportPartQualificationImported,
+        at: number,
+      ): boolean => part.id !== ids[at],
+    ) ||
     qualification.generation.trim() === "" ||
     !isHumanFaceOralSourceSha256(qualification.dentalNativeSha256) ||
     qualification.sourceSha256.length === 0 ||
     qualification.sourceSha256.some(
-      (hash: string): boolean  => !isHumanFaceOralSourceSha256(hash),
+      (hash: string): boolean => !isHumanFaceOralSourceSha256(hash),
     ) ||
     qualification.clinicalGaps.length === 0 ||
-    qualification.clinicalGaps.some((gap: string): boolean  => gap.trim() === "") ||
+    qualification.clinicalGaps.some(
+      (gap: string): boolean => gap.trim() === "",
+    ) ||
     qualification.tonguePartIds.length === 0 ||
     new Set(qualification.tonguePartIds).size !==
       qualification.tonguePartIds.length ||
-    qualification.tonguePartIds.some((id: string): boolean  => id.trim() === "")
+    qualification.tonguePartIds.some((id: string): boolean => id.trim() === "")
   )
     throw new Error(
       "Oral qualification must match actual source members, canonical provenance and explicit clinical gaps.",

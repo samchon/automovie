@@ -1,22 +1,24 @@
-import type { IAutoMovieVector3, IAutoMovieMesh as IAutoMovieMeshImported, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import type {
+  IAutoMovieMesh as IAutoMovieMeshImported,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
+import type { IControlMesh as IControlMeshImported } from "../../mesh/structures/IControlMesh";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import type { IPortraitComponentHost as IPortraitComponentHostImported } from "../../surface/structures/IPortraitComponentHost";
+import type { IPortraitInterior as IPortraitInteriorImported } from "../../surface/structures/IPortraitInterior";
 import { attachPortraitOralMesh } from "../mouth/attachPortraitOralMesh";
 import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { buildPortraitTongue } from "./buildPortraitTongue";
 import { frontWeight } from "./frontWeight";
 import { portraitTongueStation } from "./portraitTongueStation";
-
-import type { IPortraitComponentHost as IPortraitComponentHostImported } from "../../surface/structures/IPortraitComponentHost";
-import type { IControlMesh as IControlMeshImported } from "../../mesh/structures/IControlMesh";
-import type { IPortraitInterior as IPortraitInteriorImported } from "../../surface/structures/IPortraitInterior";
-
 
 /**
  * Attach a non-cutting tongue to the observed lower oral frame. The anterior
@@ -46,11 +48,37 @@ export function createPortraitTongueComponent(
   observation: IAutoMovieHumanFaceExpression,
   expression: IAutoMovieHumanFaceExpression,
 ): IPortraitComponent {
-  const socket: { rightCorner: number; leftCorner: number; lowerLipMiddle: number; } = structuredClone(inputSocket),
+  const socket: {
+      rightCorner: number;
+      leftCorner: number;
+      lowerLipMiddle: number;
+    } = structuredClone(inputSocket),
     shape: IPortraitTongueShape = structuredClone(inputShape),
     hinge: IAutoMovieVector3 = structuredClone(inputHinge);
-  const observed: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }> = resolveHumanFaceExpression(observation),
-    current: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }> = resolveHumanFaceExpression(expression);
+  const observed: Required<{
+      blink?: { right: number; left: number } | undefined;
+      browRaise?: { right: number; left: number } | undefined;
+      smile?: { right: number; left: number } | undefined;
+      jawOpen?: number | undefined;
+      lipPart?: number | undefined;
+      pucker?: number | undefined;
+      tongueRaise?: number | undefined;
+      tongueAdvance?: number | undefined;
+      gazePitch?: { right: number; left: number } | undefined;
+      gazeYaw?: { right: number; left: number } | undefined;
+    }> = resolveHumanFaceExpression(observation),
+    current: Required<{
+      blink?: { right: number; left: number } | undefined;
+      browRaise?: { right: number; left: number } | undefined;
+      smile?: { right: number; left: number } | undefined;
+      jawOpen?: number | undefined;
+      lipPart?: number | undefined;
+      pucker?: number | undefined;
+      tongueRaise?: number | undefined;
+      tongueAdvance?: number | undefined;
+      gazePitch?: { right: number; left: number } | undefined;
+      gazeYaw?: { right: number; left: number } | undefined;
+    }> = resolveHumanFaceExpression(expression);
   posePortraitJawPoint(hinge, hinge, 0, 1);
   const local: IAutoMovieMeshImported = buildPortraitTongue(shape, {
     raise: current.tongueRaise - observed.tongueRaise,
@@ -58,15 +86,31 @@ export function createPortraitTongueComponent(
   });
   return {
     id: "tongue",
-    fit: (host: IPortraitComponentHostImported): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMeshImported) => IPortraitInteriorImported[]; finish: (refined: IControlMeshImported) => IAutoMovieModelPartImported[]; openings: never[]; }; }  => {
+    fit: (
+      host: IPortraitComponentHostImported,
+    ): {
+      constraints: never[];
+      cutFaces: never[];
+      attach: () => {
+        prepareInteriors: (
+          refined: IControlMeshImported,
+        ) => IPortraitInteriorImported[];
+        finish: (
+          refined: IControlMeshImported,
+        ) => IAutoMovieModelPartImported[];
+        openings: never[];
+      };
+    } => {
       if (
         Object.values(socket).some(
-          (id: number): boolean  =>
+          (id: number): boolean =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
         throw new Error("Tongue sockets must name resident host vertices.");
-      const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
+      const point: (id: number) => IAutoMovieVector3 = (
+        id: number,
+      ): IAutoMovieVector3 =>
         millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed: IAutoMovieMeshImported = attachPortraitOralMesh(local, {
         rightCorner: point(socket.rightCorner),
@@ -93,15 +137,29 @@ export function createPortraitTongueComponent(
       return {
         constraints: [],
         cutFaces: [],
-        attach: (): { prepareInteriors: (refined: IControlMeshImported) => IPortraitInteriorImported[]; finish: (refined: IControlMeshImported) => IAutoMovieModelPartImported[]; openings: never[]; }  => ({
+        attach: (): {
+          prepareInteriors: (
+            refined: IControlMeshImported,
+          ) => IPortraitInteriorImported[];
+          finish: (
+            refined: IControlMeshImported,
+          ) => IAutoMovieModelPartImported[];
+          openings: never[];
+        } => ({
           openings: [],
-          ...createPortraitInteriorFinisher((): { id: string; mesh: IAutoMovieMeshImported; material: string; }[]  => [
-            {
-              id: "tongue",
-              mesh: structuredClone(placed),
-              material: shape.material,
-            },
-          ]),
+          ...createPortraitInteriorFinisher(
+            (): {
+              id: string;
+              mesh: IAutoMovieMeshImported;
+              material: string;
+            }[] => [
+              {
+                id: "tongue",
+                mesh: structuredClone(placed),
+                material: shape.material,
+              },
+            ],
+          ),
         }),
       };
     },

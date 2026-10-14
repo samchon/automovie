@@ -26,9 +26,11 @@ export function applyHumanFaceControls(
 ): IAutoMovieHumanFaceRecipe {
   const recipe: IAutoMovieHumanFaceRecipe = structuredClone(basis);
   for (const [key, value] of Object.entries(controls)) {
-    const definition: (typeof humanFaceControlDefinitions)[number] | undefined = humanFaceControlDefinitions.find(
-      (entry: (typeof humanFaceControlDefinitions)[number]): boolean  => entry.id === key,
-    );
+    const definition: (typeof humanFaceControlDefinitions)[number] | undefined =
+      humanFaceControlDefinitions.find(
+        (entry: (typeof humanFaceControlDefinitions)[number]): boolean =>
+          entry.id === key,
+      );
     if (
       definition === undefined ||
       (value !== undefined &&
@@ -64,14 +66,39 @@ export function applyHumanFaceControls(
     controls.craniumWidth !== undefined ||
     controls.craniumHeight !== undefined
   ) {
-    const shape: { stations: { floor: number; z: number; crownZ: number; width: number; crown: number; }[]; capDepth: number; transition: number; frame: { width: number; height: number; centerY: number; }; } = resolvePortraitCraniumShape(chinY, recipe.cranium);
+    const shape: {
+      stations: {
+        floor: number;
+        z: number;
+        crownZ: number;
+        width: number;
+        crown: number;
+      }[];
+      capDepth: number;
+      transition: number;
+      frame: { width: number; height: number; centerY: number };
+    } = resolvePortraitCraniumShape(chinY, recipe.cranium);
     recipe.cranium = {
       ...shape,
-      stations: shape.stations.map((station: { floor: number; z: number; crownZ: number; width: number; crown: number; }): { width: number; crown: number; floor: number; z: number; crownZ: number; }  => ({
-        ...station,
-        width: station.width * (1 + (controls.craniumWidth ?? 0)),
-        crown: station.crown + (controls.craniumHeight ?? 0),
-      })),
+      stations: shape.stations.map(
+        (station: {
+          floor: number;
+          z: number;
+          crownZ: number;
+          width: number;
+          crown: number;
+        }): {
+          width: number;
+          crown: number;
+          floor: number;
+          z: number;
+          crownZ: number;
+        } => ({
+          ...station,
+          width: station.width * (1 + (controls.craniumWidth ?? 0)),
+          crown: station.crown + (controls.craniumHeight ?? 0),
+        }),
+      ),
     };
   }
   if (controls.earHeight !== undefined) {

@@ -16,27 +16,45 @@ export function orderCutPatchBoundary(
 ): { a: number; b: number }[] {
   if (faces.length === 0)
     throw new Error("A nostril opening must select at least one control face.");
-  const edges: Map<string, { a: number; b: number; count: number; }> = new Map<string, { a: number; b: number; count: number }>();
+  const edges: Map<string, { a: number; b: number; count: number }> = new Map<
+    string,
+    { a: number; b: number; count: number }
+  >();
   for (const face of faces)
     for (let i: number = 0; i < 3; i++) {
       const a: number = face[i],
         b: number = face[(i + 1) % 3];
       const key: string = Math.min(a, b) + "/" + Math.max(a, b);
-      const edge: { a: number; b: number; count: number; } | undefined = edges.get(key);
+      const edge: { a: number; b: number; count: number } | undefined =
+        edges.get(key);
       if (edge === undefined) edges.set(key, { a, b, count: 1 });
       else edge.count++;
     }
-  const boundary: { a: number; b: number; count: number; }[] = [...edges.values()].filter((edge: { a: number; b: number; count: number; }): boolean  => edge.count === 1);
-  const next: Map<number, { a: number; b: number; count: number; }> = new Map(boundary.map((edge: { a: number; b: number; count: number; }): [number, { a: number; b: number; count: number; }]  => [edge.a, edge]));
+  const boundary: { a: number; b: number; count: number }[] = [
+    ...edges.values(),
+  ].filter(
+    (edge: { a: number; b: number; count: number }): boolean =>
+      edge.count === 1,
+  );
+  const next: Map<number, { a: number; b: number; count: number }> = new Map(
+    boundary.map(
+      (edge: {
+        a: number;
+        b: number;
+        count: number;
+      }): [number, { a: number; b: number; count: number }] => [edge.a, edge],
+    ),
+  );
   const ordered: { a: number; b: number }[] = [];
   if (boundary.length === 0 || next.size !== boundary.length)
     throw new Error("A nasal cut must have one simple oriented boundary.");
-  let edge: { a: number; b: number; count: number; } = boundary[0];
+  let edge: { a: number; b: number; count: number } = boundary[0];
   const visited: Set<number> = new Set<number>();
   while (!visited.has(edge.a)) {
     visited.add(edge.a);
     ordered.push({ a: edge.a, b: edge.b });
-    const following: { a: number; b: number; count: number; } | undefined = next.get(edge.b);
+    const following: { a: number; b: number; count: number } | undefined =
+      next.get(edge.b);
     if (following === undefined)
       throw new Error("A nasal cut boundary must be closed.");
     edge = following;

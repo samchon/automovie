@@ -1,14 +1,19 @@
-import type { IAutoMovieModel, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceOralSupport as IAutoMovieHumanFaceOralSupportImported,
+} from "../../index";
 import { assertHumanFaceOralSupport } from "../anatomy/oral/assertHumanFaceOralSupport";
 import { readHumanFaceOralCrowns } from "../anatomy/oral/readHumanFaceOralCrowns";
 import { serializeHumanFaceOralNativeSource } from "../anatomy/oral/serializeHumanFaceOralNativeSource";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceOralExportQualification } from "./IAutoMovieHumanFaceOralExportQualification";
-import type { IAutoMovieHumanFaceOralSupport as IAutoMovieHumanFaceOralSupportImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported } from "../../index";
-
-
 
 /**
  * Supply the admitted current oral source receipt for static export.
@@ -40,45 +45,61 @@ export async function createHumanFaceOralExportQualification(
   assertHumanFaceOralSupport(basis, readHumanFaceOralCrowns(basis));
   const support: IAutoMovieHumanFaceOralSupportImported = basis.oralSupport!;
   const source: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces.find(
-    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === support.dentalSurface,
+    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+      surface.id === support.dentalSurface,
   )!;
   const serialized: string = serializeHumanFaceOralNativeSource(source);
   const bytes: ArrayBuffer = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(serialized),
   );
-  const digest: string = Array.from(new Uint8Array(bytes), (byte: number): string  =>
-    byte.toString(16).padStart(2, "0"),
+  const digest: string = Array.from(
+    new Uint8Array(bytes),
+    (byte: number): string => byte.toString(16).padStart(2, "0"),
   ).join("");
   if (digest !== support.dentalNativeSha256)
     throw new Error(
       "Oral export source fingerprint differs from its producer receipt.",
     );
-  const tongue: IAutoMovieHumanFaceBasisSurfaceImported | undefined = basis.surfaces.find(
-    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === support.tongueSurface,
-  );
+  const tongue: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+    basis.surfaces.find(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+        surface.id === support.tongueSurface,
+    );
   if (tongue === undefined)
     throw new Error(
       "Oral export qualification needs its original native tongue source.",
     );
-  const tonguePartIds: string[] = tongue.regions.map((region: IAutoMovieHumanFaceBasisRegionImported): string  => prefix + region.id);
+  const tonguePartIds: string[] = tongue.regions.map(
+    (region: IAutoMovieHumanFaceBasisRegionImported): string =>
+      prefix + region.id,
+  );
   if (
     tonguePartIds.length === 0 ||
     new Set(tonguePartIds).size !== tonguePartIds.length ||
     tonguePartIds.some(
-      (id: string): boolean  => model.parts.filter((part: IAutoMovieModelPartImported): boolean  => part.id === id).length !== 1,
+      (id: string): boolean =>
+        model.parts.filter(
+          (part: IAutoMovieModelPartImported): boolean => part.id === id,
+        ).length !== 1,
     )
   )
     throw new Error(
       "Oral export qualification needs every actual native tongue member exactly once.",
     );
-  const parts: { id: string; }[] = model.parts
+  const parts: { id: string }[] = model.parts
     .filter(
-      (part: IAutoMovieModelPartImported): boolean  =>
+      (part: IAutoMovieModelPartImported): boolean =>
         part.id.startsWith(prefix + "oral:") || tonguePartIds.includes(part.id),
     )
-    .map((part: IAutoMovieModelPartImported): { id: string; }  => ({ id: part.id }));
-  if (!model.parts.some((part: IAutoMovieModelPartImported): boolean  => part.id.startsWith(prefix + "oral:")))
+    .map((part: IAutoMovieModelPartImported): { id: string } => ({
+      id: part.id,
+    }));
+  if (
+    !model.parts.some((part: IAutoMovieModelPartImported): boolean =>
+      part.id.startsWith(prefix + "oral:"),
+    )
+  )
     throw new Error(
       "Oral export qualification needs actual generated oral geometry.",
     );

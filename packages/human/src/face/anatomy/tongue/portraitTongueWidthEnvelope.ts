@@ -23,5 +23,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Shared evaluation keeps generated width and fit comparison equivalent; different stations are cheap independent reads.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes with no mesh, cache, task or external handle.
  */
-export const portraitTongueWidthEnvelope: (v: number) => number = (v: number): number =>
-  Math.sqrt(Math.max(0, 1 - (1 - 2 * v) ** 2));
+export const portraitTongueWidthEnvelope: (v: number) => number = (
+  v: number,
+): number => Math.sqrt(Math.max(0, 1 - (1 - 2 * v) ** 2));

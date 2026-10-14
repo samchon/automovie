@@ -1,10 +1,9 @@
+import type { IPortraitDentalCrown as IPortraitDentalCrownImported } from "../dental/structures/IPortraitDentalCrown";
 import type { IPortraitDentalRow } from "../dental/structures/IPortraitDentalRow";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { portraitTongueRingStation } from "./portraitTongueRingStation";
 import { portraitTongueRows } from "./portraitTongueRows";
 import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
-import type { IPortraitDentalCrown as IPortraitDentalCrownImported } from "../dental/structures/IPortraitDentalCrown";
-
 
 /**
  * Refuse a tongue that a lower dental arch cannot contain at rest, in the
@@ -46,25 +45,46 @@ export function assertPortraitTongueWithinArch(
   row: IPortraitDentalRow,
   rowRecess: number,
 ): void {
-  const depth: number = Math.max(...row.crowns.map((crown: IPortraitDentalCrownImported): number  => crown.depth));
+  const depth: number = Math.max(
+    ...row.crowns.map(
+      (crown: IPortraitDentalCrownImported): number => crown.depth,
+    ),
+  );
   if (!Number.isFinite(depth) || !Number.isFinite(rowRecess))
     throw new Error("The lower arch needs finite crown depths and recess.");
   const { halfWidth: a, depth: b }: IPortraitDentalRow = row;
-  if (![a, b].every((value: number): boolean => Number.isFinite(value) && value > 0) || depth < 0)
-    throw new Error("The lower lingual arch needs positive finite ellipse axes and nonnegative crown half-depth.");
+  if (
+    ![a, b].every(
+      (value: number): boolean => Number.isFinite(value) && value > 0,
+    ) ||
+    depth < 0
+  )
+    throw new Error(
+      "The lower lingual arch needs positive finite ellipse axes and nonnegative crown half-depth.",
+    );
   const samples: number = 128;
-  const inner: { s: number; x: number; }[] = Array.from({ length: samples + 1 }, (_v: unknown, i: number): { s: number; x: number; }  => {
-    const theta: number = (Math.PI / 2) * (i / samples);
-    const norm: number = Math.hypot(b * Math.sin(theta), a * Math.cos(theta));
-    return {
-      s: b * (1 - Math.cos(theta)) + (depth * a * Math.cos(theta)) / norm,
-      x: a * Math.sin(theta) - (depth * b * Math.sin(theta)) / norm,
-    };
-  });
-  if (inner.some((point: { s: number; x: number; }, at: number): boolean =>
-    !Number.isFinite(point.s) || !Number.isFinite(point.x) ||
-    (at > 0 && point.s <= inner[at - 1].s)))
-    throw new Error("The lower lingual arch offset must have finite coordinates and strictly increasing sampled depth.");
+  const inner: { s: number; x: number }[] = Array.from(
+    { length: samples + 1 },
+    (_v: unknown, i: number): { s: number; x: number } => {
+      const theta: number = (Math.PI / 2) * (i / samples);
+      const norm: number = Math.hypot(b * Math.sin(theta), a * Math.cos(theta));
+      return {
+        s: b * (1 - Math.cos(theta)) + (depth * a * Math.cos(theta)) / norm,
+        x: a * Math.sin(theta) - (depth * b * Math.sin(theta)) / norm,
+      };
+    },
+  );
+  if (
+    inner.some(
+      (point: { s: number; x: number }, at: number): boolean =>
+        !Number.isFinite(point.s) ||
+        !Number.isFinite(point.x) ||
+        (at > 0 && point.s <= inner[at - 1].s),
+    )
+  )
+    throw new Error(
+      "The lower lingual arch offset must have finite coordinates and strictly increasing sampled depth.",
+    );
   const room: (s: number) => number = (s: number): number => {
     if (s < inner[0].s) return 0;
     if (s >= inner[samples].s) return inner[samples].x;

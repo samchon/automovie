@@ -16,4 +16,5 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Both consumers reuse one definition; independent cheap station evaluations need no result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes and no input, closure, mesh or handle is retained.
  */
-export const frontWeight: (v: number) => number = (v: number): number => 1 - v * v * (3 - 2 * v);
+export const frontWeight: (v: number) => number = (v: number): number =>
+  1 - v * v * (3 - 2 * v);

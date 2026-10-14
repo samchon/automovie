@@ -23,5 +23,6 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * @evidence contracts/performance.md#reuse-equivalent-work Shared row count and spacing avoid separate layouts; a persistent scalar cache is unnecessary.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned number retains no mesh, task or external resource.
  */
-export const portraitTongueRingStation: (ring: number) => number = (ring: number): number =>
-  (1 - Math.cos((Math.PI * ring) / portraitTongueRows)) / 2;
+export const portraitTongueRingStation: (ring: number) => number = (
+  ring: number,
+): number => (1 - Math.cos((Math.PI * ring) / portraitTongueRows)) / 2;

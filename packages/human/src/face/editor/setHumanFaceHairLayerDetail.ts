@@ -1,11 +1,13 @@
+import type {
+  IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported,
+  IPortraitHairLayer as IPortraitHairLayerImported,
+} from "../../index";
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { mergeHumanFaceSettings } from "../document/mergeHumanFaceSettings";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertDetailValue } from "./assertDetailValue";
 import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
 import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
-import type { IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported, IPortraitHairLayer as IPortraitHairLayerImported } from "../../index";
-
 
 /**
  * Edit one named additional hair layer with the existing hair scalar vocabulary.
@@ -29,15 +31,20 @@ export function setHumanFaceHairLayerDetail(
   id: string,
   value: number,
 ): IAutoMovieHumanFaceDocument {
-  const definition: IAutoMovieHumanFaceDetailChannelImported = humanFaceDetailDefinition(id);
+  const definition: IAutoMovieHumanFaceDetailChannelImported =
+    humanFaceDetailDefinition(id);
   if (definition.region !== "hair")
     throw new Error("A hair layer accepts only hair detail channels.");
   assertDetailValue(definition, value);
-  const layers: readonly IPortraitHairLayerImported[] | undefined = mergeHumanFaceSettings(
-    document.basis.recipe.hairLayers,
-    document.detail?.hairLayers,
-  );
-  const index: number = layers?.findIndex((layer: IPortraitHairLayerImported): boolean  => layer.id === layerId) ?? -1;
+  const layers: readonly IPortraitHairLayerImported[] | undefined =
+    mergeHumanFaceSettings(
+      document.basis.recipe.hairLayers,
+      document.detail?.hairLayers,
+    );
+  const index: number =
+    layers?.findIndex(
+      (layer: IPortraitHairLayerImported): boolean => layer.id === layerId,
+    ) ?? -1;
   if (index < 0) throw new Error("The selected hair layer does not exist.");
   const next: IAutoMovieHumanFaceDocument = structuredClone(document);
   (next.detail ??= {}).hairLayers = layers;

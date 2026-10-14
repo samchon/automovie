@@ -1,8 +1,7 @@
+import type { IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported } from "../../index";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
 import { humanFaceRegionValue } from "./humanFaceRegionValue";
-import type { IAutoMovieHumanFaceDetailChannel as IAutoMovieHumanFaceDetailChannelImported } from "../../index";
-
 
 /**
  * Read one present scalar from the final applied anatomical profile.
@@ -21,7 +20,8 @@ export function humanFaceDetailValue(
   id: string,
   side?: "right" | "left",
 ): number | undefined {
-  const definition: IAutoMovieHumanFaceDetailChannelImported = humanFaceDetailDefinition(id);
+  const definition: IAutoMovieHumanFaceDetailChannelImported =
+    humanFaceDetailDefinition(id);
   let value: unknown = humanFaceRegionValue(document, definition.region, side);
   for (const key of definition.path) {
     if (value === undefined) return undefined;

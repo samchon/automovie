@@ -1,7 +1,7 @@
-import { millimetrePoint as p } from "./millimetrePoint";
-import type { Point } from "./structures/Point";
 import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
 
+import { millimetrePoint as p } from "./millimetrePoint";
+import type { Point } from "./structures/Point";
 
 /**
  * Uniform Catmull-Rom interpolation through at least two ordered landmarks.
@@ -18,7 +18,10 @@ import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/
  * @evidence contracts/performance.md#reuse-equivalent-work Components share one formula and current control selection; changed guide/progress evaluates anew without a retained coordinate cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh point transfers and controls are borrowed; no guide copy, history or external resource is retained.
  */
-export const catmullRomPoint: (points: Point[], progress: number) => Point = (points: Point[], progress: number): Point => {
+export const catmullRomPoint: (points: Point[], progress: number) => Point = (
+  points: Point[],
+  progress: number,
+): Point => {
   const t: number = Math.max(0, Math.min(1, progress)) * (points.length - 1);
   const i: number = Math.min(points.length - 2, Math.floor(t)),
     u: number = t - i;
@@ -26,7 +29,9 @@ export const catmullRomPoint: (points: Point[], progress: number) => Point = (po
     b: IAutoMovieVector3Imported = points[i],
     c: IAutoMovieVector3Imported = points[i + 1],
     d: IAutoMovieVector3Imported = points[Math.min(points.length - 1, i + 2)];
-  const component: (axis: "x" | "y" | "z") => number = (axis: "x" | "y" | "z"): number =>
+  const component: (axis: "x" | "y" | "z") => number = (
+    axis: "x" | "y" | "z",
+  ): number =>
     0.5 *
     (2 * b[axis] +
       (-a[axis] + c[axis]) * u +

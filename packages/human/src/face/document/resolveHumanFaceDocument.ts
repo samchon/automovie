@@ -1,3 +1,14 @@
+import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
+
+import type {
+  IAutoMovieHumanFaceBindings as IAutoMovieHumanFaceBindingsImported,
+  IPortraitCheekShape as IPortraitCheekShapeImported,
+  IPortraitComponentHost as IPortraitComponentHostImported,
+  IPortraitEarShape as IPortraitEarShapeImported,
+  IPortraitEyeShape as IPortraitEyeShapeImported,
+  IPortraitFacialFrameShape as IPortraitFacialFrameShapeImported,
+  IPortraitHairLayer as IPortraitHairLayerImported,
+} from "../../index";
 import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
 import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
@@ -17,9 +28,6 @@ import { applyHumanFaceControls } from "./applyHumanFaceControls";
 import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
 import { mergeHumanFaceSettings } from "./mergeHumanFaceSettings";
 import { resolveHumanFaceExpression } from "./resolveHumanFaceExpression";
-import type { IPortraitComponentHost as IPortraitComponentHostImported, IAutoMovieHumanFaceBindings as IAutoMovieHumanFaceBindingsImported, IPortraitEyeShape as IPortraitEyeShapeImported, IPortraitEarShape as IPortraitEarShapeImported, IPortraitCheekShape as IPortraitCheekShapeImported, IPortraitFacialFrameShape as IPortraitFacialFrameShapeImported, IPortraitHairLayer as IPortraitHairLayerImported } from "../../index";
-import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
-
 
 /**
  * Interpret identity independently of edit history: fixed defaults, basis,
@@ -40,30 +48,77 @@ import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovi
  * @evidence contracts/performance.md#reuse-equivalent-work One resolution supplies shared host/bindings/recipe and two side records; observed/current expressions use one rule. Mutable edited documents are resolved anew rather than cached by basis identity alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned document/host/bindings/profiles/materials are owned clones or owned resolver outputs; temporary frame/merge data are local and no renderer, file or worker resource is retained.
  */
-export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { document: IAutoMovieHumanFaceDocument; host: IPortraitComponentHostImported; bindings: IAutoMovieHumanFaceBindingsImported; recipe: IAutoMovieHumanFaceRecipe; right: { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; }; left: { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; }; observation: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }>; expression: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }>; materials: readonly IAutoMovieMaterialImported[]; }  {
+export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): {
+  document: IAutoMovieHumanFaceDocument;
+  host: IPortraitComponentHostImported;
+  bindings: IAutoMovieHumanFaceBindingsImported;
+  recipe: IAutoMovieHumanFaceRecipe;
+  right: {
+    eye: IPortraitEyeShapeImported;
+    ear: IPortraitEarShapeImported;
+    cheek: IPortraitCheekShapeImported | undefined;
+  };
+  left: {
+    eye: IPortraitEyeShapeImported;
+    ear: IPortraitEarShapeImported;
+    cheek: IPortraitCheekShapeImported | undefined;
+  };
+  observation: Required<{
+    blink?: { right: number; left: number } | undefined;
+    browRaise?: { right: number; left: number } | undefined;
+    smile?: { right: number; left: number } | undefined;
+    jawOpen?: number | undefined;
+    lipPart?: number | undefined;
+    pucker?: number | undefined;
+    tongueRaise?: number | undefined;
+    tongueAdvance?: number | undefined;
+    gazePitch?: { right: number; left: number } | undefined;
+    gazeYaw?: { right: number; left: number } | undefined;
+  }>;
+  expression: Required<{
+    blink?: { right: number; left: number } | undefined;
+    browRaise?: { right: number; left: number } | undefined;
+    smile?: { right: number; left: number } | undefined;
+    jawOpen?: number | undefined;
+    lipPart?: number | undefined;
+    pucker?: number | undefined;
+    tongueRaise?: number | undefined;
+    tongueAdvance?: number | undefined;
+    gazePitch?: { right: number; left: number } | undefined;
+    gazeYaw?: { right: number; left: number } | undefined;
+  }>;
+  materials: readonly IAutoMovieMaterialImported[];
+} {
   assertHumanFaceEditableDetail(input);
   const document: IAutoMovieHumanFaceDocument = structuredClone(input);
   if (document.basis.topology !== "mediapipe-478/1")
     throw new Error("Only the mediapipe-478/1 landmark topology is supported.");
   if (
     [document.id, document.name, document.basis.id].some(
-      (value: string): boolean  => value.trim().length === 0,
+      (value: string): boolean => value.trim().length === 0,
     )
   )
     throw new Error("Face and basis identities must be nonempty.");
-  const { host: observationHost, bindings: originalBindings }: IAutoMovieHumanFaceDocument["basis"] = document.basis;
+  const {
+    host: observationHost,
+    bindings: originalBindings,
+  }: IAutoMovieHumanFaceDocument["basis"] = document.basis;
   let host: IPortraitComponentHostImported = observationHost;
-  const bindings: IAutoMovieHumanFaceBindingsImported = structuredClone(originalBindings);
+  const bindings: IAutoMovieHumanFaceBindingsImported =
+    structuredClone(originalBindings);
   // The captured rotation may have Float32 estimation error. Admit a 1e-5
   // unit-length residual without silently rewriting the recorded camera ray.
   if (
     host.positions.length !== 478 ||
     host.positions.some(
-      (point: number[]): boolean  => point.length !== 3 || !point.every(Number.isFinite),
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
     ) ||
     host.indices.length === 0 ||
     host.indices.length % 3 !== 0 ||
-    host.indices.some((id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= 468) ||
+    host.indices.some(
+      (id: number): boolean => !Number.isInteger(id) || id < 0 || id >= 468,
+    ) ||
     host.viewRay.length !== 3 ||
     !host.viewRay.every(Number.isFinite) ||
     Math.abs(Math.hypot(...host.viewRay) - 1) > 1e-5
@@ -81,28 +136,35 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { 
     throw new Error(
       "Anatomical side bindings must agree with their explicit right/left owner.",
     );
-  const frameBasis: Required<IPortraitFacialFrameShapeImported> = resolvePortraitFacialFrameShape(
-    document.basis.recipe.frame,
-  );
-  const frame: Required<IPortraitFacialFrameShapeImported> = resolvePortraitFacialFrameShape(
-    mergeHumanFaceSettings(
-      {
-        ...frameBasis,
-        widthScale:
-          frameBasis.widthScale * (1 + (document.controls?.faceWidth ?? 0)),
-        lengthScale:
-          frameBasis.lengthScale * (1 + (document.controls?.faceLength ?? 0)),
-      },
-      document.detail?.frame,
-    ),
-  );
-  const framed: ReturnType<typeof createPortraitFacialFrame> = createPortraitFacialFrame(host, frame, [
-    bindings.eyes.right,
-    bindings.eyes.left,
-  ]);
+  const frameBasis: Required<IPortraitFacialFrameShapeImported> =
+    resolvePortraitFacialFrameShape(document.basis.recipe.frame);
+  const frame: Required<IPortraitFacialFrameShapeImported> =
+    resolvePortraitFacialFrameShape(
+      mergeHumanFaceSettings(
+        {
+          ...frameBasis,
+          widthScale:
+            frameBasis.widthScale * (1 + (document.controls?.faceWidth ?? 0)),
+          lengthScale:
+            frameBasis.lengthScale * (1 + (document.controls?.faceLength ?? 0)),
+        },
+        document.detail?.frame,
+      ),
+    );
+  const framed: ReturnType<typeof createPortraitFacialFrame> =
+    createPortraitFacialFrame(host, frame, [
+      bindings.eyes.right,
+      bindings.eyes.left,
+    ]);
   host = framed.host;
   if (bindings.jawHinge !== undefined) {
-    const { x, y, z }: NonNullable<IAutoMovieHumanFaceDocument["basis"]["bindings"]["jawHinge"]> = bindings.jawHinge;
+    const {
+      x,
+      y,
+      z,
+    }: NonNullable<
+      IAutoMovieHumanFaceDocument["basis"]["bindings"]["jawHinge"]
+    > = bindings.jawHinge;
     const mapped: number[] = framed.transform([x, y, z]);
     bindings.jawHinge = { x: mapped[0], y: mapped[1], z: mapped[2] };
   }
@@ -135,18 +197,33 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { 
     },
     cranium: resolvePortraitCraniumShape(chinY, document.basis.recipe.cranium),
   };
-  const recipe: IAutoMovieHumanFaceRecipe = mergeHumanFaceSettings<IAutoMovieHumanFaceRecipe>(
-    applyHumanFaceControls(baseline, chinY, document.controls),
-    document.detail,
-  );
+  const recipe: IAutoMovieHumanFaceRecipe =
+    mergeHumanFaceSettings<IAutoMovieHumanFaceRecipe>(
+      applyHumanFaceControls(baseline, chinY, document.controls),
+      document.detail,
+    );
   recipe.skin = resolvePortraitSkinShape(recipe.skin);
   if (recipe.hair !== undefined) recipe.hair = resolveHair(recipe.hair);
   if (recipe.hairLayers !== undefined)
-    recipe.hairLayers = recipe.hairLayers.map((layer: IPortraitHairLayerImported): { profile: IPortraitHairShape; id: string; }  => ({
-      ...layer,
-      profile: resolveHair(layer.profile),
-    }));
-  const side: (name: "right" | "left") => { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; } = (name: "right" | "left"): { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; }  => ({
+    recipe.hairLayers = recipe.hairLayers.map(
+      (
+        layer: IPortraitHairLayerImported,
+      ): { profile: IPortraitHairShape; id: string } => ({
+        ...layer,
+        profile: resolveHair(layer.profile),
+      }),
+    );
+  const side: (name: "right" | "left") => {
+    eye: IPortraitEyeShapeImported;
+    ear: IPortraitEarShapeImported;
+    cheek: IPortraitCheekShapeImported | undefined;
+  } = (
+    name: "right" | "left",
+  ): {
+    eye: IPortraitEyeShapeImported;
+    ear: IPortraitEarShapeImported;
+    cheek: IPortraitCheekShapeImported | undefined;
+  } => ({
     eye: mergeHumanFaceSettings(recipe.eye, document.asymmetry?.[name]?.eye),
     ear: mergeHumanFaceSettings(recipe.ear!, document.asymmetry?.[name]?.ear),
     cheek: mergeHumanFaceSettings(
@@ -154,12 +231,24 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { 
       document.asymmetry?.[name]?.cheek,
     ),
   });
-  const right: { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; } = side("right"),
-    left: { eye: IPortraitEyeShapeImported; ear: IPortraitEarShapeImported; cheek: IPortraitCheekShapeImported | undefined; } = side("left");
-  const widthLimit: number = portraitFacialFrameWidthLimit(observationHost, frame, [
-    { socket: bindings.eyes.right, shape: right.eye },
-    { socket: bindings.eyes.left, shape: left.eye },
-  ]);
+  const right: {
+      eye: IPortraitEyeShapeImported;
+      ear: IPortraitEarShapeImported;
+      cheek: IPortraitCheekShapeImported | undefined;
+    } = side("right"),
+    left: {
+      eye: IPortraitEyeShapeImported;
+      ear: IPortraitEarShapeImported;
+      cheek: IPortraitCheekShapeImported | undefined;
+    } = side("left");
+  const widthLimit: number = portraitFacialFrameWidthLimit(
+    observationHost,
+    frame,
+    [
+      { socket: bindings.eyes.right, shape: right.eye },
+      { socket: bindings.eyes.left, shape: left.eye },
+    ],
+  );
   if (frame.widthScale > widthLimit)
     throw new Error(
       `Facial-frame widthScale ${frame.widthScale} exceeds ${widthLimit.toFixed(3)}, the widest at which both eyes fit their sockets.`,
@@ -178,10 +267,12 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { 
     throw new Error(
       "Separate dentition requires a maxillary binding and an empty lip-attached crown population.",
     );
-  const observation: ReturnType<typeof resolveHumanFaceExpression> = resolveHumanFaceExpression(document.basis.expression);
+  const observation: ReturnType<typeof resolveHumanFaceExpression> =
+    resolveHumanFaceExpression(document.basis.expression);
   if (recipe.lowerDentition !== undefined && bindings.jawHinge === undefined)
     throw new Error("Mandibular dentition requires an explicit jaw hinge.");
-  const expression: ReturnType<typeof resolveHumanFaceExpression> = resolveHumanFaceExpression(document.expression);
+  const expression: ReturnType<typeof resolveHumanFaceExpression> =
+    resolveHumanFaceExpression(document.expression);
   if (recipe.tongue !== undefined && bindings.jawHinge === undefined)
     throw new Error("A tongue profile requires an explicit jaw hinge.");
   if (recipe.tongue !== undefined && recipe.lowerDentition !== undefined)
@@ -197,7 +288,7 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument): { 
       observation.tongueAdvance,
       expression.tongueRaise,
       expression.tongueAdvance,
-    ].some((v: number): boolean  => v !== 0)
+    ].some((v: number): boolean => v !== 0)
   )
     throw new Error("Tongue performance requires an explicit tongue profile.");
   if (observation.blink.right > 0.95 || observation.blink.left > 0.95)

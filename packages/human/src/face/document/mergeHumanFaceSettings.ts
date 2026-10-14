@@ -21,7 +21,10 @@ export function mergeHumanFaceSettings<T>(
   basis: T,
   override?: NoInfer<AutoMovieHumanFaceOverride<T>>,
 ): T {
-  const merge: (base: unknown, patch: unknown) => unknown = (base: unknown, patch: unknown): unknown => {
+  const merge: (base: unknown, patch: unknown) => unknown = (
+    base: unknown,
+    patch: unknown,
+  ): unknown => {
     if (patch === undefined) return structuredClone(base);
     if (patch === null || typeof patch !== "object" || Array.isArray(patch))
       return structuredClone(patch);
