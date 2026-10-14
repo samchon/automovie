@@ -2,32 +2,11 @@ import type {
   IAutoMovieAssetProvenance,
   IAutoMovieDiagnostic,
   IAutoMovieModel,
-  IAutoMovieSceneEnvironment,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import { createModel } from "../internal/fixtures";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { productionTextureClosureDiagnostics } = loadSourceModule<{
-  productionTextureClosureDiagnostics: (props: {
-    production: string;
-    models: readonly IAutoMovieModel[];
-    environments: readonly { models: IAutoMovieModel[] }[];
-    scenes: readonly {
-      shot: string;
-      environment?: IAutoMovieSceneEnvironment | null;
-    }[];
-    assets: readonly IAutoMovieAssetProvenance[];
-    content: readonly { path: string; bytes: Uint8Array | null }[];
-  }) => IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionTextureClosure.ts",
-  ),
-);
+import { productionTextureClosureDiagnostics } from "../../../../packages/production/src/production/productionTextureClosureDiagnostics";
 
 /**
  * Every admitted model occurrence owes its sampled image registration and bytes.
@@ -37,9 +16,15 @@ const { productionTextureClosureDiagnostics } = loadSourceModule<{
  * 2. Missing registration, bytes, readable image facts or authorized use refuse.
  * 3. Equal model ids cannot hide a second environment's unpaid image binding.
  * 4. An empty output population introduces no image obligation.
+ * 5. Repeated paths preserve each unpaid occurrence, and later changed bytes are remeasured.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual production bridge for standalone and environment-owned material occurrences, asserting closure findings and valid admission; repeated-path findings and cross-call byte edits pin the local facts cache's semantic boundaries.
+ * @evidence contracts/testing.md#independent-expectations Explicit asset consumer bindings and PNG signature/IHDR dimension bytes determine expected media and authorization findings. The 24-byte header exercises image-facts admission rather than claiming a complete decodable PNG or proving the fixture ledger's digest against its bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Covers standalone/environment ownership, equal IDs with distinct images, absent registrations/content, unreadable/null bytes, missing authorization, empty output, repeated unpaid paths and a changed width then restoration. Other image formats and complete asset-byte identity belong to engine media and production inventory tests.
+ * @evidence contracts/testing.md#execution-ownership This discoverable portable unit directly imports the bridge and uses existing fixture models with a local byte header; it opens no renderer/browser/process, replaces no foreign method and dynamically registers no cases.
  */
-export const test_production_texture_closure = (): void => {
-  const model = createModel();
+export function test_production_texture_closure(): void {
+  const model: IAutoMovieModel = createModel();
   model.materials[0]!.baseColorTexture = {
     asset: "assets/tile.png",
     texCoord: 0,
@@ -56,12 +41,12 @@ export const test_production_texture_closure = (): void => {
       },
     ],
   };
-  const png = Buffer.alloc(24);
+  const png: Buffer = Buffer.alloc(24);
   png.set([137, 80, 78, 71, 13, 10, 26, 10]);
   png.write("IHDR", 12, "ascii");
   png.writeUInt32BE(64, 16);
   png.writeUInt32BE(64, 20);
-  const input = {
+  const input: Parameters<typeof productionTextureClosureDiagnostics>[0] = {
     production: "library",
     models: [],
     environments: [{ models: [model] }],
@@ -83,10 +68,10 @@ export const test_production_texture_closure = (): void => {
     }),
     [],
   );
-  const missing = productionTextureClosureDiagnostics({ ...input, assets: [] });
+  const missing: IAutoMovieDiagnostic[] = productionTextureClosureDiagnostics({ ...input, assets: [] });
   TestValidator.equals(
     "unregistered building image is refused",
-    missing.map((entry) => entry.code),
+    missing.map((entry: IAutoMovieDiagnostic): string => entry.code),
     ["asset-texture-unclosed"],
   );
   TestValidator.equals(
@@ -118,9 +103,9 @@ export const test_production_texture_closure = (): void => {
     }).length,
     1,
   );
-  const other = {
+  const other: IAutoMovieModel = {
     ...model,
-    materials: model.materials.map((material) => ({
+    materials: model.materials.map((material: IAutoMovieModel["materials"][number]): IAutoMovieModel["materials"][number] => ({
       ...material,
       baseColorTexture: "assets/other.png",
     })),
@@ -134,6 +119,15 @@ export const test_production_texture_closure = (): void => {
     1,
   );
   TestValidator.equals(
+    "repeat missing path keeps both occurrence findings",
+    productionTextureClosureDiagnostics({ ...input, models: [model], assets: [] }).length,
+    2,
+  );
+  png.writeUInt32BE(0, 16);
+  TestValidator.equals("changed header remeasured on another call", productionTextureClosureDiagnostics(input).length, 1);
+  png.writeUInt32BE(64, 16);
+  TestValidator.equals("restored header remeasured on another call", productionTextureClosureDiagnostics(input), []);
+  TestValidator.equals(
     "empty library",
     productionTextureClosureDiagnostics({
       ...input,
@@ -143,4 +137,4 @@ export const test_production_texture_closure = (): void => {
     }),
     [],
   );
-};
+}

@@ -9,60 +9,28 @@ import type {
   IAutoMovieShotContract,
 } from "@automovie/interface";
 import type {
-  IAutoMovieFingerprintField,
   IAutoMovieProductionContentInput,
   IAutoMovieProductionDesignGraph,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { throwsError } from "../internal/predicates";
-import {
-  type ISourceStatusSnapshot,
-  productionModule,
-  textDigest,
-} from "./sourceStatusFixtures";
+import type { IAutoMovieProductionSourceSnapshot as ISourceStatusSnapshot } from "../../../../packages/production/src/production/IAutoMovieProductionSourceSnapshot";
+import { textDigest } from "./sourceStatus/textDigest";
+import { acquireAutoMovieProductionSourceSnapshot } from "../../../../packages/production/src/production/acquireAutoMovieProductionSourceSnapshot";
+import { authoringEvidenceFingerprintFields } from "../../../../packages/production/src/production/authoringEvidenceFingerprintFields";
+import { contentFingerprintFields } from "../../../../packages/production/src/production/contentFingerprintFields";
+import { productionBuildInputFingerprint } from "../../../../packages/production/src/production/productionBuildInputFingerprint";
+import { captureAutoMovieLibraryAuthoringSnapshot } from "../../../../packages/production/src/production/captureAutoMovieLibraryAuthoringSnapshot";
+import { libraryBuildInputFingerprint } from "../../../../packages/production/src/production/libraryBuildInputFingerprint";
+import { canonicalizeAutoMovieJson } from "@automovie/engine";
 
-const { acquireAutoMovieProductionSourceSnapshot }: { acquireAutoMovieProductionSourceSnapshot(props: { project: object; authoring: IAutoMovieProductionEvidence | undefined; documents: readonly string[]; listFiles: (root: string) => string[]; }): ISourceStatusSnapshot | null; } = loadSourceModule<{
-  acquireAutoMovieProductionSourceSnapshot(props: {
-    project: object;
-    authoring: IAutoMovieProductionEvidence | undefined;
-    documents: readonly string[];
-    listFiles: (root: string) => string[];
-  }): ISourceStatusSnapshot | null;
-}>(productionModule("acquireAutoMovieProductionSourceSnapshot.ts"));
-const identity: { authoringEvidenceFingerprintFields(evidence: IAutoMovieProductionEvidence | undefined): IAutoMovieFingerprintField[]; contentFingerprintFields(inputs: readonly IAutoMovieProductionContentInput[]): IAutoMovieFingerprintField[]; productionBuildInputFingerprint(productionId: string, graph: IAutoMovieProductionDesignGraph, sourceFields: readonly IAutoMovieFingerprintField[], contentFields: readonly IAutoMovieFingerprintField[]): string; } = loadSourceModule<{
-  authoringEvidenceFingerprintFields(
-    evidence: IAutoMovieProductionEvidence | undefined,
-  ): IAutoMovieFingerprintField[];
-  contentFingerprintFields(
-    inputs: readonly IAutoMovieProductionContentInput[],
-  ): IAutoMovieFingerprintField[];
-  productionBuildInputFingerprint(
-    productionId: string,
-    graph: IAutoMovieProductionDesignGraph,
-    sourceFields: readonly IAutoMovieFingerprintField[],
-    contentFields: readonly IAutoMovieFingerprintField[],
-  ): string;
-}>(productionModule("productionBuildIdentity.ts"));
-const { captureAutoMovieLibraryAuthoringSnapshot }: { captureAutoMovieLibraryAuthoringSnapshot(props: { root: string; evidence: IAutoMovieProductionEvidence; readSource: (path: string) => Uint8Array; }): { digest: string; }; } = loadSourceModule<{
-  captureAutoMovieLibraryAuthoringSnapshot(props: {
-    root: string;
-    evidence: IAutoMovieProductionEvidence;
-    readSource: (path: string) => Uint8Array;
-  }): { digest: string };
-}>(productionModule("libraryAuthoringSnapshot.ts"));
-const { libraryBuildInputFingerprint }: { libraryBuildInputFingerprint(props: { production: string; snapshot: { digest: string; }; derivedFields: readonly IAutoMovieFingerprintField[]; }): string; } = loadSourceModule<{
-  libraryBuildInputFingerprint(props: {
-    production: string;
-    snapshot: { digest: string };
-    derivedFields: readonly IAutoMovieFingerprintField[];
-  }): string;
-}>(productionModule("libraryBuildInputFingerprint.ts"));
-const { canonicalizeAutoMovieJson }: { canonicalizeAutoMovieJson(value: unknown): string; } = loadSourceModule<{
-  canonicalizeAutoMovieJson(value: unknown): string;
-}>(productionModule("contentIdentity.ts"));
+const identity: {
+  authoringEvidenceFingerprintFields: typeof authoringEvidenceFingerprintFields;
+  contentFingerprintFields: typeof contentFingerprintFields;
+  productionBuildInputFingerprint: typeof productionBuildInputFingerprint;
+} = { authoringEvidenceFingerprintFields, contentFingerprintFields, productionBuildInputFingerprint };
 
 const ROOT: string = path.join(path.parse(process.cwd()).root, "workspace", "harbor");
 const OPENING: string = "export const opening = defineShot({ beats: 3 });\n";
@@ -190,7 +158,7 @@ const filmEvidenceOf: () => IAutoMovieProductionEvidence = (): IAutoMovieProduct
 const libraryEvidenceOf: (root: string) => IAutoMovieProductionEvidence = (root: string): IAutoMovieProductionEvidence =>
   sourceSnapshotLibraryEvidence(root, HALL, sourceOwner);
 
-const projectOf: (overrides?: Record<string, unknown>) => { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => {}; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } = (overrides: Record<string, unknown> = {}): { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => {}; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } => ({
+const projectOf: (overrides?: Record<string, unknown>) => { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => Record<string, never>; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } = (overrides: Record<string, unknown> = {}): { root: string; productionId: string; archetypes: undefined; revision: () => number; graph: () => IAutoMovieProductionDesignGraph; readSource: (file: string) => Uint8Array; contentInputs: () => IAutoMovieProductionContentInput[]; manifest: () => Record<string, never>; screenplayIndex: () => { version: number; treatment: { path: string; sequences: never[]; }; }; readProseDocument: (file: string) => string | null; generatedManifest: () => IAutoMovieGeneratedManifest; generatedRoot: () => string; readGeneratedFile: (file: string) => Uint8Array; } => ({
   root: ROOT,
   productionId: "harbor",
   archetypes: undefined,
@@ -202,7 +170,7 @@ const projectOf: (overrides?: Record<string, unknown>) => { root: string; produc
     throw new Error(`Source "${file}" does not exist.`);
   },
   contentInputs: (): IAutoMovieProductionContentInput[] => CONTENT,
-  manifest: (): {} => ({}),
+  manifest: (): Record<string, never> => ({}),
   screenplayIndex: (): { version: number; treatment: { path: string; sequences: never[]; }; } => SCREENPLAY_INDEX,
   readProseDocument: (file: string): string | null =>
     DOCUMENTS.get(file) ?? null,
@@ -225,7 +193,7 @@ const listed: (root: string) => string[] = (root: string): string[] =>
 /**
  * A fresh source snapshot names every input a gate answer depends on.
  *
- * Nothing is executed. A timed production's input identity must be the builder's own field projection over the current evidence, design, source and content, and a library's must be its namespace-bound identity over the resident authoring snapshot and content closure, with the resident digest beside it. The screenplay index, requested documents and every entry under the builder-owned root are read as they stand. A revision that moves during the read, or an identity that cannot be derived, leaves no snapshot, and a read the project handle refuses propagates.
+ * No authored source is executed. A timed production's input identity must be the builder's own field projection over the current evidence, design, source and content, and a library's must be its namespace-bound identity over the resident authoring snapshot and content closure, with the resident digest beside it. The screenplay index, requested documents and every entry under the builder-owned root are read as they stand. A revision that moves during the read, or an identity that cannot be derived, leaves no snapshot, and a read the project handle refuses propagates.
  *
  * Scenarios:
  *
@@ -248,7 +216,7 @@ const listed: (root: string) => string[] = (root: string): string[] =>
  * @evidence contracts/testing.md#behavioral-verification Acquires current timed and library source snapshots and checks their revision, identity and observed document/generated digests, catching missing inputs, moving revisions and swallowed refused reads.
  * @evidence contracts/testing.md#independent-expectations Literal revision, sorted paths, null absence and refusal outcomes derive from the snapshot contract; expected digests and builder fingerprints reuse production helpers, so this checks composition and change sensitivity rather than independent hashing correctness.
  * @evidence contracts/testing.md#distinguishing-cases Covers duplicate and absent documents, unreadable generated entries, absent evidence/index/manifest, moving revision, unreadable design, propagated incarnation refusal, namespace changes, edited source and mismatched checkout evidence; actual filesystem descriptor safety belongs to owning project tests.
- * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns all supplied project/list/read callbacks and uses resident bytes through existing source-module fixtures; it installs no consumer and starts no native artifact or production host.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns all supplied project/list/read callbacks through actual source imports. Empty manifest disables native derivation reads; it installs no consumer and starts no native artifact or production host. Direct imports expose the existing minimal-project/class type mismatch for the dedicated later port repair; graph/shot/screenplay fixtures establish only fields read here, not full domain admission.
  */
 export function test_production_source_snapshot_acquisition(): void {
   const filmEvidence: IAutoMovieProductionEvidence = filmEvidenceOf();
@@ -398,7 +366,7 @@ export function test_production_source_snapshot_acquisition(): void {
       listFiles: listed,
     })!;
   const libraryIdentity: (production: string, hall: string) => { resident: string; inputFingerprint: string; } = (production: string, hall: string): { resident: string; inputFingerprint: string; } => {
-    const snapshot: { digest: string; } = captureAutoMovieLibraryAuthoringSnapshot({
+    const snapshot: ReturnType<typeof captureAutoMovieLibraryAuthoringSnapshot> = captureAutoMovieLibraryAuthoringSnapshot({
       root: ROOT,
       evidence: libraryEvidenceOf(ROOT),
       readSource: (): Buffer<ArrayBuffer> => Buffer.from(hall, "utf8"),

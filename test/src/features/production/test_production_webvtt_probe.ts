@@ -4,9 +4,10 @@ import { probeProductionMedia } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import { productionWebVtt } from "../internal/productionMedia/productionWebVtt";
 
-const summarizeWebVtt = (probe: IAutoMovieProductionMediaProbe) => {
+const summarizeWebVtt: (probe: IAutoMovieProductionMediaProbe) => Pick<Extract<IAutoMovieProductionMediaProbe, { kind: "webvtt" }>, "kind" | "cueCount" | "firstCueSeconds" | "lastCueSeconds"> = (probe: IAutoMovieProductionMediaProbe): Pick<Extract<IAutoMovieProductionMediaProbe, { kind: "webvtt" }>, "kind" | "cueCount" | "firstCueSeconds" | "lastCueSeconds"> => {
   TestValidator.predicate("the arranged caption input produces WebVTT",probe.kind === "webvtt");
-  const caption = probe as Extract<IAutoMovieProductionMediaProbe,{kind:"webvtt"}>;
+  if (probe.kind !== "webvtt") throw new Error("The caption probe must be WebVTT.");
+  const caption: Extract<IAutoMovieProductionMediaProbe,{kind:"webvtt"}> = probe;
   return {
     kind: caption.kind,
     cueCount: caption.cueCount,
@@ -16,14 +17,14 @@ const summarizeWebVtt = (probe: IAutoMovieProductionMediaProbe) => {
 };
 
 /** Compare counts exactly and seconds numerically without loosening precision. */
-const assertWebVtt = (
+const assertWebVtt: (title: string, actual: ReturnType<typeof summarizeWebVtt>, expected: ReturnType<typeof summarizeWebVtt>) => void = (
   title: string,
   actual: ReturnType<typeof summarizeWebVtt>,
   expected: ReturnType<typeof summarizeWebVtt>,
 ): void => {
   TestValidator.equals(title,{kind:actual.kind,cueCount:actual.cueCount},
     {kind:expected.kind,cueCount:expected.cueCount});
-  TestValidator.predicate(title+" has exact cue seconds",
+  TestValidator.predicate(title+" has exact cue seconds", (): boolean =>
     nclose(actual.firstCueSeconds,expected.firstCueSeconds,0) &&
     nclose(actual.lastCueSeconds,expected.lastCueSeconds,0));
 };
@@ -35,9 +36,14 @@ const assertWebVtt = (
  *
  * 1. Read explicit cues and legal metadata, identifiers, Unicode settings and payload whitespace.
  * 2. Refuse invalid header/type/UTF-8, malformed timing, empty or unordered cues and missing separators.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Probes actual authored WebVTT bytes, requiring exact cue counts/first-last times for legal grammar variants and each malformed input's error fragment. Dropped cues, accepted malformed timing or changed bounds fail; these summary assertions establish acceptance and bounds rather than exact returned cue text/settings.
+ * @evidence contracts/testing.md#independent-expectations Authored millisecond boundaries divide by one thousand to give literal 0.1/0.25/0.3 seconds, while metadata blocks add no cue. Counts remain exact and nclose keeps the original zero tolerance for supplied exact milliseconds; literal malformed texts and refusal fragments identify grammar/association boundaries independently of parsed output.
+ * @evidence contracts/testing.md#distinguishing-cases Retains two-cue fixture, metadata, wrong type/header, all nine malformed cases, invalid UTF-8, short timestamps, identifiers, Unicode settings, payload whitespace, metadata-looking timed identifiers and whitespace separator. Caption semantic text correspondence belongs to media_semantic_closure rather than this summary probe.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_webvtt_probe owns every portable synchronous byte-probe case and its typed summary/assertion helpers, with no caption rendering, filesystem output, browser or encoder process.
  */
-export const test_production_webvtt_probe = (): void => {
-  const vtt = productionWebVtt();
+export function test_production_webvtt_probe(): void {
+  const vtt: Uint8Array = productionWebVtt();
   assertWebVtt(
     "the WebVTT probe counts observable cues",
     summarizeWebVtt(
@@ -75,7 +81,7 @@ export const test_production_webvtt_probe = (): void => {
   TestValidator.predicate(
     "captions cannot relabel WebVTT bytes",
     refused(
-      () =>
+      (): ReturnType<typeof probeProductionMedia> =>
         probeProductionMedia({
           kind: "captions",
           mediaType: "text/plain",
@@ -87,7 +93,7 @@ export const test_production_webvtt_probe = (): void => {
   TestValidator.predicate(
     "caption bytes require a WebVTT header",
     refused(
-      () =>
+      (): ReturnType<typeof probeProductionMedia> =>
         probeProductionMedia({
           kind: "captions",
           mediaType: "text/vtt",
@@ -96,7 +102,7 @@ export const test_production_webvtt_probe = (): void => {
       "valid WebVTT header",
     ),
   );
-  const invalidWebVttCases = [
+  const invalidWebVttCases: { bytes: string; message: string }[] = [
     {
       bytes: "WEBVTT\n\n",
       message: "no timed cue",
@@ -139,9 +145,9 @@ export const test_production_webvtt_probe = (): void => {
   ];
   TestValidator.predicate(
     "WebVTT cues must be non-empty, syntactically valid, positive and ordered",
-    invalidWebVttCases.every((item) =>
+    invalidWebVttCases.every((item: typeof invalidWebVttCases[number]): boolean =>
       refused(
-        () =>
+        (): ReturnType<typeof probeProductionMedia> =>
           probeProductionMedia({
             kind: "captions",
             mediaType: "text/vtt",
@@ -154,7 +160,7 @@ export const test_production_webvtt_probe = (): void => {
   TestValidator.predicate(
     "WebVTT bytes must be valid UTF-8",
     refused(
-      () =>
+      (): ReturnType<typeof probeProductionMedia> =>
         probeProductionMedia({
           kind: "captions",
           mediaType: "text/vtt",
@@ -275,4 +281,4 @@ export const test_production_webvtt_probe = (): void => {
   );
 
 
-};
+}

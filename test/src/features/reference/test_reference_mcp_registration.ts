@@ -28,7 +28,7 @@ type Registration = {
  *    The injected registration sink does not test the SDK's protocol implementation.
  * 3. A failed connection requests cleanup and preserves its original failure identity.
  * 4. Failed cleanup exposes both failures instead of claiming successful release.
- * 5. Transport acquisition failure closes the constructed server without connecting.
+ * 5. Transport acquisition failure requests close of the constructed server without connecting.
  *
  * @evidence contracts/testing.md#behavioral-verification Actual server construction, tool registration and startup dispatch run through injected capabilities; assertions pin all four request schemas, result transport markers, transfer on success and cleanup after transport acquisition or connection failure.
  * @evidence contracts/testing.md#independent-expectations The four supported operation names and read-only hints are literal contract values. Failure objects and close counts are authored before startup, so omitted cleanup or replacing the original rejection fails independently; provider equality is supplementary transport parity rather than an independent parser oracle.

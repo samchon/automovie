@@ -1,4 +1,4 @@
-import { namedFacts, throwsError as refused } from "../internal/predicates";
+import { namedFacts, nclose, throwsError as refused } from "../internal/predicates";
 import { probeProductionMedia } from "@automovie/production";
 import {
   muxProductionFeatureMp4,
@@ -15,15 +15,20 @@ import { productionOpusMp4 } from "../internal/productionMedia/productionOpusMp4
  *
  * 1. Read the four-frame 24 Hz video and mux exactly 8000 audio samples.
  * 2. Refuse wrong track populations, a one-sample runtime difference and mono final audio.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Probes a four-frame guide, muxes/probes a matching H.264+Opus feature and requires wrong track populations, a one-audio-sample mismatch and mono audio to refuse at their own messages. Checked projections identify container/codec/raster/frame timing and Opus association rather than decoded picture or sound quality.
+ * @evidence contracts/testing.md#independent-expectations Authored four frames at 24 Hz give 4/24 seconds, matching 8000 samples at 48000 Hz; 7999 differs by one sample and mono violates the stereo delivery profile. Literal 16-square raster, four frames and H.264/Opus identities supply expectations independently of probe output; fps keeps zero-tolerance nclose and runtime the existing 1e-9 numerical bound.
+ * @evidence contracts/testing.md#distinguishing-cases Retains valid video-only intermediate and matching final feature, final-video missing audio, intermediate extra-audio and audio-only inputs, one-sample duration mismatch and one-channel audio. Malformed box storage, color/presentation profile and cue semantics belong to adjacent media tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_video_track_probe owns all portable synchronous container/mux cases through resident authored samples. MP4Box writing and probing launch no codec/renderer process, read/write no filesystem path and establish no decoded AVC pixels or audible Opus acceptance.
  */
-export const test_production_video_track_probe = (): void => {
-  const video = productionSampleMp4({
+export function test_production_video_track_probe(): void {
+  const video: Uint8Array = productionSampleMp4({
     width: 16,
     height: 16,
     fps: 24,
     frameCount: 4,
   });
-  const videoProbe = probeProductionMedia({
+  const videoProbe: ReturnType<typeof probeProductionMedia> = probeProductionMedia({
     kind: "guide-pass",
     mediaType: "video/mp4",
     bytes: video,
@@ -31,36 +36,36 @@ export const test_production_video_track_probe = (): void => {
   TestValidator.equals(
     "the guide probe derives H.264 geometry and frame timing",
     namedFacts([
-      ["videoProbeKindVideo", () => videoProbe.kind === "video"],
+      ["videoProbeKindVideo", (): boolean => videoProbe.kind === "video"],
       [
         "videoProbeContainerMp4",
-        () => videoProbe.kind === "video" && videoProbe.container === "mp4",
+        (): boolean => videoProbe.kind === "video" && videoProbe.container === "mp4",
       ],
       [
         "videoProbeCodecH264",
-        () => videoProbe.kind === "video" && videoProbe.codec === "h264",
+        (): boolean => videoProbe.kind === "video" && videoProbe.codec === "h264",
       ],
       [
         "videoProbeWidth",
-        () => videoProbe.kind === "video" && videoProbe.width === 16,
+        (): boolean => videoProbe.kind === "video" && videoProbe.width === 16,
       ],
       [
         "videoProbeHeight",
-        () => videoProbe.kind === "video" && videoProbe.height === 16,
+        (): boolean => videoProbe.kind === "video" && videoProbe.height === 16,
       ],
       [
         "videoProbeFrameCount",
-        () => videoProbe.kind === "video" && videoProbe.frameCount === 4,
+        (): boolean => videoProbe.kind === "video" && videoProbe.frameCount === 4,
       ],
       [
         "videoProbeFps",
-        () => videoProbe.kind === "video" && videoProbe.fps === 24,
+        (): boolean => videoProbe.kind === "video" && nclose(videoProbe.fps, 24, 0),
       ],
       [
         "MathAbsVideoProbe",
-        () =>
+        (): boolean =>
           videoProbe.kind === "video" &&
-          Math.abs(videoProbe.runtimeSeconds - 4 / 24) < 1e-9,
+          nclose(videoProbe.runtimeSeconds, 4 / 24, 1e-9),
       ],
     ]),
     {
@@ -74,11 +79,11 @@ export const test_production_video_track_probe = (): void => {
       MathAbsVideoProbe: true,
     },
   );
-  const featureBytes = muxProductionFeatureMp4({
+  const featureBytes: Uint8Array = muxProductionFeatureMp4({
     video,
     audio: productionOpusMp4(8_000),
   });
-  const feature = probeProductionMedia({
+  const feature: ReturnType<typeof probeProductionMedia> = probeProductionMedia({
     kind: "feature",
     mediaType: "video/mp4",
     bytes: featureBytes,
@@ -86,24 +91,24 @@ export const test_production_video_track_probe = (): void => {
   TestValidator.equals(
     "a feature requires and preserves exact-runtime H.264 plus stereo Opus",
     namedFacts([
-      ["featureKindFeature", () => feature.kind === "feature"],
+      ["featureKindFeature", (): boolean => feature.kind === "feature"],
       [
         "featureFrameCount",
-        () => feature.kind === "feature" && feature.video.frameCount === 4,
+        (): boolean => feature.kind === "feature" && feature.video.frameCount === 4,
       ],
       [
         "featureFps",
-        () => feature.kind === "feature" && feature.video.fps === 24,
+        (): boolean => feature.kind === "feature" && nclose(feature.video.fps, 24, 0),
       ],
       [
         "MathAbsFeature",
-        () =>
+        (): boolean =>
           feature.kind === "feature" &&
-          Math.abs(feature.video.runtimeSeconds - 4 / 24) < 1e-9,
+          nclose(feature.video.runtimeSeconds, 4 / 24, 1e-9),
       ],
       [
         "featureAudioOpus",
-        () => feature.kind === "feature" && feature.audio.codec === "opus",
+        (): boolean => feature.kind === "feature" && feature.audio.codec === "opus",
       ],
     ]),
     {
@@ -117,7 +122,7 @@ export const test_production_video_track_probe = (): void => {
   TestValidator.predicate(
     "video-only MP4 cannot satisfy the final feature contract",
     refused(
-      () =>
+      (): ReturnType<typeof probeProductionMedia> =>
         probeProductionMedia({
           kind: "feature",
           mediaType: "video/mp4",
@@ -131,18 +136,18 @@ export const test_production_video_track_probe = (): void => {
     namedFacts([
       [
         "probeProductionVideoMp4VideoFrameCount",
-        () => probeProductionVideoMp4(video).frameCount === 4,
+        (): boolean => probeProductionVideoMp4(video).frameCount === 4,
       ],
       [
         "refusedProbeProductionVideoMp4FeatureBytes",
-        () =>
-          refused(() => probeProductionVideoMp4(featureBytes), "exactly one"),
+        (): boolean =>
+          refused((): ReturnType<typeof probeProductionVideoMp4> => probeProductionVideoMp4(featureBytes), "exactly one"),
       ],
       [
         "refusedProbeProductionVideoMp4ProductionOpusMp4",
-        () =>
+        (): boolean =>
           refused(
-            () => probeProductionVideoMp4(productionOpusMp4(8_000)),
+            (): ReturnType<typeof probeProductionVideoMp4> => probeProductionVideoMp4(productionOpusMp4(8_000)),
             "0 video tracks",
           ),
       ],
@@ -156,7 +161,7 @@ export const test_production_video_track_probe = (): void => {
   TestValidator.predicate(
     "feature mux refuses unequal track clocks",
     refused(
-      () =>
+      (): Uint8Array =>
         muxProductionFeatureMp4({
           video,
           audio: productionOpusMp4(7_999),
@@ -167,7 +172,7 @@ export const test_production_video_track_probe = (): void => {
   TestValidator.predicate(
     "feature mux refuses a non-48-kHz-stereo final audio track",
     refused(
-      () =>
+      (): Uint8Array =>
         muxProductionFeatureMp4({
           video,
           audio: productionOpusMp4(8_000, 1),
@@ -176,4 +181,4 @@ export const test_production_video_track_probe = (): void => {
     ),
   );
 
-};
+}

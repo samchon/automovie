@@ -4,35 +4,20 @@ import {
 } from "@automovie/evidence";
 import {
   type IAutoMovieFingerprintField,
-  type IAutoMovieProductionContentInput,
   type IAutoMovieProductionDesignGraph,
   digestAutoMovieBytes,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
+import { authoringEvidenceFingerprintFields } from "../../../../packages/production/src/production/authoringEvidenceFingerprintFields";
+import { contentFingerprintFields } from "../../../../packages/production/src/production/contentFingerprintFields";
+import { productionBuildInputFingerprint } from "../../../../packages/production/src/production/productionBuildInputFingerprint";
 
-const identity: { authoringEvidenceFingerprintFields(evidence: IAutoMovieProductionEvidence | undefined): IAutoMovieFingerprintField[]; contentFingerprintFields(inputs: readonly IAutoMovieProductionContentInput[]): IAutoMovieFingerprintField[]; productionBuildInputFingerprint(productionId: string, graph: IAutoMovieProductionDesignGraph, sourceFields: readonly IAutoMovieFingerprintField[], contentFields: readonly IAutoMovieFingerprintField[]): string; } = loadSourceModule<{
-  authoringEvidenceFingerprintFields(
-    evidence: IAutoMovieProductionEvidence | undefined,
-  ): IAutoMovieFingerprintField[];
-  contentFingerprintFields(
-    inputs: readonly IAutoMovieProductionContentInput[],
-  ): IAutoMovieFingerprintField[];
-  productionBuildInputFingerprint(
-    productionId: string,
-    graph: IAutoMovieProductionDesignGraph,
-    sourceFields: readonly IAutoMovieFingerprintField[],
-    contentFields: readonly IAutoMovieFingerprintField[],
-  ): string;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionBuildIdentity.ts",
-  ),
-);
+const identity: {
+  authoringEvidenceFingerprintFields: typeof authoringEvidenceFingerprintFields;
+  contentFingerprintFields: typeof contentFingerprintFields;
+  productionBuildInputFingerprint: typeof productionBuildInputFingerprint;
+} = { authoringEvidenceFingerprintFields, contentFingerprintFields, productionBuildInputFingerprint };
 
 const OPENING: string = "export const opening = { beats: 3 };\n";
 const WINDOWS: string = "D:\\a\\x";
@@ -152,7 +137,7 @@ const encoded: (fields: readonly IAutoMovieFingerprintField[]) => string[][] = (
  * @evidence contracts/testing.md#behavioral-verification Computes timed build identity and evidence-field encodings, catching checkout-dependent identity or omission of the production namespace and exact owner anchor.
  * @evidence contracts/testing.md#independent-expectations Contract-derived equality under checkout and line-ending changes and inequality under namespace or owner changes are independent expectations; reused fingerprint helpers provide no independent digest-algorithm oracle.
  * @evidence contracts/testing.md#distinguishing-cases Covers repeat identity, CRLF/BOM source normalization, Windows and POSIX path spellings, changed namespace and changed owner anchor; library input identity and real filesystem ownership are covered elsewhere.
- * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns its namedFacts callbacks over resident inputs and existing source-module fixtures without installation, native build or a production host.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry owns its namedFacts callbacks over resident inputs and actual maintained source imports without installation, native build or a production host.
  */
 export function test_production_timed_input_identity(): void {
   const base: string = fingerprint({ production: "harbor", root: WINDOWS });

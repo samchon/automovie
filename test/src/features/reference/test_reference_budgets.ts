@@ -1,38 +1,44 @@
 import { createAutoMovieReferenceProvider } from "@automovie/mcp";
 import { TestValidator } from "@nestia/e2e";
+import type { AutoMovieReferenceResult } from "../../../../packages/mcp/src/structures/AutoMovieReferenceResult";
 
 /**
- * Budgets count serialized UTF-8 bytes and refuse every incomplete result.
+ * Budgets count serialized UTF-8 bytes and refuse oversized complete results.
  *
  * Scenarios:
- * 1. Exact result budgets succeed and one byte less refuses without content.
+ * 1. Exact result budgets succeed and one byte less returns BUDGET_EXCEEDED.
  * 2. Oversized source and inventory limits refuse before parsing the population.
  * 3. Large annotations do not inflate the default per-comment metadata surface.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes actual file-index/read and layer operations, measuring a complete successful UTF-8 envelope then checking that exact budget accepts and one byte less refuses. Oversized individual source, inventory and aggregate source populations return RESOURCE_LIMIT, and default serialized output omits annotationRanges.
+ * @evidence contracts/testing.md#independent-expectations Buffer.byteLength over the serialized success independently measures the provider's declared byte unit, including Korean and emoji; exact-result comparison is supplementary same-provider parity, not an independent content oracle. Authored 8 MiB+1, 10001 paths and five 8 MiB sources cross literal resource ceilings; only refusal codes, not absence of every payload field, are asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Retains index and full-file budget endpoints, per-file source rejection through both direct and layer paths, inventory overflow and aggregate overflow, with thirty comments testing compact default metadata. Detailed ranges, layer continuation, exact maximum inventory admission and successful 32 MiB aggregate boundary are owned elsewhere or unclaimed here.
+ * @evidence contracts/testing.md#execution-ownership The named asynchronous test_reference_budgets owns three portable scenario groups through injected resident read/list capabilities and current parser dependencies. Arrays and byte buffers stay invocation-local; no physical file, process, MCP server, browser or renderer starts.
  */
-export const test_reference_budgets = async (): Promise<void> => {
-  const file = "docs/research/source.md";
+export async function test_reference_budgets(): Promise<void> {
+  const file: string = "docs/research/source.md";
   let bytes: Uint8Array = Buffer.from(
     "## Source {#source}\n한글😀\n" + "<!-- note -->\n".repeat(30),
   );
-  let paths = [file];
-  const provider = createAutoMovieReferenceProvider({
-    read: async () => bytes,
-    list: async () => paths,
+  let paths: string[] = [file];
+  const provider: ReturnType<typeof createAutoMovieReferenceProvider> = createAutoMovieReferenceProvider({
+    read: async (): Promise<Uint8Array> => bytes,
+    list: async (): Promise<readonly string[]> => paths,
   });
   for (const operation of [
     "get_index_of_file",
     "read_file_without_annotations",
   ] as const) {
-    const result = await provider({ operation, file });
+    const result: AutoMovieReferenceResult = await provider({ operation, file });
     if (!result.ok) throw new Error("Expected normal result.");
-    const budgetBytes = Buffer.byteLength(JSON.stringify(result));
+    const budgetBytes: number = Buffer.byteLength(JSON.stringify(result));
     TestValidator.predicate("budget above minimum", budgetBytes >= 256);
     TestValidator.equals(
       "exact budget",
       await provider({ operation, file, budgetBytes }),
       result,
     );
-    const less = await provider({
+    const less: AutoMovieReferenceResult = await provider({
       operation,
       file,
       budgetBytes: budgetBytes - 1,
@@ -48,13 +54,13 @@ export const test_reference_budgets = async (): Promise<void> => {
     );
   }
   bytes = new Uint8Array(8_388_609);
-  const large = await provider({ operation: "get_index_of_file", file });
+  const large: AutoMovieReferenceResult = await provider({ operation: "get_index_of_file", file });
   TestValidator.equals(
     "source bound",
     large.ok ? "success" : large.error.code,
     "RESOURCE_LIMIT",
   );
-  const layerSource = await provider({
+  const layerSource: AutoMovieReferenceResult = await provider({
     operation: "get_index_of_layer",
     layer: "research",
   });
@@ -63,8 +69,8 @@ export const test_reference_budgets = async (): Promise<void> => {
     layerSource.ok ? "success" : layerSource.error.code,
     "RESOURCE_LIMIT",
   );
-  paths = Array.from({ length: 10_001 }, (_, i) => `docs/research/${i}.md`);
-  const inventory = await provider({
+  paths = Array.from({ length: 10_001 }, (_: unknown, i: number): string => `docs/research/${i}.md`);
+  const inventory: AutoMovieReferenceResult = await provider({
     operation: "get_index_of_layer",
     layer: "research",
   });
@@ -73,9 +79,9 @@ export const test_reference_budgets = async (): Promise<void> => {
     inventory.ok ? "success" : inventory.error.code,
     "RESOURCE_LIMIT",
   );
-  paths = Array.from({ length: 5 }, (_, i) => `docs/research/${i}.md`);
+  paths = Array.from({ length: 5 }, (_: unknown, i: number): string => `docs/research/${i}.md`);
   bytes = new Uint8Array(8_388_608);
-  const total = await provider({
+  const total: AutoMovieReferenceResult = await provider({
     operation: "get_index_of_layer",
     layer: "research",
   });
@@ -84,4 +90,4 @@ export const test_reference_budgets = async (): Promise<void> => {
     total.ok ? "success" : total.error.code,
     "RESOURCE_LIMIT",
   );
-};
+}

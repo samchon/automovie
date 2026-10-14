@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieBuildProjectOutput } from "@automovie/interface";
 
 import {
   GENERATED_STALE,
@@ -10,12 +11,17 @@ import {
   textDigest,
 } from "./sourceStatusFixtures";
 
+type ChangedStatusObservations = {
+  runs: number[];
+  answers: IAutoMovieBuildProjectOutput[];
+  expected: IAutoMovieBuildProjectOutput;
+};
+
 /**
  * An unchanged successful gate answer is reused only behind a fresh read.
  *
- * A capture reaches the read-only source gate at five boundaries: before it
- * draws, after the pixels return, before and after the files are applied inside
- * the commit lock, and when its receipt is reopened. The answer depends on the
+ * Five sequential status calls model capture boundaries without executing a
+ * capture, commit lock or receipt reopen. The arranged answer depends on the
  * source, the documents validation read, the screenplay index, the builder-owned
  * output and the resident guard, and on the revision only when the answer read
  * the revision number into what it judged. Every boundary must read those again,
@@ -38,17 +44,22 @@ import {
  *    reused.
  * 6. A source edit fails as stale output at every boundary until the compile,
  *    after which one run under the new input identity is reused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual retention closure through the existing world ports and asserts exact per-query evaluation/acquisition counts and answer records. Unchanged success is reused with fresh reads, returned mutations cannot corrupt retention, dependency changes reevaluate once and invalid generated/source states fail on every call until logical compile restoration.
+ * @evidence contracts/testing.md#independent-expectations Literal five-call [1,0,0,0,0], later-read [1,1,1,1], changed [1,0], unbound [0,0] and failing [1,1] sequences encode retention obligations independently of measured timing. Explicit source/document/resident/revision and generated mutations define expected fixture records; answerOf shares arrangement data and does not independently validate native compiler diagnostics.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves unchanged calls, mutation of a reused answer, three dependency changes, unbound versus revision-bound writes, repeated tamper/stale failures and compile recovery. Adjacent refusal/race units own thrown or unavailable observations and during-run inconsistencies; these finite observations do not prove atomic filesystem state or arbitrary external-effect determinism.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_source_status_retention owns six portable synchronous groups and deterministic world state. Five calls model caller boundaries without actual capture, commit, receipt, source compilation, filesystem, process or renderer execution; only the maintained retention algorithm is under test.
  */
-export const test_production_source_status_retention = (): void => {
-  const world = createSourceStatusWorld();
-  const status = world.status();
-  const initial = answerOf(world.state, []);
+export function test_production_source_status_retention(): void {
+  const world: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
+  const status: () => IAutoMovieBuildProjectOutput = world.status();
+  const initial: IAutoMovieBuildProjectOutput = answerOf(world.state, []);
   const reads: number[] = [];
-  const boundaries = runsPerCall(
+  const boundaries: ReturnType<typeof runsPerCall> = runsPerCall(
     world,
-    () => {
-      const before = world.counts.acquisitions;
-      const answer = status();
+    (): IAutoMovieBuildProjectOutput => {
+      const before: number = world.counts.acquisitions;
+      const answer: IAutoMovieBuildProjectOutput = status();
       reads.push(world.counts.acquisitions - before);
       return answer;
     },
@@ -68,7 +79,7 @@ export const test_production_source_status_retention = (): void => {
     },
   );
 
-  const reused = status();
+  const reused: IAutoMovieBuildProjectOutput = status();
   reused.diagnostics.push(GENERATED_TAMPERED);
   reused.builder.inputFingerprint = textDigest("forged identity");
   TestValidator.equals(
@@ -77,47 +88,47 @@ export const test_production_source_status_retention = (): void => {
     initial,
   );
 
-  const changed = (
+  function changed(
     target: ReturnType<typeof createSourceStatusWorld>,
     targetStatus: () => ReturnType<typeof status>,
     change: () => void,
-  ) => {
+  ): ChangedStatusObservations {
     change();
-    const observed = runsPerCall(target, targetStatus, 2);
+    const observed: ReturnType<typeof runsPerCall> = runsPerCall(target, targetStatus, 2);
     return {
       runs: observed.runs,
       answers: observed.answers,
       expected: answerOf(target.state, []),
     };
-  };
-  const inputs = [
-    changed(world, status, () =>
-      world.state.documents.set(SCREENPLAY_DOCUMENT, "EXT. HARBOR - DAWN"),
-    ),
-    changed(world, status, () => {
+  }
+  const inputs: ChangedStatusObservations[] = [
+    changed(world, status, (): void => {
+      world.state.documents.set(SCREENPLAY_DOCUMENT, "EXT. HARBOR - DAWN");
+    }),
+    changed(world, status, (): void => {
       world.state.screenplay = "treatment and scene index v2";
     }),
-    changed(world, status, () => {
+    changed(world, status, (): void => {
       world.state.resident = textDigest("another checkout root");
     }),
   ];
   TestValidator.equals(
     "each changed input runs the gate exactly once and is reused after",
-    inputs.map((entry) => ({ runs: entry.runs, answers: entry.answers })),
-    inputs.map((entry) => ({
+    inputs.map((entry: ChangedStatusObservations): Pick<ChangedStatusObservations, "runs" | "answers"> => ({ runs: entry.runs, answers: entry.answers })),
+    inputs.map((entry: ChangedStatusObservations): Pick<ChangedStatusObservations, "runs" | "answers"> => ({
       runs: [1, 0],
       answers: [entry.expected, entry.expected],
     })),
   );
 
-  const unbound = changed(world, status, () => {
+  const unbound: ChangedStatusObservations = changed(world, status, (): void => {
     world.state.revision += 1;
   });
-  const boundWorld = createSourceStatusWorld();
+  const boundWorld: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
   boundWorld.state.revisionBound = true;
-  const boundStatus = boundWorld.status();
+  const boundStatus: () => IAutoMovieBuildProjectOutput = boundWorld.status();
   boundStatus();
-  const bound = changed(boundWorld, boundStatus, () => {
+  const bound: ChangedStatusObservations = changed(boundWorld, boundStatus, (): void => {
     boundWorld.state.revision += 1;
   });
   TestValidator.equals(
@@ -133,10 +144,10 @@ export const test_production_source_status_retention = (): void => {
   );
 
   world.state.generated = "hand-edited compiled shot";
-  const tampered = runsPerCall(world, status, 2);
-  const tamperedAnswer = answerOf(world.state, [GENERATED_TAMPERED]);
+  const tampered: ReturnType<typeof runsPerCall> = runsPerCall(world, status, 2);
+  const tamperedAnswer: IAutoMovieBuildProjectOutput = answerOf(world.state, [GENERATED_TAMPERED]);
   world.compile();
-  const restored = runsPerCall(world, status, 2);
+  const restored: ReturnType<typeof runsPerCall> = runsPerCall(world, status, 2);
   TestValidator.equals(
     "tampered output fails until a compile restores it",
     { tampered, restored },
@@ -150,10 +161,10 @@ export const test_production_source_status_retention = (): void => {
   );
 
   world.state.source = "export const opening = defineShot({ beats: 4 });\n";
-  const stale = runsPerCall(world, status, 2);
-  const staleAnswer = answerOf(world.state, [GENERATED_STALE]);
+  const stale: ReturnType<typeof runsPerCall> = runsPerCall(world, status, 2);
+  const staleAnswer: IAutoMovieBuildProjectOutput = answerOf(world.state, [GENERATED_STALE]);
   world.compile();
-  const recompiled = runsPerCall(world, status, 2);
+  const recompiled: ReturnType<typeof runsPerCall> = runsPerCall(world, status, 2);
   TestValidator.equals(
     "a source edit fails as stale until compiled, then one run is reused",
     { stale, recompiled },
@@ -165,4 +176,4 @@ export const test_production_source_status_retention = (): void => {
       },
     },
   );
-};
+}

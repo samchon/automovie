@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieBuildProjectOutput } from "@automovie/interface";
 
 import {
   GENERATED_STALE,
@@ -9,14 +10,14 @@ import {
 } from "./sourceStatusFixtures";
 
 /** Run one status call and return what it threw, or `undefined`. */
-const thrownBy = (task: () => unknown): unknown => {
+function thrownBy(task: () => unknown): unknown {
   try {
     task();
     return undefined;
   } catch (error) {
     return error;
   }
-};
+}
 
 /**
  * A failed, thrown or unobservable gate answer is never reused.
@@ -45,25 +46,30 @@ const thrownBy = (task: () => unknown): unknown => {
  * 6. A success that executed a project module outside the fingerprinted content
  *    runs the gate and reads the project once at every boundary, and the same
  *    success without that module is reused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the maintained retention owner through existing world ports and checks failed answer populations, exact evaluation/acquisition counts and thrown object identity. Failures, unavailable snapshots and undeclared executed dependencies must reevaluate; recovery may establish a new reusable success.
+ * @evidence contracts/testing.md#independent-expectations Literal [1,1,1], [1,1] and [1,0] sequences encode evaluate-every-failure versus retain-proved-success. Explicit validity/source/observation/module arrangements and independently authored diagnostic records define expected output; answerOf is fixture arrangement, not proof that a native compiler emits those diagnostics.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps initially invalid source, invalid edit after reuse, evaluation exception identity, acquisition exception with failing or successful evaluation, restored reads, null/incomplete snapshots and undeclared modules later removed. Race mismatches and unchanged/revision-dependent reuse are owned by the adjacent race/retention units.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_source_status_refusal owns six portable synchronous groups using a fresh world per group and deterministic existing hooks. It invokes real retention with modeled observations/gates, without physical project reads, compiler execution, process, renderer or GPU.
  */
-export const test_production_source_status_refusal = (): void => {
-  const invalid = createSourceStatusWorld();
+export function test_production_source_status_refusal(): void {
+  const invalid: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
   invalid.state.valid = false;
-  const failing = runsPerCall(invalid, invalid.status(), 3);
-  const failure = answerOf(invalid.state, [SOURCE_FAILURE]);
+  const failing: ReturnType<typeof runsPerCall> = runsPerCall(invalid, invalid.status(), 3);
+  const failure: IAutoMovieBuildProjectOutput = answerOf(invalid.state, [SOURCE_FAILURE]);
   TestValidator.equals(
     "an invalid source runs the gate, reports it and reads once per boundary",
     { ...failing, reads: invalid.counts.acquisitions },
     { runs: [1, 1, 1], answers: [failure, failure, failure], reads: 3 },
   );
 
-  const broken = createSourceStatusWorld();
-  const brokenStatus = broken.status();
-  const reused = runsPerCall(broken, brokenStatus, 2);
+  const broken: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
+  const brokenStatus: () => IAutoMovieBuildProjectOutput = broken.status();
+  const reused: ReturnType<typeof runsPerCall> = runsPerCall(broken, brokenStatus, 2);
   broken.state.source = "export const opening = defineShot(undefined);\n";
   broken.state.valid = false;
-  const afterEdit = runsPerCall(broken, brokenStatus, 2);
-  const brokenAnswer = answerOf(broken.state, [
+  const afterEdit: ReturnType<typeof runsPerCall> = runsPerCall(broken, brokenStatus, 2);
+  const brokenAnswer: IAutoMovieBuildProjectOutput = answerOf(broken.state, [
     SOURCE_FAILURE,
     GENERATED_STALE,
   ]);
@@ -76,41 +82,41 @@ export const test_production_source_status_refusal = (): void => {
     },
   );
 
-  const crashing = createSourceStatusWorld();
-  const crashingStatus = crashing.status();
+  const crashing: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
+  const crashingStatus: () => IAutoMovieBuildProjectOutput = crashing.status();
   crashingStatus();
-  const original = crashing.state.source;
-  const crash = new Error("shot program threw while the gate ran");
+  const original: string = crashing.state.source;
+  const crash: Error = new Error("shot program threw while the gate ran");
   crashing.state.source = "export const opening = explode();\n";
-  crashing.hooks.beforeRead = () => {
+  crashing.hooks.beforeRead = (): void => {
     throw crash;
   };
-  const thrown = thrownBy(crashingStatus);
-  crashing.hooks.beforeRead = () => undefined;
+  const thrown: unknown = thrownBy(crashingStatus);
+  crashing.hooks.beforeRead = (): void => undefined;
   crashing.state.source = original;
-  const recovered = runsPerCall(crashing, crashingStatus, 2);
+  const recovered: ReturnType<typeof runsPerCall> = runsPerCall(crashing, crashingStatus, 2);
   TestValidator.equals(
     "a gate exception propagates and drops the reused answer",
     { sameError: thrown === crash, recovered: recovered.runs },
     { sameError: true, recovered: [1, 0] },
   );
 
-  const replaced = createSourceStatusWorld();
-  const replacedStatus = replaced.status();
+  const replaced: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
+  const replacedStatus: () => IAutoMovieBuildProjectOutput = replaced.status();
   replacedStatus();
-  const race = new Error("Production project root identity changed.");
-  replaced.hooks.acquire = () => {
+  const race: Error = new Error("Production project root identity changed.");
+  replaced.hooks.acquire = (): void => {
     throw race;
   };
-  replaced.hooks.beforeRead = () => {
+  replaced.hooks.beforeRead = (): void => {
     throw race;
   };
-  const refusedTogether = thrownBy(replacedStatus);
-  replaced.hooks.beforeRead = () => undefined;
-  const refusedRead = runsPerCall(replaced, replacedStatus, 2);
-  replaced.hooks.acquire = () => undefined;
-  const readRestored = runsPerCall(replaced, replacedStatus, 2);
-  const success = answerOf(replaced.state, []);
+  const refusedTogether: unknown = thrownBy(replacedStatus);
+  replaced.hooks.beforeRead = (): void => undefined;
+  const refusedRead: ReturnType<typeof runsPerCall> = runsPerCall(replaced, replacedStatus, 2);
+  replaced.hooks.acquire = (): void => undefined;
+  const readRestored: ReturnType<typeof runsPerCall> = runsPerCall(replaced, replacedStatus, 2);
+  const success: IAutoMovieBuildProjectOutput = answerOf(replaced.state, []);
   TestValidator.equals(
     "a refused project read only ever runs the gate",
     {
@@ -125,8 +131,8 @@ export const test_production_source_status_refusal = (): void => {
     },
   );
 
-  const incomplete = createSourceStatusWorld();
-  const incompleteStatus = incomplete.status();
+  const incomplete: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
+  const incompleteStatus: () => IAutoMovieBuildProjectOutput = incomplete.status();
   incompleteStatus();
   incomplete.state.incomplete = true;
   TestValidator.equals(
@@ -135,11 +141,11 @@ export const test_production_source_status_refusal = (): void => {
     [1, 1],
   );
 
-  const undeclared = createSourceStatusWorld();
+  const undeclared: ReturnType<typeof createSourceStatusWorld> = createSourceStatusWorld();
   undeclared.state.undeclaredModules = ["lint.config.ts"];
-  const undeclaredStatus = undeclared.status();
-  const withUndeclared = runsPerCall(undeclared, undeclaredStatus, 3).runs;
-  const undeclaredReads = undeclared.counts.acquisitions;
+  const undeclaredStatus: () => IAutoMovieBuildProjectOutput = undeclared.status();
+  const withUndeclared: number[] = runsPerCall(undeclared, undeclaredStatus, 3).runs;
+  const undeclaredReads: number = undeclared.counts.acquisitions;
   undeclared.state.undeclaredModules = [];
   TestValidator.equals(
     "an executed module outside the fingerprinted content blocks reuse",
@@ -150,4 +156,4 @@ export const test_production_source_status_refusal = (): void => {
     },
     { withUndeclared: [1, 1, 1], undeclaredReads: 3, declared: [1, 0] },
   );
-};
+}

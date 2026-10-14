@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
 import { productionVisualDeliveryOccurrence } from "@automovie/render";
@@ -8,26 +7,27 @@ import {
   conformProductionVisualDeliveryVideoMp4,
 } from "@automovie/render/node";
 import { TestValidator } from "@nestia/e2e";
-import { BoxParser } from "mp4box";
+import { BoxParser, type Sample, type createFile } from "mp4box";
 
 import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
 import { productionInterframeH264Mp4 } from "../internal/productionMedia/productionInterframeH264Mp4";
 import { rewriteProductionH264Mp4 } from "../internal/productionMedia/rewriteProductionH264Mp4";
 
-const WIDTH = 16;
-const HEIGHT = 16;
-const FPS = 2;
+const WIDTH: number = 16;
+const HEIGHT: number = 16;
+const FPS: number = 2;
 
-const digest = (digit: string): AutoMovieContentDigest =>
-  `sha256:${digit.repeat(64)}`;
+function digest(digit: string): string {
+  return `sha256:${digit.repeat(64)}`;
+}
 
 type Lane = { lane: "deterministic" | "repainted"; bytes: Uint8Array };
 
-const timeline = (
+function timeline(
   counts: number[],
-  totalFrames = counts.reduce((sum, count) => sum + count, 0),
-): IAutoMovieFilmTimeline => {
-  let startFrame = 0;
+  totalFrames: number = counts.reduce((sum: number, count: number): number => sum + count, 0),
+): IAutoMovieFilmTimeline {
+  let startFrame: number = 0;
   return {
     version: 1,
     builder: "automovie.production.builder.v5",
@@ -36,8 +36,8 @@ const timeline = (
     id: "conform",
     fps: FPS,
     totalFrames,
-    segments: counts.map((count, index) => {
-      const segment = {
+    segments: counts.map((count: number, index: number): IAutoMovieFilmTimeline["segments"][number] => {
+      const segment: IAutoMovieFilmTimeline["segments"][number] = {
         shot: `shot-${index}`,
         sourceInFrame: 0,
         sourceOutFrame: count,
@@ -54,27 +54,29 @@ const timeline = (
     omissions: [],
     tracks: { audio: [], captions: [], effects: [] },
   };
-};
+}
 
 /** The refusal message of `task`, or null when it returned. */
-const refusal = (task: () => unknown): string | null => {
+function refusal(task: () => unknown): string | null {
   try {
     task();
     return null;
   } catch (error) {
     // The conform boundary throws nothing but Error refusals.
-    return (error as Error).message;
+    if (error instanceof Error) return error.message;
+    throw error;
   }
-};
+}
 
-const conform = (film: IAutoMovieFilmTimeline, lanes: Lane[]): Uint8Array =>
-  conformProductionVisualDeliveryVideoMp4({
+function conform(film: IAutoMovieFilmTimeline, lanes: Lane[]): Uint8Array {
+  return conformProductionVisualDeliveryVideoMp4({
     timeline: film,
-    sources: film.segments.map((segment, index) => ({
+    sources: film.segments.map((segment: IAutoMovieFilmTimeline["segments"][number], index: number): Parameters<typeof conformProductionVisualDeliveryVideoMp4>[0]["sources"][number] => ({
       occurrence: productionVisualDeliveryOccurrence(segment, index),
       ...lanes[index]!,
     })),
   });
+}
 
 /**
  * Explicit visual-lane conform refuses every source population that is not
@@ -94,37 +96,42 @@ const conform = (film: IAutoMovieFilmTimeline, lanes: Lane[]): Uint8Array =>
  * 5. A deterministic range of a frame-reordered feature must present exactly
  *    its own frames: a decode-order range that would show a later segment's
  *    frame is refused, while a range closed under reordering is admitted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises actual lane conform with eight population/transition/source/coverage refusals, an overlapping occurrence, an open presentation range and an admitted closed reordered range. Exact messages distinguish the responsible boundary; the admitted case asserts successful conform rather than inspecting every output sample.
+ * @evidence contracts/testing.md#independent-expectations Authored segment counts, source byte identities, 16-square versus 8-square rasters, a non-sync encoded second frame and the explicit [0,2,1,3] presentation permutation define each expected refusal independently of conform output. Literal diagnostic strings locate the failing occurrence; constructed sample-table fixtures establish container rules, not decoded picture correctness.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves missing joins, dissolve, empty timeline, differing deterministic sources, non-sync repaint crossing, partial repaint, changed presentation contract, uncovered frames, overlap, open reorder range and valid closed range. Adjacent video profile/container tests own profile projections and malformed MP4 storage; complete output sample comparison and decoded pictures remain outside this test, and truthful sync metadata remains a parser premise.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_visual_delivery_conform_refusals owns five portable synchronous scenario groups using resident authored MP4 samples and one stored encoded interframe fixture. MP4Box rewrites timing/container metadata in memory; no encoder, process, filesystem, browser or GPU starts, and no visual appearance is claimed.
  */
-export const test_production_visual_delivery_conform_refusals =
-  (): void => {
-    const sampleInput = (frameCount: number, width = WIDTH, height = HEIGHT) =>
-      productionSampleMp4({ width, height, fps: FPS, frameCount });
-    const three = sampleInput(3);
-    const two = sampleInput(2);
-    const narrow = sampleInput(2, WIDTH - 8, HEIGHT - 8);
-    const whole = sampleInput(5);
-    const one = sampleInput(1);
+export function test_production_visual_delivery_conform_refusals(): void {
+    function sampleInput(frameCount: number, width: number = WIDTH, height: number = HEIGHT): Uint8Array {
+      return productionSampleMp4({ width, height, fps: FPS, frameCount });
+    }
+    const three: Uint8Array = sampleInput(3);
+    const two: Uint8Array = sampleInput(2);
+    const narrow: Uint8Array = sampleInput(2, WIDTH - 8, HEIGHT - 8);
+    const whole: Uint8Array = sampleInput(5);
+    const one: Uint8Array = sampleInput(1);
     // The x264 fixture's second frame is a predicted frame, the only non-sync
     // sample used here. The authored sample-table inputs are all sync samples.
-    const interframe = productionInterframeH264Mp4();
-    const assembled = assembleProductionChunkVideoMp4({
+    const interframe: Uint8Array = productionInterframeH264Mp4();
+    const assembled: Uint8Array = assembleProductionChunkVideoMp4({
       chunks: [three, two],
       frameFormat: { fps: FPS, width: WIDTH, height: HEIGHT },
       totalFrames: 5,
     });
-    const film = timeline([3, 2]);
-    const deterministic = (bytes: Uint8Array): Lane => ({
+    const film: IAutoMovieFilmTimeline = timeline([3, 2]);
+    const deterministic: (bytes: Uint8Array) => Lane = (bytes: Uint8Array): Lane => ({
       lane: "deterministic",
       bytes,
     });
-    const repainted = (bytes: Uint8Array): Lane => ({
+    const repainted: (bytes: Uint8Array) => Lane = (bytes: Uint8Array): Lane => ({
       lane: "repainted",
       bytes,
     });
     const dissolved: IAutoMovieFilmTimeline = {
       ...film,
       segments: film.segments.map(
-        (segment, index): IAutoMovieFilmTimeline["segments"][number] =>
+        (segment: IAutoMovieFilmTimeline["segments"][number], index: number): IAutoMovieFilmTimeline["segments"][number] =>
           index === 1
             ? {
                 ...segment,
@@ -136,38 +143,38 @@ export const test_production_visual_delivery_conform_refusals =
     TestValidator.equals(
       "every source population that is not the exact current film is refused",
       {
-        unjoined: refusal(() =>
+        unjoined: refusal((): Uint8Array =>
           conformProductionVisualDeliveryVideoMp4({
             timeline: film,
-            sources: film.segments.slice(1).map((segment, index) => ({
+            sources: film.segments.slice(1).map((segment: IAutoMovieFilmTimeline["segments"][number], index: number): Parameters<typeof conformProductionVisualDeliveryVideoMp4>[0]["sources"][number] => ({
               occurrence: productionVisualDeliveryOccurrence(segment, index),
               ...deterministic(assembled),
             })),
           }),
         ),
-        dissolved: refusal(() =>
+        dissolved: refusal((): Uint8Array =>
           conform(dissolved, [
             deterministic(assembled),
             deterministic(assembled),
           ]),
         ),
-        empty: refusal(() => conform(timeline([]), [])),
-        differingDeterministic: refusal(() =>
+        empty: refusal((): Uint8Array => conform(timeline([]), [])),
+        differingDeterministic: refusal((): Uint8Array =>
           conform(film, [deterministic(assembled), deterministic(whole)]),
         ),
-        nonSyncCrossing: refusal(() =>
+        nonSyncCrossing: refusal((): Uint8Array =>
           conform(timeline([1, 1]), [
             repainted(one),
             deterministic(interframe),
           ]),
         ),
-        partialShot: refusal(() =>
+        partialShot: refusal((): Uint8Array =>
           conform(film, [repainted(two), deterministic(assembled)]),
         ),
-        changedContract: refusal(() =>
+        changedContract: refusal((): Uint8Array =>
           conform(film, [repainted(three), repainted(narrow)]),
         ),
-        uncovered: refusal(() =>
+        uncovered: refusal((): Uint8Array =>
           conform(timeline([3, 2], 6), [repainted(three), repainted(two)]),
         ),
       },
@@ -192,14 +199,14 @@ export const test_production_visual_delivery_conform_refusals =
     // Frames 1 and 2 are decoded in swapped order, as a B-frame stream does:
     // presentation is delayed one tick so no sample presents before it decodes,
     // and one edit starting at that tick keeps the presentation untransformed.
-    const reorderedFrames = [0, 2, 1, 3];
-    const reordered = rewriteProductionH264Mp4(sampleInput(4), {
-      retime: (_sample, index) => ({
+    const reorderedFrames: number[] = [0, 2, 1, 3];
+    const reordered: Uint8Array = rewriteProductionH264Mp4(sampleInput(4), {
+      retime: (_sample: Sample, index: number): { dts: number; cts: number } => ({
         dts: index,
         cts: reorderedFrames[index]! + 1,
       }),
-      mutate: (file, track) => {
-        const edit = file.getTrackById(track).addBox(new BoxParser.box.edts());
+      mutate: (file: ReturnType<typeof createFile>, track: number): void => {
+        const edit: InstanceType<typeof BoxParser.box.edts> = file.getTrackById(track).addBox(new BoxParser.box.edts());
         edit.addBox(new BoxParser.box.elst()).entries = [
           {
             segment_duration: 4,
@@ -210,28 +217,28 @@ export const test_production_visual_delivery_conform_refusals =
         ];
       },
     });
-    const sixFrames = sampleInput(6);
-    const sixFilm = timeline([3, 3]);
+    const sixFrames: Uint8Array = sampleInput(6);
+    const sixFilm: IAutoMovieFilmTimeline = timeline([3, 3]);
     const overlapping: IAutoMovieFilmTimeline = {
       ...sixFilm,
       segments: sixFilm.segments.map(
-        (segment, index): IAutoMovieFilmTimeline["segments"][number] =>
+        (segment: IAutoMovieFilmTimeline["segments"][number], index: number): IAutoMovieFilmTimeline["segments"][number] =>
           index === 1 ? { ...segment, startFrame: 2, endFrame: 5 } : segment,
       ),
     };
     TestValidator.equals(
       "occurrences must be contiguous and deterministic ranges closed",
       {
-        overlapping: refusal(() =>
+        overlapping: refusal((): Uint8Array =>
           conform(overlapping, [
             deterministic(sixFrames),
             deterministic(sixFrames),
           ]),
         ),
-        openRange: refusal(() =>
+        openRange: refusal((): Uint8Array =>
           conform(timeline([2, 2]), [deterministic(reordered), repainted(two)]),
         ),
-        closedRange: refusal(() =>
+        closedRange: refusal((): Uint8Array =>
           conform(timeline([1, 3]), [
             deterministic(reordered),
             deterministic(reordered),
@@ -246,4 +253,4 @@ export const test_production_visual_delivery_conform_refusals =
         closedRange: null,
       },
     );
-  };
+  }

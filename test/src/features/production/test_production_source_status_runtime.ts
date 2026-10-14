@@ -1,42 +1,18 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
   IAutoMovieGeneratedManifest,
 } from "@automovie/interface";
 import type { IAutoMovieProductionDesignGraph } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
+import type { AutoMovieProductionProject } from "../../../../packages/production/src/production/AutoMovieProductionProject";
+import { createAutoMovieProductionSourceStatus } from "../../../../packages/production/src/production/createAutoMovieProductionSourceStatus";
+import { currentAutoMovieProductionBuildInputFingerprint } from "../../../../packages/production/src/production/currentAutoMovieProductionBuildInputFingerprint";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const modulePath = (name: string): string =>
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production",
-    name,
-  );
-const { createAutoMovieProductionSourceStatus } = loadSourceModule<{
-  createAutoMovieProductionSourceStatus(props: {
-    project: object;
-    builder: {
-      lintSource(): {
-        output: IAutoMovieBuildProjectOutput;
-        documents: Array<{ path: string; content: string | null }>;
-        revisionBound: boolean;
-      };
-    };
-    runtime: {
-      listFiles: (root: string) => string[];
-      moduleCache: () => Readonly<Record<string, unknown>>;
-    };
-  }): () => IAutoMovieBuildProjectOutput;
-}>(modulePath("createAutoMovieProductionSourceStatus.ts"));
-const { currentAutoMovieProductionBuildInputFingerprint } = loadSourceModule<{
-  currentAutoMovieProductionBuildInputFingerprint(
-    project: object,
-    scope: "source",
-  ): AutoMovieContentDigest | null;
-}>(modulePath("productionBuildIdentity.ts"));
+type ProjectFixture = Pick<AutoMovieProductionProject,
+  "root" | "productionId" | "revision" | "graph" | "readSource" |
+  "contentInputs" | "screenplayIndex" | "generatedManifest" | "generatedRoot"
+> & { manifest: () => Record<string, never> };
 
 /**
  * A host's complete observations let the composed gate retain a proven answer.
@@ -52,9 +28,14 @@ const { currentAutoMovieProductionBuildInputFingerprint } = loadSourceModule<{
  * 3. An observation that throws causes evaluation, preserves a failed answer,
  *    and cannot reuse the retained success on either successive query.
  * 4. Restored observations re-establish one success and then reuse it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes actual composed status with counted generated-walk, loader and gate capabilities. Checks five initial successes with one evaluation/six listings/one cache read, revision-only rebinding without evaluation, two repeated failed observations and restored one-run reuse; diagnostics retain the arranged cause message.
+ * @evidence contracts/testing.md#independent-expectations Literal counters encode one before/after acquisition for the first admitted success and one fresh acquisition per reused query, while failed observations require a new gate each time. The arrangement obtains a current fingerprint only to align its generated manifest/gate identity; no literal digest oracle independently validates fingerprint calculation.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps unchanged success, revision-only unbound write, two unavailable observations with failed gates and restored observations. Fixed/live authoring selection, thrown evaluation, changed declared dependencies and during-run races belong to adjacent source-status tests. Empty declared/generated populations mean no document or generated-file reader is invoked here.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_source_status_runtime owns four portable synchronous scenarios through actual composition with injected project/generated/loader ports. Empty manifest disables derivation inspection before physical reads, and empty requested populations invoke no missing document/generated-file reader. No filesystem, authored module, process or renderer executes; actual imports expose the preexisting minimal-project versus class type mismatch for dedicated later repair, without changing runtime inputs or claiming execution.
  */
-export const test_production_source_status_runtime = (): void => {
-  const root = path.resolve("source-status-runtime-input");
+export function test_production_source_status_runtime(): void {
+  const root: string = path.resolve("source-status-runtime-input");
   const graph: IAutoMovieProductionDesignGraph = {
     production: null,
     models: new Map(),
@@ -63,29 +44,29 @@ export const test_production_source_status_runtime = (): void => {
     shots: new Map(),
     acceptance: new Map(),
   };
-  let revision = 7;
-  let evaluations = 0;
-  let listings = 0;
-  let cacheReads = 0;
-  let refused = false;
-  const cause = new Error(
+  let revision: number = 7;
+  let evaluations: number = 0;
+  let listings: number = 0;
+  let cacheReads: number = 0;
+  let refused: boolean = false;
+  const cause: Error = new Error(
     "The generated population observation is unavailable.",
   );
-  const project = {
+  const project: ProjectFixture = {
     root,
     productionId: "harbor",
-    revision: () => revision,
-    graph: () => graph,
+    revision: (): number => revision,
+    graph: (): IAutoMovieProductionDesignGraph => graph,
     readSource: (file: string): Uint8Array => {
       throw new Error(`Source "${file}" does not exist.`);
     },
-    contentInputs: () => [],
-    manifest: () => ({}),
-    screenplayIndex: () => null,
+    contentInputs: (): ReturnType<AutoMovieProductionProject["contentInputs"]> => [],
+    manifest: (): Record<string, never> => ({}),
+    screenplayIndex: (): null => null,
     generatedManifest: (): IAutoMovieGeneratedManifest => manifest,
-    generatedRoot: () => path.join(root, "generated", "harbor"),
+    generatedRoot: (): string => path.join(root, "generated", "harbor"),
   };
-  const fingerprint = currentAutoMovieProductionBuildInputFingerprint(
+  const fingerprint: string | null = currentAutoMovieProductionBuildInputFingerprint(
     project,
     "source",
   );
@@ -99,10 +80,10 @@ export const test_production_source_status_runtime = (): void => {
     inputFingerprint: fingerprint!,
     files: [],
   };
-  const status = createAutoMovieProductionSourceStatus({
+  const status: () => IAutoMovieBuildProjectOutput = createAutoMovieProductionSourceStatus({
     project,
     builder: {
-      lintSource: () => {
+      lintSource: (): ReturnType<Parameters<typeof createAutoMovieProductionSourceStatus>[0]["builder"]["lintSource"]> => {
         evaluations += 1;
         return {
           documents: [],
@@ -129,25 +110,25 @@ export const test_production_source_status_runtime = (): void => {
       },
     },
     runtime: {
-      listFiles: () => {
+      listFiles: (): string[] => {
         listings += 1;
         if (refused) throw cause;
         return [];
       },
-      moduleCache: () => {
+      moduleCache: (): Readonly<Record<string, unknown>> => {
         cacheReads += 1;
         return {};
       },
     },
   });
-  const answers = Array.from({ length: 5 }, () => status());
+  const answers: IAutoMovieBuildProjectOutput[] = Array.from({ length: 5 }, (): IAutoMovieBuildProjectOutput => status());
   TestValidator.equals(
     "five unchanged queries run one gate with fresh observations",
     {
       evaluations,
       listings,
       cacheReads,
-      successes: answers.map((answer) => answer.success),
+      successes: answers.map((answer: IAutoMovieBuildProjectOutput): boolean => answer.success),
     },
     {
       evaluations: 1,
@@ -163,13 +144,13 @@ export const test_production_source_status_runtime = (): void => {
     { revision: 8, evaluations: 1 },
   );
   refused = true;
-  const failures = [status(), status()];
+  const failures: IAutoMovieBuildProjectOutput[] = [status(), status()];
   TestValidator.equals(
     "an unreadable population never reuses prior success",
     {
       evaluations,
-      successes: failures.map((answer) => answer.success),
-      causes: failures.map((answer) => answer.diagnostics[0]!.message),
+      successes: failures.map((answer: IAutoMovieBuildProjectOutput): boolean => answer.success),
+      causes: failures.map((answer: IAutoMovieBuildProjectOutput): string => answer.diagnostics[0]!.message),
     },
     {
       evaluations: 3,
@@ -178,13 +159,13 @@ export const test_production_source_status_runtime = (): void => {
     },
   );
   refused = false;
-  const recovered = [status(), status()];
+  const recovered: IAutoMovieBuildProjectOutput[] = [status(), status()];
   TestValidator.equals(
     "recovery establishes one new retained answer",
     {
       evaluations,
       cacheReads,
-      successes: recovered.map((answer) => answer.success),
+      successes: recovered.map((answer: IAutoMovieBuildProjectOutput): boolean => answer.success),
     },
     {
       evaluations: 4,
@@ -192,4 +173,4 @@ export const test_production_source_status_runtime = (): void => {
       successes: [true, true],
     },
   );
-};
+}

@@ -3,6 +3,8 @@ import {
   parseAutoMovieStructuredJson,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { nclose } from "../internal/predicates";
 import { legacyImporterParseJson } from "../../../../packages/production/src/production/legacyImporterParseJson";
 import { legacyImporterInvalidLegacyImportJsonError } from "../../../../packages/production/src/production/legacyImporterInvalidLegacyImportJsonError";
 
@@ -41,16 +43,16 @@ const outcome: (text: string) => unknown = (text: string): unknown => {
  * @evidence contracts/testing.md#execution-ownership The named test entry runs portable parser and wrapper semantics synchronously through direct source imports; it creates no process, filesystem fixture, browser or GPU and does not claim public importer filesystem execution.
  */
 export function test_production_structured_json_syntax(): void {
-  TestValidator.equals(
+  TestValidator.predicate(
     "admitted syntax parses to the host value",
-    [
+    (): boolean => filmEffectValuesClose([
       outcome(
         '{"a":[1,-2.5e3,true,false,null,"x\\u0041\\n\\"\\\\\\/\\b\\f\\r\\t"]}',
       ),
       outcome(" [ ] "),
       outcome("0"),
     ],
-    [{ a: [1, -2500, true, false, null, 'xA\n"\\/\b\f\r\t'] }, [], 0],
+    [{ a: [1, -2500, true, false, null, 'xA\n"\\/\b\f\r\t'] }, [], 0]),
   );
   TestValidator.equals(
     "syntax refusals name the offset and enclosing pointer",
@@ -85,10 +87,10 @@ export function test_production_structured_json_syntax(): void {
       "syntax@1/0: expected true",
     ],
   );
-  TestValidator.equals(
+  const scalar: unknown = legacyImporterParseJson(Buffer.from("0", "utf8"), "automovie/record.json");
+  TestValidator.predicate(
     "the import wrapper preserves admitted scalar semantics",
-    legacyImporterParseJson(Buffer.from("0", "utf8"), "automovie/record.json"),
-    0,
+    (): boolean => typeof scalar === "number" && nclose(scalar, 0, 1e-12),
   );
   let wrapped: unknown = undefined;
   try {

@@ -49,7 +49,7 @@ function refusal(act: () => unknown): string {
  * 2. Framing follows each subject's extent above the shared 0.5-metre radius
  *    floor, so the mullion remains below the wall's distance under one rule;
  *    small and degenerate boxes still receive the conventional minimum framing.
- * 3. Every impossible viewpoint rule is refused with a range error rather than
+ * 3. Each arranged impossible viewpoint rule is refused with a range error rather than
  *    silently normalised, including two elevation rings that would round to one
  *    viewpoint identity.
  * 4. An inspection answer cannot be handed to a consumer that requires delivery
