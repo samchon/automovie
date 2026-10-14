@@ -1,4 +1,3 @@
-
 /**
  * The law-of-cosines solution `solveTwoBoneIK` returns for a two-segment chain
  * reaching a point at a given distance from its root.

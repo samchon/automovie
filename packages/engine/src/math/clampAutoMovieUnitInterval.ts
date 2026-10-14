@@ -1,4 +1,3 @@
-
 /**
  * Clamp a scalar into the closed unit interval [0, 1].
  *

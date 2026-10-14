@@ -1,5 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "./Quaternion";
+
 /**
  * Fit a proper rotation and translation between corresponding mesh vertices.
  * The facial basis builder uses this to perform a shape-edited rigid component
@@ -37,14 +39,23 @@ export function fitRigidMeshTransform(props: {
   referenceCenter: IAutoMovieVector3;
   targetCenter: IAutoMovieVector3;
 } {
-  const { reference, target, vertices }: { reference: readonly number[]; target: readonly number[]; vertices: readonly number[]; } = props;
+  const {
+    reference,
+    target,
+    vertices,
+  }: {
+    reference: readonly number[];
+    target: readonly number[];
+    vertices: readonly number[];
+  } = props;
   if (
     reference.length !== target.length ||
     reference.length % 3 !== 0 ||
     vertices.length === 0 ||
     new Set(vertices).size !== vertices.length ||
     vertices.some(
-      (v: number): boolean => !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
+      (v: number): boolean =>
+        !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
     )
   )
     throw new Error(
@@ -89,7 +100,9 @@ export function fitRigidMeshTransform(props: {
           ((target[3 * vertex + j] - b[j]) / targetDivisor);
   const scale: number = Math.max(...h.map(Math.abs));
   const divisor: number = scale === 0 ? 1 : scale;
-  const [xx, xy, xz, yx, yy, yz, zx, zy, zz]: number[] = h.map((x: number): number => x / divisor);
+  const [xx, xy, xz, yx, yy, yz, zx, zy, zz]: number[] = h.map(
+    (x: number): number => x / divisor,
+  );
   // Scalar-first quaternion convention here; convert to glTF order on return.
   const n: number[] = [
     xx + yy + zz,

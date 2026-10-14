@@ -1,7 +1,13 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
+
 /**
  * Index a skeleton's parent-child topology once, for forward-kinematics work
  * repeated over many poses of the same skeleton.
@@ -26,7 +32,9 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned index is owned by the caller and holds one entry per bone plus one set entry per reachable bone, bounded by the skeleton's bone count; nothing is retained here.
  * @author Samchon
  */
-export const indexSkeletonTopology: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeletonTopology = (
+export const indexSkeletonTopology: (
+  skeleton: IAutoMovieSkeleton,
+) => IAutoMovieSkeletonTopology = (
   skeleton: IAutoMovieSkeleton,
 ): IAutoMovieSkeletonTopology => {
   const childrenByParent: Map<AutoMovieSkeletonParentKey, IAutoMovieBone[]> =

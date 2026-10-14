@@ -224,10 +224,11 @@ export function createAutoMovieSignedMeshQuery(
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
     let extent2: number = 0;
     for (let axis: number = 0; axis < 3; axis++)
-      extent2 += Math.max(
-        Math.abs(point[axis]! - root.low[axis]!),
-        Math.abs(point[axis]! - root.high[axis]!),
-      ) ** 2;
+      extent2 +=
+        Math.max(
+          Math.abs(point[axis]! - root.low[axis]!),
+          Math.abs(point[axis]! - root.high[axis]!),
+        ) ** 2;
     if (!Number.isFinite(extent2))
       throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: IBest = {

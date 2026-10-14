@@ -2,6 +2,7 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
 import { validateJointAxesBasis } from "./validateJointAxesBasis";
+
 /**
  * Validate a joint-axis basis and return it with unit-length axes, ready for
  * quaternion composition and decomposition.
@@ -24,7 +25,10 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned basis.
  * @author Samchon
  */
-export const normalizeJointAxes: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxes = (
+export const normalizeJointAxes: (
+  axes: IAutoMovieJointAxes,
+  path: string,
+) => IAutoMovieJointAxes = (
   axes: IAutoMovieJointAxes,
   path: string,
 ): IAutoMovieJointAxes => {

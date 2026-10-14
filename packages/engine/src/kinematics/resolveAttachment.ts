@@ -1,10 +1,18 @@
-import { AutoMovieHumanoidBone, IAutoMovieAttachment, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieAttachment,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
+
 /**
  * The transform of a child model's root rigidly coupled to one bone of a posed
  * parent skeleton, in the parent skeleton's model space: a rider on a horse, a
@@ -41,7 +49,17 @@ import { resolvePose } from "./resolvePose";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the resolved bones are local to the call and the returned transform, including its copied scale, is owned by the caller.
  * @author Samchon
  */
-export const resolveAttachment: (parentPose: IAutoMoviePose, parentSkeleton: IAutoMovieSkeleton, attachment: IAutoMovieAttachment, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined) => IAutoMovieTransform = (
+export const resolveAttachment: (
+  parentPose: IAutoMoviePose,
+  parentSkeleton: IAutoMovieSkeleton,
+  attachment: IAutoMovieAttachment,
+  jointAxes?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+    | undefined,
+  restFrames?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+    | undefined,
+) => IAutoMovieTransform = (
   parentPose: IAutoMoviePose,
   parentSkeleton: IAutoMovieSkeleton,
   attachment: IAutoMovieAttachment,

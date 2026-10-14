@@ -1,4 +1,10 @@
-import { IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
@@ -9,6 +15,7 @@ import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 import { normalizeJointAxes } from "./normalizeJointAxes";
+
 const RAD2DEG: number = 180 / Math.PI;
 
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
@@ -20,10 +27,10 @@ const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 const GIMBAL_COSINE_EPSILON: number = 4 * Number.EPSILON;
 
 /** Choose an admitted full-turn alias when one exists; never clamp an angle. */
-const periodicAngle: (angle: number, range: IAutoMovieAngleRange | null) => number = (
+const periodicAngle: (
   angle: number,
   range: IAutoMovieAngleRange | null,
-): number => {
+) => number = (angle: number, range: IAutoMovieAngleRange | null): number => {
   const minimum: number = range?.min ?? 0;
   const maximum: number = range?.max ?? 0;
   if (angle >= minimum && angle <= maximum) return angle;
@@ -34,7 +41,9 @@ const periodicAngle: (angle: number, range: IAutoMovieAngleRange | null) => numb
     : angle + 360 * Math.max(first, Math.min(last, 0));
 };
 
-const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (q: IAutoMovieQuaternion): void => {
+const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
+  q: IAutoMovieQuaternion,
+): void => {
   for (const axis of QUATERNION_AXES) {
     const value: number = q[axis];
     if (!Number.isFinite(value))
@@ -90,7 +99,12 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (q: IAutoMovie
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned angles.
  * @author Samchon
  */
-export const decomposeJointRotation: (q: IAutoMovieQuaternion, axes?: IAutoMovieJointAxes, frame?: IAutoMovieRestFrame | undefined, domain?: IAutoMovieJointRotationDomain | undefined) => IAutoMovieResolvedJointAngles = (
+export const decomposeJointRotation: (
+  q: IAutoMovieQuaternion,
+  axes?: IAutoMovieJointAxes,
+  frame?: IAutoMovieRestFrame | undefined,
+  domain?: IAutoMovieJointRotationDomain | undefined,
+) => IAutoMovieResolvedJointAngles = (
   q: IAutoMovieQuaternion,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
@@ -104,7 +118,9 @@ export const decomposeJointRotation: (q: IAutoMovieQuaternion, axes?: IAutoMovie
 
   // Lift a rig-relative extraction into clinical angles (the inverse of
   // jointToQuaternion's `frame` map); the identity when no frame is given.
-  const clinical: (rig: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
+  const clinical: (
+    rig: IAutoMovieResolvedJointAngles,
+  ) => IAutoMovieResolvedJointAngles = (
     rig: IAutoMovieResolvedJointAngles,
   ): IAutoMovieResolvedJointAngles => ({
     // toClinicalAngle only returns null for a null input; these are numbers.
@@ -120,13 +136,17 @@ export const decomposeJointRotation: (q: IAutoMovieQuaternion, axes?: IAutoMovie
       ? 1
       : -1;
   const twistAxis: IAutoMovieVector3 = Vector3.scale(basis.twist, handed);
-  const lift: (rig: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
+  const lift: (
+    rig: IAutoMovieResolvedJointAngles,
+  ) => IAutoMovieResolvedJointAngles = (
     rig: IAutoMovieResolvedJointAngles,
   ): IAutoMovieResolvedJointAngles => {
     const principal: IAutoMovieResolvedJointAngles = clinical(rig);
     if (domain === undefined || domain.constraint === null) return principal;
     const constraint: IAutoMovieJointConstraint = domain.constraint;
-    const align: (candidate: IAutoMovieResolvedJointAngles) => IAutoMovieResolvedJointAngles = (
+    const align: (
+      candidate: IAutoMovieResolvedJointAngles,
+    ) => IAutoMovieResolvedJointAngles = (
       candidate: IAutoMovieResolvedJointAngles,
     ): IAutoMovieResolvedJointAngles => ({
       flexion: periodicAngle(candidate.flexion, constraint.flexion),
@@ -190,10 +210,7 @@ export const decomposeJointRotation: (q: IAutoMovieQuaternion, axes?: IAutoMovie
       abduction:
         Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) *
         RAD2DEG,
-      twist:
-        handed *
-        Math.atan2(r10, r11) *
-        RAD2DEG,
+      twist: handed * Math.atan2(r10, r11) * RAD2DEG,
     });
   }
 

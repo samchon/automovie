@@ -1,10 +1,12 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
 import { aimRotation } from "./aimRotation";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
+
 /** World-down, the direction the default bend displaces the mid joint toward. */
 const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
@@ -44,7 +46,13 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
  * @author Samchon
  */
-export const twoBoneChainArticulation: (props: { upper: IAutoMovieChainBone; lower: IAutoMovieChainBone; end: IAutoMovieVector3; target: IAutoMovieVector3; bendNormal?: IAutoMovieVector3 | undefined; }) => IAutoMovieTwoBoneArticulation | null = (props: {
+export const twoBoneChainArticulation: (props: {
+  upper: IAutoMovieChainBone;
+  lower: IAutoMovieChainBone;
+  end: IAutoMovieVector3;
+  target: IAutoMovieVector3;
+  bendNormal?: IAutoMovieVector3 | undefined;
+}) => IAutoMovieTwoBoneArticulation | null = (props: {
   /** Resolved chain-root bone (hip or shoulder) in world space. */
   upper: IAutoMovieChainBone;
 

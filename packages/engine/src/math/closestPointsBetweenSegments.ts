@@ -1,7 +1,9 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "./Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
+
 /**
  * Closest witnesses on bounded segments in one metre coordinate frame.
  * Inputs are unchanged; each result owns its points. segmentSegmentDistance
@@ -39,7 +41,12 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
  * @author Samchon
  */
-export const closestPointsBetweenSegments: (a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3, d: IAutoMovieVector3) => IAutoMovieClosestSegmentPoints = (
+export const closestPointsBetweenSegments: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+  d: IAutoMovieVector3,
+) => IAutoMovieClosestSegmentPoints = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
@@ -48,7 +55,9 @@ export const closestPointsBetweenSegments: (a: IAutoMovieVector3, b: IAutoMovieV
   const rawU: IAutoMovieVector3 = Vector3.subtract(b, a);
   const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
   const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
-  const values: number[] = [a, b, c, d, rawU, rawV, rawR].flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]);
+  const values: number[] = [a, b, c, d, rawU, rawV, rawR].flatMap(
+    (p: IAutoMovieVector3): number[] => [p.x, p.y, p.z],
+  );
   if (!values.every(Number.isFinite))
     throw new Error(
       "Segment proximity requires finite coordinates and differences.",
@@ -61,7 +70,9 @@ export const closestPointsBetweenSegments: (a: IAutoMovieVector3, b: IAutoMovieV
     ]),
   );
   if (scale === 0) return { pointA: { ...a }, pointB: { ...c }, distance: 0 };
-  const scaled: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+  const scaled: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 => ({
     x: p.x / scale,
     y: p.y / scale,
     z: p.z / scale,
@@ -84,7 +95,10 @@ export const closestPointsBetweenSegments: (a: IAutoMovieVector3, b: IAutoMovieV
   let s: number = 0,
     t: number = 0,
     best: number = Math.hypot(r.x, r.y, r.z);
-  const offer: (alongA: number, alongB: number) => void = (alongA: number, alongB: number): void => {
+  const offer: (alongA: number, alongB: number) => void = (
+    alongA: number,
+    alongB: number,
+  ): void => {
     const residual: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(r, Vector3.scale(u, alongA)),
       Vector3.scale(v, alongB),

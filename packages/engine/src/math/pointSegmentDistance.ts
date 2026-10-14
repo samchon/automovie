@@ -1,5 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
+
 /**
  * Distance in metres from a point to a closed segment in one coordinate frame.
  * Coincident endpoints give point distance without collapsing tiny nonzero spans.
@@ -14,9 +16,12 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * @evidence contracts/performance.md#reuse-equivalent-work Supplying the point twice expresses its geometry without duplicating the projection algorithm; collision calls share no cached result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The witness pair is temporary and only its distance escapes, with no retained input or collision state.
  */
-export const pointSegmentDistance: (point: IAutoMovieVector3, start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
+export const pointSegmentDistance: (
   point: IAutoMovieVector3,
   start: IAutoMovieVector3,
   end: IAutoMovieVector3,
-): number =>
-  closestPointsBetweenSegments(point, point, start, end).distance;
+) => number = (
+  point: IAutoMovieVector3,
+  start: IAutoMovieVector3,
+  end: IAutoMovieVector3,
+): number => closestPointsBetweenSegments(point, point, start, end).distance;

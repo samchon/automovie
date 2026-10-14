@@ -103,9 +103,7 @@ export function boundAutoMovieConvexSeparation(
             );
           if (
             scale > 0 &&
-            offer(
-              Vector3.cross(divideVector(u, scale), divideVector(v, scale)),
-            )
+            offer(Vector3.cross(divideVector(u, scale), divideVector(v, scale)))
           )
             return best;
         }

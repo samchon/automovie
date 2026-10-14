@@ -1,4 +1,3 @@
-
 /**
  * The determinant and cofactor matrix of one 3×3 deformation Jacobian, as
  * `cofactorAutoMovieJacobian` returns them.

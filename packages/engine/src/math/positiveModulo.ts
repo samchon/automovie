@@ -11,7 +11,10 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One remainder supplies both sign handling and the final phase; no phase history is cached across caller changes.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar without allocating records or retaining source data.
  */
-export const positiveModulo: (value: number, period: number) => number = (value: number, period: number): number => {
+export const positiveModulo: (value: number, period: number) => number = (
+  value: number,
+  period: number,
+): number => {
   const remainder: number = value % period;
   const normalized: number = remainder + period * Number(remainder < 0);
   return normalized === period ? 0 : normalized;

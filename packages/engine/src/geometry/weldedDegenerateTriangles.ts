@@ -1,6 +1,8 @@
 import { IAutoMovieMesh } from "@automovie/interface";
+
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+
 /**
  * Original ordinals of the triangles whose corners repeat a vertex on the
  * topology weld grid.
@@ -31,7 +33,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices: number[] = triangleIndicesOf(mesh, "mesh topology");
-  const { vertices }: ReturnType<typeof weldMeshVertices> = weldMeshVertices(mesh.positions);
+  const { vertices }: ReturnType<typeof weldMeshVertices> = weldMeshVertices(
+    mesh.positions,
+  );
   const degenerate: number[] = [];
   for (let at: number = 0; at < indices.length; at += 3) {
     const a: number = vertices[indices[at]!]!;

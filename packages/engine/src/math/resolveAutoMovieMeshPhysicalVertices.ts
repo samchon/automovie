@@ -1,6 +1,11 @@
-import { IAutoMovieMesh, IAutoMovieMeshPhysicalVertices } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalVertices,
+} from "@automovie/interface";
+
 import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { weldMeshVertices } from "./weldMeshVertices";
+
 /**
  * Resolve actual source-point aliases and current-position legacy vertices.
  * Source pairs are interned in first render occurrence order, independently
@@ -27,14 +32,17 @@ import { weldMeshVertices } from "./weldMeshVertices";
 export function resolveAutoMovieMeshPhysicalVertices(
   mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">,
 ): IAutoMovieResolvedPhysicalVertices {
-  const metadata: IAutoMovieMeshPhysicalVertices | undefined = mesh.physicalVertices;
+  const metadata: IAutoMovieMeshPhysicalVertices | undefined =
+    mesh.physicalVertices;
   if (metadata === undefined) return weldMeshVertices(mesh.positions);
   const refuse: (reason: string) => never = (reason: string): never => {
     throw new Error(`Mesh physicalVertices ${reason}.`);
   };
   if (
     mesh.positions.length % 3 !== 0 ||
-    Array.from(mesh.positions).some((value: number): boolean => !Number.isFinite(value))
+    Array.from(mesh.positions).some(
+      (value: number): boolean => !Number.isFinite(value),
+    )
   )
     refuse("needs finite complete XYZ positions");
   if (
@@ -58,7 +66,8 @@ export function resolveAutoMovieMeshPhysicalVertices(
       refuse("sources need nonblank domains and nonnegative safe integer IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
   }
-  const coordinates: { labels: string[]; vertices: number[]; } = weldMeshVertices(mesh.positions);
+  const coordinates: { labels: string[]; vertices: number[] } =
+    weldMeshVertices(mesh.positions);
   const labels: string[] = [];
   const vertices: number[] = [];
   const identities: Map<string, number> = new Map<string, number>();
@@ -73,7 +82,8 @@ export function resolveAutoMovieMeshPhysicalVertices(
     )
       refuse(`vertices[${vertex}] must be null or a resident source reference`);
     const cell: string = coordinates.labels[coordinates.vertices[vertex]];
-    const key: string = reference === null ? `legacy:${cell}` : keys[reference!];
+    const key: string =
+      reference === null ? `legacy:${cell}` : keys[reference!];
     if (reference !== null) {
       const previous: string | undefined = aliasCells.get(key);
       if (previous !== undefined && previous !== cell)

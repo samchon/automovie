@@ -1,12 +1,13 @@
 import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
-import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
-import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 import { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
 import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
 import { IAutoMovieQuadraticRefinementOptions } from "./IAutoMovieQuadraticRefinementOptions";
 import { IAutoMovieQuadraticRefinementResult } from "./IAutoMovieQuadraticRefinementResult";
+import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
+import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
+
 type Problem = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
 type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
 
@@ -51,60 +52,125 @@ export function refineAutoMovieQuadraticProgram(
 ): IAutoMovieQuadraticRefinementResult {
   admitAutoMovieQuadraticProgram(input);
   const count: number = input.diagonal.length;
-  if (!(options.tolerance > 0) || !Number.isFinite(options.tolerance) ||
-      !Number.isSafeInteger(options.maximumRefinements) || options.maximumRefinements < 0 ||
-      initial.primal.length !== count || initial.dual.length !== input.rows.length)
-    throw new Error("QP refinement needs complete values and an explicit finite work budget.");
+  if (
+    !(options.tolerance > 0) ||
+    !Number.isFinite(options.tolerance) ||
+    !Number.isSafeInteger(options.maximumRefinements) ||
+    options.maximumRefinements < 0 ||
+    initial.primal.length !== count ||
+    initial.dual.length !== input.rows.length
+  )
+    throw new Error(
+      "QP refinement needs complete values and an explicit finite work budget.",
+    );
   for (let at: number = 0; at < count; at++)
     if (!Number.isFinite(initial.primal[at]))
       throw new Error("QP refinement needs finite complete primal values.");
   for (let at: number = 0; at < input.rows.length; at++)
     if (!Number.isFinite(initial.dual[at]))
       throw new Error("QP refinement needs finite complete dual values.");
-  const primal: number[] = initial.primal.slice(), dual: number[] = initial.dual.slice();
+  const primal: number[] = initial.primal.slice(),
+    dual: number[] = initial.dual.slice();
   if (initial.status === 1 && !Number.isFinite(objectiveValue(input, primal)))
-    throw new Error("Original QP objective is not representable: " + JSON.stringify({
-      status: initial.status, input, initial }));
+    throw new Error(
+      "Original QP objective is not representable: " +
+        JSON.stringify({
+          status: initial.status,
+          input,
+          initial,
+        }),
+    );
   const groups: Group[] = intervals(input);
-  const first: { maximumViolation: number; stationarityResidual: number; complementarityResidual: number; } = residuals(input, primal, dual);
-  const nativeCalls: IAutoMovieQuadraticRefinementNativeCall[] = [{
-    status: initial.status, iterations: initial.iterations,
-    primalResidual: initial.primalResidual, dualResidual: initial.dualResidual,
-    objective: initial.objective, dualObjective: initial.dualObjective,
-    gap: Math.abs(initial.objective - initial.dualObjective),
-    rows: initial.dual.length,
-    primal: initial.status === 1 ? undefined : primal.slice(),
-    dual: initial.status === 1 ? undefined : dual.slice(),
-  }];
+  const first: {
+    maximumViolation: number;
+    stationarityResidual: number;
+    complementarityResidual: number;
+  } = residuals(input, primal, dual);
+  const nativeCalls: IAutoMovieQuadraticRefinementNativeCall[] = [
+    {
+      status: initial.status,
+      iterations: initial.iterations,
+      primalResidual: initial.primalResidual,
+      dualResidual: initial.dualResidual,
+      objective: initial.objective,
+      dualObjective: initial.dualObjective,
+      gap: Math.abs(initial.objective - initial.dualObjective),
+      rows: initial.dual.length,
+      primal: initial.status === 1 ? undefined : primal.slice(),
+      dual: initial.status === 1 ? undefined : dual.slice(),
+    },
+  ];
   const base: IAutoMovieQuadraticRefinementResult = {
-    primal, dual, status: initial.status, ...first,
-    refinements: 0, reference: primal.slice(),
-    rowGroups: groups.map((group: Group): number[] => group.originals.slice()), nativeCalls,
+    primal,
+    dual,
+    status: initial.status,
+    ...first,
+    refinements: 0,
+    reference: primal.slice(),
+    rowGroups: groups.map((group: Group): number[] => group.originals.slice()),
+    nativeCalls,
   };
-  const admits: (reading: { maximumViolation: number; stationarityResidual: number; complementarityResidual: number; }) => boolean = (reading: ReturnType<typeof residuals>): boolean =>
+  const admits: (reading: {
+    maximumViolation: number;
+    stationarityResidual: number;
+    complementarityResidual: number;
+  }) => boolean = (reading: ReturnType<typeof residuals>): boolean =>
     reading.maximumViolation <= options.tolerance &&
     reading.stationarityResidual <= options.tolerance &&
     reading.complementarityResidual <= options.tolerance;
   if (initial.status !== 1 || options.maximumRefinements === 0 || admits(first))
     return base;
-  const polishing: IAutoMovieQuadraticPolishingResult = polishAutoMovieQuadraticProgram(input, initial, options, groups,
-    (candidatePrimal: readonly number[], candidateDual: readonly number[]): number => {
-      const reading: { maximumViolation: number; stationarityResidual: number; complementarityResidual: number; } = residuals(input, candidatePrimal, candidateDual);
-      return Math.max(reading.maximumViolation, reading.stationarityResidual,
-        reading.complementarityResidual);
-    },
-    (candidatePrimal: readonly number[], candidateDual: readonly number[]): number[] => gradientOf(input, candidatePrimal, candidateDual),
-    (row: number, value: number, multiplier: number): number => complementarityOf(input.rows[row], value, multiplier),
-    first.maximumViolation <= options.tolerance &&
-      first.complementarityResidual <= options.tolerance);
+  const polishing: IAutoMovieQuadraticPolishingResult =
+    polishAutoMovieQuadraticProgram(
+      input,
+      initial,
+      options,
+      groups,
+      (
+        candidatePrimal: readonly number[],
+        candidateDual: readonly number[],
+      ): number => {
+        const reading: {
+          maximumViolation: number;
+          stationarityResidual: number;
+          complementarityResidual: number;
+        } = residuals(input, candidatePrimal, candidateDual);
+        return Math.max(
+          reading.maximumViolation,
+          reading.stationarityResidual,
+          reading.complementarityResidual,
+        );
+      },
+      (
+        candidatePrimal: readonly number[],
+        candidateDual: readonly number[],
+      ): number[] => gradientOf(input, candidatePrimal, candidateDual),
+      (row: number, value: number, multiplier: number): number =>
+        complementarityOf(input.rows[row], value, multiplier),
+      first.maximumViolation <= options.tolerance &&
+        first.complementarityResidual <= options.tolerance,
+    );
   base.refinements = polishing.iterations;
-  const measured: { maximumViolation: number; stationarityResidual: number; complementarityResidual: number; } = residuals(input, polishing.primal, polishing.dual);
-  if (polishing.primal.every(Number.isFinite) && polishing.dual.every(Number.isFinite) &&
-      Number.isFinite(objectiveValue(input, polishing.primal)) && admits(measured)) {
+  const measured: {
+    maximumViolation: number;
+    stationarityResidual: number;
+    complementarityResidual: number;
+  } = residuals(input, polishing.primal, polishing.dual);
+  if (
+    polishing.primal.every(Number.isFinite) &&
+    polishing.dual.every(Number.isFinite) &&
+    Number.isFinite(objectiveValue(input, polishing.primal)) &&
+    admits(measured)
+  ) {
     polishing.accepted = true;
     polishing.reason = "Every original numerical KKT condition passed.";
-    return { ...base, primal: polishing.primal.slice(), dual: polishing.dual.slice(),
-      ...measured, polishing };
+    return {
+      ...base,
+      primal: polishing.primal.slice(),
+      dual: polishing.dual.slice(),
+      ...measured,
+      polishing,
+    };
   }
   return { ...base, polishing };
 }
@@ -113,58 +179,116 @@ export function refineAutoMovieQuadraticProgram(
 function objectiveValue(input: Problem, primal: readonly number[]): number {
   let value: number = 0;
   for (let at: number = 0; at < input.diagonal.length; at++)
-    value += ((input.diagonal[at] * primal[at]) * 0.5) * primal[at] +
+    value +=
+      input.diagonal[at] * primal[at] * 0.5 * primal[at] +
       input.linear[at] * primal[at];
   return value;
 }
 
 /** Exact interval metadata; original rows and caller arrays remain unchanged. */
 function intervals(input: Problem): Group[] {
-  const groups: Group[] = [], byCoefficients: Map<string, Group> = new Map<string, Group>();
+  const groups: Group[] = [],
+    byCoefficients: Map<string, Group> = new Map<string, Group>();
   for (let at: number = 0; at < input.rows.length; at++) {
     const row: IAutoMovieQuadraticRow = input.rows[at];
-    const pairs: number[][] = row.indices.map((id: number, column: number): number[] => [id, row.weights[column]]).sort((a: number[], b: number[]): number => a[0] - b[0]);
+    const pairs: number[][] = row.indices
+      .map((id: number, column: number): number[] => [id, row.weights[column]])
+      .sort((a: number[], b: number[]): number => a[0] - b[0]);
     const key: string = JSON.stringify(pairs);
     let group: Group | undefined = byCoefficients.get(key);
     if (group === undefined) {
-      group = { indices: pairs.map((pair: number[]): number => pair[0]), weights: pairs.map((pair: number[]): number => pair[1]),
-        lower: null, upper: null, lowerOwner: -1, upperOwner: -1, originals: [] };
-      groups.push(group); byCoefficients.set(key, group);
+      group = {
+        indices: pairs.map((pair: number[]): number => pair[0]),
+        weights: pairs.map((pair: number[]): number => pair[1]),
+        lower: null,
+        upper: null,
+        lowerOwner: -1,
+        upperOwner: -1,
+        originals: [],
+      };
+      groups.push(group);
+      byCoefficients.set(key, group);
     }
     group.originals.push(at);
-    if (row.lower !== null && (group.lower === null || row.lower > group.lower)) {
-      group.lower = row.lower; group.lowerOwner = at;
+    if (
+      row.lower !== null &&
+      (group.lower === null || row.lower > group.lower)
+    ) {
+      group.lower = row.lower;
+      group.lowerOwner = at;
     }
-    if (row.upper !== null && (group.upper === null || row.upper < group.upper)) {
-      group.upper = row.upper; group.upperOwner = at;
+    if (
+      row.upper !== null &&
+      (group.upper === null || row.upper < group.upper)
+    ) {
+      group.upper = row.upper;
+      group.upperOwner = at;
     }
-    if (group.lower !== null && group.upper !== null && group.lower > group.upper)
-      throw new Error("Exact QP interval intersection is empty: " + JSON.stringify({
-        originals: group.originals, lower: group.lower, upper: group.upper, input }));
+    if (
+      group.lower !== null &&
+      group.upper !== null &&
+      group.lower > group.upper
+    )
+      throw new Error(
+        "Exact QP interval intersection is empty: " +
+          JSON.stringify({
+            originals: group.originals,
+            lower: group.lower,
+            upper: group.upper,
+            input,
+          }),
+      );
   }
   return groups;
 }
 
 /** Admission in original row units and the original signed-dual convention. */
-function residuals(input: Problem, primal: readonly number[], dual: readonly number[]): { maximumViolation: number; stationarityResidual: number; complementarityResidual: number; } {
+function residuals(
+  input: Problem,
+  primal: readonly number[],
+  dual: readonly number[],
+): {
+  maximumViolation: number;
+  stationarityResidual: number;
+  complementarityResidual: number;
+} {
   const gradient: number[] = gradientOf(input, primal, dual);
-  let maximumViolation: number = 0, complementarityResidual: number = 0;
+  let maximumViolation: number = 0,
+    complementarityResidual: number = 0;
   for (let at: number = 0; at < input.rows.length; at++) {
-    const row: IAutoMovieQuadraticRow = input.rows[at], multiplier: number = dual[at];
-    const value: number = row.indices.reduce((sum: number, id: number, column: number): number => sum + row.weights[column] * primal[id], 0);
-    maximumViolation = Math.max(maximumViolation,
-      row.lower === null ? 0 : row.lower - value, row.upper === null ? 0 : value - row.upper);
-    complementarityResidual = Math.max(complementarityResidual,
-      complementarityOf(row, value, multiplier));
+    const row: IAutoMovieQuadraticRow = input.rows[at],
+      multiplier: number = dual[at];
+    const value: number = row.indices.reduce(
+      (sum: number, id: number, column: number): number =>
+        sum + row.weights[column] * primal[id],
+      0,
+    );
+    maximumViolation = Math.max(
+      maximumViolation,
+      row.lower === null ? 0 : row.lower - value,
+      row.upper === null ? 0 : value - row.upper,
+    );
+    complementarityResidual = Math.max(
+      complementarityResidual,
+      complementarityOf(row, value, multiplier),
+    );
   }
   let stationarityResidual: number = 0;
-  for (const value of gradient) stationarityResidual = Math.max(stationarityResidual, Math.abs(value));
+  for (const value of gradient)
+    stationarityResidual = Math.max(stationarityResidual, Math.abs(value));
   return { maximumViolation, stationarityResidual, complementarityResidual };
 }
 
 /** Original stationarity formula shared by admission and numerical correction. */
-function gradientOf(input: Problem, primal: readonly number[], dual: readonly number[]): number[] {
-  const gradient: number[] = input.linear.map((value: number, column: number): number => value + input.diagonal[column] * primal[column]);
+function gradientOf(
+  input: Problem,
+  primal: readonly number[],
+  dual: readonly number[],
+): number[] {
+  const gradient: number[] = input.linear.map(
+    (value: number, column: number): number =>
+      value + input.diagonal[column] * primal[column],
+  );
   for (let at: number = 0; at < input.rows.length; at++) {
     const row: IAutoMovieQuadraticRow = input.rows[at];
     for (let corner: number = 0; corner < row.indices.length; corner++)
@@ -174,8 +298,14 @@ function gradientOf(input: Problem, primal: readonly number[], dual: readonly nu
 }
 
 /** Original endpoint/null-bound convention, also used to verify dual projection. */
-function complementarityOf(row: Problem["rows"][number], value: number, multiplier: number): number {
+function complementarityOf(
+  row: Problem["rows"][number],
+  value: number,
+  multiplier: number,
+): number {
   if (row.lower !== null && row.lower === row.upper) return 0;
   const bound: number | null = multiplier >= 0 ? row.upper : row.lower;
-  return bound === null ? Math.abs(multiplier) : Math.abs(multiplier * (value - bound));
+  return bound === null
+    ? Math.abs(multiplier)
+    : Math.abs(multiplier * (value - bound));
 }

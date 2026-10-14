@@ -6,8 +6,8 @@
  * the caller's declared units. No geometry, scaling or constraint is changed.
  * The reusable heap contains no retained solver instance or warm-start state.
  */
-import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
 import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
+import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
 
 let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
 
@@ -57,7 +57,10 @@ export function solveAutoMovieQuadraticKernel(input: {
     offset: number;
   }[] = [];
   let length: number = 0;
-  const append: (values: readonly number [ ], integer?: boolean) => number = (values: readonly number[], integer: boolean = false): number => {
+  const append: (values: readonly number[], integer?: boolean) => number = (
+    values: readonly number[],
+    integer: boolean = false,
+  ): number => {
     const offset: number = length;
     // Every following double starts at an eight-byte boundary, even after an
     // odd number of int32 indices. Empty CSC arrays need no separate storage.
@@ -84,45 +87,51 @@ export function solveAutoMovieQuadraticKernel(input: {
   const dual: number = append(new Array<number>(m).fill(0));
   const info: number = append(new Array<number>(6).fill(0));
   memory ??= createAutoMovieQuadraticMemory();
-  return memory.withWorkspace(length, (heap: IAutoMovieQuadraticHeap, base: number): ReturnType<typeof solveAutoMovieQuadraticKernel> => {
-    for (const block of blocks)
-      (block.integer ? heap.integers : heap.floats).set(
-        block.values,
-        (base + block.offset) / (block.integer ? 4 : 8),
+  return memory.withWorkspace(
+    length,
+    (
+      heap: IAutoMovieQuadraticHeap,
+      base: number,
+    ): ReturnType<typeof solveAutoMovieQuadraticKernel> => {
+      for (const block of blocks)
+        (block.integer ? heap.integers : heap.floats).set(
+          block.values,
+          (base + block.offset) / (block.integer ? 4 : 8),
+        );
+      const code: number = heap.solve(
+        n,
+        m,
+        input.values.length,
+        base + pColumns,
+        base + pRows,
+        base + diagonal,
+        base + linear,
+        base + columns,
+        base + rows,
+        base + values,
+        base + lower,
+        base + upper,
+        0,
+        base + primal,
+        base + dual,
+        base + info,
       );
-    const code: number = heap.solve(
-      n,
-      m,
-      input.values.length,
-      base + pColumns,
-      base + pRows,
-      base + diagonal,
-      base + linear,
-      base + columns,
-      base + rows,
-      base + values,
-      base + lower,
-      base + upper,
-      0,
-      base + primal,
-      base + dual,
-      base + info,
-    );
-    // The native solve may have grown memory. Read fresh views only now.
-    const at: number = (base + info) / 8;
-    return {
-      status: code === 0 ? heap.floats[at] : -code,
-      iterations: heap.floats[at + 1],
-      primalResidual: heap.floats[at + 2],
-      dualResidual: heap.floats[at + 3],
-      objective: heap.floats[at + 4],
-      dualObjective: heap.floats[at + 5],
-      primal: Array.from(
-        heap.floats.subarray((base + primal) / 8, (base + primal) / 8 + n),
-      ),
-      dual: Array.from(
-        heap.floats.subarray((base + dual) / 8, (base + dual) / 8 + m),
-      ),
-    };
-  });
+      // The native solve may have grown memory. Read fresh views only now.
+      const at: number = (base + info) / 8;
+      return {
+        status: code === 0 ? heap.floats[at] : -code,
+        iterations: heap.floats[at + 1],
+        primalResidual: heap.floats[at + 2],
+        dualResidual: heap.floats[at + 3],
+        objective: heap.floats[at + 4],
+        dualObjective: heap.floats[at + 5],
+        primal: Array.from(
+          heap.floats.subarray((base + primal) / 8, (base + primal) / 8 + n),
+        ),
+        dual: Array.from(
+          heap.floats.subarray((base + dual) / 8, (base + dual) / 8 + m),
+        ),
+      };
+    },
+  );
 }

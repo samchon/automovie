@@ -93,8 +93,16 @@ export function minimizeAutoMovieMeshClearance(
     const a: number = 3 * indices[i]!;
     const b: number = 3 * indices[i + 1]!;
     const c: number = 3 * indices[i + 2]!;
-    const u: number[] = [p[b]! - p[a]!, p[b + 1]! - p[a + 1]!, p[b + 2]! - p[a + 2]!];
-    const v: number[] = [p[c]! - p[a]!, p[c + 1]! - p[a + 1]!, p[c + 2]! - p[a + 2]!];
+    const u: number[] = [
+      p[b]! - p[a]!,
+      p[b + 1]! - p[a + 1]!,
+      p[b + 2]! - p[a + 2]!,
+    ];
+    const v: number[] = [
+      p[c]! - p[a]!,
+      p[c + 1]! - p[a + 1]!,
+      p[c + 2]! - p[a + 2]!,
+    ];
     // One third of physical triangle area is each incident vertex's lumped mass.
     const area: number =
       Math.hypot(

@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * The closest pair of points between two bounded segments `a→b` and `c→d`,
  * and their separation, as `closestPointsBetweenSegments` returns them.

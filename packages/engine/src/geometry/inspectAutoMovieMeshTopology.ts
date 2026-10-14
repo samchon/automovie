@@ -25,7 +25,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local storage includes at most three edge keys per triangle, a generated index run for nonindexed input and the optional physical-vertex correspondence. Only the returned degenerate ordinal list and scalar report survive; no mesh or topology cache is retained.
  * @author Samchon
  */
-export const inspectAutoMovieMeshTopology: (mesh: IAutoMovieMesh) => IAutoMovieMeshTopology = (
+export const inspectAutoMovieMeshTopology: (
+  mesh: IAutoMovieMesh,
+) => IAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,
 ): IAutoMovieMeshTopology => {
   const nonFinite: number =
@@ -65,9 +67,7 @@ export const inspectAutoMovieMeshTopology: (mesh: IAutoMovieMesh) => IAutoMovieM
       // The degenerate skip above leaves three distinct corner keys, so the
       // two ends of an edge can never compare equal here.
       const name: string = [corners[edge]!, corners[(edge + 1) % 3]!]
-        .sort((left: string, right: string): number =>
-          left < right ? -1 : 1,
-        )
+        .sort((left: string, right: string): number => (left < right ? -1 : 1))
         .join("|");
       edges.set(name, (edges.get(name) ?? 0) + 1);
     }
@@ -103,7 +103,9 @@ export const inspectAutoMovieMeshTopology: (mesh: IAutoMovieMesh) => IAutoMovieM
 /**
  * How many components of one optional attribute buffer are not finite numbers, counted in place so measuring a merged building never allocates a second copy of its buffers.
  */
-const countNonFinite: (values: readonly number[] | null) => number = (values: readonly number[] | null): number => {
+const countNonFinite: (values: readonly number[] | null) => number = (
+  values: readonly number[] | null,
+): number => {
   if (values === null) return 0;
   let count: number = 0;
   for (const value of values) if (Number.isFinite(value) === false) ++count;

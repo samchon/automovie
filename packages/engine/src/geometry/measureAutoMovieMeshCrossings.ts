@@ -300,9 +300,8 @@ const pierces = (
 
 /** The axis to drop when flattening a plane with this normal, keeping area. */
 const dominant = (normal: number[]): number =>
-  [0, 1, 2].reduce(
-    (best: number, axis: number): number =>
-      Math.abs(normal[axis]!) > Math.abs(normal[best]!) ? axis : best,
+  [0, 1, 2].reduce((best: number, axis: number): number =>
+    Math.abs(normal[axis]!) > Math.abs(normal[best]!) ? axis : best,
   );
 
 /** A point with one axis dropped. */

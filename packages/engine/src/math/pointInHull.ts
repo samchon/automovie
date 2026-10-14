@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * Is `point` inside (or on the boundary of) a counter-clockwise hull? Always
  * `false` for a degenerate hull of fewer than three vertices (a point or a
@@ -12,7 +13,10 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Each edge is tested once for the current point; no membership cache outlives mutable hull coordinates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Loop and determinant scalars are the only live state; no hull copy, query history or native resource is acquired.
  */
-export const pointInHull: (point: IAutoMovieVector3, hull: readonly IAutoMovieVector3[]) => boolean = (
+export const pointInHull: (
+  point: IAutoMovieVector3,
+  hull: readonly IAutoMovieVector3[],
+) => boolean = (
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
 ): boolean => {
@@ -25,7 +29,11 @@ export const pointInHull: (point: IAutoMovieVector3, hull: readonly IAutoMovieVe
 
 const EPSILON: number = 1e-9;
 
-const cross: (o: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+const cross: (
+  o: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+) => number = (
   o: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,

@@ -15,11 +15,11 @@ import { positiveModulo } from "./positiveModulo";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reuses the two normalized operands for the overflow decision and result; no mutable gait or clock verdict is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar without retaining operands, allocating records or acquiring resources.
  */
-export const addPositiveModulo: (value: number, offset: number, period: number) => number = (
+export const addPositiveModulo: (
   value: number,
   offset: number,
   period: number,
-): number => {
+) => number = (value: number, offset: number, period: number): number => {
   const left: number = positiveModulo(value, period);
   const right: number = positiveModulo(offset, period);
   const sum: number = left + right;

@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * Pure vector math over {@link IAutoMovieVector3} (`{ x, y, z }`).
  *
@@ -26,7 +27,11 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per call that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The new coordinate record owns three supplied scalars, including zero defaults, and no global origin object is shared.
    */
-  export const create: (x?: number, y?: number, z?: number) => IAutoMovieVector3 = (
+  export const create: (
+    x?: number,
+    y?: number,
+    z?: number,
+  ) => IAutoMovieVector3 = (
     x: number = 0,
     y: number = 0,
     z: number = 0,
@@ -47,7 +52,10 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Position and offset sums depend on current coordinate values, and this operation stores no prior addition result.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three coordinate sums transfer into one fresh record, leaving both input objects unretained and unchanged.
    */
-  export const add: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
+  export const add: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -67,7 +75,10 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A displacement belongs to its current endpoint coordinates; there is no retained endpoint-pair result to invalidate.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One fresh displacement record holds three differences and retains neither source point.
    */
-  export const subtract: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
+  export const subtract: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
@@ -103,8 +114,10 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each inner product uses the current pair of vector components; projection callers own any reuse of the resulting scalar.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Component products sum directly to a scalar without allocating a record or retaining operands.
    */
-  export const dot: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    a.x * b.x + a.y * b.y + a.z * b.z;
+  export const dot: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => a.x * b.x + a.y * b.y + a.z * b.z;
 
   /**
    * The right-handed cross product `a × b`, perpendicular to both with length
@@ -118,7 +131,10 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The oriented perpendicular depends on the current ordered pair; swapping or changing an operand requires a new product.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three determinant components form one owned perpendicular record, and neither input direction is retained.
    */
-  export const cross: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
+  export const cross: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -145,7 +161,9 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The magnitude range is read from the current components once; no length cache survives mutations of a vector record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Magnitude checks and the returned norm use scalars only, with no allocated vector or retained source.
    */
-  export const length: (a: IAutoMovieVector3) => number = (a: IAutoMovieVector3): number =>
+  export const length: (a: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+  ): number =>
     normalizationScale(a) === 0
       ? Math.sqrt(dot(a, a))
       : Math.hypot(a.x, a.y, a.z);
@@ -167,7 +185,9 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The selected positive rescaling supplies all normalized components within the call; directions are not cached for mutable source records.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the rescaled vector when extreme and the returned record, and retains nothing.
    */
-  export const normalize: (a: IAutoMovieVector3) => IAutoMovieVector3 = (a: IAutoMovieVector3): IAutoMovieVector3 => {
+  export const normalize: (a: IAutoMovieVector3) => IAutoMovieVector3 = (
+    a: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const divisor: number = normalizationScale(a);
     const value: IAutoMovieVector3 =
       divisor === 0
@@ -183,7 +203,9 @@ export namespace Vector3 {
    * number and the sum of three squares cannot overflow, so the plain formula
    * is safe; zero and non-finite vectors also return zero and take it.
    */
-  const normalizationScale: (a: IAutoMovieVector3) => number = (a: IAutoMovieVector3): number => {
+  const normalizationScale: (a: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+  ): number => {
     const largest: number = Math.max(
       Math.abs(a.x),
       Math.abs(a.y),
@@ -209,7 +231,11 @@ export namespace Vector3 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors and a parameter that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each interpolated point owns three computed coordinates, with no endpoint or progress history retained.
    */
-  export const lerp: (a: IAutoMovieVector3, b: IAutoMovieVector3, t: number) => IAutoMovieVector3 = (
+  export const lerp: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    t: number,
+  ) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     t: number,

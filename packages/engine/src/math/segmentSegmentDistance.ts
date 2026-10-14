@@ -1,5 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
+
 /**
  * Minimum separation of bounded segments in one metre coordinate frame.
  * The closest-pair owner supplies both this scalar and the contact-normal
@@ -15,7 +17,12 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Witness records become unreachable after the scalar returns; no segment pair or collision history is retained.
  * @author Samchon
  */
-export const segmentSegmentDistance: (a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3, d: IAutoMovieVector3) => number = (
+export const segmentSegmentDistance: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+  d: IAutoMovieVector3,
+) => number = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,

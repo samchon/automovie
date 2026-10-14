@@ -1,5 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "./Quaternion";
+
 /**
  * Unit quaternion of the rotation whose columns are the orthonormal vectors
  * `x`, `y`, `z` (local axes expressed in world). Shepperd's method: pick the

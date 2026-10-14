@@ -1,4 +1,3 @@
-
 /** One directed use of an undirected edge by a source triangle. */
 interface IEdgeUse {
   triangle: number;
@@ -52,12 +51,13 @@ export function selectAutoMovieTriangleRegion(props: {
     throw new Error(
       "A triangle region needs complete triangles and distinct nonnegative boundary vertices.",
     );
-  const key: (a: number, b: number) => string = (a: number, b: number): string =>
-    Math.min(a, b) + "/" + Math.max(a, b);
+  const key: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => Math.min(a, b) + "/" + Math.max(a, b);
   const barriers: Set<string> = new Set(
-    boundary.map(
-      (a: number, i: number): string =>
-        key(a, boundary[(i + 1) % boundary.length]!),
+    boundary.map((a: number, i: number): string =>
+      key(a, boundary[(i + 1) % boundary.length]!),
     ),
   );
   const edges: Map<string, IEdgeUse[]> = new Map();
@@ -79,7 +79,10 @@ export function selectAutoMovieTriangleRegion(props: {
       const identity: string = key(a, b);
       identities.push(identity);
       const incident: IEdgeUse[] = edges.get(identity) ?? [];
-      if (incident.length === 2 || incident.some((edge: IEdgeUse): boolean => edge.a === a))
+      if (
+        incident.length === 2 ||
+        incident.some((edge: IEdgeUse): boolean => edge.a === a)
+      )
         throw new Error(
           "A region source must have consistently wound manifold edges.",
         );

@@ -1,4 +1,3 @@
-
 /**
  * One scalar component of glTF cubic Hermite interpolation.
  *
@@ -15,7 +14,14 @@
  * @evidence contracts/performance.md#reuse-equivalent-work All basis terms reuse the same time powers; no sampled component is cached across changing times.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar powers and the returned component exist, without retained keys, tangents or sample history.
  */
-export const cubicHermiteValue: (left: number, outTangent: number, right: number, inTangent: number, span: number, t: number) => number = (
+export const cubicHermiteValue: (
+  left: number,
+  outTangent: number,
+  right: number,
+  inTangent: number,
+  span: number,
+  t: number,
+) => number = (
   left: number,
   outTangent: number,
   right: number,

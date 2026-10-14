@@ -1,6 +1,8 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
+
 /**
  * Shortest-arc rotation from finite vector `a` to finite vector `b`, using
  * atan2 without a near-parallel identity deadzone. Iterative world-driver IK
@@ -30,7 +32,10 @@ import { Vector3 } from "./Vector3";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
  * @author Samchon
  */
-export const rotationBetween: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieQuaternion = (
+export const rotationBetween: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {

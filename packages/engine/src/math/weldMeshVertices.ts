@@ -41,9 +41,13 @@ export function weldMeshVertices(positions: readonly number[]): {
   return { labels, vertices };
 }
 
-const axisLabel: (coordinate: number) => string = (coordinate: number): string => {
+const axisLabel: (coordinate: number) => string = (
+  coordinate: number,
+): string => {
   if (!Number.isFinite(coordinate))
     throw new Error("Mesh welding requires complete finite XYZ tuples.");
   const rounded: number = Math.round(coordinate * MESH_WELD_GRID);
-  return Number.isSafeInteger(rounded) ? String(rounded || 0) : `=${coordinate}`;
+  return Number.isSafeInteger(rounded)
+    ? String(rounded || 0)
+    : `=${coordinate}`;
 };

@@ -1,4 +1,5 @@
 import { ITwoBoneIK } from "./ITwoBoneIK";
+
 const acosDeg: (x: number) => number = (x: number): number =>
   (Math.acos(Math.min(1, Math.max(-1, x))) * 180) / Math.PI;
 
@@ -32,7 +33,11 @@ const acosDeg: (x: number) => number = (x: number): number =>
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned record.
  * @author Samchon
  */
-export const solveTwoBoneIK: (upper: number, lower: number, distance: number) => ITwoBoneIK = (
+export const solveTwoBoneIK: (
+  upper: number,
+  lower: number,
+  distance: number,
+) => ITwoBoneIK = (
   upper: number,
   lower: number,
   distance: number,
@@ -63,10 +68,10 @@ export const solveTwoBoneIK: (upper: number, lower: number, distance: number) =>
   return { bend, lift, clamped };
 };
 
-const validateSegmentLength: (label: "upper" | "lower", value: number) => void = (
+const validateSegmentLength: (
   label: "upper" | "lower",
   value: number,
-): void => {
+) => void = (label: "upper" | "lower", value: number): void => {
   if (!Number.isFinite(value))
     throw new Error(
       `two-bone IK ${label} length must be finite, but was ${value}`,
@@ -77,7 +82,9 @@ const validateSegmentLength: (label: "upper" | "lower", value: number) => void =
     );
 };
 
-const validateDistance: (distance: number) => void = (distance: number): void => {
+const validateDistance: (distance: number) => void = (
+  distance: number,
+): void => {
   if (!Number.isFinite(distance))
     throw new Error(`two-bone IK distance must be finite, but was ${distance}`);
   if (distance < 0)

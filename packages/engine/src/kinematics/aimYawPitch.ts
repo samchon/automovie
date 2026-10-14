@@ -1,4 +1,5 @@
 import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
+
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /**
@@ -34,7 +35,11 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned pair.
  * @author Samchon
  */
-export const aimYawPitch: (from: IAutoMovieVector3, to: IAutoMovieVector3, facingDeg: number) => IAutoMovieYawPitch = (
+export const aimYawPitch: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  facingDeg: number,
+) => IAutoMovieYawPitch = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   facingDeg: number,
@@ -47,7 +52,14 @@ export const aimYawPitch: (from: IAutoMovieVector3, to: IAutoMovieVector3, facin
   let dz: number = to.z - from.z;
   if (dx === 0 && dy === 0 && dz === 0) return { yawDeg: 0, pitchDeg: 0 };
   if (!Number.isFinite(dx) || !Number.isFinite(dy) || !Number.isFinite(dz)) {
-    const scale: number = Math.max(Math.abs(from.x), Math.abs(from.y), Math.abs(from.z), Math.abs(to.x), Math.abs(to.y), Math.abs(to.z));
+    const scale: number = Math.max(
+      Math.abs(from.x),
+      Math.abs(from.y),
+      Math.abs(from.z),
+      Math.abs(to.x),
+      Math.abs(to.y),
+      Math.abs(to.z),
+    );
     dx = to.x / scale - from.x / scale;
     dy = to.y / scale - from.y / scale;
     dz = to.z / scale - from.z / scale;
@@ -72,15 +84,18 @@ export const aimYawPitch: (from: IAutoMovieVector3, to: IAutoMovieVector3, facin
   };
 };
 
-const validateVector: (label: "from" | "to", value: IAutoMovieVector3) => void = (
+const validateVector: (
   label: "from" | "to",
   value: IAutoMovieVector3,
-): void => {
+) => void = (label: "from" | "to", value: IAutoMovieVector3): void => {
   for (const axis of VECTOR_AXES)
     validateFinite(`${label}.${axis}`, value[axis]);
 };
 
-const validateFinite: (label: string, value: number) => void = (label: string, value: number): void => {
+const validateFinite: (label: string, value: number) => void = (
+  label: string,
+  value: number,
+): void => {
   if (!Number.isFinite(value))
     throw new Error(`aimYawPitch ${label} must be finite, but was ${value}`);
 };

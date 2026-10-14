@@ -1,4 +1,3 @@
-
 /**
  * Physical vertex identity of every render vertex in one mesh, returned by
  * `resolveAutoMovieMeshPhysicalVertices`.

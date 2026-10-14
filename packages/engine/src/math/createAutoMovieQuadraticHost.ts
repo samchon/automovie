@@ -1,4 +1,3 @@
-
 /**
  * Closed WASI environment for the synchronous quadratic kernel. Rust's runtime
  * imports these functions even though the solver has no external I/O contract.
@@ -24,7 +23,17 @@
  * @evidence contracts/performance.md#reuse-equivalent-work One getter and tick counter are shared within a reactor; independent owners receive separate counters and memory.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The import record retains its getter and one bigint counter for the reactor lifetime; individual views allocate no separate linear-memory bytes.
  */
-export function createAutoMovieQuadraticHost(memory: () => WebAssembly.Memory): { clock_time_get(id: number, _precision: bigint, address: number): number; random_get(address: number, length: number): number; environ_sizes_get(count: number, bytes: number): number; environ_get(): number; fd_close(): number; fd_write(): number; proc_exit(code: number): never; } {
+export function createAutoMovieQuadraticHost(
+  memory: () => WebAssembly.Memory,
+): {
+  clock_time_get(id: number, _precision: bigint, address: number): number;
+  random_get(address: number, length: number): number;
+  environ_sizes_get(count: number, bytes: number): number;
+  environ_get(): number;
+  fd_close(): number;
+  fd_write(): number;
+  proc_exit(code: number): never;
+} {
   let ticks: bigint = 0n;
   return {
     clock_time_get(id: number, _precision: bigint, address: number): number {

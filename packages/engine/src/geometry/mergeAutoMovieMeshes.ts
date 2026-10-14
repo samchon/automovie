@@ -66,10 +66,7 @@ export const mergeAutoMovieMeshes = (
       throw new Error(`${label} needs one uv pair per vertex`);
     if (mesh.colors !== undefined && mesh.colors.length !== count * 3)
       throw new Error(`${label} needs one colour per vertex`);
-    if (
-      mesh.reliefWeights !== undefined &&
-      mesh.reliefWeights.length !== count
-    )
+    if (mesh.reliefWeights !== undefined && mesh.reliefWeights.length !== count)
       throw new Error(`${label} needs one relief weight per vertex`);
   });
   const keepPhysical: boolean = meshes.some(

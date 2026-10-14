@@ -126,9 +126,10 @@ export function createAutoMovieMeshSeparationQuery(
     });
   }
   const byId: Map<number, IResidentTriangle> = new Map(
-    triangles.map(
-      (t: IResidentTriangle): [number, IResidentTriangle] => [t.id, t],
-    ),
+    triangles.map((t: IResidentTriangle): [number, IResidentTriangle] => [
+      t.id,
+      t,
+    ]),
   );
   const root: IAutoMovieMeshQueryHierarchy<IResidentTriangle> =
     buildAutoMovieMeshQueryHierarchy(triangles);
@@ -249,7 +250,9 @@ export function createAutoMovieMeshSeparationQuery(
         attachmentCaps.push({ triangle: id, cap: proof.cap });
       }
     }
-    const visit = (node: IAutoMovieMeshQueryHierarchy<IResidentTriangle>): void => {
+    const visit = (
+      node: IAutoMovieMeshQueryHierarchy<IResidentTriangle>,
+    ): void => {
       if (refute && lowerBound < sufficient) return;
       spend();
       // Along a coordinate axis the two opposite corners give the complete

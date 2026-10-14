@@ -1,9 +1,11 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
 import { aimRotation } from "./aimRotation";
+
 const RAD2DEG: number = 180 / Math.PI;
 
 /**
@@ -57,7 +59,18 @@ const SPAN_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the current best candidate during the sweep and retains nothing after it; the caller owns the returned rotations.
  * @author Samchon
  */
-export const hingedArmArticulation: (props: { upper: IAutoMovieChainBone; midOffset: IAutoMovieVector3; midRest: IAutoMovieQuaternion; endOffset: IAutoMovieVector3; hinge: IAutoMovieVector3; target: IAutoMovieVector3; score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => { overshoot: number; deviation: number; }; }) => IAutoMovieHingedArticulation | null = (props: {
+export const hingedArmArticulation: (props: {
+  upper: IAutoMovieChainBone;
+  midOffset: IAutoMovieVector3;
+  midRest: IAutoMovieQuaternion;
+  endOffset: IAutoMovieVector3;
+  hinge: IAutoMovieVector3;
+  target: IAutoMovieVector3;
+  score: (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+  ) => { overshoot: number; deviation: number };
+}) => IAutoMovieHingedArticulation | null = (props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
 
@@ -109,8 +122,9 @@ export const hingedArmArticulation: (props: { upper: IAutoMovieChainBone; midOff
     Vector3.scale(hinge, along),
   );
   const radius: number = Vector3.length(swung);
-  const rotated: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(props.midRest, vector);
+  const rotated: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
+    vector: IAutoMovieVector3,
+  ): IAutoMovieVector3 => Quaternion.rotateVector(props.midRest, vector);
   const k: number =
     Vector3.dot(midOffset, midOffset) +
     Vector3.dot(endOffset, endOffset) +

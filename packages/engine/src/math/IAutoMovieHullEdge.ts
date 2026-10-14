@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * The support-hull boundary edge nearest to a query point, as
  * `nearestHullEdge` returns it: the axis an object tips over when its centre of

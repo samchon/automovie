@@ -1,7 +1,9 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
 import { rotationBetween } from "./rotationBetween";
+
 /**
  * Pure 4×4 matrix math in column-major order, element `m[col * 4 + row]`, the
  * storage order of glTF and `three.js`.
@@ -60,7 +62,11 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one transform that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Doubled quaternion components remain scalar locals, and the sixteen composed coefficients transfer to the caller without retaining the translation or scale records.
    */
-  export const compose: (t: IAutoMovieVector3, r: IAutoMovieQuaternion, s: IAutoMovieVector3) => number[] = (
+  export const compose: (
+    t: IAutoMovieVector3,
+    r: IAutoMovieQuaternion,
+    s: IAutoMovieVector3,
+  ) => number[] = (
     t: IAutoMovieVector3,
     r: IAutoMovieQuaternion,
     s: IAutoMovieVector3,
@@ -112,7 +118,10 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two matrices that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One sixteen-entry product array accumulates the sums and becomes caller-owned; neither operand is retained or overwritten.
    */
-  export const multiply: (a: number[], b: number[]) => number[] = (a: number[], b: number[]): number[] => {
+  export const multiply: (a: number[], b: number[]) => number[] = (
+    a: number[],
+    b: number[],
+  ): number[] => {
     const out: number[] = new Array<number>(16);
     for (let col: number = 0; col < 4; ++col)
       for (let row: number = 0; row < 4; ++row) {
@@ -139,7 +148,9 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure read that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The extracted origin owns its three copied translation values and keeps no reference to the matrix array.
    */
-  export const position: (m: number[]) => IAutoMovieVector3 = (m: number[]): IAutoMovieVector3 => ({
+  export const position: (m: number[]) => IAutoMovieVector3 = (
+    m: number[],
+  ): IAutoMovieVector3 => ({
     x: m[12]!,
     y: m[13]!,
     z: m[14]!,
@@ -166,7 +177,10 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map of one point that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the returned point only and retains nothing.
    */
-  export const transformPoint: (m: number[], p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  export const transformPoint: (
+    m: number[],
+    p: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     m: number[],
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -186,7 +200,9 @@ export namespace Matrix4 {
    * Replaces each null (collapsed) column of a unit basis with its orthonormal
    * completion, leaving every present column unchanged.
    */
-  const completeBasis: (columns: readonly (IAutoMovieVector3 | null)[]) => IAutoMovieVector3[] = (
+  const completeBasis: (
+    columns: readonly (IAutoMovieVector3 | null)[],
+  ) => IAutoMovieVector3[] = (
     columns: readonly (IAutoMovieVector3 | null)[],
   ): IAutoMovieVector3[] => {
     const present: number[] = [0, 1, 2].filter(
@@ -201,7 +217,8 @@ export namespace Matrix4 {
       // Parallel survivors span one direction only, like a single survivor.
       if (Vector3.length(normal) === 0)
         return alignedBasis((missing + 1) % 3, next);
-      const completed: IAutoMovieVector3[] = columns.slice() as IAutoMovieVector3[];
+      const completed: IAutoMovieVector3[] =
+        columns.slice() as IAutoMovieVector3[];
       completed[missing] = Vector3.normalize(normal);
       return completed;
     }
@@ -215,7 +232,10 @@ export namespace Matrix4 {
    * `axis` onto the unit vector `direction`, with that column set to
    * `direction` itself.
    */
-  const alignedBasis: (axis: number, direction: IAutoMovieVector3) => IAutoMovieVector3[] = (
+  const alignedBasis: (
+    axis: number,
+    direction: IAutoMovieVector3,
+  ) => IAutoMovieVector3[] = (
     axis: number,
     direction: IAutoMovieVector3,
   ): IAutoMovieVector3[] => {
@@ -258,7 +278,11 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one matrix that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the three basis vectors and the returned record and retains nothing.
    */
-  export const decompose: (m: number[]) => { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = (
+  export const decompose: (m: number[]) => {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = (
     m: number[],
   ): {
     position: IAutoMovieVector3;

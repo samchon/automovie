@@ -45,10 +45,7 @@ export function buildAutoMovieMeshQueryHierarchy<
   if (entries.length <= 12) return { low, high, triangles: entries };
   let axis: number = 0;
   for (let candidate: number = 1; candidate < 3; candidate++)
-    if (
-      high[candidate]! - low[candidate]! >
-      high[axis]! - low[axis]!
-    )
+    if (high[candidate]! - low[candidate]! > high[axis]! - low[axis]!)
       axis = candidate;
   entries.sort((a: T, b: T): number => a.centre[axis]! - b.centre[axis]!);
   const middle: number = Math.floor(entries.length / 2);

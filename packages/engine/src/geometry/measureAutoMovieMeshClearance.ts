@@ -110,15 +110,16 @@ type ITriangleTree = {
  * Halved spans and quarter-coordinate centre differences keep ordering
  * arithmetic finite even when the full coordinate range would overflow.
  */
-const triangleTree = (
-  list: IProjectedTriangle[],
-): ITriangleTree | null => {
+const triangleTree = (list: IProjectedTriangle[]): ITriangleTree | null => {
   if (list.length === 0) return null;
   const bounds: number[] = [Infinity, Infinity, -Infinity, -Infinity];
   for (const triangle of list)
     for (let axis: number = 0; axis < 2; axis++) {
       bounds[axis] = Math.min(bounds[axis]!, triangle.bounds[axis]!);
-      bounds[axis + 2] = Math.max(bounds[axis + 2]!, triangle.bounds[axis + 2]!);
+      bounds[axis + 2] = Math.max(
+        bounds[axis + 2]!,
+        triangle.bounds[axis + 2]!,
+      );
     }
   if (list.length <= 8) return { bounds, triangles: list };
   const axis: number =
@@ -180,7 +181,9 @@ const triangles = (
   for (let i: number = 0; i < indices.length; i += 3) {
     const vertices: number[] = indices.slice(i, i + 3);
     const points: number[][] = vertices.map((id: number): number[] =>
-      axes.map((component: number): number => mesh.positions[3 * id + component]!),
+      axes.map(
+        (component: number): number => mesh.positions[3 * id + component]!,
+      ),
     );
     const a: number[] = points[0]!;
     const b: number[] = points[1]!;

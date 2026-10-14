@@ -1,7 +1,9 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
+
 type AutoMovieJointAxis = "flexion" | "abduction" | "twist";
 
 const JOINT_AXES: readonly AutoMovieJointAxis[] = [
@@ -19,12 +21,14 @@ const MIN_AXIS_LENGTH: number = 1e-9;
 const MAX_AXIS_DOT: number = 1e-6;
 
 /** The axis pairs whose orthogonality is checked, reported on the second. */
-const AXIS_PAIRS: readonly (readonly [AutoMovieJointAxis, AutoMovieJointAxis])[] =
-  [
-    ["flexion", "abduction"],
-    ["flexion", "twist"],
-    ["abduction", "twist"],
-  ];
+const AXIS_PAIRS: readonly (readonly [
+  AutoMovieJointAxis,
+  AutoMovieJointAxis,
+])[] = [
+  ["flexion", "abduction"],
+  ["flexion", "twist"],
+  ["abduction", "twist"],
+];
 
 /**
  * Every reason a joint-axis basis cannot serve the clinical angle
@@ -50,7 +54,10 @@ const AXIS_PAIRS: readonly (readonly [AutoMovieJointAxis, AutoMovieJointAxis])[]
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned issues.
  * @author Samchon
  */
-export const validateJointAxesBasis: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxesIssue[] = (
+export const validateJointAxesBasis: (
+  axes: IAutoMovieJointAxes,
+  path: string,
+) => IAutoMovieJointAxesIssue[] = (
   axes: IAutoMovieJointAxes,
   path: string,
 ): IAutoMovieJointAxesIssue[] => {

@@ -1,7 +1,9 @@
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
+
 import { ITessellation } from "./ITessellation";
 import { PRIMITIVE_RADIAL_SEGMENTS } from "./constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
+
 /**
  * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.
  *
@@ -32,16 +34,27 @@ import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
  *
  * @author Samchon
  */
-export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (shape: AutoMoviePrimitiveShape): ITessellation => {
+export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (
+  shape: AutoMoviePrimitiveShape,
+): ITessellation => {
   switch (shape.type) {
     case "box":
       return box(shape.width, shape.height, shape.depth);
     case "plane":
       return box(shape.width, 0, shape.depth);
     case "sphere":
-      return sphere(shape.radius, PRIMITIVE_RADIAL_SEGMENTS, PRIMITIVE_SPHERE_RINGS);
+      return sphere(
+        shape.radius,
+        PRIMITIVE_RADIAL_SEGMENTS,
+        PRIMITIVE_SPHERE_RINGS,
+      );
     case "cylinder":
-      return cylinder(shape.radius, shape.radius, shape.height, PRIMITIVE_RADIAL_SEGMENTS);
+      return cylinder(
+        shape.radius,
+        shape.radius,
+        shape.height,
+        PRIMITIVE_RADIAL_SEGMENTS,
+      );
     case "cone":
       return cylinder(shape.radius, 0, shape.height, PRIMITIVE_RADIAL_SEGMENTS);
     case "capsule":
@@ -61,7 +74,11 @@ export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (sh
   }
 };
 
-const box: (w: number, h: number, d: number) => ITessellation = (w: number, h: number, d: number): ITessellation => {
+const box: (w: number, h: number, d: number) => ITessellation = (
+  w: number,
+  h: number,
+  d: number,
+): ITessellation => {
   const x: number = w / 2;
   const y: number = h / 2;
   const z: number = d / 2;
@@ -105,7 +122,11 @@ const box: (w: number, h: number, d: number) => ITessellation = (w: number, h: n
   return { positions, normals, indices };
 };
 
-const sphere: (radius: number, segments: number, rings: number) => ITessellation = (
+const sphere: (
+  radius: number,
+  segments: number,
+  rings: number,
+) => ITessellation = (
   radius: number,
   segments: number,
   rings: number,
@@ -138,7 +159,12 @@ const sphere: (radius: number, segments: number, rings: number) => ITessellation
   return { positions, normals, indices };
 };
 
-const cylinder: (radiusTop: number, radiusBottom: number, height: number, segments: number) => ITessellation = (
+const cylinder: (
+  radiusTop: number,
+  radiusBottom: number,
+  height: number,
+  segments: number,
+) => ITessellation = (
   radiusTop: number,
   radiusBottom: number,
   height: number,
@@ -172,7 +198,11 @@ const cylinder: (radiusTop: number, radiusBottom: number, height: number, segmen
   // Cap disks close the solid (#1143): a fan per non-degenerate end, flat ±Y
   // normals, wound counter-clockwise seen from outside like everything else.
   // Without them the tube is open and a top-down framing sees through the prop.
-  const cap: (radius: number, y: number, up: 1 | -1) => void = (radius: number, y: number, up: 1 | -1): void => {
+  const cap: (radius: number, y: number, up: 1 | -1) => void = (
+    radius: number,
+    y: number,
+    up: 1 | -1,
+  ): void => {
     if (radius <= 0) return; // a cone's apex end is a point, not a disk
     const center: number = positions.length / 3;
     positions.push(0, y, 0);

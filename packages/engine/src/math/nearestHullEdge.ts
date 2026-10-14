@@ -1,6 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieHullEdge } from "./IAutoMovieHullEdge";
 import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
+
 /**
  * The hull boundary edge nearest to `point`, the tip-over axis when an object
  * topples over that edge. A single-vertex hull degenerates to a zero-length
@@ -16,11 +18,15 @@ import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
  * @evidence contracts/performance.md#reuse-equivalent-work Selection and distance measurement share one scan; a changed query point requires another boundary search.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the current best record remains during the call; its returned endpoints alias source vertices rather than copying hull geometry.
  */
-export const nearestHullEdge: (point: IAutoMovieVector3, hull: readonly IAutoMovieVector3[]) => IAutoMovieHullEdge = (
+export const nearestHullEdge: (
+  point: IAutoMovieVector3,
+  hull: readonly IAutoMovieVector3[],
+) => IAutoMovieHullEdge = (
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
 ): IAutoMovieHullEdge => {
-  if (hull.length === 0) throw new Error("Nearest hull edge needs a nonempty hull.");
+  if (hull.length === 0)
+    throw new Error("Nearest hull edge needs a nonempty hull.");
   if (hull.length === 1)
     return {
       start: hull[0]!,
@@ -45,5 +51,7 @@ export const nearestHullEdge: (point: IAutoMovieVector3, hull: readonly IAutoMov
   return best;
 };
 
-const distanceXZ: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.z - b.z);
+const distanceXZ: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.z - b.z);

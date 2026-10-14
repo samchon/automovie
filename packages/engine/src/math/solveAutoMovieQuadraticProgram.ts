@@ -32,12 +32,12 @@ export function solveAutoMovieQuadraticProgram(input: {
   maximumViolation: number;
   stationarityResidual: number;
 } {
-  const result: ReturnType<typeof solveAutoMovieQuadraticKernel> = solveAutoMovieQuadraticKernel(
-    assembleAutoMovieQuadraticProgram(input),
-  );
+  const result: ReturnType<typeof solveAutoMovieQuadraticKernel> =
+    solveAutoMovieQuadraticKernel(assembleAutoMovieQuadraticProgram(input));
   let maximumViolation: number = 0;
   const gradient: number[] = input.linear.map(
-    (value: number, i: number): number => value + input.diagonal[i]! * result.primal[i]!,
+    (value: number, i: number): number =>
+      value + input.diagonal[i]! * result.primal[i]!,
   );
   for (let i: number = 0; i < input.rows.length; i++) {
     const row: IAutoMovieQuadraticRow = input.rows[i]!;

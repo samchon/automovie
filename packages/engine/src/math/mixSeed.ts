@@ -1,4 +1,3 @@
-
 /**
  * Fold one full safe-integer seed into a domain-separated 32-bit state.
  *
@@ -14,7 +13,10 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Seed halves are extracted once; folds retain no previous random-stream position across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar words and the unsigned result exist; no generator instance or entropy resource is retained.
  */
-export const mixSeed: (seed: number, salt: number) => number = (seed: number, salt: number): number => {
+export const mixSeed: (seed: number, salt: number) => number = (
+  seed: number,
+  salt: number,
+): number => {
   const integer: number = Math.trunc(seed);
   const low: number = integer >>> 0;
   const high: number = Math.floor(integer / 4_294_967_296) >>> 0;

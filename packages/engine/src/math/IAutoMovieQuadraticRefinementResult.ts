@@ -1,5 +1,6 @@
-import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
 import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
+import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
+
 /**
  * The solution `refineAutoMovieQuadraticProgram` returns for a diagonal
  * quadratic program, with its residuals measured on every original row.

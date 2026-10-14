@@ -14,7 +14,9 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar function that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing; it returns a number.
  */
-export const roundToThousandths: (value: number) => number = (value: number): number => {
+export const roundToThousandths: (value: number) => number = (
+  value: number,
+): number => {
   const scaled: number = value * 1_000;
   return Number.isFinite(value) && !Number.isFinite(scaled)
     ? value

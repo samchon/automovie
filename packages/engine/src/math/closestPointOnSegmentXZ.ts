@@ -1,5 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
+
 /**
  * Closest horizontal point on the closed start/end segment, with returned Y zero.
  * Exact coincident endpoints remain a point; every nonzero span remains a segment.
@@ -14,7 +16,11 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each hull edge supplies different endpoints; no stale projection is cached between edge queries.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lifted input records are temporary, and the returned closest witness belongs exclusively to the caller.
  */
-export const closestPointOnSegmentXZ: (point: Pick<IAutoMovieVector3, "x" | "z">, start: Pick<IAutoMovieVector3, "x" | "z">, end: Pick<IAutoMovieVector3, "x" | "z">) => IAutoMovieVector3 = (
+export const closestPointOnSegmentXZ: (
+  point: Pick<IAutoMovieVector3, "x" | "z">,
+  start: Pick<IAutoMovieVector3, "x" | "z">,
+  end: Pick<IAutoMovieVector3, "x" | "z">,
+) => IAutoMovieVector3 = (
   point: Pick<IAutoMovieVector3, "x" | "z">,
   start: Pick<IAutoMovieVector3, "x" | "z">,
   end: Pick<IAutoMovieVector3, "x" | "z">,

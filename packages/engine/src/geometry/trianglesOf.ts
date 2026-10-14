@@ -5,6 +5,7 @@ import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 import { planarCross } from "./planarCross";
 import { planarSegmentsMeet } from "./planarSegmentsMeet";
 import { pointInPlanarRing } from "./pointInPlanarRing";
+
 /**
  * Triangulate a canonical region without changing its point identities.
  *
@@ -22,7 +23,9 @@ import { pointInPlanarRing } from "./pointInPlanarRing";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call triangulates one region layout; loft reuses a section layout while requesting triangles only for its end caps, and no cache survives mutable points.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Working loops, shapes and bridge candidates exist only during triangulation and scale with region size; the caller receives only the new index array, with no retained point references.
  */
-export const trianglesOf: (region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">) => number[] = (
+export const trianglesOf: (
+  region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
+) => number[] = (
   region: Pick<IAutoMovieRegionTriangulation, "points" | "rings">,
 ): number[] => earClip(region.points, bridgeHoles(region.points, region.rings));
 
@@ -36,31 +39,48 @@ export const trianglesOf: (region: Pick<IAutoMovieRegionTriangulation, "points" 
  * it joins the outer boundary, so declaration order cannot make a valid region
  * impossible. Floating-point predicates can still exhaust the search and refuse.
  */
-const bridgeHoles: (points: readonly IAutoMovieProfilePoint[], rings: readonly IAutoMovieRegionRing[]) => number[] = (
+const bridgeHoles: (
+  points: readonly IAutoMovieProfilePoint[],
+  rings: readonly IAutoMovieRegionRing[],
+) => number[] = (
   points: readonly IAutoMovieProfilePoint[],
   rings: readonly IAutoMovieRegionRing[],
 ): number[] => {
   const loops: number[][] = rings.map((span: IAutoMovieRegionRing): number[] =>
-    Array.from({ length: span.count }, (_unused: unknown, index: number): number => span.start + index),
+    Array.from(
+      { length: span.count },
+      (_unused: unknown, index: number): number => span.start + index,
+    ),
   );
-  const shapes: IAutoMovieProfilePoint[][] = rings.map((span: IAutoMovieRegionRing): IAutoMovieProfilePoint[] =>
-    points.slice(span.start, span.start + span.count),
+  const shapes: IAutoMovieProfilePoint[][] = rings.map(
+    (span: IAutoMovieRegionRing): IAutoMovieProfilePoint[] =>
+      points.slice(span.start, span.start + span.count),
   );
   const ring: number[] = [...loops[0]!];
   const pending: Set<number> = new Set(
-    Array.from({ length: loops.length - 1 }, (_: unknown, index: number): number => index + 1),
+    Array.from(
+      { length: loops.length - 1 },
+      (_: unknown, index: number): number => index + 1,
+    ),
   );
   while (pending.size !== 0) {
     let bridge: { hole: number; at: number; from: number } | undefined;
     search: for (const hole of pending)
       for (let at: number = 0; at < ring.length; ++at)
         for (let from: number = 0; from < loops[hole]!.length; ++from)
-          if (bridgeIsClear(points, shapes, ring, loops, pending, hole, { at, from })) {
+          if (
+            bridgeIsClear(points, shapes, ring, loops, pending, hole, {
+              at,
+              from,
+            })
+          ) {
             bridge = { hole, at, from };
             break search;
           }
     if (bridge === undefined)
-      throw new Error("polygon triangulation could not find a visible hole bridge");
+      throw new Error(
+        "polygon triangulation could not find a visible hole bridge",
+      );
     const hole: number = bridge.hole;
     const rotated: number[] = [
       ...loops[hole]!.slice(bridge.from),
@@ -77,7 +97,15 @@ const bridgeHoles: (points: readonly IAutoMovieProfilePoint[], rings: readonly I
 };
 
 /** Does one candidate bridge stay inside the region and meet nothing? */
-const bridgeIsClear: (points: readonly IAutoMovieProfilePoint[], shapes: readonly (readonly IAutoMovieProfilePoint[])[], ring: readonly number[], loops: readonly (readonly number[])[], pending: ReadonlySet<number>, hole: number, candidate: { at: number; from: number; }) => boolean = (
+const bridgeIsClear: (
+  points: readonly IAutoMovieProfilePoint[],
+  shapes: readonly (readonly IAutoMovieProfilePoint[])[],
+  ring: readonly number[],
+  loops: readonly (readonly number[])[],
+  pending: ReadonlySet<number>,
+  hole: number,
+  candidate: { at: number; from: number },
+) => boolean = (
   points: readonly IAutoMovieProfilePoint[],
   shapes: ReadonlyArray<readonly IAutoMovieProfilePoint[]>,
   ring: readonly number[],
@@ -124,7 +152,8 @@ const bridgeIsClear: (points: readonly IAutoMovieProfilePoint[], shapes: readonl
   return (
     pointInPlanarRing(middle, shapes[0]!) &&
     shapes.every(
-      (shape: readonly IAutoMovieProfilePoint[], at: number): boolean => at === 0 || pointInPlanarRing(middle, shape) === false,
+      (shape: readonly IAutoMovieProfilePoint[], at: number): boolean =>
+        at === 0 || pointInPlanarRing(middle, shape) === false,
     )
   );
 };
@@ -136,7 +165,10 @@ const bridgeIsClear: (points: readonly IAutoMovieProfilePoint[], shapes: readonl
  * subdivision. Input validation does not prove that a floating-point ear search
  * succeeded; a failed search must refuse before an invalid index is emitted.
  */
-const earClip: (points: readonly IAutoMovieProfilePoint[], ring: readonly number[]) => number[] = (
+const earClip: (
+  points: readonly IAutoMovieProfilePoint[],
+  ring: readonly number[],
+) => number[] = (
   points: readonly IAutoMovieProfilePoint[],
   ring: readonly number[],
 ): number[] => {
@@ -144,8 +176,9 @@ const earClip: (points: readonly IAutoMovieProfilePoint[], ring: readonly number
   const triangles: number[] = [];
   for (let remaining: number = working.length; remaining > 3; --remaining) {
     const size: number = working.length;
-    const at: number = working.findIndex((_corner: number, index: number): boolean =>
-      isEar(points, working, index),
+    const at: number = working.findIndex(
+      (_corner: number, index: number): boolean =>
+        isEar(points, working, index),
     );
     if (at === -1)
       throw new Error("polygon triangulation could not find a valid ear");
@@ -167,7 +200,11 @@ const earClip: (points: readonly IAutoMovieProfilePoint[], ring: readonly number
  * only a zero-area chain for the remaining triangulation. A bridge repeats its
  * endpoints by index; those copies are the triangle's own corners, not blockers.
  */
-const isEar: (points: readonly IAutoMovieProfilePoint[], ring: readonly number[], at: number) => boolean = (
+const isEar: (
+  points: readonly IAutoMovieProfilePoint[],
+  ring: readonly number[],
+  at: number,
+) => boolean = (
   points: readonly IAutoMovieProfilePoint[],
   ring: readonly number[],
   at: number,
@@ -193,7 +230,12 @@ const isEar: (points: readonly IAutoMovieProfilePoint[], ring: readonly number[]
 };
 
 /** Is the point inside or on the counter-clockwise triangle `a b c`? */
-const insideOrOnTriangle: (a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint, c: IAutoMovieProfilePoint, point: IAutoMovieProfilePoint) => boolean = (
+const insideOrOnTriangle: (
+  a: IAutoMovieProfilePoint,
+  b: IAutoMovieProfilePoint,
+  c: IAutoMovieProfilePoint,
+  point: IAutoMovieProfilePoint,
+) => boolean = (
   a: IAutoMovieProfilePoint,
   b: IAutoMovieProfilePoint,
   c: IAutoMovieProfilePoint,

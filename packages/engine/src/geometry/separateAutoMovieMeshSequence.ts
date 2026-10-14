@@ -1,6 +1,8 @@
 import { IAutoMovieMesh } from "@automovie/interface";
+
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+
 /**
  * Separate an ordered mesh sequence along one positive local axis, retaining
  * every shape, normal and transverse coordinate. Each earlier/later pair passes
@@ -39,19 +41,23 @@ export function separateAutoMovieMeshSequence(
     throw new Error(
       "Mesh separation clearance must be finite and nonnegative.",
     );
-  const intervals: { minimum: number; maximum: number }[] = meshes.map((mesh: IAutoMovieMesh): { minimum: number; maximum: number } => {
-    triangleIndicesOf(mesh, "Mesh clearance (complete triangle buffers)");
-    for (let i: number = 0; i < mesh.positions.length; ++i)
-      if (!Number.isFinite(mesh.positions[i]))
-        throw new Error("Mesh clearance needs finite complete triangle buffers.");
-    let minimum: number = Infinity;
-    let maximum: number = -Infinity;
-    for (let i: number = depth; i < mesh.positions.length; i += 3) {
-      minimum = Math.min(minimum, mesh.positions[i]!);
-      maximum = Math.max(maximum, mesh.positions[i]!);
-    }
-    return { minimum, maximum };
-  });
+  const intervals: { minimum: number; maximum: number }[] = meshes.map(
+    (mesh: IAutoMovieMesh): { minimum: number; maximum: number } => {
+      triangleIndicesOf(mesh, "Mesh clearance (complete triangle buffers)");
+      for (let i: number = 0; i < mesh.positions.length; ++i)
+        if (!Number.isFinite(mesh.positions[i]))
+          throw new Error(
+            "Mesh clearance needs finite complete triangle buffers.",
+          );
+      let minimum: number = Infinity;
+      let maximum: number = -Infinity;
+      for (let i: number = depth; i < mesh.positions.length; i += 3) {
+        minimum = Math.min(minimum, mesh.positions[i]!);
+        maximum = Math.max(maximum, mesh.positions[i]!);
+      }
+      return { minimum, maximum };
+    },
+  );
   const travel: number[] = new Array<number>(meshes.length).fill(0);
   for (let later: number = 1; later < meshes.length; later++) {
     travel[later] = travel[later - 1]!;

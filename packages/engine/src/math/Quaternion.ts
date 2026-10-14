@@ -1,5 +1,11 @@
-import { IAutoMovieEuler, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieEuler,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
+
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z,
  * w)` in glTF order.
@@ -30,12 +36,13 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record is the contract, so sharing one would be wrong rather than cheaper.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each neutral rotation owns its four components, so caller mutation cannot alter another identity result.
    */
-  export const identity: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => ({
-    x: 0,
-    y: 0,
-    z: 0,
-    w: 1,
-  });
+  export const identity: () => IAutoMovieQuaternion =
+    (): IAutoMovieQuaternion => ({
+      x: 0,
+      y: 0,
+      z: 0,
+      w: 1,
+    });
 
   /** Radians per degree, `π / 180`. */
   export const DEG2RAD: number = Math.PI / 180;
@@ -64,7 +71,10 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two quaternions that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The Hamilton product owns four computed components and keeps no references to either operand quaternion.
    */
-  export const multiply: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
+  export const multiply: (
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion => ({
@@ -93,15 +103,33 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The largest magnitude supplies one common rescaling for all four components; normalization retains no rotation history between calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An extreme input adds one temporary scaled quaternion; the returned unit record belongs to the caller and no input is retained.
    */
-  export const normalize: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion): IAutoMovieQuaternion => {
+  export const normalize: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
+    q: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion => {
     const divisor: number = normalizationDivisor(q.x, q.y, q.z, q.w);
-    const value: IAutoMovieQuaternion = divisor === 1 ? q : {
-      x: q.x / divisor, y: q.y / divisor, z: q.z / divisor, w: q.w / divisor,
-    };
-    const len: number = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z + value.w * value.w);
+    const value: IAutoMovieQuaternion =
+      divisor === 1
+        ? q
+        : {
+            x: q.x / divisor,
+            y: q.y / divisor,
+            z: q.z / divisor,
+            w: q.w / divisor,
+          };
+    const len: number = Math.sqrt(
+      value.x * value.x +
+        value.y * value.y +
+        value.z * value.z +
+        value.w * value.w,
+    );
     if (len === 0) return identity();
     const inv: number = 1 / len;
-    return { x: value.x * inv, y: value.y * inv, z: value.z * inv, w: value.w * inv };
+    return {
+      x: value.x * inv,
+      y: value.y * inv,
+      z: value.z * inv,
+      w: value.w * inv,
+    };
   };
 
   /**
@@ -123,8 +151,9 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one quaternion that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the conjugate and the returned record and retains nothing.
    */
-  export const inverse: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion): IAutoMovieQuaternion =>
-    normalize({ x: -q.x, y: -q.y, z: -q.z, w: q.w });
+  export const inverse: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
+    q: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion => normalize({ x: -q.x, y: -q.y, z: -q.z, w: q.w });
 
   /**
    * The rotation of `angleDeg` degrees about `axis`, positive by the
@@ -143,28 +172,54 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of an axis and an angle that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An extreme axis creates one temporary scaled direction, while the output owns four rotation components and keeps no axis reference.
    */
-  export const fromAxisAngle: (axis: IAutoMovieVector3, angleDeg: number) => IAutoMovieQuaternion = (
+  export const fromAxisAngle: (
+    axis: IAutoMovieVector3,
+    angleDeg: number,
+  ) => IAutoMovieQuaternion = (
     axis: IAutoMovieVector3,
     angleDeg: number,
   ): IAutoMovieQuaternion => {
     const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
-    const value: IAutoMovieVector3 = divisor === 1 ? axis : {
-      x: axis.x / divisor, y: axis.y / divisor, z: axis.z / divisor,
-    };
+    const value: IAutoMovieVector3 =
+      divisor === 1
+        ? axis
+        : {
+            x: axis.x / divisor,
+            y: axis.y / divisor,
+            z: axis.z / divisor,
+          };
     const len: number = Math.sqrt(
       value.x * value.x + value.y * value.y + value.z * value.z,
     );
     if (len === 0) return identity();
     const half: number = (angleDeg * DEG2RAD) / 2;
     const s: number = Math.sin(half) / len;
-    return { x: value.x * s, y: value.y * s, z: value.z * s, w: Math.cos(half) };
+    return {
+      x: value.x * s,
+      y: value.y * s,
+      z: value.z * s,
+      w: Math.cos(half),
+    };
   };
 
   /** Scale only when up to four squared components may leave the normal binary64 range. */
-  const normalizationDivisor: (x: number, y: number, z: number, w?: number) => number = (x: number, y: number, z: number, w: number = 0): number => {
-    const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w));
-    return Number.isFinite(largest) && largest > 0 &&
-      (largest < 2 ** -511 || largest > 2 ** 510) ? largest : 1;
+  const normalizationDivisor: (
+    x: number,
+    y: number,
+    z: number,
+    w?: number,
+  ) => number = (x: number, y: number, z: number, w: number = 0): number => {
+    const largest: number = Math.max(
+      Math.abs(x),
+      Math.abs(y),
+      Math.abs(z),
+      Math.abs(w),
+    );
+    return Number.isFinite(largest) &&
+      largest > 0 &&
+      (largest < 2 ** -511 || largest > 2 ** 510)
+      ? largest
+      : 1;
   };
 
   /**
@@ -183,7 +238,9 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one Euler record that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the factors and the returned record and retains nothing.
    */
-  export const fromEuler: (euler: IAutoMovieEuler) => IAutoMovieQuaternion = (euler: IAutoMovieEuler): IAutoMovieQuaternion => {
+  export const fromEuler: (euler: IAutoMovieEuler) => IAutoMovieQuaternion = (
+    euler: IAutoMovieEuler,
+  ): IAutoMovieQuaternion => {
     let result: IAutoMovieQuaternion = identity();
     for (const letter of euler.order) {
       const angle: number =
@@ -211,7 +268,10 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rotation and one vector that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned vector and retains nothing.
    */
-  export const rotateVector: (q: IAutoMovieQuaternion, v: IAutoMovieVector3) => IAutoMovieVector3 = (
+  export const rotateVector: (
+    q: IAutoMovieQuaternion,
+    v: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
@@ -248,7 +308,11 @@ export namespace Quaternion {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two rotations and a parameter that coordinates no work across calls.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The general spherical branch allocates one result; the near-parallel branch additionally creates a temporary linear quaternion for normalization, without retaining either endpoint.
    */
-  export const slerp: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (
+  export const slerp: (
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+    t: number,
+  ) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
     t: number,

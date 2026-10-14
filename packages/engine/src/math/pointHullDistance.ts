@@ -1,6 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { nearestHullEdge } from "./nearestHullEdge";
 import { pointInHull } from "./pointInHull";
+
 /**
  * Distance from `point` to a convex hull on the XZ plane: `0` when inside,
  * otherwise the distance to the nearest boundary. Degenerate hulls fall back to
@@ -14,7 +16,10 @@ import { pointInHull } from "./pointInHull";
  * @evidence contracts/performance.md#reuse-equivalent-work The containment verdict skips edge distances for interior points, without caching mutable support coordinates across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar distance escapes; any boundary record is temporary and no hull or query reference remains.
  */
-export const pointHullDistance: (point: IAutoMovieVector3, hull: readonly IAutoMovieVector3[]) => number = (
+export const pointHullDistance: (
+  point: IAutoMovieVector3,
+  hull: readonly IAutoMovieVector3[],
+) => number = (
   point: IAutoMovieVector3,
   hull: readonly IAutoMovieVector3[],
 ): number => {
@@ -24,5 +29,7 @@ export const pointHullDistance: (point: IAutoMovieVector3, hull: readonly IAutoM
   return nearestHullEdge(point, hull).distance;
 };
 
-const distanceXZ: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.z - b.z);
+const distanceXZ: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.z - b.z);

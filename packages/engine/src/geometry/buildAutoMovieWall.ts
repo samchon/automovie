@@ -1,7 +1,7 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { ITessellation } from "./ITessellation";
 import { IAutoMovieWallOpening } from "./IAutoMovieWallOpening";
+import { ITessellation } from "./ITessellation";
 import { finitePoint } from "./finitePoint";
 import { positive } from "./positive";
 
@@ -29,7 +29,12 @@ import { positive } from "./positive";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new position, normal and index arrays bounded by six quads per standing cell; the id set, cut lists and standing flags are released on return.
  * @author Samchon
  */
-export const buildAutoMovieWall: (props: { width: number; height: number; depth: number; openings: readonly IAutoMovieWallOpening[]; }) => IAutoMovieMesh = (props: {
+export const buildAutoMovieWall: (props: {
+  width: number;
+  height: number;
+  depth: number;
+  openings: readonly IAutoMovieWallOpening[];
+}) => IAutoMovieMesh = (props: {
   /** Wall width along X, in metres. */
   width: number;
 
@@ -46,23 +51,27 @@ export const buildAutoMovieWall: (props: { width: number; height: number; depth:
   positive(props.height, "wall height");
   positive(props.depth, "wall depth");
   const ids: Set<string> = new Set();
-  props.openings.forEach((opening: IAutoMovieWallOpening, index: number): void => {
-    if (opening.id.trim().length === 0)
-      throw new Error(`wall opening[${index}] id must be non-empty`);
-    if (ids.has(opening.id))
-      throw new Error(`wall opening id "${opening.id}" must be unique`);
-    ids.add(opening.id);
-    finitePoint(opening, `wall opening[${index}]`);
-    positive(opening.width, `wall opening[${index}] width`);
-    positive(opening.height, `wall opening[${index}] height`);
-    if (
-      opening.x < 0 ||
-      opening.y < 0 ||
-      opening.x + opening.width > props.width ||
-      opening.y + opening.height > props.height
-    )
-      throw new Error(`wall opening "${opening.id}" must stay inside the wall`);
-  });
+  props.openings.forEach(
+    (opening: IAutoMovieWallOpening, index: number): void => {
+      if (opening.id.trim().length === 0)
+        throw new Error(`wall opening[${index}] id must be non-empty`);
+      if (ids.has(opening.id))
+        throw new Error(`wall opening id "${opening.id}" must be unique`);
+      ids.add(opening.id);
+      finitePoint(opening, `wall opening[${index}]`);
+      positive(opening.width, `wall opening[${index}] width`);
+      positive(opening.height, `wall opening[${index}] height`);
+      if (
+        opening.x < 0 ||
+        opening.y < 0 ||
+        opening.x + opening.width > props.width ||
+        opening.y + opening.height > props.height
+      )
+        throw new Error(
+          `wall opening "${opening.id}" must stay inside the wall`,
+        );
+    },
+  );
   for (let left: number = 0; left < props.openings.length; ++left)
     for (let right: number = left + 1; right < props.openings.length; ++right)
       if (overlaps(props.openings[left]!, props.openings[right]!))
@@ -101,7 +110,10 @@ export const buildAutoMovieWall: (props: { width: number; height: number; depth:
         ),
       );
     }
-  const stands: (x: number, y: number) => boolean = (x: number, y: number): boolean =>
+  const stands: (x: number, y: number) => boolean = (
+    x: number,
+    y: number,
+  ): boolean =>
     x >= 0 && y >= 0 && x < columns && y < rows && standing[x * rows + y]!;
   if (standing.some((cell: boolean): boolean => cell) === false)
     throw new Error("wall openings remove the entire wall");
@@ -171,7 +183,13 @@ const WALL_CELL_SIDES: ReadonlyArray<
  *
  * Borrow the admitted cell extremes and append four corners/normals plus two triangles to the caller's tessellation. Constant per-face scratch arrays are released immediately; only appended buffers survive, with no cached face or wall-specific case.
  */
-const pushCellFace: (target: ITessellation, min: readonly [number, number, number], max: readonly [number, number, number], axis: 0 | 1 | 2, outward: 1 | -1) => void = (
+const pushCellFace: (
+  target: ITessellation,
+  min: readonly [number, number, number],
+  max: readonly [number, number, number],
+  axis: 0 | 1 | 2,
+  outward: 1 | -1,
+) => void = (
   target: ITessellation,
   min: readonly [number, number, number],
   max: readonly [number, number, number],
@@ -210,13 +228,19 @@ const pushCellFace: (target: ITessellation, min: readonly [number, number, numbe
 };
 
 /** Sort the wall ends and authored opening edges numerically after exact Set deduplication. Admitted finite edges are the premise; no tolerance weld or coordinate repair changes them. O(E log E) time/O(E) new list storage returns to the wall call without retained state. */
-const sortedCuts: (extent: number, edges: readonly number[]) => number[] = (extent: number, edges: readonly number[]): number[] =>
+const sortedCuts: (extent: number, edges: readonly number[]) => number[] = (
+  extent: number,
+  edges: readonly number[],
+): number[] =>
   [...new Set([0, extent, ...edges])].sort(
     (a: number, b: number): number => a - b,
   );
 
 /** Compare strict overlap on both admitted axis intervals, so edge contact is allowed and corner pinches remain a separate lattice check. Endpoint addition uses ordinary binary64 arithmetic; constant work borrows both records without mutation or retained state. */
-const overlaps: (left: IAutoMovieWallOpening, right: IAutoMovieWallOpening) => boolean = (
+const overlaps: (
+  left: IAutoMovieWallOpening,
+  right: IAutoMovieWallOpening,
+) => boolean = (
   left: IAutoMovieWallOpening,
   right: IAutoMovieWallOpening,
 ): boolean =>

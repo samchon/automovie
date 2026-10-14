@@ -1,4 +1,5 @@
 import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+
 /**
  * The squared distance of one joint's clinical angles from the anatomical
  * neutral, `flexion² + abduction² + twist²`, in square degrees.
@@ -20,7 +21,9 @@ import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three squared angle values are summed directly, allocating no vector and retaining no candidate joint.
  * @author Samchon
  */
-export const clinicalDeviation: (joint: IAutoMovieResolvedJointAngles) => number = (joint: IAutoMovieResolvedJointAngles): number =>
+export const clinicalDeviation: (
+  joint: IAutoMovieResolvedJointAngles,
+) => number = (joint: IAutoMovieResolvedJointAngles): number =>
   joint.flexion * joint.flexion +
   joint.abduction * joint.abduction +
   joint.twist * joint.twist;

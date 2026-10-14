@@ -1,6 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
+
 /**
  * Append one triangle that owns its three corners and its own plane normal.
  *
@@ -24,7 +26,14 @@ import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each triangle's corners and normal are its own by design, so nothing is shared between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; the appended values live in the caller's target, which grows by three vertices and one triangle per call and is handed to the returned mesh.
  */
-export const pushFlatTriangle: (target: IAutoMovieMeshTarget, corners: readonly [readonly [IAutoMovieVector3, number, number], readonly [IAutoMovieVector3, number, number], readonly [IAutoMovieVector3, number, number]]) => void = (
+export const pushFlatTriangle: (
+  target: IAutoMovieMeshTarget,
+  corners: readonly [
+    readonly [IAutoMovieVector3, number, number],
+    readonly [IAutoMovieVector3, number, number],
+    readonly [IAutoMovieVector3, number, number],
+  ],
+) => void = (
   target: IAutoMovieMeshTarget,
   corners: readonly [
     readonly [IAutoMovieVector3, number, number],

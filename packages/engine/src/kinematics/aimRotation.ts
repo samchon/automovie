@@ -1,5 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { rotationBetween } from "../math/rotationBetween";
+
 /** Components checked for finiteness, in message order. */
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
@@ -38,7 +40,10 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
  * @author Samchon
  */
-export const aimRotation: (from: IAutoMovieVector3, to: IAutoMovieVector3) => IAutoMovieQuaternion = (
+export const aimRotation: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
@@ -48,10 +53,10 @@ export const aimRotation: (from: IAutoMovieVector3, to: IAutoMovieVector3) => IA
 };
 
 /** Refuse a vector with a non-finite component, naming the argument and axis. */
-const validateVector: (label: "from" | "to", value: IAutoMovieVector3) => void = (
+const validateVector: (
   label: "from" | "to",
   value: IAutoMovieVector3,
-): void => {
+) => void = (label: "from" | "to", value: IAutoMovieVector3): void => {
   for (const axis of VECTOR_AXES)
     if (!Number.isFinite(value[axis]))
       throw new Error(

@@ -1,4 +1,3 @@
-
 /**
  * Choose an exact key for pairs of welded vertex identities.
  *

@@ -1,8 +1,10 @@
-import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { IAutoMovieMesh } from "@automovie/interface";
+
 import { triangleIndicesOf } from "../geometry/triangleIndicesOf";
 import { weldedDegenerateTriangles } from "../geometry/weldedDegenerateTriangles";
+import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
+
 /**
  * Capture mesh connectivity, physical source meaning and the legacy partition
  * before reusing an earlier topology admission. Source aliases still need
@@ -26,27 +28,64 @@ import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhys
  * @evidence contracts/performance.md#reuse-equivalent-work Expected connectivity and partitions are captured once for many candidates; equivalence includes source meaning and degenerate-face population rather than absolute positions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains copied expected arrays; candidate maps are released after comparison, and releasing the closure releases its linear-size expectation.
  */
-export function createMeshPhysicalPartitionMatcher(mesh: IAutoMovieMesh): (candidate: IAutoMovieMesh) => boolean {
-  const capture: (input: IAutoMovieMesh) => { indices: number[]; vertices: number[]; sources: (string | null)[]; degenerate: number[]; } = (input: IAutoMovieMesh): { indices: number[]; vertices: number[]; sources: (string | null)[]; degenerate: number[]; } => {
-    if (Array.from(input.positions).some((value: number): boolean => !Number.isFinite(value)))
+export function createMeshPhysicalPartitionMatcher(
+  mesh: IAutoMovieMesh,
+): (candidate: IAutoMovieMesh) => boolean {
+  const capture: (input: IAutoMovieMesh) => {
+    indices: number[];
+    vertices: number[];
+    sources: (string | null)[];
+    degenerate: number[];
+  } = (
+    input: IAutoMovieMesh,
+  ): {
+    indices: number[];
+    vertices: number[];
+    sources: (string | null)[];
+    degenerate: number[];
+  } => {
+    if (
+      Array.from(input.positions).some(
+        (value: number): boolean => !Number.isFinite(value),
+      )
+    )
       throw new Error("A mesh physical partition needs finite XYZ tuples.");
-    const indices: number[] = triangleIndicesOf(input, "mesh physical partition").slice();
-    const resolved: IAutoMovieResolvedPhysicalVertices = resolveAutoMovieMeshPhysicalVertices(input);
+    const indices: number[] = triangleIndicesOf(
+      input,
+      "mesh physical partition",
+    ).slice();
+    const resolved: IAutoMovieResolvedPhysicalVertices =
+      resolveAutoMovieMeshPhysicalVertices(input);
     const degenerate: number[] = weldedDegenerateTriangles(input);
-    const sources: (string | null)[] = resolved.vertices.map((identity: number, vertex: number): string | null =>
-      input.physicalVertices === undefined ||
-      input.physicalVertices.vertices[vertex] === null
-        ? null
-        : resolved.labels[identity],
+    const sources: (string | null)[] = resolved.vertices.map(
+      (identity: number, vertex: number): string | null =>
+        input.physicalVertices === undefined ||
+        input.physicalVertices.vertices[vertex] === null
+          ? null
+          : resolved.labels[identity],
     );
     return { indices, vertices: resolved.vertices, sources, degenerate };
   };
-  const expected: { indices: number[]; vertices: number[]; sources: (string | null)[]; degenerate: number[]; } = capture(mesh);
+  const expected: {
+    indices: number[];
+    vertices: number[];
+    sources: (string | null)[];
+    degenerate: number[];
+  } = capture(mesh);
   return (candidate: IAutoMovieMesh): boolean => {
     try {
-      const actual: { indices: number[]; vertices: number[]; sources: (string | null)[]; degenerate: number[]; } = capture(candidate);
-      const equal: <T>(a: readonly T[], b: readonly T[]) => boolean = <T>(a: readonly T[], b: readonly T[]): boolean =>
-        a.length === b.length && a.every((value: T, index: number): boolean => value === b[index]);
+      const actual: {
+        indices: number[];
+        vertices: number[];
+        sources: (string | null)[];
+        degenerate: number[];
+      } = capture(candidate);
+      const equal: <T>(a: readonly T[], b: readonly T[]) => boolean = <T>(
+        a: readonly T[],
+        b: readonly T[],
+      ): boolean =>
+        a.length === b.length &&
+        a.every((value: T, index: number): boolean => value === b[index]);
       return (
         equal(expected.indices, actual.indices) &&
         equal(expected.vertices, actual.vertices) &&

@@ -42,7 +42,9 @@ const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
  *
  * @author Samchon
  */
-export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (hex: string): IAutoMovieColor => {
+export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (
+  hex: string,
+): IAutoMovieColor => {
   const channels: RegExpExecArray | null = SRGB_HEX_SWATCH.exec(hex);
   if (channels === null)
     throw new Error(
@@ -69,7 +71,9 @@ export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (hex: stri
  * instance color attribute can hold across all 256 channel values, which is why
  * adopting this one changes no frame the viewer already drew.
  */
-const srgbChannelToLinear: (component: number) => number = (component: number): number =>
+const srgbChannelToLinear: (component: number) => number = (
+  component: number,
+): number =>
   component <= 0.04045
     ? component / 12.92
     : Math.pow((component + 0.055) / 1.055, 2.4);

@@ -57,60 +57,53 @@ export const buildAutoMoviePolyhedron = (
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
-  faces.forEach(
-    (corners: readonly IAutoMovieVector3[], face: number): void => {
-      if (corners.length < 3)
-        throw new Error(
-          `polyhedron face[${face}] needs at least three corners`,
-        );
-      corners.forEach((corner: IAutoMovieVector3, index: number): void =>
-        finiteVector(corner, `polyhedron face[${face}] corner[${index}]`),
-      );
-      const normal: IAutoMovieVector3 = faceNormal(corners, face);
-      const origin: IAutoMovieVector3 = corners[0]!;
-      if (
-        corners.some(
-          (corner: IAutoMovieVector3): boolean =>
-            Math.abs(Vector3.dot(Vector3.subtract(corner, origin), normal)) >
-            FACE_EPSILON,
-        )
+  faces.forEach((corners: readonly IAutoMovieVector3[], face: number): void => {
+    if (corners.length < 3)
+      throw new Error(`polyhedron face[${face}] needs at least three corners`);
+    corners.forEach((corner: IAutoMovieVector3, index: number): void =>
+      finiteVector(corner, `polyhedron face[${face}] corner[${index}]`),
+    );
+    const normal: IAutoMovieVector3 = faceNormal(corners, face);
+    const origin: IAutoMovieVector3 = corners[0]!;
+    if (
+      corners.some(
+        (corner: IAutoMovieVector3): boolean =>
+          Math.abs(Vector3.dot(Vector3.subtract(corner, origin), normal)) >
+          FACE_EPSILON,
       )
-        throw new Error(`polyhedron face[${face}] is not planar`);
-      let turning: number = 0;
-      for (let index: number = 0; index < corners.length; ++index) {
-        const previous: IAutoMovieVector3 =
-          corners[(index + corners.length - 1) % corners.length]!;
-        const current: IAutoMovieVector3 = corners[index]!;
-        const next: IAutoMovieVector3 = corners[(index + 1) % corners.length]!;
-        const incoming: IAutoMovieVector3 = Vector3.subtract(current, previous);
-        const outgoing: IAutoMovieVector3 = Vector3.subtract(next, current);
-        const turn: number = Vector3.dot(
-          Vector3.cross(incoming, outgoing),
-          normal,
-        );
-        if (turn < -FACE_EPSILON)
-          throw new Error(`polyhedron face[${face}] must be convex`);
-        turning += Math.atan2(
-          Math.max(0, turn),
-          Vector3.dot(incoming, outgoing),
-        );
-      }
-      // A closed planar ring turns a whole number of times; one turn is 2 pi,
-      // so anything past 3 pi winds at least twice and its fan overlaps itself.
-      if (turning > 3 * Math.PI)
+    )
+      throw new Error(`polyhedron face[${face}] is not planar`);
+    let turning: number = 0;
+    for (let index: number = 0; index < corners.length; ++index) {
+      const previous: IAutoMovieVector3 =
+        corners[(index + corners.length - 1) % corners.length]!;
+      const current: IAutoMovieVector3 = corners[index]!;
+      const next: IAutoMovieVector3 = corners[(index + 1) % corners.length]!;
+      const incoming: IAutoMovieVector3 = Vector3.subtract(current, previous);
+      const outgoing: IAutoMovieVector3 = Vector3.subtract(next, current);
+      const turn: number = Vector3.dot(
+        Vector3.cross(incoming, outgoing),
+        normal,
+      );
+      if (turn < -FACE_EPSILON)
         throw new Error(`polyhedron face[${face}] must be convex`);
-      const frame: { u: IAutoMovieVector3; v: IAutoMovieVector3 } =
-        surfaceUvFrame(normal);
-      const base: number = positions.length / 3;
-      for (const corner of corners) {
-        positions.push(corner.x, corner.y, corner.z);
-        normals.push(normal.x, normal.y, normal.z);
-        uvs.push(Vector3.dot(corner, frame.u), Vector3.dot(corner, frame.v));
-      }
-      for (let index: number = 1; index + 1 < corners.length; ++index)
-        indices.push(base, base + index, base + index + 1);
-    },
-  );
+      turning += Math.atan2(Math.max(0, turn), Vector3.dot(incoming, outgoing));
+    }
+    // A closed planar ring turns a whole number of times; one turn is 2 pi,
+    // so anything past 3 pi winds at least twice and its fan overlaps itself.
+    if (turning > 3 * Math.PI)
+      throw new Error(`polyhedron face[${face}] must be convex`);
+    const frame: { u: IAutoMovieVector3; v: IAutoMovieVector3 } =
+      surfaceUvFrame(normal);
+    const base: number = positions.length / 3;
+    for (const corner of corners) {
+      positions.push(corner.x, corner.y, corner.z);
+      normals.push(normal.x, normal.y, normal.z);
+      uvs.push(Vector3.dot(corner, frame.u), Vector3.dot(corner, frame.v));
+    }
+    for (let index: number = 1; index + 1 < corners.length; ++index)
+      indices.push(base, base + index, base + index + 1);
+  });
   return { positions, normals, uvs, indices, skin: null };
 };
 

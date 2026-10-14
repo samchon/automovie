@@ -1,4 +1,5 @@
 import { IAutoMovieColor } from "@automovie/interface";
+
 /**
  * Encode a linear color as the `#RRGGBB` swatch that displays it.
  *
@@ -22,15 +23,17 @@ import { IAutoMovieColor } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Three temporary channel strings form the returned swatch, and the input color is not retained.
  * @author Samchon
  */
-export const linearColorToSrgbHex: (color: Pick<IAutoMovieColor, "r" | "g" | "b">) => string = (
+export const linearColorToSrgbHex: (
   color: Pick<IAutoMovieColor, "r" | "g" | "b">,
-): string =>
+) => string = (color: Pick<IAutoMovieColor, "r" | "g" | "b">): string =>
   `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
 
 /**
  * One linear component as its two lowercase hexadecimal display digits.
  */
-const srgbHexChannel: (component: number) => string = (component: number): string => {
+const srgbHexChannel: (component: number) => string = (
+  component: number,
+): string => {
   if (Number.isFinite(component) === false)
     throw new Error(
       `Linear color component ${component} is not a finite number.`,
@@ -46,7 +49,9 @@ const srgbHexChannel: (component: number) => string = (component: number): strin
  * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4`
  * exponent rather than the truncated one three.js encodes with.
  */
-const linearChannelToSrgb: (component: number) => number = (component: number): number =>
+const linearChannelToSrgb: (component: number) => number = (
+  component: number,
+): number =>
   component <= 0.0031308
     ? component * 12.92
     : 1.055 * Math.pow(component, 1 / 2.4) - 0.055;

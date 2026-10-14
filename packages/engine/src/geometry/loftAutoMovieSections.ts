@@ -94,14 +94,16 @@ export const loftAutoMovieSections = (props: {
   });
   if (props.sections.length < 2)
     throw new Error("loft needs at least two sections");
-  props.sections.forEach((section: IAutoMovieLoftSection, index: number): void => {
-    if (Number.isFinite(section.at) === false)
-      throw new Error(`loft section[${index}] at must be finite`);
-    if (index > 0 && section.at <= props.sections[index - 1]!.at)
-      throw new Error(
-        `loft section[${index}] at must be greater than section[${index - 1}] at`,
-      );
-  });
+  props.sections.forEach(
+    (section: IAutoMovieLoftSection, index: number): void => {
+      if (Number.isFinite(section.at) === false)
+        throw new Error(`loft section[${index}] at must be finite`);
+      if (index > 0 && section.at <= props.sections[index - 1]!.at)
+        throw new Error(
+          `loft section[${index}] at must be greater than section[${index - 1}] at`,
+        );
+    },
+  );
   if (
     props.sections[0]!.at !== 0 ||
     props.sections[props.sections.length - 1]!.at !== 1
@@ -135,9 +137,7 @@ export const loftAutoMovieSections = (props: {
             throw new Error(
               `loft section[${index}] ring[${at}] must carry the same ${first[at]!.length} points as section[0]`,
             );
-          if (
-            Math.sign(signedArea(ring)) !== Math.sign(signedArea(first[at]!))
-          )
+          if (Math.sign(signedArea(ring)) !== Math.sign(signedArea(first[at]!)))
             throw new Error(
               `loft section[${index}] ring[${at}] must wind the same way as section[0]`,
             );

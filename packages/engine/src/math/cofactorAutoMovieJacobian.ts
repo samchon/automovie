@@ -1,6 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieJacobianCofactor } from "./IAutoMovieJacobianCofactor";
 import { Vector3 } from "./Vector3";
+
 /**
  * Evaluate one finite orientation-preserving 3×3 deformation Jacobian.
  * Input and returned matrix use row-major order and dimensionless entries.
@@ -33,9 +35,21 @@ export function cofactorAutoMovieJacobian(
       throw new Error(
         "Mesh deformation must remain finite and preserve local surface orientation.",
       );
-  const a: IAutoMovieVector3 = Vector3.create(jacobian[0], jacobian[3], jacobian[6]);
-  const b: IAutoMovieVector3 = Vector3.create(jacobian[1], jacobian[4], jacobian[7]);
-  const c: IAutoMovieVector3 = Vector3.create(jacobian[2], jacobian[5], jacobian[8]);
+  const a: IAutoMovieVector3 = Vector3.create(
+    jacobian[0],
+    jacobian[3],
+    jacobian[6],
+  );
+  const b: IAutoMovieVector3 = Vector3.create(
+    jacobian[1],
+    jacobian[4],
+    jacobian[7],
+  );
+  const c: IAutoMovieVector3 = Vector3.create(
+    jacobian[2],
+    jacobian[5],
+    jacobian[8],
+  );
   const bc: IAutoMovieVector3 = Vector3.cross(b, c);
   const ca: IAutoMovieVector3 = Vector3.cross(c, a);
   const ab: IAutoMovieVector3 = Vector3.cross(a, b);

@@ -78,7 +78,11 @@ export function assertAutoMovieDeformedTriangles(
       if (length === Infinity) {
         // Finite components whose norm overflows still carry a direction;
         // dividing by the largest one keeps that corner's equal weight.
-        const scale: number = Math.max(Math.abs(tx), Math.abs(ty), Math.abs(tz));
+        const scale: number = Math.max(
+          Math.abs(tx),
+          Math.abs(ty),
+          Math.abs(tz),
+        );
         tx /= scale;
         ty /= scale;
         tz /= scale;

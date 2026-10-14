@@ -120,8 +120,9 @@ export function measureAutoMovieModelCrossings(
         triangles: ours.length,
         otherTriangles: theirs.length,
         coplanar:
-          ours.filter((entry: IAutoMovieMeshCrossing): boolean => entry.coplanar)
-            .length +
+          ours.filter(
+            (entry: IAutoMovieMeshCrossing): boolean => entry.coplanar,
+          ).length +
           theirs.filter(
             (entry: IAutoMovieMeshCrossing): boolean => entry.coplanar,
           ).length,

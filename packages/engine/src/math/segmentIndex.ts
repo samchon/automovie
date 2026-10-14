@@ -1,4 +1,3 @@
-
 /**
  * The lower index of the segment straddling `time` in a strictly increasing
  * sequence of `length` key times read through `timeAt`: the `lo` in `[0,
@@ -27,7 +26,11 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only low/high/midpoint indices are live; callback and key storage are not retained after the result returns.
  * @author Samchon
  */
-export const segmentIndex: (length: number, timeAt: (index: number) => number, time: number) => number = (
+export const segmentIndex: (
+  length: number,
+  timeAt: (index: number) => number,
+  time: number,
+) => number = (
   length: number,
   timeAt: (index: number) => number,
   time: number,

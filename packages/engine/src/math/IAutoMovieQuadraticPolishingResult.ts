@@ -1,4 +1,3 @@
-
 /**
  * One polishing attempt on a solved quadratic program and its diagnostics, as
  * `polishAutoMovieQuadraticProgram` returns it inside a refinement result.

@@ -13,7 +13,9 @@
  */
 export function midpoint(left: number, right: number): number {
   const sum: number = left + right;
-  return !Number.isFinite(sum) && Number.isFinite(left) && Number.isFinite(right)
+  return !Number.isFinite(sum) &&
+    Number.isFinite(left) &&
+    Number.isFinite(right)
     ? left + (right - left) / 2
     : sum / 2;
 }

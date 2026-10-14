@@ -72,7 +72,11 @@ export function createAutoMovieMeshRayCaster(
     options?: IAutoMovieMeshRayQueryOptions,
   ): IAutoMovieMeshRayHit | null => {
     const minimumTravel: number = minimum === undefined ? 0 : minimum;
-    const length: number = Math.hypot(direction[0]!, direction[1]!, direction[2]!);
+    const length: number = Math.hypot(
+      direction[0]!,
+      direction[1]!,
+      direction[2]!,
+    );
     if (
       origin.length !== 3 ||
       direction.length !== 3 ||
@@ -198,7 +202,11 @@ export function createAutoMovieMeshRayCaster(
         const sx: number = ox - edge[c]!;
         const sy: number = oy - edge[c + 1]!;
         const sz: number = oz - edge[c + 2]!;
-        if (!Number.isFinite(sx) || !Number.isFinite(sy) || !Number.isFinite(sz))
+        if (
+          !Number.isFinite(sx) ||
+          !Number.isFinite(sy) ||
+          !Number.isFinite(sz)
+        )
           throw new Error(
             "Ray triangle displacement is not representable: " + ordinal,
           );
@@ -212,7 +220,11 @@ export function createAutoMovieMeshRayCaster(
         const qx: number = sy * e1z - sz * e1y;
         const qy: number = sz * e1x - sx * e1z;
         const qz: number = sx * e1y - sy * e1x;
-        if (!Number.isFinite(qx) || !Number.isFinite(qy) || !Number.isFinite(qz))
+        if (
+          !Number.isFinite(qx) ||
+          !Number.isFinite(qy) ||
+          !Number.isFinite(qz)
+        )
           throw new Error(
             "Ray triangle cross product is not representable: " + ordinal,
           );
@@ -225,7 +237,9 @@ export function createAutoMovieMeshRayCaster(
         if (v < 0 || u + v > 1) continue;
         const hit: number = (e2x * qx + e2y * qy + e2z * qz) * inv;
         if (!Number.isFinite(hit))
-          throw new Error("Ray triangle travel is not representable: " + ordinal);
+          throw new Error(
+            "Ray triangle travel is not representable: " + ordinal,
+          );
         if (hit < minimumTravel || hit > best) continue;
         // Every admitted equal hit is visited, so the attributed triangle is
         // the lowest original ordinal and `best` keeps the raw computed zero.
@@ -307,7 +321,8 @@ const buildRayHierarchy = (
   for (let t: number = 0; t < count; ++t)
     for (let k: number = 0; k < 3; ++k)
       for (let axis: number = 0; axis < 3; ++axis)
-        corner[9 * t + 3 * k + axis] = positions[3 * indices[3 * t + k]! + axis]!;
+        corner[9 * t + 3 * k + axis] =
+          positions[3 * indices[3 * t + k]! + axis]!;
   const order: Int32Array = new Int32Array(count);
   for (let t: number = 0; t < count; ++t) order[t] = t;
   const bounds: number[] = [];
@@ -341,10 +356,7 @@ const buildRayHierarchy = (
     size.push(to - from);
     let axis: number = 0;
     for (let candidate: number = 1; candidate < 3; candidate++)
-      if (
-        chigh[candidate]! - clow[candidate]! >
-        chigh[axis]! - clow[axis]!
-      )
+      if (chigh[candidate]! - clow[candidate]! > chigh[axis]! - clow[axis]!)
         axis = candidate;
     if (to - from <= 4 || !(chigh[axis]! - clow[axis]! > 0)) return node;
     const sorted: number[] = Array.from(order.subarray(from, to)).sort(

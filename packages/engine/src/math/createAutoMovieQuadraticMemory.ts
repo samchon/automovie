@@ -37,7 +37,9 @@ export function createAutoMovieQuadraticMemory(): {
   // This reactor has no start function. Imports first run from an explicit
   // allocation/solve, after the exported memory has been assigned below.
   const instance: WebAssembly.Instance = new WebAssembly.Instance(module, {
-    wasi_snapshot_preview1: createAutoMovieQuadraticHost((): WebAssembly.Memory => api.memory),
+    wasi_snapshot_preview1: createAutoMovieQuadraticHost(
+      (): WebAssembly.Memory => api.memory,
+    ),
   });
   const api: KernelExports = instance.exports as unknown as KernelExports;
   const heap: IAutoMovieQuadraticHeap = {

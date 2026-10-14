@@ -1,6 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "./Vector3";
 import { adjacentAutoMovieFloat64 as outward } from "./adjacentAutoMovieFloat64";
+
 /**
  * A represented triangle seat from three admitted barycentric coefficients.
  * The coefficient sum's outward addition enclosure must contain one; negative,
@@ -31,7 +33,9 @@ export function interpolateAutoMovieTrianglePoint(
       (p: IAutoMovieVector3): boolean =>
         p !== undefined && p !== null && [p.x, p.y, p.z].every(Number.isFinite),
     ) ||
-    !Array.from(weights).every((w: number): boolean => Number.isFinite(w) && w >= 0)
+    !Array.from(weights).every(
+      (w: number): boolean => Number.isFinite(w) && w >= 0,
+    )
   )
     throw new Error(
       "Triangle seating requires three finite points and nonnegative finite weights.",
@@ -47,7 +51,11 @@ export function interpolateAutoMovieTrianglePoint(
       "Triangle seating weights need a represented unit-sum enclosure.",
     );
   const point: IAutoMovieVector3 = points.reduce(
-    (sum: IAutoMovieVector3, p: IAutoMovieVector3, at: number): IAutoMovieVector3 => Vector3.add(sum, Vector3.scale(p, weights[at])),
+    (
+      sum: IAutoMovieVector3,
+      p: IAutoMovieVector3,
+      at: number,
+    ): IAutoMovieVector3 => Vector3.add(sum, Vector3.scale(p, weights[at])),
     Vector3.create(),
   );
   if (![point.x, point.y, point.z].every(Number.isFinite))

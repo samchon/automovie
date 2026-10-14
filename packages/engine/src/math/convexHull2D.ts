@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * 2D convex hull and point queries over the horizontal XZ plane.
  *
@@ -18,12 +19,17 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Maps and chains are released after construction; output owns its order while retaining references to caller point records.
  * @author Samchon
  */
-export const convexHull2D: (points: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (
+export const convexHull2D: (
+  points: readonly IAutoMovieVector3[],
+) => IAutoMovieVector3[] = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3[] => {
   const unique: IAutoMovieVector3[] = dedupeXZ(points);
   if (unique.length <= 2) return unique;
-  const sorted: IAutoMovieVector3[] = [...unique].sort((a: IAutoMovieVector3, b: IAutoMovieVector3): number => a.x - b.x || a.z - b.z);
+  const sorted: IAutoMovieVector3[] = [...unique].sort(
+    (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+      a.x - b.x || a.z - b.z,
+  );
   const lower: IAutoMovieVector3[] = [];
   for (const p of sorted) {
     while (
@@ -50,13 +56,19 @@ export const convexHull2D: (points: readonly IAutoMovieVector3[]) => IAutoMovieV
   return hull.length >= 3 ? hull : dedupeXZ(hull);
 };
 
-const cross: (o: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+const cross: (
+  o: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+) => number = (
   o: IAutoMovieVector3,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
 
-const dedupeXZ: (points: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (
+const dedupeXZ: (
+  points: readonly IAutoMovieVector3[],
+) => IAutoMovieVector3[] = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3[] => {
   const seen: Set<string> = new Set<string>();

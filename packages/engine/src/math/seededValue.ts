@@ -1,4 +1,5 @@
 import { mixSeed } from "./mixSeed";
+
 /**
  * Return one deterministic half-open [0, 1) sample from ordered seed parts.
  *
@@ -13,7 +14,9 @@ import { mixSeed } from "./mixSeed";
  * @evidence contracts/performance.md#reuse-equivalent-work Parts update one rolling word in order; each call restarts from the same initial word rather than sharing stream history.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The argument array and scalar words live only for the call; no seed identities, generator instance or entropy handle remain.
  */
-export const seededValue: (...values: number[]) => number = (...values: number[]): number => {
+export const seededValue: (...values: number[]) => number = (
+  ...values: number[]
+): number => {
   let state: number = 0x9e3779b9;
   for (const value of values) state = mixSeed(value, state);
   state = (state + 0x6d2b79f5) >>> 0;
