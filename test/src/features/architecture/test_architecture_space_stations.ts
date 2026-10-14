@@ -1,8 +1,10 @@
 import {
+  type IAutoMovieSpaceObservationStation,
   builtSpaceContainsPoint,
   builtSpaceObservationStations,
 } from "@automovie/engine";
 import type {
+  IAutoMovieBuiltSpace,
   IAutoMovieBuiltEnvironment,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,20 +17,11 @@ import {
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
 /**
- * A room owes nine views from inside itself, and the caller picks none of them.
+ * Derive the ordered interior-station population from a room's volume and openings.
  *
- * The survey guidance draws a room as one doorway view, four inward views from
- * distinct corners, and four outward views from the centre. That population is
- * derived here from the room's own stated volume and the openings on its own
- * boundaries, so a reviewer cannot cover a space with a few flattering angles
- * and read complete, and a room with more doors owes more views rather than the
- * same nine.
+ * The contract supplies four outward centre stations, four inward corner stations and one threshold per opening. Extra openings add membership; an unplaceable station remains in the population with a null pose.
  *
- * The camera has to be inside. A turntable circling a room's bounding box
- * photographs the outside of its walls, which is why every station's point is
- * proved against the space's own volume before it is handed back, and why a
- * point that cannot be placed leaves its station present and unplaced instead
- * of quietly leaving the denominator.
+ * Literal box coordinates independently check eye/target placement. The additional product containment call checks consistency with the shared volume reader rather than serving as an independent oracle for that reader.
  *
  * Scenarios:
  *
@@ -36,8 +29,8 @@ import { namedFacts, throwsError, vclose } from "../internal/predicates";
  *    order: four from its centre, four from its corners, one at its door.
  * 2. Every one of those positions equals the metres typed by hand from the
  *    room's own extent, and each is inside the room's own stated volume.
- * 3. The centre stations look along the four horizontal axes and the corner and
- *    threshold stations look back at the centre.
+ * 3. Selected centre stations look along horizontal axes, and selected corner
+ *    and threshold directions point back toward the centre.
  * 4. A second opening on the same room adds a tenth station, so the population
  *    follows the topology rather than a fixed count. An uncut opening is placed
  *    from its host face, since a passage with no void still has an arrival.
@@ -47,15 +40,20 @@ import { namedFacts, throwsError, vclose } from "../internal/predicates";
  * 6. A space that states no volume is a name rather than a room and owes
  *    nothing.
  * 7. A space the record does not hold is refused by name.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual station derivation and observes ordered identities, literal metre positions, outward/inward aim, added threshold membership, a retained unplaced notch corner, empty semantic population and unknown-space Error. It catches fixed counts, wrong role order and off-shape extent assumptions.
+ * @evidence contracts/testing.md#independent-expectations A 4 by 3 by 6 metre box has midpoint (2, 1.5, 3); the declared five-percent inward observation step gives corner/door offsets 0.1 and 0.15, and normalized diagonal offsets give the expected aim. Authored opening ids and L-cell inequalities determine added membership and the absent notch pose. Product containment is only a consistency observation and rendered visibility is unobserved.
+ * @evidence contracts/testing.md#distinguishing-cases Retains one/two threshold populations, a boundary-face passage without a cut profile, inward/outward directions, a concave notch with null pose, a volume-less child and unknown id. The placement companion owns unbounded, shelled, narrowing and point-volume fallbacks; arbitrary camera visibility and obstruction are outside this entry.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable test_architecture_space_stations entry owns its cases and local placedAt observations over portable engine functions and authored fixture inputs; no dynamic registration, consumer installation, native build, process, browser or GPU is required.
  */
-export const test_architecture_space_stations = (): void => {
-  const record = rectangularBuilding();
-  const hall = record.spaces[0]!;
-  const stations = builtSpaceObservationStations(record, "hall");
+export function test_architecture_space_stations(): void {
+  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
+  const hall: IAutoMovieBuiltSpace = record.spaces[0]!;
+  const stations: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(record, "hall");
 
   TestValidator.equals(
     "the hall owes its nine interior stations in a fixed order",
-    stations.map((station) => [station.id, station.role, station.opening]),
+    stations.map((station: IAutoMovieSpaceObservationStation) : (string | null)[] => [station.id, station.role, station.opening]),
     [
       ["center-x-minus", "center", null],
       ["center-x-plus", "center", null],
@@ -98,7 +96,7 @@ export const test_architecture_space_stations = (): void => {
   TestValidator.equals(
     "and every one of them stands inside the hall itself",
     stations.every(
-      (station) =>
+      (station: IAutoMovieSpaceObservationStation) : boolean =>
         station.pose !== null &&
         builtSpaceContainsPoint(hall, station.pose.position),
     ),
@@ -110,28 +108,28 @@ export const test_architecture_space_stations = (): void => {
     namedFacts([
       [
         "the centre station aimed at decreasing x reaches past the west wall",
-        () =>
+        () : boolean =>
           vclose(stations[0]!.pose!.direction, { x: -1, y: 0, z: 0 }) &&
           vclose(stations[0]!.pose!.target, { x: -4, y: 1.5, z: 3 }),
       ],
       [
         "the centre station aimed at increasing z reaches past the north wall",
-        () =>
+        () : boolean =>
           vclose(stations[3]!.pose!.direction, { x: 0, y: 0, z: 1 }) &&
           vclose(stations[3]!.pose!.target, { x: 2, y: 1.5, z: 9 }),
       ],
       [
         "the south-west corner looks diagonally across the room",
-        () =>
+        () : boolean =>
           vclose(stations[4]!.pose!.direction, {
-            x: 0.5547001962252291,
+            x: 2 / Math.hypot(2, 3),
             y: 0,
-            z: 0.8320502943378437,
+            z: 3 / Math.hypot(2, 3),
           }) && vclose(stations[4]!.pose!.target, { x: 2, y: 1.5, z: 3 }),
       ],
       [
         "and the doorway looks straight into it",
-        () => vclose(stations[8]!.pose!.direction, { x: 0, y: 0, z: 1 }),
+        () : boolean => vclose(stations[8]!.pose!.direction, { x: 0, y: 0, z: 1 }),
       ],
     ]),
     {
@@ -142,11 +140,13 @@ export const test_architecture_space_stations = (): void => {
     },
   );
 
+  const sideStations: IAutoMovieSpaceObservationStation[] = builtSpaceObservationStations(withSideHatch(), "hall");
+  TestValidator.equals("a second opening adds one station to the full population", sideStations.length, 10);
   TestValidator.equals(
     "a second opening adds its own threshold, placed from its host face",
     placedAt(
-      builtSpaceObservationStations(withSideHatch(), "hall").filter(
-        (station) => station.role === "threshold",
+      sideStations.filter(
+        (station: IAutoMovieSpaceObservationStation) : boolean => station.role === "threshold",
       ),
       [
         { x: 2, y: 1.5, z: 0.15 },
@@ -159,7 +159,7 @@ export const test_architecture_space_stations = (): void => {
     },
   );
 
-  const wing = lFootprintBuilding();
+  const wing: IAutoMovieBuiltEnvironment = lFootprintBuilding();
 
   TestValidator.equals(
     "the notch corner keeps its identity and reports no place to stand",
@@ -190,15 +190,15 @@ export const test_architecture_space_stations = (): void => {
     namedFacts([
       [
         "a purely semantic container has no interior population",
-        () =>
+        () : boolean =>
           builtSpaceObservationStations(withNamedWing(), "west-wing").length ===
           0,
       ],
       [
         "and a space the record does not hold is named in the refusal",
-        () =>
+        () : boolean =>
           throwsError(
-            () => builtSpaceObservationStations(record, "cellar"),
+            () : IAutoMovieSpaceObservationStation[] => builtSpaceObservationStations(record, "cellar"),
             ["hall-house", "cellar"],
           ),
       ],
@@ -208,17 +208,14 @@ export const test_architecture_space_stations = (): void => {
       "and a space the record does not hold is named in the refusal": true,
     },
   );
-};
+}
 
 /**
  * Whether each station in order stands at its expected metre, by station id.
  *
- * Positions are metres of building, so they are compared within a tolerance
- * rather than by deep equality; the ladder's fifth of a twentieth lands on
- * `0.15000000000000002` and a room is not wrong by two attometres. `null`
- * expects a station present with no pose.
+ * Positions are building metres and use the shared vector comparison. Null expects a station present with no pose; the owning entry separately requires the full named population, so a missing station cannot pass by an empty iteration.
  */
-const placedAt = (
+const placedAt: (stations: ReadonlyArray<{ id: string; pose: { position: IAutoMovieVector3; } | null; }>, expected: ReadonlyArray<IAutoMovieVector3 | null>) => Record<string, boolean> = (
   stations: ReadonlyArray<{
     id: string;
     pose: { position: IAutoMovieVector3 } | null;
@@ -227,22 +224,22 @@ const placedAt = (
 ): Record<string, boolean> =>
   namedFacts(
     stations.map(
-      (station, index) =>
+      (station: { id: string; pose: { position: IAutoMovieVector3; } | null; }, index: number) : readonly [string, () => boolean] =>
         [
           station.id,
-          () => {
-            const want = expected[index] ?? null;
-            return want === null
+          () : boolean => {
+            const want: IAutoMovieVector3 | null = expected[index] ?? null;
+            return stations.length === expected.length && (want === null
               ? station.pose === null
-              : station.pose !== null && vclose(station.pose.position, want);
+              : station.pose !== null && vclose(station.pose.position, want));
           },
         ] as const,
     ),
   );
 
 /** The hall with one uncut passage added through its east wall. */
-const withSideHatch = (): IAutoMovieBuiltEnvironment => {
-  const record = rectangularBuilding();
+const withSideHatch: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
+  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
   return {
     ...record,
     openings: [
@@ -258,8 +255,8 @@ const withSideHatch = (): IAutoMovieBuiltEnvironment => {
 };
 
 /** The hall with one child space that carries a name and no volume. */
-const withNamedWing = (): IAutoMovieBuiltEnvironment => {
-  const record = rectangularBuilding();
+const withNamedWing: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
+  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
   return {
     ...record,
     spaces: [

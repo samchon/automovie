@@ -1,8 +1,8 @@
+import type { IAutoMovieBuiltEnvironment, IAutoMovieDrawing, IAutoMovieDrawingGap, IAutoMovieDrawingView } from "@automovie/interface";
 import {
   autoMovieDrawingToSvg,
   deriveAutoMovieDrawing,
 } from "@automovie/engine";
-import { IAutoMovieDrawingView } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,6 +11,7 @@ import {
   drawingView,
 } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
+import { test02DrawingSvgExtents } from "../internal/test02DrawingSvgExtents";
 
 /**
  * The sheet a person reads and the sidecar a machine reads are one file.
@@ -46,9 +47,14 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 8. The same drawing serializes to the same bytes twice.
  * 9. A pen that does not belong to the drawing, and a pen with a bad weight, dash
  *    or text height, are each refused at their own message.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives and serializes the existing annotated atelier view; compares the complete root string and one cut-line string, observes role weights/dashes and selected region/opening/dimension/note/gap markers, literal XML escapes, blank/annotation-only page extents, null-attribute fallbacks, full repeated SVG strings and pen refusals. Original scenario 7 delegates sequentially to test02DrawingSvgExtents before replay and refusals.
+ * @evidence contracts/testing.md#independent-expectations Scale fifty makes one model metre twenty page millimetres; the authored 10-by-6 extent plus two ten-millimetre margins gives 220 by 140. Literal endpoint/text/page strings, authored pen weights/dashes, empty-size strings and escape entities anchor serialization independently of the serializer; root digest and enumerated gaps are propagated from the derived drawing rather than independently recomputed.
+ * @evidence contracts/testing.md#distinguishing-cases Four unequal role weights and two dashed roles, measured/unmeasured openings, resolved/stale targets, markup-bearing text, populated/blank/annotation-only extents, null finish/space/reasons, full string replay and mismatched-id/zero/NaN/negative pen values distinguish output branches. String comparisons intentionally check the formatted wire protocol, including numeric spellings; marker searches do not establish uniqueness or exact complete element inventories.
+ * @evidence contracts/testing.md#execution-ownership Uses existing local declarations and synchronous public drawing/SVG APIs with in-memory strings only; starts no renderer, browser, XML parser, filesystem publication, clock, replacement seam or alternate host. Selected text escapes and attributes do not certify arbitrary XML validity, visual appearance or glyph bounds. The existing hand-built reasonless records retain the supplied digest; serialization is not tested as digest validation or recomputation, and view admission checks its id rather than full view identity.
  */
-export const test_drawing_svg_sidecar = (): void => {
-  const environment = drawingEnvironment();
+export function test_drawing_svg_sidecar(): void {
+  const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
   const view: IAutoMovieDrawingView = drawingView({
     id: "sheet",
     depth: 1.3,
@@ -116,9 +122,9 @@ export const test_drawing_svg_sidecar = (): void => {
       },
     ],
   });
-  const drawing = deriveAutoMovieDrawing({ environment, view });
-  const svg = autoMovieDrawingToSvg({ drawing, view });
-  const lines = svg.split("\n");
+  const drawing: IAutoMovieDrawing = deriveAutoMovieDrawing({ environment, view });
+  const svg: string = autoMovieDrawingToSvg({ drawing, view });
+  const lines: string[] = svg.split("\n");
 
   // 1. The sheet is the drawing at its own scale.
   TestValidator.equals(
@@ -141,13 +147,13 @@ export const test_drawing_svg_sidecar = (): void => {
   TestValidator.equals(
     "a cut line is placed by the scale and the flip, and says what drew it",
     lines.find(
-      (line) =>
+      (line: string) : boolean =>
         line.includes('data-owner="north-wall"') &&
         line.includes('data-role="cut"'),
     ),
-    // The wall's cut runs from page (0, -0.2) to (0, 0); the extent's top-left
-    // is (0, 0), so x is the margin and y runs from the margin down by 0.2 m,
-    // which is 4 mm at 1:50.
+    // The first tessellated side-face cut segment runs from page (0, -0.2)
+    // to (0, -0.12), where the cut meets that face's triangle diagonal. With
+    // extent top-left (0, 0), those become x=10 and y=14..12.4 millimetres.
     '  <line class="automovie-line" data-owner="north-wall" data-space="hall" ' +
       'data-layer="wall" data-role="cut" x1="10.000" y1="14.000" x2="10.000" ' +
       'y2="12.400" stroke="currentColor" stroke-width="0.500" />',
@@ -157,7 +163,7 @@ export const test_drawing_svg_sidecar = (): void => {
     namedFacts([
       [
         "the four roles carry the four authored weights",
-        () =>
+        () : boolean =>
           (
             [
               ["cut", "0.500"],
@@ -165,9 +171,9 @@ export const test_drawing_svg_sidecar = (): void => {
               ["overhead", "0.180"],
               ["hidden", "0.130"],
             ] as const
-          ).every(([role, weight]) =>
+          ).every(([role, weight]: readonly ["cut", "0.500"] | readonly ["projected", "0.250"] | readonly ["overhead", "0.180"] | readonly ["hidden", "0.130"]) : boolean =>
             lines.some(
-              (line) =>
+              (line: string) : boolean =>
                 line.includes(`data-role="${role}"`) &&
                 line.includes(`stroke-width="${weight}"`),
             ),
@@ -175,24 +181,24 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "overhead and hidden dash and cut and projected do not",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.includes('data-role="overhead"') &&
               line.includes('stroke-dasharray="3.000,1.500"'),
           ) &&
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.includes('data-role="hidden"') &&
               line.includes('stroke-dasharray="1.000,1.000"'),
           ) &&
           lines
             .filter(
-              (line) =>
+              (line: string) : boolean =>
                 line.includes('data-role="cut"') ||
                 line.includes('data-role="projected"'),
             )
-            .every((line) => line.includes("stroke-dasharray") === false),
+            .every((line: string) : boolean => line.includes("stroke-dasharray") === false),
       ],
     ]),
     {
@@ -207,9 +213,9 @@ export const test_drawing_svg_sidecar = (): void => {
     namedFacts([
       [
         "a region names its space, cell, kind, finish and exact area",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <polygon class="automovie-region"') &&
               line.includes('data-space="hall"') &&
               line.includes('data-cell="hall-cell"') &&
@@ -220,9 +226,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a measured opening is drawn as its own void outline",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <polygon class="automovie-opening"') &&
               line.includes('data-opening="oculus"') &&
               line.includes('data-basis="profile"') &&
@@ -232,9 +238,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "an opening nothing proves is still carried, as an empty marker",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <g class="automovie-opening"') &&
               line.includes('data-opening="vent"') &&
               line.includes('data-basis="none"') &&
@@ -244,9 +250,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a resolved dimension carries its measure and its value",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <line class="automovie-dimension"') &&
               line.includes('data-id="wall-length"') &&
               line.includes('data-status="resolved"') &&
@@ -256,9 +262,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a stale dimension carries its reason and no geometry",
-        () =>
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <g class="automovie-dimension"') &&
               line.includes('data-id="lost"') &&
               line.includes('data-status="stale"') &&
@@ -267,10 +273,10 @@ export const test_drawing_svg_sidecar = (): void => {
           ),
       ],
       [
-        "a resolved note is text at its own place and text height",
-        () =>
+        "a resolved note emits its id, text height and text element closure",
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <text class="automovie-annotation"') &&
               line.includes('data-id="note"') &&
               line.includes('font-size="2.500"') &&
@@ -279,18 +285,18 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a note containing markup is escaped into text, not into markup",
-        () =>
-          lines.some((line) =>
+        () : boolean =>
+          lines.some((line: string) : boolean =>
             line.includes(
               ">blockwork &lt;&quot;fair-faced&quot;&gt; &amp; sealed</text>",
             ),
           ),
       ],
       [
-        "a stale note carries its reason and no position",
-        () =>
+        "a stale note emits a group with its id and stale status",
+        () : boolean =>
           lines.some(
-            (line) =>
+            (line: string) : boolean =>
               line.startsWith('  <g class="automovie-annotation"') &&
               line.includes('data-id="lost-note"') &&
               line.includes('data-status="stale"'),
@@ -298,10 +304,10 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "every gap the drawing declared reaches the sheet",
-        () =>
-          drawing.gaps.every((gap) =>
+        () : boolean =>
+          drawing.gaps.every((gap: IAutoMovieDrawingGap) : boolean =>
             lines.some(
-              (line) =>
+              (line: string) : boolean =>
                 line.startsWith('  <g class="automovie-gap"') &&
                 line.includes(`data-subject="${gap.subject}"`) &&
                 line.includes(`data-status="${gap.status}"`),
@@ -310,7 +316,7 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "an apostrophe in a declared reason is escaped rather than closing an attribute",
-        () => lines.some((line) => line.includes("&apos;")),
+        () : boolean => lines.some((line: string) : boolean => line.includes("&apos;")),
       ],
     ]),
     {
@@ -319,228 +325,16 @@ export const test_drawing_svg_sidecar = (): void => {
       "an opening nothing proves is still carried, as an empty marker": true,
       "a resolved dimension carries its measure and its value": true,
       "a stale dimension carries its reason and no geometry": true,
-      "a resolved note is text at its own place and text height": true,
+      "a resolved note emits its id, text height and text element closure": true,
       "a note containing markup is escaped into text, not into markup": true,
-      "a stale note carries its reason and no position": true,
+      "a stale note emits a group with its id and stale status": true,
       "every gap the drawing declared reaches the sheet": true,
       "an apostrophe in a declared reason is escaped rather than closing an attribute": true,
     },
   );
 
-  // 7. A sheet with nothing on it.
-  const blankView = drawingView({
-    id: "blank",
-    projection: "elevation",
-    direction: { x: 0, y: 0, z: 1 },
-    up: { x: 0, y: 1, z: 0 },
-    elementKinds: ["nothing-of-this-kind"],
-    spaces: ["roof-deck"],
-  });
-  const blank = autoMovieDrawingToSvg({
-    drawing: deriveAutoMovieDrawing({ environment, view: blankView }),
-    view: blankView,
-  });
-  TestValidator.equals(
-    "a drawing with nothing on it is a sheet of margins",
-    [
-      blank.startsWith(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="20.000mm" height="20.000mm"',
-      ),
-      blank.split("\n").filter((line) => line.includes("automovie-line"))
-        .length,
-    ],
-    [true, 0],
-  );
-
-  // A sheet whose only content is its own annotation is still that sheet's size.
-  const slabFeature = (
-    kind: "vertex" | "centroid",
-    index: number,
-    element: string,
-  ) => ({ element, part: null, kind, index, count: null }) as const;
-  const noteOnly = (element: string): IAutoMovieDrawingView =>
-    drawingView({
-      id: "note-only",
-      // Nothing is drafted and no cell is sectioned, so the linework and the
-      // regions contribute no extent at all and the annotation is the whole of
-      // what the sheet has to hold.
-      elementKinds: ["nothing-of-this-kind"],
-      spaces: ["roof-deck"],
-      dimensions: [
-        {
-          id: "slab-diagonal",
-          from: slabFeature("vertex", 0, element),
-          to: slabFeature("vertex", 7, element),
-          measure: "page",
-        },
-      ],
-      annotations: [
-        {
-          id: "slab-note",
-          text: "screed",
-          target: slabFeature("centroid", 0, element),
-        },
-      ],
-    });
-  const noteOnlySheet = (element: string): string[] =>
-    autoMovieDrawingToSvg({
-      drawing: deriveAutoMovieDrawing({
-        environment,
-        view: noteOnly(element),
-      }),
-      view: noteOnly(element),
-    }).split("\n");
-  const annotated = noteOnlySheet("floor-slab");
-  TestValidator.equals(
-    "a sheet whose only content is its annotation is sized to hold it",
-    namedFacts([
-      [
-        "the page is the annotated span at 1:50 plus a margin on every side",
-        () =>
-          annotated[0]!.startsWith(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="220.000mm" height="140.000mm" viewBox="0 0 220.000 140.000"',
-          ),
-      ],
-      [
-        // The slab's far corners are page (0, 0) and (10, -6) and its centre is
-        // page (5, -3); at 1:50 with a 10 mm margin those are the two ends of
-        // the sheet's own diagonal and its middle, so nothing sits outside the
-        // viewBox the way it did when the box was taken from linework alone.
-        "the dimension runs corner to corner of the page it sized",
-        () =>
-          annotated.some(
-            (line) =>
-              line.includes('data-id="slab-diagonal"') &&
-              line.includes(
-                'x1="10.000" y1="10.000" x2="210.000" y2="130.000"',
-              ),
-          ),
-      ],
-      [
-        "the note sits at the middle of that page",
-        () =>
-          annotated.some(
-            (line) =>
-              line.includes('data-id="slab-note"') &&
-              line.includes('x="110.000" y="70.000"'),
-          ),
-      ],
-      [
-        "a target that resolves to nothing sizes nothing, so the sheet is margins",
-        () =>
-          noteOnlySheet("no-such-slab")[0]!.startsWith(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="20.000mm" height="20.000mm"',
-          ),
-      ],
-    ]),
-    {
-      "the page is the annotated span at 1:50 plus a margin on every side": true,
-      "the dimension runs corner to corner of the page it sized": true,
-      "the note sits at the middle of that page": true,
-      "a target that resolves to nothing sizes nothing, so the sheet is margins": true,
-    },
-  );
-
-  TestValidator.equals(
-    "a region with no finish and a line in no space are written as empty, not omitted",
-    namedFacts([
-      [
-        "a ceiling region names no finish and says so with an empty attribute",
-        () => {
-          const ceilingView = drawingView({
-            id: "ceiling",
-            projection: "reflected-ceiling-plan",
-            origin: { x: 0, y: 3.05, z: 0 },
-            direction: { x: 0, y: 1, z: 0 },
-            up: { x: 0, y: 0, z: -1 },
-          });
-          return autoMovieDrawingToSvg({
-            drawing: deriveAutoMovieDrawing({
-              environment,
-              view: ceilingView,
-            }),
-            view: ceilingView,
-          }).includes(
-            'data-space="roof-deck" data-cell="deck-cell" data-kind="roof-deck" data-finish=""',
-          );
-        },
-      ],
-      [
-        "a line whose element belongs to no space carries an empty space",
-        () => {
-          const plainView = drawingView({ id: "plain" });
-          return autoMovieDrawingToSvg({
-            drawing: deriveAutoMovieDrawing({
-              environment: {
-                ...environment,
-                elements: environment.elements.map((element) =>
-                  element.id === "floor-slab"
-                    ? { ...element, space: null }
-                    : element,
-                ),
-              },
-              view: plainView,
-            }),
-            view: plainView,
-          }).includes(
-            'data-owner="floor-slab" data-space="" data-layer="slab"',
-          );
-        },
-      ],
-    ]),
-    {
-      "a ceiling region names no finish and says so with an empty attribute": true,
-      "a line whose element belongs to no space carries an empty space": true,
-    },
-  );
-
-  TestValidator.equals(
-    "a stale record that carries no reason writes an empty one, not the word null",
-    namedFacts([
-      [
-        "a hand-built stale dimension and note serialize without a reason",
-        () => {
-          const emitted = autoMovieDrawingToSvg({
-            drawing: {
-              ...drawing,
-              dimensions: [
-                {
-                  id: "reasonless",
-                  measure: "page",
-                  status: "stale",
-                  from: null,
-                  to: null,
-                  value: null,
-                  reason: null,
-                },
-              ],
-              annotations: [
-                {
-                  id: "reasonless-note",
-                  text: "no reason given",
-                  status: "stale",
-                  at: null,
-                  reason: null,
-                },
-              ],
-            },
-            view,
-          });
-          return (
-            emitted.includes(
-              '<g class="automovie-dimension" data-id="reasonless" data-status="stale" data-reason="" />',
-            ) &&
-            emitted.includes(
-              '<g class="automovie-annotation" data-id="reasonless-note" data-status="stale" data-reason="" />',
-            )
-          );
-        },
-      ],
-    ]),
-    {
-      "a hand-built stale dimension and note serialize without a reason": true,
-    },
-  );
+  // 7. Existing extent/empty-attribute probes run before byte replay and refusals.
+  test02DrawingSvgExtents(environment, drawing, view);
 
   // 8. Determinism.
   TestValidator.equals(
@@ -561,9 +355,9 @@ export const test_drawing_svg_sidecar = (): void => {
     namedFacts([
       [
         "another view's pen is refused rather than silently applied",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: drawingView({ id: "some-other-view" }),
@@ -573,9 +367,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a zero stroke weight is refused at the role that carries it",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -588,9 +382,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a non-finite stroke weight is refused",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -603,9 +397,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a negative dash is refused at the role that carries it",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -618,9 +412,9 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a zero text height is refused",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, { ...drawingStyle(), textHeight: 0 }),
@@ -630,7 +424,7 @@ export const test_drawing_svg_sidecar = (): void => {
       ],
       [
         "a solid pen with no dash at all is accepted",
-        () =>
+        () : boolean =>
           autoMovieDrawingToSvg({
             drawing,
             view: withStyle(view, {
@@ -649,10 +443,10 @@ export const test_drawing_svg_sidecar = (): void => {
       "a solid pen with no dash at all is accepted": true,
     },
   );
-};
+}
 
 /** The same view holding a different pen. */
-const withStyle = (
+const withStyle: (view: IAutoMovieDrawingView, style: IAutoMovieDrawingView["style"]) => IAutoMovieDrawingView = (
   view: IAutoMovieDrawingView,
   style: IAutoMovieDrawingView["style"],
 ): IAutoMovieDrawingView => ({ ...view, style });

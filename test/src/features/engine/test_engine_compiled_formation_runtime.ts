@@ -96,21 +96,20 @@ const strip: (id: string, from: { x: number; z: number; }, to: { x: number; z: n
   worldRamp({ id, from, to, width, baseHeight: 0, rise: 0, walkable: true });
 
 /**
- * A formation compiles to a compact record that stores what regenerates its
- * members, and to the same record wherever it compiles.
+ * A formation compiles to compact placement laws, summaries and repeatable digests.
  *
- * Every expectation is hand geometry on one rank of 1,025 members a metre apart,
- * or the Node builder's own digest of canonical JSON: the engine kernel runs no
- * Node built-in, so a digest equal to Node's is the evidence that moving the
- * kernel out of the Node package kept every compiled identity.
+ * Hand geometry anchors one rank of 1,025 members a metre apart. Node crypto
+ * independently hashes bytes from the shared canonicalizer; this checks the
+ * engine's digest implementation for these records, not every canonicalization
+ * decision or historical compiled identity.
  *
  * Scenarios:
  *
  * 1. One member past a chunk makes two chunks: the first 1,024 members and the
  *    last one, each with its exact bounds and centroid, and each counting its
  *    anonymous members after the hero standing in it is excluded.
- * 2. Heroes compile in slot order at their slot's position, turned by the
- *    heading; a quarter heading turns them a quarter about +Y.
+ * 2. Heroes compile in slot order at their authored unturned positions, with a
+ *    heading quaternion; a quarter heading turns that quaternion a quarter about +Y.
  * 3. Anonymous tiers drop the declared hero tier and keep the rest in order; a
  *    declared tier recipe carries the Node digest of that recipe, and every tier
  *    carries its runtime model id. A base recipe declaring no tiers draws
@@ -126,10 +125,10 @@ const strip: (id: string, from: { x: number; z: number; }, to: { x: number; z: n
  *    near tier and a half-metre radius, and a hero outside the formation refuses
  *    compilation.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default prototype policy or copied terrain ownership change observable fields.
- * @evidence contracts/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, whole extrema -512..512 and mean zero. Terrain rectangles determine XZ overlap independently; Node SHA of canonical bytes checks digest parity, while missing-radius expectations pin explicit policy rather than claim enclosure.
+ * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default tier policy or selected terrain change observable fields.
+ * @evidence contracts/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-recipe cases check continuation rather than independently verify the fallback marker digest.
  * @evidence contracts/testing.md#distinguishing-cases Covers one beyond a chunk, out-of-order heroes, quarter-turn heading, hero-tier filtering, absent/unencodable recipes, measured/base/0.5m/floor radii, terrain beyond every footprint side, seed/terrain digest changes and outside hero refusal. Slot identity on nonflat relief is owned by test_engine_compiled_formation_slot.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_formation_runtime owns synchronous portable compiler cases; Node crypto supplies an independent byte oracle and no viewer, GPU or production consumer is launched.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_formation_runtime owns synchronous portable compiler cases; Node crypto independently hashes the shared canonicalizer's encoded bytes. All records/maps remain local and no viewer, GPU, publication, global replacement or production consumer is launched; selected digests do not prove collision-free identity or universal platform equivalence.
  */
 export function test_engine_compiled_formation_runtime(): void {
   // 1. Chunks.
@@ -160,6 +159,7 @@ export function test_engine_compiled_formation_runtime(): void {
         () : boolean => last!.index === 1 && last!.start === 1_024 && last!.count === 1,
       ],
       ["lastAnonymous", () : boolean => last!.anonymousCount === 0],
+      ["lastBounds", () : boolean => vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) && vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0)],
       ["lastCentroid", () : boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
       [
         "total",
@@ -184,6 +184,7 @@ export function test_engine_compiled_formation_runtime(): void {
       firstCentroid: true,
       lastRange: true,
       lastAnonymous: true,
+      lastBounds: true,
       lastCentroid: true,
       total: true,
       totalBounds: true,
@@ -282,7 +283,7 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "models",
         () : boolean =>
-          withTiers.lod.every(
+          withTiers.lod.map((item: IAutoMovieCompiledFormationLod): string => item.model).join() === "automovie:model:member,automovie:model:member-far" && withTiers.lod.every(
             (item: IAutoMovieCompiledFormationLod) : boolean => item.model === productionRuntimeModelId(item.recipe),
           ),
       ],
@@ -326,20 +327,20 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "largest",
         () : boolean =>
-          radius([
+          nclose(radius([
             ["member", 0.4],
             ["member-far", 1.2],
-          ]) === 1.2,
+          ]), 1.2, 0),
       ],
-      ["borrowsBase", () : boolean => radius([["member", 0.4]]) === 0.4],
-      ["halfMetre", () : boolean => radius([]) === 0.5],
+      ["borrowsBase", () : boolean => nclose(radius([["member", 0.4]]), 0.4, 0)],
+      ["halfMetre", () : boolean => nclose(radius([]), 0.5, 0)],
       [
         "centimetreFloor",
         () : boolean =>
-          radius(
+          nclose(radius(
             [["member", 0.001]],
             new Map([["member", recipe("member", [])]]),
-          ) === 0.01,
+          ), 0.01, 0),
       ],
     ]),
     {
@@ -419,7 +420,7 @@ export function test_engine_compiled_formation_runtime(): void {
     "defaults compile a bare record and a hero outside the unit refuses",
     namedFacts([
       ["noTerrain", () : boolean => compiled.ground.length === 0],
-      ["halfMetre", () : boolean => compiled.projectionRadius === 0.5],
+      ["halfMetre", () : boolean => nclose(compiled.projectionRadius, 0.5, 0)],
       [
         "heroOutside",
         () : boolean =>

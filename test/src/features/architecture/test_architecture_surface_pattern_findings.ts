@@ -1,4 +1,5 @@
 import {
+  type IAutoMoviePatternFinding, type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMovieSurfacePatternResult, type IAutoMovieSurfacePatternZone,
   type AutoMovieSurfacePatternGenerator,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
@@ -8,13 +9,13 @@ import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** One course of modules, laid only on the lattice row through the region. */
-const course =
+const course: (size: number, grainDeg: number, height: number) => AutoMovieSurfacePatternGenerator =
   (
     size: number,
     grainDeg: number,
     height: number,
   ): AutoMovieSurfacePatternGenerator =>
-  ({ column, row, origin, period }) =>
+  ({ column, row, origin, period }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
     row !== 0
       ? []
       : [
@@ -35,9 +36,9 @@ const course =
  * A joint is read perpendicular to the edges it separates, so two modules that
  * overlap, that sit further apart than the joint allows, or that run their
  * grain in different directions are all measured the same way and reported as
- * structured findings rather than as a render that looks wrong. Neighbours are
- * whatever falls inside the declared adjacency gap, which is what lets the same
- * scan report across a zone border and inside one zone with no second rule.
+ * structured findings. Candidate neighbours use centre buckets and the narrow
+ * phase measures edge-normal projection gaps, rather than Euclidean distance;
+ * these aligned fixtures exercise that shared rule within and across zones.
  *
  * Scenarios:
  *
@@ -63,9 +64,14 @@ const course =
  *    and stay silent inside each zone.
  * 7. A null grain tolerance disables the grain scan entirely, even where the grain
  *    turns ninety degrees.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs generateAutoMovieSurfacePattern and inspects laid outlines plus ordered overlap/joint/grain findings for overlapping courses, shared borders, triangular clipping, narrowed modules, and zone transitions.
+ * @evidence contracts/testing.md#independent-expectations Authored 0.6 widths on a 0.5 pitch imply 0.1 penetration; the 0.98/0.94 course widths imply 0.04 gaps around the narrowed middle piece. Explicit clipped triangles, zero butt joint, 20 mm nominal, 90-degree grain turn, and named occurrence pairs supply independent numerical and identity oracles.
+ * @evidence contracts/testing.md#distinguishing-cases Clipped shared-border pieces must avoid the uncut rectangles' false overlap; exact clip corners remain distinct and still report a nonzero nominal joint deviation. Nominal/narrow courses, joint-plus-grain ordering, cross-zone grain only, and null tolerance distinguish each scan policy.
+ * @evidence contracts/testing.md#execution-ownership Uses synchronous authored records/generator callbacks and numerical engine output without a renderer, resources, clocks, global replacement, or additional host. The aligned cases do not prove exhaustive Euclidean neighbourhood detection or rendered surface quality.
  */
-export const test_architecture_surface_pattern_findings = (): void => {
-  const overlapping = generateAutoMovieSurfacePattern({
+export function test_architecture_surface_pattern_findings(): void {
+  const overlapping: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "overlap",
       zones: [
@@ -74,7 +80,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
           region: rectangle(-0.1, 0, 2.1, 0.6),
           period: { u: 0.5, v: 2 },
           reach: { u: 0.6, v: 0.6 },
-          generate: ({ column, row, origin }) =>
+          generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
             row !== 0
               ? []
               : [
@@ -95,7 +101,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
   });
   TestValidator.equals(
     "every overlapping neighbour pair is reported, and no distant pair is",
-    overlapping.findings.map((one) => one.occurrences.join("+")),
+    overlapping.findings.map((one: IAutoMoviePatternFinding) : string => one.occurrences.join("+")),
     [
       "bad/m-1+bad/m0",
       "bad/m0+bad/m1",
@@ -109,27 +115,27 @@ export const test_architecture_surface_pattern_findings = (): void => {
     namedFacts([
       [
         "kinds",
-        () =>
-          overlapping.findings.every((one) => one.kind === "module-overlap"),
+        () : boolean =>
+          overlapping.findings.every((one: IAutoMoviePatternFinding) : boolean => one.kind === "module-overlap"),
       ],
       [
         "measured",
-        () =>
-          overlapping.findings.every((one) => nclose(one.measured, -0.1, 1e-9)),
+        () : boolean =>
+          overlapping.findings.every((one: IAutoMoviePatternFinding) : boolean => nclose(one.measured, -0.1, 1e-9)),
       ],
-      ["limit", () => overlapping.findings.every((one) => one.limit === 0)],
+      ["limit", () : boolean => overlapping.findings.every((one: IAutoMoviePatternFinding) : boolean => nclose(one.limit, 0, 0))],
       [
         "detail",
-        () =>
+        () : boolean =>
           overlapping.findings[0]!.detail.includes(
             "instead of leaving a joint",
           ),
       ],
-      ["placements", () => overlapping.placements.length === 6],
+      ["placements", () : boolean => overlapping.placements.length === 6],
       [
         "outside",
-        () =>
-          overlapping.placements.map((one) => one.module).join() ===
+        () : boolean =>
+          overlapping.placements.map((one: IAutoMoviePatternPlacement) : string => one.module).join() ===
           "m-1,m0,m1,m2,m3,m4",
       ],
     ]),
@@ -143,10 +149,10 @@ export const test_architecture_surface_pattern_findings = (): void => {
     },
   );
 
-  const straddle = zone({
+  const straddle: IAutoMovieSurfacePatternZone = zone({
     period: { u: 1, v: 1 },
     reach: { u: 0.6, v: 0.6 },
-    generate: ({ column, row, origin }) =>
+    generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
       row !== 0
         ? []
         : [
@@ -160,7 +166,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
             },
           ],
   });
-  const shared = generateAutoMovieSurfacePattern({
+  const shared: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "border",
       zones: [
@@ -180,13 +186,13 @@ export const test_architecture_surface_pattern_findings = (): void => {
     namedFacts([
       [
         "placements",
-        () =>
-          shared.placements.map((one) => one.id).join() ===
+        () : boolean =>
+          shared.placements.map((one: IAutoMoviePatternPlacement) : string => one.id).join() ===
           "a/c0,a/c1,b/c0,b/c1",
       ],
       [
         "sameRectangle",
-        () =>
+        () : boolean =>
           nclose(shared.placements[1]!.center.u, 1, 1e-12) &&
           nclose(shared.placements[2]!.center.u, 1, 1e-12) &&
           nclose(shared.placements[1]!.size.u, 1, 1e-12) &&
@@ -194,9 +200,9 @@ export const test_architecture_surface_pattern_findings = (): void => {
       ],
       [
         "cutAtBorder",
-        () => shared.placements.every((one) => one.cut === "boundary"),
+        () : boolean => shared.placements.every((one: IAutoMoviePatternPlacement) : boolean => one.cut === "boundary"),
       ],
-      ["findings", () => shared.findings.length === 0],
+      ["findings", () : boolean => shared.findings.length === 0],
     ]),
     {
       placements: true,
@@ -206,7 +212,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
     },
   );
 
-  const onCorner = (joint: number, jointTolerance: number, adjacency: number) =>
+  const onCorner: (joint: number, jointTolerance: number, adjacency: number) => IAutoMovieSurfacePatternResult = (joint: number, jointTolerance: number, adjacency: number) : IAutoMovieSurfacePatternResult =>
     generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "corner",
@@ -221,7 +227,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
             origin: { u: 0.5, v: 0.5 },
             period: { u: 1, v: 1 },
             reach: { u: 1, v: 1 },
-            generate: ({ column, row, origin }) =>
+            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
               row !== 0 || column < -1 || column > 0
                 ? []
                 : [
@@ -242,33 +248,33 @@ export const test_architecture_surface_pattern_findings = (): void => {
         minimumPiece: 0.5,
       }),
     });
-  const cornered = onCorner(0, 0, 0);
+  const cornered: IAutoMovieSurfacePatternResult = onCorner(0, 0, 0);
   TestValidator.equals(
     "a corner landing exactly on a clip edge is kept once, not twice",
     namedFacts([
-      ["placements", () => cornered.placements.length === 2],
-      ["triangle", () => cornered.placements[1]!.outline.length === 3],
+      ["placements", () : boolean => cornered.placements.length === 2],
+      ["triangle", () : boolean => cornered.placements[1]!.outline.length === 3],
       [
         "distinct",
-        () =>
-          cornered.placements.every((one) =>
+        () : boolean =>
+          cornered.placements.every((one: IAutoMoviePatternPlacement) : boolean =>
             one.outline.every(
-              (point, index) =>
-                point.u !== one.outline[(index + 1) % one.outline.length]!.u ||
-                point.v !== one.outline[(index + 1) % one.outline.length]!.v,
+              (point: IAutoMoviePatternPoint, index: number) : boolean =>
+                !nclose(point.u, one.outline[(index + 1) % one.outline.length]!.u, 0) ||
+                !nclose(point.v, one.outline[(index + 1) % one.outline.length]!.v, 0),
             ),
           ),
       ],
       [
         "areas",
-        () => cornered.placements.every((one) => nclose(one.area, 0.5, 1e-12)),
+        () : boolean => cornered.placements.every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.area, 0.5, 1e-12)),
       ],
       [
         "coverage",
-        () =>
-          cornered.placements.every((one) => nclose(one.coverage, 0.5, 1e-12)),
+        () : boolean =>
+          cornered.placements.every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.coverage, 0.5, 1e-12)),
       ],
-      ["findings", () => cornered.findings.length === 0],
+      ["findings", () : boolean => cornered.findings.length === 0],
     ]),
     {
       placements: true,
@@ -279,24 +285,24 @@ export const test_architecture_surface_pattern_findings = (): void => {
       findings: true,
     },
   );
-  const cornerJoint = onCorner(0.02, 0.001, 0.05);
+  const cornerJoint: IAutoMovieSurfacePatternResult = onCorner(0.02, 0.001, 0.05);
   TestValidator.equals(
     "the two pieces are still measured against each other, not skipped as NaN",
     cornerJoint.findings.map(
-      (one) => `${one.kind}:${one.occurrences.join("+")}`,
+      (one: IAutoMoviePatternFinding) : string => `${one.kind}:${one.occurrences.join("+")}`,
     ),
     ["joint-deviation:tri/m-1+tri/m0"],
   );
   TestValidator.equals(
     "and the measurement is the real zero-metre butt joint",
     namedFacts([
-      ["measured", () => cornerJoint.findings[0]!.measured === 0],
-      ["limit", () => nclose(cornerJoint.findings[0]!.limit, 0.02, 1e-12)],
+      ["measured", () : boolean => nclose(cornerJoint.findings[0]!.measured, 0, 0)],
+      ["limit", () : boolean => nclose(cornerJoint.findings[0]!.limit, 0.02, 1e-12)],
     ]),
     { measured: true, limit: true },
   );
 
-  const run = (narrow: boolean, grainToleranceDeg: number | null) =>
+  const run: (narrow: boolean, grainToleranceDeg: number | null) => IAutoMovieSurfacePatternResult = (narrow: boolean, grainToleranceDeg: number | null) : IAutoMovieSurfacePatternResult =>
     generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "course",
@@ -306,7 +312,7 @@ export const test_architecture_surface_pattern_findings = (): void => {
             region: rectangle(0, 0, 3, 0.5),
             period: { u: 1, v: 2 },
             reach: { u: 1, v: 0.5 },
-            generate: ({ column, row, origin }) =>
+            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
               row !== 0
                 ? []
                 : [
@@ -333,29 +339,29 @@ export const test_architecture_surface_pattern_findings = (): void => {
       }),
     });
 
-  const opened = run(true, null);
+  const opened: IAutoMovieSurfacePatternResult = run(true, null);
   TestValidator.equals(
     "a narrower module opens both of its joints beyond the tolerance",
     namedFacts([
-      ["placements", () => opened.placements.length === 3],
-      ["count", () => opened.findings.length === 2],
+      ["placements", () : boolean => opened.placements.length === 3],
+      ["count", () : boolean => opened.findings.length === 2],
       [
         "kinds",
-        () => opened.findings.every((one) => one.kind === "joint-deviation"),
+        () : boolean => opened.findings.every((one: IAutoMoviePatternFinding) : boolean => one.kind === "joint-deviation"),
       ],
       [
         "pairs",
-        () =>
-          opened.findings.map((one) => one.occurrences.join("+")).join() ===
+        () : boolean =>
+          opened.findings.map((one: IAutoMoviePatternFinding) : string => one.occurrences.join("+")).join() ===
           "band/c0+band/c1,band/c1+band/c2",
       ],
       [
         "measured",
-        () => opened.findings.every((one) => nclose(one.measured, 0.04, 1e-9)),
+        () : boolean => opened.findings.every((one: IAutoMoviePatternFinding) : boolean => nclose(one.measured, 0.04, 1e-9)),
       ],
       [
         "limit",
-        () => opened.findings.every((one) => nclose(one.limit, 0.02, 1e-12)),
+        () : boolean => opened.findings.every((one: IAutoMoviePatternFinding) : boolean => nclose(one.limit, 0.02, 1e-12)),
       ],
     ]),
     {
@@ -374,10 +380,10 @@ export const test_architecture_surface_pattern_findings = (): void => {
     0,
   );
 
-  const turned = run(true, 5);
+  const turned: IAutoMovieSurfacePatternResult = run(true, 5);
   TestValidator.equals(
     "a pair that deviates in joint and grain raises both, joint first",
-    turned.findings.map((one) => `${one.kind}:${one.occurrences.join("+")}`),
+    turned.findings.map((one: IAutoMoviePatternFinding) : string => `${one.kind}:${one.occurrences.join("+")}`),
     [
       "joint-deviation:band/c0+band/c1",
       "grain-break:band/c0+band/c1",
@@ -388,14 +394,14 @@ export const test_architecture_surface_pattern_findings = (): void => {
   TestValidator.equals(
     "a grain break reports the smallest angle between the two directions",
     namedFacts([
-      ["measured", () => nclose(turned.findings[1]!.measured, 90, 1e-12)],
-      ["limit", () => nclose(turned.findings[1]!.limit, 5, 1e-12)],
-      ["detail", () => turned.findings[1]!.detail.includes("run their grain")],
+      ["measured", () : boolean => nclose(turned.findings[1]!.measured, 90, 1e-12)],
+      ["limit", () : boolean => nclose(turned.findings[1]!.limit, 5, 1e-12)],
+      ["detail", () : boolean => turned.findings[1]!.detail.includes("run their grain")],
     ]),
     { measured: true, limit: true, detail: true },
   );
 
-  const transition = (grainToleranceDeg: number | null) =>
+  const transition: (grainToleranceDeg: number | null) => IAutoMovieSurfacePatternResult = (grainToleranceDeg: number | null) : IAutoMovieSurfacePatternResult =>
     generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "transition",
@@ -418,15 +424,15 @@ export const test_architecture_surface_pattern_findings = (): void => {
         minimumPiece: 0.5,
       }),
     });
-  const across = transition(5);
+  const across: IAutoMovieSurfacePatternResult = transition(5);
   TestValidator.equals(
     "the grain turn is reported across the zone border and nowhere else",
-    across.findings.map((one) => `${one.kind}:${one.occurrences.join("+")}`),
+    across.findings.map((one: IAutoMoviePatternFinding) : string => `${one.kind}:${one.occurrences.join("+")}`),
     ["grain-break:a/c1+b/c0"],
   );
   TestValidator.equals(
     "the transition still lays both zones in full",
-    across.placements.map((one) => one.id),
+    across.placements.map((one: IAutoMoviePatternPlacement) : string => one.id),
     ["a/c0", "a/c1", "b/c0", "b/c1"],
   );
   TestValidator.equals(
@@ -434,4 +440,4 @@ export const test_architecture_surface_pattern_findings = (): void => {
     transition(null).findings.length,
     0,
   );
-};
+}

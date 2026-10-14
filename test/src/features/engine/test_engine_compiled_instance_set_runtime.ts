@@ -13,7 +13,8 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError, vclose } from "../internal/predicates";
+import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { summarizeCompiledSlotChunks } from "../../../../packages/engine/src/populationRuntime/summarizeCompiledSlotChunks";
 
 /** One chunk plus one member in a single row, one metre apart along x. */
@@ -70,8 +71,7 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
 
 /**
  * An instance set compiles to a compact record that keeps its laws, its route
- * snapshot and one resolved prototype table, and to the same record wherever it
- * compiles.
+ * snapshot and one resolved prototype table, with repeatable selected digests.
  *
  * Expectations are hand geometry on one row of 1,025 members a metre apart,
  * declared weights and radii, or the Node builder's digest of canonical JSON.
@@ -91,12 +91,13 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
  * 6. The digest is the Node digest of every other field, repeatable, and
  *    different for another seed; omitted recipes and radii compile one near tier
  *    of the base recipe at half a metre.
- * 7. A five-point population is visited once in ascending order while yielding three correct chunks and a correct whole summary.
+ * 7. Five points are visited once in ascending order, yielding three chunks
+ *    with independent centroids and a whole bounds/centroid summary.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledInstanceSet and the actual shared chunk/global summary seam; asserts compact laws, geometry, prototype/radius policy, refusal and canonical digest, while a callback visit log rejects duplicated slot regeneration.
- * @evidence contracts/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Node SHA over canonical bytes independently checks hashing, not physical radius fallback enclosure.
+ * @evidence contracts/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Literal prototype order/weights and measured/fallback radii anchor policy. Node SHA independently checks hashing, while canonical text is shared and neither fallback enclosure nor every canonicalization decision is independently certified.
  * @evidence contracts/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime is a synchronous portable unit; Node crypto is an independent byte oracle, no consumer or graphics host is started, and the callback is supplied through the helper's actual seam without replacing foreign methods.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime owns synchronous local records/maps and a callback visit log supplied through the real summary seam, without foreign-method replacement. Node crypto hashes shared canonical bytes independently; no graphics, publication, clock or production consumer is launched. Copy guards concern these selected route/layout/variation records, not every compiled prototype subtree.
  */
 export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.
@@ -123,6 +124,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
         () : boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
       ],
       ["lastRange", () : boolean => last!.start === 1_024 && last!.count === 1],
+      ["lastBounds", () : boolean => vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) && vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0)],
       ["lastCentroid", () : boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
       [
         "totalCentroid",
@@ -135,6 +137,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
       firstBounds: true,
       firstCentroid: true,
       lastRange: true,
+      lastBounds: true,
       lastCentroid: true,
       totalCentroid: true,
     },
@@ -149,7 +152,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
         "tiers",
         () : boolean => compiled.lod.map((item: IAutoMovieCompiledFormationLod) : "hero" | "near" | "far" => item.tier).join(",") === "hero,near",
       ],
-      ["radius", () : boolean => compiled.projectionRadius === 1.5],
+      ["radius", () : boolean => nclose(compiled.projectionRadius, 1.5, 0)],
     ]),
     { noTable: true, tiers: true, radius: true },
   );
@@ -182,7 +185,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
       ],
       [
         "weights",
-        () : boolean => base!.weight === 1 && tall!.weight === 2 && short!.weight === 1,
+        () : boolean => nclose(base!.weight, 1, 0) && nclose(tall!.weight, 2, 0) && nclose(short!.weight, 1, 0),
       ],
       [
         "recipes",
@@ -201,11 +204,11 @@ export function test_engine_compiled_instance_set_runtime(): void {
       [
         "ownRadii",
         () : boolean =>
-          base!.projectionRadius === 1.5 &&
-          tall!.projectionRadius === 3 &&
-          short!.projectionRadius === 0.25,
+          nclose(base!.projectionRadius, 1.5, 0) &&
+          nclose(tall!.projectionRadius, 3, 0) &&
+          nclose(short!.projectionRadius, 0.25, 0),
       ],
-      ["largest", () : boolean => tabled.projectionRadius === 3],
+      ["largest", () : boolean => nclose(tabled.projectionRadius, 3, 0)],
       [
         "baseTiers",
         () : boolean =>
@@ -240,6 +243,9 @@ export function test_engine_compiled_instance_set_runtime(): void {
         () : boolean =>
           along.route !== null &&
           along.route !== lane &&
+          along.route.waypoints !== lane.waypoints &&
+          along.route.waypoints.every((point: { x: number; z: number }, index: number): boolean => point !== lane.waypoints[index]) &&
+          test12ValuesClose(along.route, lane) &&
           along.route.waypoints.length === 2 &&
           along.route.id === "lane",
       ],
@@ -248,12 +254,17 @@ export function test_engine_compiled_instance_set_runtime(): void {
         "layoutCopied",
         () : boolean =>
           along.layout !== alongDesign.layout &&
+          test12ValuesClose(along.layout, alongDesign.layout) &&
           along.layout.kind === "along-route",
       ],
       [
         "variationCopied",
         () : boolean =>
           along.variation !== alongDesign.variation &&
+          along.variation.scale !== alongDesign.variation.scale &&
+          along.variation.palette !== alongDesign.variation.palette &&
+          along.variation.traits !== alongDesign.variation.traits &&
+          test12ValuesClose(along.variation, alongDesign.variation) &&
           along.variation.palette[0] === "#2f6f2f",
       ],
     ]),
@@ -344,7 +355,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
           bare.lod[0]!.tier === "near" &&
           bare.lod[0]!.recipe === "tree",
       ],
-      ["bareRadius", () : boolean => bare.projectionRadius === 0.5],
+      ["bareRadius", () : boolean => nclose(bare.projectionRadius, 0.5, 0)],
     ]),
     {
       node: true,

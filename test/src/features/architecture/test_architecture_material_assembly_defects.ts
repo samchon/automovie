@@ -1,24 +1,26 @@
 import { validateAutoMovieMaterialAssembly } from "@automovie/engine";
 import type {
+  IAutoMovieMaterialLayer,
   IAutoMovieMaterialAssembly,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assembly, layer, substance } from "../internal/materialFixtures";
+import { assertMaterialAssemblyFinishDefects } from "../internal/assertMaterialAssemblyFinishDefects";
 import {
   hasViolation,
   namedFacts,
   violationCount,
 } from "../internal/predicates";
 
-const judge = (
+const judge: (one: IAutoMovieMaterialAssembly, host?: { thickness: number; }) => IAutoMovieValidation = (
   one: IAutoMovieMaterialAssembly,
   host?: { thickness: number },
 ): IAutoMovieValidation =>
   validateAutoMovieMaterialAssembly({ assembly: one, host });
 
-const twoLayer = (
+const twoLayer: (overrides?: Partial<IAutoMovieMaterialAssembly>) => IAutoMovieMaterialAssembly = (
   overrides: Partial<IAutoMovieMaterialAssembly> = {},
 ): IAutoMovieMaterialAssembly =>
   assembly([layer("core", 0.1), layer("skin", 0.01, { finish: true })], {
@@ -27,20 +29,14 @@ const twoLayer = (
   });
 
 /**
- * Every contradiction a layered build-up can carry, each beside a twin that
- * differs by one property and must stay clean.
+ * Validate layer, finish and host-dimension contradictions beside admitted neighbors.
  *
- * The three groups the requirement names are checked apart. A layer conflict is
- * a contradiction inside one layer. A finish defect is a contradiction between
- * the stack and the faces it presents. A dimension conflict is a contradiction
- * with the host the stack was drawn into. Every case pins the path as well as
- * the kind, because a validator that fires on the right defect at the wrong
- * path sends the author to the wrong layer.
+ * Layer fields, stack-end finishes and host dimensions have distinct corrective actions, so cases observe located violations as well as admission. The finish helper retains the multi-layer and single-layer assertions under this discoverable entry.
  *
  * Scenarios:
  *
- * 1. A clean two-layer stack with one exposed face produces no violation: the
- *    baseline every case below is one property away from.
+ * 1. A clean two-layer stack with one exposed face produces no violation and
+ *    anchors the defective neighboring declarations.
  * 2. Envelope fields are refused one at a time: blank id, unknown axis, unknown
  *    sense, non-finite offset, unknown face exposure, and an empty stack, whose
  *    single violation proves the finish rules stay silent with nothing to say.
@@ -64,8 +60,13 @@ const twoLayer = (
  *    anchored at either face, at both, and at neither is not.
  * 9. A host thickness that is not a positive finite number is refused before the
  *    sum is compared with it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual assembly validator and observes success, violation kind/path, selected diagnostic causes and isolated finding counts. It detects lost identity, substance, finish, wrap and host-dimension rules while retaining admitted neighbors.
+ * @evidence contracts/testing.md#independent-expectations Authored layer order, exposed/concealed faces and finish/wrap flags independently determine the expected corrective location; a membrane alone permits zero thickness, cavity layers carry no material, and supplied substance tables determine reference membership. Hand-authored 0.1 + 0.01 metre layers determine the matching 0.11 metre host rather than validator output.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves malformed assembly/layer fields, missing and complete substance tables, doubled/buried/missing/wasted finishes, one-layer face sharing, face-anchored wrap runs, zero/nonfinite/matching hosts and the empty-stack isolation check. The dimension test owns mirrored coordinates, prefix sums and nonmatching positive host thickness; this entry does not enumerate every unknown runtime object shape.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable test_architecture_material_assembly_defects entry owns all cases, including finish assertions delegated to assertMaterialAssemblyFinishDefects with the same real-validator callback. Shared input builders and predicates register no cases and require no native build, process, browser or GPU.
  */
-export const test_architecture_material_assembly_defects = (): void => {
+export function test_architecture_material_assembly_defects(): void {
   TestValidator.equals(
     "the baseline stack carries no violation",
     judge(twoLayer()),
@@ -79,11 +80,11 @@ export const test_architecture_material_assembly_defects = (): void => {
     namedFacts([
       [
         "id",
-        () => hasViolation(judge(twoLayer({ id: "  " })), "type", "$input.id"),
+        () : boolean => hasViolation(judge(twoLayer({ id: "  " })), "type", "$input.id"),
       ],
       [
         "axis",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               twoLayer({ axis: "w" as IAutoMovieMaterialAssembly["axis"] }),
@@ -94,7 +95,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "sense",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               twoLayer({
@@ -107,7 +108,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "offset",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(twoLayer({ offset: Number.NaN })),
             "range",
@@ -116,7 +117,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "faceFirst",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               twoLayer({
@@ -133,7 +134,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "faceLast",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               twoLayer({
@@ -149,9 +150,9 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "empty",
-        () => hasViolation(judge(assembly([])), "range", "$input.layers"),
+        () : boolean => hasViolation(judge(assembly([])), "range", "$input.layers"),
       ],
-      ["emptyIsAlone", () => violationCount(judge(assembly([]))) === 1],
+      ["emptyIsAlone", () : boolean => violationCount(judge(assembly([]))) === 1],
     ]),
     {
       id: true,
@@ -170,7 +171,7 @@ export const test_architecture_material_assembly_defects = (): void => {
     namedFacts([
       [
         "blankId",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               assembly(
@@ -184,7 +185,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "duplicateId",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               assembly(
@@ -201,7 +202,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "blankRole",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               assembly(
@@ -220,9 +221,9 @@ export const test_architecture_material_assembly_defects = (): void => {
     { blankId: true, duplicateId: true, blankRole: true },
   );
 
-  const withCore = (
+  const withCore: (core: Partial<IAutoMovieMaterialAssembly["layers"][number]>, thickness?: number) => IAutoMovieMaterialAssembly = (
     core: Partial<IAutoMovieMaterialAssembly["layers"][number]>,
-    thickness = 0.1,
+    thickness: number = 0.1,
   ): IAutoMovieMaterialAssembly =>
     assembly(
       [layer("core", thickness, core), layer("skin", 0.01, { finish: true })],
@@ -233,7 +234,7 @@ export const test_architecture_material_assembly_defects = (): void => {
     namedFacts([
       [
         "unknownSubstance",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               withCore({
@@ -247,7 +248,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "negativeThickness",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({}, -0.1)),
             "range",
@@ -256,7 +257,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "nonFiniteThickness",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({}, Number.POSITIVE_INFINITY)),
             "range",
@@ -265,7 +266,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "zeroSolid",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({}, 0)),
             "range",
@@ -274,7 +275,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "zeroCavity",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({ substance: "cavity", material: null }, 0)),
             "range",
@@ -283,7 +284,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "cavityWithSubstance",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({ substance: "cavity" })),
             "type",
@@ -292,7 +293,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "cavityAsFinish",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(
               withCore({ substance: "cavity", material: null, finish: true }),
@@ -303,7 +304,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "solidWithoutSubstance",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(withCore({ material: null })),
             "type",
@@ -312,7 +313,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "membraneMayMeasureNothing",
-        () => judge(withCore({ substance: "membrane" }, 0)).success === true,
+        () : boolean => judge(withCore({ substance: "membrane" }, 0)).success === true,
       ],
     ]),
     {
@@ -331,10 +332,10 @@ export const test_architecture_material_assembly_defects = (): void => {
   TestValidator.equals(
     "an unresolved substance fires only when a table is supplied",
     namedFacts([
-      ["withoutTable", () => judge(twoLayer()).success === true],
+      ["withoutTable", () : boolean => judge(twoLayer()).success === true],
       [
         "missingFromTable",
-        () =>
+        () : boolean =>
           hasViolation(
             validateAutoMovieMaterialAssembly({
               assembly: twoLayer(),
@@ -346,7 +347,7 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "completeTable",
-        () =>
+        () : boolean =>
           validateAutoMovieMaterialAssembly({
             assembly: twoLayer(),
             substances: [
@@ -359,158 +360,11 @@ export const test_architecture_material_assembly_defects = (): void => {
     { withoutTable: true, missingFromTable: true, completeTable: true },
   );
 
-  const three = (
-    finishes: readonly boolean[],
-    faces: IAutoMovieMaterialAssembly["faces"],
-  ): IAutoMovieMaterialAssembly =>
-    assembly(
-      ["outer", "middle", "inner"].map((id, index) =>
-        layer(id, 0.05, { finish: finishes[index] }),
-      ),
-      { faces },
-    );
-  const solitary = (
-    one: IAutoMovieValidation,
-    path: string,
-    fragment: string,
-  ): boolean =>
-    one.success === false &&
-    one.violations.length === 1 &&
-    one.violations[0]!.path === path &&
-    one.violations[0]!.expected.includes(fragment);
-  TestValidator.equals(
-    "finish defects are told apart from one another",
-    namedFacts([
-      [
-        "doubled",
-        () =>
-          solitary(
-            judge(
-              three([true, true, false], {
-                first: "exposed",
-                last: "concealed",
-              }),
-            ),
-            "$input.layers[1].finish",
-            "lays a finish over the finish beside it",
-          ),
-      ],
-      [
-        "buried",
-        () =>
-          solitary(
-            judge(
-              three([false, true, false], {
-                first: "concealed",
-                last: "concealed",
-              }),
-            ),
-            "$input.layers[1].finish",
-            "buried between layers",
-          ),
-      ],
-      [
-        "missing",
-        () =>
-          solitary(
-            judge(
-              three([false, false, false], {
-                first: "exposed",
-                last: "concealed",
-              }),
-            ),
-            "$input.layers[0].finish",
-            "no finish presents the exposed first face",
-          ),
-      ],
-      [
-        "wasted",
-        () =>
-          solitary(
-            judge(
-              three([false, false, true], {
-                first: "concealed",
-                last: "concealed",
-              }),
-            ),
-            "$input.layers[2].finish",
-            "spends a finish on the concealed last face",
-          ),
-      ],
-      [
-        "bothEndsFinished",
-        () =>
-          judge(
-            three([true, false, true], { first: "exposed", last: "exposed" }),
-          ).success === true,
-      ],
-    ]),
-    {
-      doubled: true,
-      buried: true,
-      missing: true,
-      wasted: true,
-      bothEndsFinished: true,
-    },
-  );
+  assertMaterialAssemblyFinishDefects(judge);
 
-  const single = (
-    finish: boolean,
-    faces: IAutoMovieMaterialAssembly["faces"],
-  ): IAutoMovieMaterialAssembly =>
-    assembly([layer("slab", 0.2, { finish })], { faces });
-  TestValidator.equals(
-    "one layer answers for both faces at once",
-    namedFacts([
-      [
-        "oneExposedSideFinished",
-        () =>
-          judge(single(true, { first: "exposed", last: "concealed" }))
-            .success === true,
-      ],
-      [
-        "bothExposedFinished",
-        () =>
-          judge(single(true, { first: "exposed", last: "exposed" })).success ===
-          true,
-      ],
-      [
-        "bothExposedUnfinished",
-        () =>
-          solitary(
-            judge(single(false, { first: "exposed", last: "exposed" })),
-            "$input.layers[0].finish",
-            "the exposed first and last face",
-          ),
-      ],
-      [
-        "bothConcealedFinished",
-        () =>
-          solitary(
-            judge(single(true, { first: "concealed", last: "concealed" })),
-            "$input.layers[0].finish",
-            "the concealed first and last face",
-          ),
-      ],
-      [
-        "bothConcealedUnfinished",
-        () =>
-          judge(single(false, { first: "concealed", last: "concealed" }))
-            .success === true,
-      ],
-    ]),
-    {
-      oneExposedSideFinished: true,
-      bothExposedFinished: true,
-      bothExposedUnfinished: true,
-      bothConcealedFinished: true,
-      bothConcealedUnfinished: true,
-    },
-  );
-
-  const wrapped = (wraps: readonly boolean[]): IAutoMovieMaterialAssembly =>
+  const wrapped: (wraps: readonly boolean[]) => IAutoMovieMaterialAssembly = (wraps: readonly boolean[]): IAutoMovieMaterialAssembly =>
     assembly(
-      ["outer", "middle", "inner"].map((id, index) =>
+      ["outer", "middle", "inner"].map((id: string, index: number) : IAutoMovieMaterialLayer =>
         layer(id, 0.05, { wrapsOpening: wraps[index] }),
       ),
       { faces: { first: "concealed", last: "concealed" } },
@@ -520,7 +374,7 @@ export const test_architecture_material_assembly_defects = (): void => {
     namedFacts([
       [
         "buriedWrap",
-        () =>
+        () : boolean =>
           hasViolation(
             judge(wrapped([false, true, false])),
             "type",
@@ -529,20 +383,20 @@ export const test_architecture_material_assembly_defects = (): void => {
       ],
       [
         "leadingRun",
-        () => judge(wrapped([true, true, false])).success === true,
+        () : boolean => judge(wrapped([true, true, false])).success === true,
       ],
       [
         "trailingRun",
-        () => judge(wrapped([false, true, true])).success === true,
+        () : boolean => judge(wrapped([false, true, true])).success === true,
       ],
-      ["bothEnds", () => judge(wrapped([true, false, true])).success === true],
+      ["bothEnds", () : boolean => judge(wrapped([true, false, true])).success === true],
       [
         "nothingWraps",
-        () => judge(wrapped([false, false, false])).success === true,
+        () : boolean => judge(wrapped([false, false, false])).success === true,
       ],
       [
         "everythingWraps",
-        () => judge(wrapped([true, true, true])).success === true,
+        () : boolean => judge(wrapped([true, true, true])).success === true,
       ],
     ]),
     {
@@ -560,27 +414,27 @@ export const test_architecture_material_assembly_defects = (): void => {
     namedFacts([
       [
         "zero",
-        () =>
-          hasViolation(
-            judge(twoLayer(), { thickness: 0 }),
-            "range",
-            "$input.layers",
-          ),
+        (): boolean => {
+          const judged: IAutoMovieValidation = judge(twoLayer(), { thickness: 0 });
+          return hasViolation(judged, "range", "$input.layers") &&
+            judged.success === false && judged.violations.length === 1 &&
+            judged.violations[0]!.expected.includes("host thickness must be a finite number > 0");
+        },
       ],
       [
         "nonFinite",
-        () =>
-          hasViolation(
-            judge(twoLayer(), { thickness: Number.NaN }),
-            "range",
-            "$input.layers",
-          ),
+        (): boolean => {
+          const judged: IAutoMovieValidation = judge(twoLayer(), { thickness: Number.NaN });
+          return hasViolation(judged, "range", "$input.layers") &&
+            judged.success === false && judged.violations.length === 1 &&
+            judged.violations[0]!.expected.includes("host thickness must be a finite number > 0");
+        },
       ],
       [
         "matching",
-        () => judge(twoLayer(), { thickness: 0.11 }).success === true,
+        () : boolean => judge(twoLayer(), { thickness: 0.11 }).success === true,
       ],
     ]),
     { zero: true, nonFinite: true, matching: true },
   );
-};
+}

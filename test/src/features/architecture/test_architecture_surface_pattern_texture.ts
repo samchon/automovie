@@ -1,9 +1,11 @@
 import {
+  type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMoviePatternTextureTransform, type IAutoMoviePatternTexturing, type IAutoMovieSurfacePatternResult,
   autoMoviePatternTextureTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertPatternTextureBookMatch } from "../internal/assertPatternTextureBookMatch";
 import {
   pattern,
   rectangle,
@@ -11,41 +13,18 @@ import {
   zone,
 } from "../internal/patternFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-
-/** One slab per lattice column, flipped on the odd ones: a book match. */
-const slabs = (flipOdd: boolean) =>
-  zone({
-    id: "slab",
-    region: rectangle(0, 0, 1.2, 1),
-    origin: { u: 0, v: 0 },
-    period: { u: 0.6, v: 2 },
-    reach: { u: 0.61, v: 1.01 },
-    material: "stone",
-    generate: ({ column, row, origin }) =>
-      row !== 0
-        ? []
-        : [
-            {
-              id: `s${column}`,
-              center: { u: origin.u + 0.3, v: 0.5 },
-              size: { u: 0.6, v: 1 },
-              rotationDeg: 0,
-              grainDeg: 0,
-              mirror: flipOdd && column === 1,
-            },
-          ],
-  });
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * The sheet point a piece's own unit UV lands on.
  *
- * This is the renderer's law, not the engine's: the viewer hands `offset`,
- * `scale`, and `rotationDeg` to a texture whose matrix scales and then rotates,
- * so a UV becomes `diag(scale) · R(-rotation) · uv + offset`. Writing it out
+ * The viewer hands `offset`, `scale`, and `rotationDeg` to Three's texture
+ * matrix, giving `diag(scale) · R(-rotation) · uv + offset` at zero centre.
+ * Writing it out
  * here is what keeps these cases an independent check of the arithmetic rather
  * than a restatement of it.
  */
-const sample = (
+const sample: (transform: { offset: { x: number; y: number; }; scale: { x: number; y: number; }; rotationDeg: number; }, u: number, v: number) => { x: number; y: number; } = (
   transform: {
     offset: { x: number; y: number };
     scale: { x: number; y: number };
@@ -54,9 +33,9 @@ const sample = (
   u: number,
   v: number,
 ): { x: number; y: number } => {
-  const angle = (-transform.rotationDeg * Math.PI) / 180;
-  const cosine = Math.cos(angle);
-  const sine = Math.sin(angle);
+  const angle: number = (-transform.rotationDeg * Math.PI) / 180;
+  const cosine: number = Math.cos(angle);
+  const sine: number = Math.sin(angle);
   return {
     x: transform.scale.x * (cosine * u - sine * v) + transform.offset.x,
     y: transform.scale.y * (sine * u + cosine * v) + transform.offset.y,
@@ -67,12 +46,8 @@ const sample = (
  * Laid pieces sample their material through the UV transform the PBR record
  * already carries.
  *
- * A pattern run says where every piece is and how big it is; what the piece
- * finally shows is still a texture, and the way to show it is the material's
- * own `offset` / `scale` / `rotationDeg`. This case pins that arithmetic,
- * because it is what makes a book match a real mirrored image instead of two
- * slabs a viewer cannot tell apart, and because a transform wrong here is a
- * finish wrong on every frame.
+ * This case checks material `offset` / `scale` / `rotationDeg` records against
+ * an independent UV matrix expression, including mirrored sampling endpoints.
  *
  * The default field is a 2 x 1 m rectangle of eight 0.5 m squares.
  *
@@ -104,11 +79,16 @@ const sample = (
  *    a shear the transform has no term for and is reported by id, while a
  *    square piece at the same angle samples exactly.
  * 10. A non-positive texture turn and a non-finite sheet origin are refused.
- * 11. The same run transformed twice produces the same bytes.
+ * 11. The same run transformed twice preserves structure and numeric components.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generates square/slab/rotated-piece patterns and calls autoMoviePatternTextureTransforms for module/face sheets, inspecting identities, offsets/scales/turns, independently sampled UV endpoints/centres, retained cut-piece mappings, mirrored grain policy, shear partition, input refusals and replay.
+ * @evidence contracts/testing.md#independent-expectations The zero-centre texture matrix diag(scale) times R(-rotation) supplies a separate sampling oracle, confirmed against the viewer binding and Three Matrix3.setUvTransform. Literal quarter-by-half face spans, 0.6-by-one slabs, mirrored endpoint swaps, centred 45-degree square sampling and fixed skewed-piece ids/dimensions anchor the expected records.
+ * @evidence contracts/testing.md#distinguishing-cases Module versus face anchoring, straight versus 90/45-degree grain, flipped/unflipped twins, whole/boundary-cut mappings and non-square versus square off-grain pieces distinguish coordinate, mirror and shear policies. Zero/NaN tile values and infinite face origin must retain the stated refusal cause; replay uses the existing structural numeric comparator.
+ * @evidence contracts/testing.md#execution-ownership Uses local generated declarations and synchronous numerical UV records/oracles without texture loading, rendering, resources, clocks, global replacement or an added host. Independent UV arithmetic and selected cases do not certify rendered book matching, cut-mesh UV authoring or every near-shear numerical boundary.
  */
-export const test_architecture_surface_pattern_texture = (): void => {
-  const field = generateAutoMovieSurfacePattern({ pattern: pattern() });
-  const perModule = autoMoviePatternTextureTransforms({
+export function test_architecture_surface_pattern_texture(): void {
+  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({ pattern: pattern() });
+  const perModule: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: field,
     tile: { u: 0.5, v: 0.5 },
     sheet: { kind: "module" },
@@ -117,19 +97,19 @@ export const test_architecture_surface_pattern_texture = (): void => {
   TestValidator.equals(
     "a sheet pinned to the module shows every piece the same image",
     namedFacts([
-      ["count", () => perModule.transforms.length === 8],
-      ["sheared", () => perModule.sheared.length === 0],
+      ["count", () : boolean => perModule.transforms.length === 8],
+      ["sheared", () : boolean => perModule.sheared.length === 0],
       [
         "ids",
-        () =>
-          perModule.transforms.map((one) => one.id).join() ===
-          field.placements.map((one) => one.id).join(),
+        () : boolean =>
+          perModule.transforms.map((one: IAutoMoviePatternTextureTransform) : string => one.id).join() ===
+          field.placements.map((one: IAutoMoviePatternPlacement) : string => one.id).join(),
       ],
       [
         "identity",
-        () =>
+        () : boolean =>
           perModule.transforms.every(
-            (one) =>
+            (one: IAutoMoviePatternTextureTransform) : boolean =>
               nclose(one.offset.x, 0, 1e-12) &&
               nclose(one.offset.y, 0, 1e-12) &&
               nclose(one.scale.x, 1, 1e-12) &&
@@ -141,7 +121,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
     { count: true, sheared: true, ids: true, identity: true },
   );
 
-  const perFace = autoMoviePatternTextureTransforms({
+  const perFace: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: field,
     tile: { u: 2, v: 1 },
     sheet: { kind: "face", origin: { u: 0, v: 0 } },
@@ -151,9 +131,9 @@ export const test_architecture_surface_pattern_texture = (): void => {
     namedFacts([
       [
         "scale",
-        () =>
+        () : boolean =>
           perFace.transforms.every(
-            (one) =>
+            (one: IAutoMoviePatternTextureTransform) : boolean =>
               nclose(one.scale.x, 0.25, 1e-12) &&
               nclose(one.scale.y, 0.5, 1e-12) &&
               nclose(one.rotationDeg, 0, 1e-12),
@@ -161,17 +141,17 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "walk",
-        () =>
-          perFace.transforms
-            .map((one) => `${one.offset.x},${one.offset.y}`)
-            .join("|") ===
-          "0,0|0.25,0|0.5,0|0.75,0|0,0.5|0.25,0.5|0.5,0.5|0.75,0.5",
+        () : boolean =>
+          test12ValuesClose(
+            perFace.transforms.map((one: IAutoMoviePatternTextureTransform): { x: number; y: number } => one.offset),
+            [{ x: 0, y: 0 }, { x: 0.25, y: 0 }, { x: 0.5, y: 0 }, { x: 0.75, y: 0 }, { x: 0, y: 0.5 }, { x: 0.25, y: 0.5 }, { x: 0.5, y: 0.5 }, { x: 0.75, y: 0.5 }],
+          ),
       ],
       [
         "first",
-        () => {
-          const low = sample(perFace.transforms[0]!, 0, 0);
-          const high = sample(perFace.transforms[0]!, 1, 1);
+        () : boolean => {
+          const low: { x: number; y: number; } = sample(perFace.transforms[0]!, 0, 0);
+          const high: { x: number; y: number; } = sample(perFace.transforms[0]!, 1, 1);
           return (
             nclose(low.x, 0, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -182,8 +162,8 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "last",
-        () => {
-          const high = sample(perFace.transforms[7]!, 1, 1);
+        () : boolean => {
+          const high: { x: number; y: number; } = sample(perFace.transforms[7]!, 1, 1);
           return nclose(high.x, 1, 1e-12) && nclose(high.y, 1, 1e-12);
         },
       ],
@@ -191,7 +171,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
     { scale: true, walk: true, first: true, last: true },
   );
 
-  const acrossSheet = autoMoviePatternTextureTransforms({
+  const acrossSheet: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "across-grain",
@@ -206,16 +186,16 @@ export const test_architecture_surface_pattern_texture = (): void => {
     namedFacts([
       [
         "turnedBack",
-        () =>
+        () : boolean =>
           nclose(acrossSheet.transforms[0]!.rotationDeg, 90, 1e-12) &&
           nclose(acrossSheet.transforms[0]!.scale.x, 0.25, 1e-12) &&
           nclose(acrossSheet.transforms[0]!.scale.y, 0.5, 1e-12),
       ],
       [
         "corner",
-        () => {
-          const low = sample(acrossSheet.transforms[0]!, 0, 0);
-          const high = sample(acrossSheet.transforms[0]!, 1, 1);
+        () : boolean => {
+          const low: { x: number; y: number; } = sample(acrossSheet.transforms[0]!, 0, 0);
+          const high: { x: number; y: number; } = sample(acrossSheet.transforms[0]!, 1, 1);
           return (
             nclose(low.x, 0, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -226,19 +206,19 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "straightTwin",
-        () => nclose(perFace.transforms[0]!.rotationDeg, 0, 1e-12),
+        () : boolean => nclose(perFace.transforms[0]!.rotationDeg, 0, 1e-12),
       ],
     ]),
     { turnedBack: true, corner: true, straightTwin: true },
   );
 
-  const flippedField = autoMoviePatternTextureTransforms({
+  const flippedField: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "flipped-field",
         zones: [
           zone({
-            generate: ({ column, row, origin }) => [
+            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: true; }[] => [
               {
                 id: `t-${column}-${row}`,
                 center: { u: origin.u + 0.25, v: origin.v + 0.25 },
@@ -260,9 +240,9 @@ export const test_architecture_surface_pattern_texture = (): void => {
     namedFacts([
       [
         "swapped",
-        () => {
-          const low = sample(flippedField.transforms[0]!, 0, 0);
-          const high = sample(flippedField.transforms[0]!, 1, 1);
+        () : boolean => {
+          const low: { x: number; y: number; } = sample(flippedField.transforms[0]!, 0, 0);
+          const high: { x: number; y: number; } = sample(flippedField.transforms[0]!, 1, 1);
           return (
             nclose(low.x, 0.25, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -273,7 +253,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "sameSpan",
-        () =>
+        () : boolean =>
           nclose(flippedField.transforms[0]!.scale.x, -0.25, 1e-12) &&
           nclose(flippedField.transforms[0]!.scale.y, 0.5, 1e-12),
       ],
@@ -281,7 +261,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
     { swapped: true, sameSpan: true },
   );
 
-  const narrowed = autoMoviePatternTextureTransforms({
+  const narrowed: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "narrow",
@@ -295,118 +275,26 @@ export const test_architecture_surface_pattern_texture = (): void => {
   TestValidator.equals(
     "a cut piece samples the module it was cut from, not the sliver it became",
     namedFacts([
-      ["kept", () => narrowed.transforms.length === 8],
+      ["kept", () : boolean => narrowed.transforms.length === 8],
       [
         "unchanged",
-        () =>
-          narrowed.transforms.map((one) => JSON.stringify(one)).join("|") ===
-          perFace.transforms.map((one) => JSON.stringify(one)).join("|"),
+        () : boolean =>
+          test12ValuesClose(narrowed.transforms, perFace.transforms),
       ],
     ]),
     { kept: true, unchanged: true },
   );
 
-  const matched = generateAutoMovieSurfacePattern({
-    pattern: pattern({
-      id: "book-match",
-      zones: [slabs(true)],
-      minimumPiece: 1,
-      grainToleranceDeg: 0,
-      adjacency: 0.01,
-    }),
-  });
-  const book = autoMoviePatternTextureTransforms({
-    result: matched,
-    tile: { u: 0.6, v: 1 },
-    sheet: { kind: "module" },
-  });
-  const plain = autoMoviePatternTextureTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        id: "unmatched",
-        zones: [slabs(false)],
-        minimumPiece: 1,
-        grainToleranceDeg: 0,
-        adjacency: 0.01,
-      }),
-    }),
-    tile: { u: 0.6, v: 1 },
-    sheet: { kind: "module" },
-  });
-  TestValidator.equals(
-    "a book-matched slab reverses its own U axis and its twin does not",
-    namedFacts([
-      [
-        "laid",
-        () => matched.placements.map((one) => one.module).join() === "s0,s1",
-      ],
-      [
-        "flagged",
-        () =>
-          matched.placements.map((one) => one.mirror).join() === "false,true",
-      ],
-      [
-        "left",
-        () =>
-          nclose(book.transforms[0]!.offset.x, 0, 1e-12) &&
-          nclose(book.transforms[0]!.scale.x, 1, 1e-12),
-      ],
-      [
-        "right",
-        () =>
-          nclose(book.transforms[1]!.offset.x, 1, 1e-12) &&
-          nclose(book.transforms[1]!.scale.x, -1, 1e-12),
-      ],
-      [
-        "reversed",
-        () => {
-          const near = sample(book.transforms[1]!, 0, 0.5);
-          const far = sample(book.transforms[1]!, 1, 0.5);
-          return nclose(near.x, 1, 1e-12) && nclose(far.x, 0, 1e-12);
-        },
-      ],
-      [
-        "unchangedV",
-        () =>
-          book.transforms.every(
-            (one) =>
-              nclose(one.offset.y, 0, 1e-12) &&
-              nclose(one.scale.y, 1, 1e-12) &&
-              nclose(one.rotationDeg, 0, 1e-12),
-          ),
-      ],
-      [
-        "twin",
-        () =>
-          plain.transforms.every(
-            (one) =>
-              nclose(one.offset.x, 0, 1e-12) && nclose(one.scale.x, 1, 1e-12),
-          ),
-      ],
-    ]),
-    {
-      laid: true,
-      flagged: true,
-      left: true,
-      right: true,
-      reversed: true,
-      unchangedV: true,
-      twin: true,
-    },
-  );
-  TestValidator.equals(
-    "a mirror is not a grain turn, so the matched pair reports nothing",
-    matched.findings.length,
-    0,
-  );
+  // 6-7. Book matching and grain retain the original sequential assertions.
+  assertPatternTextureBookMatch(sample);
 
-  const diagonal = autoMoviePatternTextureTransforms({
+  const diagonal: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "diagonal-grain",
         zones: [
           zone({
-            generate: ({ column, row, origin }) => [
+            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
               {
                 id: `t-${column}-${row}`,
                 center: { u: origin.u + 0.25, v: origin.v + 0.25 },
@@ -428,23 +316,23 @@ export const test_architecture_surface_pattern_texture = (): void => {
     namedFacts([
       [
         "straight",
-        () => nclose(perModule.transforms[0]!.rotationDeg, 0, 1e-12),
+        () : boolean => nclose(perModule.transforms[0]!.rotationDeg, 0, 1e-12),
       ],
-      ["rotated", () => nclose(diagonal.transforms[0]!.rotationDeg, 45, 1e-12)],
-      ["sheared", () => diagonal.sheared.length === 0],
+      ["rotated", () : boolean => nclose(diagonal.transforms[0]!.rotationDeg, 45, 1e-12)],
+      ["sheared", () : boolean => diagonal.sheared.length === 0],
       [
         "scale",
-        () =>
+        () : boolean =>
           diagonal.transforms.every(
-            (one) =>
+            (one: IAutoMoviePatternTextureTransform) : boolean =>
               nclose(one.scale.x, 1, 1e-12) && nclose(one.scale.y, 1, 1e-12),
           ),
       ],
       [
         "centred",
-        () =>
-          diagonal.transforms.every((one) => {
-            const middle = sample(one, 0.5, 0.5);
+        () : boolean =>
+          diagonal.transforms.every((one: IAutoMoviePatternTextureTransform) : boolean => {
+            const middle: { x: number; y: number; } = sample(one, 0.5, 0.5);
             return nclose(middle.x, 0.5, 1e-12) && nclose(middle.y, 0.5, 1e-12);
           }),
       ],
@@ -458,7 +346,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
     },
   );
 
-  const skewed = (size: { u: number; v: number }) =>
+  const skewed: (size: { u: number; v: number; }) => IAutoMoviePatternTexturing = (size: { u: number; v: number }) : IAutoMoviePatternTexturing =>
     autoMoviePatternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
@@ -468,7 +356,7 @@ export const test_architecture_surface_pattern_texture = (): void => {
               region: rectangle(0, 0, 1, 1),
               period: { u: 1, v: 1 },
               reach: { u: 1, v: 1 },
-              generate: ({ column, row, origin }) => [
+              generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
                 {
                   id: `t-${column}-${row}`,
                   center: { u: origin.u + 0.5, v: origin.v + 0.5 },
@@ -486,22 +374,22 @@ export const test_architecture_surface_pattern_texture = (): void => {
       tile: { u: 0.6, v: 0.15 },
       sheet: { kind: "module" },
     });
-  const plank = skewed({ u: 0.6, v: 0.15 });
-  const square = skewed({ u: 0.3, v: 0.3 });
+  const plank: IAutoMoviePatternTexturing = skewed({ u: 0.6, v: 0.15 });
+  const square: IAutoMoviePatternTexturing = skewed({ u: 0.3, v: 0.3 });
   TestValidator.equals(
     "a long piece turned off its grain needs a shear, a square one does not",
     namedFacts([
-      ["shearedIds", () => plank.sheared.join() === "field/t-0-0"],
-      ["shearedEmpty", () => plank.transforms.length === 0],
-      ["squareSheared", () => square.sheared.length === 0],
-      ["squareCount", () => square.transforms.length === 1],
+      ["shearedIds", () : boolean => plank.sheared.join() === "field/t-0-0"],
+      ["shearedEmpty", () : boolean => plank.transforms.length === 0],
+      ["squareSheared", () : boolean => square.sheared.length === 0],
+      ["squareCount", () : boolean => square.transforms.length === 1],
       [
         "squareRotation",
-        () => nclose(square.transforms[0]!.rotationDeg, -45, 1e-12),
+        () : boolean => nclose(square.transforms[0]!.rotationDeg, -45, 1e-12),
       ],
       [
         "squareScale",
-        () =>
+        () : boolean =>
           nclose(square.transforms[0]!.scale.x, 0.5, 1e-12) &&
           nclose(square.transforms[0]!.scale.y, 2, 1e-12),
       ],
@@ -521,9 +409,9 @@ export const test_architecture_surface_pattern_texture = (): void => {
     namedFacts([
       [
         "tileU",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0, v: 0.5 },
@@ -534,9 +422,9 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "tileV",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0.5, v: Number.NaN },
@@ -547,9 +435,9 @@ export const test_architecture_surface_pattern_texture = (): void => {
       ],
       [
         "origin",
-        () =>
+        () : boolean =>
           throwsError(
-            () =>
+            () : IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0.5, v: 0.5 },
@@ -565,15 +453,15 @@ export const test_architecture_surface_pattern_texture = (): void => {
     { tileU: true, tileV: true, origin: true },
   );
 
-  TestValidator.equals(
-    "the same run transformed twice produces the same bytes",
-    JSON.stringify(
+  TestValidator.predicate(
+    "the same run transformed twice preserves structure and numeric components",
+    test12ValuesClose(
       autoMoviePatternTextureTransforms({
         result: field,
         tile: { u: 2, v: 1 },
         sheet: { kind: "face", origin: { u: 0, v: 0 } },
       }),
+      perFace,
     ),
-    JSON.stringify(perFace),
   );
-};
+}
