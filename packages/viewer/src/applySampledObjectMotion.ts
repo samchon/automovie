@@ -4,12 +4,9 @@ import type * as THREE from "three";
 /**
  * Write an already-authoritative sample table to borrowed Three scene objects.
  *
- * Transforms use engine vector/quaternion order. Morph weights address each
- * descendant mesh's glTF index order, stop at its influence count and preserve
- * omitted entries. Missing objects and non-node channels are skipped. The
- * current four-path switch does not assert exhaustiveness for future unions.
+ * Transforms use engine vector/quaternion order and write parent-local fields; the caller supplies samples in that frame, with no world-to-local conversion here. Morph weights address each descendant mesh's glTF index order, stop at its influence count and preserve omitted entries. Missing objects and non-node channels are skipped. The current four-path switch does not assert exhaustiveness for future unions.
  *
- * @evidence contracts/common.md#principled-implementation Writes engine-admitted translation/scale triples and quaternion quadruples directly, and indexed weights to existing mesh influences; input vector widths and rotation validity are sampler premises, while unresolved nodes and unmatched trailing morph indices are tolerated.
+ * @evidence contracts/common.md#principled-implementation Writes engine-admitted translation/scale triples and quaternion quadruples directly into parent-local transform fields, and indexed weights to existing mesh influences; input coordinate frame, vector widths and rotation validity are caller/sampler premises, while unresolved nodes and unmatched trailing morph indices are tolerated.
  * @evidence contracts/common.md#clear-and-simple-design Owns the scene mutation for both clip entry points; a private morph traversal handles the one path whose target is a descendant collection instead of an Object3D transform.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses channel kind/path and the supplied resolver rather than fixture names or patched Three methods; it neither invents absent values nor repairs malformed numeric samples.
  * @evidence contracts/common.md#meaningful-documentation Gives coordinate/vector conventions, indexed morph behavior, skipped inputs, partial writes and the lack of a future-path exhaustive assertion.

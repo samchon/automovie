@@ -2,7 +2,7 @@ import type { AutoMovieSoftAnalysisStatus, IAutoMovieSoftBodySurface } from "@au
 import type * as THREE from "three";
 
 /**
- * A viewer-owned cloth panel bound to one soft-body domain.
+ * A viewer-owned cloth projection of the currently uploaded canonical surface; updates replace its domain metadata without checking domain identity.
  *
  * @evidence contracts/common.md#principled-implementation Pairs one viewer-owned canonical cloth projection with status-carrying updates and its terminal resource owner.
  * @evidence contracts/common.md#clear-and-simple-design Mutable upload and disposal responsibilities travel with the mesh while Engine solve/derivation remains outside the viewer object.

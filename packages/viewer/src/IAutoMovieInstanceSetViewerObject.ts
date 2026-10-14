@@ -42,7 +42,7 @@ export interface IAutoMovieInstanceSetViewerObject {
    *
    * @evidence contracts/common.md#principled-implementation Uses the current camera frustum and projected prototype radius to select a hysteretic LOD per chunk/prototype while preserving seeded slot transforms and authored hidden membership.
    * @evidence contracts/common.md#clear-and-simple-design Camera and viewport height are the only per-frame inputs; compiled chunks and instance matrices stay with the owning runtime.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Culling enlarges slot-origin bounds by maximum prototype extent rather than assuming every offscreen origin means an invisible mesh.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Culling enlarges slot-origin bounds by the supplied set projection-radius estimate times maximum slot scale. The producer must ensure that estimate encloses prototype offsets and depth; the viewer does not independently measure or certify that extent.
    * @evidence contracts/common.md#meaningful-documentation States that this operation recomputes chunk visibility for the supplied camera.
    * @evidence contracts/performance.md#efficient-algorithms Visits chunks and prototype tier meshes without rebuilding member matrices or scanning every slot each frame; fixed camera/frustum temporaries are independent of instance count.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses compiled batches, materials and instance attributes while previous tier selection supplies LOD hysteresis.

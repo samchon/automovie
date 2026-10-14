@@ -20,8 +20,7 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
  * transform, so node placement and a pose's own root transform compose
  * cleanly.
  *
- * Cameras and the three punctual light kinds map onto their `three.js`
- * equivalents.
+ * Cameras and the four light kinds (point, area, directional and spot) map onto their `three.js` equivalents.
  *
  * **The first `scene.nodes.length` top-level children ARE the designed nodes,
  * in design order.** Both mask passes read that: the legacy ramp colours the

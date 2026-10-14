@@ -14,7 +14,7 @@ let nextObjectIdentity: number = 0;
  *
  * Weak object tokens describe actual Source/Texture sharing in this host, independently of mutable UUID text. Engine retains the sharing relation rather than token spelling; current representation and upload-state metadata still determine allocation equivalence.
  *
- * Cache and environment owners are consulted before extent checks so malformed image data cannot hide either sticky input history. They acknowledge only supported owned writes and successful exclusive transitions. Restoring an uncontrolled wrapper's fields does not repair its history. Unregistered objects retain this observer's prospective before-upload premise.
+ * Cache and environment owners are consulted before extent checks so malformed image data cannot hide either sticky input history. They acknowledge only supported owned writes and successful exclusive transitions. Restoring observed uncontrolled drift does not repair its history; writes fully restored between observation boundaries are not detected. Unregistered objects retain this observer's prospective before-upload premise.
  *
  * Environment conversion reports configured and factory sampler intent because sharp conversion can temporarily upload with another sampler without a later version change. Current properties do not prove an old native state was retired. Hosts retain previous upload phases until their owning release/transition is observed; this read reports neither GLuint count nor independent kernel storage.
  *

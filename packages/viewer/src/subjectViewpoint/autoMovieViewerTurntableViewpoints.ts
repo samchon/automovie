@@ -33,9 +33,7 @@ export function autoMovieViewerTurntableViewpoints(options: IAutoMovieViewerTurn
     for (let index: number = 0; index < options.azimuthCount; index++) {
       const azimuthDeg: number = (360 / options.azimuthCount) * index;
       const id: string = `az${degreeLabel(azimuthDeg)}-el${degreeLabel(elevationDeg)}`;
-      // Two rings rounding to one label would give one plan two viewpoints
-      // under one name, and a coverage tally could then never say which of
-      // them was observed.
+      // Two rings rounding to one label would give two viewpoints the same name, leaving a coverage tally unable to distinguish them.
       if (taken.has(id))
         throw new RangeError(
           `turntable plan produces viewpoint id "${id}" twice; separate its elevation rings by at least one degree`,

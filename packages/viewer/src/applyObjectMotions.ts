@@ -4,12 +4,9 @@ import type * as THREE from "three";
 import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
 /**
- * Apply a shot's object clips under the engine's per-channel authority rule. A
- * future-only channel writes nothing. As with {@link applyObjectMotion}, a
- * stateful host must restore staged bases before each seek/frame when no active
- * authority should leave the staged value visible.
+ * Apply a shot's object clips under the engine's per-channel authority rule. A future-only channel writes nothing. As with {@link applyObjectMotion}, a stateful host must restore staged bases before each seek/frame when no active authority should leave the staged value visible. Samples write parent-local transform fields, so their coordinate frame must match each resolved target.
  *
- * @evidence contracts/common.md#principled-implementation Samples the supplied sequence through the engine's per-channel authority rule, then applies only authoritative node channels; seconds and clip content use the engine convention, and future-only channels leave scene state untouched.
+ * @evidence contracts/common.md#principled-implementation Samples the supplied sequence through the engine's per-channel authority rule, then applies only authoritative node channels to matching parent-local target coordinates; seconds and clip content use the engine convention, and future-only channels leave scene state untouched.
  * @evidence contracts/common.md#clear-and-simple-design Sequence authority belongs to sampleClipSequence and scene mutation belongs to applySampledObjectMotion; this adapter connects those existing owners without another frame or scene representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the actual clip sequence, time and resolver without node-name exceptions or replacement methods; skipped future authority is the engine rule rather than a hidden fallback clip.
  * @evidence contracts/common.md#meaningful-documentation States the per-channel authority rule, future-only behavior and the host's responsibility to restore staged bases when seeking between partially authored clips.

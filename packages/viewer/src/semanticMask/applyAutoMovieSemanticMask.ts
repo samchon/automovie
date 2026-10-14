@@ -22,7 +22,7 @@ import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeR
  *
  * A mesh no entry claims is painted the reserved background colour rather than left showing its beauty material: a segmentation consumer must never read a lit surface as a class, and an unpainted mesh would be exactly that.
  *
- * Deformation follows the beauty pass. A formation's baked cycle is carried onto every replacement material, so a marching crowd marches in the mask exactly as it marches in the film, and the mask describes the frame that will be delivered rather than a rest pose nobody sees.
+ * A formation's supplied baked cycle is carried onto each replacement material through the same hook used by beauty. This preserves the requested deformation route; actual shader compilation, frame correspondence and delivered pixels remain rendering observations.
  *
  * @evidence contracts/common.md#principled-implementation Preflights roots/unresolved ids, resolves each mesh to its nearest claimed ancestor and paints canonical entry/per-slot colors while preserving existing formation-cycle deformation and suspending nonmesh/atmosphere fields.
  * @evidence contracts/common.md#clear-and-simple-design Root lookup, nearest ownership and unresolved reporting retain their helpers; call-local color/cycle material reuse and captured originals own one failure-safe reversible installation.
@@ -60,14 +60,7 @@ export const applyAutoMovieSemanticMask: (props: {
     if (entry.slot !== null)
       bySlot.set(`${entry.slot.instanceSet}#${entry.slot.index}`, entry);
 
-  // A segmentation pass states an identity, and three things in a scene will
-  // quietly overwrite one. Fog mixes every `MeshBasicMaterial` toward the fog
-  // colour with distance, so the same wall far away would read as a different
-  // wall near. Image lighting draws its own background over the reserved black.
-  // A grid, a helper line, a sprite or a point cloud draws its live beauty
-  // material straight into the mask. All three are suspended for the duration
-  // and put back exactly as they were, so calling this directly is as correct
-  // as calling it from inside a pass boundary that already suspends them.
+  // Fog, image lighting/background and visible nonmesh helpers can overwrite a palette identity. Suspend their borrowed fields during installation and restore their actual original state for both direct and outer-pass callers.
   const fog: THREE.Scene["fog"] = scene.fog;
   const environment: THREE.Scene["environment"] = scene.environment;
   const background: THREE.Scene["background"] = scene.background;
@@ -82,9 +75,7 @@ export const applyAutoMovieSemanticMask: (props: {
     attribute: THREE.InstancedBufferAttribute | null;
   }> = [];
   const created: THREE.Material[] = [];
-  // One material per colour per formation cycle: a hundred chunks of one wall
-  // compile one program, and a tier that deforms by its own baked table keeps
-  // its own.
+  // One material per colour/cycle identity shares the same configured hook within this installation; native program compilation remains the renderer's responsibility.
   const materials: Map<string, Map<IAutoMovieFormationCycle | null, THREE.Material>> = new Map<
     string,
     Map<IAutoMovieFormationCycle | null, THREE.Material>
@@ -164,8 +155,7 @@ export const applyAutoMovieSemanticMask: (props: {
       mesh.material = materialOf(entry.color, cycle);
       return;
     }
-    // Three multiplies the base material by `instanceColor`. White is therefore
-    // the only base that renders each slot's exact assigned palette value.
+    // Three multiplies the base material by instanceColor, so white preserves each slot's assigned color under that composition rule.
     mesh.material = materialOf("#FFFFFF", cycle);
     const previous: THREE.InstancedBufferAttribute | null = instanced.instanceColor;
     colors.push({

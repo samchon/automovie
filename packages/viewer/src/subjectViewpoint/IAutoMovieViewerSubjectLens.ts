@@ -20,7 +20,7 @@ export interface IAutoMovieViewerSubjectLens {
   /**
    * Viewport width divided by height.
    *
-   * The horizontal field follows from this, and framing uses whichever of the two fields is narrower, so a subject stays inside a portrait viewport.
+   * The horizontal field follows from this, and framing uses the narrower half-angle for its sphere fit. Actual containment still depends on valid bounds, a distance factor of at least one and noncropping clip planes; this record proves no displayed pixels.
    */
   aspect: number;
 }

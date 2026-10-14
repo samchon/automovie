@@ -4,7 +4,7 @@ import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 /**
  * The fragment shader compositing each overlay's colour, roughness and slopes.
  *
- * @evidence contracts/common.md#principled-implementation Expands ordered layer uniforms and colour/roughness statements at the installed Three shader markers and delegates tangent-normal insertion to the existing splice owner.
+ * @evidence contracts/common.md#principled-implementation Expands ordered layer uniforms and color/roughness alpha-times-strength coverage at the installed Three shader markers, delegating tangent-normal insertion to the shared splice owner. Replacement normal uses coverage; multiply normal scales xy by strength without alpha and retains sampled z, so zero strength is not a guaranteed identity over an existing tilted normal.
  * @evidence contracts/common.md#clear-and-simple-design One fragment-source generator consumes structural shapes while actual images, transforms and scalar values remain material uniforms.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing blend/coverage/whiteout expressions are unchanged; supported shader markers and tangent-normal representation are premises, and generated strings alone do not prove compiled or observed shading.
  * @evidence contracts/common.md#meaningful-documentation Documentation identifies colour, optional roughness and normal composition, required SDK markers and source-versus-appearance limits.

@@ -30,7 +30,7 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * @author Samchon
  */
 interface IInstancePrototypeChunkObject {
-  /** Conservative world radius of one unscaled prototype instance. */
+  /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
   projectionRadius: number;
 
   /** Visible authored slots assigned to this prototype in the chunk. */
@@ -90,13 +90,13 @@ interface IInstanceChunkObject {
  * source mesh is refused by name rather than instanced as something else.
  * Generated prototype materials are owned and reused as white instance-only
  * variants; loaded prototype materials are borrowed and cloned before whitening.
- * No production scene/film caller is connected in this tree, so exported reach
- * and owning tests do not establish compiled-shot capture integration.
  *
- * @evidence contracts/common.md#principled-implementation Regenerates seeded compact slots, admitted static prototypes, scales/traits and sRGB-decoded palettes, then uses engine crop-aware culling/LOD with native instance matrices; rigid representation requirements and finite admitted transforms are premises, while fixed radius/depth floors are existing numerical conventions and no dynamic deformation is inferred.
- * @evidence contracts/common.md#clear-and-simple-design Separates prototype-id and tier keys, one shared flattened representation per pair and chunk-owned instance buffers; generated materials stay owned while borrowed loaded materials receive white clones. The current production scene/capture host does not consume this API and no replacement runtime is introduced to hide that gap.
+ * The Medieval Manor's createManorInstanceConsumer calls this builder during scene assembly and supplies a camera-update route. Its website also bakes supported meshes before mounting; this source connection establishes neither an observed instanced frame nor compiled-shot capture integration.
+ *
+ * @evidence contracts/common.md#principled-implementation Regenerates seeded compact slots, admitted static prototypes, scales/traits and sRGB-decoded palettes, then uses engine crop-aware culling/LOD with native instance matrices; rigid representation requirements and finite admitted transforms are premises. Supplied projection-radius estimates drive culling and projected size; coverage of mesh offsets and depth remains a producer premise, and fixed radius/depth floors do not independently certify containment.
+ * @evidence contracts/common.md#clear-and-simple-design Separates prototype-id and tier keys, one shared flattened representation per pair and chunk-owned instance buffers; generated materials stay owned while borrowed loaded materials receive white clones. The Manor assembly consumes the result through its existing instance consumer, while website baking and final draw/capture observations have their own owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual seeded slots/prototypes and standard sRGB transfer determine transforms/colors, with no global ColorManagement mutation, fixture colors or hidden placeholder prototype; unsupported skin/morph/multi-material sources refuse instead of appearing frozen.
- * @evidence contracts/common.md#meaningful-documentation Gives compact population purpose, supported prototype boundary, loaded/generated ownership, regenerated attribute/color roles and the absent production consumer rather than certifying exported-only wiring.
+ * @evidence contracts/common.md#meaningful-documentation Gives compact population purpose, supported prototype boundary, loaded/generated ownership, regenerated attribute/color roles and the existing Manor assembly connection, without certifying actual raster or compiled-shot delivery from constructor reach.
  * @evidence contracts/performance.md#efficient-algorithms Regenerates N slots and filters them by P prototypes per chunk, then fills matrices/colors/traits across resident LOD tiers; construction is O(N*P plus resident buffer filling/prototype flattening), update visits chunk/prototype tiers and scans supported visibility state without creating member objects. Buffers grow with admitted members times resident tiers and authored trait count.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares flattened geometry and instance-only materials by prototype/tier, decoded swatches by exact authored palette string and resident meshes/hysteresis across updates; separate prototype identities retain distinct geometry and mutable per-runtime retirement state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Construction scope registers prototype/chunk geometry, owned generated or cloned materials and native instance meshes from acquisition; refusal independently rolls back them while loaded sources/textures remain borrowed. Returned dispose closes updates, deduplicates/attempts all resources once, clears healthy registries and retains failure/operation references for uncertain retirement until owner lifetime ends.
@@ -338,11 +338,11 @@ export const buildInstancedInstanceSet: (input: IBuildInstancedInstanceSetProps)
             chunk.runtime.centroid.z - input.instanceSet.anchor.z,
           ),
         );
-        // The chunk's own bounds hold slot origins only, so the sphere is
-        // widened by the largest world radius one instance of this set can
-        // occupy. That radius is rotation-invariant, which is exactly why a
-        // rotated, non-uniformly scaled instance whose origin sits outside the
-        // frustum still keeps its chunk on screen.
+        // Chunk bounds describe slot origins. Expand their sphere by the
+        // supplied projection-radius estimate times the largest slot scale.
+        // Containment requires that estimate to cover the prototype's offsets
+        // and depth; a fallback estimate cannot independently guarantee that
+        // a rotated or scaled near-frustum instance remains visible.
         const sphere: THREE.Sphere = new THREE.Sphere(
           center,
           chunk.radius + input.instanceSet.projectionRadius * maximumScale,

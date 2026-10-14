@@ -16,7 +16,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  *
  * A branch is a unit cylinder scaled to `(r, length, r)` with `r` the mean of its two radii and rotated from `+y` onto its own axis. The taper a segment carries in the derived structure is therefore averaged, which is the stated cost of drawing every branch in one instanced batch; the derived record keeps both radii for anything that needs them. A leaf is a unit plane scaled by its per-axis size, which is exactly the prototype the derivation emitted.
  *
- * @evidence contracts/common.md#principled-implementation Composes each full member transform with local branch/leaf transforms into two prototype batches, preserving unchanged radius averaging, zero-length collapse and empty-batch point bounds.
+ * @evidence contracts/common.md#principled-implementation Composes each full member transform with local branch/leaf transforms into two prototype batches, preserving radius averaging, zero axial scale for zero-length branches and empty-batch point bounds. Positive-radius cylinder caps can remain planar at zero length; this adapter does not establish that such a slot is invisible.
  * @evidence contracts/common.md#clear-and-simple-design The engine owns derivation/placement admission while this projection owns generated geometry/default materials and two finite acquisition lists for independent retirement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Mean branch radii are an explicitly lossy taper approximation, leaf transforms remain unchanged and no new segmentation/shape value is tuned to a fixture or unobserved visual target.
  * @evidence contracts/common.md#meaningful-documentation Documentation states transform units/ordering, averaged taper cost, degenerate/empty behavior, borrowed materials and caller-owned scene withdrawal.
@@ -124,10 +124,9 @@ export const buildPlantingObject: (props: IBuildPlantingObjectProps) => IAutoMov
       );
       const length: number = axis.length();
       const radius: number = (branch.radiusStart + branch.radiusEnd) / 2;
-      // A pruned branch can be cut to nothing. Drawing a zero-length cylinder
-      // would leave a degenerate instance whose normals are undefined, so the
-      // slot keeps its identity and collapses to an invisible scale instead of
-      // shifting every later branch's index.
+      // Keep a zero-length branch's slot identity with zero axial scale. A
+      // positive radial scale can leave coincident planar caps; this is not a
+      // guaranteed invisible instance or a nonsingular normal transform.
       local.compose(
         translation.set(
           (branch.start.x + branch.end.x) / 2,

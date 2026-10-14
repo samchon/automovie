@@ -1,18 +1,9 @@
 import type {AutoMovieGuidePass} from "@automovie/interface";
 
 /**
- * A reversible render-mode override. `restore()` puts every touched material,
- * visibility flag, background, and overlay back exactly as it was, so the same
- * built scene can be captured pass after pass without rebuilding: the
- * deterministic engine result is never mutated, only its projection.
+ * A reversible render-mode override. Successful `restore()` puts every touched material, visibility flag, background, and overlay back as it was, so the same built scene can be captured pass after pass without rebuilding: the deterministic engine result is never mutated, only its projection.
  *
- * `restore()` also **disposes every resource the override created** (override
- * materials, the pose overlay's line geometries and material): a guide-pass
- * render applies and restores restoreAutoMovieRenderModeOnce per frame per pass, so an hour of film would
- * otherwise leak tens of thousands of WebGL materials. Borrowed originals are
- * never disposed; they belong to the scene. Repeated successful restore is a
- * no-op; repeated failed restore preserves its original cause without another
- * disposal attempt.
+ * `restore()` also attempts disposal of resources the override created (override materials, the pose overlay's line geometries and material). A guide-pass render applies and restores its override per frame per pass, so an hour of film would otherwise leak tens of thousands of WebGL materials. Borrowed originals are never disposed; they belong to the scene. Repeated successful restore is a no-op; repeated failed restore preserves its original cause without another disposal attempt.
  *
  * @evidence contracts/common.md#principled-implementation A pass handle pairs the selected guide mode and semantic coverage facts with exact restoration of temporary viewer state, keeping deterministic engine declarations unchanged across captures.
  * @evidence contracts/common.md#clear-and-simple-design Restoration and semantic accounting travel with the override that produced them, so callers do not reconstruct touched material or visibility state.

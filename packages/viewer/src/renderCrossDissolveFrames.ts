@@ -3,7 +3,7 @@ import {AutoMovieDisplayCompositor} from "./AutoMovieDisplayCompositor.js";
 import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCompositorState.js";
 
 /**
- * Combine two independently resolved display frames with complementary byte weights. Each callback owns its scene's tone and exposure. The renderer's selected destination, canvas backing and clear state survive all exits. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; endpoints and identical opaque sources retain identity. Low-alpha premultiplied canvas extraction is a presentation product; capture an unassociated target for transparent straight RGBA delivery.
+ * Combine two independently resolved display frames with complementary byte weights. Each callback owns its scene's tone and exposure. The compositor independently attempts restoration of the selected destination, canvas backing and clear state; failed native restoration cannot guarantee their survival. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; endpoints and identical opaque sources retain identity. Low-alpha premultiplied canvas extraction is a presentation product; capture an unassociated target for transparent straight RGBA delivery.
  *
  * The numerical contribution is the documented opaque highp Float32 byte bound. It does not certify an unobserved device precision profile or reinterpret low-alpha canvas presentation as straight delivery.
  *

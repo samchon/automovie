@@ -22,8 +22,7 @@ export function guardAutoMovieRenderModeRetirement(
   const previous: { run: () => void; active: boolean; error: unknown } | undefined = retiring.get(scene);
   if (previous !== undefined) {
     if (attempt === undefined || !previous.active) throw previous.error;
-    // An outer Edge owner must still ask its already-owned fill to retire.
-    // The parent callback retains that handle and collects the nested cause.
+    // An outer Edge owner must still retire its already-owned fill; the parent callback retains that handle and collects the nested cause.
     if (attempt.primary === undefined) attempt.run();
     else restoreAutoMovieRenderModeState([attempt.run], attempt.primary);
     return;

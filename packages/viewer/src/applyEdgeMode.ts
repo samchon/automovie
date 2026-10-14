@@ -12,11 +12,7 @@ import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.j
 import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
 
 /**
- * The inverted-hull shell material: geometry pushed outward along its normals
- * by `edgeWidth` meters and drawn back-face-only in white, so wherever the
- * front-facing black fill does not cover it, a contour line remains. The vertex
- * stage includes three's skinning chunks, so a posed `SkinnedMesh` outlines its
- * deformed surface.
+ * Inverted-hull shell material: extrude by edgeWidth along the normalized model-space normal after native skinning, then apply instance/object and camera transforms. White back faces exposed beyond the black fill form contours; subsequent scaling and perspective determine their world and screen thickness.
  */
 const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (edgeWidth: number): THREE.ShaderMaterial =>
   new THREE.ShaderMaterial({
@@ -46,11 +42,7 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (edge
   });
 
 /**
- * Outline pass (#1166): REAL silhouette edges, white on black, no host
- * post-processing. Classic inverted hull: every mesh gets a back-face shell
- * expanded `edgeWidth` meters along its normals, the mesh itself fills black,
- * and the black background swallows everything else, leaving white contour
- * lines where the shell peeks past the fill.
+ * Inverted-hull outline pass: each mesh gets a white back-face shell extruded along its model-space normals and a black fill, over black background. The exposed shell forms a contour without host post-processing; it is a surface-dependent projection rather than a fixed pixel-width edge detector.
  *
  * Width is a finite nonnegative model-space extrusion; object scaling affects
  * its world-space thickness. Returned restore removes shells, disposes their
@@ -73,10 +65,7 @@ export const applyEdgeMode: (scene: THREE.Scene, edgeWidth: number) => IAutoMovi
   guardAutoMovieRenderModeRetirement(scene);
   const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
   scene.background = new THREE.Color(0x000000);
-  // One shell material per cycle (and one for everything static), because the
-  // cycle is injected into the material and a formation tier's members deform
-  // by a table of their own. Keyed rather than per mesh so a hundred chunks of
-  // one tier still compile one shell program.
+  // Share one shell material per cycle plus one static material; native program variants still depend on Three's complete compile inputs.
   const shellMaterials: Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial> = new Map<
     IAutoMovieFormationCycle | null,
     THREE.ShaderMaterial

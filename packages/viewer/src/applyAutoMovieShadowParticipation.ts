@@ -5,17 +5,7 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
 /**
  * Say which objects cast a shadow and which receive one.
  *
- * Every other link of the chain was already built. `stageScene` validates a
- * light's `castShadow` and refuses shadow settings without it, the render
- * inventory counts `shadowMaps` as `casters.length` and a budget constrains
- * that count, {@link buildLight} applies the flag and the whole shadow camera —
- * map size, bias, normal bias, near and far — and
- * {@link applySceneEnvironment} enables `renderer.shadowMap` from the scene's
- * own declaration and restores the prior state afterwards. Nothing set a flag
- * on an **object**, and `three.js` needs all three: an enabled map, a casting
- * light, and geometry that participates. So a production could declare a
- * caster, have it validated, budgeted, applied and rendered with the map on,
- * and no shadow would appear anywhere.
+ * `stageScene` validates a light's `castShadow` and refuses shadow settings without it; the render inventory counts casters and its budget constrains that count. {@link buildLight} applies the flag and shadow camera settings, while {@link applyRendererEnvironment} sets the renderer shadow policy reversibly. This adapter supplies the remaining mesh participation flags; enabled maps and casting lights alone do not make a mesh participate.
  *
  * That absence is not visible as an absence. A benchmark authored a fascia and
  * soffit band with a deliberate dark recess above the wall, and the darkening

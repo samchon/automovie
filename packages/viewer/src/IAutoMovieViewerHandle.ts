@@ -43,7 +43,7 @@ export interface IAutoMovieViewerHandle {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A throwing listener cannot certify successful shutdown or authorize disposing caller-owned scene model materials.
    * @evidence contracts/common.md#meaningful-documentation Names the loop, shadow, compositor and renderer retirement obligations and failure propagation.
    * @evidence contracts/performance.md#efficient-algorithms Retirement scans scene shadow lights and a fixed number of renderer/compositor owners, without rebuilding or resampling scene geometry.
-   * @evidence contracts/performance.md#reuse-equivalent-work The mounted running-state guard prevents repeating a completed stop while compositor release helpers own their renderer-specific idempotence.
+   * @evidence contracts/performance.md#reuse-equivalent-work The mount's sticky synchronous restoration guard starts stop once and preserves its original failure for repeated callers; renderer-specific compositor guards own their separate retirement outcomes.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Stops scheduling mounted work and attempts owned native release while leaving model-resource lifetime with the host; a failed retirement remains a reported uncertainty.
    */
   stop: () => void;

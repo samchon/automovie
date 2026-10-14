@@ -3,7 +3,7 @@ import {AutoMovieDisplayCompositor} from "./AutoMovieDisplayCompositor.js";
 import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorState.js";
 
 /**
- * Fade one directly resolved display frame over opaque black. The weight acts on captured display bytes, including source-local tone and exposure, once. The renderer's target and clear state are restored on every exit. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; weight one retains identity. Transparent straight delivery uses an unassociated target, not low-alpha premultiplied canvas extraction.
+ * Fade one directly resolved display frame over opaque black. The weight acts on captured display bytes, including source-local tone and exposure, once. Target and clear-state restoration are independently attempted on exit, with native restoration failures reported rather than certified restored. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; weight one retains identity. Transparent straight delivery uses an unassociated target, not low-alpha premultiplied canvas extraction.
  *
  * @evidence contracts/common.md#principled-implementation Admits finite weight inside0..1 before effects, acquires/resizes the actual renderer-keyed fade compositor and renders the original source over opaque black with alpha1-weight.
  * @evidence contracts/common.md#clear-and-simple-design One lifetime dispatcher leaves source tone/exposure and destination/state ownership with the existing callback/compositor owners.

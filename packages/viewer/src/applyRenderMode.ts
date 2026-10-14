@@ -50,11 +50,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THR
  * the viewer stays a thin projection of the engine result:
  *
  * - `beauty`: no override (the ordinary shaded render).
- * - `depth`: every mesh swapped to a normalized-metric depth shader (#1167):
- *   grays linear in camera-space distance over a scene-stable range
- *   ({@link DEPTH_NORMALIZATION_RANGE}, overridable) instead of the camera's
- *   near/far clip planes, so the same world depth reads the same gray across
- *   shots, cuts, and chunks; black background = infinitely far.
+ * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far normalization. Camera changes can change a world point's viewZ; black is the far-range/background convention.
  * - `mask`: the segmentation pass. A scene handed its palette by
  *   {@link attachAutoMovieSemanticMask} is painted by
  *   {@link applyAutoMovieSemanticMask}, so every colour is the one that entity's
@@ -64,10 +60,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THR
  *   identity, because inserting one node repaints everything after it.
  * - `normal`: every mesh swapped to `MeshNormalMaterial`: the unlit
  *   surface-normal conditioning pass (#1166).
- * - `outline`: REAL silhouette edges (#1166): black fills plus inverted-hull
- *   back-face shells offset {@link EDGE_WIDTH} meters along their normals,
- *   leaving white contour lines on a black background, no host
- *   post-processing.
+ * - `outline`: black fills plus inverted-hull back-face shells extruded by {@link EDGE_WIDTH} in model space, leaving white contours on black. Object/instance scaling and camera projection affect world thickness and screen line weight.
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
  *   connection drawn over a black background: the skeleton pose pass.
  *
@@ -82,14 +75,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THR
  * beauty. Failed restoration retains its complete owner callback and cause;
  * nested owned cleanup still runs independently beneath the active boundary.
  *
- * `options` (`depthRange`, `edgeWidth`) is an escape hatch for a direct
- * embedder tuning the passes to an unusual scene. The bundled capture path
- * (`__afPass`) deliberately omits it: a screenshot pass reads the same world
- * depth as the same gray only when the normalization range is a scene-stable
- * constant, so the capture side is fixed to the defaults on purpose (#1167). A
- * scene whose depth of interest exceeds {@link DEPTH_NORMALIZATION_RANGE} would
- * clamp to black past that range in the bundled capture. Override via a direct
- * call, not the hook.
+ * Direct embedders can override depthRange and edgeWidth. The bundled __afPass capture path uses the defaults, keeping the camera-space depth normalization consistent while preserving differences caused by camera pose. Depth beyond the default range clamps to black; changing that range requires a direct call.
  *
  * @author Samchon
  * @evidence contracts/common.md#principled-implementation Selects the requested supported guide projection, excludes existing nonmesh beauty renderables, suspends fog/image lighting and returns a reversible handle; uses attached semantic masks when present and documented positional fallback otherwise. Depth/edge numeric options remain caller premises and anonymous instanced members have no bone graph for the pose overlay.
@@ -112,9 +98,7 @@ export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, opt
     depthRange?: number;
 
     /**
-     * Silhouette edge width (m) of the outline pass. Defaults to
-     * {@link EDGE_WIDTH} (0.02). Direct callers only: the capture path keeps the
-     * default.
+     * Model-space normal extrusion for the outline pass; defaults to {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world thickness; the capture path keeps the default.
      */
     edgeWidth?: number;
   },

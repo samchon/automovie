@@ -39,10 +39,7 @@ export function frameAutoMovieViewerSubject(bounds: IAutoMovieViewerSubjectBound
     DEGENERATE_RADIUS,
   );
   const verticalHalf: number = THREE.MathUtils.degToRad(lens.fovDeg) / 2;
-  // The horizontal field follows the aspect, and the subject has to fit the
-  // narrower of the two: fitting the wider one crops a tall subject out of a
-  // wide viewport, which is the one framing failure nobody notices from a
-  // thumbnail.
+  // The horizontal field follows the aspect; fit the narrower field so the other field cannot crop the bounding sphere.
   const horizontalHalf: number = Math.atan(Math.tan(verticalHalf) * lens.aspect);
   const distance: number =
     (radius / Math.sin(Math.min(verticalHalf, horizontalHalf))) *
@@ -58,11 +55,9 @@ export function frameAutoMovieViewerSubject(bounds: IAutoMovieViewerSubjectBound
     },
     target: center,
     lens,
-    // Half the gap to the subject's near side, floored off zero so a
-    // distance factor of exactly one still has a positive near plane.
+    // Half the gap to the subject's near side, floored off zero so a distance factor of exactly one still has a positive near plane.
     near: Math.max((distance - radius) / 2, radius / 1000),
-    // Four radii past the subject's far side, so the eye keeps enough of the
-    // surroundings to tell where the subject stands.
+    // Four radii past the subject's far side retain the requested neighborhood beyond the bounding sphere.
     far: distance + radius * 5,
   };
 }

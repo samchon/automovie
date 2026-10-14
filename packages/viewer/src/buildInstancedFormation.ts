@@ -55,24 +55,15 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * 64-byte instance matrix and one 4-byte phase scalar per anonymous slot and
  * tier.
  *
- * Flat does not mean frozen. When the tier's runtime model declares gaits, each
- * is baked once into a part-matrix table and every member of every chunk reads
- * the playing table at its own seeded phase. What it performs, and how
- * fast, comes from the unit's own cues: a unit that covers ground steps as many
- * times as the bake-derived stride heuristic estimates, one that holds does not step at all, and one
- * that changes action changes table. Nothing about that is per member: the
- * instance buffers are the same size they were, and a frame advances the whole
- * tier's cadence by writing two floats and a texture reference; culling,
- * spacing/reform and sparse member cues still require their own update work.
- * No production scene/film caller is connected in the current tree; direct
- * users and owning tests exercise this producer, so this API alone does not
- * establish that compiled shot populations reach the capture application.
+ * Declared gaits are baked into part-matrix tables and each member reads the selected table at its seeded phase. Positive-stride takes advance by cue travel/turn and the stride heuristic; zero-stride takes instead advance by elapsed time and their declared period. Two scalar uniforms and one texture reference carry a tier's cadence, while culling, spacing/reform and sparse cues require additional update work.
+ *
+ * No production scene/film caller is connected in the current tree; direct users and owning tests exercise this producer, so this API alone does not establish that compiled shot populations reach the capture application.
  *
  * @evidence contracts/common.md#principled-implementation Uses engine compact slot regeneration, cue sampling, cadence integration and hysteretic LOD, projecting metre placements into chunk InstancedMeshes and baked Float32 part tables; admitted recipes/anchors/tiers are premises, stride is heuristic and cadence matrix interpolation is approximate, while anonymous and caller-supplied hero ownership stay distinct.
  * @evidence contracts/common.md#clear-and-simple-design Builds shared tier resources once and per-chunk matrix/phase buffers separately, with sparse slot exception lookup and hero rest snapshots for updates; no in-tree production shot host consumes this producer, and that unresolved wiring is not repaired by another runtime layer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Regenerates authored seeded slots and actual cues without fixture frames or per-member surrogate nodes; the 0.01 chunk-radius and 0.001 distance/depth floors are existing culling denominator conventions, not proof of exact visibility at camera/zero-radius degeneracies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Regenerates authored seeded slots and actual cues without fixture frames or per-member surrogate nodes. The 0.01 chunk-radius and 0.001 distance/depth floors are numerical conventions; culling uses original chunk bounds and supplied projection radius, without recomputing bounds for reform or sparse offsets. Containment of the current deformed arrangement is therefore a remaining premise, not an independently established visibility guarantee.
  * @evidence contracts/common.md#meaningful-documentation States anonymous versus promoted members, metre/phase buffer roles, shared gait repertoire and cadence approximation, update work beyond uniform writes and the currently absent production consumer.
- * @evidence contracts/performance.md#efficient-algorithms Construction regenerates N anonymous slots per admitted LOD/chunk and bakes each tier's part/gait table once; updates visit C chunks/tiers plus E sparse exceptions/heroes, while changed spacing/reform may rewrite N matrices. Retained buffers scale with N times resident tiers, not one Object3D per member.
+ * @evidence contracts/performance.md#efficient-algorithms Construction regenerates N anonymous slots and fills each resident tier, bakes each tier once and locates E exceptions by scanning C chunks then the matching chunk's slots. Updates visit chunks/tiers and heroes, sample cue lists for each exception, and rewrite N matrices when spacing/reform changes. Cue sampling and native graph updates add their actual costs; retained buffers scale with N times resident tiers rather than one Object3D per member.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares tier geometry/material/cycle textures across chunk meshes, retains tier hysteresis and only rewrites arrangement when spacing/reform inputs change; absolute cue/cadence inputs drive updates, and failed/successful disposal completion is reused without physical retries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Construction scope immediately owns tier retirement and each chunk geometry/mesh, rolling them back independently on later refusal; returned runtime owns all anonymous resources until disposal and borrows hero objects. Disposal stops updates, attempts every unique resource, retains operation closures on failed release and preserves its original completion until the runtime is released.
  */
@@ -154,7 +145,7 @@ export const buildInstancedFormation: (input: IBuildInstancedFormationProps) => 
   // The cues a unit was built with are the cues it performs, resolved once.
   // Which members are singled out is settled here and never revisited, so a
   // frame that re-read the caller's list would sample cues against a set of
-  // exceptions that no longer answers to them ??a member named after the build
+  // exceptions that no longer answers to them: a member named after the build
   // has no instance to write, and one named before it would keep performing
   // whatever the new list happened to say. Reading it twice also left the second
   // `?? []` an arm no input could take, since a unit whose cues are absent has

@@ -50,8 +50,7 @@ export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMov
       if (closed) throw new Error("The cloth projection is closed.");
       if (failure !== undefined) throw failure.error;
       const surface: IAutoMovieSoftBodySurface = frame.surface;
-      // Let the installed SDK choose index width rather than duplicating its
-      // primitive-restart boundary. This staging geometry has never been drawn.
+      // Let the installed SDK choose index width rather than duplicating its primitive-restart boundary; this staging geometry has never been drawn.
       const candidate: THREE.BufferGeometry = new THREE.BufferGeometry();
       const candidateRetire: () => void = retirement(candidate);
       let transferred: boolean = false;

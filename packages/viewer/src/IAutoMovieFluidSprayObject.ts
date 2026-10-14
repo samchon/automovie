@@ -2,7 +2,7 @@ import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
- * A viewer-owned bounded spray for one fluid domain.
+ * A viewer-owned point cloud for the currently uploaded bounded spray sample; updates do not bind it to a domain identity.
  *
  * @evidence contracts/common.md#principled-implementation The point cloud copies the engine's capped and thinned particle sample; this type adds no particle solver and exposes the number currently uploaded.
  * @evidence contracts/common.md#clear-and-simple-design A single native node with update, count and dispose is the renderer-facing projection of a numerical sample.
@@ -10,7 +10,7 @@ import type * as THREE from "three";
  * @evidence contracts/common.md#meaningful-documentation Members state upload purpose, sampled count and conditional material ownership. The bounded population comes from engine admission, not a viewer-side cap enforced by this type.
  * @evidence contracts/performance.md#efficient-algorithms Upload and bounding-sphere calculation scale with particle count; count is a constant-time read of the last uploaded length.
  * @evidence contracts/performance.md#reuse-equivalent-work The same point node and material persist through updates, while attributes are copied anew. No time or step key suppresses upload.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches and disposes the object; geometry and default material are owned, supplied material is borrowed. The current sequential disposer has no failed-completion memo or all-release guarantee.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches and disposes the object; each invocation independently attempts owned geometry then the default material while supplied material stays borrowed. The API has no failed-completion memo, closed state or independently observed physical-release guarantee.
  *
  * @author Samchon
  */
@@ -34,9 +34,9 @@ export interface IAutoMovieFluidSprayObject {
   /**
    * Release the geometry, and the material when this object created it.
    *
-   * @evidence contracts/common.md#principled-implementation Native geometry disposal is followed by disposal of the material only when the builder created it.
+   * @evidence contracts/common.md#principled-implementation Each invocation independently attempts native geometry then material only when the builder created it, through the shared synchronous retirement reporter.
    * @evidence contracts/common.md#clear-and-simple-design Native resource retirement is explicit and separate from scene detachment; the supplied material's owner remains outside this object.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No consumer-specific release policy is used. A geometry disposal throw currently skips the owned material, a retained limitation rather than an all-release guarantee.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No consumer-specific release policy is used. A geometry disposal throw cannot skip the owned material, and original ordered causes follow the existing reporter policy without certifying physical GPU release.
    * @evidence contracts/common.md#meaningful-documentation The comment states conditional material release and does not imply ownership of externally supplied assets.
    * @evidence contracts/performance.md#efficient-algorithms At most two native disposal calls occur; underlying GPU retirement is delegated to three.js.
    * @evidence contracts/performance.md#reuse-equivalent-work The method does not memoize disposal completion, so repeated calls repeat native effects.

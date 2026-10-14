@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 /**
- * A viewer-owned planting cluster drawn as two instanced batches.
+ * A viewer-owned planting cluster with one branch batch and an optional leaf batch.
  *
  * @evidence contracts/common.md#principled-implementation Exposes the actual viewer-owned group and branch/optional leaf batches, preserving derived member-by-part counts without duplicating plant derivation.
  * @evidence contracts/common.md#clear-and-simple-design One handle joins scene attachment, observable batch counts and explicit owned-resource disposal; numerical records remain with the engine.
@@ -17,16 +17,16 @@ export interface IAutoMoviePlantingObject {
   /** Add this group to the current scene. */
   object: THREE.Group;
 
-  /** Every branch of every member, as one instanced draw. */
+  /** Every branch of every member in one instanced batch; actual submissions depend on the renderer. */
   branches: THREE.InstancedMesh;
 
-  /** Every leaf of every member, as one instanced draw, or `null` when bare. */
+  /** Every leaf of every member in one instanced batch, or `null` when bare. */
   leaves: THREE.InstancedMesh | null;
 
-  /** Branch instances drawn: member count times branch count. */
+  /** Allocated branch slots: member count times branch count, including degenerate slots. */
   branchCount: number;
 
-  /** Leaf instances drawn: member count times leaf count. */
+  /** Allocated leaf slots: member count times leaf count, without a visible-pixel guarantee. */
   leafCount: number;
 
   /**

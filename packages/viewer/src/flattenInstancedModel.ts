@@ -20,11 +20,7 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * them to the consumer along with the owned merged geometry. Lower-level
  * flattening retains those objects rather than allocating a second material.
  *
- * The merge is still one geometry per LOD tier, so a chunk is still one draw
- * call, but every vertex now also carries the index of the rigid part it
- * belongs to. That single float is what lets a shader put the part where a
- * cycle says it should be instead of where the rest pose left it, and it costs
- * four bytes per vertex of shared geometry rather than anything per member.
+ * The merge produces one geometry per LOD tier with a group and retained material for each source part, so one chunk can require several renderer submissions. Every vertex also carries a Float32 rigid-part index for the cycle shader, costing four bytes per vertex of shared geometry rather than per member; actual submission counts belong to renderer observation.
  *
  * Passing `bake` additionally bakes the model's whole repertoire
  * ({@link bakeFormationCycle}); a model that declares no gait, or carries no
