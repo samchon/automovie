@@ -12,7 +12,12 @@ import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
  * rule the surface cannot answer (no section loop, a missing landmark or a
  * named skin point the basis does not declare) answers null.
  */
-export const measureHumanBodySimpleShape = {
+export const measureHumanBodySimpleShape: {
+  /** Cubic-metre volume at kilogram-per-litre density, converted to kilograms. */
+  mass(volume: number, density: number): number;
+  /** One named metre measurement on the supplied rest shape. */
+  channel(basis: IAutoMovieHumanBodyBasis, shape: Record<string, number>, channel: string): number | null;
+} = {
   /** Whole-body mass in kilograms from the whole person's closed skin volume at a density. */
   mass(volume: number, density: number): number {
     return volume * density * 1000;

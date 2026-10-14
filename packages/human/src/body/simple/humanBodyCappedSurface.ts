@@ -14,10 +14,10 @@ import { humanBodySurfaceBoundary } from "./humanBodySurfaceBoundary";
  * fan, and admission must check that fan for degeneracy and crossings before
  * its volume is used as mass. The closed mesh supplies the tetrahedron sum
  * and the solid-angle interior probe. Separation uses surface crossings plus
- * containment; coplanar witnesses are clipped to their actual overlap area.
+ * containment; coplanar witnesses are clipped to their projected overlap area.
  * At an exact contact, rotated coordinates can produce a floating point
  * straddle or sliver even though no volume is shared. Distances within
- * 1e-12 of the model diagonal and areas within 1e-12 of its square count as
+ * 1e-12 of the model diagonal and projected areas within 1e-12 of its square count as
  * contact at that numerical boundary. No UV or material seam is introduced.
  *
  * `assertGeometry` runs for every trial body of a mass inversion, so it
