@@ -24,7 +24,7 @@ npm run evidence
 | --- | --- |
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-| [`@automovie/archetypes`](./packages/archetypes) | The registrable catalogue of primitive archetypes and gait tables |
+| [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups and the humanoid gait tables |
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
