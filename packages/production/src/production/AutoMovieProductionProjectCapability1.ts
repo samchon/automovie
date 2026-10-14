@@ -18,7 +18,7 @@ import { productionProjectRevision } from "./productionProjectRevision";
  * @evidence contracts/common.md#meaningful-documentation Individual methods carry their actual operation's effects, currentness premises, costs and lifetime limits, while this internal class adds only the public forwarding shape.
  * @evidence contracts/performance.md#efficient-algorithms Each invocation adds one constant-size direct call to the complete operation cost documented on that method; inheritance depth affects method lookup but adds no scan of designs, frames or payload bytes.
  * @evidence contracts/performance.md#reuse-equivalent-work All adapters borrow one state retained by the first base constructor; their operation's currentness checks decide when resident observations may be reused, with no cross-instance result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state through the first base's readonly field; subsequent bases add no per-instance handles, buffers, closure tables or tasks, and operation owners release resources they acquire.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state through this readonly field; later bases add no per-instance handles, buffers, closure tables or tasks. Operations own acquired resources and report cleanup failures; readonly does not freeze the borrowed state's nested values or prove successful host release.
  */
 export class AutoMovieProductionProjectCapability1 {
     public constructor(protected readonly state_: AutoMovieProductionProjectState) {
@@ -26,11 +26,11 @@ export class AutoMovieProductionProjectCapability1 {
     /**
      * Return a detached layout manifest after refreshing the production fence.
      *
-     * @evidence contracts/common.md#principled-implementation Delegates to productionProjectManifest with the instance's state. Refreshes the physical root, incarnation and resident revision before structured-cloning the admitted opening manifest, preserving unknown legacy fields without sharing mutable nested values.
+     * @evidence contracts/common.md#principled-implementation Delegates to productionProjectManifest after refreshing root, incarnation and revision; the clone detaches the opening's fixed layout, project id and admitted legacy-import metadata from mutable nested state.
      * @evidence contracts/common.md#clear-and-simple-design The operation owns implementation behind this public forwarding signature. This read projection owns cloning; refresh owns currentness checks and does not reload arbitrary layout fields from disk.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts No production-specific projection drops unknown fields, and an identity or revision refusal propagates before any manifest is returned.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns the constructor's fixed layout projection rather than arbitrary resident production-manifest fields; identity, revision and structured-clone failures propagate.
      * @evidence contracts/common.md#meaningful-documentation Distinguishes a detached opening layout from a newly parsed resident manifest and states the refresh-before-return boundary.
-     * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Includes namespace checks and a revision JSON read, then clones all manifest data in time and space proportional to its serialized structure.
+     * @evidence contracts/performance.md#efficient-algorithms One direct call adds constant overhead to full refresh root/ancestry checks, registry/incarnation/revision reads and parsing, registration sorting and retired-key membership work, followed by cloning the complete retained layout population; no source or media payload is read.
      * @evidence contracts/performance.md#reuse-equivalent-work Reuses the opening's admitted layout but creates a new mutable result for each caller; a matching revision does not replace the current physical fence.
      * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. The caller owns the detached clone; state keeps its original manifest, and this projection retains no descriptor or task after return or refusal.
      */
@@ -62,7 +62,7 @@ export class AutoMovieProductionProjectCapability1 {
      * @evidence contracts/common.md#meaningful-documentation States that ids are current registry observations, with production currentness checked before their acquisition rather than a cached opening list.
      * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Includes physical/revision checks, full registry read/parse/validation and an O(P) result copy; validation sorts P ids in O(P log P) and can perform O(K*P) membership work for K retired incarnation keys, in addition to id encoding.
      * @evidence contracts/performance.md#reuse-equivalent-work Reads the registry again for each call because other production mutations can change it independently; only the opening identity expectations are shared.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Parsed registry data is temporary and the copied ids transfer to the caller; owned-file acquisition closes its descriptor and this operation retains no registry cache.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state; parsed registry data is temporary and copied ids transfer without a local count cap. Owned readers attempt descriptor cleanup and report refusal, with no registry-result cache retained.
      */
     public productionIds(): string[] {
         return productionProjectProductionIds(this.state_);
@@ -76,7 +76,7 @@ export class AutoMovieProductionProjectCapability1 {
      * @evidence contracts/common.md#meaningful-documentation Returns caller-owned bytes and source/render flags; absent content directories still refuse even though constructor layout admission can permit them, and the asset manifest has neither flag.
      * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Visits all selected entries, sorts each directory and final paths, performs ancestry/realpath checks and reads total B bytes; overlapping roots can repeat reads and Map replacement does not remove that cost.
      * @evidence contracts/performance.md#reuse-equivalent-work Each call is a fresh snapshot; paths deduplicate the returned population but repeated traversal/read work is not cached across roots or attempts.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. The caller owns all retained B bytes and records without a fixed byte cap; local traversal data release and owned readers close descriptors on success/failure, while recursive stack grows with depth.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state; the caller owns complete result bytes and records without a fixed byte cap. Recursive traversal retains pending directory populations and a depth-sized stack; owned readers attempt descriptor cleanup and report refusal rather than guaranteeing host release.
      */
     public contentInputs(): IAutoMovieProductionContentInput[] {
         return productionProjectContentInputs(this.state_);
@@ -102,9 +102,9 @@ export class AutoMovieProductionProjectCapability1 {
      * @evidence contracts/common.md#clear-and-simple-design The operation owns implementation behind this public forwarding signature. Adds only the public number projection to refresh, leaving malformed/exhausted generation policy with the shared revision owner.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Never increments or coerces a generation during a read, and deleted or replaced namespace errors propagate.
      * @evidence contracts/common.md#meaningful-documentation The result is one resident observation used for optimistic comparison, not a lease guaranteeing that later content remains unchanged.
-     * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Work is refresh's physical ancestry checks and small revision record read/parse; no generated, design or media population is scanned.
+     * @evidence contracts/performance.md#efficient-algorithms One direct call adds constant overhead to full refresh: physical ancestry checks, incarnation/registry byte reads and parsing, registration sorting and retired-key linear membership scans, then revision decoding. No generated, design or media population is scanned.
      * @evidence contracts/performance.md#reuse-equivalent-work Updates this instance's lastReadRevision_ but reacquires its source on every call instead of trusting a previously matching number.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Retains one scalar in state; file-reader handles close through the delegated acquisition and no per-read object population or task survives.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains state and updates one revision scalar; delegated readers attempt descriptor cleanup and report close failure. Temporary records become unreachable, and no per-read cache or task survives.
      */
     public revision(): number {
         return productionProjectRevision(this.state_);
