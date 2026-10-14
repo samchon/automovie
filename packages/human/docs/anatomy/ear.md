@@ -11,7 +11,7 @@ From `../sources/gray-1918.md`:
 - Antihelix: parallel inside the helix, dividing above into two crura around the fossa triangularis.
 - Scapha: the groove between helix and antihelix.
 - Concha: the deep cavity inside the antihelix, split by the crus of the helix into the cymba (upper) and cavum (lower); the cavum leads to the external acoustic meatus, about 2.5 cm deep from the concha floor.
-- Tragus in front over the meatus, antitragus opposite across the intertragic notch, lobule below, made of areolar and adipose tissue without cartilage.
+- Tragus in front over the meatus, antitragus opposite across the intertragic notch, lobule below, made of loose connective and adipose tissue without cartilage.
 - One plate of yellow fibrocartilage under thin, adherent skin; the cranial surface repeats the lateral relief in reverse (eminentia conchae, eminentia triangularis).
 - Extrinsic ligaments tie the tragus and spina helicis to the zygomatic root and the concha back to the mastoid.
 

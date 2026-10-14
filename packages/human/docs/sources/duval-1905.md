@@ -9,7 +9,7 @@ Public domain in the United States (Gutenberg).
 ## Statements used
 
 - On canons in general: "there is not an absolute rule for the anatomist, or system of proportions applicable to every class of subject"; an ideal proportion "belongs no longer to the domain of anatomy or observation" but to aesthetic doctrine.
-- Eight heads (Gerdy's division: head; chin to nipples; nipples to navel; navel to pubis; pubis to mid-thigh; mid-thigh to knee; knee to mid-leg; mid-leg to sole) "is accurate only in subjects of great height", 74 inches and over; below 72 inches people measure seven and a half or seven heads. The Gladiator measures eight heads and reads as tall and spare.
+- Eight heads (Gerdy's division: head; chin to mid-chest; mid-chest to navel; navel to pubic symphysis; pubic symphysis to mid-thigh; mid-thigh to knee; knee to mid-leg; mid-leg to sole) "is accurate only in subjects of great height", 74 inches and over; below 72 inches people measure seven and a half or seven heads. The Gladiator measures eight heads and reads as tall and spare.
 - The vertebral column is longer relative to stature in the infant, in women and in short people; stature differences between sexes, ages and tall and short people lie mainly in the lower limbs.
 - Span equals stature in middle-height Europeans (the "square figure of the ancients"); the hanging middle fingertip reaches mid-thigh, lower in short and higher in tall subjects.
 - Humerus about two hand lengths and forearm one and a half, "but these proportions are so variable that they cannot be insisted on"; stature as ten hands "often answers in reality, but... presents too many exceptions to be laid down as a law".
