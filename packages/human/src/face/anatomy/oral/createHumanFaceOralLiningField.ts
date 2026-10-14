@@ -1,4 +1,5 @@
 import type { IHumanFaceOralToothStation as ImportedIHumanFaceOralToothStation } from "@automovie/human";
+
 import type { IHumanFaceOralArchFrame } from "./IHumanFaceOralArchFrame";
 import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimensions";
 import type { IHumanFaceOralLiningField } from "./IHumanFaceOralLiningField";
@@ -14,7 +15,7 @@ import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDist
  *
  * The side is decided by the arch curve, the polyline through the station centres, continued by unbounded posterior half-rays at both terminal stations. No finite closing edge bounds the query domain. The boundary owner reads odd horizontal-ray parity and distance to that same open arch. A point on its lingual side therefore lets the lining keep its vault height along the posterior edge between the terminal crowns and the posterior opening stays open.
  *
- * A crown lies on the occlusal side of its ring and the rise is nowhere negative, so this surface is apical of the local ring everywhere. It can still meet a crown where a ring is tilted enough that the crown surface passes apical of a neighbouring ring vertex; the oral admission reads that relation on the emitted geometry.
+ * The rise is nonnegative relative to the blended cervical/arch reference. That reference can lie below an individual ring's height away from its boundary, so the field does not establish that every sample is apical of every nearby crown. The oral admission reads crown contact on the emitted geometry.
  *
  * The half ellipse and the linear collar are authored profiles. No read source gives the coronal or sagittal section of the palate, the gingival contour or the sublingual sulcus as a curve.
  *
@@ -31,9 +32,14 @@ export function createHumanFaceOralLiningField(
   dimensions: IHumanFaceOralLiningDimensions,
 ): IHumanFaceOralLiningField {
   const stations: ImportedIHumanFaceOralToothStation[] = frame.stations;
-  const distance: (u: number, v: number) => number = (u: number, v: number): number =>
-    measureHumanFaceOralRingDistance(stations, u, v);
-  const cervical: (u: number, v: number) => number = (u: number, v: number): number => {
+  const distance: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => measureHumanFaceOralRingDistance(stations, u, v);
+  const cervical: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
     let weights: number = 0;
     let sum: number = 0;
     for (const station of stations) {
@@ -63,7 +69,10 @@ export function createHumanFaceOralLiningField(
     }
     return sum / weights;
   };
-  const archHeight: (u: number, v: number) => number = (u: number, v: number): number => {
+  const archHeight: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
     let weights: number = 0;
     let sum: number = 0;
     for (const station of stations) {
@@ -75,17 +84,24 @@ export function createHumanFaceOralLiningField(
     }
     return sum / weights;
   };
-  const lingualDepth: (u: number, v: number) => number = (u: number, v: number): number => {
+  const lingualDepth: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
     return measureHumanFaceOralArchDepth(stations, u, v);
   };
-  const apical: (u: number, v: number) => number = (u: number, v: number): number => {
+  const apical: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
     const d: number = distance(u, v);
     const facial: number =
       dimensions.collarHeightMetres *
       Math.min(1, d / dimensions.wallClearanceMetres);
     const reach: number =
       1 - Math.min(d, frame.vaultSpanMetres) / frame.vaultSpanMetres;
-    const lingual: number = dimensions.vaultMetres * Math.sqrt(1 - reach * reach);
+    const lingual: number =
+      dimensions.vaultMetres * Math.sqrt(1 - reach * reach);
     const t: number = Math.min(
       1,
       Math.max(
