@@ -4,7 +4,7 @@ import { productionRootNamespaceCoordinationRoot } from "./productionRootNamespa
 import { productionRootNamespaceEnsureCoordinationRoot } from "./productionRootNamespaceEnsureCoordinationRoot";
 
 /**
- * Name one external fence from its closed coordinate kind and normalized, case-folded namespace using SHA-256. Case folding can over-coordinate distinct POSIX paths but unifies Windows aliases.
+ * Name one external fence from its closed coordinate kind and normalized, case-folded namespace using SHA-256. Case folding can over-coordinate distinct POSIX paths while merging case variants on case-insensitive Windows filesystems; it does not independently resolve every physical alias.
  *
  * @evidence contracts/common.md#principled-implementation A NUL-delimited kind and namespace are hashed into one filename, so path, physical identity, creation and production reservations use distinct domains under the shared coordination root.
  * @evidence contracts/common.md#clear-and-simple-design One formatter prepares the shared directory and names every coordinate, leaving acquisition and release effects to the lock owners.
@@ -30,8 +30,8 @@ export const productionRootNamespaceCoordinatePath: (kind: | "create-path"
   namespace: string,
 ): string => {
   productionRootNamespaceEnsureCoordinationRoot();
-  // Case-folding can only over-coordinate distinct POSIX paths; it also makes
-  // aliases of one case-insensitive Windows namespace share the same fence.
+  // Case variants share this coordinate; physical aliases also rely on the
+  // separately acquired device/inode coordinate rather than this string alone.
   const canonical: string = path.normalize(namespace).toLowerCase();
   const digest: string = crypto
     .createHash("sha256")

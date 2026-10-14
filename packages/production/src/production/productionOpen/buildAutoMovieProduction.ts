@@ -17,43 +17,45 @@ import { openAutoMovieProduction } from "./openAutoMovieProduction";
 export const buildAutoMovieProduction: (props: {
     /** Host-owned path at or below the project root. */
     projectRoot?: string;
+
     /** Exact production namespace. */
     productionId?: string;
-    /** Highest atomic builder gate. */
+
+    /** Highest requested builder gate scope. */
     scope: IAutoMovieBuildProjectInput["scope"];
+
     /** Archetype catalogue this production registers. */
     archetypes?: AutoMovieModelArchetypeRegistry;
+
     /**
      * Exact graph-derived authoring identity, required to compile a library.
      *
-     * The builder chooses its shape from this declaration, so a library
-     * compiled without it takes the film path and is refused for a design tree
-     * it was never going to have. A film or brief may omit it, which is why it
-     * stays optional on this exported convenience entry. No maintained internal
-     * application caller is currently identified.
+     * Library dispatch requires kind library in the supplied declaration. Absent evidence selects legacy-film behavior, while a supplied declaration with no selected kind refuses. Film/brief evidence selects their explicit timed obligations; no maintained internal application caller is currently identified.
      */
     authoringEvidence?: IAutoMovieProductionEvidence;
-    /** Fresh graph reader used by every atomic currentness confirmation. */
+
+    /** Fresh declaration reader supplied to the builder's currentness checks. */
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
 }) => IAutoMovieBuildProjectOutput = (props: {
     /** Host-owned path at or below the project root. */
     projectRoot?: string;
+
     /** Exact production namespace. */
     productionId?: string;
-    /** Highest atomic builder gate. */
+
+    /** Highest requested builder gate scope. */
     scope: IAutoMovieBuildProjectInput["scope"];
+
     /** Archetype catalogue this production registers. */
     archetypes?: AutoMovieModelArchetypeRegistry;
+
     /**
      * Exact graph-derived authoring identity, required to compile a library.
      *
-     * The builder chooses its shape from this declaration, so a library
-     * compiled without it takes the film path and is refused for a design tree
-     * it was never going to have. A film or brief may omit it, which is why it
-     * stays optional on this exported convenience entry. No maintained internal
-     * application caller is currently identified.
+     * Library dispatch requires kind library in the supplied declaration. Absent evidence selects legacy-film behavior, while a supplied declaration with no selected kind refuses. Film/brief evidence selects their explicit timed obligations; no maintained internal application caller is currently identified.
      */
     authoringEvidence?: IAutoMovieProductionEvidence;
-    /** Fresh graph reader used by every atomic currentness confirmation. */
+
+    /** Fresh declaration reader supplied to the builder's currentness checks. */
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
 }): IAutoMovieBuildProjectOutput => openAutoMovieProduction(props).builder.build({ scope: props.scope });

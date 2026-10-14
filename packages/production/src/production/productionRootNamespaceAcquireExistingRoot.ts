@@ -17,7 +17,7 @@ import { productionRootNamespaceLstatOrNull } from "./productionRootNamespaceLst
  * @evidence contracts/common.md#meaningful-documentation Documents optional production namespace, canonical root witness and requested-path recheck without claiming a kernel-level namespace transaction.
  * @evidence contracts/performance.md#efficient-algorithms Fixed root stats and two-coordinate acquisition drive local work, with path/ID hashing and token/process waits charged by their owners.
  * @evidence contracts/performance.md#reuse-equivalent-work One observed identity supplies both coordinate names and lease fields; post-acquisition checks renew authority rather than reusing only the initial stat.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Success transfers the two nesting levels in one lease; assertion failure attempts release, and the caller must release successful leases to bound retained locks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Success transfers two nesting levels in one lease, and assertion failure attempts reverse retirement. The caller owns successful-lease release; native failure can still retain fences under the void cleanup contract, and no descriptor is retained by this acquisition owner.
  */
 export const productionRootNamespaceAcquireExistingRoot: (rootDirectory: string, productionId?: string) => IAutoMovieProductionRootNamespaceLease = (
   rootDirectory: string,

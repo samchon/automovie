@@ -20,7 +20,7 @@ export interface IAutoMovieProductionServices {
   /** Admitted tracked project for this exact namespace. */
   project: AutoMovieProductionProject;
 
-  /** Deterministic compiler sharing the admitted project and authoring graph. */
+  /** Compiler sharing the admitted project and authoring graph; authored Node effects remain host-owned. */
   builder: AutoMovieProductionBuilder;
 
   /** Geometry and actual-frame oracle over this project's current compile. */

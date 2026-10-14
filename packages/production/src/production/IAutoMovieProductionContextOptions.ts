@@ -6,15 +6,10 @@ import type { AutoMovieModelArchetypeRegistry } from "./productionArchetypes";
 /**
  * Named host dependencies of one root-fixed production context.
  *
- * The root seed and default namespace select the resident project; capture,
- * archetypes and authoring evidence are the dependencies every service opened
- * there shares. The live evidence reader is paired with the same compile
- * declaration so currentness cannot judge a different owner population.
- * Construction captures these choices once; the callback itself reads fresh
- * evidence whenever a guarded operation requests it.
+ * The root seed and default namespace select the resident project; capture, archetypes and authoring evidence are shared host dependencies. The host must pair its live evidence reader with the declaration its builder uses. Construction captures the chosen references once, while guarded operations invoke the reader for current evidence; this type does not enforce callback freshness or freeze nested host objects.
  *
  * @evidence contracts/common.md#principled-implementation Named optional dependencies describe the same root-fixed services the positional constructor supports; the live evidence callback belongs to the captured authoring declaration rather than a separately chosen owner population.
- * @evidence contracts/common.md#clear-and-simple-design One options record supplies root, namespace and shared host instruments to the context, which performs admission and constructs services once.
+ * @evidence contracts/common.md#clear-and-simple-design One options record supplies root, namespace and shared host instruments to the context, which resolves the root at construction and lazily admits one retained service bundle per requested registered namespace.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted dependencies retain the context's supported defaults; root and namespace ambiguity still reach their admission gates instead of being repaired by this type.
  * @evidence contracts/common.md#meaningful-documentation States each dependency's owner, capture lifetime, namespace role, and when the live evidence reader is consulted.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The options type executes no setup; resolution and service construction own that cost.

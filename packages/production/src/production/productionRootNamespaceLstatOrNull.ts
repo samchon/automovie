@@ -16,11 +16,8 @@ export const productionRootNamespaceLstatOrNull: (file: string) => Stats | null 
   try {
     return fileSystem.lstatSync(file);
   } catch (error) {
-    // `ENOENT` is an absent name; `ENOTDIR` is an absent path, because some
-    // ancestor is a file. Both mean nothing is here, and both have to reach
-    // the parent walk that names which ancestor is wrong. Surfacing the raw
-    // errno instead would answer "not a directory" about a path the caller
-    // never named.
+    // Missing names and nondirectory ancestors both prevent reaching this entry;
+    // the parent walk and physical-directory callers decide the resulting refusal.
     const code: string | undefined = (error as NodeJS.ErrnoException).code;
     if (code === "ENOENT" || code === "ENOTDIR") return null;
     throw error;

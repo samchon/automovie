@@ -6,10 +6,10 @@ import { compareCodeUnits } from "../contentIdentity";
 /**
  * Enumerate existing root descendants in sorted DFS order without recursing through a final symlink.
  *
- * @evidence contracts/common.md#principled-implementation An absent root returns no paths; sorted readdir and lstat classify each child, recording linked entries as unsafe observations rather than following their descendants.
+ * @evidence contracts/common.md#principled-implementation An existsSync false result skips that directory; otherwise sorted readdir and lstat classify children, returning regular files and linked entries without following final-link descendants. A false presence observation is not separately classified by cause.
  * @evidence contracts/common.md#clear-and-simple-design Inspection uses this walker for generated and render populations; the builder's stricter missing-root walker is separate because its absence policy differs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequential lstat/readdir observations do not establish a hostile-writer snapshot, and intermediate ancestor links are a caller-root premise.
- * @evidence contracts/common.md#meaningful-documentation Defines absent-root behavior, included regular/link paths and propagated native failures.
+ * @evidence contracts/common.md#meaningful-documentation Defines false-presence skipping, included regular/link paths and propagation of later readdir/lstat failures; special entries and empty directories are not returned.
  * @evidence contracts/performance.md#efficient-algorithms Visits F entries and sorts each directory's child names; recursive call depth D and complete output paths contribute to memory, with no population or depth cap.
  * @evidence contracts/performance.md#reuse-equivalent-work Each visited directory is listed once per walk; no prior pathname listing is reused after namespace changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Complete path lists transfer to inspection and per-directory arrays expire; recursion holds ancestor frames but no explicit descriptor or watcher is acquired.

@@ -4,9 +4,9 @@ import { productionRootNamespaceCoordinationRoot } from "./productionRootNamespa
 import { AUTOMOVIE_COORDINATION_ROOT_VARIABLE } from "./AUTOMOVIE_COORDINATION_ROOT_VARIABLE";
 
 /**
- * Create the coordination directory with mode 0700 when absent, then require a physical directory and writable access. An existing directory's permissions remain its owner's responsibility.
+ * Request coordination-directory creation with mode 0700, then require a physical directory and writable access. Native host mode semantics apply, and an existing directory's permissions remain its owner's responsibility.
  *
- * @evidence contracts/common.md#principled-implementation Exclusive mkdir or EEXIST admission precedes physical-directory and access checks, preserving the shared directory's existing permissions instead of resetting another owner's mode.
+ * @evidence contracts/common.md#principled-implementation mkdir with a creation-only 0700 request or EEXIST admission precedes physical-directory and writable-access checks. Host permission semantics determine the effective mode, and existing permissions are not reset.
  * @evidence contracts/common.md#clear-and-simple-design Centralizes directory preparation for every coordinate path; path selection stays in the memoized resolver and token fencing stays in commit-lock acquisition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A symlink, nondirectory or unwritable directory refuses explicitly; no chmod or alternate directory bypass changes the coordination authority.
  * @evidence contracts/common.md#meaningful-documentation Documents creation-only mode, physical/writable requirements and that all cooperating processes must share the selected root.
@@ -25,12 +25,8 @@ export const productionRootNamespaceEnsureCoordinationRoot: () => void = (): voi
     throw new Error(
       `AutoMovie root-lock coordination path "${productionRootNamespaceCoordinationRoot()}" is not a physical directory.`,
     );
-  // Asked here rather than discovered at the lock file's own `open()`. The
-  // later refusal names the file and says waiting will not clear it, which is
-  // true and leaves the reader holding an errno about a path they never chose.
-  // A sandbox whose writable roots are the workdir and the temporary
-  // directories fails this every time, and the only useful thing to say is
-  // where to move the root to.
+  // Attribute an unwritable coordination directory before attempting a token
+  // file, so its refusal can name the shared root configuration the host controls.
   try {
     fileSystem.accessSync(productionRootNamespaceCoordinationRoot(), fileSystem.constants.W_OK);
   } catch (error) {
