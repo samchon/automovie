@@ -24,25 +24,32 @@ export function bodyAnatomyReading(reading: Reading): string | null {
     return reading.reason === "skin-crossing"
       ? "Humeral-head clearance unavailable: the posed skin crosses itself."
       : "Humeral-head estimate unavailable outside the adult CT range (18–79 years, 1.321–1.930 m).";
-  const parts: string[] = reading.heads.map((head: Extract<NonNullable<Reading>, { status: "measured" }>["heads"][number]): string => {
-    const side: string = head.bone === "leftUpperArm" ? "left" : "right";
-    const radius: string = (head.radiusMetres * 1000).toFixed(1);
-    const room: string = (Math.abs(head.clearanceMetres) * 1000).toFixed(1);
-    const origin: string =
-      head.source === "observed"
-        ? `${head.observation.modality.toUpperCase()} observation`
-        : head.source === "measured"
-          ? "entered measurement"
-          : head.source === "target"
-            ? "anatomical target"
-            : "adult CT estimate";
-    return `${side} ${origin} radius ${radius} mm, ${
-      head.centerInside
-        ? head.clearanceMetres >= 0
-          ? `skin room ${room} mm`
-          : `skin protrusion ${room} mm`
-        : `centre outside skin by ${(head.nearestMetres * 1000).toFixed(1)} mm`
-    }`;
-  });
+  const parts: string[] = reading.heads.map(
+    (
+      head: Extract<
+        NonNullable<Reading>,
+        { status: "measured" }
+      >["heads"][number],
+    ): string => {
+      const side: string = head.bone === "leftUpperArm" ? "left" : "right";
+      const radius: string = (head.radiusMetres * 1000).toFixed(1);
+      const room: string = (Math.abs(head.clearanceMetres) * 1000).toFixed(1);
+      const origin: string =
+        head.source === "observed"
+          ? `${head.observation.modality.toUpperCase()} observation`
+          : head.source === "measured"
+            ? "entered measurement"
+            : head.source === "target"
+              ? "anatomical target"
+              : "adult CT estimate";
+      return `${side} ${origin} radius ${radius} mm, ${
+        head.centerInside
+          ? head.clearanceMetres >= 0
+            ? `skin room ${room} mm`
+            : `skin protrusion ${room} mm`
+          : `centre outside skin by ${(head.nearestMetres * 1000).toFixed(1)} mm`
+      }`;
+    },
+  );
   return "Humeral heads only: " + parts.join("; ") + ".";
 }

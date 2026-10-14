@@ -20,8 +20,9 @@ export function renderConnectedBodyUnavailableChannels(
   unavailable: ReadonlySet<string>,
   query: string,
 ): void {
-  const listed: IAutoMovieHumanBodyBasisChannel[] = missing.filter((channel: IAutoMovieHumanBodyBasisChannel): boolean =>
-    channel.id.toLowerCase().includes(query),
+  const listed: IAutoMovieHumanBodyBasisChannel[] = missing.filter(
+    (channel: IAutoMovieHumanBodyBasisChannel): boolean =>
+      channel.id.toLowerCase().includes(query),
   );
   if (listed.length === 0) return;
   const group: HTMLDetailsElement = dom.createElement("details");
@@ -34,7 +35,10 @@ export function renderConnectedBodyUnavailableChannels(
         dom,
         channel.id,
         [channel.positive, channel.negative]
-          .filter((target: string | null): boolean => target !== null && unavailable.has(target))
+          .filter(
+            (target: string | null): boolean =>
+              target !== null && unavailable.has(target),
+          )
           .map(
             (target: string | null): string =>
               `The source target ${target} is unavailable on this generation.`,

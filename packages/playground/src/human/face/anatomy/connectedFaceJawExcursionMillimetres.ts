@@ -49,7 +49,8 @@ export function connectedFaceJawExcursionMillimetres(
   },
   channel: string,
 ): number | null {
-  const jaw: NonNullable<(typeof basis)["articulation"]>["jaw"] | undefined = basis.articulation?.jaw;
+  const jaw: NonNullable<(typeof basis)["articulation"]>["jaw"] | undefined =
+    basis.articulation?.jaw;
   if (jaw === undefined) return null;
   const metres: number | null =
     jaw.protrusion.channel === channel

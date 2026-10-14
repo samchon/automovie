@@ -1,10 +1,11 @@
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+
 import type { IConnectedFaceControlEntry } from "./IConnectedFaceControlEntry";
 import type { IConnectedFaceControlMetric } from "./IConnectedFaceControlMetric";
 import type { ICreateConnectedFaceChannelControlProps } from "./ICreateConnectedFaceChannelControlProps";
 import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
 import { connectedFaceJawExcursionMillimetres } from "./anatomy/connectedFaceJawExcursionMillimetres";
 import { describeConnectedFaceControlScale } from "./describeConnectedFaceControlScale";
-import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 
 /**
  * Build the control row of one fine face channel. Jaw opening and gaze show source endpoint degrees and forward/lateral jaw excursions millimetres; the displayed value and limits are the flat weight times that unit, and an entered value is divided back into the same flat weight. Only owned document coordinates are authored values; omission displays zero. The description names the channel's own note and each endpoint's displacement.
@@ -20,10 +21,14 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 export function createConnectedFaceChannelControl(
   props: ICreateConnectedFaceChannelControlProps,
 ): IConnectedFaceControlEntry {
-  const channel: ICreateConnectedFaceChannelControlProps["channel"] = props.channel;
+  const channel: ICreateConnectedFaceChannelControlProps["channel"] =
+    props.channel;
   const scale: ICreateConnectedFaceChannelControlProps["scale"] = props.scale;
   const document: IAutoMovieHumanFaceBasisDocument = props.document;
-  const angle: number | null = connectedFaceArticulationDegrees(props.basis, channel.id);
+  const angle: number | null = connectedFaceArticulationDegrees(
+    props.basis,
+    channel.id,
+  );
   const distance: number | null = connectedFaceJawExcursionMillimetres(
     props.basis,
     channel.id,
@@ -54,7 +59,9 @@ export function createConnectedFaceChannelControl(
         : [describeConnectedFaceControlScale("-", scale.negative, metric)]),
     ].join(" · "),
     edit: (value: number): IAutoMovieHumanFaceBasisDocument => {
-      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.latest());
+      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+        props.latest(),
+      );
       next[channel.kind] = {
         ...next[channel.kind],
         [channel.id]: value / unit,

@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
-
 import type { createConnectedBodyViewport } from "@automovie/viewer/human/body/createConnectedBodyViewport";
 
 /**

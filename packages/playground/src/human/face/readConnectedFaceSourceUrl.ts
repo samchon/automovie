@@ -11,7 +11,10 @@
  *
  * @author Samchon
  */
-export function readConnectedFaceSourceUrl(search: string, base: string): string {
+export function readConnectedFaceSourceUrl(
+  search: string,
+  base: string,
+): string {
   const value: string | null = new URLSearchParams(search).get("faceSource");
   if (value === null || value.trim() === "")
     throw new Error(

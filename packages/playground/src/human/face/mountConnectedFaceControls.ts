@@ -1,7 +1,11 @@
+import type {
+  IAutoMovieHumanFaceBasis,
+  IAutoMovieHumanFaceBasisDocument,
+  IAutoMovieHumanFaceChannelScale,
+} from "@automovie/human";
 import { createHumanFaceComponentTree } from "@automovie/human/face/basis/createHumanFaceComponentTree";
 import { createHumanFaceControlMap } from "@automovie/human/face/basis/createHumanFaceControlMap";
 import { measureHumanFaceBasisChannels } from "@automovie/human/face/channels/measureHumanFaceBasisChannels";
-import type { IAutoMovieHumanFaceBasis, IAutoMovieHumanFaceBasisDocument, IAutoMovieHumanFaceChannelScale } from "@automovie/human";
 
 import type { IAppendConnectedFaceControlRowProps } from "./IAppendConnectedFaceControlRowProps";
 import type { IConnectedFaceControlsProps } from "./IConnectedFaceControlsProps";
@@ -43,10 +47,11 @@ export function mountConnectedFaceControls(
       ? undefined
       : createHumanFaceComponentTree(props.basis, props.components);
   const scales: Map<string, IAutoMovieHumanFaceChannelScale> = new Map(
-    measureHumanFaceBasisChannels(props.basis).map((scale: IAutoMovieHumanFaceChannelScale): [string, IAutoMovieHumanFaceChannelScale] => [
-      scale.id,
-      scale,
-    ]),
+    measureHumanFaceBasisChannels(props.basis).map(
+      (
+        scale: IAutoMovieHumanFaceChannelScale,
+      ): [string, IAutoMovieHumanFaceChannelScale] => [scale.id, scale],
+    ),
   );
   const search: HTMLInputElement = dom.createElement("input");
   search.id = "face-control-search";
@@ -79,7 +84,9 @@ export function mountConnectedFaceControls(
         : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees, and jaw forward/lateral motion shows millimetres within this basis's endpoints. These limits are not universal clinical ranges.";
     const query: string = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
-    const row: (target: HTMLElement) => IAppendConnectedFaceControlRowProps = (target: HTMLElement): IAppendConnectedFaceControlRowProps => ({
+    const row: (target: HTMLElement) => IAppendConnectedFaceControlRowProps = (
+      target: HTMLElement,
+    ): IAppendConnectedFaceControlRowProps => ({
       target,
       simple,
       query,
@@ -88,15 +95,21 @@ export function mountConnectedFaceControls(
       render,
     });
     if (simple && project !== undefined) {
-      const projection: ReturnType<ReturnType<typeof createHumanFaceControlMap>> = project(document.shape);
+      const projection: ReturnType<
+        ReturnType<typeof createHumanFaceControlMap>
+      > = project(document.shape);
       let values: Record<string, number> = {};
       for (const control of projection.controls)
         appendConnectedFaceControlRow(
           {
             ...control,
             edit: (value: number): IAutoMovieHumanFaceBasisDocument => {
-              const candidate: Record<string, number> = { ...values, [control.id]: value };
-              const shape: Record<string, number> = projection.resolve(candidate);
+              const candidate: Record<string, number> = {
+                ...values,
+                [control.id]: value,
+              };
+              const shape: Record<string, number> =
+                projection.resolve(candidate);
               values = candidate;
               return { ...structuredClone(props.document()), shape };
             },
@@ -105,11 +118,26 @@ export function mountConnectedFaceControls(
         );
       return;
     }
-    const channels: IAutoMovieHumanFaceBasis["channels"] = props.basis.channels.filter(
-      (channel: IAutoMovieHumanFaceBasis["channels"][number]): boolean => channel.kind === kind.value,
-    );
-    const byId: Map<string, IAutoMovieHumanFaceBasis["channels"][number]> = new Map(channels.map((channel: IAutoMovieHumanFaceBasis["channels"][number]): [string, IAutoMovieHumanFaceBasis["channels"][number]] => [channel.id, channel]));
-    const appendChannel: (channel: IAutoMovieHumanFaceBasis["channels"][number], target: HTMLElement) => void = (
+    const channels: IAutoMovieHumanFaceBasis["channels"] =
+      props.basis.channels.filter(
+        (channel: IAutoMovieHumanFaceBasis["channels"][number]): boolean =>
+          channel.kind === kind.value,
+      );
+    const byId: Map<string, IAutoMovieHumanFaceBasis["channels"][number]> =
+      new Map(
+        channels.map(
+          (
+            channel: IAutoMovieHumanFaceBasis["channels"][number],
+          ): [string, IAutoMovieHumanFaceBasis["channels"][number]] => [
+            channel.id,
+            channel,
+          ],
+        ),
+      );
+    const appendChannel: (
+      channel: IAutoMovieHumanFaceBasis["channels"][number],
+      target: HTMLElement,
+    ) => void = (
       channel: (typeof channels)[number],
       target: HTMLElement,
     ): void =>
@@ -131,7 +159,9 @@ export function mountConnectedFaceControls(
         anatomy.root,
         container,
         (id: string, group: HTMLElement): void => {
-          const channel: IAutoMovieHumanFaceBasis["channels"][number] | undefined = byId.get(id);
+          const channel:
+            | IAutoMovieHumanFaceBasis["channels"][number]
+            | undefined = byId.get(id);
           if (channel !== undefined) appendChannel(channel, group);
         },
       );

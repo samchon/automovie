@@ -1,5 +1,6 @@
-import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+
+import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
 
 /**
  * Bind explicit lowest-foot placement to the body panel's existing edit transaction. The person panel uses the same joint controls and history. Omission retains an airborne pose; selecting placement keeps joint angles and places only the lowest foot, with no bilateral IK or balance promise.
@@ -30,7 +31,9 @@ export function renderBodyGroundPlacementControl(
     ? "This source supplies no ground plane."
     : "Vertical placement keeps the joint pose; a higher foot can remain raised.";
   input.onchange = (): void => {
-    const next: IAutoMovieHumanBodyBasisDocument = structuredClone(props.current());
+    const next: IAutoMovieHumanBodyBasisDocument = structuredClone(
+      props.current(),
+    );
     if (input.checked) next.groundPlacement = "lowest-foot";
     else delete next.groundPlacement;
     props.change(next);

@@ -154,10 +154,8 @@ export function renderBodySimpleControls(
   let measured: IBodySimpleMeasured | null = null;
   let requestedShape: IBodySimpleBody | null = null;
   let pending: IBodySimplePending | null = null;
-  const inputs: Map<
-    keyof IAutoMovieHumanBodySimpleShape,
-    HTMLInputElement
-  > = new Map();
+  const inputs: Map<keyof IAutoMovieHumanBodySimpleShape, HTMLInputElement> =
+    new Map();
   for (const field of FIELDS) {
     const [low, high]: number[] = HUMAN_BODY_SIMPLE_SHAPE.limits[field.key].map(
       // in display units, without the binary residue of the scaling (2.2 m
@@ -198,7 +196,9 @@ export function renderBodySimpleControls(
     container.append(row);
     inputs.set(field.key, number);
   }
-  const display: (values: IAutoMovieHumanBodySimpleShape) => void = (values: IAutoMovieHumanBodySimpleShape): void => {
+  const display: (values: IAutoMovieHumanBodySimpleShape) => void = (
+    values: IAutoMovieHumanBodySimpleShape,
+  ): void => {
     for (const field of FIELDS) {
       if (edited.has(field.key)) continue;
       const value: number | undefined = values[field.key];
@@ -208,32 +208,33 @@ export function renderBodySimpleControls(
           : String(Math.round(value * field.scale * 100) / 100);
     }
   };
-  const read: () => IAutoMovieHumanBodySimpleShape = (): IAutoMovieHumanBodySimpleShape => {
-    const simple: Record<string, number> = {};
-    const projected: IAutoMovieHumanBodySimpleShape | null =
-      measured !== null && sameShape(measured.shape, props.current())
-        ? measured.values
-        : null;
-    for (const field of FIELDS) {
-      const text: string = inputs.get(field.key)!.value.trim();
-      if (field.optional && (text === "" || !edited.has(field.key))) continue;
-      if (projected !== null && !edited.has(field.key)) {
-        simple[field.key] = projected[field.key]!;
-        continue;
+  const read: () => IAutoMovieHumanBodySimpleShape =
+    (): IAutoMovieHumanBodySimpleShape => {
+      const simple: Record<string, number> = {};
+      const projected: IAutoMovieHumanBodySimpleShape | null =
+        measured !== null && sameShape(measured.shape, props.current())
+          ? measured.values
+          : null;
+      for (const field of FIELDS) {
+        const text: string = inputs.get(field.key)!.value.trim();
+        if (field.optional && (text === "" || !edited.has(field.key))) continue;
+        if (projected !== null && !edited.has(field.key)) {
+          simple[field.key] = projected[field.key]!;
+          continue;
+        }
+        if (!edited.has(field.key))
+          throw new Error(
+            `${field.label} has not been read from the current body yet.`,
+          );
+        // an empty required value is not zero; it has not been read yet
+        if (text === "")
+          throw new Error(
+            `${field.label} is empty; the body's own values have not been read yet.`,
+          );
+        simple[field.key] = Number(text) / field.scale;
       }
-      if (!edited.has(field.key))
-        throw new Error(
-          `${field.label} has not been read from the current body yet.`,
-        );
-      // an empty required value is not zero; it has not been read yet
-      if (text === "")
-        throw new Error(
-          `${field.label} is empty; the body's own values have not been read yet.`,
-        );
-      simple[field.key] = Number(text) / field.scale;
-    }
-    return simple as unknown as IAutoMovieHumanBodySimpleShape;
-  };
+      return simple as unknown as IAutoMovieHumanBodySimpleShape;
+    };
   const apply: HTMLButtonElement = dom.createElement("button");
   apply.id = "simple-apply";
   apply.textContent = "Apply simple body";
@@ -247,7 +248,10 @@ export function renderBodySimpleControls(
     props.onBusy("Solving the simple body against the basis…");
     try {
       const simple: IAutoMovieHumanBodySimpleShape = read();
-      const shape: Record<string, number> = await props.expand(simple, over.shape);
+      const shape: Record<string, number> = await props.expand(
+        simple,
+        over.shape,
+      );
       if (
         props.isCurrentIntent(ticket) &&
         sameShape(props.current(), over) &&
@@ -297,7 +301,11 @@ export function renderBodySimpleControls(
         try {
           projected = await props.project(target);
         } catch (error) {
-          if (first && ticket === generation && sameShape(props.current(), target))
+          if (
+            first &&
+            ticket === generation &&
+            sameShape(props.current(), target)
+          )
             props.onPreparing(false);
           if (
             ticket === generation &&
@@ -324,10 +332,14 @@ export function renderBodySimpleControls(
 }
 
 /** Whether two bodies name the same channels at the same weights and the same anatomy. */
-const sameShape: (a: IBodySimpleBody, b: IBodySimpleBody) => boolean = (a: IBodySimpleBody, b: IBodySimpleBody): boolean =>
+const sameShape: (a: IBodySimpleBody, b: IBodySimpleBody) => boolean = (
+  a: IBodySimpleBody,
+  b: IBodySimpleBody,
+): boolean =>
   a.contextKey === b.contextKey &&
   Object.keys(a.shape).length === Object.keys(b.shape).length &&
   Object.entries(a.shape).every(
-    ([channel, weight]: [string, number]): boolean => b.shape[channel] === weight,
+    ([channel, weight]: [string, number]): boolean =>
+      b.shape[channel] === weight,
   ) &&
   JSON.stringify(a.anatomy ?? null) === JSON.stringify(b.anatomy ?? null);

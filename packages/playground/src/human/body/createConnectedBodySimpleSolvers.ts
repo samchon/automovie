@@ -2,10 +2,10 @@ import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 
 import { createHumanWorker } from "../common/createHumanWorker";
 import { CONNECTED_BODY_WHOLE_SOURCE } from "./CONNECTED_BODY_WHOLE_SOURCE";
-import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
-import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
 import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";
+import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
+import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
 import { createBodySimpleWorkerTransport } from "./createBodySimpleWorkerTransport";
 
 /**
@@ -22,11 +22,14 @@ import { createBodySimpleWorkerTransport } from "./createBodySimpleWorkerTranspo
  * @author Samchon
  */
 export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers {
-  const transport: IBodySimpleWorkerTransport = createBodySimpleWorkerTransport((): Worker =>
-    createHumanWorker("worker=body-simple"),
+  const transport: IBodySimpleWorkerTransport = createBodySimpleWorkerTransport(
+    (): Worker => createHumanWorker("worker=body-simple"),
   );
   return {
-    expand: (simple: IAutoMovieHumanBodySimpleShape, over: Record<string, number>): Promise<Record<string, number>> =>
+    expand: (
+      simple: IAutoMovieHumanBodySimpleShape,
+      over: Record<string, number>,
+    ): Promise<Record<string, number>> =>
       transport.ask<Record<string, number>>({ kind: "expand", simple, over }),
     wholeSource: CONNECTED_BODY_WHOLE_SOURCE,
     project: (body: IBodySimpleBody): Promise<IAutoMovieHumanBodySimpleShape> =>
@@ -35,7 +38,11 @@ export function createConnectedBodySimpleSolvers(): IConnectedBodySimpleSolvers 
         shape: body.shape,
         ...(body.anatomy === undefined ? {} : { anatomy: body.anatomy }),
       }),
-    solveMeasurement: (shape: Record<string, number>, channel: string, targetMetres: number): Promise<IConnectedBodyMeasurement> =>
+    solveMeasurement: (
+      shape: Record<string, number>,
+      channel: string,
+      targetMetres: number,
+    ): Promise<IConnectedBodyMeasurement> =>
       transport.ask<IConnectedBodyMeasurement>({
         kind: "solveMeasurement",
         shape,

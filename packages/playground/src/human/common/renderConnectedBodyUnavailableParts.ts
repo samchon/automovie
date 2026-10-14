@@ -24,13 +24,15 @@ export function renderConnectedBodyUnavailableParts(
   const byReason: Map<string, string[]> = new Map();
   let count: number = 0;
   for (const part of Object.values(anatomy.parts))
-    if (part.status === "unavailable" && part.id.toLowerCase().includes(query))
-      {
-        const ids: string[] = byReason.get(part.reason) ?? [];
-        ids.push(part.id);
-        byReason.set(part.reason, ids);
-        ++count;
-      }
+    if (
+      part.status === "unavailable" &&
+      part.id.toLowerCase().includes(query)
+    ) {
+      const ids: string[] = byReason.get(part.reason) ?? [];
+      ids.push(part.id);
+      byReason.set(part.reason, ids);
+      ++count;
+    }
   if (byReason.size === 0) return;
   const group: HTMLDetailsElement = dom.createElement("details");
   const summary: HTMLElement = dom.createElement("summary");

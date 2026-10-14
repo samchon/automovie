@@ -1,5 +1,6 @@
-import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+
+import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 import { mountConnectedFaceFibres } from "./mountConnectedFaceFibres";
 import { mountConnectedFaceHair } from "./mountConnectedFaceHair";
 import { mountConnectedFaceIris } from "./mountConnectedFaceIris";
@@ -42,12 +43,18 @@ export function mountConnectedFaceAppearance(
   app.querySelector('[data-role="basis-controls"]')!.after(section);
   const refresh: () => void = (): void => {
     entries.replaceChildren();
-    const material: IConnectedFaceAppearanceProps["basis"]["materials"][number] | undefined = props.basis.materials.find(
-      (one: IConnectedFaceAppearanceProps["basis"]["materials"][number]): boolean => one.id === select.value,
+    const material:
+      | IConnectedFaceAppearanceProps["basis"]["materials"][number]
+      | undefined = props.basis.materials.find(
+      (
+        one: IConnectedFaceAppearanceProps["basis"]["materials"][number],
+      ): boolean => one.id === select.value,
     );
     if (material === undefined) return;
     const document: IAutoMovieHumanFaceBasisDocument = props.document();
-    const authored: NonNullable<IAutoMovieHumanFaceBasisDocument["materials"]>[string] | undefined = Object.hasOwn(document.materials ?? {}, material.id)
+    const authored:
+      | NonNullable<IAutoMovieHumanFaceBasisDocument["materials"]>[string]
+      | undefined = Object.hasOwn(document.materials ?? {}, material.id)
       ? document.materials![material.id]
       : undefined;
     for (const key of ["r", "g", "b", "roughness"] as const) {
@@ -76,9 +83,13 @@ export function mountConnectedFaceAppearance(
             value > 1
           )
             throw new Error("Colour and roughness require a number in [0,1].");
-          const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
+          const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+            props.document(),
+          );
           next.materials ??= {};
-          const override: NonNullable<IAutoMovieHumanFaceBasisDocument["materials"]>[string] = Object.hasOwn(next.materials, material.id)
+          const override: NonNullable<
+            IAutoMovieHumanFaceBasisDocument["materials"]
+          >[string] = Object.hasOwn(next.materials, material.id)
             ? next.materials[material.id]
             : {};
           if (key === "roughness") override.roughness = value;
@@ -107,10 +118,14 @@ export function mountConnectedFaceAppearance(
     }
   };
   select.onchange = refresh;
-  const pigmentation: ReturnType<typeof mountConnectedFacePigmentation> = mountConnectedFacePigmentation(app, props);
-  const iris: ReturnType<typeof mountConnectedFaceIris> = mountConnectedFaceIris(app, props);
-  const fibres: ReturnType<typeof mountConnectedFaceFibres> = mountConnectedFaceFibres(app, props);
-  const hair: ReturnType<typeof mountConnectedFaceHair> = mountConnectedFaceHair(app, props);
+  const pigmentation: ReturnType<typeof mountConnectedFacePigmentation> =
+    mountConnectedFacePigmentation(app, props);
+  const iris: ReturnType<typeof mountConnectedFaceIris> =
+    mountConnectedFaceIris(app, props);
+  const fibres: ReturnType<typeof mountConnectedFaceFibres> =
+    mountConnectedFaceFibres(app, props);
+  const hair: ReturnType<typeof mountConnectedFaceHair> =
+    mountConnectedFaceHair(app, props);
   return {
     refresh: (): void => {
       refresh();

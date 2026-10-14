@@ -25,7 +25,10 @@ export interface IBodyContactWatchProps<Model> {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work No shared measured-frame cache is declared by this injected build operation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Prepared models remain viewport-owned until the watch requests their disposal and settlement.
    */
-  build: (document: IAutoMovieHumanBodyBasisDocument, measure: boolean) => Promise<Model>;
+  build: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    measure: boolean,
+  ) => Promise<Model>;
 
   /**
    * Request retirement of the inspection frame without publishing it.
@@ -78,5 +81,4 @@ export interface IBodyContactWatchProps<Model> {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The parent status sink owns retained text; the callback type acquires no handle.
    */
   report: (text: string) => void;
-
 }

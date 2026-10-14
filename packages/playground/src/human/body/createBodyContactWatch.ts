@@ -25,13 +25,15 @@ export function createBodyContactWatch<
   let closed: boolean = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let active: Promise<void> | undefined;
-  let pending: {
-    document: IAutoMovieHumanBodyBasisDocument;
-    ticket: number;
-    ready: boolean;
-    resolve: () => void;
-    reject: (cause: unknown) => void;
-  } | undefined;
+  let pending:
+    | {
+        document: IAutoMovieHumanBodyBasisDocument;
+        ticket: number;
+        ready: boolean;
+        resolve: () => void;
+        reject: (cause: unknown) => void;
+      }
+    | undefined;
   const describe: IBodyContactWatch["describe"] = (
     reading: IAutoMovieModelCrossing[] | null | undefined,
   ): string | null =>
@@ -40,9 +42,12 @@ export function createBodyContactWatch<
       : reading.length === 0
         ? "No triangle crossings were returned for the inspected skin segments in this pose."
         : "Crossing segments: " +
-          reading.map((entry: IAutoMovieModelCrossing): string =>
-            `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`,
-          ).join(", ");
+          reading
+            .map(
+              (entry: IAutoMovieModelCrossing): string =>
+                `${entry.part} x ${entry.other} ${entry.triangles}/${entry.otherTriangles}`,
+            )
+            .join(", ");
   const cancel: () => void = (): void => {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
@@ -52,7 +57,10 @@ export function createBodyContactWatch<
   };
   const current: (ticket: number) => boolean = (ticket: number): boolean =>
     !closed && props.isCurrent(ticket);
-  const read: (document: IAutoMovieHumanBodyBasisDocument, ticket: number) => Promise<void> = async (
+  const read: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    ticket: number,
+  ) => Promise<void> = async (
     document: IAutoMovieHumanBodyBasisDocument,
     ticket: number,
   ): Promise<void> => {
@@ -64,7 +72,7 @@ export function createBodyContactWatch<
       if (current(ticket))
         props.report(
           "Contact reading failed: " +
-          (error instanceof Error ? error.message : String(error)),
+            (error instanceof Error ? error.message : String(error)),
         );
       return;
     }
@@ -81,41 +89,54 @@ export function createBodyContactWatch<
     pending = undefined;
     const result: Promise<void> = read(request.document, request.ticket);
     active = result;
-    void result.then(
-      (): void => {
+    void result
+      .then((): void => {
         active = undefined;
         request.resolve();
         advance();
-      },
-    ).catch((cause: unknown): void => {
+      })
+      .catch((cause: unknown): void => {
         active = undefined;
         request.reject(cause);
         advance();
-    });
+      });
   };
   const after: IBodyContactWatch["after"] = (
     document: IAutoMovieHumanBodyBasisDocument,
     ticket: number,
   ): Promise<void> => {
-    if (closed) return Promise.reject(new Error("The body contact watch is closed."));
+    if (closed)
+      return Promise.reject(new Error("The body contact watch is closed."));
     cancel();
-    return new Promise<undefined>((
-      resolve: (value: undefined | PromiseLike<undefined>) => void,
-      reject: (reason?: unknown) => void,
-    ): void => {
-      pending = { document, ticket, ready: false, resolve: (): void => resolve(undefined), reject };
-      timer = setTimeout((): void => {
-        timer = undefined;
-        if (pending === undefined) return;
-        pending.ready = true;
-        advance();
-      }, 600);
-    });
+    return new Promise<undefined>(
+      (
+        resolve: (value: undefined | PromiseLike<undefined>) => void,
+        reject: (reason?: unknown) => void,
+      ): void => {
+        pending = {
+          document,
+          ticket,
+          ready: false,
+          resolve: (): void => resolve(undefined),
+          reject,
+        };
+        timer = setTimeout((): void => {
+          timer = undefined;
+          if (pending === undefined) return;
+          pending.ready = true;
+          advance();
+        }, 600);
+      },
+    );
   };
   const close: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => { closed = true; },
+    (): void => {
+      closed = true;
+    },
     cancel,
-    async (): Promise<void> => { await active; },
+    async (): Promise<void> => {
+      await active;
+    },
   ]);
   return { describe, after, cancel, close };
 }

@@ -1,5 +1,9 @@
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyBasisDocument,
+} from "@automovie/human";
+
 import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 
 /**
  * Select source-supplied reference atlas bones by anatomical identity through the body/person edit transaction. Resources and placement belong to the source; this control authors no personal vertices or placement frames. The builder owns exact registration refusal and last-valid model recovery.
@@ -20,7 +24,9 @@ export function renderBodyAtlasInspectionControls(
   const legend: HTMLLegendElement = props.dom.createElement("legend");
   legend.textContent = "Reference atlas inspection";
   fieldset.append(legend);
-  const resources: NonNullable<IAutoMovieHumanBodyBasis["anatomicalCandidates"]> = props.basis.anatomicalCandidates ?? [];
+  const resources: NonNullable<
+    IAutoMovieHumanBodyBasis["anatomicalCandidates"]
+  > = props.basis.anatomicalCandidates ?? [];
   const explanation: HTMLParagraphElement = props.dom.createElement("p");
   explanation.textContent =
     resources.length === 0
@@ -37,8 +43,12 @@ export function renderBodyAtlasInspectionControls(
     );
     label.append(input, props.dom.createTextNode(" " + resource.id));
     input.onchange = (): void => {
-      const next: IAutoMovieHumanBodyBasisDocument = structuredClone(props.current());
-      const selected: NonNullable<IAutoMovieHumanBodyBasisDocument["anatomicalInspection"]> = (next.anatomicalInspection ?? []).filter(
+      const next: IAutoMovieHumanBodyBasisDocument = structuredClone(
+        props.current(),
+      );
+      const selected: NonNullable<
+        IAutoMovieHumanBodyBasisDocument["anatomicalInspection"]
+      > = (next.anatomicalInspection ?? []).filter(
         (id: string): boolean => id !== resource.id,
       );
       if (input.checked) selected.push(resource.id);

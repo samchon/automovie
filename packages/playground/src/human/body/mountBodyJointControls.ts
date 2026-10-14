@@ -1,14 +1,22 @@
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanBodyShoulderPose,
+  IAutoMovieHumanBodyToePose,
+} from "@automovie/human";
 import { resolveHumanBodyCouplings } from "@automovie/human/body/basis/resolveHumanBodyCouplings";
 import { resolveHumanBodyDocumentPose } from "@automovie/human/body/basis/resolveHumanBodyDocumentPose";
 import { resolveHumanBodyShapeShoulderRest } from "@automovie/human/body/basis/resolveHumanBodyShapeShoulderRest";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/interface";
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanBodyShoulderPose, IAutoMovieHumanBodyToePose } from "@automovie/human";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+} from "@automovie/interface";
 
 import type { IBodyJointControlsProps } from "./IBodyJointControlsProps";
-import { renderBodyPoseControls } from "./renderBodyPoseControls";
-import { renderBodyShoulderControls } from "./renderBodyShoulderControls";
 import { renderBodyAtlasInspectionControls } from "./renderBodyAtlasInspectionControls";
 import { renderBodyGroundPlacementControl } from "./renderBodyGroundPlacementControl";
+import { renderBodyPoseControls } from "./renderBodyPoseControls";
+import { renderBodyShoulderControls } from "./renderBodyShoulderControls";
 import { renderBodyToeRayControls } from "./renderBodyToeRayControls";
 
 /**
@@ -32,7 +40,11 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
   renderBodyGroundPlacementControl(props);
   renderBodyAtlasInspectionControls(props);
   let bone: AutoMovieHumanoidBone = props.bone;
-  const rest: () => ReturnType<typeof resolveHumanBodyShapeShoulderRest> | undefined = (): ReturnType<typeof resolveHumanBodyShapeShoulderRest> | undefined => {
+  const rest: () =>
+    | ReturnType<typeof resolveHumanBodyShapeShoulderRest>
+    | undefined = ():
+    | ReturnType<typeof resolveHumanBodyShapeShoulderRest>
+    | undefined => {
     try {
       return resolveHumanBodyShapeShoulderRest(basis, props.current().shape);
     } catch (error) {
@@ -49,8 +61,13 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
       option.value = joint.bone;
       option.textContent =
         joint.bone +
-        (draft.pose?.some((one: IAutoMovieJointPose): boolean => one.bone === joint.bone) ||
-        draft.shoulders?.some((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === joint.bone)
+        (draft.pose?.some(
+          (one: IAutoMovieJointPose): boolean => one.bone === joint.bone,
+        ) ||
+        draft.shoulders?.some(
+          (one: IAutoMovieHumanBodyShoulderPose): boolean =>
+            one.bone === joint.bone,
+        )
           ? " ●"
           : "");
       picker.append(option);
@@ -78,7 +95,10 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
   }
   if (bone === "leftUpperArm" || bone === "rightUpperArm") {
     const shoulderBone: IAutoMovieHumanBodyShoulderPose["bone"] = bone;
-    const joint: IAutoMovieHumanBodyBasis["joints"][number] = basis.joints.find((one: IAutoMovieHumanBodyBasis["joints"][number]): boolean => one.bone === bone)!;
+    const joint: IAutoMovieHumanBodyBasis["joints"][number] = basis.joints.find(
+      (one: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+        one.bone === bone,
+    )!;
     if (joint.shoulder === undefined) {
       props.refuse(
         new Error("An upper arm needs thorax-relative shoulder coordinates."),
@@ -91,9 +111,11 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
       bone,
       shoulder: joint.shoulder,
       rest: shapedRest.get(bone)!,
-      currentRest: (): IAutoMovieHumanBodyShoulderPose | undefined => rest()?.get(shoulderBone),
+      currentRest: (): IAutoMovieHumanBodyShoulderPose | undefined =>
+        rest()?.get(shoulderBone),
       shoulders: draft.shoulders ?? [],
-      currentShoulders: (): readonly IAutoMovieHumanBodyShoulderPose[] => props.current().shoulders ?? [],
+      currentShoulders: (): readonly IAutoMovieHumanBodyShoulderPose[] =>
+        props.current().shoulders ?? [],
       onChange: (shoulders: IAutoMovieHumanBodyShoulderPose[]): void => {
         props.change({ ...structuredClone(props.current()), shoulders });
       },
@@ -106,7 +128,8 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
     basis,
     bone,
     pose: draft.pose ?? [],
-    currentPose: (): readonly IAutoMovieJointPose[] => props.current().pose ?? [],
+    currentPose: (): readonly IAutoMovieJointPose[] =>
+      props.current().pose ?? [],
     clinical,
     coupled: resolveHumanBodyCouplings(
       basis,
@@ -125,9 +148,12 @@ export function mountBodyJointControls(props: IBodyJointControlsProps): void {
       container: rows,
       basis,
       side: bone === "leftToes" ? "left" : "right",
-      toes: (): readonly IAutoMovieHumanBodyToePose[] => props.current().toes ?? [],
+      toes: (): readonly IAutoMovieHumanBodyToePose[] =>
+        props.current().toes ?? [],
       onChange: (toes: IAutoMovieHumanBodyToePose[]): void => {
-        const next: IAutoMovieHumanBodyBasisDocument = { ...structuredClone(props.current()) };
+        const next: IAutoMovieHumanBodyBasisDocument = {
+          ...structuredClone(props.current()),
+        };
         if (toes.length === 0) delete next.toes;
         else next.toes = toes;
         props.change(next);

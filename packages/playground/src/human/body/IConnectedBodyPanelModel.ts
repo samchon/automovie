@@ -1,5 +1,4 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
-
 import type { IConnectedBodyPreviewResult } from "@automovie/human/body/runtime/IConnectedBodyPreviewResult";
 
 /**

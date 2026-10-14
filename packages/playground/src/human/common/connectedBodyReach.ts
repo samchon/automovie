@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyBasisChannel } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyBasisChannel,
+} from "@automovie/human";
 import { humanBodyChannelReach } from "@automovie/human/body/measure/humanBodyChannelReach";
 
 import type { IConnectedBodyReach } from "./IConnectedBodyReach";
@@ -24,14 +27,21 @@ export function connectedBodyReach(
   const missing: IAutoMovieHumanBodyBasisChannel[] = [];
   const channels: IAutoMovieHumanBodyBasisChannel[] = [];
   for (const channel of body.channels) {
-    if (unavailable.has(channel.positive) ||
-        (channel.negative !== null && unavailable.has(channel.negative))) {
+    if (
+      unavailable.has(channel.positive) ||
+      (channel.negative !== null && unavailable.has(channel.negative))
+    ) {
       missing.push(channel);
       continue;
     }
-    const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(body, channel);
+    const reach: ReturnType<typeof humanBodyChannelReach> =
+      humanBodyChannelReach(body, channel);
     if (reach.limits.length !== 0) limits.set(channel.id, reach.limits);
-    channels.push({ ...channel, maximum: reach.maximum, minimum: reach.minimum });
+    channels.push({
+      ...channel,
+      maximum: reach.maximum,
+      minimum: reach.minimum,
+    });
   }
   return {
     basis: {

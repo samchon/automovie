@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyToePose } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyToePose,
+} from "@automovie/human";
 import { HUMAN_BODY_TOE_RANGE } from "@automovie/human/body/constants/HUMAN_BODY_TOE_RANGE";
 
 import type { IBodyToeRayControlsProps } from "./IBodyToeRayControlsProps";
@@ -26,7 +29,12 @@ export function renderBodyToeRayControls(
   const heading: HTMLHeadingElement = dom.createElement("h3");
   heading.textContent = "Toe rays (relative to the toes bone)";
   container.append(heading);
-  const rays: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]> = basis.toeRays?.filter((ray: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]>[number]): boolean => ray.bone.startsWith(side)) ?? [];
+  const rays: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]> =
+    basis.toeRays?.filter(
+      (
+        ray: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]>[number],
+      ): boolean => ray.bone.startsWith(side),
+    ) ?? [];
   if (rays.length === 0) {
     const gap: HTMLElement = dom.createElement("small");
     gap.textContent =
@@ -39,7 +47,8 @@ export function renderBodyToeRayControls(
     "Ranges are a stated convention without a clinical source yet: flexion is positive toward the sole (the toes bone above uses the source's opposite sign); proximal −70° to 45°, interphalangeal 0° to 60°, proximal splay −10° to 10°.";
   container.append(note);
   for (const ray of rays) {
-    const proximal: boolean = ray.parent === "leftToes" || ray.parent === "rightToes";
+    const proximal: boolean =
+      ray.parent === "leftToes" || ray.parent === "rightToes";
     const axes: ("flexion" | "abduction")[] = proximal
       ? ["flexion", "abduction"]
       : ["flexion"];
@@ -61,14 +70,27 @@ export function renderBodyToeRayControls(
       input.step = "1";
       label.htmlFor = input.id;
       label.textContent = `${ray.bone} ${axis} (°)`;
-      const current: IAutoMovieHumanBodyToePose | undefined = props.toes().find((one: IAutoMovieHumanBodyToePose): boolean => one.bone === ray.bone);
-      const value: number | undefined = axis === "flexion" ? current?.flexion : current?.abduction;
+      const current: IAutoMovieHumanBodyToePose | undefined = props
+        .toes()
+        .find(
+          (one: IAutoMovieHumanBodyToePose): boolean => one.bone === ray.bone,
+        );
+      const value: number | undefined =
+        axis === "flexion" ? current?.flexion : current?.abduction;
       input.value = value === undefined ? "" : String(value);
       input.placeholder = "rest";
       input.onchange = (): void => {
         const text: string = input.value.trim();
-        const rows: IAutoMovieHumanBodyToePose[] = props.toes().filter((one: IAutoMovieHumanBodyToePose): boolean => one.bone !== ray.bone);
-        const before: IAutoMovieHumanBodyToePose | undefined = props.toes().find((one: IAutoMovieHumanBodyToePose): boolean => one.bone === ray.bone);
+        const rows: IAutoMovieHumanBodyToePose[] = props
+          .toes()
+          .filter(
+            (one: IAutoMovieHumanBodyToePose): boolean => one.bone !== ray.bone,
+          );
+        const before: IAutoMovieHumanBodyToePose | undefined = props
+          .toes()
+          .find(
+            (one: IAutoMovieHumanBodyToePose): boolean => one.bone === ray.bone,
+          );
         const flexion: number | undefined =
           axis === "flexion"
             ? text === ""

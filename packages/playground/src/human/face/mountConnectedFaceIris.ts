@@ -66,11 +66,15 @@ export function mountConnectedFaceIris(
   section.append(summary, eye, bothLabel, add, remove, entries);
   app.querySelector("#face-appearance")!.after(section);
 
-  const commit: (edit: (next: IAutoMovieHumanFaceBasisDocument) => void) => Promise<void> = async (
+  const commit: (
+    edit: (next: IAutoMovieHumanFaceBasisDocument) => void,
+  ) => Promise<void> = async (
     edit: (next: IAutoMovieHumanFaceBasisDocument) => void,
   ): Promise<void> => {
     try {
-      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
+      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+        props.document(),
+      );
       edit(next);
       await props.change(next);
     } catch (error) {
@@ -91,7 +95,8 @@ export function mountConnectedFaceIris(
     });
   const refresh: () => void = (): void => {
     entries.replaceChildren();
-    const iris: IAutoMovieHumanFaceBasisDocument["iris"] = props.document().iris;
+    const iris: IAutoMovieHumanFaceBasisDocument["iris"] =
+      props.document().iris;
     add.disabled = iris !== undefined && iris !== null;
     remove.disabled = !add.disabled;
     if (iris === undefined || iris === null) return;
@@ -111,7 +116,9 @@ export function mountConnectedFaceIris(
             const value: number = Number(input.value);
             if (input.value.trim() === "" || !Number.isFinite(value))
               throw new Error("An iris pigment channel needs a finite number.");
-            const sides: readonly ("left" | "right")[] = both.checked ? ["left", "right"] : [side];
+            const sides: readonly ("left" | "right")[] = both.checked
+              ? ["left", "right"]
+              : [side];
             for (const one of sides) {
               const vector: number[] = [...next.iris![one][field]];
               vector[axis] = value;

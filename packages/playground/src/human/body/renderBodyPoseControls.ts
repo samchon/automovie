@@ -4,7 +4,11 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IBodyPoseControlsProps } from "./IBodyPoseControlsProps";
 
-const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"];
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+];
 
 /**
  * Render one source-rig joint's three degree-valued authored coordinates against its effective engine constraint. Held axes are disabled at zero; Rest removes the coordinate, and a wholly neutral joint needs no sparse row.
@@ -24,14 +28,31 @@ const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction"
 export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
   const { dom, container, basis }: IBodyPoseControlsProps = props;
   container.replaceChildren();
-  const joint: IBodyPoseControlsProps["basis"]["joints"][number] | undefined = basis.joints.find((one: IBodyPoseControlsProps["basis"]["joints"][number]): boolean => one.bone === props.bone);
+  const joint: IBodyPoseControlsProps["basis"]["joints"][number] | undefined =
+    basis.joints.find(
+      (one: IBodyPoseControlsProps["basis"]["joints"][number]): boolean =>
+        one.bone === props.bone,
+    );
   if (joint === undefined) return;
-  const constraint: ReturnType<typeof getConstraint> = getConstraint(joint.bone, joint.constraint);
-  const current: IAutoMovieJointPose | undefined = props.pose.find((one: IAutoMovieJointPose): boolean => one.bone === props.bone);
-  const write: (axis: (typeof AXES)[number], value: number | null) => void = (axis: (typeof AXES)[number], value: number | null): void => {
-    const pose: readonly IAutoMovieJointPose[] = props.currentPose?.() ?? props.pose;
-    const current: IAutoMovieJointPose | undefined = pose.find((one: IAutoMovieJointPose): boolean => one.bone === props.bone);
-    const rest: IAutoMovieJointPose[] = pose.filter((one: IAutoMovieJointPose): boolean => one.bone !== props.bone);
+  const constraint: ReturnType<typeof getConstraint> = getConstraint(
+    joint.bone,
+    joint.constraint,
+  );
+  const current: IAutoMovieJointPose | undefined = props.pose.find(
+    (one: IAutoMovieJointPose): boolean => one.bone === props.bone,
+  );
+  const write: (axis: (typeof AXES)[number], value: number | null) => void = (
+    axis: (typeof AXES)[number],
+    value: number | null,
+  ): void => {
+    const pose: readonly IAutoMovieJointPose[] =
+      props.currentPose?.() ?? props.pose;
+    const current: IAutoMovieJointPose | undefined = pose.find(
+      (one: IAutoMovieJointPose): boolean => one.bone === props.bone,
+    );
+    const rest: IAutoMovieJointPose[] = pose.filter(
+      (one: IAutoMovieJointPose): boolean => one.bone !== props.bone,
+    );
     const next: IAutoMovieJointPose = {
       bone: props.bone,
       flexion: current?.flexion ?? null,
@@ -40,12 +61,15 @@ export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
       [axis]: value,
     };
     const moved: boolean = AXES.some(
-      (name: (typeof AXES)[number]): boolean => next[name] !== null && next[name] !== joint.neutral[name],
+      (name: (typeof AXES)[number]): boolean =>
+        next[name] !== null && next[name] !== joint.neutral[name],
     );
     props.onChange(moved ? [...rest, next] : rest);
   };
   for (const axis of AXES) {
-    const range: NonNullable<ReturnType<typeof getConstraint>>[typeof axis] | null = constraint?.[axis] ?? null;
+    const range:
+      | NonNullable<ReturnType<typeof getConstraint>>[typeof axis]
+      | null = constraint?.[axis] ?? null;
     const row: HTMLDivElement = dom.createElement("div"),
       label: HTMLLabelElement = dom.createElement("label"),
       entry: HTMLDivElement = dom.createElement("div"),
@@ -114,8 +138,11 @@ export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
     rest.onclick = (): void => write(axis, null);
     entry.append(slider, number, rest);
     row.append(label, entry, note);
-    const addition: NonNullable<IBodyPoseControlsProps["coupled"]>[number] | undefined = (props.coupled ?? []).find(
-      (one: NonNullable<IBodyPoseControlsProps["coupled"]>[number]): boolean => one.bone === props.bone && one.axis === axis,
+    const addition:
+      | NonNullable<IBodyPoseControlsProps["coupled"]>[number]
+      | undefined = (props.coupled ?? []).find(
+      (one: NonNullable<IBodyPoseControlsProps["coupled"]>[number]): boolean =>
+        one.bone === props.bone && one.axis === axis,
     );
     if (addition !== undefined) {
       const coupled: HTMLOutputElement = dom.createElement("output");
@@ -125,7 +152,9 @@ export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
       coupled.style.display = "block";
       row.append(coupled);
     }
-    const actual: IAutoMovieJointPose | undefined = props.clinical?.find((one: IAutoMovieJointPose): boolean => one.bone === props.bone);
+    const actual: IAutoMovieJointPose | undefined = props.clinical?.find(
+      (one: IAutoMovieJointPose): boolean => one.bone === props.bone,
+    );
     if (actual !== undefined) {
       const reading: HTMLOutputElement = dom.createElement("output");
       reading.id = number.id + "-clinical";
@@ -142,7 +171,10 @@ export function renderBodyPoseControls(props: IBodyPoseControlsProps): void {
 }
 
 /** The named anatomical gap of a lower-limb axis, as a sentence suffix, or empty. */
-const motionGap: (bone: string, axis: string) => string = (bone: string, axis: string): string => {
+const motionGap: (bone: string, axis: string) => string = (
+  bone: string,
+  axis: string,
+): string => {
   const gap: string | undefined =
     HUMAN_BODY_MOTION_GAPS[`${bone.replace(/^(left|right)/u, "")}.${axis}`];
   return gap === undefined ? "" : ". " + gap;

@@ -8,9 +8,9 @@ import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import type { IConnectedFacePanelModel } from "./IConnectedFacePanelModel";
 import type { IConnectedFacePanelProps } from "./IConnectedFacePanelProps";
 import type { IConnectedFaceViewport } from "./IConnectedFaceViewport";
+import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
 import { mountConnectedFaceAppearance } from "./mountConnectedFaceAppearance";
 import { mountConnectedFaceControls } from "./mountConnectedFaceControls";
-import { describeConnectedFaceContacts } from "./describeConnectedFaceContacts";
 
 /**
  * Mount editable endpoint controls around an injected numerical viewport. Weight ranges come from the admitted basis. Displaying a source control does not turn its artistic endpoint into a measured anatomical quantity. Draft composition, input/file revision ordering and history commands belong to this panel; numerical admission and frame resources remain with Human and the viewport. Retirement settles after synchronous publication, so cleanup refusal reports the admitted display without rollback. Void load/change completion includes reported refusal. Camera, clay and occlusion selection are view state, and selected occlusion applies at the next build or export. Close withdraws authority, awaits viewport retirement and initial settlement, then clears inspection and DOM state.
@@ -34,7 +34,13 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
   close: () => Promise<void>;
 
   /** Admitted editor state, absent before initialization and after close. */
-  snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanFaceBasisDocument>>["snapshot"]> | undefined;
+  snapshot: () =>
+    | ReturnType<
+        ReturnType<
+          typeof createHumanFaceEditor<Model, IAutoMovieHumanFaceBasisDocument>
+        >["snapshot"]
+      >
+    | undefined;
 
   /** Parse and submit text; settlement can include reported refusal or closed-state withdrawal. */
   load: (text: string) => Promise<void>;
@@ -48,9 +54,14 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
 <aside><h1>Face editor</h1><p>Numerical shape, expression, skin and hair</p><div id="face-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-contacts">Check contacts</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
 <h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select data-role="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p data-role="control-help">0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div data-role="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
-  const element: <T extends HTMLElement>(id: string) => T = <T extends HTMLElement>(id: string): T =>
-    app.querySelector<T>("#" + id)!;
-  const viewport: IConnectedFaceViewport<Model> = props.viewport(element<HTMLCanvasElement>("face-canvas"));
+  const element: <T extends HTMLElement>(id: string) => T = <
+    T extends HTMLElement,
+  >(
+    id: string,
+  ): T => app.querySelector<T>("#" + id)!;
+  const viewport: IConnectedFaceViewport<Model> = props.viewport(
+    element<HTMLCanvasElement>("face-canvas"),
+  );
   let editor:
     | ReturnType<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanFaceBasisDocument>
@@ -59,7 +70,10 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
   let draft: IAutoMovieHumanFaceBasisDocument = structuredClone(props.initial);
   let revision: number = 0;
   let closed: boolean = false;
-  const status: (text: string, state: string) => void = (text: string, state: string): void => {
+  const status: (text: string, state: string) => void = (
+    text: string,
+    state: string,
+  ): void => {
     element("face-status").textContent = text;
     element("face-status").dataset.state = state;
   };
@@ -92,7 +106,8 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
     }
   };
   const refresh: () => void = (): void => {
-    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> = editor!.snapshot();
+    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> =
+      editor!.snapshot();
     draft = state.document;
     // The joint line reads what the builder posed: opening in degrees, the
     // mandible's translation against its sagittal budget, each gaze angle.
@@ -103,7 +118,11 @@ export function mountConnectedFacePanel<Model extends IConnectedFacePanelModel>(
         : `
 Jaw ${joints.jaw.degrees.toFixed(1)}° open, ${(joints.jaw.translationMetres * 1000).toFixed(1)} of ${(joints.jaw.budgetMetres * 1000).toFixed(1)} mm condylar travel · ` +
           joints.eyes
-            .map((eye: NonNullable<Model["articulation"]>["eyes"][number]): string => `${eye.id} ${eye.degrees.toFixed(1)}°`)
+            .map(
+              (
+                eye: NonNullable<Model["articulation"]>["eyes"][number],
+              ): string => `${eye.id} ${eye.degrees.toFixed(1)}°`,
+            )
             .join(", ");
     // The contact line reads what the contact stage measured and did: both
     // apertures, the closure ratio, the tongue's passage and every push.
@@ -117,9 +136,15 @@ Lips ${(contact.interlabialMetres * 1000).toFixed(1)} mm, incisors ${contact.int
             ? ""
             : ` · tongue ${(contact.passage.protrudingMetres * 1000).toFixed(1)} mm out, ${(contact.passage.thicknessMetres * 1000).toFixed(1)} mm thick`) +
           contact.resolved
-            .filter((entry: NonNullable<Model["contact"]>["resolved"][number]): boolean => entry.vertices > 0)
+            .filter(
+              (
+                entry: NonNullable<Model["contact"]>["resolved"][number],
+              ): boolean => entry.vertices > 0,
+            )
             .map(
-              (entry: NonNullable<Model["contact"]>["resolved"][number]): string =>
+              (
+                entry: NonNullable<Model["contact"]>["resolved"][number],
+              ): string =>
                 ` · ${entry.surface}: ${entry.vertices} shared skin groups directly held out of the teeth (${(entry.maxDepthMetres * 1000).toFixed(2)} mm)`,
             )
             .join("");
@@ -136,7 +161,9 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     controls.refresh();
     appearance.refresh();
   };
-  const change: (next: IAutoMovieHumanFaceBasisDocument) => Promise<void> = async (
+  const change: (
+    next: IAutoMovieHumanFaceBasisDocument,
+  ) => Promise<void> = async (
     next: IAutoMovieHumanFaceBasisDocument,
   ): Promise<void> => {
     if (closed) return;
@@ -151,7 +178,9 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       if (ticket === revision) refuse(error);
     }
   };
-  const applyText: (text: string) => Promise<void> = async (text: string): Promise<void> => {
+  const applyText: (text: string) => Promise<void> = async (
+    text: string,
+  ): Promise<void> => {
     if (closed) return;
     try {
       await change(parseHumanFaceBasisDocument(text));
@@ -159,22 +188,25 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       refuse(error);
     }
   };
-  const controls: ReturnType<typeof mountConnectedFaceControls> = mountConnectedFaceControls(app, {
-    basis: props.basis,
-    map: props.controlMap,
-    components: props.componentTree,
-    document: (): IAutoMovieHumanFaceBasisDocument => draft,
-    change,
-    refuse,
-  });
-  const appearance: ReturnType<typeof mountConnectedFaceAppearance> = mountConnectedFaceAppearance(app, {
-    basis: props.basis,
-    document: (): IAutoMovieHumanFaceBasisDocument => draft,
-    change,
-    refuse,
-  });
+  const controls: ReturnType<typeof mountConnectedFaceControls> =
+    mountConnectedFaceControls(app, {
+      basis: props.basis,
+      map: props.controlMap,
+      components: props.componentTree,
+      document: (): IAutoMovieHumanFaceBasisDocument => draft,
+      change,
+      refuse,
+    });
+  const appearance: ReturnType<typeof mountConnectedFaceAppearance> =
+    mountConnectedFaceAppearance(app, {
+      basis: props.basis,
+      document: (): IAutoMovieHumanFaceBasisDocument => draft,
+      change,
+      refuse,
+    });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
-    button.onclick = (): void => viewport.cameraView(Number(button.dataset.view));
+    button.onclick = (): void =>
+      viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = viewport.fitView;
   element<HTMLInputElement>("clay").onchange = (): void =>
     viewport.setClay(element<HTMLInputElement>("clay").checked);
@@ -182,9 +214,15 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   // Every build bakes the face's ambient occlusion while the box is checked;
   // a change applies from the next build.
-  const occlusion: () => boolean = (): boolean => element<HTMLInputElement>("occlusion").checked;
-  const build: (document: IAutoMovieHumanFaceBasisDocument, measure?: boolean) => Promise<Model> = (document: IAutoMovieHumanFaceBasisDocument, measure: boolean = false): Promise<Model> =>
-    viewport.build(document, measure, occlusion());
+  const occlusion: () => boolean = (): boolean =>
+    element<HTMLInputElement>("occlusion").checked;
+  const build: (
+    document: IAutoMovieHumanFaceBasisDocument,
+    measure?: boolean,
+  ) => Promise<Model> = (
+    document: IAutoMovieHumanFaceBasisDocument,
+    measure: boolean = false,
+  ): Promise<Model> => viewport.build(document, measure, occlusion());
   // Selecting a study is an ordinary validated transaction, so failed builds
   // retain the previous face and successful selection participates in history.
   const studies: HTMLSelectElement = dom.createElement("select");
@@ -232,7 +270,8 @@ ${state.model.parts} material regions · committed numerical state${articulated}
   element("document-apply").onclick = (): Promise<void> =>
     applyText(element<HTMLTextAreaElement>("document-json").value);
   element("face-save").onclick = (): void => {
-    const document: IAutoMovieHumanFaceBasisDocument = editor!.snapshot().document;
+    const document: IAutoMovieHumanFaceBasisDocument =
+      editor!.snapshot().document;
     props.download(
       document.id + ".json",
       serializeHumanFaceBasisDocument(document),
@@ -240,13 +279,18 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     );
   };
   element("face-glb").onclick = async (): Promise<void> => {
-    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> = editor!.snapshot();
+    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> =
+      editor!.snapshot();
     const ticket: number = revision;
     const button: HTMLButtonElement = element<HTMLButtonElement>("face-glb");
     button.disabled = true;
     try {
-      const bytes: Uint8Array<ArrayBuffer> = await viewport.export(state.document, occlusion());
-      if (!closed) props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
+      const bytes: Uint8Array<ArrayBuffer> = await viewport.export(
+        state.document,
+        occlusion(),
+      );
+      if (!closed)
+        props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
     } catch (error) {
       if (ticket === revision)
         status(error instanceof Error ? error.message : String(error), "error");
@@ -352,5 +396,12 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       app.replaceChildren();
     },
   ]);
-  return { ready, close, snapshot: (): ReturnType<NonNullable<typeof editor>["snapshot"]> | undefined => editor?.snapshot(), load: applyText };
+  return {
+    ready,
+    close,
+    snapshot: ():
+      | ReturnType<NonNullable<typeof editor>["snapshot"]>
+      | undefined => editor?.snapshot(),
+    load: applyText,
+  };
 }

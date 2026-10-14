@@ -1,9 +1,10 @@
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
 import { renderConnectedBodyUnavailableChannels } from "../common/renderConnectedBodyUnavailableChannels";
 import type { IConnectedBodyControlsProps } from "./IConnectedBodyControlsProps";
-import { renderBodyMeasuredControls } from "./renderBodyMeasuredControls";
 import { mountBodyJointControls } from "./mountBodyJointControls";
-import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
+import { renderBodyMeasuredControls } from "./renderBodyMeasuredControls";
 
 /**
  * Render the body editor's detailed controls for the selected group: the joint controls for `pose`, otherwise the measured controls of that group over the reach the body view can evaluate, followed by what it cannot, through the owners the person editor shares (`annotateConnectedBodyReach`, `renderConnectedBodyUnavailableChannels`). The controls bind to the panel's transaction hooks and own no document state.
@@ -53,7 +54,10 @@ export function renderConnectedBodyControls(
     reserve: props.reserve,
     isCurrent: props.isCurrent,
     solve: props.solve,
-    change: (next: IAutoMovieHumanBodyBasisDocument, ticket: number): Promise<boolean> => props.change(next, ticket),
+    change: (
+      next: IAutoMovieHumanBodyBasisDocument,
+      ticket: number,
+    ): Promise<boolean> => props.change(next, ticket),
     busy: props.busy,
     report: props.report,
     refuse: props.refuse,

@@ -26,4 +26,9 @@ export function connectedBodyPanelMarkup(groups: readonly string[]): string {
 
 /** Encode source group metadata for both HTML text and double-quoted attributes. */
 const escapeHtml: (text: string) => string = (text: string): string =>
-  text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+  text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");

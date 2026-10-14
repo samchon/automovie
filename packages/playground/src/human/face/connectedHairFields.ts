@@ -31,7 +31,13 @@ type Field = {
  */
 export function connectedHairFields(layer: Layer): Field[] {
   const fields: Field[] = [];
-  const add: (id: string, label: string, read: Field["read"], write: Field["write"], scale?: number) => void = (
+  const add: (
+    id: string,
+    label: string,
+    read: Field["read"],
+    write: Field["write"],
+    scale?: number,
+  ) => void = (
     id: string,
     label: string,
     read: Field["read"],
@@ -48,7 +54,10 @@ export function connectedHairFields(layer: Layer): Field[] {
     "clearance",
   ] as const) {
     const metric: boolean = key === "samplingStep" || key === "clearance";
-    const labels: Record<"count" | "seed" | "lengthVariation" | "samplingStep" | "clearance", string> = {
+    const labels: Record<
+      "count" | "seed" | "lengthVariation" | "samplingStep" | "clearance",
+      string
+    > = {
       count: "Strip count",
       seed: "Distribution seed",
       lengthVariation: "Length variation",
@@ -217,7 +226,10 @@ export function connectedHairFields(layer: Layer): Field[] {
       "strength",
       "reach",
     ] as const) {
-      const labels: Record<"offset" | "transitionWidth" | "strength" | "reach", string> = {
+      const labels: Record<
+        "offset" | "transitionWidth" | "strength" | "reach",
+        string
+      > = {
         offset: "Part plane offset",
         transitionWidth: "Part transition width",
         strength: "Part bias strength",

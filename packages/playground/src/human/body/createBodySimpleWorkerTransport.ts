@@ -1,5 +1,6 @@
 import type { IHumanPendingResult } from "@automovie/viewer/human/common/IHumanPendingResult";
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
+
 import type { IBodySimpleReply } from "./IBodySimpleReply";
 import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";
 import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
@@ -47,7 +48,9 @@ export function createBodySimpleWorkerTransport(
   const advance: () => void = (): void => {
     const current: typeof worker = worker;
     if (current === undefined || flight !== undefined) return;
-    const next: IteratorResult<[number, object], undefined> = waiting.entries().next();
+    const next: IteratorResult<[number, object], undefined> = waiting
+      .entries()
+      .next();
     if (next.done === true) return;
     const [id, request]: [number, object] = next.value;
     waiting.delete(id);
@@ -59,7 +62,9 @@ export function createBodySimpleWorkerTransport(
       retire(new Error(String(error)));
     }
   };
-  const connect: () => ReturnType<typeof factory> = (): ReturnType<typeof factory> => {
+  const connect: () => ReturnType<typeof factory> = (): ReturnType<
+    typeof factory
+  > => {
     if (closed) throw new Error("The body simple worker transport is closed.");
     if (worker !== undefined) return worker;
     const current: ReturnType<typeof factory> = factory();
@@ -73,7 +78,9 @@ export function createBodySimpleWorkerTransport(
       if (data.id === flight) {
         flight = undefined;
       }
-      const request: IHumanPendingResult<unknown> | undefined = pending.get(data.id);
+      const request: IHumanPendingResult<unknown> | undefined = pending.get(
+        data.id,
+      );
       pending.delete(data.id);
       if (request !== undefined) {
         if (data.error !== undefined)
@@ -104,29 +111,35 @@ export function createBodySimpleWorkerTransport(
   return {
     ask: <T>(request: object): Promise<T> => {
       if (closed || sequence === Number.MAX_SAFE_INTEGER)
-        return Promise.reject(new Error(closed
-          ? "The body simple worker transport is closed."
-          : "The body simple worker request identities are exhausted."));
+        return Promise.reject(
+          new Error(
+            closed
+              ? "The body simple worker transport is closed."
+              : "The body simple worker request identities are exhausted.",
+          ),
+        );
       const id: number = ++sequence;
-      return new Promise<T>((
-        resolve: (value: T | PromiseLike<T>) => void,
-        reject: (reason?: unknown) => void,
-      ): void => {
-        pending.set(id, {
+      return new Promise<T>(
+        (
+          resolve: (value: T | PromiseLike<T>) => void,
+          reject: (reason?: unknown) => void,
+        ): void => {
+          pending.set(id, {
             resolve: (value: unknown): void => resolve(value as T),
             reject,
-        });
-        try {
-          connect();
-          waiting.set(id, request);
-          advance();
-        } catch (error) {
-          // Allocation can fail before the worker emits an event. It
-          // invalidates the connection and all its requests.
-          const reason: Error = new Error(String(error));
-          retire(reason);
-        }
-      });
+          });
+          try {
+            connect();
+            waiting.set(id, request);
+            advance();
+          } catch (error) {
+            // Allocation can fail before the worker emits an event. It
+            // invalidates the connection and all its requests.
+            const reason: Error = new Error(String(error));
+            retire(reason);
+          }
+        },
+      );
     },
     close: (): void => {
       closed = true;

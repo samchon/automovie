@@ -3,9 +3,9 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
 } from "@automovie/human";
 
+import type { BodyPosePreset } from "./BodyPosePreset";
 import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
 import type { IConnectedBodyViewport } from "./IConnectedBodyViewport";
-import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
  * What the connected body panel is mounted with: the admitted basis, the initial document and pose presets, the viewport factory, the head seat, the off-thread solvers and the download sink. Pose presets are example inputs, not clinical range authority. The viewport owns prepared frames, the panel owns document admission and history, and the companion seat evaluates the head from the admitted document.

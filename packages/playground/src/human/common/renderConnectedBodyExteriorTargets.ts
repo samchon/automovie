@@ -1,6 +1,6 @@
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 import { HUMAN_BODY_EXTERIOR_TARGETS } from "@automovie/human/body/anatomy/surface/HUMAN_BODY_EXTERIOR_TARGETS";
 import { HUMAN_BODY_MEASUREMENTS } from "@automovie/human/body/constants/HUMAN_BODY_MEASUREMENTS";
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
 import type { IConnectedBodyExteriorTargetsProps } from "./IConnectedBodyExteriorTargetsProps";
 import { createConnectedDisabledRow } from "./createConnectedDisabledRow";
@@ -23,8 +23,14 @@ import { writeConnectedBodyAnatomyTarget } from "./writeConnectedBodyAnatomyTarg
 export function renderConnectedBodyExteriorTargets(
   props: IConnectedBodyExteriorTargetsProps,
 ): void {
-  const mm: (metres: number) => string = (metres: number): string => (metres * 1000).toFixed(1) + " mm";
-  const channels: Set<string> = new Set(props.basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): string => channel.id));
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(1) + " mm";
+  const channels: Set<string> = new Set(
+    props.basis.channels.map(
+      (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+        channel.id,
+    ),
+  );
   for (const target of HUMAN_BODY_EXTERIOR_TARGETS) {
     if (!target.path.toLowerCase().includes(props.query)) continue;
     const kind: string = Object.hasOwn(HUMAN_BODY_MEASUREMENTS, target.rule)
@@ -52,11 +58,16 @@ export function renderConnectedBodyExteriorTargets(
     number.type = "number";
     number.step = "0.1";
     number.placeholder = "Target mm";
-    const stated: number | undefined = readConnectedBodyAnatomyTarget(props.current(), target.path);
+    const stated: number | undefined = readConnectedBodyAnatomyTarget(
+      props.current(),
+      target.path,
+    );
     number.value =
       props.drafts.get(target.path) ??
       (stated === undefined ? "" : (stated * 1000).toFixed(1));
-    number.oninput = (): void => { props.drafts.set(target.path, number.value); };
+    number.oninput = (): void => {
+      props.drafts.set(target.path, number.value);
+    };
     label.htmlFor = number.id;
     apply.type = "button";
     apply.textContent = "Set or clear";
@@ -70,7 +81,8 @@ export function renderConnectedBodyExteriorTargets(
         );
         return;
       }
-      const metres: number | undefined = requested === "" ? undefined : Number(requested) / 1000;
+      const metres: number | undefined =
+        requested === "" ? undefined : Number(requested) / 1000;
       props.busy(`Building the body with ${target.path}…`);
       try {
         const success: boolean = await props.change(

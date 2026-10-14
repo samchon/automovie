@@ -17,9 +17,11 @@ import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/c
 export function createConnectedBodyInitialDocument(
   basis: string,
 ): IAutoMovieHumanBodyBasisDocument {
-  const cheek: ReturnType<typeof createPortraitMaterials>[number]["baseColor"] = createPortraitMaterials().find(
-    (material: ReturnType<typeof createPortraitMaterials>[number]): boolean => material.id === "skin",
-  )!.baseColor;
+  const cheek: ReturnType<typeof createPortraitMaterials>[number]["baseColor"] =
+    createPortraitMaterials().find(
+      (material: ReturnType<typeof createPortraitMaterials>[number]): boolean =>
+        material.id === "skin",
+    )!.baseColor;
   return {
     id: "connected-body",
     name: "Connected body",

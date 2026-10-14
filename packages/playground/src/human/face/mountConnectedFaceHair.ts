@@ -3,8 +3,8 @@ import type {
   IAutoMovieHumanFaceHair,
 } from "@automovie/human";
 
-import { connectedHairFields } from "./connectedHairFields";
 import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
+import { connectedHairFields } from "./connectedHairFields";
 
 type HairDomain = { surface: string; domain: string };
 
@@ -34,11 +34,20 @@ export function mountConnectedFaceHair(
   const help: HTMLParagraphElement = dom.createElement("p");
   help.textContent =
     "Mean length scales all regional lengths together. Fine controls retain independent lengths, hairline, combing, curl and colour. Strip count describes geometry, not biological hair density.";
-  const domains: HairDomain[] = props.basis.surfaces.flatMap((surface: IConnectedFaceAppearanceProps["basis"]["surfaces"][number]): HairDomain[] =>
-    (surface.hairDomains ?? []).map((domain: NonNullable<IConnectedFaceAppearanceProps["basis"]["surfaces"][number]["hairDomains"]>[number]): HairDomain => ({
-      surface: surface.id,
-      domain: domain.id,
-    })),
+  const domains: HairDomain[] = props.basis.surfaces.flatMap(
+    (
+      surface: IConnectedFaceAppearanceProps["basis"]["surfaces"][number],
+    ): HairDomain[] =>
+      (surface.hairDomains ?? []).map(
+        (
+          domain: NonNullable<
+            IConnectedFaceAppearanceProps["basis"]["surfaces"][number]["hairDomains"]
+          >[number],
+        ): HairDomain => ({
+          surface: surface.id,
+          domain: domain.id,
+        }),
+      ),
   );
   const domain: HTMLSelectElement = dom.createElement("select");
   domain.id = "hair-domain";
@@ -63,11 +72,15 @@ export function mountConnectedFaceHair(
   section.append(summary, help, domain, add, selected, remove, entries);
   app.querySelector("#face-appearance")!.after(section);
 
-  const edit: (update: (layers: IAutoMovieHumanFaceHair.Layer[]) => void) => Promise<void> = async (
+  const edit: (
+    update: (layers: IAutoMovieHumanFaceHair.Layer[]) => void,
+  ) => Promise<void> = async (
     update: (layers: IAutoMovieHumanFaceHair.Layer[]) => void,
   ): Promise<void> => {
     try {
-      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
+      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+        props.document(),
+      );
       next.hair ??= { layers: [] };
       update(next.hair.layers);
       await props.change(next);
@@ -76,17 +89,26 @@ export function mountConnectedFaceHair(
     }
     refresh();
   };
-  const editLayer: (id: string, update: (layer: IAutoMovieHumanFaceHair.Layer) => void) => Promise<void> = (
+  const editLayer: (
+    id: string,
+    update: (layer: IAutoMovieHumanFaceHair.Layer) => void,
+  ) => Promise<void> = (
     id: string,
     update: (layer: IAutoMovieHumanFaceHair.Layer) => void,
   ): Promise<void> =>
     edit((layers: IAutoMovieHumanFaceHair.Layer[]): void => {
-      const layer: IAutoMovieHumanFaceHair.Layer | undefined = layers.find((item: IAutoMovieHumanFaceHair.Layer): boolean => item.id === id);
+      const layer: IAutoMovieHumanFaceHair.Layer | undefined = layers.find(
+        (item: IAutoMovieHumanFaceHair.Layer): boolean => item.id === id,
+      );
       if (layer === undefined)
         throw new Error("This hair layer is no longer present.");
       update(layer);
     });
-  const labelled: (parent: HTMLElement, title: string, input: HTMLElement) => void = (
+  const labelled: (
+    parent: HTMLElement,
+    title: string,
+    input: HTMLElement,
+  ) => void = (
     parent: HTMLElement,
     title: string,
     input: HTMLElement,
@@ -99,9 +121,13 @@ export function mountConnectedFaceHair(
   };
   const refresh: () => void = (): void => {
     const selection: string = selected.value;
-    const layers: IAutoMovieHumanFaceHair.Layer[] = props.document().hair?.layers ?? [];
-    const live: Set<string> = new Set(layers.map((layer: IAutoMovieHumanFaceHair.Layer): string => layer.id));
-    for (const id of gatherDrafts.keys()) if (!live.has(id)) gatherDrafts.delete(id);
+    const layers: IAutoMovieHumanFaceHair.Layer[] =
+      props.document().hair?.layers ?? [];
+    const live: Set<string> = new Set(
+      layers.map((layer: IAutoMovieHumanFaceHair.Layer): string => layer.id),
+    );
+    for (const id of gatherDrafts.keys())
+      if (!live.has(id)) gatherDrafts.delete(id);
     selected.replaceChildren();
     for (const layer of layers) {
       const option: HTMLOptionElement = dom.createElement("option");
@@ -109,9 +135,17 @@ export function mountConnectedFaceHair(
       option.textContent = layer.id;
       selected.append(option);
     }
-    if (layers.some((layer: IAutoMovieHumanFaceHair.Layer): boolean => layer.id === selection))
+    if (
+      layers.some(
+        (layer: IAutoMovieHumanFaceHair.Layer): boolean =>
+          layer.id === selection,
+      )
+    )
       selected.value = selection;
-    const layer: IAutoMovieHumanFaceHair.Layer | undefined = layers.find((item: IAutoMovieHumanFaceHair.Layer): boolean => item.id === selected.value);
+    const layer: IAutoMovieHumanFaceHair.Layer | undefined = layers.find(
+      (item: IAutoMovieHumanFaceHair.Layer): boolean =>
+        item.id === selected.value,
+    );
     add.disabled = domains.length === 0 || layers.length >= 8;
     remove.disabled = layer === undefined;
     entries.replaceChildren();
@@ -179,7 +213,12 @@ export function mountConnectedFaceHair(
     mean.step = "any";
     mean.min = "0";
     mean.value = String(
-      (layer.lengthAxes.reduce((sum: number, value: number): number => sum + value, 0) / 6) * 1000,
+      (layer.lengthAxes.reduce(
+        (sum: number, value: number): number => sum + value,
+        0,
+      ) /
+        6) *
+        1000,
     );
     mean.onchange = (): Promise<void> =>
       editLayer(id, (item: IAutoMovieHumanFaceHair.Layer): void => {
@@ -189,7 +228,10 @@ export function mountConnectedFaceHair(
             "Mean hair length requires a positive finite number.",
           );
         const previous: number =
-          item.lengthAxes.reduce((sum: number, length: number): number => sum + length, 0) / 6;
+          item.lengthAxes.reduce(
+            (sum: number, length: number): number => sum + length,
+            0,
+          ) / 6;
         if (Number(mean.value) === previous * 1000) return;
         item.lengthAxes = item.lengthAxes.map(
           (length: number): number => length * (value / previous),
@@ -303,11 +345,19 @@ export function mountConnectedFaceHair(
       saved === undefined ? "Add gathering" : "Apply gathering";
     applyGather.onclick = async (): Promise<void> => {
       const draft: Record<string, string> = Object.fromEntries(
-        Object.entries(inputs).map(([key, input]: [string, HTMLInputElement]): [string, string] => [key, input.value]),
+        Object.entries(inputs).map(
+          ([key, input]: [string, HTMLInputElement]): [string, string] => [
+            key,
+            input.value,
+          ],
+        ),
       );
       gatherDrafts.set(id, draft);
       try {
-        const read: (key: string, scale?: number) => number = (key: string, scale: number = 1): number => {
+        const read: (key: string, scale?: number) => number = (
+          key: string,
+          scale: number = 1,
+        ): number => {
           const raw: string = draft[key];
           if (raw.trim() === "")
             throw new Error("Gathering fields need complete finite numbers.");
@@ -337,8 +387,13 @@ export function mountConnectedFaceHair(
               : {}),
           },
         };
-        const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
-        const current: IAutoMovieHumanFaceHair.Layer | undefined = next.hair?.layers.find((item: IAutoMovieHumanFaceHair.Layer): boolean => item.id === id);
+        const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+          props.document(),
+        );
+        const current: IAutoMovieHumanFaceHair.Layer | undefined =
+          next.hair?.layers.find(
+            (item: IAutoMovieHumanFaceHair.Layer): boolean => item.id === id,
+          );
         if (current === undefined)
           throw new Error("This hair layer is no longer present.");
         current.gather = gather;
@@ -387,8 +442,11 @@ export function mountConnectedFaceHair(
           const value: number = Number(input.value) / field.scale;
           if (input.value.trim() === "" || !Number.isFinite(value))
             throw new Error("Hair controls require a finite number.");
-          const current: ReturnType<typeof connectedHairFields>[number] | undefined = connectedHairFields(item).find(
-            (one: ReturnType<typeof connectedHairFields>[number]): boolean => one.id === field.id,
+          const current:
+            | ReturnType<typeof connectedHairFields>[number]
+            | undefined = connectedHairFields(item).find(
+            (one: ReturnType<typeof connectedHairFields>[number]): boolean =>
+              one.id === field.id,
           );
           if (current === undefined)
             throw new Error("This fine hair field is no longer present.");
@@ -405,7 +463,13 @@ export function mountConnectedFaceHair(
       if (source === undefined)
         throw new Error("Select a resident hair growth domain.");
       let ordinal: number = 1;
-      while (layers.some((layer: IAutoMovieHumanFaceHair.Layer): boolean => layer.id === `Layer ${ordinal}`)) ordinal++;
+      while (
+        layers.some(
+          (layer: IAutoMovieHumanFaceHair.Layer): boolean =>
+            layer.id === `Layer ${ordinal}`,
+        )
+      )
+        ordinal++;
       layers.push({
         id: `Layer ${ordinal}`,
         ...source,
@@ -438,7 +502,9 @@ export function mountConnectedFaceHair(
   remove.onclick = (): Promise<void> => {
     const id: string = selected.value;
     return edit((layers: IAutoMovieHumanFaceHair.Layer[]): void => {
-      const index: number = layers.findIndex((layer: IAutoMovieHumanFaceHair.Layer): boolean => layer.id === id);
+      const index: number = layers.findIndex(
+        (layer: IAutoMovieHumanFaceHair.Layer): boolean => layer.id === id,
+      );
       if (index < 0) throw new Error("This hair layer is no longer present.");
       layers.splice(index, 1);
     });

@@ -3,7 +3,11 @@ import { humanBodyShoulderElevationLimit } from "@automovie/human/body/basis/hum
 
 import type { IBodyShoulderControlsProps } from "./IBodyShoulderControlsProps";
 
-const AXES: readonly ["plane", "elevation", "axialRotation"] = ["plane", "elevation", "axialRotation"];
+const AXES: readonly ["plane", "elevation", "axialRotation"] = [
+  "plane",
+  "elevation",
+  "axialRotation",
+];
 
 /**
  * Show a thorax-relative humeral goal as plane, total elevation and axial rotation. Painted inputs use the render snapshot; events read the latest draft and shape-specific rest so pending edits compose. An omitted arm retains that rest, which establishes no anatomical bone frame or clinical capacity.
@@ -23,23 +27,43 @@ const AXES: readonly ["plane", "elevation", "axialRotation"] = ["plane", "elevat
 export function renderBodyShoulderControls(
   props: IBodyShoulderControlsProps,
 ): void {
-  const { dom, container, shoulder, bone, rest: neutral }: IBodyShoulderControlsProps = props;
+  const {
+    dom,
+    container,
+    shoulder,
+    bone,
+    rest: neutral,
+  }: IBodyShoulderControlsProps = props;
   container.replaceChildren();
-  const rendered: IAutoMovieHumanBodyShoulderPose | undefined = props.shoulders.find((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === bone);
+  const rendered: IAutoMovieHumanBodyShoulderPose | undefined =
+    props.shoulders.find(
+      (one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === bone,
+    );
   const plane: number = rendered?.plane ?? neutral.plane;
-  const write: (axis: (typeof AXES)[number], value?: number) => void = (axis: (typeof AXES)[number], value?: number): void => {
-    const rest: IAutoMovieHumanBodyShoulderPose | undefined = props.currentRest();
+  const write: (axis: (typeof AXES)[number], value?: number) => void = (
+    axis: (typeof AXES)[number],
+    value?: number,
+  ): void => {
+    const rest: IAutoMovieHumanBodyShoulderPose | undefined =
+      props.currentRest();
     if (rest === undefined) return;
-    const latest: readonly IAutoMovieHumanBodyShoulderPose[] = props.currentShoulders();
-    const current: IAutoMovieHumanBodyShoulderPose | undefined = latest.find((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === bone);
-    const others: IAutoMovieHumanBodyShoulderPose[] = latest.filter((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone !== bone);
+    const latest: readonly IAutoMovieHumanBodyShoulderPose[] =
+      props.currentShoulders();
+    const current: IAutoMovieHumanBodyShoulderPose | undefined = latest.find(
+      (one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === bone,
+    );
+    const others: IAutoMovieHumanBodyShoulderPose[] = latest.filter(
+      (one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone !== bone,
+    );
     const next: IAutoMovieHumanBodyShoulderPose = {
       ...rest,
       ...current,
       bone,
       [axis]: value ?? rest[axis],
     };
-    const moved: boolean = AXES.some((name: (typeof AXES)[number]): boolean => next[name] !== rest[name]);
+    const moved: boolean = AXES.some(
+      (name: (typeof AXES)[number]): boolean => next[name] !== rest[name],
+    );
     props.onChange(moved ? [...others, next] : others);
   };
   for (const axis of AXES) {

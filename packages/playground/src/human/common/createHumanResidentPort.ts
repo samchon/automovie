@@ -17,19 +17,37 @@ import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWor
  * @evidence contracts/performance.md#bound-retention-and-release-resources One native worker and installed callback closures remain reachable until termination, which detaches message, error and messageerror handlers and ends the worker; no adapter-owned pending list grows with requests.
  */
 export function createHumanResidentPort<Input, Output>(
-  worker: Pick<Worker, "onmessage" | "onerror" | "onmessageerror" | "postMessage" | "terminate">,
+  worker: Pick<
+    Worker,
+    "onmessage" | "onerror" | "onmessageerror" | "postMessage" | "terminate"
+  >,
 ): HumanResidentPort<Input, Output> {
   let closed: boolean = false;
   return {
     set onmessage(callback: HumanResidentPort<Input, Output>["onmessage"]) {
-      worker.onmessage = callback === null ? null : (event: MessageEvent<HumanResidentReply<Output>>): void => { if (!closed) callback({ data: event.data }); };
+      worker.onmessage =
+        callback === null
+          ? null
+          : (event: MessageEvent<HumanResidentReply<Output>>): void => {
+              if (!closed) callback({ data: event.data });
+            };
     },
     set onerror(callback: HumanResidentPort<Input, Output>["onerror"]) {
-      worker.onerror = callback === null ? null : (event: ErrorEvent): void =>
-        callback?.({
-          message: humanWorkerErrorMessage(event, "The face worker failed."),
-        });
-      worker.onmessageerror = callback === null ? null : (): void => callback({ message: "The worker reply could not be read." });
+      worker.onerror =
+        callback === null
+          ? null
+          : (event: ErrorEvent): void =>
+              callback?.({
+                message: humanWorkerErrorMessage(
+                  event,
+                  "The face worker failed.",
+                ),
+              });
+      worker.onmessageerror =
+        callback === null
+          ? null
+          : (): void =>
+              callback({ message: "The worker reply could not be read." });
     },
     postMessage: (request: IHumanResidentRequest<Input>): void => {
       if (closed) throw new Error("The worker connection is closed.");

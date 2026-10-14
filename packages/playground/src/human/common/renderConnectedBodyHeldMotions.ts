@@ -29,9 +29,14 @@ export function renderConnectedBodyHeldMotions(
       !joint.bone.toLowerCase().includes(query)
     )
       continue;
-    const constraint: NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["constraint"]> = joint.constraint;
-    const held: ("flexion" | "abduction" | "twist")[] = (["flexion", "abduction", "twist"] as const).filter(
-      (axis: "flexion" | "abduction" | "twist"): boolean => constraint[axis] === null,
+    const constraint: NonNullable<
+      IAutoMovieHumanBodyBasis["joints"][number]["constraint"]
+    > = joint.constraint;
+    const held: ("flexion" | "abduction" | "twist")[] = (
+      ["flexion", "abduction", "twist"] as const
+    ).filter(
+      (axis: "flexion" | "abduction" | "twist"): boolean =>
+        constraint[axis] === null,
     );
     if (held.length > 0)
       rows.push(

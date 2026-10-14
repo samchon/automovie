@@ -15,23 +15,32 @@ export function describeConnectedFaceContacts(
   before: readonly IAutoMovieModelCrossing[],
   after: readonly IAutoMovieModelCrossing[],
 ): string {
-  const label: (crossing: IAutoMovieModelCrossing) => string = (crossing: IAutoMovieModelCrossing): string =>
-    `${crossing.part} x ${crossing.other}`;
+  const label: (crossing: IAutoMovieModelCrossing) => string = (
+    crossing: IAutoMovieModelCrossing,
+  ): string => `${crossing.part} x ${crossing.other}`;
   const was: Map<string, Map<string, IAutoMovieModelCrossing>> = new Map();
   for (const entry of before) {
-    const others: Map<string, IAutoMovieModelCrossing> = was.get(entry.part) ?? new Map();
+    const others: Map<string, IAutoMovieModelCrossing> =
+      was.get(entry.part) ?? new Map();
     others.set(entry.other, entry);
     was.set(entry.part, others);
   }
   const fresh: IAutoMovieModelCrossing[] = [];
   const increased: IAutoMovieModelCrossing[] = [];
   for (const entry of after) {
-    const earlier: IAutoMovieModelCrossing | undefined = was.get(entry.part)?.get(entry.other);
+    const earlier: IAutoMovieModelCrossing | undefined = was
+      .get(entry.part)
+      ?.get(entry.other);
     if (earlier === undefined) fresh.push(entry);
-    else if (entry.triangles + entry.otherTriangles > earlier.triangles + earlier.otherTriangles) increased.push(entry);
+    else if (
+      entry.triangles + entry.otherTriangles >
+      earlier.triangles + earlier.otherTriangles
+    )
+      increased.push(entry);
   }
-  const line: (entry: IAutoMovieModelCrossing) => string = (entry: IAutoMovieModelCrossing): string =>
-    `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
+  const line: (entry: IAutoMovieModelCrossing) => string = (
+    entry: IAutoMovieModelCrossing,
+  ): string => `${label(entry)} ${entry.triangles}/${entry.otherTriangles}`;
   const reference: string = `Source neutral: ${before.length} intersecting pairs. Counts do not measure penetration depth or anatomical validity.`;
   if (fresh.length === 0 && increased.length === 0)
     return `No new intersecting pairs or increased triangle counts relative to the source neutral. ${reference}`;

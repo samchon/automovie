@@ -26,7 +26,9 @@ export interface IBodyContactWatch {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This value-formatting member declares no retained result or coordinated work sharing.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input arrays are borrowed numerical data without renderer or worker ownership.
    */
-  describe: (reading: IAutoMovieModelCrossing[] | null | undefined) => string | null;
+  describe: (
+    reading: IAutoMovieModelCrossing[] | null | undefined,
+  ) => string | null;
 
   /**
    * Schedule contact readback after the editing pause. Completion includes cancellation, stale discard or reported numerical refusal.
@@ -39,7 +41,10 @@ export interface IBodyContactWatch {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Replacement of obsolete scheduled work belongs to the watch implementation rather than this callable declaration.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The watch owner retains timer and completion state behind this method and retires it on cancellation or close.
    */
-  after: (document: IAutoMovieHumanBodyBasisDocument, ticket: number) => Promise<void>;
+  after: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    ticket: number,
+  ) => Promise<void>;
 
   /**
    * Cancel the delayed request and settle its completion; already started readings still retire normally.

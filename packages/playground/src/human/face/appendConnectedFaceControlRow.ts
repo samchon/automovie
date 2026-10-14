@@ -43,7 +43,9 @@ export function appendConnectedFaceControlRow(
   slider.id = number.id + "-slider";
   label.htmlFor = number.id;
   slider.setAttribute("aria-label", control.label + " slider");
-  const edit: (value: string) => Promise<void> = async (value: string): Promise<void> => {
+  const edit: (value: string) => Promise<void> = async (
+    value: string,
+  ): Promise<void> => {
     try {
       if (value.trim() === "") throw new Error("A numeric value is required.");
       await props.change(control.edit(Number(value)));

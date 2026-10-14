@@ -1,7 +1,6 @@
-import type {
-  IAutoMovieHumanBodyBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
+
 import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
@@ -56,12 +55,20 @@ export function renderBodyPosePresets(props: {
     button.textContent = preset.name;
     button.onclick = async (): Promise<void> => {
       const ticket: number = props.reserve();
-      const draft: IAutoMovieHumanBodyBasisDocument = structuredClone(props.current());
-      const kept: (named: readonly IAutoMovieJointPose[]) => IAutoMovieJointPose[] = (named: readonly IAutoMovieJointPose[]): IAutoMovieJointPose[] =>
+      const draft: IAutoMovieHumanBodyBasisDocument = structuredClone(
+        props.current(),
+      );
+      const kept: (
+        named: readonly IAutoMovieJointPose[],
+      ) => IAutoMovieJointPose[] = (
+        named: readonly IAutoMovieJointPose[],
+      ): IAutoMovieJointPose[] =>
         (draft.pose ?? []).filter(
           (row: IAutoMovieJointPose): boolean =>
             (props.standing ?? []).includes(row.bone) &&
-            !named.some((one: IAutoMovieJointPose): boolean => one.bone === row.bone),
+            !named.some(
+              (one: IAutoMovieJointPose): boolean => one.bone === row.bone,
+            ),
         );
       try {
         if (preset.solve === undefined) {
@@ -83,7 +90,10 @@ export function renderBodyPosePresets(props: {
             "This viewport cannot solve the " + preset.name + " preset.",
           );
         props.busy("Solving " + preset.name + " on this body…");
-        const solved: Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders"> = await props.armsDown({
+        const solved: Pick<
+          IAutoMovieHumanBodyBasisDocument,
+          "pose" | "shoulders"
+        > = await props.armsDown({
           ...draft,
           pose: kept([]),
           shoulders: [],

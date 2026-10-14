@@ -1,7 +1,7 @@
-import type { IHumanViewerCatalogueEntry } from "@automovie/viewer/human/inspection/IHumanViewerCatalogueEntry";
-import type { IReadHumanViewerStandardPeopleProps } from "@automovie/viewer/human/inspection/IReadHumanViewerStandardPeopleProps";
-import type { IHumanViewerReferenceFaceDocument } from "@automovie/viewer/human/inspection/IHumanViewerReferenceFaceDocument";
 import type { HumanViewerBodyExamples } from "@automovie/viewer/human/inspection/HumanViewerBodyExamples";
+import type { IHumanViewerCatalogueEntry } from "@automovie/viewer/human/inspection/IHumanViewerCatalogueEntry";
+import type { IHumanViewerReferenceFaceDocument } from "@automovie/viewer/human/inspection/IHumanViewerReferenceFaceDocument";
+import type { IReadHumanViewerStandardPeopleProps } from "@automovie/viewer/human/inspection/IReadHumanViewerStandardPeopleProps";
 import { humanViewerPersonKey } from "@automovie/viewer/human/inspection/humanViewerPersonKey";
 import { humanViewerPublishedGenerationBasis } from "@automovie/viewer/human/inspection/humanViewerPublishedGenerationBasis";
 
@@ -19,9 +19,14 @@ import { humanViewerPublishedGenerationBasis } from "@automovie/viewer/human/ins
 export function readHumanViewerStandardPeople(
   props: IReadHumanViewerStandardPeopleProps,
 ): IHumanViewerCatalogueEntry[] {
-  const reference: IReadHumanViewerStandardPeopleProps["reference"] = props.reference;
-  const generation: IReadHumanViewerStandardPeopleProps["generation"] = props.generation;
-  const face: IHumanViewerReferenceFaceDocument = { ...reference, basis: generation.face };
+  const reference: IReadHumanViewerStandardPeopleProps["reference"] =
+    props.reference;
+  const generation: IReadHumanViewerStandardPeopleProps["generation"] =
+    props.generation;
+  const face: IHumanViewerReferenceFaceDocument = {
+    ...reference,
+    basis: generation.face,
+  };
   const documents: StandardPersonDraft[] = [
     {
       id: "person:connected-reference",
@@ -34,33 +39,40 @@ export function readHumanViewerStandardPeople(
         shape: {},
       },
     },
-    ...Object.entries(props.examples).map(([name, state]: [string, HumanViewerBodyExamples[string]]): StandardPersonDraft => ({
-      id: "person:reference:" + name,
-      name: "reference " + name,
-      population: "linked",
-      face,
-      body: {
-        id: "person-body:" + name,
-        name,
-        basis: generation.body,
-        ...state,
-      },
-    })),
+    ...Object.entries(props.examples).map(
+      ([name, state]: [
+        string,
+        HumanViewerBodyExamples[string],
+      ]): StandardPersonDraft => ({
+        id: "person:reference:" + name,
+        name: "reference " + name,
+        population: "linked",
+        face,
+        body: {
+          id: "person-body:" + name,
+          name,
+          basis: generation.body,
+          ...state,
+        },
+      }),
+    ),
   ];
-  return documents.map((document: StandardPersonDraft): IHumanViewerCatalogueEntry => ({
-    id: document.id,
-    domain: "person" as const,
-    document,
-    basis: humanViewerPublishedGenerationBasis(generation),
-    key: humanViewerPersonKey({
+  return documents.map(
+    (document: StandardPersonDraft): IHumanViewerCatalogueEntry => ({
+      id: document.id,
+      domain: "person" as const,
       document,
-      bases: {
-        face: { digest: generation.headDigest },
-        body: { digest: generation.bodyDigest },
-      },
-      sources: props.sources,
+      basis: humanViewerPublishedGenerationBasis(generation),
+      key: humanViewerPersonKey({
+        document,
+        bases: {
+          face: { digest: generation.headDigest },
+          body: { digest: generation.bodyDigest },
+        },
+        sources: props.sources,
+      }),
     }),
-  }));
+  );
 }
 
 /** Application-composed parameters; numerical schema admission remains with Person. */
@@ -69,5 +81,9 @@ type StandardPersonDraft = {
   name: string;
   population?: "linked";
   face: IHumanViewerReferenceFaceDocument;
-  body: { id: string; name: string; basis: string } & HumanViewerBodyExamples[string];
+  body: {
+    id: string;
+    name: string;
+    basis: string;
+  } & HumanViewerBodyExamples[string];
 };

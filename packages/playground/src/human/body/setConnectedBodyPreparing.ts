@@ -16,10 +16,13 @@ export function setConnectedBodyPreparing(
   part: string,
   active: boolean,
 ): void {
-  const line: HTMLElement | null = dom.querySelector<HTMLElement>("#body-preparing");
+  const line: HTMLElement | null =
+    dom.querySelector<HTMLElement>("#body-preparing");
   if (line === null) return;
   const parts: Set<string> = new Set(
-    (line.dataset.parts ?? "").split("\n").filter((one: string): boolean => one !== ""),
+    (line.dataset.parts ?? "")
+      .split("\n")
+      .filter((one: string): boolean => one !== ""),
   );
   if (active) parts.add(part);
   else parts.delete(part);

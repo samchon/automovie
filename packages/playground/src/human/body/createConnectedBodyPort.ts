@@ -1,9 +1,10 @@
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
-import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
+
 import type { IConnectedBodyProgress } from "./IConnectedBodyProgress";
 
 /**
@@ -42,7 +43,8 @@ export function createConnectedBodyPort(
   // one request in flight; the next leaves only after its reply
   const advance: () => void = (): void => {
     if (failed || flight !== undefined) return;
-    const next: IHumanResidentRequest<ConnectedBodyRequest> | undefined = waiting.shift();
+    const next: IHumanResidentRequest<ConnectedBodyRequest> | undefined =
+      waiting.shift();
     if (next === undefined) return;
     flight = next.id;
     try {
@@ -58,7 +60,11 @@ export function createConnectedBodyPort(
         ConnectedBodyResult
       >["onmessage"],
     ) {
-      worker.onmessage = (event: MessageEvent<HumanResidentReply<ConnectedBodyResult> | IConnectedBodyProgress>): void => {
+      worker.onmessage = (
+        event: MessageEvent<
+          HumanResidentReply<ConnectedBodyResult> | IConnectedBodyProgress
+        >,
+      ): void => {
         if (failed) return;
         const data:
           | HumanResidentReply<ConnectedBodyResult>
@@ -83,7 +89,9 @@ export function createConnectedBodyPort(
       worker.onmessageerror = (): void =>
         fail("The body worker reply could not be read.");
     },
-    postMessage: (request: IHumanResidentRequest<ConnectedBodyRequest>): void => {
+    postMessage: (
+      request: IHumanResidentRequest<ConnectedBodyRequest>,
+    ): void => {
       if (failed) throw new Error("The body worker connection has failed.");
       waiting.push(request);
       advance();

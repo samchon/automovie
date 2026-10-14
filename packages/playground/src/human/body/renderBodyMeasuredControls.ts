@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanBodyChannelScale,
+} from "@automovie/human";
 import { HUMAN_BODY_ANSUR_II_REFERENCE } from "@automovie/human/body/constants/HUMAN_BODY_ANSUR_II_REFERENCE";
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanBodyChannelScale } from "@automovie/human";
 
 import type { IBodyMeasuredControlsProps } from "./IBodyMeasuredControlsProps";
 import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
@@ -24,15 +27,22 @@ import { bodyMeasuredChannel } from "./bodyMeasuredChannel";
 export function renderBodyMeasuredControls(
   props: IBodyMeasuredControlsProps,
 ): void {
-  const mm: (metres: number | null) => string = (metres: number | null): string =>
-    metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
-  const interval: (band: readonly [number, number]) => string = (band: readonly [number, number]): string =>
-    `${band[0].toFixed(1)}–${band[1].toFixed(1)} mm`;
+  const mm: (metres: number | null) => string = (
+    metres: number | null,
+  ): string => (metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm");
+  const interval: (band: readonly [number, number]) => string = (
+    band: readonly [number, number],
+  ): string => `${band[0].toFixed(1)}–${band[1].toFixed(1)} mm`;
   for (const channel of props.basis.channels) {
-    if (channel.group !== props.kind ||
-        !channel.id.toLowerCase().includes(props.query) ||
-        !bodyMeasuredChannel(channel, props.scales.get(channel.id))) continue;
-    const measurement: NonNullable<IAutoMovieHumanBodyChannelScale["measurement"]> = props.scales.get(channel.id)!.measurement!;
+    if (
+      channel.group !== props.kind ||
+      !channel.id.toLowerCase().includes(props.query) ||
+      !bodyMeasuredChannel(channel, props.scales.get(channel.id))
+    )
+      continue;
+    const measurement: NonNullable<
+      IAutoMovieHumanBodyChannelScale["measurement"]
+    > = props.scales.get(channel.id)!.measurement!;
     const row: HTMLDivElement = props.dom.createElement("div");
     const label: HTMLLabelElement = props.dom.createElement("label");
     const entry: HTMLDivElement = props.dom.createElement("div");
@@ -48,7 +58,9 @@ export function renderBodyMeasuredControls(
     number.step = "0.1";
     number.placeholder = "Target mm";
     number.value = props.drafts.get(channel.id) ?? "";
-    number.oninput = (): void => { props.drafts.set(channel.id, number.value); };
+    number.oninput = (): void => {
+      props.drafts.set(channel.id, number.value);
+    };
     label.htmlFor = number.id;
     apply.type = "button";
     apply.textContent = "Set measurement";
@@ -60,14 +72,17 @@ export function renderBodyMeasuredControls(
         props.refuse("A finite measurement in millimetres is required.");
         return;
       }
-      const current: IAutoMovieHumanBodyBasisDocument = structuredClone(props.current());
+      const current: IAutoMovieHumanBodyBasisDocument = structuredClone(
+        props.current(),
+      );
       props.busy("Solving " + channel.id + " on the current body…");
       try {
-        const result: Awaited<ReturnType<IBodyMeasuredControlsProps["solve"]>> = await props.solve(
-          current.shape,
-          channel.id,
-          Number(requested) / 1000,
-        );
+        const result: Awaited<ReturnType<IBodyMeasuredControlsProps["solve"]>> =
+          await props.solve(
+            current.shape,
+            channel.id,
+            Number(requested) / 1000,
+          );
         if (!props.isCurrent(ticket)) return;
         const success: boolean = await props.change(
           { ...current, shape: result.shape },
@@ -83,7 +98,8 @@ export function renderBodyMeasuredControls(
     };
     entry.append(number, apply);
     note.id = "body-scale-" + channel.id;
-    const reference: ReturnType<typeof HUMAN_BODY_ANSUR_II_REFERENCE.get> = HUMAN_BODY_ANSUR_II_REFERENCE.get(channel.id);
+    const reference: ReturnType<typeof HUMAN_BODY_ANSUR_II_REFERENCE.get> =
+      HUMAN_BODY_ANSUR_II_REFERENCE.get(channel.id);
     const population: string =
       reference === undefined
         ? ""

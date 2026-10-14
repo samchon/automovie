@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanPersonHeadView } from "@automovie/human";
-
 import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 
 /**

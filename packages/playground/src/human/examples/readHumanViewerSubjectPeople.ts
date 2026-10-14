@@ -1,6 +1,6 @@
 import type { IHumanViewerCatalogueEntry } from "@automovie/viewer/human/inspection/IHumanViewerCatalogueEntry";
-import type { IReadHumanViewerSubjectPeopleProps } from "@automovie/viewer/human/inspection/IReadHumanViewerSubjectPeopleProps";
 import type { IHumanViewerSubjectDocument } from "@automovie/viewer/human/inspection/IHumanViewerSubjectDocument";
+import type { IReadHumanViewerSubjectPeopleProps } from "@automovie/viewer/human/inspection/IReadHumanViewerSubjectPeopleProps";
 import { humanViewerPersonKey } from "@automovie/viewer/human/inspection/humanViewerPersonKey";
 import { humanViewerPublishedBasis } from "@automovie/viewer/human/inspection/humanViewerPublishedBasis";
 
@@ -20,31 +20,43 @@ import { humanViewerPublishedBasis } from "@automovie/viewer/human/inspection/hu
 export function readHumanViewerSubjectPeople(
   props: IReadHumanViewerSubjectPeopleProps,
 ): IHumanViewerCatalogueEntry[] {
-  return props.subjects.map((face: IHumanViewerSubjectDocument): IHumanViewerCatalogueEntry => {
-    const document: { id: string; name: string; face: IHumanViewerSubjectDocument; body: { id: string; name: string; basis: string; shape: Record<string, number> } } = {
-      id: "person:" + face.id,
-      name: face.name ?? face.id,
-      face,
-      body: {
-        id: "person-body",
-        name: "neutral body",
-        basis: props.bases.body.id,
-        shape: {},
-      },
-    };
-    return {
-      id: document.id,
-      domain: "person" as const,
-      document,
-      basis: humanViewerPublishedBasis(
-        props.bases.face.digest,
-        props.bases.body.digest,
-      ),
-      key: humanViewerPersonKey({
+  return props.subjects.map(
+    (face: IHumanViewerSubjectDocument): IHumanViewerCatalogueEntry => {
+      const document: {
+        id: string;
+        name: string;
+        face: IHumanViewerSubjectDocument;
+        body: {
+          id: string;
+          name: string;
+          basis: string;
+          shape: Record<string, number>;
+        };
+      } = {
+        id: "person:" + face.id,
+        name: face.name ?? face.id,
+        face,
+        body: {
+          id: "person-body",
+          name: "neutral body",
+          basis: props.bases.body.id,
+          shape: {},
+        },
+      };
+      return {
+        id: document.id,
+        domain: "person" as const,
         document,
-        bases: props.bases,
-        sources: props.sources,
-      }),
-    };
-  });
+        basis: humanViewerPublishedBasis(
+          props.bases.face.digest,
+          props.bases.body.digest,
+        ),
+        key: humanViewerPersonKey({
+          document,
+          bases: props.bases,
+          sources: props.sources,
+        }),
+      };
+    },
+  );
 }

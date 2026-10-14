@@ -22,7 +22,9 @@ export function bodyMeasuredChannel(
   channel: IAutoMovieHumanBodyBasisChannel,
   scale: IAutoMovieHumanBodyChannelScale | undefined,
 ): boolean {
-  const measurement: IAutoMovieHumanBodyChannelScale["measurement"] | undefined = scale?.measurement;
+  const measurement:
+    | IAutoMovieHumanBodyChannelScale["measurement"]
+    | undefined = scale?.measurement;
   return (
     measurement !== null &&
     measurement !== undefined &&

@@ -34,12 +34,16 @@ export function renderBodyHumeralHeadControls(props: {
   /** Refresh changed committed millimetre radii; force also replaces unfinished text when values are equal. */
   refresh: (radii: Radii, force?: boolean) => void;
 } {
-  const sides: readonly (readonly ["left" | "right", keyof NonNullable<Radii>])[] = [
+  const sides: readonly (readonly [
+    "left" | "right",
+    keyof NonNullable<Radii>,
+  ])[] = [
     ["left", "leftRadiusMillimetres"],
     ["right", "rightRadiusMillimetres"],
   ];
   const inputs: Map<keyof NonNullable<Radii>, HTMLInputElement> = new Map();
-  const committed: Map<keyof NonNullable<Radii>, number | undefined> = new Map();
+  const committed: Map<keyof NonNullable<Radii>, number | undefined> =
+    new Map();
   props.container.replaceChildren();
   for (const [side, key] of sides) {
     const row: HTMLDivElement = props.dom.createElement("div");
@@ -66,7 +70,9 @@ export function renderBodyHumeralHeadControls(props: {
         );
         return;
       }
-      const next: IAutoMovieHumanBodyBasisDocument = structuredClone(props.current());
+      const next: IAutoMovieHumanBodyBasisDocument = structuredClone(
+        props.current(),
+      );
       const radii: NonNullable<Radii> = { ...next.humeralHeads };
       if (value === undefined) delete radii[key];
       else radii[key] = value;

@@ -21,7 +21,12 @@ import { readConnectedPersonSourceUrls } from "../person/readConnectedPersonSour
 export function createHumanWorker(name: string): Worker {
   const parameters: URLSearchParams = new URLSearchParams(name);
   const role: string | null = parameters.get("worker");
-  if (role !== null && ["body", "body-head", "body-simple", "body-anatomy", "person"].includes(role)) {
+  if (
+    role !== null &&
+    ["body", "body-head", "body-simple", "body-anatomy", "person"].includes(
+      role,
+    )
+  ) {
     const source: ReturnType<typeof readConnectedPersonSourceUrls> =
       readConnectedPersonSourceUrls(name, location.href) ??
       readConnectedPersonSourceUrls(location.search, location.href);

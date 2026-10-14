@@ -46,8 +46,20 @@ export function connectedFaceArticulationDegrees(
     articulation.jaw.opening.channel === channel
       ? articulation.jaw.opening.degrees
       : articulation.eyes
-          .flatMap((eye: NonNullable<(typeof basis)["articulation"]>["eyes"][number]): NonNullable<(typeof basis)["articulation"]>["eyes"][number]["gaze"] => eye.gaze)
-          .find((gaze: NonNullable<(typeof basis)["articulation"]>["eyes"][number]["gaze"][number]): boolean => gaze.channel === channel)?.degrees;
+          .flatMap(
+            (
+              eye: NonNullable<(typeof basis)["articulation"]>["eyes"][number],
+            ): NonNullable<
+              (typeof basis)["articulation"]
+            >["eyes"][number]["gaze"] => eye.gaze,
+          )
+          .find(
+            (
+              gaze: NonNullable<
+                (typeof basis)["articulation"]
+              >["eyes"][number]["gaze"][number],
+            ): boolean => gaze.channel === channel,
+          )?.degrees;
   if (degrees === undefined) return null;
   if (!Number.isFinite(degrees) || degrees === 0)
     throw new Error("An articulated facial channel needs a nonzero angle.");

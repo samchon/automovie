@@ -18,9 +18,11 @@ export function renderConnectedBodyExteriorGaps(
   container: HTMLElement,
   query: string,
 ): void {
-  const listed: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number][] = HUMAN_BODY_EXTERIOR_GAPS.filter((gap: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number]): boolean =>
-    gap.path.toLowerCase().includes(query),
-  );
+  const listed: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number][] =
+    HUMAN_BODY_EXTERIOR_GAPS.filter(
+      (gap: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number]): boolean =>
+        gap.path.toLowerCase().includes(query),
+    );
   if (listed.length === 0) return;
   const group: HTMLDetailsElement = dom.createElement("details");
   const summary: HTMLElement = dom.createElement("summary");

@@ -21,12 +21,21 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  */
 export function mountBodyAnatomicalRequestPanel<
   Model extends IBodyAnatomicalRequestModel,
->(app: HTMLElement, props: IBodyAnatomicalRequestPanelProps<Model>): {
+>(
+  app: HTMLElement,
+  props: IBodyAnatomicalRequestPanelProps<Model>,
+): {
   /** Submit text under a fresh or caller-reserved intent; false includes refusal, closure, supersession or failed retirement after publication. */
   apply: (value: string, ticket?: number) => Promise<boolean>;
 
   /** Current admitted editor state, or undefined before admission and after close. */
-  snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>>["snapshot"]> | undefined;
+  snapshot: () =>
+    | ReturnType<
+        ReturnType<
+          typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
+        >["snapshot"]
+      >
+    | undefined;
 
   /** Withdraw intent and remove controls; the owning page separately closes the borrowed viewport. */
   close: () => void;
@@ -37,11 +46,19 @@ export function mountBodyAnatomicalRequestPanel<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
       >
     | undefined;
-  const intents: ReturnType<typeof createBodyIntentGate> = createBodyIntentGate();
-  const element: <T extends HTMLElement>(id: string) => T = <T extends HTMLElement>(id: string): T =>
-    app.querySelector<T>("#" + id)!;
-  const text: HTMLTextAreaElement = element<HTMLTextAreaElement>("request-json");
-  const status: (message: string, state: string) => void = (message: string, state: string): void => {
+  const intents: ReturnType<typeof createBodyIntentGate> =
+    createBodyIntentGate();
+  const element: <T extends HTMLElement>(id: string) => T = <
+    T extends HTMLElement,
+  >(
+    id: string,
+  ): T => app.querySelector<T>("#" + id)!;
+  const text: HTMLTextAreaElement =
+    element<HTMLTextAreaElement>("request-json");
+  const status: (message: string, state: string) => void = (
+    message: string,
+    state: string,
+  ): void => {
     element("request-status").textContent = message;
     element("request-status").dataset.state = state;
   };
@@ -50,8 +67,12 @@ export function mountBodyAnatomicalRequestPanel<
     props.viewport.cancel();
     return intents.reserve();
   };
-  const refresh: (replaceText: boolean) => void = (replaceText: boolean): void => {
-    const snapshot: ReturnType<NonNullable<typeof editor>["snapshot"]> | undefined = editor?.snapshot();
+  const refresh: (replaceText: boolean) => void = (
+    replaceText: boolean,
+  ): void => {
+    const snapshot:
+      | ReturnType<NonNullable<typeof editor>["snapshot"]>
+      | undefined = editor?.snapshot();
     for (const id of ["request-save", "request-export"])
       element<HTMLButtonElement>(id).disabled = snapshot === undefined;
     element<HTMLButtonElement>("request-undo").disabled = !snapshot?.canUndo;
@@ -66,7 +87,8 @@ export function mountBodyAnatomicalRequestPanel<
       status(snapshot.error, "error");
       return;
     }
-    const exterior: Model["exteriorCandidate"] = snapshot.model.exteriorCandidate;
+    const exterior: Model["exteriorCandidate"] =
+      snapshot.model.exteriorCandidate;
     if (exterior !== undefined) {
       status(
         [
@@ -74,12 +96,22 @@ export function mountBodyAnatomicalRequestPanel<
             exterior.reference.basis,
           "Bare source-rest protocols; clinical skin and internal anatomy remain unavailable.",
           ...exterior.fulfilled.map(
-            (metric: NonNullable<Model["exteriorCandidate"]>["fulfilled"][number]): string =>
+            (
+              metric: NonNullable<
+                Model["exteriorCandidate"]
+              >["fulfilled"][number],
+            ): string =>
               `${metric.path}: target ${metric.targetMetres} m; final Float32 ${metric.float32Metres} m; residual ${(metric.residualMetres * 1000).toFixed(3)} mm. ${metric.protocol}`,
           ),
           "Anatomical parts unavailable: " +
             Object.values(exterior.anatomy.parts).filter(
-              (part: NonNullable<IBodyAnatomicalRequestModel["exteriorCandidate"]>["anatomy"]["parts"][keyof NonNullable<IBodyAnatomicalRequestModel["exteriorCandidate"]>["anatomy"]["parts"]]): boolean => part.status === "unavailable",
+              (
+                part: NonNullable<
+                  IBodyAnatomicalRequestModel["exteriorCandidate"]
+                >["anatomy"]["parts"][keyof NonNullable<
+                  IBodyAnatomicalRequestModel["exteriorCandidate"]
+                >["anatomy"]["parts"]],
+              ): boolean => part.status === "unavailable",
             ).length +
             ".",
         ].join("\n"),
@@ -100,21 +132,30 @@ export function mountBodyAnatomicalRequestPanel<
         "Target spheres only. Reference rig: " + report.reference.basis,
         "Requested skin and complete bones: unavailable (geometry not validated).",
         ...report.candidates.map(
-          (head: NonNullable<Model["anatomicalRequest"]>["candidates"][number]): string =>
+          (
+            head: NonNullable<Model["anatomicalRequest"]>["candidates"][number],
+          ): string =>
             `${head.part}: ${head.radiusMetres * 1000} mm target radius, reference-rig-only centre (${head.center.x}, ${head.center.y}, ${head.center.z}) m`,
         ),
       ].join("\n"),
       "ready",
     );
   };
-  const build: (document: IAutoMovieHumanBodyBasisDocument) => Promise<Model> = async (document: IAutoMovieHumanBodyBasisDocument): Promise<Model> => {
+  const build: (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => Promise<Model> = async (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ): Promise<Model> => {
     const ticket: number = intents.currentTicket();
     const model: Model = await props.viewport.build(document);
     // The history owner withdraws publication, but only this viewport adapter
     // can release a prepared frame that finished after a newer user intent.
     if (!intents.isCurrent(ticket)) {
       return createAutoMovieResourceRetirement(
-        [(): void => props.viewport.dispose(model), (): Promise<void> => props.viewport.settleRetirements()],
+        [
+          (): void => props.viewport.dispose(model),
+          (): Promise<void> => props.viewport.settleRetirements(),
+        ],
         { error: new Error("Superseded numerical inspection build.") },
       )();
     }
@@ -138,7 +179,11 @@ export function mountBodyAnatomicalRequestPanel<
         );
     } catch (error) {
       return createAutoMovieResourceRetirement(
-        [(): void => props.viewport.dispose(model), (): Promise<void> => props.viewport.settleRetirements()], { error },
+        [
+          (): void => props.viewport.dispose(model),
+          (): Promise<void> => props.viewport.settleRetirements(),
+        ],
+        { error },
       )();
     }
     return model;
@@ -154,10 +199,14 @@ export function mountBodyAnatomicalRequestPanel<
       );
     }
   };
-  const apply: (value: string, ticket?: number) => Promise<boolean> = async (value: string, ticket: number = withdraw()): Promise<boolean> => {
+  const apply: (value: string, ticket?: number) => Promise<boolean> = async (
+    value: string,
+    ticket: number = withdraw(),
+  ): Promise<boolean> => {
     if (closed) return false;
     try {
-      const document: IAutoMovieHumanBodyBasisDocument = parseHumanBodyBasisDocument(value, props.source);
+      const document: IAutoMovieHumanBodyBasisDocument =
+        parseHumanBodyBasisDocument(value, props.source);
       if (!intents.isCurrent(ticket)) return false;
       status("Building the anatomy inspection…", "building");
       if (editor === undefined) {
@@ -170,7 +219,9 @@ export function mountBodyAnatomicalRequestPanel<
           return false;
         }
         editor = createHumanFaceEditor({
-          document, model, build,
+          document,
+          model,
+          build,
           publish: props.viewport.publish,
           dispose: props.viewport.dispose,
         });
@@ -193,52 +244,67 @@ export function mountBodyAnatomicalRequestPanel<
       return false;
     }
   };
-  element<HTMLButtonElement>("request-apply").onclick = async (): Promise<void> => { await apply(text.value); };
+  element<HTMLButtonElement>("request-apply").onclick =
+    async (): Promise<void> => {
+      await apply(text.value);
+    };
   element<HTMLButtonElement>("request-save").onclick = (): void => {
     if (editor === undefined) return;
-    const document: IAutoMovieHumanBodyBasisDocument = editor.snapshot().document;
+    const document: IAutoMovieHumanBodyBasisDocument =
+      editor.snapshot().document;
     props.download(
       document.id + ".json",
       serializeHumanBodyBasisDocument(document, props.source),
       "application/json",
     );
   };
-  element<HTMLButtonElement>("request-export").onclick = async (): Promise<void> => {
-    if (editor === undefined) return;
-    const snapshot: ReturnType<NonNullable<typeof editor>["snapshot"]> = editor.snapshot();
-    const ticket: number = intents.currentTicket();
-    try {
-      const bytes: Uint8Array<ArrayBuffer> = await props.viewport.export(snapshot.document);
-      if (
-        intents.isCurrent(ticket) &&
-        editor.snapshot().model === snapshot.model
-      )
-        props.download(
-          snapshot.document.id +
-            (snapshot.model.exteriorCandidate === undefined
-              ? ".inspection-candidates.glb"
-              : ".exterior-candidate.glb"),
-          bytes,
-          "model/gltf-binary",
-        );
-    } catch (error) {
-      if (intents.isCurrent(ticket))
-        status(error instanceof Error ? error.message : String(error), "error");
-    }
-  };
-  for (const direction of ["undo", "redo"] as const)
-    element<HTMLButtonElement>("request-" + direction).onclick = async (): Promise<void> => {
+  element<HTMLButtonElement>("request-export").onclick =
+    async (): Promise<void> => {
       if (editor === undefined) return;
-      const ticket: number = withdraw();
+      const snapshot: ReturnType<NonNullable<typeof editor>["snapshot"]> =
+        editor.snapshot();
+      const ticket: number = intents.currentTicket();
       try {
-        const success: boolean = await editor[direction]();
-        if (intents.isCurrent(ticket)) refresh(success);
-        await settle();
+        const bytes: Uint8Array<ArrayBuffer> = await props.viewport.export(
+          snapshot.document,
+        );
+        if (
+          intents.isCurrent(ticket) &&
+          editor.snapshot().model === snapshot.model
+        )
+          props.download(
+            snapshot.document.id +
+              (snapshot.model.exteriorCandidate === undefined
+                ? ".inspection-candidates.glb"
+                : ".exterior-candidate.glb"),
+            bytes,
+            "model/gltf-binary",
+          );
       } catch (error) {
         if (intents.isCurrent(ticket))
-          status(error instanceof Error ? error.message : String(error), "error");
+          status(
+            error instanceof Error ? error.message : String(error),
+            "error",
+          );
       }
     };
+  for (const direction of ["undo", "redo"] as const)
+    element<HTMLButtonElement>("request-" + direction).onclick =
+      async (): Promise<void> => {
+        if (editor === undefined) return;
+        const ticket: number = withdraw();
+        try {
+          const success: boolean = await editor[direction]();
+          if (intents.isCurrent(ticket)) refresh(success);
+          await settle();
+        } catch (error) {
+          if (intents.isCurrent(ticket))
+            status(
+              error instanceof Error ? error.message : String(error),
+              "error",
+            );
+        }
+      };
   const file: HTMLInputElement = element<HTMLInputElement>("request-file");
   element("request-load").onclick = (): void => file.click();
   file.onchange = async (): Promise<void> => {
@@ -275,5 +341,11 @@ export function mountBodyAnatomicalRequestPanel<
     editor = undefined;
     app.replaceChildren();
   };
-  return { apply, snapshot: (): ReturnType<NonNullable<typeof editor>["snapshot"]> | undefined => editor?.snapshot(), close };
+  return {
+    apply,
+    snapshot: ():
+      | ReturnType<NonNullable<typeof editor>["snapshot"]>
+      | undefined => editor?.snapshot(),
+    close,
+  };
 }

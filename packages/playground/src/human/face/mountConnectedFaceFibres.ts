@@ -1,9 +1,10 @@
-import type {
-  IAutoMovieHumanFaceBasisDocument,
-} from "@automovie/human";
+import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+
 import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 
-type Override = NonNullable<IAutoMovieHumanFaceBasisDocument["materials"]>[string];
+type Override = NonNullable<
+  IAutoMovieHumanFaceBasisDocument["materials"]
+>[string];
 type FibreField = {
   text: string;
   id: string;
@@ -35,11 +36,14 @@ export function mountConnectedFaceFibres(
   refresh: () => void;
 } {
   const dom: Document = app.ownerDocument;
-  const cards: IConnectedFaceAppearanceProps["basis"]["materials"] = props.basis.materials.filter(
-    (material: IConnectedFaceAppearanceProps["basis"]["materials"][number]): boolean =>
-      typeof material.baseColorTexture === "string" &&
-      (material.alphaMode === "mask" || material.alphaMode === "blend"),
-  );
+  const cards: IConnectedFaceAppearanceProps["basis"]["materials"] =
+    props.basis.materials.filter(
+      (
+        material: IConnectedFaceAppearanceProps["basis"]["materials"][number],
+      ): boolean =>
+        typeof material.baseColorTexture === "string" &&
+        (material.alphaMode === "mask" || material.alphaMode === "blend"),
+    );
   const section: HTMLDetailsElement = dom.createElement("details");
   section.id = "face-fibres";
   const summary: HTMLElement = dom.createElement("summary");
@@ -63,11 +67,15 @@ export function mountConnectedFaceFibres(
   section.append(summary, select, add, remove, entries);
   app.querySelector("#face-appearance")!.after(section);
 
-  const commit: (edit: (next: IAutoMovieHumanFaceBasisDocument, id: string) => void) => Promise<void> = async (
+  const commit: (
+    edit: (next: IAutoMovieHumanFaceBasisDocument, id: string) => void,
+  ) => Promise<void> = async (
     edit: (next: IAutoMovieHumanFaceBasisDocument, id: string) => void,
   ): Promise<void> => {
     try {
-      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
+      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+        props.document(),
+      );
       edit(next, select.value);
       await props.change(next);
     } catch (error) {
@@ -98,29 +106,38 @@ export function mountConnectedFaceFibres(
     });
   const refresh: () => void = (): void => {
     entries.replaceChildren();
-    const override: Override | undefined = props.document().materials?.[select.value];
+    const override: Override | undefined =
+      props.document().materials?.[select.value];
     const authored: boolean =
       override?.pigment !== undefined || override?.density !== undefined;
     add.disabled = cards.length === 0 || authored;
     remove.disabled = !authored;
     if (!authored) return;
-    const pigment: [number, number, number] = override!.pigment ?? DEFAULT_PIGMENT;
+    const pigment: [number, number, number] =
+      override!.pigment ?? DEFAULT_PIGMENT;
     const fields: FibreField[] = [
-      ...["R", "G", "B"].map((channel: string, axis: number): FibreField => ({
-        text: `Fibre linear ${channel}`,
-        id: `fibre-${channel.toLowerCase()}`,
-        value: pigment[axis]!,
-        apply: (current: Override, value: number): Override => {
-          const next: [number, number, number] = [...(current.pigment ?? DEFAULT_PIGMENT)];
-          next[axis] = value;
-          return { ...current, pigment: next };
-        },
-      })),
+      ...["R", "G", "B"].map(
+        (channel: string, axis: number): FibreField => ({
+          text: `Fibre linear ${channel}`,
+          id: `fibre-${channel.toLowerCase()}`,
+          value: pigment[axis]!,
+          apply: (current: Override, value: number): Override => {
+            const next: [number, number, number] = [
+              ...(current.pigment ?? DEFAULT_PIGMENT),
+            ];
+            next[axis] = value;
+            return { ...current, pigment: next };
+          },
+        }),
+      ),
       {
         text: "Density",
         id: "fibre-density",
         value: override!.density ?? 1,
-        apply: (current: Override, value: number): Override => ({ ...current, density: value }),
+        apply: (current: Override, value: number): Override => ({
+          ...current,
+          density: value,
+        }),
       },
     ];
     for (const field of fields) {

@@ -2,9 +2,13 @@ import type {
   IAutoMovieHumanFaceBasisDocument,
   IPortraitColourField,
 } from "@automovie/human";
+
 import type { IConnectedFaceAppearanceProps } from "./IConnectedFaceAppearanceProps";
 
-type PigmentCoordinate = { key: "center" | "radius" | "gain" | "strength"; axis: number };
+type PigmentCoordinate = {
+  key: "center" | "radius" | "gain" | "strength";
+  axis: number;
+};
 
 /**
  * Author reference-space colour envelopes without editing JSON. Surface and region selection are view state. Every edit clones the latest document and enters the panel's existing transaction, validation and undo path. Centres and radii display millimetres and store metres; gains remain linear RGB. Neutral defaults add no colour until the author changes gain and strength. No field, surface name or placement is tied to a study subject.
@@ -58,7 +62,10 @@ export function mountConnectedFacePigmentation(
   section.append(summary, style, help, surface, region, add, remove, entries);
   app.querySelector("#face-appearance")!.after(section);
 
-  const fieldsOf: (document: IAutoMovieHumanFaceBasisDocument, id: string) => IPortraitColourField[] = (
+  const fieldsOf: (
+    document: IAutoMovieHumanFaceBasisDocument,
+    id: string,
+  ) => IPortraitColourField[] = (
     document: IAutoMovieHumanFaceBasisDocument,
     id: string,
   ): IPortraitColourField[] =>
@@ -66,12 +73,16 @@ export function mountConnectedFacePigmentation(
 
   // Capture a surface before awaiting the worker. A later selection must not
   // redirect an in-flight edit to another surface.
-  const edit: (update: (fields: IPortraitColourField[]) => void) => Promise<void> = async (
+  const edit: (
+    update: (fields: IPortraitColourField[]) => void,
+  ) => Promise<void> = async (
     update: (fields: IPortraitColourField[]) => void,
   ): Promise<void> => {
     try {
       const id: string = surface.value;
-      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(props.document());
+      const next: IAutoMovieHumanFaceBasisDocument = structuredClone(
+        props.document(),
+      );
       const fields: IPortraitColourField[] = fieldsOf(next, id);
       update(fields);
       next.skin ??= {};
@@ -90,12 +101,17 @@ export function mountConnectedFacePigmentation(
     refresh();
   };
 
-  const editField: (name: string, update: (field: IPortraitColourField) => void) => Promise<void> = (
+  const editField: (
+    name: string,
+    update: (field: IPortraitColourField) => void,
+  ) => Promise<void> = (
     name: string,
     update: (field: IPortraitColourField) => void,
   ): Promise<void> =>
     edit((fields: IPortraitColourField[]): void => {
-      const field: IPortraitColourField | undefined = fields.find((one: IPortraitColourField): boolean => one.name === name);
+      const field: IPortraitColourField | undefined = fields.find(
+        (one: IPortraitColourField): boolean => one.name === name,
+      );
       if (field === undefined)
         throw new Error("This pigmentation region is no longer present.");
       update(field);
@@ -103,7 +119,10 @@ export function mountConnectedFacePigmentation(
 
   const refresh: () => void = (): void => {
     const selected: string = region.value;
-    const fields: IPortraitColourField[] = fieldsOf(props.document(), surface.value);
+    const fields: IPortraitColourField[] = fieldsOf(
+      props.document(),
+      surface.value,
+    );
     region.replaceChildren();
     for (const field of fields) {
       const option: HTMLOptionElement = dom.createElement("option");
@@ -111,11 +130,19 @@ export function mountConnectedFacePigmentation(
       option.textContent = field.name;
       region.append(option);
     }
-    if (fields.some((field: IPortraitColourField): boolean => field.name === selected))
+    if (
+      fields.some(
+        (field: IPortraitColourField): boolean => field.name === selected,
+      )
+    )
       region.value = selected;
-    const index: number = fields.findIndex((field: IPortraitColourField): boolean => field.name === region.value);
+    const index: number = fields.findIndex(
+      (field: IPortraitColourField): boolean => field.name === region.value,
+    );
     add.disabled = !props.basis.surfaces.some(
-      (one: IConnectedFaceAppearanceProps["basis"]["surfaces"][number]): boolean => one.id === surface.value,
+      (
+        one: IConnectedFaceAppearanceProps["basis"]["surfaces"][number],
+      ): boolean => one.id === surface.value,
     );
     remove.disabled = index < 0;
     entries.replaceChildren();
@@ -133,8 +160,9 @@ export function mountConnectedFacePigmentation(
     nameLabel.append(name);
     entries.append(nameLabel);
     const controls: PigmentCoordinate[] = [
-      ...(["center", "radius", "gain"] as const).flatMap((key: "center" | "radius" | "gain"): PigmentCoordinate[] =>
-        [0, 1, 2].map((axis: number): PigmentCoordinate => ({ key, axis })),
+      ...(["center", "radius", "gain"] as const).flatMap(
+        (key: "center" | "radius" | "gain"): PigmentCoordinate[] =>
+          [0, 1, 2].map((axis: number): PigmentCoordinate => ({ key, axis })),
       ),
       { key: "strength" as const, axis: 0 },
     ];
@@ -172,7 +200,9 @@ export function mountConnectedFacePigmentation(
   };
   add.onclick = (): Promise<void> =>
     edit((fields: IPortraitColourField[]): void => {
-      const names: Set<string> = new Set(fields.map((field: IPortraitColourField): string => field.name));
+      const names: Set<string> = new Set(
+        fields.map((field: IPortraitColourField): string => field.name),
+      );
       let ordinal: number = 1;
       while (names.has(`Region ${ordinal}`)) ordinal++;
       fields.push({
@@ -186,7 +216,9 @@ export function mountConnectedFacePigmentation(
   remove.onclick = (): Promise<void> => {
     const name: string = region.value;
     return edit((fields: IPortraitColourField[]): void => {
-      const index: number = fields.findIndex((field: IPortraitColourField): boolean => field.name === name);
+      const index: number = fields.findIndex(
+        (field: IPortraitColourField): boolean => field.name === name,
+      );
       if (index < 0)
         throw new Error("This pigmentation region is no longer present.");
       fields.splice(index, 1);

@@ -1,32 +1,39 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanBodyChannelScale, IAutoMovieHumanBodySimpleShape } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanBodyChannelScale,
+  IAutoMovieHumanBodySimpleShape,
+} from "@automovie/human";
 import { HUMAN_BODY_SIMPLE_POSTURE } from "@automovie/human/body/constants/HUMAN_BODY_SIMPLE_POSTURE";
 import { parseHumanBodyBasisDocument } from "@automovie/human/body/document/parseHumanBodyBasisDocument";
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
 import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import { humanBodySimplePosture } from "@automovie/human/body/simple/humanBodySimplePosture";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+} from "@automovie/interface";
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/interface";
 
+import type { IConnectedBodyReach } from "../common/IConnectedBodyReach";
 import { connectedBodyReach } from "../common/connectedBodyReach";
+import type { IBodySimpleBody } from "./IBodySimpleBody";
+import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
 import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
 import type { IConnectedBodyPanelModel } from "./IConnectedBodyPanelModel";
 import type { IConnectedBodyPanelProps } from "./IConnectedBodyPanelProps";
 import type { IConnectedBodyViewport } from "./IConnectedBodyViewport";
-import type { IBodySimpleBody } from "./IBodySimpleBody";
-import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
-import type { IConnectedBodyReach } from "../common/IConnectedBodyReach";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
-import { createBodyContactWatch } from "./createBodyContactWatch";
 import { bodyFemoralReading } from "./bodyFemoralReading";
 import { bodyGroundReading } from "./bodyGroundReading";
-import { renderBodyHumeralHeadControls } from "./renderBodyHumeralHeadControls";
 import { bodyMeasuredGroups } from "./bodyMeasuredGroups";
-import { renderBodyPosePresets } from "./renderBodyPosePresets";
-import { renderBodySimpleControls } from "./renderBodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
+import { createBodyContactWatch } from "./createBodyContactWatch";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
+import { renderBodyHumeralHeadControls } from "./renderBodyHumeralHeadControls";
+import { renderBodyPosePresets } from "./renderBodyPosePresets";
+import { renderBodySimpleControls } from "./renderBodySimpleControls";
 import { renderConnectedBodyControls } from "./renderConnectedBodyControls";
 import { setConnectedBodyPreparing } from "./setConnectedBodyPreparing";
 
@@ -52,7 +59,13 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   close: () => Promise<void>;
 
   /** Admitted history state, absent before initialization or after close. */
-  snapshot: () => ReturnType<ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>>["snapshot"]> | undefined;
+  snapshot: () =>
+    | ReturnType<
+        ReturnType<
+          typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
+        >["snapshot"]
+      >
+    | undefined;
 
   /** Submit a document under a fresh intent; false includes refusal, closure, supersession or failed retirement after publication. */
   change: (document: IAutoMovieHumanBodyBasisDocument) => Promise<boolean>;
@@ -65,21 +78,31 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   const reach: IConnectedBodyReach = connectedBodyReach(props.basis);
   const scales: Map<string, IAutoMovieHumanBodyChannelScale> = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
-      (scale: IAutoMovieHumanBodyChannelScale): [string, IAutoMovieHumanBodyChannelScale] => [scale.id, scale],
+      (
+        scale: IAutoMovieHumanBodyChannelScale,
+      ): [string, IAutoMovieHumanBodyChannelScale] => [scale.id, scale],
     ),
   );
   const groups: string[] = bodyMeasuredGroups(reach.basis.channels, scales);
   app.innerHTML = connectedBodyPanelMarkup(groups);
-  const element: <T extends HTMLElement>(id: string) => T = <T extends HTMLElement>(id: string): T =>
-    app.querySelector<T>("#" + id)!;
+  const element: <T extends HTMLElement>(id: string) => T = <
+    T extends HTMLElement,
+  >(
+    id: string,
+  ): T => app.querySelector<T>("#" + id)!;
   const controlKind: HTMLSelectElement = app.querySelector<HTMLSelectElement>(
     '[data-role="control-kind"]',
   )!;
   const basisControls: HTMLElement = app.querySelector<HTMLElement>(
     '[data-role="basis-controls"]',
   )!;
-  const underwear: HTMLSelectElement = mountBodyUnderwearSelect(dom, element("editing"));
-  const viewport: IConnectedBodyViewport<Model> = props.viewport(element<HTMLCanvasElement>("body-canvas"));
+  const underwear: HTMLSelectElement = mountBodyUnderwearSelect(
+    dom,
+    element("editing"),
+  );
+  const viewport: IConnectedBodyViewport<Model> = props.viewport(
+    element<HTMLCanvasElement>("body-canvas"),
+  );
   let editor:
     | ReturnType<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
@@ -88,12 +111,16 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   const humeral: IConnectedBodyHumeralSlot = {};
   let closed: boolean = false;
   let draft: IAutoMovieHumanBodyBasisDocument = structuredClone(props.initial);
-  const intents: ReturnType<typeof createBodyIntentGate> = createBodyIntentGate();
+  const intents: ReturnType<typeof createBodyIntentGate> =
+    createBodyIntentGate();
   // Typed measurement targets are UI drafts. A committed pose rebuilds rows
   // without converting an unfinished number into document geometry.
   const measurementDrafts: Map<string, string> = new Map();
   let bone: AutoMovieHumanoidBone = "leftUpperArm";
-  const status: (text: string, state: string) => void = (text: string, state: string): void => {
+  const status: (text: string, state: string) => void = (
+    text: string,
+    state: string,
+  ): void => {
     element("body-status").textContent = text;
     element("body-status").dataset.state = state;
   };
@@ -109,15 +136,16 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     humeral.controls?.refresh(draft.humeralHeads, true);
     status(error instanceof Error ? error.message : String(error), "error");
   };
-  const contacts: ReturnType<typeof createBodyContactWatch<Model>> = createBodyContactWatch({
-    build: viewport.build,
-    dispose: viewport.dispose,
-    settleRetirements: viewport.settleRetirements,
-    isCurrent: intents.isCurrent,
-    report: (text: string): void => {
-      element("body-status").textContent += String.fromCharCode(10) + text;
-    },
-  });
+  const contacts: ReturnType<typeof createBodyContactWatch<Model>> =
+    createBodyContactWatch({
+      build: viewport.build,
+      dispose: viewport.dispose,
+      settleRetirements: viewport.settleRetirements,
+      isCurrent: intents.isCurrent,
+      report: (text: string): void => {
+        element("body-status").textContent += String.fromCharCode(10) + text;
+      },
+    });
   const seatHead: (model: Model) => void = (model: Model): void => {
     props.seat(
       element<HTMLInputElement>("face").checked ? model : null,
@@ -136,7 +164,8 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     }
   };
   const refresh: () => void = (): void => {
-    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> = editor!.snapshot();
+    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> =
+      editor!.snapshot();
     draft = state.document;
     status(
       state.error ??
@@ -160,7 +189,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     });
     renderControls();
   };
-  const change: (next: IAutoMovieHumanBodyBasisDocument, ticket?: number) => Promise<boolean> = async (
+  const change: (
+    next: IAutoMovieHumanBodyBasisDocument,
+    ticket?: number,
+  ) => Promise<boolean> = async (
     next: IAutoMovieHumanBodyBasisDocument,
     ticket: number = withdraw(),
   ): Promise<boolean> => {
@@ -173,14 +205,20 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       if (intents.isCurrent(ticket)) {
         if (success) seatHead(editor!.snapshot().model);
         refresh();
-        if (!success) humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
+        if (!success)
+          humeral.controls?.refresh(
+            editor!.snapshot().document.humeralHeads,
+            true,
+          );
       }
       await settle();
       if (!intents.isCurrent(ticket)) return false;
       if (success)
-        void contacts.after(editor!.snapshot().document, ticket).catch((error: unknown): void => {
-          if (intents.isCurrent(ticket)) refuse(error);
-        });
+        void contacts
+          .after(editor!.snapshot().document, ticket)
+          .catch((error: unknown): void => {
+            if (intents.isCurrent(ticket)) refuse(error);
+          });
       return success;
     } catch (error) {
       if (intents.isCurrent(ticket)) refuse(error);
@@ -231,7 +269,8 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
       refuse,
     });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
-    button.onclick = (): void => viewport.cameraView(Number(button.dataset.view));
+    button.onclick = (): void =>
+      viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = viewport.fitView;
   element<HTMLInputElement>("clay").onchange = (): void =>
     viewport.setClay(element<HTMLInputElement>("clay").checked);
@@ -283,7 +322,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     };
   // the trunk's joints the age posture bends, which pose presets keep
   const standing: string[] = [
-    ...HUMAN_BODY_SIMPLE_POSTURE.thoracic.map(([bone]: (typeof HUMAN_BODY_SIMPLE_POSTURE.thoracic)[number]): string => bone),
+    ...HUMAN_BODY_SIMPLE_POSTURE.thoracic.map(
+      ([bone]: (typeof HUMAN_BODY_SIMPLE_POSTURE.thoracic)[number]): string =>
+        bone,
+    ),
     HUMAN_BODY_SIMPLE_POSTURE.compensation,
   ];
   const simple: IBodySimpleControlsHandle = renderBodySimpleControls({
@@ -301,14 +343,22 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     isCurrentIntent: intents.isCurrent,
     // the simple body also stands in the posture its age implies: its rows
     // replace the standing joints' and keep every other joint's
-    onApply: (shape: Record<string, number>, ticket: number, values: IAutoMovieHumanBodySimpleShape): void => {
-      const posture: ReturnType<typeof humanBodySimplePosture> = humanBodySimplePosture(props.basis, values);
+    onApply: (
+      shape: Record<string, number>,
+      ticket: number,
+      values: IAutoMovieHumanBodySimpleShape,
+    ): void => {
+      const posture: ReturnType<typeof humanBodySimplePosture> =
+        humanBodySimplePosture(props.basis, values);
       void change(
         {
           ...structuredClone(draft),
           shape,
           pose: [
-            ...(draft.pose ?? []).filter((row: IAutoMovieJointPose): boolean => !standing.includes(row.bone)),
+            ...(draft.pose ?? []).filter(
+              (row: IAutoMovieJointPose): boolean =>
+                !standing.includes(row.bone),
+            ),
             ...posture,
           ],
         },
@@ -330,7 +380,9 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     dom,
     container: element("humeral-head-controls"),
     current: (): IAutoMovieHumanBodyBasisDocument => draft,
-    onChange: (next: IAutoMovieHumanBodyBasisDocument): void => { void change(next); },
+    onChange: (next: IAutoMovieHumanBodyBasisDocument): void => {
+      void change(next);
+    },
     onRefuse: refuse,
   });
   renderBodyPosePresets({
@@ -342,7 +394,12 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     armsDown: viewport.armsDown,
     reserve: withdraw,
     isCurrent: intents.isCurrent,
-    apply: (document: IAutoMovieHumanBodyBasisDocument, ticket: number): void => { void change(document, ticket); },
+    apply: (
+      document: IAutoMovieHumanBodyBasisDocument,
+      ticket: number,
+    ): void => {
+      void change(document, ticket);
+    },
     refuse,
     busy: (text: string): void => status(text, "building"),
   });
@@ -351,7 +408,8 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);
   };
   element("body-save").onclick = (): void => {
-    const document: IAutoMovieHumanBodyBasisDocument = editor!.snapshot().document;
+    const document: IAutoMovieHumanBodyBasisDocument =
+      editor!.snapshot().document;
     props.download(
       document.id + ".json",
       serializeHumanBodyBasisDocument(document, props.basis.anatomicalAssembly),
@@ -359,10 +417,13 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     );
   };
   element("body-glb").onclick = async (): Promise<void> => {
-    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> = editor!.snapshot();
+    const state: ReturnType<NonNullable<typeof editor>["snapshot"]> =
+      editor!.snapshot();
     const ticket: number = intents.currentTicket();
     try {
-      const bytes: Uint8Array<ArrayBuffer> = await viewport.export(state.document);
+      const bytes: Uint8Array<ArrayBuffer> = await viewport.export(
+        state.document,
+      );
       if (intents.isCurrent(ticket) && editor!.snapshot().model === state.model)
         props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
     } catch (error) {
@@ -452,7 +513,10 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
     }
   })();
   const close: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => { closed = true; withdraw(); },
+    (): void => {
+      closed = true;
+      withdraw();
+    },
     (): Promise<void> => contacts.close(),
     (): Promise<void> => viewport.close(),
     async (): Promise<void> => {
@@ -464,8 +528,11 @@ export function mountConnectedBodyPanel<Model extends IConnectedBodyPanelModel>(
   return {
     ready,
     close,
-    snapshot: (): ReturnType<NonNullable<typeof editor>["snapshot"]> | undefined => editor?.snapshot(),
-    change: (document: IAutoMovieHumanBodyBasisDocument): Promise<boolean> => change(document),
+    snapshot: ():
+      | ReturnType<NonNullable<typeof editor>["snapshot"]>
+      | undefined => editor?.snapshot(),
+    change: (document: IAutoMovieHumanBodyBasisDocument): Promise<boolean> =>
+      change(document),
     load: (text: string): Promise<void> => applyText(text),
   };
 }
