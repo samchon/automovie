@@ -21,6 +21,6 @@ export interface IHumanFaceIrisTexels {
   /** Polar angle from the optical axis, radians. */
   theta: number[];
 
-  /** Azimuth about the optical axis in (-pi, pi], radians. */
+  /** Azimuth about the optical axis from Math.atan2, in [-pi, pi] radians. */
   phi: number[];
 }
