@@ -20,7 +20,7 @@ import { productionProjectValidateProductionRegistry } from "./productionProject
  * @evidence contracts/common.md#meaningful-documentation Static readers distinguish optional design absence from invalid present data and read-only refusal from writable initialization; individual inherited methods document their owning operation's effects.
  * @evidence contracts/performance.md#efficient-algorithms Delegated operations retain their filesystem, parsing, validation and media costs; adapters add one direct call, and creating a project adds one internal state object rather than rebuilding closure tables per invocation.
  * @evidence contracts/performance.md#reuse-equivalent-work One facade shares its state across calls, with resident identity/revision observations rechecked by the operations that require them; factories create independent states and no global project cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Project state lives until the facade is unreachable; opening root leases are released in each factory's finally block even when initialization or its closing identity check throws, while committed files remain repository-owned.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Project state lives until the facade is unreachable; each opening factory attempts reverse root-lease retirement in finally even when initialization or its closing identity check throws. Native cleanup failures can retain fences under the void release contract, while committed files remain repository-owned.
  */
 export class AutoMovieProductionProject extends AutoMovieProductionProjectCapability9 {
     /** Active production id selected by the admitted registry entry. */
@@ -31,8 +31,7 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
      */
     public readonly root: string, rootIdentity: Pick<IAutoMovieProductionRootNamespaceLease, "device" | "inode">, requestedProductionId?: string, readOnly: boolean = false,
     /**
-     * The archetype catalogue every design record in this project is judged
-     * against, and the one its builder builds from.
+     * The archetype catalogue every design record in this project is judged against, and the one its builder builds from.
      */
     public readonly archetypes: AutoMovieModelArchetypeRegistry = AUTOMOVIE_REGISTERED_ARCHETYPES) {
         super(new AutoMovieProductionProjectState(root, rootIdentity, requestedProductionId, readOnly, archetypes));
@@ -47,7 +46,7 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
      * @evidence contracts/common.md#meaningful-documentation Writable opening may initialize or migrate resident state and chooses an optional production id through existing registration policy, with physical root lease checks around construction.
      * @evidence contracts/performance.md#efficient-algorithms Includes root namespace acquisition, full state constructor work, possible registration/layout migration and final lease recheck; registry size, legacy records, path ancestry and created directories dominate rather than the factory's fixed number of statements.
      * @evidence contracts/performance.md#reuse-equivalent-work One acquired root lease is used across initialization and its closing identity check; each opening creates independent state and does not memoize initialization effects by root text.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The root lease is released in finally on successful return or any check/constructor failure; the returned project retains one state and committed initialization files remain repository-owned.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts reverse root-lease retirement after successful return or any check/constructor failure; native cleanup failure can retain fences under the void release contract. The returned project retains one state and committed initialization files remain repository-owned.
      */
     public static open(rootDirectory: string, productionId?: string, archetypes: AutoMovieModelArchetypeRegistry = AUTOMOVIE_REGISTERED_ARCHETYPES): AutoMovieProductionProject {
         const root: string = path.resolve(rootDirectory);
@@ -65,8 +64,7 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
         }
     }
     /**
-     * Open one fully initialized production without creating, migrating, or
-     * repairing any project-resident path.
+     * Open one fully initialized production without creating, migrating, or repairing any project-resident path.
      *
      * @evidence contracts/common.md#principled-implementation Resolves/refuses root-wide paths, acquires the existing physical root namespace, validates the lease around read-only state initialization and refuses missing or incompatible resident state rather than repairing it.
      * @evidence contracts/common.md#clear-and-simple-design Shares the same state schema and public class as writable open, with the explicit read-only flag selecting refusal and mutation prevention rather than a second project implementation.
@@ -74,7 +72,7 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
      * @evidence contracts/common.md#meaningful-documentation Requires a complete existing project/production and documents no resident path repair, while returned methods still reobserve physical identity and revisions rather than guaranteeing future immutability.
      * @evidence contracts/performance.md#efficient-algorithms Includes existing root acquisition, registry/incarnation/layout JSON admission and namespace ancestry capture plus final lease check; resident record bytes and path depth drive work without media rendering or migration.
      * @evidence contracts/performance.md#reuse-equivalent-work Uses one lease during this opening and shares admitted expectations inside the returned state; independent openings reacquire existing resident identities and records.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Finally releases the root lease after successful return or failure; one read-only state remains with the caller and no long-running lease, descriptor or watcher is retained by the project.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts reverse root-lease retirement after successful return or failure; native cleanup failure can retain fences under the void release contract. One read-only state remains with the caller, while the project owns no retained descriptor or watcher and does not intentionally keep the opening lease.
      */
     public static openReadOnly(rootDirectory: string, productionId?: string, archetypes: AutoMovieModelArchetypeRegistry = AUTOMOVIE_REGISTERED_ARCHETYPES): AutoMovieProductionProject {
         const root: string = path.resolve(rootDirectory);
@@ -94,17 +92,9 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
     /**
      * Read one production's own design record without opening project state.
      *
-     * The design record is where a production states the decisions it answers
-     * for, so a consumer that needs one of them before anything has been opened
-     * for writing asks the design rather than a second declaration beside it.
-     * This reads exactly that one file under the same physical fence the project
-     * reads it through, creates nothing, and takes no lock.
+     * The design record is where a production states the decisions it answers for, so a consumer that needs one before anything has been opened for writing asks the design rather than a second declaration beside it. This reads exactly that one file under the same physical file-admission policy the project uses, creates nothing, and takes no lock.
      *
-     * A project that has emitted no design record has authored no such decision,
-     * which is `null` rather than a fault: each reader of an optional decision
-     * then falls back to its shipped default instead of inventing a value. A
-     * resident record that does not validate is still an error, because a
-     * decision nobody can read is not the same as a decision nobody made.
+     * An absent design record returns null so consumers can apply their own optional-decision policy. A present record that fails structured or schema admission remains an error rather than being treated as absence.
      *
      * @evidence contracts/common.md#principled-implementation Computes the root realpath and encoded production design path, then uses guarded typed JSON acquisition with the exact production schema; optional absence returns null and malformed present content refuses.
      * @evidence contracts/common.md#clear-and-simple-design Reads this one design decision without opening full project state, registration or a graph; consumers choosing optional defaults do not need a duplicate declaration file.
@@ -126,7 +116,7 @@ export class AutoMovieProductionProject extends AutoMovieProductionProjectCapabi
      * @evidence contracts/common.md#clear-and-simple-design Provides host discovery from existing registry data without initializing the project or constructing a second registry/index model.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/malformed registry data remains validator refusal, not an automatically empty or newly initialized project; a valid id list does not prove each production's resident generation current.
      * @evidence contracts/common.md#meaningful-documentation States existing-only registry discovery and sorted portable ids, distinguishing membership from successful openReadOnly admission of a selected namespace.
-     * @evidence contracts/performance.md#efficient-algorithms Includes full registry read/parse and validation: P id encoding/map work, O(P log P) sorting, and potentially O(K*P) retired-incarnation membership work for K keys.
+     * @evidence contracts/performance.md#efficient-algorithms Includes full registry read/parse and validation: encoding/map work follows P id strings, sorting uses O(P log P) code-unit comparisons, and retired-incarnation membership can make O(K*P) id comparisons for K keys. Text length and comparison prefixes contribute beyond those population counts.
      * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each discovery request reads the current owned registry rather than sharing an opening cache, so equal root text cannot suppress physical/file admission.
      * @evidence contracts/performance.md#bound-retention-and-release-resources Only the normalized id array transfers to the caller, guarded file reading closes its descriptors, and no project instance, lease or task is retained here.
      */

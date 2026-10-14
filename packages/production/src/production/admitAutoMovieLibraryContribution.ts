@@ -17,19 +17,9 @@ import { autoMovieValidationFindings } from "./autoMovieValidationFindings";
 /**
  * Validate an admitted library contribution and claim its published identities.
  *
- * The source collector supplies schema-checked, graph-admitted registrations.
- * The compilation's validators own environment, model and context validity; this
- * owner translates their findings and prevents two source owners from writing
- * the same artifact identity. All ownership maps and the model index belong
- * to one compilation attempt, and mutations remain even after refusal so a
- * later source cannot silently take over an identity claimed earlier.
+ * The source collector supplies schema-checked, graph-admitted registrations. The compilation's validators own environment, model and context validity; this owner translates their findings and prevents two source owners from writing the same artifact identity. All ownership maps and the model index belong to one compilation attempt, and mutations remain even after refusal so a later source cannot silently take over an identity claimed earlier.
  *
- * Environments are checked first, then models, then world contexts, retaining
- * the existing diagnostic order. A unique model enters the shared index even
- * if validation reports a failure; the complete attempt must refuse its
- * publication. Duplicate models never replace the first indexed model. Only
- * new error diagnostics make this contribution fail; older findings and
- * warnings remain attached to the attempt without changing this gate's result.
+ * Environments are checked first, then models, then world contexts, retaining the existing diagnostic order. A unique model enters the shared index even if validation reports a failure; the complete attempt must refuse its publication. Duplicate models never replace the first indexed model. Only new error diagnostics make this contribution fail; older findings and warnings remain attached to the attempt without changing this gate's result. Supplied validator exceptions propagate without rolling back earlier claims.
  *
  * @evidence contracts/common.md#principled-implementation Applies each supplied carrier validator, translates warnings and errors unchanged and claims IDs before later owners can reuse them. The collector supplies schema-checked normalized contributions, including a present contexts array.
  * @evidence contracts/common.md#clear-and-simple-design Owns library identity admission and shared model indexing within one attempt; validator implementations own domain rules and the source-content adapters own diagnostic classification.
@@ -40,28 +30,44 @@ import { autoMovieValidationFindings } from "./autoMovieValidationFindings";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned maps grow with distinct contributed IDs and diagnostics with findings for the finite attempt; mutations persist through refusal until the attempt releases them. The helper acquires no handle or background task.
  */
 export function admitAutoMovieLibraryContribution(props: {
+  /** First design owner claiming each context id during this attempt. */
   contextOwner: Map<string, string>;
+
+  /** Attempt-owned sink retaining prior findings and newly attributed errors or warnings. */
   diagnostics: IAutoMovieDiagnostic[];
+
+  /** First design owner claiming each built-environment id during this attempt. */
   environmentOwner: Map<string, string>;
+
+  /** First design owner claiming each model id; duplicate claims leave this map unchanged. */
   modelOwner: Map<string, string>;
+
+  /** Attempt-owned index receiving every uniquely claimed model, including refused models. */
   models: Map<string, IAutoMovieModel>;
+
+  /** Schema-checked, graph-admitted contribution with a normalized contexts list. */
   registration: ICompiledLibraryOwnerRegistration;
+
+  /** Source path used for attribution rather than read or resolved here. */
   source: string;
+
+  /** Source-phase diagnostic address supplied by the evaluation owner. */
   target: string;
+
   /** Domain validators composed by the compilation host for these carriers. */
   validators: {
+    /** Built-environment gate whose complete findings feed this contribution. */
     environment: typeof validateBuiltEnvironment;
+
+    /** Model gate whose findings precede this model's identity claim. */
     model: typeof validateModel;
+
+    /** World-context gate whose findings precede this context's identity claim. */
     context: typeof validateAutoMovieEnvironmentContext;
   };
 }): boolean {
   const before: number = props.diagnostics.length;
-  // The path is sliced and printed without a fallback because the three
-  // validators below build every violation path from `$input.` and none
-  // ever reports at the bare root: a contribution that is not a record at all
-  // is refused earlier, by the shape check on what `build()` returned, with a
-  // message of its own. A fallback for the empty remainder was a second
-  // sentence for a case that cannot arrive here, and no test could reach it.
+  // Supplied validator paths lose the fixed $input prefix length for source-relative attribution; this adapter does not validate that prefix.
   function report(violation: IAutoMovieConstraintViolation): void {
     props.diagnostics.push(
       autoMovieSourceContentDiagnostic({

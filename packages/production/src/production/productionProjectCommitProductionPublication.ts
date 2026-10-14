@@ -27,17 +27,30 @@ import { productionProjectCommitFiles } from "./productionProjectCommitFiles";
  * @evidence contracts/common.md#clear-and-simple-design Owns terminal payload and receipt correspondence while media probes, semantic mask admission, publication identity and mutation accounting retain their respective responsibilities; it creates no encoder or render host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, duplicate, unclaimed or digest-mismatched files refuse; resident immutable paths are reused only after exact byte comparison, and currentness callbacks are observations rather than a guarantee against every between-check ABA race.
  * @evidence contracts/common.md#meaningful-documentation Documents the terminal ledger and immutable payload policy, with malformed media or stale plan/input refusing before final revision publication; delegated rollback can report incomplete cleanup after partial filesystem effects.
- * @evidence contracts/performance.md#efficient-algorithms Includes full manifest schema walk/clone, O(P log P) receipt sorting for P files, payload copies and hashing, per-format probe costs, serialization, commit staging and two post-write payload read/hash passes; MP4 probing also parses boxes/sample tables and performs media-range residency lookup, not merely O(1) metadata comparisons.
+ * @evidence contracts/performance.md#efficient-algorithms Includes full manifest schema walk/clone, O(P log P) code-unit path comparisons for P receipt files, path-key normalization, payload copies and hashing, per-format probe costs, serialization, commit staging and two post-write payload read/hash passes. Compared path lengths contribute to sorting cost; MP4 probing additionally parses boxes/sample tables and performs media-range residency lookup.
  * @evidence contracts/performance.md#reuse-equivalent-work One owned supplied-byte map serves hashing/probing/staging and one cloned manifest serves all checks; existing immutable files are compared before reuse, while plan/input callbacks and resident bytes are deliberately reobserved at commit boundaries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Attempt-owned payload copies, cloned manifest, media probe records and receipt/ledger strings remain until synchronous commit finishes; parsed MP4 copies/sample metadata and commit previous/current buffers contribute additional residency, so no unmeasured fixed peak factor is promised; commitFiles owns locks/temporary cleanup.
  */
 export function productionProjectCommitProductionPublication(state: AutoMovieProductionProjectState, props: {
+    /** Complete supplied payload population copied before mutation. */
     files: ReadonlyMap<string, Uint8Array>;
+
+    /** Candidate deliverable ledger, admitted and cloned before staging. */
     manifest: IAutoMovieProductionRenderManifest;
+
+    /** Exact host plan the terminal publication identity must match. */
     plan: IAutoMovieProductionRenderJobPlan;
+
+    /** Fresh render-plan generation check before and during publication. */
     planCurrent: () => boolean;
+
+    /** Fresh compile-input closure check before and during publication. */
     inputCurrent: () => boolean;
+
+    /** Final gate run after initial post-write ledger and payload confirmation. */
     publicationCurrent: () => void;
+
+    /** Optimistic revision required by the shared project transaction. */
     expectedRevision: number;
 }): number {
     const validation: typia.IValidation<IAutoMovieProductionRenderManifest> = typia.validateEquals<IAutoMovieProductionRenderManifest>(props.manifest);
@@ -92,9 +105,8 @@ export function productionProjectCommitProductionPublication(state: AutoMoviePro
                 mediaType: file.mediaType,
                 bytes,
             });
-            // The same classifier the final gate and the proxy preflight consult,
-            // so a receipt recording incomplete runtime coverage cannot enter the
-            // terminal ledger through this commit either.
+            // Apply semantic-mask admission to these exact copied payload bytes
+            // before allowing them into the terminal receipt and staged ledger.
             assertAutoMovieProductionDeliverableSemanticMask({
                 deliverable,
                 file,

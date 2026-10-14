@@ -5,24 +5,27 @@ import type { ICompiledLibraryOwnerRegistration } from "./ICompiledLibraryOwnerR
 /**
  * Admit a settings source only as a zero-payload library lineage result.
  *
- * The source collector already admitted this exact design/export owner and
- * normalized its contribution lists. Settings describes a production rather
- * than publishing its semantic artifacts, so any environment, model or world
- * context belongs to a design-source owner. This gate appends one refusal to
- * the caller's diagnostics and returns false; it never rewrites a contribution.
+ * The source collector already admitted this exact design/export owner and normalized its contribution lists. Settings describes a production rather than publishing semantic artifacts, so any environment, model or world context belongs to a design-source owner. A nonempty contribution appends one refusal and returns false; empty contribution returns true without rewriting it.
  *
  * @evidence contracts/common.md#principled-implementation Sums the three schema-validated, normalized carrier lengths and admits only zero payload; evaluateAutoMovieLibraryOwners routes productionSources settings here because settings serialize configuration rather than semantic library artifacts.
  * @evidence contracts/common.md#clear-and-simple-design Owns settings' empty-result policy separately from standalone design carrier checks and domain validation; the collector already establishes source/export ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No settings export receives a payload exception; semantic records must remain under their design owner, and prior diagnostics do not change this contribution's length-based verdict.
  * @evidence contracts/common.md#meaningful-documentation States normalized-input premise, settings lineage meaning, nonempty refusal and diagnostic mutation; a true result proves only this zero-payload condition.
- * @evidence contracts/performance.md#efficient-algorithms Reads three array lengths and optionally appends one diagnostic, taking constant time and space without traversing or cloning contributions.
+ * @evidence contracts/performance.md#efficient-algorithms Reads three array lengths without traversing or cloning contributions; refusal additionally formats one diagnostic proportional to source/export text.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Three mutable array-length reads are the entire computation; retaining verdicts would need fresh length equivalence and add state without removing substantial work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's attempt owns any appended diagnostic and contribution arrays; this synchronous gate retains nothing and acquires no handle or task.
  */
 export function admitAutoMovieLibrarySettingsContribution(props: {
+  /** Attempt-owned sink receiving one diagnostic for a nonempty contribution. */
   diagnostics: IAutoMovieDiagnostic[];
+
+  /** Admitted settings owner and contribution with all three carrier lists present. */
   registration: ICompiledLibraryOwnerRegistration;
+
+  /** Source path attributed to the settings refusal without file access here. */
   source: string;
+
+  /** Evaluation-owned source-phase target for this contribution. */
   target: string;
 }): boolean {
   const contribution: ICompiledLibraryOwnerRegistration["contribution"] = props.registration.contribution;

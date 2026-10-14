@@ -9,11 +9,7 @@ import { createAutoMovieBuildInputRaceFailure } from "./createAutoMovieBuildInpu
 /**
  * Confirm one non-publishing compilation result through the shared authority.
  *
- * The authority owns lock acquisition, both fresh input checks and revision
- * comparison. This compiler boundary returns null when the confirmation holds,
- * converts only its generation-race error to the shared structured refusal,
- * and propagates unrelated failures unchanged. Timed and library compilation
- * therefore use one error policy without acquiring independent locks.
+ * The authority owns lock acquisition, fresh input checks and revision comparison. This boundary returns null when confirmation holds, converts only its generation-race error to the shared structured refusal, and propagates unrelated failures unchanged. Timed and library compilation use one error policy without acquiring independent locks here.
  *
  * @evidence contracts/common.md#principled-implementation The shared project authority confirms both fresh input identity and expected revision under its own fence; only the dedicated generation-race error becomes a structured compile refusal.
  * @evidence contracts/common.md#clear-and-simple-design Timed and library non-publishing compilers share this confirmation policy while the project owns locking and revision observation.
@@ -24,17 +20,27 @@ import { createAutoMovieBuildInputRaceFailure } from "./createAutoMovieBuildInpu
  * @evidence contracts/performance.md#bound-retention-and-release-resources The authority owns lock lifetime and release on failure; this wrapper retains only attempt references and returns null or transfers the refused output without acquiring handles.
  */
 export function confirmAutoMovieBuildInputSnapshot(props: {
+  /** Complete attempt findings preserved beside a converted race refusal. */
   diagnostics: IAutoMovieDiagnostic[];
+
+  /** Fresh check of the same declared input closure used for this attempt. */
   inputCurrent: () => boolean;
+
+  /** Candidate input identity reported by a converted refusal. */
   inputFingerprint: string;
+
+  /** Observed revision the authority must still confirm. */
   inputRevision: number;
 
   /** Shared project authority; this boundary neither reads nor writes files. */
   authority: {
+    /** Confirm currentness and expected revision through the authority's existing fences. */
     confirmCurrentSnapshot: (
       current: () => boolean,
       revision: number,
     ) => number;
+
+    /** Observe current revision when formatting a typed input-race failure. */
     revision: () => number;
   };
 }): IAutoMovieBuildProjectOutput | null {

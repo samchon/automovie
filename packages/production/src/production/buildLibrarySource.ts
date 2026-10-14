@@ -35,7 +35,10 @@ export function buildLibrarySource(props: {
     design: string,
   ) => ReturnType<typeof resolveAutoMovieSourceOwnerBinding>;
 }): {
+  /** Graph-admitted, schema-checked contributions returned by the shared collector. */
   registrations: ICompiledLibraryOwnerRegistration[];
+
+  /** Collector findings; ordinary loader/build failures normally become execution diagnostics. */
   diagnostics: IAutoMovieDiagnostic[];
 } {
   return collectLibrarySourceRegistrations({

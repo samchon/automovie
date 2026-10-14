@@ -20,7 +20,7 @@ export interface ICompiledLibraryOwnerRegistration {
   design: string;
 
   /**
-   * Validated contribution the export's build function returned.
+   * Validated contribution returned by build() or parsed from its selected derived artifact.
    *
    * Collection supplies a definite contexts list when the authored contribution omits that optional field; downstream admission consumes this normalized record.
    */

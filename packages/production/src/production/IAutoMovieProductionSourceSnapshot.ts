@@ -1,20 +1,10 @@
 
 /**
- * Every input one read-only source gate answer depends on, read together.
+ * Revision-bracketed observations used to judge reuse of a read-only source gate answer.
  *
- * The builder input fingerprint names the design, source, content, derivation
- * and owner edges a result is built from, but the gate's answer depends on
- * more than that identity. Screenplay validation reads the screenplay index and
- * the prose documents it addresses, which no fingerprint field carries, and the
- * ownership check compares every file under the builder-owned root with the
- * resident manifest. A snapshot therefore records those beside the revision
- * and, for a library, the resident guard identity that covers the checkout root
- * and the declaration location.
+ * The builder input fingerprint names the design, source, content, derivation and owner edges a result is built from, but the gate also observes the screenplay index, requested prose and listed generated entries beside their resident manifest. A snapshot records those beside the revision and, for a library, the resident guard identity that includes the checkout root and declaration location. Generated population completeness remains the supplied walk's premise; the default walker reports regular files and symbolic links.
  *
- * Two snapshots observed the same inputs only when every field but the revision
- * is equal, and the revision counts too for an answer that read it. That
- * equality, taken from a fresh read, is the only fact that lets an earlier
- * successful answer stand for the current one.
+ * Retention compares every field except revision, including revision for an answer that read it. Fresh equality concerns these finite observations rather than proving an atomic filesystem state or detecting edits outside the revision protocol.
  *
  * @evidence contracts/common.md#principled-implementation A before-and-after revision observation brackets the input fingerprint, resident library identity, screenplay, requested prose and generated namespace facts; matching these fields proves only the observed inputs, with the documented changed-and-restored race limit on the retention owner.
  * @evidence contracts/common.md#clear-and-simple-design One fresh snapshot groups dependencies outside the ordinary builder fingerprint rather than widening that output protocol; evaluation separately identifies which documents and revision the executed gate read.
@@ -27,27 +17,21 @@
  */
 export interface IAutoMovieProductionSourceSnapshot {
   /**
-   * Project revision, read first and confirmed unchanged by the last read.
+   * Project revision, read before acquisition and compared after generated reads.
    *
-   * It names when the observation was taken. Every project write that moves a
-   * gate input also moves another field here, so reuse compares the revision
-   * only for an answer that read the revision number itself.
+   * Retention compares revision for an answer that read the number itself; the other recorded fields independently participate in every equivalence decision.
    */
   revision: number;
 
   /**
    * Builder input identity of the current inputs.
    *
-   * A timed production reads it through the projection the builder's own
-   * publication guard compares. A library reads its namespace, portable
-   * authoring projection and derived content closure.
+   * A timed production reads it through the projection the builder's own publication guard compares. A library reads its namespace, portable authoring projection and derived content closure.
    */
   inputFingerprint: string;
 
   /**
-   * Resident library authoring snapshot digest, covering the checkout root and
-   * the declaration location, or `null` for a timed production, whose project
-   * handle refuses a replaced root on every read instead.
+   * Resident library authoring snapshot digest, including the checkout root text and declaration location, or null for a timed production. Physical root admission remains the project handle's responsibility rather than this digest's proof.
    */
   resident: string | null;
 
@@ -55,8 +39,7 @@ export interface IAutoMovieProductionSourceSnapshot {
   screenplay: string | null;
 
   /**
-   * Author-owned documents requested for this observation, in path order, with
-   * the digest of the UTF-8 text read or `null` for an absent document.
+   * Distinct author-owned documents requested for this observation, in code-unit path order, with the digest of the UTF-8 text read or null for an absent document.
    */
   documents: Array<{
     /** Project-relative document path. */
@@ -75,8 +58,7 @@ export interface IAutoMovieProductionSourceSnapshot {
     manifest: string | null;
 
     /**
-     * Every entry under the builder-owned root in path order, with its byte
-     * digest or `null` when it cannot be read as an owned regular file.
+     * Supplied listed entries under the builder-owned root in code-unit path order, with their byte digest or null when an owned-file read fails. The default walk reports regular files and symbolic links, without following link targets.
      */
     files: Array<{
       /** Path relative to the builder-owned root. */

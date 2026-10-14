@@ -12,9 +12,9 @@ import { productionRootNamespaceLstatOrNull } from "./productionRootNamespaceLst
  * @evidence contracts/common.md#clear-and-simple-design The parent walk owns missing-directory construction, and each recursion level scopes its short creation locks around one mkdir/realpath operation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A filesystem root without a usable directory refuses; an existing path is followed only under the established parent-directory semantics, while new child collisions reject links.
  * @evidence contracts/common.md#meaningful-documentation Explains existing alias resolution, missing-ancestor creation and collision refusal, including that already created ancestors are not rolled back after later failure.
- * @evidence contracts/performance.md#efficient-algorithms For D missing ancestors, recursion and creation fencing perform O(D) scopes with O(D) stack/path state; native wait and token work accrue per scope.
+ * @evidence contracts/performance.md#efficient-algorithms For D missing ancestors, recursion and creation fencing perform O(D) scopes and recursion frames, plus path manipulation and hashing driven by ancestor spellings. Retained path text follows the sum of those spellings rather than only D; native wait and token work accrue per scope.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses each resolved parent inside its child attempt without caching future physical identity or replacing a directory with an equivalent path string.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Each creation scope releases its locks in finally; created directories can persist on later refusal, and no independent directory rollback or retained handle is provided.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each creation scope attempts reverse lock retirement in finally; native failures can retain fences under the void release contract. Created directories can persist on later refusal, and no independent directory rollback or retained handle is provided.
  */
 export const productionRootNamespaceEnsureDirectory: (directory: string) => string = (directory: string): string => {
   const linked: Stats | null = productionRootNamespaceLstatOrNull(directory);

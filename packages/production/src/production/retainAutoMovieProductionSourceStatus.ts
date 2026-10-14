@@ -5,40 +5,15 @@ import type { IAutoMovieProductionSourceSnapshot } from "./IAutoMovieProductionS
 import { canonicalizeAutoMovieJson } from "./contentIdentity";
 
 /**
- * Answer the read-only source gate, running it only when its inputs moved.
+ * Answer the read-only source gate with freshly checked reuse of one successful evaluation.
  *
- * Every call reads a fresh snapshot first. When a successful answer is
- * retained and that fresh snapshot equals the one the answer was retained with,
- * the answer is returned without executing any authored source. Authored code
- * must be deterministic over declared inputs; ordinary Node execution does not
- * prove that premise, so undeclared effects remain a limitation of this reuse.
- * The observation itself is never skipped: a capture, a receipt reopen or a guarded
- * commit that asks again reads the project again.
+ * Every call first attempts a fresh snapshot. If it matches a retained successful answer's dependency state, a clone of that answer is returned without rerunning authored source. This reuse assumes deterministic authored behavior over declared inputs; ordinary Node execution does not prove that premise or account for arbitrary external effects.
  *
- * The revision names when a snapshot was read, and it is compared only for an
- * answer that read the revision number into what it judged. Every project write
- * that moves a gate input also moves another snapshot field, so a write that
- * moves none, such as the render commit a capture makes just before its receipt
- * is reopened, leaves an unbound answer standing, and the answer is returned
- * under the fresh observation's revision without rerunning source.
+ * A revision-bound answer also requires revision equality. Otherwise reuse compares all non-revision snapshot fields and returns the answer under the fresh observation's revision; this permits a revision change that leaves every recorded input unchanged without asserting equivalence for unrecorded effects.
  *
- * Any other case runs the gate and returns its output unchanged. A differing
- * snapshot, a snapshot that could not be read completely, and a read that throws
- * all end there, so no read failure can turn into a success and the gate's own
- * diagnostics or exception carry the original cause. A failed answer is never
- * retained, so an invalid project runs the gate and reports its diagnostics on
- * every call, and neither it nor an answer that executed an undeclared module
- * pays for a second read after the run, because neither could be kept.
+ * Any other case runs the supplied gate and returns its output unchanged. Acquisition exceptions become unavailable observations rather than cached success; evaluation exceptions propagate. Failed evaluations, unavailable initial observations and undeclared loaded modules skip the second acquisition because their answers cannot be retained.
  *
- * A successful answer is retained only when it is provably the answer for one
- * snapshot. The snapshots read before and after the run must agree on every
- * input except documents. The answer's revision and input fingerprint must
- * equal the later snapshot's, and so must the fingerprint its resident generated
- * manifest records. Every document the run read must still read the same, and no
- * executed project module may sit outside the fingerprinted content. An input
- * that changed and changed back while the gate ran is the one race this cannot
- * see, which is the same limit as the builder's own before-and-after
- * publication guard.
+ * A successful answer is retained only after before/after snapshots agree on non-revision fields other than requested documents, the output revision equals the later observation, and output/generated/input fingerprints agree. Every reported document read must match its later digest, including repeated reads of one path. Loaded project modules must be declared by the evaluator. These finite observations cannot detect changed-and-restored inputs or establish atomic filesystem state.
  *
  * @evidence contracts/common.md#principled-implementation Retention requires a successful gate, matching complete before/after input observations, exact gate/generated fingerprints, unchanged actual prose reads and a fully declared executed-module closure; revision comparison is required only when the gate used it. Equivalence assumes authors obey deterministic declared-input semantics, which ordinary Node effects do not prove.
  * @evidence contracts/common.md#clear-and-simple-design One closure coordinates fresh acquisition, actual evaluation and at most one retained successful answer; helpers own snapshot equality and post-run proof without another watcher or cache service.
@@ -50,8 +25,7 @@ import { canonicalizeAutoMovieJson } from "./contentIdentity";
  */
 export function retainAutoMovieProductionSourceStatus(props: {
   /**
-   * Read a fresh snapshot, including the given documents, or `null` when no
-   * complete consistent observation is available.
+   * Read a fresh snapshot including the given documents, or null when the observation owner cannot admit a complete revision-bracketed result.
    */
   acquire: (
     documents: readonly string[],
@@ -130,8 +104,7 @@ function sameInputs(left: IAutoMovieProductionSourceSnapshot, right: IAutoMovieP
 }
 
 /**
- * Whether one successful, fully declared run is the answer for the snapshot
- * read after it.
+ * Whether one successful, fully declared run matches the admitted before/after observations and its reported document reads.
  */
 function provesSnapshot(before: IAutoMovieProductionSourceSnapshot, evaluation: IAutoMovieProductionSourceEvaluation, after: IAutoMovieProductionSourceSnapshot): boolean {
   const output: IAutoMovieBuildProjectOutput = evaluation.output;

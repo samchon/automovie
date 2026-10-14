@@ -3,17 +3,9 @@ import type { IAutoMovieModelRecipe } from "@automovie/interface";
 /**
  * Whether a model identity reaches a dependency through its LOD recipe edges.
  *
- * Project design mutation uses this relation to invalidate dependent assets,
- * formations and shots. Identity is reflexive even for an absent recipe: an
- * edit to that exact identity still affects references to it. Other absent
- * recipes contribute no outgoing edges. Self-reference is permitted, and a
- * cycle cannot manufacture reachability to an unrelated dependency.
+ * Project design mutation uses this relation to invalidate dependent assets, formations and shots. Identity is reflexive even for an absent recipe: an edit to that exact identity still affects references to it. Other absent recipes contribute no outgoing edges. Self-reference is permitted, and a cycle cannot manufacture reachability to an unrelated dependency.
  *
- * Iterative depth-first traversal visits each reachable identity once, without
- * growing the JavaScript call stack or repeating shared DAG paths. Only LOD
- * references matter here; this neither builds
- * geometry nor validates a recipe, and the design validator owns malformed
- * references. A changed result changes the mutation's stale review population.
+ * Iterative depth-first traversal expands each reachable identity once without growing the JavaScript call stack or repeating shared DAG expansion. Only LOD references matter here; this neither builds geometry nor validates a recipe, and the design validator owns malformed references. A changed result changes the mutation's stale review population.
  *
  * @evidence contracts/common.md#principled-implementation Directed reachability uses an explicit work stack and one visited set; equality is tested before expansion so exact and dangling dependency identities remain reflexive, while cycles cannot create unrelated reachability.
  * @evidence contracts/common.md#clear-and-simple-design Project mutation calls one LOD-dependency owner for model, formation and shot consequences; recipe admission and geometry construction remain separate responsibilities.

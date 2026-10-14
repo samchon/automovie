@@ -23,40 +23,46 @@ import { findAutoMovieProjectRoot } from "./findAutoMovieProjectRoot";
 export const openAutoMovieProduction: (props: {
     /** Host-owned path at or below the project root. */
     projectRoot?: string;
+
     /** Exact production namespace, required when the project has several. */
     productionId?: string;
+
     /** Optional host-owned actual frame capture. */
     capture?: AutoMovieProductionFrameCapture;
+
     /**
      * Archetype catalogue this production registers.
      *
-     * Omitted leaves the primitive catalogue the server ships with. A production
-     * that supplies its own builders registers them here, and every recipe naming
-     * something outside the registry is refused with a design diagnostic.
+     * Omission selects the server's primitive catalogue. Host-supplied builders define the alternate catalogue; recipe admission separately refuses names outside the selected registry.
      */
     archetypes?: AutoMovieModelArchetypeRegistry;
+
     /** Exact graph-derived authoring identity for review and final gates. */
     authoringEvidence?: IAutoMovieProductionEvidence;
-    /** Fresh graph reader used by every atomic currentness confirmation. */
+
+    /** Fresh graph reader supplied to both builders and source-status acquisition. */
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
 }) => IAutoMovieProductionServices = (props: {
     /** Host-owned path at or below the project root. */
     projectRoot?: string;
+
     /** Exact production namespace, required when the project has several. */
     productionId?: string;
+
     /** Optional host-owned actual frame capture. */
     capture?: AutoMovieProductionFrameCapture;
+
     /**
      * Archetype catalogue this production registers.
      *
-     * Omitted leaves the primitive catalogue the server ships with. A production
-     * that supplies its own builders registers them here, and every recipe naming
-     * something outside the registry is refused with a design diagnostic.
+     * Omission selects the server's primitive catalogue. Host-supplied builders define the alternate catalogue; recipe admission separately refuses names outside the selected registry.
      */
     archetypes?: AutoMovieModelArchetypeRegistry;
+
     /** Exact graph-derived authoring identity for review and final gates. */
     authoringEvidence?: IAutoMovieProductionEvidence;
-    /** Fresh graph reader used by every atomic currentness confirmation. */
+
+    /** Fresh graph reader supplied to both builders and source-status acquisition. */
     currentAuthoringEvidence?: () => IAutoMovieProductionEvidence;
 }): IAutoMovieProductionServices => {
     resolveAutoMovieTimedAuthoringKind(props.authoringEvidence);

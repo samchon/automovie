@@ -12,22 +12,11 @@ import { normalizeSlash } from "./productionBuildDiagnostics";
 /**
  * Run the read-only source gate once and record what its answer rests on.
  *
- * The builder reports every author-owned document its validation read, and
- * each is kept as the digest of the text it saw, in read order, so a document
- * that changed between two reads inside one run shows up as two different
- * digests for one path. The supplied live module cache is read after the run:
- * the builder evicts every project module before it evaluates, so the project
- * modules loaded now are the closure this answer executed. Each of them is
- * compared with the fingerprinted content inventory, and one outside it is
- * named, because an edit to it would move the answer without moving any
- * identity a later check can recompute.
+ * The supplied builder reports every author-owned document its validation read; each observation becomes a digest in read order, preserving distinct reads of the same path. The live module cache is inspected after the run. The native builder evicts project modules before evaluation, so current project entries provide its observed loaded closure; a custom loader must supply equivalent live accounting. Entries outside declared content are named because their changes are not covered by that inventory's identity.
  *
- * The builder also reports whether the answer read the project revision into
- * what it judged, which only a camera clearance report does, so a later check
- * knows whether a revision change alone can move this answer.
+ * The builder also reports whether the answer read the project revision into its judgment, allowing retention to require revision equality when that dependency exists. Current camera-clearance reports carry such a dependency; this evaluator forwards the actual trace flag rather than inferring it from report text.
  *
- * The gate's output is returned unchanged, including a failure and its
- * diagnostics, and an exception from the gate propagates with its own cause.
+ * The gate's output is returned unchanged, including failures and diagnostics; gate exceptions propagate. Later module accounting or document hashing can also throw instead of returning an evaluation.
  *
  * @evidence contracts/common.md#principled-implementation The actual read-only gate supplies ordered document text/absence and revision dependency; the live completed-run module cache is projected to project-relative ids and compared with declared content, refusing retention when executed dependencies are unaccounted for.
  * @evidence contracts/common.md#clear-and-simple-design This evaluation owner pairs the gate result with actual observed dependencies; snapshot acquisition owns fresh bytes and the retention owner decides whether those facts prove later reuse.
@@ -44,8 +33,7 @@ export function evaluateAutoMovieProductionSource(props: {
   /** Builder whose read-only source gate this run executes. */
   builder: {
     /**
-     * Run the read-only gate at source scope and report the documents its
-     * validation read and whether its answer read the project revision.
+     * Run the read-only gate at source scope and report the documents its validation read and whether its answer read the project revision.
      */
     lintSource(): IAutoMovieProductionSourceGateTrace & {
       /** The gate's own answer. */

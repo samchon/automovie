@@ -14,12 +14,12 @@ import { productionRootNamespaceLstatOrNull } from "./productionRootNamespaceLst
  * Reserve a physical project root, creating missing ancestors and the root under short external creation fences before taking its stable path/identity lease. Created directories are not rolled back on later failure.
  *
  * @evidence contracts/common.md#principled-implementation Real parent resolution and paired creation coordinates protect child creation, then the existing-root owner takes stable identity/path reservations and rechecks the original requested root.
- * @evidence contracts/common.md#clear-and-simple-design Separates temporary creation authority from the returned stable root lease, with each acquired scope having its own finally release.
+ * @evidence contracts/common.md#clear-and-simple-design Separates temporary creation authority from the returned stable root lease, with temporary scopes attempting retirement in finally and stable assertion failure delegating its own cleanup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Linked or nondirectory collisions refuse and no replacement namespace is silently adopted; already created ancestors remain actual filesystem effects.
  * @evidence contracts/common.md#meaningful-documentation States absent-root creation, temporary versus stable ownership and persistent directory effects after later refusal.
- * @evidence contracts/performance.md#efficient-algorithms For D missing ancestors, the parent walk performs O(D) creation scopes and stack/path storage, then a fixed stable lease acquisition; native waits accrue per scope.
+ * @evidence contracts/performance.md#efficient-algorithms For D missing ancestors, the parent walk performs O(D) creation scopes and recursion frames, retaining resolved paths whose total text size depends on ancestor spellings. Path resolution/naming and stable lease acquisition add their own text/hash work; native waits accrue per scope.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses resolved parents and creation witnesses only within their attempt, and the stable lease is separately acquired because creation and mutation authority differ.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Creation locks release in finally; a stable lease transfers on success, and assertion failure releases it before propagating while created directories may remain.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Creation locks attempt reverse retirement in finally; a stable lease transfers on success and assertion failure attempts its release before propagating. Native cleanup failure can retain fences under the void release contract, and created directories may remain.
  */
 export const acquireOrCreateProductionRootNamespace: (rootDirectory: string) => IAutoMovieProductionRootNamespaceLease = (
   rootDirectory: string,

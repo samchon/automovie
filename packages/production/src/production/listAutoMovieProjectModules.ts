@@ -3,13 +3,7 @@ import path from "node:path";
 /**
  * Select the loaded module ids that are one project's own code.
  *
- * A module under the project root and outside every `node_modules` directory
- * is treated as authored project code; installed package generations are
- * outside this eviction policy and assumed stable for the running host. Evicting
- * exactly this selection before a gate run makes an edit the code that runs,
- * and the source evaluation reads exactly this selection after the run to learn
- * which project files the answer executed. When both sides use this one
- * predicate, the modules one side evicts are the modules the other accounts for.
+ * A loaded id lexically under the project root and outside every node_modules segment is treated as project code. Installed packages and external modules are outside this selection and assumed stable by its consumers. The native build host uses the selection for cache eviction, and source evaluation uses it for post-run loaded-module accounting; selection alone neither reloads code nor proves an arbitrary loader's complete executed closure or physical symlink identity.
  *
  * @evidence contracts/common.md#principled-implementation Uses native path.relative to distinguish descendants from the exact parent or parent-segment prefix, excluding exact node_modules segments. runAutoMovieProductionBuild evicts these IDs and source evaluation accounts for the same selected project closure.
  * @evidence contracts/common.md#clear-and-simple-design One lexical module-selection policy serves pre-run eviction and post-run dependency observation; loader ownership and filesystem path admission remain outside this helper.

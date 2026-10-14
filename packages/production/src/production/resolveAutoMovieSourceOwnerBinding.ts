@@ -13,18 +13,55 @@ import { isAutoMovieSourceOwnerBindingComplete } from "./isAutoMovieSourceOwnerB
  * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate references are local and one selected binding or refusal transfers to the caller; the resolver stores no bytes, handles or scheduled work.
  */
 export function resolveAutoMovieSourceOwnerBinding(props: {
+  /** Acquired source-owner edge population, absent when the graph selected none. */
   bindings:
     | readonly IAutoMovieProductionEvidenceSourceOwnerBinding[]
     | undefined;
+
+  /** Exact authoring branch participating in candidate selection. */
   branch: string;
+
+  /** Exact project-relative source address participating in candidate selection. */
   sourcePath: string;
+
+  /** Exact named export participating in candidate selection. */
   exportName: string;
+
   /** Runtime owner claim, when this entry protocol carries one. */
   owner?: string;
+
+  /** Observed normalized-source digest compared with the selected edge. */
   sourceDigest: IAutoMovieProductionEvidenceSourceOwnerBinding["sourceDigest"];
+
   /** Compatibility name for requiring evidence completion at admission. */
   requireReviewed: boolean;
-}): { success: false; binding: null; reason: "missing" | "ambiguous" | "owner" | "digest" | "review"; message: string } | { success: true; binding: IAutoMovieProductionEvidenceSourceOwnerBinding; reason: null; message: null } {
+}):
+  | {
+      /** The exact edge was not admitted. */
+      success: false;
+
+      /** No refused candidate escapes as an authorized binding. */
+      binding: null;
+
+      /** Stable category of the first failed admission condition. */
+      reason: "missing" | "ambiguous" | "owner" | "digest" | "review";
+
+      /** Source/export-attributed explanation of that refusal. */
+      message: string;
+    }
+  | {
+      /** Exactly one edge satisfied the requested admission conditions. */
+      success: true;
+
+      /** Original selected graph record, returned without cloning or freezing. */
+      binding: IAutoMovieProductionEvidenceSourceOwnerBinding;
+
+      /** An admitted edge has no refusal category. */
+      reason: null;
+
+      /** An admitted edge has no refusal message. */
+      message: null;
+    } {
   const candidates: IAutoMovieProductionEvidenceSourceOwnerBinding[] = (props.bindings ?? []).filter(
     (binding: IAutoMovieProductionEvidenceSourceOwnerBinding): boolean =>
       binding.branch === props.branch &&

@@ -37,26 +37,36 @@ import { validateAutoMovieProductionGraph } from "./validateProductionDesign";
 /**
  * Execute one observed design, source or final compilation transaction.
  *
- * Authored modules are evicted before evaluation. Domain phases accumulate
- * diagnostics against one input revision, then current inputs are confirmed
- * before returning or atomically publishing the generated set. Read-only
- * execution never repairs ownership or publishes files.
+ * Project module-cache entries are evicted before evaluation. Domain phases accumulate diagnostics against one input revision, then the shared project authority confirms current inputs before returning or performing staged generated publication. Individual file operations and revision commitment are separate boundaries; transaction failures can report incomplete recovery or already committed state. Read-only execution disables generated repair and publication, while authored Node effects remain outside a sandbox guarantee.
  *
  * @evidence contracts/common.md#principled-implementation Ordered fingerprint fields bind design, source, content and authoring ownership to the observed revision; a before-and-after current-input projection refuses races, while library and timed productions follow their declared source contracts.
  * @evidence contracts/common.md#clear-and-simple-design This coordinator owns attempt ordering and publication authority, delegating source observation, shot compilation, production review and domain validators to their respective phases.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No failed diagnostic is repaired into publication; lint disables generated repair and writes, and currentness failures refuse the attempt instead of retrying over changed inputs.
- * @evidence contracts/common.md#meaningful-documentation States cache eviction, observed revision, accumulated findings, current-input confirmation, atomic publication and read-only effects.
+ * @evidence contracts/common.md#meaningful-documentation States project-cache eviction, observed revision, accumulated findings, current-input confirmation, staged publication and read-only generated effects; neither a whole-set atomic visibility guarantee nor sandboxed authored effects are provided.
  * @evidence contracts/performance.md#efficient-algorithms Cost includes one design validation, one declared content observation, runtime inventory construction, per-source compilation and production review, plus currentness rereads required to guard publication. Phase owners account for geometry/media algorithms; this coordinator additionally hashes complete source/content fields and sorts generated entries and diagnostics.
  * @evidence contracts/performance.md#reuse-equivalent-work One observed content inventory feeds fingerprinting and asset admission; normalized source buffers and compiled runtime inventories serve the attempt's downstream phases. Effectful source execution is never shared across separate attempts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Attempt-local maps and buffers scale with declared sources, content and generated outputs, with no fixed byte cap. Project readers and publication own handles and cleanup; the process module cache retains executed modules until the next attempt evicts this project's closure.
  */
 export function runAutoMovieProductionBuild(props: {
+  /** Shared project namespace, current input readers and guarded publication authority. */
   project: AutoMovieProductionProject;
+
+  /** Acquired declaration selecting timed or library dispatch. */
   authoringEvidence: IAutoMovieProductionEvidence | undefined;
+
+  /** Optional fresh declaration reader for currentness confirmation. */
   currentAuthoringEvidence: (() => IAutoMovieProductionEvidence) | undefined;
+
+  /** Host-selected plan required by terminal render admission. */
   finalRenderPlan: IAutoMovieProductionRenderJobPlan | undefined;
+
+  /** Requested design, source, review or final gate scope. */
   input: IAutoMovieBuildProjectInput;
+
+  /** Whether generated ownership repair and successful publication are enabled. */
   materialize: boolean;
+
+  /** Attempt-owned optional sink for actual prose reads and revision dependency. */
   trace?: IAutoMovieProductionSourceGateTrace;
 }): IAutoMovieBuildProjectOutput {
   const { project, authoringEvidence, currentAuthoringEvidence, finalRenderPlan, input, materialize, trace }: typeof props = props;

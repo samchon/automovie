@@ -18,25 +18,11 @@ import {
 /**
  * The builder input identity of one library attempt.
  *
- * Four things enter it, each under its own domain-separated field. The compile
- * protocol and builder version come first. The production namespace follows,
- * because every library build context and the published index carry it, so
- * the same source compiled under another namespace is a different result. The
- * portable projection of the authoring snapshot comes next, so the same work
- * opened from another checkout is the same result. The content inventory and
- * verified derivation closure come last, and they are where an imported helper
- * outside the selected owner population, an adopted asset, and derived bytes
- * enter.
+ * Domain-separated fields bind the compile protocol and builder version first, then the production namespace, the portable authoring snapshot and finally the supplied content/derivation fields in order. The namespace is an actual build-context and published-index input. The portable projection omits checkout-location fields, while supplied content fields must account for imported project helpers, adopted assets and derivation dependencies outside selected owner sources.
  *
- * The resident snapshot digest is deliberately absent. The publication guard
- * compares that digest on its own, so moving a project neither stales its
- * results nor weakens the refusal of a foreign or replaced root.
+ * The resident snapshot digest is omitted because publication compares that separately; portable result identity does not by itself authenticate physical root ownership or prove a caller's dependency closure complete.
  *
- * This identity replaced one that hashed the resident digest and omitted the
- * namespace. No generated artifact changed shape, so the builder protocol did
- * not move. A manifest, index, or receipt recorded under the earlier identity
- * cannot equal this one, and it reopens as stale until the library is compiled
- * again.
+ * This composition replaces an earlier resident-digest identity that omitted the namespace without changing generated artifact shape. Previously recorded identities must satisfy current comparison policy rather than being adopted as current without compilation.
  *
  * @evidence contracts/common.md#principled-implementation Domain-separated fields bind builder protocol/version, production namespace, portable authoring snapshot and the ordered supplied content/derivation closure; resident root/location identity is compared separately at publication.
  * @evidence contracts/common.md#clear-and-simple-design Reuses fingerprintAutoMovieFields and canonical JSON owners, adding only library-specific field composition; compileAutoMovieLibrary and fresh source-status acquisition call this same identity operation.
@@ -50,8 +36,10 @@ import {
 export function libraryBuildInputFingerprint(props: {
   /** Production namespace the library is compiled and published under. */
   production: string;
+
   /** Authoring closure acquired for the attempt. */
   snapshot: IAutoMovieLibraryAuthoringSnapshot;
+
   /** Content inventory and derivation closure fields in their read order. */
   derivedFields: readonly IAutoMovieFingerprintField[];
 }): string {

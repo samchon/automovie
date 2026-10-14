@@ -8,7 +8,7 @@ import { acceptanceCriterionShots } from "./acceptanceCriterionShots";
  * @evidence contracts/common.md#clear-and-simple-design Keeps target-or-dependency policy in one predicate while acceptanceCriterionShots owns family-specific dependency extraction; it performs no graph mutation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses exact IDs and both authored sources of dependency, without prefix matching or treating a film target as an implicit reference to every shot.
  * @evidence contracts/common.md#meaningful-documentation States explicit target and read semantics; a true result does not prove that the shot exists or that its acceptance criterion passes.
- * @evidence contracts/performance.md#efficient-algorithms An exact target match short-circuits in constant time; otherwise dependency extraction and includes cost O(E) for story-sync's E points, with its temporary arrays, and constant cost for other families.
+ * @evidence contracts/performance.md#efficient-algorithms An exact target match short-circuits after fixed field comparisons; otherwise dependency extraction and includes visit O(E) story-sync points with temporary arrays, plus id hashing/equality text costs. Other families inspect a fixed field population.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The predicate computes one mutable scenario's relation to one ID; graph-level callers own repeated folds, and no stale dependency cache is introduced for a cheap typed projection.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one boolean and releases dependency temporaries after the call; it retains no scenario, graph, handle or task.
  */

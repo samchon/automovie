@@ -14,8 +14,13 @@ import { autoMovieSourceContentDiagnosticCode } from "./autoMovieSourceContentDi
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned diagnostic transfers to the attempt's collector; no store, file, handle or background task is acquired here.
  */
 export function autoMovieSourceContentDiagnostic(props: {
+  /** Actual engine classification and caller-composed source correction. */
   finding: IAutoMovieSourceContentFinding;
+
+  /** Source-phase target passed through without identity admission. */
   target: string;
+
+  /** Source occurrence path passed through without normalization or file access. */
   path: string;
 }): IAutoMovieDiagnostic {
   return {

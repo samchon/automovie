@@ -10,6 +10,7 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface selects no algorithm or allocation strategy; source folds and the diagnostic adapter own its instances.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The finding type declares no cache or shared computation; each validation occurrence has its own attribution.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type declares no resident store, handle or task; the producing attempt owns finding arrays.
+ * @author Samchon
  */
 export interface IAutoMovieSourceContentFinding {
   /** Engine tier selecting the source diagnostic identity. */

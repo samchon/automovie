@@ -5,12 +5,7 @@ import type {
 /**
  * One run of the read-only source gate and the reads its answer rests on.
  *
- * The output is what every caller receives. The document reads and the
- * executed module closure are what a later caller needs to decide whether that
- * output still answers for the project without running the gate again. A
- * document is compared by the digest of the text the gate actually read. A
- * project module outside the fingerprinted content has no field that would see
- * its edit, so its presence alone keeps the answer from being reused.
+ * The output is what every caller receives. Actual document-read digests, observed loaded project modules and the revision dependency support later retention decisions. A loaded project module outside fingerprinted content prevents reuse because that inventory would not observe its edit; these records do not prove deterministic external effects or complete accounting by an arbitrary loader.
  *
  * @evidence contracts/common.md#principled-implementation Reuse depends on the gate's actual document text digests, executed module closure, and revision dependency beside its output; an undeclared executed module prevents a fingerprint from proving equivalence.
  * @evidence contracts/common.md#clear-and-simple-design Evaluation records facts about one execution, while the source snapshot records fresh observable inputs and the retained-status owner decides whether they prove the same answer.
@@ -26,8 +21,7 @@ export interface IAutoMovieProductionSourceEvaluation {
   output: IAutoMovieBuildProjectOutput;
 
   /**
-   * Every author-owned document the gate's validation read, in read order, with
-   * the digest of the text it saw or `null` when the document was absent.
+   * Every author-owned document the supplied gate reports reading, in read order, with the digest of the text it saw or null when the document was absent.
    */
   documents: Array<{
     /** Project-relative document path. */
@@ -38,18 +32,14 @@ export interface IAutoMovieProductionSourceEvaluation {
   }>;
 
   /**
-   * Project modules the gate executed that no fingerprinted content input
-   * covers, as project-relative paths in path order.
+   * Observed loaded project modules that no declared content path covers, as project-relative paths in code-unit order.
    */
   undeclaredModules: string[];
 
   /**
    * Whether the answer read the project revision into what it judged.
    *
-   * A camera clearance report records the geometry revision it measured, so a
-   * compiled take with one depends on the revision number itself. An answer that
-   * never read it depends only on the observed inputs, and a write that moves no
-   * input, such as a render commit, leaves it standing.
+   * Current camera-clearance reports record their geometry revision. The supplied gate owns this trace flag; retention compares revision when true and independently compares all recorded non-revision inputs either way.
    */
   revisionBound: boolean;
 }

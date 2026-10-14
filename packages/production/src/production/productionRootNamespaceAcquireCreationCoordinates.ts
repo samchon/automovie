@@ -6,7 +6,7 @@ import { productionRootNamespaceCreationCoordinates } from "./productionRootName
 import { productionRootNamespacePhysicalDirectoryIdentityOrNull } from "./productionRootNamespacePhysicalDirectoryIdentityOrNull";
 
 /**
- * Fence one child creation under the current physical parent identity, then recheck that identity before returning the acquired path/token levels. Identity drift unwinds those levels.
+ * Fence one child creation under the current physical parent identity, then recheck that identity before returning the acquired path/token levels. Identity drift refuses and attempts reverse retirement of those levels.
  *
  * @evidence contracts/common.md#principled-implementation A bigint parent stat supplies the identity coordinate and a later physical-directory observation must match dev/ino before mutation authority is returned.
  * @evidence contracts/common.md#clear-and-simple-design Owns the parent witness and post-acquisition admission around the shared two-coordinate set acquisition.

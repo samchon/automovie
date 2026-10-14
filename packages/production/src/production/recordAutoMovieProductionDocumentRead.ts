@@ -3,14 +3,9 @@ import type { IAutoMovieProductionSourceGateTrace } from "./IAutoMovieProduction
 /**
  * Wrap one author-owned document reader so every read lands in the gate trace.
  *
- * A builder that hands this one reader to every validation that reads prose gets
- * a trace holding each path in the order it was read with the exact text that
- * validation saw, a repeated read included. A read that throws records nothing
- * and propagates, because the gate run it belongs to fails with it. Without a
- * trace the reader is returned as it was, so an ordinary compile or lint pays
- * nothing for it.
+ * A builder that supplies this reader to its prose validations records each successful read's path and exact returned text or absence after the callback returns, including repeated paths. Thrown reads propagate without appending an observation. Without a trace the original callback is returned unchanged, so no wrapper or observation record is allocated for later reads.
  *
- * @evidence contracts/common.md#principled-implementation The wrapper appends the exact returned text or null only after each successful reader call, preserving actual read order and repeats; thrown reads propagate without recording a value that was never observed.
+ * @evidence contracts/common.md#principled-implementation The wrapper appends the exact returned text or null after each successful reader return, preserving completion order and repeats; thrown reads propagate without recording a value that was never observed.
  * @evidence contracts/common.md#clear-and-simple-design The build coordinator supplies this one reader to every document gate and source evaluation later hashes the collected observations; untraced builds use the original callback identity directly.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A repeat cannot overwrite an earlier observation, absence cannot become empty text and a failed read cannot invent a dependency fact.
  * @evidence contracts/common.md#meaningful-documentation States ordered/repeated observations, thrown-read behavior and zero-wrapper behavior without a trace.

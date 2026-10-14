@@ -8,7 +8,7 @@ import { compareCodeUnits } from "./contentIdentity";
  * @evidence contracts/common.md#clear-and-simple-design Owns multi-coordinate refusal context; single-holder descriptions and process evidence remain with the shared commit-lock survey.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only present holder observations are reported, and a non-Error primary value is returned unchanged instead of replaced by a fabricated error.
  * @evidence contracts/common.md#meaningful-documentation States the two-holder/Error threshold, original-cause preservation and that holder surveys are finite, non-atomic observations.
- * @evidence contracts/performance.md#efficient-algorithms Deduplicating and sorting C paths costs expected O(C) plus O(C log C), followed by C token/process surveys and output-length message construction.
+ * @evidence contracts/performance.md#efficient-algorithms Deduplication visits all N supplied paths before sorting C distinct paths with O(C log C) code-unit comparisons, whose cost follows compared text. C token/process surveys and output-length message construction follow; formatting the multi-holder refusal deduplicates the supplied paths once more for its count.
  * @evidence contracts/performance.md#reuse-equivalent-work Uses shared holder inspection and descriptions, while each current survey is renewed after acquisition failure rather than taken from an earlier attempt.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the original cause or one Error retaining it; survey descriptors remain scoped to their reader and no lock ownership is acquired.
  */

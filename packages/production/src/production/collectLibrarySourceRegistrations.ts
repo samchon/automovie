@@ -14,26 +14,15 @@ import type { resolveAutoMovieSourceOwnerBinding } from "./resolveAutoMovieSourc
 /**
  * Collect the owner registrations one evaluated library module carries.
  *
- * Module evaluation is the only step that needs Node's loader, so it arrives as
- * `load` and runs inside the same failure boundary as every build call. What
- * this owns is everything after evaluation: discovering each export that names
- * a `design`, refusing an address the authoring declaration does not own,
- * admitting the exact graph-selected owner edge before anything runs, and
- * obtaining the contribution either from `build(context)` or, for a
- * precomputed owner, from its selected derived artifact through the shared
- * structured JSON ingress. Both forms then meet the same contribution schema
- * and branch rules.
+ * The supplied loader and build calls share one catch boundary. After loading, this collector discovers exports naming a design, resolves active graph contexts, admits the exact owner edge and obtains a synchronous build result or selected derived JSON. Both forms receive the same contribution schema and branch checks; contexts normalize to a definite list.
  *
- * A refusal names the input that has to change. An executed owner's schema or
- * branch refusal points at its source file. A precomputed owner's points at the
- * derived artifact, because the correction belongs to that artifact's generator
- * rather than to anything the source returned.
+ * Executed-result schema and branch refusals point to the source file; precomputed-result refusals point to the selected artifact and its generator. The catch normally discards accumulated registrations while retaining findings, but its unguarded error-to-string conversion can itself throw on an unrepresentable thrown value. Authored effects are not rolled back.
  *
  * @evidence contracts/common.md#principled-implementation Discovers sorted own module-export keys, checks each design address and exact owner admission before building, then applies the contribution schema and branch carrier rules to executed and derived values alike. Contexts normalize once to a definite list.
  * @evidence contracts/common.md#clear-and-simple-design Separates loader capability, graph context/admission callbacks, derived JSON ingress and branch policy. The productionSources context is the existing compatibility path that bypasses standalone branch-carrier checks while still requiring the schema.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No named export receives a special result; synchronous executed contributions and digest-admitted derived contributions meet the same shape gate. The productionSources exception is explicit compatibility policy, and ordinary Node execution provides no sandbox or proof of deterministic effects.
- * @evidence contracts/common.md#meaningful-documentation States discovery, admission, executed/derived error attribution and normalization. A thrown loader, context, admission, build or validation operation discards all collected registrations but retains findings and appends an execution error; authored effects are not rolled back.
- * @evidence contracts/performance.md#efficient-algorithms Sorts K export names in O(K log K), then visits candidates once with callback, clone, build, derived-ingress and schema costs driven by each contribution. Registration storage is proportional to admitted payloads; discovery retains O(K) descriptors for the call.
+ * @evidence contracts/common.md#meaningful-documentation States discovery, admission, executed/derived attribution and normalization. A caught loader, context, admission, build or validation failure normally discards registrations and appends an execution error, while unguarded catch formatting can throw instead; authored effects are not rolled back.
+ * @evidence contracts/performance.md#efficient-algorithms Sorts K export names with O(K log K) code-unit comparisons whose cost depends on compared text, then visits candidates once with callback, clone, build, derived-ingress and schema costs driven by each contribution. Registration storage is proportional to admitted payloads; discovery retains O(K) descriptors and their referenced names for the call.
  * @evidence contracts/performance.md#reuse-equivalent-work Loads the module once per collection, normalizes contexts once per admitted contribution and reads already-created graph contexts through the callback. Mutable module effects and inputs are not cached or shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous collector owns local descriptors and arrays until transfer or failure; a catch transfers diagnostics and releases registration references. It acquires no handle, but the supplied loader and authored builders own any external effects or resident state they create.
  * @author Samchon
@@ -41,17 +30,23 @@ import type { resolveAutoMovieSourceOwnerBinding } from "./resolveAutoMovieSourc
 export function collectLibrarySourceRegistrations(props: {
   /** Project-relative source path selected by an enforced graph binding. */
   path: string;
+
   /** Evaluate the selected module and return its named exports. */
   load: () => Readonly<Record<string, unknown>>;
+
   /** Build context for an address the active authoring population owns. */
   context: (design: string) => IAutoMovieLibraryBuildContext | null;
+
   /** Admit the exact graph-selected owner edge before invoking build(). */
   admit: (
     exportName: string,
     design: string,
   ) => ReturnType<typeof resolveAutoMovieSourceOwnerBinding>;
 }): {
+  /** Admitted owner contributions; empty after a successfully formatted caught execution failure. */
   registrations: ICompiledLibraryOwnerRegistration[];
+
+  /** Collected source findings in discovery order, including any caught execution refusal. */
   diagnostics: IAutoMovieDiagnostic[];
 } {
   const target: string = `library-source:${props.path}`;
@@ -213,11 +208,8 @@ export function collectLibrarySourceRegistrations(props: {
       registrations.push({
         export: entry.name,
         design: entry.design,
-        // Normalized once, here, where every executed owner passes. `contexts`
-        // is optional on the contract so a library source written before it
-        // existed still satisfies the shape; every reader after this point is
-        // owed a list, and three of them were each deciding that for
-        // themselves.
+        // Executed and derived contributions share this normalization; the authored
+        // contract allows omitted contexts, while downstream admission needs a list.
         contribution,
       });
     }

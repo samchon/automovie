@@ -1,10 +1,7 @@
 /**
  * What one read-only source gate run read that no input fingerprint carries.
  *
- * Screenplay identity/carrier validation reads author-owned documents, and
- * camera clearance can read the supplied geometry revisions. Later reuse
- * compares fresh document observations and, when marked, revision identity;
- * the trace records dependencies rather than enforcing Node determinism.
+ * Screenplay identity/carrier validation reads author-owned documents, and camera clearance can read supplied geometry revisions. Later reuse compares fresh document observations and, when marked, revision identity; the trace records dependencies rather than enforcing Node determinism.
  *
  * @evidence contracts/common.md#principled-implementation The trace records the exact prose returned at each read and whether clearance judged the revision, which are dependencies the builder fingerprint alone does not describe.
  * @evidence contracts/common.md#clear-and-simple-design The builder fills one execution trace; evaluation hashes its text into proof facts, and retention compares those with a later fresh observation.
@@ -17,8 +14,7 @@
  */
 export interface IAutoMovieProductionSourceGateTrace {
   /**
-   * Every author-owned document the gate read, in read order, with the text it
-   * saw or `null` when the document was absent. A repeated read is kept.
+   * Every author-owned document recorded by the gate, in read order, with its observed text or null for absence. Repeated reads remain distinct observations.
    */
   documents: Array<{
     /** Project-relative document path. */
