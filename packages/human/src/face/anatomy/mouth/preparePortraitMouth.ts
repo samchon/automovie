@@ -1,4 +1,7 @@
-import type { IPortraitDentalCrown as ImportedIPortraitDentalCrown, IPortraitDentalArc as ImportedIPortraitDentalArc } from "@automovie/human";
+import type {
+  IPortraitDentalArc as ImportedIPortraitDentalArc,
+  IPortraitDentalCrown as ImportedIPortraitDentalCrown,
+} from "@automovie/human";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
@@ -41,7 +44,12 @@ export function preparePortraitMouth(
       shape.cavityChamber,
     );
   const parts: IPortraitInterior[] = [];
-  const add: (id: string, mesh: IAutoMovieMesh, finish: string, bindings: Pick<IPortraitInterior, "attachments" | "loops">) => void = (
+  const add: (
+    id: string,
+    mesh: IAutoMovieMesh,
+    finish: string,
+    bindings: Pick<IPortraitInterior, "attachments" | "loops">,
+  ) => void = (
     id: string,
     mesh: IAutoMovieMesh,
     finish: string,
@@ -66,7 +74,7 @@ export function preparePortraitMouth(
   ) {
     if (shape.cavityWall !== undefined && skinIndices === undefined)
       throw new Error("Oral lining requires the actual refined lip triangles.");
-    const lining: { mesh: IAutoMovieMesh; boundary: number[]; } | undefined =
+    const lining: { mesh: IAutoMovieMesh; boundary: number[] } | undefined =
       shape.cavityWall === undefined
         ? undefined
         : preparePortraitOralLining(
@@ -96,10 +104,15 @@ export function preparePortraitMouth(
           ),
       cavity,
       {
-        attachments: lining?.boundary.map((skin: number, vertex: number): { vertex: number; target: { part: null; vertex: number; }; } => ({
-          vertex,
-          target: { part: null, vertex: skin },
-        })),
+        attachments: lining?.boundary.map(
+          (
+            skin: number,
+            vertex: number,
+          ): { vertex: number; target: { part: null; vertex: number } } => ({
+            vertex,
+            target: { part: null, vertex: skin },
+          }),
+        ),
       },
     );
   }
@@ -107,22 +120,50 @@ export function preparePortraitMouth(
   // Width is enamel size, not a pitch on the head's X axis. Walk the arch in
   // millimetres so rotating the side teeth cannot create artificial diastemata.
   const rowLength: number =
-    shape.crowns.reduce((sum: number, crown: { width: number; height: number; cervicalWidth?: number; edgeRise?: number; contour?: ImportedIPortraitDentalCrown["contour"]; }): number => sum + crown.width, 0) +
+    shape.crowns.reduce(
+      (
+        sum: number,
+        crown: {
+          width: number;
+          height: number;
+          cervicalWidth?: number;
+          edgeRise?: number;
+          contour?: ImportedIPortraitDentalCrown["contour"];
+        },
+      ): number => sum + crown.width,
+      0,
+    ) +
     shape.toothGap * (shape.crowns.length - 1);
-  const arch: ImportedIPortraitDentalArc = createPortraitDentalArc(mouthUpper, rowLength);
+  const arch: ImportedIPortraitDentalArc = createPortraitDentalArc(
+    mouthUpper,
+    rowLength,
+  );
   let cursor: number = arch.center + shape.dentalOffset - rowLength / 2;
   const cervical: number[][] = [];
   const placed: IAutoMovieMesh[] = [];
   for (let i: number = 0; i < shape.crowns.length; i++) {
-    const { width }: { width: number; height: number; cervicalWidth?: number; edgeRise?: number; contour?: ImportedIPortraitDentalCrown["contour"]; } = shape.crowns[i];
+    const {
+      width,
+    }: {
+      width: number;
+      height: number;
+      cervicalWidth?: number;
+      edgeRise?: number;
+      contour?: ImportedIPortraitDentalCrown["contour"];
+    } = shape.crowns[i];
     const distance: number = cursor + width / 2;
-    const { position: at, tangent }: { position: IAutoMovieVector3; tangent: IAutoMovieVector3; } = arch.sample(distance);
+    const {
+      position: at,
+      tangent,
+    }: { position: IAutoMovieVector3; tangent: IAutoMovieVector3 } =
+      arch.sample(distance);
     cursor += width + shape.toothGap;
     const angleY: number = -Math.atan2(tangent.z, tangent.x);
-    const prepared: { mesh: IAutoMovieMesh; cervical: number[]; } = preparePortraitDentalCrown(
-      resolvePortraitDentalCrown(shape.crowns[i], shape.dentalDepth),
-      distance <= arch.center ? 1 : -1,
-    );
+    const prepared: { mesh: IAutoMovieMesh; cervical: number[] } =
+      preparePortraitDentalCrown(
+        resolvePortraitDentalCrown(shape.crowns[i], shape.dentalDepth),
+        distance <= arch.center ? 1 : -1,
+      );
     const crown: IAutoMovieMesh = prepared.mesh;
     // Placement and normals use the same rigid arch rotation. The local crown
     // profile therefore cannot silently change measured interdental clearance.
@@ -146,10 +187,11 @@ export function preparePortraitMouth(
   }
   // Rotated proximal faces can overlap at nominal arc spacing; enamel of
   // neighbouring crowns is separated exactly as the dental row owner does.
-  separatePortraitDentalCrowns(placed, 0).forEach((crown: IAutoMovieMesh, i: number): void =>
-    add(`tooth-${i}`, crown, enamel, {
-      loops: [{ name: "cervical", vertices: cervical[i] }],
-    }),
+  separatePortraitDentalCrowns(placed, 0).forEach(
+    (crown: IAutoMovieMesh, i: number): void =>
+      add(`tooth-${i}`, crown, enamel, {
+        loops: [{ name: "cervical", vertices: cervical[i] }],
+      }),
   );
   return parts;
 }

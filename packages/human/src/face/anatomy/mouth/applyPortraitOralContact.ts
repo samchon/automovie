@@ -31,7 +31,9 @@ export function applyPortraitOralContact(
   if (new Set(named).size !== named.length)
     throw new Error("Oral contact needs distinct part identities.");
   const read: (id: string) => IAutoMovieMesh = (id: string): IAutoMovieMesh => {
-    const matches: IAutoMovieModelPart[] = parts.filter((part: IAutoMovieModelPart): boolean => part.id === id);
+    const matches: IAutoMovieModelPart[] = parts.filter(
+      (part: IAutoMovieModelPart): boolean => part.id === id,
+    );
     const part: IAutoMovieModelPart = matches[0];
     if (
       matches.length !== 1 ||
@@ -45,7 +47,9 @@ export function applyPortraitOralContact(
     return part.geometry.mesh;
   };
   const enamel: IAutoMovieMesh = read(contact.enamel);
-  const fitted: { enamel: IAutoMovieMesh; cavity: IAutoMovieMesh; } | { enamel: IAutoMovieMesh; cavity: undefined; } =
+  const fitted:
+    | { enamel: IAutoMovieMesh; cavity: IAutoMovieMesh }
+    | { enamel: IAutoMovieMesh; cavity: undefined } =
     contact.cavity === undefined
       ? {
           enamel: retreatPortraitEnamel(
@@ -61,11 +65,12 @@ export function applyPortraitOralContact(
           read(contact.cavity),
           contact.clearance,
         );
-  return parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart =>
-    part.id === contact.enamel
-      ? { ...part, geometry: { type: "mesh", mesh: fitted.enamel } }
-      : part.id === contact.cavity && fitted.cavity !== undefined
-        ? { ...part, geometry: { type: "mesh", mesh: fitted.cavity } }
-        : part,
+  return parts.map(
+    (part: IAutoMovieModelPart): IAutoMovieModelPart =>
+      part.id === contact.enamel
+        ? { ...part, geometry: { type: "mesh", mesh: fitted.enamel } }
+        : part.id === contact.cavity && fitted.cavity !== undefined
+          ? { ...part, geometry: { type: "mesh", mesh: fitted.cavity } }
+          : part,
   );
 }

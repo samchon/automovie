@@ -12,11 +12,20 @@ import { IPortraitLipCoordinate } from "./structures/IPortraitLipCoordinate";
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical sampler reuse avoids a second coordinate algorithm.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains its owned sampler curves and returns small coordinate records without sample history.
  */
-export const createPortraitLipCoordinates: (outer: readonly (readonly number[])[], upper: readonly (readonly number[])[], lower: readonly (readonly number[])[]) => ((point: readonly number[]) => IPortraitLipCoordinate) = (
+export const createPortraitLipCoordinates: (
+  outer: readonly (readonly number[])[],
+  upper: readonly (readonly number[])[],
+  lower: readonly (readonly number[])[],
+) => (point: readonly number[]) => IPortraitLipCoordinate = (
   outer: readonly (readonly number[])[],
   upper: readonly (readonly number[])[],
   lower: readonly (readonly number[])[],
 ): ((point: readonly number[]) => IPortraitLipCoordinate) => {
-  const sample: (point: readonly number[]) => { coordinate: IPortraitLipCoordinate; innerY: number; outerY: number; } = createPortraitLipBandSampler(outer, upper, lower);
-  return (point: readonly number[]): IPortraitLipCoordinate => sample(point).coordinate;
+  const sample: (point: readonly number[]) => {
+    coordinate: IPortraitLipCoordinate;
+    innerY: number;
+    outerY: number;
+  } = createPortraitLipBandSampler(outer, upper, lower);
+  return (point: readonly number[]): IPortraitLipCoordinate =>
+    sample(point).coordinate;
 };

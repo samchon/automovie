@@ -33,7 +33,10 @@ export function fitPortraitOralContact(
   lining.normals = areaWeightedNormals(
     lining.positions,
     lining.indices ??
-      Array.from({ length: lining.positions.length / 3 }, (_: unknown, i: number): number => i),
+      Array.from(
+        { length: lining.positions.length / 3 },
+        (_: unknown, i: number): number => i,
+      ),
   );
   return { enamel: placed, cavity: lining };
 }

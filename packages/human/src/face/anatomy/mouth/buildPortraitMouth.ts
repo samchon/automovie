@@ -1,5 +1,8 @@
 import type { IPortraitInterior as ImportedIPortraitInterior } from "@automovie/human";
-import { IAutoMovieModelPart, type IAutoMovieMesh as ImportedIAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieModelPart,
+  type IAutoMovieMesh as ImportedIAutoMovieMesh,
+} from "@automovie/interface";
 
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { preparePortraitMouth } from "./preparePortraitMouth";
@@ -31,5 +34,13 @@ export function buildPortraitMouth(
     shape,
     performance,
     skinIndices,
-  ).map(({ id, mesh, material }: ImportedIPortraitInterior): IAutoMovieModelPart & { geometry: { type: "mesh"; mesh: ImportedIAutoMovieMesh; }; } => createMetricMeshPart(id, mesh, material));
+  ).map(
+    ({
+      id,
+      mesh,
+      material,
+    }: ImportedIPortraitInterior): IAutoMovieModelPart & {
+      geometry: { type: "mesh"; mesh: ImportedIAutoMovieMesh };
+    } => createMetricMeshPart(id, mesh, material),
+  );
 }

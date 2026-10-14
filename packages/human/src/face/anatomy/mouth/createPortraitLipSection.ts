@@ -12,10 +12,20 @@ import { IPortraitLipSection } from "./structures/IPortraitLipSection";
  * @evidence contracts/performance.md#reuse-equivalent-work The same compiled profile serves all mesh constraints rather than per-vertex parameter rebuilding.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure owns scalar shape fields and retains no mesh or previous sample.
  */
-export const createPortraitLipSection: (input: IPortraitLipSection) => ((coordinate: IPortraitLipCoordinate) => number) = (
+export const createPortraitLipSection: (
+  input: IPortraitLipSection,
+) => (coordinate: IPortraitLipCoordinate) => number = (
   input: IPortraitLipSection,
 ): ((coordinate: IPortraitLipCoordinate) => number) => {
-  const shape: { upperBody: number; upperTubercle: number; upperTubercleWidth: number; lowerBody: number; lowerPads: number; lowerPadOffset: number; lowerPadWidth: number; } = { ...input };
+  const shape: {
+    upperBody: number;
+    upperTubercle: number;
+    upperTubercleWidth: number;
+    lowerBody: number;
+    lowerPads: number;
+    lowerPadOffset: number;
+    lowerPadWidth: number;
+  } = { ...input };
   if (
     !Object.values(shape).every(Number.isFinite) ||
     [shape.upperTubercleWidth, shape.lowerPadWidth].some(

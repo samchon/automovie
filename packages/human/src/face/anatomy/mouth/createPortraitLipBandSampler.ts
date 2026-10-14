@@ -11,7 +11,15 @@ import { IPortraitLipCoordinate } from "./structures/IPortraitLipCoordinate";
  * @evidence contracts/performance.md#reuse-equivalent-work Owned extracted curves are reused for all coordinate/height reads within this sampler.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure owns copied curves and retains no caller geometry buffers or sample history.
  */
-export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[], upper: readonly (readonly number[])[], lower: readonly (readonly number[])[]) => ((point: readonly number[]) => { coordinate: IPortraitLipCoordinate; innerY: number; outerY: number; }) = (
+export const createPortraitLipBandSampler: (
+  outer: readonly (readonly number[])[],
+  upper: readonly (readonly number[])[],
+  lower: readonly (readonly number[])[],
+) => (point: readonly number[]) => {
+  coordinate: IPortraitLipCoordinate;
+  innerY: number;
+  outerY: number;
+} = (
   outer: readonly (readonly number[])[],
   upper: readonly (readonly number[])[],
   lower: readonly (readonly number[])[],
@@ -25,14 +33,23 @@ export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[
     upper.length < 2 ||
     lower.length < 2 ||
     [...outer, ...upper, ...lower].some(
-      (p: readonly number[]): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: readonly number[]): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     )
   )
     throw new Error("Lip coordinates require finite outer and inner curves.");
-  const minimum: number = Math.min(...outer.map((p: readonly number[]): number => p[0]));
-  const maximum: number = Math.max(...outer.map((p: readonly number[]): number => p[0]));
-  const first: number = outer.findIndex((p: readonly number[]): boolean => p[0] === minimum);
-  const last: number = outer.findIndex((p: readonly number[]): boolean => p[0] === maximum);
+  const minimum: number = Math.min(
+    ...outer.map((p: readonly number[]): number => p[0]),
+  );
+  const maximum: number = Math.max(
+    ...outer.map((p: readonly number[]): number => p[0]),
+  );
+  const first: number = outer.findIndex(
+    (p: readonly number[]): boolean => p[0] === minimum,
+  );
+  const last: number = outer.findIndex(
+    (p: readonly number[]): boolean => p[0] === maximum,
+  );
   const path: (step: number) => number[][] = (step: number): number[][] => {
     const points: number[][] = [[...outer[first]]];
     for (let i: number = first; i !== last; ) {
@@ -56,7 +73,9 @@ export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[
     curves.some(
       (curve: number[][]): boolean =>
         curve.length < 2 ||
-        curve.some((p: number[], i: number): boolean => i > 0 && p[0] <= curve[i - 1][0]),
+        curve.some(
+          (p: number[], i: number): boolean => i > 0 && p[0] <= curve[i - 1][0],
+        ),
     )
   )
     throw new Error(
@@ -76,7 +95,10 @@ export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[
     throw new Error(
       "Lip curves must share inner corners inside the outer span.",
     );
-  const at: (curve: number[][], x: number) => number = (curve: number[][], x: number): number => {
+  const at: (curve: number[][], x: number) => number = (
+    curve: number[][],
+    x: number,
+  ): number => {
     const edge: number = curve.findIndex((p: number[]): boolean => p[0] >= x);
     if (edge <= 0) return curve[0][1];
     const a: number[] = curve[edge - 1],
@@ -84,10 +106,17 @@ export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[
     // Normalize the segment before subtracting, then interpolate as a convex
     // sum. Large finite coordinates must not overflow intermediate differences.
     const scale: number = Math.max(Math.abs(a[0]), Math.abs(b[0]), 1);
-    const t: number = (x / scale - a[0] / scale) / (b[0] / scale - a[0] / scale);
+    const t: number =
+      (x / scale - a[0] / scale) / (b[0] / scale - a[0] / scale);
     return a[1] * (1 - t) + b[1] * t;
   };
-  return (point: readonly number[]): { coordinate: { side: "upper" | "lower"; lateral: number; across: number; }; innerY: number; outerY: number; } => {
+  return (
+    point: readonly number[],
+  ): {
+    coordinate: { side: "upper" | "lower"; lateral: number; across: number };
+    innerY: number;
+    outerY: number;
+  } => {
     if (point.length !== 3 || !point.every(Number.isFinite))
       throw new Error("A lip coordinate sample must be a finite XYZ point.");
     const x: number = Math.max(left, Math.min(right, point[0]));
@@ -97,7 +126,8 @@ export const createPortraitLipBandSampler: (outer: readonly (readonly number[])[
       throw new Error(
         "The upper lip must remain above the lower lip at each section.",
       );
-    const side: "upper" | "lower" = point[1] >= innerTop / 2 + innerBottom / 2 ? "upper" : "lower";
+    const side: "upper" | "lower" =
+      point[1] >= innerTop / 2 + innerBottom / 2 ? "upper" : "lower";
     const exterior: number = at(curves[side === "upper" ? 0 : 1], x);
     const interior: number = side === "upper" ? innerTop : innerBottom;
     const scale: number = Math.max(

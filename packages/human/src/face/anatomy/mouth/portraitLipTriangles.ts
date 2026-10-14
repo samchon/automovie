@@ -16,8 +16,10 @@ export function portraitLipTriangles(
   triangles: number[],
   socket: IPortraitMouthSocket,
 ): Set<number> {
-  const edgeKey: (a: number, b: number) => string = (a: number, b: number): string =>
-    `${Math.min(a, b)}/${Math.max(a, b)}`;
+  const edgeKey: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => `${Math.min(a, b)}/${Math.max(a, b)}`;
   const barriers: Set<string> = new Set<string>();
   for (const loop of [socket.outer, portraitMouthInnerLoop(socket)])
     for (let i: number = 0; i < loop.length; i++)
@@ -28,7 +30,9 @@ export function portraitLipTriangles(
   for (let i: number = 0; i < triangles.length; i += 3) {
     const face: number[] = triangles.slice(i, i + 3);
     if (face.includes(socket.lipSeed)) seed = i / 3;
-    const edges: string[] = face.map((a: number, j: number): string => edgeKey(a, face[(j + 1) % 3]));
+    const edges: string[] = face.map((a: number, j: number): string =>
+      edgeKey(a, face[(j + 1) % 3]),
+    );
     faceEdges.push(edges);
     for (const edge of edges) {
       const neighbours: number[] | undefined = incident.get(edge);

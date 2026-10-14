@@ -1,5 +1,17 @@
-import type { IPortraitDentalCrown as ImportedIPortraitDentalCrown, IPortraitOralChamber as ImportedIPortraitOralChamber, IPortraitLipSection as ImportedIPortraitLipSection, IPortraitLipBandKnot as ImportedIPortraitLipBandKnot, IPortraitLipCoordinate as ImportedIPortraitLipCoordinate, IPortraitComponentHost as ImportedIPortraitComponentHost, IControlMesh as ImportedIControlMesh, IPortraitInterior as ImportedIPortraitInterior } from "@automovie/human";
-import { IAutoMovieVector3, type IAutoMovieModelPart as ImportedIAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IControlMesh as ImportedIControlMesh,
+  IPortraitComponentHost as ImportedIPortraitComponentHost,
+  IPortraitDentalCrown as ImportedIPortraitDentalCrown,
+  IPortraitInterior as ImportedIPortraitInterior,
+  IPortraitLipBandKnot as ImportedIPortraitLipBandKnot,
+  IPortraitLipCoordinate as ImportedIPortraitLipCoordinate,
+  IPortraitLipSection as ImportedIPortraitLipSection,
+  IPortraitOralChamber as ImportedIPortraitOralChamber,
+} from "@automovie/human";
+import {
+  IAutoMovieVector3,
+  type IAutoMovieModelPart as ImportedIAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
@@ -43,13 +55,47 @@ export function createPortraitMouthComponent(
     throw new Error(
       "Oral performance requires separate maxillary dentition, not crowns attached to the moving lip.",
     );
-  const socket: { outer: number[]; upper: number[]; lower: number[]; lipSeed: number; } = {
+  const socket: {
+    outer: number[];
+    upper: number[];
+    lower: number[];
+    lipSeed: number;
+  } = {
     ...inputSocket,
     outer: [...inputSocket.outer],
     upper: [...inputSocket.upper],
     lower: [...inputSocket.lower],
   };
-  const shape: { crowns: { width: number; height: number; cervicalWidth?: number; edgeRise?: number; contour?: ImportedIPortraitDentalCrown["contour"]; }[]; cavityChamber: ImportedIPortraitOralChamber | undefined; widthScale: number; openingScale: number; cornerLift: number; upperLipProjection: number; lowerLipProjection: number; seamProjection?: number; section?: ImportedIPortraitLipSection; band?: { upper?: number | readonly ImportedIPortraitLipBandKnot[]; lower?: number | readonly ImportedIPortraitLipBandKnot[]; }; borderRefinement?: "surface" | "curve"; blendReach: number; cavityDepth: number; cavityWall?: number; dentalOffset: number; dentalRecess: number; dentalDrop: number; dentalDepth: number; toothGap: number; } = {
+  const shape: {
+    crowns: {
+      width: number;
+      height: number;
+      cervicalWidth?: number;
+      edgeRise?: number;
+      contour?: ImportedIPortraitDentalCrown["contour"];
+    }[];
+    cavityChamber: ImportedIPortraitOralChamber | undefined;
+    widthScale: number;
+    openingScale: number;
+    cornerLift: number;
+    upperLipProjection: number;
+    lowerLipProjection: number;
+    seamProjection?: number;
+    section?: ImportedIPortraitLipSection;
+    band?: {
+      upper?: number | readonly ImportedIPortraitLipBandKnot[];
+      lower?: number | readonly ImportedIPortraitLipBandKnot[];
+    };
+    borderRefinement?: "surface" | "curve";
+    blendReach: number;
+    cavityDepth: number;
+    cavityWall?: number;
+    dentalOffset: number;
+    dentalRecess: number;
+    dentalDrop: number;
+    dentalDepth: number;
+    toothGap: number;
+  } = {
     ...inputShape,
     crowns: structuredClone(inputShape.crowns),
     cavityChamber:
@@ -59,12 +105,18 @@ export function createPortraitMouthComponent(
   };
   const seamProjection: number =
     shape.seamProjection === undefined ? 0 : shape.seamProjection;
-  const section: ((coordinate: ImportedIPortraitLipCoordinate) => number) | undefined =
+  const section:
+    | ((coordinate: ImportedIPortraitLipCoordinate) => number)
+    | undefined =
     inputShape.section === undefined
       ? undefined
       : createPortraitLipSection(inputShape.section);
-  const upperBand: (lateral: number) => number = createPortraitLipBandScale(inputShape.band?.upper);
-  const lowerBand: (lateral: number) => number = createPortraitLipBandScale(inputShape.band?.lower);
+  const upperBand: (lateral: number) => number = createPortraitLipBandScale(
+    inputShape.band?.upper,
+  );
+  const lowerBand: (lateral: number) => number = createPortraitLipBandScale(
+    inputShape.band?.lower,
+  );
   if (shape.cavityWall !== undefined || shape.cavityChamber !== undefined)
     assertPortraitOralLining(
       shape.cavityDepth,
@@ -107,19 +159,48 @@ export function createPortraitMouthComponent(
     );
   return {
     id: "mouth",
-    fit: (host: ImportedIPortraitComponentHost): { constraints: { vertex: number; target: number[]; reach: number; }[]; cutFaces: number[]; attach: (cage: ImportedIControlMesh, _adapted: number[][], region: (id: string, material: string) => number) => { prepareInteriors: (refined: ImportedIControlMesh) => ImportedIPortraitInterior[]; finish: (refined: ImportedIControlMesh) => ImportedIAutoMovieModelPart[]; openings: number[][]; closures: number[] | undefined; curves: number[][] | undefined; }; } => {
+    fit: (
+      host: ImportedIPortraitComponentHost,
+    ): {
+      constraints: { vertex: number; target: number[]; reach: number }[];
+      cutFaces: number[];
+      attach: (
+        cage: ImportedIControlMesh,
+        _adapted: number[][],
+        region: (id: string, material: string) => number,
+      ) => {
+        prepareInteriors: (
+          refined: ImportedIControlMesh,
+        ) => ImportedIPortraitInterior[];
+        finish: (
+          refined: ImportedIControlMesh,
+        ) => ImportedIAutoMovieModelPart[];
+        openings: number[][];
+        closures: number[] | undefined;
+        curves: number[][] | undefined;
+      };
+    } => {
       const inner: number[] = portraitMouthInnerLoop(socket);
       const lips: Set<number> = portraitLipTriangles(host.indices, socket);
       const skin: Set<number> = new Set<number>();
       const lipKeys: Set<string> = new Set<string>();
       for (const triangle of lips) {
-        const ids: number[] = host.indices.slice(3 * triangle, 3 * triangle + 3);
+        const ids: number[] = host.indices.slice(
+          3 * triangle,
+          3 * triangle + 3,
+        );
         lipKeys.add(ids.join("/"));
         for (const id of ids) skin.add(id);
       }
-      const points: number[][] = inner.map((id: number): number[] => host.positions[id]);
-      const left: number = Math.min(...points.map((point: number[]): number => point[0]));
-      const right: number = Math.max(...points.map((point: number[]): number => point[0]));
+      const points: number[][] = inner.map(
+        (id: number): number[] => host.positions[id],
+      );
+      const left: number = Math.min(
+        ...points.map((point: number[]): number => point[0]),
+      );
+      const right: number = Math.max(
+        ...points.map((point: number[]): number => point[0]),
+      );
       const centerX: number = (left + right) / 2;
       const centerY: number =
         (Math.min(...points.map((point: number[]): number => point[1])) +
@@ -129,80 +210,129 @@ export function createPortraitMouthComponent(
       // A lower-lip point near a raised corner may be above the global centre;
       // its anatomical role is still lower lip. Both borders come from this
       // socket, and section relief is exactly zero on either retained boundary.
-      const coordinate: (point: readonly number[]) => { coordinate: ImportedIPortraitLipCoordinate; innerY: number; outerY: number; } = createPortraitLipBandSampler(
+      const coordinate: (point: readonly number[]) => {
+        coordinate: ImportedIPortraitLipCoordinate;
+        innerY: number;
+        outerY: number;
+      } = createPortraitLipBandSampler(
         socket.outer.map((id: number): number[] => host.positions[id]),
         socket.upper.map((id: number): number[] => host.positions[id]),
         socket.lower.map((id: number): number[] => host.positions[id]),
       );
-      let constraints: { vertex: number; target: number[]; reach: number; }[] = [...skin].map((vertex: number): { vertex: number; target: number[]; reach: number; } => {
-        const point: number[] = host.positions[vertex];
-        const band: { coordinate: ImportedIPortraitLipCoordinate; innerY: number; outerY: number; } = coordinate(point);
-        const local: ImportedIPortraitLipCoordinate = band.coordinate;
-        const ratio: number = (local.side === "upper" ? upperBand : lowerBand)(
-          local.lateral,
-        );
-        // Identity keeps the original coordinate exactly. Detail scales the
-        // curved band about its actual oral boundary, not about the head's Y.
-        const height: number =
-          ratio === 1
-            ? point[1]
-            : band.innerY + (point[1] - band.innerY) * ratio;
-        const corner: number = Math.min(
-          1,
-          Math.abs((point[0] - centerX) / ((right - left) / 2)),
-        );
-        return {
-          vertex,
-          target: [
-            centerX + (point[0] - centerX) * shape.widthScale,
-            centerY +
-              (height - centerY) * shape.openingScale +
-              shape.cornerLift * corner ** 2,
-            point[2] +
-              (local.side === "upper"
-                ? shape.upperLipProjection
-                : shape.lowerLipProjection) *
-                (1 - corner ** 2) +
-              (section?.(local) ?? 0) +
-              seamProjection *
-                (1 - local.lateral ** 2) ** 2 *
-                local.across ** 2 *
-                (3 - 2 * local.across),
-          ],
-          reach: shape.blendReach,
-        };
-      });
+      let constraints: { vertex: number; target: number[]; reach: number }[] = [
+        ...skin,
+      ].map(
+        (
+          vertex: number,
+        ): { vertex: number; target: number[]; reach: number } => {
+          const point: number[] = host.positions[vertex];
+          const band: {
+            coordinate: ImportedIPortraitLipCoordinate;
+            innerY: number;
+            outerY: number;
+          } = coordinate(point);
+          const local: ImportedIPortraitLipCoordinate = band.coordinate;
+          const ratio: number = (
+            local.side === "upper" ? upperBand : lowerBand
+          )(local.lateral);
+          // Identity keeps the original coordinate exactly. Detail scales the
+          // curved band about its actual oral boundary, not about the head's Y.
+          const height: number =
+            ratio === 1
+              ? point[1]
+              : band.innerY + (point[1] - band.innerY) * ratio;
+          const corner: number = Math.min(
+            1,
+            Math.abs((point[0] - centerX) / ((right - left) / 2)),
+          );
+          return {
+            vertex,
+            target: [
+              centerX + (point[0] - centerX) * shape.widthScale,
+              centerY +
+                (height - centerY) * shape.openingScale +
+                shape.cornerLift * corner ** 2,
+              point[2] +
+                (local.side === "upper"
+                  ? shape.upperLipProjection
+                  : shape.lowerLipProjection) *
+                  (1 - corner ** 2) +
+                (section?.(local) ?? 0) +
+                seamProjection *
+                  (1 - local.lateral ** 2) ** 2 *
+                  local.across ** 2 *
+                  (3 - 2 * local.across),
+            ],
+            reach: shape.blendReach,
+          };
+        },
+      );
       if (performance !== undefined) {
         const targets: Map<number, number[]> = new Map(
-          constraints.map((constraint: { vertex: number; target: number[]; reach: number; }): [number, number[]] => [
-            constraint.vertex,
-            constraint.target,
-          ]),
+          constraints.map(
+            (constraint: {
+              vertex: number;
+              target: number[];
+              reach: number;
+            }): [number, number[]] => [constraint.vertex, constraint.target],
+          ),
         );
-        const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 =>
+        const point: (id: number) => IAutoMovieVector3 = (
+          id: number,
+        ): IAutoMovieVector3 =>
           p(...(targets.get(id)! as [number, number, number]));
-        const pose: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; move: (point: IAutoMovieVector3, side: "upper" | "lower") => IAutoMovieVector3; } = createPortraitMouthPerformance(
+        const pose: {
+          upper: IAutoMovieVector3[];
+          lower: IAutoMovieVector3[];
+          move: (
+            point: IAutoMovieVector3,
+            side: "upper" | "lower",
+          ) => IAutoMovieVector3;
+        } = createPortraitMouthPerformance(
           socket.upper.map(point),
           socket.lower.map(point),
           performance,
         );
         const rims: Map<number, IAutoMovieVector3> = new Map<number, Point>();
         for (const side of ["upper", "lower"] as const)
-          socket[side].forEach((id: number, i: number): Map<number, IAutoMovieVector3> => rims.set(id, pose[side][i]));
-        constraints = constraints.map((constraint: { vertex: number; target: number[]; reach: number; }): { target: number[]; vertex: number; reach: number; } => {
-          const target: IAutoMovieVector3 =
-            rims.get(constraint.vertex) ??
-            pose.move(
-              point(constraint.vertex),
-              coordinate(host.positions[constraint.vertex]).coordinate.side,
-            );
-          return { ...constraint, target: [target.x, target.y, target.z] };
-        });
+          socket[side].forEach(
+            (id: number, i: number): Map<number, IAutoMovieVector3> =>
+              rims.set(id, pose[side][i]),
+          );
+        constraints = constraints.map(
+          (constraint: {
+            vertex: number;
+            target: number[];
+            reach: number;
+          }): { target: number[]; vertex: number; reach: number } => {
+            const target: IAutoMovieVector3 =
+              rims.get(constraint.vertex) ??
+              pose.move(
+                point(constraint.vertex),
+                coordinate(host.positions[constraint.vertex]).coordinate.side,
+              );
+            return { ...constraint, target: [target.x, target.y, target.z] };
+          },
+        );
       }
       return {
         constraints,
         cutFaces: selectHostFacesInsideLoop(host, inner),
-        attach: (cage: ImportedIControlMesh, _adapted: number[][], region: (id: string, material: string) => number): { prepareInteriors: (refined: ImportedIControlMesh) => ImportedIPortraitInterior[]; finish: (refined: ImportedIControlMesh) => ImportedIAutoMovieModelPart[]; openings: number[][]; closures: number[] | undefined; curves: number[][] | undefined; } => {
+        attach: (
+          cage: ImportedIControlMesh,
+          _adapted: number[][],
+          region: (id: string, material: string) => number,
+        ): {
+          prepareInteriors: (
+            refined: ImportedIControlMesh,
+          ) => ImportedIPortraitInterior[];
+          finish: (
+            refined: ImportedIControlMesh,
+          ) => ImportedIAutoMovieModelPart[];
+          openings: number[][];
+          closures: number[] | undefined;
+          curves: number[][] | undefined;
+        } => {
           // Material ownership follows the original anatomical band through
           // other components' cuts. The host contains no lip-specific policy.
           const group: number = region("lips", "lips");
@@ -218,19 +348,20 @@ export function createPortraitMouthComponent(
                 : undefined,
             curves:
               shape.borderRefinement === "curve" ? [socket.outer] : undefined,
-            ...createPortraitInteriorFinisher((refined: ImportedIControlMesh): ImportedIPortraitInterior[] =>
-              preparePortraitMouth(
-                refined.positions,
-                socket,
-                shape,
-                performance,
-                shape.cavityWall === undefined
-                  ? undefined
-                  : refined.indices.filter(
-                      (_vertex: number, i: number): boolean =>
-                        refined.groups[Math.floor(i / 3)] === group,
-                    ),
-              ),
+            ...createPortraitInteriorFinisher(
+              (refined: ImportedIControlMesh): ImportedIPortraitInterior[] =>
+                preparePortraitMouth(
+                  refined.positions,
+                  socket,
+                  shape,
+                  performance,
+                  shape.cavityWall === undefined
+                    ? undefined
+                    : refined.indices.filter(
+                        (_vertex: number, i: number): boolean =>
+                          refined.groups[Math.floor(i / 3)] === group,
+                      ),
+                ),
             ),
           };
         },

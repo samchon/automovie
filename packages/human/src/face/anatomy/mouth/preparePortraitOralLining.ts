@@ -25,23 +25,34 @@ export function preparePortraitOralLining(
   depth: number,
   wall: number,
   chamber?: IPortraitOralChamber,
-): { mesh: IAutoMovieMesh; boundary: number[]; } {
+): { mesh: IAutoMovieMesh; boundary: number[] } {
   assertPortraitOralLining(depth, wall, chamber);
   const boundary: number[] = tracePortraitOralBoundary(surface, seed);
-  const rim: (readonly number[])[] = boundary.map((id: number): readonly number[] => surface.positions[id]);
+  const rim: (readonly number[])[] = boundary.map(
+    (id: number): readonly number[] => surface.positions[id],
+  );
   const count: number = rim.length,
     rows: number = 24;
   const center: number[] = [0, 1, 2].map((axis: number): number =>
-    rim.reduce((sum: number, p: readonly number[]): number => sum + p[axis] / count, 0),
+    rim.reduce(
+      (sum: number, p: readonly number[]): number => sum + p[axis] / count,
+      0,
+    ),
   );
-  const positions: number[] = rim.flatMap((p: readonly number[]): number[] => [...p]),
+  const positions: number[] = rim.flatMap((p: readonly number[]): number[] => [
+      ...p,
+    ]),
     indices: number[] = [];
   const expanded: boolean =
     chamber !== undefined &&
     (chamber.horizontalExpansion !== 0 || chamber.verticalExpansion !== 0);
   const extents: number[] | undefined = expanded
     ? [0, 1].map((axis: number): number =>
-        Math.max(...rim.map((p: readonly number[]): number => Math.abs(p[axis] - center[axis]))),
+        Math.max(
+          ...rim.map((p: readonly number[]): number =>
+            Math.abs(p[axis] - center[axis]),
+          ),
+        ),
       )
     : undefined;
   if (
@@ -63,7 +74,10 @@ export function preparePortraitOralLining(
         (1 - radius) * center[2] + radius * p[2] - 1.8 * depth * v,
       );
       if (expanded) {
-        const t: number = Math.min(1, (1.8 * depth * v) / chamber!.transitionDepth),
+        const t: number = Math.min(
+            1,
+            (1.8 * depth * v) / chamber!.transitionDepth,
+          ),
           weight: number = radius * t * t * (3 - 2 * t),
           at: number = positions.length - 3;
         positions[at] +=

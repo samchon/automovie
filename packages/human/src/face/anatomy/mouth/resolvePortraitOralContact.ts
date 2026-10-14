@@ -20,7 +20,8 @@ import { applyPortraitOralContact } from "./applyPortraitOralContact";
 export function resolvePortraitOralContact(
   parts: IAutoMovieModelPart[],
 ): IAutoMovieModelPart[] {
-  const has: (id: string) => boolean = (id: string): boolean => parts.some((part: IAutoMovieModelPart): boolean => part.id === id);
+  const has: (id: string) => boolean = (id: string): boolean =>
+    parts.some((part: IAutoMovieModelPart): boolean => part.id === id);
   if (!has("lips")) return parts;
   return ["tooth-upper-arch", "tooth-lower-arch"].filter(has).reduce(
     (resolved: IAutoMovieModelPart[], enamel: string): IAutoMovieModelPart[] =>

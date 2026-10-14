@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import { IPortraitOralAttachment } from "./structures/IPortraitOralAttachment";
 
@@ -27,13 +30,16 @@ export function attachPortraitOralMesh(
     recess,
   }: IPortraitOralAttachment = attachment;
   if (
-    ![rightCorner, leftCorner, anchor, up].every((v: ImportedIAutoMovieVector3): boolean =>
-      [v.x, v.y, v.z].every(Number.isFinite),
+    ![rightCorner, leftCorner, anchor, up].every(
+      (v: ImportedIAutoMovieVector3): boolean =>
+        [v.x, v.y, v.z].every(Number.isFinite),
     ) ||
     ![lift, recess].every(Number.isFinite)
   )
     throw new Error("Oral attachment needs finite points and offsets.");
-  const x: ImportedIAutoMovieVector3 = Vector3.normalize(Vector3.subtract(leftCorner, rightCorner));
+  const x: ImportedIAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(leftCorner, rightCorner),
+  );
   const y: ImportedIAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(up, Vector3.scale(x, Vector3.dot(up, x))),
   );
@@ -55,7 +61,11 @@ export function attachPortraitOralMesh(
         mesh.positions[i + 1],
         mesh.positions[i + 2],
       ],
-      normal: number[] = [mesh.normals[i], mesh.normals[i + 1], mesh.normals[i + 2]];
+      normal: number[] = [
+        mesh.normals[i],
+        mesh.normals[i + 1],
+        mesh.normals[i + 2],
+      ];
     for (const [a, key] of ["x", "y", "z"].entries()) {
       const axis: "x" | "y" | "z" = key as "x" | "y" | "z";
       mesh.positions[i + a] =

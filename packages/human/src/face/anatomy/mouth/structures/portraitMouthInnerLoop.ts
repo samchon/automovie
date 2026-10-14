@@ -13,6 +13,9 @@ import { IPortraitMouthSocket } from "./IPortraitMouthSocket";
  *
  * @author Samchon
  */
-export const portraitMouthInnerLoop: (socket: IPortraitMouthSocket) => number[] = (
+export const portraitMouthInnerLoop: (
   socket: IPortraitMouthSocket,
-): number[] => [...socket.lower, ...socket.upper.slice(1, -1).reverse()];
+) => number[] = (socket: IPortraitMouthSocket): number[] => [
+  ...socket.lower,
+  ...socket.upper.slice(1, -1).reverse(),
+];

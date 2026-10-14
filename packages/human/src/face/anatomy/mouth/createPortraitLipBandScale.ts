@@ -14,7 +14,7 @@ import { IPortraitLipBandKnot } from "./structures/IPortraitLipBandKnot";
 export function createPortraitLipBandScale(
   input?: number | readonly IPortraitLipBandKnot[],
 ): (lateral: number) => number {
-  const knots: { at: number; scale: number; }[] =
+  const knots: { at: number; scale: number }[] =
     input === undefined
       ? [
           { at: -1, scale: 1 },
@@ -26,7 +26,11 @@ export function createPortraitLipBandScale(
             { at: 0, scale: input },
             { at: 1, scale: 1 },
           ]
-        : input.map((knot: IPortraitLipBandKnot): { at: number; scale: number; } => ({ ...knot }));
+        : input.map(
+            (knot: IPortraitLipBandKnot): { at: number; scale: number } => ({
+              ...knot,
+            }),
+          );
   if (
     knots.length < 2 ||
     knots.length > 64 ||
@@ -35,7 +39,7 @@ export function createPortraitLipBandScale(
     knots[0].scale !== 1 ||
     knots.at(-1)!.scale !== 1 ||
     knots.some(
-      (knot: { at: number; scale: number; }, i: number): boolean =>
+      (knot: { at: number; scale: number }, i: number): boolean =>
         ![knot.at, knot.scale].every(Number.isFinite) ||
         knot.scale <= 0 ||
         (i > 0 && knot.at <= knots[i - 1].at),
@@ -48,9 +52,11 @@ export function createPortraitLipBandScale(
     if (!Number.isFinite(lateral) || lateral < -1 || lateral > 1)
       throw new Error("Lip thickness samples must lie in the unit oral span.");
     if (lateral === -1 || lateral === 1) return 1;
-    const i: number = knots.findIndex((knot: { at: number; scale: number; }): boolean => knot.at >= lateral),
-      a: { at: number; scale: number; } = knots[i - 1],
-      b: { at: number; scale: number; } = knots[i];
+    const i: number = knots.findIndex(
+        (knot: { at: number; scale: number }): boolean => knot.at >= lateral,
+      ),
+      a: { at: number; scale: number } = knots[i - 1],
+      b: { at: number; scale: number } = knots[i];
     const t: number = (lateral - a.at) / (b.at - a.at),
       blend: number = t * t * (3 - 2 * t);
     return Math.max(

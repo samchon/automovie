@@ -23,11 +23,15 @@ export function tracePortraitOralBoundary(
   if (
     surface.indices.length % 3 !== 0 ||
     surface.indices.some(
-      (id: number): boolean => !Number.isInteger(id) || id < 0 || id >= surface.positions.length,
+      (id: number): boolean =>
+        !Number.isInteger(id) || id < 0 || id >= surface.positions.length,
     )
   )
     throw new Error("Oral lining needs resident complete skin triangles.");
-  const edges: Map<string, { a: number; b: number; count: number; }> = new Map<string, { a: number; b: number; count: number }>();
+  const edges: Map<string, { a: number; b: number; count: number }> = new Map<
+    string,
+    { a: number; b: number; count: number }
+  >();
   for (let i: number = 0; i < surface.indices.length; i += 3) {
     const face: number[] = surface.indices.slice(i, i + 3);
     if (new Set(face).size !== 3)
@@ -36,7 +40,8 @@ export function tracePortraitOralBoundary(
       const a: number = face[j],
         b: number = face[(j + 1) % 3];
       const key: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
-      const edge: { a: number; b: number; count: number; } | undefined = edges.get(key);
+      const edge: { a: number; b: number; count: number } | undefined =
+        edges.get(key);
       if (edge === undefined) edges.set(key, { a, b, count: 1 });
       else {
         if (edge.count === 2 || edge.a === a)
@@ -59,11 +64,23 @@ export function tracePortraitOralBoundary(
   const boundary: number[] = [seed];
   for (let id: number = next.get(seed)!; id !== seed; id = next.get(id)!)
     boundary.push(id);
-  const rim: (readonly number[])[] = boundary.map((id: number): readonly number[] => surface.positions[id]);
-  if (rim.some((p: readonly number[]): boolean => p.length !== 3 || !p.every(Number.isFinite)))
+  const rim: (readonly number[])[] = boundary.map(
+    (id: number): readonly number[] => surface.positions[id],
+  );
+  if (
+    rim.some(
+      (p: readonly number[]): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
+    )
+  )
     throw new Error("Oral lining rim must contain finite XYZ points.");
   for (let i: number = 0; i < rim.length; i++)
-    if (rim[i].every((v: number, axis: number): boolean => v === rim[(i + 1) % rim.length][axis]))
+    if (
+      rim[i].every(
+        (v: number, axis: number): boolean =>
+          v === rim[(i + 1) % rim.length][axis],
+      )
+    )
       throw new Error("Oral lining rim edges must have positive length.");
   return boundary;
 }
