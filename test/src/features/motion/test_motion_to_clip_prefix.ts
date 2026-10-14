@@ -6,7 +6,12 @@ import {
   resolvePose,
   sampleMotion,
 } from "@automovie/engine";
-import { IAutoMovieMotion, IAutoMovieNode, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import {
+  IAutoMovieMotion,
+  IAutoMovieNode,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes } from "../internal/clipParity";
@@ -54,34 +59,53 @@ export function test_motion_to_clip_prefix(): void {
     1,
   );
 
-  const channelNode: (track: IAutoMovieTrack) => string = (track: IAutoMovieTrack): string =>
-    track.channel.kind === "node" ? track.channel.node : "";
+  const channelNode: (track: IAutoMovieTrack) => string = (
+    track: IAutoMovieTrack,
+  ): string => (track.channel.kind === "node" ? track.channel.node : "");
 
-  const bare: ReturnType<typeof motionToClip> = motionToClip({ motion, skeleton });
+  const bare: ReturnType<typeof motionToClip> = motionToClip({
+    motion,
+    skeleton,
+  });
   TestValidator.equals(
     "default keeps the bare S1 naming",
     namedFacts([
       [
         "bareNodesNode",
-        (): boolean => bare.nodes.some((node: IAutoMovieNode): boolean => node.id === MOTION_ROOT_NODE_ID),
+        (): boolean =>
+          bare.nodes.some(
+            (node: IAutoMovieNode): boolean => node.id === MOTION_ROOT_NODE_ID,
+          ),
       ],
       [
         "bareNodesNode2",
-        (): boolean => bare.nodes.some((node: IAutoMovieNode): boolean => node.id === "leftLowerArm"),
+        (): boolean =>
+          bare.nodes.some(
+            (node: IAutoMovieNode): boolean => node.id === "leftLowerArm",
+          ),
       ],
       [
         "bareClipTracks",
         (): boolean =>
-          bare.clip.tracks.every((track: IAutoMovieTrack): boolean => !channelNode(track).includes("/")),
+          bare.clip.tracks.every(
+            (track: IAutoMovieTrack): boolean =>
+              !channelNode(track).includes("/"),
+          ),
       ],
     ]),
     { bareNodesNode: true, bareNodesNode2: true, bareClipTracks: true },
   );
 
-  const prefixed: ReturnType<typeof motionToClip> = motionToClip({ motion, skeleton, nodePrefix: "knightA/" });
+  const prefixed: ReturnType<typeof motionToClip> = motionToClip({
+    motion,
+    skeleton,
+    nodePrefix: "knightA/",
+  });
   TestValidator.predicate(
     "every node id carries the prefix",
-    prefixed.nodes.every((node: IAutoMovieNode): boolean => node.id.startsWith("knightA/")),
+    prefixed.nodes.every((node: IAutoMovieNode): boolean =>
+      node.id.startsWith("knightA/"),
+    ),
   );
   TestValidator.equals(
     "every channel ref carries the prefix (root TRS included)",
@@ -97,7 +121,8 @@ export function test_motion_to_clip_prefix(): void {
         "prefixedClipTracks2",
         (): boolean =>
           prefixed.clip.tracks.some(
-            (track: IAutoMovieTrack): boolean => channelNode(track) === `knightA/${MOTION_ROOT_NODE_ID}`,
+            (track: IAutoMovieTrack): boolean =>
+              channelNode(track) === `knightA/${MOTION_ROOT_NODE_ID}`,
           ),
       ],
     ]),

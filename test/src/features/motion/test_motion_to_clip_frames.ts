@@ -5,7 +5,11 @@ import {
   motionToClip,
   resolveFrame,
 } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes, clipWorldParity } from "../internal/clipParity";
@@ -72,8 +76,15 @@ export function test_motion_to_clip_frames(): void {
     jointAxes: HUMANOID_JOINT_AXES,
     restFrames: HUMANOID_REST_FRAME,
   });
-  const plain: ReturnType<typeof motionToClip> = motionToClip({ motion, skeleton });
-  const handAt: (bridge: ReturnType<typeof motionToClip>) => IAutoMovieVector3 = (bridge: ReturnType<typeof motionToClip>): IAutoMovieVector3 =>
+  const plain: ReturnType<typeof motionToClip> = motionToClip({
+    motion,
+    skeleton,
+  });
+  const handAt: (
+    bridge: ReturnType<typeof motionToClip>,
+  ) => IAutoMovieVector3 = (
+    bridge: ReturnType<typeof motionToClip>,
+  ): IAutoMovieVector3 =>
     Matrix4.position(
       resolveFrame({
         nodes: bridge.nodes,

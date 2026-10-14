@@ -1,6 +1,6 @@
 import {
-  IAutoMovieKeyframe,
   IAutoMovieBone,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -44,7 +44,9 @@ export function test_motion_to_clip_parity(): void {
     clipWorldParity({ motion, skeleton, times }),
   );
 
-  const midpoints: number[] = times.slice(0, -1).map((t: number, i: number): number => (t + times[i + 1]!) / 2);
+  const midpoints: number[] = times
+    .slice(0, -1)
+    .map((t: number, i: number): number => (t + times[i + 1]!) / 2);
   TestValidator.predicate(
     "bounded divergence between samples",
     clipWorldParity({
@@ -58,10 +60,11 @@ export function test_motion_to_clip_parity(): void {
 
   const scaled: IAutoMovieSkeleton = {
     id: skeleton.id,
-    bones: skeleton.bones.map((bone: IAutoMovieBone): IAutoMovieBone =>
-      bone.bone === "leftLowerArm"
-        ? { ...bone, rest: { ...bone.rest, scale: { x: 2, y: 2, z: 2 } } }
-        : bone,
+    bones: skeleton.bones.map(
+      (bone: IAutoMovieBone): IAutoMovieBone =>
+        bone.bone === "leftLowerArm"
+          ? { ...bone, rest: { ...bone.rest, scale: { x: 2, y: 2, z: 2 } } }
+          : bone,
     ),
   };
   TestValidator.predicate(

@@ -1,5 +1,9 @@
 import { MOTION_ROOT_NODE_ID, motionToClip } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -46,7 +50,10 @@ export function test_motion_to_clip_guards(): void {
     1,
   );
 
-  const bridge: ReturnType<typeof motionToClip> = motionToClip({ motion: valid, skeleton });
+  const bridge: ReturnType<typeof motionToClip> = motionToClip({
+    motion: valid,
+    skeleton,
+  });
   TestValidator.equals(
     "one rotation track per articulated bone, skeleton order",
     bridge.clip.tracks.map((t: IAutoMovieTrack): string =>
@@ -74,28 +81,32 @@ export function test_motion_to_clip_guards(): void {
   TestValidator.predicate(
     "empty keyframes throw",
     throwsError(
-      (): ReturnType<typeof motionToClip> => motionToClip({ motion: { ...valid, keyframes: [] }, skeleton }),
+      (): ReturnType<typeof motionToClip> =>
+        motionToClip({ motion: { ...valid, keyframes: [] }, skeleton }),
       "must have keyframes",
     ),
   );
   TestValidator.predicate(
     "zero sampleRate throws",
     throwsError(
-      (): ReturnType<typeof motionToClip> => motionToClip({ motion: valid, skeleton, sampleRate: 0 }),
+      (): ReturnType<typeof motionToClip> =>
+        motionToClip({ motion: valid, skeleton, sampleRate: 0 }),
       "sampleRate",
     ),
   );
   TestValidator.predicate(
     "NaN sampleRate throws",
     throwsError(
-      (): ReturnType<typeof motionToClip> => motionToClip({ motion: valid, skeleton, sampleRate: Number.NaN }),
+      (): ReturnType<typeof motionToClip> =>
+        motionToClip({ motion: valid, skeleton, sampleRate: Number.NaN }),
       "sampleRate",
     ),
   );
   TestValidator.predicate(
     "zero duration throws",
     throwsError(
-      (): ReturnType<typeof motionToClip> => motionToClip({ motion: { ...valid, duration: 0 }, skeleton }),
+      (): ReturnType<typeof motionToClip> =>
+        motionToClip({ motion: { ...valid, duration: 0 }, skeleton }),
       "duration",
     ),
   );

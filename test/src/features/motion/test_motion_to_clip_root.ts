@@ -1,5 +1,9 @@
 import { MOTION_ROOT_NODE_ID, motionToClip } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes, clipWorldParity } from "../internal/clipParity";
@@ -58,7 +62,10 @@ export function test_motion_to_clip_root(): void {
     }),
   );
 
-  const bridge: ReturnType<typeof motionToClip> = motionToClip({ motion: rooted, skeleton });
+  const bridge: ReturnType<typeof motionToClip> = motionToClip({
+    motion: rooted,
+    skeleton,
+  });
   const rootTracks: IAutoMovieTrack[] = bridge.clip.tracks.filter(
     (track: IAutoMovieTrack): boolean =>
       track.channel.kind === "node" &&
@@ -67,7 +74,9 @@ export function test_motion_to_clip_root(): void {
   TestValidator.equals(
     "root translation + rotation tracks emitted",
     rootTracks
-      .map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.path : ""))
+      .map((t: IAutoMovieTrack): string =>
+        t.channel.kind === "node" ? t.channel.path : "",
+      )
       .sort((a: string, b: string): number => a.localeCompare(b)),
     ["rotation", "translation"],
   );
@@ -79,7 +88,10 @@ export function test_motion_to_clip_root(): void {
     ],
     1,
   );
-  const bare: ReturnType<typeof motionToClip> = motionToClip({ motion: unrooted, skeleton });
+  const bare: ReturnType<typeof motionToClip> = motionToClip({
+    motion: unrooted,
+    skeleton,
+  });
   TestValidator.equals(
     "all-null root emits no root tracks",
     bare.clip.tracks.some(
