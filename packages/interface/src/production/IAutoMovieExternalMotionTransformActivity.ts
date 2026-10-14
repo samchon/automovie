@@ -24,6 +24,6 @@ export interface IAutoMovieExternalMotionTransformActivity {
   /** Stable result element identities produced by this activity. */
   target: string[];
 
-  /** Serializable parameters that fully characterize the activity. */
+  /** Serializable activity metadata; complete replay can also require receipt bases, compiler version and conversion algorithms. */
   parameters: Record<string, string | number | boolean | null>;
 }
