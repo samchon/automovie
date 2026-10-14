@@ -37,50 +37,62 @@ export function appendPortraitCranium(
   // Separate lower controls let the jaw turn towards its angle while the vault
   // continues around the braincase. These are independent anatomical envelopes;
   // the chin does not scale towards the cranial centre with the posterior vault.
-  const { stations, capDepth, transition, frame }: ReturnType<typeof resolvePortraitCraniumShape> = resolvePortraitCraniumShape(
-    chinY,
-    shape,
+  const {
+    stations,
+    capDepth,
+    transition,
+    frame,
+  }: ReturnType<typeof resolvePortraitCraniumShape> =
+    resolvePortraitCraniumShape(chinY, shape);
+  const angles: number[] = portraitFacialOvalVertices.map(
+    (id: number): number =>
+      Math.atan2(
+        positions[id][0] / frame.width,
+        (positions[id][1] - frame.centerY) / frame.height,
+      ),
   );
-  const angles: number[] = portraitFacialOvalVertices.map((id: number): number  =>
-    Math.atan2(
-      positions[id][0] / frame.width,
-      (positions[id][1] - frame.centerY) / frame.height,
-    ),
-  );
-  const sections: number[][][] = stations.map((station: ReturnType<typeof resolvePortraitCraniumShape>["stations"][number], row: number): number[][] =>
-    angles.map((measured: number, column: number): number[]  => {
-      // Facial landmarks are denser around the chin than around the forehead.
-      // Hidden rings gradually approach equal angular spacing so the posterior
-      // cap receives balanced cells. The measured oval and first station retain
-      // their correspondence; the squared blend changes only the hidden vault.
-      const regular: number = (2 * Math.PI * column) / angles.length;
-      const difference: number = Math.atan2(
-        Math.sin(measured - regular),
-        Math.cos(measured - regular),
-      );
-      const angle: number =
-        regular + difference * (1 - (row / (stations.length - 1)) ** 2);
-      return [
-        station.width * Math.sin(angle),
-        mix(station.floor, station.crown, (1 + Math.cos(angle)) / 2),
-        // The frontal vault turns above the forehead before the temporal wall
-        // reaches the same posterior station. Crown depth varies with angle.
-        mix(station.z, station.crownZ, Math.max(0, Math.cos(angle)) ** 2),
-      ];
-    }),
+  const sections: number[][][] = stations.map(
+    (
+      station: ReturnType<
+        typeof resolvePortraitCraniumShape
+      >["stations"][number],
+      row: number,
+    ): number[][] =>
+      angles.map((measured: number, column: number): number[] => {
+        // Facial landmarks are denser around the chin than around the forehead.
+        // Hidden rings gradually approach equal angular spacing so the posterior
+        // cap receives balanced cells. The measured oval and first station retain
+        // their correspondence; the squared blend changes only the hidden vault.
+        const regular: number = (2 * Math.PI * column) / angles.length;
+        const difference: number = Math.atan2(
+          Math.sin(measured - regular),
+          Math.cos(measured - regular),
+        );
+        const angle: number =
+          regular + difference * (1 - (row / (stations.length - 1)) ** 2);
+        return [
+          station.width * Math.sin(angle),
+          mix(station.floor, station.crown, (1 + Math.cos(angle)) / 2),
+          // The frontal vault turns above the forehead before the temporal wall
+          // reaches the same posterior station. Crown depth varies with angle.
+          mix(station.z, station.crownZ, Math.max(0, Math.cos(angle)) ** 2),
+        ];
+      }),
   );
   // One transition row leaves the observed oval gradually. This is a control
   // row for the common subdivision surface, not an extra overlapping shell.
   sections.unshift(
-    portraitFacialOvalVertices.map((id: number, i: number): number[]  =>
-      positions[id].map((value: number, axis: number): number  =>
+    portraitFacialOvalVertices.map((id: number, i: number): number[] =>
+      positions[id].map((value: number, axis: number): number =>
         mix(value, sections[0][i][axis], transition),
       ),
     ),
   );
   const rings: number[][] = [portraitFacialOvalVertices];
   for (const section of sections)
-    rings.push(section.map((point: number[]): number  => positions.push(point) - 1));
+    rings.push(
+      section.map((point: number[]): number => positions.push(point) - 1),
+    );
 
   // The collar occupies a rectangular part of this control lattice. The common
   // Loop refinement rounds its corners after the neck has joined these vertices.
@@ -91,7 +103,11 @@ export function appendPortraitCranium(
     firstColumn: number = 12 as const,
     lastColumn: number = 24 as const;
   for (let row: number = 1; row < rings.length; row++)
-    for (let column: number = 0; column < portraitFacialOvalVertices.length; column++) {
+    for (
+      let column: number = 0;
+      column < portraitFacialOvalVertices.length;
+      column++
+    ) {
       if (
         row > firstRow &&
         row <= lastRow &&
@@ -131,7 +147,7 @@ export function appendPortraitCranium(
         const left: number[] = positions[rear[rear.length - row]],
           right: number[] = positions[rear[cells + row]];
         const point: number[] = [0, 1, 2].map(
-          (axis: number): number  =>
+          (axis: number): number =>
             mix(top[axis], bottom[axis], v) +
             mix(left[axis], right[axis], u) -
             mix(
@@ -147,7 +163,9 @@ export function appendPortraitCranium(
         // Curvature belongs to physical head coordinates. A sine of the patch
         // coordinates gave the same skull a visible round plateau because the
         // Coons map compresses its parameter spacing near the boundary.
-        const station: ReturnType<typeof resolvePortraitCraniumShape>["stations"][number] = stations[stations.length - 1];
+        const station: ReturnType<
+          typeof resolvePortraitCraniumShape
+        >["stations"][number] = stations[stations.length - 1];
         const middle: number = (station.crown + station.floor) / 2;
         const height: number = (station.crown - station.floor) / 2;
         const radiusSquared: number =
@@ -175,7 +193,10 @@ export function appendPortraitCranium(
   // edge, other side. No duplicated corners means every seam has two faces.
   const collar: number[] = [];
   const exterior: number[][] = [];
-  const addCollar: (row: number, column: number) => void = (row: number, column: number): void => {
+  const addCollar: (row: number, column: number) => void = (
+    row: number,
+    column: number,
+  ): void => {
     collar.push(rings[row][column]);
     const neighbours: number[][] = [];
     if (row === firstRow) neighbours.push(positions[rings[row - 1][column]]);
@@ -186,9 +207,11 @@ export function appendPortraitCranium(
       neighbours.push(positions[rings[row][column + 1]]);
     exterior.push(
       [0, 1, 2].map(
-        (axis: number): number  =>
-          neighbours.reduce((sum: number, point: number[]): number  => sum + point[axis], 0) /
-          neighbours.length,
+        (axis: number): number =>
+          neighbours.reduce(
+            (sum: number, point: number[]): number => sum + point[axis],
+            0,
+          ) / neighbours.length,
       ),
     );
   };

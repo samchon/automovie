@@ -15,7 +15,16 @@ import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShap
 export function resolvePortraitFacialFrameShape(
   input: IPortraitFacialFrameShape = {},
 ): Required<IPortraitFacialFrameShape> {
-  const shape: { widthScale: number; lengthScale: number; jawWidth: number; chinHeight: number; chinProjection: number; foreheadProjection: number; browProjection: number; templeWidth: number; } = {
+  const shape: {
+    widthScale: number;
+    lengthScale: number;
+    jawWidth: number;
+    chinHeight: number;
+    chinProjection: number;
+    foreheadProjection: number;
+    browProjection: number;
+    templeWidth: number;
+  } = {
     widthScale: 1,
     lengthScale: 1,
     jawWidth: 0,

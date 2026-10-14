@@ -33,7 +33,21 @@ export function resolvePortraitNeckShape(
     throw new Error("A default neck needs a finite chin height.");
   if (input !== undefined) return input;
   const shift: number = chinY - portraitNeckReferenceChin;
-  const lowered: (section: IPortraitNeckShape["upper"]) => { y: number; width: number; front: number; back: number; centre: number; } = (section: IPortraitNeckShape["upper"]): { y: number; width: number; front: number; back: number; centre: number; }  => ({
+  const lowered: (section: IPortraitNeckShape["upper"]) => {
+    y: number;
+    width: number;
+    front: number;
+    back: number;
+    centre: number;
+  } = (
+    section: IPortraitNeckShape["upper"],
+  ): {
+    y: number;
+    width: number;
+    front: number;
+    back: number;
+    centre: number;
+  } => ({
     ...section,
     y: section.y + shift,
   });

@@ -1,10 +1,10 @@
-import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { portraitJawSkinWeight } from "../mouth/portraitJawSkinWeight";
 import { portraitLipTriangles } from "../mouth/portraitLipTriangles";
 import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
@@ -35,8 +35,10 @@ export function createPortraitFacePerformanceComponent(
   inputExpression: IAutoMovieHumanFaceExpression,
 ): IPortraitComponent {
   const bindings: IAutoMovieHumanFaceBindings = structuredClone(inputBindings);
-  const observation: ReturnType<typeof resolveHumanFaceExpression> = resolveHumanFaceExpression(inputObservation);
-  const expression: ReturnType<typeof resolveHumanFaceExpression> = resolveHumanFaceExpression(inputExpression);
+  const observation: ReturnType<typeof resolveHumanFaceExpression> =
+    resolveHumanFaceExpression(inputObservation);
+  const expression: ReturnType<typeof resolveHumanFaceExpression> =
+    resolveHumanFaceExpression(inputExpression);
   const jaw: number = expression.jawOpen - observation.jawOpen;
   if (expression.jawOpen !== 0 || observation.jawOpen !== 0) {
     if (bindings.jawHinge === undefined)
@@ -47,25 +49,40 @@ export function createPortraitFacePerformanceComponent(
   }
   return {
     id: "facial-performance",
-    fit: (host: IPortraitComponentHost): { constraints: { vertex: number; target: number[]; reach: number; }[]; cutFaces: never[]; attach: () => { openings: never[]; finish: () => never[]; }; }  => {
-      const constraints: Map<number, { vertex: number; target: number[]; reach: number; }> = new Map<
+    fit: (
+      host: IPortraitComponentHost,
+    ): {
+      constraints: { vertex: number; target: number[]; reach: number }[];
+      cutFaces: never[];
+      attach: () => { openings: never[]; finish: () => never[] };
+    } => {
+      const constraints: Map<
+        number,
+        { vertex: number; target: number[]; reach: number }
+      > = new Map<
         number,
         { vertex: number; target: number[]; reach: number }
       >();
       if (jaw !== 0) {
         const lipVertices: Set<number> = new Set(
           [...portraitLipTriangles(host.indices, bindings.mouth)].flatMap(
-            (face: number): number[]  => host.indices.slice(3 * face, 3 * face + 3),
+            (face: number): number[] =>
+              host.indices.slice(3 * face, 3 * face + 3),
           ),
         );
-        const middle: (curve: number[]) => number[] = (curve: number[]): number[]  =>
-          host.positions[curve[Math.floor(curve.length / 2)]];
+        const middle: (curve: number[]) => number[] = (
+          curve: number[],
+        ): number[] => host.positions[curve[Math.floor(curve.length / 2)]];
         const upperY: number = middle(bindings.mouth.upper)[1];
         const lowerY: number = middle(bindings.mouth.lower)[1];
         for (const id of new Set(host.indices)) {
           if (lipVertices.has(id)) continue;
           const point: number[] = host.positions[id];
-          const weight: number = portraitJawSkinWeight(point[1], upperY, lowerY);
+          const weight: number = portraitJawSkinWeight(
+            point[1],
+            upperY,
+            lowerY,
+          );
           if (weight === 0) continue;
           const moved: IAutoMovieVector3 = posePortraitJawPoint(
             { x: point[0], y: point[1], z: point[2] },
@@ -81,13 +98,15 @@ export function createPortraitFacePerformanceComponent(
         }
       }
       for (const side of ["right", "left"] as const) {
-        const delta: number = expression.browRaise[side] - observation.browRaise[side];
+        const delta: number =
+          expression.browRaise[side] - observation.browRaise[side];
         if (delta === 0) continue;
         for (const id of new Set([
           ...bindings.eyes[side].browTop,
           ...bindings.eyes[side].browBottom,
         ])) {
-          const source: number[] = constraints.get(id)?.target ?? host.positions[id];
+          const source: number[] =
+            constraints.get(id)?.target ?? host.positions[id];
           if (
             source === undefined ||
             source.length !== 3 ||
@@ -106,7 +125,10 @@ export function createPortraitFacePerformanceComponent(
       return {
         constraints: [...constraints.values()],
         cutFaces: [],
-        attach: (): { openings: never[]; finish: () => never[]; }  => ({ openings: [], finish: (): never[]  => [] }),
+        attach: (): { openings: never[]; finish: () => never[] } => ({
+          openings: [],
+          finish: (): never[] => [],
+        }),
       };
     },
   };

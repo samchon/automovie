@@ -30,11 +30,13 @@ export function appendPortraitNeck(
     shape.submentalProjection === undefined ? 0 : shape.submentalProjection;
   if (!Number.isFinite(projection) || projection < 0 || projection > 40)
     throw new Error("Submental projection must be from zero through 40 mm.");
-  const roots: number[][] = collar.boundary.map((id: number): number[]  => positions[id]);
+  const roots: number[][] = collar.boundary.map(
+    (id: number): number[] => positions[id],
+  );
   if (
     roots.length < 3 ||
     [shape.upper, shape.lower, shape.crop].some(
-      (section: IPortraitNeckSection): boolean  =>
+      (section: IPortraitNeckSection): boolean =>
         !Object.values(section).every(Number.isFinite) ||
         section.width <= 0 ||
         section.front <= 0 ||
@@ -43,21 +45,30 @@ export function appendPortraitNeck(
     !(
       shape.crop.y < shape.lower.y &&
       shape.lower.y < shape.upper.y &&
-      shape.upper.y < Math.min(...roots.map((point: number[]): number  => point[1]))
+      shape.upper.y <
+        Math.min(...roots.map((point: number[]): number => point[1]))
     )
   )
     throw new Error(
       "Neck sections need finite positive radii and descending heights below their attachment.",
     );
-  const angles: number[] = roots.map(([x, , z]: number[]): number  => Math.atan2(x, z - shape.upper.centre));
-  const section: ({ y, width, front, back, centre, }: IPortraitNeckSection) => number[][] = ({
+  const angles: number[] = roots.map(([x, , z]: number[]): number =>
+    Math.atan2(x, z - shape.upper.centre),
+  );
+  const section: ({
+    y,
+    width,
+    front,
+    back,
+    centre,
+  }: IPortraitNeckSection) => number[][] = ({
     y,
     width,
     front,
     back,
     centre,
   }: IPortraitNeckSection): number[][] =>
-    angles.map((angle: number): number[]  => {
+    angles.map((angle: number): number[] => {
       const cosine: number = Math.cos(angle);
       return [
         width * Math.sin(angle),
@@ -72,48 +83,67 @@ export function appendPortraitNeck(
   // The first handle follows the adjacent head tangent; the second aligns with
   // the upper-to-lower neck direction. Sampling that curve provides a coherent
   // transition around the oblique collar before common skin subdivision.
-  const handles: { first: number[]; second: number[]; }[] = roots.map((root: number[], i: number): { first: number[]; second: number[]; }  => {
-    const incoming: number[] = root.map(
-      (value: number, axis: number): number  => value - collar.exterior[i][axis],
-    );
-    const length: number = Math.hypot(...incoming);
-    if (length === 0)
-      throw new Error(
-        "A neck attachment needs a nonzero incoming surface tangent.",
+  const handles: { first: number[]; second: number[] }[] = roots.map(
+    (root: number[], i: number): { first: number[]; second: number[] } => {
+      const incoming: number[] = root.map(
+        (value: number, axis: number): number =>
+          value - collar.exterior[i][axis],
       );
-    // A long neck must not amplify small lateral changes in the head tangent
-    // into deep radial grooves. Limit the first guide by its adjacent head
-    // spacing as well as by the remaining distance to the cervical section.
-    let span: number = Math.min(
-      0.5 * length,
-      0.25 * Math.hypot(...root.map((value: number, axis: number): number  => upper[i][axis] - value)),
-    );
-    const depth: number = upper[i][2] - root[2];
-    // Where the incoming tangent already faces the target depth, keep its
-    // handle short of that target while preserving the tangent direction.
-    if (incoming[2] * depth > 0)
-      span = Math.min(span, 0.8 * Math.abs((depth * length) / incoming[2]));
-    const drop: number = root[1] - upper[i][1];
-    if (incoming[1] < 0)
-      span = Math.min(span, (0.4 * drop * length) / -incoming[1]);
-    const outgoing: number[] = lower[i].map((value: number, axis: number): number  => value - upper[i][axis]);
-    const outgoingLength: number = Math.hypot(...outgoing);
-    const approach: number = Math.min(
-      0.25 * Math.hypot(...root.map((value: number, axis: number): number  => upper[i][axis] - value)),
-      (0.4 * drop * outgoingLength) / -outgoing[1],
-    );
-    return {
-      first: root.map(
-        (value: number, axis: number): number  => value + (span * incoming[axis]) / length,
-      ),
-      second: upper[i].map(
-        (value: number, axis: number): number  => value - (approach * outgoing[axis]) / outgoingLength,
-      ),
-    };
-  });
+      const length: number = Math.hypot(...incoming);
+      if (length === 0)
+        throw new Error(
+          "A neck attachment needs a nonzero incoming surface tangent.",
+        );
+      // A long neck must not amplify small lateral changes in the head tangent
+      // into deep radial grooves. Limit the first guide by its adjacent head
+      // spacing as well as by the remaining distance to the cervical section.
+      let span: number = Math.min(
+        0.5 * length,
+        0.25 *
+          Math.hypot(
+            ...root.map(
+              (value: number, axis: number): number => upper[i][axis] - value,
+            ),
+          ),
+      );
+      const depth: number = upper[i][2] - root[2];
+      // Where the incoming tangent already faces the target depth, keep its
+      // handle short of that target while preserving the tangent direction.
+      if (incoming[2] * depth > 0)
+        span = Math.min(span, 0.8 * Math.abs((depth * length) / incoming[2]));
+      const drop: number = root[1] - upper[i][1];
+      if (incoming[1] < 0)
+        span = Math.min(span, (0.4 * drop * length) / -incoming[1]);
+      const outgoing: number[] = lower[i].map(
+        (value: number, axis: number): number => value - upper[i][axis],
+      );
+      const outgoingLength: number = Math.hypot(...outgoing);
+      const approach: number = Math.min(
+        0.25 *
+          Math.hypot(
+            ...root.map(
+              (value: number, axis: number): number => upper[i][axis] - value,
+            ),
+          ),
+        (0.4 * drop * outgoingLength) / -outgoing[1],
+      );
+      return {
+        first: root.map(
+          (value: number, axis: number): number =>
+            value + (span * incoming[axis]) / length,
+        ),
+        second: upper[i].map(
+          (value: number, axis: number): number =>
+            value - (approach * outgoing[axis]) / outgoingLength,
+        ),
+      };
+    },
+  );
   let previous: number[] = collar.boundary;
   const addRing: (points: number[][]) => void = (points: number[][]): void => {
-    const ring: number[] = points.map((point: number[]): number  => positions.push(point) - 1);
+    const ring: number[] = points.map(
+      (point: number[]): number => positions.push(point) - 1,
+    );
     for (let i: number = 0; i < ring.length; i++) {
       const j: number = (i + 1) % ring.length;
       indices.push(
@@ -135,9 +165,9 @@ export function appendPortraitNeck(
     const t: number = row / 12,
       s: number = 1 - t;
     addRing(
-      roots.map((root: number[], i: number): number[]  => {
+      roots.map((root: number[], i: number): number[] => {
         const point: number[] = root.map(
-          (value: number, axis: number): number  =>
+          (value: number, axis: number): number =>
             value * s ** 3 +
             3 * handles[i].first[axis] * s * s * t +
             3 * handles[i].second[axis] * s * t * t +
@@ -164,8 +194,10 @@ export function appendPortraitNeck(
   ] as const)
     for (let row: number = 1; row <= count; row++)
       addRing(
-        from.map((point: number[], i: number): number[]  =>
-          point.map((value: number, axis: number): number  => mix(value, to[i][axis], row / count)),
+        from.map((point: number[], i: number): number[] =>
+          point.map((value: number, axis: number): number =>
+            mix(value, to[i][axis], row / count),
+          ),
         ),
       );
   return previous;

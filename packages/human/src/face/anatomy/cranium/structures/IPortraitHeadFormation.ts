@@ -1,5 +1,5 @@
-import type { IPortraitHeadAppearance } from "./IPortraitHeadAppearance";
 import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
+import type { IPortraitHeadAppearance } from "./IPortraitHeadAppearance";
 import { IPortraitHeadPerformance } from "./IPortraitHeadPerformance";
 import { IPortraitNeckShape } from "./IPortraitNeckShape";
 

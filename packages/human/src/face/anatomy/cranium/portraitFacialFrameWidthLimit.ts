@@ -39,10 +39,21 @@ export function portraitFacialFrameWidthLimit(
 ): number {
   const requested: number = frame.widthScale ?? 1;
   const fits: (scale: number) => boolean = (scale: number): boolean => {
-    const framed: { positions: number[][]; indices: number[]; viewRay: number[]; } = createPortraitFacialFrame(
+    const framed: {
+      positions: number[][];
+      indices: number[];
+      viewRay: number[];
+    } = createPortraitFacialFrame(
       host,
       { ...frame, widthScale: scale },
-      eyes.map(({ socket }: { socket: IPortraitEyeSocket; shape: IPortraitEyeShape; }): IPortraitEyeSocket  => socket),
+      eyes.map(
+        ({
+          socket,
+        }: {
+          socket: IPortraitEyeSocket;
+          shape: IPortraitEyeShape;
+        }): IPortraitEyeSocket => socket,
+      ),
     ).host;
     try {
       for (const { socket, shape } of eyes)

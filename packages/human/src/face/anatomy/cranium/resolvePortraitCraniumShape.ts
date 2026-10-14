@@ -1,5 +1,5 @@
-import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 import type { IPortraitCranialStation } from "./structures/IPortraitCranialStation";
+import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 
 /**
  * Resolve the cranial stations and cap controls into owned copies before the
@@ -39,8 +39,25 @@ import type { IPortraitCranialStation } from "./structures/IPortraitCranialStati
 export function resolvePortraitCraniumShape(
   chinY: number,
   input: IPortraitCraniumShape = {},
-): { stations: { floor: number; z: number; crownZ: number; width: number; crown: number; }[]; capDepth: number; transition: number; frame: { width: number; height: number; centerY: number; }; }  {
-  const stations: { floor: number; z: number; crownZ: number; width: number; crown: number; }[] = structuredClone<readonly IPortraitCranialStation[]>(
+): {
+  stations: {
+    floor: number;
+    z: number;
+    crownZ: number;
+    width: number;
+    crown: number;
+  }[];
+  capDepth: number;
+  transition: number;
+  frame: { width: number; height: number; centerY: number };
+} {
+  const stations: {
+    floor: number;
+    z: number;
+    crownZ: number;
+    width: number;
+    crown: number;
+  }[] = structuredClone<readonly IPortraitCranialStation[]>(
     input.stations ?? [
       {
         z: -18,
@@ -57,21 +74,42 @@ export function resolvePortraitCraniumShape(
         [-124.4, 35],
         [-128.9, 26],
         [-131.3, 21],
-      ].map(([z, width]: number[]): { z: number; crownZ: number; width: number; crown: number; floor: number; }  => ({
-        z,
-        crownZ: z,
-        width,
-        crown: 26.5 + 1.4 * width,
-        floor: 26.5 - 1.4 * width,
-      })),
+      ].map(
+        ([z, width]: number[]): {
+          z: number;
+          crownZ: number;
+          width: number;
+          crown: number;
+          floor: number;
+        } => ({
+          z,
+          crownZ: z,
+          width,
+          crown: 26.5 + 1.4 * width,
+          floor: 26.5 - 1.4 * width,
+        }),
+      ),
     ],
-  ).map(({ chinRelative, ...station }: IPortraitCranialStation): { floor: number; z: number; crownZ: number; width: number; crown: number; }  => ({
-    ...station,
-    floor: station.floor + (chinRelative ? chinY : 0),
-  }));
+  ).map(
+    ({
+      chinRelative,
+      ...station
+    }: IPortraitCranialStation): {
+      floor: number;
+      z: number;
+      crownZ: number;
+      width: number;
+      crown: number;
+    } => ({
+      ...station,
+      floor: station.floor + (chinRelative ? chinY : 0),
+    }),
+  );
   const capDepth: number = input.capDepth ?? 4;
   const transition: number = input.transition ?? 0.3;
-  const frame: { width: number; height: number; centerY: number; } = { ...(input.frame ?? { width: 71, height: 79, centerY: 5 }) };
+  const frame: { width: number; height: number; centerY: number } = {
+    ...(input.frame ?? { width: 71, height: 79, centerY: 5 }),
+  };
   if (
     ![
       chinY,
@@ -89,7 +127,16 @@ export function resolvePortraitCraniumShape(
     stations.length < 5 ||
     stations.length > 64 ||
     stations.some(
-      (station: { floor: number; z: number; crownZ: number; width: number; crown: number; }, index: number): boolean  =>
+      (
+        station: {
+          floor: number;
+          z: number;
+          crownZ: number;
+          width: number;
+          crown: number;
+        },
+        index: number,
+      ): boolean =>
         ![
           station.z,
           station.crownZ,

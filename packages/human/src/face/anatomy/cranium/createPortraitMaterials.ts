@@ -18,7 +18,11 @@ import { createPortraitIrisMaterials } from "../eye/createPortraitIrisMaterials"
  */
 export function createPortraitMaterials(): IAutoMovieMaterial[] {
   const materials: IAutoMovieMaterial[] = [];
-  const material: (id: string, rgb: number[], roughness: number) => string = (id: string, rgb: number[], roughness: number): string => {
+  const material: (id: string, rgb: number[], roughness: number) => string = (
+    id: string,
+    rgb: number[],
+    roughness: number,
+  ): string => {
     materials.push({
       id,
       name: id,

@@ -16,7 +16,9 @@ import { portraitFacialOvalVertices } from "./portraitFacialOvalVertices";
 export function portraitCranialChinHeight(
   positions: readonly (readonly number[])[],
 ): number {
-  const heights: number[] = portraitFacialOvalVertices.map((id: number): number  => positions[id]?.[1]);
+  const heights: number[] = portraitFacialOvalVertices.map(
+    (id: number): number => positions[id]?.[1],
+  );
   if (!heights.every(Number.isFinite))
     throw new Error("The cranial boundary requires finite resident heights.");
   return Math.min(...heights);
