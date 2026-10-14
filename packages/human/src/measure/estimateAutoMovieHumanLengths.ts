@@ -2,6 +2,7 @@ import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { IAutoMovieHumanGrowthCurve } from "./IAutoMovieHumanGrowthCurve";
+import { estimateAutoMovieHumanMedianStature } from "./estimateAutoMovieHumanMedianStature";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
 
 /**
@@ -166,7 +167,7 @@ interface IRegression {
 }
 
 /**
- * Adult lengths and bony breadths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58. Heights and long bones regress on stature alone, hand and foot on stature and body mass, bony breadths on stature, BMI and age; every fit passes through the sample means. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
+ * Adult lengths and bony breadths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58. Heights and long bones regress on stature alone, hand and foot on stature and body mass, bony breadths and the soft-tissue hip breadth on stature, BMI and age; every fit passes through the sample means. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
  */
 const ANSUR_II: Record<
   | "sittingHeight"
@@ -180,7 +181,8 @@ const ANSUR_II: Record<
   | "foot"
   | "ankle"
   | "biacromial"
-  | "bicristal",
+  | "bicristal"
+  | "hipBreadth",
   Record<AutoMovieHumanSex, IRegression>
 > = {
   sittingHeight: {
@@ -231,6 +233,10 @@ const ANSUR_II: Record<
     female: { intercept: -22.7, stature: 0.1229, bmi: 3.5, age: 0.23 },
     male: { intercept: -8.4, stature: 0.1291, bmi: 2.19, age: -0.11 },
   },
+  hipBreadth: {
+    female: { intercept: -25.7, stature: 0.1443, bmi: 5.59, age: 0.07 },
+    male: { intercept: -14.9, stature: 0.1345, bmi: 4.59, age: -0.09 },
+  },
 };
 
 /**
@@ -275,12 +281,15 @@ const SLIMNESS: Record<"sittingHeight" | "breadth", number> = {
 /** Ages over which the child ratios hand over to the adult fits, years. */
 const ADULT_FROM: [number, number] = [17.75, 20];
 
+/** Age at which a child's hip breadth takes the adult ratio of hip breadth to bicristal breadth, years. */
+const HIP_REFERENCE_AGE: number = 19.5;
+
 /**
- * Lengths, heights and bony breadths of one person: the skeleton's dimensions.
+ * Lengths, heights and breadths of one person: the skeleton's dimensions and the hip breadth over them.
  *
- * Children take per-subject ratios to stature from the 1977 US child survey, so a child is built from its own age's proportions (sitting height 0.59 of stature at 2 against 0.52 in adults, the legs growing fastest), never from a scaled adult. Adults take our ANSUR II regressions, so taller adults have relatively longer legs (sitting height slope 0.39 against a mean fraction of 0.52). Between 17.75 and 20 years the two hand over linearly, so every age gets one continuous value. Lengths regress on the peak stature, so old age keeps its limbs; the converter subtracts the spinal loss afterwards.
+ * Children take per-subject ratios to stature from the 1977 US child survey, so a child is built from its own age's proportions (sitting height 0.59 of stature at 2 against 0.52 in adults, the legs growing fastest), never from a scaled adult. Adults take our ANSUR II regressions, so taller adults have relatively longer legs (sitting height slope 0.39 against a mean fraction of 0.52). A child's soft-tissue hip breadth follows its pelvis, at the ANSUR II ratio of hip to bicristal breadth for the same BMI at 19.5 years, so it always covers the bony crests. Between 17.75 and 20 years the two hand over linearly, so every age gets one continuous value. Lengths regress on the peak stature, so old age keeps its limbs; the converter subtracts the spinal loss afterwards.
  *
- * Slimness lengthens the legs and arms and shortens the trunk at constant stature, and narrows the bony shoulders and pelvis, one unit being two residual standard deviations of the adult fits. Population is not read: no population-specific body survey was read, so every population gets the same body.
+ * Slimness lengthens the legs and arms and shortens the trunk at constant stature, and narrows the bony shoulders and pelvis and the hips over them, one unit being two residual standard deviations of the adult fits. Population is not read: no population-specific body survey was read, so every population gets the same body.
  *
  * @param context Resolved person
  * @param headHeight Head height already estimated, millimetres
@@ -294,18 +303,27 @@ export function estimateAutoMovieHumanLengths(
   const stature: number = context.peakStature;
   const mass: number = (context.bmi * stature * stature) / 1e6;
   const regressionAge: number = Math.min(58, Math.max(17, age));
-  const fit: (regression: Record<AutoMovieHumanSex, IRegression>) => number = (
+  const fitAt: (
     regression: Record<AutoMovieHumanSex, IRegression>,
+    atStature: number,
+    atAge: number,
+  ) => number = (
+    regression: Record<AutoMovieHumanSex, IRegression>,
+    atStature: number,
+    atAge: number,
   ): number => {
     const r: IRegression = regression[sex];
     return (
       r.intercept +
-      r.stature * stature +
+      r.stature * atStature +
       (r.mass ?? 0) * mass +
       (r.bmi ?? 0) * context.bmi +
-      (r.age ?? 0) * regressionAge
+      (r.age ?? 0) * atAge
     );
   };
+  const fit: (regression: Record<AutoMovieHumanSex, IRegression>) => number = (
+    regression: Record<AutoMovieHumanSex, IRegression>,
+  ): number => fitAt(regression, stature, regressionAge);
   const ratio: (curve: ISexCurve) => number = (curve: ISexCurve): number =>
     interpolateAutoMovieHumanGrowthCurve(curve[sex], age);
   const weight: number = Math.min(
@@ -365,6 +383,23 @@ export function estimateAutoMovieHumanLengths(
   const limbScale: number =
     (stature - slimSittingHeight) / (stature - sittingHeight);
   const narrowing: number = SLIMNESS.breadth * stature * slimness;
+  const childBicristal: () => number = (): number =>
+    ratio(SNYDER_1977.bispinous) * BICRISTAL_PER_BISPINOUS[sex] * stature;
+  const bicristalBreadth: number = blend(childBicristal, (): number =>
+    fit(ANSUR_II.bicristal),
+  );
+  // a child's soft hip breadth grows with its pelvis at the young adult's ratio for the same BMI
+  const referenceStature: number = estimateAutoMovieHumanMedianStature(
+    sex,
+    HIP_REFERENCE_AGE,
+  );
+  const hipBreadth: number = blend(
+    (): number =>
+      (childBicristal() *
+        fitAt(ANSUR_II.hipBreadth, referenceStature, HIP_REFERENCE_AGE)) /
+      fitAt(ANSUR_II.bicristal, referenceStature, HIP_REFERENCE_AGE),
+    (): number => fit(ANSUR_II.hipBreadth),
+  );
   return {
     sittingHeight: slimSittingHeight,
     cervicaleHeight,
@@ -374,12 +409,8 @@ export function estimateAutoMovieHumanLengths(
         (): number => ratio(SNYDER_1977.biacromial) * stature,
         (): number => fit(ANSUR_II.biacromial),
       ) - narrowing,
-    bicristalBreadth:
-      blend(
-        (): number =>
-          ratio(SNYDER_1977.bispinous) * BICRISTAL_PER_BISPINOUS[sex] * stature,
-        (): number => fit(ANSUR_II.bicristal),
-      ) - narrowing,
+    bicristalBreadth: bicristalBreadth - narrowing,
+    hipBreadth: hipBreadth - narrowing,
     arm: {
       upperArmLength:
         limbScale *
@@ -436,6 +467,9 @@ export namespace estimateAutoMovieHumanLengths {
 
     /** Bicristal breadth. */
     bicristalBreadth: number;
+
+    /** Soft-tissue hip breadth. */
+    hipBreadth: number;
 
     /** Lengths of one arm. */
     arm: Pick<

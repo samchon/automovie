@@ -2,7 +2,7 @@
 
 Generates a human figure from typed parameters by code: named measurements, physiological motions and closed-set choices go in, and an `IAutoMovieModel` comes out. The package holds no mesh, morph target or baked data.
 
-The package is being rebuilt under [#2788](https://github.com/samchon/automovie/issues/2788). Today it admits the documents, builds a placeholder skeleton for adults and emits a joint-marker model; the skin, face, hair and underwear arrive stage by stage.
+The package is being rebuilt under [#2788](https://github.com/samchon/automovie/issues/2788). Today it admits the documents, converts traits for any age and either sex from published anthropometry, generates the full 55-bone humanoid skeleton with landmarks and per-joint ranges of motion, and emits it as a stick figure; the skin, face, hair and underwear arrive stage by stage.
 
 ## Usage
 
@@ -29,7 +29,7 @@ const pose = human.pose({
 });
 ```
 
-`new AutoMovieHuman({ id, identity })` builds a person from a detailed `IAutoMovieHumanIdentity` directly; save `human.getIdentity()`, not the traits, as the person. An inadmissible document throws `AutoMovieHumanAdmissionError`, whose `errors` name each field, bound and cause.
+`new AutoMovieHuman({ id, identity })` builds a person from a detailed `IAutoMovieHumanIdentity` directly; save `human.getIdentity()`, not the traits, as the person. `human.measure()` measures the generated skeleton back in the anthropometric posture and returns the identity's stature, heights, breadths and segment lengths. An inadmissible document throws `AutoMovieHumanAdmissionError`, whose `errors` name each field, bound and cause.
 
 ## Public Surface
 
@@ -38,6 +38,8 @@ const pose = human.pose({
 | `AutoMovieHuman` | One person: skeleton, model, posing and expression |
 | `IAutoMovieHumanIdentity` | Detailed measurements, composition and pigmentation; the only input modeling reads |
 | `IAutoMovieHumanTraits`, `IAutoMovieHumanConverter`, `AutoMovieHumanConverter` | Beginner inputs and their deterministic expansion into an identity |
+| `IAutoMovieHumanSkeleton`, `IAutoMovieHumanLandmarks` | The generated skeleton with declared joint axes and ranges, and its palpable landmarks |
+| `measureAutoMovieHumanSkeleton`, `measureAutoMovieHumanLandmarks`, `IAutoMovieHumanSkeletalMeasurements` | Measuring a skeleton or landmarks by the survey definitions |
 | `IAutoMovieHumanPose`, `IAutoMovieHumanExpression`, `IAutoMovieHumanAppearance` | Pose, FACS expression and surface appearance documents |
 | `validateAutoMovieHuman*` | Admission returning typia's `IValidation` |
 | `IAutoMovieHumanPartGenerator`, `IAutoMovieHumanJunction`, `IAutoMovieHumanCage`, `IAutoMovieHumanRing` | Contracts for skin part generators and the junction that joins them |

@@ -71,7 +71,7 @@ const KNEE_CONTACT: Record<"angle" | "perMillimetre" | "referenceCalf", number> 
 };
 
 /**
- * Eye rotation ranges, degrees: the engine's default humanoid eye range, ±30 vertical and ±45 horizontal with no torsion, which matches Human's eye axes. No measured duction norm with absolute angles was read; Schechtman et al. (2005, Strabismus 13(1):21-26) report that maximum ductions fall by 21 to 35% from 14-19 to 80-95 years, which a later stage can apply once absolute angles are read. Grade: conventional.
+ * Eye rotation ranges, degrees: the engine's default humanoid eye range, ±30 vertical and ±45 horizontal with no torsion, which matches Human's eye axes. No measured duction norm with absolute angles was read; Schectman et al. (2005, Strabismus 13(1):21-26) report that maximum ductions fall by 21 to 35% from 14-19 to 80-95 years, which a later stage can apply once absolute angles are read. Grade: conventional.
  */
 const EYE: Record<"vertical" | "horizontal", number> = {
   vertical: 30,
