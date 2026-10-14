@@ -28,8 +28,10 @@ import { validateBody } from "./validateBody";
 import { validateColor } from "./validateColor";
 import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
+import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
 import { validateMesh } from "./validateMesh";
+import { validateModelImages } from "./validateModelImages";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
 import { validateSkeletonGraph } from "./validateSkeletonGraph";
 import { validateTextureBinding } from "./validateTextureBinding";
@@ -234,6 +236,8 @@ export const validateModel: (props: {
     );
   }
 
+  validateModelImages(model.images, `${path}.images`, collector);
+
   model.materials.forEach((m: IAutoMovieMaterial, i: number): void => {
     const mp: string = `${path}.materials[${i}]`;
     collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
@@ -253,6 +257,13 @@ export const validateModel: (props: {
         collector,
       );
     validateMaterialOverlays(m.overlays, `${mp}.overlays`, collector);
+    validateMaterialLobes({
+      material: m,
+      path: mp,
+      parts: model.parts,
+      partsPath: `${path}.parts`,
+      collector,
+    });
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");
