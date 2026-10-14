@@ -40,7 +40,7 @@ export interface IConnectedBodyPreviewResult {
     | IConnectedBodyUnavailableAnatomy
     | null;
 
-  /** Requested femoral target fits; null for no target, omitted anatomy or superseded contacts, and absent in other runtime variants. */
+  /** Requested femoral radius fits without acquisition metadata; null for no radius, omitted anatomy or superseded contacts, and absent in other runtime variants. */
   femoralHeads?: IConnectedBodyFemoralHeads | null;
 
   /** Available foot ground gaps; null when anatomy is omitted or no plane/ground witness exists, with missing foot regions omitted from the array. */

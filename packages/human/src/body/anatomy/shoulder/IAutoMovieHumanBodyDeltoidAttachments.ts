@@ -30,7 +30,10 @@ export interface IAutoMovieHumanBodyDeltoidAttachments<
   /** The deltoid tuberosity on the same side's humerus. */
   readonly insertions: readonly [
     {
+      /** This side's humerus, distinct from the clavicular and scapular origins. */
       structure: `${Side}Humerus`;
+
+      /** Named humeral attachment site; no registered source coordinate is supplied. */
       site: "deltoidTuberosity";
     },
   ];

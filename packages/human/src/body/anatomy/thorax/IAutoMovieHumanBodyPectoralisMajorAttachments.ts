@@ -35,7 +35,10 @@ export interface IAutoMovieHumanBodyPectoralisMajorAttachments<
   /** Lateral lip of the same side's intertubercular sulcus. */
   readonly insertions: readonly [
     {
+      /** This side's humerus, shared with the upper-limb anatomy owner. */
       structure: `${Side}Humerus`;
+
+      /** Named humeral tendon footprint; no registered surface coordinates are supplied. */
       site: "lateralLipIntertubercularSulcus";
     },
   ];
