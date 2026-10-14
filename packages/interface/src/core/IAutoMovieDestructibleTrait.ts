@@ -1,12 +1,9 @@
 import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
 
 /**
- * Profile trait proving that deterministic impacts can damage this body.
+ * Profile trait declaring durability and impact-material coefficients.
  *
- * `validateProfileCapabilities`, which `validateModel` and the production
- * design lint both run, requires a finite, positive `durability` and a valid
- * `impactBody`, and allows one destructible trait per profile. No engine verb
- * reads this trait yet, so today it constrains validation only.
+ * validateProfileCapabilities, also called by validateModel and production design admission, requires finite positive durability and valid impactBody fields, allowing one destructible trait per profile. No engine verb currently consumes it to apply damage, so it constrains metadata admission only.
  *
  * @evidence contracts/common.md#principled-implementation `validateProfileCapabilities` checks durability as finite and positive, checks every impact-body field against its own range, and refuses a second trait of the same kind in one profile.
  * @evidence contracts/common.md#clear-and-simple-design A discriminated trait with one budget and one material record, kept beside the mountable trait in the profile's `traits` list so capabilities are additive rather than flags on the profile.

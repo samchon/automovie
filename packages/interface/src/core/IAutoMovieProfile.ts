@@ -6,14 +6,14 @@ import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 /**
  * A profile (a USD applied schema): a declarative capability layered onto a subtree of the node graph, contributing drivers, channel limits, typed traits and gaits.
  *
- * Profiles are data, not code. A model or model recipe lists its profiles, and an application pairs one with an {@link IAutoMovieProfileBinding}, so a new rig kind ships as a record rather than an engine release. The shipped humanoid, horse and cat profiles carry only gaits; a forged prop's articulation profile carries hinge limits and drivers.
+ * A model or model recipe lists profile data, and an application pairs a profile with IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations contribute only the behavior their existing consumers implement.
  *
- * Node references inside `limits` and `drivers` are semantic keys, not node ids: `bindProfile` maps each through the binding's `boneMap`, prepends the placement prefix, and throws on an unmapped or blank key, while pointer channels pass through unchanged. A violation of a bound limit is reported with this profile's id. Traits provide capability validation; their declaration alone does not perform an action.
+ * Node references inside limits and drivers are semantic keys: bindProfile reads an own boneMap entry, prepends the placement prefix and refuses missing entries or blank mapped node ids. Pointer channels pass through unchanged. Bound-limit findings carry the profile id; traits declare capability metadata without performing an action.
  *
- * @evidence contracts/common.md#principled-implementation `bindProfile` rewrites every node reference in limits and drivers through one total mapping and fails on any gap, `bindProfileGaits` synthesises each named gait into a clip for the bound skeleton, and `validateProfileCapabilities` requires a non-blank id and name unique among a model's profiles and at most one trait of each kind.
+ * @evidence contracts/common.md#principled-implementation bindProfile maps cited node references and refuses gaps; bindProfileGaits synthesizes each uniquely named gait for the target skeleton. validateProfileCapabilities requires nonblank profile ids and names, unique ids among a model's profiles and at most one trait of each kind; display names need not be unique.
  * @evidence contracts/common.md#clear-and-simple-design One record groups everything a capability contributes so a single binding applies it, with each member typed by the pass that owns it; the `gaits` field is the one `core` to `motion` reference, kept because moving gaits into `core` would pull skeleton and easing types after it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Profiles are matched by id and capabilities by typed trait, never by model or profile name; only executable drivers, admitted limits, capability traits and synthesized gaits are carried, without an unread control-default channel.
- * @evidence contracts/common.md#meaningful-documentation States where profiles live, which shipped profiles fill which members, semantic node keys and binding failures, driver and limit ordering, capability validation and gait-name uniqueness.
+ * @evidence contracts/common.md#meaningful-documentation States profile ownership, semantic mapping and binding failures, insertion versus dependency execution order, limit precedence, capability metadata admission and gait-name uniqueness.
  * @author Samchon
  */
 export interface IAutoMovieProfile {
@@ -26,7 +26,7 @@ export interface IAutoMovieProfile {
   name: string;
 
   /**
-   * Drivers the profile contributes, with node fields written as semantic keys. Bound drivers run before the caller's own drivers in the same frame.
+   * Drivers contributed with semantic node keys. Bound descriptors precede direct descriptors in the frame's input list; channel-space dependency sorting may reorder execution, while world drivers preserve their combined list order.
    */
   drivers: IAutoMovieDriver[];
 

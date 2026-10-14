@@ -1,12 +1,7 @@
 /**
  * A material response owned by a deterministic collision or measurement proxy.
  *
- * Only the destructible trait carries it, and only `validateProfileCapabilities`
- * (run directly, by `validateModel`, and by the production design lint) reads
- * it. The engine's collision response `resolveImpact` takes a separate engine
- * type that adds velocity; the coefficient ranges here are the ones it
- * accepts, narrowed to exclude zero hardness and penetrability, so a validated
- * trait never carries a coefficient that response would refuse.
+ * The destructible trait carries it and validateProfileCapabilities checks its static fields. resolveImpact takes a separate Engine type that adds velocity; its hardness and penetrability ranges include zero, while the profile trait deliberately requires both above zero. Validating this record does not execute an impact response.
  *
  * @evidence contracts/common.md#principled-implementation `validateProfileCapabilities` requires a finite positive mass, restitution in `[0, 1]`, and hardness and penetrability in `(0, 1]`, the unit coefficients `resolveImpact` reads against its fixed bounce, embed and pass-through thresholds.
  * @evidence contracts/common.md#clear-and-simple-design The trait stores only the static material facts a proxy owns; velocity belongs to an impact, so the engine's response type adds it rather than this record carrying a placeholder.
@@ -25,8 +20,7 @@ export interface IAutoMovieImpactBody {
   hardness: number;
 
   /**
-   * Relative ease of being pierced, above zero and at most one (a soft target
-   * an arrow sinks into).
+   * Relative ease of being pierced, above zero and at most one; a declared material coefficient rather than proof that an impact was simulated.
    */
   penetrability: number;
 }

@@ -1,25 +1,13 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Secondary spring dynamics (hair, skirt, tail): the engine's one stateful
- * driver, modelled on VRM SpringBone and advanced by position Verlet
- * integration with the caller's timestep, so the same state and `dt` replay
- * identically.
+ * Secondary spring dynamics advanced by position Verlet integration with explicit caller-owned history and timestep. Replaying requires the same complete driver, composed frame, local transforms, collider list and history; state and dt alone do not determine the trajectory.
  *
- * It steps only when `resolveFrame` receives `springs` state and `dt`;
- * otherwise it is returned in `deferredDrivers`. Each step leaves `chain[0]` on
- * its animation and, for every later joint in order, carries inertia damped by
- * `drag`, adds gravity, pulls toward the joint's rest offset by
- * `stiffness × dt`, restores the joint's local translation length from the
- * already-stepped parent, then pushes the joint out of every collider sphere
- * enlarged by `hitRadius`. Only joint world positions are written: rotations
- * stay animated, and descendants outside the chain are not recomposed.
- * Non-finite or out-of-range parameters and a chain or center node missing
- * from the frame throw.
+ * resolveFrame steps it only with explicit spring state and dt, otherwise returning a deferred descriptor. Each non-root joint receives damped inertia, gravity and stiffness pull, then local-length projection followed by ordered sphere projections. Rotation and scale stay animated, and descendants outside the chain are not recomposed. Invalid scalar parameters and missing node/local records encountered by the step throw.
  *
- * @evidence contracts/common.md#principled-implementation `stepSpring` is position Verlet: the next position is `current + (current - previous) × (1 - drag) + gravityDir × gravityPower × dt²`, moved `stiffness × dt` of the way to the rest position, projected back onto the bone length, then pushed out of penetrated spheres in the VRM order; the premises are a positive `dt` and a pull factor at most 1, and a larger product overshoots the rest position because nothing caps it.
+ * @evidence contracts/common.md#principled-implementation stepSpring predicts current + (current - previous) * (1 - drag) + normalize(gravityDir) * gravityPower * dt², pulls stiffness * dt toward rest, projects local bone length and then resolves sphere penetration. Positive finite dt is checked; stiffness * dt is not capped, so a product above one can overshoot and finite authored inputs do not certify finite derived arithmetic.
  * @evidence contracts/common.md#clear-and-simple-design The driver holds only the per-chain parameters while the cross-frame memory lives in the caller's `IAutoMovieSpringState`, so the record stays plain data and one state can serve every spring in a scene.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid drag, stiffness, gravity, radius, direction or timestep throws instead of being clamped, and a spring without state is deferred to the caller rather than skipped; the center memory is keyed by center node alone, so a second spring stepped with the same center in the same frame sees no center motion, a defect that remains open.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid authored parameters refuse and absent state defers the driver. Centre transport is keyed by the centre/ordered-chain tuple, so distinct chains do not consume each other's shared-centre translation; joint history remains keyed by joint id. Collision projection follows length projection and can stretch a segment, and later failure does not roll back prior state writes.
  * @evidence contracts/common.md#meaningful-documentation States when the driver steps, the order of the integration terms, units of gravity and radius, the valid ranges, which joints are written and which are not, the center compensation and its limit, and each throwing case.
  * @author Samchon
  */
@@ -28,14 +16,12 @@ export interface IAutoMovieSpringDriver {
   type: "spring";
 
   /**
-   * Joint chain, root to tip; the spring writes the world positions of every
-   * joint after the first, and a chain shorter than two moves nothing.
+   * Joint chain, root to tip; the spring writes world positions after the first joint. A chain shorter than two moves no joint, though centre history can still update.
    */
   chain: string[];
 
   /**
-   * Pull toward the rest offset per second, non-negative: each step moves a
-   * joint `stiffness × dt` of the way toward its rest position.
+   * Nonnegative rest-pull rate per second; each step moves stiffness * dt of the way toward rest without capping that factor.
    */
   stiffness: number;
 
@@ -43,8 +29,7 @@ export interface IAutoMovieSpringDriver {
   drag: number;
 
   /**
-   * Gravity acceleration in metres per second squared, non-negative; each step
-   * adds `gravityPower × dt²` of displacement along `gravityDir`.
+   * Nonnegative gravity acceleration in m/s²; each step adds gravityPower * dt² along normalized gravityDir.
    */
   gravityPower: number;
 
@@ -52,18 +37,12 @@ export interface IAutoMovieSpringDriver {
   gravityDir: IAutoMovieVector3;
 
   /**
-   * Joint collision radius in metres, positive, added to each collider sphere's
-   * radius.
+   * Positive joint collision radius in metres, added to each collider sphere's radius.
    */
   hitRadius: number;
 
   /**
-   * Node whose world translation since the previous step is added to each
-   * joint's previous position, so the chain ignores that node's travel while
-   * gravity stays world-space; its rotation is not compensated. `null` measures
-   * inertia in world space. The state remembers one position per center node,
-   * so only the first spring stepped with a given center in a frame sees its
-   * motion.
+   * Node whose world translation since the previous step is added to each joint's prior position; rotation is not compensated. Null measures inertia in world space. Centre history uses the JSON-encoded [center, ordered chain] tuple, while joint history uses joint ids; the caller owns history lifetime and removal/reset.
    */
   center: string | null;
 }

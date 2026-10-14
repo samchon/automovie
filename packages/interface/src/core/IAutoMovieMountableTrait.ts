@@ -1,10 +1,7 @@
 /**
- * Profile trait proving that other bodies can mount this one.
+ * Profile trait declaring rider and payload capacity.
  *
- * `validateProfileCapabilities`, which `validateModel` and the production
- * design lint both run, requires `seats` to be an integer from 1 through 1024
- * and `payloadMass` to be finite and positive, and allows one mountable trait
- * per profile. No engine verb reads this trait yet.
+ * validateProfileCapabilities, also called by validateModel and production design admission, requires integer seats from 1 through 1024 and finite positive payloadMass, allowing one mountable trait per profile. No engine verb currently reads these capacities or establishes supported riding from them.
  *
  * @evidence contracts/common.md#principled-implementation `validateProfileCapabilities` checks `seats` with `Number.isInteger` inside `[1, 1024]` and `payloadMass` as finite and positive, and refuses a repeated trait kind within one profile.
  * @evidence contracts/common.md#clear-and-simple-design Two scalars state the capacity claim, and the trait sits in the profile's `traits` list as one discriminated member beside the destructible trait.

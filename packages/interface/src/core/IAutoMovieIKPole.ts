@@ -1,14 +1,9 @@
 /**
  * Pole target controlling which way a `twoBone` IK chain bends.
  *
- * The bend axis is the cross product of the root-to-goal direction with the
- * root-to-`node` direction (the upper bone when `node` is `null`), then rolled
- * about the root-to-goal direction by `angle`. When the two directions are
- * collinear a fixed perpendicular is used: the cross with world `+Y`, or with
- * `+X` when that is degenerate. The iterative `ccd` and `fabrik` solvers ignore
- * the pole entirely.
+ * The bend axis crosses the effective goal direction with the root-to-node vector, or current upper segment when node is null, then rolls by angle. A root-to-goal length below 1e-8 uses the upper segment's direction. A cross shorter than 1e-8 uses a deterministic perpendicular from world +Y or +X. CCD and FABRIK ignore the pole.
  *
- * @evidence contracts/common.md#principled-implementation `applyTwoBoneIK` crosses the root-to-goal direction with the pole reference, falls back to `anyPerp` below a `1e-8` axis length, rotates the axis by `angle` degrees about the goal direction with `Quaternion.fromAxisAngle`, and bends the upper bone about that axis.
+ * @evidence contracts/common.md#principled-implementation applyTwoBoneIK derives the effective goal direction, crosses the pole reference, uses anyPerp when the cross length is below 1e-8 and rolls by the finite angle in degrees before normalizing the bend axis. anyPerp keeps its +Y cross only above 1e-6, otherwise using the +X cross.
  * @evidence contracts/common.md#clear-and-simple-design A nullable node and one angle cover both a pole target and a pure roll of the current plane, so no separate roll-only driver field is needed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A collinear configuration takes a deterministic perpendicular rather than the previous frame's plane, and a non-finite angle throws rather than being treated as zero.
  * @evidence contracts/common.md#meaningful-documentation States how the bend axis is built, what a null node means, the angle unit and finiteness rule, the collinear fallback, and which solvers ignore the pole.
@@ -16,14 +11,12 @@
  */
 export interface IAutoMovieIKPole {
   /**
-   * Node whose world position the bend plane faces, or `null` to keep the
-   * limb's current bend plane and apply only `angle`.
+   * Node supplying the bend reference, or null to use the current upper segment; a collinear reference uses the documented deterministic perpendicular.
    */
   node: string | null;
 
   /**
-   * Roll of the bend axis about the root-to-goal direction, in degrees; must be
-   * finite.
+   * Finite degree roll of the bend axis about the effective goal direction.
    */
   angle: number;
 }
