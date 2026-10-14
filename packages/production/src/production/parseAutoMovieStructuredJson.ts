@@ -47,8 +47,7 @@ export const parseAutoMovieStructuredJson: (props: {
         });
     }
     catch (error) {
-        // The strict decoder throws nothing but its own typed refusal, so the
-        // encoding stage restates that refusal under the JSON record's identity.
+        // Restate the assumed typed decoder refusal under this JSON record's identity.
         const utf8: AutoMovieUtf8Error = error as AutoMovieUtf8Error;
         throw new AutoMovieStructuredJsonError(props.record, "encoding", utf8.offset, "", utf8.category);
     }

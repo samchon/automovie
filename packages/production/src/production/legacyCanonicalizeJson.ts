@@ -3,7 +3,7 @@ import { compareCodeUnits } from "@automovie/engine";
 /**
  * Exact predecessor algorithm, used only to verify a declared v1 digest.
  *
- * Its verification caller first admits the same value through identifyAutoMovieCanonicalJson. If that graph remains unchanged, numbers are finite, bigint is absent and the root has a JSON representation; this predecessor reproduces v1 object ordering, omission and historical array-hole spelling. Reflection on a mutable Proxy can observe changed values on the second pass, and verification catches any resulting refusal rather than treating prior admission as an immutable lease.
+ * Its verification caller first admits the same value through identifyAutoMovieCanonicalJson. If that graph remains unchanged, numbers are finite, bigint is absent and the root has a JSON representation; this predecessor reproduces v1 object ordering, omission and historical array-hole spelling. Mutable Proxy observations can change on the second pass; verification attempts to report encoding refusals, but converting an arbitrary failure to explanation text can itself throw.
  *
  * @evidence contracts/common.md#principled-implementation The recursive predecessor preserves v1 object sorting, omission and map/join array-hole spelling after v2 admitted the same value.
  * @evidence contracts/common.md#clear-and-simple-design Only explicit legacy JSON verification uses this compatibility encoder; current JSON remains engine-owned.

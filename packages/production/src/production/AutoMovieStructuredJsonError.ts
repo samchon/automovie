@@ -19,15 +19,7 @@ export class AutoMovieStructuredJsonError extends Error {
     public readonly code: ReturnType<() => "automovie-structured-json-invalid"> = "automovie-structured-json-invalid" as const;
 
     /**
-     * A native Error records logical record, first failed stage, UTF-8 offset, containing pointer and optional decoded duplicate name. Strict UTF-8 and recursive grammar admission share this machine-readable boundary.
-     *
-     * Offsets identify the first proving byte and schema admission remains the caller's responsibility.
-     *
-     * Documents stage/byte/pointer units and duplicate-only member meaning.
-     *
-     * Formats the supplied message/pointer and host stack without retaining input bytes. Fresh failures keep current record context instead of reusing an earlier error.
-     *
-     * The caller owns the error strings and stack; parser buffers and handles are not retained here.
+     * Attribute the parser-supplied refusal without validating its metadata again. An empty stored pointer displays as / in the native Error message while the pointer property keeps its original value.
      */
     public constructor(
 

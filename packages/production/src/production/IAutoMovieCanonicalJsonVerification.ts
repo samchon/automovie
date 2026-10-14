@@ -15,18 +15,18 @@ import type { IAutoMovieCanonicalJsonIdentity } from "./IAutoMovieCanonicalJsonI
 export type IAutoMovieCanonicalJsonVerification = {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * Current-protocol bytes matched the supplied digest.
      */
     status: "current";
 
     /**
-     * Newly derived current identity, including its caller-owned canonical or normalized byte buffer.
+     * Newly derived current identity with its caller-owned mutable canonical byte buffer.
      */
     current: IAutoMovieCanonicalJsonIdentity;
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * The predecessor digest matched and current identity bytes are available for migration.
      */
     status: "migrated";
 
@@ -36,24 +36,24 @@ export type IAutoMovieCanonicalJsonVerification = {
     legacyDigest: string;
 
     /**
-     * Newly derived current identity, including its caller-owned canonical or normalized byte buffer.
+     * Newly derived current identity; the verifier requires the value to remain stable across both encoding passes.
      */
     current: IAutoMovieCanonicalJsonIdentity;
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * The supplied digest did not match bytes derived under its recognized protocol.
      */
     status: "stale";
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * Missing original value, unknown protocol or a describable encoding refusal prevented verification.
      */
     status: "unverifiable";
 
     /**
-     * Explanation for absent recoverable input, unsupported protocol or current admission failure.
+     * Explanation for absent input, unknown protocol or a caught current/legacy encoding failure whose string conversion succeeded.
      */
     reason: string;
 };
