@@ -14,6 +14,3 @@ export type { IAutoMovieLegacyPropArticulation } from "./IAutoMovieLegacyPropArt
 export type { IAutoMovieLegacyGaitLimb } from "./IAutoMovieLegacyGaitLimb";
 export type { IAutoMovieLegacyRange } from "./IAutoMovieLegacyRange";
 export type { IAutoMovieLegacyGeometryModel } from "./IAutoMovieLegacyGeometryModel";
-export type { IAutoMovieLegacyMotion } from "./IAutoMovieLegacyMotion";
-export type { IAutoMovieLegacyKeyframe } from "./IAutoMovieLegacyKeyframe";
-export type { IAutoMovieLegacyBezier } from "./IAutoMovieLegacyBezier";
