@@ -3,7 +3,7 @@
  *
  * The build reads each `packages/<key>/package.json` and supplies `^` plus its `version`; {@link resolveAutoMovieTemplateDependencyVersions} copies every value unchanged into the generated version table. Each value is an npm range that a generated project's `package.json` writes as the package's dependency.
  *
- * @evidence contracts/common.md#principled-implementation A caret range on the package's own version admits compatible patch and minor releases under npm semver, which is how a generated project should follow the workspace it was built from.
+ * @evidence contracts/common.md#principled-implementation The build anchors each caret range at the package's own version; npm semver keeps the leftmost nonzero component fixed, so a current 0.1.x package admits later 0.1.x patches rather than 0.2.0. The resolver copies caller-supplied ranges without interpreting or validating semver.
  * @evidence contracts/common.md#clear-and-simple-design One required field per workspace package makes a missing package a type error at the build script instead of a missing token at render time; reading the manifests stays in the build script.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The record holds every workspace package uniformly, with no field defaulted or special-cased for one package.
  * @evidence contracts/common.md#meaningful-documentation The comment states the keys, where each value comes from, its form, and where it ends up; the members name the published package each range belongs to.

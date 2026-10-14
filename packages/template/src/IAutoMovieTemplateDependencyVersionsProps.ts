@@ -10,7 +10,7 @@ import type { IAutoMovieWorkspacePackageVersions } from "./IAutoMovieWorkspacePa
  * @evidence contracts/common.md#meaningful-documentation The comment states that the caller acquires the inputs; the members state which file each comes from and what it must contain.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The record only carries the manifest text and package ranges; parsing and lookup cost belongs to the resolver.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is consumed by one resolution; reuse of the parsed manifest happens inside the resolver.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The record holds the whole manifest text and twelve ranges until the resolution returns; it holds no handle.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the record and its manifest text and twelve package ranges for as long as it retains them; resolution caches no input across calls and acquires no handle.
  * @author Samchon
  */
 export interface IAutoMovieTemplateDependencyVersionsProps {

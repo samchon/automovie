@@ -3,9 +3,9 @@
 import { copyFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-const HERE = __dirname;
-const ROOT = resolve(HERE, "../../..");
-const SCAFFOLD = resolve(HERE, "../scaffold");
+const HERE: string = __dirname;
+const ROOT: string = resolve(HERE, "../../..");
+const SCAFFOLD: string = resolve(HERE, "../scaffold");
 
 /**
  * Repository instruction files a production shares unchanged, as
@@ -19,7 +19,7 @@ const SHARED: readonly (readonly [string, string])[] = [
 ];
 
 for (const [source, target] of SHARED) {
-  const destination = resolve(SCAFFOLD, target);
+  const destination: string = resolve(SCAFFOLD, target);
   mkdirSync(dirname(destination), { recursive: true });
   copyFileSync(resolve(ROOT, source), destination);
 }

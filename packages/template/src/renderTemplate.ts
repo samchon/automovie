@@ -8,11 +8,11 @@
  * @returns The rendered text.
  * @throws On any of the errors listed above, naming the token or offset.
  *
- * @evidence contracts/common.md#principled-implementation A single left-to-right scan with `indexOf` finds each delimiter pair and copies the text between tokens once; the premises are that keys never contain `}` and values never contain a delimiter, which the key pattern and the value check enforce, so output never needs a second pass.
+ * @evidence contracts/common.md#principled-implementation A left-to-right cursor finds delimiter pairs with indexOf and appends intervening text and selected values. The key pattern excludes braces and each value is checked for delimiters, so substituted values are never rescanned and malformed input throws before a result is returned.
  * @evidence contracts/common.md#clear-and-simple-design One function serves both file contents and path segments in `renderScaffoldEntries`, so paths and payloads follow the same token rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown key throws rather than being left in place or blanked, and the own-property check keeps `__proto__` or `constructor` from resolving through the prototype.
  * @evidence contracts/common.md#meaningful-documentation The comment states the key alphabet, every refusal with its reason, that inherited properties are not keys, and that values are not rescanned.
- * @evidence contracts/performance.md#efficient-algorithms The scan is linear in the content length plus the output length: each `indexOf` starts at the cursor or the opening delimiter, and the closing search before the cursor advances never passes the next token's end.
+ * @evidence contracts/performance.md#efficient-algorithms Delimiter searches advance with the cursor and examine input spans a bounded number of times; key and value checks add their visited lengths. Output uses repeated string concatenation, whose allocation and copying cost depends on the JavaScript engine's string representation, so this owner does not guarantee linear output construction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call renders one distinct text; `renderScaffoldEntries` calls it once per file content and once per path.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function builds one output string and retains nothing after returning.
  */

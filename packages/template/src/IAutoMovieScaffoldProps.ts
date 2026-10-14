@@ -12,10 +12,7 @@
  */
 export interface IAutoMovieScaffoldProps {
   /**
-   * The new project's name, written into `package.json` `name` and the
-   * README heading through `{{name}}`. Surrounding whitespace is trimmed; an
-   * empty result, `.`, `..`, a trailing `.`, a character from `<>:"/\|?*`, a
-   * control character, or a reserved Windows device name is refused.
+   * The new project's name, substituted into package.json and the README heading after trimming. renderScaffold documents the refused separators, ASCII controls and device-name patterns; its checks do not validate npm naming or every filesystem limit.
    */
   name: string;
 }

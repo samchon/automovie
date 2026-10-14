@@ -15,7 +15,7 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidence contracts/common.md#clear-and-simple-design The function is a one-line adapter from a props record to the resolver, so single and repeated lookups share one implementation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every refusal of the resolver propagates unchanged, with nothing caught or defaulted here.
  * @evidence contracts/common.md#meaningful-documentation The comment states the relation to the resolver, when to use the resolver instead, the return form, and every failure.
- * @evidence contracts/performance.md#efficient-algorithms One parse linear in the manifest and one direct-key lookup; it is the right cost for a single lookup only, which the comment states.
+ * @evidence contracts/performance.md#efficient-algorithms One manifest parse is followed by scans of the direct root, catalogs and selected-catalog keys, plus alias resolution when used. Total work depends on manifest size, and repeated lookups should share the resolver rather than repeat this parse.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single lookup has nothing to share; repeated lookups belong on one resolver.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed document becomes unreachable when the call returns, and no handle is opened.
  */

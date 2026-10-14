@@ -9,7 +9,7 @@
  * @evidence contracts/common.md#meaningful-documentation The comment states the open, prove, and create order and why the path is used once; each member states its constraint and what violating it causes.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A request record chooses no algorithm; the adapter's cost belongs to `publishNativeScaffoldFile`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A request describes one exclusive create, which is an effect and is never shared.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The request references the caller's byte array without copying it and holds no handle; it lives for one adapter call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the request and referenced byte array; publishNativeScaffoldFile views those bytes during its synchronous call and retains no request afterward. Keeping the request elsewhere keeps its bytes alive, and this record holds no handle.
  * @author Samchon
  */
 export interface IScaffoldParentPublicationRequest {
