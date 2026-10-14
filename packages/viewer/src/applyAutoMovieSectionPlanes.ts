@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { IAutoMovieSectionPlane } from "@automovie/engine";
 
 import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";
 
@@ -38,11 +39,19 @@ import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSection
  * `three.js` bakes that count into the shader program while reading the plane
  * values every frame, so sliding a cut costs nothing and taking or releasing
  * one costs a single compile.
+ *
+ * @evidence contracts/common.md#principled-implementation Negates each authored removal-halfspace normal and normalizes it into a Three world-space plane through the same point; admitted normals must be finite/nonzero. clipIntersection=false drops any removed halfspace, preserving exact zero-distance boundaries, though GPU floating precision remains renderer-dependent.
+ * @evidence contracts/common.md#clear-and-simple-design Assigns one shared plane array to existing materials and toggles renderer local clipping without replacing geometry/materials; this inspection owner replaces previous clipping policy rather than editing production assets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored plane geometry uniformly with no object-name exceptions or replacement Three methods; renderer/material fields use supported clipping APIs and no solver geometry is manufactured for the cut.
+ * @evidence contracts/common.md#meaningful-documentation Describes world-plane orientation, any-plane removal, boundary convention, empty-list reset and plane-count compilation policy; prior arbitrary clipping is not saved by this operation.
+ * @evidence contracts/performance.md#efficient-algorithms Builds P planes and traverses O scene objects plus all encountered material slots, assigning one shared array rather than cloning P planes per material; repeated shared materials may receive repeated inexpensive assignments.
+ * @evidence contracts/performance.md#reuse-equivalent-work All materials share the built plane objects for this call, and unchanged plane count reuses the compiled clipping program while values may move; scene mutation and supplied plane values prevent a retained root-only result cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows root/renderer/materials and transfers P plane references to materials and the caller; next assignment/empty release removes those references, with no geometry/GPU allocation, observer or task owned here.
  */
-export const applyAutoMovieSectionPlanes = (
+export const applyAutoMovieSectionPlanes: (props: IApplyAutoMovieSectionPlanesProps) => THREE.Plane[] = (
   props: IApplyAutoMovieSectionPlanesProps,
 ): THREE.Plane[] => {
-  const built = props.planes.map((plane) =>
+  const built: THREE.Plane[] = props.planes.map((plane: IAutoMovieSectionPlane): THREE.Plane =>
     new THREE.Plane().setFromNormalAndCoplanarPoint(
       new THREE.Vector3(
         -plane.normal.x,
@@ -53,9 +62,9 @@ export const applyAutoMovieSectionPlanes = (
     ),
   );
   props.renderer.localClippingEnabled = built.length !== 0;
-  const assigned = built.length === 0 ? null : built;
-  props.root.traverse((object) => {
-    const holder = object as Partial<Pick<THREE.Mesh, "material">>;
+  const assigned: THREE.Plane[] | null = built.length === 0 ? null : built;
+  props.root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+    const holder: Partial<Pick<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, "material">> = object as Partial<Pick<THREE.Mesh, "material">>;
     if (holder.material === undefined) return;
     for (const material of Array.isArray(holder.material)
       ? holder.material

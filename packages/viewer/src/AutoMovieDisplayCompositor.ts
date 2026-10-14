@@ -21,14 +21,26 @@ import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState
  * use a straight target for that product. Native sRGB destinations receive the
  * canonical inverse transfer before their automatic encoding, preserving the
  * display-byte domain rather than applying another view transform.
+ *
+ * @evidence contracts/common.md#principled-implementation Resolved RGBA8 framebuffer copies preserve each source's display transform; the shader interpolates rounded display bytes and reverses native sRGB encoding only when the destination will encode again. Float32 thresholds can differ from CPU Float64 by one byte.
+ * @evidence contracts/common.md#clear-and-simple-design One compositor owns the three display copies and one full-screen quad; source callbacks keep scene rendering with their existing owners and framebuffer restoration stays in the shared capture helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses public renderer reset and framebuffer-copy APIs to synchronize context state; no native bindings or renderer internals are replaced, and the same byte operator serves all scenes.
+ * @evidence contracts/common.md#meaningful-documentation Describes display-byte rather than radiance composition, alpha association, destination encoding, precision limits, and caller ownership of the destination.
+ * @evidence contracts/performance.md#efficient-algorithms Each render copies and shades a constant number of width-times-height images on the GPU, without CPU pixel readback; one-source fades omit the incoming scene draw.
+ * @evidence contracts/performance.md#reuse-equivalent-work Textures, quad, material, scene and camera survive successive frames; unchanged resize dimensions preserve allocations while source pixels are refreshed because callbacks may draw different frames.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The instance owns three RGBA8 display copies and one quad geometry/material. Resize changes extents only after successful old-copy retirement; failed resize/disposal retains the closed owner, prior potential copy extent and original cause after independently attempting every remaining resource.
  */
 export class AutoMovieDisplayCompositor {
   private readonly sources: THREE.FramebufferTexture[];
   private readonly backing: THREE.FramebufferTexture;
   private readonly material: THREE.RawShaderMaterial;
-  private readonly geometry = new THREE.PlaneGeometry(2, 2);
-  private readonly scene = new THREE.Scene();
-  private readonly camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  private readonly geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(2, 2);
+  private readonly scene: THREE.Scene = new THREE.Scene();
+  private readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  private disposed: boolean = false;
+  private disposalFailure: { error: unknown } | undefined;
+  /** Disposal callbacks cannot allocate a replacement while old-copy retirement runs. */
+  private resizing: Error | undefined;
 
   public constructor(private width: number, private height: number) {
     this.admitSize(width, height);
@@ -73,20 +85,44 @@ export class AutoMovieDisplayCompositor {
 
   /**
    * Resize owned copies only; drawing-buffer pixels remain the source unit.
-   * All copies receive the new extent and upload generation even when an
-   * independent disposal listener fails, so same-size retries stay coherent.
+   * New extents publish only after every old-copy retirement succeeds. A failed
+   * retirement closes this owner, retains its old potential extent and cause,
+   * and independently retires the remaining quad resources without retries.
+   *
+   * @evidence contracts/common.md#principled-implementation Admits positive safe-integer drawing-buffer extents and attempts all three old-copy retirements before publishing new images/upload generations. Failure independently retires the quad and retains the closed owner, old potential extent and original causes; reentrant mutations refuse during retirement.
+   * @evidence contracts/common.md#clear-and-simple-design One retirement boundary controls the three equal copy extents, with the same terminal failure state used by final disposal rather than an untracked resize recovery allocation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal extents reuse an open owner, while a failed old allocation cannot be hidden by new dimensions, retry or another draw. Native public release failure is not treated as physical retirement.
+   * @evidence contracts/common.md#meaningful-documentation States drawing-buffer units, success-only extent publication and failed closed-owner retention/refusal, distinguishing invalid-dimension preflight from failed native release.
+   * @evidence contracts/performance.md#efficient-algorithms Visits exactly three texture wrappers and, on failure, two quad resources with a fixed-size failure list. Supported success reallocates on subsequent upload; failed owners allocate no new images or native draws.
+   * @evidence contracts/performance.md#reuse-equivalent-work Equal dimensions retain open copy allocations without disposal/upload changes. Failed resize shares its stored failure with later resize, draw and disposal instead of repeating any native attempt.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources All old-copy releases are attempted before changing extents. A failure retains the previous copy bounds/references and attempts remaining geometry/material release once; physical uncertainty follows the failed owner until its renderer/context lifetime ends.
    */
   public resize(width: number, height: number): void {
+    this.assertOpen();
     this.admitSize(width, height);
     if (this.width === width && this.height === height) return;
-    this.width = width; this.height = height;
-    const failures: unknown[] = [];
-    for (const texture of [...this.sources, this.backing]) {
-      try { texture.dispose(); } catch (error) { failures.push(error); }
-      texture.image = { width, height }; texture.needsUpdate = true;
+    this.resizing = new Error("Display-copy retirement is still running.");
+    try {
+      const failures: unknown[] = [];
+      for (const texture of [...this.sources, this.backing]) {
+        try { texture.dispose(); } catch (error) { failures.push(error); }
+      }
+      if (failures.length !== 0) {
+        this.disposed = true;
+        for (const resource of [this.geometry, this.material]) {
+          try { resource.dispose(); } catch (error) { failures.push(error); }
+        }
+        const error: unknown = failures.length === 1 ? failures[0] : new AggregateError(failures, "Display-copy resize disposal failed.");
+        this.disposalFailure = { error };
+        throw error;
+      }
+      this.width = width; this.height = height;
+      for (const texture of [...this.sources, this.backing]) {
+        texture.image = { width, height }; texture.needsUpdate = true;
+      }
+    } finally {
+      this.resizing = undefined;
     }
-    if (failures.length === 1) throw failures[0];
-    if (failures.length > 1) throw new AggregateError(failures, "Display-copy resize disposal failed.");
   }
 
   /**
@@ -95,19 +131,30 @@ export class AutoMovieDisplayCompositor {
    * are attempted, and an aggregate retains the original failure first.
    * The previous canvas picture is retained before any source draw and restored
    * after a failed composition, so partial sources never replace a valid display.
+   * Caller callbacks must keep this owner and borrowed renderer alive through
+   * the call; a previously closed owner refuses before any native observation.
+   *
+   * @evidence contracts/common.md#principled-implementation Saves canvas bytes before drawing callbacks, composes quantized straight display channels with alpha association and destination sRGB correction, then independently restores framebuffer and renderer state; Float32 rounding is the documented precision limit.
+   * @evidence contracts/common.md#clear-and-simple-design Source rendering stays in callbacks, copy synchronization stays in copyDisplay and shared restoration aggregation preserves the primary error before cleanup causes.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Source callbacks must return on the default framebuffer; the renderer's public reset boundary synchronizes native texture units without patching foreign methods or private cache entries.
+   * @evidence contracts/common.md#meaningful-documentation Describes fade versus two-source draws, complete restoration attempts and preservation of the previous valid canvas after composition failure.
+   * @evidence contracts/performance.md#efficient-algorithms Performs one backing copy, one or two source renders and one full-screen blend over width times height pixels, avoiding CPU readback; restoration can add one backing draw.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the instance's persistent copies and shader for every frame; each callback is invoked because its effects and newly sampled pixels cannot be shared merely by matching alpha.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows renderer and destination without disposing them, retains only the instance's three copies, and restores target, viewport, scissor, clear and tone state after both success and failure.
    */
   public render(renderer: THREE.WebGLRenderer, outgoing: () => void, incoming: (() => void) | null, alpha: number): void {
-    const target = renderer.getRenderTarget();
-    const restoreFramebuffer = captureAutoMovieFramebufferRestore(renderer);
-    const destinationSRGB = target !== null && readAutoMovieDisplayDestinationEncoding(renderer) === "srgb";
-    const autoClear = renderer.autoClear;
-    const clearColor = renderer.getClearColor(new THREE.Color()).clone();
-    const clearAlpha = renderer.getClearAlpha();
-    const toneMapping = renderer.toneMapping;
-    const exposure = renderer.toneMappingExposure;
-    const premultiplied = renderer.getContextAttributes()?.premultipliedAlpha === true;
+    this.assertOpen();
+    const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> = renderer.getRenderTarget();
+    const restoreFramebuffer: () => void = captureAutoMovieFramebufferRestore(renderer);
+    const destinationSRGB: boolean = target !== null && readAutoMovieDisplayDestinationEncoding(renderer) === "srgb";
+    const autoClear: boolean = renderer.autoClear;
+    const clearColor: THREE.Color = renderer.getClearColor(new THREE.Color()).clone();
+    const clearAlpha: number = renderer.getClearAlpha();
+    const toneMapping: THREE.ToneMapping = renderer.toneMapping;
+    const exposure: number = renderer.toneMappingExposure;
+    const premultiplied: boolean = renderer.getContextAttributes()?.premultipliedAlpha === true;
     let primary: {error:unknown} | undefined;
-    let backingSaved = false;
+    let backingSaved: boolean = false;
     try {
       renderer.setRenderTarget(null);
       this.copyDisplay(renderer, this.backing);
@@ -129,7 +176,7 @@ export class AutoMovieDisplayCompositor {
       // The display source already resolved its view, including float-output hosts.
       renderer.toneMapping = THREE.NoToneMapping;
       renderer.toneMappingExposure = 1;
-      const uniforms = this.material.uniforms;
+      const uniforms: THREE.RawShaderMaterial["uniforms"] = this.material.uniforms;
       uniforms.outgoing!.value = this.sources[0];
       uniforms.incoming!.value = this.sources[1];
       uniforms.alpha!.value = alpha;
@@ -140,8 +187,8 @@ export class AutoMovieDisplayCompositor {
       uniforms.outputSRGB!.value = destinationSRGB;
       renderer.render(this.scene, this.camera);
     } catch (error) { primary = {error}; }
-    const operations = [
-      () => {
+    const operations: (() => void)[] = [
+      (): void => {
         if (!backingSaved || (target === null && primary === undefined)) return;
         renderer.setRenderTarget(null);
         // Restore the complete saved canvas, even when the source or destination
@@ -155,11 +202,11 @@ export class AutoMovieDisplayCompositor {
         this.material.uniforms.copyBacking!.value = true;
         renderer.render(this.scene, this.camera);
       },
-      () => { renderer.autoClear = autoClear; },
-      () => { renderer.setClearColor(clearColor, clearAlpha); },
+      (): void => { renderer.autoClear = autoClear; },
+      (): void => { renderer.setClearColor(clearColor, clearAlpha); },
       restoreFramebuffer,
-      () => { renderer.toneMapping = toneMapping; },
-      () => { renderer.toneMappingExposure = exposure; },
+      (): void => { renderer.toneMapping = toneMapping; },
+      (): void => { renderer.toneMappingExposure = exposure; },
     ];
     if (primary === undefined) restoreAutoMovieRenderModeState(operations);
     else restoreAutoMovieRenderModeState(operations, primary);
@@ -181,14 +228,43 @@ export class AutoMovieDisplayCompositor {
     renderer.copyFramebufferToTexture(texture);
   }
 
-  /** Release only compositor-owned textures, geometry and material. */
+  /**
+   * Release only compositor-owned textures, geometry and material once.
+   * Closed instances refuse resize/render; repeated disposal preserves its
+   * original success or failure and never retries physical resource release.
+   *
+   * @evidence contracts/common.md#principled-implementation Closes before independently disposing the three copies, quad geometry and shader material; a single failure keeps its identity, multiple causes retain attempt order and repeated callers receive the same stored completion.
+   * @evidence contracts/common.md#clear-and-simple-design The disposal list mirrors the compositor's owned allocations and excludes the borrowed renderer, scene callbacks and destination target.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No cleanup failure is swallowed or converted into a successful physical-retirement claim.
+   * @evidence contracts/common.md#meaningful-documentation States exact owned resources, terminal render/resize refusal and one-attempt repeated completion rather than asserting native physical release after a listener failure.
+   * @evidence contracts/performance.md#efficient-algorithms Attempts a fixed five resources with a failure list bounded by those five calls, independent of rendered frame count.
+   * @evidence contracts/performance.md#reuse-equivalent-work Exactly one physical disposal attempt serves all calls to this owner; successful repeats return and failed repeats throw the original stored cause, preventing native retries and false success.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Attempts all owned public release operations and closes future use; resource references remain with the owner on failed/indeterminate retirement, with physical release unverified until its supported renderer/context boundary.
+   */
   public dispose(): void {
+    if (this.resizing !== undefined) throw this.resizing;
+    if (this.disposed) {
+      if (this.disposalFailure !== undefined) throw this.disposalFailure.error;
+      return;
+    }
+    this.disposed = true;
     const failures: unknown[] = [];
     for (const resource of [...this.sources, this.backing, this.geometry, this.material]) {
       try { resource.dispose(); } catch (error) { failures.push(error); }
     }
-    if (failures.length === 1) throw failures[0];
-    if (failures.length > 1) throw new AggregateError(failures, "Display compositor resource disposal failed.");
+    if (failures.length !== 0) {
+      const error: unknown = failures.length === 1 ? failures[0] : new AggregateError(failures, "Display compositor resource disposal failed.");
+      this.disposalFailure = { error };
+      throw error;
+    }
+  }
+
+  /** Closed owners cannot recreate allocations under a completed retirement. */
+  private assertOpen(): void {
+    if (this.resizing !== undefined) throw this.resizing;
+    if (!this.disposed) return;
+    if (this.disposalFailure !== undefined) throw this.disposalFailure.error;
+    throw new Error("This display compositor is disposed.");
   }
 
   private admitSize(width: number, height: number): void {
@@ -200,6 +276,14 @@ export class AutoMovieDisplayCompositor {
    * The current owned RGBA8/no-mipmap display-copy extent. Both source sampler
    * uniforms and the saved display can upload, even for a one-layer fade, so
    * their conservative resident closure contains three copies.
+   *
+   * @evidence contracts/common.md#principled-implementation Reports current drawing-buffer width and height with exactly three RGBA8 no-mipmap copies, including the saved backing that remains part of a fade's resident closure.
+   * @evidence contracts/common.md#clear-and-simple-design Returns allocation facts for the budget observer instead of duplicating GPU byte estimation inside the compositor.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The copy count comes from the two source textures and one backing allocation, without substituting a measured or fixture-specific budget.
+   * @evidence contracts/common.md#meaningful-documentation Explains format, mip policy, dimensions and why one-source fades still account for all three copies.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Reading two fields and returning one fixed-size record selects no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work These mutable extent facts are read directly and no repeated computation is coordinated.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned residency record owns no handles and retains no source textures.
    */
   public describeTextureResidency(): {width:number;height:number;copies:3} {
     return {width:this.width,height:this.height,copies:3};

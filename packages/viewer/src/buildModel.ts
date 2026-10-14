@@ -1,6 +1,8 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieModel,
+  IAutoMovieMaterial,
+  IAutoMovieMeshSkin,
 } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -44,19 +46,26 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * the resolver's owner. A nested producer retires its own failed allocation.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, and realizes geometry/PBR through their canonical owners; attachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
+ * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief flags; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced skin/attached bones throw rather than producing frozen geometry; missing material definitions currently select the ordinary default material, so this producer is not a substitute for complete source admission. No anatomical fixture names, patched Three methods or extra UV channels choose output.
+ * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
+ * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted variant; typed buffer work scales with vertices/indices, and skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares existing material variants across matching part flags and borrows primed texture bindings; each bone/part graph is independent because Object3D parent/pose state cannot be reused across placements without explicit clone ownership.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
  */
-export const buildModel = (
+export const buildModel: (model: IAutoMovieModel, resolveTexture?: IAutoMovieTextureResolver) => IAutoMovieModelObject = (
   model: IAutoMovieModel,
   resolveTexture?: IAutoMovieTextureResolver,
 ): IAutoMovieModelObject => {
-  return constructAutoMovieOwnedResources((own) => {
-  const group = new THREE.Group();
+  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void }>(resource: Resource) => Resource): IAutoMovieModelObject => {
+  const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   group.name = model.name ?? model.id;
 
-  const bones = new Map<AutoMovieHumanoidBone, THREE.Bone>();
+  const bones: Map<AutoMovieHumanoidBone, THREE.Bone<THREE.Object3DEventMap>> = new Map<AutoMovieHumanoidBone, THREE.Bone>();
   if (model.skeleton !== null) {
     for (const b of model.skeleton.bones) {
-      const bone = new THREE.Bone();
+      const bone: THREE.Bone<THREE.Object3DEventMap> = new THREE.Bone();
       bone.name = b.bone;
       // Rig rest SCALE is ignored, the engine's pinned convention (#1052):
       // `resolvePose` composes rotation and translation only, and
@@ -79,35 +88,35 @@ export const buildModel = (
       bones.set(b.bone, bone);
     }
     for (const b of model.skeleton.bones) {
-      const bone = bones.get(b.bone)!;
-      const parent = b.parent !== null ? bones.get(b.parent) : undefined;
+      const bone: THREE.Bone<THREE.Object3DEventMap> = bones.get(b.bone)!;
+      const parent: THREE.Bone<THREE.Object3DEventMap> | undefined = b.parent !== null ? bones.get(b.parent) : undefined;
       (parent ?? group).add(bone);
     }
   }
 
-  const definitions = new Map(model.materials.map((m) => [m.id, m]));
-  const materials = new Map<string, Map<string, THREE.MeshStandardMaterial>>();
-  const parts = new Map<string, THREE.Object3D>();
+  const definitions: Map<string, IAutoMovieMaterial> = new Map(model.materials.map((m: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [m.id, m]));
+  const materials: Map<string, Map<string, THREE.MeshStandardMaterial>> = new Map<string, Map<string, THREE.MeshStandardMaterial>>();
+  const parts: Map<string, THREE.Object3D<THREE.Object3DEventMap>> = new Map<string, THREE.Object3D>();
   for (const part of model.parts) {
-    const geo = own(buildGeometry(part.geometry));
-    const colored = geo.hasAttribute("color");
+    const geo: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = own(buildGeometry(part.geometry));
+    const colored: boolean = geo.hasAttribute("color");
     // a mesh with relief weights takes its own variant, whose normal map's
     // slopes they scale; one without keeps the material as authored
-    const weighted = geo.hasAttribute("reliefWeight");
-    const definition =
+    const weighted: boolean = geo.hasAttribute("reliefWeight");
+    const definition: IAutoMovieMaterial | undefined =
       part.material === null ? undefined : definitions.get(part.material);
     let mat: THREE.MeshStandardMaterial;
     if (definition === undefined) {
       mat = own(defaultMaterial());
       mat.vertexColors = colored;
     } else {
-      let variants = materials.get(definition.id);
+      let variants: Map<string, THREE.MeshStandardMaterial> | undefined = materials.get(definition.id);
       if (variants === undefined) {
         variants = new Map();
         materials.set(definition.id, variants);
       }
-      const key = `${colored}:${weighted}`;
-      const cached = variants.get(key);
+      const key: string = `${colored}:${weighted}`;
+      const cached: THREE.MeshStandardMaterial | undefined = variants.get(key);
       if (cached === undefined) {
         mat = own(buildMaterial(definition, resolveTexture));
         mat.vertexColors = colored;
@@ -115,11 +124,11 @@ export const buildModel = (
         variants.set(key, mat);
       } else mat = cached;
     }
-    const skin =
+    const skin: IAutoMovieMeshSkin | null =
       part.attachedBone === null && part.geometry.type === "mesh"
         ? part.geometry.mesh.skin
         : null;
-    const mesh =
+    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap> =
       skin !== null
         ? new THREE.SkinnedMesh(geo, mat)
         : new THREE.Mesh(geo, mat);
@@ -128,8 +137,8 @@ export const buildModel = (
     if (part.transform !== null) applyTransform(mesh, part.transform);
 
     if (mesh instanceof THREE.SkinnedMesh && skin !== null) {
-      const jointBones = skin.joints.map((joint) => {
-        const bone = bones.get(joint);
+      const jointBones: THREE.Bone<THREE.Object3DEventMap>[] = skin.joints.map((joint: AutoMovieHumanoidBone): THREE.Bone<THREE.Object3DEventMap> => {
+        const bone: THREE.Bone<THREE.Object3DEventMap> | undefined = bones.get(joint);
         if (bone === undefined)
           throw new Error(
             `part "${part.id}" skin references missing bone "${joint}"`,
@@ -145,7 +154,7 @@ export const buildModel = (
       // the silent fallback parented a hand-held prop to the model root,
       // rendering it frozen at the origin while everything else looked right,
       // the silent-skip class #1051 removed from the viewer.
-      const parentBone = bones.get(part.attachedBone);
+      const parentBone: THREE.Bone<THREE.Object3DEventMap> | undefined = bones.get(part.attachedBone);
       if (parentBone === undefined)
         throw new Error(
           `part "${part.id}" attachedBone references missing bone "${part.attachedBone}"`,

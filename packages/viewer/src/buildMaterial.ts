@@ -1,4 +1,4 @@
-import { IAutoMovieMaterial } from "@automovie/interface";
+import { IAutoMovieMaterial, type IAutoMovieColor, type IAutoMovieMaterialOverlay } from "@automovie/interface";
 import * as THREE from "three";
 
 import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
@@ -15,16 +15,24 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * The producer owns its new material before resolving texture bindings. Setup
  * failure retires that material and preserves cleanup causes; resolver textures
  * and shared shader tables remain owned by their actual producers.
+ *
+ * @evidence contracts/common.md#principled-implementation Maps admitted linear PBR coefficients/alpha policy into MeshPhysicalMaterial and resolves binding-private textures with explicit color-space roles; glTF combined metallic-roughness uses one shared binding, while subsurface/detail/overlay shader features follow their actual producer conventions rather than claiming a measured full spectral material model.
+ * @evidence contracts/common.md#clear-and-simple-design Owns material field realization and delegates sampler admission plus feature-specific shader injection to their existing owners; optional omission yields documented scalar/default behavior without a second material representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored coefficients and contract defaults (mask cutoff0.5, ior1.5, neutral overlay factors), not expected-frame textures; no resolver/global method is replaced, and unresolved optional maps produce scalar material rather than pretending an image was decoded.
+ * @evidence contracts/common.md#meaningful-documentation Documents name/id identity, new-material ownership, separate texture/shared-table lifetime and failure preservation; individual texture roles and detail-only normal fallback are explicit in their owning helpers/comments.
+ * @evidence contracts/performance.md#efficient-algorithms Performs fixed PBR/binding setup plus O(K) authored overlay resolution and feature source initialization; material storage grows with active texture/overlay bindings, not mesh vertices or instance population, and combined metallic/roughness reuses one resolved texture.
+ * @evidence contracts/performance.md#reuse-equivalent-work Resolves the shared metallic-roughness binding once and borrows primed texture-cache bindings, while model/library owners share equivalent material variants across parts/surfaces; this producer creates one independent material per request.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registers its new material before binding/shader setup and retires it on failure; successful material transfers to caller, whereas resolver texture wrappers and shader tables stay with their owning cache/producer. Material references retain borrowed bindings until the material/owner becomes unreachable.
  */
-export const buildMaterial = (
+export const buildMaterial: (material: IAutoMovieMaterial, resolveTexture?: IAutoMovieTextureResolver) => THREE.MeshPhysicalMaterial = (
   material: IAutoMovieMaterial,
   resolveTexture?: IAutoMovieTextureResolver,
 ): THREE.MeshPhysicalMaterial => {
-  return constructAutoMovieOwnedResources((own) => {
-  const c = material.baseColor;
-  const alphaMode =
+  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void; }>(resource: Resource) => Resource): THREE.MeshPhysicalMaterial => {
+  const c: IAutoMovieColor = material.baseColor;
+  const alphaMode: string =
     material.alphaMode ?? (material.opacity < 1 ? "blend" : "opaque");
-  const std = own(new THREE.MeshPhysicalMaterial({
+  const std: THREE.MeshPhysicalMaterial = own(new THREE.MeshPhysicalMaterial({
     name: material.name ?? material.id,
     color: new THREE.Color(c.r, c.g, c.b),
     metalness: material.metallic,
@@ -46,7 +54,7 @@ export const buildMaterial = (
     "srgb",
     resolveTexture,
   );
-  const metallicRoughness = resolveAutoMovieMaterialTexture(
+  const metallicRoughness: THREE.Texture<unknown, THREE.TextureEventMap> | null = resolveAutoMovieMaterialTexture(
     material.metallicRoughnessTexture,
     "linear",
     resolveTexture,
@@ -60,7 +68,7 @@ export const buildMaterial = (
   );
   if (material.normalScale !== undefined)
     std.normalScale.setScalar(material.normalScale);
-  const detailNormal = resolveAutoMovieMaterialTexture(
+  const detailNormal: THREE.Texture<unknown, THREE.TextureEventMap> | null = resolveAutoMovieMaterialTexture(
     material.detailNormalTexture,
     "linear",
     resolveTexture,
@@ -74,7 +82,7 @@ export const buildMaterial = (
       std.normalScale.setScalar(material.detailNormalScale ?? 1);
     }
   }
-  const overlays = (material.overlays ?? []).map((overlay) => ({
+  const overlays: { color: THREE.Texture<unknown, THREE.TextureEventMap> | null; blend: "multiply" | "replace"; colorFactor: { r: number; g: number; b: number; }; roughness: number | null; normal: THREE.Texture<unknown, THREE.TextureEventMap> | null; normalScale: number; strength: number; }[] = (material.overlays ?? []).map((overlay: IAutoMovieMaterialOverlay): { color: THREE.Texture<unknown, THREE.TextureEventMap> | null; blend: "multiply" | "replace"; colorFactor: { r: number; g: number; b: number; }; roughness: number | null; normal: THREE.Texture<unknown, THREE.TextureEventMap> | null; normalScale: number; strength: number; } => ({
     color: resolveAutoMovieMaterialTexture(
       overlay.baseColorTexture,
       "srgb",
@@ -95,7 +103,7 @@ export const buildMaterial = (
   // is none, and the material shows alone
   applyMaterialOverlays(
     std,
-    overlays.flatMap((overlay) =>
+    overlays.flatMap((overlay: { color: THREE.Texture<unknown, THREE.TextureEventMap> | null; blend: "multiply" | "replace"; colorFactor: { r: number; g: number; b: number; }; roughness: number | null; normal: THREE.Texture<unknown, THREE.TextureEventMap> | null; normalScale: number; strength: number; }): { color: THREE.Texture<unknown, THREE.TextureEventMap>; blend: "multiply" | "replace"; colorFactor: { r: number; g: number; b: number; }; roughness: number | null; normal: THREE.Texture<unknown, THREE.TextureEventMap> | null; normalScale: number; strength: number; }[] =>
       overlay.color === null ? [] : [{ ...overlay, color: overlay.color }],
     ),
   );

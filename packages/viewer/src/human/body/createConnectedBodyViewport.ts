@@ -28,16 +28,40 @@ import { createHumanViewportTransfer } from "../common/createHumanViewportTransf
 import { publishViewerCompletedFrame } from "../../publishViewerCompletedFrame.js";
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
+import { constructAutoMovieOwnedResources } from "../../constructAutoMovieOwnedResources.js";
 
 /**
  * Assemble the body renderer, resident worker and metre-scale display scene.
+ *
+ * @evidence contracts/common.md#principled-implementation The viewport projects committed numerical frames through one resident renderer into a Y-up metre display with native camera, orbit and authored studio lights. Worker replies remain offscreen until publish; observation and companion changes invalidate owned shadow/display state. Direction changes admit a finite representable nonzero norm before mutation, so overflowing finite vectors still refuse.
+ * @evidence contracts/common.md#clear-and-simple-design Display scene, camera, observation and invalidation share one owner; numerical serialization/worker and GPU frame preparation remain separate collaborators. Companion geometry is borrowed display-only membership, while the panel owns the committed document and exports.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Studio light powers, colors, clipping distances and shadow bias are existing display conventions, not anatomical measurements or proven matching photographs. No numerical model or exported document is altered by clay, pass, light, camera or companion controls; unobserved current source is not claimed visually correct.
+ * @evidence contracts/common.md#meaningful-documentation The comments state metre frame, transaction publication, display-only companion and static invalidation. Close transfers no ownership of the borrowed renderer or orbit controls; the browser factory owns those services and the acquired resident connection is terminated by this viewport.
+ * @evidence contracts/performance.md#efficient-algorithms Each animation draw updates orbit/observation and renders native scene work; invalidation avoids requesting duplicate completed-frame images during unchanged native orbit draws. Publication refreshes model buffers through the numerical renderer; construction allocates one fixed studio and shadow configuration, whose actual raster/map cost remains native-renderer work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Camera, scene, studio, resident worker and compatible GPU resident persist across edits. Display dirty state changes on actual owned transitions and native orbit events; adapters without events retain eager saving, and finish/publication deliberately invalidate even when group identity is reused.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Construction immediately registers clay, orbit listener, resize subscription and animation-loop cleanup for rollback. Close memoizes independent cancellation, loop/listener removal, observation/frame/cache/worker and shadow retirement; companion resources and host renderer/controls remain borrowed. Concurrent numerical requests and native raster bytes have no fixed cap in this function.
  */
 export function createConnectedBodyViewport<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: IConnectedBodyViewportHost<Document>) {
-  const { renderer, canvas } = props;
+>(props: IConnectedBodyViewportHost<Document>): ReturnType<typeof createConnectedBodyPreview<Document>> & {
+  settleRetirements: () => Promise<void>;
+  close: () => Promise<void>;
+  publish: (model: Awaited<ReturnType<ReturnType<typeof createConnectedBodyPreview<Document>>["build"]>>) => void;
+  dispose: (model: Awaited<ReturnType<ReturnType<typeof createConnectedBodyPreview<Document>>["build"]>>) => void;
+  fitView: () => void;
+  cameraView: (degrees: number) => void;
+  observe: ReturnType<typeof createHumanObservation>["hooks"];
+  setClay: (enabled: boolean) => void;
+  setShadows: (enabled: boolean) => void;
+  setLightDirection: (input: IConnectedBodyInspectionLightDirection | null) => void;
+  companion: { show: (group: THREE.Group | undefined) => void; place: (matrix: THREE.Matrix4) => void };
+  finish: () => void;
+  renderer: () => unknown;
+} {
+  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void; }>(resource: Resource) => Resource): ReturnType<typeof createConnectedBodyViewport<Document>> => {
+  const { renderer, canvas }: IConnectedBodyViewportHost<Document> = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -46,17 +70,17 @@ export function createConnectedBodyViewport<
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
-  const scene = new THREE.Scene();
+  const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   scene.background = new THREE.Color(0x1c252e);
   scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
   const shadowLights: THREE.DirectionalLight[] = [];
-  const directional = new Map<string, IConnectedBodyInspectionLight>();
+  const directional: Map<string, IConnectedBodyInspectionLight> = new Map<string, IConnectedBodyInspectionLight>();
   for (const [name, x, y, z, power, color] of [
     ["key", -1.5, 1.75, 2.25, 2.3, 0xffe9d8],
     ["fill", 1.75, 0.5, 1.5, 0.85, 0xdaeaff],
     ["rim", 0.5, 1.5, -1.25, 1.6, 0xffffff],
   ] as const) {
-    const light = new THREE.DirectionalLight(color, power);
+    const light: THREE.DirectionalLight = new THREE.DirectionalLight(color, power);
     light.name = name;
     light.position.set(x, y, z);
     directional.set(name, { light, rest: light.position.clone() });
@@ -78,40 +102,41 @@ export function createConnectedBodyViewport<
       light.shadow.camera.updateProjectionMatrix();
     }
   }
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
-  const orbit = props.orbit(camera);
-  let displayDirty = true;
-  const invalidateDisplay = (): void => { displayDirty = true; };
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
+  const orbit: ReturnType<IConnectedBodyViewportHost<Document>["orbit"]> = props.orbit(camera);
+  let displayDirty: boolean = true;
+  const invalidateDisplay: () => void = (): void => { displayDirty = true; };
+  own({ dispose: (): void => orbit.removeEventListener?.("change", invalidateDisplay) });
   orbit.addEventListener?.("change", invalidateDisplay);
   orbit.target.set(0, -0.015, 0);
   orbit.enableDamping = true;
   orbit.minDistance = 0.12;
   orbit.maxDistance = 10;
-  const clay = new THREE.MeshStandardMaterial({
+  const clay: THREE.MeshStandardMaterial = own(new THREE.MeshStandardMaterial({
     color: 0x999999,
     roughness: 0.75,
     side: THREE.DoubleSide,
-  });
+  }));
   let active: THREE.Group | undefined;
   let companion: THREE.Group | undefined;
-  let clayEnabled = false;
-  const observation = createHumanObservation({
+  let clayEnabled: boolean = false;
+  const observation: ReturnType<typeof createHumanObservation> = createHumanObservation({
     scene,
     camera,
     orbit,
-    roots: () => (active === undefined ? [] : [active]),
+    roots: (): THREE.Group<THREE.Object3DEventMap>[] => (active === undefined ? [] : [active]),
     clay,
-    height: () => canvas.getBoundingClientRect().height,
-    invalidateShadows: () => {
+    height: (): number => canvas.getBoundingClientRect().height,
+    invalidateShadows: (): void => {
       renderer.shadowMap.needsUpdate = true;
     },
     invalidateDisplay,
   });
-  const numerical = createConnectedBodyRenderer({
+  const numerical: ReturnType<typeof createConnectedBodyRenderer> = createConnectedBodyRenderer({
     loadTexture: props.loadTexture,
     maxAnisotropy: renderer.capabilities.getMaxAnisotropy(),
   });
-  const preview = createConnectedBodyPreview<Document>({
+  const preview: ReturnType<typeof createConnectedBodyPreview<Document>> = createConnectedBodyPreview<Document>({
     worker: props.worker,
     renderer: numerical,
     serialize: props.serialize,
@@ -122,83 +147,88 @@ export function createConnectedBodyViewport<
     cameraView,
     fitView,
     resize: resizeCamera,
-  } = createHumanPreviewCamera({
+  }: { cameraView: (degrees: number) => void; fitView: () => void; resize: (width: number, height: number) => void; } = createHumanPreviewCamera({
     camera,
     orbit,
-    model: () => active,
-    setSize: (width, height) => renderer.setSize(width, height, false),
+    model: (): THREE.Group<THREE.Object3DEventMap> | undefined => active,
+    setSize: (width: number, height: number): void => renderer.setSize(width, height, false),
   });
   cameraView(0);
-  const resize = (): void => {
+  const resize: () => void = (): void => {
     invalidateDisplay();
-    const rect = canvas.getBoundingClientRect();
+    const rect: Pick<DOMRect, "width" | "height"> = canvas.getBoundingClientRect();
     resizeCamera(rect.width, rect.height);
   };
-  props.observeResize(resize);
+  const stopResize: () => void = props.observeResize(resize);
+  own({ dispose: stopResize });
   resize();
-  let freezes = 0;
-  const render = (): void => {
+  let freezes: number = 0;
+  const render: () => void = (): void => {
     if (freezes === 0) orbit.update();
     observation.apply();
     scene.overrideMaterial = observation.override(clayEnabled);
-    const changed = orbit.addEventListener === undefined ? undefined : displayDirty;
+    const changed: boolean | undefined = orbit.addEventListener === undefined ? undefined : displayDirty;
     displayDirty = false;
     renderer.render(scene, camera);
     publishViewerCompletedFrame(canvas, { camera, scene,
       pass: observation.hooks.state().pass === "beauty" && clayEnabled ? "clay" : observation.hooks.state().pass,
       control: transfer, requiresApplication: true, changed });
   };
-  const finish = (): void => { invalidateDisplay(); render(); renderer.getContext().finish(); };
-  const transfer = createHumanViewportTransfer({
+  const finish: () => void = (): void => { invalidateDisplay(); render(); renderer.getContext().finish(); };
+  const transfer: ReturnType<typeof createHumanViewportTransfer> = createHumanViewportTransfer({
     camera,
-    observe: observation.hooks, clay: () => clayEnabled,
-    shadows: () => shadowLights.some((light) => light.castShadow),
-    setClay: (value) => { invalidateDisplay(); clayEnabled = value; renderer.shadowMap.needsUpdate = true; },
-    setShadows: (value) => { invalidateDisplay(); for (const light of shadowLights) light.castShadow = value; renderer.shadowMap.needsUpdate = true; },
+    observe: observation.hooks, clay: (): boolean => clayEnabled,
+    shadows: (): boolean => shadowLights.some((light: THREE.DirectionalLight): boolean => light.castShadow),
+    setClay: (value: boolean): void => { invalidateDisplay(); clayEnabled = value; renderer.shadowMap.needsUpdate = true; },
+    setShadows: (value: boolean): void => { invalidateDisplay(); for (const light of shadowLights) light.castShadow = value; renderer.shadowMap.needsUpdate = true; },
     finish,
-    freeze: () => {
+    freeze: (): () => void => {
       ++freezes;
-      let released = false;
-      return () => { if (!released) { released = true; --freezes; } };
+      let released: boolean = false;
+      return (): void => { if (!released) { released = true; --freezes; } };
     },
   });
+  own({ dispose: (): void => renderer.setAnimationLoop(null) });
   renderer.setAnimationLoop(render);
-  const close = createAutoMovieResourceRetirement([
-    () => preview.cancel(),
-    () => renderer.setAnimationLoop(null),
-    () => observation.close(),
-    () => {
+  const close: () => Promise<void> = createAutoMovieResourceRetirement([
+    (): void => preview.cancel(),
+    (): void => renderer.setAnimationLoop(null),
+    (): void => orbit.removeEventListener?.("change", invalidateDisplay),
+    stopResize,
+    (): Promise<void> => observation.close(),
+    (): void => {
       if (active !== undefined) scene.remove(active);
     },
-    () => {
+    (): void => {
       if (companion !== undefined) scene.remove(companion);
     },
-    () => {
+    (): void => {
       active = undefined;
     },
-    () => {
+    (): void => {
       companion = undefined;
     },
-    () => clay.dispose(),
-    ...shadowLights.flatMap((light) => [
-      () => light.shadow.map?.dispose(),
-      () => light.shadow.mapPass?.dispose(),
+    (): void => clay.dispose(),
+    ...shadowLights.flatMap((light: THREE.DirectionalLight): (() => void)[] => [
+      (): void => light.shadow.map?.dispose(),
+      (): void => light.shadow.mapPass?.dispose(),
     ]),
-    () => numerical.close(),
+    (): Promise<void> => numerical.close(),
+    (): void => preview.disposeWorker(),
   ]);
   return {
     ...preview,
     /** Await requested frame retirements; cleanup failure does not undo a published document/model pair. */
-    settleRetirements: () => createAutoMovieResourceRetirement([
-      () => observation.settleRetirements(),
-      () => numerical.settleRetirements(),
+    settleRetirements: (): Promise<void> => createAutoMovieResourceRetirement([
+      (): Promise<void> => observation.settleRetirements(),
+      (): Promise<void> => numerical.settleRetirements(),
     ])(),
-    /** Retire this stage's resources without disposing its borrowed renderer or worker connection. */
+    /** Retire this stage and resident worker connection; the host retains its renderer and orbit controls. */
     close,
     publish: (model: Model): void => {
       invalidateDisplay();
       observation.restore();
-      const group = numerical.publish(model.frame);
+      const group: THREE.Group<THREE.Object3DEventMap> = numerical.publish(model.frame);
       renderer.shadowMap.needsUpdate = true;
       if (active !== group) {
         if (active !== undefined) scene.remove(active);
@@ -209,8 +239,8 @@ export function createConnectedBodyViewport<
     dispose: (model: Model): void => {
       invalidateDisplay();
       restoreAutoMovieRenderModeState([
-        () => observation.restore(),
-        () => numerical.dispose(model.frame),
+        (): void => observation.restore(),
+        (): void => numerical.dispose(model.frame),
       ]);
     },
     fitView: (): void => { invalidateDisplay(); fitView(); },
@@ -233,28 +263,30 @@ export function createConnectedBodyViewport<
      * origin toward the light in the displayed Y-up, Z-forward frame.
      * Each call restores the other lights; null restores the whole studio.
      * Unknown names and nonfinite or zero norms refuse before any mutation.
-     * Scaling by the largest component before normalization also keeps
-     * finite subnormal and very large directions representable. This affects
+     * Component scaling keeps normalization ratios representable after the
+     * finite, nonzero norm gate. A finite vector whose norm overflows still
+     * refuses before that scaling; current controls supply bounded directions.
+     * This affects
      * display only, never the numerical model, document or exported bytes.
      */
     setLightDirection: (
       input: IConnectedBodyInspectionLightDirection | null,
     ): void => {
-      const selected = input === null ? null : directional.get(input.name);
+      const selected: IConnectedBodyInspectionLight | null | undefined = input === null ? null : directional.get(input.name);
       if (selected === undefined)
         throw new Error("Unknown inspection light: " + input!.name);
-      const magnitude = input === null ? 1 : Math.hypot(...input.direction);
+      const magnitude: number = input === null ? 1 : Math.hypot(...input.direction);
       if (!Number.isFinite(magnitude) || magnitude === 0)
         throw new Error(
           "An inspection light needs a finite nonzero direction.",
         );
-      let changed = false;
+      let changed: boolean = false;
       for (const one of directional.values()) {
-        const goal = one.rest.clone();
+        const goal: THREE.Vector3 = one.rest.clone();
         if (input !== null && one === selected) {
-          const distance = one.rest.length();
-          const scale = Math.max(...input.direction.map(Math.abs));
-          const norm = Math.hypot(...input.direction.map((x) => x / scale));
+          const distance: number = one.rest.length();
+          const scale: number = Math.max(...input.direction.map(Math.abs));
+          const norm: number = Math.hypot(...input.direction.map((x: number): number => x / scale));
           goal.set(
             (input.direction[0] / scale / norm) * distance,
             (input.direction[1] / scale / norm) * distance,
@@ -286,10 +318,11 @@ export function createConnectedBodyViewport<
       },
     },
     finish,
-    renderer: () => {
-      const gl = renderer.getContext();
-      const extension = gl.getExtension("WEBGL_debug_renderer_info");
+    renderer: (): unknown => {
+      const gl: { finish: () => void; getExtension: (name: string) => { UNMASKED_RENDERER_WEBGL: number; } | null; getParameter: (parameter: number) => unknown; RENDERER: number; } = renderer.getContext();
+      const extension: { UNMASKED_RENDERER_WEBGL: number; } | null = gl.getExtension("WEBGL_debug_renderer_info");
       return gl.getParameter(extension?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER);
     },
   };
+  });
 }

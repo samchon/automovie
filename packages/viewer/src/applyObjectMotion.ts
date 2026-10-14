@@ -1,10 +1,7 @@
-import {
-  IAutoMovieSampledChannel,
-  sampleClip,
-  sampleClipSequence,
-} from "@automovie/engine";
-import { IAutoMovieClip } from "@automovie/interface";
-import * as THREE from "three";
+import { sampleClip } from "@automovie/engine";
+import type { IAutoMovieClip } from "@automovie/interface";
+import type * as THREE from "three";
+import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
 /**
  * Drive scene objects from a **world-space node clip**: a shot's `objectMotion`
@@ -18,12 +15,9 @@ import * as THREE from "three";
  * the artifact gate refuses a pointer track on a transform clip so the two
  * cannot be confused.
  *
- * The paths are matched by an EXHAUSTIVE switch, not by an `if` chain with a
- * tail: `weights` fell off that chain's end for as long as the channel existed,
- * and the next path added to the union would have fallen off it the same way
- * (#1357). A switch with no `default` fails to compile when the union grows,
- * which is the same mechanism `LIGHT_CHANNEL_PROPERTIES` uses to tie the
- * admitted set to the applied one.
+ * The shared writer switches on all four current node paths, including morph
+ * weights (#1357). Its void-returning switch has no exhaustive-type assertion;
+ * adding a path to the interface still requires updating that writer.
  *
  * This is the render side of the engine's clip bakers ({@link compileLaunch},
  * `compileAttach`, `cameraMove`): the object rides its clip each frame, no rig
@@ -36,83 +30,22 @@ import * as THREE from "three";
  * rest instead: it owns node rests; this helper does not).
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Uses the engine's sampleClip interpolation and applies its admitted node vectors to Three transforms or indexed morph influences; clips must satisfy engine widths/quaternion conventions, and absent channels retain host state rather than restoring a rest pose.
+ * @evidence contracts/common.md#clear-and-simple-design This single-clip entry delegates to the same sampled-channel writer as the sequence entry, so transform and morph semantics have one owner; it does not allocate or own a scene.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves each authored node id through the supplied scene lookup and skips unresolved/non-node channels by contract; no fixture ids, substituted methods or numeric compensations select behavior.
+ * @evidence contracts/common.md#meaningful-documentation Documents seconds, world-space clip intent, the four applied node paths, missing-node tolerance, unchanged absent channels and the shared writer's current exhaustiveness limitation.
+ * @evidence contracts/performance.md#efficient-algorithms Sampling scans clip channels and their engine key lookup; writing is linear in sampled channels plus descendant meshes for each weights channel, with the engine sample table as request-local storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the shared writer while sampling independently for the supplied clip/time; mutable scene targets and partial-channel effects make result caching unsafe here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows clip and resolved scene objects, retains no handles after the call and transfers no resource ownership; only temporary sample data and morph traversal callbacks are created.
  */
-export const applyObjectMotion = (
+export const applyObjectMotion: (
+  clip: IAutoMovieClip,
+  seconds: number,
+  resolve: (node: string) => THREE.Object3D | undefined,
+) => void = (
   clip: IAutoMovieClip,
   seconds: number,
   resolve: (node: string) => THREE.Object3D | undefined,
 ): void => {
   applySampledObjectMotion(sampleClip(clip, seconds), resolve);
-};
-
-/**
- * Apply a shot's object clips under the engine's per-channel authority rule. A
- * future-only channel writes nothing. As with {@link applyObjectMotion}, a
- * stateful host must restore staged bases before each seek/frame when no active
- * authority should leave the staged value visible.
- */
-export const applyObjectMotions = (
-  clips: readonly IAutoMovieClip[],
-  seconds: number,
-  resolve: (node: string) => THREE.Object3D | undefined,
-): void => {
-  applySampledObjectMotion(sampleClipSequence(clips, seconds), resolve);
-};
-
-/** Write an already-authoritative sample table to the Three.js scene. */
-const applySampledObjectMotion = (
-  sampled: ReadonlyMap<string, IAutoMovieSampledChannel>,
-  resolve: (node: string) => THREE.Object3D | undefined,
-): void => {
-  for (const { channel, value } of sampled.values()) {
-    if (channel.kind !== "node") continue;
-    const object = resolve(channel.node);
-    if (object === undefined) continue;
-    switch (channel.path) {
-      case "translation":
-        object.position.set(value[0]!, value[1]!, value[2]!);
-        break;
-      case "rotation":
-        object.quaternion.set(value[0]!, value[1]!, value[2]!, value[3]!);
-        break;
-      // scale is a first-class engine channel (sampleClip validates width 3,
-      // resolveFrame composes it into node matrices). Dropping it rendered
-      // scaling props rigid while every engine consumer saw them grow (#1049)
-      case "scale":
-        object.scale.set(value[0]!, value[1]!, value[2]!);
-        break;
-      case "weights":
-        applyMorphWeights(object, value);
-        break;
-    }
-  }
-};
-
-/**
- * Write a sampled `weights` vector onto every morphable mesh under `object`.
- *
- * The fourth node path was the last one this helper dropped in silence (#1357):
- * the artifact gate accepts a `weights` track, `resolveFrame` interpolates it
- * into its `weights` output, and the render left the mesh at whatever it
- * already had, so a committed clip that morphs a prop validated clean and
- * changed nothing on screen. Same class as `scale` before #1049.
- *
- * The vector is INDEXED, not named: entry `i` drives morph target `i`, the glTF
- * order the mesh was built or imported with. That is the only convention
- * available here, because a track addresses a node rather than a channel name,
- * and it is deliberately different from {@link applyExpression}, which drives
- * semantic ARKit/preset channels BY NAME on an expression sink.
- *
- * A mesh with no morph targets is skipped, and a vector longer than a mesh's
- * influence array writes the entries that exist: a clip authored against one
- * model must not throw when a host swaps in another, the same tolerance the
- * unresolved-node case above already has.
- */
-const applyMorphWeights = (object: THREE.Object3D, value: number[]): void => {
-  object.traverse((child) => {
-    const influences = (child as THREE.Mesh).morphTargetInfluences;
-    if (influences === undefined) return;
-    const count = Math.min(influences.length, value.length);
-    for (let i = 0; i < count; ++i) influences[i] = value[i]!;
-  });
 };

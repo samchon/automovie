@@ -65,12 +65,20 @@ const DEFINITIONS: Record<
  * Resolve the shared diagnostic meaning and actual Three material parameters.
  * `flat` retains its historical lit grey faceted rendering; `albedo` explicitly
  * asks for authored base colour without illumination or tone mapping.
+ *
+ * @evidence contracts/common.md#principled-implementation Own-property admission selects one canonical supported pass and returns a copied definition/parameter record; inherited or unknown names refuse instead of becoming a default diagnostic.
+ * @evidence contracts/common.md#clear-and-simple-design The table co-locates reading, illumination scope and actual settings; the accessor protects shared data while material installation remains with observation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed diagnostic settings are declared product conventions, not fixture appearance adjustments. Albedo refuses unsupported shaders through its owner rather than presenting a guessed base color.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes historically lit flat shading from unlit albedo, and table readings document alpha-card and beauty limits.
+ * @evidence contracts/performance.md#efficient-algorithms One dictionary lookup and copies of fixed-size records require constant work and output storage; no scene or image traversal occurs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Canonical records are shared internally, but copied parameters isolate caller mutation; current pass requests do not share mutable native material instances.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The table persists as bounded module data and each return transfers a scalar record copy. No shader program, renderer or task is retained here.
  */
 export function getHumanObservationPassDefinition(
   pass: HumanObservationPass,
 ): IHumanObservationPassDefinition {
   if (!Object.hasOwn(DEFINITIONS, pass))
     throw new Error(`Unknown observation pass "${String(pass)}".`);
-  const definition = DEFINITIONS[pass];
+  const definition: IHumanObservationPassDefinition = DEFINITIONS[pass];
   return { ...definition, parameters: { ...definition.parameters } };
 }

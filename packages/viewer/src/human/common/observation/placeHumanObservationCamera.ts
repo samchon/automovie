@@ -32,24 +32,32 @@ const DIRECTIONS: Record<
  *   camera, looking down), finite and within [-89, 89]; zero keeps the named
  *   direction. The sum is clamped to the pole guard so the orbit's up vector
  *   stays defined.
+ *
+ * @evidence contracts/common.md#principled-implementation Selects a supported named azimuth/elevation, adds admitted pitch, clamps elevation to the disclosed near-pole guard and computes a spherical metre position. Finite positive distance/target values are caller premises; explicit pitch/name admission occurs here, and finite inputs can still exceed representable target sums at extreme magnitude.
+ * @evidence contracts/common.md#clear-and-simple-design One shared direction table and placement law keep figure-left/right conventions consistent across body and face observation without a second scene or camera owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 89.9-degree pole guard avoids native orbit's singular up direction and is a display convention, not a measured pose. Unknown names and excessive pitch refuse rather than selecting a fixture-friendly view.
+ * @evidence contracts/common.md#meaningful-documentation The comment and parameters give metre frame, anatomical-left azimuth, pitch sign/range and clamped near-pole meaning; source target is copied rather than exposed for mutation.
+ * @evidence contracts/performance.md#efficient-algorithms Table lookup and fixed trigonometric/vector arithmetic require constant time and two tuple outputs, independent of subject mesh size.
+ * @evidence contracts/performance.md#reuse-equivalent-work Body/face callers share the canonical directions, but target, distance and pitch remain request dependencies; matching view names alone do not identify equivalent camera states.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns position/target data and retains no source tuple, native camera or task. The small direction table persists as module data.
  */
 export function placeHumanObservationCamera(
   view: HumanObservationView,
   target: readonly [number, number, number],
   distance: number,
-  pitch = 0,
+  pitch: number = 0,
 ): { position: [number, number, number]; target: [number, number, number] } {
   if (!Object.hasOwn(DIRECTIONS, view))
     throw new Error(`Unknown observation view "${String(view)}".`);
   if (!Number.isFinite(pitch) || Math.abs(pitch) > 89)
     throw new Error("Observation pitch must be finite, within [-89, 89].");
-  const { azimuth } = DIRECTIONS[view];
-  const elevation = Math.max(
+  const { azimuth }: { azimuth: number; elevation: number; } = DIRECTIONS[view];
+  const elevation: number = Math.max(
     -89.9,
     Math.min(89.9, DIRECTIONS[view].elevation + pitch),
   );
-  const a = (azimuth * Math.PI) / 180;
-  const e = (elevation * Math.PI) / 180;
+  const a: number = (azimuth * Math.PI) / 180;
+  const e: number = (elevation * Math.PI) / 180;
   return {
     position: [
       target[0] + distance * Math.sin(a) * Math.cos(e),

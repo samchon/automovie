@@ -7,14 +7,15 @@ import {DEPTH_NORMALIZATION_RANGE} from "./DEPTH_NORMALIZATION_RANGE.js";
 import {overrideAutoMovieRenderModeMaterials} from "./overrideAutoMovieRenderModeMaterials.js";
 import {applyEdgeMode} from "./applyEdgeMode.js";
 import {EDGE_WIDTH} from "./EDGE_WIDTH.js";
-import {autoMovieSemanticMaskOf} from "./semanticMask/index.js";
+import {autoMovieSemanticMaskOf, type IAutoMovieSemanticMaskBinding} from "./semanticMask/index.js";
 import {applyMaskMode} from "./applyMaskMode.js";
 import {applySemanticMaskMode} from "./applySemanticMaskMode.js";
 import {applyPoseMode} from "./applyPoseMode.js";
 import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
+import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
-const isNonMeshRenderable = (object: THREE.Object3D): boolean =>
+const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (object: THREE.Object3D): boolean =>
   (object as THREE.Line).isLine === true ||
   (object as THREE.Points).isPoints === true ||
   (object as THREE.Sprite).isSprite === true;
@@ -30,15 +31,15 @@ const isNonMeshRenderable = (object: THREE.Object3D): boolean =>
  * own overlay (the pose skeleton is itself `LineSegments`), so that overlay,
  * added afterward, stays visible.
  */
-const hideNonMeshRenderables = (scene: THREE.Scene): (() => void) => {
+const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
   const hidden: THREE.Object3D[] = [];
-  scene.traverse((object) => {
+  scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (isNonMeshRenderable(object) && object.visible) {
       object.visible = false;
       hidden.push(object);
     }
   });
-  return () => {
+  return (): void => {
     for (const object of hidden) object.visible = true;
   };
 };
@@ -77,6 +78,9 @@ const hideNonMeshRenderables = (scene: THREE.Scene): (() => void) => {
  * is the same gap it had before the crowd could move at all.
  *
  * An unknown mode is a caller bug and throws.
+ * Active or failed scene retirement refuses every mode before setup, including
+ * beauty. Failed restoration retains its complete owner callback and cause;
+ * nested owned cleanup still runs independently beneath the active boundary.
  *
  * `options` (`depthRange`, `edgeWidth`) is an escape hatch for a direct
  * embedder tuning the passes to an unusual scene. The bundled capture path
@@ -88,8 +92,15 @@ const hideNonMeshRenderables = (scene: THREE.Scene): (() => void) => {
  * call, not the hook.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Selects the requested supported guide projection, excludes existing nonmesh beauty renderables, suspends fog/image lighting and returns a reversible handle; uses attached semantic masks when present and documented positional fallback otherwise. Depth/edge numeric options remain caller premises and anonymous instanced members have no bone graph for the pose overlay.
+ * @evidence contracts/common.md#clear-and-simple-design This boundary owns temporary scene atmosphere/helper suspension and mode dispatch; each builder owns its pass resources and the shared restore coordinator attempts independent release without hiding failure.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves an unknown mode before mutation and restores boundary suspensions if its builder throws; default range/width and legacy mask are explicit supported conventions, not fixture branches or substitute foreign methods. Builder-internal partial mutations are not automatically undone by boundary suspension cleanup.
+ * @evidence contracts/common.md#meaningful-documentation Explains all six modes, semantic/legacy mask distinction, frame-independent depth default, outline extrusion, pose population gap, caller options and the returned restoration obligation.
+ * @evidence contracts/performance.md#efficient-algorithms Structural installation traverses scene helpers plus builder mesh/bone populations; the generic override allocates per mesh, legacy masks/shells share by their declared child/cycle keys, and pose/outline overlays scale with the subject graph. Healthy beauty returns a constant no-op handle.
+ * @evidence contracts/performance.md#reuse-equivalent-work Uses the same mode builders for embedded/capture paths and builder-local equivalent materials; independent installs require separate original-state snapshots, so no scene/mode-only cached restoration is shared.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Three boundary callbacks retain helper visibility, fog and environment/background snapshots; builders nest their own background transitions and own pass resources. Failed returned-handle restoration retains the complete boundary callback and cause under the scene guard. Builder throw still independently restores boundary snapshots with its primary error, while partial acquisition depends on that builder's rollback capability.
  */
-export const applyRenderMode = (
+export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, options?: { depthRange?: number; edgeWidth?: number; }) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
   options?: {
@@ -108,30 +119,31 @@ export const applyRenderMode = (
     edgeWidth?: number;
   },
 ): IAutoMovieRenderModeHandle => {
-  if (mode === "beauty") return { mode, semantic: null, restore: () => {} };
+  guardAutoMovieRenderModeRetirement(scene);
+  if (mode === "beauty") return { mode, semantic: null, restore: (): void => {} };
   // Resolve (and validate) the structural pass builder BEFORE touching the
   // scene, so an unknown mode throws without leaving anything hidden.
-  const build = ((): (() => IAutoMovieRenderModeHandle) => {
+  const build: () => IAutoMovieRenderModeHandle = ((): (() => IAutoMovieRenderModeHandle) => {
     switch (mode) {
       case "depth":
-        return () =>
+        return (): IAutoMovieRenderModeHandle =>
           applyDepthMode(
             scene,
             options?.depthRange ?? DEPTH_NORMALIZATION_RANGE,
           );
       case "normal":
-        return () =>
-          overrideAutoMovieRenderModeMaterials(scene, mode, () => new THREE.MeshNormalMaterial());
+        return (): IAutoMovieRenderModeHandle =>
+          overrideAutoMovieRenderModeMaterials(scene, mode, (): THREE.MeshNormalMaterial => new THREE.MeshNormalMaterial());
       case "outline":
-        return () => applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
+        return (): IAutoMovieRenderModeHandle => applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
       case "mask": {
-        const semantic = autoMovieSemanticMaskOf(scene);
+        const semantic: IAutoMovieSemanticMaskBinding | null = autoMovieSemanticMaskOf(scene);
         return semantic === null
-          ? () => applyMaskMode(scene)
-          : () => applySemanticMaskMode(scene, semantic);
+          ? (): IAutoMovieRenderModeHandle => applyMaskMode(scene)
+          : (): IAutoMovieRenderModeHandle => applySemanticMaskMode(scene, semantic);
       }
       case "pose":
-        return () => applyPoseMode(scene);
+        return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
       default:
         throw new Error(`unknown render mode "${String(mode)}"`);
     }
@@ -139,10 +151,11 @@ export const applyRenderMode = (
   // A structural pass renders only the subject mesh geometry: hide every
   // non-mesh renderable first (#1226), suspend the scene's atmosphere and
   // image lighting, then build the pass (whose own overlay, if any, is added
-  // afterward and stays visible). Restore reverses all four.
-  const restoreRenderables = hideNonMeshRenderables(scene);
-  const restoreFog = suspendFog(scene);
-  const restoreEnvironment = suspendEnvironment(scene);
+  // afterward and stays visible). Restore reverses these three suspensions and
+  // the pass builder's own resources and background transition.
+  const restoreRenderables: () => void = hideNonMeshRenderables(scene);
+  const restoreFog: () => void = suspendFog(scene);
+  const restoreEnvironment: () => void = suspendEnvironment(scene);
   // A builder that throws returns no handle, so the three suspensions above
   // would have no way back and the scene would keep drawing on black with its
   // atmosphere off for the rest of the session. The semantic mask pass is the
@@ -159,8 +172,10 @@ export const applyRenderMode = (
   return {
     mode,
     semantic: handle.semantic,
-    restore: restoreAutoMovieRenderModeOnce(() => {
-      restoreAutoMovieRenderModeState([handle.restore,restoreEnvironment,restoreFog,restoreRenderables]);
+    restore: restoreAutoMovieRenderModeOnce((): void => {
+      guardAutoMovieRenderModeRetirement(scene, { run: (): void => {
+        restoreAutoMovieRenderModeState([handle.restore,restoreEnvironment,restoreFog,restoreRenderables]);
+      } });
     }),
   };
 };
@@ -183,10 +198,10 @@ export const applyRenderMode = (
  * The beauty pass is deliberately NOT covered: that one IS the film, and it
  * must carry the atmosphere the scene declares.
  */
-const suspendFog = (scene: THREE.Scene): (() => void) => {
-  const fog = scene.fog;
+const suspendFog: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
+  const fog: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   scene.fog = null;
-  return () => {
+  return (): void => {
     scene.fog = fog;
   };
 };
@@ -199,12 +214,12 @@ const suspendFog = (scene: THREE.Scene): (() => void) => {
  * black background themselves; central suspension makes that invariant belong
  * to the pass boundary instead of to each material implementation.
  */
-const suspendEnvironment = (scene: THREE.Scene): (() => void) => {
-  const environment = scene.environment;
-  const background = scene.background;
+const suspendEnvironment: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
+  const environment: THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.environment;
+  const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
   scene.environment = null;
   scene.background = new THREE.Color(0x000000);
-  return () => {
+  return (): void => {
     scene.environment = environment;
     scene.background = background;
   };

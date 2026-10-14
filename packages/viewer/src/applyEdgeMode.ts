@@ -9,6 +9,7 @@ import {collectAutoMovieRenderModeMeshes} from "./collectAutoMovieRenderModeMesh
 import type {AutoMovieRenderModeMesh} from "./AutoMovieRenderModeMesh.js";
 import {EDGE_SHELL_NAME} from "./EDGE_SHELL_NAME.js";
 import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
+import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
 
 /**
  * The inverted-hull shell material: geometry pushed outward along its normals
@@ -17,7 +18,7 @@ import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.j
  * stage includes three's skinning chunks, so a posed `SkinnedMesh` outlines its
  * deformed surface.
  */
-const makeEdgeShellMaterial = (edgeWidth: number): THREE.ShaderMaterial =>
+const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (edgeWidth: number): THREE.ShaderMaterial =>
   new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: { edgeWidth: { value: edgeWidth } },
@@ -50,39 +51,54 @@ const makeEdgeShellMaterial = (edgeWidth: number): THREE.ShaderMaterial =>
  * expanded `edgeWidth` meters along its normals, the mesh itself fills black,
  * and the black background swallows everything else, leaving white contour
  * lines where the shell peeks past the fill.
+ *
+ * Width is a finite nonnegative model-space extrusion; object scaling affects
+ * its world-space thickness. Returned restore removes shells, disposes their
+ * materials and restores original fill/background state.
+ * Active or failed scene retirement refuses before setup. Failed restore keeps
+ * its shell/fill population and cause, while nested fill cleanup still runs.
+ *
+ * @evidence contracts/common.md#principled-implementation Uses the inverted-hull method: back-face white extrusion plus black front fill, native skinning/instancing and optional shared cycle deformation; finite nonnegative width, usable normals and ordinary mesh surface behavior are premises, with model-space extrusion distorted by nonuniform object scale and transparent/open geometry limitations.
+ * @evidence contracts/common.md#clear-and-simple-design Owns contour shell placement/materials and delegates black fill substitution to the shared reversible override helper; shallow clones borrow geometry/skeleton and preserve local transforms beside each source mesh.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Derives contours from actual geometry/normals rather than fixture outlines or image postprocess; EDGE_SHELL_NAME identifies owned temporary shells only, and no foreign clone/dispose implementation is substituted.
+ * @evidence contracts/common.md#meaningful-documentation Explains inverted hull, black fill/background, supported skinning, extrusion units/scaling and returned shell/material restoration scope.
+ * @evidence contracts/performance.md#efficient-algorithms Collects M meshes and adds M shallow shells while allocating C cycle-equivalent shell materials; CPU/temporary references are O(M+C), extra raster cost is one hull draw per mesh, and borrowed vertex buffers are not duplicated.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares one shell shader material per actual cycle identity plus one static material; geometry/skeleton are borrowed from shallow clones, while independent pass installs cannot share mutable restoration state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns shells/shell materials and borrowed original fill/background references until memoized restore; restoration attempts independent removals/disposals, preserving original geometry/skeleton. Mid-install clone/material failure has no outer rollback and remains an acquisition-failure gap.
  */
-export const applyEdgeMode = (
+export const applyEdgeMode: (scene: THREE.Scene, edgeWidth: number) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   edgeWidth: number,
 ): IAutoMovieRenderModeHandle => {
-  const background = scene.background;
+  guardAutoMovieRenderModeRetirement(scene);
+  const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
   scene.background = new THREE.Color(0x000000);
   // One shell material per cycle (and one for everything static), because the
   // cycle is injected into the material and a formation tier's members deform
   // by a table of their own. Keyed rather than per mesh so a hundred chunks of
   // one tier still compile one shell program.
-  const shellMaterials = new Map<
+  const shellMaterials: Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial> = new Map<
     IAutoMovieFormationCycle | null,
     THREE.ShaderMaterial
   >();
-  const fill = overrideAutoMovieRenderModeMaterials(
+  const fill: IAutoMovieRenderModeHandle = overrideAutoMovieRenderModeMaterials(
     scene,
     "outline",
-    () => new THREE.MeshBasicMaterial({ color: 0x000000 }),
+    (): THREE.MeshBasicMaterial => new THREE.MeshBasicMaterial({ color: 0x000000 }),
   );
   // Shells clone each mesh shallowly (same geometry, same local transform:
   // a SkinnedMesh clone shares its skeleton, so the shell follows the pose)
   // under the mesh's own parent, grouped by name for a recognizable scene.
   const shells: THREE.Object3D[] = [];
   for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
-    const cycle = formationCycleOf(mesh);
-    let shellMaterial = shellMaterials.get(cycle);
+    const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
+    let shellMaterial: THREE.ShaderMaterial | undefined = shellMaterials.get(cycle);
     if (shellMaterial === undefined) {
       shellMaterial = makeEdgeShellMaterial(edgeWidth);
       if (cycle !== null) applyFormationCycleMaterial(shellMaterial, cycle);
       shellMaterials.set(cycle, shellMaterial);
     }
-    const shell = mesh.clone(false) as AutoMovieRenderModeMesh;
+    const shell: AutoMovieRenderModeMesh = mesh.clone(false) as AutoMovieRenderModeMesh;
     shell.name = EDGE_SHELL_NAME;
     shell.material = shellMaterial;
     mesh.parent!.add(shell);
@@ -91,12 +107,14 @@ export const applyEdgeMode = (
   return {
     mode: "outline",
     semantic: null,
-    restore: restoreAutoMovieRenderModeOnce(() => {
+    restore: restoreAutoMovieRenderModeOnce((): void => {
+      guardAutoMovieRenderModeRetirement(scene, { run: (): void => {
       restoreAutoMovieRenderModeState([
-        ...shells.map(shell=>()=>{shell.parent!.remove(shell);}),
-        ...Array.from(shellMaterials.values(),material=>()=>{material.dispose();}),
-        fill.restore,()=>{scene.background=background;},
+        ...shells.map((shell: THREE.Object3D): (() => void) => (): void=>{shell.parent!.remove(shell);}),
+        ...Array.from(shellMaterials.values(),(material: THREE.ShaderMaterial): (() => void) => (): void=>{material.dispose();}),
+        fill.restore,(): void=>{scene.background=background;},
       ]);
+      } });
     }),
   };
 };

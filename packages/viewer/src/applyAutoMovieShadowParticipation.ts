@@ -45,23 +45,30 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * production sees its frames change.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Marks actual mesh/skinned/instanced geometry as caster/receiver except descendants of the reserved semantic-space group; declared support patches have no physical volume and are structural-guide geometry, while renderer/light owners separately enable actual shadow rendering.
+ * @evidence contracts/common.md#clear-and-simple-design Owns object participation once for built and manually assembled scene hosts, keeping light shadow configuration and renderer policy with their own declarations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reserved SPACE_GROUP_NAME is a structural viewer identity rather than a fixture name; this uniformly overwrites mesh flags by role and does not emulate a shadow with dark geometry or replace Three internals.
+ * @evidence contracts/common.md#meaningful-documentation Describes model/semantic-ground distinction, mesh subclasses and the separate enabled-renderer/casting-light prerequisites; flags alone do not prove a visible shadow.
+ * @evidence contracts/performance.md#efficient-algorithms Traverses the scene to find reserved groups, visits their descendants into an identity Set and traverses meshes again for constant-time membership; time is O(objects plus reserved descendant visits), potentially repeated for nested reserved groups, and temporary space is linear in semantic-ground objects.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the reserved shared naming contract and one ground Set within a call; scene hierarchy/roles can change, so no cross-call participation cache is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene objects, retains only temporary group/ground collections and acquires no shadow map or task; persistent boolean flags remain with each host-owned object.
  */
-export const applyAutoMovieShadowParticipation = (
+export const applyAutoMovieShadowParticipation: (root: THREE.Object3D) => void = (
   root: THREE.Object3D,
 ): void => {
   const groups: THREE.Object3D[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (object.name === SPACE_GROUP_NAME) groups.push(object);
   });
-  const ground = new Set<THREE.Object3D>();
+  const ground: Set<THREE.Object3D<THREE.Object3DEventMap>> = new Set<THREE.Object3D>();
   for (const group of groups)
-    group.traverse((descendant) => ground.add(descendant));
-  root.traverse((object) => {
+    group.traverse((descendant: THREE.Object3D<THREE.Object3DEventMap>): Set<THREE.Object3D<THREE.Object3DEventMap>> => ground.add(descendant));
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // `isMesh` covers `SkinnedMesh` and `InstancedMesh`, which is what makes a
     // compact population of several thousand members participate as one object
     // rather than not at all.
     if ((object as THREE.Mesh).isMesh !== true) return;
-    const patch = ground.has(object);
+    const patch: boolean = ground.has(object);
     object.castShadow = !patch;
     object.receiveShadow = !patch;
   });

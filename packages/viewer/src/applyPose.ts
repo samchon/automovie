@@ -7,7 +7,9 @@ import {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
   IAutoMovieSkeleton,
+  IAutoMovieTransform,
 } from "@automovie/interface";
+import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
@@ -34,8 +36,15 @@ import { applyTransform } from "./applyTransform.js";
  * intentional gap instead of both silently not articulating.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Delegates admitted semantic/clinical joint angles and skeleton/rest-axis conventions to engine forward kinematics, writes resolved local quaternions by humanoid bone id, then applies root translation/rotation with unit scale; unmapped bones are reported and null root resets to identity rather than retaining the last pose.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps pose mathematics in resolvePose and only copies its outputs into borrowed model bones/root; caller-supplied partial bone mapping remains explicit instead of inventing missing joints.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unit root scale is the engine rig convention, not a visual compensation; all mapped bones follow one FK result and missing bones are returned without fixture-specific tolerances or replaced solvers.
+ * @evidence contracts/common.md#meaningful-documentation Gives local bone write, optional clinical rest frames, unmapped-bone report, root reset and intentionally ignored root scale.
+ * @evidence contracts/performance.md#efficient-algorithms Visits the engine's resolved bone list once with map lookups and fixed quaternion writes; dominant work is engine FK over the skeleton, with temporary resolved/skipped records proportional to bones rather than vertex count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the model's existing Bone objects and one engine FK implementation; different pose/skeleton/axes/rest frames require fresh resolution and target state is rewritten rather than cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/skeleton/pose and retains no solver or bone collection after return; skipped ids transfer to the caller and no GPU allocation or task is acquired.
  */
-export const applyPose = (
+export const applyPose: (target: IAutoMovieModelObject, pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>) => AutoMovieHumanoidBone[] = (
   target: IAutoMovieModelObject,
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
@@ -44,7 +53,7 @@ export const applyPose = (
 ): AutoMovieHumanoidBone[] => {
   const skipped: AutoMovieHumanoidBone[] = [];
   for (const r of resolvePose(pose, skeleton, jointAxes, restFrames)) {
-    const bone = target.bones.get(r.bone);
+    const bone: THREE.Object3D | undefined = target.bones.get(r.bone);
     if (bone === undefined) {
       skipped.push(r.bone);
       continue;
@@ -63,13 +72,13 @@ export const applyPose = (
   // takes over. Root SCALE is dropped (#1052): the engine's FK ignores it,
   // so a rendered root scale would be invisible to every validator that
   // measured the pose. The rig convention is rotation + translation only.
-  const root = pose.root ?? IDENTITY_ROOT;
+  const root: IAutoMovieTransform = pose.root ?? IDENTITY_ROOT;
   applyTransform(target.object, { ...root, scale: UNIT_SCALE });
   return skipped;
 };
 
-const UNIT_SCALE = { x: 1, y: 1, z: 1 };
-const IDENTITY_ROOT = {
+const UNIT_SCALE: { x: number; y: number; z: number; } = { x: 1, y: 1, z: 1 };
+const IDENTITY_ROOT: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: UNIT_SCALE,

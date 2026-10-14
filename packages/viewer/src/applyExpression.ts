@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /** VRM preset names the viewer resets and drives every expression frame. */
-const AUTOMOVIE_EXPRESSION_PRESETS = [
+const AUTOMOVIE_EXPRESSION_PRESETS: readonly AutoMovieExpressionPreset[] = [
   "neutral",
   "happy",
   "angry",
@@ -30,7 +30,7 @@ const AUTOMOVIE_EXPRESSION_PRESETS = [
 ] as const satisfies readonly AutoMovieExpressionPreset[];
 
 /** ARKit channel names the viewer can address directly on morph dictionaries. */
-const AUTOMOVIE_ARKIT_CHANNELS = [
+const AUTOMOVIE_ARKIT_CHANNELS: readonly AutoMovieArkitChannel[] = [
   "eyeBlinkLeft",
   "eyeLookDownLeft",
   "eyeLookInLeft",
@@ -172,12 +172,19 @@ const PRESET_CHANNELS: Partial<
  * case-insensitive matching names; generated primitive models simply no-op.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Expands semantic presets through the viewer's declared ARKit factor table, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
+ * @evidence contracts/common.md#clear-and-simple-design One channel-weight map feeds native morph influences and optional VRM-style sinks; private helpers own preset expansion, supported-channel reset and name lookup without modifying engine pose or model topology.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Preset factors are explicit supported visual conventions rather than fixture-specific expected weights; no target method/global is replaced, and unsupported names remain untouched instead of inventing morph targets.
+ * @evidence contracts/common.md#meaningful-documentation Documents sink/native-name paths and generated-model no-op; the implementation answer makes clamping, preset factor status, explicit override and folded-name collision limits explicit.
+ * @evidence contracts/performance.md#efficient-algorithms Builds W requested weights, traverses O objects and builds a folded D-entry dictionary for each morph mesh before supported-name resets/writes; time is O(W+objects+sum(dictionary entries and supported/requested channel writes)), temporary space is one weight map plus each active dictionary map.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares preset/channel tables and the expanded weights between all meshes/sinks in one call; morph dictionaries may mutate, so folded lookups are rebuilt rather than cached without an invalidation key.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/morph arrays/sinks and creates request-local maps only; owns no texture, geometry, animation task or worker, and channel writes remain in host-owned targets until the next supported-channel reset.
  */
-export const applyExpression = (
+export const applyExpression: (target: IAutoMovieModelObject, expression: IAutoMovieExpression | null) => void = (
   target: IAutoMovieModelObject,
   expression: IAutoMovieExpression | null,
 ): void => {
-  const weights = expressionWeights(expression);
+  const weights: ReadonlyMap<string, number> = expressionWeights(expression);
   applyMorphTargets(target.object, weights);
   for (const sink of target.expressionTargets ?? []) {
     for (const name of EXPRESSION_RESET_NAMES) sink.setExpressionValue(name, 0);
@@ -186,13 +193,13 @@ export const applyExpression = (
 };
 
 /** Convert a semantic expression into direct channel weights. */
-const expressionWeights = (
+const expressionWeights: (expression: IAutoMovieExpression | null) => ReadonlyMap<string, number> = (
   expression: IAutoMovieExpression | null,
 ): ReadonlyMap<string, number> => {
-  const weights = new Map<string, number>();
+  const weights: Map<string, number> = new Map<string, number>();
   if (expression === null) return weights;
 
-  const intensity = clamp01(expression.intensity);
+  const intensity: number = clamp01(expression.intensity);
   if (expression.preset !== "neutral") {
     setMax(weights, expression.preset, intensity);
     for (const [channel, factor] of PRESET_CHANNELS[expression.preset] ?? [])
@@ -203,12 +210,12 @@ const expressionWeights = (
   return weights;
 };
 
-const applyMorphTargets = (
+const applyMorphTargets: (root: THREE.Object3D, weights: ReadonlyMap<string, number>) => void = (
   root: THREE.Object3D,
   weights: ReadonlyMap<string, number>,
 ): void => {
-  root.traverse((object) => {
-    const mesh = object as THREE.Mesh;
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = object as THREE.Mesh;
     if (
       mesh.isMesh !== true ||
       mesh.morphTargetDictionary === undefined ||
@@ -216,16 +223,16 @@ const applyMorphTargets = (
     )
       return;
 
-    const dictionary = mesh.morphTargetDictionary;
-    const influences = mesh.morphTargetInfluences;
-    const folded = new Map(
-      Object.entries(dictionary).map(([name, index]) => [
+    const dictionary: { [key: string]: number; } = mesh.morphTargetDictionary;
+    const influences: number[] = mesh.morphTargetInfluences;
+    const folded: Map<string, number> = new Map(
+      Object.entries(dictionary).map(([name, index]: [string, number]): [string, number] => [
         name.toLowerCase(),
         index,
       ]),
     );
-    const setInfluence = (name: string, weight: number): void => {
-      const index = dictionary[name] ?? folded.get(name.toLowerCase());
+    const setInfluence: (name: string, weight: number) => void = (name: string, weight: number): void => {
+      const index: number | undefined = dictionary[name] ?? folded.get(name.toLowerCase());
       if (index !== undefined && index < influences.length)
         influences[index] = weight;
     };
@@ -235,9 +242,9 @@ const applyMorphTargets = (
   });
 };
 
-const setMax = (weights: Map<string, number>, name: string, weight: number) => {
+const setMax: (weights: Map<string, number>, name: string, weight: number) => void = (weights: Map<string, number>, name: string, weight: number): void => {
   weights.set(name, Math.max(weights.get(name) ?? 0, clamp01(weight)));
 };
 
-const clamp01 = (value: number): number =>
+const clamp01: (value: number) => number = (value: number): number =>
   Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));

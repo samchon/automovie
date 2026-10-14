@@ -1,47 +1,40 @@
 /**
- * Photographic exposure and white balance of the preview light rig.
+ * Linear display-light data consumed by the preview's grey-card calibration.
+ * Intensities and directions are authored studio conventions, not anatomical
+ * measurements or a guarantee of equivalence to a photographed subject.
  *
- * A portrait photograph is exposed and white balanced on the light that
- * falls on the subject: an incident meter sets the exposure that renders an
- * 18 percent grey card as middle grey (ISO 2720:1974, the calibration of
- * incident-light meters), and the grey card read under the key light sets the
- * white balance that makes it neutral. The preview does the same with its own
- * rig: `humanPreviewGreyCard` sums the linear irradiance on a Lambertian card
- * turned to the key light (every directional light's colour times its
- * intensity and the cosine of its incidence, and the hemisphere light's mix
- * of ground and sky colour by the card's tilt, as the renderer shades them),
- * and `balanceHumanPreviewRig` scales each light's colour by one von Kries
- * gain per channel (von Kries 1902; the luminance over the card's channel,
- * so the card turns neutral at its own luminance) and solves the tone
- * mapping exposure at which the card's radiance, 0.18 of that irradiance
- * over pi, displays as CIE L* 50 (a relative luminance of 0.1842). The
- * display is linear, radiance times exposure encoded as sRGB, highlights
- * clipped as a camera's: every colour the editor is compared by, a
- * photograph's included, is decoded by the sRGB transfer function and read
- * as proportional to the light it records, and a filmic curve's toe breaks
- * that proportion where it matters, crushing a dark iris or brow 3 to 4
- * stops under the grey card about twice as far as the photograph's own
- * decoding does. The rig's directions, relative powers and
- * colour contrast between key and fill stay as authored; only the
- * photograph's two global settings change. It never touches a face document,
- * its geometry, its textures or an export.
- *
- * Pure: returns new values.
+ * @evidence contracts/common.md#principled-implementation The discriminated record supplies directional color/direction or hemisphere sky/ground color for grey-card irradiance and channel balancing. Consumers require finite nonnegative light values and a finite nonzero directional vector; this type does not perform runtime admission.
+ * @evidence contracts/common.md#clear-and-simple-design Numerical rig description is separated from native light allocation, allowing the same authored values to be balanced before addHumanPreviewRig creates scene objects.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Studio color/intensity choices are display conventions rather than anatomical measurements. Channel balancing and grey-card exposure do not prove matching beauty, texture response or photographic capture conditions.
+ * @evidence contracts/common.md#meaningful-documentation Member comments identify linear RGB, unitless intensity, direction toward a light and hemisphere endpoints. The purpose states numerical calibration rather than claiming observed photographic parity.
+ * @evidence contracts/performance.md#efficient-algorithms Each light stores a fixed-size record. Grey-card and balancing consumers scan the light population; no geometry or image pixels are stored in this type.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same authored rig feeds grey-card evaluation and balanced native creation; changed light values require reevaluation rather than reusing a card solely by subject identity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This data holds scalar tuples and no native light, renderer or task. Numerical records follow caller lifetime; the scene host owns allocated native lights and any shadow maps separately.
  */
-
-/** One light of the rig: a directional light or the hemisphere light. */
 export type HumanPreviewLight =
   | {
+      /** Directional studio light, aimed at the world origin by its native consumer. */
       kind: "directional";
+
       /** Direction toward the light (its position over a target at the origin). */
       direction: readonly [number, number, number];
+
       /** Linear RGB colour. */
       color: readonly [number, number, number];
+
+      /** Unitless authored multiplier of the linear light color. */
       intensity: number;
     }
   | {
+      /** Hemispherical ambient light interpolated by the card's up-axis normal. */
       kind: "hemisphere";
+
+      /** Linear RGB at the positive-Y endpoint. */
       sky: readonly [number, number, number];
+
+      /** Linear RGB at the negative-Y endpoint. */
       ground: readonly [number, number, number];
+
+      /** Unitless authored multiplier of both hemisphere endpoint colors. */
       intensity: number;
     };

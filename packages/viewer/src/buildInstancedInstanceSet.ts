@@ -4,7 +4,15 @@ import type {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieInstanceSlot,
   IAutoMovieVector3,
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieModel,
+  IAutoMovieInstanceChunk,
+  IAutoMovieColor,
+  IAutoMovieDeliveryCrop,
 } from "@automovie/interface";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import * as THREE from "three";
 
 import type { IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject.js";
@@ -13,6 +21,8 @@ import type { IBuildInstancedInstanceSetProps } from "./IBuildInstancedInstanceS
 import { readAutoMovieDeliveryCrop } from "./deliveryCrop.js";
 import { flattenInstancedModel, flattenInstancedObject } from "./formation/index.js";
 import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /**
  * One chunk's prototype tier meshes and the hysteretic tier selected by its last update.
@@ -45,7 +55,7 @@ interface IInstanceRepresentation {
   /** Flattened rest geometry cloned separately for each chunk batch. */
   geometry: THREE.BufferGeometry;
 
-  /** Instance-only material clones shared by the prototype's chunk meshes. */
+  /** Owned instance-only materials shared by the prototype's chunk meshes. */
   materials: THREE.Material[];
 }
 
@@ -78,18 +88,31 @@ interface IInstanceChunkObject {
  * the prototype, and it is flattened by the same rigid path a generated recipe
  * takes. Rigid is the whole condition: a skinned, morphed, or multi-material
  * source mesh is refused by name rather than instanced as something else.
+ * Generated prototype materials are owned and reused as white instance-only
+ * variants; loaded prototype materials are borrowed and cloned before whitening.
+ * No production scene/film caller is connected in this tree, so exported reach
+ * and owning tests do not establish compiled-shot capture integration.
+ *
+ * @evidence contracts/common.md#principled-implementation Regenerates seeded compact slots, admitted static prototypes, scales/traits and sRGB-decoded palettes, then uses engine crop-aware culling/LOD with native instance matrices; rigid representation requirements and finite admitted transforms are premises, while fixed radius/depth floors are existing numerical conventions and no dynamic deformation is inferred.
+ * @evidence contracts/common.md#clear-and-simple-design Separates prototype-id and tier keys, one shared flattened representation per pair and chunk-owned instance buffers; generated materials stay owned while borrowed loaded materials receive white clones. The current production scene/capture host does not consume this API and no replacement runtime is introduced to hide that gap.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual seeded slots/prototypes and standard sRGB transfer determine transforms/colors, with no global ColorManagement mutation, fixture colors or hidden placeholder prototype; unsupported skin/morph/multi-material sources refuse instead of appearing frozen.
+ * @evidence contracts/common.md#meaningful-documentation Gives compact population purpose, supported prototype boundary, loaded/generated ownership, regenerated attribute/color roles and the absent production consumer rather than certifying exported-only wiring.
+ * @evidence contracts/performance.md#efficient-algorithms Regenerates N slots and filters them by P prototypes per chunk, then fills matrices/colors/traits across resident LOD tiers; construction is O(N*P plus resident buffer filling/prototype flattening), update visits chunk/prototype tiers and scans supported visibility state without creating member objects. Buffers grow with admitted members times resident tiers and authored trait count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares flattened geometry and instance-only materials by prototype/tier, decoded swatches by exact authored palette string and resident meshes/hysteresis across updates; separate prototype identities retain distinct geometry and mutable per-runtime retirement state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Construction scope registers prototype/chunk geometry, owned generated or cloned materials and native instance meshes from acquisition; refusal independently rolls back them while loaded sources/textures remain borrowed. Returned dispose closes updates, deduplicates/attempts all resources once, clears healthy registries and retains failure/operation references for uncertain retirement until owner lifetime ends.
  */
-export const buildInstancedInstanceSet = (
+export const buildInstancedInstanceSet: (input: IBuildInstancedInstanceSetProps) => IAutoMovieInstanceSetViewerObject = (
   input: IBuildInstancedInstanceSetProps,
 ): IAutoMovieInstanceSetViewerObject => {
-  const root = new THREE.Group();
+  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void }>(resource: Resource) => Resource): IAutoMovieInstanceSetViewerObject => {
+  const root: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   // One decoded carrier per authored swatch. `setColorAt` copies its
   // components, and a block may hold a hundred thousand slots, so neither the
   // transfer function nor its temporary label belongs in the per-slot cost.
-  const paletteColors = new Map<string, THREE.Color>();
+  const paletteColors: Map<string, THREE.Color> = new Map<string, THREE.Color>();
   root.name = `instance-set:${input.instanceSet.id}`;
   root.position.copy(vector(input.instanceSet.anchor));
-  const prototypes = input.instanceSet.prototypes ?? [
+  const prototypes: IAutoMovieCompiledInstancePrototype[] = input.instanceSet.prototypes ?? [
     {
       id: "default",
       modelRecipe: input.instanceSet.modelRecipe,
@@ -102,30 +125,33 @@ export const buildInstancedInstanceSet = (
   // prototype id is author-owned text, so `"panel:near"` and a `"panel"` tier
   // named `"near"` would otherwise be the same entry and one prototype would
   // silently draw the other's geometry.
-  const representations = new Map<
+  const representations: Map<string, Map<"hero" | "near" | "far", IInstanceRepresentation>> = new Map<
     string,
     Map<IAutoMovieCompiledFormationLod["tier"], IInstanceRepresentation>
   >(
-    prototypes.map((prototype) => [
+    prototypes.map((prototype: IAutoMovieCompiledInstancePrototype): [string, Map<IAutoMovieCompiledFormationLod["tier"], IInstanceRepresentation>] => [
       prototype.id,
       new Map(
-        prototype.lod.map((lod) => {
-          const model = input.models.get(lod.model);
+        prototype.lod.map((lod: IAutoMovieCompiledFormationLod): readonly [IAutoMovieCompiledFormationLod["tier"], IInstanceRepresentation] => {
+          const model: IAutoMovieModel | undefined = input.models.get(lod.model);
           if (model === undefined)
             throw new Error(
               `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}" references missing runtime model "${lod.model}".`,
             );
-          const owner = `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`;
-          const loaded = input.prototypeObjects?.get(lod.model);
-          const representation =
+          const owner: string = `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`;
+          const loaded: IAutoMovieModelObject | undefined = input.prototypeObjects?.get(lod.model);
+          const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
             loaded === undefined
               ? flattenInstancedModel(model, owner)
               : flattenInstancedObject(loaded, owner);
+          own(representation.geometry);
+          if (loaded === undefined)
+            for (const material of representation.materials) own(material);
           return [
             lod.tier,
             {
               geometry: representation.geometry,
-              materials: representation.materials.map(exactPaletteMaterial),
+              materials: representation.materials.map((material: THREE.Material): THREE.Material => own(exactPaletteMaterial(material, loaded !== undefined))),
             },
           ] as const;
         }),
@@ -136,29 +162,29 @@ export const buildInstancedInstanceSet = (
   // read for every chunk of every frame, and an explicit block may hold a
   // hundred thousand transforms, so measuring it per frame would both cost the
   // set's own size each frame and blow the argument limit of a spread.
-  const maximumScale = maximumInstanceScale(input.instanceSet);
-  const traitNames = input.instanceSet.variation.traits.map(
-    (trait) => trait.name,
+  const maximumScale: number = maximumInstanceScale(input.instanceSet);
+  const traitNames: string[] = input.instanceSet.variation.traits.map(
+    (trait: { name: string; min: number; max: number; }): string => trait.name,
   );
   const chunks: IInstanceChunkObject[] = input.instanceSet.chunks.map(
-    (chunk) => {
-      const slots = Array.from({ length: chunk.count }, (_, index) =>
+    (chunk: IAutoMovieInstanceChunk): IInstanceChunkObject => {
+      const slots: IAutoMovieInstanceSlot[] = Array.from({ length: chunk.count }, (_: unknown, index: number): IAutoMovieInstanceSlot =>
         regenerateInstanceSlot(input.instanceSet, chunk.start + index),
       );
-      const visibleSlots = slots.filter((slot) => slot.visible !== false);
-      const prototypeObjects = prototypes.flatMap((prototype) => {
-        const selectedSlots = visibleSlots.filter(
-          (slot) => (slot.prototype ?? "default") === prototype.id,
+      const visibleSlots: IAutoMovieInstanceSlot[] = slots.filter((slot: IAutoMovieInstanceSlot): boolean => slot.visible !== false);
+      const prototypeObjects: IInstancePrototypeChunkObject[] = prototypes.flatMap((prototype: IAutoMovieCompiledInstancePrototype): IInstancePrototypeChunkObject[] => {
+        const selectedSlots: IAutoMovieInstanceSlot[] = visibleSlots.filter(
+          (slot: IAutoMovieInstanceSlot): boolean => (slot.prototype ?? "default") === prototype.id,
         );
         if (selectedSlots.length === 0) return [];
-        const tiers = new Map<
+        const tiers: Map<"hero" | "near" | "far", THREE.InstancedMesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>> = new Map<
           IAutoMovieCompiledFormationLod["tier"],
           THREE.InstancedMesh
         >();
-        const tierRepresentations = representations.get(prototype.id)!;
+        const tierRepresentations: Map<"hero" | "near" | "far", IInstanceRepresentation> = representations.get(prototype.id)!;
         for (const lod of prototype.lod) {
-          const representation = tierRepresentations.get(lod.tier)!;
-          const geometry = representation.geometry.clone();
+          const representation: IInstanceRepresentation = tierRepresentations.get(lod.tier)!;
+          const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = own(representation.geometry.clone());
           for (const [traitIndex, traitName] of traitNames.entries())
             geometry.setAttribute(
               `automovieTrait${traitIndex}`,
@@ -166,21 +192,21 @@ export const buildInstancedInstanceSet = (
                 // Every declared trait is regenerated for every slot, so a
                 // declared name always names a value on the slot it came from.
                 new Float32Array(
-                  selectedSlots.map((slot) => slot.traits[traitName]!),
+                  selectedSlots.map((slot: IAutoMovieInstanceSlot): number => slot.traits[traitName]!),
                 ),
                 1,
               ),
             );
-          const mesh = new THREE.InstancedMesh(
+          const mesh: THREE.InstancedMesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = own(new THREE.InstancedMesh(
             geometry,
             representation.materials,
             selectedSlots.length,
-          );
+          ));
           mesh.name = `${input.instanceSet.id}:${chunk.index}:${prototype.id}:${lod.tier}`;
           mesh.userData.automovieTraitNames = [...traitNames];
           mesh.userData.automoviePrototype = prototype.id;
-          mesh.userData.automovieSlots = selectedSlots.map((slot) => slot.slot);
-          selectedSlots.forEach((slot, index) => {
+          mesh.userData.automovieSlots = selectedSlots.map((slot: IAutoMovieInstanceSlot): number => slot.slot);
+          selectedSlots.forEach((slot: IAutoMovieInstanceSlot, index: number): void => {
             mesh.setMatrixAt(
               index,
               instanceMatrix(slot, input.instanceSet.anchor),
@@ -195,9 +221,9 @@ export const buildInstancedInstanceSet = (
             // Decoding explicitly is also what makes the two authoring paths
             // one conversion: the builder decodes a recipe palette with this
             // same function on its way into `baseColor`.
-            let paint = paletteColors.get(slot.palette);
+            let paint: THREE.Color | undefined = paletteColors.get(slot.palette);
             if (paint === undefined) {
-              const linear = srgbHexToLinearColor(slot.palette);
+              const linear: IAutoMovieColor = srgbHexToLinearColor(slot.palette);
               paint = new THREE.Color(linear.r, linear.g, linear.b);
               paletteColors.set(slot.palette, paint);
             }
@@ -231,11 +257,11 @@ export const buildInstancedInstanceSet = (
       };
     },
   );
-  const drawn = chunks.reduce(
-    (count, chunk) =>
+  const drawn: number = chunks.reduce(
+    (count: number, chunk: IInstanceChunkObject): number =>
       count +
       chunk.prototypes.reduce(
-        (prototypeCount, prototype) => prototypeCount + prototype.count,
+        (prototypeCount: number, prototype: IInstancePrototypeChunkObject): number => prototypeCount + prototype.count,
         0,
       ),
     0,
@@ -245,31 +271,67 @@ export const buildInstancedInstanceSet = (
     culled: 0,
     hidden: input.instanceSet.count - drawn,
   };
+  let disposed: boolean = false;
+  let disposalFailure: { error: unknown } | undefined;
+  let retirements: (() => void)[] | undefined;
   return {
     object: root,
     stats,
-    update(camera, viewportHeight): void {
+    dispose(): void {
+      if (disposed) {
+        if (disposalFailure !== undefined) throw disposalFailure.error;
+        return;
+      }
+      disposed = true;
+      const geometries: Set<THREE.BufferGeometry> = new Set<THREE.BufferGeometry>();
+      const materials: Set<THREE.Material> = new Set<THREE.Material>();
+      const meshes: Set<THREE.InstancedMesh> = new Set<THREE.InstancedMesh>();
+      for (const chunk of chunks) for (const prototype of chunk.prototypes) for (const mesh of prototype.tiers.values()) {
+        geometries.add(mesh.geometry); meshes.add(mesh);
+      }
+      for (const tiers of representations.values()) for (const representation of tiers.values()) {
+        geometries.add(representation.geometry);
+        for (const material of representation.materials) materials.add(material);
+      }
+      retirements = [
+        (): void => { root.removeFromParent(); },
+        ...[...geometries].map((geometry: THREE.BufferGeometry): (() => void) => (): void => geometry.dispose()),
+        ...[...meshes].map((mesh: THREE.InstancedMesh): (() => void) => (): void => mesh.dispose()),
+        ...[...materials].map((material: THREE.Material): (() => void) => (): void => material.dispose()),
+        (): void => { root.clear(); },
+      ];
+      try {
+        reportAutoMovieResourceRetirement(retirements);
+        chunks.length = 0; representations.clear(); paletteColors.clear();
+        retirements = undefined;
+      } catch (error) {
+        disposalFailure = { error };
+        throw error;
+      }
+    },
+    update(camera: THREE.PerspectiveCamera, viewportHeight: number): void {
+      if (disposed) throw new Error(`Instance set "${input.instanceSet.id}" is disposed.`);
       stats.visible = { hero: 0, near: 0, far: 0 };
       stats.culled = 0;
       root.updateMatrixWorld(true);
       camera.updateMatrixWorld(true);
       camera.updateProjectionMatrix();
-      const projection = new THREE.Matrix4().multiplyMatrices(
+      const projection: THREE.Matrix4 = new THREE.Matrix4().multiplyMatrices(
         camera.projectionMatrix,
         camera.matrixWorldInverse,
       );
-      const frustum = new THREE.Frustum().setFromProjectionMatrix(projection);
-      const cameraPosition = new THREE.Vector3();
+      const frustum: THREE.Frustum = new THREE.Frustum().setFromProjectionMatrix(projection);
+      const cameraPosition: THREE.Vector3 = new THREE.Vector3();
       camera.getWorldPosition(cameraPosition);
-      const halfY = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-      const deliveryCrop = readAutoMovieDeliveryCrop(camera);
-      const effectiveHalfY =
+      const halfY: number = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      const deliveryCrop: IAutoMovieDeliveryCrop | undefined = readAutoMovieDeliveryCrop(camera);
+      const effectiveHalfY: number =
         halfY *
         (deliveryCrop === undefined
           ? 1
           : deliveryCrop.bottom - deliveryCrop.top);
       for (const chunk of chunks) {
-        const center = root.localToWorld(
+        const center: THREE.Vector3 = root.localToWorld(
           new THREE.Vector3(
             chunk.runtime.centroid.x - input.instanceSet.anchor.x,
             chunk.runtime.centroid.y - input.instanceSet.anchor.y,
@@ -281,7 +343,7 @@ export const buildInstancedInstanceSet = (
         // occupy. That radius is rotation-invariant, which is exactly why a
         // rotated, non-uniformly scaled instance whose origin sits outside the
         // frustum still keeps its chunk on screen.
-        const sphere = new THREE.Sphere(
+        const sphere: THREE.Sphere = new THREE.Sphere(
           center,
           chunk.radius + input.instanceSet.projectionRadius * maximumScale,
         );
@@ -289,21 +351,21 @@ export const buildInstancedInstanceSet = (
           for (const prototype of chunk.prototypes)
             for (const mesh of prototype.tiers.values()) mesh.visible = false;
           stats.culled += chunk.prototypes.reduce(
-            (count, prototype) => count + prototype.count,
+            (count: number, prototype: IInstancePrototypeChunkObject): number => count + prototype.count,
             0,
           );
           continue;
         }
-        const distance = Math.max(0.001, cameraPosition.distanceTo(center));
-        const cameraDepth = Math.max(
+        const distance: number = Math.max(0.001, cameraPosition.distanceTo(center));
+        const cameraDepth: number = Math.max(
           0.001,
           -center.clone().applyMatrix4(camera.matrixWorldInverse).z,
         );
         for (const prototype of chunk.prototypes) {
-          const projectedPixels =
+          const projectedPixels: number =
             (prototype.projectionRadius * maximumScale * viewportHeight) /
             (effectiveHalfY * cameraDepth);
-          const selected = selectFormationLod({
+          const selected: IAutoMovieCompiledFormationLod = selectFormationLod({
             lod: prototype.lod,
             distance,
             projectedPixels,
@@ -317,9 +379,10 @@ export const buildInstancedInstanceSet = (
       }
     },
   };
+  });
 };
 
-const instanceMatrix = (
+const instanceMatrix: (slot: IAutoMovieInstanceSlot, anchor: IAutoMovieCompiledInstanceSet["anchor"]) => THREE.Matrix4 = (
   slot: IAutoMovieInstanceSlot,
   anchor: IAutoMovieCompiledInstanceSet["anchor"],
 ): THREE.Matrix4 =>
@@ -354,11 +417,11 @@ const instanceMatrix = (
  * transforms, and spreading three hundred thousand arguments into `Math.max`
  * exceeds the engine's argument limit and throws instead of measuring.
  */
-const maximumInstanceScale = (
+const maximumInstanceScale: (instanceSet: IAutoMovieCompiledInstanceSet) => number = (
   instanceSet: IAutoMovieCompiledInstanceSet,
 ): number => {
   if (instanceSet.layout.kind === "explicit") {
-    let maximum = Number.EPSILON;
+    let maximum: number = Number.EPSILON;
     for (const transform of instanceSet.layout.transforms)
       maximum = Math.max(
         maximum,
@@ -368,21 +431,21 @@ const maximumInstanceScale = (
       );
     return maximum;
   }
-  const range = instanceSet.variation.scale3;
+  const range: { min: IAutoMovieVector3; max: IAutoMovieVector3; } | undefined = instanceSet.variation.scale3;
   return range === undefined
     ? instanceSet.variation.scale.max
     : Math.max(range.max.x, range.max.y, range.max.z);
 };
 
-const boundsRadius = (
+const boundsRadius: (bounds: IAutoMovieCompiledInstanceSet["bounds"], centroid: IAutoMovieCompiledInstanceSet["centroid"]) => number = (
   bounds: IAutoMovieCompiledInstanceSet["bounds"],
   centroid: IAutoMovieCompiledInstanceSet["centroid"],
 ): number =>
   Math.max(
     0.01,
-    ...[bounds.min.x, bounds.max.x].flatMap((x) =>
-      [bounds.min.y, bounds.max.y].flatMap((y) =>
-        [bounds.min.z, bounds.max.z].map((z) =>
+    ...[bounds.min.x, bounds.max.x].flatMap((x: number): number[] =>
+      [bounds.min.y, bounds.max.y].flatMap((y: number): number[] =>
+        [bounds.min.z, bounds.max.z].map((z: number): number =>
           Math.hypot(x - centroid.x, y - centroid.y, z - centroid.z),
         ),
       ),
@@ -399,23 +462,23 @@ const boundsRadius = (
  * this heading, which has to be the one the engine placed the member with
  * rather than a neighbouring double.
  */
-const instanceHeadingRadians = (facingDeg: number): number =>
+const instanceHeadingRadians: (facingDeg: number) => number = (facingDeg: number): number =>
   (facingDeg * Math.PI) / 180;
 
-const vector = (value: IAutoMovieVector3): THREE.Vector3 =>
+const vector: (value: IAutoMovieVector3) => THREE.Vector3 = (value: IAutoMovieVector3): THREE.Vector3 =>
   new THREE.Vector3(value.x, value.y, value.z);
 
 /**
  * Instance colors multiply the material's diffuse color in Three.js. General
- * instance palettes are exact overrides, so cloned instance-only materials use
+ * instance palettes are exact overrides, so instance-only materials use
  * white as the neutral multiplier while retaining roughness and other
  * channels.
  */
-const exactPaletteMaterial = (material: THREE.Material): THREE.Material => {
+const exactPaletteMaterial: (material: THREE.Material, borrowed: boolean) => THREE.Material = (material: THREE.Material, borrowed: boolean): THREE.Material => {
   // A three.js material either carries a diffuse `color` or has none at all;
   // there is no third state to test for, so the presence of the channel is the
   // whole question.
-  const clone = material.clone() as THREE.Material &
+  const clone: THREE.Material<THREE.MaterialEventMap> & Partial<Pick<THREE.MeshStandardMaterial, "color">> = (borrowed ? material.clone() : material) as THREE.Material &
     Partial<Pick<THREE.MeshStandardMaterial, "color">>;
   clone.color?.set(0xffffff);
   return clone;

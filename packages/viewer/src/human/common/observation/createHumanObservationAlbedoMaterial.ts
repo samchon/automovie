@@ -19,7 +19,7 @@ const LIGHTING_ONLY_PATCHES: readonly string[] = [
 ];
 
 /** Program-key prefix of the viewer's surface-overlay patch, which edits the base colour. */
-const OVERLAY_PATCH_PREFIX = "automovie-overlays-";
+const OVERLAY_PATCH_PREFIX: string = "automovie-overlays-";
 
 /**
  * Create an unlit base-colour projection of one source material.
@@ -42,6 +42,14 @@ const OVERLAY_PATCH_PREFIX = "automovie-overlays-";
  * The source's shader records are restored even if base-state copying fails.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Admits supported native material families and known color/lighting patch roles, copies public base state to an unlit material, borrows color/alpha maps and reconstructs supported overlay color terms. The native shader anchors and named patch semantics must remain compatible; unknown hooks or mapped displacement refuse rather than projecting an unsupported surface.
+ * @evidence contracts/common.md#clear-and-simple-design One material projection owns base-color interpretation, while createHumanObservationAlbedoPass owns per-mesh assignment and retirement. Color overlays reuse the canonical overlay shader generators with lighting-only terms disabled.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Native prototype.copy is invoked without replacing a foreign method; userData is temporarily withdrawn only to avoid JSON-copying patch texture records and restored on success/failure. Named supported patches encode actual viewer semantics rather than fixture ids; extra untracked shader behavior could violate that admission premise.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives supported families, shader/displacement refusals, borrowed texture ownership and failure rollback. Unlit albedo excludes fog/tone mapping and does not judge roughness, specular, emissive or transmission appearance.
+ * @evidence contracts/performance.md#efficient-algorithms Scans K shader patches and O overlays, building one basic material and fixed uniforms/source shape per overlay. Native base copy and shader string generation add their actual data/source-length cost; no numerical geometry is rebuilt.
+ * @evidence contracts/performance.md#reuse-equivalent-work Source maps remain borrowed and canonical overlay color formulas are reused. Each reversible assignment gets its own material; native program keys can share equivalent shader structure while uniforms preserve each source's actual overlay values.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned material and its uniform closures but borrows source textures. Post-allocation refusal restores source records and independently disposes the candidate with the primary cause; no renderer, worker or scene membership is acquired here.
  */
 export function createHumanObservationAlbedoMaterial(
   source: THREE.Material,
@@ -58,12 +66,12 @@ export function createHumanObservationAlbedoMaterial(
     throw new Error(
       `Albedo observation refuses material family "${source.type}".`,
     );
-  const label = source.name || source.type;
+  const label: string = source.name || source.type;
   if (source.onBeforeRender !== THREE.Material.prototype.onBeforeRender)
     throw new Error(
       `Albedo observation refuses custom shader hooks on "${label}".`,
     );
-  const patches =
+  const patches: IMaterialShaderPatch[] =
     (source.userData.shaderPatches as IMaterialShaderPatch[] | undefined) ?? [];
   if (
     source.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile &&
@@ -72,7 +80,7 @@ export function createHumanObservationAlbedoMaterial(
     throw new Error(
       `Albedo observation refuses custom shader hooks on "${label}".`,
     );
-  let overlaid = false;
+  let overlaid: boolean = false;
   for (const patch of patches) {
     if (LIGHTING_ONLY_PATCHES.includes(patch.key)) continue;
     if (!patch.key.startsWith(OVERLAY_PATCH_PREFIX))
@@ -89,11 +97,11 @@ export function createHumanObservationAlbedoMaterial(
     throw new Error(
       `Albedo observation refuses mapped displacement on "${label}".`,
     );
-  const result = new THREE.MeshBasicMaterial();
+  const result: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   // Borrow the supported base-state copy, not a source override or patched shader.
   // three clones userData through JSON, which would serialize the overlay
   // textures; the copy carries none of the source's patch records.
-  const records = source.userData;
+  const records: THREE.Material["userData"] = source.userData;
   try {
     source.userData = {};
     THREE.Material.prototype.copy.call(result, source);
@@ -106,7 +114,7 @@ export function createHumanObservationAlbedoMaterial(
     result.toneMapped =
       getHumanObservationPassDefinition("albedo").parameters.toneMapped!;
     if (overlaid) {
-      const overlays = source.userData.overlays as
+      const overlays: readonly IMaterialOverlayShading[] | undefined = source.userData.overlays as
         | readonly IMaterialOverlayShading[]
         | undefined;
       if (overlays === undefined || overlays.length === 0)
@@ -118,8 +126,8 @@ export function createHumanObservationAlbedoMaterial(
     return result;
   } catch (error) {
     return restoreAutoMovieRenderModeState([
-      () => { source.userData = records; },
-      () => result.dispose(),
+      (): void => { source.userData = records; },
+      (): void => result.dispose(),
     ], { error });
   }
 }
@@ -130,7 +138,7 @@ function applyOverlayColours(
   overlays: readonly IMaterialOverlayShading[],
 ): void {
   const uniforms: Record<string, THREE.IUniform> = {};
-  overlays.forEach((overlay, i) => {
+  overlays.forEach((overlay: IMaterialOverlayShading, i: number): void => {
     overlay.color.updateMatrix();
     uniforms[`overlayColorMap${i}`] = { value: overlay.color };
     uniforms[`overlayColorTransform${i}`] = {
@@ -145,14 +153,14 @@ function applyOverlayColours(
       ),
     };
   });
-  const shapes: IMaterialOverlayShape[] = overlays.map((overlay) => ({
+  const shapes: IMaterialOverlayShape[] = overlays.map((overlay: IMaterialOverlayShading): { blend: "multiply" | "replace"; roughness: false; normal: false; } => ({
     blend: overlay.blend,
     roughness: false,
     normal: false,
   }));
   addMaterialShaderPatch(material, {
-    key: `automovie-albedo-overlays-${shapes.map((shape) => shape.blend[0]).join(".")}`,
-    apply: (shader) => {
+    key: `automovie-albedo-overlays-${shapes.map((shape: IMaterialOverlayShape): string => shape.blend[0]).join(".")}`,
+    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = materialOverlayVertex(shader.vertexShader, shapes);
       shader.fragmentShader = materialOverlayFragment(

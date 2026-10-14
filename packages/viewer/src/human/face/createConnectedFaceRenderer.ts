@@ -1,6 +1,8 @@
 import { validateMeshTopology } from "@automovie/engine";
 import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
-import type { IAutoMovieModel } from "@automovie/interface";
+import type { IHumanFloat32MeshBuffers } from "@automovie/human/common/mesh/IHumanFloat32MeshBuffers";
+import type { IAutoMovieModel, IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
 import {
   AutoMovieTextureCache,
   buildModel,
@@ -34,24 +36,34 @@ import { needsConnectedFaceClosedSurface } from "./needsConnectedFaceClosedSurfa
  * indices and UVs that passed those checks. An appearance edit with the same
  * arrays and closure requirement reuses that verdict; any changed array takes
  * the complete Float32/topology gates. Publication compares once more before
- * writing GPU buffers so a candidate cannot change after preparation.
+ * writing GPU buffers so tracked arrays and closure obligations must still
+ * match. The caller preserves part order and other static configuration while
+ * holding a prepared frame; this witness does not freeze the entire model.
  * Replaced or discarded groups start independent geometry/material and cache
  * retirement after the synchronous publication stack. The explicit settlement
  * port reports every failure, retains uncertain ownership and blocks later
  * allocation. Closing includes caches still preparing and never ends the
  * renderer or context borrowed from the viewport.
+ *
+ * @evidence contracts/common.md#principled-implementation Admits static unskinned meshes, checks actual Float32 conversion and required topology, and retains exact array/physical witnesses before any texture loading or native reuse. Publication rechecks witnesses/closure before writes; static part configuration must remain stable, and a native buffer-write failure can still interrupt publication after preflight.
+ * @evidence contracts/common.md#clear-and-simple-design Asynchronous numerical validation/texture preparation is separate from synchronous active-resident publication and explicit retirement settlement. Scene attachment stays with the viewport; this owner holds group geometry/materials and cache textures.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported rigs/primitives refuse rather than becoming frozen meshes. Actual source arrays and physical partition establish gate reuse without fixture geometry, hashes or a desired silhouette; numerical topology admission does not certify clinical anatomy or observed beauty.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives gate-before-load order, current Float32 representation, witness/static configuration limits, synchronous publication and failure-retaining disposal. The supplied native context remains borrowed.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation scans parts/material closure requirements, exact witness buffers and static configuration; changed geometry runs Float32 packing and topology gates whose actual mesh dimensions dominate. New residents allocate geometry/materials and load distinct textures; publication uploads all current coordinates/normals and recomputes native bounds, with normal recomputation when absent.
+ * @evidence contracts/performance.md#reuse-equivalent-work Exact arrays, physical partition and closure obligation permit reuse of a geometry verdict; materials/static part/attribute structure separately permit reuse of native residents. Coordinate changes still upload current buffers and incompatible structure receives an independent group/cache scope.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Preparation registers each cache's group/texture retirement before interruptible loading. Discard retires nonactive residents, publish retires replaced residents and close includes preparing caches. Failed release retains owned closers and blocks allocation; retained numerical witnesses and concurrently preparing residents have no separate count cap.
  */
 export function createConnectedFaceRenderer(
   props: IConnectedFaceRendererProps,
-) {
+): { prepare: (model: IAutoMovieModel) => Promise<IConnectedFaceFrame>; publish: (frame: IConnectedFaceFrame) => THREE.Group; dispose: (frame: IConnectedFaceFrame) => void; settleRetirements: () => Promise<void>; close: () => Promise<void>; } {
   let active: IConnectedFaceResident | undefined;
-  const retirement = new AutoMovieResourceRetirementScope();
-  const release = (resident: IConnectedFaceResident): void => {
+  const retirement: AutoMovieResourceRetirementScope = new AutoMovieResourceRetirementScope();
+  const release: (resident: IConnectedFaceResident) => void = (resident: IConnectedFaceResident): void => {
     if (resident.released) return;
     resident.released = true;
     retirement.release(resident.textures);
   };
-  const dispose = (frame: IConnectedFaceFrame): void => {
+  const dispose: (frame: IConnectedFaceFrame) => void = (frame: IConnectedFaceFrame): void => {
     if (frame.resident !== active) release(frame.resident);
   };
   return {
@@ -62,21 +74,21 @@ export function createConnectedFaceRenderer(
       if (model.skeleton !== null)
         throw new Error("Connected previews require static resident meshes.");
       const witnesses: IConnectedFaceMeshWitness[] = [];
-      const meshes = model.parts.map((part, index) => {
+      const meshes: IAutoMovieMesh[] = model.parts.map((part: IAutoMovieModelPart, index: number): IAutoMovieMesh => {
         if (
           part.geometry.type !== "mesh" ||
           part.attachedBone !== null ||
           part.geometry.mesh.skin !== null
         )
           throw new Error("Connected previews require static resident meshes.");
-        const mesh = part.geometry.mesh;
-        const closed = needsConnectedFaceClosedSurface(model, part);
-        const previous = active?.witnesses[index];
+        const mesh: IAutoMovieMesh = part.geometry.mesh;
+        const closed: boolean = needsConnectedFaceClosedSurface(model, part);
+        const previous: IConnectedFaceMeshWitness | undefined = active?.witnesses[index];
         if (matchesConnectedFaceMeshWitness(mesh, closed, previous)) {
           witnesses.push(previous!);
           return mesh;
         }
-        const packed = float32MeshBuffers(mesh);
+        const packed: IHumanFloat32MeshBuffers = float32MeshBuffers(mesh);
         if (
           !validateMeshTopology({
             mesh: { ...mesh, positions: Array.from(packed.positions) },
@@ -98,8 +110,8 @@ export function createConnectedFaceRenderer(
         )
       )
         return { resident: active, model, meshes, witnesses };
-      const textures = new AutoMovieTextureCache(async (asset) => {
-        const texture = await props.loadTexture(asset);
+      const textures: AutoMovieTextureCache = new AutoMovieTextureCache(async (asset: string): Promise<THREE.Texture<unknown, THREE.TextureEventMap>> => {
+        const texture: THREE.Texture<unknown, THREE.TextureEventMap> = await props.loadTexture(asset);
         // Connected assets retain the glTF UV convention used by the exporter.
         // TextureLoader's default vertical flip would invert every atlas.
         texture.flipY = false;
@@ -107,13 +119,13 @@ export function createConnectedFaceRenderer(
       });
       let group: THREE.Group | undefined;
       retirement.own(textures, createAutoMovieResourceRetirement([
-        () => { if (group !== undefined) releaseHumanPreviewGroup(group); },
-        () => textures.dispose(),
+        (): void => { if (group !== undefined) releaseHumanPreviewGroup(group); },
+        (): Promise<void> => textures.dispose(),
       ]));
       try {
         await textures.prime(model.materials.flatMap(materialTextureBindings));
         retirement.requireOpen();
-        const built = buildModel(model, textures.resolve);
+        const built: IAutoMovieModelObject = buildModel(model, textures.resolve);
         group = built.object;
         prepareHumanPreview(group, props.maxAnisotropy);
         return {
@@ -124,7 +136,7 @@ export function createConnectedFaceRenderer(
             released: false,
             witnesses,
             meshes: model.parts.map(
-              (part) => built.parts.get(part.id) as THREE.Mesh,
+              (part: IAutoMovieModelPart): THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> => built.parts.get(part.id) as THREE.Mesh,
             ),
           },
           model,
@@ -134,7 +146,7 @@ export function createConnectedFaceRenderer(
       } catch (error) {
         retirement.release(textures);
         return createAutoMovieResourceRetirement(
-          [() => retirement.settle()], { error },
+          [(): Promise<void> => retirement.settle()], { error },
         )();
       }
     },
@@ -153,7 +165,7 @@ export function createConnectedFaceRenderer(
       // the arrays about to reach the GPU are the arrays preparation admitted,
       // including any closure rule changed through its material binding.
       for (const [index, mesh] of frame.meshes.entries()) {
-        const part = frame.model.parts[index];
+        const part: IAutoMovieModelPart = frame.model.parts[index];
         if (
           part === undefined ||
           !matchesConnectedFaceMeshWitness(
@@ -170,14 +182,14 @@ export function createConnectedFaceRenderer(
       // Every buffer has matching shape because the reuse structure holds its
       // lengths and static topology. No asynchronous work occurs during commit.
       for (const [index, mesh] of frame.meshes.entries()) {
-        const geometry = frame.resident.meshes[index].geometry;
-        const positions = geometry.getAttribute(
+        const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = frame.resident.meshes[index].geometry;
+        const positions: THREE.BufferAttribute<THREE.BufferAttributeEventMap> = geometry.getAttribute(
           "position",
         ) as THREE.BufferAttribute;
         positions.set(mesh.positions);
         positions.needsUpdate = true;
         if (mesh.normals !== null) {
-          const normals = geometry.getAttribute(
+          const normals: THREE.BufferAttribute<THREE.BufferAttributeEventMap> = geometry.getAttribute(
             "normal",
           ) as THREE.BufferAttribute;
           normals.set(mesh.normals);
