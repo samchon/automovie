@@ -8,7 +8,7 @@ import { errorMessage } from "./errorMessage";
  * @evidence contracts/common.md#principled-implementation Delegates canonical JSON serialization and converts its thrown cause into design-derivation-output-malformed with the logical target.
  * @evidence contracts/common.md#clear-and-simple-design JSON rules remain with canonicalAutoMovieJsonBytes while this owner adds derivation context.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace an unsupported value, catch a store refusal or prove evaluator purity; errors retain actual canonicalization cause text.
- * @evidence contracts/common.md#meaningful-documentation Documents target-specific refusal before this owner invokes publication and canonical byte output on success.
+ * @evidence contracts/common.md#meaningful-documentation Documents target-specific refusal and canonical byte output on success; this helper publishes nothing, and runAutoMovieDesignDerivation owns later store invocation.
  * @evidence contracts/performance.md#efficient-algorithms Serialization/sorting cost follows the value's complete JSON population and output bytes; error formatting follows target and cause text.
  * @evidence contracts/performance.md#reuse-equivalent-work No byte cache is retained; mutable input values are serialized at each actual evaluation/resident comparison.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Successful bytes transfer to the candidate/caller; failures retain only target/cause strings in their Error and open no resource.
