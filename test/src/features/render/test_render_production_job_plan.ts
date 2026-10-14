@@ -186,13 +186,23 @@ export function test_render_production_job_plan(): void {
     "a final plan partitions both moving deliverables into the same ranges",
     {
       totalFrames: final.totalFrames,
-      chunks: final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): { slot: string; kind: typeof chunk.kind; pass: typeof chunk.pass; range: number[]; frames: number } => ({
-        slot: chunk.slot,
-        kind: chunk.kind,
-        pass: chunk.pass,
-        range: [chunk.frameStart, chunk.frameEndExclusive],
-        frames: chunk.frames.length,
-      })),
+      chunks: final.chunks.map(
+        (
+          chunk: IAutoMovieProductionRenderJobPlan["chunks"][number],
+        ): {
+          slot: string;
+          kind: typeof chunk.kind;
+          pass: typeof chunk.pass;
+          range: number[];
+          frames: number;
+        } => ({
+          slot: chunk.slot,
+          kind: chunk.kind,
+          pass: chunk.pass,
+          range: [chunk.frameStart, chunk.frameEndExclusive],
+          frames: chunk.frames.length,
+        }),
+      ),
     },
     {
       totalFrames: 48,
@@ -203,31 +213,58 @@ export function test_render_production_job_plan(): void {
         ["depth", "guide-pass", "depth", 0, 0, 20],
         ["depth", "guide-pass", "depth", 1, 20, 40],
         ["depth", "guide-pass", "depth", 2, 40, 48],
-      ].map(([deliverable, kind, pass, index, start, end]: (string | number)[]): { slot: string; kind: "feature" | "guide-pass"; pass: "beauty" | "depth"; range: number[]; frames: number } => ({
-        slot: `production:final:${deliverable}:${pass}:${index}`,
-        kind: kind as "feature" | "guide-pass",
-        pass: pass as "beauty" | "depth",
-        range: [start as number, end as number],
-        frames: (end as number) - (start as number),
-      })),
+      ].map(
+        ([deliverable, kind, pass, index, start, end]: (string | number)[]): {
+          slot: string;
+          kind: "feature" | "guide-pass";
+          pass: "beauty" | "depth";
+          range: number[];
+          frames: number;
+        } => ({
+          slot: `production:final:${deliverable}:${pass}:${index}`,
+          kind: kind as "feature" | "guide-pass",
+          pass: pass as "beauty" | "depth",
+          range: [start as number, end as number],
+          frames: (end as number) - (start as number),
+        }),
+      ),
     },
   );
   TestValidator.equals(
     "every planned frame shows the fixture's one shot",
-    final.chunks.every((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): boolean =>
-      chunk.frames.every((frame: typeof chunk.frames[number]): boolean =>
-        frame.layers.every((layer: typeof frame.layers[number]): boolean => layer.shot === "shot"),
-      ),
+    final.chunks.every(
+      (chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): boolean =>
+        chunk.frames.every((frame: (typeof chunk.frames)[number]): boolean =>
+          frame.layers.every(
+            (layer: (typeof frame.layers)[number]): boolean =>
+              layer.shot === "shot",
+          ),
+        ),
     ),
     true,
   );
   TestValidator.equals(
     "ids are distinct per deliverable and range and stable across plans",
     {
-      distinct: new Set(final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id)).size,
-      repeated: plan().chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id),
+      distinct: new Set(
+        final.chunks.map(
+          (
+            chunk: IAutoMovieProductionRenderJobPlan["chunks"][number],
+          ): string => chunk.id,
+        ),
+      ).size,
+      repeated: plan().chunks.map(
+        (chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string =>
+          chunk.id,
+      ),
     },
-    { distinct: 6, repeated: final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id) },
+    {
+      distinct: 6,
+      repeated: final.chunks.map(
+        (chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string =>
+          chunk.id,
+      ),
+    },
   );
 
   const proxy: IAutoMovieProductionRenderJobPlan = plan({
@@ -243,12 +280,21 @@ export function test_render_production_job_plan(): void {
         proxy.frameFormat.fps,
       ],
       ranges: proxy.chunks
-        .filter((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): boolean => chunk.kind === "feature")
-        .map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): number[] => [chunk.frameStart, chunk.frameEndExclusive]),
-      timelineFrames: proxy.chunks[0]!.frames.slice(0, 3).map((frame: IAutoMovieProductionRenderJobPlan["chunks"][number]["frames"][number]): number[] => [
-        frame.globalFrame,
-        frame.timelineFrame,
-      ]),
+        .filter(
+          (
+            chunk: IAutoMovieProductionRenderJobPlan["chunks"][number],
+          ): boolean => chunk.kind === "feature",
+        )
+        .map(
+          (
+            chunk: IAutoMovieProductionRenderJobPlan["chunks"][number],
+          ): number[] => [chunk.frameStart, chunk.frameEndExclusive],
+        ),
+      timelineFrames: proxy.chunks[0]!.frames.slice(0, 3).map(
+        (
+          frame: IAutoMovieProductionRenderJobPlan["chunks"][number]["frames"][number],
+        ): number[] => [frame.globalFrame, frame.timelineFrame],
+      ),
       slot: proxy.chunks[0]!.slot,
     },
     {
@@ -277,7 +323,8 @@ export function test_render_production_job_plan(): void {
         .pass,
       defaulted: plan({ production: legacy }).chunks[0]!.pass,
       twoPasses: throwsError(
-        (): IAutoMovieProductionRenderJobPlan => plan({ production: legacy, guidePasses: ["normal", "mask"] }),
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({ production: legacy, guidePasses: ["normal", "mask"] }),
         "exactly one declared pass",
       ),
     },
@@ -289,18 +336,25 @@ export function test_render_production_job_plan(): void {
   TestValidator.equals(
     "the effect runtimes must be the whole current population",
     {
-      truncated: filmEffectRefusal((): IAutoMovieProductionRenderJobPlan =>
-        plan({ effects: effects.slice(0, 1) }),
+      truncated: filmEffectRefusal(
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({ effects: effects.slice(0, 1) }),
       ),
-      foreign: filmEffectRefusal((): IAutoMovieProductionRenderJobPlan =>
-        plan({
-          effects: [
-            effects[0]!,
-            resealFilmEffect(effects[1]!, (draft: Parameters<Parameters<typeof resealFilmEffect>[1]>[0]): void => {
-              draft.production = "other";
-            }),
-          ],
-        }),
+      foreign: filmEffectRefusal(
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({
+            effects: [
+              effects[0]!,
+              resealFilmEffect(
+                effects[1]!,
+                (
+                  draft: Parameters<Parameters<typeof resealFilmEffect>[1]>[0],
+                ): void => {
+                  draft.production = "other";
+                },
+              ),
+            ],
+          }),
       ),
     },
     {
@@ -316,15 +370,18 @@ export function test_render_production_job_plan(): void {
       exact: plan({ timeline: scored, audioAssets: [stem(96_000)] }).tracks
         .audioAssets.length,
       short: throwsError(
-        (): IAutoMovieProductionRenderJobPlan => plan({ timeline: scored, audioAssets: [stem(95_999)] }),
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({ timeline: scored, audioAssets: [stem(95_999)] }),
         'Audio cue "cue"',
       ),
       missing: throwsError(
-        (): IAutoMovieProductionRenderJobPlan => plan({ timeline: scored, audioAssets: [] }),
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({ timeline: scored, audioAssets: [] }),
         'Audio cue "cue"',
       ),
       unsourcedShot: throwsError(
-        (): IAutoMovieProductionRenderJobPlan => plan({ sourceFingerprints: {} }),
+        (): IAutoMovieProductionRenderJobPlan =>
+          plan({ sourceFingerprints: {} }),
         'shot "shot" without one current builder-owned source fingerprint',
       ),
     },
