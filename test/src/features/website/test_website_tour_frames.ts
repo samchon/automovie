@@ -1,6 +1,7 @@
 import { createTourFrame } from "@automovie/website/tour-frame";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
+
 import { nclose } from "../internal/predicates";
 
 /**
@@ -16,7 +17,12 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_frames entry owns callbacks through the existing product renderer port using plain objects and resident Three scene/camera records; no foreign renderer is replaced and no browser or GPU is started.
  */
 export function test_website_tour_frames(): void {
-  const canvas: Parameters<typeof createTourFrame>[0]["canvas"] = {
+  const canvas: {
+    width: number;
+    height: number;
+    clientWidth: number;
+    clientHeight: number;
+  } = {
     width: 600,
     height: 400,
     clientWidth: 300,
@@ -31,7 +37,9 @@ export function test_website_tour_frames(): void {
     canvas,
     camera,
     scene,
-    finish: (): void => { finishes++; },
+    finish: (): void => {
+      finishes++;
+    },
     renderer: {
       getPixelRatio: (): number => 2,
       setSize: (w: number, h: number): void => {
