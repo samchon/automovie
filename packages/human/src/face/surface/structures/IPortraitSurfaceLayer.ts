@@ -7,7 +7,7 @@ import type { IPortraitSurfaceHost } from "./IPortraitSurfaceHost";
  *
  * @evidence contracts/common.md#principled-implementation Compact engine fields derive from one unchanged connected millimetre host and compose in stable layer-ID order with the shared attachment mask.
  * @evidence contracts/common.md#clear-and-simple-design Layer identity, optional local sampling and field generation stay with the layer; refinement and masked deformation have dedicated owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional spacing refines eligible field-box faces but pending coincident rims are exempt; authored fields are neither clinical tissue mechanics nor recovered anatomical detail.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional spacing selects eligible field-box faces; pending-contact faces request no splits but may inherit shared-edge splits. Authored fields are neither clinical tissue mechanics nor recovered anatomical detail.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish deterministic identity, millimetre sampling domain and metre-valued fields from a nonmutating borrowed host.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The layer protocol describes coefficients and a factory; its fields callback and runtime coordinator separately account for actual algorithms.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Layer identity specifies deterministic ordering without implementing a compiled-field cache.
@@ -18,7 +18,7 @@ export interface IPortraitSurfaceLayer {
   /** Unique stable identity, used for deterministic composition order. */
   id: string;
 
-  /** Optional positive millimetre edge target around field boxes; pending contact faces are exempt and omission preserves sampling. */
+  /** Optional positive millimetre edge target around field boxes; pending-contact faces request no splits but can inherit neighbour splits. Omission preserves sampling. */
   sampleSpacing?: number;
 
   /**
