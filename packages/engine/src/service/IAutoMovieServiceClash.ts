@@ -1,4 +1,3 @@
-
 /**
  * One serviceSegmentClashes pair in network declaration order.
  *

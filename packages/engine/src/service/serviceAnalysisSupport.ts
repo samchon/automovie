@@ -1,6 +1,14 @@
-import { AutoMovieServiceDiscipline, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServicePenetration, IAutoMovieBuiltBoundary } from "@automovie/interface";
+import {
+  AutoMovieServiceDiscipline,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+} from "@automovie/interface";
+
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { IAutoMovieServiceCheckReport } from "./IAutoMovieServiceCheckReport";
+
 /**
  * State plainly which analyses this network and this building can answer.
  *
@@ -29,7 +37,10 @@ import { IAutoMovieServiceCheckReport } from "./IAutoMovieServiceCheckReport";
  *
  * @author Samchon
  */
-export const serviceAnalysisSupport: (props: { network: IAutoMovieServiceNetwork; environment: IAutoMovieBuiltEnvironment; }) => IAutoMovieServiceCheckReport[] = (props: {
+export const serviceAnalysisSupport: (props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieServiceCheckReport[] = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieServiceCheckReport[] => {
@@ -37,14 +48,17 @@ export const serviceAnalysisSupport: (props: { network: IAutoMovieServiceNetwork
   for (const system of props.network.systems)
     if (!disciplines.includes(system.discipline))
       disciplines.push(system.discipline);
-  const located: boolean = props.environment.spaces.some(builtSpaceStatesVolume);
+  const located: boolean = props.environment.spaces.some(
+    builtSpaceStatesVolume,
+  );
   // A boundary that does not resolve is faceless too, and naming the boundary
   // the sleeve claimed is more use than naming nothing; the validator reports
   // the dangling reference itself, on its own path.
   const faceless: string | undefined = props.network.penetrations.find(
     (sleeve: IAutoMovieServicePenetration): boolean =>
       props.environment.boundaries.find(
-        (boundary: IAutoMovieBuiltBoundary): boolean => boundary.id === sleeve.boundary,
+        (boundary: IAutoMovieBuiltBoundary): boolean =>
+          boundary.id === sleeve.boundary,
       )?.face === undefined,
   )?.boundary;
   return [
@@ -116,10 +130,14 @@ export const serviceAnalysisSupport: (props: { network: IAutoMovieServiceNetwork
       reason:
         "a wet zone must cover every boundary of its space and declare every handover to a drier one",
     },
-    ...disciplines.map((discipline: string): { check: string; status: "unsupported"; reason: string; } => ({
-      check: `${discipline}-performance`,
-      status: "unsupported" as const,
-      reason: `no ${discipline} solver runs here; capacity is compared against declared demand only, and pressure, head, voltage drop and throw are not computed`,
-    })),
+    ...disciplines.map(
+      (
+        discipline: string,
+      ): { check: string; status: "unsupported"; reason: string } => ({
+        check: `${discipline}-performance`,
+        status: "unsupported" as const,
+        reason: `no ${discipline} solver runs here; capacity is compared against declared demand only, and pressure, head, voltage drop and throw are not computed`,
+      }),
+    ),
   ];
 };

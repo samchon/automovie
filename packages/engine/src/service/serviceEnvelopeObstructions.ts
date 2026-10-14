@@ -1,6 +1,12 @@
-import { IAutoMoviePropBox, IAutoMovieServiceNetwork, IAutoMovieServiceNode } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
+
 /**
  * Which nodes' maintenance envelopes a world volume intrudes on.
  *
@@ -22,7 +28,10 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
  *
  * @author Samchon
  */
-export const serviceEnvelopeObstructions: (props: { network: IAutoMovieServiceNetwork; bounds: IAutoMoviePropBox; }) => string[] = (props: {
+export const serviceEnvelopeObstructions: (props: {
+  network: IAutoMovieServiceNetwork;
+  bounds: IAutoMoviePropBox;
+}) => string[] = (props: {
   network: IAutoMovieServiceNetwork;
   bounds: IAutoMoviePropBox;
 }): string[] =>

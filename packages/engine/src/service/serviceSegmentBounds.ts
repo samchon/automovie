@@ -1,4 +1,9 @@
-import { IAutoMoviePropBox, IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /**
  * The single world volume a whole run is contained by.
  *
@@ -19,7 +24,9 @@ import { IAutoMoviePropBox, IAutoMovieServiceSegment, IAutoMovieVector3 } from "
  *
  * @author Samchon
  */
-export const serviceSegmentBounds: (segment: IAutoMovieServiceSegment) => IAutoMoviePropBox = (
+export const serviceSegmentBounds: (
+  segment: IAutoMovieServiceSegment,
+) => IAutoMoviePropBox = (
   segment: IAutoMovieServiceSegment,
 ): IAutoMoviePropBox => {
   const first: IAutoMovieVector3 = segment.route[0];
@@ -27,8 +34,16 @@ export const serviceSegmentBounds: (segment: IAutoMovieServiceSegment) => IAutoM
     throw new Error(
       `service segment "${segment.id}" has no route to take a bound from`,
     );
-  const min: { x: number; y: number; z: number; } = { x: first.x, y: first.y, z: first.z };
-  const max: { x: number; y: number; z: number; } = { x: first.x, y: first.y, z: first.z };
+  const min: { x: number; y: number; z: number } = {
+    x: first.x,
+    y: first.y,
+    z: first.z,
+  };
+  const max: { x: number; y: number; z: number } = {
+    x: first.x,
+    y: first.y,
+    z: first.z,
+  };
   for (const point of segment.route)
     for (const axis of ["x", "y", "z"] as const) {
       min[axis] = Math.min(min[axis], point[axis]);

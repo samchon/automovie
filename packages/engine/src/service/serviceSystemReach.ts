@@ -1,5 +1,11 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem, IAutoMovieServiceNode } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
+
 import { portOwners } from "./portOwners";
+
 /**
  * Which nodes one system's root actually reaches.
  *
@@ -30,13 +36,27 @@ import { portOwners } from "./portOwners";
  *
  * @author Samchon
  */
-export const serviceSystemReach: (props: { network: IAutoMovieServiceNetwork; system: string; closedValvesBlock?: boolean | undefined; }) => string[] = (props: {
+export const serviceSystemReach: (props: {
+  network: IAutoMovieServiceNetwork;
+  system: string;
+  closedValvesBlock?: boolean | undefined;
+}) => string[] = (props: {
   network: IAutoMovieServiceNetwork;
   system: string;
   closedValvesBlock?: boolean;
 }): string[] => {
-  const system: IAutoMovieServiceSystem = requireSystem(props.network, props.system);
-  const nodes: Map<string, IAutoMovieServiceNode> = new Map(props.network.nodes.map((node: IAutoMovieServiceNode): [string, IAutoMovieServiceNode] => [node.id, node]));
+  const system: IAutoMovieServiceSystem = requireSystem(
+    props.network,
+    props.system,
+  );
+  const nodes: Map<string, IAutoMovieServiceNode> = new Map(
+    props.network.nodes.map(
+      (node: IAutoMovieServiceNode): [string, IAutoMovieServiceNode] => [
+        node.id,
+        node,
+      ],
+    ),
+  );
   if (!nodes.has(system.root)) return [];
 
   const owner: Map<string, IAutoMovieServiceNode> = portOwners(props.network);
@@ -75,17 +95,26 @@ export const serviceSystemReach: (props: { network: IAutoMovieServiceNetwork; sy
     .map((node: IAutoMovieServiceNode): string => node.id);
 };
 
-const requireSystem: (network: IAutoMovieServiceNetwork, id: string) => IAutoMovieServiceSystem = (
+const requireSystem: (
+  network: IAutoMovieServiceNetwork,
+  id: string,
+) => IAutoMovieServiceSystem = (
   network: IAutoMovieServiceNetwork,
   id: string,
 ): IAutoMovieServiceSystem => {
-  const system: IAutoMovieServiceSystem | undefined = network.systems.find((candidate: IAutoMovieServiceSystem): boolean => candidate.id === id);
+  const system: IAutoMovieServiceSystem | undefined = network.systems.find(
+    (candidate: IAutoMovieServiceSystem): boolean => candidate.id === id,
+  );
   if (system === undefined)
     throw new Error(`service network "${network.id}" has no system "${id}"`);
   return system;
 };
 
-const push: (map: Map<string, string[]>, key: string, value: string) => void = (map: Map<string, string[]>, key: string, value: string): void => {
+const push: (map: Map<string, string[]>, key: string, value: string) => void = (
+  map: Map<string, string[]>,
+  key: string,
+  value: string,
+): void => {
   const bucket: string[] | undefined = map.get(key);
   if (bucket === undefined) map.set(key, [value]);
   else bucket.push(value);

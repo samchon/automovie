@@ -1,4 +1,14 @@
-import { IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem, IAutoMovieWetZone, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
+
 /** Media a floor drain is allowed to discharge into. */
 const WASTE_MEDIUM: string = "waste-water";
 
@@ -47,19 +57,30 @@ const WASTE_MEDIUM: string = "waste-water";
  *
  * @author Samchon
  */
-export const lowerWetZoneDrainage: (props: { network: IAutoMovieServiceNetwork; zone: string; domain: IAutoMovieFluidDomain; }) => IAutoMovieFluidDomain = (props: {
+export const lowerWetZoneDrainage: (props: {
+  network: IAutoMovieServiceNetwork;
+  zone: string;
+  domain: IAutoMovieFluidDomain;
+}) => IAutoMovieFluidDomain = (props: {
   network: IAutoMovieServiceNetwork;
   zone: string;
   domain: IAutoMovieFluidDomain;
 }): IAutoMovieFluidDomain => {
   const { network, domain }: typeof props = props;
-  const zone: IAutoMovieWetZone | undefined = network.zones.find((candidate: IAutoMovieWetZone): boolean => candidate.id === props.zone);
+  const zone: IAutoMovieWetZone | undefined = network.zones.find(
+    (candidate: IAutoMovieWetZone): boolean => candidate.id === props.zone,
+  );
   if (zone === undefined)
     throw new Error(
       `service network "${network.id}" has no wet zone "${props.zone}"`,
     );
   const systems: Map<string, IAutoMovieServiceSystem> = new Map(
-    network.systems.map((system: IAutoMovieServiceSystem): readonly [string, IAutoMovieServiceSystem] => [system.id, system] as const),
+    network.systems.map(
+      (
+        system: IAutoMovieServiceSystem,
+      ): readonly [string, IAutoMovieServiceSystem] =>
+        [system.id, system] as const,
+    ),
   );
 
   const sources: IAutoMovieFluidSource[] = [];
@@ -67,9 +88,15 @@ export const lowerWetZoneDrainage: (props: { network: IAutoMovieServiceNetwork; 
     if (node.space !== zone.space) continue;
     for (const port of node.ports) {
       if (port.direction !== "in") continue;
-      const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
+      const system: IAutoMovieServiceSystem | undefined = systems.get(
+        port.system,
+      );
       if (system === undefined || system.discipline !== "plumbing") continue;
-      const cell: { column: number; row: number; } = cellOf(domain, node, zone.id);
+      const cell: { column: number; row: number } = cellOf(
+        domain,
+        node,
+        zone.id,
+      );
       sources.push({
         id: derivedId(zone.id, port.id, domain, "source"),
         column: cell.column,
@@ -83,12 +110,14 @@ export const lowerWetZoneDrainage: (props: { network: IAutoMovieServiceNetwork; 
 
   const drains: IAutoMovieFluidDrain[] = [];
   for (const id of zone.drains) {
-    const node: IAutoMovieServiceNode | undefined = network.nodes.find((candidate: IAutoMovieServiceNode): boolean => candidate.id === id);
+    const node: IAutoMovieServiceNode | undefined = network.nodes.find(
+      (candidate: IAutoMovieServiceNode): boolean => candidate.id === id,
+    );
     if (node === undefined)
       throw new Error(
         `wet zone "${zone.id}" cites drain node "${id}", which the network does not declare`,
       );
-    const cell: { column: number; row: number; } = cellOf(domain, node, zone.id);
+    const cell: { column: number; row: number } = cellOf(domain, node, zone.id);
     for (const port of wastePortsOf(node, systems))
       drains.push({
         id: derivedId(zone.id, port.id, domain, "drain"),
@@ -109,12 +138,17 @@ export const lowerWetZoneDrainage: (props: { network: IAutoMovieServiceNetwork; 
 };
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
-const wastePortsOf: (node: IAutoMovieServiceNode, systems: ReadonlyMap<string, IAutoMovieServiceSystem>) => IAutoMovieServicePort[] = (
+const wastePortsOf: (
+  node: IAutoMovieServiceNode,
+  systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
+) => IAutoMovieServicePort[] = (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
 ): IAutoMovieServiceNode["ports"] =>
   node.ports.filter((port: IAutoMovieServicePort): boolean => {
-    const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
+    const system: IAutoMovieServiceSystem | undefined = systems.get(
+      port.system,
+    );
     return (
       port.direction === "out" &&
       system !== undefined &&
@@ -124,7 +158,11 @@ const wastePortsOf: (node: IAutoMovieServiceNode, systems: ReadonlyMap<string, I
   });
 
 /** Resolve the lattice cell a node stands over, refusing one that stands off it. */
-const cellOf: (domain: IAutoMovieFluidDomain, node: IAutoMovieServiceNode, zone: string) => { column: number; row: number; } = (
+const cellOf: (
+  domain: IAutoMovieFluidDomain,
+  node: IAutoMovieServiceNode,
+  zone: string,
+) => { column: number; row: number } = (
   domain: IAutoMovieFluidDomain,
   node: IAutoMovieServiceNode,
   zone: string,
@@ -152,7 +190,12 @@ const cellOf: (domain: IAutoMovieFluidDomain, node: IAutoMovieServiceNode, zone:
 };
 
 /** Name a derived inflow or outflow, refusing to shadow an authored one. */
-const derivedId: (zone: string, port: string, domain: IAutoMovieFluidDomain, kind: "source" | "drain") => string = (
+const derivedId: (
+  zone: string,
+  port: string,
+  domain: IAutoMovieFluidDomain,
+  kind: "source" | "drain",
+) => string = (
   zone: string,
   port: string,
   domain: IAutoMovieFluidDomain,
@@ -161,8 +204,12 @@ const derivedId: (zone: string, port: string, domain: IAutoMovieFluidDomain, kin
   const id: string = `${zone}/${port}`;
   const taken: boolean =
     kind === "source"
-      ? domain.sources.some((entry: IAutoMovieFluidSource): boolean => entry.id === id)
-      : domain.drains.some((entry: IAutoMovieFluidDrain): boolean => entry.id === id);
+      ? domain.sources.some(
+          (entry: IAutoMovieFluidSource): boolean => entry.id === id,
+        )
+      : domain.drains.some(
+          (entry: IAutoMovieFluidDrain): boolean => entry.id === id,
+        );
   if (taken)
     throw new Error(
       `fluid domain "${domain.id}" already declares a ${kind} named "${id}"`,

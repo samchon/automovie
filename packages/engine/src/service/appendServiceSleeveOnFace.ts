@@ -1,9 +1,19 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieServicePenetration, IAutoMovieVector3, IAutoMoviePlanarPoint, IAutoMovieBuiltBoundary, IAutoMovieBoundaryFace, IAutoMovieBuiltOpening } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { Quaternion } from "../math/Quaternion";
-import { polygonInside } from "../architecture/polygonInside";
+import {
+  IAutoMovieBoundaryFace,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMoviePlanarPoint,
+  IAutoMovieServicePenetration,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { outlineHull } from "../architecture/outlineHull";
+import { polygonInside } from "../architecture/polygonInside";
+import { Quaternion } from "../math/Quaternion";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
+
 /**
  * Hold a sleeve inside the face it claims to pierce.
  *
@@ -24,7 +34,7 @@ import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
  * A boundary with no face is not a failure. It is the pre-geometry record, and
  * `serviceAnalysisSupport` reports it as the reason this check is `unsupported`
  * rather than passing it silently.
-  *
+ *
  * @evidence contracts/common.md#principled-implementation Inverse rigid face rotation places a finite sleeve centre in boundary coordinates, where thickness and a conservative radius-bounding square must fit the boundary and optional opening outline.
  * @evidence contracts/common.md#clear-and-simple-design Boundary geometry, Quaternion and shared polygonInside own frame conversion and inclusion, so service sleeves follow the same planar fit convention as architecture openings.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent faces remain unsupported geometry rather than invented walls; malformed radius/position skips secondary fit accusations, and square bounds explicitly err toward refusing corner fits.
@@ -33,22 +43,29 @@ import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
  * @evidence contracts/performance.md#reuse-equivalent-work One local centre and bounding square serve both boundary and opening checks; no face result is cached across geometric edits.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local offset, inverse rotation, centre and corners release on return, while only ordered violations remain on the caller's collector.
  */
-export const appendServiceSleeveOnFace: (environment: IAutoMovieBuiltEnvironment, sleeve: IAutoMovieServicePenetration, path: string, out: ViolationCollector) => void = (
+export const appendServiceSleeveOnFace: (
+  environment: IAutoMovieBuiltEnvironment,
+  sleeve: IAutoMovieServicePenetration,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   sleeve: IAutoMovieServicePenetration,
   path: string,
   out: ViolationCollector,
 ): void => {
-  const boundary: IAutoMovieBuiltBoundary | undefined = environment.boundaries.find(
-    (candidate: IAutoMovieBuiltBoundary): boolean => candidate.id === sleeve.boundary,
-  );
+  const boundary: IAutoMovieBuiltBoundary | undefined =
+    environment.boundaries.find(
+      (candidate: IAutoMovieBuiltBoundary): boolean =>
+        candidate.id === sleeve.boundary,
+    );
   const face: IAutoMovieBoundaryFace | undefined = boundary?.face;
   if (face === undefined) return;
   if (!Number.isFinite(sleeve.radius) || sleeve.radius <= 0) return;
   for (const axis of ["x", "y", "z"] as const)
     if (!Number.isFinite(sleeve.position[axis])) return;
 
-  const offset: { x: number; y: number; z: number; } = {
+  const offset: { x: number; y: number; z: number } = {
     x: sleeve.position.x - face.origin.x,
     y: sleeve.position.y - face.origin.y,
     z: sleeve.position.z - face.origin.z,
@@ -77,7 +94,8 @@ export const appendServiceSleeveOnFace: (environment: IAutoMovieBuiltEnvironment
 
   if (sleeve.opening === null) return;
   const opening: IAutoMovieBuiltOpening | undefined = environment.openings.find(
-    (candidate: IAutoMovieBuiltOpening): boolean => candidate.id === sleeve.opening,
+    (candidate: IAutoMovieBuiltOpening): boolean =>
+      candidate.id === sleeve.opening,
   );
   if (opening === undefined || opening.boundary !== sleeve.boundary) return;
   if (opening.profile === undefined) return;
@@ -91,7 +109,10 @@ export const appendServiceSleeveOnFace: (environment: IAutoMovieBuiltEnvironment
 };
 
 /** The four corners of the square bounding a sleeve in its face's own frame. */
-const sleeveCorners: (local: { x: number; y: number; }, radius: number) => IAutoMoviePlanarPoint[] = (
+const sleeveCorners: (
+  local: { x: number; y: number },
+  radius: number,
+) => IAutoMoviePlanarPoint[] = (
   local: { x: number; y: number },
   radius: number,
 ): IAutoMoviePlanarPoint[] => [

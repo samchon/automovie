@@ -1,9 +1,18 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieServiceNetwork, IAutoMovieStageSetPiece, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMovieModel,
+  IAutoMovieServiceNetwork,
+  IAutoMovieStageSetPiece,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { IAutoMovieProfilePoint } from "../geometry/IAutoMovieProfilePoint";
 import { sweepAutoMovieProfile } from "../geometry/sweepAutoMovieProfile";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
+
 /** Default number of sides a swept run is drawn with. */
 const DEFAULT_SIDES: number = 8;
 
@@ -40,7 +49,11 @@ const DEFAULT_SIDES: number = 8;
  *
  * @author Samchon
  */
-export const lowerServiceNetwork: (props: { network: IAutoMovieServiceNetwork; environment: IAutoMovieBuiltEnvironment; sides?: number | undefined; }) => IAutoMovieSubjectContribution = (props: {
+export const lowerServiceNetwork: (props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+  sides?: number | undefined;
+}) => IAutoMovieSubjectContribution = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
   /** Sides the swept section is drawn with; an integer `>= 3`. Defaults to 8. */
@@ -93,13 +106,22 @@ export const lowerServiceNetwork: (props: { network: IAutoMovieServiceNetwork; e
 };
 
 /** A regular section of the given radius, in the sweep's own profile plane. */
-const section: (radius: number, sides: number) => IAutoMovieProfilePoint[] = (radius: number, sides: number): IAutoMovieProfilePoint[] =>
-  Array.from({ length: sides }, (_unused: unknown, index: number): { x: number; y: number; } => {
-    const angle: number = (2 * Math.PI * index) / sides;
-    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
-  });
+const section: (radius: number, sides: number) => IAutoMovieProfilePoint[] = (
+  radius: number,
+  sides: number,
+): IAutoMovieProfilePoint[] =>
+  Array.from(
+    { length: sides },
+    (_unused: unknown, index: number): { x: number; y: number } => {
+      const angle: number = (2 * Math.PI * index) / sides;
+      return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+    },
+  );
 
-const refuse: (network: IAutoMovieServiceNetwork, validation: IAutoMovieValidation) => void = (
+const refuse: (
+  network: IAutoMovieServiceNetwork,
+  validation: IAutoMovieValidation,
+) => void = (
   network: IAutoMovieServiceNetwork,
   validation: IAutoMovieValidation,
 ): void => {

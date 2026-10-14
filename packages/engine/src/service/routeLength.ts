@@ -1,4 +1,8 @@
-import { IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /**
  * Sum consecutive 3D centre-line lengths in metres; fewer than two points yield zero.
  * Finite represented differences and total are the caller's premise.
@@ -11,7 +15,9 @@ import { IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interfac
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each schematic edge is measured once in its report; no route-mutation-sensitive length cache is kept here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A primitive accumulated length escapes without copying the route or retaining endpoint records.
  */
-export const routeLength: (segment: IAutoMovieServiceSegment) => number = (segment: IAutoMovieServiceSegment): number => {
+export const routeLength: (segment: IAutoMovieServiceSegment) => number = (
+  segment: IAutoMovieServiceSegment,
+): number => {
   let total: number = 0;
   for (let index: number = 0; index + 1 < segment.route.length; ++index) {
     const one: IAutoMovieVector3 = segment.route[index]!;

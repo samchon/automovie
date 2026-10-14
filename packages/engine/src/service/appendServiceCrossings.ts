@@ -1,6 +1,16 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceSegment, IAutoMovieServicePenetration, IAutoMovieVector3, IAutoMovieBuiltSpace, IAutoMovieBuiltBoundary } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
+import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Report a run that leaves the logical space it was in without a sleeve.
  *
@@ -18,7 +28,7 @@ import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentC
  * Only the first uncovered crossing of a run is reported. A riser that left its
  * chase undeclared crosses every floor it passes, and one located finding is
  * what the author fixes.
-  *
+ *
  * @evidence contracts/common.md#principled-implementation Changed logical-space membership at consecutive route vertices requires a sleeve on a boundary of a changed region; this samples endpoints rather than continuously detecting intervening crossings.
  * @evidence contracts/common.md#clear-and-simple-design The gate delegates architectural membership to builtEnvironmentContainsPoint and keeps crossing-report policy here, while sleeve face fit remains a separate phase.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the first uncovered transition is reported; a purely semantic building supplies no measurable membership, and cited sleeve boundaries can cover a changed space without local crossing proof.
@@ -27,28 +37,42 @@ import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentC
  * @evidence contracts/performance.md#reuse-equivalent-work Covered-space ids are constructed once per run and reused across its transitions, with no prior-run or previous-building cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Located-space aliases, coverage and membership sets are temporary; the collector owns only the first uncovered transition's finding values.
  */
-export const appendServiceCrossings: (network: IAutoMovieServiceNetwork, environment: IAutoMovieBuiltEnvironment, segment: IAutoMovieServiceSegment, path: string, out: ViolationCollector) => void = (
+export const appendServiceCrossings: (
+  network: IAutoMovieServiceNetwork,
+  environment: IAutoMovieBuiltEnvironment,
+  segment: IAutoMovieServiceSegment,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   network: IAutoMovieServiceNetwork,
   environment: IAutoMovieBuiltEnvironment,
   segment: IAutoMovieServiceSegment,
   path: string,
   out: ViolationCollector,
 ): void => {
-  const located: IAutoMovieBuiltSpace[] = environment.spaces.filter((space: IAutoMovieBuiltSpace): boolean => space.cells.length > 0);
+  const located: IAutoMovieBuiltSpace[] = environment.spaces.filter(
+    (space: IAutoMovieBuiltSpace): boolean => space.cells.length > 0,
+  );
   if (located.length === 0) return;
   const covered: Set<string> = new Set<string>();
   for (const id of segment.penetrations) {
-    const sleeve: IAutoMovieServicePenetration | undefined = network.penetrations.find(
-      (candidate: IAutoMovieServicePenetration): boolean => candidate.id === id,
-    );
+    const sleeve: IAutoMovieServicePenetration | undefined =
+      network.penetrations.find(
+        (candidate: IAutoMovieServicePenetration): boolean =>
+          candidate.id === id,
+      );
     if (sleeve === undefined) continue;
-    const boundary: IAutoMovieBuiltBoundary | undefined = environment.boundaries.find(
-      (candidate: IAutoMovieBuiltBoundary): boolean => candidate.id === sleeve.boundary,
-    );
+    const boundary: IAutoMovieBuiltBoundary | undefined =
+      environment.boundaries.find(
+        (candidate: IAutoMovieBuiltBoundary): boolean =>
+          candidate.id === sleeve.boundary,
+      );
     if (boundary === undefined) continue;
     for (const space of boundary.spaces) covered.add(space);
   }
-  const at: (point: IAutoMovieVector3) => Set<string> = (point: IAutoMovieVector3): Set<string> =>
+  const at: (point: IAutoMovieVector3) => Set<string> = (
+    point: IAutoMovieVector3,
+  ): Set<string> =>
     new Set(
       located
         .filter((space: IAutoMovieBuiltSpace): boolean =>

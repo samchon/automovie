@@ -1,6 +1,11 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
+import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Hold one authored world point inside the logical space its node stands in.
  *
@@ -17,7 +22,7 @@ import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
  * and a space that does not resolve has already been reported for not existing.
  * Neither is accused a second time of standing in the wrong place, which would
  * send an author looking for a second mistake at one address.
-  *
+ *
  * @evidence contracts/common.md#principled-implementation A finite point with a resolving logical space is tested as a zero-volume prop bound using the architecture's containment owner, avoiding an independent room-membership convention.
  * @evidence contracts/common.md#clear-and-simple-design Node and port checks invoke one spatial admission helper after their own reference and component diagnostics, leaving room geometry to the shared prop predicate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing spaces and nonfinite points skip only secondary containment accusations because their primary faults are already reported; coordinates are never replaced.
@@ -26,7 +31,15 @@ import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
  * @evidence contracts/performance.md#reuse-equivalent-work The helper consumes the gate's supplied space-id set and one point, retaining no cached membership across moving nodes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a failed source point is appended to the supplied collector; no cell index, bounds record or environment reference is stored here.
  */
-export const appendServiceInsideSpace: (props: { environment: IAutoMovieBuiltEnvironment; spaceIds: ReadonlySet<string>; space: string; point: IAutoMovieVector3; path: string; subject: string; out: ViolationCollector; }) => void = (props: {
+export const appendServiceInsideSpace: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  spaceIds: ReadonlySet<string>;
+  space: string;
+  point: IAutoMovieVector3;
+  path: string;
+  subject: string;
+  out: ViolationCollector;
+}) => void = (props: {
   environment: IAutoMovieBuiltEnvironment;
   spaceIds: ReadonlySet<string>;
   space: string;

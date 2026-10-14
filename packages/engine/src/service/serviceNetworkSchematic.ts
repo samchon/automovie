@@ -1,9 +1,19 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieVector3, AutoMovieServiceNodeKind } from "@automovie/interface";
+import {
+  AutoMovieServiceNodeKind,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieServiceSystem,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieServiceSchematic } from "./IAutoMovieServiceSchematic";
 import { portOwners } from "./portOwners";
 import { routeLength } from "./routeLength";
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";
+
 /**
  * Project one system to a plan schematic with its totals.
  *
@@ -25,24 +35,57 @@ import { serviceSystemReach } from "./serviceSystemReach";
  *
  * @author Samchon
  */
-export const serviceNetworkSchematic: (props: { network: IAutoMovieServiceNetwork; system: string; }) => IAutoMovieServiceSchematic = (props: {
+export const serviceNetworkSchematic: (props: {
+  network: IAutoMovieServiceNetwork;
+  system: string;
+}) => IAutoMovieServiceSchematic = (props: {
   network: IAutoMovieServiceNetwork;
   system: string;
 }): IAutoMovieServiceSchematic => {
-  const system: IAutoMovieServiceSystem = requireSystem(props.network, props.system);
-  const owner: Map<string, IAutoMovieServiceNode> = portOwners(props.network);
-  const nodes: IAutoMovieServiceNode[] = props.network.nodes.filter((node: IAutoMovieServiceNode): boolean =>
-    node.ports.some((port: IAutoMovieServicePort): boolean => port.system === system.id),
+  const system: IAutoMovieServiceSystem = requireSystem(
+    props.network,
+    props.system,
   );
-  const edges: { id: string; from: string; to: string; points: { x: number; y: number; }[]; length: number; }[] = props.network.segments
-    .filter((segment: IAutoMovieServiceSegment): boolean => segment.system === system.id)
-    .map((segment: IAutoMovieServiceSegment): { id: string; from: string; to: string; points: { x: number; y: number; }[]; length: number; } => ({
-      id: segment.id,
-      from: owner.get(segment.from)?.id ?? segment.from,
-      to: owner.get(segment.to)?.id ?? segment.to,
-      points: segment.route.map((point: IAutoMovieVector3): { x: number; y: number; } => ({ x: point.x, y: point.z })),
-      length: routeLength(segment),
-    }));
+  const owner: Map<string, IAutoMovieServiceNode> = portOwners(props.network);
+  const nodes: IAutoMovieServiceNode[] = props.network.nodes.filter(
+    (node: IAutoMovieServiceNode): boolean =>
+      node.ports.some(
+        (port: IAutoMovieServicePort): boolean => port.system === system.id,
+      ),
+  );
+  const edges: {
+    id: string;
+    from: string;
+    to: string;
+    points: { x: number; y: number }[];
+    length: number;
+  }[] = props.network.segments
+    .filter(
+      (segment: IAutoMovieServiceSegment): boolean =>
+        segment.system === system.id,
+    )
+    .map(
+      (
+        segment: IAutoMovieServiceSegment,
+      ): {
+        id: string;
+        from: string;
+        to: string;
+        points: { x: number; y: number }[];
+        length: number;
+      } => ({
+        id: segment.id,
+        from: owner.get(segment.from)?.id ?? segment.from,
+        to: owner.get(segment.to)?.id ?? segment.to,
+        points: segment.route.map(
+          (point: IAutoMovieVector3): { x: number; y: number } => ({
+            x: point.x,
+            y: point.z,
+          }),
+        ),
+        length: routeLength(segment),
+      }),
+    );
   const reached: Set<string> = new Set(
     serviceSystemReach({ network: props.network, system: system.id }),
   );
@@ -52,14 +95,35 @@ export const serviceNetworkSchematic: (props: { network: IAutoMovieServiceNetwor
     medium: system.medium,
     unit: system.unit,
     root: system.root,
-    nodes: nodes.map((node: IAutoMovieServiceNode): { id: string; kind: AutoMovieServiceNodeKind; x: number; y: number; } => ({
-      id: node.id,
-      kind: node.kind,
-      x: node.position.x,
-      y: node.position.z,
-    })),
+    nodes: nodes.map(
+      (
+        node: IAutoMovieServiceNode,
+      ): {
+        id: string;
+        kind: AutoMovieServiceNodeKind;
+        x: number;
+        y: number;
+      } => ({
+        id: node.id,
+        kind: node.kind,
+        x: node.position.x,
+        y: node.position.z,
+      }),
+    ),
     edges,
-    totalLength: edges.reduce((sum: number, edge: { id: string; from: string; to: string; points: { x: number; y: number; }[]; length: number; }): number => sum + edge.length, 0),
+    totalLength: edges.reduce(
+      (
+        sum: number,
+        edge: {
+          id: string;
+          from: string;
+          to: string;
+          points: { x: number; y: number }[];
+          length: number;
+        },
+      ): number => sum + edge.length,
+      0,
+    ),
     totalDemand: serviceSystemLoad({ network: props.network, system }),
     unreachable: nodes
       .filter((node: IAutoMovieServiceNode): boolean => !reached.has(node.id))
@@ -67,11 +131,16 @@ export const serviceNetworkSchematic: (props: { network: IAutoMovieServiceNetwor
   };
 };
 
-const requireSystem: (network: IAutoMovieServiceNetwork, id: string) => IAutoMovieServiceSystem = (
+const requireSystem: (
+  network: IAutoMovieServiceNetwork,
+  id: string,
+) => IAutoMovieServiceSystem = (
   network: IAutoMovieServiceNetwork,
   id: string,
 ): IAutoMovieServiceSystem => {
-  const system: IAutoMovieServiceSystem | undefined = network.systems.find((candidate: IAutoMovieServiceSystem): boolean => candidate.id === id);
+  const system: IAutoMovieServiceSystem | undefined = network.systems.find(
+    (candidate: IAutoMovieServiceSystem): boolean => candidate.id === id,
+  );
   if (system === undefined)
     throw new Error(`service network "${network.id}" has no system "${id}"`);
   return system;

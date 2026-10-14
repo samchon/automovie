@@ -1,4 +1,5 @@
 import { AutoMovieServiceNodeKind } from "@automovie/interface";
+
 /**
  * One serviceNetworkSchematic node projected into horizontal metre coordinates.
  *

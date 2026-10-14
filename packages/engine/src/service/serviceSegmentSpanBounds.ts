@@ -1,4 +1,9 @@
-import { IAutoMoviePropBox, IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /**
  * The world volume one run occupies, span by span.
  *
@@ -23,7 +28,9 @@ import { IAutoMoviePropBox, IAutoMovieServiceSegment, IAutoMovieVector3 } from "
  *
  * @author Samchon
  */
-export const serviceSegmentSpanBounds: (segment: IAutoMovieServiceSegment) => IAutoMoviePropBox[] = (
+export const serviceSegmentSpanBounds: (
+  segment: IAutoMovieServiceSegment,
+) => IAutoMoviePropBox[] = (
   segment: IAutoMovieServiceSegment,
 ): IAutoMoviePropBox[] => {
   const spans: IAutoMoviePropBox[] = [];

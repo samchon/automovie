@@ -1,4 +1,5 @@
 import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
+
 /**
  * The world keep-out volume a node needs to be serviced, or `null`.
  *
@@ -17,7 +18,9 @@ import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const serviceMaintenanceBounds: (node: IAutoMovieServiceNode) => IAutoMoviePropBox | null = (
+export const serviceMaintenanceBounds: (
+  node: IAutoMovieServiceNode,
+) => IAutoMoviePropBox | null = (
   node: IAutoMovieServiceNode,
 ): IAutoMoviePropBox | null =>
   node.maintenance === null

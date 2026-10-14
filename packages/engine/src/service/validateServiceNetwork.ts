@@ -1,12 +1,27 @@
-import { appendServiceNetworkSegments } from "./appendServiceNetworkSegments";
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
+
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendServiceNetworkCapacity } from "./appendServiceNetworkCapacity";
 import { appendServiceNetworkInterference } from "./appendServiceNetworkInterference";
-import { appendServiceNetworkSystems } from "./appendServiceNetworkSystems";
 import { appendServiceNetworkNodes } from "./appendServiceNetworkNodes";
+import { appendServiceNetworkSegments } from "./appendServiceNetworkSegments";
+import { appendServiceNetworkSystems } from "./appendServiceNetworkSystems";
 import { appendServiceSleeveOnFace } from "./appendServiceSleeveOnFace";
-import { IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServicePenetration, IAutoMovieValidation, IAutoMovieVector3, IAutoMovieBuiltSpace, IAutoMovieBuiltElement, IAutoMovieBuiltBoundary, IAutoMovieBuiltOpening, IAutoMovieServiceSystem, IAutoMovieServicePort, IAutoMovieWetZone } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { portRecords } from "./portRecords";
+
 /** Tolerance for a run's end standing on the port it joins, in metres. */
 const ENDPOINT_EPSILON: number = 1e-6;
 
@@ -33,7 +48,10 @@ const ENDPOINT_EPSILON: number = 1e-6;
  *
  * @author Samchon
  */
-export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork; environment: IAutoMovieBuiltEnvironment; }) => IAutoMovieValidation = (props: {
+export const validateServiceNetwork: (props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieValidation = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieValidation => {
@@ -64,13 +82,24 @@ export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork
       network.environment,
     );
 
-  const spaceIds: Set<string> = new Set(environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id));
-  const elementIds: Set<string> = new Set(environment.elements.map((item: IAutoMovieBuiltElement): string => item.id));
+  const spaceIds: Set<string> = new Set(
+    environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id),
+  );
+  const elementIds: Set<string> = new Set(
+    environment.elements.map((item: IAutoMovieBuiltElement): string => item.id),
+  );
   const boundaryIds: Set<string> = new Set(
-    environment.boundaries.map((boundary: IAutoMovieBuiltBoundary): string => boundary.id),
+    environment.boundaries.map(
+      (boundary: IAutoMovieBuiltBoundary): string => boundary.id,
+    ),
   );
   const openings: Map<string, IAutoMovieBuiltOpening> = new Map(
-    environment.openings.map((opening: IAutoMovieBuiltOpening): [string, IAutoMovieBuiltOpening] => [opening.id, opening]),
+    environment.openings.map(
+      (opening: IAutoMovieBuiltOpening): [string, IAutoMovieBuiltOpening] => [
+        opening.id,
+        opening,
+      ],
+    ),
   );
 
   collectIds(network.nodes, `${root}.nodes`, "service node", out);
@@ -83,7 +112,12 @@ export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork
     out,
   );
   const systems: Map<string, IAutoMovieServiceSystem> = new Map(
-    network.systems.map((system: IAutoMovieServiceSystem): readonly [string, IAutoMovieServiceSystem] => [system.id, system] as const),
+    network.systems.map(
+      (
+        system: IAutoMovieServiceSystem,
+      ): readonly [string, IAutoMovieServiceSystem] =>
+        [system.id, system] as const,
+    ),
   );
   const ports: Map<string, IAutoMovieServicePort> = portRecords(network);
 
@@ -91,7 +125,19 @@ export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork
 
   const portPaths: Map<string, string> = new Map<string, string>();
   const seenPorts: Set<string> = new Set<string>();
-  appendServiceNetworkNodes({network,environment,spaceIds,elementIds,systems,portPaths,seenPorts,root,out,positive,nonNegative});
+  appendServiceNetworkNodes({
+    network,
+    environment,
+    spaceIds,
+    elementIds,
+    systems,
+    portPaths,
+    seenPorts,
+    root,
+    out,
+    positive,
+    nonNegative,
+  });
 
   const used: Set<string> = new Set<string>();
   for (const segment of network.segments) {
@@ -107,55 +153,76 @@ export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork
         id,
       );
 
-  const citedPenetrations: Set<string> = appendServiceNetworkSegments({network,environment,systems,ports,penetrationIds,root,out,positive,coincident,distance});
-
-  network.penetrations.forEach((sleeve: IAutoMovieServicePenetration, index: number): void => {
-    const path: string = `${root}.penetrations[${index}]`;
-    if (!boundaryIds.has(sleeve.boundary))
-      out.push(
-        "type",
-        `${path}.boundary`,
-        `penetration boundary "${sleeve.boundary}" does not resolve in built environment "${environment.id}"`,
-        sleeve.boundary,
-      );
-    if (sleeve.opening !== null) {
-      const opening: IAutoMovieBuiltOpening | undefined = openings.get(sleeve.opening);
-      if (opening === undefined)
-        out.push(
-          "type",
-          `${path}.opening`,
-          `penetration opening "${sleeve.opening}" does not resolve in built environment "${environment.id}"`,
-          sleeve.opening,
-        );
-      else if (opening.boundary !== sleeve.boundary)
-        out.push(
-          "type",
-          `${path}.opening`,
-          `penetration opening "${sleeve.opening}" is cut through boundary "${opening.boundary}", not "${sleeve.boundary}"`,
-          sleeve.opening,
-        );
-    }
-    out.finiteVector(`${path}.position`, sleeve.position, "penetration position");
-    positive(sleeve.radius, `${path}.radius`, "penetration radius", out);
-    appendServiceSleeveOnFace(environment, sleeve, path, out);
-    if (!citedPenetrations.has(sleeve.id))
-      out.warn(
-        "coverage",
-        path,
-        `service penetration "${sleeve.id}" is cited by no run`,
-        sleeve.id,
-      );
-    if (
-      sleeve.sealed === false &&
-      network.zones.some((zone: IAutoMovieWetZone): boolean => zone.membrane.includes(sleeve.boundary))
-    )
-      out.push(
-        "type",
-        `${path}.sealed`,
-        `a penetration through waterproofed boundary "${sleeve.boundary}" must be sealed`,
-        sleeve.sealed,
-      );
+  const citedPenetrations: Set<string> = appendServiceNetworkSegments({
+    network,
+    environment,
+    systems,
+    ports,
+    penetrationIds,
+    root,
+    out,
+    positive,
+    coincident,
+    distance,
   });
+
+  network.penetrations.forEach(
+    (sleeve: IAutoMovieServicePenetration, index: number): void => {
+      const path: string = `${root}.penetrations[${index}]`;
+      if (!boundaryIds.has(sleeve.boundary))
+        out.push(
+          "type",
+          `${path}.boundary`,
+          `penetration boundary "${sleeve.boundary}" does not resolve in built environment "${environment.id}"`,
+          sleeve.boundary,
+        );
+      if (sleeve.opening !== null) {
+        const opening: IAutoMovieBuiltOpening | undefined = openings.get(
+          sleeve.opening,
+        );
+        if (opening === undefined)
+          out.push(
+            "type",
+            `${path}.opening`,
+            `penetration opening "${sleeve.opening}" does not resolve in built environment "${environment.id}"`,
+            sleeve.opening,
+          );
+        else if (opening.boundary !== sleeve.boundary)
+          out.push(
+            "type",
+            `${path}.opening`,
+            `penetration opening "${sleeve.opening}" is cut through boundary "${opening.boundary}", not "${sleeve.boundary}"`,
+            sleeve.opening,
+          );
+      }
+      out.finiteVector(
+        `${path}.position`,
+        sleeve.position,
+        "penetration position",
+      );
+      positive(sleeve.radius, `${path}.radius`, "penetration radius", out);
+      appendServiceSleeveOnFace(environment, sleeve, path, out);
+      if (!citedPenetrations.has(sleeve.id))
+        out.warn(
+          "coverage",
+          path,
+          `service penetration "${sleeve.id}" is cited by no run`,
+          sleeve.id,
+        );
+      if (
+        sleeve.sealed === false &&
+        network.zones.some((zone: IAutoMovieWetZone): boolean =>
+          zone.membrane.includes(sleeve.boundary),
+        )
+      )
+        out.push(
+          "type",
+          `${path}.sealed`,
+          `a penetration through waterproofed boundary "${sleeve.boundary}" must be sealed`,
+          sleeve.sealed,
+        );
+    },
+  );
 
   appendServiceNetworkCapacity(network, root, out);
 
@@ -165,7 +232,12 @@ export const validateServiceNetwork: (props: { network: IAutoMovieServiceNetwork
 };
 
 /** Preserve the first id set while collecting every duplicate and blank-id finding in source order. */
-const collectIds: <T extends { id: string; }>(records: readonly T[], path: string, label: string, out: ViolationCollector) => Set<string> = <T extends { id: string }>(
+const collectIds: <T extends { id: string }>(
+  records: readonly T[],
+  path: string,
+  label: string,
+  out: ViolationCollector,
+) => Set<string> = <T extends { id: string }>(
   records: readonly T[],
   path: string,
   label: string,
@@ -187,7 +259,13 @@ const collectIds: <T extends { id: string; }>(records: readonly T[], path: strin
 };
 
 /** Compare a route endpoint with its port using the declared micrometre tolerance, retaining the original measured gap in the finding. */
-const coincident: (point: IAutoMovieVector3, target: IAutoMovieVector3, path: string, portId: string, out: ViolationCollector) => void = (
+const coincident: (
+  point: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  path: string,
+  portId: string,
+  out: ViolationCollector,
+) => void = (
   point: IAutoMovieVector3,
   target: IAutoMovieVector3,
   path: string,
@@ -206,11 +284,18 @@ const coincident: (point: IAutoMovieVector3, target: IAutoMovieVector3, path: st
 };
 
 /** Three-dimensional metre distance with hypot's scaled norm; overflowed endpoint subtraction remains nonfinite. */
-const distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number = (one: IAutoMovieVector3, other: IAutoMovieVector3): number =>
-  Math.hypot(other.x - one.x, other.y - one.y, other.z - one.z);
+const distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number = (
+  one: IAutoMovieVector3,
+  other: IAutoMovieVector3,
+): number => Math.hypot(other.x - one.x, other.y - one.y, other.z - one.z);
 
 /** Append the service gate's unchanged strict-positive finite scalar diagnostic. */
-const positive: (value: number, path: string, label: string, out: ViolationCollector) => void = (
+const positive: (
+  value: number,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -226,7 +311,12 @@ const positive: (value: number, path: string, label: string, out: ViolationColle
 };
 
 /** Append the service gate's unchanged inclusive-zero finite scalar diagnostic. */
-const nonNegative: (value: number, path: string, label: string, out: ViolationCollector) => void = (
+const nonNegative: (
+  value: number,
+  path: string,
+  label: string,
+  out: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,

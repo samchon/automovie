@@ -1,4 +1,8 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePort,
+} from "@automovie/interface";
+
 /**
  * Map port ids to their source records, retaining the first declaration.
  *
@@ -10,10 +14,15 @@ import { IAutoMovieServiceNetwork, IAutoMovieServicePort } from "@automovie/inte
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The validator reuses this map within one network check; a different or mutated graph requires another construction.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned entries alias input port records; releasing the caller-owned map drops its references and retains no network cache.
  */
-export const portRecords: (network: IAutoMovieServiceNetwork) => Map<string, IAutoMovieServicePort> = (
+export const portRecords: (
+  network: IAutoMovieServiceNetwork,
+) => Map<string, IAutoMovieServicePort> = (
   network: IAutoMovieServiceNetwork,
 ): Map<string, IAutoMovieServicePort> => {
-  const ports: Map<string, IAutoMovieServicePort> = new Map<string, IAutoMovieServicePort>();
+  const ports: Map<string, IAutoMovieServicePort> = new Map<
+    string,
+    IAutoMovieServicePort
+  >();
   for (const node of network.nodes)
     for (const port of node.ports)
       if (!ports.has(port.id)) ports.set(port.id, port);

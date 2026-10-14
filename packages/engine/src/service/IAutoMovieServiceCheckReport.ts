@@ -1,4 +1,3 @@
-
 /**
  * Capability statements emitted by serviceAnalysisSupport for one network.
  * Supported names a check the validator can perform, not a recorded successful

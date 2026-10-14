@@ -1,4 +1,8 @@
-import { IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /**
  * Squared distance from a point to a run's centre line, in square metres.
  *
@@ -17,7 +21,10 @@ import { IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interfac
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Different sleeve positions need different projections, and mutable authored routes have no retained distance cache here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the minimum scalar is returned; no route copy, witness array or source point reference is retained.
  */
-export const routeDistanceSquared: (segment: IAutoMovieServiceSegment, point: { x: number; y: number; z: number; }) => number = (
+export const routeDistanceSquared: (
+  segment: IAutoMovieServiceSegment,
+  point: { x: number; y: number; z: number },
+) => number = (
   segment: IAutoMovieServiceSegment,
   point: { x: number; y: number; z: number },
 ): number => {

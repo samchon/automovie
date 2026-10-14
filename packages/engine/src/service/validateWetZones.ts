@@ -1,5 +1,18 @@
-import { AutoMovieWetGrade, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem, IAutoMovieValidation, IAutoMovieBuiltSpace, IAutoMovieWetZone, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  AutoMovieWetGrade,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  IAutoMovieValidation,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * How much water each grade expects, as the order a handover is measured in.
  *
@@ -49,7 +62,10 @@ const WASTE_MEDIUM: string = "waste-water";
  *
  * @author Samchon
  */
-export const validateWetZones: (props: { network: IAutoMovieServiceNetwork; environment: IAutoMovieBuiltEnvironment; }) => IAutoMovieValidation = (props: {
+export const validateWetZones: (props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieValidation = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieValidation => {
@@ -57,19 +73,40 @@ export const validateWetZones: (props: { network: IAutoMovieServiceNetwork; envi
   const out: ViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  const spaceIds: Set<string> = new Set(environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id));
-  const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
-    environment.boundaries.map((boundary: IAutoMovieBuiltBoundary): [string, IAutoMovieBuiltBoundary] => [boundary.id, boundary]),
+  const spaceIds: Set<string> = new Set(
+    environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id),
   );
-  const nodes: Map<string, IAutoMovieServiceNode> = new Map(network.nodes.map((node: IAutoMovieServiceNode): [string, IAutoMovieServiceNode] => [node.id, node]));
+  const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
+    environment.boundaries.map(
+      (
+        boundary: IAutoMovieBuiltBoundary,
+      ): [string, IAutoMovieBuiltBoundary] => [boundary.id, boundary],
+    ),
+  );
+  const nodes: Map<string, IAutoMovieServiceNode> = new Map(
+    network.nodes.map(
+      (node: IAutoMovieServiceNode): [string, IAutoMovieServiceNode] => [
+        node.id,
+        node,
+      ],
+    ),
+  );
   const systems: Map<string, IAutoMovieServiceSystem> = new Map(
-    network.systems.map((system: IAutoMovieServiceSystem): readonly [string, IAutoMovieServiceSystem] => [system.id, system] as const),
+    network.systems.map(
+      (
+        system: IAutoMovieServiceSystem,
+      ): readonly [string, IAutoMovieServiceSystem] =>
+        [system.id, system] as const,
+    ),
   );
 
   // One space, one grade. A second zone over the same room would make "is the
   // far side of this wall drier" have two answers, so the first declaration
   // wins here and the contradiction is reported on the space that carries it.
-  const gradeOf: Map<string, AutoMovieWetGrade> = new Map<string, AutoMovieWetGrade>();
+  const gradeOf: Map<string, AutoMovieWetGrade> = new Map<
+    string,
+    AutoMovieWetGrade
+  >();
   const zoneOf: Map<string, string> = new Map<string, string>();
   for (const zone of network.zones)
     if (!zoneOf.has(zone.space)) {
@@ -134,8 +171,9 @@ export const validateWetZones: (props: { network: IAutoMovieServiceNetwork; envi
         zone.space,
       );
 
-    const bounding: IAutoMovieBuiltBoundary[] = environment.boundaries.filter((boundary: IAutoMovieBuiltBoundary): boolean =>
-      boundary.spaces.includes(zone.space),
+    const bounding: IAutoMovieBuiltBoundary[] = environment.boundaries.filter(
+      (boundary: IAutoMovieBuiltBoundary): boolean =>
+        boundary.spaces.includes(zone.space),
     );
     const membrane: Set<string> = citedBoundaries({
       cited: zone.membrane,
@@ -172,8 +210,12 @@ export const validateWetZones: (props: { network: IAutoMovieServiceNetwork; envi
       // regions can be one, and the far side is read off whichever of the two
       // is not this zone's own space.
       if (boundary.spaces.length !== 2) continue;
-      for (const other of boundary.spaces.filter((id: string): boolean => id !== zone.space)) {
-        const otherOrder: number = GRADE_ORDER.get(gradeOf.get(other) ?? "dry")!;
+      for (const other of boundary.spaces.filter(
+        (id: string): boolean => id !== zone.space,
+      )) {
+        const otherOrder: number = GRADE_ORDER.get(
+          gradeOf.get(other) ?? "dry",
+        )!;
         if (otherOrder >= (order ?? 0)) continue;
         if (thresholds.has(boundary.id)) continue;
         out.push(
@@ -243,12 +285,17 @@ export const validateWetZones: (props: { network: IAutoMovieServiceNetwork; envi
 };
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
-const wastePortsOf: (node: IAutoMovieServiceNode, systems: ReadonlyMap<string, IAutoMovieServiceSystem>) => IAutoMovieServicePort[] = (
+const wastePortsOf: (
+  node: IAutoMovieServiceNode,
+  systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
+) => IAutoMovieServicePort[] = (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
 ): IAutoMovieServiceNode["ports"] =>
   node.ports.filter((port: IAutoMovieServicePort): boolean => {
-    const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
+    const system: IAutoMovieServiceSystem | undefined = systems.get(
+      port.system,
+    );
     return (
       port.direction === "out" &&
       system !== undefined &&
@@ -258,7 +305,14 @@ const wastePortsOf: (node: IAutoMovieServiceNode, systems: ReadonlyMap<string, I
   });
 
 /** Resolve cited boundary ids, reporting unknown, duplicated and foreign ones. */
-const citedBoundaries: (props: { cited: readonly string[]; zoneSpace: string; boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>; path: string; label: string; out: ViolationCollector; }) => Set<string> = (props: {
+const citedBoundaries: (props: {
+  cited: readonly string[];
+  zoneSpace: string;
+  boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
+  path: string;
+  label: string;
+  out: ViolationCollector;
+}) => Set<string> = (props: {
   cited: readonly string[];
   zoneSpace: string;
   boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
@@ -269,7 +323,8 @@ const citedBoundaries: (props: { cited: readonly string[]; zoneSpace: string; bo
   const resolved: Set<string> = new Set<string>();
   props.cited.forEach((id: string, at: number): void => {
     const where: string = `${props.path}[${at}]`;
-    const boundary: IAutoMovieBuiltBoundary | undefined = props.boundaries.get(id);
+    const boundary: IAutoMovieBuiltBoundary | undefined =
+      props.boundaries.get(id);
     if (boundary === undefined) {
       props.out.push(
         "type",

@@ -1,6 +1,12 @@
-import { AutoMovieServiceDiscipline, AutoMovieServiceMedium, AutoMovieServiceUnit } from "@automovie/interface";
+import {
+  AutoMovieServiceDiscipline,
+  AutoMovieServiceMedium,
+  AutoMovieServiceUnit,
+} from "@automovie/interface";
+
 import { IAutoMovieServiceSchematicEdge } from "./IAutoMovieServiceSchematicEdge";
 import { IAutoMovieServiceSchematicNode } from "./IAutoMovieServiceSchematicNode";
+
 /**
  * One system reduced to the drawing an operator can actually read.
  *

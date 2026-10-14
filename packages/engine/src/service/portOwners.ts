@@ -1,4 +1,8 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceNode } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+} from "@automovie/interface";
+
 /**
  * Map every port id to the node that declares it, first declaration winning.
  * Values alias source nodes; duplicate admission belongs to validateServiceNetwork.
@@ -11,10 +15,15 @@ import { IAutoMovieServiceNetwork, IAutoMovieServiceNode } from "@automovie/inte
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One caller owns each constructed lookup for its operation; no cross-call map assumes mutable node/port equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The new map transfers to its caller and retains source-node aliases only while that lookup remains reachable.
  */
-export const portOwners: (network: IAutoMovieServiceNetwork) => Map<string, IAutoMovieServiceNode> = (
+export const portOwners: (
+  network: IAutoMovieServiceNetwork,
+) => Map<string, IAutoMovieServiceNode> = (
   network: IAutoMovieServiceNetwork,
 ): Map<string, IAutoMovieServiceNode> => {
-  const owners: Map<string, IAutoMovieServiceNode> = new Map<string, IAutoMovieServiceNode>();
+  const owners: Map<string, IAutoMovieServiceNode> = new Map<
+    string,
+    IAutoMovieServiceNode
+  >();
   for (const node of network.nodes)
     for (const port of node.ports)
       if (!owners.has(port.id)) owners.set(port.id, node);

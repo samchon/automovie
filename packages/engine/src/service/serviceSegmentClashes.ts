@@ -1,8 +1,15 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSegment, IAutoMoviePropBox } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServiceSegment,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { IAutoMovieServiceClash } from "./IAutoMovieServiceClash";
 import { portOwners } from "./portOwners";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
+
 /**
  * Every pair of runs whose occupied volumes overlap.
  *
@@ -23,28 +30,45 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  *
  * @author Samchon
  */
-export const serviceSegmentClashes: (network: IAutoMovieServiceNetwork) => IAutoMovieServiceClash[] = (
+export const serviceSegmentClashes: (
+  network: IAutoMovieServiceNetwork,
+) => IAutoMovieServiceClash[] = (
   network: IAutoMovieServiceNetwork,
 ): IAutoMovieServiceClash[] => {
   const owner: Map<string, IAutoMovieServiceNode> = portOwners(network);
   const measurable: IAutoMovieServiceSegment[] = network.segments.filter(
     (segment: IAutoMovieServiceSegment): boolean => segment.route.length > 1,
   );
-  const spans: IAutoMoviePropBox[][] = measurable.map((segment: IAutoMovieServiceSegment): IAutoMoviePropBox[] => serviceSegmentSpanBounds(segment));
+  const spans: IAutoMoviePropBox[][] = measurable.map(
+    (segment: IAutoMovieServiceSegment): IAutoMoviePropBox[] =>
+      serviceSegmentSpanBounds(segment),
+  );
   const touched: Set<string>[] = measurable.map(
     (segment: IAutoMovieServiceSegment): Set<string> =>
       new Set(
         [owner.get(segment.from), owner.get(segment.to)]
-          .filter((node: IAutoMovieServiceNode | undefined): node is IAutoMovieServiceNode => node !== undefined)
+          .filter(
+            (
+              node: IAutoMovieServiceNode | undefined,
+            ): node is IAutoMovieServiceNode => node !== undefined,
+          )
           .map((node: IAutoMovieServiceNode): string => node.id),
       ),
   );
   const clashes: IAutoMovieServiceClash[] = [];
   for (let left: number = 0; left < measurable.length; ++left)
     for (let right: number = left + 1; right < measurable.length; ++right) {
-      if ([...touched[left]!].some((id: string): boolean => touched[right]!.has(id))) continue;
-      const hit: boolean = spans[left]!.some((one: IAutoMoviePropBox): boolean =>
-        spans[right]!.some((other: IAutoMoviePropBox): boolean => propBoundsOverlap(one, other)),
+      if (
+        [...touched[left]!].some((id: string): boolean =>
+          touched[right]!.has(id),
+        )
+      )
+        continue;
+      const hit: boolean = spans[left]!.some(
+        (one: IAutoMoviePropBox): boolean =>
+          spans[right]!.some((other: IAutoMoviePropBox): boolean =>
+            propBoundsOverlap(one, other),
+          ),
       );
       if (hit)
         clashes.push({

@@ -1,8 +1,27 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceSystem, IAutoMovieServiceNode, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendServiceInsideSpace } from "./appendServiceInsideSpace";
-const DIRECTIONS: readonly ["in", "out", "bidirectional"] = ["in", "out", "bidirectional"] as const;
-const NODE_KINDS: readonly ["source", "fixture", "equipment", "terminal", "junction", "valve"] = [
+
+const DIRECTIONS: readonly ["in", "out", "bidirectional"] = [
+  "in",
+  "out",
+  "bidirectional",
+] as const;
+const NODE_KINDS: readonly [
+  "source",
+  "fixture",
+  "equipment",
+  "terminal",
+  "junction",
+  "valve",
+] = [
   "source",
   "fixture",
   "equipment",
@@ -10,7 +29,6 @@ const NODE_KINDS: readonly ["source", "fixture", "equipment", "terminal", "junct
   "junction",
   "valve",
 ] as const;
-
 
 /** Check node placement and ports while retaining first declaration paths for later connectivity diagnostics.
  *
@@ -22,8 +40,42 @@ const NODE_KINDS: readonly ["source", "fixture", "equipment", "terminal", "junct
  * @evidence contracts/performance.md#reuse-equivalent-work Environment, element, system and first-port maps are shared from the current gate call instead of rebuilt for each node.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The supplied maps and collector own appended facts; temporary scalar and containment arguments release on return without retaining a second graph copy.
  */
-export function appendServiceNetworkNodes(props: {network: IAutoMovieServiceNetwork;environment: IAutoMovieBuiltEnvironment;spaceIds: ReadonlySet<string>;elementIds: ReadonlySet<string>;systems: ReadonlyMap<string, IAutoMovieServiceSystem>;portPaths: Map<string,string>;seenPorts: Set<string>;root: string;out: ViolationCollector;positive: (value: number, path: string, label: string, out: ViolationCollector) => void;nonNegative: (value: number, path: string, label: string, out: ViolationCollector) => void;}): void {
- const {network,environment,spaceIds,elementIds,systems,portPaths,seenPorts,root,out,positive,nonNegative}: typeof props = props;
+export function appendServiceNetworkNodes(props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+  spaceIds: ReadonlySet<string>;
+  elementIds: ReadonlySet<string>;
+  systems: ReadonlyMap<string, IAutoMovieServiceSystem>;
+  portPaths: Map<string, string>;
+  seenPorts: Set<string>;
+  root: string;
+  out: ViolationCollector;
+  positive: (
+    value: number,
+    path: string,
+    label: string,
+    out: ViolationCollector,
+  ) => void;
+  nonNegative: (
+    value: number,
+    path: string,
+    label: string,
+    out: ViolationCollector,
+  ) => void;
+}): void {
+  const {
+    network,
+    environment,
+    spaceIds,
+    elementIds,
+    systems,
+    portPaths,
+    seenPorts,
+    root,
+    out,
+    positive,
+    nonNegative,
+  }: typeof props = props;
   network.nodes.forEach((node: IAutoMovieServiceNode, index: number): void => {
     const path: string = `${root}.nodes[${index}]`;
     if (!NODE_KINDS.includes(node.kind))
@@ -33,7 +85,11 @@ export function appendServiceNetworkNodes(props: {network: IAutoMovieServiceNetw
         `unknown service node kind "${String(node.kind)}"`,
         node.kind,
       );
-    out.finiteVector(`${path}.position`, node.position, "service node position");
+    out.finiteVector(
+      `${path}.position`,
+      node.position,
+      "service node position",
+    );
     if (!spaceIds.has(node.space))
       out.push(
         "type",
@@ -98,7 +154,9 @@ export function appendServiceNetworkNodes(props: {network: IAutoMovieServiceNetw
       // stub is reported at the port a run would actually have joined rather
       // than at whichever copy of a duplicated id came last.
       if (!portPaths.has(port.id)) portPaths.set(port.id, portPath);
-      const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
+      const system: IAutoMovieServiceSystem | undefined = systems.get(
+        port.system,
+      );
       if (system === undefined)
         out.push(
           "type",
@@ -132,7 +190,11 @@ export function appendServiceNetworkNodes(props: {network: IAutoMovieServiceNetw
       nonNegative(port.demand, `${portPath}.demand`, "port demand", out);
       if (port.section !== null)
         positive(port.section, `${portPath}.section`, "port section", out);
-      out.finiteVector(`${portPath}.position`, port.position, "service port position");
+      out.finiteVector(
+        `${portPath}.position`,
+        port.position,
+        "service port position",
+      );
       appendServiceInsideSpace({
         environment,
         spaceIds,
@@ -144,6 +206,4 @@ export function appendServiceNetworkNodes(props: {network: IAutoMovieServiceNetw
       });
     });
   });
-
-
 }

@@ -1,4 +1,10 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem, IAutoMovieServiceNode, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
+
 /**
  * Total demand one system is declared to carry, in the system's own unit.
  *
@@ -31,7 +37,10 @@ import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem, IAutoMovieServiceNod
  *
  * @author Samchon
  */
-export const serviceSystemLoad: (props: { network: IAutoMovieServiceNetwork; system: IAutoMovieServiceSystem; }) => number = (props: {
+export const serviceSystemLoad: (props: {
+  network: IAutoMovieServiceNetwork;
+  system: IAutoMovieServiceSystem;
+}) => number = (props: {
   network: IAutoMovieServiceNetwork;
   system: IAutoMovieServiceSystem;
 }): number => {
@@ -44,7 +53,11 @@ export const serviceSystemLoad: (props: { network: IAutoMovieServiceNetwork; sys
           (port: IAutoMovieServicePort): boolean =>
             port.system === props.system.id && port.direction === facing,
         )
-        .reduce((total: number, port: IAutoMovieServicePort): number => total + port.demand, 0),
+        .reduce(
+          (total: number, port: IAutoMovieServicePort): number =>
+            total + port.demand,
+          0,
+        ),
     0,
   );
 };

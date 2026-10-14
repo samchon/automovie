@@ -1,9 +1,17 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSegment, IAutoMovieServiceNode, IAutoMoviePropBox, IAutoMovieServicePort } from "@automovie/interface";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 import { serviceSegmentClashes } from "./serviceSegmentClashes";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
+
 /** Append conservative run clashes and unrelated-run access obstructions in their original diagnostic order.
  *
  * @evidence contracts/common.md#principled-implementation Conservative span clashes and unrelated-run overlap with maintenance AABBs append separate physics findings; shared-node pairs and own-terminal runs follow the existing explicit exemptions.
@@ -14,9 +22,18 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  * @evidence contracts/performance.md#reuse-equivalent-work A segment-id index serves every clash path, and each node's own-port set is reused over its unrelated-run scan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The segment index, own-port sets and temporary boxes are call-local; only id-valued physics findings escape through the supplied collector.
  */
-export function appendServiceNetworkInterference(network: IAutoMovieServiceNetwork, root: string, out: ViolationCollector): void {
+export function appendServiceNetworkInterference(
+  network: IAutoMovieServiceNetwork,
+  root: string,
+  out: ViolationCollector,
+): void {
   const segmentIndex: Map<string, number> = new Map(
-    network.segments.map((segment: IAutoMovieServiceSegment, index: number): [string, number] => [segment.id, index]),
+    network.segments.map(
+      (segment: IAutoMovieServiceSegment, index: number): [string, number] => [
+        segment.id,
+        index,
+      ],
+    ),
   );
   for (const clash of serviceSegmentClashes(network))
     out.push(
@@ -29,11 +46,18 @@ export function appendServiceNetworkInterference(network: IAutoMovieServiceNetwo
   network.nodes.forEach((node: IAutoMovieServiceNode, index: number): void => {
     const envelope: IAutoMoviePropBox | null = serviceMaintenanceBounds(node);
     if (envelope === null) return;
-    const own: Set<string> = new Set(node.ports.map((port: IAutoMovieServicePort): string => port.id));
+    const own: Set<string> = new Set(
+      node.ports.map((port: IAutoMovieServicePort): string => port.id),
+    );
     for (const segment of network.segments) {
       if (own.has(segment.from) || own.has(segment.to)) continue;
       const spans: IAutoMoviePropBox[] = serviceSegmentSpanBounds(segment);
-      if (!spans.some((span: IAutoMoviePropBox): boolean => propBoundsOverlap(envelope, span))) continue;
+      if (
+        !spans.some((span: IAutoMoviePropBox): boolean =>
+          propBoundsOverlap(envelope, span),
+        )
+      )
+        continue;
       out.push(
         "physics",
         `${root}.nodes[${index}].maintenance`,
@@ -42,5 +66,4 @@ export function appendServiceNetworkInterference(network: IAutoMovieServiceNetwo
       );
     }
   });
-
 }
