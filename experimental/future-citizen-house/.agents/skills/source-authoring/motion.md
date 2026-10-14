@@ -77,8 +77,4 @@ Watch at speed, half speed, and frame step. Look for foot slide, penetration, fl
 
 Reading a clip's numbers is not watching it move. Capture the frames the fault would be on rather than the frames that happen to be convenient.
 
-1. Capture the shot target at each contact, each extreme, and one frame either side of the moment the fault would appear. Foot slide, penetration, and contact drift are visible in adjacent frames and invisible in one.
-2. Capture with the `pose` structural pass when the question is skeletal rather than pictorial.
-3. State what the motion actually did, in the evidence citation on the source that owns it. A verdict nobody can trace to a frame is not one.
-
 A shot contract's declared review times are the floor, not the whole answer. Add the times this motion makes decisive.

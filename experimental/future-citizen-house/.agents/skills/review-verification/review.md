@@ -1,9 +1,5 @@
 # Production review
 
-The authoring agent reviews its own declared production surface alone and exhaustively. Do not partition one evidence surface across agents because overlap, contradiction, omission, and downstream consequence are graph-wide properties.
-
-AutoMovie provides deterministic inspection, capture, compile diagnostics, and evidence lint. It does not provide a stored finding lifecycle, alternative-selection ledger, approval, rejection, conditional approval, or waiver service. Observations about the production live in its source, evidence citations, commits, and the external human production record that requested the work. Do not create a product status file to recreate the retired service.
-
 ## Declare the review basis
 
 Before looking, declare the exact production kind, source and compile revision, target population, interval or viewpoint population, artifact identity, presentation conditions, and contract or criterion being judged. A result applies only to that basis. A frame does not decide an interval, one interval does not decide the whole production, and one subject observation does not decide a delivery frame.
@@ -20,8 +16,6 @@ Record the exact frame clock, interval endpoints, playback rate, pass, raster, c
 
 ## Compare and observe
 
-Define an observable question before judging it: the subject or event, time or state, expected result, allowed variation, and failure condition. Let compile and evidence lint decide identities, relationships, ranges, deterministic values, coverage, and refusal states. Judge pixels, decoded sound, performance, readability, rhythm, spatial experience, and whole-work effect by opening the current output.
-
 Compare candidates only when they share the relevant source and intent, semantic event or time position, presentation conditions, and reference version. Name their common basis and each actual difference. Preserve each candidate's observation separately. When the basis differs, report it as noncomparable rather than calling the difference an improvement or regression.
 
 For a visual or audible surface, inspect the exact frame for image facts, play the interval for motion, timing, transition, continuity and synchronization, and read the complete ordered work for causality, pacing, long continuity and ending state. State when a conclusion rests on samples. A sampled set never becomes whole-population coverage without a contract that justifies that inference.
@@ -30,43 +24,15 @@ For a film containing any repaint lane, review the complete ordered active occur
 
 ## Record findings and consequences
 
-Locate each finding at the narrowest stable address: evidence target and host, source owner, diagnostic, subject and viewpoint, frame, interval, sound or caption event, or whole-production scope. Separate the observed result, expected result, difference, production consequence, and proven cause. Do not present an inferred cause as observed fact.
-
 Describe the affected craft or contract area, impact, reproduction conditions, and repair priority. Impact and priority are separate. Distinguish a contract defect from allowed variation and an optional suggestion. Several observations may share one cause, but keep every affected scope until the common repair and its consequences are verified.
 
 Repair at the earliest semantic owner. Reopen every downstream, adjacent, parent, sibling-placement, and whole-production judgment whose basis changed. A narrow recheck restores only the scope actually reopened.
 
 Use Git history to preserve earlier observations, candidate comparisons, selections, and corrections. A later explanation supersedes an earlier conclusion without erasing what was originally observed. The authoring agent's completed review is a process result, not a human or organizational approval. Green lint, no finding, elapsed time, and a previous selection never imply approval or waive a known defect.
 
-## Evidence review
-
-Follow [Rendered realization review](../evidence-graph/staging.md#rendered-realization-review) for the source relationships that require current pixels or playback and their structural relationship policy. Open every exact required view or interval, compare the authored promise with the actual output, repair defects at their true owners, and repeat affected observations before completing the declared work. Structural coverage, a stored reason, and a successful capture call cannot replace that inspection.
-
-Inspect a layer's complete evidence population at `evidence` under [Semantic evidence inspection](semantic-review.md). It owns the literal target and host pass, both population axes, repair, and post-edit invalidation. No new companion row or separate production reviewer is required; optional legacy metadata does not substitute for the author's inspection.
-
-For a citation, read the complete target scope and host with necessary upstream context, decide whether the host truly realizes or depends on the target, repair any disagreement, and make its acknowledgement reason describe the host's actual relationship.
-
-For a principle item, read the item in full and reread the complete selected H2, H3, or H4 host with its necessary parent and descendant context, asking only that question of that unit. Repair that unit if it fails. One item receives one check on every selected unit; do not reuse a review sentence across items or units.
-
-For an obligation item, read the complete target and its actual authored H2 or source-export contributors. Confirm that together they fulfill the required role. When the target requires a population comparison, inspect that population and the authored or aggregate owner that records the conclusion. Repeat for each selected layer.
-
-Apply the same obligation review to shared and production-local targets. The live `manifest.localBindings` identifies eligible hosts, contract `targets`, and authored `population`; `localAudits` identifies first-pilot audits. [Production-specific claims](../evidence-graph/staging.md#production-specific-claims) owns migration.
-
-At the start and end of an evidence Self-Review, read the complete selected declarations and their exact targets. Compare every claim with its actual implementation, consumers, and required observations. Collect findings together, repair their earliest owners, and restart the complete round after an edit.
-
-Trace direct treatment coverage at every script and construction-screenplay file, H2, H3, and H4 host. Then verify exact script-file lineage and same-depth script-to-construction-screenplay lineage. For each selected naturalness pass, compare the complete final population with construction and verify exact file and same-depth unit lineage, frozen content, naturalness answers, and audience-language performance. A parent citation cannot stand in for a missing child relationship, and a generated index cannot stand in for the authored unit that owns it.
-
-For an exclusion, read the target and complete claim population, find the actual owner or concrete scope fact that makes the target absent, and remove the exclusion when the production owes missing work. “Checked,” “confirmed,” and “not applicable” do not record a review.
-
-Historical companion rows and fingerprints supply no completion or freshness gate. Read every exact required image, interval, subject view, and complete-population result against the current source basis before accepting a visual relationship. [Evidence staging](../evidence-graph/staging.md) owns compatibility behavior.
-
 For a film or brief, judge the models the actual delivery consumes. Unused source cannot substitute for missing delivered content.
 
-For a library, inspect the actual authored model, map, or building through views and measurements that answer its design claims. Record what was examined, what was observed, and what was corrected in the source evidence.
-
 ## Final whole-production review
-
-Declare one complete production surface and inspect it alone from the current source revision. The surface includes the user's requested delivery, all active authored branches and source owners, the complete selected evidence relationships, and the actual visual or audible output. A library is judged as its declared reusable work, without inventing a film.
 
 Read the whole declared surface before correcting any finding. Compare every promise with its actual source realization and the observation that can falsify it. For a film, play the complete ordered work, then inspect its required frames, intervals, dialogue, sound, captions, continuity, and delivery conditions. For a library, examine every governed subject and the complete design review set.
 

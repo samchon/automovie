@@ -1,4 +1,0 @@
-<!--
-@evidenceExclude discovery/design/designs.md#work-specific-design-requirements The only currently active design is the manor spaces. The geometry, materials and repeated placement in src are inputs of the same space carrier and introduce no new coordinate, precision or reuse rule between independent designs. Y-up metres and the storey datum are checked against settings/001-production.md#coordinate-datum, expression and observation against fidelity and review-condition in the same file, and the responsibility boundaries of members, finishes and placement against settings/002-household.md#make-scope and settings/003-spatial-basis.md#surface-responsibility. The space-specific result of the current fixed room connections is held separately by manor-spatial-requirements.md.
--->
-# Discovery result for independent additional contracts

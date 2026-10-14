@@ -8,8 +8,6 @@ Before correcting a visible symptom, inspect the complete requested population a
 
 Design the group's constraints together before implementation: what must improve, what neighboring parts and states must preserve, who owns each boundary and coordinate transform, and which observations would refute the approach. Return missing decisions to their authored design owners. A missing representational freedom requires a repair at its owner; repeated scalar tuning, higher tessellation or a display workaround cannot supply it.
 
-Declare the fixed quantities, intervention, competing explanation and rejection condition for each experiment. Follow [Measurement basis](measurements.md#measurement-basis) for quantitative claims and [Production review](review.md#compare-and-observe) for comparisons of rendered output. Preserve unfavorable results and earlier candidates with their exact basis. A repair applies to the whole verified cause group, and any newly exposed coupled defect reopens that group's design before another correction.
-
 When repeated corrections leave the consumed result inadequate, return to [Implementation strategy](../source-authoring/implementation-strategy.md) to compare the formulation, representation, and reusable alternatives against the group's conditions.
 
 ## Triage
@@ -19,8 +17,6 @@ When repeated corrections leave the consumed result inadequate, return to [Imple
 3. Reproduce the disagreement with the smallest current typed input.
 4. Trace the same cause through every affected consumer and boundary case.
 5. Correct the earliest owner, rerun its consumers, and repeat the affected observations.
-
-Do not widen a tolerance, add a cast, swallow a refusal, or change several unrelated inputs to make a symptom disappear. A source viewer reports current compilation errors; a previous frame is not evidence that the new source works.
 
 ## Geometry and motion
 
