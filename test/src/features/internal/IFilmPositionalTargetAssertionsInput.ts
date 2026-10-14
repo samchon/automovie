@@ -1,7 +1,11 @@
-import type { IAutoMoviePerformedShot } from "@automovie/engine";
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { IAutoMovieActionCall } from "@automovie/interface";
 
-/** Original positional-target performance and diagnostic readers. */
+/**
+ * Original positional-target performance and diagnostic readers.
+ *
+ * @author Samchon
+ */
 export interface IFilmPositionalTargetAssertionsInput {
   /** Execute the original staged draft. */
   perform(draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot;
