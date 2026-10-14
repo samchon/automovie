@@ -1,21 +1,26 @@
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+import { IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
 /**
- * Primitive dimensions are rough plain numbers, so their positivity is enforced
- * at runtime by the engine, not by the type. A non-positive extent is a `range`
- * violation.
+ * Model admission refuses a collapsed box dimension.
  *
- * Scenario: a box with width 0 fails, with a `range` violation on the width.
+ * Scenarios:
+ * 1. A zero-width box fails with a width range finding.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with the existing box's width set to zero and requires failed admission plus a located width finding, catching unchecked collapsed primitive input.
+ * @evidence contracts/testing.md#independent-expectations Box dimensions are finite and strictly positive, so zero violates the documented width domain while unchanged height/depth remain valid; expected kind/path are contract facts.
+ * @evidence contracts/testing.md#distinguishing-cases Owns the zero-width box boundary; nonfinite scalar inputs have a separate entry, while other primitive dimension branches are outside this case. This does not construct geometry or prove all width values.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry copies existing model records and calls portable engine admission without a builder, renderer, process or native artifact.
  */
-export const test_validation_model_extent = (): void => {
-  const base = createModel();
-  const model = {
+export function test_validation_model_extent(): void {
+  const base: IAutoMovieModel = createModel();
+  const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((p) => ({
+    parts: base.parts.map((p: IAutoMovieModelPart): IAutoMovieModelPart => ({
       ...p,
       geometry: {
         type: "primitive" as const,
@@ -23,10 +28,10 @@ export const test_validation_model_extent = (): void => {
       },
     })),
   };
-  const result = validateModel({ model });
+  const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("zero extent fails", result.success, false);
   TestValidator.predicate(
     "range violation on width",
     hasViolation(result, "range", ".width"),
   );
-};
+}

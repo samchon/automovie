@@ -151,11 +151,12 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  *    analysis still refuses a scalar axis (an intensity dipping below zero
  *    between two in-range keys), which is the case that would be lost if the
  *    exemption were written one condition too wide.
- * 5. One mistake earns one violation. A rotation key with a non-finite component
+ * 5. A rotation key with a non-finite component
  *    and an uneven payload are each reported by the shared track-shape contract
  *    and NOT re-reported as a unit-length fault, and an empty payload is
  *    refused by that same contract: the joint rule judges keyframes, and a
- *    payload that states no keyframe states nothing for it to judge.
+ *    payload that states no keyframe states nothing for it to judge. These
+ *    assertions distinguish shape and unit faults without counting every finding.
  * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero
  *    keys; reversing their signs is an adjacent admitted curve.
  *
@@ -374,9 +375,9 @@ export function test_validation_light_transform_bounds(): void {
     { acceptsWildRotationTangents: true, refusesScalarDipBelowZero: true },
   );
 
-  // 5. one mistake, one violation.
+  // 5. malformed shapes are refused without an additional unit-length fault.
   TestValidator.equals(
-    "a payload that states no keyframe is reported once, by the shape contract",
+    "malformed payloads are refused and incomplete rotation keys avoid unit faults",
     namedFacts([
       [
         "nonFiniteIsNotAlsoNonUnit",

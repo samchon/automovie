@@ -1,14 +1,16 @@
 import { validateModel } from "@automovie/engine";
 import {
   AutoMoviePrimitiveShape,
+  IAutoMovieModel,
   IAutoMovieModelPart,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const part = (
+const part: (id: string, shape: AutoMoviePrimitiveShape) => IAutoMovieModelPart = (
   id: string,
   shape: AutoMoviePrimitiveShape,
 ): IAutoMovieModelPart => ({
@@ -21,19 +23,18 @@ const part = (
 });
 
 /**
- * Primitive extent validation must cover every shape variant, not just the box.
- * Each non-box primitive routes through its own arm of the dimension selector,
- * and a non-positive dimension on any of them is a `range` violation. Pins the
- * sphere / plane / cylinder / cone / capsule branches the box-only extent test
- * misses.
+ * Exercise the five non-box primitive dimension branches with collapsed authored dimensions.
  *
- * Scenario: a model with five bad parts: a zero-radius sphere, a zero-width
- * plane, a zero-height cylinder, a zero-radius cone, and a zero-height capsule.
- * Validation must fail, flagging the offending dimension of each (`radius`,
- * `width`, `height`).
+ * Scenarios:
+ * 1. A zero-radius sphere, zero-width plane, zero-height cylinder, zero-radius cone and zero-height capsule each report their own dimension fault.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model validation on all five existing bad parts and requires each exact dimension path in addition to the original grouped suffix checks, catching a missing shape branch masked by another part with the same field name.
+ * @evidence contracts/testing.md#independent-expectations Every supplied zero violates the shape's strictly-positive dimension policy; the literal part indices and dimension names independently identify each expected range finding without tessellating expected geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Retains sphere/plane/cylinder/cone/capsule refusals together and resolves their formerly ambiguous grouped findings; box, positive model and nonfinite scalar cases have separate entries. No new shape or numerical case is added.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit owns the existing five primitive records through its local part helper and calls engine admission without a geometry builder, renderer or native artifact.
  */
-export const test_validation_model_extent_shapes = (): void => {
-  const model = {
+export function test_validation_model_extent_shapes(): void {
+  const model: IAutoMovieModel = {
     ...createModel(),
     materials: [],
     parts: [
@@ -44,7 +45,7 @@ export const test_validation_model_extent_shapes = (): void => {
       part("capsule", { type: "capsule", radius: 0.2, height: 0 }),
     ],
   };
-  const result = validateModel({ model });
+  const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("bad extents fail", result.success, false);
   TestValidator.predicate(
     "sphere/cone radius flagged",
@@ -58,4 +59,6 @@ export const test_validation_model_extent_shapes = (): void => {
     "cylinder/capsule height flagged",
     hasViolation(result, "range", ".height"),
   );
-};
+  for (const [index, dimension] of [[0, "radius"], [1, "width"], [2, "height"], [3, "radius"], [4, "height"]] as const)
+    TestValidator.predicate(`part ${index} ${dimension} flagged`, hasViolation(result, "range", `$input.parts[${index}].geometry.shape.${dimension}`));
+}

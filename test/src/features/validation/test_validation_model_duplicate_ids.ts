@@ -1,20 +1,25 @@
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+import { IAutoMovieModel, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
 /**
- * Model-local identifiers must be unique. Otherwise references by material id,
- * part id, or bone name become ambiguous and order-dependent.
+ * Model-local materials, parts and skeleton bones have unique identifiers within their respective populations.
  *
- * Scenario: duplicate material ids, part ids, and skeleton bone names all
- * produce type violations at the duplicate entries.
+ * Scenarios:
+ * 1. Repeated material id, part id and bone name produce type findings at each second occurrence.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with duplicates in all three populations and requires their individual second-entry findings, catching checks that cover only one registry or report the wrong owner.
+ * @evidence contracts/testing.md#independent-expectations Each namespace requires uniqueness; the repeated supplied identifiers independently identify the three expected type paths. Other graph faults may coexist, and the test does not claim an exact whole-report count.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts the three identifier namespaces in one input; valid model, missing references and empty ids are separate entries. Cross-namespace equal spellings are not exercised here.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry builds only existing-fixture record copies and reads actual engine diagnostics, without a model loader, Human asset or renderer.
  */
-export const test_validation_model_duplicate_ids = (): void => {
-  const base = createModel();
-  const skeleton = base.skeleton!;
-  const duplicate = validateModel({
+export function test_validation_model_duplicate_ids(): void {
+  const base: IAutoMovieModel = createModel();
+  const skeleton: IAutoMovieSkeleton = base.skeleton!;
+  const duplicate: IAutoMovieValidation = validateModel({
     model: {
       ...base,
       materials: [
@@ -45,4 +50,4 @@ export const test_validation_model_duplicate_ids = (): void => {
     "duplicate skeleton bone violation",
     hasViolation(duplicate, "type", "$input.skeleton.bones[1].bone"),
   );
-};
+}

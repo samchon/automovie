@@ -35,7 +35,7 @@ const modelWithConstraint: (constraint: IAutoMovieJointConstraint) => IAutoMovie
  * 1. Valid/null cones and neutral-excluding positive/negative boxes remain admitted.
  * 2. Nonfinite, inverted and nonpositive bounds report their exact range paths; bad axis bounds do not invent a cone verdict.
  * 3. An ordinary box outside a narrow cone is refused.
- * 4. The supported [400,700] interval admits its 700-degree endpoint in a 30-degree cone, and paired [340,380] intervals admit the interior 360/360 zero-swing point.
+ * 4. The supported [400,700] interval admits its 700-degree endpoint in a 30-degree cone, and paired [340,380] intervals admit the interior 360/360 zero-swing point in a 5-degree cone.
  * 5. [400,500] with an immobile other axis still has no pose in a 30-degree cone and remains refused.
  *
  * @evidence contracts/testing.md#behavioral-verification Call validateModel on actual rig overrides and assert success or precise fault paths, catching false refusal of admitted periodic poses while preserving malformed/empty-cone errors.
