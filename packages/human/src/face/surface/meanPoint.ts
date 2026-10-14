@@ -18,7 +18,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The reduction retains no input list after return; only its new result vector escapes.
  * @author Samchon
  */
-export const meanPoint: (points: IAutoMovieVector3[]) => IAutoMovieVector3 = (points: IAutoMovieVector3[]): IAutoMovieVector3 =>
+export const meanPoint: (points: IAutoMovieVector3[]) => IAutoMovieVector3 = (
+  points: IAutoMovieVector3[],
+): IAutoMovieVector3 =>
   Vector3.scale(
     points.reduce(Vector3.add, Vector3.create()),
     1 / points.length,

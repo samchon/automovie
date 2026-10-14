@@ -37,7 +37,8 @@ export function fitPortraitEyeSphere(
     !Number.isFinite(radius) ||
     radius <= 0 ||
     [...upper, ...lower, viewRay].some(
-      (point: IAutoMovieVector3): boolean => ![point.x, point.y, point.z].every(Number.isFinite),
+      (point: IAutoMovieVector3): boolean =>
+        ![point.x, point.y, point.z].every(Number.isFinite),
     ) ||
     Vector3.length(viewRay) === 0
   )
@@ -60,7 +61,8 @@ export function fitPortraitEyeSphere(
   for (const point of rim) {
     const delta: IAutoMovieVector3 = Vector3.subtract(point, center);
     const height: number = Vector3.dot(delta, normal);
-    const squared: number = radius ** 2 - Vector3.dot(delta, delta) + height ** 2;
+    const squared: number =
+      radius ** 2 - Vector3.dot(delta, delta) + height ** 2;
     if (!Number.isFinite(squared) || squared <= 0)
       throw new Error("The selected eye curvature cannot span this aperture.");
     depth += height - Math.sqrt(squared);
