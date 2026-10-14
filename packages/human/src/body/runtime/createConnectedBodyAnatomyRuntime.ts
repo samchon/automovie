@@ -1,15 +1,14 @@
+import { assertTextSize } from "../../common/document/assertTextSize";
 import { HUMAN_BODY_EXTERIOR_TARGETS } from "../anatomy/surface/HUMAN_BODY_EXTERIOR_TARGETS";
 import type { IAutoMovieHumanBodyExteriorReference } from "../anatomy/surface/IAutoMovieHumanBodyExteriorReference";
 import { parseHumanBodyBasisDocument } from "../document/parseHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
-import { assertTextSize } from "../../common/document/assertTextSize";
-
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
-import { createConnectedBodyRuntime } from "./createConnectedBodyRuntime";
 import { createConnectedBodyAnatomicalRuntime } from "./createConnectedBodyAnatomicalRuntime";
 import { createConnectedBodyExteriorRuntime } from "./createConnectedBodyExteriorRuntime";
+import { createConnectedBodyRuntime } from "./createConnectedBodyRuntime";
 
 /**
  * Route one admitted numerical document to its existing anatomy inspection owner. A present quantity path registered by the source assembly takes precedence and uses the body runtime with the same whole-person reader. Otherwise bound exterior targets select the source-conditioned exterior, and humeral/femoral head-radius paths select articular target-sphere inspection.
@@ -56,12 +55,26 @@ export function createConnectedBodyAnatomyRuntime(
               : undefined,
           anatomy,
         ) !== undefined;
-    const bound: boolean = HUMAN_BODY_EXTERIOR_TARGETS.some((target: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number]): boolean =>
-      has(target.path),
+    const bound: boolean = HUMAN_BODY_EXTERIOR_TARGETS.some(
+      (target: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number]): boolean =>
+        has(target.path),
     );
     if (
-      basis.anatomicalAssembly?.parts.some((part: NonNullable<IAutoMovieHumanBodyBasis["anatomicalAssembly"]>["parts"][number]): boolean | undefined =>
-        part.quantityBindings?.some((binding: NonNullable<NonNullable<IAutoMovieHumanBodyBasis["anatomicalAssembly"]>["parts"][number]["quantityBindings"]>[number]): boolean => has(binding.path)),
+      basis.anatomicalAssembly?.parts.some(
+        (
+          part: NonNullable<
+            IAutoMovieHumanBodyBasis["anatomicalAssembly"]
+          >["parts"][number],
+        ): boolean | undefined =>
+          part.quantityBindings?.some(
+            (
+              binding: NonNullable<
+                NonNullable<
+                  IAutoMovieHumanBodyBasis["anatomicalAssembly"]
+                >["parts"][number]["quantityBindings"]
+              >[number],
+            ): boolean => has(binding.path),
+          ),
       )
     )
       return (sourceParts ??= createConnectedBodyRuntime(basis, whole))(

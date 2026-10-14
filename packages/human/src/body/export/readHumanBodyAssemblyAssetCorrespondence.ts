@@ -27,23 +27,36 @@ export function readHumanBodyAssemblyAssetCorrespondence(
 ): IAutoMovieHumanBodyAssemblyAssetCorrespondence | undefined {
   const extras: ReturnType<Primitive["getExtras"]> = primitive.getExtras();
   if (!Object.hasOwn(extras, "automovieAnatomicalAssembly")) {
-    if (readHumanStaticPartCorrespondence(primitive)?.parts.some((part: NonNullable<ReturnType<typeof readHumanStaticPartCorrespondence>>["parts"][number]): boolean => /^(?:body:)?native-subcutaneous:/.test(part.id)))
-      throw new Error("Native subcutaneous source members require their actual calculation qualification.");
+    if (
+      readHumanStaticPartCorrespondence(primitive)?.parts.some(
+        (
+          part: NonNullable<
+            ReturnType<typeof readHumanStaticPartCorrespondence>
+          >["parts"][number],
+        ): boolean => /^(?:body:)?native-subcutaneous:/.test(part.id),
+      )
+    )
+      throw new Error(
+        "Native subcutaneous source members require their actual calculation qualification.",
+      );
     return undefined;
   }
   const qualification: IAutoMovieHumanBodyAssemblyQualification =
     typia.assertEquals<IAutoMovieHumanBodyAssemblyQualification>(
       extras.automovieAnatomicalAssembly,
     );
-  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> = readHumanStaticPartCorrespondence(primitive);
+  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> =
+    readHumanStaticPartCorrespondence(primitive);
   if (geometry === undefined)
     throw new Error(
       "Coarse anatomical qualification has no actual source correspondence.",
     );
-  const actual: typeof geometry.parts = geometry.parts.filter((part: typeof geometry.parts[number]): boolean =>
-    /^(?:body:)?anatomical-source:/.test(part.id),
+  const actual: typeof geometry.parts = geometry.parts.filter(
+    (part: (typeof geometry.parts)[number]): boolean =>
+      /^(?:body:)?anatomical-source:/.test(part.id),
   );
-  const native: IAutoMovieHumanBodyAssemblyQualification["nativeSubcutaneous"] = qualification.nativeSubcutaneous;
+  const native: IAutoMovieHumanBodyAssemblyQualification["nativeSubcutaneous"] =
+    qualification.nativeSubcutaneous;
   if (
     qualification.version !== 1 ||
     qualification.sourceModel.trim() === "" ||
@@ -54,35 +67,92 @@ export function readHumanBodyAssemblyAssetCorrespondence(
       (value: number): boolean => !Number.isFinite(value),
     ) ||
     actual.length !== qualification.parts.length ||
-    (native === undefined && geometry.parts.some((part: typeof geometry.parts[number]): boolean => /^(?:body:)?native-subcutaneous:/.test(part.id))) ||
-    (native !== undefined && qualification.parts.some((part: typeof qualification.parts[number]): boolean => part.part === native.source.id)) ||
+    (native === undefined &&
+      geometry.parts.some((part: (typeof geometry.parts)[number]): boolean =>
+        /^(?:body:)?native-subcutaneous:/.test(part.id),
+      )) ||
+    (native !== undefined &&
+      qualification.parts.some(
+        (part: (typeof qualification.parts)[number]): boolean =>
+          part.part === native.source.id,
+      )) ||
     (actual.length === 0 && native === undefined) ||
-    new Set(qualification.parts.map((part: typeof qualification.parts[number]): string => part.id)).size !==
-      qualification.parts.length
+    new Set(
+      qualification.parts.map(
+        (part: (typeof qualification.parts)[number]): string => part.id,
+      ),
+    ).size !== qualification.parts.length
   )
     throw new Error(
       "Coarse anatomical qualification has unsupported source/schema/member population.",
     );
   if (native !== undefined) {
-    const ids: Set<string> = new Set(native.members.map((member: typeof native.members[number]): string => member.id));
-    const parts: typeof geometry.parts = geometry.parts.filter((part: typeof geometry.parts[number]): boolean => /^(?:body:)?native-subcutaneous:/.test(part.id));
-    if (native.basis !== qualification.basis || native.instance.trim() === "" || native.clinical !== "unavailable" ||
-        native.source.id !== "subcutaneousAdipose" || native.source.tissue !== "adipose" ||
-        [native.source.surface, native.source.fieldFileUri, native.source.bindingAccount, native.source.qualification, native.fieldQualification].some((value: string): boolean => value.trim() === "") ||
-        !SHA256_DIGEST_PATTERN.test(native.source.fieldDigest) || !SHA256_DIGEST_PATTERN.test(native.exteriorDigest) ||
-        [native.source.fieldFileSha256, native.source.producerSha256, native.source.inputViewSha256, native.source.receiptSha256].some((value: string): boolean => !/^[a-f0-9]{64}$/.test(value)) ||
-        ids.size === 0 || ids.size !== native.members.length || parts.length !== ids.size ||
-        new Set(native.members.map((member: typeof native.members[number]): typeof member.role => member.role)).size !== native.members.length ||
-        native.members.some((member: typeof native.members[number], at: number): boolean => member.id !== parts[at].id ||
-          member.id !== (member.id.startsWith("body:") ? "body:" : "") + "native-subcutaneous:" + native.source.id + "/" + native.source.surface + "/" + member.role ||
-          !SHA256_DIGEST_PATTERN.test(member.meshDigest)))
-      throw new Error("Native subcutaneous qualification must bind actual boundary members and complete field/exterior provenance.");
+    const ids: Set<string> = new Set(
+      native.members.map(
+        (member: (typeof native.members)[number]): string => member.id,
+      ),
+    );
+    const parts: typeof geometry.parts = geometry.parts.filter(
+      (part: (typeof geometry.parts)[number]): boolean =>
+        /^(?:body:)?native-subcutaneous:/.test(part.id),
+    );
+    if (
+      native.basis !== qualification.basis ||
+      native.instance.trim() === "" ||
+      native.clinical !== "unavailable" ||
+      native.source.id !== "subcutaneousAdipose" ||
+      native.source.tissue !== "adipose" ||
+      [
+        native.source.surface,
+        native.source.fieldFileUri,
+        native.source.bindingAccount,
+        native.source.qualification,
+        native.fieldQualification,
+      ].some((value: string): boolean => value.trim() === "") ||
+      !SHA256_DIGEST_PATTERN.test(native.source.fieldDigest) ||
+      !SHA256_DIGEST_PATTERN.test(native.exteriorDigest) ||
+      [
+        native.source.fieldFileSha256,
+        native.source.producerSha256,
+        native.source.inputViewSha256,
+        native.source.receiptSha256,
+      ].some((value: string): boolean => !/^[a-f0-9]{64}$/.test(value)) ||
+      ids.size === 0 ||
+      ids.size !== native.members.length ||
+      parts.length !== ids.size ||
+      new Set(
+        native.members.map(
+          (member: (typeof native.members)[number]): typeof member.role =>
+            member.role,
+        ),
+      ).size !== native.members.length ||
+      native.members.some(
+        (member: (typeof native.members)[number], at: number): boolean =>
+          member.id !== parts[at].id ||
+          member.id !==
+            (member.id.startsWith("body:") ? "body:" : "") +
+              "native-subcutaneous:" +
+              native.source.id +
+              "/" +
+              native.source.surface +
+              "/" +
+              member.role ||
+          !SHA256_DIGEST_PATTERN.test(member.meshDigest),
+      )
+    )
+      throw new Error(
+        "Native subcutaneous qualification must bind actual boundary members and complete field/exterior provenance.",
+      );
   }
   for (const [at, part] of qualification.parts.entries()) {
     if (
       part.id !== actual[at].id ||
-      part.id !== (part.id.startsWith("body:") ? "body:" : "") +
-        "anatomical-source:" + part.part + "/" + part.surface ||
+      part.id !==
+        (part.id.startsWith("body:") ? "body:" : "") +
+          "anatomical-source:" +
+          part.part +
+          "/" +
+          part.surface ||
       part.clinical !== "unavailable" ||
       part.bindingAccount.trim() === "" ||
       part.qualification.trim() === "" ||
@@ -94,7 +164,10 @@ export function readHumanBodyAssemblyAssetCorrespondence(
           part.id,
       );
     if (part.sourceVertices !== undefined) {
-      const { sourceVertexCount, residentToSource }: NonNullable<typeof part.sourceVertices> = part.sourceVertices;
+      const {
+        sourceVertexCount,
+        residentToSource,
+      }: NonNullable<typeof part.sourceVertices> = part.sourceVertices;
       if (
         !Number.isSafeInteger(sourceVertexCount) ||
         sourceVertexCount < actual[at].vertexCount ||

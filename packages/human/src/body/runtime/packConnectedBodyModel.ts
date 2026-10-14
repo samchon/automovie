@@ -1,7 +1,12 @@
 import { validateMeshTopology } from "@automovie/engine";
-import { float32MeshBuffers } from "../../common/mesh/float32MeshBuffers";
-import type { IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
+import { float32MeshBuffers } from "../../common/mesh/float32MeshBuffers";
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { ConnectedBodyPart } from "./ConnectedBodyPart";
 
@@ -23,46 +28,59 @@ export function packConnectedBodyModel(
 ): ConnectedBodyModel {
   if (model.skeleton !== null)
     throw new Error("Body previews require a static posed model.");
-  const parts: ConnectedBodyPart[] = model.parts.map((part: IAutoMovieModelPart): ConnectedBodyPart => {
-    if (
-      part.geometry.type !== "mesh" ||
-      part.attachedBone !== null ||
-      part.geometry.mesh.skin !== null
-    )
-      throw new Error("Body previews require static mesh parts.");
-    const mesh: IAutoMovieMesh = part.geometry.mesh;
-    const packed: ReturnType<typeof float32MeshBuffers> = float32MeshBuffers(mesh);
-    const material: IAutoMovieMaterial | undefined = model.materials.find((one: IAutoMovieMaterial): boolean => one.id === part.material);
-    if (
-      !validateMeshTopology({
-        mesh: { ...mesh, positions: Array.from(packed.positions) },
-        expectClosed: (material?.thickness ?? 0) > 0,
-      }).success
-    )
-      throw new Error("Body Float32 topology is invalid: " + part.id);
-    return {
-      ...part,
-      geometry: {
-        type: "mesh",
-        mesh: {
-          ...packed,
-          ...(mesh.colors === undefined
-            ? {}
-            : { colors: new Float32Array(mesh.colors) }),
-          ...(mesh.physicalVertices === undefined
-            ? {}
-            : {
-                physicalVertices: {
-                  sources: mesh.physicalVertices.sources.map((source: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]): NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] => ({
-                    ...source,
-                  })),
-                  vertices: mesh.physicalVertices.vertices.slice(),
-                },
-              }),
-          skin: null,
+  const parts: ConnectedBodyPart[] = model.parts.map(
+    (part: IAutoMovieModelPart): ConnectedBodyPart => {
+      if (
+        part.geometry.type !== "mesh" ||
+        part.attachedBone !== null ||
+        part.geometry.mesh.skin !== null
+      )
+        throw new Error("Body previews require static mesh parts.");
+      const mesh: IAutoMovieMesh = part.geometry.mesh;
+      const packed: ReturnType<typeof float32MeshBuffers> =
+        float32MeshBuffers(mesh);
+      const material: IAutoMovieMaterial | undefined = model.materials.find(
+        (one: IAutoMovieMaterial): boolean => one.id === part.material,
+      );
+      if (
+        !validateMeshTopology({
+          mesh: { ...mesh, positions: Array.from(packed.positions) },
+          expectClosed: (material?.thickness ?? 0) > 0,
+        }).success
+      )
+        throw new Error("Body Float32 topology is invalid: " + part.id);
+      return {
+        ...part,
+        geometry: {
+          type: "mesh",
+          mesh: {
+            ...packed,
+            ...(mesh.colors === undefined
+              ? {}
+              : { colors: new Float32Array(mesh.colors) }),
+            ...(mesh.physicalVertices === undefined
+              ? {}
+              : {
+                  physicalVertices: {
+                    sources: mesh.physicalVertices.sources.map(
+                      (
+                        source: NonNullable<
+                          IAutoMovieMesh["physicalVertices"]
+                        >["sources"][number],
+                      ): NonNullable<
+                        IAutoMovieMesh["physicalVertices"]
+                      >["sources"][number] => ({
+                        ...source,
+                      }),
+                    ),
+                    vertices: mesh.physicalVertices.vertices.slice(),
+                  },
+                }),
+            skin: null,
+          },
         },
-      },
-    };
-  });
+      };
+    },
+  );
   return { ...model, parts };
 }

@@ -2,7 +2,6 @@ import { measureHumanBodySpheresSkinClearance } from "../anatomy/contact/measure
 import { resolveHumanBodyAnatomy } from "../anatomy/resolveHumanBodyAnatomy";
 import { createHumanBodyHumeralHeads } from "../anatomy/shoulder/createHumanBodyHumeralHeads";
 import { projectHumanBodySimpleShape } from "../simple/projectHumanBodySimpleShape";
-
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
 import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
 import type { IReadConnectedBodyHumeralHeadsProps } from "./IReadConnectedBodyHumeralHeadsProps";
@@ -41,30 +40,43 @@ export function readConnectedBodyHumeralHeads(
     props.document.shape,
     props.document.anatomy,
   );
-  const simple: ReturnType<typeof projectHumanBodySimpleShape> = projectHumanBodySimpleShape(
-    props.basis,
-    props.whole,
-    shape,
-    [],
-  );
-  const heads: ReturnType<typeof createHumanBodyHumeralHeads> = createHumanBodyHumeralHeads({
-    ageYears: simple.ageYears,
-    sex: simple.sex,
-    statureMetres: simple.statureMetres,
-    bones: props.built.bones,
-    radii: props.document.humeralHeads,
-  });
+  const simple: ReturnType<typeof projectHumanBodySimpleShape> =
+    projectHumanBodySimpleShape(props.basis, props.whole, shape, []);
+  const heads: ReturnType<typeof createHumanBodyHumeralHeads> =
+    createHumanBodyHumeralHeads({
+      ageYears: simple.ageYears,
+      sex: simple.sex,
+      statureMetres: simple.statureMetres,
+      bones: props.built.bones,
+      radii: props.document.humeralHeads,
+    });
   if (heads.length === 0) return { status: "unavailable", reason: "ct-domain" };
-  const measured: ReturnType<typeof measureHumanBodySpheresSkinClearance> = measureHumanBodySpheresSkinClearance({
-    skins: props.basis.surfaces.map((surface: IReadConnectedBodyHumeralHeadsProps["basis"]["surfaces"][number], index: number): Parameters<typeof measureHumanBodySpheresSkinClearance>[0]["skins"][number] => ({
-      indices: surface.indices,
-      positions: props.built.posedSurfaces[index].positions,
-    })),
-    spheres: heads.map(({ bone, center, radiusMetres }: ReturnType<typeof createHumanBodyHumeralHeads>[number]): Parameters<typeof measureHumanBodySpheresSkinClearance>[0]["spheres"][number] => ({
-      id: bone,
-      center,
-      radiusMetres,
-    })),
-  });
+  const measured: ReturnType<typeof measureHumanBodySpheresSkinClearance> =
+    measureHumanBodySpheresSkinClearance({
+      skins: props.basis.surfaces.map(
+        (
+          surface: IReadConnectedBodyHumeralHeadsProps["basis"]["surfaces"][number],
+          index: number,
+        ): Parameters<
+          typeof measureHumanBodySpheresSkinClearance
+        >[0]["skins"][number] => ({
+          indices: surface.indices,
+          positions: props.built.posedSurfaces[index].positions,
+        }),
+      ),
+      spheres: heads.map(
+        ({
+          bone,
+          center,
+          radiusMetres,
+        }: ReturnType<typeof createHumanBodyHumeralHeads>[number]): Parameters<
+          typeof measureHumanBodySpheresSkinClearance
+        >[0]["spheres"][number] => ({
+          id: bone,
+          center,
+          radiusMetres,
+        }),
+      ),
+    });
   return packHumanBodyHumeralHeadReading(heads, measured);
 }

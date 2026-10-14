@@ -1,5 +1,6 @@
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
+import type { IAutoMovieModel } from "@automovie/interface";
+
+import { assertTextSize } from "../../common/document/assertTextSize";
 import { createHumanBodyBasisBuilder } from "../basis/createHumanBodyBasisBuilder";
 import { parseHumanBodyBasisDocument } from "../document/parseHumanBodyBasisDocument";
 import { createHumanBodyAssemblyExportQualification } from "../export/createHumanBodyAssemblyExportQualification";
@@ -8,16 +9,15 @@ import { exportHumanBody } from "../export/exportHumanBody";
 import { createHumanBodySegmenter } from "../measure/createHumanBodySegmenter";
 import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
 import { stepHumanBodyArmsDown } from "../measure/stepHumanBodyArmsDown";
-import { assertTextSize } from "../../common/document/assertTextSize";
-import type { IAutoMovieModel } from "@automovie/interface";
-
+import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodySimpleWhole } from "../structures/IAutoMovieHumanBodySimpleWhole";
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
 import type { IConnectedBodyRuntimeCachedBuild } from "./IConnectedBodyRuntimeCachedBuild";
 import type { IConnectedBodyRuntimeOptions } from "./IConnectedBodyRuntimeOptions";
-import { packConnectedBodyModel } from "./packConnectedBodyModel";
 import { describeConnectedBodyConstructionProgress } from "./describeConnectedBodyConstructionProgress";
+import { packConnectedBodyModel } from "./packConnectedBodyModel";
 import { readConnectedBodyContacts } from "./readConnectedBodyContacts";
 import { readConnectedBodyFemoralHeads } from "./readConnectedBodyFemoralHeads";
 import { readConnectedBodyHumeralHeads } from "./readConnectedBodyHumeralHeads";
@@ -45,31 +45,47 @@ export function createConnectedBodyRuntime(
   whole: IAutoMovieHumanBodySimpleWhole,
   options: IConnectedBodyRuntimeOptions = {},
 ): (request: ConnectedBodyRequest) => Promise<ConnectedBodyResult> {
-  const evaluate: ReturnType<typeof createHumanBodyBasisBuilder> = createHumanBodyBasisBuilder(
-    basis,
-    options.progress === undefined
-      ? options.builderOptions
-      : {
-          ...options.builderOptions,
-          observeProgress: (progress: Parameters<typeof describeConnectedBodyConstructionProgress>[0]): void => {
-            options.builderOptions?.observeProgress?.(progress);
-            options.progress!(
-              describeConnectedBodyConstructionProgress(progress),
-            );
+  const evaluate: ReturnType<typeof createHumanBodyBasisBuilder> =
+    createHumanBodyBasisBuilder(
+      basis,
+      options.progress === undefined
+        ? options.builderOptions
+        : {
+            ...options.builderOptions,
+            observeProgress: (
+              progress: Parameters<
+                typeof describeConnectedBodyConstructionProgress
+              >[0],
+            ): void => {
+              options.builderOptions?.observeProgress?.(progress);
+              options.progress!(
+                describeConnectedBodyConstructionProgress(progress),
+              );
+            },
           },
-        },
-  );
-  const segment: ReturnType<typeof createHumanBodySegmenter> = createHumanBodySegmenter(basis);
+    );
+  const segment: ReturnType<typeof createHumanBodySegmenter> =
+    createHumanBodySegmenter(basis);
   const sliceMs: number = options.sliceMs ?? 25;
   const yieldThread: () => Promise<unknown> =
     options.yieldThread ??
     ((): Promise<undefined> =>
-      new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-        setTimeout((): void => resolve(undefined), 0);
-      }));
+      new Promise<undefined>(
+        (
+          resolve: (value: undefined | PromiseLike<undefined>) => void,
+        ): void => {
+          setTimeout((): void => resolve(undefined), 0);
+        },
+      ));
   /** Requests received so far; a reading is superseded by any later one. */
   let received: number = 0;
-  const readContacts: (model: IAutoMovieModel, superseded: () => boolean) => ReturnType<typeof readConnectedBodyContacts> = (model: IAutoMovieModel, superseded: () => boolean): ReturnType<typeof readConnectedBodyContacts> =>
+  const readContacts: (
+    model: IAutoMovieModel,
+    superseded: () => boolean,
+  ) => ReturnType<typeof readConnectedBodyContacts> = (
+    model: IAutoMovieModel,
+    superseded: () => boolean,
+  ): ReturnType<typeof readConnectedBodyContacts> =>
     readConnectedBodyContacts({ model, sliceMs, yieldThread, superseded });
   let last: IConnectedBodyRuntimeCachedBuild | undefined;
   return async (
@@ -83,15 +99,14 @@ export function createConnectedBodyRuntime(
     assertTextSize(request.document);
     // Canonical parsing is required even when the text matches the cache: a
     // caller cannot bypass document admission by reusing a previous string.
-    const document: ReturnType<typeof parseHumanBodyBasisDocument> = parseHumanBodyBasisDocument(
-      request.document,
-      basis.anatomicalAssembly,
-    );
+    const document: ReturnType<typeof parseHumanBodyBasisDocument> =
+      parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
     if (request.operation === "construct") {
       // Construction retains the layer owner's refusal, while the normal
       // callable below still admits preview/export. This result never writes
       // their accepted-build cache, even when its limited layer checks pass.
-      const constructed: ReturnType<typeof evaluate.construct> = evaluate.construct(document);
+      const constructed: ReturnType<typeof evaluate.construct> =
+        evaluate.construct(document);
       if (constructed.layerAdmission === undefined)
         throw new Error(
           "Body construction inspection needs the registered layer admission report.",
@@ -111,7 +126,8 @@ export function createConnectedBodyRuntime(
     if (request.operation === "armsDown") {
       // the same slicing as a contact reading: a step at a time, abandoned
       // when a later request supersedes it
-      const steps: ReturnType<typeof stepHumanBodyArmsDown> = stepHumanBodyArmsDown(basis, evaluate, document, segment);
+      const steps: ReturnType<typeof stepHumanBodyArmsDown> =
+        stepHumanBodyArmsDown(basis, evaluate, document, segment);
       let since: number = Date.now();
       let next: ReturnType<typeof steps.next> = steps.next();
       while (next.done !== true) {
@@ -125,7 +141,10 @@ export function createConnectedBodyRuntime(
           );
         next = steps.next();
       }
-      const solved: Pick<ReturnType<typeof parseHumanBodyBasisDocument>, "pose" | "shoulders"> = next.value;
+      const solved: Pick<
+        ReturnType<typeof parseHumanBodyBasisDocument>,
+        "pose" | "shoulders"
+      > = next.value;
       return {
         operation: "armsDown",
         pose: solved.pose ?? [],
@@ -136,27 +155,32 @@ export function createConnectedBodyRuntime(
       last?.document === request.document ? last.built : evaluate(document);
     last = { document: request.document, built };
     if (request.operation === "export") {
-      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> = await exportHumanBody(
-        built.model,
-        undefined,
-        undefined,
-        await createHumanBodyAtlasExportQualification(
-          basis,
-          built.evaluatedDocument,
-        ),
-        await createHumanBodyAssemblyExportQualification(
-          basis,
-          built.evaluatedDocument,
-          "",
-          built.layerObservations,
-        ),
-      );
+      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> =
+        await exportHumanBody(
+          built.model,
+          undefined,
+          undefined,
+          await createHumanBodyAtlasExportQualification(
+            basis,
+            built.evaluatedDocument,
+          ),
+          await createHumanBodyAssemblyExportQualification(
+            basis,
+            built.evaluatedDocument,
+            "",
+            built.layerObservations,
+          ),
+        );
       return { operation: "export", glb };
     }
-    const model: ReturnType<typeof packConnectedBodyModel> = packConnectedBodyModel(built.model);
+    const model: ReturnType<typeof packConnectedBodyModel> =
+      packConnectedBodyModel(built.model);
     const crossings: Awaited<ReturnType<typeof readContacts>> =
       request.measure || request.anatomy
-        ? await readContacts(segment(built).model, (): boolean => received !== mine)
+        ? await readContacts(
+            segment(built).model,
+            (): boolean => received !== mine,
+          )
         : null;
     let anatomy: IConnectedBodyPreviewResult["anatomy"] = null;
     if (request.anatomy && crossings !== null)
@@ -177,10 +201,16 @@ export function createConnectedBodyRuntime(
             crossings,
           })
         : null;
-    const groundSupport: ReturnType<typeof measureHumanBodyGroundSupport> | null = request.anatomy
+    const groundSupport: ReturnType<
+      typeof measureHumanBodyGroundSupport
+    > | null = request.anatomy
       ? measureHumanBodyGroundSupport(
           basis,
-          built.posedSurfaces.map((surface: ReturnType<typeof evaluate>["posedSurfaces"][number]): number[] => surface.positions),
+          built.posedSurfaces.map(
+            (
+              surface: ReturnType<typeof evaluate>["posedSurfaces"][number],
+            ): number[] => surface.positions,
+          ),
           built.landmarks,
           built.groundPlaneHeightMetres,
         )

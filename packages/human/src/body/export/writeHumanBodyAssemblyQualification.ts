@@ -26,49 +26,116 @@ export function writeHumanBodyAssemblyQualification(
 ): void {
   const qualification: IAutoMovieHumanBodyAssemblyQualification =
     typia.assertEquals<IAutoMovieHumanBodyAssemblyQualification>(supplied);
-  const members: Map<string, typeof qualification.parts[number]> = new Map(qualification.parts.map((part: typeof qualification.parts[number]): [string, typeof part] => [part.id, part]));
+  const members: Map<string, (typeof qualification.parts)[number]> = new Map(
+    qualification.parts.map(
+      (part: (typeof qualification.parts)[number]): [string, typeof part] => [
+        part.id,
+        part,
+      ],
+    ),
+  );
   const primitives: Primitive[] = document
     .getRoot()
     .listMeshes()
     .flatMap((mesh: Mesh): Primitive[] => mesh.listPrimitives());
-  const actual: NonNullable<ReturnType<typeof readHumanStaticPartCorrespondence>>["parts"] = primitives
+  const actual: NonNullable<
+    ReturnType<typeof readHumanStaticPartCorrespondence>
+  >["parts"] = primitives
     .flatMap(
-      (primitive: Primitive): typeof actual => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+      (primitive: Primitive): typeof actual =>
+        readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
     )
-    .filter((part: typeof actual[number]): boolean => /^(?:body:)?anatomical-source:/.test(part.id));
-  const nativeMembers: Map<string, NonNullable<typeof qualification.nativeSubcutaneous>["members"][number]> = new Map(qualification.nativeSubcutaneous?.members.map((part: NonNullable<typeof qualification.nativeSubcutaneous>["members"][number]): [string, typeof part] => [part.id, part]) ?? []);
-  const nativeActual: typeof actual = primitives.flatMap((primitive: Primitive): typeof actual => readHumanStaticPartCorrespondence(primitive)?.parts ?? [])
-    .filter((part: typeof actual[number]): boolean => /^(?:body:)?native-subcutaneous:/.test(part.id));
+    .filter((part: (typeof actual)[number]): boolean =>
+      /^(?:body:)?anatomical-source:/.test(part.id),
+    );
+  const nativeMembers: Map<
+    string,
+    NonNullable<typeof qualification.nativeSubcutaneous>["members"][number]
+  > = new Map(
+    qualification.nativeSubcutaneous?.members.map(
+      (
+        part: NonNullable<
+          typeof qualification.nativeSubcutaneous
+        >["members"][number],
+      ): [string, typeof part] => [part.id, part],
+    ) ?? [],
+  );
+  const nativeActual: typeof actual = primitives
+    .flatMap(
+      (primitive: Primitive): typeof actual =>
+        readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+    )
+    .filter((part: (typeof actual)[number]): boolean =>
+      /^(?:body:)?native-subcutaneous:/.test(part.id),
+    );
   if (
     members.size !== qualification.parts.length ||
     actual.length !== members.size ||
-    new Set(actual.map((part: typeof actual[number]): string => part.id)).size !== members.size ||
-    actual.some((part: typeof actual[number]): boolean => !members.has(part.id)) ||
-    (qualification.nativeSubcutaneous !== undefined && qualification.parts.some((part: typeof qualification.parts[number]): boolean => part.part === qualification.nativeSubcutaneous!.source.id)) ||
-    (qualification.nativeSubcutaneous !== undefined && nativeMembers.size === 0) ||
-    nativeMembers.size !== (qualification.nativeSubcutaneous?.members.length ?? 0) ||
+    new Set(actual.map((part: (typeof actual)[number]): string => part.id))
+      .size !== members.size ||
+    actual.some(
+      (part: (typeof actual)[number]): boolean => !members.has(part.id),
+    ) ||
+    (qualification.nativeSubcutaneous !== undefined &&
+      qualification.parts.some(
+        (part: (typeof qualification.parts)[number]): boolean =>
+          part.part === qualification.nativeSubcutaneous!.source.id,
+      )) ||
+    (qualification.nativeSubcutaneous !== undefined &&
+      nativeMembers.size === 0) ||
+    nativeMembers.size !==
+      (qualification.nativeSubcutaneous?.members.length ?? 0) ||
     nativeActual.length !== nativeMembers.size ||
-    new Set(nativeActual.map((part: typeof nativeActual[number]): string => part.id)).size !== nativeMembers.size ||
-    nativeActual.some((part: typeof nativeActual[number]): boolean => !nativeMembers.has(part.id))
+    new Set(
+      nativeActual.map(
+        (part: (typeof nativeActual)[number]): string => part.id,
+      ),
+    ).size !== nativeMembers.size ||
+    nativeActual.some(
+      (part: (typeof nativeActual)[number]): boolean =>
+        !nativeMembers.has(part.id),
+    )
   )
     throw new Error(
       "Coarse anatomical report must qualify every actual source member exactly once.",
     );
   for (const primitive of primitives) {
-    const geometry: typeof actual = readHumanStaticPartCorrespondence(primitive)?.parts ?? [];
-    const parts: typeof geometry = geometry.filter((part: typeof geometry[number]): boolean => members.has(part.id));
-    const native: typeof geometry = geometry.filter((part: typeof geometry[number]): boolean => nativeMembers.has(part.id));
+    const geometry: typeof actual =
+      readHumanStaticPartCorrespondence(primitive)?.parts ?? [];
+    const parts: typeof geometry = geometry.filter(
+      (part: (typeof geometry)[number]): boolean => members.has(part.id),
+    );
+    const native: typeof geometry = geometry.filter(
+      (part: (typeof geometry)[number]): boolean => nativeMembers.has(part.id),
+    );
     if (parts.length === 0 && native.length === 0) continue;
-    const { nativeSubcutaneous, ...staticQualification }: IAutoMovieHumanBodyAssemblyQualification = qualification;
+    const {
+      nativeSubcutaneous,
+      ...staticQualification
+    }: IAutoMovieHumanBodyAssemblyQualification = qualification;
     primitive.setExtras({
       ...primitive.getExtras(),
       automovieAnatomicalAssembly: {
         ...staticQualification,
-        parts: parts.map((part: typeof parts[number]): typeof qualification.parts[number] => members.get(part.id)!),
-        ...(native.length === 0 ? {} : { nativeSubcutaneous: {
-          ...nativeSubcutaneous!,
-          members: native.map((part: typeof native[number]): NonNullable<typeof nativeSubcutaneous>["members"][number] => nativeMembers.get(part.id)!),
-        } }),
+        parts: parts.map(
+          (
+            part: (typeof parts)[number],
+          ): (typeof qualification.parts)[number] => members.get(part.id)!,
+        ),
+        ...(native.length === 0
+          ? {}
+          : {
+              nativeSubcutaneous: {
+                ...nativeSubcutaneous!,
+                members: native.map(
+                  (
+                    part: (typeof native)[number],
+                  ): NonNullable<
+                    typeof nativeSubcutaneous
+                  >["members"][number] => nativeMembers.get(part.id)!,
+                ),
+              },
+            }),
       },
     });
     readHumanBodyAssemblyAssetCorrespondence(primitive);

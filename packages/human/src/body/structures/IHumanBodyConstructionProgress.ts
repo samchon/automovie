@@ -1,6 +1,6 @@
 import type { AutoMovieHumanBodyPartId } from "../anatomy/identity/AutoMovieHumanBodyPartId";
-import type { IHumanBodyUnderwearFittingProposal } from "../basis/IHumanBodyUnderwearFittingProposal";
 import type { IHumanBodyUnderwearFitObservation } from "../basis/IHumanBodyUnderwearFitObservation";
+import type { IHumanBodyUnderwearFittingProposal } from "../basis/IHumanBodyUnderwearFittingProposal";
 
 /**
  * A completed body construction boundary, never a timer or acceptance verdict.
@@ -116,14 +116,24 @@ export interface IHumanBodyConstructionProgress {
   garmentGeometryFailures?: number;
 
   /** Actual completed proximal proposal comparison, excluding raw coordinate buffers. */
-  garmentProposal?: Omit<IHumanBodyUnderwearFittingProposal, "base" | "normalizedCoordinates">;
+  garmentProposal?: Omit<
+    IHumanBodyUnderwearFittingProposal,
+    "base" | "normalizedCoordinates"
+  >;
 
   /** Existing native and nonlinear scalar readings; full native buffers remain in final fitting or failure. */
   garmentFittingRound?: Pick<
     IHumanBodyUnderwearFitObservation,
-    "round" | "phase" | "status" | "nativeIterations" |
-    "nativeMaximumViolation" | "nativeStationarityResidual" |
-    "fieldResidualMetres" | "normalizedViolationSum" | "elasticSlackSum" |
-    "edgeObjective" | "proximalCoefficient"
+    | "round"
+    | "phase"
+    | "status"
+    | "nativeIterations"
+    | "nativeMaximumViolation"
+    | "nativeStationarityResidual"
+    | "fieldResidualMetres"
+    | "normalizedViolationSum"
+    | "elasticSlackSum"
+    | "edgeObjective"
+    | "proximalCoefficient"
   >;
 }

@@ -1,5 +1,5 @@
 import type { IAutoMovieModel } from "@automovie/interface";
-import { WebIO, type Mesh, type Primitive } from "@gltf-transform/core";
+import { type Mesh, type Primitive, WebIO } from "@gltf-transform/core";
 import typia from "typia";
 
 import type { IAutoMovieHumanExportOptions } from "../../common/export/IAutoMovieHumanExportOptions";
@@ -39,19 +39,29 @@ export async function exportHumanBody(
   atlas?: IAutoMovieHumanBodyAtlasQualification,
   assembly?: IAutoMovieHumanBodyAssemblyQualification,
 ): Promise<IAutoMovieHumanGltfExport> {
-  if (assembly?.nativeSubcutaneous === undefined &&
-      model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => part.id.startsWith("native-subcutaneous:")))
-    throw new Error("Native subcutaneous export needs its actual field/exterior/member qualification.");
+  if (
+    assembly?.nativeSubcutaneous === undefined &&
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      part.id.startsWith("native-subcutaneous:"),
+    )
+  )
+    throw new Error(
+      "Native subcutaneous export needs its actual field/exterior/member qualification.",
+    );
   if (
     atlas === undefined &&
-    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^anatomical-atlas:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      /^anatomical-atlas:/.test(part.id),
+    )
   )
     throw new Error(
       "Atlas inspection export needs its source rights and reference qualification.",
     );
   if (
     assembly === undefined &&
-    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^anatomical-source:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      /^anatomical-source:/.test(part.id),
+    )
   )
     throw new Error(
       "Coarse anatomical export needs its source rights and shared registration qualification.",
@@ -64,13 +74,16 @@ export async function exportHumanBody(
     options === undefined
       ? undefined
       : typia.assertEquals<IAutoMovieHumanExportOptions>(options);
-  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(model, {
-    sourcePartIdentity:
-      report !== undefined ||
-      atlas !== undefined ||
-      assembly !== undefined ||
-      admitted?.sourcePartIdentity === true,
-  });
+  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(
+    model,
+    {
+      sourcePartIdentity:
+        report !== undefined ||
+        atlas !== undefined ||
+        assembly !== undefined ||
+        admitted?.sourcePartIdentity === true,
+    },
+  );
   if (report !== undefined) {
     if (
       report.generatorRevision !== "articular-head-inspection/1" ||
@@ -80,11 +93,15 @@ export async function exportHumanBody(
       throw new Error(
         "Unsupported or empty articular inspection qualification.",
       );
-    const candidates: Map<string, typeof report.candidates[number]> = new Map(
-      report.candidates.map((candidate: typeof report.candidates[number]): [string, typeof candidate] => [
-        candidate.part + "/head-candidate",
-        candidate,
-      ]),
+    const candidates: Map<string, (typeof report.candidates)[number]> = new Map(
+      report.candidates.map(
+        (
+          candidate: (typeof report.candidates)[number],
+        ): [string, typeof candidate] => [
+          candidate.part + "/head-candidate",
+          candidate,
+        ],
+      ),
     );
     const actual: Primitive[] = document
       .getRoot()
@@ -92,7 +109,11 @@ export async function exportHumanBody(
       .flatMap((mesh: Mesh): Primitive[] => mesh.listPrimitives());
     const ids: string[] = actual.flatMap((primitive: Primitive): string[] =>
       readHumanStaticPartCorrespondence(primitive)!.parts.map(
-        (part: NonNullable<ReturnType<typeof readHumanStaticPartCorrespondence>>["parts"][number]): string => part.id,
+        (
+          part: NonNullable<
+            ReturnType<typeof readHumanStaticPartCorrespondence>
+          >["parts"][number],
+        ): string => part.id,
       ),
     );
     if (
@@ -104,21 +125,28 @@ export async function exportHumanBody(
         "Articular report must match every actual source candidate exactly once.",
       );
     for (const primitive of actual) {
-      const mapping: NonNullable<ReturnType<typeof readHumanStaticPartCorrespondence>> = readHumanStaticPartCorrespondence(primitive)!;
+      const mapping: NonNullable<
+        ReturnType<typeof readHumanStaticPartCorrespondence>
+      > = readHumanStaticPartCorrespondence(primitive)!;
       const qualification: IAutoMovieHumanBodyArticularQualification = {
         version: 1,
         generatorRevision: "articular-head-inspection/1",
         reference: { ...report.reference },
         skin: { ...report.skin },
-        parts: mapping.parts.map((part: typeof mapping.parts[number]): IAutoMovieHumanBodyArticularQualification["parts"][number] => {
-          const candidate: typeof report.candidates[number] = candidates.get(part.id)!;
-          return {
-            id: `${candidate.part}/head-candidate`,
-            source: candidate.source,
-            registration: candidate.registration,
-            partResolution: { ...candidate.partResolution },
-          };
-        }),
+        parts: mapping.parts.map(
+          (
+            part: (typeof mapping.parts)[number],
+          ): IAutoMovieHumanBodyArticularQualification["parts"][number] => {
+            const candidate: (typeof report.candidates)[number] =
+              candidates.get(part.id)!;
+            return {
+              id: `${candidate.part}/head-candidate`,
+              source: candidate.source,
+              registration: candidate.registration,
+              partResolution: { ...candidate.partResolution },
+            };
+          },
+        ),
       };
       primitive.setExtras({
         ...primitive.getExtras(),
@@ -131,7 +159,9 @@ export async function exportHumanBody(
   if (assembly !== undefined)
     writeHumanBodyAssemblyQualification(document, assembly);
   const writer: WebIO = new WebIO().registerExtensions(gltfMaterialExtensions);
-  const glb: Awaited<ReturnType<WebIO["writeBinary"]>> = await writer.writeBinary(document);
-  const gltf: Awaited<ReturnType<WebIO["writeJSON"]>> = await writer.writeJSON(document);
+  const glb: Awaited<ReturnType<WebIO["writeBinary"]>> =
+    await writer.writeBinary(document);
+  const gltf: Awaited<ReturnType<WebIO["writeJSON"]>> =
+    await writer.writeJSON(document);
   return { glb, gltf };
 }

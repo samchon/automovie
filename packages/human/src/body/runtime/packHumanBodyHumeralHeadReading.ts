@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanBodyHumeralHead } from "../anatomy/shoulder/IAutoMovieHumanBodyHumeralHead";
-
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 
 type Reading = Extract<
@@ -47,32 +46,46 @@ export function packHumanBodyHumeralHeadReading(
   }[],
 ): Reading {
   const byId: Map<string, (typeof clearances)[number]> = new Map(
-    clearances.map((clearance: (typeof clearances)[number]): [string, (typeof clearances)[number]] => [clearance.id, clearance]),
+    clearances.map(
+      (
+        clearance: (typeof clearances)[number],
+      ): [string, (typeof clearances)[number]] => [clearance.id, clearance],
+    ),
   );
   if (
     heads.length !== clearances.length ||
     byId.size !== clearances.length ||
-    new Set(heads.map((head: IAutoMovieHumanBodyHumeralHead): IAutoMovieHumanBodyHumeralHead["bone"] => head.bone)).size !== heads.length
+    new Set(
+      heads.map(
+        (
+          head: IAutoMovieHumanBodyHumeralHead,
+        ): IAutoMovieHumanBodyHumeralHead["bone"] => head.bone,
+      ),
+    ).size !== heads.length
   )
     throw new Error(
       "Each humeral head needs exactly one skin-clearance result.",
     );
   return {
     status: "measured",
-    heads: heads.map((head: IAutoMovieHumanBodyHumeralHead): Reading["heads"][number] => {
-      const clearance: (typeof clearances)[number] | undefined = byId.get(head.bone);
-      if (clearance === undefined)
-        throw new Error("Missing skin-clearance result for " + head.bone);
-      return {
-        bone: head.bone,
-        radiusMetres: head.radiusMetres,
-        ...(head.source === "observed"
-          ? { source: head.source, observation: { ...head.observation } }
-          : { source: head.source }),
-        centerInside: clearance.centerInside,
-        nearestMetres: clearance.nearestMetres,
-        clearanceMetres: clearance.clearanceMetres,
-      };
-    }),
+    heads: heads.map(
+      (head: IAutoMovieHumanBodyHumeralHead): Reading["heads"][number] => {
+        const clearance: (typeof clearances)[number] | undefined = byId.get(
+          head.bone,
+        );
+        if (clearance === undefined)
+          throw new Error("Missing skin-clearance result for " + head.bone);
+        return {
+          bone: head.bone,
+          radiusMetres: head.radiusMetres,
+          ...(head.source === "observed"
+            ? { source: head.source, observation: { ...head.observation } }
+            : { source: head.source }),
+          centerInside: clearance.centerInside,
+          nearestMetres: clearance.nearestMetres,
+          clearanceMetres: clearance.clearanceMetres,
+        };
+      },
+    ),
   };
 }

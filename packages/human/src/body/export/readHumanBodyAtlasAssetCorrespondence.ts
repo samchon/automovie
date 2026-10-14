@@ -28,17 +28,22 @@ export function readHumanBodyAtlasAssetCorrespondence(
     typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(
       extras.automovieAtlasInspection,
     );
-  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> = readHumanStaticPartCorrespondence(primitive);
+  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> =
+    readHumanStaticPartCorrespondence(primitive);
   const ids: string[] | undefined = geometry?.parts
-    .filter((part: NonNullable<typeof geometry>["parts"][number]): boolean => /^(body:)?anatomical-atlas:/.test(part.id))
-    .map((part: NonNullable<typeof geometry>["parts"][number]): string => part.id);
+    .filter((part: NonNullable<typeof geometry>["parts"][number]): boolean =>
+      /^(body:)?anatomical-atlas:/.test(part.id),
+    )
+    .map(
+      (part: NonNullable<typeof geometry>["parts"][number]): string => part.id,
+    );
   if (
     geometry === undefined ||
     ids === undefined ||
     ids.length === 0 ||
     qualification.parts.length !== ids.length ||
     qualification.parts.some(
-      (part: typeof qualification.parts[number], at: number): boolean =>
+      (part: (typeof qualification.parts)[number], at: number): boolean =>
         part.id !== ids[at] ||
         part.id !==
           (part.id.startsWith("body:") ? "body:" : "") +

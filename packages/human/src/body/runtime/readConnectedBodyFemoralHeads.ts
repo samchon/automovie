@@ -1,6 +1,5 @@
 import { measureHumanBodySpheresSkinClearance } from "../anatomy/contact/measureHumanBodySpheresSkinClearance";
 import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "../anatomy/lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
-
 import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IReadConnectedBodyHumeralHeadsProps } from "./IReadConnectedBodyHumeralHeadsProps";
 
@@ -32,32 +31,59 @@ export function readConnectedBodyFemoralHeads(
   props: IReadConnectedBodyHumeralHeadsProps,
 ): IConnectedBodyFemoralHeads | null {
   if (props.document.anatomy === undefined) return null;
-  const heads: ReturnType<typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements> = createHumanBodyFemoralHeadsFromAnatomicalMeasurements({
+  const heads: ReturnType<
+    typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements
+  > = createHumanBodyFemoralHeadsFromAnatomicalMeasurements({
     measurements: props.document.anatomy,
     bones: props.built.bones,
   });
   if (heads.length === 0) return null;
   if (props.crossings.length !== 0)
     return { status: "skin-crossing", heads: [] };
-  const measured: ReturnType<typeof measureHumanBodySpheresSkinClearance> = measureHumanBodySpheresSkinClearance({
-    skins: props.basis.surfaces.map((surface: IReadConnectedBodyHumeralHeadsProps["basis"]["surfaces"][number], index: number): Parameters<typeof measureHumanBodySpheresSkinClearance>[0]["skins"][number] => ({
-      indices: surface.indices,
-      positions: props.built.posedSurfaces[index].positions,
-    })),
-    spheres: heads.map(({ bone, center, radiusMetres }: ReturnType<typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements>[number]): Parameters<typeof measureHumanBodySpheresSkinClearance>[0]["spheres"][number] => ({
-      id: bone,
-      center,
-      radiusMetres,
-    })),
-  });
+  const measured: ReturnType<typeof measureHumanBodySpheresSkinClearance> =
+    measureHumanBodySpheresSkinClearance({
+      skins: props.basis.surfaces.map(
+        (
+          surface: IReadConnectedBodyHumeralHeadsProps["basis"]["surfaces"][number],
+          index: number,
+        ): Parameters<
+          typeof measureHumanBodySpheresSkinClearance
+        >[0]["skins"][number] => ({
+          indices: surface.indices,
+          positions: props.built.posedSurfaces[index].positions,
+        }),
+      ),
+      spheres: heads.map(
+        ({
+          bone,
+          center,
+          radiusMetres,
+        }: ReturnType<
+          typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements
+        >[number]): Parameters<
+          typeof measureHumanBodySpheresSkinClearance
+        >[0]["spheres"][number] => ({
+          id: bone,
+          center,
+          radiusMetres,
+        }),
+      ),
+    });
   return {
     status: "measured",
-    heads: heads.map((head: ReturnType<typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements>[number], index: number): IConnectedBodyFemoralHeads["heads"][number] => ({
-      bone: head.bone,
-      radiusMetres: head.radiusMetres,
-      centerInside: measured[index].centerInside,
-      nearestMetres: measured[index].nearestMetres,
-      clearanceMetres: measured[index].clearanceMetres,
-    })),
+    heads: heads.map(
+      (
+        head: ReturnType<
+          typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements
+        >[number],
+        index: number,
+      ): IConnectedBodyFemoralHeads["heads"][number] => ({
+        bone: head.bone,
+        radiusMetres: head.radiusMetres,
+        centerInside: measured[index].centerInside,
+        nearestMetres: measured[index].nearestMetres,
+        clearanceMetres: measured[index].clearanceMetres,
+      }),
+    ),
   };
 }

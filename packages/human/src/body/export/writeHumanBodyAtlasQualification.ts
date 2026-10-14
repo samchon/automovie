@@ -26,33 +26,53 @@ export function writeHumanBodyAtlasQualification(
 ): void {
   const report: IAutoMovieHumanBodyAtlasQualification =
     typia.assertEquals<IAutoMovieHumanBodyAtlasQualification>(input);
-  const records: Map<string, typeof report.parts[number]> = new Map(report.parts.map((part: typeof report.parts[number]): [string, typeof part] => [part.id, part]));
+  const records: Map<string, (typeof report.parts)[number]> = new Map(
+    report.parts.map(
+      (part: (typeof report.parts)[number]): [string, typeof part] => [
+        part.id,
+        part,
+      ],
+    ),
+  );
   const primitives: Primitive[] = document
     .getRoot()
     .listMeshes()
     .flatMap((mesh: Mesh): Primitive[] => mesh.listPrimitives());
-  const actual: NonNullable<ReturnType<typeof readHumanStaticPartCorrespondence>>["parts"] = primitives
+  const actual: NonNullable<
+    ReturnType<typeof readHumanStaticPartCorrespondence>
+  >["parts"] = primitives
     .flatMap(
-      (primitive: Primitive): typeof actual => readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
+      (primitive: Primitive): typeof actual =>
+        readHumanStaticPartCorrespondence(primitive)?.parts ?? [],
     )
-    .filter((part: typeof actual[number]): boolean => /^(body:)?anatomical-atlas:/.test(part.id));
+    .filter((part: (typeof actual)[number]): boolean =>
+      /^(body:)?anatomical-atlas:/.test(part.id),
+    );
   if (
     records.size === 0 ||
     records.size !== report.parts.length ||
     actual.length !== records.size ||
-    new Set(actual.map((part: typeof actual[number]): string => part.id)).size !== records.size ||
-    actual.some((part: typeof actual[number]): boolean => !records.has(part.id))
+    new Set(actual.map((part: (typeof actual)[number]): string => part.id))
+      .size !== records.size ||
+    actual.some(
+      (part: (typeof actual)[number]): boolean => !records.has(part.id),
+    )
   )
     throw new Error(
       "Atlas qualification must identify every actual atlas source part exactly once.",
     );
   for (const primitive of primitives) {
-    const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> = readHumanStaticPartCorrespondence(primitive);
+    const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> =
+      readHumanStaticPartCorrespondence(primitive);
     if (geometry === undefined)
-      throw new Error("Atlas qualification requires the exported primitive's actual source-part correspondence.");
+      throw new Error(
+        "Atlas qualification requires the exported primitive's actual source-part correspondence.",
+      );
     const parts: typeof report.parts = geometry.parts.flatMap(
-      (part: typeof geometry.parts[number]): typeof report.parts => {
-        const record: typeof report.parts[number] | undefined = records.get(part.id);
+      (part: (typeof geometry.parts)[number]): typeof report.parts => {
+        const record: (typeof report.parts)[number] | undefined = records.get(
+          part.id,
+        );
         return record === undefined ? [] : [structuredClone(record)];
       },
     );

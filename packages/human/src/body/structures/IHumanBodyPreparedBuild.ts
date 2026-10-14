@@ -1,7 +1,7 @@
-import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
-import type { IAutoMovieHumanBodyUnderwearParts } from "./IAutoMovieHumanBodyUnderwearParts";
 import type { IHumanBodyExteriorRestReference } from "../anatomy/binding/IHumanBodyExteriorRestReference";
 import type { IAutoMovieHumanBodyBuild } from "./IAutoMovieHumanBodyBuild";
+import type { IAutoMovieHumanBodyUnderwearParts } from "./IAutoMovieHumanBodyUnderwearParts";
+import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
 import type { IHumanBodySkinEvaluation } from "./IHumanBodySkinEvaluation";
 
 /**

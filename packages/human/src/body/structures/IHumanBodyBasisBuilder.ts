@@ -34,7 +34,9 @@ export interface IHumanBodyBasisBuilder {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The inspectable construction method signature implements no cross-call reuse policy.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The inspectable construction method acquires no handles or retained allocations itself.
    */
-  construct(document: IAutoMovieHumanBodyBasisDocument): IAutoMovieHumanBodyBuild;
+  construct(
+    document: IAutoMovieHumanBodyBasisDocument,
+  ): IAutoMovieHumanBodyBuild;
 
   /**
    * Prepare exterior and pose so a person can determine its complete exterior first.

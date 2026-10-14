@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
-
 import type { IConnectedBodyPreviewResult } from "./IConnectedBodyPreviewResult";
 
 /**

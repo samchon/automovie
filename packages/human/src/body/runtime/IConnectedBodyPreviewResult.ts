@@ -1,13 +1,13 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
+
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "../anatomy/generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import type { IAutoMovieHumanBodyFootSupport } from "../structures/IAutoMovieHumanBodyFootSupport";
-
 import type { ConnectedBodyModel } from "./ConnectedBodyModel";
 import type { IConnectedBodyFemoralHeads } from "./IConnectedBodyFemoralHeads";
 import type { IConnectedBodyMeasuredAnatomy } from "./IConnectedBodyMeasuredAnatomy";
-import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
 import type { IConnectedBodyRigReading } from "./IConnectedBodyRigReading";
+import type { IConnectedBodyUnavailableAnatomy } from "./IConnectedBodyUnavailableAnatomy";
 
 /**
  * Numerical preview buffers and available observations from one evaluation. Packed mesh buffers are newly owned by this reply, while model metadata and some extras borrow the completed build until worker transport clones them. Optional reports depend on the selected runtime; null can mean not requested, no applicable target, or a contact read superseded by a newer request.

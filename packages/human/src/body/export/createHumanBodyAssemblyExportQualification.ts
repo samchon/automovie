@@ -1,8 +1,8 @@
 import { createHumanBodySourceResidentMesh } from "../anatomy/assembly/createHumanBodySourceResidentMesh";
+import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyAssemblyQualification } from "./IAutoMovieHumanBodyAssemblyQualification";
-import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
 
 /**
  * Bind every actual coarse source surface's receipt to its static export ID.
@@ -25,7 +25,8 @@ export async function createHumanBodyAssemblyExportQualification(
   prefix: "" | "body:" = "",
   layers: readonly IHumanBodyLayerObservation[] | undefined = undefined,
 ): Promise<IAutoMovieHumanBodyAssemblyQualification | undefined> {
-  const assembly: IAutoMovieHumanBodyBasis["anatomicalAssembly"] = basis.anatomicalAssembly;
+  const assembly: IAutoMovieHumanBodyBasis["anatomicalAssembly"] =
+    basis.anatomicalAssembly;
   if (assembly === undefined) return undefined;
   if (
     assembly.basis !== basis.id ||
@@ -46,19 +47,44 @@ export async function createHumanBodyAssemblyExportQualification(
     parts: [],
   };
   if (assembly.nativeSubcutaneous !== undefined) {
-    const native: NonNullable<IHumanBodyLayerObservation["nativeSubcutaneous"]>[] = layers?.flatMap((layer: IHumanBodyLayerObservation): NonNullable<IHumanBodyLayerObservation["nativeSubcutaneous"]>[] => layer.nativeSubcutaneous === undefined ? [] : [layer.nativeSubcutaneous]) ?? [];
-    if (native.length !== 1 || native[0].basis !== basis.id ||
-        JSON.stringify(native[0].source) !== JSON.stringify(assembly.nativeSubcutaneous))
-      throw new Error("Native subcutaneous export needs the actual final boundary calculation and its registered source.");
+    const native: NonNullable<
+      IHumanBodyLayerObservation["nativeSubcutaneous"]
+    >[] =
+      layers?.flatMap(
+        (
+          layer: IHumanBodyLayerObservation,
+        ): NonNullable<IHumanBodyLayerObservation["nativeSubcutaneous"]>[] =>
+          layer.nativeSubcutaneous === undefined
+            ? []
+            : [layer.nativeSubcutaneous],
+      ) ?? [];
+    if (
+      native.length !== 1 ||
+      native[0].basis !== basis.id ||
+      JSON.stringify(native[0].source) !==
+        JSON.stringify(assembly.nativeSubcutaneous)
+    )
+      throw new Error(
+        "Native subcutaneous export needs the actual final boundary calculation and its registered source.",
+      );
     qualification.nativeSubcutaneous = {
       ...structuredClone(native[0]),
-      members: native[0].members.map((member: typeof native[number]["members"][number]): typeof member => ({ ...member, id: prefix + member.id })),
+      members: native[0].members.map(
+        (
+          member: (typeof native)[number]["members"][number],
+        ): typeof member => ({ ...member, id: prefix + member.id }),
+      ),
     };
   }
   for (const part of assembly.parts)
     for (const surface of part.surfaces) {
-      const bytes: Uint8Array<ArrayBuffer> = new TextEncoder().encode(JSON.stringify(surface.mesh));
-      const digest: ArrayBuffer = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+      const bytes: Uint8Array<ArrayBuffer> = new TextEncoder().encode(
+        JSON.stringify(surface.mesh),
+      );
+      const digest: ArrayBuffer = await globalThis.crypto.subtle.digest(
+        "SHA-256",
+        bytes,
+      );
       const sha256: string = [...new Uint8Array(digest)]
         .map((byte: number): string => byte.toString(16).padStart(2, "0"))
         .join("");
@@ -69,7 +95,8 @@ export async function createHumanBodyAssemblyExportQualification(
             "/" +
             surface.id,
         );
-      const resident: ReturnType<typeof createHumanBodySourceResidentMesh> = createHumanBodySourceResidentMesh(surface.mesh);
+      const resident: ReturnType<typeof createHumanBodySourceResidentMesh> =
+        createHumanBodySourceResidentMesh(surface.mesh);
       qualification.parts.push({
         id: prefix + "anatomical-source:" + part.id + "/" + surface.id,
         part: part.id,

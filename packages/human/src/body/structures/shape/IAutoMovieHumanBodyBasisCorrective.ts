@@ -1,6 +1,5 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-
 /**
  * One rest-space corrective endpoint gated by shape or pose drivers, evaluated by `humanBodyBasisWeights` before skinning carries the displacement with its bone.
  *
@@ -22,7 +21,6 @@ export interface IAutoMovieHumanBodyBasisCorrective {
   /** Name unique within this basis, distinct from every channel id. */
   id: string;
 
-
   /** Driving sides or shoulder pose kernels, all multiplied. */
   inputs: (
     | {
@@ -31,7 +29,6 @@ export interface IAutoMovieHumanBodyBasisCorrective {
 
         /** Which sign of the shape weight drives the ramp. */
         side: "positive" | "negative";
-
 
         /** Weight toward `side` at which the ramp leaves zero; zero when absent. */
         onset?: number;
@@ -79,10 +76,8 @@ export interface IAutoMovieHumanBodyBasisCorrective {
       }
   )[];
 
-
   /** Authored gain in (0,1]. */
   weight: number;
-
 
   /** Endpoint name, resolved in every surface's targets and in the landmarks. */
   target: string;

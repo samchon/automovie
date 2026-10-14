@@ -3,7 +3,6 @@ import { createHumanBodyArticularCandidateModel } from "../anatomy/articulation/
 import { parseHumanBodyBasisDocument } from "../document/parseHumanBodyBasisDocument";
 import { exportHumanBody } from "../export/exportHumanBody";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import { packConnectedBodyModel } from "./packConnectedBodyModel";
@@ -25,7 +24,8 @@ import { packConnectedBodyModel } from "./packConnectedBodyModel";
 export function createConnectedBodyAnatomicalRuntime(
   basis: IAutoMovieHumanBodyBasis,
 ): (request: ConnectedBodyRequest) => Promise<ConnectedBodyResult> {
-  const inspect: ReturnType<typeof createHumanBodyAnatomicalInspection> = createHumanBodyAnatomicalInspection(basis);
+  const inspect: ReturnType<typeof createHumanBodyAnatomicalInspection> =
+    createHumanBodyAnatomicalInspection(basis);
   return async (
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
@@ -36,22 +36,22 @@ export function createConnectedBodyAnatomicalRuntime(
       throw new Error(
         "Articular inspection does not construct a whole-person draft.",
       );
-    const document: ReturnType<typeof parseHumanBodyBasisDocument> = parseHumanBodyBasisDocument(
-      request.document,
-      basis.anatomicalAssembly,
-    );
+    const document: ReturnType<typeof parseHumanBodyBasisDocument> =
+      parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
     if (request.operation === "armsDown")
       throw new Error(
         "Articular inspection does not resolve a body arms-down pose.",
       );
     const inspection: ReturnType<typeof inspect> = inspect(document);
-    const model: ReturnType<typeof createHumanBodyArticularCandidateModel> = createHumanBodyArticularCandidateModel({
-      id: document.id,
-      name: document.name,
-      inspection,
-    });
+    const model: ReturnType<typeof createHumanBodyArticularCandidateModel> =
+      createHumanBodyArticularCandidateModel({
+        id: document.id,
+        name: document.name,
+        inspection,
+      });
     if (request.operation === "export") {
-      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> = await exportHumanBody(model, inspection);
+      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> =
+        await exportHumanBody(model, inspection);
       return { operation: "export", glb };
     }
     return {

@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyBasis } from "./IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
-import type { IAutoMovieHumanBodyUnderwearTable } from "./IAutoMovieHumanBodyUnderwearTable";
 import type { IAutoMovieHumanBodyUnderwearRest } from "./IAutoMovieHumanBodyUnderwearRest";
+import type { IAutoMovieHumanBodyUnderwearTable } from "./IAutoMovieHumanBodyUnderwearTable";
 
 /**
  * What the underwear coverage field is built from: the rule table, the style,

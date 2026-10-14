@@ -20,7 +20,9 @@ export async function createHumanBodyAtlasExportQualification(
   document: IAutoMovieHumanBodyBasisDocument,
   prefix: "" | "body:" = "",
 ): Promise<IAutoMovieHumanBodyAtlasQualification | undefined> {
-  const selected: NonNullable<IAutoMovieHumanBodyBasisDocument["anatomicalInspection"]> = document.anatomicalInspection ?? [];
+  const selected: NonNullable<
+    IAutoMovieHumanBodyBasisDocument["anatomicalInspection"]
+  > = document.anatomicalInspection ?? [];
   if (selected.length === 0) return undefined;
   if (document.basis !== basis.id || new Set(selected).size !== selected.length)
     throw new Error(
@@ -32,18 +34,21 @@ export async function createHumanBodyAtlasExportQualification(
     parts: [],
   };
   for (const id of selected) {
-    const matches: NonNullable<IAutoMovieHumanBodyBasis["anatomicalCandidates"]> = (basis.anatomicalCandidates ?? []).filter(
-      (part: typeof matches[number]): boolean => part.id === id,
+    const matches: NonNullable<
+      IAutoMovieHumanBodyBasis["anatomicalCandidates"]
+    > = (basis.anatomicalCandidates ?? []).filter(
+      (part: (typeof matches)[number]): boolean => part.id === id,
     );
     if (matches.length !== 1 || matches[0].registration.basis !== basis.id)
       throw new Error("Atlas export source is unavailable or stale: " + id);
-    const resource: typeof matches[number] = matches[0];
+    const resource: (typeof matches)[number] = matches[0];
     const digest: ArrayBuffer = await crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(JSON.stringify(resource.mesh)),
     );
-    const actual: string = Array.from(new Uint8Array(digest), (byte: number): string =>
-      byte.toString(16).padStart(2, "0"),
+    const actual: string = Array.from(
+      new Uint8Array(digest),
+      (byte: number): string => byte.toString(16).padStart(2, "0"),
     ).join("");
     if (actual !== resource.compiledMeshSha256.toLowerCase())
       throw new Error("Atlas export registered mesh digest differs: " + id);

@@ -21,16 +21,19 @@ export function readHumanBodyArticularAssetCorrespondence(
 ): IAutoMovieHumanBodyArticularAssetCorrespondence | undefined {
   const extras: ReturnType<Primitive["getExtras"]> = primitive.getExtras();
   if (!Object.hasOwn(extras, "automovieArticularInspection")) return undefined;
-  const qualification: IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"] = typia.assertEquals<
-    IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"]
-  >(extras.automovieArticularInspection);
-  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> = readHumanStaticPartCorrespondence(primitive);
+  const qualification: IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"] =
+    typia.assertEquals<
+      IAutoMovieHumanBodyArticularAssetCorrespondence["qualification"]
+    >(extras.automovieArticularInspection);
+  const geometry: ReturnType<typeof readHumanStaticPartCorrespondence> =
+    readHumanStaticPartCorrespondence(primitive);
   if (
     geometry === undefined ||
     qualification.reference.basis.trim() === "" ||
     qualification.parts.length !== geometry.parts.length ||
     qualification.parts.some(
-      (part: typeof qualification.parts[number], index: number): boolean => part.id !== geometry.parts[index].id,
+      (part: (typeof qualification.parts)[number], index: number): boolean =>
+        part.id !== geometry.parts[index].id,
     )
   )
     throw new Error(

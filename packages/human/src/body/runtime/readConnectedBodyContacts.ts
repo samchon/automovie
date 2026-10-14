@@ -25,7 +25,8 @@ import type { IReadConnectedBodyContactsProps } from "./IReadConnectedBodyContac
 export async function readConnectedBodyContacts(
   props: IReadConnectedBodyContactsProps,
 ): Promise<IAutoMovieModelCrossing[] | null> {
-  const parts: IReadConnectedBodyContactsProps["model"]["parts"] = props.model.parts;
+  const parts: IReadConnectedBodyContactsProps["model"]["parts"] =
+    props.model.parts;
   const found: IAutoMovieModelCrossing[] = [];
   let since: number = Date.now();
   const pause: () => Promise<boolean> = async (): Promise<boolean> => {

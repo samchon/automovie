@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IHumanBodySourceQuantityReading } from "../anatomy/assembly/IHumanBodySourceQuantityReading";
 import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
-import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";

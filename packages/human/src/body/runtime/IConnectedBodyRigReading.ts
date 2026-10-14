@@ -1,5 +1,6 @@
-import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import type { IConnectedBodyAnatomicalBoneReading } from "./IConnectedBodyAnatomicalBoneReading";
 
 /**

@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanBodyHumeralHead } from "../anatomy/shoulder/IAutoMovieHumanBodyHumeralHead";
-
 import type { IConnectedBodyHumeralHeadMeasurement } from "./IConnectedBodyHumeralHeadMeasurement";
 import type { IConnectedBodyUnobservedHeadSource } from "./IConnectedBodyUnobservedHeadSource";
 

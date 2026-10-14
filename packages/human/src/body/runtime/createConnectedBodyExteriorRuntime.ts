@@ -3,7 +3,6 @@ import { createHumanBodyExteriorTargetBuilder } from "../anatomy/surface/createH
 import { parseHumanBodyBasisDocument } from "../document/parseHumanBodyBasisDocument";
 import { exportHumanBody } from "../export/exportHumanBody";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-
 import type { ConnectedBodyRequest } from "./ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "./ConnectedBodyResult";
 import { packConnectedBodyModel } from "./packConnectedBodyModel";
@@ -31,12 +30,14 @@ export function createConnectedBodyExteriorRuntime(
     basis: basis.id,
     evaluation: "source-rest",
     incidence: basis.surfaces.every(
-      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean => surface.sourcePartition === undefined,
+      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+        surface.sourcePartition === undefined,
     )
       ? "native-indexed"
       : "source-partition",
   };
-  const build: ReturnType<typeof createHumanBodyExteriorTargetBuilder> = createHumanBodyExteriorTargetBuilder({ basis, reference });
+  const build: ReturnType<typeof createHumanBodyExteriorTargetBuilder> =
+    createHumanBodyExteriorTargetBuilder({ basis, reference });
   return async (
     request: ConnectedBodyRequest,
   ): Promise<ConnectedBodyResult> => {
@@ -47,19 +48,18 @@ export function createConnectedBodyExteriorRuntime(
       throw new Error(
         "Exterior inspection does not construct a whole-person draft.",
       );
-    const document: ReturnType<typeof parseHumanBodyBasisDocument> = parseHumanBodyBasisDocument(
-      request.document,
-      basis.anatomicalAssembly,
-    );
+    const document: ReturnType<typeof parseHumanBodyBasisDocument> =
+      parseHumanBodyBasisDocument(request.document, basis.anatomicalAssembly);
     if (request.operation === "armsDown")
       throw new Error(
         "Source-conditioned exterior inspection does not resolve an arms-down pose.",
       );
     const built: ReturnType<typeof build> = build(document);
     if (request.operation === "export") {
-      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> = await exportHumanBody(built.model, undefined, {
-        sourcePartIdentity: true,
-      });
+      const { glb }: Awaited<ReturnType<typeof exportHumanBody>> =
+        await exportHumanBody(built.model, undefined, {
+          sourcePartIdentity: true,
+        });
       return { operation: "export", glb };
     }
     return {

@@ -1,9 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
-import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
-
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IConnectedBodyRigReading } from "./IConnectedBodyRigReading";
 
 /**
@@ -33,11 +35,39 @@ export function readConnectedBodyRigReading(
     bodyBones: body.bones,
     bodyLandmarks: body.landmarks,
     personBones,
-    ...(source === undefined ? {} : {
-      anatomicalBones: Array.from(source.bones, ([bone, transform]: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform]): NonNullable<IConnectedBodyRigReading["anatomicalBones"]>[number] => ({ bone, ...transform })),
-      anatomicalProjections: Array.from(source.projections, ([bone, transform]: [AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform]): IAutoMovieHumanBodyBuild["bones"][number] => ({ bone, ...transform })),
-      anatomicalSites: Array.from(source.sites, ([bone, sites]: [AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>]): [string, [string, IAutoMovieVector3][]] => [bone, Array.from(sites)]),
-    }),
+    ...(source === undefined
+      ? {}
+      : {
+          anatomicalBones: Array.from(
+            source.bones,
+            ([bone, transform]: [
+              AutoMovieHumanBodyBoneId,
+              IAutoMovieHumanBodyBoneTransform,
+            ]): NonNullable<
+              IConnectedBodyRigReading["anatomicalBones"]
+            >[number] => ({ bone, ...transform }),
+          ),
+          anatomicalProjections: Array.from(
+            source.projections,
+            ([bone, transform]: [
+              AutoMovieHumanoidBone,
+              IAutoMovieHumanBodyBoneTransform,
+            ]): IAutoMovieHumanBodyBuild["bones"][number] => ({
+              bone,
+              ...transform,
+            }),
+          ),
+          anatomicalSites: Array.from(
+            source.sites,
+            ([bone, sites]: [
+              AutoMovieHumanBodyBoneId,
+              ReadonlyMap<string, IAutoMovieVector3>,
+            ]): [string, [string, IAutoMovieVector3][]] => [
+              bone,
+              Array.from(sites),
+            ],
+          ),
+        }),
     groundPlaneHeightMetres: body.groundPlaneHeightMetres,
   };
 }
