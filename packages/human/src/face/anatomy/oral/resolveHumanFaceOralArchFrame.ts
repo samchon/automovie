@@ -10,7 +10,7 @@ import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDist
  * @evidence contracts/common.md#clear-and-simple-design Declared lateral/forward/apical directions preserve maxillary/mandibular handedness instead of reordering axes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Head-aligned regression is a numerical source premise and singular systems refuse; 65 vault samples are a proxy rather than an exact continuous maximum.
  * @evidence contracts/common.md#meaningful-documentation Origin/stations use head or arch metres and directions are unit vectors; no tooth long axis is inferred.
- * @evidence contracts/performance.md#efficient-algorithms Station sorting costs O(crowns log crowns), regression is linear and 65 ring-distance scans determine the vault proxy.
+ * @evidence contracts/performance.md#efficient-algorithms For C crowns and E cervical vertices, sorting costs O(C log C), centre/frame construction costs O(C + E), and 65 O(E) edge scans determine the vault proxy; returned stations occupy O(C + E) space.
  * @evidence contracts/performance.md#reuse-equivalent-work One resolved frame/station population serves all lining and assembly reads.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned vectors/station copies are owned and temporary regression arrays are call-local, with no cross-source frame cache.
  */

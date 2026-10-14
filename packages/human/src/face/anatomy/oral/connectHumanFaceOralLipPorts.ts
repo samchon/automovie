@@ -17,7 +17,7 @@ import type { IHumanFaceOralPart } from "./IHumanFaceOralPart";
  * @evidence contracts/common.md#clear-and-simple-design Soft strips use performed ownership and remain outside rigid dental obstacle queries.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing registration/finite arc/facing rim refuse, and these strips do not certify a sealed posterior enclosure or muscle mechanics.
  * @evidence contracts/common.md#meaningful-documentation Original physical identities and head-metre coordinates preserve the source lip/vestibule boundaries.
- * @evidence contracts/performance.md#efficient-algorithms Each arch scans its rim, sorts facing bearings and zippers the two populations in linear merged-station work.
+ * @evidence contracts/performance.md#efficient-algorithms For R vestibular vertices and L lip points, scanning costs O(R + L), sorting the facing rim costs O(R log R), and zippering costs O(R + L); output storage is linear in both populations.
  * @evidence contracts/performance.md#reuse-equivalent-work One source port reader and prepared arc coordinates serve all zipper triangles; no independent fitted lip path is introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New strip buffers are owned and existing assembly parts remain borrowed in the returned expanded part array.
  *
