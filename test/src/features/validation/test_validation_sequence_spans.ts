@@ -20,17 +20,22 @@ import { nclose } from "../internal/predicates";
  *    finite strictly positive spans.
  * 4. A missing shot has no played span; numeric trims override a known shot,
  *    while absent, scalar or nonnumeric trims leave its duration unchanged.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls trim/transition admission and played-duration projection directly, asserting located findings and selected seconds. Invalid scalar fields remain independent findings instead of authorizing overlap arithmetic or suppressing one another.
+ * @evidence contracts/testing.md#independent-expectations A five-second authored shot supplies inclusive trim end and registry duration; finite nonnegative start and strictly positive spans define acceptance. Expected diagnostic paths identify the contract fields, while numeric projection alone does not certify a trim is valid.
+ * @evidence contracts/testing.md#distinguishing-cases Covers malformed shapes, exact end versus overflow, zero/nonfinite/wrongly typed spans, simultaneous bad fields, missing registry resolution and trim precedence. Neighbor overlap and two-layer sequence admission belong to the sequence artifact unit.
+ * @evidence contracts/testing.md#execution-ownership This discoverable named unit directly invokes portable production validators with local finding arrays and an authored shot record. It starts no project filesystem, renderer or native host and owns all cases in this entry.
  */
-export const test_validation_sequence_spans = (): void => {
-  const trimPaths = (value: unknown, duration = 5): string[] => {
+export function test_validation_sequence_spans(): void {
+  const trimPaths: (value: unknown, duration?: number) => string[] = (value: unknown, duration: number = 5): string[] => {
     const violations: IAutoMovieConstraintViolation[] = [];
     validateTrim(value, duration, "$trim", violations);
-    return violations.map((item) => item.path);
+    return violations.map((item: IAutoMovieConstraintViolation): string => item.path);
   };
-  const transitionPaths = (value: unknown): string[] => {
+  const transitionPaths: (value: unknown) => string[] = (value: unknown): string[] => {
     const violations: IAutoMovieConstraintViolation[] = [];
     validateTransition(value, "$transition", violations);
-    return violations.map((item) => item.path);
+    return violations.map((item: IAutoMovieConstraintViolation): string => item.path);
   };
   for (const value of [null, [], 1]) {
     TestValidator.equals("trim shape", trimPaths(value), ["$trim"]);
@@ -56,4 +61,4 @@ export const test_validation_sequence_spans = (): void => {
   TestValidator.predicate("numeric trim", nclose(entryDuration({ trim: { duration: 2 } }, shot)!, 2));
   for (const trim of [undefined, null, 1, {}, { duration: "2" }])
     TestValidator.predicate("registry duration", nclose(entryDuration({ trim }, shot)!, 5));
-};
+}
