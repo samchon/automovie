@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanFaceMeasurementMeasured as ImportedIAutoMovieHumanFaceMeasurementMeasured, IAutoMovieHumanFaceMeasurementUnavailable as ImportedIAutoMovieHumanFaceMeasurementUnavailable } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceMeasurementMeasured as ImportedIAutoMovieHumanFaceMeasurementMeasured,
+  IAutoMovieHumanFaceMeasurementUnavailable as ImportedIAutoMovieHumanFaceMeasurementUnavailable,
+} from "@automovie/human";
+
 import type { AutoMovieHumanFaceMeasurementReading } from "../../structures/AutoMovieHumanFaceMeasurementReading";
 
 /**
@@ -19,7 +23,14 @@ export function assertHumanFaceMeasurementTargets(
   targets: readonly string[],
 ): void {
   for (const id of targets) {
-    const reading: AutoMovieHumanFaceMeasurementReading | undefined = readings.find((candidate: ImportedIAutoMovieHumanFaceMeasurementMeasured | ImportedIAutoMovieHumanFaceMeasurementUnavailable): boolean => candidate.measurement === id);
+    const reading: AutoMovieHumanFaceMeasurementReading | undefined =
+      readings.find(
+        (
+          candidate:
+            | ImportedIAutoMovieHumanFaceMeasurementMeasured
+            | ImportedIAutoMovieHumanFaceMeasurementUnavailable,
+        ): boolean => candidate.measurement === id,
+      );
     if (reading !== undefined && reading.status === "unavailable")
       throw new Error(`The face cannot reach target ${id}: ${reading.reason}.`);
   }

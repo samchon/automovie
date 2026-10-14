@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanFaceMotionCapacityParameters as ImportedIAutoMovieHumanFaceMotionCapacityParameters, IAutoMovieHumanFaceMeasurementMeasured as ImportedIAutoMovieHumanFaceMeasurementMeasured, IAutoMovieHumanFaceMeasurementUnavailable as ImportedIAutoMovieHumanFaceMeasurementUnavailable } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceMeasurementMeasured as ImportedIAutoMovieHumanFaceMeasurementMeasured,
+  IAutoMovieHumanFaceMeasurementUnavailable as ImportedIAutoMovieHumanFaceMeasurementUnavailable,
+  IAutoMovieHumanFaceMotionCapacityParameters as ImportedIAutoMovieHumanFaceMotionCapacityParameters,
+} from "@automovie/human";
+
 import type { AutoMovieHumanFaceMeasurementReading } from "../../structures/AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceAnatomicalRequest } from "../../structures/IAutoMovieHumanFaceAnatomicalRequest";
 
@@ -24,19 +29,34 @@ export function assertHumanFaceJawCapacity(
   readings: readonly AutoMovieHumanFaceMeasurementReading[],
   request: IAutoMovieHumanFaceAnatomicalRequest | undefined,
 ): void {
-  const jaw: ImportedIAutoMovieHumanFaceMotionCapacityParameters.Jaw | undefined = request?.observations?.motionCapacity?.jaw;
+  const jaw:
+    | ImportedIAutoMovieHumanFaceMotionCapacityParameters.Jaw
+    | undefined = request?.observations?.motionCapacity?.jaw;
   if (jaw === undefined) return;
-  const read: (measurement: string, label: string) => number = (measurement: string, label: string): number => {
-    const reading: AutoMovieHumanFaceMeasurementReading | undefined = readings.find(
-      (candidate: ImportedIAutoMovieHumanFaceMeasurementMeasured | ImportedIAutoMovieHumanFaceMeasurementUnavailable): boolean => candidate.measurement === measurement,
-    );
+  const read: (measurement: string, label: string) => number = (
+    measurement: string,
+    label: string,
+  ): number => {
+    const reading: AutoMovieHumanFaceMeasurementReading | undefined =
+      readings.find(
+        (
+          candidate:
+            | ImportedIAutoMovieHumanFaceMeasurementMeasured
+            | ImportedIAutoMovieHumanFaceMeasurementUnavailable,
+        ): boolean => candidate.measurement === measurement,
+      );
     if (reading === undefined || reading.status !== "measured")
       throw new Error(
         `The ${label} capacity cannot be checked: ${reading?.status === "unavailable" ? reading.reason : "no reading"}.`,
       );
     return reading.measured;
   };
-  const check: (maximum: number | undefined, measurement: string, sign: number, label: string) => void = (
+  const check: (
+    maximum: number | undefined,
+    measurement: string,
+    sign: number,
+    label: string,
+  ) => void = (
     maximum: number | undefined,
     measurement: string,
     sign: number,

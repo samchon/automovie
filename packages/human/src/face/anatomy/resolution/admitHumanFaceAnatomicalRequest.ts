@@ -1,8 +1,9 @@
 import type { IHumanFaceMeasurement as ImportedIHumanFaceMeasurement } from "@automovie/human";
-import type { IHumanFaceObservationRule as ImportedIHumanFaceObservationRule } from "./IHumanFaceObservationRule";
+
 import type { IAutoMovieHumanFaceAnatomicalRequest } from "../../structures/IAutoMovieHumanFaceAnatomicalRequest";
 import { HUMAN_FACE_MEASUREMENTS } from "./HUMAN_FACE_MEASUREMENTS";
 import { HUMAN_FACE_OBSERVATION_RULES } from "./HUMAN_FACE_OBSERVATION_RULES";
+import type { IHumanFaceObservationRule as ImportedIHumanFaceObservationRule } from "./IHumanFaceObservationRule";
 
 /**
  * Admit a face document's anatomical record before it is evaluated.
@@ -22,7 +23,11 @@ import { HUMAN_FACE_OBSERVATION_RULES } from "./HUMAN_FACE_OBSERVATION_RULES";
 export function admitHumanFaceAnatomicalRequest(
   request: IAutoMovieHumanFaceAnatomicalRequest,
 ): void {
-  const registered: Set<string> = new Set(HUMAN_FACE_MEASUREMENTS.map((entry: ImportedIHumanFaceMeasurement): string => entry.id));
+  const registered: Set<string> = new Set(
+    HUMAN_FACE_MEASUREMENTS.map(
+      (entry: ImportedIHumanFaceMeasurement): string => entry.id,
+    ),
+  );
   const seen: Set<string> = new Set<string>();
   for (const target of request.targets ?? []) {
     if (!registered.has(target.measurement))
@@ -41,19 +46,33 @@ export function admitHumanFaceAnatomicalRequest(
       );
     seen.add(target.measurement);
   }
-  const visit: (value: unknown, path: string[]) => void = (value: unknown, path: string[]): void => {
+  const visit: (value: unknown, path: string[]) => void = (
+    value: unknown,
+    path: string[],
+  ): void => {
     if (value !== null && typeof value === "object" && !Array.isArray(value)) {
       for (const [key, child] of Object.entries(value))
         if (child !== undefined) visit(child, [...path, key]);
       return;
     }
-    const rule: ImportedIHumanFaceObservationRule = HUMAN_FACE_OBSERVATION_RULES.filter((candidate: ImportedIHumanFaceObservationRule): boolean => {
-      const segments: string[] = candidate.path.split(".");
-      return (
-        segments.length <= path.length &&
-        segments.every((segment: string, at: number): boolean => segment === "*" || segment === path[at])
-      );
-    }).sort((a: ImportedIHumanFaceObservationRule, b: ImportedIHumanFaceObservationRule): number => b.path.split(".").length - a.path.split(".").length)[0];
+    const rule: ImportedIHumanFaceObservationRule =
+      HUMAN_FACE_OBSERVATION_RULES.filter(
+        (candidate: ImportedIHumanFaceObservationRule): boolean => {
+          const segments: string[] = candidate.path.split(".");
+          return (
+            segments.length <= path.length &&
+            segments.every(
+              (segment: string, at: number): boolean =>
+                segment === "*" || segment === path[at],
+            )
+          );
+        },
+      ).sort(
+        (
+          a: ImportedIHumanFaceObservationRule,
+          b: ImportedIHumanFaceObservationRule,
+        ): number => b.path.split(".").length - a.path.split(".").length,
+      )[0];
     const name: string = path.join(".");
     if (rule === undefined)
       throw new Error(

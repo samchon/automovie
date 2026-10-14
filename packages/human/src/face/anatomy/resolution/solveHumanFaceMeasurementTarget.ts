@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanFaceBasisChannel as ImportedIAutoMovieHumanFaceBasisChannel, IHumanMeasurementInverseResult as ImportedIHumanMeasurementInverseResult, IHumanFaceMeasurementGap as ImportedIHumanFaceMeasurementGap } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisChannel as ImportedIAutoMovieHumanFaceBasisChannel,
+  IHumanFaceMeasurementGap as ImportedIHumanFaceMeasurementGap,
+  IHumanMeasurementInverseResult as ImportedIHumanMeasurementInverseResult,
+} from "@automovie/human";
+
 import { invertHumanMeasurement } from "../../../common/measure/invertHumanMeasurement";
 import type { IHumanFaceMeasurementSolution } from "./IHumanFaceMeasurementSolution";
 import type { IHumanFaceMeasurementSolveInput } from "./IHumanFaceMeasurementSolveInput";
@@ -32,26 +37,34 @@ export function solveHumanFaceMeasurementTarget(
     );
   const failures: string[] = [];
   for (const id of measurement.channels) {
-    const channel: ImportedIAutoMovieHumanFaceBasisChannel | undefined = input.channels.find((candidate: ImportedIAutoMovieHumanFaceBasisChannel): boolean => candidate.id === id);
+    const channel: ImportedIAutoMovieHumanFaceBasisChannel | undefined =
+      input.channels.find(
+        (candidate: ImportedIAutoMovieHumanFaceBasisChannel): boolean =>
+          candidate.id === id,
+      );
     if (channel === undefined) {
       failures.push(`${id} is not a basis channel`);
       continue;
     }
     try {
-      const solved: ImportedIHumanMeasurementInverseResult = invertHumanMeasurement({
-        range: [channel.minimum, channel.maximum],
-        current: input.weights[id] ?? 0,
-        targetMetres: target / 1000,
-        label: measurement.id,
-        read: (weight: number): number => {
-          const value: number | ImportedIHumanFaceMeasurementGap = input.read(id, weight);
-          if (typeof value !== "number")
-            throw new Error(
-              `The face cannot measure ${measurement.id}: ${value.reason}.`,
+      const solved: ImportedIHumanMeasurementInverseResult =
+        invertHumanMeasurement({
+          range: [channel.minimum, channel.maximum],
+          current: input.weights[id] ?? 0,
+          targetMetres: target / 1000,
+          label: measurement.id,
+          read: (weight: number): number => {
+            const value: number | ImportedIHumanFaceMeasurementGap = input.read(
+              id,
+              weight,
             );
-          return value / 1000;
-        },
-      });
+            if (typeof value !== "number")
+              throw new Error(
+                `The face cannot measure ${measurement.id}: ${value.reason}.`,
+              );
+            return value / 1000;
+          },
+        });
       return {
         channel: id,
         weight: solved.weight,

@@ -1,11 +1,16 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3, IAutoMovieMeshPhysicalVertices as ImportedIAutoMovieMeshPhysicalVertices, IAutoMovieMeshSkin as ImportedIAutoMovieMeshSkin, IAutoMovieMesh as ImportedIAutoMovieMesh } from "@automovie/interface";
-import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
-import type { IHumanFaceOpticalAssembly as ImportedIHumanFaceOpticalAssembly } from "../eye/structures/IHumanFaceOpticalAssembly";
-import type { IHumanFaceLashRow as ImportedIHumanFaceLashRow } from "../lash/structures/IHumanFaceLashRow";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type {
+  IAutoMovieMesh as ImportedIAutoMovieMesh,
+  IAutoMovieMeshPhysicalVertices as ImportedIAutoMovieMeshPhysicalVertices,
+  IAutoMovieMeshSkin as ImportedIAutoMovieMeshSkin,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveHumanFaceApertureUp } from "../../basis/resolveHumanFaceApertureUp";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IHumanFaceOpticalAssembly as ImportedIHumanFaceOpticalAssembly } from "../eye/structures/IHumanFaceOpticalAssembly";
+import type { IHumanFaceLashRow as ImportedIHumanFaceLashRow } from "../lash/structures/IHumanFaceLashRow";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementContextOptions } from "./IHumanFaceMeasurementContextOptions";
 
@@ -29,8 +34,13 @@ export function createHumanFaceMeasurementContext(
   posed: ReadonlyMap<string, readonly number[]>,
   options?: IHumanFaceMeasurementContextOptions,
 ): IHumanFaceMeasurementContext {
-  const absentDental: Set<number> = new Set(options?.oral?.absentDentalVertices ?? []);
-  const assertPresent: (surface: string, vertex: number) => void = (surface: string, vertex: number): void => {
+  const absentDental: Set<number> = new Set(
+    options?.oral?.absentDentalVertices ?? [],
+  );
+  const assertPresent: (surface: string, vertex: number) => void = (
+    surface: string,
+    vertex: number,
+  ): void => {
     if (surface === options?.oral?.dentalSurface && absentDental.has(vertex))
       throw new Error(
         `A face measurement requires absent authored crown vertex ${vertex} of ${surface}.`,
@@ -40,7 +50,9 @@ export function createHumanFaceMeasurementContext(
         "Generated brow acquisition needs actual shafts or implantation boundaries, not replaced source-card vertices.",
       );
   };
-  const positions: (surface: string) => readonly number[] = (surface: string): readonly number[] => {
+  const positions: (surface: string) => readonly number[] = (
+    surface: string,
+  ): readonly number[] => {
     const found: readonly number[] | undefined = posed.get(surface);
     if (found === undefined)
       throw new Error(
@@ -67,7 +79,7 @@ export function createHumanFaceMeasurementContext(
         Math.fround(values[3 * vertex + 2]),
       );
     },
-    surface: (surface: string): { positions: number[]; indices: number[]; } => {
+    surface: (surface: string): { positions: number[]; indices: number[] } => {
       if (surface === options?.oral?.dentalSurface)
         throw new Error(
           "Generated oral composite surface acquisition needs its actual part meshes, not replaced native gingiva.",
@@ -78,17 +90,32 @@ export function createHumanFaceMeasurementContext(
         );
       return {
         positions: positions(surface).map(Math.fround),
-        indices: basis.surfaces.find((candidate: ImportedIAutoMovieHumanFaceBasisSurface): boolean => candidate.id === surface)!
-          .indices,
+        indices: basis.surfaces.find(
+          (candidate: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+            candidate.id === surface,
+        )!.indices,
       };
     },
     apertureUp:
       basis.articulation === undefined
         ? null
         : resolveHumanFaceApertureUp(basis.articulation.jaw.axis),
-    opticalMesh: (side: "left" | "right", role: "sclera" | "cornea" | "iris" | "apertureBacking"): { positions: number[]; normals: number[] | null; physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; indices: number[] | null; skin: ImportedIAutoMovieMeshSkin | null; } | null => {
-      const mesh: ImportedIAutoMovieMesh | undefined = options?.optics?.find((eye: ImportedIHumanFaceOpticalAssembly): boolean => eye.side === side)?.geometry
-        .parts[role].mesh;
+    opticalMesh: (
+      side: "left" | "right",
+      role: "sclera" | "cornea" | "iris" | "apertureBacking",
+    ): {
+      positions: number[];
+      normals: number[] | null;
+      physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices;
+      uvs: number[] | null;
+      colors?: number[];
+      reliefWeights?: number[];
+      indices: number[] | null;
+      skin: ImportedIAutoMovieMeshSkin | null;
+    } | null => {
+      const mesh: ImportedIAutoMovieMesh | undefined = options?.optics?.find(
+        (eye: ImportedIHumanFaceOpticalAssembly): boolean => eye.side === side,
+      )?.geometry.parts[role].mesh;
       return mesh === undefined
         ? null
         : {
@@ -102,7 +129,8 @@ export function createHumanFaceMeasurementContext(
         ? null
         : (surface: string, vertex: number): ImportedIAutoMovieVector3 => {
             assertPresent(surface, vertex);
-            const values: readonly number[] | undefined = options.reference!.get(surface);
+            const values: readonly number[] | undefined =
+              options.reference!.get(surface);
             if (
               values === undefined ||
               !Number.isSafeInteger(vertex) ||
@@ -125,10 +153,24 @@ export function createHumanFaceMeasurementContext(
               coordinates[2],
             );
           },
-    lashMesh: (side: "left" | "right", row: "upper" | "lower"): { positions: number[]; normals: number[] | null; physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; indices: number[] | null; skin: ImportedIAutoMovieMeshSkin | null; } | null => {
-      const population: ImportedIHumanFaceLashRow | undefined = options?.lashes?.find(
-        (one: ImportedIHumanFaceLashRow): boolean => one.side === side && one.row === row,
-      );
+    lashMesh: (
+      side: "left" | "right",
+      row: "upper" | "lower",
+    ): {
+      positions: number[];
+      normals: number[] | null;
+      physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices;
+      uvs: number[] | null;
+      colors?: number[];
+      reliefWeights?: number[];
+      indices: number[] | null;
+      skin: ImportedIAutoMovieMeshSkin | null;
+    } | null => {
+      const population: ImportedIHumanFaceLashRow | undefined =
+        options?.lashes?.find(
+          (one: ImportedIHumanFaceLashRow): boolean =>
+            one.side === side && one.row === row,
+        );
       if (population === undefined) return null;
       if (population.mesh === null)
         return {
