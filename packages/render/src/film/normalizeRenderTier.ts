@@ -24,7 +24,7 @@ const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call validates one small record, and the planner and the projection each call it once per plan, so caching would cost more than the check.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing after returning the copy its caller owns and opens no handle or task.
  */
-export const normalizeRenderTier = (
+export const normalizeRenderTier: (tier: IAutoMovieProductionRenderTier | undefined) => IAutoMovieProductionRenderTier = (
   tier: IAutoMovieProductionRenderTier | undefined,
 ): IAutoMovieProductionRenderTier => {
   const value: Readonly<IAutoMovieProductionRenderTier> = tier ?? FINAL_TIER;

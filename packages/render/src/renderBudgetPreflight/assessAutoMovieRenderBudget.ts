@@ -4,23 +4,16 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
 
 
 /**
- * Measure one compiled shot and check it against the budget a render job
- * targets.
+ * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
  *
- * The whole chain in one place, because every link has to read the same
- * artifact: the subject feeds both the mask and the inventory, so a colour in
- * the mask and a cost in the report name one owner, and the sealed target binds
- * the verdict to the renderer that produced it.
+ * A null renderer produces not-run without inventing graphics identity. The helper performs no draw, capture-host acquisition or texture allocation, and the caller owns the provenance of its observation records.
  *
- * A job with no renderer identity produces `not-run` and says so. That is the
- * honest outcome and the only safe one: a budget verdict is a claim about a
- * specific renderer drawing specific bytes, so a report measured against an
- * invented target would be a stale report nothing could detect.
+ * Maintained callers are tests and the internal budget-helper chain. ProductionDesign.renderBudgets has no current execution reader wiring this assessment into an automatic render-job gate; accepting an explicit budget here does not establish that integration.
  *
  * @evidence contracts/common.md#principled-implementation A compiled-shot subject supplies both inventory and semantic ownership; settings and renderer are sealed into the target, and only required texture assets contribute to its upload identity. Missing graphics identity produces not-run rather than an invented renderer.
- * @evidence contracts/common.md#clear-and-simple-design The preflight composes engine subject, mask, inventory, target and budget operations without duplicating their validators; the shot-specific wrapper adds context while preserving the original cause.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No renderer is fabricated and contradictory engine inputs are rethrown with their cause; the same compiled artifact feeds both owner attribution and cost measurement.
- * @evidence contracts/common.md#meaningful-documentation The comment explains attributable target identity, and input members name compiled ownership, limits, decoded texture facts and context residency; nullable assessment fields distinguish no report from incomplete analysis.
+ * @evidence contracts/common.md#clear-and-simple-design The preflight composes engine subject, mask, inventory, target and budget operations without duplicating validators. Its shot-specific wrapper normally retains the thrown cause, but String(error) can itself throw for an uninspectable thrown object before that wrapper is constructed.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No renderer is fabricated and the same compiled artifact feeds ownership and measurement. The catch still assumes diagnostic string conversion succeeds; a failed coercion can replace the intended context/cause wrapper and remains an unresolved failure-path limitation.
+ * @evidence contracts/common.md#meaningful-documentation Documents explicit input ownership, supplied target identity, not-run versus incomplete analysis and the current internal/test-only caller boundary; it claims neither an observed draw nor automatic ProductionDesign.renderBudgets execution.
  * @evidence contracts/performance.md#efficient-algorithms Cost is the delegated inventory and mask traversal plus a linear filter over texture sources; the target is sealed twice because measured required assets are needed to compute its final texture digest.
  * @evidence contracts/performance.md#reuse-equivalent-work One subject and mask serve both inventory measurement and budget attribution; all sharing is confined to this artifact and the supplied renderer, settings, assets and residency facts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The assessment retains the inventory, mask, report and sealed target until its caller discards them; it neither acquires the renderer nor owns texture allocation or host tasks.
@@ -39,17 +32,17 @@ export const assessAutoMovieRenderBudget: (props: {
   compiled: IAutoMovieCompiledShotSource;
   /** Shot id the artifact belongs to. */
   shot: string;
-  /** Limits the job targets, or `null` for a production declaring none. */
+  /** Explicit limits selected by the caller, or null to evaluate without a declared budget. */
   budget: IAutoMovieRenderBudget | null;
-  /** Renderer identity, or `null` when the host reported none. */
+  /** Caller-supplied graphics identity, or null when no such observation is supplied. */
   renderer: IAutoMovieRenderTargetRenderer | null;
-  /** Settings the frame is drawn under. */
+  /** Intended target settings supplied for measurement and sealing. */
   settings: IAutoMovieRenderTargetSettings;
-  /** Bytes the drawn frame depends on. */
+  /** Caller-supplied asset identity records for the intended target. */
   assets: readonly IAutoMovieRenderTargetAsset[];
-  /** Actual host-decoded upload and sharing facts for required source assets. */
+  /** Supplied decoded upload and sharing observations; the caller owns their acquisition and truth. */
   textures?: readonly IAutoMovieRenderTextureSource[];
-  /** Other live shots and context-retained storage supplied by the capture host. */
+  /** Supplied context/other-shot residency observations; this helper acquires no capture host. */
   textureResidency?: IAutoMovieRenderTextureResidency;
 }): IAutoMovieRenderBudgetAssessment => {
   if (props.renderer === null)
@@ -98,15 +91,7 @@ export const assessAutoMovieRenderBudget: (props: {
       target,
     };
   } catch (error) {
-    // Every refusal below this line names a contradiction in the artifact -- two
-    // claimants of one semantic id, a node citing a model the shot does not
-    // carry, a setting that cannot be sealed -- and none of them names the shot,
-    // because none of them knows it. A film of a hundred shots is where that
-    // costs an hour, so the shot is added here and the original is preserved as
-    // the cause rather than replaced by a summary of it.
-    // `String(error)` rather than a narrowing on `Error`: everything thrown
-    // below this line comes from the engine and is an `Error`, so the other arm
-    // would be a branch no input can reach and no test could honestly cover.
+    // Add the caller's shot id to engine validation context and retain the original thrown value as the cause; String(error) contributes only the diagnostic representation.
     throw new Error(
       `render budget preflight could not measure shot "${props.shot}": ${String(error)}`,
       { cause: error },

@@ -20,5 +20,5 @@ const SINGLE_LINE_CONTROLS: RegExp = /[\u0000-\u001f\u007f]/gu;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure string mapping has no completed work worth sharing; each cue's speaker is serialized once per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the module-level compiled pattern is retained, and `replace` resets its global-flag state on every call.
  */
-export const serializeAutoMovieWebVttSingleLineText = (value: string): string =>
+export const serializeAutoMovieWebVttSingleLineText: (value: string) => string = (value: string): string =>
   escapeWebVttText(value.replace(SINGLE_LINE_CONTROLS, " "));

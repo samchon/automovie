@@ -26,11 +26,11 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
  * @evidence contracts/common.md#clear-and-simple-design One ordered list of named comparisons, with conditional rows for brands, explicit pixel aspect, `nclx` fields and edits, is the whole check, so every normalizer, assembler and delivery validator applies the same profile and reports the same field name.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Container, codec, `nclx` and sRGB identities are the single delivery format the normalizer writes, an extra compatible brand is allowed because brands only advertise readers, and no file or caller is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc lists every compared group, the timing and edit-list conditions, and the error format; the order of rows decides which field a multiply-wrong file reports.
- * @evidence contracts/performance.md#efficient-algorithms The cost is constant over the fixed fields plus linear in the required brands times the file's compatible brands and in the edit list, all a handful of entries, and it never reads sample data.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed scalar checks are constant work; required-brand membership costs the product of required and observed brand counts. Matrix serialization and any mismatched edit-list serialization depend on their lengths, which caller-supplied records do not cap here. No coded sample bytes are read.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one probe of one file, and the several callers check different files or the same file after it changed, so no earlier verdict is equivalent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The comparison list is the only allocation and dies with the call; the function opens no file, process or task.
  */
-export const assertProductionVideoProfile = (props: {
+export const assertProductionVideoProfile: (props: { expected: IAutoMovieProductionVideoProfile; actual: IAutoMovieProductionVideoProbe }) => void = (props: {
   /** Profile resolved from the deliverable's authored raster and rate. */
   expected: IAutoMovieProductionVideoProfile;
 
@@ -181,5 +181,5 @@ export const assertProductionVideoProfile = (props: {
 };
 
 /** Whether a sample-clock term is a positive safe integer. */
-const positiveClock = (value: number): boolean =>
+const positiveClock: (value: number) => boolean = (value: number): boolean =>
   Number.isSafeInteger(value) && value > 0;

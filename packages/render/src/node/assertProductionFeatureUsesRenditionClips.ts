@@ -34,11 +34,11 @@ import { sampleDescription } from "./sampleDescription";
  * @evidence contracts/common.md#clear-and-simple-design The clip validation is the shared plan, flag equality is `sameSampleFlags` and configuration equality `sameSampleDescription`; this function owns only the walk over the feature's samples and the failure record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance is applied to any tick, flag or byte, and the failure record is diagnostic output only; it does not change which features pass.
  * @evidence contracts/common.md#meaningful-documentation The doc states where the clips are resolved, every track-level requirement, the exact per-sample timing formulas and equalities, and both refusal messages with the content of the diagnostic record.
- * @evidence contracts/performance.md#efficient-algorithms For S samples, each clip is parsed once by the plan and the feature once, and every sample costs one native byte comparison of its payload and one flag comparison; the decoder configuration is serialized only when a sample's description object changes, normally once per feature, rather than per sample, so total time is linear in the bytes compared.
+ * @evidence contracts/performance.md#efficient-algorithms The plan parses every segment occurrence, including repeated shots, with each clip's O(M + S log(M+1)) residency proof and description work. The feature is parsed once; sample comparison adds payload-byte comparison, subsample-table serialization and fixed timing checks. Configuration serialization is skipped while the actual description object remains the last checked object. Parsing and compact table populations prevent a strict bound in compared payload bytes alone.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The proof runs once per delivery validation over caller-held bytes and has no result another request could reuse; the plan it reads is built per call because the proof must not trust a writer's earlier plan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed feature, the parsed clips and their sample tables are held only until return, and the function retains nothing and opens no handle or task.
  */
-export const assertProductionFeatureUsesRenditionClips = (props: {
+export const assertProductionFeatureUsesRenditionClips: (props: { feature: Uint8Array; timeline: IAutoMovieFilmTimeline; clips: ReadonlyMap<string, Uint8Array> }) => void = (props: {
   /** Delivered feature MP4 whose first video track is checked. */
   feature: Uint8Array;
 
@@ -128,7 +128,14 @@ export const assertProductionFeatureUsesRenditionClips = (props: {
 };
 
 /** Bounded diagnostic record of one failed sample comparison. */
-const sampleMismatchRecord = (props: {
+const sampleMismatchRecord: (props: {
+  actual: Sample;
+  source: Sample;
+  expected: { duration: number; dts: number; cts: number };
+  descriptionMatches: boolean;
+  actualBytes: Uint8Array;
+  sourceBytes: Uint8Array;
+}) => Record<string, unknown> = (props: {
   actual: Sample;
   source: Sample;
   expected: { duration: number; dts: number; cts: number };
@@ -161,7 +168,7 @@ const sampleMismatchRecord = (props: {
 });
 
 /** Parser-visible dependency and redundancy flags of one sample. */
-const sampleFlagRecord = (sample: Sample): Record<string, unknown> => ({
+const sampleFlagRecord: (sample: Sample) => Record<string, unknown> = (sample: Sample): Record<string, unknown> => ({
   isSync: sample.is_sync,
   isLeading: sample.is_leading,
   dependsOn: sample.depends_on,

@@ -31,7 +31,7 @@ const PLACEHOLDER_CHANNELS: IAutoMovieProductionSoundPlan["channels"] = 2;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner calls it once per plan on that plan's own inputs, so there is no completed equivalent work to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The path set and the sorted array are local and released on return; the returned copies, owned by the caller, hold one record per asset and no handle or task.
  */
-export const normalizeAudioAssets = (
+export const normalizeAudioAssets: (assets: readonly IAutoMovieProductionAudioAssetIdentity[]) => IAutoMovieProductionAudioAssetIdentity[] = (
   assets: readonly IAutoMovieProductionAudioAssetIdentity[],
 ): IAutoMovieProductionAudioAssetIdentity[] => {
   const paths: Set<string> = new Set();

@@ -29,11 +29,11 @@ import { sampleDescription } from "./sampleDescription";
  * @evidence contracts/common.md#clear-and-simple-design Flag and decoder-configuration equality reuse `sameSampleFlags` and `sameSampleDescription`, and the two small track and timing comparisons are local because no other module compares whole tracks. The gap is that no production consumer remains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No tick, flag or byte tolerance is applied, and neither input is treated specially by name or size.
  * @evidence contracts/common.md#meaningful-documentation The doc lists every track-level and per-sample equality, which tracks are compared and which ignored, and each refusal message.
- * @evidence contracts/performance.md#efficient-algorithms For S samples both files are parsed once and each sample pair costs one native byte comparison and constant field checks; decoder configurations are serialized only when either sample's description object changes, normally once, so time is linear in the compared bytes.
+ * @evidence contracts/performance.md#efficient-algorithms Both files are parsed once, with box and expanded sample-table populations driving delegated parsing. For S sample pairs, comparisons visit payload bytes and serialize their subsample tables; changed description objects add child-box serialization. Track matrix and edit-list comparisons also scale with their contents, so compared payload bytes alone do not bound the complete operation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A proof compares two caller-held byte arrays once and offers no result another call could share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Both parsed files and their sample tables are released on return, and the function opens no handle or task.
  */
-export const assertProductionFeatureUsesRenditionVideo = (props: {
+export const assertProductionFeatureUsesRenditionVideo: (props: { feature: Uint8Array; renditionVideo: Uint8Array }) => void = (props: {
   /** Feature MP4 whose first video track is checked. */
   feature: Uint8Array;
 
@@ -101,7 +101,7 @@ export const assertProductionFeatureUsesRenditionVideo = (props: {
 };
 
 /** Whether two tracks share the display matrix and the edit list. */
-const sameTrackPresentation = (left: Track, right: Track): boolean => {
+const sameTrackPresentation: (left: Track, right: Track) => boolean = (left: Track, right: Track): boolean => {
   const rightMatrix: number[] = Array.from(right.matrix);
   return (
     Array.from(left.matrix).every(
@@ -111,7 +111,7 @@ const sameTrackPresentation = (left: Track, right: Track): boolean => {
 };
 
 /** Whether two samples share duration, both clock times and every flag. */
-const sameSampleTiming = (left: Sample, right: Sample): boolean =>
+const sameSampleTiming: (left: Sample, right: Sample) => boolean = (left: Sample, right: Sample): boolean =>
   left.duration === right.duration &&
   left.cts === right.cts &&
   left.dts === right.dts &&

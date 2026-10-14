@@ -35,9 +35,14 @@ import type { IAutoMovieProductionOpusDescription } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call parses one track's sample entry for one probe and coordinates no phases or requests whose result could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function keeps no reference to the parsed boxes after returning, its result copies the mapping into a new array its caller owns, and it opens no handle or task.
  */
-export const productionOpusDescription = (props: {
+export const productionOpusDescription: (props: { boxes: readonly unknown[] | undefined; codec: string; trackChannels: number }) => IAutoMovieProductionOpusDescription = (props: {
+  /** Parsed sample-entry children; absence is treated as no dOps box. */
   boxes: readonly unknown[] | undefined;
+
+  /** Sample-entry codec spelling; the Opus family is matched case-insensitively. */
   codec: string;
+
+  /** Channel count read from the enclosing audio sample entry. */
   trackChannels: number;
 }): IAutoMovieProductionOpusDescription => {
   if (/^opus(?:\.|$)/i.test(props.codec) === false)
@@ -55,7 +60,7 @@ export const productionOpusDescription = (props: {
       `malformed-dOps: expected one Opus description, observed ${boxes.length}.`,
     );
   const box: Record<string, unknown> = boxes[0]!;
-  const integer = (key: string, minimum: number, maximum: number): number => {
+  const integer: (key: string, minimum: number, maximum: number) => number = (key: string, minimum: number, maximum: number): number => {
     const value: unknown = box[key];
     if (
       typeof value !== "number" ||

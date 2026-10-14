@@ -20,7 +20,7 @@ import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngPr
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one parsed picture against one profile, and different delivered PNGs are not equivalent work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the small comparison list exists during the call, and the function opens no file or task.
  */
-export const assertProductionPngPicture = (props: {
+export const assertProductionPngPicture: (props: { profile: IAutoMovieProductionPngProfile; actual: IAutoMovieProductionPngPicture }) => void = (props: {
   /** Profile of the role the PNG was written for. */
   profile: IAutoMovieProductionPngProfile;
 

@@ -9,7 +9,7 @@
  * not positive safe integers, or whose duration differs from
  * `sourceFrames / sampleRate`.
  *
- * @evidence contracts/common.md#principled-implementation The record states the sample count and the rate as integers and the duration as their exact quotient, so the planner can check a cue's frame span against whole samples instead of a rounded runtime.
+ * @evidence contracts/common.md#principled-implementation Sample count and rate carry integer clock facts, while durationSeconds equals their binary64 quotient rather than an exact rational value. The planner checks cue spans against sourceFrames using exact frame-to-sample conversion instead of deriving sample count from rounded seconds.
  * @evidence contracts/common.md#clear-and-simple-design The fields that do not depend on provenance live here once, and the union type adds only what each arm needs, so the two arms cannot describe the shared facts differently.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The interface encodes no default or special value; every constraint on its fields is enforced by `normalizeAudioAssets`, which the doc names.
  * @evidence contracts/common.md#meaningful-documentation The doc names the union that extends it and the validator with each refusal, and every member states its unit, source or derivation.

@@ -18,5 +18,5 @@ const PROHIBITED_CAPTION_CONTROLS: RegExp =
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure string mapping coordinates no phases; its callers each normalize the one caption they hold, and caching short captions would cost more than the scan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The module retains only the compiled pattern for its lifetime; the global flag carries no state across calls because `String.prototype.replace` resets it.
  */
-export const canonicalizeAutoMovieCaptionText = (value: string): string =>
+export const canonicalizeAutoMovieCaptionText: (value: string) => string = (value: string): string =>
   value.replace(/\r\n?/gu, "\n").replace(PROHIBITED_CAPTION_CONTROLS, " ");

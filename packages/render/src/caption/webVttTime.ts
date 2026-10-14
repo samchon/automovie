@@ -16,7 +16,7 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Spelling one number coordinates no phases and leaves nothing a later call could reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function holds no state, handle or task beyond the short string it returns.
  */
-export const webVttTime = (milliseconds: number): string => {
+export const webVttTime: (milliseconds: number) => string = (milliseconds: number): string => {
   const hours: number = Math.floor(milliseconds / 3_600_000);
   const minutes: number = Math.floor((milliseconds % 3_600_000) / 60_000);
   const seconds: number = Math.floor((milliseconds % 60_000) / 1_000);

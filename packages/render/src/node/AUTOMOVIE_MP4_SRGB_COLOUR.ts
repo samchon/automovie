@@ -8,7 +8,7 @@
  * probe classifies a container as sRGB by them, and the normalizer writes them.
  * Spelling them three times is how one of those readings drifts from the others.
  */
-export const AUTOMOVIE_MP4_SRGB_COLOUR = {
+export const AUTOMOVIE_MP4_SRGB_COLOUR: Readonly<{ primaries: 1; transfer: 13; matrix: 1; fullRange: true }> = {
   primaries: 1,
   transfer: 13,
   matrix: 1,

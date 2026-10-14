@@ -19,7 +19,7 @@ import { isGuidePass } from "../guidePasses";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner calls it once for the legacy default and once per declared guide deliverable on one-element lists, so there is no repeated work worth sharing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The distinct list of at most five passes is local and dropped on return, leaving only the returned pass literal; no handle or task is involved.
  */
-export const assertSingleGuidePass = (
+export const assertSingleGuidePass: (passes: readonly Exclude<AutoMovieGuidePass, "beauty">[]) => Exclude<AutoMovieGuidePass, "beauty"> = (
   passes: readonly Exclude<AutoMovieGuidePass, "beauty">[],
 ): Exclude<AutoMovieGuidePass, "beauty"> => {
   const distinct: Exclude<AutoMovieGuidePass, "beauty">[] = [];

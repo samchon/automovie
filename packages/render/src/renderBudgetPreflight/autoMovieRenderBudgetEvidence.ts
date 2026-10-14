@@ -11,14 +11,14 @@ const STATUS_ORDER: Readonly<
 
 
 /**
- * Fold one job's assessments into the evidence document it publishes.
+ * Fold caller-supplied assessments into one tier's budget-evidence value. This reducer writes no publication and verifies no report provenance or rendered population.
  *
  * The digest covers the protocol, tier, declared tier list, aggregate status and ordered shot tuples of id, status, report digest and target digest. It does not serialize the complete report or target into this hash, but their supplied digests participate in identity; equivalent tuples produce the same content address.
  *
  * `budgets` is the production's whole declaration, read for `declaredTiers` and for whether this tier was budgeted at all. The assessments must already have been made against {@link selectAutoMovieRenderBudget}'s answer for the same tier; hand them a different budget and `budgeted` describes the declaration while every finding describes something else. The caller supplies one assessment per shot id; sorting alone does not validate that denominator.
  *
  * @evidence contracts/common.md#principled-implementation Sorted shot verdicts and deduplicated sorted declared tiers determine the worst status; structured JSON encoding distinguishes arbitrary string field contents before hashing, avoiding delimiter aliases.
- * @evidence contracts/common.md#clear-and-simple-design This reducer owns the published tier-level envelope while selectAutoMovieRenderBudget owns tier lookup and individual assessments own measurement.
+ * @evidence contracts/common.md#clear-and-simple-design This reducer owns the tier-level envelope while selectAutoMovieRenderBudget owns tier lookup and individual assessments own measurement. Current callers are tests and internal budget helpers; no automatic production publication or render-job gate is wired here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty shot set reports not-run, and incomplete or over verdicts retain their own status; no absent report is interpreted as clearance.
  * @evidence contracts/common.md#meaningful-documentation The comment lists the exact digest denominator and caller obligations for selected-budget assessment and unique shot ids; evidence members define ordering, severity and the empty-population outcome.
  * @evidence contracts/performance.md#efficient-algorithms For S assessments and B budgets, sorting costs O(S log S+B log B), reduction and serialization are linear, and retained output holds S assessment references and B tier strings.

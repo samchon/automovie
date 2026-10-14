@@ -10,7 +10,7 @@ import type { Sample, Track, createFile } from "mp4box";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No sample or box is special-cased, and a range is never clamped; any sample outside the media boxes refuses the whole track.
  * @evidence contracts/common.md#meaningful-documentation The doc states what is returned, the count condition, both refusals with their messages and triggers, and why residency matters to the probes.
  * @evidence contracts/performance.md#efficient-algorithms For S samples and M media boxes, constructing the ranges costs O(M), the bounds pass costs O(S), and each sample finds its box by binary search, giving O(M + S log(M + 1)) time and O(M) temporary storage. A file written by mp4box's fragment writer carries one media box per sample, where scanning every box for every sample would be quadratic.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each probe verifies the file it was handed, and a parsed file is never probed twice by one caller.
+ * @evidence contracts/performance.md#reuse-equivalent-work Returns the parser-owned sample table for the caller's subsequent reading instead of fetching it again. Each invocation rebuilds the file-wide media ranges, including separate video and audio readings of one feature; no range cache or prior residency verdict is shared across those calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The range array of M entries lives for the call; the returned sample array is the parser's own and stays owned by `file`, and no handle or task is opened.
  */
 export const verifySampleStorage: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => Sample[] = (

@@ -26,15 +26,15 @@ import { productionRenditionVideoPlan } from "./productionRenditionVideoPlan";
  *
  * No production module calls this function at present; only tests reach it.
  *
- * @evidence contracts/common.md#principled-implementation The splice copies coded samples whose sample entries are proved identical and whose clips each start at a sync sample, so the joined stream decodes to the clips' own frames; timing is re-based per clip in whole frames, which handles clips whose media clocks differ by a whole factor.
+ * @evidence contracts/common.md#principled-implementation The splice copies coded samples with equal declared sample entries and re-bases timing in whole frames, including clips whose media clocks differ by a whole factor. Each clip starts at a declared sync sample; independent decoding remains a premise because container checks do not decode H.264 payloads or verify an IDR picture.
  * @evidence contracts/common.md#clear-and-simple-design Validation of the segment-to-clip mapping is the shared plan, which the feature proof `assertProductionFeatureUsesRenditionClips` also reads, the container comes from `openLosslessVideoTrack`, and re-timing from `appendLosslessVideoClip`; this function only writes and verifies. The gap is that no production consumer remains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every unsupported edit or mismatched clip is refused rather than re-encoded, trimmed or replaced with deterministic frames, and the final checks re-read the written bytes rather than trusting the writer.
  * @evidence contracts/common.md#meaningful-documentation The doc states the input mapping, every refusal the plan applies and why fallback is refused, and the verification of the written video.
- * @evidence contracts/performance.md#efficient-algorithms For N segments and S samples, each clip is parsed once by the plan, every sample is appended once, and the output is parsed once to verify it, so time is linear in the total clip bytes.
+ * @evidence contracts/performance.md#efficient-algorithms Each segment occurrence invokes the clip parser, including repeated shots; a clip with S samples and M media boxes adds O(M + S log(M+1)) residency work plus description inspection. Appending copies coded bytes and subsample tables, then serialization and an independent output probe repeat output parsing/residency work. The complete operation is not strictly linear in unique clip bytes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call conforms one timeline from caller-held bytes and keeps no cache; equal inputs give byte-identical output, which a caller may store.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Until return the output file holds a copy of every sample and views of the caller's clip bytes, plus the parsed plan, so peak memory is about twice the feature's encoded size plus the output buffer; nothing outlives the call except the returned array.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Input parses and copied buffers, source sample views, output payload copies and fragment boxes, serialized output and its verification parse can coexist. Bytes, samples, descriptions and boxes are uncapped here and no peak multiplier is established. Invocation-local references become collectable after completion or refusal; the caller retains the returned bytes, with no acquired OS handle or task.
  */
-export const conformProductionRenditionVideoMp4 = (props: {
+export const conformProductionRenditionVideoMp4: (props: { timeline: IAutoMovieFilmTimeline; clips: ReadonlyMap<string, Uint8Array> }) => Uint8Array = (props: {
   /** Current cut-only film timeline the clips must cover exactly. */
   timeline: IAutoMovieFilmTimeline;
 

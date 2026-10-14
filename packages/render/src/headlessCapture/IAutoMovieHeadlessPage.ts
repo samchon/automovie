@@ -107,7 +107,7 @@ export interface IAutoMovieHeadlessPage {
    *
    * @param selector The caller's view selector, `#view` by default.
    * @evidence contracts/common.md#principled-implementation A lazy locator re-resolves its selector at each screenshot, which is Playwright's documented behavior, so one handle stays valid even if the viewer replaces the element between frames.
-   * @evidence contracts/common.md#clear-and-simple-design The method is synchronous and takes only the selector, as in Playwright, so the adapter needs no await or error path for it.
+   * @evidence contracts/common.md#clear-and-simple-design The method synchronously constructs the supplied selector's locator without a separate wrapper. If a host implementation throws during construction, creation rejects with that original error; this call is outside the adapter's classified page guards.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The adapter passes the caller's selector unchanged and never chooses an element for a particular viewer.
    * @evidence contracts/common.md#meaningful-documentation The doc says when it is called, with which selector, and that the handle is reused for all frames.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Creating a locator performs no query; element resolution happens in the host at screenshot time.

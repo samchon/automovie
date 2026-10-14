@@ -24,9 +24,14 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one small profile and coordinates no phases or requests whose work could be shared; the shared parts are already module constants.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the copied nine-entry matrix and the profile object are allocated, both owned by the caller from return; the shared color constant lives for the module's lifetime, and no handle or task is opened.
  */
-export const resolveProductionVideoProfile = (props: {
+export const resolveProductionVideoProfile: (props: { width: number; height: number; frameRate: IAutoMovieProductionFrameRate }) => IAutoMovieProductionVideoProfile = (props: {
+  /** Validated coded/display width in pixels; forwarded without admission. */
   width: number;
+
+  /** Validated coded/display height in pixels; forwarded without admission. */
   height: number;
+
+  /** Caller-owned rational frames-per-second identity, shared by reference. */
   frameRate: IAutoMovieProductionFrameRate;
 }): IAutoMovieProductionVideoProfile => ({
   width: props.width,

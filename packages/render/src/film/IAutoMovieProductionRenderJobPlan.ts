@@ -60,7 +60,7 @@ export interface IAutoMovieProductionRenderJobPlan {
    */
   chunks: IAutoMovieProductionRenderChunk[];
 
-  /** Non-video tracks that terminal publication writes beside the video. */
+  /** Planned non-video tracks; this value does not publish or execute them. */
   tracks: {
     /** Canonical WebVTT text of the timeline's caption placements. */
     captions: string;

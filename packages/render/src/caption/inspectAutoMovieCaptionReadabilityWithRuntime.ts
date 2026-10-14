@@ -43,11 +43,11 @@ interface IAutoMovieCaptionGraphemeRuntime {
  * @evidence contracts/common.md#clear-and-simple-design Thresholds and identity matching live here, while the runtime binding lives in production's `inspectAutoMovieCaptionReadability`, so the render package stays free of Node globals and a test can inject a fixture runtime through the same seam.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An identity mismatch yields `not-run` instead of substituting the resident runtime, and a cue with an unparseable language gets no profile and no gap rather than a guessed language; no profile or cue is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states why the runtime is injected, every measured quantity and its basis, both `not-run` conditions, how profiles match, and the ordering and duration premises with their failure effect.
- * @evidence contracts/performance.md#efficient-algorithms For C cues of total text length L and P profiles, the cost is O(P) to index profiles plus one segmentation pass over each line, O(L), counting yielded graphemes without materializing them and folding the line total and maximum into that same pass.
+ * @evidence contracts/performance.md#efficient-algorithms For C cues, total text length L, profile/cue language length A and G yielded segmentation items, local work is O(C+L+A+G+P) for P profiles, including language parsing, normalization and streamed counts. The injected runtime owns segmentation cost and termination; an arbitrary iterable can yield unbounded items, so text length alone does not bound work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One call measures one timeline once; the profile index is built per call because profiles arrive with each call and are not known to be equal across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The profile index holds at most P entries and the preceding-end index one number per distinct cue language, both released on return; the returned report, owned by the caller, holds one entry per cue.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local indexes hold at most P profiles and one prior end per distinct cue language; normalized lines and each runtime iterable live during measurement. Returned cue records share the runtime/profile segmentation identity objects and retain one outcome per cue. There is no cue/text quota, segmentation timeout or iterator cancellation; the runtime owns any resources hidden in its iterable.
  */
-export const inspectAutoMovieCaptionReadabilityWithRuntime = (
+export const inspectAutoMovieCaptionReadabilityWithRuntime: (timeline: IAutoMovieFilmTimeline, profiles: readonly IAutoMovieCaptionReadabilityProfile[], runtime: IAutoMovieCaptionGraphemeRuntime) => IAutoMovieCaptionReadabilityReport = (
   timeline: IAutoMovieFilmTimeline,
   profiles: readonly IAutoMovieCaptionReadabilityProfile[],
   runtime: IAutoMovieCaptionGraphemeRuntime,
@@ -114,13 +114,13 @@ export const inspectAutoMovieCaptionReadabilityWithRuntime = (
 };
 
 /** Number of items an iterable yields, without materializing them. */
-const countItems = (items: Iterable<unknown>): number => {
+const countItems: (items: Iterable<unknown>) => number = (items: Iterable<unknown>): number => {
   let count: number = 0;
   for (const _ of items) count += 1;
   return count;
 };
 
-const captionReadabilityOutcome = (
+const captionReadabilityOutcome: (measurement: IAutoMovieCaptionReadabilityMeasurement, profile: IAutoMovieCaptionReadabilityProfile | undefined, actualSegmentation: IAutoMovieCaptionGraphemeSegmentationIdentity) => IAutoMovieCaptionReadabilityOutcome = (
   measurement: IAutoMovieCaptionReadabilityMeasurement,
   profile: IAutoMovieCaptionReadabilityProfile | undefined,
   actualSegmentation: IAutoMovieCaptionGraphemeSegmentationIdentity,
@@ -186,7 +186,7 @@ const captionReadabilityOutcome = (
   };
 };
 
-const sameCaptionGraphemeSegmentationIdentity = (
+const sameCaptionGraphemeSegmentationIdentity: (left: IAutoMovieCaptionGraphemeSegmentationIdentity, right: IAutoMovieCaptionGraphemeSegmentationIdentity) => boolean = (
   left: IAutoMovieCaptionGraphemeSegmentationIdentity,
   right: IAutoMovieCaptionGraphemeSegmentationIdentity,
 ): boolean =>
@@ -199,13 +199,13 @@ const sameCaptionGraphemeSegmentationIdentity = (
       left.locale.requested === right.locale.requested &&
       left.locale.resolved === right.locale.resolved));
 
-const maximumBoundaryPassed = (
+const maximumBoundaryPassed: (value: number, boundary: IAutoMovieCaptionReadabilityBoundary) => boolean = (
   value: number,
   boundary: IAutoMovieCaptionReadabilityBoundary,
 ): boolean =>
   boundary.inclusive ? value <= boundary.value : value < boundary.value;
 
-const minimumBoundaryPassed = (
+const minimumBoundaryPassed: (value: number, boundary: IAutoMovieCaptionReadabilityBoundary) => boolean = (
   value: number,
   boundary: IAutoMovieCaptionReadabilityBoundary,
 ): boolean =>

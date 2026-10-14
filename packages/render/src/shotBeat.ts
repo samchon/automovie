@@ -15,5 +15,5 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A prefix test per frame is cheaper than caching the mapping by shot id.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The beat id is a slice of the shot id handed back to the planner, and nothing is retained.
  */
-export const shotBeat = (shotId: string): string =>
+export const shotBeat: (shotId: string) => string = (shotId: string): string =>
   shotId.startsWith("shot:") ? shotId.slice("shot:".length) : shotId;

@@ -37,7 +37,7 @@ type ICaptionCue = IAutoMovieFilmTimeline["tracks"]["captions"][number];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes one timeline into a fresh string and coordinates no phases or consumers whose work it could share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the sorted copy and the line array are held, both released on return; the output string, owned by the caller, grows linearly with cue count and text length.
  */
-export const canonicalProductionWebVtt = (
+export const canonicalProductionWebVtt: (timeline: IAutoMovieFilmTimeline) => string = (
   timeline: IAutoMovieFilmTimeline,
 ): string => {
   const frameRate: IAutoMovieProductionFrameRate =

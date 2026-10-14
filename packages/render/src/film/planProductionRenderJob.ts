@@ -67,15 +67,27 @@ interface IRange {
  * invalid or a cue's asset is missing or holds another sample count; or a
  * guide pass is unknown or not single. The inputs are not changed.
  *
- * @evidence contracts/common.md#principled-implementation The plan is a pure function of its inputs, so production verifies a stored plan by recomputing it; chunk ids are SHA-256 over canonical JSON of every input that decides a range's pixels, effect currentness is the engine's population proof plus the production owner check, and a cue's source length is mapped to asset samples with the engine's exact rational frame-to-tick rounding.
+ * Current maintained callers are planner tests. This function does not execute a render, authenticate supplied runtime or source digests, or establish stored-plan currentness for an application scheduler.
+ *
+ * @evidence contracts/common.md#principled-implementation Chunk ids hash canonical JSON of the declared edit, effects, tier, formats, range, pass, runtime identity and range source digests. Engine population and production-owner checks admit effect runtimes, and exact rational frame-to-tick rounding checks cue source lengths against asset samples. Supplied identity records remain caller claims; hashing them does not authenticate renderer bytes or prove equal pixels.
  * @evidence contracts/common.md#clear-and-simple-design Admission rules live in their helpers (`normalizeRenderTier`, `normalizeAudioAssets`, `assertSingleGuidePass`, `validDigest`) and the engine (`verifyProductionFilmEffectPopulation`, `sampleProductionRenderFrame`); this function orders them, builds each range once, and joins ranges with deliverables. The range walk repeats `planChunkedSequenceRender`'s arithmetic on purpose, because there the range index orders reassembly and here it is one field of a content-addressed slot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The `pose` default is the interface's documented legacy rule for a guide deliverable without a pass, the protocol and version literals are schema identities, and every refusal throws rather than skipping a deliverable, cue or shot.
  * @evidence contracts/common.md#meaningful-documentation The doc states the tier default and decimation, the range partition and chunk order, which pass each deliverable renders including the legacy default, what a chunk id digests, every refusal with the effect error type, and that inputs are left unchanged.
- * @evidence contracts/performance.md#efficient-algorithms For a timeline of T frames and S segments at step k, F = T / k output frames are sampled once each at O(S) per frame in the engine sampler, ranges and their sorted shot digests are built once and shared by all D moving deliverables, cues find assets through a path map, and each of the D times ceil(F / chunkFrames) chunks costs one canonical digest; the O(F S) sampling is the engine's segment scan and the dominant cost for long edits.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function computes one plan from one call's inputs and keeps nothing between calls; reuse of completed chunk work is keyed by the ids it emits and decided by production's status check.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The asset map, range list and per-chunk identity objects are local and released on return; the returned plan, owned by the caller, holds F frame records shared by the D chunks of each range, D times ceil(F / chunkFrames) chunk records, and copies of the caption, audio and effect tracks, with no handle or task.
+ * @evidence contracts/performance.md#efficient-algorithms For F tier output frames and S ordered segments, engine sampling costs O(F log(S+1)) plus rate reduction per frame. Range construction visits their at-most-two layers, sorts each range's distinct shot ids and shares ranges across D moving deliverables. Audio asset sorting/copying, effect verification/cloning, caption sorting/serialization and each chunk's canonical JSON/hash work depend on their complete populations and byte lengths; large runtime identities are serialized again per chunk.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each range's frame array and sorted source identities are built once and shared across the moving deliverables of this call. There is no cross-call cache or maintained scheduler consuming these ids to reuse completed encodes; any such effect reuse would require a host's currentness and byte checks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources All F samples are allocated even with no moving deliverable, then become collectable if no range retains them. With moving deliverables the result shares F frame records through D times ceil(F/chunkFrames) chunk records and retains copied audio/effect tracks, asset identities and caption text. Input arrays and output populations have no quota here; local indexes and digest strings become collectable after completion or refusal, with no acquired host handle or task.
  */
-export const planProductionRenderJob = (props: {
+export const planProductionRenderJob: (props: {
+  timeline: IAutoMovieFilmTimeline;
+  effects: readonly IAutoMovieCompiledFilmEffect[];
+  production: IAutoMovieProductionDesign;
+  runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
+  sourceFingerprints: Readonly<Record<string, string>>;
+  audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
+  chunkFrames: number;
+  guidePasses?: readonly Exclude<AutoMovieGuidePass, "beauty">[];
+  tier?: IAutoMovieProductionRenderTier;
+}) => IAutoMovieProductionRenderJobPlan = (props: {
   /** The builder-owned film edit. */
   timeline: IAutoMovieFilmTimeline;
 
@@ -290,7 +302,10 @@ export const planProductionRenderJob = (props: {
  * attach the code-unit-sorted source digest of every shot each range shows,
  * throwing for a shot without a valid digest.
  */
-const partition = (
+const partition: (frames: IAutoMovieProductionRenderFrame[], props: {
+  chunkFrames: number;
+  sourceFingerprints: Readonly<Record<string, string>>;
+}) => IRange[] = (
   frames: IAutoMovieProductionRenderFrame[],
   props: {
     chunkFrames: number;

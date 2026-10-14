@@ -16,7 +16,7 @@ import { isAutoMovieWebVttIdentifier } from "./isAutoMovieWebVttIdentifier";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validating one string coordinates no phases and leaves nothing a later call could reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No state, handle or task outlives the call; the returned value is the caller's own string.
  */
-export const serializeAutoMovieWebVttIdentifier = (value: string): string => {
+export const serializeAutoMovieWebVttIdentifier: (value: string) => string = (value: string): string => {
   if (isAutoMovieWebVttIdentifier(value) === false)
     throw new Error(
       "WebVTT header and cue identifiers must be non-empty and must not contain a line break or -->.",

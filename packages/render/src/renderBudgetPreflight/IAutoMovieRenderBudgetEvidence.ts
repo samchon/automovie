@@ -3,7 +3,7 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
 
 
 /**
- * One render job's budget evidence over every shot it draws.
+ * One caller-supplied tier's budget evidence over its supplied shot assessments. The record itself proves neither complete shot coverage nor actual rendering or publication.
  *
  * @evidence contracts/common.md#principled-implementation A versioned tier envelope sorts shot assessments, names declared tiers and orders over, not-run, incomplete and within outcomes, with empty populations reported not-run.
  * @evidence contracts/common.md#clear-and-simple-design The document is the stable publication unit for job-level budget evidence and delegates measurements to its shot assessments.
@@ -58,10 +58,7 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * The worst outcome any shot produced.
    *
-   * `over` beats `not-run`, which beats `incomplete`, which beats `within`. A
-   * job refuses on `over` and reports the other two as what they are, because
-   * an unmeasured cost has not been cleared and saying otherwise is the exact
-   * false capability claim this evidence exists to prevent.
+   * `over` beats `not-run`, which beats `incomplete`, which beats `within`. This aggregate states the supplied outcomes; autoMovieRenderBudgetRefusal returns text for over-limit and required-texture gaps, but no current job consumer automatically enforces it.
    *
    * A document over no shots at all is `not-run`, never `within`: nothing was
    * measured, and a verdict over an empty set is the cheapest way a report ends
@@ -79,7 +76,7 @@ export interface IAutoMovieRenderBudgetEvidence {
   shots: IAutoMovieRenderBudgetAssessment[];
 
   /**
-   * Digest over the protocol, the tier, and every shot's own verdict.
+   * Digest over protocol, tier, declared tiers, aggregate status and ordered shot id/status/report-digest/target-digest tuples; full report and target values are represented only by their supplied digests.
    *
    * @author Samchon
    */

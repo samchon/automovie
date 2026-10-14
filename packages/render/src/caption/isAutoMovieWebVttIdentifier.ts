@@ -18,7 +18,7 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A stateless predicate over one string has no completed work to share across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The predicate retains nothing and opens no handle or task.
  */
-export const isAutoMovieWebVttIdentifier = (value: string): boolean =>
+export const isAutoMovieWebVttIdentifier: (value: string) => boolean = (value: string): boolean =>
   value.length > 0 &&
   /[\r\n]/u.test(value) === false &&
   value.includes("-->") === false;

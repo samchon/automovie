@@ -10,7 +10,7 @@ import type { IAutoMoviePoseKeypoint } from "@automovie/interface";
  * screen and `atmosphere`, when present, as how visible the actor is through
  * the scene's fog.
  *
- * @evidence contracts/common.md#principled-implementation The record keeps the projected keypoints exactly as `resolvePoseKeypoints` returns them, joint order and off-frame flags included, and the transmittance is the engine's `sceneFogTransmittance` at the actor's camera depth, the law the viewer's fog shader applies, so the sidecar and the captured frame describe the same film.
+ * @evidence contracts/common.md#principled-implementation The record keeps resolvePoseKeypoints output including joint order and off-frame flags, plus sceneFogTransmittance at the actor's root camera depth. That binary64 scalar predicts the viewer's fog law; GPU precision, per-joint depth variation, lighting and compositing prevent claiming exact captured-pixel agreement.
  * @evidence contracts/common.md#clear-and-simple-design One record holds node identity, projected joints and an optional root-sampled atmosphere fraction. Per-joint fog is absent, so depth variation across an actor is an approximation rather than a proven negligible visual difference.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts `atmosphere` is omitted rather than written as 1 or null for a scene without fog, so a sidecar of a fogless scene is byte-identical to one written before the field existed, and no consumer is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states who writes the record, which performances produce one and in what order, how a consumer reads each member, and each member states its meaning, range and absence.

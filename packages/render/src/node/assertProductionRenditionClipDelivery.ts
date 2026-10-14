@@ -23,15 +23,24 @@ import { parseProductionRenditionClip } from "./parseProductionRenditionClip";
  * clock, frame count, and runtime contract.`, then any
  * `unsupported-video-profile.<field>` error.
  *
- * @evidence contracts/common.md#principled-implementation The movie runtime is compared by cross-multiplying integer ticks and frame-rate terms as BigInt, so no float division decides it; the declared runtime is compared with one correctly rounded division, which equals the authored decimal exactly when that decimal is a whole number of frames.
+ * @evidence contracts/common.md#principled-implementation Movie runtime equality uses BigInt cross products of integer clock and frame-rate terms. Declared runtime instead must equal the binary64 frameCount*denominator/numerator expression, whose multiplication and division can round; equality proves consistency with that expression rather than exact mathematical representability of an arbitrary decimal duration.
  * @evidence contracts/common.md#clear-and-simple-design Splice admissibility is `parseProductionRenditionClip`, the container profile is `assertProductionVideoProfile`, and this function adds only the shot's own contract, judged before the generic profile so a drift is attributed to the named shot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is rounded, rescaled or tolerated; a clip that misses any field is refused, and no shot or adapter is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states each requirement, how the frame rate is resolved, the exact runtime comparison and its consequence for fractional-frame shots, and the refusals in the order they are raised.
- * @evidence contracts/performance.md#efficient-algorithms Cost is the clip parser's one parse and its pass over the S samples, plus constant-time comparisons here, so time is linear in the clip's bytes and samples.
+ * @evidence contracts/performance.md#efficient-algorithms The clip parser performs one parse plus its O(M + S log(M+1)) residency proof for S samples and M media boxes, sample-entry checks and composition-slot validation. This assertion adds fixed runtime/raster comparisons, rate reduction and profile checks over the probe's brand/edit populations; the complete operation is not strictly linear in clip bytes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one clip for one admission or revalidation and returns nothing to share; the production callers probe the same bytes separately because they need the probe record, which this assertion does not return.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed clip and its sample table are released on return, and the function opens no handle or task.
  */
-export const assertProductionRenditionClipDelivery = (props: {
+export const assertProductionRenditionClipDelivery: (props: {
+  bytes: Uint8Array;
+  shot: string;
+  width: number;
+  height: number;
+  fps: number;
+  frameRate?: IAutoMovieProductionFrameRate;
+  frameCount: number;
+  runtimeSeconds: number;
+}) => void = (props: {
   /** Repaint clip MP4 bytes as the adapter delivered them. */
   bytes: Uint8Array;
 

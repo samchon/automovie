@@ -25,7 +25,7 @@ type IOrderedEntry = AutoMovieOrderedScalar | readonly AutoMovieOrderedScalar[];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure comparison of two small arrays coordinates no phases or requests whose work could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function keeps no reference to its arguments after returning a boolean and opens no handle or task.
  */
-export const equalOrderedScalars = (
+export const equalOrderedScalars: (left: readonly IOrderedEntry[], right: readonly IOrderedEntry[]) => boolean = (
   left: readonly IOrderedEntry[],
   right: readonly IOrderedEntry[],
 ): boolean => {

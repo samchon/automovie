@@ -5,10 +5,10 @@
  * The index is zero-padded to `pad` digits and grows wider past
  * `10^pad - 1`, exactly as `framePattern`'s `%0<pad>d` prints it, so ffmpeg
  * reads every name this function writes. `index` must be a non-negative
- * integer and `ext` an extension without the dot; the guide passes add their
+ * safe integer and `ext` an extension without the dot; these premises are not checked here. The guide passes add their
  * pass tag to `ext`.
  *
- * @evidence contracts/common.md#principled-implementation `padStart` on the decimal index yields the same text as C's `%0Nd` for every non-negative integer, which is the format ffmpeg's image-sequence demuxer matches; a negative index would place the sign after the padding and is outside the contract.
+ * @evidence contracts/common.md#principled-implementation For a non-negative safe-integer index, String produces ordinary decimal digits and padStart applies the requested minimum width, matching the numbered-sequence spelling. Negative, fractional or excessively large indices are unchecked misuse; JavaScript can use exponential notation for large numbers, which would not match ffmpeg's integer pattern.
  * @evidence contracts/common.md#clear-and-simple-design The beauty frames use the defaults and `guidePassFrameName` passes its tagged extension and pad, so every capture names its files through this one function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No index, extension or pad is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc gives an example, the padding rule past the pad width, the match with `framePattern`, and the domain of `index` and `ext`.

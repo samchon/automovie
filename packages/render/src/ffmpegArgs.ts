@@ -32,7 +32,7 @@ import type { IAutoMovieRenderSpec } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns an array of strings and starts no process; the caller owns the ffmpeg process it may start.
  * @author Samchon
  */
-export const ffmpegArgs = (
+export const ffmpegArgs: (spec: IAutoMovieRenderSpec, inputPattern: string, outputPath: string) => string[] = (
   spec: IAutoMovieRenderSpec,
   inputPattern: string,
   outputPath: string,

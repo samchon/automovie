@@ -50,7 +50,7 @@ const WINDOWS_RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a new string and retains nothing; the device-name set is a fixed module constant.
  * @author Samchon
  */
-export const renderPathStem = (target: string): string => {
+export const renderPathStem: (target: string) => string = (target: string): string => {
   const cleaned: string = target
     .replace(/[^A-Za-z0-9_.-]+/g, "_")
     .replace(/\.+$/, "");

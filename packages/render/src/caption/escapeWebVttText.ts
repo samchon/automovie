@@ -14,7 +14,7 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-string escape coordinates no phases, so there is no completed work to share between its callers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a new string and keeps no state, handle or task.
  */
-export const escapeWebVttText = (value: string): string =>
+export const escapeWebVttText: (value: string) => string = (value: string): string =>
   value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")

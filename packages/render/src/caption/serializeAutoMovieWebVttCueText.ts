@@ -17,7 +17,7 @@ import { escapeWebVttText } from "./escapeWebVttText";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-caption serialization shares no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The intermediate line array is released on return, and the function keeps no state, handle or task.
  */
-export const serializeAutoMovieWebVttCueText = (value: string): string =>
+export const serializeAutoMovieWebVttCueText: (value: string) => string = (value: string): string =>
   canonicalizeAutoMovieCaptionText(value)
     .split("\n")
     .map((line: string): string =>

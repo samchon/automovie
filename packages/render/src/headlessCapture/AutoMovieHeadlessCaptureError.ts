@@ -1,13 +1,11 @@
 import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptureErrorCode";
 
 /**
- * Error thrown by `createHeadlessCaptureAdapter` and its `captureFrame` for
- * every failure the adapter detects or receives from the page.
+ * Error thrown by createHeadlessCaptureAdapter and captureFrame for their classified navigation, hook, style, screenshot, pass-list and empty-frame failures.
  *
  * `code` names the failed step, `message` names the route, hook, selector,
  * pass or time involved, and `source` keeps the page's original error when the
- * failure came from a page call. A failure inside the caller's `writeFrame` is
- * not wrapped and propagates as the caller threw it.
+ * failure came from a guarded page call. Locator construction, caller writeFrame and session close failures propagate unwrapped.
  *
  * @evidence contracts/common.md#principled-implementation A subclass of the built-in `Error` keeps the stack and `instanceof` checks while adding a typed code, and the original page error is kept as data so wrapping loses nothing a caller could inspect.
  * @evidence contracts/common.md#clear-and-simple-design The class adds only the two fields a caller needs, a category to branch on and the wrapped cause, and sets `name` so logs identify the adapter as the thrower.

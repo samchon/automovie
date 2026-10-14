@@ -20,10 +20,7 @@ import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptu
  * pass)>`. It returns the beauty path, or the first pass's path for a
  * guides-only list.
  *
- * Every page failure and every refused input throws
- * `AutoMovieHeadlessCaptureError` with the step's code; `writeFrame` failures
- * propagate unwrapped. If creation throws, the page stays open and remains the
- * caller's; once the session is returned, the session owns it.
+ * Guarded navigation, hook, style and screenshot failures and refused pass/empty-byte inputs throw AutoMovieHeadlessCaptureError with a step code. Synchronous locator construction, writeFrame and close failures propagate unwrapped. If creation throws, the page remains the caller's; once the session returns it owns the page. Capture calls must not overlap and the caller must close after success or failure.
  *
  * @evidence contracts/common.md#principled-implementation Determinism comes from the viewer's own seek hook: the route is loaded once with its clock handed to the capturer, every frame is placed by an explicit time rather than wall-clock playback, and pass names go through `normalizeGuidePasses`, the same normalization the render planners use, so file names agree with the plans; the remaining premise is that the page hooks render synchronously, which the reference viewers' hooks do.
  * @evidence contracts/common.md#clear-and-simple-design Creation does every once-per-session step and the returned closure does only per-frame work, while page error classification sits in one local `guardCapture` helper and file naming stays with `guidePassFrameName`.
@@ -31,10 +28,10 @@ import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptu
  * @evidence contracts/common.md#meaningful-documentation The doc gives the creation steps, the per-frame steps and their order, the written paths, the returned path, the error classification including unwrapped `writeFrame` failures, and page ownership on success and failure.
  * @evidence contracts/performance.md#efficient-algorithms Creation costs one navigation, at most two hook waits and one style injection; each frame costs one seek plus, for P distinct passes, at most P pass switches, P screenshots and P writes, which is the minimum because every pass is a distinct picture; folding repeats keeps P from counting a pass twice.
  * @evidence contracts/performance.md#reuse-equivalent-work The loaded route, the hook checks, the injected style and the locator are produced once and shared by every frame, and the single seek per frame is shared by all of its passes; screenshots are never shared because each frame and pass is a different picture.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The session retains the page handle, the options and the folded pass list until the caller calls `close`, which releases the page; a frame holds at most one PNG at a time, dropped after its `writeFrame` resolves.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The session closures retain options, page and folded passes for as long as the session is held; close delegates page-resource release but does not clear those JavaScript references. Under the required non-overlapping captures, at most one screenshot buffer is in flight, becoming collectable after its awaited write; the writer may independently retain bytes or files. This adapter adds no timeout, cancellation or automatic failure teardown.
  * @author Samchon
  */
-export const createHeadlessCaptureAdapter = async (
+export const createHeadlessCaptureAdapter: (options: IAutoMovieHeadlessCaptureOptions) => Promise<IAutoMovieHeadlessCaptureSession> = async (
   options: IAutoMovieHeadlessCaptureOptions,
 ): Promise<IAutoMovieHeadlessCaptureSession> => {
   const seekFunction: string = options.seekFunction ?? "__afSeek";
@@ -135,7 +132,7 @@ export const createHeadlessCaptureAdapter = async (
 };
 
 /** Fold repeated passes and refuse an empty or unknown list as `pass-hook`. */
-const foldPasses = (
+const foldPasses: (requested: readonly AutoMovieGuidePass[]) => readonly AutoMovieGuidePass[] = (
   requested: readonly AutoMovieGuidePass[],
 ): readonly AutoMovieGuidePass[] => {
   let passes: AutoMovieGuidePass[];
@@ -160,7 +157,7 @@ const foldPasses = (
  * Page-side check that a global of the given name is a function. It reads
  * only its argument because the host serializes it into the page.
  */
-const isPageFunction = (name: string): boolean =>
+const isPageFunction: (name: string) => boolean = (name: string): boolean =>
   typeof (globalThis as unknown as Record<string, unknown>)[name] ===
   "function";
 
@@ -168,14 +165,14 @@ const isPageFunction = (name: string): boolean =>
  * Page-side call of the global `name` with `value`. It reads only its argument
  * because the host serializes it into the page.
  */
-const callPageFunction = (arg: { name: string; value: unknown }): void => {
+const callPageFunction: (arg: { name: string; value: unknown }) => void = (arg: { name: string; value: unknown }): void => {
   (globalThis as unknown as Record<string, (value: unknown) => void>)[
     arg.name
   ]!(arg.value);
 };
 
 /** Run one page call, rethrowing any failure as a capture error with `code`. */
-const guardCapture = async <T>(
+const guardCapture: <T>(code: AutoMovieHeadlessCaptureErrorCode, message: string, task: () => Promise<T>) => Promise<T> = async <T>(
   code: AutoMovieHeadlessCaptureErrorCode,
   message: string,
   task: () => Promise<T>,

@@ -2,7 +2,7 @@ import { IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarg
 
 
 /**
- * One shot's measured cost, checked against the budget the job targets.
+ * One caller-supplied shot's measured inventory and explicit budget assessment, without proving an actual draw or automatic render-job gate.
  *
  * @evidence contracts/common.md#principled-implementation A shot assessment distinguishes not-run from a report's incomplete status and uses nullable inventory, mask and target fields when no renderer was identified.
  * @evidence contracts/common.md#clear-and-simple-design This record keeps measurement, attribution and sealed target together for one compiled shot's budget decision.
@@ -25,7 +25,7 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The verdict, including the two that are not a pass.
    *
-   * `not-run` is this record's own: the report's `incomplete` says an analysis had no input, and `not-run` says no report exists at all because the job never learned what it draws with.
+   * `not-run` is this record's own: no report exists because no renderer identity was supplied. A report's `incomplete` retains its measured findings while one or more analyses have unresolved inputs or bounds; neither state is clearance.
    *
    * @author Samchon
    */

@@ -13,10 +13,10 @@ import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage";
  * @evidence contracts/common.md#clear-and-simple-design The function is a projection of `parseAutoMovieCaptionLanguage` for callers that need only identity, so the grammar and the case fold each live in the parser once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It consults no registry, applies no Preferred-Value and special-cases no tag; a malformed tag returns null rather than a best-effort key.
  * @evidence contracts/common.md#meaningful-documentation The doc states the comparison rule the key implements, gives a concrete equivalence, and says what a null key means to the readability consumer.
- * @evidence contracts/performance.md#efficient-algorithms Cost is one parse, linear in the tag's length, which a handful of characters bounds; nothing beyond the parser's own subtag array is allocated.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is one parse linear in tag length, including its folded string, subtag array and variant/singleton sets. The grammar bounds each subtag's length but this boundary imposes no total tag-length quota.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-tag projection coordinates no phases; the inspector calls it once per profile and once per cue, and a cache would cost more than reparsing a short tag.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing after returning a string, and it opens no handle or task.
  */
-export const autoMovieCaptionLanguageComparisonKey = (
+export const autoMovieCaptionLanguageComparisonKey: (value: string) => string | null = (
   value: string,
 ): string | null => parseAutoMovieCaptionLanguage(value)?.comparisonKey ?? null;
