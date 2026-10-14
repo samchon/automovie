@@ -10,6 +10,13 @@ import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacem
  * @evidence contracts/testing.md#distinguishing-cases Preserves the two original heading twins and fixed seed/layout without adding sample populations or an alternate scatter implementation.
  * @evidence contracts/testing.md#execution-ownership Each call returns the same fresh placement law the former local closure returned, opens no file/renderer/browser/GPU and retains no generated members.
  */
-export function instanceSlotTestScatter(facingDeg: number): IAutoMovieInstanceSetPlacement {
-  return placement({ count: 64, facingDeg, anchor: { x: 3, y: 0, z: 4 }, layout: { kind: "scatter", radius: 5 } });
+export function instanceSlotTestScatter(
+  facingDeg: number,
+): IAutoMovieInstanceSetPlacement {
+  return placement({
+    count: 64,
+    facingDeg,
+    anchor: { x: 3, y: 0, z: 4 },
+    layout: { kind: "scatter", radius: 5 },
+  });
 }

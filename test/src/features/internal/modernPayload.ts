@@ -1,4 +1,5 @@
 import type { ModernPayload } from "@automovie/website/modern-scene";
+
 import { modernItem } from "./modernItem";
 
 /** Supplies fixed transport camera, lighting and triangle facts for CPU website adaptation. Its memory digest is a fixture identifier and provides no source-byte provenance or native visual certification. */

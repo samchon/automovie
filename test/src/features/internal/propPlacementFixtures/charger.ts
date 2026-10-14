@@ -1,6 +1,7 @@
 import type { IAutoMoviePropSpec } from "@automovie/interface";
-import { inSpace } from "./inSpace";
+
 import { boxProp } from "./boxProp";
+import { inSpace } from "./inSpace";
 
 /**
  * Plugged into the table's `socket`.
@@ -10,17 +11,23 @@ import { boxProp } from "./boxProp";
  * Cases: Preserves socket attachment and its original null footprint/empty clearances, with wrong affordance and occupancy/contact neighbors owned by the existing entries.
  * Execution: The existing owning entries call charger during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export function charger(): IAutoMoviePropSpec { return ({
-  ...boxProp("charger"),
-  placement: {
-    relations: [
-      inSpace("room"),
-      {
-        kind: "attached",
-        target: { kind: "prop-affordance", prop: "table", affordance: "plug" },
-      },
-    ],
-    footprint: null,
-    clearance: [],
-  },
-}); }
+export function charger(): IAutoMoviePropSpec {
+  return {
+    ...boxProp("charger"),
+    placement: {
+      relations: [
+        inSpace("room"),
+        {
+          kind: "attached",
+          target: {
+            kind: "prop-affordance",
+            prop: "table",
+            affordance: "plug",
+          },
+        },
+      ],
+      footprint: null,
+      clearance: [],
+    },
+  };
+}

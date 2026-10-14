@@ -11,7 +11,9 @@ import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacem
  * @evidence contracts/testing.md#distinguishing-cases Keeps default, changed-heading, jittered and missing/renamed/degenerate route twins with overrides applied last.
  * @evidence contracts/testing.md#execution-ownership Returns fresh placement/layout/anchor records while borrowing the same road singleton; it opens no file, renderer, browser or GPU and replaces no foreign method.
  */
-export function instanceSlotTestOnRoad(overrides: Partial<IAutoMovieInstanceSetPlacement> = {}): IAutoMovieInstanceSetPlacement {
+export function instanceSlotTestOnRoad(
+  overrides: Partial<IAutoMovieInstanceSetPlacement> = {},
+): IAutoMovieInstanceSetPlacement {
   return placement({
     count: 4,
     layout: { kind: "along-route", route: "road", lateralJitter: 0 },

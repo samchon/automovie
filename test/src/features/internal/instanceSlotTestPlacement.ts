@@ -8,7 +8,9 @@ import type { IAutoMovieInstanceSetPlacement } from "@automovie/engine";
  * @evidence contracts/testing.md#distinguishing-cases Keeps original grid and override-based lattice/scatter/explicit/route and invalid-value twins without selecting cases or deriving their oracle.
  * @evidence contracts/testing.md#execution-ownership Returns a fresh caller-owned placement with the original shallow override semantics; it opens no filesystem, renderer, browser or GPU and replaces no foreign method.
  */
-export function instanceSlotTestPlacement(overrides: Partial<IAutoMovieInstanceSetPlacement> = {}): IAutoMovieInstanceSetPlacement {
+export function instanceSlotTestPlacement(
+  overrides: Partial<IAutoMovieInstanceSetPlacement> = {},
+): IAutoMovieInstanceSetPlacement {
   return {
     id: "trees",
     count: 6,

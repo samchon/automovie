@@ -6,7 +6,7 @@ import { IAutoMovieExpression } from "@automovie/interface";
 export function makeExpression(
   preset: IAutoMovieExpression["preset"],
   intensity: number,
-  blendshapes: IAutoMovieExpression["blendshapes"] = null
+  blendshapes: IAutoMovieExpression["blendshapes"] = null,
 ): IAutoMovieExpression {
-  return ({ preset, intensity, blendshapes });
+  return { preset, intensity, blendshapes };
 }

@@ -1,9 +1,10 @@
-
-
 /**
  * Encode specification-framed JSON/BIN chunks with independent little-endian header fields.
  */
-export const glb: (document: unknown, bin: Buffer | null) => Buffer = (document: unknown, bin: Buffer | null): Buffer => {
+export const glb: (document: unknown, bin: Buffer | null) => Buffer = (
+  document: unknown,
+  bin: Buffer | null,
+): Buffer => {
   const source: Buffer = Buffer.from(JSON.stringify(document), "utf8");
   const jsonPadding: number = (4 - (source.length % 4)) % 4;
   const json: Buffer = Buffer.concat([source, Buffer.alloc(jsonPadding, 0x20)]);

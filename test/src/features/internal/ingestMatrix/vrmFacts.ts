@@ -1,44 +1,52 @@
-import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
-import { glb } from "./glb";
-import { humanoidResolver } from "./humanoidResolver";
-import { humanoidDocument } from "./humanoidDocument";
+
 import { throwsError } from "../predicates";
+import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
+import { glb } from "./glb";
+import { humanoidDocument } from "./humanoidDocument";
+import { humanoidResolver } from "./humanoidResolver";
 import { set } from "./set";
 
 /**
  * Register VRM 0.x/1.0 valid mappings, malformed metadata and thumb-name migration cases.
  */
-export const vrmFacts: () => [string, () => boolean][] = (): [string, () => boolean][] => {
-  const inspectVrm: (document: ExternalModelMatrixObject) => unknown = (document: ExternalModelMatrixObject): unknown =>
+export const vrmFacts: () => [string, () => boolean][] = (): [
+  string,
+  () => boolean,
+][] => {
+  const inspectVrm: (document: ExternalModelMatrixObject) => unknown = (
+    document: ExternalModelMatrixObject,
+  ): unknown =>
     inspectAutoMovieExternalModelBytes({
       path: "public/models/human.vrm",
       bytes: glb(document, null),
       profile: "vrm-humanoid-v1",
       resolveResource: humanoidResolver,
     });
-  const vrm1: () => ExternalModelMatrixObject = (): ExternalModelMatrixObject => {
-    const document: ExternalModelMatrixObject = humanoidDocument();
-    document.extensions = {
-      VRMC_vrm: { humanoid: { humanBones: { hips: { node: 1 } } } },
+  const vrm1: () => ExternalModelMatrixObject =
+    (): ExternalModelMatrixObject => {
+      const document: ExternalModelMatrixObject = humanoidDocument();
+      document.extensions = {
+        VRMC_vrm: { humanoid: { humanBones: { hips: { node: 1 } } } },
+      };
+      return document;
     };
-    return document;
-  };
-  const vrm0: () => ExternalModelMatrixObject = (): ExternalModelMatrixObject => {
-    const document: ExternalModelMatrixObject = humanoidDocument();
-    document.extensions = {
-      VRM: { humanoid: { humanBones: [{ bone: "hips", node: 1 }] } },
+  const vrm0: () => ExternalModelMatrixObject =
+    (): ExternalModelMatrixObject => {
+      const document: ExternalModelMatrixObject = humanoidDocument();
+      document.extensions = {
+        VRM: { humanoid: { humanBones: [{ bone: "hips", node: 1 }] } },
+      };
+      return document;
     };
-    return document;
-  };
   return [
-    ["vrmOne", () : boolean => Boolean(inspectVrm(vrm1()))],
-    ["vrmZero", () : boolean => Boolean(inspectVrm(vrm0()))],
+    ["vrmOne", (): boolean => Boolean(inspectVrm(vrm1()))],
+    ["vrmZero", (): boolean => Boolean(inspectVrm(vrm0()))],
     [
       "vrmOneUnknownBone",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm1(),
@@ -51,9 +59,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmOneBoneMustBeObject",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm1(),
@@ -66,9 +74,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmOneNodeMustResolve",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm1(),
@@ -92,9 +100,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
       ["vrmOneNodeMustBeNonnegative", -1],
     ].map(([name, node]: unknown[]): [string, () => boolean] => [
       name as string,
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm1(),
@@ -114,9 +122,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ]),
     [
       "vrmZeroBoneMustBeString",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm0(),
@@ -129,9 +137,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmZeroBoneMustBeKnown",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm0(),
@@ -144,9 +152,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmZeroNodeMustResolve",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm0(),
@@ -159,9 +167,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmZeroBoneMustBeUnique",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown =>
+          (): unknown =>
             inspectVrm(
               set(
                 vrm0(),
@@ -177,7 +185,7 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmZeroThumbNamesMigrateToVrmOne",
-      () : boolean => {
+      (): boolean => {
         const document: ExternalModelMatrixObject = vrm0();
         document.nodes = [
           { mesh: 0, skin: 0 },
@@ -203,7 +211,15 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
         };
         return (
           JSON.stringify(
-            inspected.humanoidBones.map(({ bone, node }: { bone: string; node: number }) : [string, number] => [bone, node]),
+            inspected.humanoidBones.map(
+              ({
+                bone,
+                node,
+              }: {
+                bone: string;
+                node: number;
+              }): [string, number] => [bone, node],
+            ),
           ) ===
           JSON.stringify([
             ["hips", 1],
@@ -216,9 +232,9 @@ export const vrmFacts: () => [string, () => boolean][] = (): [string, () => bool
     ],
     [
       "vrmMetadataIsRequired",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : unknown => inspectVrm(humanoidDocument()),
+          (): unknown => inspectVrm(humanoidDocument()),
           "requires a GLB/VRM container with VRM",
         ),
     ],

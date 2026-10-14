@@ -1,17 +1,21 @@
-import { rejects } from "./rejects";
+import {
+  type IAutoMovieExternalModelInspection,
+  inspectAutoMovieExternalModelBytes,
+} from "@automovie/ingest";
+
+import { throwsError } from "../predicates";
+import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
+import { acceptsHumanoid } from "./acceptsHumanoid";
+import { aliasHumanoid } from "./aliasHumanoid";
+import { baseDocument } from "./baseDocument";
+import { floatWeightHumanoid } from "./floatWeightHumanoid";
 import { humanoidChanged } from "./humanoidChanged";
 import { humanoidShapeFailures } from "./humanoidShapeFailures";
-import { rejectsHumanoidPayload } from "./rejectsHumanoidPayload";
-import { acceptsHumanoid } from "./acceptsHumanoid";
-import { unsignedShortHumanoid } from "./unsignedShortHumanoid";
-import { floatWeightHumanoid } from "./floatWeightHumanoid";
-import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
 import { normalizedFloatWeightHumanoid } from "./normalizedFloatWeightHumanoid";
 import { offsetHumanoid } from "./offsetHumanoid";
-import { aliasHumanoid } from "./aliasHumanoid";
-import { throwsError } from "../predicates";
-import { type IAutoMovieExternalModelInspection, inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
-import { baseDocument } from "./baseDocument";
+import { rejects } from "./rejects";
+import { rejectsHumanoidPayload } from "./rejectsHumanoidPayload";
+import { unsignedShortHumanoid } from "./unsignedShortHumanoid";
 import { vrmFacts } from "./vrmFacts";
 
 /**
@@ -19,36 +23,36 @@ import { vrmFacts } from "./vrmFacts";
  */
 export function externalModelValidationFacts3(): [string, () => boolean][] {
   return [
-[
+    [
       "humanoidNeedsHips",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(["nodes", 1, "name"], "Spine"),
           "requires a skin and a normalized hips",
           "gltf-humanoid-v1",
         ),
     ],
-[
+    [
       "skinBindingNeedsMesh",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(["nodes", 0, "mesh"], undefined),
           "binds a skin without a render mesh",
           "gltf-humanoid-v1",
         ),
     ],
-[
+    [
       "humanoidNeedsBoundPrimitive",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(["nodes", 0, "skin"], undefined),
           "complete skin binding",
           "gltf-humanoid-v1",
         ),
     ],
-[
+    [
       "humanoidNeedsJointAttribute",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(
             ["meshes", 0, "primitives", 0, "attributes", "JOINTS_0"],
@@ -58,9 +62,9 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
           "gltf-humanoid-v1",
         ),
     ],
-[
+    [
       "humanoidNeedsWeightAttribute",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(
             ["meshes", 0, "primitives", 0, "attributes", "WEIGHTS_0"],
@@ -70,25 +74,25 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
           "gltf-humanoid-v1",
         ),
     ],
-...humanoidShapeFailures(),
-[
+    ...humanoidShapeFailures(),
+    [
       "humanoidJointMustStayInsideSkin",
-      () : boolean =>
-        rejectsHumanoidPayload((payload: Buffer) : void => {
+      (): boolean =>
+        rejectsHumanoidPayload((payload: Buffer): void => {
           payload[36] = 1;
         }, "cites joint 1 outside skin"),
     ],
-[
+    [
       "humanoidNeedsPositiveWeight",
-      () : boolean =>
+      (): boolean =>
         rejectsHumanoidPayload(
-          (payload: Buffer) : Buffer => payload.fill(0, 48, 60),
+          (payload: Buffer): Buffer => payload.fill(0, 48, 60),
           "has no positive skin weight",
         ),
     ],
-[
+    [
       "skinAccessorCannotBeSparse",
-      () : boolean =>
+      (): boolean =>
         rejects(
           humanoidChanged(["accessors", 1, "sparse"], {
             count: 1,
@@ -99,13 +103,21 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
           "gltf-humanoid-v1",
         ),
     ],
-["humanoidU16Accessors", () : boolean => acceptsHumanoid(unsignedShortHumanoid())],
-["humanoidFloatWeights", () : boolean => acceptsHumanoid(floatWeightHumanoid())],
-[
+    [
+      "humanoidU16Accessors",
+      (): boolean => acceptsHumanoid(unsignedShortHumanoid()),
+    ],
+    [
+      "humanoidFloatWeights",
+      (): boolean => acceptsHumanoid(floatWeightHumanoid()),
+    ],
+    [
       "humanoidNegativeFloatWeightCannotBeCancelled",
       (): boolean => {
-        const fixture: { document: ExternalModelMatrixObject; payload: Buffer } =
-          floatWeightHumanoid();
+        const fixture: {
+          document: ExternalModelMatrixObject;
+          payload: Buffer;
+        } = floatWeightHumanoid();
         // The sum is exactly one; it cannot certify each component's sign.
         fixture.payload.writeFloatLE(-0.25, 48);
         fixture.payload.writeFloatLE(1.25, 52);
@@ -118,17 +130,23 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
         );
       },
     ],
-[
+    [
       "humanoidNormalizedFloatWeights",
-      () : boolean => acceptsHumanoid(normalizedFloatWeightHumanoid()),
+      (): boolean => acceptsHumanoid(normalizedFloatWeightHumanoid()),
     ],
-["humanoidOffsetDefaults", () : boolean => acceptsHumanoid(offsetHumanoid())],
-["humanoidIgnoresUnmappedAliases", () : boolean => acceptsHumanoid(aliasHumanoid())],
-[
+    [
+      "humanoidOffsetDefaults",
+      (): boolean => acceptsHumanoid(offsetHumanoid()),
+    ],
+    [
+      "humanoidIgnoresUnmappedAliases",
+      (): boolean => acceptsHumanoid(aliasHumanoid()),
+    ],
+    [
       "pathWithoutExtension",
-      () : boolean =>
+      (): boolean =>
         throwsError(
-          () : IAutoMovieExternalModelInspection =>
+          (): IAutoMovieExternalModelInspection =>
             inspectAutoMovieExternalModelBytes({
               path: "public/models/matrix",
               bytes: Buffer.from(JSON.stringify(baseDocument()), "utf8"),
@@ -137,6 +155,6 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
           "must end in .gltf, .glb, or .vrm",
         ),
     ],
-...vrmFacts()
+    ...vrmFacts(),
   ];
 }

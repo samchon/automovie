@@ -1,4 +1,5 @@
 import { type Box, type BoxKind, type Sample, createFile } from "mp4box";
+
 import { parseProductionMp4 } from "./parseProductionMp4";
 
 /** Reserialize a parsed input through the public MP4Box writer with explicitly authored header or child-box changes. Samples retain their source bytes. */

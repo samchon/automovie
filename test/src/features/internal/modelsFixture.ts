@@ -1,6 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
-import { material } from "./material";
+
 import { boxModel } from "./boxModel";
+import { material } from "./material";
 
 /**
  * Five one-box numerical models resolving the tower, prop and window references.

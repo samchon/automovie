@@ -12,7 +12,8 @@ export const normalizedFloatWeightHumanoid: () => {
   document: ExternalModelMatrixObject;
   payload: Buffer;
 } => {
-  const fixture: { document: ExternalModelMatrixObject; payload: Buffer } = floatWeightHumanoid();
+  const fixture: { document: ExternalModelMatrixObject; payload: Buffer } =
+    floatWeightHumanoid();
   set(fixture.document, ["accessors", 2, "normalized"], true);
   return fixture;
 };

@@ -5,7 +5,10 @@ import { set } from "./set";
 /**
  * Encode full unsigned-short skin weights and their independently computed view extents.
  */
-export const unsignedShortHumanoid: () => { document: ExternalModelMatrixObject; payload: Buffer } = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
+export const unsignedShortHumanoid: () => {
+  document: ExternalModelMatrixObject;
+  payload: Buffer;
+} = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
   const document: ExternalModelMatrixObject = humanoidDocument();
   document.buffers = [{ byteLength: 84, uri: "human.bin" }];
   document.bufferViews = [

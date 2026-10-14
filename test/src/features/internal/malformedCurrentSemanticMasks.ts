@@ -1,9 +1,18 @@
-import { IAutoMovieSemanticMaskEntry, IAutoMovieSemanticMaskSlot, IAutoMovieSemanticMaskGap, IAutoMovieSemanticMask } from "@automovie/interface";
+import {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSemanticMaskGap,
+  IAutoMovieSemanticMaskSlot,
+} from "@automovie/interface";
+
+import { renameSemanticMaskKey } from "./renameSemanticMaskKey";
 import { renderSemanticMaskPayload } from "./renderSemanticMaskPayload";
 import { sealSemanticMaskUnchecked } from "./sealSemanticMaskUnchecked";
-import { renameSemanticMaskKey } from "./renameSemanticMaskKey";
+
 /** Return the original eight unknown or missing v2 key cases at mask, entry, slot and gap boundaries with their original addressed refusal substrings and production-projected digests. */
-export const malformedCurrentSemanticMasks: (mask: IAutoMovieSemanticMask) => readonly (readonly [string, IAutoMovieSemanticMask, string])[] = (
+export const malformedCurrentSemanticMasks: (
+  mask: IAutoMovieSemanticMask,
+) => readonly (readonly [string, IAutoMovieSemanticMask, string])[] = (
   mask: IAutoMovieSemanticMask,
 ): ReadonlyArray<readonly [string, IAutoMovieSemanticMask, string]> => {
   const entry: IAutoMovieSemanticMaskEntry = mask.entries[1]!;
@@ -12,12 +21,21 @@ export const malformedCurrentSemanticMasks: (mask: IAutoMovieSemanticMask) => re
   return [
     [
       "unknown root field",
-      sealSemanticMaskUnchecked({ ...renderSemanticMaskPayload(mask), future: true }),
+      sealSemanticMaskUnchecked({
+        ...renderSemanticMaskPayload(mask),
+        future: true,
+      }),
       "mask keys",
     ],
     [
       "missing root field",
-      sealSemanticMaskUnchecked(renameSemanticMaskKey(renderSemanticMaskPayload(mask), "background", "backdrop")),
+      sealSemanticMaskUnchecked(
+        renameSemanticMaskKey(
+          renderSemanticMaskPayload(mask),
+          "background",
+          "backdrop",
+        ),
+      ),
       "mask keys",
     ],
     [
@@ -32,7 +50,10 @@ export const malformedCurrentSemanticMasks: (mask: IAutoMovieSemanticMask) => re
       "missing entry field",
       sealSemanticMaskUnchecked({
         ...renderSemanticMaskPayload(mask),
-        entries: [renameSemanticMaskKey(mask.entries[0]!, "owner", "parent"), entry],
+        entries: [
+          renameSemanticMaskKey(mask.entries[0]!, "owner", "parent"),
+          entry,
+        ],
       }),
       "entry 0 keys",
     ],

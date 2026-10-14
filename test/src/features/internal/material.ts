@@ -8,7 +8,10 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
  * @evidence contracts/testing.md#distinguishing-cases Undefined texture becomes null while a supplied string is retained unchanged, including malformed values for callers' refusal cases; admission belongs to the tested consumer.
  * @evidence contracts/testing.md#execution-ownership Returns a fresh in-memory numerical record for existing test entries with no Three, file, worker or GPU allocation and no dynamic cases.
  */
-export const material: (id: string, texture?: string) => IAutoMovieMaterial = (id: string, texture?: string): IAutoMovieMaterial => ({
+export const material: (id: string, texture?: string) => IAutoMovieMaterial = (
+  id: string,
+  texture?: string,
+): IAutoMovieMaterial => ({
   id,
   name: null,
   baseColor: { r: 0.5, g: 0.5, b: 0.5, a: 1, hex: null },

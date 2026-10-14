@@ -8,7 +8,12 @@ import type { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
  * @evidence contracts/testing.md#distinguishing-cases The caller selects id, count, chunks and an optional model; omission selects window-model. Values retain the original unvalidated arithmetic, including partial/empty or malformed requests, and all chunk bounds share one local object.
  * @evidence contracts/testing.md#execution-ownership Portable numerical input for existing discovered units, with no model build, GPU allocation, host, worker or dynamic case registration.
  */
-export const instanceSetFixture: (props: { id: string; count: number; chunks: number; model?: string; }) => IAutoMovieCompiledInstanceSet = (props: {
+export const instanceSetFixture: (props: {
+  id: string;
+  count: number;
+  chunks: number;
+  model?: string;
+}) => IAutoMovieCompiledInstanceSet = (props: {
   id: string;
   count: number;
   chunks: number;
@@ -38,13 +43,19 @@ export const instanceSetFixture: (props: { id: string; count: number; chunks: nu
     bounds,
     centroid: { x: 0.5, y: 0.5, z: 0.5 },
     projectionRadius: 1,
-    chunks: Array.from({ length: props.chunks }, (_: unknown, index: number) : IAutoMovieCompiledInstanceSet["chunks"][number] => ({
-      index,
-      start: index * size,
-      count: Math.min(size, props.count - index * size),
-      bounds,
-      centroid: { x: 0.5, y: 0.5, z: 0.5 },
-    })),
+    chunks: Array.from(
+      { length: props.chunks },
+      (
+        _: unknown,
+        index: number,
+      ): IAutoMovieCompiledInstanceSet["chunks"][number] => ({
+        index,
+        start: index * size,
+        count: Math.min(size, props.count - index * size),
+        bounds,
+        centroid: { x: 0.5, y: 0.5, z: 0.5 },
+      }),
+    ),
     lod: [
       {
         tier: "near",

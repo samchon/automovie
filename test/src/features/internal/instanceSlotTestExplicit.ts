@@ -11,17 +11,36 @@ import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacem
  * @evidence contracts/testing.md#distinguishing-cases Keeps oak's explicit overrides, elm's inherited variation and absent slot two without adding a prototype or repairing the missing transform.
  * @evidence contracts/testing.md#execution-ownership Returns fresh placement/transform arrays but borrows the exact caller rotation object, preserving shallow override identity; it opens no file, render host, browser or GPU.
  */
-export function instanceSlotTestExplicit(quarterAboutX: IAutoMovieQuaternion): IAutoMovieInstanceSetPlacement {
+export function instanceSlotTestExplicit(
+  quarterAboutX: IAutoMovieQuaternion,
+): IAutoMovieInstanceSetPlacement {
   return placement({
     count: 3,
     facingDeg: 0,
     anchor: { x: 10, y: 0, z: 0 },
-    variation: { scale: { min: 1, max: 1 }, palette: ["#336633"], traits: [{ name: "height", min: 1, max: 2 }] },
+    variation: {
+      scale: { min: 1, max: 1 },
+      palette: ["#336633"],
+      traits: [{ name: "height", min: 1, max: 2 }],
+    },
     layout: {
       kind: "explicit",
       transforms: [
-        { id: "oak", translation: { x: 1, y: 2, z: 3 }, rotation: quarterAboutX, scale: { x: 2, y: 3, z: 4 }, palette: "#aa0000", traits: { height: 9 }, visible: false },
-        { id: "elm", translation: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } },
+        {
+          id: "oak",
+          translation: { x: 1, y: 2, z: 3 },
+          rotation: quarterAboutX,
+          scale: { x: 2, y: 3, z: 4 },
+          palette: "#aa0000",
+          traits: { height: 9 },
+          visible: false,
+        },
+        {
+          id: "elm",
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
       ],
     },
   });

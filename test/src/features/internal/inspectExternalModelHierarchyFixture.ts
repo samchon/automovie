@@ -3,10 +3,14 @@ import {
   type IAutoMovieExternalModelInspection,
   inspectAutoMovieExternalModelBytes,
 } from "@automovie/ingest";
+
 import type { IExternalModelHierarchyFixture } from "./IExternalModelHierarchyFixture";
 
 /** Inspect the existing resident declarations through the selected profile, wrapping the unchanged JSON in GLB only for VRM. */
-export const inspectExternalModelHierarchyFixture: (fixture: IExternalModelHierarchyFixture, profile: AutoMovieExternalModelIngestProfile) => IAutoMovieExternalModelInspection = (
+export const inspectExternalModelHierarchyFixture: (
+  fixture: IExternalModelHierarchyFixture,
+  profile: AutoMovieExternalModelIngestProfile,
+) => IAutoMovieExternalModelInspection = (
   fixture: IExternalModelHierarchyFixture,
   profile: AutoMovieExternalModelIngestProfile,
 ): IAutoMovieExternalModelInspection => {
@@ -16,7 +20,12 @@ export const inspectExternalModelHierarchyFixture: (fixture: IExternalModelHiera
     extensionsUsed?: string[];
 
     /** VRM 1.0 hips mapping used by that case. */
-    extensions?: { VRMC_vrm: { specVersion: string; humanoid: { humanBones: { hips: { node: number } } } } };
+    extensions?: {
+      VRMC_vrm: {
+        specVersion: string;
+        humanoid: { humanBones: { hips: { node: number } } };
+      };
+    };
   } = vrm
     ? {
         ...fixture.document,

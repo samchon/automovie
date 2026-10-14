@@ -1,7 +1,9 @@
 import type { IAutoMoviePlantingInstallation } from "@automovie/interface";
 
 /** Build the original suite-room planting binding, floor support and stand-pipe irrigation request. Identity/material/irrigation defaults are preserved, final overrides are shallow, and actual support/service validation remains with the owning cases. */
-export const plantingInstallation: (overrides?: Partial<IAutoMoviePlantingInstallation>) => IAutoMoviePlantingInstallation = (
+export const plantingInstallation: (
+  overrides?: Partial<IAutoMoviePlantingInstallation>,
+) => IAutoMoviePlantingInstallation = (
   overrides: Partial<IAutoMoviePlantingInstallation> = {},
 ): IAutoMoviePlantingInstallation => ({
   id: "lobby-planting",

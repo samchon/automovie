@@ -6,13 +6,13 @@ import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 export function makeMotion(
   keyframes: IAutoMovieKeyframe[],
   duration: number,
-  loop: boolean = false
+  loop: boolean = false,
 ): IAutoMovieMotion {
-  return ({
-  id: "motion-1",
-  skeleton: "skeleton-1",
-  duration,
-  loop,
-  keyframes,
-});
+  return {
+    id: "motion-1",
+    skeleton: "skeleton-1",
+    duration,
+    loop,
+    keyframes,
+  };
 }

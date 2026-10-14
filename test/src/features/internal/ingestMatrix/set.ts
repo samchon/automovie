@@ -4,7 +4,15 @@ import type { ExternalModelMatrixPath } from "./ExternalModelMatrixPath";
 /**
  * Apply a requested test-field mutation without reading the implementation under test.
  */
-export const set: (document: ExternalModelMatrixObject, path: ExternalModelMatrixPath, value: unknown) => ExternalModelMatrixObject = (document: ExternalModelMatrixObject, path: ExternalModelMatrixPath, value: unknown): ExternalModelMatrixObject => {
+export const set: (
+  document: ExternalModelMatrixObject,
+  path: ExternalModelMatrixPath,
+  value: unknown,
+) => ExternalModelMatrixObject = (
+  document: ExternalModelMatrixObject,
+  path: ExternalModelMatrixPath,
+  value: unknown,
+): ExternalModelMatrixObject => {
   let cursor: unknown = document;
   for (const part of path.slice(0, -1))
     cursor = Array.isArray(cursor)

@@ -1,7 +1,9 @@
 import type { IAutoMoviePlantingCluster } from "@automovie/interface";
 
 /** Build the original six-member seeded atrium-bed placement design, including its spacing/attempt and scale/yaw ranges. Nested override values remain borrowed and placement/admission belong to the actual engine consumers rather than this source-data constructor. */
-export const plantingCluster: (overrides?: Partial<IAutoMoviePlantingCluster>) => IAutoMoviePlantingCluster = (
+export const plantingCluster: (
+  overrides?: Partial<IAutoMoviePlantingCluster>,
+) => IAutoMoviePlantingCluster = (
   overrides: Partial<IAutoMoviePlantingCluster> = {},
 ): IAutoMoviePlantingCluster => ({
   id: "atrium-bed",

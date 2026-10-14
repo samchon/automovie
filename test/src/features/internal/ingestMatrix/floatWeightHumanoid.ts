@@ -5,7 +5,10 @@ import { set } from "./set";
 /**
  * Encode full FLOAT skin weights using independently computed three-vertex byte offsets.
  */
-export const floatWeightHumanoid: () => { document: ExternalModelMatrixObject; payload: Buffer } = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
+export const floatWeightHumanoid: () => {
+  document: ExternalModelMatrixObject;
+  payload: Buffer;
+} = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
   const document: ExternalModelMatrixObject = humanoidDocument();
   document.buffers = [{ byteLength: 96, uri: "human.bin" }];
   document.bufferViews = [

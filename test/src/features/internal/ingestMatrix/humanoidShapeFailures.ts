@@ -1,12 +1,15 @@
-import { rejects } from "./rejects";
-import { humanoidChanged } from "./humanoidChanged";
 import type { ExternalModelMatrixPath } from "./ExternalModelMatrixPath";
+import { humanoidChanged } from "./humanoidChanged";
 import { humanoidResolver } from "./humanoidResolver";
+import { rejects } from "./rejects";
 
 /**
  * Register one-field skin accessor shape/count/normalization negative twins.
  */
-export const humanoidShapeFailures: () => [string, () => boolean][] = (): [string, () => boolean][] =>
+export const humanoidShapeFailures: () => [string, () => boolean][] = (): [
+  string,
+  () => boolean,
+][] =>
   [
     ["jointShape", ["accessors", 1, "type"], "VEC3"],
     ["jointComponent", ["accessors", 1, "componentType"], 5120],
@@ -15,9 +18,9 @@ export const humanoidShapeFailures: () => [string, () => boolean][] = (): [strin
     ["weightU8MustNormalize", ["accessors", 2, "normalized"], false],
     ["jointCount", ["accessors", 1, "count"], 2],
     ["weightCount", ["accessors", 2, "count"], 2],
-  ].map(([name, path, value]: unknown[]) : [string, () => boolean] => [
+  ].map(([name, path, value]: unknown[]): [string, () => boolean] => [
     `humanoid${name}`,
-    () : boolean =>
+    (): boolean =>
       rejects(
         humanoidChanged(path as ExternalModelMatrixPath, value),
         "count-matched JOINTS_0 and normalized WEIGHTS_0",

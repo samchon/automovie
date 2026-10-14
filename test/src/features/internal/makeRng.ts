@@ -7,7 +7,9 @@
  * use Math.random, share state between closures or certify statistical coverage
  * of a continuous population; replay depends on the unchanged seed and calls.
  */
-export const makeRng: (seed: number) => () => number = (seed: number): (() => number) => {
+export const makeRng: (seed: number) => () => number = (
+  seed: number,
+): (() => number) => {
   let a: number = seed >>> 0;
   return (): number => {
     a = (a + 0x6d2b79f5) | 0;

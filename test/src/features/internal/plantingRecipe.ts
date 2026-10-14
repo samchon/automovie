@@ -1,7 +1,9 @@
 import type { IAutoMoviePlantingDomain } from "@automovie/interface";
 
 /** Build the original no-jitter seeded fern recipe with dyadic lengths/radii and declared branch/leaf budgets. Overrides replace fields shallowly and may enable jitter; direction normalization and later growth need not remain dyadic, and this builder does not prove rendered shape or platform identity. */
-export const plantingRecipe: (overrides?: Partial<IAutoMoviePlantingDomain>) => IAutoMoviePlantingDomain = (
+export const plantingRecipe: (
+  overrides?: Partial<IAutoMoviePlantingDomain>,
+) => IAutoMoviePlantingDomain = (
   overrides: Partial<IAutoMoviePlantingDomain> = {},
 ): IAutoMoviePlantingDomain => ({
   version: 1,

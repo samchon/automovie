@@ -15,6 +15,12 @@ export function instanceSlotTestLattice(): IAutoMovieInstanceSetPlacement {
     count: 8,
     facingDeg: 0,
     anchor: { x: 0, y: 0, z: 0 },
-    layout: { kind: "lattice", rows: 2, columns: 2, layers: 2, spacing: { x: 1, y: 2, z: 3 } },
+    layout: {
+      kind: "lattice",
+      rows: 2,
+      columns: 2,
+      layers: 2,
+      spacing: { x: 1, y: 2, z: 3 },
+    },
   });
 }
