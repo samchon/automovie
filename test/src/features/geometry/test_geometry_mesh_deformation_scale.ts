@@ -1,9 +1,10 @@
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
-import { TestValidator } from "@nestia/e2e";
-import { nclose } from "../internal/nclose";
 import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
+import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { nclose } from "../internal/nclose";
 
 /**
  * Scaling a compact field and its sample together preserves the normalized
@@ -23,7 +24,10 @@ import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/en
 export function test_geometry_mesh_deformation_scale(): void {
   for (const radius of [1, 1e-200, 1e160]) {
     for (const amount of [0, 0.1]) {
-      const apply: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([
+      const apply: (
+        mesh: IAutoMovieMesh,
+        influence?: readonly IAutoMovieMeshDeformationInfluence[],
+      ) => IAutoMovieMesh = createAutoMovieMeshDeformer([
         {
           center: { x: 0, y: 0, z: 0 },
           radius: { x: radius, y: radius, z: radius },
@@ -48,7 +52,10 @@ export function test_geometry_mesh_deformation_scale(): void {
         nclose(result.normals![0], slope / Math.hypot(slope, 1)) &&
           nclose(result.normals![2], 1 / Math.hypot(slope, 1)),
       );
-      TestValidator.predicate("centre retains zero slope", equalGeometryTestValues(result.normals!.slice(3), [0, 0, 1]));
+      TestValidator.predicate(
+        "centre retains zero slope",
+        equalGeometryTestValues(result.normals!.slice(3), [0, 0, 1]),
+      );
     }
   }
 }

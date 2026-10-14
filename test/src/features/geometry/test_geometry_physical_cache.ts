@@ -1,8 +1,9 @@
 import { IAutoMovieMesh } from "@automovie/interface";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
+import { TestValidator } from "@nestia/e2e";
+
 import { weldedDegenerateTriangles } from "../../../../packages/engine/src/geometry/weldedDegenerateTriangles";
 import { createMeshPhysicalPartitionMatcher } from "../../../../packages/engine/src/math/createMeshPhysicalPartitionMatcher";
-import { TestValidator } from "@nestia/e2e";
+import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";
 
@@ -30,7 +31,8 @@ export function test_geometry_physical_cache(): void {
       [4, 5, 6, 4],
     );
   const source: IAutoMovieMesh = make();
-  const matches: (candidate: IAutoMovieMesh) => boolean = createMeshPhysicalPartitionMatcher(source);
+  const matches: (candidate: IAutoMovieMesh) => boolean =
+    createMeshPhysicalPartitionMatcher(source);
   const translated: IAutoMovieMesh = make();
   for (let at: number = 0; at < translated.positions.length; at += 3)
     translated.positions[at] += 3;
@@ -110,8 +112,12 @@ export function test_geometry_physical_cache(): void {
   source.physicalVertices!.vertices[0] = null;
   source.indices!.reverse();
   TestValidator.equals("capture owns original input", matches(make()), true);
-  const legacy: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 1, 2]);
-  const old: (candidate: IAutoMovieMesh) => boolean = createMeshPhysicalPartitionMatcher(legacy);
+  const legacy: IAutoMovieMesh = createPhysicalMesh(
+    [0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 1, 2],
+  );
+  const old: (candidate: IAutoMovieMesh) => boolean =
+    createMeshPhysicalPartitionMatcher(legacy);
   TestValidator.equals(
     "legacy participation starts collapsed",
     weldedDegenerateTriangles(legacy),
@@ -139,15 +145,17 @@ export function test_geometry_physical_cache(): void {
   );
   TestValidator.predicate(
     "invalid capture coordinates",
-    throwsError((): (candidate: IAutoMovieMesh) => boolean =>
-      createMeshPhysicalPartitionMatcher(createPhysicalMesh([NaN, 0, 0], [])),
+    throwsError(
+      (): ((candidate: IAutoMovieMesh) => boolean) =>
+        createMeshPhysicalPartitionMatcher(createPhysicalMesh([NaN, 0, 0], [])),
       ["finite", "XYZ"],
     ),
   );
   TestValidator.predicate(
     "invalid capture structure",
-    throwsError((): (candidate: IAutoMovieMesh) => boolean =>
-      createMeshPhysicalPartitionMatcher(createPhysicalMesh([0, 0], [])),
+    throwsError(
+      (): ((candidate: IAutoMovieMesh) => boolean) =>
+        createMeshPhysicalPartitionMatcher(createPhysicalMesh([0, 0], [])),
       "whole xyz triples",
     ),
   );
@@ -173,7 +181,8 @@ export function test_geometry_physical_cache(): void {
     weldedDegenerateTriangles(dormant),
     [2],
   );
-  const dormantMatch: (candidate: IAutoMovieMesh) => boolean = createMeshPhysicalPartitionMatcher(dormant);
+  const dormantMatch: (candidate: IAutoMovieMesh) => boolean =
+    createMeshPhysicalPartitionMatcher(dormant);
   const fin: IAutoMovieMesh = createPhysicalMesh(
     dormant.positions,
     dormant.indices,
@@ -254,7 +263,8 @@ export function test_geometry_physical_cache(): void {
     [0, 1, 2, 3, 4, 5],
     [0, 1, 2, 3, 4, 5],
   );
-  const contactMatch: (candidate: IAutoMovieMesh) => boolean = createMeshPhysicalPartitionMatcher(separate);
+  const contactMatch: (candidate: IAutoMovieMesh) => boolean =
+    createMeshPhysicalPartitionMatcher(separate);
   const contact: IAutoMovieMesh = createPhysicalMesh(
     separate.positions,
     separate.indices,
@@ -271,10 +281,27 @@ export function test_geometry_physical_cache(): void {
     contactMatch(contact),
     true,
   );
-  const sparse: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2]);
+  const sparse: IAutoMovieMesh = createPhysicalMesh(
+    [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [0, 1, 2],
+  );
   const dense: number[] = sparse.positions;
   sparse.positions = new Array<number>(dense.length);
-  for (let at: number = 1; at < dense.length; ++at) sparse.positions[at] = dense[at]!;
-  TestValidator.predicate("sparse capture rejects", throwsError((): (candidate: IAutoMovieMesh) => boolean => createMeshPhysicalPartitionMatcher(sparse), ["finite", "XYZ"]));
-  TestValidator.predicate("sparse participation refuses instead of origin coercion", throwsError((): number[] => weldedDegenerateTriangles(sparse), ["finite", "XYZ"]));
+  for (let at: number = 1; at < dense.length; ++at)
+    sparse.positions[at] = dense[at]!;
+  TestValidator.predicate(
+    "sparse capture rejects",
+    throwsError(
+      (): ((candidate: IAutoMovieMesh) => boolean) =>
+        createMeshPhysicalPartitionMatcher(sparse),
+      ["finite", "XYZ"],
+    ),
+  );
+  TestValidator.predicate(
+    "sparse participation refuses instead of origin coercion",
+    throwsError(
+      (): number[] => weldedDegenerateTriangles(sparse),
+      ["finite", "XYZ"],
+    ),
+  );
 }

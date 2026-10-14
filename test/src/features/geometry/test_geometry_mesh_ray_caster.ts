@@ -1,11 +1,12 @@
-import { createAutoMovieMeshRayCaster } from "../../../../packages/engine/src/geometry/createAutoMovieMeshRayCaster";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { rayTriangleTravelOracle } from "../internal/rayTriangleTravelOracle";
-import { nclose } from "../internal/nclose";
-import { throwsError } from "../internal/throwsError";
+
 import { type IAutoMovieMeshRayCaster } from "../../../../packages/engine/src/geometry/IAutoMovieMeshRayCaster";
 import { type IAutoMovieMeshRayHit } from "../../../../packages/engine/src/geometry/IAutoMovieMeshRayHit";
+import { createAutoMovieMeshRayCaster } from "../../../../packages/engine/src/geometry/createAutoMovieMeshRayCaster";
+import { nclose } from "../internal/nclose";
+import { rayTriangleTravelOracle } from "../internal/rayTriangleTravelOracle";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * Rays find the first resident triangle along them, through a hierarchy that
@@ -35,7 +36,10 @@ import { type IAutoMovieMeshRayHit } from "../../../../packages/engine/src/geome
  * @evidence contracts/testing.md#execution-ownership The named entry directly executes portable caster source and the existing uncached oracle on unchanged fixtures, including its original deterministic random sequence. It starts no process, browser, GPU or native build, installs no consumer and registers no additional cases.
  */
 export function test_geometry_mesh_ray_caster(): void {
-  const mesh: (positions: number[], indices: number[] | null) => IAutoMovieMesh = (
+  const mesh: (
+    positions: number[],
+    indices: number[] | null,
+  ) => IAutoMovieMesh = (
     positions: number[],
     indices: number[] | null,
   ): IAutoMovieMesh => ({
@@ -45,18 +49,29 @@ export function test_geometry_mesh_ray_caster(): void {
     uvs: null,
     skin: null,
   });
-  const square: (z: number, flip: boolean) => { positions: number[]; indices: number[]; } = (z: number, flip: boolean): { positions: number[]; indices: number[]; }  => {
+  const square: (
+    z: number,
+    flip: boolean,
+  ) => { positions: number[]; indices: number[] } = (
+    z: number,
+    flip: boolean,
+  ): { positions: number[]; indices: number[] } => {
     const p: number[] = [0, 0, z, 1, 0, z, 1, 1, z, 0, 1, z];
     return {
       positions: p,
       indices: flip ? [0, 2, 1, 0, 3, 2] : [0, 1, 2, 0, 2, 3],
     };
   };
-  const a: { positions: number[]; indices: number[]; } = square(1, false);
-  const b: { positions: number[]; indices: number[]; } = square(3, true);
+  const a: { positions: number[]; indices: number[] } = square(1, false);
+  const b: { positions: number[]; indices: number[] } = square(3, true);
   const positions: number[] = [...a.positions, ...b.positions];
-  const indices: number[] = [...a.indices, ...b.indices.map((i: number): number  => i + 4)];
-  const caster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(mesh(positions, indices));
+  const indices: number[] = [
+    ...a.indices,
+    ...b.indices.map((i: number): number => i + 4),
+  ];
+  const caster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
+    mesh(positions, indices),
+  );
   const up: number[] = [0, 0, 5];
   TestValidator.predicate(
     "two planes",
@@ -71,10 +86,28 @@ export function test_geometry_mesh_ray_caster(): void {
       caster.nearest([2, 2, 0], up, 10) === null &&
       nclose(caster.nearest([0.2, 0.2, 5], [0, 0, -1], 10)!, 2),
   );
-  const firstHit: IAutoMovieMeshRayHit | null = caster.nearestHit([0.3, 0.4, 0], up, 10);
-  const edgeHit: IAutoMovieMeshRayHit | null = caster.nearestHit([0.5, 0.5, 0], up, 1, 1);
-  const laterHit: IAutoMovieMeshRayHit | null = caster.nearestHit([0.3, 0.4, 0], up, 10, 1.5);
-  const reverseHit: IAutoMovieMeshRayHit | null = caster.nearestHit([0.2, 0.2, 5], [0, 0, -5], 10);
+  const firstHit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+    [0.3, 0.4, 0],
+    up,
+    10,
+  );
+  const edgeHit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+    [0.5, 0.5, 0],
+    up,
+    1,
+    1,
+  );
+  const laterHit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+    [0.3, 0.4, 0],
+    up,
+    10,
+    1.5,
+  );
+  const reverseHit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+    [0.2, 0.2, 5],
+    [0, 0, -5],
+    10,
+  );
   TestValidator.predicate(
     "original identities, exact bounds and nonunit directions",
     firstHit !== null &&
@@ -94,10 +127,14 @@ export function test_geometry_mesh_ray_caster(): void {
   const reversePlanes: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
     mesh(
       [...b.positions, ...a.positions],
-      [...b.indices, ...a.indices.map((id: number): number  => id + 4)],
+      [...b.indices, ...a.indices.map((id: number): number => id + 4)],
     ),
   );
-  const closer: IAutoMovieMeshRayHit | null = reversePlanes.nearestHit([0.3, 0.4, 0], up, 10);
+  const closer: IAutoMovieMeshRayHit | null = reversePlanes.nearestHit(
+    [0.3, 0.4, 0],
+    up,
+    10,
+  );
   TestValidator.predicate(
     "a later closer hit resets its original identity",
     closer !== null && closer.triangle === 3 && nclose(closer.distance, 1),
@@ -109,8 +146,14 @@ export function test_geometry_mesh_ray_caster(): void {
     spread.push(x, 0, 3, x + 0.25, 0, 3, x, 0.25, 3);
     spreadIndices.push(base, base + 1, base + 2);
   }
-  const splitCaster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(mesh(spread, spreadIndices));
-  const splitHit: IAutoMovieMeshRayHit | null = splitCaster.nearestHit([0.5, 0.5, 0], up, 10);
+  const splitCaster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
+    mesh(spread, spreadIndices),
+  );
+  const splitHit: IAutoMovieMeshRayHit | null = splitCaster.nearestHit(
+    [0.5, 0.5, 0],
+    up,
+    10,
+  );
   TestValidator.predicate(
     "BVH order never replaces the original shared-edge ordinal",
     splitHit !== null &&
@@ -124,7 +167,11 @@ export function test_geometry_mesh_ray_caster(): void {
     const onPlane: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
       mesh([0, 0, 0, 1, 0, 0, 0, 1, 0], winding),
     );
-    const hit: IAutoMovieMeshRayHit | null = onPlane.nearestHit([0.2, 0.2, 0], up, 1);
+    const hit: IAutoMovieMeshRayHit | null = onPlane.nearestHit(
+      [0.2, 0.2, 0],
+      up,
+      1,
+    );
     const expectedZero: number = winding[1] === 1 ? 0 : -0;
     TestValidator.predicate(
       "metadata ties preserve the legacy raw sign of zero",
@@ -137,7 +184,11 @@ export function test_geometry_mesh_ray_caster(): void {
   }
   firstHit!.distance = 100;
   firstHit!.triangle = 100;
-  const independentHit: IAutoMovieMeshRayHit | null = caster.nearestHit([0.3, 0.4, 0], up, Infinity);
+  const independentHit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+    [0.3, 0.4, 0],
+    up,
+    Infinity,
+  );
   TestValidator.predicate(
     "returned metadata is independent and retains the existing infinite limit",
     independentHit !== null &&
@@ -146,7 +197,7 @@ export function test_geometry_mesh_ray_caster(): void {
   );
   // A field of small triangles and random rays against brute force.
   let seed: number = 7;
-  const random: () => number = (): number  => {
+  const random: () => number = (): number => {
     seed = (seed * 1103515245 + 12345) % 2147483648;
     return seed / 2147483648;
   };
@@ -160,19 +211,35 @@ export function test_geometry_mesh_ray_caster(): void {
         c[2] + random() * 0.6 - 0.3,
       );
   }
-  const fieldCaster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(mesh(field, null));
+  const fieldCaster: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
+    mesh(field, null),
+  );
   // Decode caller-owned triangle corners once. The independent oracle still
   // visits all 200 triangles for every one of the original 300 rays.
-  const oracleTriangles: { a: number[]; ab: number[]; ac: number[]; }[] = Array.from({length:200},(_: unknown,t: number): { a: number[]; ab: number[]; ac: number[]; } =>{
-    const a: number[]=field.slice(9*t,9*t+3),b: number[]=field.slice(9*t+3,9*t+6),c: number[]=field.slice(9*t+6,9*t+9);
-    return {a,ab:b.map((value: number,axis: number): number =>value-a[axis]!),ac:c.map((value: number,axis: number): number =>value-a[axis]!)};
-  });
-  const brute: (o: number[], d: number[]) => number | null = (o:number[],d:number[]):number|null=>{
-    const length: number=Math.hypot(...d),unit: number[]=d.map((value: number): number =>value/length);
-    let best:number|null=null;
-    for(const triangle of oracleTriangles){
-      const hit: number | null=rayTriangleTravelOracle(o,unit,triangle,20);
-      if(hit!==null&&(best===null||hit<best))best=hit;
+  const oracleTriangles: { a: number[]; ab: number[]; ac: number[] }[] =
+    Array.from(
+      { length: 200 },
+      (_: unknown, t: number): { a: number[]; ab: number[]; ac: number[] } => {
+        const a: number[] = field.slice(9 * t, 9 * t + 3),
+          b: number[] = field.slice(9 * t + 3, 9 * t + 6),
+          c: number[] = field.slice(9 * t + 6, 9 * t + 9);
+        return {
+          a,
+          ab: b.map((value: number, axis: number): number => value - a[axis]!),
+          ac: c.map((value: number, axis: number): number => value - a[axis]!),
+        };
+      },
+    );
+  const brute: (o: number[], d: number[]) => number | null = (
+    o: number[],
+    d: number[],
+  ): number | null => {
+    const length: number = Math.hypot(...d),
+      unit: number[] = d.map((value: number): number => value / length);
+    let best: number | null = null;
+    for (const triangle of oracleTriangles) {
+      const hit: number | null = rayTriangleTravelOracle(o, unit, triangle, 20);
+      if (hit !== null && (best === null || hit < best)) best = hit;
     }
     return best;
   };
@@ -203,10 +270,13 @@ export function test_geometry_mesh_ray_caster(): void {
     agree && hits > 20,
   );
   const editable: IAutoMovieMesh = mesh([...positions], [...indices]);
-  const frozen: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(editable);
+  const frozen: IAutoMovieMeshRayCaster =
+    createAutoMovieMeshRayCaster(editable);
   editable.positions.fill(100);
   editable.indices!.fill(0);
-  const flat: number[] = indices.flatMap((i: number): number[]  => positions.slice(3 * i, 3 * i + 3));
+  const flat: number[] = indices.flatMap((i: number): number[] =>
+    positions.slice(3 * i, 3 * i + 3),
+  );
   TestValidator.predicate(
     "snapshots, nonindexed input, empty mesh",
     nclose(frozen.nearest([0.3, 0.4, 0], up, 10)!, 1) &&
@@ -221,12 +291,14 @@ export function test_geometry_mesh_ray_caster(): void {
       createAutoMovieMeshRayCaster(mesh([], [])).nearest([0, 0, 0], up, 10) ===
         null,
   );
-  const frozenHit: IAutoMovieMeshRayHit | null = frozen.nearestHit([0.3, 0.4, 0], up, 10);
-  const implicitHit: IAutoMovieMeshRayHit | null = createAutoMovieMeshRayCaster(mesh(flat, null)).nearestHit(
+  const frozenHit: IAutoMovieMeshRayHit | null = frozen.nearestHit(
     [0.3, 0.4, 0],
     up,
     10,
   );
+  const implicitHit: IAutoMovieMeshRayHit | null = createAutoMovieMeshRayCaster(
+    mesh(flat, null),
+  ).nearestHit([0.3, 0.4, 0], up, 10);
   TestValidator.predicate(
     "metadata owns buffers and respects implicit original triplets",
     frozenHit !== null &&
@@ -257,22 +329,47 @@ export function test_geometry_mesh_ray_caster(): void {
   for (const args of invalid)
     TestValidator.predicate(
       "nearest-hit admission shares the existing range and vector contract",
-      throwsError((): IAutoMovieMeshRayHit | null  => caster.nearestHit(...args), "A ray needs"),
+      throwsError(
+        (): IAutoMovieMeshRayHit | null => caster.nearestHit(...args),
+        "A ray needs",
+      ),
     );
   // Equal nonzero components point along (1,1,1), independently of scale.
   // From (-.3,-.4,0), z=1 is met at (.7,.6,1), a sqrt(3)-metre chord.
   const scales: number[] = [1, 1e308, Number.MAX_VALUE, Number.MIN_VALUE];
-  const readings: { scale: number; nearest: number | null; hit: IAutoMovieMeshRayHit | null; reverse: IAutoMovieMeshRayHit | null; miss: IAutoMovieMeshRayHit | null; }[] = scales.map((scale: number): { scale: number; nearest: number | null; hit: IAutoMovieMeshRayHit | null; reverse: IAutoMovieMeshRayHit | null; miss: IAutoMovieMeshRayHit | null; }  => ({
-    scale,
-    nearest: caster.nearest([-0.3, -0.4, 0], [scale, scale, scale], 10),
-    hit: caster.nearestHit([-0.3, -0.4, 0], [scale, scale, scale], 10),
-    reverse: caster.nearestHit([1.3, 1.4, 2], [-scale, -scale, -scale], 10),
-    miss: caster.nearestHit([2, 2, 0], [scale, scale, scale], 10),
-  }));
+  const readings: {
+    scale: number;
+    nearest: number | null;
+    hit: IAutoMovieMeshRayHit | null;
+    reverse: IAutoMovieMeshRayHit | null;
+    miss: IAutoMovieMeshRayHit | null;
+  }[] = scales.map(
+    (
+      scale: number,
+    ): {
+      scale: number;
+      nearest: number | null;
+      hit: IAutoMovieMeshRayHit | null;
+      reverse: IAutoMovieMeshRayHit | null;
+      miss: IAutoMovieMeshRayHit | null;
+    } => ({
+      scale,
+      nearest: caster.nearest([-0.3, -0.4, 0], [scale, scale, scale], 10),
+      hit: caster.nearestHit([-0.3, -0.4, 0], [scale, scale, scale], 10),
+      reverse: caster.nearestHit([1.3, 1.4, 2], [-scale, -scale, -scale], 10),
+      miss: caster.nearestHit([2, 2, 0], [scale, scale, scale], 10),
+    }),
+  );
   TestValidator.predicate(
     `finite direction scale preserves the unit metric: ${JSON.stringify(readings)}`,
     readings.every(
-      (one: { scale: number; nearest: number | null; hit: IAutoMovieMeshRayHit | null; reverse: IAutoMovieMeshRayHit | null; miss: IAutoMovieMeshRayHit | null; }): boolean  =>
+      (one: {
+        scale: number;
+        nearest: number | null;
+        hit: IAutoMovieMeshRayHit | null;
+        reverse: IAutoMovieMeshRayHit | null;
+        miss: IAutoMovieMeshRayHit | null;
+      }): boolean =>
         one.nearest !== null &&
         one.hit !== null &&
         one.reverse !== null &&
@@ -293,7 +390,11 @@ export function test_geometry_mesh_ray_caster(): void {
     for (const sign of [-1, 1]) {
       const origin: number[] = [0.3, 0.4, sign > 0 ? 0 : 2];
       const direction: number[] = [0, 0, sign * scale];
-      const hit: IAutoMovieMeshRayHit | null = caster.nearestHit(origin, direction, 10);
+      const hit: IAutoMovieMeshRayHit | null = caster.nearestHit(
+        origin,
+        direction,
+        10,
+      );
       TestValidator.predicate(
         "both sides of the IEEE normal boundary keep axial metric and ownership",
         hit !== null &&
@@ -306,23 +407,34 @@ export function test_geometry_mesh_ray_caster(): void {
   TestValidator.predicate(
     "refusals",
     throwsError(
-      (): IAutoMovieMeshRayCaster  => createAutoMovieMeshRayCaster(mesh([0, 0], null)),
+      (): IAutoMovieMeshRayCaster =>
+        createAutoMovieMeshRayCaster(mesh([0, 0], null)),
       "complete triangle",
     ) &&
       throwsError(
-        (): IAutoMovieMeshRayCaster  =>
+        (): IAutoMovieMeshRayCaster =>
           createAutoMovieMeshRayCaster(
             mesh([0, 0, 0, 1, 0, 0, 0, 1, NaN], null),
           ),
         "complete triangle",
       ) &&
       throwsError(
-        (): IAutoMovieMeshRayCaster  => createAutoMovieMeshRayCaster(mesh(positions, [0, 1, 99])),
+        (): IAutoMovieMeshRayCaster =>
+          createAutoMovieMeshRayCaster(mesh(positions, [0, 1, 99])),
         "complete triangle",
       ) &&
-      throwsError((): number | null  => caster.nearest([0, 0, 0], [0, 0, 0], 1), "nonzero") &&
-      throwsError((): number | null  => caster.nearest([0, NaN, 0], up, 1), "nonzero") &&
-      throwsError((): number | null  => caster.nearest([0, 0, 0], up, 1, 2), "minimum") &&
-      throwsError((): boolean  => caster.blocked([0, 0], up, 1), "nonzero"),
+      throwsError(
+        (): number | null => caster.nearest([0, 0, 0], [0, 0, 0], 1),
+        "nonzero",
+      ) &&
+      throwsError(
+        (): number | null => caster.nearest([0, NaN, 0], up, 1),
+        "nonzero",
+      ) &&
+      throwsError(
+        (): number | null => caster.nearest([0, 0, 0], up, 1, 2),
+        "minimum",
+      ) &&
+      throwsError((): boolean => caster.blocked([0, 0], up, 1), "nonzero"),
   );
 }

@@ -1,10 +1,52 @@
-import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
-import { type IAutoMovieModel, type IAutoMovieModelPart } from "@automovie/interface";
+import {
+  type IAutoMovieModel,
+  type IAutoMovieModelPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieModelCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieModelCrossing";
+import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
 
 /** A model part holding one triangle from three hand-typed corners. */
-const part: (id: string, corners: number[][]) => { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; } = (id: string, corners: number[][]): { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; }  => ({
+const part: (
+  id: string,
+  corners: number[][],
+) => {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} = (
+  id: string,
+  corners: number[][],
+): {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} => ({
   id,
   name: id,
   material: "skin",
@@ -22,7 +64,9 @@ const part: (id: string, corners: number[][]) => { id: string; name: string; mat
   transform: null,
 });
 
-const model: (parts: IAutoMovieModelPart[]) => IAutoMovieModel = (parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
+const model: (parts: IAutoMovieModelPart[]) => IAutoMovieModel = (
+  parts: IAutoMovieModelPart[],
+): IAutoMovieModel => ({
   id: "crossing",
   name: "crossing",
   origin: "imported",
@@ -108,7 +152,10 @@ export function test_geometry_model_crossings(): void {
     "only the crossing pair of three parts appears",
     measureAutoMovieModelCrossings(
       model([part("floor", floor), part("above", above), part("blade", blade)]),
-    ).map((entry: IAutoMovieModelCrossing): string[]  => [entry.part, entry.other]),
+    ).map((entry: IAutoMovieModelCrossing): string[] => [
+      entry.part,
+      entry.other,
+    ]),
     [["floor", "blade"]],
   );
   // The bounds of these two overlap in the far corner, so the cheap rejection
@@ -127,7 +174,14 @@ export function test_geometry_model_crossings(): void {
     ),
     [],
   );
-  const sphere: { geometry: { type: "sphere"; radius: number; }; id: string; name: string; material: string; attachedBone: null; transform: null; } = {
+  const sphere: {
+    geometry: { type: "sphere"; radius: number };
+    id: string;
+    name: string;
+    material: string;
+    attachedBone: null;
+    transform: null;
+  } = {
     ...part("sphere", floor),
     geometry: { type: "sphere" as const, radius: 1 },
   };
@@ -135,7 +189,10 @@ export function test_geometry_model_crossings(): void {
     "a part that is not a mesh is skipped, not refused",
     measureAutoMovieModelCrossings(
       model([part("floor", floor), sphere as never, part("blade", blade)]),
-    ).map((entry: IAutoMovieModelCrossing): string[]  => [entry.part, entry.other]),
+    ).map((entry: IAutoMovieModelCrossing): string[] => [
+      entry.part,
+      entry.other,
+    ]),
     [["floor", "blade"]],
   );
   TestValidator.equals(
@@ -170,7 +227,11 @@ export function test_geometry_model_crossings(): void {
   );
   // `above` spans z 1..2; lowered by 1.5 it spans -0.5..0.5 and its edges
   // pierce the floor at (0.25, 0.25) and (0.5, 0.25), both inside it.
-  const moved: (id: string, corners: number[][], z: number) => IAutoMovieModelPart = (
+  const moved: (
+    id: string,
+    corners: number[][],
+    z: number,
+  ) => IAutoMovieModelPart = (
     id: string,
     corners: number[][],
     z: number,

@@ -1,7 +1,8 @@
-import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieMeshCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieMeshCrossing";
+import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
 
 /** Two separate blades pierce one hand-typed planar triangle. */
 const surface: IAutoMovieMesh = {
@@ -38,9 +39,16 @@ const blades: IAutoMovieMesh = {
  * @evidence contracts/testing.md#execution-ownership The named entry directly calls portable crossing source with the existing two mesh records, sorting only the returned complete-mode records for comparison. It starts no process, browser, GPU or native build and registers no new cases.
  */
 export function test_geometry_mesh_crossing_pairs(): void {
-  const all: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(surface, blades, {
-    allPairs: true,
-  }).sort((a: IAutoMovieMeshCrossing, b: IAutoMovieMeshCrossing): number  => a.other - b.other);
+  const all: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(
+    surface,
+    blades,
+    {
+      allPairs: true,
+    },
+  ).sort(
+    (a: IAutoMovieMeshCrossing, b: IAutoMovieMeshCrossing): number =>
+      a.other - b.other,
+  );
   TestValidator.equals("every piercing and flat overlap", all, [
     { triangle: 0, other: 0, coplanar: false },
     { triangle: 0, other: 1, coplanar: false },
@@ -58,7 +66,7 @@ export function test_geometry_mesh_crossing_pairs(): void {
   );
   const clear: IAutoMovieMesh = {
     ...blades,
-    positions: blades.positions.map((value: number, index: number): number  =>
+    positions: blades.positions.map((value: number, index: number): number =>
       index % 3 === 2 ? value + 3 : value,
     ),
   };

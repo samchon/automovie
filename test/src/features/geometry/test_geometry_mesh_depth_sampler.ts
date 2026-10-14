@@ -1,7 +1,8 @@
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { createAutoMovieMeshDepthSampler } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDepthSampler";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { createAutoMovieMeshDepthSampler } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDepthSampler";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
@@ -25,7 +26,10 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/testing.md#execution-ownership The named entry directly invokes portable sampler source using unchanged synthetic buffers and exception observers. It installs no consumer, starts no process, browser or GPU, builds no native artifact and dynamically registers no cases.
  */
 export function test_geometry_mesh_depth_sampler(): void {
-  const mesh: (positions: number[], indices: number[] | null) => IAutoMovieMesh = (
+  const mesh: (
+    positions: number[],
+    indices: number[] | null,
+  ) => IAutoMovieMesh = (
     positions: number[],
     indices: number[] | null,
   ): IAutoMovieMesh => ({
@@ -44,30 +48,47 @@ export function test_geometry_mesh_depth_sampler(): void {
     [0, 2, 7],
   ];
   for (const axis of ["x", "y", "z"] as const) {
-    const positions: number[] = uvDepth.flatMap(([u, v, d]: number[]): number[]  =>
-      axis === "x" ? [d, u, v] : axis === "y" ? [v, d, u] : [u, v, d],
+    const positions: number[] = uvDepth.flatMap(
+      ([u, v, d]: number[]): number[] =>
+        axis === "x" ? [d, u, v] : axis === "y" ? [v, d, u] : [u, v, d],
     );
     const input: IAutoMovieMesh = mesh(positions, [0, 1, 2, 5, 4, 3]);
-    const sample: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(input, axis);
-    const value: { minimum: number; maximum: number; } | null = sample(0.25, 0.5);
+    const sample: (
+      u: number,
+      v: number,
+    ) => { minimum: number; maximum: number } | null =
+      createAutoMovieMeshDepthSampler(input, axis);
+    const value: { minimum: number; maximum: number } | null = sample(
+      0.25,
+      0.5,
+    );
     TestValidator.predicate(
       "independent two-plane intersection",
       value !== null &&
         nclose(value.minimum, 1.25) &&
         nclose(value.maximum, 4.25),
     );
-    TestValidator.predicate("vertex included", equalGeometryTestValues(sample(0, 0), {
-      minimum: 0,
-      maximum: 3,
-    }));
-    TestValidator.predicate("outer grid boundary included", equalGeometryTestValues(sample(2, 0), {
-      minimum: 2,
-      maximum: 5,
-    }));
-    TestValidator.predicate("triangle edge included", equalGeometryTestValues(sample(1, 1), {
-      minimum: 3,
-      maximum: 6,
-    }));
+    TestValidator.predicate(
+      "vertex included",
+      equalGeometryTestValues(sample(0, 0), {
+        minimum: 0,
+        maximum: 3,
+      }),
+    );
+    TestValidator.predicate(
+      "outer grid boundary included",
+      equalGeometryTestValues(sample(2, 0), {
+        minimum: 2,
+        maximum: 5,
+      }),
+    );
+    TestValidator.predicate(
+      "triangle edge included",
+      equalGeometryTestValues(sample(1, 1), {
+        minimum: 3,
+        maximum: 6,
+      }),
+    );
     for (const [u, v] of [
       [-1, 0],
       [3, 0],
@@ -82,24 +103,34 @@ export function test_geometry_mesh_depth_sampler(): void {
       );
     input.positions.fill(900);
     input.indices!.fill(0);
-    TestValidator.predicate("sampler owns source values", equalGeometryTestValues(sample(0, 0), {
-      minimum: 0,
-      maximum: 3,
-    }));
+    TestValidator.predicate(
+      "sampler owns source values",
+      equalGeometryTestValues(sample(0, 0), {
+        minimum: 0,
+        maximum: 3,
+      }),
+    );
     for (const [u, v] of [
       [NaN, 0],
       [0, Infinity],
     ])
       TestValidator.predicate(
         "invalid query refused",
-        throwsError((): { minimum: number; maximum: number; } | null  => sample(u, v), "Surface query coordinates must be finite"),
+        throwsError(
+          (): { minimum: number; maximum: number } | null => sample(u, v),
+          "Surface query coordinates must be finite",
+        ),
       );
   }
   const triangle: number[] = [0, 0, 0, 2, 0, 2, 0, 2, 4];
-  const tilted: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(
-    mesh([1, 0, 0, 0, 2, 0, 2, 2, 0], null),
-    "z",
-  );
+  const tilted: (
+    u: number,
+    v: number,
+  ) => { minimum: number; maximum: number } | null =
+    createAutoMovieMeshDepthSampler(
+      mesh([1, 0, 0, 0, 2, 0, 2, 2, 0], null),
+      "z",
+    );
   TestValidator.equals("outside left triangle edge", tilted(0.1, 0.1), null);
   TestValidator.equals("outside right triangle edge", tilted(1.9, 0.1), null);
   const verticalExtent: IAutoMovieMesh = mesh(
@@ -127,40 +158,64 @@ export function test_geometry_mesh_depth_sampler(): void {
   );
   TestValidator.predicate(
     "unrepresentable vertical extent",
-    throwsError((): (u: number, v: number) => { minimum: number; maximum: number; } | null  => createAutoMovieMeshDepthSampler(verticalExtent, "z"), "Projected mesh extent"),
-  );
-  const extremeDepth: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(
-    mesh(
-      [
-        0,
-        0,
-        Number.MAX_VALUE,
-        1,
-        0,
-        Number.MAX_VALUE,
-        0,
-        1,
-        Number.MAX_VALUE,
-        2,
-        0,
-        0,
-        2,
-        1,
-        0,
-        1,
-        1,
-        0,
-      ],
-      null,
+    throwsError(
+      (): ((
+        u: number,
+        v: number,
+      ) => { minimum: number; maximum: number } | null) =>
+        createAutoMovieMeshDepthSampler(verticalExtent, "z"),
+      "Projected mesh extent",
     ),
-    "z",
   );
+  const extremeDepth: (
+    u: number,
+    v: number,
+  ) => { minimum: number; maximum: number } | null =
+    createAutoMovieMeshDepthSampler(
+      mesh(
+        [
+          0,
+          0,
+          Number.MAX_VALUE,
+          1,
+          0,
+          Number.MAX_VALUE,
+          0,
+          1,
+          Number.MAX_VALUE,
+          2,
+          0,
+          0,
+          2,
+          1,
+          0,
+          1,
+          1,
+          0,
+        ],
+        null,
+      ),
+      "z",
+    );
   TestValidator.predicate(
     "unrepresentable interpolated depth",
-    throwsError((): { minimum: number; maximum: number; } | null  => extremeDepth(1 + 1e-11, 0), "Interpolated surface depth"),
+    throwsError(
+      (): { minimum: number; maximum: number } | null =>
+        extremeDepth(1 + 1e-11, 0),
+      "Interpolated surface depth",
+    ),
   );
-  TestValidator.predicate("nonindexed triangle", equalGeometryTestValues(createAutoMovieMeshDepthSampler(mesh(triangle, null), "z")(0.25, 0.5), { minimum: 1.25, maximum: 1.25 }));
-  const sparse: IAutoMovieMesh = mesh([...triangle, 10, 10, 0, 11, 10, 0, 10, 11, 0], null);
+  TestValidator.predicate(
+    "nonindexed triangle",
+    equalGeometryTestValues(
+      createAutoMovieMeshDepthSampler(mesh(triangle, null), "z")(0.25, 0.5),
+      { minimum: 1.25, maximum: 1.25 },
+    ),
+  );
+  const sparse: IAutoMovieMesh = mesh(
+    [...triangle, 10, 10, 0, 11, 10, 0, 10, 11, 0],
+    null,
+  );
   TestValidator.equals(
     "empty spatial bin",
     createAutoMovieMeshDepthSampler(sparse, "z")(5, 5),
@@ -180,7 +235,9 @@ export function test_geometry_mesh_depth_sampler(): void {
     mesh([0, 0, 0], null),
     mesh(triangle, [0, 1]),
     mesh([NaN, 0, 0, 2, 0, 2, 0, 2, 4], null),
-    ...[-1, 0.5, 3].map((id: number): IAutoMovieMesh  => mesh(triangle, [0, 1, id])),
+    ...[-1, 0.5, 3].map(
+      (id: number): IAutoMovieMesh => mesh(triangle, [0, 1, id]),
+    ),
     mesh([0, 0, 0, Number.MAX_VALUE, 0, 0, 0, Number.MAX_VALUE, 0], null),
     mesh(
       [
@@ -208,12 +265,23 @@ export function test_geometry_mesh_depth_sampler(): void {
   ].entries())
     TestValidator.predicate(
       "invalid triangle input refused",
-      throwsError((): (u: number, v: number) => { minimum: number; maximum: number; } | null  => createAutoMovieMeshDepthSampler(source, "z"), caseIndex < 7 ? "Depth sampling" : "Projected"),
+      throwsError(
+        (): ((
+          u: number,
+          v: number,
+        ) => { minimum: number; maximum: number } | null) =>
+          createAutoMovieMeshDepthSampler(source, "z"),
+        caseIndex < 7 ? "Depth sampling" : "Projected",
+      ),
     );
   TestValidator.predicate(
     "invalid axis refused",
-    throwsError((): (u: number, v: number) => { minimum: number; maximum: number; } | null  =>
-      createAutoMovieMeshDepthSampler(mesh(triangle, null), "bad" as "x"),
+    throwsError(
+      (): ((
+        u: number,
+        v: number,
+      ) => { minimum: number; maximum: number } | null) =>
+        createAutoMovieMeshDepthSampler(mesh(triangle, null), "bad" as "x"),
       "depth sampling axis",
     ),
   );

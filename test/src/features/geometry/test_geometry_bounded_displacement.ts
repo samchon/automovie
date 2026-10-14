@@ -1,8 +1,9 @@
-import { nclose } from "../internal/nclose";
-import { solveAutoMovieBoundedDisplacement } from "../../../../packages/engine/src/math/solveAutoMovieBoundedDisplacement";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
+
 import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/math/IAutoMovieQuadraticRow";
+import { solveAutoMovieBoundedDisplacement } from "../../../../packages/engine/src/math/solveAutoMovieBoundedDisplacement";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * Restricted scheduling retains all original affine contacts, including a row
@@ -22,7 +23,18 @@ import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/mat
  * @evidence contracts/testing.md#execution-ownership The named geometry entry is a CPU/WebAssembly solver integration test: active constraints reach the engine's pinned Clarabel reactor through the actual quadratic source, whereas the zero case bypasses it. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it registers no extra cases.
  */
 export function test_geometry_bounded_displacement(): void {
-  const solve: (input: { mass: readonly number[]; upper: readonly number[]; constraints: readonly { row: IAutoMovieQuadraticRow; group: number; }[]; tolerance: number; maximumRounds: number; }) => { travel: number[]; violation: number; rounds: number; status: number | null; } = solveAutoMovieBoundedDisplacement;
+  const solve: (input: {
+    mass: readonly number[];
+    upper: readonly number[];
+    constraints: readonly { row: IAutoMovieQuadraticRow; group: number }[];
+    tolerance: number;
+    maximumRounds: number;
+  }) => {
+    travel: number[];
+    violation: number;
+    rounds: number;
+    status: number | null;
+  } = solveAutoMovieBoundedDisplacement;
   type Input = Parameters<typeof solve>[0];
   const base: Input = {
     mass: [1, 1],
@@ -31,34 +43,93 @@ export function test_geometry_bounded_displacement(): void {
     tolerance: 1e-7,
     maximumRounds: 40,
   };
-  const condition: (indices: number[], weights: number[], lower: number | null, upper: number | null, group?: number) => { row: { indices: number[]; weights: number[]; lower: number | null; upper: number | null; }; group: number; } = (
+  const condition: (
+    indices: number[],
+    weights: number[],
+    lower: number | null,
+    upper: number | null,
+    group?: number,
+  ) => {
+    row: {
+      indices: number[];
+      weights: number[];
+      lower: number | null;
+      upper: number | null;
+    };
+    group: number;
+  } = (
     indices: number[],
     weights: number[],
     lower: number | null,
     upper: number | null,
     group: number = 0,
-  ): { row: { indices: number[]; weights: number[]; lower: number | null; upper: number | null; }; group: number; }  => ({ row: { indices, weights, lower, upper }, group });
-  const check: (result: ReturnType<(input: { mass: readonly number[]; upper: readonly number[]; constraints: readonly { row: IAutoMovieQuadraticRow; group: number; }[]; tolerance: number; maximumRounds: number; }) => { travel: number[]; violation: number; rounds: number; status: number | null; }>, expected: number[]) => void = (
-    result: ReturnType<typeof solve>,
+  ): {
+    row: {
+      indices: number[];
+      weights: number[];
+      lower: number | null;
+      upper: number | null;
+    };
+    group: number;
+  } => ({ row: { indices, weights, lower, upper }, group });
+  const check: (
+    result: ReturnType<
+      (input: {
+        mass: readonly number[];
+        upper: readonly number[];
+        constraints: readonly { row: IAutoMovieQuadraticRow; group: number }[];
+        tolerance: number;
+        maximumRounds: number;
+      }) => {
+        travel: number[];
+        violation: number;
+        rounds: number;
+        status: number | null;
+      }
+    >,
     expected: number[],
-  ): void => {
+  ) => void = (result: ReturnType<typeof solve>, expected: number[]): void => {
     TestValidator.predicate(
       "independent displacement",
-      result.travel.length === expected.length && result.travel.every((v: number, i: number): boolean  => (nclose(v - expected[i], 0, 1e-6) && Math.abs(v - expected[i]) < 1e-6)),
+      result.travel.length === expected.length &&
+        result.travel.every(
+          (v: number, i: number): boolean =>
+            nclose(v - expected[i], 0, 1e-6) &&
+            Math.abs(v - expected[i]) < 1e-6,
+        ),
     );
     TestValidator.predicate(
       "all original rows checked",
       result.violation <= base.tolerance,
     );
   };
-  const zero: { travel: number[]; violation: number; rounds: number; status: number | null; } = solve(base);
+  const zero: {
+    travel: number[];
+    violation: number;
+    rounds: number;
+    status: number | null;
+  } = solve(base);
   check(zero, [0, 0]);
   TestValidator.equals(
     "zero minimum needs no native iteration",
     zero.status,
     null,
   );
-  const grouped: { constraints: { row: { indices: number[]; weights: number[]; lower: number | null; upper: number | null; }; group: number; }[]; mass: readonly number[]; upper: readonly number[]; tolerance: number; maximumRounds: number; } = {
+  const grouped: {
+    constraints: {
+      row: {
+        indices: number[];
+        weights: number[];
+        lower: number | null;
+        upper: number | null;
+      };
+      group: number;
+    }[];
+    mass: readonly number[];
+    upper: readonly number[];
+    tolerance: number;
+    maximumRounds: number;
+  } = {
     ...base,
     constraints: [
       condition([0], [1], 0.5, null),
@@ -67,12 +138,25 @@ export function test_geometry_bounded_displacement(): void {
       condition([1], [1], 1, null),
     ],
   };
-  const exact: { travel: number[]; violation: number; rounds: number; status: number | null; } = solve(grouped);
+  const exact: {
+    travel: number[];
+    violation: number;
+    rounds: number;
+    status: number | null;
+  } = solve(grouped);
   check(exact, [1, 2]);
   TestValidator.equals("two grouped additions", exact.rounds, 2);
   TestValidator.predicate(
     "round budget cannot accept a partial solve",
-    throwsError((): { travel: number[]; violation: number; rounds: number; status: number | null; }  => solve({ ...grouped, maximumRounds: 1 }), "rounds 1"),
+    throwsError(
+      (): {
+        travel: number[];
+        violation: number;
+        rounds: number;
+        status: number | null;
+      } => solve({ ...grouped, maximumRounds: 1 }),
+      "rounds 1",
+    ),
   );
   check(
     solve({
@@ -89,14 +173,24 @@ export function test_geometry_bounded_displacement(): void {
   TestValidator.predicate(
     "native infeasibility retained in refusal",
     throwsError(
-      (): { travel: number[]; violation: number; rounds: number; status: number | null; }  => solve({ ...base, constraints: [condition([0], [1], 4, null)] }),
+      (): {
+        travel: number[];
+        violation: number;
+        rounds: number;
+        status: number | null;
+      } => solve({ ...base, constraints: [condition([0], [1], 4, null)] }),
       "status 2",
     ),
   );
   TestValidator.predicate(
     "selected-row residual cannot become success",
     throwsError(
-      (): { travel: number[]; violation: number; rounds: number; status: number | null; }  =>
+      (): {
+        travel: number[];
+        violation: number;
+        rounds: number;
+        status: number | null;
+      } =>
         solve({
           ...base,
           upper: [0, 0],
@@ -106,10 +200,27 @@ export function test_geometry_bounded_displacement(): void {
       "did not converge",
     ),
   );
-  const refuse: (patch: Partial<{ mass: readonly number[]; upper: readonly number[]; constraints: readonly { row: IAutoMovieQuadraticRow; group: number; }[]; tolerance: number; maximumRounds: number; }>, message: string) => void = (patch: Partial<Input>, message: string): void => {
+  const refuse: (
+    patch: Partial<{
+      mass: readonly number[];
+      upper: readonly number[];
+      constraints: readonly { row: IAutoMovieQuadraticRow; group: number }[];
+      tolerance: number;
+      maximumRounds: number;
+    }>,
+    message: string,
+  ) => void = (patch: Partial<Input>, message: string): void => {
     TestValidator.predicate(
       "invalid displacement problem",
-      throwsError((): { travel: number[]; violation: number; rounds: number; status: number | null; }  => solve({ ...base, ...patch }), message),
+      throwsError(
+        (): {
+          travel: number[];
+          violation: number;
+          rounds: number;
+          status: number | null;
+        } => solve({ ...base, ...patch }),
+        message,
+      ),
     );
     check(solve(base), [0, 0]);
   };

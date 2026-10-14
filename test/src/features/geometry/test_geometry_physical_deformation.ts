@@ -1,13 +1,17 @@
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
 import { mergeAutoMovieMeshes } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
 import { createMeshPhysicalPartitionMatcher } from "../../../../packages/engine/src/math/createMeshPhysicalPartitionMatcher";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
-import { TestValidator } from "@nestia/e2e";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
-import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 
 /**
  * Placement and deformation retain source identity and refuse separated aliases.
@@ -28,7 +32,9 @@ export function test_geometry_physical_deformation(): void {
     [0, 1, 2],
     [0, 1, 2, 0],
   );
-  const placed: IAutoMovieMesh = transformAutoMovieMesh(mesh, { scale: { x: -1, y: 2, z: 1 } });
+  const placed: IAutoMovieMesh = transformAutoMovieMesh(mesh, {
+    scale: { x: -1, y: 2, z: 1 },
+  });
   TestValidator.equals(
     "mirror preserves actual pairs",
     placed.physicalVertices,
@@ -47,7 +53,11 @@ export function test_geometry_physical_deformation(): void {
     mesh.physicalVertices!.vertices[0],
     0,
   );
-  const gridAliases: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 0.49e-9, 0, 0], [], [0, 0]);
+  const gridAliases: IAutoMovieMesh = createPhysicalMesh(
+    [0, 0, 0, 0.49e-9, 0, 0],
+    [],
+    [0, 0],
+  );
   TestValidator.equals(
     "supported alias grid before scale",
     resolveAutoMovieMeshPhysicalVertices(gridAliases).vertices,
@@ -55,12 +65,16 @@ export function test_geometry_physical_deformation(): void {
   );
   TestValidator.predicate(
     "scale must not split declared aliases",
-    throwsError((): IAutoMovieMesh  =>
-      transformAutoMovieMesh(gridAliases, { scale: { x: 10, y: 1, z: 1 } }),
+    throwsError(
+      (): IAutoMovieMesh =>
+        transformAutoMovieMesh(gridAliases, { scale: { x: 10, y: 1, z: 1 } }),
       ["physicalVertices", "aliases disagree"],
     ),
   );
-  const deform: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([
+  const deform: (
+    mesh: IAutoMovieMesh,
+    influence?: readonly IAutoMovieMeshDeformationInfluence[],
+  ) => IAutoMovieMesh = createAutoMovieMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
       radius: { x: 2, y: 2, z: 2 },
@@ -91,24 +105,34 @@ export function test_geometry_physical_deformation(): void {
     mesh.physicalVertices!.vertices[0],
     0,
   );
-  const influence: { weight: number; gradient: IAutoMovieVector3; }[] = Array.from({ length: 4 }, (): { weight: number; gradient: IAutoMovieVector3; }  => ({
-    weight: 1,
-    gradient: { x: 0, y: 0, z: 0 },
-  }));
+  const influence: { weight: number; gradient: IAutoMovieVector3 }[] =
+    Array.from(
+      { length: 4 },
+      (): { weight: number; gradient: IAutoMovieVector3 } => ({
+        weight: 1,
+        gradient: { x: 0, y: 0, z: 0 },
+      }),
+    );
   influence[3].weight = 0;
   TestValidator.predicate(
     "actual aliases cannot separate",
-    throwsError((): IAutoMovieMesh  => deform(mesh, influence), ["physicalVertices", "aliases disagree"]),
+    throwsError(
+      (): IAutoMovieMesh => deform(mesh, influence),
+      ["physicalVertices", "aliases disagree"],
+    ),
   );
   const legacy: IAutoMovieMesh = createPhysicalMesh(
     [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
     [0, 1, 2],
   );
   const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([mesh, legacy]);
-  const mask: { weight: number; gradient: IAutoMovieVector3; }[] = Array.from({ length: 8 }, (): { weight: number; gradient: IAutoMovieVector3; }  => ({
-    weight: 1,
-    gradient: { x: 0, y: 0, z: 0 },
-  }));
+  const mask: { weight: number; gradient: IAutoMovieVector3 }[] = Array.from(
+    { length: 8 },
+    (): { weight: number; gradient: IAutoMovieVector3 } => ({
+      weight: 1,
+      gradient: { x: 0, y: 0, z: 0 },
+    }),
+  );
   mask[7].weight = 0;
   const changed: IAutoMovieMesh = deform(mixed, mask);
   TestValidator.equals(
@@ -134,11 +158,14 @@ export function test_geometry_physical_deformation(): void {
   invalid.physicalVertices!.vertices[0] = -1;
   TestValidator.predicate(
     "transform refuses invalid metadata",
-    throwsError((): IAutoMovieMesh  => transformAutoMovieMesh(invalid, {}), "physicalVertices"),
+    throwsError(
+      (): IAutoMovieMesh => transformAutoMovieMesh(invalid, {}),
+      "physicalVertices",
+    ),
   );
   TestValidator.predicate(
     "deformer refuses invalid metadata",
-    throwsError((): IAutoMovieMesh  => deform(invalid), "physicalVertices"),
+    throwsError((): IAutoMovieMesh => deform(invalid), "physicalVertices"),
   );
   const collapsed: IAutoMovieMesh = createPhysicalMesh(
     [0, 0, 0, 0, 0, 0, 1, 0, 0],
@@ -147,6 +174,9 @@ export function test_geometry_physical_deformation(): void {
   );
   TestValidator.predicate(
     "source IDs do not excuse zero area",
-    throwsError((): IAutoMovieMesh  => deform(collapsed), "finite nonzero source and output area"),
+    throwsError(
+      (): IAutoMovieMesh => deform(collapsed),
+      "finite nonzero source and output area",
+    ),
   );
 }

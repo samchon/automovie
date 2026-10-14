@@ -1,9 +1,13 @@
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
+
 import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
 import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * Canonical contact metadata never grants a malformed or unrelated support.
@@ -27,14 +31,27 @@ export function test_geometry_attachment_admission(): void {
     uvs: null,
     skin: null,
   };
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh);
+  const query: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(mesh);
   const fan: IAutoMovieVector3[] = [
     { x: 0.5, y: 0.5, z: 0 },
     { x: 0.4, y: 0.5, z: 0.1 },
     { x: 0.6, y: 0.5, z: 0.1 },
   ];
-  const attachment: { triangle: number; weights: number[]; supports: number[]; } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
-  const options: () => { clearance: number; budget: { remaining: number; }; attachment: { triangle: number; weights: number[]; supports: number[]; }; } = (): { clearance: number; budget: { remaining: number; }; attachment: { triangle: number; weights: number[]; supports: number[]; }; }  => ({
+  const attachment: {
+    triangle: number;
+    weights: number[];
+    supports: number[];
+  } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
+  const options: () => {
+    clearance: number;
+    budget: { remaining: number };
+    attachment: { triangle: number; weights: number[]; supports: number[] };
+  } = (): {
+    clearance: number;
+    budget: { remaining: number };
+    attachment: { triangle: number; weights: number[]; supports: number[] };
+  } => ({
     clearance: 0,
     budget: { remaining: 1000 },
     attachment,
@@ -44,7 +61,11 @@ export function test_geometry_attachment_admission(): void {
     query(fan, options()).certified,
     true,
   );
-  const malformed: ({ weights: undefined; triangle: number; supports: number[]; } | { supports: undefined; triangle: number; weights: number[]; } | { supports: (number | undefined)[]; triangle: number; weights: number[]; })[] = [
+  const malformed: (
+    | { weights: undefined; triangle: number; supports: number[] }
+    | { supports: undefined; triangle: number; weights: number[] }
+    | { supports: (number | undefined)[]; triangle: number; weights: number[] }
+  )[] = [
     { ...attachment, triangle: 0.5 },
     { ...attachment, weights: undefined },
     { ...attachment, supports: undefined },
@@ -56,7 +77,7 @@ export function test_geometry_attachment_admission(): void {
     TestValidator.predicate(
       "malformed original contact metadata refuses",
       throwsError(
-        (): IAutoMovieMeshSeparationResult  =>
+        (): IAutoMovieMeshSeparationResult =>
           query(fan, {
             ...options(),
             attachment: invalid as unknown as typeof attachment,
@@ -66,19 +87,27 @@ export function test_geometry_attachment_admission(): void {
     );
   TestValidator.predicate(
     "canonical metadata requires an actual complete fan",
-    throwsError((): IAutoMovieMeshSeparationResult  => query(fan.slice(1), options()), "attachment"),
+    throwsError(
+      (): IAutoMovieMeshSeparationResult => query(fan.slice(1), options()),
+      "attachment",
+    ),
   );
-  const double: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery({
-    ...mesh,
-    positions: [...mesh.positions, 2, 2, 0],
-    indices: [0, 1, 2, 1, 3, 2],
-  });
+  const double: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery({
+      ...mesh,
+      positions: [...mesh.positions, 2, 2, 0],
+      indices: [0, 1, 2, 1, 3, 2],
+    });
   const edgeFan: IAutoMovieVector3[] = [
     { x: 1, y: 1, z: 0 },
     { x: 0.9, y: 1, z: 0.1 },
     { x: 1.1, y: 1, z: 0.1 },
   ];
-  const edgeAttachment: { triangle: number; weights: number[]; supports: number[]; } = {
+  const edgeAttachment: {
+    triangle: number;
+    weights: number[];
+    supports: number[];
+  } = {
     triangle: 0,
     weights: [0, 0.5, 0.5],
     supports: [0, 1],

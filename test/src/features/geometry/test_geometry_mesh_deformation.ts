@@ -1,10 +1,15 @@
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
-import { type IAutoMovieMesh, type IAutoMovieMeshDeformationField, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieMeshDeformationField,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
+import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 
 /**
  * Compact spatial fields move vertices and transform normals by their actual
@@ -36,12 +41,15 @@ export function test_geometry_mesh_deformation(): void {
   const mesh: IAutoMovieMesh = {
     positions: [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 0, 1, 0],
     indices: [0, 1, 4],
-    normals: Array.from({ length: 5 }, (): number[]  => [0, 0, 1]).flat(),
+    normals: Array.from({ length: 5 }, (): number[] => [0, 0, 1]).flat(),
     uvs: new Array(10).fill(0),
     skin: null,
   };
   const before: IAutoMovieMesh = structuredClone(mesh),
-    apply: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([field]);
+    apply: (
+      mesh: IAutoMovieMesh,
+      influence?: readonly IAutoMovieMeshDeformationInfluence[],
+    ) => IAutoMovieMesh = createAutoMovieMeshDeformer([field]);
   field.displacement.z = 100;
   const result: IAutoMovieMesh = apply(mesh),
     length: number = Math.hypot(27 / 32, 1);
@@ -58,25 +66,37 @@ export function test_geometry_mesh_deformation(): void {
       nclose(result.normals![4], 0) &&
       nclose(result.normals![5], 1 / length),
   );
-  TestValidator.predicate("input geometry retained", equalGeometryTestValues(mesh, before));
+  TestValidator.predicate(
+    "input geometry retained",
+    equalGeometryTestValues(mesh, before),
+  );
   const boundaries: number[] = [
     2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 2, 0, 0, -2, 1.6, 1.6, 0, 1.6,
     0, 1.6, 0, 1.6, 1.6,
   ];
-  TestValidator.predicate("support faces and exterior diagonals remain unchanged", equalGeometryTestValues(apply({
-      ...mesh,
-      positions: boundaries,
-      normals: null,
-      indices: null,
-      uvs: null,
-    }).positions, boundaries));
+  TestValidator.predicate(
+    "support faces and exterior diagonals remain unchanged",
+    equalGeometryTestValues(
+      apply({
+        ...mesh,
+        positions: boundaries,
+        normals: null,
+        indices: null,
+        uvs: null,
+      }).positions,
+      boundaries,
+    ),
+  );
   TestValidator.predicate(
     "attribute ownership retained",
     result.indices === mesh.indices &&
       result.uvs === mesh.uvs &&
       result.skin === mesh.skin,
   );
-  TestValidator.predicate("empty field geometry", equalGeometryTestValues(createAutoMovieMeshDeformer([])(mesh), mesh));
+  TestValidator.predicate(
+    "empty field geometry",
+    equalGeometryTestValues(createAutoMovieMeshDeformer([])(mesh), mesh),
+  );
   TestValidator.equals(
     "normal-free mesh",
     apply({ ...mesh, normals: null }).normals,
@@ -97,38 +117,61 @@ export function test_geometry_mesh_deformation(): void {
   ])
     TestValidator.predicate(
       "invalid field refused",
-      throwsError((): (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh  => createAutoMovieMeshDeformer([{ ...field, ...change }]), "finite vectors and strictly positive radii"),
+      throwsError(
+        (): ((
+          mesh: IAutoMovieMesh,
+          influence?: readonly IAutoMovieMeshDeformationInfluence[],
+        ) => IAutoMovieMesh) =>
+          createAutoMovieMeshDeformer([{ ...field, ...change }]),
+        "finite vectors and strictly positive radii",
+      ),
     );
   for (const stretch of [-2, -1])
     TestValidator.predicate(
       "orientation reversal refused",
-      throwsError((): IAutoMovieMesh  =>
-        createAutoMovieMeshDeformer([
-          { ...field, displacement: zero, stretch: { x: stretch, y: 0, z: 0 } },
-        ])(mesh),
-        "local surface orientation"),
+      throwsError(
+        (): IAutoMovieMesh =>
+          createAutoMovieMeshDeformer([
+            {
+              ...field,
+              displacement: zero,
+              stretch: { x: stretch, y: 0, z: 0 },
+            },
+          ])(mesh),
+        "local surface orientation",
+      ),
     );
   createAutoMovieMeshDeformer([
     { ...field, displacement: zero, stretch: { x: -0.99, y: 0, z: 0 } },
   ])(mesh);
   TestValidator.predicate(
     "overflowing Jacobian refused",
-    throwsError((): IAutoMovieMesh  =>
-      createAutoMovieMeshDeformer([
-        {
-          ...field,
-          stretch: {
-            x: Number.MAX_VALUE,
-            y: Number.MAX_VALUE,
-            z: Number.MAX_VALUE,
+    throwsError(
+      (): IAutoMovieMesh =>
+        createAutoMovieMeshDeformer([
+          {
+            ...field,
+            stretch: {
+              x: Number.MAX_VALUE,
+              y: Number.MAX_VALUE,
+              z: Number.MAX_VALUE,
+            },
           },
-        },
-      ])(mesh),
-      "local surface orientation"),
+        ])(mesh),
+      "local surface orientation",
+    ),
   );
-  const huge: { displacement: IAutoMovieVector3; center: IAutoMovieVector3; radius: IAutoMovieVector3; stretch: IAutoMovieVector3; } = { ...field, displacement: { x: 0, y: 0, z: Number.MAX_VALUE } };
+  const huge: {
+    displacement: IAutoMovieVector3;
+    center: IAutoMovieVector3;
+    radius: IAutoMovieVector3;
+    stretch: IAutoMovieVector3;
+  } = { ...field, displacement: { x: 0, y: 0, z: Number.MAX_VALUE } };
   TestValidator.predicate(
     "nonfinite accumulated displacement refused",
-    throwsError((): IAutoMovieMesh  => createAutoMovieMeshDeformer([huge, huge])(mesh), "local surface orientation"),
+    throwsError(
+      (): IAutoMovieMesh => createAutoMovieMeshDeformer([huge, huge])(mesh),
+      "local surface orientation",
+    ),
   );
 }

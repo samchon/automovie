@@ -1,11 +1,12 @@
+import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { mergeAutoMovieMeshes } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
-import { TestValidator } from "@nestia/e2e";
+import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Composition retains physical lineage and dynamically position-derived legacy.
@@ -95,13 +96,23 @@ export function test_geometry_physical_merge(): void {
   });
   TestValidator.predicate(
     "same point cannot occupy another placement",
-    throwsError((): IAutoMovieMesh  => mergeAutoMovieMeshes([a, placed]), ["physicalVertices", "aliases disagree"]),
+    throwsError(
+      (): IAutoMovieMesh => mergeAutoMovieMeshes([a, placed]),
+      ["physicalVertices", "aliases disagree"],
+    ),
   );
-  const malformed: IAutoMovieMesh = createPhysicalMesh(a.positions, a.indices, [11, 12, 13]);
+  const malformed: IAutoMovieMesh = createPhysicalMesh(
+    a.positions,
+    a.indices,
+    [11, 12, 13],
+  );
   malformed.physicalVertices!.vertices[0] = -1;
   TestValidator.predicate(
     "invalid operand not lost",
-    throwsError((): IAutoMovieMesh  => mergeAutoMovieMeshes([a, malformed]), "physicalVertices"),
+    throwsError(
+      (): IAutoMovieMesh => mergeAutoMovieMeshes([a, malformed]),
+      "physicalVertices",
+    ),
   );
   combined.physicalVertices!.sources[0].domain = "mutated-output";
   combined.physicalVertices!.vertices[0] = null;

@@ -1,12 +1,15 @@
-import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+
 import { type IAutoMovieMeshCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieMeshCrossing";
+import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { throwsError } from "../internal/throwsError";
 
 /** A mesh of one triangle from three hand-typed corners. */
-const blade: (corners: number[][]) => IAutoMovieMesh = (corners: number[][]): IAutoMovieMesh => ({
+const blade: (corners: number[][]) => IAutoMovieMesh = (
+  corners: number[][],
+): IAutoMovieMesh => ({
   positions: corners.flat(),
   indices: [0, 1, 2],
   normals: null,
@@ -195,7 +198,8 @@ export function test_geometry_mesh_crossings(): void {
     TestValidator.predicate(
       "malformed triangle buffers refuse",
       throwsError(
-        (): IAutoMovieMeshCrossing[]  => measureAutoMovieMeshCrossings(broken, through),
+        (): IAutoMovieMeshCrossing[] =>
+          measureAutoMovieMeshCrossings(broken, through),
         "complete triangle buffers",
       ),
     );

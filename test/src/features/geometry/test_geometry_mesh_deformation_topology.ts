@@ -1,11 +1,17 @@
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
-import { type IAutoMovieMesh, type IAutoMovieMeshDeformationField, type IAutoMovieMeshPhysicalVertices, type IAutoMovieMeshSkin } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieMeshDeformationField,
+  type IAutoMovieMeshPhysicalVertices,
+  type IAutoMovieMeshSkin,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 import { assertAutoMovieDeformedTriangles } from "../../../../packages/engine/src/geometry/assertAutoMovieDeformedTriangles";
+import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
 
 /**
  * Endpoint derivatives cannot certify the triangles connecting those endpoints.
@@ -40,7 +46,9 @@ export function test_geometry_mesh_deformation_topology(): void {
     uvs: null,
     skin: null,
   };
-  const field: (d: number) => IAutoMovieMeshDeformationField = (d: number): IAutoMovieMeshDeformationField => ({
+  const field: (d: number) => IAutoMovieMeshDeformationField = (
+    d: number,
+  ): IAutoMovieMeshDeformationField => ({
     center: { x: 0, y: 0, z: 0 },
     radius: { x: 0.25, y: 0.25, z: 0.25 },
     displacement: { x: d, y: d, z: 0 },
@@ -51,11 +59,17 @@ export function test_geometry_mesh_deformation_topology(): void {
     mesh,
     { ...mesh, indices: null },
     { ...mesh, normals: null },
-    { ...mesh, indices: [2, 1, 0], normals: mesh.normals!.map((v: number): number  => -v) },
+    {
+      ...mesh,
+      indices: [2, 1, 0],
+      normals: mesh.normals!.map((v: number): number => -v),
+    },
     // Shading normals do not own topological orientation.
-    { ...mesh, normals: mesh.normals!.map((v: number): number  => -v) },
+    { ...mesh, normals: mesh.normals!.map((v: number): number => -v) },
   ]) {
-    const result: IAutoMovieMesh = createAutoMovieMeshDeformer([field(0.2)])(variant);
+    const result: IAutoMovieMesh = createAutoMovieMeshDeformer([field(0.2)])(
+      variant,
+    );
     const p: number[] = result.positions;
     const twiceArea: number =
       (p[3] - p[0]) * (p[7] - p[1]) - (p[4] - p[1]) * (p[6] - p[0]);
@@ -66,10 +80,19 @@ export function test_geometry_mesh_deformation_topology(): void {
     for (const d of [0.5, 2])
       TestValidator.predicate(
         "endpoint-positive collapse and reversal refuse",
-        throwsError((): IAutoMovieMesh  => createAutoMovieMeshDeformer([field(d)])(variant), d === 0.5 ? "finite nonzero source and output area" : "opposes its transported surface orientation"),
+        throwsError(
+          (): IAutoMovieMesh =>
+            createAutoMovieMeshDeformer([field(d)])(variant),
+          d === 0.5
+            ? "finite nonzero source and output area"
+            : "opposes its transported surface orientation",
+        ),
       );
   }
-  TestValidator.predicate("failed deformation retains input", equalGeometryTestValues(mesh, before));
+  TestValidator.predicate(
+    "failed deformation retains input",
+    equalGeometryTestValues(mesh, before),
+  );
 
   const radius: number = 1000;
   const turn: IAutoMovieMeshDeformationField = {
@@ -85,10 +108,35 @@ export function test_geometry_mesh_deformation_topology(): void {
       turned.normals![2] < 0,
   );
 
-  const identity: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([]);
-  const tiny: { positions: number[]; physicalVertices?: IAutoMovieMeshPhysicalVertices; normals: number[] | null; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; indices: number[] | null; skin: IAutoMovieMeshSkin | null; } = { ...mesh, positions: mesh.positions.map((v: number): number  => v * 1e-80) };
-  TestValidator.predicate("no absolute area floor", equalGeometryTestValues(identity(tiny).positions, tiny.positions));
-  TestValidator.predicate("an explicit empty face population retains isolated samples", equalGeometryTestValues(createAutoMovieMeshDeformer([field(2)])({ ...mesh, indices: [] }).positions, [2, 2, 0, 1, 0, 0, 0, 1, 0]));
+  const identity: (
+    mesh: IAutoMovieMesh,
+    influence?: readonly IAutoMovieMeshDeformationInfluence[],
+  ) => IAutoMovieMesh = createAutoMovieMeshDeformer([]);
+  const tiny: {
+    positions: number[];
+    physicalVertices?: IAutoMovieMeshPhysicalVertices;
+    normals: number[] | null;
+    uvs: number[] | null;
+    colors?: number[];
+    reliefWeights?: number[];
+    indices: number[] | null;
+    skin: IAutoMovieMeshSkin | null;
+  } = {
+    ...mesh,
+    positions: mesh.positions.map((v: number): number => v * 1e-80),
+  };
+  TestValidator.predicate(
+    "no absolute area floor",
+    equalGeometryTestValues(identity(tiny).positions, tiny.positions),
+  );
+  TestValidator.predicate(
+    "an explicit empty face population retains isolated samples",
+    equalGeometryTestValues(
+      createAutoMovieMeshDeformer([field(2)])({ ...mesh, indices: [] })
+        .positions,
+      [2, 2, 0, 1, 0, 0, 0, 1, 0],
+    ),
+  );
   TestValidator.equals(
     "empty implicit triangle population",
     identity({
@@ -111,15 +159,21 @@ export function test_geometry_mesh_deformation_topology(): void {
     { ...mesh, normals: [NaN, ...mesh.normals!.slice(1)] },
     { ...mesh, indices: null, positions: [0, 0, 0] },
     { ...mesh, positions: [0, 0, 0, 1, 0, 0, 2, 0, 0] },
-    { ...mesh, positions: mesh.positions.map((v: number): number  => v * 1e200) },
+    {
+      ...mesh,
+      positions: mesh.positions.map((v: number): number => v * 1e200),
+    },
   ])
     TestValidator.predicate(
       "invalid resident triangles refuse",
-      throwsError((): IAutoMovieMesh  => identity(invalid), "Mesh deformation"),
+      throwsError((): IAutoMovieMesh => identity(invalid), "Mesh deformation"),
     );
   TestValidator.predicate(
     "finite vertices can still overflow the emitted area",
-    throwsError((): IAutoMovieMesh  => createAutoMovieMeshDeformer([field(1e308)])(mesh), "finite nonzero source and output area"),
+    throwsError(
+      (): IAutoMovieMesh => createAutoMovieMeshDeformer([field(1e308)])(mesh),
+      "finite nonzero source and output area",
+    ),
   );
 
   // Source normal (1, 1, 0) / sqrt(2): each transported component is about
@@ -128,24 +182,30 @@ export function test_geometry_mesh_deformation_topology(): void {
   const large: number[] = [1.5e308, 0.6e308, 0, 0.6e308, 1.5e308, 0, 0, 0, 1];
   TestValidator.predicate(
     "an overflowing transport norm keeps its corner's direction",
-    throwsError((): void  =>
-      assertAutoMovieDeformedTriangles(slanted, slanted, [0, 1, 2], [
-        large,
-        large,
-        large,
-      ]),
+    throwsError((): void =>
+      assertAutoMovieDeformedTriangles(
+        slanted,
+        slanted,
+        [0, 1, 2],
+        [large, large, large],
+      ),
     ) === false,
   );
   const identityCofactor: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   TestValidator.predicate(
     "a non-finite cofactor names the vertex it cannot transport through",
     throwsError(
-      (): void  =>
-        assertAutoMovieDeformedTriangles(slanted, slanted, [0, 1, 2], [
-          [Infinity, 0, 0, 0, 1, 0, 0, 0, 1],
-          identityCofactor,
-          identityCofactor,
-        ]),
+      (): void =>
+        assertAutoMovieDeformedTriangles(
+          slanted,
+          slanted,
+          [0, 1, 2],
+          [
+            [Infinity, 0, 0, 0, 1, 0, 0, 0, 1],
+            identityCofactor,
+            identityCofactor,
+          ],
+        ),
       "triangle 0 cannot transport its source orientation through vertex 0",
     ),
   );

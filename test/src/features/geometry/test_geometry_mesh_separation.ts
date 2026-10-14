@@ -1,9 +1,13 @@
-import { nclose } from "../internal/nclose";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
 import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { nclose } from "../internal/nclose";
 
 /**
  * A resident separation query qualifies complete features, retaining original
@@ -29,11 +33,19 @@ export function test_geometry_mesh_separation(): void {
     uvs: [],
     skin: null,
   };
-  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3  => ({ x, y, z });
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh);
-  const budget: { remaining: number; } = { remaining: 100 };
+  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    z: number,
+  ): IAutoMovieVector3 => ({ x, y, z });
+  const query: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(mesh);
+  const budget: { remaining: number } = { remaining: 100 };
   const above: IAutoMovieVector3[] = [p(0, 0, 1), p(2, 0, 1), p(0, 2, 1)];
-  const proved: IAutoMovieMeshSeparationResult = query(above, { clearance: 0.5, budget });
+  const proved: IAutoMovieMeshSeparationResult = query(above, {
+    clearance: 0.5,
+    budget,
+  });
   TestValidator.equals("whole face separated", proved.certified, true);
   TestValidator.equals(
     "box proof needs no limiting triangle",
@@ -41,7 +53,10 @@ export function test_geometry_mesh_separation(): void {
     -1,
   );
   TestValidator.equals("box work is spent", budget.remaining, 99);
-  const exact: IAutoMovieMeshSeparationResult = query(above, { clearance: 1, budget });
+  const exact: IAutoMovieMeshSeparationResult = query(above, {
+    clearance: 1,
+    budget,
+  });
   TestValidator.equals(
     "exact limit rounds conservatively",
     exact.certified,
@@ -52,11 +67,17 @@ export function test_geometry_mesh_separation(): void {
     exact.lowerBound < 1 && exact.lowerBound > 0.999999999999,
   );
   TestValidator.equals("original limiting ordinal", exact.triangle, 0);
-  const crossing: IAutoMovieMeshSeparationResult = query([p(0.5, 0.5, -1), p(0.5, 0.5, 1)], {
-    clearance: 0.1,
-    budget,
-  });
-  TestValidator.predicate("whole crossing segment", nclose(crossing.lowerBound, 0, 0));
+  const crossing: IAutoMovieMeshSeparationResult = query(
+    [p(0.5, 0.5, -1), p(0.5, 0.5, 1)],
+    {
+      clearance: 0.1,
+      budget,
+    },
+  );
+  TestValidator.predicate(
+    "whole crossing segment",
+    nclose(crossing.lowerBound, 0, 0),
+  );
   TestValidator.equals(
     "zero gap still requires strict separation",
     query(above, { clearance: 0, budget }).certified,
@@ -67,10 +88,13 @@ export function test_geometry_mesh_separation(): void {
     query([p(0, 0, 0)], { clearance: 0, budget }).certified,
     false,
   );
-  const fan: IAutoMovieMeshSeparationResult = query([p(0, 0, 0), p(0.5, 0.5, 1), p(1, 0.5, -1)], {
-    clearance: 0.1,
-    budget,
-  });
+  const fan: IAutoMovieMeshSeparationResult = query(
+    [p(0, 0, 0), p(0.5, 0.5, 1), p(1, 0.5, -1)],
+    {
+      clearance: 0.1,
+      budget,
+    },
+  );
   TestValidator.equals(
     "root contact cannot exempt crossing face",
     fan.certified,
@@ -83,11 +107,12 @@ export function test_geometry_mesh_separation(): void {
     query(above, { clearance: 0.5, budget }).certified,
     true,
   );
-  const collapsed: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery({
-    ...mesh,
-    positions: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    indices: [0, 1, 2],
-  });
+  const collapsed: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery({
+      ...mesh,
+      positions: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      indices: [0, 1, 2],
+    });
   TestValidator.equals(
     "collapsed resident face remains a point",
     collapsed([p(1, 0, 0)], { clearance: 0.5, budget }).certified,
@@ -105,10 +130,11 @@ export function test_geometry_mesh_separation(): void {
     population.positions.push(0, 0, z, 2, 0, z, 0, 2, z);
     population.indices!.push(3 * at, 3 * at + 1, 3 * at + 2);
   }
-  const multi: IAutoMovieMeshSeparationResult = createAutoMovieMeshSeparationQuery(population)(
-    [p(0.25, 0.25, 0.5)],
-    { clearance: 1, budget: { remaining: 100 } },
-  );
+  const multi: IAutoMovieMeshSeparationResult =
+    createAutoMovieMeshSeparationQuery(population)([p(0.25, 0.25, 0.5)], {
+      clearance: 1,
+      budget: { remaining: 100 },
+    });
   TestValidator.equals(
     "stable original ordinal after sorting",
     multi.triangle,
@@ -119,7 +145,7 @@ export function test_geometry_mesh_separation(): void {
     multi.lowerBound > 0.499999999999 && multi.lowerBound <= 0.5,
   );
   for (const remaining of [0, 1]) {
-    const short: { remaining: number; } = { remaining };
+    const short: { remaining: number } = { remaining };
     let refusal: string = "";
     try {
       query(above, { clearance: 1, budget: short });

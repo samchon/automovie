@@ -1,8 +1,9 @@
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
-import { TestValidator } from "@nestia/e2e";
 import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/engine/src/geometry/IAutoMovieMeshDeformationInfluence";
+import { createAutoMovieMeshDeformer } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDeformer";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /**
  * Stretching an XY triangle along X never changes its +Z normal. The normal's
@@ -19,7 +20,13 @@ import { type IAutoMovieMeshDeformationInfluence } from "../../../../packages/en
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls portable deformation source on its existing triangle records without a consumer install, native build, process, browser or GPU. It registers no extra tests or Human geometry cases.
  */
 export function test_geometry_mesh_deformation_normal_range(): void {
-  const mesh: { positions: number[]; indices: number[]; normals: number[]; uvs: null; skin: null; } = {
+  const mesh: {
+    positions: number[];
+    indices: number[];
+    normals: number[];
+    uvs: null;
+    skin: null;
+  } = {
     positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
     indices: [0, 1, 2],
     normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
@@ -27,7 +34,10 @@ export function test_geometry_mesh_deformation_normal_range(): void {
     skin: null,
   };
   for (const stretch of [1e150, 1e155]) {
-    const apply: (mesh: IAutoMovieMesh, influence?: readonly IAutoMovieMeshDeformationInfluence[]) => IAutoMovieMesh = createAutoMovieMeshDeformer([
+    const apply: (
+      mesh: IAutoMovieMesh,
+      influence?: readonly IAutoMovieMeshDeformationInfluence[],
+    ) => IAutoMovieMesh = createAutoMovieMeshDeformer([
       {
         center: { x: 0, y: 0, z: 0 },
         radius: { x: 1e160, y: 1e160, z: 1e160 },
@@ -36,7 +46,10 @@ export function test_geometry_mesh_deformation_normal_range(): void {
       },
     ]);
     const result: IAutoMovieMesh = apply(mesh);
-    TestValidator.predicate("finite cofactor retains unit direction", equalGeometryTestValues(result.normals, mesh.normals));
+    TestValidator.predicate(
+      "finite cofactor retains unit direction",
+      equalGeometryTestValues(result.normals, mesh.normals),
+    );
     TestValidator.predicate(
       "extreme geometry remains finite",
       result.positions.every(Number.isFinite),

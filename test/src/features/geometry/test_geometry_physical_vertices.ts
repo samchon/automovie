@@ -1,8 +1,8 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
-import { TestValidator } from "@nestia/e2e";
 import { type IAutoMovieMesh } from "@automovie/interface";
-import { type IAutoMovieResolvedPhysicalVertices } from "../../../../packages/engine/src/math/IAutoMovieResolvedPhysicalVertices";
+import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieResolvedPhysicalVertices } from "../../../../packages/engine/src/math/IAutoMovieResolvedPhysicalVertices";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 
 /**
@@ -36,7 +36,8 @@ export function test_geometry_physical_vertices(): void {
     [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 7, 7],
   );
   mesh.physicalVertices!.sources[3].domain = "another-instance";
-  const first: IAutoMovieResolvedPhysicalVertices = resolveAutoMovieMeshPhysicalVertices(mesh);
+  const first: IAutoMovieResolvedPhysicalVertices =
+    resolveAutoMovieMeshPhysicalVertices(mesh);
   TestValidator.equals(
     "actual alias and contact",
     first.vertices,
@@ -54,7 +55,11 @@ export function test_geometry_physical_vertices(): void {
     resolveAutoMovieMeshPhysicalVertices(mesh).vertices,
     [0, 1, 1, 2],
   );
-  const pairs: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 0, 0, 0], [], [23, 3]);
+  const pairs: IAutoMovieMesh = createPhysicalMesh(
+    [0, 0, 0, 0, 0, 0],
+    [],
+    [23, 3],
+  );
   pairs.physicalVertices!.sources[0].domain = "instance/1";
   pairs.physicalVertices!.sources[1].domain = "instance/12";
   TestValidator.equals(

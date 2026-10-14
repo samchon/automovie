@@ -1,8 +1,9 @@
-import { nclose } from "../internal/nclose";
+import { type IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { boundAutoMovieConvexSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieProjectionSeparation";
-import { TestValidator } from "@nestia/e2e";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import { nclose } from "../internal/nclose";
 
 /**
  * Complete convex-feature projections cannot mistake positive corners for a
@@ -21,11 +22,24 @@ import { type IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/testing.md#execution-ownership The named entry directly executes portable projection source on the existing authored vectors, with an ordinary work-count callback. It starts no process, browser, GPU or native build and dynamically registers no cases; the numeric bounds do not certify rendered geometry.
  */
 export function test_geometry_convex_separation(): void {
-  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3  => ({ x, y, z });
+  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    z: number,
+  ): IAutoMovieVector3 => ({ x, y, z });
   const a: IAutoMovieVector3[] = [p(0, 0, 0), p(2, 0, 0), p(0, 2, 0)];
   const parallel: IAutoMovieVector3[] = [p(0, 0, 1), p(2, 0, 1), p(0, 2, 1)];
-  const check: (name: string, low: number, exact: number) => void = (name: string, low: number, exact: number): void =>
-    TestValidator.predicate(name, nclose(low, exact, exact * 1e-12) && low <= exact && low > exact * (1 - 1e-12));
+  const check: (name: string, low: number, exact: number) => void = (
+    name: string,
+    low: number,
+    exact: number,
+  ): void =>
+    TestValidator.predicate(
+      name,
+      nclose(low, exact, exact * 1e-12) &&
+        low <= exact &&
+        low > exact * (1 - 1e-12),
+    );
   check("parallel faces", boundAutoMovieConvexSeparation(a, parallel), 1);
   check(
     "early sufficient face bound",
@@ -33,8 +47,14 @@ export function test_geometry_convex_separation(): void {
     1,
   );
   for (const scale of [1e-6, 1, 1e6]) {
-    const first: IAutoMovieVector3[] = [p(-5 * scale, 0, 0), p(5 * scale, 0, 0)];
-    const second: IAutoMovieVector3[] = [p(0, -5 * scale, scale), p(0, 5 * scale, scale)];
+    const first: IAutoMovieVector3[] = [
+      p(-5 * scale, 0, 0),
+      p(5 * scale, 0, 0),
+    ];
+    const second: IAutoMovieVector3[] = [
+      p(0, -5 * scale, scale),
+      p(0, 5 * scale, scale),
+    ];
     check(
       "interior segment gap",
       boundAutoMovieConvexSeparation(first, second),
@@ -54,7 +74,10 @@ export function test_geometry_convex_separation(): void {
     [p(0, 0, 0)],
     [p(0.5, 0.5, -1), p(0.5, 0.5, 1), p(2, 2, 1)],
   ])
-    TestValidator.predicate("inclusive contact/intersection unresolved", nclose(boundAutoMovieConvexSeparation(a, other), 0, 0));
+    TestValidator.predicate(
+      "inclusive contact/intersection unresolved",
+      nclose(boundAutoMovieConvexSeparation(a, other), 0, 0),
+    );
   check(
     "points",
     boundAutoMovieConvexSeparation([p(0, 0, 0)], [p(3, 4, 0)]),
@@ -72,14 +95,20 @@ export function test_geometry_convex_separation(): void {
     "coplanar disjoint triangles",
     boundAutoMovieConvexSeparation(
       a,
-      a.map((v: IAutoMovieVector3): IAutoMovieVector3  => p(v.x + 3, v.y, v.z)),
+      a.map((v: IAutoMovieVector3): IAutoMovieVector3 => p(v.x + 3, v.y, v.z)),
     ),
     1,
   );
-  const cube: IAutoMovieVector3[] = [-1, 1].flatMap((x: number): IAutoMovieVector3[]  =>
-    [-1, 1].flatMap((y: number): IAutoMovieVector3[]  => [-1, 1].map((z: number): IAutoMovieVector3  => p(x, y, z))),
+  const cube: IAutoMovieVector3[] = [-1, 1].flatMap(
+    (x: number): IAutoMovieVector3[] =>
+      [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
+        [-1, 1].map((z: number): IAutoMovieVector3 => p(x, y, z)),
+      ),
   );
-  TestValidator.predicate("interior point cannot separate from complete convex cell", nclose(boundAutoMovieConvexSeparation(cube, [p(0, 0, 0)]), 0, 0));
+  TestValidator.predicate(
+    "interior point cannot separate from complete convex cell",
+    nclose(boundAutoMovieConvexSeparation(cube, [p(0, 0, 0)]), 0, 0),
+  );
   check(
     "convex cell face gap",
     boundAutoMovieConvexSeparation(cube, [p(0, 0, 3)]),
@@ -92,25 +121,35 @@ export function test_geometry_convex_separation(): void {
       [p(-5e-6, 0, 0), p(5e-6, 0, 0)],
       [p(0, -5e-6, 1e-6), p(0, 5e-6, 1e-6)],
       0.5e-6,
-      (): void  => {
+      (): void => {
         work++;
       },
     ),
     1e-6,
   );
   TestValidator.predicate("axis and pair calculations spend work", work >= 3);
-  const shift: (v: ReturnType<(x: number, y: number, z: number) => IAutoMovieVector3>) => IAutoMovieVector3 = (v: ReturnType<typeof p>): IAutoMovieVector3  => p(v.x + 16, v.y - 8, v.z + 32);
+  const shift: (
+    v: ReturnType<(x: number, y: number, z: number) => IAutoMovieVector3>,
+  ) => IAutoMovieVector3 = (v: ReturnType<typeof p>): IAutoMovieVector3 =>
+    p(v.x + 16, v.y - 8, v.z + 32);
   check(
     "translated faces",
     boundAutoMovieConvexSeparation(a.map(shift), parallel.map(shift)),
     1,
   );
-  const f32: IAutoMovieVector3[] = parallel.map((v: IAutoMovieVector3): IAutoMovieVector3  =>
-    p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
+  const f32: IAutoMovieVector3[] = parallel.map(
+    (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
   );
   check("represented Float32 faces", boundAutoMovieConvexSeparation(a, f32), 1);
-  TestValidator.predicate("zero direction proves nothing", nclose(boundAutoMovieProjectionSeparation(a, parallel, p(0, 0, 0)), 0, 0));
-  TestValidator.predicate("wrong direction cannot create a gap", nclose(boundAutoMovieProjectionSeparation(a, parallel, p(1, 0, 0)), 0, 0));
+  TestValidator.predicate(
+    "zero direction proves nothing",
+    nclose(boundAutoMovieProjectionSeparation(a, parallel, p(0, 0, 0)), 0, 0),
+  );
+  TestValidator.predicate(
+    "wrong direction cannot create a gap",
+    nclose(boundAutoMovieProjectionSeparation(a, parallel, p(1, 0, 0)), 0, 0),
+  );
   TestValidator.predicate(
     "target zero remains a lower bound",
     boundAutoMovieConvexSeparation(a, parallel, 0) <= 1,

@@ -1,14 +1,18 @@
-import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { interpolateAutoMovieTrianglePoint } from "../../../../packages/engine/src/math/interpolateAutoMovieTrianglePoint";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
-import { vclose } from "../internal/vclose";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+
 import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
 import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
 import { type IAutoMovieTriangleAttachmentContactBound } from "../../../../packages/engine/src/geometry/IAutoMovieTriangleAttachmentContactBound";
+import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { interpolateAutoMovieTrianglePoint } from "../../../../packages/engine/src/math/interpolateAutoMovieTrianglePoint";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
 /**
  * A non-axis-aligned plane's rounded vertices and rounded canonical seat differ.
@@ -33,20 +37,26 @@ export function test_geometry_attachment_representation(): void {
     { x: 0.2, y: 0.7, z: 0.1 },
   ];
   const weights: number[] = [0.25, 0.5, 0.25];
-  const root: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(support, weights);
+  const root: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(
+    support,
+    weights,
+  );
   TestValidator.predicate(
     "independent weighted plane seat",
     vclose(root, { x: 0.375, y: 0.375, z: 0.25 }, 1e-15),
   );
-  const rounded: IAutoMovieVector3[] = support.map((p: IAutoMovieVector3): IAutoMovieVector3  => ({
-    x: Math.fround(p.x),
-    y: Math.fround(p.y),
-    z: Math.fround(p.z),
-  }));
+  const rounded: IAutoMovieVector3[] = support.map(
+    (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: Math.fround(p.x),
+      y: Math.fround(p.y),
+      z: Math.fround(p.z),
+    }),
+  );
   // Solve the support's affine z(x,y) in the XY plane, independently of the
   // projection/cap owner and of its approximate normal direction.
   const [a, b, c]: IAutoMovieVector3[] = rounded;
-  const determinant: number = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+  const determinant: number =
+    (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
   const u: number =
     ((root.x - a.x) * (c.y - a.y) - (c.x - a.x) * (root.y - a.y)) / determinant;
   const v: number =
@@ -57,32 +67,47 @@ export function test_geometry_attachment_representation(): void {
     height > root.z,
   );
   const mesh: IAutoMovieMesh = {
-    positions: support.flatMap((p: IAutoMovieVector3): number[]  => [p.x, p.y, p.z]),
+    positions: support.flatMap((p: IAutoMovieVector3): number[] => [
+      p.x,
+      p.y,
+      p.z,
+    ]),
     indices: [0, 1, 2],
     normals: [],
     uvs: [],
     skin: null,
   };
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh, "float32");
-  const attachment: { triangle: number; weights: number[]; supports: number[]; } = { triangle: 0, weights, supports: [0] };
+  const query: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(mesh, "float32");
+  const attachment: {
+    triangle: number;
+    weights: number[];
+    supports: number[];
+  } = { triangle: 0, weights, supports: [0] };
   const caps: number[] = [];
   for (const rise of [0.01, 1e-6]) {
     const fan: IAutoMovieVector3[] = [
       root,
       { x: root.x + 0.01, y: root.y - 0.01, z: root.z + rise },
       { x: root.x + 0.0101, y: root.y - 0.0101, z: root.z + rise },
-    ].map((p: IAutoMovieVector3): IAutoMovieVector3  => ({
-      x: Math.fround(p.x),
-      y: Math.fround(p.y),
-      z: Math.fround(p.z),
-    }));
+    ].map(
+      (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: Math.fround(p.x),
+        y: Math.fround(p.y),
+        z: Math.fround(p.z),
+      }),
+    );
     const before: unknown = structuredClone({
       fan,
       attachment,
       positions: mesh.positions,
     });
-    const budget: { remaining: number; } = { remaining: 1000 };
-    const result: IAutoMovieMeshSeparationResult = query(fan, { clearance: 0, budget, attachment });
+    const budget: { remaining: number } = { remaining: 1000 };
+    const result: IAutoMovieMeshSeparationResult = query(fan, {
+      clearance: 0,
+      budget,
+      attachment,
+    });
     TestValidator.equals(
       "complete registered rounded fan contact",
       result.certified,
@@ -90,7 +115,10 @@ export function test_geometry_attachment_representation(): void {
     );
     TestValidator.predicate(
       "caller inputs/metadata stay unchanged",
-      equalGeometryTestValues({ fan, attachment, positions: mesh.positions }, before),
+      equalGeometryTestValues(
+        { fan, attachment, positions: mesh.positions },
+        before,
+      ),
     );
     TestValidator.predicate(
       "caller work is consumed without reset",
@@ -116,14 +144,15 @@ export function test_geometry_attachment_representation(): void {
     TestValidator.predicate(
       "attachment primitive requires complete finite coordinates",
       throwsError(
-        (): IAutoMovieTriangleAttachmentContactBound  => boundAutoMovieTriangleAttachmentContact(badFan, badSupport),
+        (): IAutoMovieTriangleAttachmentContactBound =>
+          boundAutoMovieTriangleAttachmentContact(badFan, badSupport),
         "complete finite",
       ),
     );
   TestValidator.predicate(
     "overflowed support differences refuse",
     throwsError(
-      (): IAutoMovieTriangleAttachmentContactBound  =>
+      (): IAutoMovieTriangleAttachmentContactBound =>
         boundAutoMovieTriangleAttachmentContact(fan, [
           { x: -Number.MAX_VALUE, y: 0, z: 0 },
           { x: Number.MAX_VALUE, y: 0, z: 0 },

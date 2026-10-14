@@ -1,11 +1,17 @@
-import { nclose } from "../internal/nclose";
-import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMesh, type IAutoMovieMeshPhysicalVertices, type IAutoMovieMeshSkin, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieMeshPhysicalVertices,
+  type IAutoMovieMeshSkin,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
+
 import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
 import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
+import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * A root contact qualifies only its original support manifold; a second host
@@ -23,7 +29,11 @@ import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine
  * @evidence contracts/testing.md#execution-ownership The named entry calls portable geometry source with existing synthetic vectors and buffers, observing output and exception names without a browser, GPU, host process or native build. No Human asset, new geometry case or dynamically registered test is introduced.
  */
 export function test_geometry_attachment_contact(): void {
-  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3  => ({ x, y, z });
+  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    z: number,
+  ): IAutoMovieVector3 => ({ x, y, z });
   const mesh: IAutoMovieMesh = {
     positions: [0, 0, 0, 2, 0, 0, 0, 2, 0],
     indices: [0, 1, 2],
@@ -31,22 +41,36 @@ export function test_geometry_attachment_contact(): void {
     uvs: [],
     skin: null,
   };
-  const fan: IAutoMovieVector3[] = [p(0.5, 0.5, 0), p(0.4, 0.5, 0.1), p(0.6, 0.5, 0.1)];
-  const attachment: { triangle: number; weights: number[]; supports: number[]; } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
+  const fan: IAutoMovieVector3[] = [
+    p(0.5, 0.5, 0),
+    p(0.4, 0.5, 0.1),
+    p(0.6, 0.5, 0.1),
+  ];
+  const attachment: {
+    triangle: number;
+    weights: number[];
+    supports: number[];
+  } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
   for (const mode of ["source", "float32"] as const) {
-    const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh, mode);
+    const query: IAutoMovieMeshSeparationQuery =
+      createAutoMovieMeshSeparationQuery(mesh, mode);
     const points: IAutoMovieVector3[] =
       mode === "source"
         ? fan
-        : fan.map((v: IAutoMovieVector3): IAutoMovieVector3  =>
-            p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
+        : fan.map(
+            (v: IAutoMovieVector3): IAutoMovieVector3 =>
+              p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
           );
     const result: IAutoMovieMeshSeparationResult = query(points, {
       clearance: 0,
       budget: { remaining: 100 },
       attachment,
     });
-    TestValidator.equals("bounded complete registered fan contact", result.certified, true);
+    TestValidator.equals(
+      "bounded complete registered fan contact",
+      result.certified,
+      true,
+    );
     TestValidator.predicate(
       "attachment never reports positive global gap",
       nclose(result.lowerBound, 0, 0),
@@ -59,7 +83,7 @@ export function test_geometry_attachment_contact(): void {
     TestValidator.predicate(
       "root authority mismatch refuses",
       throwsError(
-        (): IAutoMovieMeshSeparationResult  =>
+        (): IAutoMovieMeshSeparationResult =>
           query([{ ...points[0], z: 0.01 }, ...points.slice(1)], {
             clearance: 0,
             budget: { remaining: 100 },
@@ -69,7 +93,16 @@ export function test_geometry_attachment_contact(): void {
       ),
     );
   }
-  const obstacle: { positions: number[]; indices: number[]; physicalVertices?: IAutoMovieMeshPhysicalVertices; normals: number[] | null; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; skin: IAutoMovieMeshSkin | null; } = {
+  const obstacle: {
+    positions: number[];
+    indices: number[];
+    physicalVertices?: IAutoMovieMeshPhysicalVertices;
+    normals: number[] | null;
+    uvs: number[] | null;
+    colors?: number[];
+    reliefWeights?: number[];
+    skin: IAutoMovieMeshSkin | null;
+  } = {
     ...mesh,
     positions: [
       ...mesh.positions,
@@ -85,7 +118,8 @@ export function test_geometry_attachment_contact(): void {
     ],
     indices: [0, 1, 2, 3, 4, 5],
   };
-  const obstructed: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(obstacle);
+  const obstructed: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(obstacle);
   TestValidator.equals(
     "another host piercing cannot hide behind root0",
     obstructed(fan, { clearance: 0, budget: { remaining: 1000 }, attachment })
@@ -95,7 +129,7 @@ export function test_geometry_attachment_contact(): void {
   TestValidator.predicate(
     "unrelated support metadata refuses",
     throwsError(
-      (): IAutoMovieMeshSeparationResult  =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0,
           budget: { remaining: 1000 },
@@ -112,7 +146,7 @@ export function test_geometry_attachment_contact(): void {
     TestValidator.predicate(
       "malformed attachment admission",
       throwsError(
-        (): IAutoMovieMeshSeparationResult  =>
+        (): IAutoMovieMeshSeparationResult =>
           obstructed(fan, {
             clearance: 0,
             budget: { remaining: 1000 },
@@ -124,7 +158,7 @@ export function test_geometry_attachment_contact(): void {
   TestValidator.predicate(
     "positive gap cannot authorize root contact",
     throwsError(
-      (): IAutoMovieMeshSeparationResult  =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0.1,
           budget: { remaining: 1000 },
@@ -136,7 +170,7 @@ export function test_geometry_attachment_contact(): void {
   TestValidator.predicate(
     "invalid weights keep seating admission",
     throwsError(
-      (): IAutoMovieMeshSeparationResult  =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0,
           budget: { remaining: 1000 },
@@ -153,11 +187,12 @@ export function test_geometry_attachment_contact(): void {
       boundAutoMovieTriangleAttachmentContact(invalidFan, support).proved,
       false,
     );
-    const unproved: IAutoMovieMeshSeparationResult = createAutoMovieMeshSeparationQuery(mesh)(invalidFan, {
-      clearance: 0,
-      budget: { remaining: 1000 },
-      attachment,
-    });
+    const unproved: IAutoMovieMeshSeparationResult =
+      createAutoMovieMeshSeparationQuery(mesh)(invalidFan, {
+        clearance: 0,
+        budget: { remaining: 1000 },
+        attachment,
+      });
     TestValidator.equals(
       "resident fan cannot admit an unproved cap",
       unproved.certified,
@@ -168,7 +203,10 @@ export function test_geometry_attachment_contact(): void {
       unproved.triangle,
       0,
     );
-    TestValidator.predicate("unproved attachment reports no positive bound", nclose(unproved.lowerBound, 0, 0));
+    TestValidator.predicate(
+      "unproved attachment reports no positive bound",
+      nclose(unproved.lowerBound, 0, 0),
+    );
   }
   TestValidator.equals(
     "collapsed support proof false",

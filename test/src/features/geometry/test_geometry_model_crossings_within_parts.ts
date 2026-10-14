@@ -1,10 +1,49 @@
-import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
 import { type IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieModelCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieModelCrossing";
+import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
 
 /** A model part holding the given hand-typed triangles as one mesh. */
-const part: (id: string, triangles: number[][][]) => { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; } = (id: string, triangles: number[][][]): { id: string; name: string; material: string; geometry: { type: "mesh"; mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; }; }; attachedBone: null; transform: null; }  => ({
+const part: (
+  id: string,
+  triangles: number[][][],
+) => {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} = (
+  id: string,
+  triangles: number[][][],
+): {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} => ({
   id,
   name: id,
   material: "skin",
@@ -12,7 +51,11 @@ const part: (id: string, triangles: number[][][]) => { id: string; name: string;
     type: "mesh" as const,
     mesh: {
       positions: triangles.flat(2),
-      indices: triangles.flatMap((_: number[][], t: number): number[]  => [t * 3, t * 3 + 1, t * 3 + 2]),
+      indices: triangles.flatMap((_: number[][], t: number): number[] => [
+        t * 3,
+        t * 3 + 1,
+        t * 3 + 2,
+      ]),
       normals: null,
       uvs: null,
       skin: null,
@@ -22,7 +65,9 @@ const part: (id: string, triangles: number[][][]) => { id: string; name: string;
   transform: null,
 });
 
-const model: (parts: ReturnType<typeof part>[]) => IAutoMovieModel = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
+const model: (parts: ReturnType<typeof part>[]) => IAutoMovieModel = (
+  parts: ReturnType<typeof part>[],
+): IAutoMovieModel => ({
   id: "within",
   name: "within",
   origin: "imported",
@@ -137,7 +182,7 @@ export function test_geometry_model_crossings_within_parts(): void {
     measureAutoMovieModelCrossings(
       model([part("skin", [floor, blade]), part("other", [blade])]),
       { withinParts: true },
-    ).map((one: IAutoMovieModelCrossing): string[]  => [one.part, one.other]),
+    ).map((one: IAutoMovieModelCrossing): string[] => [one.part, one.other]),
     [
       ["skin", "skin"],
       ["skin", "other"],

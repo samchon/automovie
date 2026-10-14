@@ -1,6 +1,7 @@
-import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
 import { throwsError } from "../internal/throwsError";
 
 const surface: IAutoMovieMesh = {
@@ -11,7 +12,10 @@ const surface: IAutoMovieMesh = {
   skin: null,
 };
 /** A vertical blade whose near endpoint and face edge can be varied alone. */
-const blade: (y: number, lowZ: number) => IAutoMovieMesh = (y: number, lowZ: number): IAutoMovieMesh => ({
+const blade: (y: number, lowZ: number) => IAutoMovieMesh = (
+  y: number,
+  lowZ: number,
+): IAutoMovieMesh => ({
   positions: [0.25, y, lowZ, 0.25, y, 1, 0.75, y, 1],
   indices: [0, 1, 2],
   normals: null,
@@ -78,10 +82,14 @@ export function test_geometry_mesh_crossings_ulp_boundary(): void {
     measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-13)),
   );
   for (const tolerance of [-1, 0.5, Number.NaN])
-    TestValidator.predicate(`invalid tolerance ${tolerance} refuses`, throwsError(
-      (): ReturnType<typeof measureAutoMovieMeshCrossings> => measureAutoMovieMeshCrossings(surface, blade(0.25, -1), {
-        interiorTolerance: tolerance,
-      }),
-      "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
-    ));
+    TestValidator.predicate(
+      `invalid tolerance ${tolerance} refuses`,
+      throwsError(
+        (): ReturnType<typeof measureAutoMovieMeshCrossings> =>
+          measureAutoMovieMeshCrossings(surface, blade(0.25, -1), {
+            interiorTolerance: tolerance,
+          }),
+        "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
+      ),
+    );
 }
